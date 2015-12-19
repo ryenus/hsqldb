@@ -88,6 +88,7 @@ import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.BlobInputStream;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.ClobInputStream;
+import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
@@ -257,7 +258,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.3.4
  * @since 1.7.2
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
@@ -1725,12 +1726,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         Type     outType    = parameterTypes[i];
         long     millis     = x.getTime();
+        long     seconds;
         int      zoneOffset = 0;
         Calendar calendar   = cal == null ? session.getCalendar()
                 : cal;
 
         millis = HsqlDateTime.convertMillisFromCalendar(calendar, millis);
-
         switch (outType.typeCode) {
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
@@ -1738,7 +1739,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             // fall through
             case Types.SQL_TIMESTAMP :
-                parameterValues[i] = new TimestampData(millis / 1000,
+                seconds    = millis / 1000;
+                if (seconds < DateTimeType.epochSeconds
+                    || seconds > DateTimeType.limitSeconds) {
+                    throw Error.error(ErrorCode.X_22008);
+                }
+                parameterValues[i] = new TimestampData(seconds,
                         x.getNanos(), zoneOffset / 1000);
 
                 break;
@@ -1749,6 +1755,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 break;
             case Types.SQL_TIME_WITH_TIME_ZONE :
+                millis = HsqlDateTime.getNormalisedTime(millis);
                 zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
                 parameterValues[i] = new TimeData((int) (millis / 1000),
                         x.getNanos(), zoneOffset / 1000);
@@ -1756,7 +1763,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 break;
             case Types.SQL_DATE :
                 millis             = HsqlDateTime.getNormalisedDate(millis);
-                parameterValues[i] = new TimestampData(millis / 1000);
+                seconds    = millis / 1000;
+
+                if (seconds < DateTimeType.epochSeconds
+                    || seconds > DateTimeType.limitSeconds) {
+                    throw Error.error(ErrorCode.X_22008);
+                }
+
+                parameterValues[i] = new TimestampData(seconds);
 
                 break;
             default :
