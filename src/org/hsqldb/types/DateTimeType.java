@@ -50,7 +50,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.4
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -61,6 +61,8 @@ public final class DateTimeType extends DTIType {
         HsqlDateTime.getDateSeconds("1-01-01");
     public static final TimestampData epochTimestamp =
         new TimestampData(epochSeconds);
+    public static final long limitSeconds =
+        HsqlDateTime.getDateSeconds("10000-01-01");
 
     public DateTimeType(int typeGroup, int type, int scale) {
 
@@ -788,12 +790,18 @@ public final class DateTimeType extends DTIType {
 
                 if (a instanceof java.util.Date) {
                     long millis;
+                    long seconds;
 
                     millis = HsqlDateTime.convertMillisFromCalendar(
                         session.getCalendar(), ((java.util.Date) a).getTime());
-                    millis = HsqlDateTime.getNormalisedDate(millis);
+                    millis  = HsqlDateTime.getNormalisedDate(millis);
+                    seconds = millis / 1000;
 
-                    return new TimestampData(millis / 1000);
+                    if (seconds < epochSeconds || seconds > limitSeconds) {
+                        throw Error.error(ErrorCode.X_22008);
+                    }
+
+                    return new TimestampData(seconds);
                 }
 
                 break;
@@ -806,6 +814,7 @@ public final class DateTimeType extends DTIType {
 
                 if (a instanceof java.util.Date) {
                     long millis;
+                    long seconds;
                     int  nanos       = 0;
                     int  zoneSeconds = 0;
 
@@ -825,8 +834,13 @@ public final class DateTimeType extends DTIType {
                         nanos = this.normaliseFraction(nanos, scale);
                     }
 
-                    return new TimestampData(millis / 1000, nanos,
-                                             zoneSeconds);
+                    seconds = millis / 1000;
+
+                    if (seconds < epochSeconds || seconds > limitSeconds) {
+                        throw Error.error(ErrorCode.X_22008);
+                    }
+
+                    return new TimestampData(seconds, nanos, zoneSeconds);
                 }
 
                 break;
