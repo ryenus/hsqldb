@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.map.ValuePool;
  * Type subclass for all NUMBER types.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public final class NumberType extends Type {
@@ -1364,11 +1364,23 @@ public final class NumberType extends Type {
 
     public int compareToTypeRange(Object o) {
 
-        if (!(o instanceof Number)) {
-            return 0;
-        }
+        boolean isComparable;
 
         if (o instanceof Integer || o instanceof Long) {
+            isComparable = true;
+        } else if (o instanceof BigDecimal) {
+            int compare = compareToLongLimits((BigDecimal) o);
+
+            if (compare != 0) {
+                return compare;
+            }
+
+            isComparable = true;
+        } else {
+            isComparable = false;
+        }
+
+        if (isComparable) {
             long temp = ((Number) o).longValue();
             int  min;
             int  max;
@@ -1900,14 +1912,26 @@ public final class NumberType extends Type {
         return value.movePointRight(scale).longValue();
     }
 
-    public static boolean isInLongLimits(BigDecimal result) {
-        return NumberType.MIN_LONG.compareTo(result) <= 0
-               && NumberType.MAX_LONG.compareTo(result) >= 0;
+    public static int compareToLongLimits(BigDecimal result) {
+
+        if (NumberType.MIN_LONG.compareTo(result) > 0) {
+            return -1;
+        } else if (NumberType.MAX_LONG.compareTo(result) < 0) {
+            return 1;
+        }
+
+        return 0;
     }
 
-    public static boolean isInLongLimits(BigInteger result) {
-        return NumberType.MIN_LONG_BI.compareTo(result) <= 0
-               && NumberType.MAX_LONG_BI.compareTo(result) >= 0;
+    public static int compareToLongLimits(BigInteger result) {
+
+        if (NumberType.MIN_LONG_BI.compareTo(result) > 0) {
+            return -1;
+        } else if (NumberType.MAX_LONG_BI.compareTo(result) < 0) {
+            return 1;
+        }
+
+        return 0;
     }
 
     public Object ceiling(Object a) {

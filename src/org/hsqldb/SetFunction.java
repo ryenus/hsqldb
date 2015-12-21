@@ -349,7 +349,7 @@ public class SetFunction implements Serializable {
                         BigInteger bi =
                             getLongSum().divide(BigInteger.valueOf(count));
 
-                        if (!NumberType.isInLongLimits(bi)) {
+                        if (NumberType.compareToLongLimits(bi) != 0) {
                             throw Error.error(ErrorCode.X_22015);
                         }
 
@@ -369,7 +369,7 @@ public class SetFunction implements Serializable {
                         BigInteger bi =
                             getLongSum().divide(BigInteger.valueOf(count));
 
-                        if (!NumberType.isInLongLimits(bi)) {
+                        if (NumberType.compareToLongLimits(bi) != 0) {
                             throw Error.error(ErrorCode.X_22015);
                         }
 
@@ -405,7 +405,7 @@ public class SetFunction implements Serializable {
                     case Types.SQL_INTERVAL : {
                         BigInteger bi = getLongSum();
 
-                        if (!NumberType.isInLongLimits(bi)) {
+                        if (NumberType.compareToLongLimits(bi) != 0) {
                             throw Error.error(ErrorCode.X_22015);
                         }
 

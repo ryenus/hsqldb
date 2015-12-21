@@ -76,7 +76,7 @@ import org.hsqldb.types.Types;
  * Some functions are translated into equivalent SQL Standard functions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class FunctionCustom extends FunctionSQL {
@@ -162,61 +162,63 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_RAND                     = 127;
     private static final int FUNC_RAWTOHEX                 = 128;
     private static final int FUNC_REGEXP_MATCHES           = 129;
-    private static final int FUNC_REGEXP_SUBSTRING         = 130;
-    private static final int FUNC_REGEXP_SUBSTRING_ARRAY   = 131;
-    private static final int FUNC_REPEAT                   = 132;
-    private static final int FUNC_REPLACE                  = 133;
-    private static final int FUNC_REVERSE                  = 134;
-    private static final int FUNC_RIGHT                    = 135;
-    private static final int FUNC_ROUND                    = 136;
-    private static final int FUNC_ROUNDMAGIC               = 137;
-    private static final int FUNC_RPAD                     = 138;
-    private static final int FUNC_RTRIM                    = 139;
-    private static final int FUNC_SECONDS_MIDNIGHT         = 140;
-    private static final int FUNC_SEQUENCE_ARRAY           = 141;
-    private static final int FUNC_SESSION_ID               = 142;
-    private static final int FUNC_SESSION_ISOLATION_LEVEL  = 143;
-    private static final int FUNC_SESSION_TIMEZONE         = 144;
-    private static final int FUNC_SESSIONTIMEZONE          = 145;
-    private static final int FUNC_SIGN                     = 146;
-    private static final int FUNC_SIN                      = 147;
-    private static final int FUNC_SOUNDEX                  = 148;
-    private static final int FUNC_SORT_ARRAY               = 149;
-    private static final int FUNC_SPACE                    = 150;
-    private static final int FUNC_SUBSTR                   = 151;
-    private static final int FUNC_SYS_EXTRACT_UTC          = 152;
-    private static final int FUNC_SYSDATE                  = 153;
-    private static final int FUNC_SYSTIMESTAMP             = 154;
-    private static final int FUNC_TAN                      = 155;
-    private static final int FUNC_TIMESTAMP                = 156;
-    private static final int FUNC_TIMESTAMP_WITH_ZONE      = 157;
-    private static final int FUNC_TIMESTAMPADD             = 158;
-    private static final int FUNC_TIMESTAMPDIFF            = 159;
-    private static final int FUNC_TIMEZONE                 = 160;
-    private static final int FUNC_TO_CHAR                  = 161;
-    private static final int FUNC_TO_DATE                  = 162;
-    private static final int FUNC_TO_DSINTERVAL            = 163;
-    private static final int FUNC_TO_YMINTERVAL            = 164;
-    private static final int FUNC_TO_NUMBER                = 165;
-    private static final int FUNC_TO_TIMESTAMP             = 166;
-    private static final int FUNC_TO_TIMESTAMP_TZ          = 167;
-    private static final int FUNC_TRANSACTION_CONTROL      = 168;
-    private static final int FUNC_TRANSACTION_ID           = 169;
-    private static final int FUNC_TRANSACTION_SIZE         = 170;
-    private static final int FUNC_TRANSLATE                = 171;
-    private static final int FUNC_TRUNC                    = 172;
-    private static final int FUNC_TRUNCATE                 = 173;
-    private static final int FUNC_UUID                     = 174;
-    private static final int FUNC_UNIX_TIMESTAMP           = 175;
-    private static final int FUNC_UNIX_MILLIS              = 176;
+    private static final int FUNC_REGEXP_REPLACE           = 130;
+    private static final int FUNC_REGEXP_SUBSTRING         = 131;
+    private static final int FUNC_REGEXP_SUBSTRING_ARRAY   = 132;
+    private static final int FUNC_REPEAT                   = 133;
+    private static final int FUNC_REPLACE                  = 134;
+    private static final int FUNC_REVERSE                  = 135;
+    private static final int FUNC_RIGHT                    = 136;
+    private static final int FUNC_ROUND                    = 137;
+    private static final int FUNC_ROUNDMAGIC               = 138;
+    private static final int FUNC_RPAD                     = 139;
+    private static final int FUNC_RTRIM                    = 140;
+    private static final int FUNC_SECONDS_MIDNIGHT         = 141;
+    private static final int FUNC_SEQUENCE_ARRAY           = 142;
+    private static final int FUNC_SESSION_ID               = 143;
+    private static final int FUNC_SESSION_ISOLATION_LEVEL  = 144;
+    private static final int FUNC_SESSION_TIMEZONE         = 145;
+    private static final int FUNC_SESSIONTIMEZONE          = 146;
+    private static final int FUNC_SIGN                     = 147;
+    private static final int FUNC_SIN                      = 148;
+    private static final int FUNC_SOUNDEX                  = 149;
+    private static final int FUNC_SORT_ARRAY               = 150;
+    private static final int FUNC_SPACE                    = 151;
+    private static final int FUNC_SUBSTR                   = 152;
+    private static final int FUNC_SYS_EXTRACT_UTC          = 153;
+    private static final int FUNC_SYSDATE                  = 154;
+    private static final int FUNC_SYSTIMESTAMP             = 155;
+    private static final int FUNC_TAN                      = 156;
+    private static final int FUNC_TIMESTAMP                = 157;
+    private static final int FUNC_TIMESTAMP_WITH_ZONE      = 158;
+    private static final int FUNC_TIMESTAMPADD             = 159;
+    private static final int FUNC_TIMESTAMPDIFF            = 160;
+    private static final int FUNC_TIMEZONE                 = 161;
+    private static final int FUNC_TO_CHAR                  = 162;
+    private static final int FUNC_TO_DATE                  = 163;
+    private static final int FUNC_TO_DSINTERVAL            = 164;
+    private static final int FUNC_TO_YMINTERVAL            = 165;
+    private static final int FUNC_TO_NUMBER                = 166;
+    private static final int FUNC_TO_TIMESTAMP             = 167;
+    private static final int FUNC_TO_TIMESTAMP_TZ          = 168;
+    private static final int FUNC_TRANSACTION_CONTROL      = 169;
+    private static final int FUNC_TRANSACTION_ID           = 170;
+    private static final int FUNC_TRANSACTION_SIZE         = 171;
+    private static final int FUNC_TRANSLATE                = 172;
+    private static final int FUNC_TRUNC                    = 173;
+    private static final int FUNC_TRUNCATE                 = 174;
+    private static final int FUNC_UUID                     = 175;
+    private static final int FUNC_UNIX_TIMESTAMP           = 176;
+    private static final int FUNC_UNIX_MILLIS              = 177;
+    private static final int FUNC_SQLCODE                  = 182;
+    private static final int FUNC_SQLERRM                  = 183;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
         new IntKeyIntValueHashMap();
 
+    //J-
     static {
-        //J-
-
         nonDeterministicFuncSet.add(FUNC_ACTION_ID);
         nonDeterministicFuncSet.add(FUNC_CRYPT_KEY);
         nonDeterministicFuncSet.add(FUNC_DATABASE);
@@ -268,10 +270,8 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.CURTIME, FUNC_LOCALTIME);
         customRegularFuncMap.put(Tokens.DATABASE, FUNC_DATABASE);
         customRegularFuncMap.put(Tokens.DATABASE_NAME, FUNC_DATABASE_NAME);
-        customRegularFuncMap.put(Tokens.DATABASE_ISOLATION_LEVEL,
-                                 FUNC_DATABASE_ISOLATION_LEVEL);
-        customRegularFuncMap.put(Tokens.DATABASE_TIMEZONE,
-                                 FUNC_DATABASE_TIMEZONE);
+        customRegularFuncMap.put(Tokens.DATABASE_ISOLATION_LEVEL, FUNC_DATABASE_ISOLATION_LEVEL);
+        customRegularFuncMap.put(Tokens.DATABASE_TIMEZONE, FUNC_DATABASE_TIMEZONE);
         customRegularFuncMap.put(Tokens.DATABASE_VERSION, FUNC_DATABASE_VERSION);
         customRegularFuncMap.put(Tokens.DATE_ADD, FUNC_DATE_ADD);
         customRegularFuncMap.put(Tokens.DATE_SUB, FUNC_DATE_SUB);
@@ -294,12 +294,9 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.INSERT, FUNC_OVERLAY_CHAR);
         customRegularFuncMap.put(Tokens.INSTR, FUNC_POSITION_CHAR);
         customRegularFuncMap.put(Tokens.IS_AUTOCOMMIT, FUNC_ISAUTOCOMMIT);
-        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE,
-                                 FUNC_ISREADONLYDATABASE);
-        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE_FILES,
-                                 FUNC_ISREADONLYDATABASEFILES);
-        customRegularFuncMap.put(Tokens.IS_READONLY_SESSION,
-                                 FUNC_ISREADONLYSESSION);
+        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE, FUNC_ISREADONLYDATABASE);
+        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE_FILES, FUNC_ISREADONLYDATABASEFILES);
+        customRegularFuncMap.put(Tokens.IS_READONLY_SESSION, FUNC_ISREADONLYSESSION);
         customRegularFuncMap.put(Tokens.ISOLATION_LEVEL, FUNC_ISOLATION_LEVEL);
         customRegularFuncMap.put(Tokens.LAST_DAY, FUNC_LAST_DAY);
         customRegularFuncMap.put(Tokens.LCASE, FUNC_FOLD_LOWER);
@@ -328,9 +325,9 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.RAND, FUNC_RAND);
         customRegularFuncMap.put(Tokens.RAWTOHEX, FUNC_RAWTOHEX);
         customRegularFuncMap.put(Tokens.REGEXP_MATCHES, FUNC_REGEXP_MATCHES);
+        customRegularFuncMap.put(Tokens.REGEXP_REPLACE, FUNC_REGEXP_REPLACE);
         customRegularFuncMap.put(Tokens.REGEXP_SUBSTRING, FUNC_REGEXP_SUBSTRING);
-        customRegularFuncMap.put(Tokens.REGEXP_SUBSTRING_ARRAY,
-                                 FUNC_REGEXP_SUBSTRING_ARRAY);
+        customRegularFuncMap.put(Tokens.REGEXP_SUBSTRING_ARRAY, FUNC_REGEXP_SUBSTRING_ARRAY);
         customRegularFuncMap.put(Tokens.REPEAT, FUNC_REPEAT);
         customRegularFuncMap.put(Tokens.REPLACE, FUNC_REPLACE);
         customRegularFuncMap.put(Tokens.REVERSE, FUNC_REVERSE);
@@ -343,8 +340,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.SECONDS_MIDNIGHT, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.SEQUENCE_ARRAY, FUNC_SEQUENCE_ARRAY);
         customRegularFuncMap.put(Tokens.SESSION_ID, FUNC_SESSION_ID);
-        customRegularFuncMap.put(Tokens.SESSION_ISOLATION_LEVEL,
-                                 FUNC_SESSION_ISOLATION_LEVEL);
+        customRegularFuncMap.put(Tokens.SESSION_ISOLATION_LEVEL, FUNC_SESSION_ISOLATION_LEVEL);
         customRegularFuncMap.put(Tokens.SESSION_TIMEZONE, FUNC_SESSION_TIMEZONE);
         customRegularFuncMap.put(Tokens.SESSIONTIMEZONE, FUNC_SESSIONTIMEZONE);
         customRegularFuncMap.put(Tokens.SIGN, FUNC_SIGN);
@@ -369,8 +365,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.TO_NUMBER, FUNC_TO_NUMBER);
         customRegularFuncMap.put(Tokens.TO_TIMESTAMP, FUNC_TO_TIMESTAMP);
 //      customRegularFuncMap.put(Tokens.TO_TIMESTAMP_TZ, FUNC_TO_TIMESTAMP_TZ);
-        customRegularFuncMap.put(Tokens.TRANSACTION_CONTROL,
-                                 FUNC_TRANSACTION_CONTROL);
+        customRegularFuncMap.put(Tokens.TRANSACTION_CONTROL, FUNC_TRANSACTION_CONTROL);
         customRegularFuncMap.put(Tokens.TRANSACTION_ID, FUNC_TRANSACTION_ID);
         customRegularFuncMap.put(Tokens.TRANSACTION_SIZE, FUNC_TRANSACTION_SIZE);
         customRegularFuncMap.put(Tokens.TRANSLATE, FUNC_TRANSLATE);
@@ -382,9 +377,12 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.UUID, FUNC_UUID);
         customRegularFuncMap.put(Tokens.WEEK, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.YEAR, FUNC_EXTRACT);
-        //J+
-    }
 
+        //
+        customRegularFuncMap.put(Tokens.SQLCODE, FUNC_SQLCODE);
+        customRegularFuncMap.put(Tokens.SQLERRM, FUNC_SQLERRM);
+    }
+    //J+
     static final IntKeyIntValueHashMap customValueFuncMap =
         new IntKeyIntValueHashMap();
 
@@ -509,6 +507,11 @@ public class FunctionCustom extends FunctionSQL {
 
         switch (id) {
 
+            case FUNC_SQLCODE :
+            case FUNC_SQLERRM :
+                parseList = optionalNoParamList;
+                break;
+
             case FUNC_SYSDATE :
             case FUNC_SYSTIMESTAMP :
                 parseList = optionalNoParamList;
@@ -624,10 +627,11 @@ public class FunctionCustom extends FunctionSQL {
                 parseList = tripleParamList;
                 break;
 
-            case FUNC_REPLACE :
             case FUNC_LPAD :
             case FUNC_RPAD :
             case FUNC_POSITION_CHAR :
+            case FUNC_REPLACE :
+            case FUNC_REGEXP_REPLACE :
                 parseList = new short[] {
                     Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.COMMA,
                     Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
@@ -796,6 +800,12 @@ public class FunctionCustom extends FunctionSQL {
     Object getValue(Session session, Object[] data) {
 
         switch (funcType) {
+
+            case FUNC_SQLCODE :
+                return 0;
+
+            case FUNC_SQLERRM :
+                return "Error";
 
             case FUNC_POSITION_CHAR :
             case FUNC_EXTRACT :
@@ -1815,6 +1825,7 @@ public class FunctionCustom extends FunctionSQL {
                 return sb.toString();
             }
             case FUNC_REGEXP_MATCHES :
+            case FUNC_REGEXP_REPLACE :
             case FUNC_REGEXP_SUBSTRING :
             case FUNC_REGEXP_SUBSTRING_ARRAY : {
                 for (int i = 0; i < data.length; i++) {
@@ -1839,6 +1850,12 @@ public class FunctionCustom extends FunctionSQL {
                         boolean match = matcher.matches();
 
                         return Boolean.valueOf(match);
+                    }
+                    case FUNC_REGEXP_REPLACE : {
+                        String replace = (String) data[2];
+                        String result  = matcher.replaceAll(replace);
+
+                        return result;
                     }
                     case FUNC_REGEXP_SUBSTRING : {
                         boolean match = matcher.find();
@@ -2184,6 +2201,16 @@ public class FunctionCustom extends FunctionSQL {
         }
 
         switch (funcType) {
+
+            case FUNC_SQLCODE :
+                dataType = Type.SQL_INTEGER;
+
+                return;
+
+            case FUNC_SQLERRM :
+                dataType = Type.SQL_VARCHAR_DEFAULT;
+
+                return;
 
             case FUNC_POSITION_CHAR :
             case FUNC_EXTRACT :
@@ -3037,6 +3064,10 @@ public class FunctionCustom extends FunctionSQL {
 
                 break;
             }
+            case FUNC_REGEXP_REPLACE :
+                if (nodes[2] == null) {
+                    nodes[2] = new ExpressionValue("", Type.SQL_VARCHAR);
+                }
             case FUNC_REGEXP_MATCHES :
             case FUNC_REGEXP_SUBSTRING :
             case FUNC_REGEXP_SUBSTRING_ARRAY : {
@@ -3064,6 +3095,10 @@ public class FunctionCustom extends FunctionSQL {
 
                     case FUNC_REGEXP_MATCHES :
                         dataType = Type.SQL_BOOLEAN;
+                        break;
+
+                    case FUNC_REGEXP_REPLACE :
+                        dataType = Type.SQL_VARCHAR_DEFAULT;
                         break;
 
                     case FUNC_REGEXP_SUBSTRING :
@@ -3646,6 +3681,7 @@ public class FunctionCustom extends FunctionSQL {
                 return sb.toString();
             }
             case FUNC_SEQUENCE_ARRAY :
+            case FUNC_REGEXP_REPLACE :
             case FUNC_REPLACE : {
                 return new StringBuffer(name).append('(').append(
                     nodes[0].getSQL()).append(Tokens.T_COMMA).append(
