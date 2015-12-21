@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.lib.ArrayUtil;
  * Type subclass for various typs of INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.3.4
  * @since 1.9.0
  */
 public final class IntervalType extends DTIType {
@@ -532,7 +532,7 @@ public final class IntervalType extends DTIType {
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL : {
                 if (a instanceof BigDecimal) {
-                    if (!NumberType.isInLongLimits((BigDecimal) a)) {
+                    if (NumberType.compareToLongLimits((BigDecimal) a) != 0) {
                         throw Error.error(ErrorCode.X_22015);
                     }
                 }
@@ -1003,7 +1003,7 @@ public final class IntervalType extends DTIType {
                                 factor)
                             : (BigDecimal) factorType.multiply(units, factor);
 
-        if (!NumberType.isInLongLimits(result)) {
+        if (NumberType.compareToLongLimits(result) != 0) {
             throw Error.error(ErrorCode.X_22015);
         }
 

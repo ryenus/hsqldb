@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  * timezone.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.4
  * @since 1.7.0
  */
 public class HsqlDateTime {
@@ -935,7 +935,7 @@ public class HsqlDateTime {
 
             for (int i = tokens.length; --i >= 0; ) {
                 if (isZeroBit(i)) {
-                    if (tokens[i][index] == ch) {
+                    if (tokens[i][index] == Character.toUpperCase(ch)) {
                         if (tokens[i].length == len) {
                             setBit(i);
 
