@@ -377,10 +377,6 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.UUID, FUNC_UUID);
         customRegularFuncMap.put(Tokens.WEEK, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.YEAR, FUNC_EXTRACT);
-
-        //
-        customRegularFuncMap.put(Tokens.SQLCODE, FUNC_SQLCODE);
-        customRegularFuncMap.put(Tokens.SQLERRM, FUNC_SQLERRM);
     }
     //J+
     static final IntKeyIntValueHashMap customValueFuncMap =

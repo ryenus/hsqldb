@@ -1459,7 +1459,7 @@ public class Result {
 
     public Object[] getSingleRowData() {
 
-        Object[] data = (Object[]) initialiseNavigator().getNext();
+        Object[] data = initialiseNavigator().getNext();
 
         data = (Object[]) ArrayUtil.resizeArrayIfDifferent(data,
                 metaData.getColumnCount());
@@ -1472,7 +1472,7 @@ public class Result {
     }
 
     public Object[] getSessionAttributes() {
-        return (Object[]) initialiseNavigator().getNext();
+        return initialiseNavigator().getNext();
     }
 
     public void setResultType(int type) {

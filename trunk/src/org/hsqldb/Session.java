@@ -1481,7 +1481,7 @@ public class Session implements SessionInterface {
         Result error = null;
 
         while (nav.hasNext()) {
-            Object[] pvals = (Object[]) nav.getNext();
+            Object[] pvals = nav.getNext();
             Result in = executeCompiledStatement(cs, pvals, cmd.queryTimeout);
 
             // On the client side, iterate over the vals and throw
@@ -1539,7 +1539,7 @@ public class Session implements SessionInterface {
 
         while (nav.hasNext()) {
             Result   in;
-            Object[] data = (Object[]) nav.getNext();
+            Object[] data = nav.getNext();
             String   sql  = (String) data[0];
 
             try {

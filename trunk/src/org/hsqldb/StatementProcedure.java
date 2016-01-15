@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for callable procedures.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class StatementProcedure extends StatementDMQL {
@@ -237,8 +237,10 @@ public class StatementProcedure extends StatementDMQL {
     Result executePSMProcedure(Session session) {
 
         int variableCount = procedure.getVariableCount();
+        int cursorCount   = procedure.getCursorCount();
 
         session.sessionContext.routineVariables = new Object[variableCount];
+        session.sessionContext.routineCursors   = new Result[cursorCount];
 
         Result result = procedure.statement.execute(session);
 
@@ -378,8 +380,13 @@ public class StatementProcedure extends StatementDMQL {
      */
     public ResultMetaData getParametersMetaData() {
 
-        /** @todo - change the auto-names to the names of params */
-        return super.getParametersMetaData();
+        ResultMetaData meta = super.getParametersMetaData();
+
+        for (int i = 0; i < meta.columnLabels.length; i++) {
+            meta.columnLabels[i] = parameters[i].getColumn().getNameString();
+        }
+
+        return meta;
     }
 
     void collectTableNamesForRead(OrderedHashSet set) {

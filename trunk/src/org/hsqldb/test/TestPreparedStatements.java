@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,13 +31,14 @@
 
 package org.hsqldb.test;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import junit.framework.TestCase;
-
-import java.sql.ResultSet;
 
 /**
  * @author fredt@users
@@ -132,7 +133,7 @@ public class TestPreparedStatements extends TestCase {
 
     protected void setUp() {
 
-        String url = "jdbc:hsqldb:test";
+        String url = "jdbc:hsqldb:mem:test";
 
         try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
@@ -219,5 +220,48 @@ public class TestPreparedStatements extends TestCase {
         }
 
         assertTrue(true);
+    }
+
+    public void testB() throws SQLException, ClassNotFoundException {
+
+        Statement statement = con.createStatement();
+
+        statement.execute(
+            "CREATE TABLE IF NOT EXISTS users (id INTEGER, name VARCHAR(25), PRIMARY KEY(id))");
+        statement.executeUpdate("INSERT INTO users VALUES(1, 'Ramiro')");
+        statement.executeUpdate("INSERT INTO users VALUES(2, 'Chanukya')");
+
+        String storedProcedure1 =
+            "CREATE PROCEDURE sp_say_hi(IN greeting_p VARCHAR(10)) "
+            + "READS SQL DATA DYNAMIC RESULT SETS 2 " + "BEGIN ATOMIC "
+            + "DECLARE result CURSOR WITH RETURN FOR SELECT COALESCE(greeting_p, 'Hi')+' '+name as greeting FROM users FOR READ ONLY; "
+            + "DECLARE result1 CURSOR WITH RETURN FOR SELECT * FROM users FOR READ ONLY; "
+            + "OPEN result; " + "OPEN result1; " + "END";
+
+        statement.execute(storedProcedure1);
+
+        String            sqlCall           = "CALL sp_say_hi(?)";
+        CallableStatement callableStatement = con.prepareCall(sqlCall);
+
+        callableStatement.setObject("GREETING_P", "Hola");
+
+        boolean result = callableStatement.execute();
+
+        if (!result) {
+            int value = callableStatement.getUpdateCount();
+
+            assertTrue(value == 0);
+            result = callableStatement.getMoreResults();
+            assertTrue(result);
+            ResultSet result1 = callableStatement.getResultSet();
+            result = callableStatement.getMoreResults();
+            assertTrue(result);
+            ResultSet result2 = callableStatement.getResultSet();
+            result = callableStatement.getMoreResults();
+            assertFalse(result);
+            value = callableStatement.getUpdateCount();
+            assertTrue(value == -1);
+
+        }
     }
 }

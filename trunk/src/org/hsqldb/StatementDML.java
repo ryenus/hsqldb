@@ -889,7 +889,7 @@ public class StatementDML extends StatementDMQL {
 
         if (baseTable.identityColumn != -1) {
             while (newData.hasNext()) {
-                Object[] data = (Object[]) newData.getNext();
+                Object[] data = newData.getNext();
 
                 session.sessionData.startRowProcessing();
                 baseTable.setIdentityColumn(session, data);
@@ -900,7 +900,7 @@ public class StatementDML extends StatementDMQL {
 
         if (baseTable.triggerLists[Trigger.INSERT_BEFORE_ROW].length > 0) {
             while (newData.hasNext()) {
-                Object[] data = (Object[]) newData.getNext();
+                Object[] data = newData.getNext();
 
                 session.sessionData.startRowProcessing();
                 baseTable.fireTriggers(session, Trigger.INSERT_BEFORE_ROW,
@@ -911,7 +911,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         while (newData.hasNext()) {
-            Object[] data = (Object[]) newData.getNext();
+            Object[] data = newData.getNext();
 
             // for identity using global sequence
             session.sessionData.startRowProcessing();
@@ -937,7 +937,7 @@ public class StatementDML extends StatementDMQL {
         newData.beforeFirst();
 
         while (newData.hasNext()) {
-            Object[] data = (Object[]) newData.getNext();
+            Object[] data = newData.getNext();
 
             performIntegrityChecks(session, baseTable, null, data, null);
         }
@@ -946,7 +946,7 @@ public class StatementDML extends StatementDMQL {
 
         if (baseTable.triggerLists[Trigger.INSERT_AFTER_ROW].length > 0) {
             while (newData.hasNext()) {
-                Object[] data = (Object[]) newData.getNext();
+                Object[] data = newData.getNext();
 
                 baseTable.fireTriggers(session, Trigger.INSERT_AFTER_ROW,
                                        null, data, null);

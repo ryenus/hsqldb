@@ -1983,6 +1983,13 @@ public class RangeVariable {
                         ExpressionLogical.andExpressions(indexEndCondition, e);
                 }
 
+                if (indexedColumnCount > 1 && opTypes[indexedColumnCount - 1] == OpTypes.MAX) {
+                    indexedColumnCount --;
+                    opTypes[indexedColumnCount] = 0;
+                    opTypesEnd[indexedColumnCount] = 0;
+                }
+
+
                 opType    = opTypes[indexedColumnCount - 1];
                 opTypeEnd = opTypesEnd[indexedColumnCount - 1];
             }

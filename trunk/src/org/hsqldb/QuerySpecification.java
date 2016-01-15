@@ -1722,7 +1722,7 @@ public class QuerySpecification extends QueryExpression {
 
         if (havingCondition != null) {
             while (navigator.hasNext()) {
-                Object[] data = (Object[]) navigator.getNext();
+                Object[] data = navigator.getNext();
 
                 if (!Boolean.TRUE.equals(
                         data[indexLimitVisible + groupByColumnCount])) {
