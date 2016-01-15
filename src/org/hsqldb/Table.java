@@ -2638,12 +2638,8 @@ public class Table extends TableBase implements SchemaObject {
         setIndexRoots(roots, uniqueSize, cardinality);
     }
 
-    /**
-     *  Mid level method for inserting single rows. Performs constraint checks and
-     *  fires row level triggers.
-     */
-    Row insertSingleRow(Session session, PersistentStore store, Object[] data,
-                        int[] changedCols) {
+
+    void generateAndCheckData(Session session, Object[] data) {
 
         if (hasGeneratedValues) {
             setGeneratedColumns(session, data);
@@ -2654,6 +2650,16 @@ public class Table extends TableBase implements SchemaObject {
         if (hasDomainColumns || hasNotNullColumns) {
             enforceRowConstraints(session, data);
         }
+    }
+
+    /**
+     *  Mid level method for inserting single rows. Performs constraint checks and
+     *  fires row level triggers.
+     */
+    Row insertSingleRow(Session session, PersistentStore store, Object[] data,
+                        int[] changedCols) {
+
+        generateAndCheckData(session, data);
 
         if (isView) {
 
@@ -2677,7 +2683,7 @@ public class Table extends TableBase implements SchemaObject {
         RowSetNavigator nav   = result.initialiseNavigator();
 
         while (nav.hasNext()) {
-            Object[] data = (Object[]) nav.getNext();
+            Object[] data = nav.getNext();
             Object[] newData =
                 (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
 
@@ -2708,7 +2714,7 @@ public class Table extends TableBase implements SchemaObject {
         int             count = 0;
 
         while (nav.hasNext()) {
-            insertSys(session, store, (Object[]) nav.getNext());
+            insertSys(session, store, nav.getNext());
 
             count++;
         }
@@ -2725,7 +2731,7 @@ public class Table extends TableBase implements SchemaObject {
         RowSetNavigator nav = ins.initialiseNavigator();
 
         while (nav.hasNext()) {
-            Object[] data = (Object[]) nav.getNext();
+            Object[] data = nav.getNext();
             Object[] newData =
                 (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
 

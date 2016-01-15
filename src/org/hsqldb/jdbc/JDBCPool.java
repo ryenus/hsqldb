@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * </div>
  * <!-- end Release-specific documentation -->
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.3.4
  * @since 2.2.9
  */
 @SuppressWarnings("serial")
@@ -136,7 +136,11 @@ public class JDBCPool extends JDBCCommonDataSource implements DataSource,
     /**
      * Retrieves a new connection using the given username and password,
      * and the database url that has been set. No other properties are
-     * used for the connection
+     * used for the connection.
+     *
+     * This method can be used only with the same username and password used
+     * for the connection pool. The first call to this method sets the user name
+     * and password for the connection pool.
      *
      * @param username the database user on whose behalf the connection is
      *  being made
@@ -146,8 +150,21 @@ public class JDBCPool extends JDBCCommonDataSource implements DataSource,
      */
     public Connection getConnection(String username, String password)
             throws SQLException {
-        return source.getPooledConnection(username,
-                password).getConnection();
+
+        String user = getUser();
+
+        if (username == null || password == null) {
+            throw JDBCUtil.nullArgument();
+        }
+
+        if ( user == null) {
+            setUser(username);
+            setPassword(password);
+        } else if (!user.equals(username)) {
+            throw JDBCUtil.invalidArgument("user name does not match");
+        }
+
+        return getConnection();
     }
 
     // ------------------------- JDBC 4.0 -----------------------------------

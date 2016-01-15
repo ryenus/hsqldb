@@ -400,9 +400,8 @@ public class StatementSession extends Statement {
                     Result result = (Result) value;
 
                     if (result.isData()) {
-                        Object[] data =
-                            (Object[]) result.getNavigator().getNext();
-                        boolean single = !result.getNavigator().next();
+                        Object[] data   = result.getNavigator().getNext();
+                        boolean  single = !result.getNavigator().next();
 
                         if (single && data != null && data[0] != null) {
                             value = data[0];

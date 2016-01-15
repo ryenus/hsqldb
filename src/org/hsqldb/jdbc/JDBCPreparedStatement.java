@@ -1937,7 +1937,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         int[]           updateCounts = new int[navigator.getSize()];
 
         for (int i = 0; i < updateCounts.length; i++) {
-            Object[] data = (Object[]) navigator.getNext();
+            Object[] data = navigator.getNext();
 
             updateCounts[i] = ((Integer) data[0]).intValue();
         }

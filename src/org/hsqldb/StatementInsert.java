@@ -155,7 +155,7 @@ public class StatementInsert extends StatementDML {
         if (specialAction != StatementInsert.isNone) {
             while (newDataNavigator.hasNext()) {
                 boolean  remove = false;
-                Object[] data   = (Object[]) newDataNavigator.getNext();
+                Object[] data   = newDataNavigator.getNext();
 
                 for (int i = 0, size = baseTable.constraintList.length;
                         i < size; i++) {
@@ -285,11 +285,11 @@ public class StatementInsert extends StatementDML {
         Result                result = queryExpression.getResult(session, 0);
         RowSetNavigator       nav         = result.initialiseNavigator();
         Type[]                sourceTypes = result.metaData.columnTypes;
-        RowSetNavigatorClient newData     = new RowSetNavigatorClient(2);
+        RowSetNavigatorClient newData     = new RowSetNavigatorClient(nav.getSize());
 
         while (nav.hasNext()) {
             Object[] data       = baseTable.getNewRowData(session);
-            Object[] sourceData = (Object[]) nav.getNext();
+            Object[] sourceData = nav.getNext();
 
             for (int i = 0; i < columnMap.length; i++) {
                 int j = columnMap[i];

@@ -46,6 +46,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Map;
 
 //#ifdef JAVA6
@@ -4832,7 +4833,18 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             checkClosed();
         }
 
+        if (parameterName == null) {
+            throw JDBCUtil.nullArgument();
+        }
+
         int index = parameterNameMap.get(parameterName, -1);
+
+        if (index >= 0) {
+            return index + 1;
+        }
+
+        index = parameterNameMap.get(parameterName.toUpperCase(Locale.ENGLISH),
+                                     -1);
 
         if (index >= 0) {
             return index + 1;
