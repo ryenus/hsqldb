@@ -50,7 +50,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 2.0.0
  */
 class TransactionManagerCommon {
@@ -552,7 +552,9 @@ class TransactionManagerCommon {
         nameList = cs.getTableNamesForRead();
 
         if (txModel == TransactionManager.MVLOCKS && session.isReadOnly()) {
-            nameList = catalogNameList;
+            if (nameList.length > 0) {
+                nameList = catalogNameList;
+            }
         }
 
         for (int i = 0; i < nameList.length; i++) {
@@ -619,6 +621,12 @@ class TransactionManagerCommon {
         }
 
         nameList = cs.getTableNamesForRead();
+
+        if (txModel == TransactionManager.MVLOCKS && session.isReadOnly()) {
+            if (nameList.length > 0) {
+                nameList = catalogNameList;
+            }
+        }
 
         for (int i = 0; i < nameList.length; i++) {
             HsqlName name = nameList[i];
