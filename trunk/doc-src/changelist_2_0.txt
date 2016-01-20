@@ -1,3 +1,15 @@
+-- fixed regression with interaction of FK constraints with ON DELETE CASCADE and NO ACTION
+-- fixed issue with SEQUENCE increment in multi-row inserts
+-- fixed issue with incorrect results in multiple LEFT JOIN with NATURAL or USING
+-- fixed issue with ClobInputStream 
+-- fixed issue with missing references to views used in routines
+-- fixed issue with .lobs file space reuse at CHECKPOINT
+-- fixed issue with readonly session blocking in MVLOCKS mode
+-- fixed several minor bugs
+-- added support for CallableStatement variable reference by name
+-- added date range checks to setDate and setTimestamp methods in PreparedStatement
+-- added REGEXP_REPLACE function
+-- added support for lowercase patterns for TO_DATE etc.
 28 June 2015 - version 2.3.3
 -- extensive review and improvement of concurrent updates
 -- fixed an issue with CHECKPOINT DEFRAG that could cause minor inconsistencies

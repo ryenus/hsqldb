@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to
+      <para>Copyright 2010-2015 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -502,6 +502,16 @@
 
     <para>Returns true if the <literal>&lt;char value expr&gt;</literal>
     matches the <literal>&lt;regular expression&gt;</literal> as a whole. The
+    <literal>&lt;regular expression&gt;</literal> is defined according to Java
+    language regular expression rules. (HyperSQL)</para>
+
+    <simpara><emphasis role="bold">REGEXP_MATCHES</emphasis></simpara>
+
+    <para><literal>REGEXP_REPLACE ( &lt;char value expr 1&gt;, &lt;regular
+    expression&gt;, <literal>&lt;char value expr 3&gt;</literal> ) </literal></para>
+
+    <para>Replaces <literal>&lt;char value expr 1&gt;</literal>
+    regions that match the <literal>&lt;regular expression&gt;</literal> with <literal>&lt;char value expr 3&gt;</literal>. The
     <literal>&lt;regular expression&gt;</literal> is defined according to Java
     language regular expression rules. (HyperSQL)</para>
 
