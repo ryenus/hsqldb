@@ -70,11 +70,12 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class Result {
 
+    public static final Result[]       emptyArray = new Result[0];
     public static final ResultMetaData sessionAttributesMetaData;
 
     static {

@@ -199,7 +199,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.4
  * @since 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0
  * @revised JDK 1.7, HSQLDB 2.0.1
