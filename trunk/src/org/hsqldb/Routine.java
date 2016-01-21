@@ -58,7 +58,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class Routine implements SchemaObject, RangeGroup, Cloneable {
@@ -116,6 +116,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
     //
     int variableCount;
+    int cursorCount;
 
     //
     OrderedHashSet references;
@@ -773,6 +774,10 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         return variableCount;
     }
 
+    public int getCursorCount() {
+        return cursorCount;
+    }
+
     public boolean isLibraryRoutine() {
         return isLibraryRoutine;
     }
@@ -810,6 +815,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             statement     = null;
             references    = null;
             variableCount = 0;
+            cursorCount   = 0;
             ranges        = RangeVariable.emptyArray;
         }
     }
@@ -832,6 +838,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         statement                = routine.statement;
         references               = routine.references;
         variableCount            = routine.variableCount;
+        cursorCount              = routine.cursorCount;
         ranges                   = routine.ranges;
     }
 
@@ -993,6 +1000,13 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
                 if (variableCount > 0) {
                     session.sessionContext.routineVariables =
                         new Object[variableCount];
+                }
+
+                session.sessionContext.routineCursors = Result.emptyArray;
+
+                if (cursorCount > 0) {
+                    session.sessionContext.routineCursors =
+                        new Result[cursorCount];
                 }
 
                 result = statement.execute(session);

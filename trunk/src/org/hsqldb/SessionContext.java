@@ -44,12 +44,13 @@ import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowSetNavigatorDataChange;
 import org.hsqldb.navigator.RowSetNavigatorDataChangeMemory;
+import org.hsqldb.result.Result;
 
 /*
  * Session execution context and temporary data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class SessionContext {
@@ -72,6 +73,7 @@ public class SessionContext {
     Object[]              diagnosticsVariables = ValuePool.emptyObjectArray;
     Object[]              routineArguments     = ValuePool.emptyObjectArray;
     Object[]              routineVariables     = ValuePool.emptyObjectArray;
+    Result[]              routineCursors       = Result.emptyArray;
     Object[]              dynamicArguments     = ValuePool.emptyObjectArray;
     Object[][]            triggerArguments     = null;
     public int            depth;
@@ -157,6 +159,7 @@ public class SessionContext {
         stack.add(routineArguments);
         stack.add(triggerArguments);
         stack.add(routineVariables);
+        stack.add(routineCursors);
         stack.add(rangeIterators);
         stack.add(savepoints);
         stack.add(savepointTimestamps);
@@ -198,6 +201,7 @@ public class SessionContext {
         savepointTimestamps  = (LongDeque) stack.remove(stack.size() - 1);
         savepoints           = (HashMappedList) stack.remove(stack.size() - 1);
         rangeIterators = (RangeIterator[]) stack.remove(stack.size() - 1);
+        routineCursors       = (Result[]) stack.remove(stack.size() -1);
         routineVariables     = (Object[]) stack.remove(stack.size() - 1);
         triggerArguments     = ((Object[][]) stack.remove(stack.size() - 1));
         routineArguments     = (Object[]) stack.remove(stack.size() - 1);
@@ -347,7 +351,9 @@ public class SessionContext {
     }
 
     public void popRoutineTables() {
+
         sessionTables.clear();
+
         sessionTables = popSessionTables;
     }
 
