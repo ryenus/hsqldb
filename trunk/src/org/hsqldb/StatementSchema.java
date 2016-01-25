@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for DDL statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class StatementSchema extends Statement {
@@ -475,7 +475,20 @@ public class StatementSchema extends Statement {
                     switch (subType) {
 
                         case StatementTypes.ADD_CONSTRAINT : {
-                            Constraint c = (Constraint) arguments[2];
+                            Constraint c           = (Constraint) arguments[2];
+                            Boolean    ifNotExists = (Boolean) arguments[3];
+
+                            if (ifNotExists.booleanValue()) {
+                                SchemaObject object =
+                                    session.database.schemaManager
+                                        .findSchemaObject(c.getName().name, c
+                                            .getName().schema.name, c.getName()
+                                            .type);
+
+                                if (object != null) {
+                                    return Result.updateZeroResult;
+                                }
+                            }
 
                             switch (c.getConstraintType()) {
 
@@ -1273,12 +1286,20 @@ public class StatementSchema extends Statement {
                 return Result.updateZeroResult;
 
             case StatementTypes.CREATE_VIEW : {
-                View view = (View) arguments[0];
+                View    view        = (View) arguments[0];
+                Boolean ifNotExists = (Boolean) arguments[1];
 
                 try {
-                    checkSchemaUpdateAuthorisation(session,
-                                                   view.getSchemaName());
-                    schemaManager.checkSchemaObjectNotExists(view.getName());
+                    setOrCheckObjectName(session, null, view.getName(), true);
+                } catch (HsqlException e) {
+                    if (ifNotExists != null && ifNotExists.booleanValue()) {
+                        return Result.updateZeroResult;
+                    } else {
+                        return Result.newErrorResult(e, sql);
+                    }
+                }
+
+                try {
                     view.compile(session, null);
                     schemaManager.addSchemaObject(view);
 
@@ -1288,30 +1309,42 @@ public class StatementSchema extends Statement {
                 }
             }
             case StatementTypes.CREATE_INDEX : {
-                Table    table;
-                HsqlName name;
-                int[]    indexColumns;
-                boolean  unique;
+                Table         table;
+                HsqlName      name;
+                int[]         indexColumns;
+                boolean       unique;
+                RoutineSchema routineSchema;
+                Boolean       ifNotExists;
 
-                table        = (Table) arguments[0];
-                indexColumns = (int[]) arguments[1];
-                name         = (HsqlName) arguments[2];
-                unique       = ((Boolean) arguments[3]).booleanValue();
+                table         = (Table) arguments[0];
+                indexColumns  = (int[]) arguments[1];
+                name          = (HsqlName) arguments[2];
+                unique        = ((Boolean) arguments[3]).booleanValue();
+                routineSchema = (RoutineSchema) arguments[4];
+                ifNotExists   = (Boolean) arguments[5];
+
+                /*
+                        Index index        = table.getIndexForColumns(indexColumns);
+
+                        if (index != null
+                                && ArrayUtil.areEqual(indexColumns, index.getColumns(),
+                                                      indexColumns.length, unique)) {
+                            if (index.isUnique() || !unique) {
+                                return;
+                            }
+                        }
+                */
+                try {
+                    setOrCheckObjectName(session, table.getName(), name, true);
+                } catch (HsqlException e) {
+                    if (ifNotExists != null && ifNotExists.booleanValue()) {
+                        return Result.updateZeroResult;
+                    } else {
+                        return Result.newErrorResult(e, sql);
+                    }
+                }
 
                 try {
-                    /*
-                            Index index        = table.getIndexForColumns(indexColumns);
-
-                            if (index != null
-                                    && ArrayUtil.areEqual(indexColumns, index.getColumns(),
-                                                          indexColumns.length, unique)) {
-                                if (index.isUnique() || !unique) {
-                                    return;
-                                }
-                            }
-                    */
-                    setOrCheckObjectName(session, table.getName(), name, true);
-
                     TableWorks tableWorks = new TableWorks(session, table);
 
                     tableWorks.addIndex(indexColumns, name, unique);

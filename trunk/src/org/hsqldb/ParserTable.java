@@ -46,7 +46,7 @@ import org.hsqldb.types.Types;
  * Parser for SQL table definition
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class ParserTable extends ParserDML {
@@ -57,22 +57,7 @@ public class ParserTable extends ParserDML {
 
     StatementSchema compileCreateTable(int type) {
 
-        boolean ifNot = false;
-
-        if (token.tokenType == Tokens.IF) {
-            int position = getPosition();
-
-            read();
-
-            if (token.tokenType == Tokens.NOT) {
-                read();
-                readThis(Tokens.EXISTS);
-
-                ifNot = true;
-            } else {
-                rewind(position);
-            }
-        }
+        boolean ifNot = readIfNotExists();
 
         HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE, false);
 
@@ -1917,5 +1902,29 @@ public class ParserTable extends ParserDML {
                                       SchemaObject.INDEX);
 
         indexList.add(c);
+    }
+
+    Boolean readIfNotExists() {
+
+        Boolean ifNot = Boolean.FALSE;
+
+        if (token.tokenType == Tokens.IF) {
+            int position = getPosition();
+
+            read();
+
+            if (token.tokenType == Tokens.NOT) {
+                read();
+                readThis(Tokens.EXISTS);
+
+                ifNot = Boolean.TRUE;
+            } else {
+                rewind(position);
+
+                ifNot = Boolean.FALSE;
+            }
+        }
+
+        return ifNot;
     }
 }

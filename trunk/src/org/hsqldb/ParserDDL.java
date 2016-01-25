@@ -34,8 +34,6 @@ package org.hsqldb;
 import java.lang.reflect.Method;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.HsqlNameManager.SimpleName;
-import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -58,7 +56,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -708,11 +706,13 @@ public class ParserDDL extends ParserRoutine {
             case Tokens.ADD : {
                 read();
 
-                HsqlName cname = null;
+                HsqlName cname       = null;
+                Boolean  ifNotExists = Boolean.FALSE;
 
                 if (token.tokenType == Tokens.CONSTRAINT) {
                     read();
 
+                    ifNotExists = readIfNotExists();
                     cname = readNewDependentSchemaObjectName(t.getName(),
                             SchemaObject.CONSTRAINT);
                 }
@@ -724,7 +724,7 @@ public class ParserDDL extends ParserRoutine {
                         readThis(Tokens.KEY);
 
                         return compileAlterTableAddForeignKeyConstraint(t,
-                                cname);
+                                cname, ifNotExists);
 
                     case Tokens.UNIQUE :
                         read();
@@ -735,18 +735,21 @@ public class ParserDDL extends ParserRoutine {
                             }
                         }
 
-                        return compileAlterTableAddUniqueConstraint(t, cname);
+                        return compileAlterTableAddUniqueConstraint(t, cname,
+                                ifNotExists);
 
                     case Tokens.CHECK :
                         read();
 
-                        return compileAlterTableAddCheckConstraint(t, cname);
+                        return compileAlterTableAddCheckConstraint(t, cname,
+                                ifNotExists);
 
                     case Tokens.PRIMARY :
                         read();
                         readThis(Tokens.KEY);
 
-                        return compileAlterTableAddPrimaryKey(t, cname);
+                        return compileAlterTableAddPrimaryKey(t, cname,
+                                                              ifNotExists);
 
                     case Tokens.COLUMN :
                         if (cname != null) {
@@ -960,6 +963,12 @@ public class ParserDDL extends ParserRoutine {
 
         read();
 
+        Boolean ifNotExists = Boolean.FALSE;
+
+        if (!alter) {
+            ifNotExists = readIfNotExists();
+        }
+
         HsqlName name = readNewSchemaObjectName(SchemaObject.VIEW, true);
 
         name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
@@ -1021,7 +1030,9 @@ public class ParserDDL extends ParserRoutine {
         StatementQuery s = new StatementQuery(session, queryExpression,
                                               compileContext);
         String     fullSQL        = getLastPart();
-        Object[]   args           = new Object[]{ view };
+        Object[]   args           = new Object[] {
+            view, ifNotExists
+        };
         int        type           = alter ? StatementTypes.ALTER_VIEW
                                           : StatementTypes.CREATE_VIEW;
         HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
@@ -1034,23 +1045,7 @@ public class ParserDDL extends ParserRoutine {
 
         read();
 
-        boolean ifNot = false;
-
-        if (token.tokenType == Tokens.IF) {
-            int position = getPosition();
-
-            read();
-
-            if (token.tokenType == Tokens.NOT) {
-                read();
-                readThis(Tokens.EXISTS);
-
-                ifNot = true;
-            } else {
-                rewind(position);
-            }
-        }
-
+        Boolean ifNotExists = readIfNotExists();
         /*
                 CREATE SEQUENCE <name>
                 [AS {INTEGER | BIGINT}]
@@ -1064,7 +1059,7 @@ public class ParserDDL extends ParserRoutine {
 
         String     sql            = getLastPart();
         Object[]   args           = new Object[] {
-            sequence, Boolean.valueOf(ifNot)
+            sequence, ifNotExists
         };
         HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
 
@@ -1309,6 +1304,8 @@ public class ParserDDL extends ParserRoutine {
 
         read();
 
+        Boolean ifNotExists = readIfNotExists();
+
         indexHsqlName = readNewSchemaObjectName(SchemaObject.INDEX, true);
 
         while (token.tokenType != Tokens.ON) {
@@ -1340,7 +1337,7 @@ public class ParserDDL extends ParserRoutine {
         String   sql          = getLastPart();
         Object[] args         = new Object[] {
             table, indexColumns, indexHsqlName, Boolean.valueOf(unique),
-            qualifiers
+            null, ifNotExists
         };
 
         return new StatementSchema(sql, StatementTypes.CREATE_INDEX, args,
@@ -1713,8 +1710,8 @@ public class ParserDDL extends ParserRoutine {
                                    null, writeLockNames);
     }
 
-    Statement compileAlterTableAddUniqueConstraint(Table table,
-            HsqlName name) {
+    Statement compileAlterTableAddUniqueConstraint(Table table, HsqlName name,
+            Boolean ifNotExists) {
 
         if (name == null) {
             name = database.nameManager.newAutoName("CT",
@@ -1732,7 +1729,7 @@ public class ParserDDL extends ParserRoutine {
                                       SchemaObject.ConstraintTypes.UNIQUE);
         String   sql  = getLastPart();
         Object[] args = new Object[] {
-            StatementTypes.ADD_CONSTRAINT, table, c
+            StatementTypes.ADD_CONSTRAINT, table, c, ifNotExists
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
@@ -1743,7 +1740,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     Statement compileAlterTableAddForeignKeyConstraint(Table table,
-            HsqlName name) {
+            HsqlName name, Boolean ifNotExists) {
 
         if (name == null) {
             name = database.nameManager.newAutoName("FK",
@@ -1766,7 +1763,7 @@ public class ParserDDL extends ParserRoutine {
 
         String   sql  = getLastPart();
         Object[] args = new Object[] {
-            StatementTypes.ADD_CONSTRAINT, table, c
+            StatementTypes.ADD_CONSTRAINT, table, c, ifNotExists
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
@@ -1782,7 +1779,8 @@ public class ParserDDL extends ParserRoutine {
                                    null, writeLockNames);
     }
 
-    Statement compileAlterTableAddCheckConstraint(Table table, HsqlName name) {
+    Statement compileAlterTableAddCheckConstraint(Table table, HsqlName name,
+            Boolean ifNotExists) {
 
         Constraint check;
 
@@ -1798,7 +1796,7 @@ public class ParserDDL extends ParserRoutine {
 
         String     sql            = getLastPart();
         Object[]   args           = new Object[] {
-            StatementTypes.ADD_CONSTRAINT, table, check
+            StatementTypes.ADD_CONSTRAINT, table, check, ifNotExists
         };
         HsqlName[] writeLockNames = new HsqlName[] {
             database.getCatalogName(), table.getName()
@@ -1852,7 +1850,8 @@ public class ParserDDL extends ParserRoutine {
                                    null, writeLockNames);
     }
 
-    Statement compileAlterTableAddPrimaryKey(Table table, HsqlName name) {
+    Statement compileAlterTableAddPrimaryKey(Table table, HsqlName name,
+            Boolean ifNotExists) {
 
         if (name == null) {
             name = session.database.nameManager.newAutoName("PK",
@@ -1869,7 +1868,7 @@ public class ParserDDL extends ParserRoutine {
 
         String   sql  = getLastPart();
         Object[] args = new Object[] {
-            StatementTypes.ADD_CONSTRAINT, table, constraint
+            StatementTypes.ADD_CONSTRAINT, table, constraint, ifNotExists
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
@@ -2642,18 +2641,16 @@ public class ParserDDL extends ParserRoutine {
 
     private StatementSchema compileRightGrantOrRevoke(boolean grant) {
 
-        OrderedHashSet granteeList = new OrderedHashSet();
-        Grantee        grantor     = null;
-        Right          right       = null;
-
-//        SchemaObject   schemaObject;
-        HsqlName objectName    = null;
-        boolean  isTable       = false;
-        boolean  isUsage       = false;
-        boolean  isExec        = false;
-        boolean  isAll         = false;
-        boolean  isGrantOption = false;
-        boolean  cascade       = false;
+        OrderedHashSet granteeList   = new OrderedHashSet();
+        Grantee        grantor       = null;
+        Right          right         = null;
+        HsqlName       objectName    = null;
+        boolean        isTable       = false;
+        boolean        isUsage       = false;
+        boolean        isExec        = false;
+        boolean        isAll         = false;
+        boolean        isGrantOption = false;
+        boolean        cascade       = false;
 
         if (!grant) {
             if (token.tokenType == Tokens.GRANT) {
