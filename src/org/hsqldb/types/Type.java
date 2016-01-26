@@ -590,7 +590,7 @@ public abstract class Type implements SchemaObject, Cloneable {
     }
 
     public int hashCode() {
-        return typeCode + (int) precision << 8 + scale << 16;
+        return typeCode + ((int) precision << 8) + (scale << 16);
     }
 
     public static TypedComparator newComparator(Session session) {

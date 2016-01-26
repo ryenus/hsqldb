@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2015, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,7 @@ public class Error {
         String s = getMessage(code);
 
         if (add != null) {
-            s += ": " + add.toString();
+            s += ": " + add;
         }
 
         return new HsqlException(t, s.substring(SQL_STATE_DIGITS + 1),
