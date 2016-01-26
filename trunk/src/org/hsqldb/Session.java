@@ -222,6 +222,19 @@ public class Session implements SessionInterface {
             return;
         }
 
+        closeInternal();
+        database.sessionManager.removeSession(this);
+        database.closeIfLast();
+
+        database = null;
+    }
+
+    void closeInternal() {
+
+        if (isClosed) {
+            return;
+        }
+
         rollback(false);
 
         try {
@@ -231,7 +244,6 @@ public class Session implements SessionInterface {
         sessionData.closeAllNavigators();
         sessionData.persistentStoreCollection.release();
         statementManager.reset();
-        database.sessionManager.removeSession(this);
 
         // keep sessionContext and sessionData
         rowActionList.clear();
@@ -241,11 +253,6 @@ public class Session implements SessionInterface {
         sessionContext.savepoints   = null;
         sessionContext.lastIdentity = null;
         intConnection               = null;
-
-        // on server this call causes reentry to this method when shutdown=true
-        database.closeIfLast();
-
-        database = null;
     }
 
     /**
@@ -461,6 +468,10 @@ public class Session implements SessionInterface {
         if (abortTransaction) {
             throw Error.error(ErrorCode.X_40001);
         }
+    }
+
+    public HsqlArrayList getRowActionList() {
+        return rowActionList;
     }
 
     /**
