@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -503,14 +503,14 @@ public abstract class Type implements SchemaObject, Cloneable {
     }
 
     /**
-     * Common type used in comparison opertions. other must be comparable
+     * Common type used in comparison operations. other must be comparable
      * with this.
      */
     public abstract Type getAggregateType(Type other);
 
     /**
-     * Result type of combining values of two types in different opertions.
-     * other type is not allways comparable with this, but a operation should
+     * Result type of combining values of two types in different operations.
+     * other type is not always comparable with this, but a operation should
      * be valid without any explicit CAST
      */
     public abstract Type getCombinedType(Session session, Type other,

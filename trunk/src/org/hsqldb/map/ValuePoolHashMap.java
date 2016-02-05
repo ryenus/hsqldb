@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.types.TimestampData;
  * implementation notes:
  *
  * NB: As of this version this class cannot be used for mixed object types
- * It is relativly easy to support this by adding an 'instanceof' test inside
+ * It is relatively easy to support this by adding an 'instanceof' test inside
  * each getOrAddXxxx method before casting the Set values to the target type
  * for comparison purposes.
  *

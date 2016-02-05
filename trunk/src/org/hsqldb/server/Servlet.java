@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2011, The HSQL Development Group
+ * Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,7 +93,7 @@ import org.hsqldb.rowio.RowOutputBinary;
 // fredt@users 20020130 - patch 475586 by wreissen@users
 // fredt@users 20020328 - patch 1.7.0 by fredt - error trapping
 // fredt@users 20030630 - patch 1.7.2 - new protocol, persistent sessions
-// fredt@users 20041112 - patch by Willian Crick - use web_inf directory
+// fredt@users 20041112 - patch by William Crick - use web_inf directory
 
 /**
  * Servlet can act as an interface between the client and the database for the

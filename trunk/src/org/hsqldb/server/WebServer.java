@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.resources.ResourceBundleHandler;
 
 // fredt@users 20020215 - patch 1.7.0 by fredt
-// method rorganised to use new HsqlServerProperties class
+// method re-organised to use new HsqlServerProperties class
 // unsaved@users 20021113 - patch 1.7.2 - SSL support
 // boucherb@users 20030510 - patch 1.7.2 - SSL support moved to factory interface
 // boucherb@users 20030510 - patch 1.7.2 - moved all common code to Server
@@ -61,7 +61,7 @@ import org.hsqldb.resources.ResourceBundleHandler;
  *  The secondary function of WebServer is to act as a simple general purpose
  *  HTTP server. It is aimed to support the minimum requirements set out by
  *  the HTTP/1.0 standard. The HEAD and GET methods can be used to query and
- *  retreive static files from the HTTP server.<p>
+ *  retrieve static files from the HTTP server.<p>
  *
  *  Both the database server and HTTP server functions of WebServer can be
  *  configured with the webserver.properties file. It contains entries for the
@@ -250,7 +250,7 @@ public class WebServer extends Server {
      * Retrieves a string respresentaion of the network protocol
      * this server offers, typically one of 'HTTP', HTTPS', 'HSQL' or 'HSQLS'.
      *
-     * @return string respresentation of this server's protocol
+     * @return string representation of this server's protocol
      *
      * @jmx.managed-attribute
      *  access="read-only"

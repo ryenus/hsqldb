@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -182,7 +182,7 @@ public class TextCache extends DataFileCache {
     }
 
     /**
-     *  Writes newly created rows to disk. In the current implentation,
+     *  Writes newly created rows to disk. In the current implementation,
      *  such rows have already been saved, so this method just removes a
      *  source file that has no rows.
      */

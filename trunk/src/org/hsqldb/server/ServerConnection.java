@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2011, The HSQL Development Group
+ * Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1723,7 +1723,7 @@ class ServerConnection implements Runnable {
             }
 
             server.print(
-                "Got an ODBC cancelation request for thread ID "
+                "Got an ODBC cancellation request for thread ID "
                 + dataInput.readInt() + ", but we don't support "
                 + "OOB cancellation yet.  "
                 + "Ignoring this request and closing the connection.");
@@ -1871,7 +1871,7 @@ class ServerConnection implements Runnable {
     private java.util.Map sessionOdbcPortalMap = new java.util.HashMap();
 
     /**
-     * Read String directy from dataInput.
+     * Read String directly from dataInput.
      *
      * @param reqLength Required length
      */

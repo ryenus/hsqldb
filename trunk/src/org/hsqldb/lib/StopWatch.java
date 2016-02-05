@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ package org.hsqldb.lib;
  * elapsed running time.  The watch accumulates elapsed time over starts
  * and stops such that only the time actually spent running is recorded.
  * If the watch is zeroed, then the accumulated time is discarded and
- * the watch starts again with zero acumulated time. <p>
+ * the watch starts again with zero accumulated time. <p>
  *
  * @author boucherb@users
  * @version 1.7.2
@@ -167,7 +167,7 @@ public class StopWatch {
     /**
      * Retrieves the internal state of this object, as a String.
      *
-     * The retreived value is:
+     * The retrieved value is:
      *
      * <pre>
      *    super.toString() +

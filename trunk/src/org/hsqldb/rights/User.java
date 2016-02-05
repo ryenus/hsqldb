@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,7 +97,7 @@ public class User extends Grantee {
     }
 
     /**
-     * Checks if this object's password attibute equals
+     * Checks if this object's password attribute equals
      * specified argument, else throws.
      */
     public void checkPassword(String value) {

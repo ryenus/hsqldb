@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -236,7 +236,7 @@ public class ServerProperties extends HsqlProperties {
 
     /**
      * Checks an alias or database path. Duplicates are checked as duplicate
-     * numbering may result from differnt strings (e.g. 02 and 2).
+     * numbering may result from different strings (e.g. 02 and 2).
      */
     String validateMultiProperty(String key, Object[] meta) {
 
@@ -252,7 +252,7 @@ public class ServerProperties extends HsqlProperties {
         try {
             dbNumber = Integer.parseInt(key.substring(prefix.length() + 1));
         } catch (NumberFormatException e1) {
-            return ("maformed database enumerator: " + key);
+            return ("malformed database enumerator: " + key);
         }
 
         if (meta[indexName].equals(sc_key_dbname)) {

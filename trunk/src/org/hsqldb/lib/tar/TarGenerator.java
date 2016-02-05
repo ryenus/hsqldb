@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -401,7 +401,7 @@ public class TarGenerator {
              *  Really bad to make pseudo-stream just to get a byte array out
              * of it, but it would be a very poor use of development time to
              * re-design this class because the comparative time wasted at
-             * runtime will be negligable compared to storing the data entries.
+             * runtime will be negligible compared to storing the data entries.
              */
             return new TarEntrySupplicant(
                 pif.getName(), new ByteArrayInputStream(pif.toByteArray()),
