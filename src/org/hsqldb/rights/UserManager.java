@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -175,7 +175,7 @@ public final class UserManager {
      *    <LI>revoking all rights from the removed User<br>
      *        (this ensures that in case there are still references to the
      *        just dropped User object, those references
-     *        cannot be used to erronously access database objects).
+     *        cannot be used to erroneously access database objects).
      *
      *  </UL> <p>
      *

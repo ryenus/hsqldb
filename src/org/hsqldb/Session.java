@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -570,7 +570,7 @@ public class Session implements SessionInterface {
     }
 
     /**
-     * Commits any uncommited transaction this Session may have open
+     * Commits any uncommitted transaction this Session may have open
      *
      * @throws  HsqlException
      */
@@ -604,7 +604,7 @@ public class Session implements SessionInterface {
     }
 
     /**
-     * Rolls back any uncommited transaction this Session may have open.
+     * Rolls back any uncommitted transaction this Session may have open.
      *
      * @throws  HsqlException
      */
