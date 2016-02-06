@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * @since 1.7.2
  *
  */
-public class SetFunction implements Serializable {
+public class SetFunction {
 
     private HashSet distinctValues;
     private boolean isDistinct;
@@ -616,7 +616,7 @@ public class SetFunction implements Serializable {
 
     // end long sum
     // statistics support - written by Campbell
-    // this section was orginally an independent class
+    // this section was originally an independent class
     private double  sk;
     private double  vk;
     private long    n;
