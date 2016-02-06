@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -200,11 +200,11 @@ implements RowInputInterface {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowInputTextLog");
     }
 
-    public short readShort()  {
+    public short readShort() {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowInputTextLog");
     }
 
-    public int readInt()  {
+    public int readInt() {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowInputTextLog");
     }
 
@@ -212,7 +212,7 @@ implements RowInputInterface {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowInputTextLog");
     }
 
-    public int readType()  {
+    public int readType() {
         return 0;
     }
 
@@ -222,14 +222,14 @@ implements RowInputInterface {
         return false;
     }
 
-    protected String readChar(Type type){
+    protected String readChar(Type type) {
 
         readField();
 
         return (String) value;
     }
 
-    protected Integer readSmallint()  {
+    protected Integer readSmallint() {
 
         readNumberField(Type.SQL_SMALLINT);
 
@@ -284,10 +284,10 @@ implements RowInputInterface {
                 } else if (((Number) value).doubleValue() == 0E0) {
                     i = Double.NaN;
                 } else {
-                    throw Error.error(ErrorCode.X_42584);
+                    throw Error.error(ErrorCode.X_42585);
                 }
             } else {
-                throw Error.error(ErrorCode.X_42584);
+                throw Error.error(ErrorCode.X_42585);
             }
 
             value = Double.valueOf(i);
@@ -309,7 +309,7 @@ implements RowInputInterface {
         return bd;
     }
 
-    protected TimeData readTime(Type type)  {
+    protected TimeData readTime(Type type) {
 
         readField();
 
@@ -369,7 +369,7 @@ implements RowInputInterface {
                     dateTime.getTime());
             int nanos = dateTime.getNanos();
 
-            nanos = ((DateTimeType) type).normaliseFraction(nanos, type.scale);
+            nanos = DateTimeType.normaliseFraction(nanos, type.scale);
 
             return new TimestampData(millis / 1000, nanos, 0);
         }
@@ -377,7 +377,7 @@ implements RowInputInterface {
         return scanner.newTimestamp((String) value);
     }
 
-    protected IntervalMonthData readYearMonthInterval(Type type){
+    protected IntervalMonthData readYearMonthInterval(Type type) {
 
         readField();
 
@@ -401,7 +401,7 @@ implements RowInputInterface {
                 (IntervalType) type);
     }
 
-    protected Boolean readBoole()  {
+    protected Boolean readBoole() {
 
         readFieldPrefix();
         scanner.scanNext();
@@ -419,7 +419,7 @@ implements RowInputInterface {
         return (Boolean) value;
     }
 
-    protected Object readOther()  {
+    protected Object readOther() {
 
         readFieldPrefix();
 
@@ -438,7 +438,7 @@ implements RowInputInterface {
         return new JavaObjectData(((BinaryData) value).getBytes());
     }
 
-    protected BinaryData readBit()  {
+    protected BinaryData readBit() {
 
         readFieldPrefix();
 
@@ -457,7 +457,7 @@ implements RowInputInterface {
         return (BinaryData) value;
     }
 
-    protected BinaryData readBinary()  {
+    protected BinaryData readBinary() {
 
         readFieldPrefix();
 

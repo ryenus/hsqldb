@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@ import org.hsqldb.index.NodeAVL;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.persist.RowStoreAVLDiskData;
 
 // fredt@users 20021205 - path 1.7.2 - enhancements
 // fredt@users 20021215 - doc 1.7.2 - javadoc comments
@@ -47,15 +48,15 @@ import org.hsqldb.rowio.RowOutputInterface;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @version 1.7.0
  */
 public class RowAVLDiskData extends RowAVL {
 
-    PersistentStore store;
-    int             accessCount;
-    boolean         hasDataChanged;
-    int             storageSize;
+    RowStoreAVLDiskData store;
+    int                 accessCount;
+    boolean             hasDataChanged;
+    int                 storageSize;
 
     /**
      *  Constructor for new rows.
@@ -66,7 +67,7 @@ public class RowAVLDiskData extends RowAVL {
 
         setNewNodes(store);
 
-        this.store     = store;
+        this.store     = (RowStoreAVLDiskData) store;
         hasDataChanged = true;
     }
 
@@ -74,7 +75,7 @@ public class RowAVLDiskData extends RowAVL {
      *  Constructor when read from the disk into the Cache. The link with
      *  the Nodes is made separetly.
      */
-    public RowAVLDiskData(PersistentStore store, TableBase t,
+    public RowAVLDiskData(RowStoreAVLDiskData store, TableBase t,
                           RowInputInterface in) throws IOException {
 
         super(t, (Object[]) null);
@@ -88,12 +89,6 @@ public class RowAVLDiskData extends RowAVL {
         this.store     = store;
     }
 
-    public void getRowData(TableBase t,
-                                      RowInputInterface in)
-                                      throws IOException {
-        rowData = in.readData(t.getColumnTypes());
-    }
-
     public void setData(Object[] data) {
         this.rowData = data;
     }
@@ -103,8 +98,7 @@ public class RowAVLDiskData extends RowAVL {
         Object[] data = rowData;
 
         if (data == null) {
-            store.get(this, true);
-
+            data = store.getData(this);
             data = rowData;
 
             this.keepInMemory(false);

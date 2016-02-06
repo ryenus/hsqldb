@@ -1512,6 +1512,7 @@ public class BaseHashMap {
             toNextLookup();
 
             oldKey = value;
+
             return value;
         }
 
@@ -1611,7 +1612,7 @@ public class BaseHashMap {
 
         public long nextLong() throws NoSuchElementException {
 
-            if ((!isLongKey || !keys)) {
+            if ((keys && !isLongKey) || (!keys && !isLongValue)) {
                 throw new NoSuchElementException("Hash Iterator");
             }
 
@@ -1622,11 +1623,8 @@ public class BaseHashMap {
 
                 lookup = nextLookup(lookup);
 
-                if (keys) {
-                    return longKeyTable[lookup];
-                } else {
-                    return longValueTable[lookup];
-                }
+                return keys ? longKeyTable[lookup]
+                            : longValueTable[lookup];
             }
 
             throw new NoSuchElementException("Hash Iterator");

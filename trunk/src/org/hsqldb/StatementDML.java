@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -113,7 +113,7 @@ public class StatementDML extends StatementDMQL {
             limit = limits[1];
         }
 
-        setDatabseObjects(session, compileContext);
+        setDatabaseObjects(session, compileContext);
         checkAccessRights(session);
 
         if (type == StatementTypes.TRUNCATE) {
@@ -127,7 +127,7 @@ public class StatementDML extends StatementDMQL {
      * Instantiate this as an UPDATE statement.
      */
     StatementDML(Session session, Expression[] targets, Table targetTable,
-                 RangeVariable targetRange, RangeVariable rangeVars[],
+                 RangeVariable targetRange, RangeVariable[] rangeVars,
                  int[] updateColumnMap, Expression[] colExpressions,
                  boolean[] checkColumns, CompileContext compileContext,
                  SortAndSlice sortAndSlice) {
@@ -153,7 +153,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         setupChecks();
-        setDatabseObjects(session, compileContext);
+        setDatabaseObjects(session, compileContext);
         checkAccessRights(session);
         targetRange.addAllColumns();
     }
@@ -192,7 +192,7 @@ public class StatementDML extends StatementDMQL {
         this.isMergeDeleteFirst   = deleteFirst;
 
         setupChecks();
-        setDatabseObjects(session, compileContext);
+        setDatabaseObjects(session, compileContext);
         checkAccessRights(session);
     }
 
@@ -1296,8 +1296,7 @@ public class StatementDML extends StatementDMQL {
                 HsqlName tableName =
                     targetTable.fkMainConstraints[i].getRef().getName();
                 Table refTable =
-                    session.database.schemaManager.getUserTable(session,
-                        tableName);
+                    session.database.schemaManager.getUserTable(tableName);
 
                 if (!refTable.isEmpty(session)) {
                     throw Error.error(ErrorCode.X_23504,

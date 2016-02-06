@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -171,7 +171,7 @@ public class TableWorks {
      * <p> Since version 1.7.2, a unique constraint on the referenced columns
      * must exist. The non-unique index on the referencing table is now always
      * created whether or not a PK or unique constraint index on the columns
-     * exist. Foriegn keys on temp tables can reference other temp tables with
+     * exist. Foreign keys on temp tables can reference other temp tables with
      * the same rules above. Foreign keys on permanent tables cannot reference
      * temp tables. Duplicate foreign keys are now disallowed.
      *
@@ -230,7 +230,7 @@ public class TableWorks {
         database.schemaManager.addSchemaObject(c);
         setNewTableInSchema(tn);
 
-        Table mainTable = database.schemaManager.getUserTable(session,
+        Table mainTable = database.schemaManager.getUserTable(
             c.core.mainTable.getName().name,
             c.core.mainTable.getSchemaName().name);
 
@@ -355,9 +355,8 @@ public class TableWorks {
 
                     addFK          = true;
                     c.core.refCols = new int[]{ colIndex };
-                    c.core.mainTable =
-                        database.schemaManager.getUserTable(session,
-                            c.getMainTableName());
+                    c.core.mainTable = database.schemaManager.getUserTable(
+                        c.getMainTableName());
                     c.core.refTable = tn;
                     c.core.refName  = c.getName();
 
@@ -482,24 +481,24 @@ public class TableWorks {
 
             if (c.getConstraintType()
                     == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
-                Table refT = database.schemaManager.getUserTable(session,
+                Table refT = database.schemaManager.getUserTable(
                     c.core.refTable.getName());
 
                 c.core.refTable = refT;
 
-                Table mainT = database.schemaManager.getUserTable(session,
+                Table mainT = database.schemaManager.getUserTable(
                     c.core.mainTable.getName());
                 Constraint mainC = mainT.getConstraint(c.getMainName().name);
 
                 mainC.core = c.core;
             } else if (c.getConstraintType()
                        == SchemaObject.ConstraintTypes.MAIN) {
-                Table mainT = database.schemaManager.getUserTable(session,
+                Table mainT = database.schemaManager.getUserTable(
                     c.core.mainTable.getName());
 
                 c.core.mainTable = mainT;
 
-                Table refT = database.schemaManager.getUserTable(session,
+                Table refT = database.schemaManager.getUserTable(
                     c.core.refTable.getName());
                 Constraint refC = refT.getConstraint(c.getRefName().name);
 

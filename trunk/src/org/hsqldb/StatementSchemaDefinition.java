@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -190,9 +190,8 @@ public class StatementSchemaDefinition extends StatementSchema {
             try {
                 for (int i = 0; i < constraints.size(); i++) {
                     Constraint c = (Constraint) constraints.get(i);
-                    Table table =
-                        session.database.schemaManager.getUserTable(session,
-                            c.core.refTableName);
+                    Table table = session.database.schemaManager.getUserTable(
+                        c.core.refTableName);
 
                     ParserDDL.addForeignKey(session, table, c, null);
 

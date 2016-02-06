@@ -48,7 +48,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * has been added to differentiate HSQLDB-specific type specializations.
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.4
  * @since 1.7.2
  */
 public class Types {
@@ -593,9 +593,8 @@ public class Types {
      */
     public static Type getParameterSQLType(Class c) {
 
-        String  name;
-        int     typeCode;
-        boolean isArray;
+        String name;
+        int    typeCode;
 
         if (c == null) {
             throw Error.runtimeError(ErrorCode.U_S0500, "Types");
@@ -618,15 +617,15 @@ public class Types {
             name     = c1.getName();
             typeCode = javaTypeNumbers.get(name, Integer.MIN_VALUE);
 
-            if (typeCode != Integer.MIN_VALUE) {
-                return Type.getDefaultTypeWithSize(typeCode);
-            }
-
             if (typeCode == Types.SQL_ALL_TYPES) {
                 return null;
             }
 
-            return Type.getDefaultTypeWithSize(typeCode);
+            if (typeCode != Integer.MIN_VALUE) {
+                return Type.getDefaultTypeWithSize(typeCode);
+            }
+
+            return null;
         }
 
         if (name.equals("java.sql.Array")) {

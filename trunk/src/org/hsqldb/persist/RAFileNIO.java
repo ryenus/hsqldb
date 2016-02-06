@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ final class RAFileNIO implements RandomAccessInterface {
     private boolean                 buffersModified;
 
     //
-    private MappedByteBuffer buffers[] = new MappedByteBuffer[]{};
+    private MappedByteBuffer[] buffers = new MappedByteBuffer[]{};
 
     //
     private static final String JVM_ERROR = "NIO access failed";
@@ -81,7 +81,7 @@ final class RAFileNIO implements RandomAccessInterface {
     //
     static final int largeBufferScale = 24;
     static final int largeBufferSize  = 1 << largeBufferScale;
-    static final long largeBufferMask = 0xffffffffffffffffl
+    static final long largeBufferMask = 0xffffffffffffffffL
                                         << largeBufferScale;
 
     RAFileNIO(EventLogInterface logger, String name, boolean readOnly,

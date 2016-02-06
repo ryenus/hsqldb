@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -105,7 +105,7 @@ public enum TarHeaderField {
     prefix(345, 399),
     ;
 
-    private TarHeaderField(int start, int stop) {
+    TarHeaderField(int start, int stop) {
         this.start = start;
         this.stop = stop;
     }

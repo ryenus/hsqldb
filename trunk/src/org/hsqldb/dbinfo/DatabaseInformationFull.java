@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package org.hsqldb.dbinfo;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.UnsupportedEncodingException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -141,7 +142,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             try {
                 reader = new InputStreamReader(fis, "ISO-8859-1");
-            } catch (Exception e) {}
+            } catch (UnsupportedEncodingException e) {
+                reader = new InputStreamReader(fis);
+            }
 
             LineNumberReader lineReader = new LineNumberReader(reader);
             LineGroupReader  lg = new LineGroupReader(lineReader, starters);
@@ -2962,7 +2965,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 } else if (type.isIntervalType()) {
                     row[data_type] = "INTERVAL";
                     row[interval_type] =
-                        ((IntervalType) type).getQualifier(type.typeCode);
+                        IntervalType.getQualifier(type.typeCode);
                     row[interval_precision] =
                         ValuePool.getLong(type.precision);
                     row[datetime_precision] = ValuePool.getLong(type.scale);
@@ -3712,7 +3715,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             } else if (type.isIntervalType()) {
                 row[data_type] = "INTERVAL";
                 row[interval_type] =
-                    ((IntervalType) type).getQualifier(type.typeCode);
+                    IntervalType.getQualifier(type.typeCode);
                 row[interval_precision] = ValuePool.getLong(type.precision);
                 row[datetime_precision] = ValuePool.getLong(type.scale);
             } else if (type.isBinaryType()) {
@@ -4054,7 +4057,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         } else if (type.isIntervalType()) {
             row[data_type] = "INTERVAL";
             row[interval_type] =
-                ((IntervalType) type).getQualifier(type.typeCode);
+                IntervalType.getQualifier(type.typeCode);
             row[interval_precision] = ValuePool.getLong(type.precision);
             row[datetime_precision] = ValuePool.getLong(type.scale);
         } else if (type.isBinaryType()) {
@@ -4663,7 +4666,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     } else if (type.isIntervalType()) {
                         row[data_type] = "INTERVAL";
                         row[interval_type] =
-                            ((IntervalType) type).getQualifier(type.typeCode);
+                            IntervalType.getQualifier(type.typeCode);
                         row[interval_precision] =
                             ValuePool.getLong(type.precision);
                         row[datetime_precision] =
@@ -6242,7 +6245,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 } else if (type.isIntervalType()) {
                     row[data_type] = "INTERVAL";
                     row[interval_type] =
-                        ((IntervalType) type).getQualifier(type.typeCode);
+                        IntervalType.getQualifier(type.typeCode);
                     row[interval_precision] =
                         ValuePool.getLong(type.precision);
                     row[datetime_precision] = ValuePool.getLong(type.scale);
@@ -6694,16 +6697,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             return t;
         }
 
-        Session sys = database.sessionManager.newSysSession(
-            SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
-
-        /*
-                Result rs = sys.executeDirectStatement(
-                    "VALUES "
-                    + ";");
-
-                t.insertSys(session, store, rs);
-        */
         return t;
     }
 
@@ -8202,7 +8195,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             } else if (type.isIntervalType()) {
                 row[data_type] = "INTERVAL";
                 row[interval_type] =
-                    ((IntervalType) type).getQualifier(type.typeCode);
+                    IntervalType.getQualifier(type.typeCode);
                 row[interval_precision] = ValuePool.getLong(type.precision);
                 row[datetime_precision] = ValuePool.getLong(type.scale);
             } else if (type.isBinaryType()) {

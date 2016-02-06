@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -674,8 +674,7 @@ public class ParserDDL extends ParserRoutine {
 
         checkSchemaUpdateAuthorisation(schema);
 
-        Table t = database.schemaManager.getUserTable(session, tableName,
-            schema.name);
+        Table t = database.schemaManager.getUserTable(tableName, schema.name);
 
         read();
 
@@ -994,7 +993,6 @@ public class ParserDDL extends ParserRoutine {
         readThis(Tokens.AS);
         startRecording();
 
-        int             position = getPosition();
         QueryExpression queryExpression;
 
         try {
@@ -1336,8 +1334,8 @@ public class ParserDDL extends ParserRoutine {
         int[]    indexColumns = readColumnList(table, true);
         String   sql          = getLastPart();
         Object[] args         = new Object[] {
-            table, indexColumns, indexHsqlName, Boolean.valueOf(unique),
-            null, ifNotExists
+            table, indexColumns, indexHsqlName, Boolean.valueOf(unique), null,
+            ifNotExists
         };
 
         return new StatementSchema(sql, StatementTypes.CREATE_INDEX, args,
@@ -1752,8 +1750,9 @@ public class ParserDDL extends ParserRoutine {
         Constraint     c             = readFKReferences(table, name, set);
         HsqlName       mainTableName = c.getMainTableName();
 
-        c.core.mainTable = database.schemaManager.getUserTable(session,
-                mainTableName.name, mainTableName.schema.name);
+        c.core.mainTable =
+            database.schemaManager.getUserTable(mainTableName.name,
+                mainTableName.schema.name);
 
         c.setColumnsIndexes(table);
 
@@ -2685,7 +2684,7 @@ public class ParserDDL extends ParserRoutine {
             boolean loop = true;
 
             while (loop) {
-                checkIsUndelimitedIdentifer();
+                checkIsUndelimitedIdentifier();
 
                 int rightType =
                     GranteeManager.getCheckSingleRight(token.tokenString);

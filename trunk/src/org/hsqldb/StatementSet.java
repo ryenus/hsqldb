@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ public class StatementSet extends StatementDMQL {
      * Trigger SET statement.
      */
     StatementSet(Session session, Expression[] targets, Table table,
-                 RangeVariable rangeVars[], int[] indexes,
+                 RangeVariable[] rangeVars, int[] indexes,
                  Expression[] colExpressions, CompileContext compileContext) {
 
         super(StatementTypes.ASSIGNMENT, StatementTypes.X_SQL_DATA_CHANGE,
@@ -83,7 +83,7 @@ public class StatementSet extends StatementDMQL {
         this.targetRangeVariables = rangeVars;
         isTransactionStatement    = false;
 
-        setDatabseObjects(session, compileContext);
+        setDatabaseObjects(session, compileContext);
         checkAccessRights(session);
     }
 
@@ -102,7 +102,7 @@ public class StatementSet extends StatementDMQL {
         sourceTypes            = expression.getNodeDataTypes();
         isTransactionStatement = false;
 
-        setDatabseObjects(session, compileContext);
+        setDatabaseObjects(session, compileContext);
         checkAccessRights(session);
     }
 
@@ -121,7 +121,7 @@ public class StatementSet extends StatementDMQL {
         sourceTypes            = query.getColumnTypes();
         isTransactionStatement = false;
 
-        setDatabseObjects(session, compileContext);
+        setDatabaseObjects(session, compileContext);
         checkAccessRights(session);
     }
 
@@ -376,7 +376,7 @@ public class StatementSet extends StatementDMQL {
     }
 
     static Result performAssignment(Session session, int[] variableIndexes,
-                                    Expression targets[], Object[] values,
+                                    Expression[] targets, Object[] values,
                                     Type[] sourceTypes) {
 
         for (int j = 0; j < values.length; j++) {

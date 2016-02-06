@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -288,7 +288,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * Blob value to a database, it is required to supply the Blob instance to
      * an updating or inserting setXXX method of a Prepared or Callable
      * Statement, or to supply the Blob instance to an updateXXX method of an
-     * updateable ResultSet. <p>
+     * updatable ResultSet. <p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -338,7 +338,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * Blob value to a database, it is required to supply the Blob instance to
      * an updating or inserting setXXX method of a Prepared or Callable
      * Statement, or to supply the Blob instance to an updateXXX method of an
-     * updateable ResultSet. <p>
+     * updatable ResultSet. <p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -406,7 +406,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * To propagate the updated Blob value to a database, it is required to
      * supply the Blob instance to an updating or inserting setXXX method of a
      * Prepared or Callable Statement, or to supply the Blob instance to an
-     * updateXXX method of an updateable ResultSet. <p>
+     * updateXXX method of an updatable ResultSet. <p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -475,7 +475,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * Blob value to a database, it is required to supply the Blob instance to
      * an updating or inserting setXXX method of a Prepared or Callable
      * Statement, or to supply the Blob instance to an updateXXX method of an
-     * updateable ResultSet. <p>
+     * updatable ResultSet. <p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -837,11 +837,11 @@ public class JDBCBlobFile implements java.sql.Blob {
             m_randomAccessFile.write(b);
         }
 
-        public void write(byte b[]) throws IOException {
+        public void write(byte[] b) throws IOException {
             m_randomAccessFile.write(b);
         }
 
-        public void write(byte b[], int off, int len) throws IOException {
+        public void write(byte[] b, int off, int len) throws IOException {
             m_randomAccessFile.write(b, off, len);
         }
 
@@ -896,11 +896,11 @@ public class JDBCBlobFile implements java.sql.Blob {
             return m_countdownInputStream.read();
         }
 
-        public int read(byte b[]) throws IOException {
+        public int read(byte[] b) throws IOException {
             return m_countdownInputStream.read(b);
         }
 
-        public int read(byte b[], int off, int len) throws IOException {
+        public int read(byte[] b, int off, int len) throws IOException {
             return m_countdownInputStream.read(b, off, len);
         }
 

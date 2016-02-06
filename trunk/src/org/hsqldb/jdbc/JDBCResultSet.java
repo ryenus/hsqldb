@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringInputStream;
 import org.hsqldb.navigator.RowSetNavigator;
-import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
@@ -4815,7 +4814,7 @@ public class JDBCResultSet implements ResultSet {
             return null;
         }
 
-        long millis = DateTimeType.normaliseTime(t.getSeconds()) * 1000;
+        long millis = DateTimeType.normaliseTime(t.getSeconds()) * 1000L;
 
         if (!resultMetaData.columnTypes[--columnIndex]
                 .isDateTimeTypeWithZone()) {

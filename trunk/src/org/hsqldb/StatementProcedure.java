@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,7 @@ public class StatementProcedure extends StatementDMQL {
             this.expression = expression;
         }
 
-        setDatabseObjects(session, compileContext);
+        setDatabaseObjects(session, compileContext);
         checkAccessRights(session);
 
         if (procedure != null) {
@@ -112,7 +112,7 @@ public class StatementProcedure extends StatementDMQL {
         this.procedure = procedure;
         this.arguments = arguments;
 
-        setDatabseObjects(session, compileContext);
+        setDatabaseObjects(session, compileContext);
         checkAccessRights(session);
         session.getGrantee().checkAccess(procedure);
 

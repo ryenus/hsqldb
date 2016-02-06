@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -798,7 +798,7 @@ public class RowAction extends RowActionBase {
                     throw Error.runtimeError(ErrorCode.U_S0500, "RowAction");
                 } else if (action.type == ACTION_INSERT) {
                     if (mode == TransactionManager.ACTION_READ) {
-                        actionType = action.ACTION_DELETE;
+                        actionType = ACTION_DELETE;
                     } else if (mode == TransactionManager.ACTION_DUP) {
                         actionType = ACTION_INSERT;
 
@@ -830,7 +830,7 @@ public class RowAction extends RowActionBase {
             } else {
                 if (action.type == ACTION_INSERT) {
                     if (mode == TransactionManager.ACTION_READ) {
-                        actionType = action.ACTION_DELETE;
+                        actionType = ACTION_DELETE;
                     } else if (mode == TransactionManager.ACTION_DUP) {
                         actionType = ACTION_INSERT;
 

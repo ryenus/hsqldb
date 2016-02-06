@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,6 @@ public class IntIndex {
     private boolean       hasChanged;
     private final boolean fixedSize;
     private int[]         keys;
-    private int[]         values;
 
 //
     private int targetSearchValue;
@@ -322,8 +321,6 @@ public class IntIndex {
                 if (i - baseIndex + 1 == count) {
                     return baseIndex;
                 }
-
-                continue;
             } else {
                 baseIndex = -1;
             }
@@ -672,7 +669,6 @@ public class IntIndex {
         count--;
 
         keys[count]   = 0;
-        values[count] = 0;
     }
 
     /**
@@ -700,7 +696,7 @@ public class IntIndex {
 
     /**
      * push key, value pair
-     * @return boolean true if susseful
+     * @return boolean true if successful
      */
     private boolean push(int key) {
         return addUnsorted(key);

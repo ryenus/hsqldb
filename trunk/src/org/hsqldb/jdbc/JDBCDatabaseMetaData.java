@@ -6262,6 +6262,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
                 uniqueNulls = value;
             }
         }
+
+        rs.close();
     }
     /**
      * Returns the name of the default schema for database.
@@ -6271,8 +6273,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         final ResultSet rs = executeSelect("SYSTEM_SCHEMAS",
             "IS_DEFAULT=TRUE");
 
-        return rs.next() ? rs.getString(1)
+        String value = rs.next() ? rs.getString(1)
                          : null;
+        rs.close();
+        return value;
     }
 
     String getConnectionDefaultSchema() throws SQLException {
@@ -6322,8 +6326,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         final ResultSet rs = executeSelect("SYSTEM_SCHEMAS",
             "IS_DEFAULT=TRUE");
 
-        return rs.next() ? rs.getString(2)
+        String value = rs.next() ? rs.getString(2)
                          : null;
+        rs.close();
+        return value;
     }
 
     /**

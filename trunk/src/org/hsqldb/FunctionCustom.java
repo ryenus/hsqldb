@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1356,13 +1356,18 @@ public class FunctionCustom extends FunctionSQL {
                         return null;
                     }
 
-                    if (dataType.isBinaryType()) {
-                        return new BinaryData(
-                            StringConverter.toBinaryUUID((String) data[0]),
-                            false);
-                    } else {
-                        return StringConverter.toStringUUID(
-                            ((BinaryData) data[0]).getBytes());
+                    try {
+                        if (dataType.isBinaryType()) {
+                            byte[] bytes =
+                                StringConverter.toBinaryUUID((String) data[0]);
+
+                            return new BinaryData(bytes, false);
+                        } else {
+                            return StringConverter.toStringUUID(
+                                ((BinaryData) data[0]).getBytes());
+                        }
+                    } catch (NumberFormatException e) {
+                        throw Error.error(ErrorCode.X_22026);
                     }
                 }
             }

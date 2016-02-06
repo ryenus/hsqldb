@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -228,6 +228,15 @@ public abstract class JDBCCommonDataSource implements Serializable {
     }
 
     /**
+     * Retrieves the jdbc database connection url attribute. <p>
+     *
+     * @return the jdbc database connection url attribute
+     */
+    public String getURL() {
+        return url;
+    }
+
+    /**
      * Retrieves the user name for the connection. <p>
      *
      * @return the username for the connection
@@ -299,7 +308,7 @@ public abstract class JDBCCommonDataSource implements Serializable {
     }
 
     /**
-     * Sets connection properties. If user / password / logginTimeout has been
+     * Sets connection properties. If user / password / loginTimeout has been
      * set with one of the setXXX() methods it will be added to the Properties
      * object.
      *

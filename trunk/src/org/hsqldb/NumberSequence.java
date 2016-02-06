@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.types.Types;
  * Maintains a sequence of numbers.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  1.9.0
+ * @version  2.3.4
  * @since 1.7.2
  */
 public final class NumberSequence implements SchemaObject {
@@ -75,13 +75,6 @@ public final class NumberSequence implements SchemaObject {
     private boolean isAlways;
     private boolean restartValueDefault;
 
-    public NumberSequence() {
-
-        try {
-            setDefaults(null, Type.SQL_BIGINT);
-        } catch (HsqlException e) {}
-    }
-
     public NumberSequence(HsqlName name, Type type) {
         setDefaults(name, type);
     }
@@ -90,7 +83,6 @@ public final class NumberSequence implements SchemaObject {
 
         this.name     = name;
         this.dataType = type;
-        this.name     = name;
 
         long min;
         long max;
@@ -559,14 +551,12 @@ public final class NumberSequence implements SchemaObject {
 
     synchronized NumberSequence duplicate() {
 
-        NumberSequence copy = new NumberSequence();
+        NumberSequence copy = new NumberSequence(name, dataType);
 
-        copy.name       = name;
         copy.startValue = startValue;
         copy.currValue  = currValue;
         copy.lastValue  = lastValue;
         copy.increment  = increment;
-        copy.dataType   = dataType;
         copy.minValue   = minValue;
         copy.maxValue   = maxValue;
         copy.isCycle    = isCycle;
@@ -619,7 +609,7 @@ public final class NumberSequence implements SchemaObject {
      * Updates are necessary for text tables
      * For memory tables, the logged and scripted RESTART WITH will override
      * this.
-     * No checks as values may have overridden the sequnece defaults
+     * No checks as values may have overridden the sequence defaults
      */
     synchronized long systemUpdate(long value) {
 

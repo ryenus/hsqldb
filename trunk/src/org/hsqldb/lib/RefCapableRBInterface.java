@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,19 +32,19 @@
 package org.hsqldb.lib;
 
 public interface RefCapableRBInterface {
-    public String getString();
-    public String getString(String... strings);
-    public String getExpandedString();
-    public String getExpandedString(String... strings);
-    public String getString(int i1);
-    public String getString(int i1, int i2);
-    public String getString(int i1, int i2, int i3);
-    public String getString(int i1, String s2);
-    public String getString(String s1, int i2);
-    public String getString(int i1, int i2, String s3);
-    public String getString(int i1, String s2, int i3);
-    public String getString(String s1, int i2, int i3);
-    public String getString(int i1, String s2, String s3);
-    public String getString(String s1, String s2, int i3);
-    public String getString(String s1, int i2, String s3);
+    String getString();
+    String getString(String... strings);
+    String getExpandedString();
+    String getExpandedString(String... strings);
+    String getString(int i1);
+    String getString(int i1, int i2);
+    String getString(int i1, int i2, int i3);
+    String getString(int i1, String s2);
+    String getString(String s1, int i2);
+    String getString(int i1, int i2, String s3);
+    String getString(int i1, String s2, int i3);
+    String getString(String s1, int i2, int i3);
+    String getString(int i1, String s2, String s3);
+    String getString(String s1, String s2, int i3);
+    String getString(String s1, int i2, String s3);
 }

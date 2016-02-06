@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,9 +42,9 @@ public interface InputStreamInterface {
 
     int read() throws IOException;
 
-    int read(byte bytes[]) throws IOException;
+    int read(byte[] bytes) throws IOException;
 
-    int read(byte bytes[], int offset, int length) throws IOException;
+    int read(byte[] bytes, int offset, int length) throws IOException;
 
     long skip(long count) throws IOException;
 
