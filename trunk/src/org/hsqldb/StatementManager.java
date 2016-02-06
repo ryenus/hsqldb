@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,10 +84,10 @@ public final class StatementManager {
     /** Map: Schema id (int) => {Map: SQL String => Compiled Statement id (long)} */
     private IntKeyHashMap schemaMap;
 
-    /** Map: Compiled statment id (int) => CompiledStatement object. */
+    /** Map: Compiled statement id (int) => CompiledStatement object. */
     private LongKeyHashMap csidMap;
 
-    /** Map: Compiled statment id (int) => number of uses of the statement */
+    /** Map: Compiled statement id (int) => number of uses of the statement */
     private LongKeyIntValueHashMap useMap;
 
     /**

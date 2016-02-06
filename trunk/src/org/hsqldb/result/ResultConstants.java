@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ public interface ResultConstants {
     int UPDATECOUNT = HSQL_API_BASE + 1;
 
     /**
-     * Indicates that the Result object encapsualtes an
+     * Indicates that the Result object encapsulates an
      * error response.
      */
     int ERROR = HSQL_API_BASE + 2;
@@ -77,7 +77,7 @@ public interface ResultConstants {
 
     /**
      * Indicates that the Result object encapsulates a response
-     * that communicates the acknowlegement of newly allocated
+     * that communicates the acknowledgement of newly allocated
      * Statement object in the form of its statementID
      * and metadata
      */

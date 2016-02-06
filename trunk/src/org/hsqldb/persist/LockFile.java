@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,7 +90,7 @@ import org.hsqldb.lib.StringConverter;
  *        distinguish with a reasonably high degree of accuracy between the
  *        existence of a lock file and some other type of file.<p>
  *
- *    <li>The generic rules used to aquire a cooperative lock condition are
+ *    <li>The generic rules used to acquire a cooperative lock condition are
  *        as follows:<p>
  *
  *    <ol>
@@ -108,12 +108,12 @@ import org.hsqldb.lib.StringConverter;
  *            <li>Attempt to atomically create the underlying file if and only
  *                if it does not yet exist, exit the polling loop immediately
  *                indicating success if the attempt succeeds, else fast fail
- *                the current poll if a security exeption is thrown in response
+ *                the current poll if a security exception is thrown in response
  *                to the attempt, else...<p>
  *
  *            <li>Test if the underlying file exists, fast failing the current
  *                poll if it is impossible to determine (i.e. if a security
- *                exeption is thrown).<p>
+ *                exception is thrown).<p>
  *
  *            <li>If the file does not exist, exit the polling loop immediately
  *                indicating success.<p>
@@ -178,7 +178,7 @@ import org.hsqldb.lib.StringConverter;
  *               <li>A cooperative lock condition was held by some other
  *                   <tt>LockFile</tt>.
  *
- *               <li>A kernel-enforced manditory or advisory file lock was held.
+ *               <li>A kernel-enforced mandatory or advisory file lock was held.
  *            </ul> <p>
  *
  *            In this case, signify failure indicating the last encountered
@@ -219,22 +219,22 @@ import org.hsqldb.lib.StringConverter;
  * produces org.hsqldb.persist.NIOLockFile instances.<p>
  *
  * When <tt>NIOLockFile</tt> instances are produced, then it is possible that
- * true kernel-enforced advisory or manditory file locking is used to protect
+ * true kernel-enforced advisory or mandatory file locking is used to protect
  * the underlying lock file from inadvertent modification (and possibly even
  * from deletion, including deletion by the system superuser).
  *
  * Otherwise, <tt>newLockFile()</tt> produces vanilla <tt>LockFile</tt>
  * instances, which exhibit just the elementary cooperative locking behavior on
- * platforms that do not, by default, implement kernel-enforced manditory
+ * platforms that do not, by default, implement kernel-enforced mandatory
  * locking for open files. <p>
  *
  * At this point, it must be noted that not every target platform upon which
- * Java can run actually provides true kernel-enforced manditory (or even
+ * Java can run actually provides true kernel-enforced mandatory (or even
  * advisory) file locking. Indeed, even when a target platform <em>does</em>
  * provide such locking guarantees for local file systems, it may not be able
  * to do so for network file systems, or it may only be able to do so safely
  * (or at all) with certain restrictions. Further, external system configuration
- * may be a prerequisite to enable manditory locking on systems that support it
+ * may be a prerequisite to enable mandatory locking on systems that support it
  * but employ advisory locking by default. <p>
  *
  * In recognition of these facts, the official Java NIO package specification
@@ -242,7 +242,7 @@ import org.hsqldb.lib.StringConverter;
  * however, is that no capabilities API is yet provided as part of the package.
  * What is even more unfortunate is that without something like a capabilities
  * API, it is impossible for an implementation to indicate or clients to
- * distiguish between simple lack of platform support and cases involving
+ * distinguish between simple lack of platform support and cases involving
  * immature Java runtimes that do not fully or correctly implement all NIO
  * features (and hence may throw exceptions at unexpected times or in places
  * where the API specification indicates none can be thrown).<p>
@@ -308,9 +308,9 @@ import org.hsqldb.lib.StringConverter;
  * views under concurrent read-only access. <p>
  *
  * Second, to the limit of the author's present understanding, the
- * implementation details of this class represent a good comprimse under varying
+ * implementation details of this class represent a good compromise under varying
  * and generally uncontrollable JVM, OS and hardware platform
- * limitations/capabilites, as well as under usability considerations and
+ * limitations/capabilities, as well as under usability considerations and
  * external security or operating constraints that may need to be imposed.<p>
  *
  * Alternate approaches that have been considered and rejected for now
@@ -329,8 +329,8 @@ import org.hsqldb.lib.StringConverter;
  * As a final note and sign post for developers starting to work with
  * Java NIO: <p>
  *
- * A separate <tt>NIOLockFile</tt> descendent exists specifically
- * because it was determined though experimenatation that
+ * A separate <tt>NIOLockFile</tt> descendant exists specifically
+ * because it was determined though experimentation that
  * <tt>java.nio.channels.FileLock</tt> does not always exhibit the correct
  * or desired behaviour under reflective method invocation. That is, it was
  * discovered that under some operating system/JVM combinations, after calling
@@ -347,7 +347,7 @@ import org.hsqldb.lib.StringConverter;
  * To solve this, the original <tt>LockFile</tt> class was split in two and
  * instead of reflective method invocation, subclass instantiation is now
  * performed at the level of the <tt>newLockFile()</tt> factory method.
- * Similarly, the HSQLDB ANT build script now detects the presence or abscence
+ * Similarly, the HSQLDB ANT build script now detects the presence or absence
  * of JDK 1.4+ features such as java.nio and only attempts to build and deploy
  * <tt>NIOLockFile</tt> to the hsqldb.jar if such features are reported
  * present. <p>
@@ -359,7 +359,7 @@ import org.hsqldb.lib.StringConverter;
 public class LockFile {
 
     /**
-     * Arbitary period, in milliseconds, at which heartbeat timestamps are
+     * Arbitrary period, in milliseconds, at which heartbeat timestamps are
      * written to this object's lock file. <p>
      *
      * This value was selected to be very conservative, just in case timing
@@ -466,8 +466,8 @@ public class LockFile {
     // This static initializer comes last, since it references a subclass
     //
     // That is, it is best practice to ensure the static fields of this class
-    // are all initialized before referecing a subclass whose static
-    // field initializtion may in turn reference static fields in this class.
+    // are all initialized before referencing a subclass whose static
+    // field initialization may in turn reference static fields in this class.
     static {
         synchronized (LockFile.class) {
             boolean use = USE_NIO_FILELOCK_DEFAULT;
@@ -529,7 +529,7 @@ public class LockFile {
     /** Indicates presence or absence of the cooperative lock condition. */
     protected volatile boolean locked;
 
-    /** Opaque reference to this object's heatbeat task. */
+    /** Opaque reference to this object's heartbeat task. */
     private volatile Object timerTask;
 
     /**
@@ -683,7 +683,7 @@ public class LockFile {
      *     locking blanket policy for open files (e.g. <em>Windows</em><sup>tm
      *     </sup>), then this is likely a non-issue. And if this case makes
      *     possible a race condition with another <tt>LockFile</tt> object
-     *     (because the test for existence yeilds false and subsequent file
+     *     (because the test for existence yields false and subsequent file
      *     creation is not atomic relative to all other file system actions), it
      *     is still <em>very</em> unlikely that so unfortunate a timing will
      *     occur as to allow simultaneous lock conditions to be established.
@@ -719,7 +719,7 @@ public class LockFile {
      *
      * <li>Read the <tt>MAGIC</tt> value.
      *
-     * <li>If an end of file exepction is thrown above, it is rethrown as an
+     * <li>If an end of file exception is thrown above, it is rethrown as an
      *     <tt>UnexpectedEndOfFileException</tt> (we've already tested the
      *     length... did someone truncate the file in the interim?).
      *
@@ -739,7 +739,7 @@ public class LockFile {
      *     <tt>FileSecurityException</tt> (it <em>is</em> possible somebody
      *     concurrently refreshed the system Policy in the interim).
      *
-     * <li>If an end of file exection is thrown above, it is rethrown as an
+     * <li>If an end of file execution is thrown above, it is rethrown as an
      *     <tt>UnexpectedEndOfFileException</tt> (we've already tested the
      *     length... did someone truncate the file in the interim?).
      *
@@ -758,14 +758,14 @@ public class LockFile {
      *
      * @param withCreateNewFile if <tt>true</tt>, attempt to employ
      *      <tt>File.createNewFile()</tt> as part of the check so as to
-     *      eliminate potential race conditions when establising a new
+     *      eliminate potential race conditions when establishing a new
      *      lock file
      * @throws FileSecurityException if the check fails due to a Java
      *      security permission check failure
      * @throws LockHeldExternallyException if it is determined that the
      *      file's heartbeat timestamp is less than
      *      <tt>HEARTBEAT_INTERVAL_PADDED</tt> into the past (or future)
-     * @throws UnexpectedEndOfFileException if an <tt>EOFExceoption</tt> is
+     * @throws UnexpectedEndOfFileException if an <tt>EOFException</tt> is
      *      thrown while reading either the magic or heartbeat timestamp values
      * @throws UnexpectedFileIOException if an <tt>IOException</tt> other than
      *      <tt>EOFException</tt> is thrown while reading either the magic or
@@ -890,7 +890,7 @@ public class LockFile {
      * Provides any optional locking actions for the {@link #tryLock()
      * tryLock()} template method. <p>
      *
-     * Descendents are free to provide additional functionality here,
+     * Descendants are free to provide additional functionality here,
      * using the following rules: <p>
      *
      * <b>PRE:</b><p>
@@ -964,7 +964,7 @@ public class LockFile {
      *
      * In general, <tt>false</tt> should be returned if optional locking work
      * is not performed or if it fails, else <tt>true</tt>.  However, the return
-     * value is currenly treated  as purely informative. <p>
+     * value is currently treated  as purely informative. <p>
      *
      * <b>Note:</b> <p>
      *
@@ -1043,7 +1043,7 @@ public class LockFile {
      * Opens (constructs) this object's {@link #raf RandomAccessFile}. <p>
      *
      * @throws UnexpectedFileNotFoundException if a
-     *         <tt>FileNotFoundException</tt> is thrown in reponse to
+     *         <tt>FileNotFoundException</tt> is thrown in rseponse to
      *         constructing the <tt>RandomAccessFile</tt> object.
      * @throws FileSecurityException if a required system property value cannot
      *         be accessed, or if a Java security manager exists and its
@@ -1204,7 +1204,7 @@ public class LockFile {
 
     /**
      * Writes the {@link #MAGIC} value to this object's lock file that
-     * distiguishes it as an HSQLDB lock file. <p>
+     * distinguishes it as an HSQLDB lock file. <p>
      *
      * @throws FileSecurityException possibly never (seek and write are native
      *      methods whose JavaDoc entries do not actually specify throwing
@@ -1219,10 +1219,10 @@ public class LockFile {
      * @throws UnexpectedEndOfFileException if an end of file exception is
      *      thrown while attempting to write the <tt>MAGIC</tt> value to the
      *      target file (typically, this cannot happen, but the case is
-     *      included to distiguish it from the general <tt>IOException</tt>
+     *      included to distinguish it from the general <tt>IOException</tt>
      *      case).
      * @throws UnexpectedFileIOException if any other I/O error occurs while
-     *      attepting to write the <tt>MAGIC</tt> value to the target file.
+     *      attempting to write the <tt>MAGIC</tt> value to the target file.
      */
     private final void writeMagic()
     throws LockFile.FileSecurityException,
@@ -1246,7 +1246,7 @@ public class LockFile {
      * file. <p>
      *
      * @throws FileSecurityException possibly never (seek and write are native
-     *      methods whose JavaDoc entries do not actually specifiy throwing
+     *      methods whose JavaDoc entries do not actually specify throwing
      *      <tt>SecurityException</tt>).  However, it is conceivable that these
      *      native methods may, in turn, access Java methods that do throw
      *      <tt>SecurityException</tt>. In this case, a
@@ -1256,9 +1256,9 @@ public class LockFile {
      *      java.lang.SecurityManager#checkWrite(java.io.FileDescriptor)}</tt>
      *      method denies write access to the file
      * @throws UnexpectedEndOfFileException if an end of file exception is
-     *      thrown while attepting to write the heartbeat timestamp value to
+     *      thrown while attempting to write the heartbeat timestamp value to
      *      the target file (typically, this cannot happen, but the case is
-     *      included to distiguish it from the general IOException case).
+     *      included to distinguish it from the general IOException case).
      * @throws UnexpectedFileIOException if the current heartbeat timestamp
      *      value cannot be written due to an underlying I/O error
      */
@@ -1293,7 +1293,7 @@ public class LockFile {
      * this.file == null ? other.file == null : this.file.equals(other.file);
      * </pre>
      *
-     * yeilds true. <p>
+     * yields true. <p>
      *
      * Note that <tt>file</tt> must be a canonical reference to correctly
      * satisfy this contract. <p>
@@ -1353,12 +1353,12 @@ public class LockFile {
      *
      * <b>Note:</b> <p>
      *
-     * Due to platform-independence retrictions placed on a JVM, it is quite
+     * Due to platform-independence restrictions placed on a JVM, it is quite
      * possible to successfully acquire a lock condition and yet for the
      * condition to become invalid while still held. <p>
      *
      * For instance, under JVMs with no <tt>java.nio</tt> package or under
-     * operating systems that do not apply mandatory file locking (espcially
+     * operating systems that do not apply mandatory file locking (especially
      * mandatory locking that precludes deletion), it is quite possible for
      * another process or even an uncooperative bit of code running in the same
      * JVM to overwrite or delete the target lock file while this object holds
@@ -1380,7 +1380,7 @@ public class LockFile {
     /**
      * Retrieves whether there is potentially already a cooperative lock,
      * operating system lock or some other situation preventing a cooperative
-     * lock condition from being aquired using the specified path.
+     * lock condition from being acquired using the specified path.
      *
      * @param path the path to test
      * @return <tt>true</tt> if there is currently something preventing the
@@ -1697,7 +1697,7 @@ public class LockFile {
             // pulse.
             //
             // In general, what we'll get is two initial pulses in rapid
-            // sucession: one here and one an instant later as a result of
+            // succession: one here and one an instant later as a result of
             // startHeartbeat (which is OK... no harm, and it's one-shot
             // behaviour, not repeated on every writeHeartbeat)
             //
@@ -1718,7 +1718,7 @@ public class LockFile {
             //
             // But in an ideal world (with or without NIO), any pulse failure in
             // HeartbeatRunner.run() would flag the database Logger that a
-            // database lock condition violation has occured, preventing further
+            // database lock condition violation has occurred, preventing further
             // ad-hoc operation of the database.
             //
             // The problem is, if a lock condition has been violated that is
@@ -1758,7 +1758,7 @@ public class LockFile {
                 //
                 // If this LockFile is an NIOLockFile instance and
                 // doOptionalLockActions() failed above, then a 'best
-                // effort' optional release was already perfomed and
+                // effort' optional release was already performed and
                 // this will be a no-op.
                 //
                 // On the other hand, if doOptionalLockActions() succeeded, best
@@ -1870,7 +1870,7 @@ public class LockFile {
             // condition is no longer held.
             //
             // However, in a world of concurrent execution, we do not want to
-            // to expose this fact extenally until *after* all release work has
+            // to expose this fact externally until *after* all release work has
             // been at least attempted.
             this.locked = false;
         }
@@ -1926,7 +1926,7 @@ public class LockFile {
          *
          * @param lockFile the underlying <tt>LockFile</tt> object
          * @param inMethod the name of the method in which the exception
-         *        was originally thrown (may be passed up serveral levels)
+         *        was originally thrown (may be passed up several levels)
          */
         public BaseException(final LockFile lockFile, final String inMethod) {
 
@@ -1957,7 +1957,7 @@ public class LockFile {
         /**
          * Getter for <tt>inMethod</tt> property. <p>
          *
-         * @return name of method in which exception originally occured
+         * @return name of method in which exception originally occurred
          */
         public String getInMethod() {
             return this.inMethod;
@@ -1991,7 +1991,7 @@ public class LockFile {
          *
          * @param lockFile the underlying <tt>LockFile</tt> object
          * @param inMethod the name of the method in which the exception
-         *        was originally thrown (may be passed up serveral levels)
+         *        was originally thrown (may be passed up several levels)
          * @param reason the exception thrown during canonicalization
          */
         public FileCanonicalizationException(final LockFile lockFile,
@@ -2025,7 +2025,7 @@ public class LockFile {
 
     /**
      * Thrown when access to a <tt>LockFile</tt> object's target file raises a
-     * Java <tt>SecurityEception</tt>. <p>
+     * Java <tt>SecurityException</tt>. <p>
      *
      * This can occur if a required system property value cannot be accessed, or
      * if a security manager exists and its <tt>{@link
@@ -2048,7 +2048,7 @@ public class LockFile {
          *
          * @param lockFile the underlying LockFile object
          * @param inMethod the name of the method in which the exception
-         *        was originally thrown (may be passed up serveral levels)
+         *        was originally thrown (may be passed up several levels)
          * @param reason the underlying Java security exception
          */
         public FileSecurityException(final LockFile lockFile,
@@ -2082,7 +2082,7 @@ public class LockFile {
 
     /**
      * Thrown when an externally held lock condition prevents lock
-     * aquisition. <p>
+     * acquisition. <p>
      *
      * Specifically, this exception is thrown when polling fails because the
      * lock file's heartbeat timestamp value indicates that another LockFile
@@ -2100,7 +2100,7 @@ public class LockFile {
          *
          * @param lockFile the underlying <tt>LockFile</tt> object
          * @param inMethod the name of the method in which the exception
-         *        was originally thrown (may be passed up serveral levels)
+         *        was originally thrown (may be passed up srveral levels)
          * @param read the time, in milliseconds since 1970-01-01, at which
          *      the heartbeat timestamp value was read from the lock file
          * @param heartbeat the heartbeat timestamp value, in milliseconds
@@ -2167,7 +2167,7 @@ public class LockFile {
          *
          * @param lockFile the underlying <tt>LockFile</tt> object
          * @param inMethod the name of the method in which the exception
-         *        was originally thrown (may be passed up serveral levels)
+         *        was originally thrown (may be passed up several levels)
          * @param reason the underlying exception
          */
         public UnexpectedEndOfFileException(final LockFile lockFile,
@@ -2212,7 +2212,7 @@ public class LockFile {
          *
          * @param lockFile the underlying <tt>LockFile</tt> object
          * @param inMethod the name of the method in which the exception
-         *        was originally thrown (may be passed up serveral levels)
+         *        was originally thrown (may be passed up several levels)
          * @param reason the underlying exception
          */
         public UnexpectedFileIOException(final LockFile lockFile,
@@ -2258,7 +2258,7 @@ public class LockFile {
          *
          * @param lockFile the underlying <tt>LockFile</tt> object
          * @param inMethod the name of the method in which the exception
-         *        was originally thrown (may be passed up serveral levels)
+         *        was originally thrown (may be passed up several levels)
          * @param reason the underlying exception
          */
         public UnexpectedFileNotFoundException(
@@ -2303,7 +2303,7 @@ public class LockFile {
          *
          * @param lockFile the underlying LockFile object
          * @param inMethod the name of the method in which the exception
-         *        was originally thrown (may be passed up serveral levels)
+         *        was originally thrown (may be passed up several levels)
          * @param length the actual length reported by the file system
          */
         public WrongLengthException(final LockFile lockFile,
@@ -2315,7 +2315,7 @@ public class LockFile {
         }
 
         /**
-         * Retreives the actual length reported by the file system.
+         * Retrieves the actual length reported by the file system.
          *
          * @return the actual length reported by the file system
          */
@@ -2347,7 +2347,7 @@ public class LockFile {
          *
          * @param lockFile the underlying LockFile object
          * @param inMethod the name of the method in which the exception
-         *        was originally thrown (may be passed up serveral levels)
+         *        was originally thrown (may be passed up several levels)
          * @param magic the actual magic value read from the file
          */
         public WrongMagicException(final LockFile lockFile,

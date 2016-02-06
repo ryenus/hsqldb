@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -146,7 +146,7 @@ public final class InOutUtil {
      * @param outputStream to which to sink bytes
      * @param amount max # of bytes to transfer.
      * @param bufferSize to use internally
-     * @return the number of bytes <i>actually</i> transfered.
+     * @return the number of bytes <i>actually</i> transferred.
      * @throws IOException if any, thrown by either of the given stream objects
      */
     public static long copy(final InputStream inputStream,
@@ -215,7 +215,7 @@ public final class InOutUtil {
      * @param writer to which to sink characters
      * @param amount max # of characters to transfer.
      * @param bufferSize to use internally
-     * @return the number of characters <i>actually</i> transfered.
+     * @return the number of characters <i>actually</i> transferred.
      * @throws IOException if any, thrown by either of the given stream objects
      */
     public static long copy(final Reader reader, final Writer writer,

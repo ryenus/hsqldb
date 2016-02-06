@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -126,7 +126,7 @@ import org.hsqldb.types.Type;
  *
  * <P>(JDBC4 clarification:)
  * <P><B>Note:</B> When configuring a <code>Connection</code>, JDBC applications
- *  should use the appropritate <code>Connection</code> method such as
+ *  should use the appropriate <code>Connection</code> method such as
  *  <code>setAutoCommit</code> or <code>setTransactionIsolation</code>.
  *  Applications should not invoke SQL commands directly to change the connection's
  *   configuration when there is a JDBC method available.  By default a <code>Connection</code> object is in
@@ -313,7 +313,7 @@ import org.hsqldb.types.Type;
  * behaviour.  What this means is there is effectively no guarantee into the
  * future that a relative <b>file:</b> protocol database connection
  * <b>&lt;url&gt;</b> will connect to the same database instance for the life
- * of the JVM.  To avoid any future ambigutity issues, it is probably a best
+ * of the JVM.  To avoid any future ambiguity issues, it is probably a best
  * practice for clients to attempt to pre-canonicalize the <b>&lt;path&gt;</b>
  * component of <b>file:</b> protocol database connection* <b>&lt;url&gt;</b>s.
  * <p>
@@ -413,7 +413,7 @@ import org.hsqldb.types.Type;
  * files to be accessed concurrently by both <b>file:</b> and <b>res:</b>
  * database instances. That is, without this restriction, it is possible that
  * <b>&lt;path&gt;</b>.data and <b>&lt;path&gt;</b>.properties file content may
- * be written by a <b>file:</b> database instance without the knowlege or
+ * be written by a <b>file:</b> database instance without the knowledge or
  * cooperation of a <b>res:</b> database instance open on the same files,
  * potentially resulting in unexpected database errors, inconsistent operation
  * and/or data corruption. <p>
@@ -498,7 +498,7 @@ import org.hsqldb.types.Type;
  * qualified class name ('org.hsqldb.jdbc.JDBCDriver') of the HSQLDB implementation
  * of <code>java.sql.Driver</code>. <p>
  *
- * Hence, under JDBC 4.0 or greater, applications no longer need to explictly
+ * Hence, under JDBC 4.0 or greater, applications no longer need to explicitly
  * load the HSQLDB JDBC driver using <code>Class.forName()</code>. Of course,
  * existing programs which do load JDBC drivers using
  * <code>Class.forName()</code> will continue to work without modification. <p>
@@ -617,7 +617,7 @@ public class JDBCConnection implements Connection {
      * to use a <code>PreparedStatement</code> object if the same short-running
      * SQL statement is to be executed many times. <p>
      *
-     * The support for and behaviour of PreparedStatment complies with SQL and
+     * The support for and behaviour of PreparedStatement complies with SQL and
      * JDBC standards.  Please read the introductory section
      * of the documentation for ${link JDBCParameterMetaData}. <P>
      *
@@ -817,7 +817,7 @@ public class JDBCConnection implements Connection {
         // final int inside_single_line_comment          = 6;
         // final int inside_multi_line_comment           = 7;
         // Better than old way for large inputs and for avoiding GC overhead;
-        // toString() reuses internal char[], reducing memory requirment
+        // toString() reuses internal char[], reducing memory requirement
         // and garbage items 3:2
         int tail = 0;
 
@@ -2889,7 +2889,7 @@ public class JDBCConnection implements Connection {
             timeout = 60;
         }
 
-        // Remember:  parm is in *seconds*
+        // Remember:  param is in *seconds*
         timeout *= 1000;
 
         try {

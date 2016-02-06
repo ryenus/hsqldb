@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.types.Type;
 /** @todo 1.9.0 - implement internal support for INOUT, OUT return parameter */
 
 // fredt@users 20040412 - removed DITypeInfo dependencies
-// fredt@usres 1.9.0 - utilise the new type support
+// fredt@users 1.9.0 - utilise the new type support
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // boucherb@users 20060522 - doc   1.9.0 full synch up to Mustang Build 84
 // Revision 1.14  2006/07/12 12:20:49  boucherb
@@ -392,9 +392,9 @@ public class JDBCParameterMetaData
     }
 
     /**
-     * Retrieves a String repsentation of this object. <p>
+     * Retrieves a String representation of this object. <p>
      *
-     * @return a String repsentation of this object
+     * @return a String representation of this object
      */
     public String toString() {
 

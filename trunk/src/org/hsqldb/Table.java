@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1174,7 +1174,7 @@ public class Table extends TableBase implements SchemaObject {
      * HsqlName objects are used from the old tables but no object is reused.
      *
      * Does not work in this form for FK's as Constraint.ConstraintCore
-     * is not transfered to a referencing or referenced table
+     * is not transferred to a referencing or referenced table
      */
     Table moveDefinition(Session session, int newType, ColumnSchema column,
                          Constraint constraint, Index index, int colIndex,
@@ -2038,7 +2038,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     *  return the named constriant
+     *  return the named constraint
      */
     public Constraint getConstraint(String constraintName) {
 
@@ -2638,7 +2638,6 @@ public class Table extends TableBase implements SchemaObject {
         setIndexRoots(roots, uniqueSize, cardinality);
     }
 
-
     void generateAndCheckData(Session session, Object[] data) {
 
         if (hasGeneratedValues) {
@@ -2810,7 +2809,7 @@ public class Table extends TableBase implements SchemaObject {
 
     /**
      * If there is an identity column in the table, sets
-     * the value and/or adjusts the identiy value for the table.
+     * the value and/or adjusts the identity value for the table.
      */
     protected void setIdentityColumn(Session session, Object[] data) {
 

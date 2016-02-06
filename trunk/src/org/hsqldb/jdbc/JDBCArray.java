@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -446,7 +446,7 @@ public class JDBCArray implements Array {
      * element at index <code>index</code>.  The result set has
      * up to <code>count</code> rows in ascending order based on the
      * indices.  Each row has two columns:  The second column stores
-     * the element value; the first column stroes the index into the
+     * the element value; the first column stores the index into the
      * array for that element.
      *
      * @param index the array index of the first element to retrieve;

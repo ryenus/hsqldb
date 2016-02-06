@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -143,7 +143,7 @@ public class Charset implements SchemaObject {
                 SchemaObject.CHARSET);
         UTF8 = new Charset(name);
         /*
-         * Foundattion 4.2.1
+         * Foundation 4.2.1
          * Character sets defined by standards or by SQL-implementations reside
          * in the Information Schema (named INFORMATION_SCHEMA) in each catalog,
          * as do collations defined by standards and collations,

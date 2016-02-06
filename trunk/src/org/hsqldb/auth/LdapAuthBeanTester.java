@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,9 +68,9 @@ public class LdapAuthBeanTester {
      *         <CODE>'javax.net.ssl.trustStore'<CODE>.
      *     <LI>startTls.  Takes a boolean value according to
      *         method java.util.Boolean.parseBoolean.
-     *     <LI>roleSchemaValuePattern.  Correponds to method
+     *     <LI>roleSchemaValuePattern.  Corresponds to method
      *         setRoleSchemaValuePatternString
-     *     <LI>accessValuePattern.  Correponds to method
+     *     <LI>accessValuePattern.  Corresponds to method
      *         setAccessValuePatternString
      *     <LI>ldapPort
      *     <LI>securityMechanism

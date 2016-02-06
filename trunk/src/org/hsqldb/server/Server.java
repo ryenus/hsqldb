@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,7 @@ import org.hsqldb.result.ResultConstants;
  * the client-server mode of HSQLDB Database Engine. Instances of this
  * class handle native HSQL protocol connections exclusively, allowing database
  * queries to be performed efficiently across the network.  Server's direct
- * descendent, WebServer, handles HTTP protocol connections exclusively,
+ * descendant, WebServer, handles HTTP protocol connections exclusively,
  * allowing HSQL protocol to be tunnelled over HTTP to avoid sandbox and
  * firewall issues, albeit less efficiently. <p>
  *
@@ -616,7 +616,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      * Retrieves a string respresentaion of the network protocol
      * this server offers, typically one of 'HTTP', HTTPS', 'HSQL' or 'HSQLS'.
      *
-     * @return string respresentation of this server's protocol
+     * @return string representation of this server's protocol
      *
      * @jmx.managed-attribute
      *  access="read-only"
@@ -689,7 +689,6 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     public String getStateDescriptor() {
 
         String    state;
-        Throwable t = getServerError();
 
         switch (serverState) {
 
@@ -735,7 +734,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     }
 
     /**
-     * Assigns the specified socket to a new conection handler and
+     * Assigns the specified socket to a new connection handler and
      * starts the handler in a new Thread.
      *
      * @param s the socket to connect
@@ -859,7 +858,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      * @param path the path of the desired properties file, without the
      *      '.properties' file extension
      * @throws HsqlException if this server is running
-     * @return true if the indicated file was read sucessfully, else false
+     * @return true if the indicated file was read successfully, else false
      *
      * @jmx.managed-operation
      *  impact="ACTION"
@@ -879,9 +878,9 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      * Attempts to put properties from the file with given extension.
      *
      * @param path the path of the desired properties file.
-     * @param extension extension to add to parth
+     * @param extension extension to add to path
      * @throws HsqlException if this server is running
-     * @return true if the indicated file was read sucessfully, else false
+     * @return true if the indicated file was read successfully, else false
      *
      */
     public boolean putPropertiesFromFile(String path, String extension) {
@@ -1397,7 +1396,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      */
     public final void notify(int id) {
 
-        printWithThread("notifiy( database shutdown," + id + ") entered");
+        printWithThread("notify( database shutdown," + id + ") entered");
         releaseDatabase(id);
 
         boolean shutdown = true;
@@ -1847,7 +1846,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      * Opens this server's database instances. This method returns true If
      * at least one database goes online, otherwise it returns false.
      *
-     * If openning any of the databases is attempted and an exception is
+     * If opening any of the databases is attempted and an exception is
      * thrown, the server error is set to this exception.
      */
     final boolean openDatabases() {
@@ -1892,7 +1891,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
             String msg = "Database [index=" + i + ", id=" + id + ", db="
                          + dbType[i] + dbPath[i] + ", alias=" + dbAlias[i]
-                         + "] opened sucessfully";
+                         + "] opened successfully";
 
             print(sw.elapsedTimeToMessage(msg));
         }
@@ -1991,7 +1990,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
             try {
                 dbNumber = Integer.parseInt(key.substring(prefixLen));
             } catch (NumberFormatException e1) {
-                printWithThread("maformed database enumerator: " + key);
+                printWithThread("malformed database enumerator: " + key);
 
                 continue;
             }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -473,7 +473,7 @@ public final class ServerAcl {
     }
 
     /**
-     * Utility method that allows interactive testing of individal
+     * Utility method that allows interactive testing of individual
      * ACL records, as well as the net effect of the ACL record list.
      *
      * Run  "java -cp path/to/hsqldb.jar org.hsqldb.server.ServerAcl --help"

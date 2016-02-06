@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ import org.hsqldb.types.TimestampData;
 
 /**
  * Base remote session proxy implementation. Uses instances of Result to
- * transmit and recieve data. This implementation utilises the updated HSQL
+ * transmit and receive data. This implementation utilises the updated HSQL
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -161,7 +161,7 @@ public class ClientConnection implements SessionInterface {
     }
 
     /**
-     * resultOut is reused to trasmit all remote calls for session management.
+     * resultOut is reused to transmit all remote calls for session management.
      * Here the structure is preset for sending attributes.
      */
     private void initStructures() {
@@ -633,7 +633,7 @@ public class ClientConnection implements SessionInterface {
 
     /**
      * Converts specified encoded integer to a Network Compatibility Version
-     * String. The tranmitted integer is negative to distinguish it from
+     * String. The transmitted integer is negative to distinguish it from
      * 7 bit ASCII characters.
      */
     public static String toNetCompVersionString(int i) {

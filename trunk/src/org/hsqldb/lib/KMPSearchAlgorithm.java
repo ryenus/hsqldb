@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -285,12 +285,12 @@ public class KMPSearchAlgorithm {
             if (source[sourceIndex] == pattern[patternIndex]) {
                 patternIndex++;
             } else {
-                final int tableVaue = table[patternIndex];
+                final int tableValue = table[patternIndex];
 
-                matchStart += (patternIndex - tableVaue);
+                matchStart += (patternIndex - tableValue);
 
                 if (patternIndex > 0) {
-                    patternIndex = tableVaue;
+                    patternIndex = tableValue;
                 }
 
                 patternIndex++;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,7 +112,7 @@ public class JDBCDataSourceFactory implements ObjectFactory {
      *
      * The Reference object's class name should be one of the four supported
      * data source class names and it must support the properties, database,
-     * user and password. It may optionally support the logingTimeout property.
+     * user and password. It may optionally support the loginTimeout property.
      *
      * HyperSQL's JDBCPooledDataSource and JDBCXADataSource object are intended
      * as factories used by a connection pooling DataSource.<p>

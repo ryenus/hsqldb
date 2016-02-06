@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
      * If the system property "hsqldb.method_class_names" is not set, then
      * static methods of all available Java classes can be accessed as functions
      * in HSQLDB. If the property is set, then only the list of semicolon
-     * seperated method names becomes accessible. An empty property value means
+     * separated method names becomes accessible. An empty property value means
      * no class is accessible.<p>
      *
      * A property value that ends with .* is treated as a wild card and allows

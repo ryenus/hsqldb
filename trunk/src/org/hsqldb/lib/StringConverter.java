@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2014, The HSQL Development Group
+ * Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -345,7 +345,7 @@ public class StringConverter {
      * input is converted into a 7bit escaped ASCII string (output)with the
      * following transformations. All characters outside the 0x20-7f range are
      * converted to a escape sequence and added to output. If a backslash
-     * character is immdediately followed by 'u', the backslash character is
+     * character is immediately followed by 'u', the backslash character is
      * converted to escape sequence and added to output. All the remaining
      * characters in input are added to output without conversion. The escape
      * sequence is backslash, letter u, xxxx, where xxxx is the hex
@@ -419,7 +419,7 @@ public class StringConverter {
 // fredt@users 20020522 - fix for 557510 - backslash bug
 // this legacy bug resulted from forward reading the input when a backslash
 // was present and manifested itself when a backslash was followed
-// immdediately by a character outside the 0x20-7f range in a database field.
+// immediately by a character outside the 0x20-7f range in a database field.
 
     /**
      * Hsqldb specific decoding used only for log files. This method converts

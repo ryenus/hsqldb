@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -702,7 +702,7 @@ public final class Constraint implements SchemaObject {
      *
      * @param session Session
      * @param oldTable reference to the old version of the table
-     * @param newTable referenct to the new version of the table
+     * @param newTable reference to the new version of the table
      * @param colIndex index at which table column is added or removed
      * @param adjust -1, 0, +1 to indicate if column is added or removed
      */

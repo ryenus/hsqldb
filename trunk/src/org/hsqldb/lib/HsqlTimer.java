@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
     /** The background thread. */
     protected Thread taskRunnerThread;
 
-    /** The factory that procduces the background threads. */
+    /** The factory that produces the background threads. */
     protected final ThreadFactory threadFactory;
 
     /**
@@ -116,7 +116,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
     /**
      * Default ThreadFactory implementation. <p>
      *
-     * Contructs a new Thread from the designated runnable, sets its
+     * Constructs a new Thread from the designated runnable, sets its
      * name to "HSQLDB Timer @" + Integer.toHexString(hashCode()),
      * and sets it as a daemon thread. <p>
      *
@@ -213,7 +213,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      *
      * @return opaque reference to the internal task
      * @param period the cycle period
-     * @param relative if true, fixed rate sheduling else fixed delay scheduling
+     * @param relative if true, fixed rate scheduling else fixed delay scheduling
      * @param date time at which to execute the specified Runnable
      * @param runnable the Runnable to execute
      * @throws IllegalArgumentException if date or runnable is null, or
@@ -241,7 +241,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      *
      * @return opaque reference to the internal task
      * @param period the cycle period
-     * @param relative if true, fixed rate sheduling else fixed delay scheduling
+     * @param relative if true, fixed rate scheduling else fixed delay scheduling
      * @param delay in milliseconds
      * @param runnable the Runnable to execute.
      * @throws IllegalArgumentException if runnable is null or period is <= 0
@@ -276,7 +276,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
         }
     }
 
-    /** for compatiblity with previous version */
+    /** for compatibility with previous version */
     public synchronized void shutDown() {
         shutdown();
     }
@@ -413,7 +413,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * and the submitted object is returned. <p>
      *
      * Otherwise, if the new period is greater than the designated task's
-     * current period, then a simple assignment occurs and the submittted
+     * current period, then a simple assignment occurs and the submitted
      * object is returned. <p>
      *
      * If neither case holds, then the designated task is cancelled and a new,
@@ -536,7 +536,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
                 long period = task.period;
 
                 if (period > 0) {           // repeated task
-                    if (task.relative) {    // using fixed rate shceduling
+                    if (task.relative) {    // using fixed rate scheduling
                         final long late = (now - next);
 
                         if (late > period) {
@@ -694,7 +694,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
         final boolean relative;
 
         /**
-         * Constructs a new Task object encapulating the specified Runnable
+         * Constructs a new Task object encapsulating the specified Runnable
          * and scheduling arguments.
          *
          * @param first the first time to execute
@@ -778,7 +778,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
          * Sets the new periodicity of this task in milliseconds. <p>
          *
          * If this task is cancelled or the new period is identical to the
-         * current period, then this invocation has essentailly no effect
+         * current period, then this invocation has essentially no effect
          * and this object is returned. <p>
          *
          * Otherwise, if the new period is greater than the current period, then

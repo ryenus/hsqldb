@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -239,7 +239,7 @@ public class ArrayUtil {
         for (int i = 0; i < array.length; i++) {
             if (array[i] == object) {
 
-                // hadles both nulls
+                // handles both nulls
                 return i;
             }
 
@@ -1621,7 +1621,7 @@ public class ArrayUtil {
     }
 
     /**
-     * Compares two arrays. Returns -1, 0, +1. If one array is shorther and
+     * Compares two arrays. Returns -1, 0, +1. If one array is shorter and
      * all the elements are equal to the other's elements, -1 is returned.
      */
     public static int compare(byte[] a, byte[] b) {
@@ -1655,7 +1655,7 @@ public class ArrayUtil {
     }
 
     /**
-     * uses 2**scale form and returns a multipe of this that is larger or equal to value
+     * uses 2**scale form and returns a multiple of this that is larger or equal to value
      */
     public static long getBinaryMultipleCeiling(long value, long unit) {
 
@@ -1669,7 +1669,7 @@ public class ArrayUtil {
     }
 
     /**
-     * uses 2**scale form and returns a multipe of this that is larger or equal to value
+     * uses 2**scale form and returns a multiple of this that is larger or equal to value
      */
     public static long getBinaryNormalisedCeiling(long value, int scale) {
 
@@ -1696,6 +1696,7 @@ public class ArrayUtil {
 
         return newSize;
     }
+
     /**
      * returns true if log2 n is in the range (0, max)
      */

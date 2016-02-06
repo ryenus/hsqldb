@@ -909,6 +909,23 @@
       object.</para>
 
       <indexterm significance="preferred" type="sql">
+        <primary>IF NOT EXISTS</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">IF NOT EXISTS</emphasis></simpara>
+
+      <simpara><emphasis>create condition (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;if not exists clause&gt; ::= IF NOT
+      EXISTS</literal></simpara>
+
+      <para>This clause is not part of the SQL standard and is a HyperSQL
+      extension to CREATE statements that create tables, views, sequences and 
+	  indexes, as well as ALTER TABLE ... ADD CONSTRAINT statements. If it is specified, then the statement does not
+      return an error if the create statement is for an object name that already 
+	  exists.</para>
+
+      <indexterm significance="preferred" type="sql">
         <primary>SPECIFIC</primary>
       </indexterm>
 
@@ -1086,7 +1103,7 @@
       <simpara><emphasis>table definition</emphasis></simpara>
 
       <simpara><literal>&lt;table definition&gt; ::= CREATE [ { &lt;table
-      scope&gt; | &lt;table type&gt; } ] TABLE &lt;table name&gt; &lt;table
+      scope&gt; | &lt;table type&gt; } ] TABLE [ IF NOT EXISTS ] &lt;table name&gt; &lt;table
       contents source&gt; [ ON COMMIT { PRESERVE | DELETE } ROWS
       ]</literal></simpara>
 
@@ -2136,8 +2153,8 @@
 
       <simpara><emphasis>view definition</emphasis></simpara>
 
-      <simpara><literal>&lt;view definition&gt; ::= CREATE VIEW &lt;table
-      name&gt; &lt;view specification&gt; AS &lt;query expression&gt; [ WITH [
+      <simpara><literal>&lt;view definition&gt; ::= CREATE VIEW [ IF NOT EXISTS ] 
+	  &lt;table name&gt; &lt;view specification&gt; AS &lt;query expression&gt; [ WITH [
       CASCADED | LOCAL ] CHECK OPTION ]</literal></simpara>
 
       <simpara><literal>&lt;view specification&gt; ::= [ &lt;left paren&gt;
@@ -2667,7 +2684,7 @@
       <simpara><emphasis>sequence generator definition</emphasis></simpara>
 
       <simpara><literal>&lt;sequence generator definition&gt; ::= CREATE
-      SEQUENCE &lt;sequence generator name&gt; [ &lt;sequence generator
+      SEQUENCE [ IF NOT EXISTS ] &lt;sequence generator name&gt; [ &lt;sequence generator
       options&gt; ]</literal></simpara>
 
       <simpara><literal>&lt;sequence generator options&gt; ::= &lt;sequence
@@ -2863,7 +2880,7 @@
 
       <simpara><emphasis>create index statement</emphasis></simpara>
 
-      <simpara><literal>&lt;create index statement&gt; ::= CREATE INDEX
+      <simpara><literal>&lt;create index statement&gt; ::= CREATE INDEX  [ IF NOT EXISTS ]
       &lt;index name&gt; ON &lt;table name&gt; &lt;left paren&gt; {&lt;column
       name&gt; [ASC | DESC]}, ... &lt;right paren&gt;</literal></simpara>
 

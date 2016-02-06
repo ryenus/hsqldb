@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -686,7 +686,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *
      * When this method is used to set a parameter of type TIME or
      * TIME WITH TIME ZONE, then the nanosecond value of the Timestamp object
-     * will be used if the TIME parameter accpets fractional seconds.
+     * will be used if the TIME parameter accepts fractional seconds.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -794,7 +794,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * this method
      * @deprecated
      *      Sun does not include a reason, but presumably
-     *      this is because setCharacterStream is now prefered
+     *      this is because setCharacterStream is now preferred
      */
 
 //#ifdef DEPRECATEDJDBC
@@ -1015,7 +1015,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * will be converted to the corresponding SQL type before being
      * sent to the database.
      *
-     * <p>Note that this method may be used to pass datatabase-
+     * <p>Note that this method may be used to pass database-
      * specific abstract data types, by using a driver-specific Java
      * type.
      *
@@ -1077,7 +1077,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * If the statatement is a call to a PROCEDURE, it may return multiple
+     * If the statement is a call to a PROCEDURE, it may return multiple
      * multiple fetchable results. <p>
      *
      * </div>
@@ -1479,7 +1479,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * that will be returned when this <code>PreparedStatement</code> object
      * is executed.
      * <P>
-     * Because a <code>PreparedStatement</code> object is precompiled, it is
+     * Because a <code>PreparedStatement</code> object is pre-compiled, it is
      * possible to know about the <code>ResultSet</code> object that it will
      * return without having to execute it.  Consequently, it is possible
      * to invoke the method <code>getMetaData</code> on a
@@ -1871,7 +1871,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * The possible implementations and return values have been modified in
      * the Java 2 SDK, Standard Edition, version 1.3 to
      * accommodate the option of continuing to proccess commands in a batch
-     * update after a <code>BatchUpdateException</code> obejct has been thrown. <p>
+     * update after a <code>BatchUpdateException</code> object has been thrown. <p>
      * <!-- end generic documentation -->
      *
      * <!-- start release-specific documentation -->
@@ -1946,8 +1946,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             if (errorResult == null) {
                 throw new BatchUpdateException(updateCounts);
             } else {
-                errorResult.getMainString();
-
                 throw new BatchUpdateException(errorResult.getMainString(),
                         errorResult.getSubString(),
                         errorResult.getErrorCode(), updateCounts);
@@ -2299,7 +2297,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * the executeUpdate methods that was used is one of the three methods that
      * have the extra parameter indicating return of generated keys<p>
      *
-     * If the executeUpaged method did not specify the columns which represent
+     * If the executeUpdate method did not specify the columns which represent
      * the auto-generated keys the IDENTITY column or GENERATED column(s) of the
      * table are returned.<p>
      *
@@ -2310,7 +2308,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *
      * If column names or indexes provided by the user in the executeUpdate()
      * method calls do not correspond to table columns (incorrect names or
-     * indexes larger than the coloum count), an empty result is returned.
+     * indexes larger than the column count), an empty result is returned.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -2387,7 +2385,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 //#endif JAVA6
 
     /**
-     * Sets the designated paramter to the given <code>String</code> object.
+     * Sets the designated parameter to the given <code>String</code> object.
      * The driver converts this to a SQL <code>NCHAR</code> or
      * <code>NVARCHAR</code> or <code>LONGNVARCHAR</code> value
      * (depending on the argument's
@@ -2478,7 +2476,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     /** @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
-     * Sets the designated parameter to a <code>InputStream</code> object.  The inputstream must contain  the number
+     * Sets the designated parameter to a <code>InputStream</code> object.  The input stream must contain  the number
      * of characters specified by length otherwise a <code>SQLException</code> will be
      * generated when the <code>PreparedStatement</code> is executed.
      * This method differs from the <code>setBinaryStream (int, InputStream, int)</code>
@@ -2505,8 +2503,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * this method is called on a closed <code>PreparedStatement</code>,
      * if parameterIndex does not correspond
      * to a parameter marker in the SQL statement,  if the length specified
-     * is less than zero or if the number of bytes in the inputstream does not match
-     * the specfied length.
+     * is less than zero or if the number of bytes in the input stream does not match
+     * the specified length.
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *
      * @since JDK 1.6, HSQLDB 2.0
@@ -3546,7 +3544,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * (JDBC4 clarification:)
      * Gives the JDBC driver a hint as to the number of rows that should
      * be fetched from the database when more rows are needed for
-     * <code>ResultSet</code> objects genrated by this <code>Statement</code>.
+     * <code>ResultSet</code> objects generated by this <code>Statement</code>.
      * If the value specified is zero, then the hint is ignored.
      * The default value is zero.
      * <!-- start generic documentation -->

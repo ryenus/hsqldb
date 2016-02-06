@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,9 +69,9 @@ class HsqlThreadFactory implements ThreadFactory {
     }
 
     /**
-     * Retreives a thread instance for running the specified Runnable
+     * Retrieves a thread instance for running the specified Runnable
      * @param r The runnable that the retrieved thread handles
-     * @return the requested thread inatance
+     * @return the requested thread instance
      */
     public Thread newThread(Runnable r) {
         return factory == this ? new Thread(r)

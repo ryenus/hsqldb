@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import org.hsqldb.types.Type;
  * It supplies the methods used to grant, revoke, test
  * and check a grantee's access rights to other database objects.
  * It also holds a reference to the common PUBLIC User Object,
- * which represent the special user refered to in
+ * which represent the special user referred to in
  * GRANT ... TO PUBLIC statements.<p>
  * The check(), isAccessible() and getGrantedClassNames() methods check the
  * rights granted to the PUBLIC User Object, in addition to individually
@@ -103,7 +103,7 @@ public class Grantee implements SchemaObject {
     /** map with database object identifier keys and access privileges values */
     private MultiValueHashMap directRightsMap;
 
-    /** contains righs granted direct, or via roles, except those of PUBLIC */
+    /** contains rights granted direct, or via roles, except those of PUBLIC */
     HashMap fullRightsMap;
 
     /** These are the DIRECT roles.  Each of these may contain nested roles */
@@ -465,6 +465,7 @@ public class Grantee implements SchemaObject {
         if (existing == null) {
             return;
         }
+
         updateAllRights();
     }
 
@@ -889,7 +890,7 @@ public class Grantee implements SchemaObject {
      * be added to the Set of ROLE Grantee objects (roles) for the grantee.
      * The grantee will be the parameter.
      *
-     * If the direct permissions granted to an existing ROLE Grentee is
+     * If the direct permissions granted to an existing ROLE Grantee is
      * modified no extra initial action is necessary.
      * The existing Grantee will be the parameter.
      *

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -725,7 +725,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
             i = (r + l) / 2;
 
             if (lessThan(i, l)) {
-                swap(l, i);    // Tri-Median Methode!
+                swap(l, i);    // Tri-Median Method!
             }
 
             if (lessThan(r, l)) {

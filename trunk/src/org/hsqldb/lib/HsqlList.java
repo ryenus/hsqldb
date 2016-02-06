@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,11 +33,11 @@ package org.hsqldb.lib;
 
 /**
  * This should be used as the datatype for parameters and instance variables
- * instead of HsqlArrayList or HsqlLinkedList to allow interchangable use of the
+ * instead of HsqlArrayList or HsqlLinkedList to allow interchangeable use of the
  * two.
  *
  * @author dnordahl@users
- * @version 1.7.2
+ * @version 2.3.3
  * @since 1.7.2
  */
 public interface HsqlList extends Collection {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ import java.io.UnsupportedEncodingException;
  * <tt>isClosed()</tt>, <tt>free()</tt> and <tt>isFreed()</tt>. <p>
  *
  * This class is especially useful when an accumulating output stream must be
- * handed off to an extenal client under contract that the stream should
+ * handed off to an external client under contract that the stream should
  * exhibit true Closable behaviour in response both to internally tracked
  * events and to client invocation of the <tt>OutputStream.close()</tt> method.
  *
@@ -153,7 +153,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *      In particular, an <tt>IOException</tt> may be thrown
      *      if this output stream has been {@link #close() closed}.
      */
-    public synchronized void write(byte b[], int off,
+    public synchronized void write(byte[] b, int off,
                                    int len) throws IOException {
 
         checkClosed();
@@ -303,7 +303,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
     }
 
     /**
-     * Performs an effecient (zero-copy) conversion of the data accumulated in
+     * Performs an efficient (zero-copy) conversion of the data accumulated in
      * this output stream to an input stream. <p>
      *
      * To ensure the future integrity of the resulting input stream, {@link

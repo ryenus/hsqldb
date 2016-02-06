@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -148,7 +148,7 @@ public class ClosableCharArrayWriter extends Writer {
      *      In particular, an <tt>IOException</tt> may be thrown
      *      if this writer has been {@link #close() closed}.
      */
-    public synchronized void write(char c[], int off,
+    public synchronized void write(char[] c, int off,
                                    int len) throws IOException {
 
         checkClosed();
@@ -338,7 +338,7 @@ public class ClosableCharArrayWriter extends Writer {
     }
 
     /**
-     * Performs an effecient (zero-copy) conversion of the character data
+     * Performs an efficient (zero-copy) conversion of the character data
      * accumulated in this writer to a reader. <p>
      *
      * To ensure the integrity of the resulting reader, {@link #free()
