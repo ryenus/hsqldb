@@ -357,16 +357,22 @@
       transaction has committed. The transaction then continues automatically.
       This isolation level is called READ CONSISTENCY.</para>
 
-      <para>Deadlock is completely avoided. In theory, conflict is possible if
+      <para>Deadlock is completely avoided by the engine. The database setting, 
+	  SET DATABASE TRANSACTION ROLLBACK ON CONFLICT, determines what happens in
+	  case of deadlock. In theory, conflict (deadlock) is possible if
       each transaction is waiting for a different row modified by the other
       transaction. In this case, one of the transactions is immediately
-      terminated (rolled back) unless the setting has been changed with the
+      terminated by rolling back all the previous statements in the transaction
+	  in order to allow the other transaction to continue.
+	  If the setting has been changed to FALSE with the
       <literal>&lt;set database transaction rollback on conflict
-      statement&gt;</literal>. When this setting is changed to FALSE, the
+      statement&gt;</literal>, the
       session that avoided executing the deadlock-causing statement returns an
-      error, but without rolling back the previous actions. The application
-      should quickly perform an alternative statement to continue or roll back
-      the transaction. This allows maximum flexibility and compatibility with
+      error, but without rolling back the previous statements in the current 
+	  transaction. This session should perform an alternative statement to 
+	  continue and commit or roll back the transaction. Once the session has 
+	  committed or rolled back, the other session can continue.
+	  This allows maximum flexibility and compatibility with
       other database engines which do not roll back the transaction upon
       deadlock.</para>
 

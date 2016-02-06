@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,7 +112,7 @@ public final class JDBCColumnMetaData {
     /**
      * Retrieves a String representation of this object.
      *
-     * @return a Sring representation of this object
+     * @return a String representation of this object
      */
     public String toString() {
 
@@ -126,7 +126,7 @@ public final class JDBCColumnMetaData {
     /**
      * Provides the implementation of the toString() method.
      *
-     * @return a Sring representation of this object
+     * @return a String representation of this object
      */
     private String toStringImpl() throws Exception {
 

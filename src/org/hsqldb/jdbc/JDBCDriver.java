@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -304,7 +304,7 @@ public class JDBCDriver implements Driver {
         }
 
         // @todo:  maybe impose some sort of sane restriction
-        //         on network connections regarless of user
+        //         on network connections regardless of user
         //         specification?
         if (timeout == 0) {
 

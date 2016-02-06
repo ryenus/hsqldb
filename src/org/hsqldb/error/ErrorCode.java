@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ public interface ErrorCode {
 
     // SQLSTATE definitions
     // successful completion
-    int S_00000 = 0000;                            // successful completion
+    int S_00000 = 0;                               // successful completion
 
     //
     int U_S0500 = 201;
@@ -586,7 +586,7 @@ public interface ErrorCode {
     // lexical elements
     int X_42581 = 5581;                            // unexpected token
     int X_42582 = 5582;                            // unknown token
-    int X_42583 = 5583;                            // malforemd quoted identifier
+    int X_42583 = 5583;                            // malformed quoted identifier
     int X_42584 = 5584;                            // malformed string
     int X_42585 = 5585;                            // malformed numeric constant
     int X_42586 = 5586;                            // malformed unicode string

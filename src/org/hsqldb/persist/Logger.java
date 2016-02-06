@@ -1030,7 +1030,7 @@ public class Logger implements EventLogInterface {
      *  reflect the current state of the database, i.e. only the DDL and
      *  insert DML required to recreate the database in its present state.
      *  Other house-keeping duties are performed w.r.t. other database
-     *  files, in order to ensure as much as possible the ACID properites
+     *  files, in order to ensure as much as possible the ACID properties
      *  of the database.
      *
      * @throws  HsqlException if there is a problem checkpointing the

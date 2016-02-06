@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ public class OdbcUtil {
         try {
             remaining = p.available();
         } catch (IOException ioe) {
-            // Just ignore here and we will send notifiction below.
+            // Just ignore here and we will send notification below.
             // If there really is an I/O problem, it will be handled better
             // on the next read.
         }

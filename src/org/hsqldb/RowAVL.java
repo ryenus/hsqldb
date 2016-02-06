@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2011, The HSQL Development Group
+ * Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.PersistentStore;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
-// fredt@users 20020920 - patch 1.7.1 - refactoring to cut mamory footprint
+// fredt@users 20020920 - patch 1.7.1 - refactoring to cut memory footprint
 // fredt@users 20021215 - doc 1.7.2 - javadoc comments
 
 /**

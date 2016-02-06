@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -452,10 +452,10 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * In HSQLDB, a ResultSet column name is determined using the following
-     * order of prcedence:<p>
+     * order of precedence:<p>
      *
      * <OL>
-     * <LI>The name of the underlying columnm, if the ResultSet column
+     * <LI>The name of the underlying column, if the ResultSet column
      *   represents a column in a table.</LI>
      * <LI>The label or alias specified in the generating query.</LI>
      * <L1>C1, C2, etc. for computed columns that have no label.</LI>
@@ -524,7 +524,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * (JDBC4 clarification:)
      * Get the designated column's specified column size.
      * For numeric data, this is the maximum precision.  For character data, this is the [maximum] length in characters.
-     * For datetime datatypes, this is the [maximim] length in characters of the String representation (assuming the
+     * For datetime datatypes, this is the [maximum] length in characters of the String representation (assuming the
      * maximum allowed precision of the fractional seconds component). For binary data, this is the [maximum] length in bytes.  For the ROWID datatype,
      * this is the length in bytes[, as returned by the implementation-specific java.sql.RowId.getBytes() method]. 0 is returned for data types where the
      * column size is not applicable.
@@ -621,7 +621,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * allowed by the Standard. <p>
      *
      * However, not all clients respect the SQL Standard and may use a
-     * catalog qualifier in a context where it is not suppoted by the Standard.
+     * catalog qualifier in a context where it is not supported by the Standard.
      * <p>
      *
      * For greater detail, see discussion at:
@@ -655,7 +655,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * This reports the SQL type code of the column. For time and timestamp
-     * types that are WITH TIME ZONE, the values as the SQL Standarc CLI
+     * types that are WITH TIME ZONE, the values as the SQL Standard CLI
      * codes.<p>
      *
      * </div>
@@ -704,7 +704,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 2.0 this method returns true if the ResuleSet is not updatable
+     * From 2.0 this method returns true if the ResultSet is not updatable
      * or the column in question is not updatable.<p>
      * </div>
      * <!-- end release-specific documentation -->
@@ -730,7 +730,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 2.0 this method returns false if the ResuleSet is not updatable
+     * From 2.0 this method returns false if the ResultSet is not updatable
      * or the column in question is not updatable.<p>
      *
      * </div>
@@ -757,7 +757,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 2.0 this method returns false if the ResuleSet is not updatable
+     * From 2.0 this method returns false if the ResultSet is not updatable
      * or the column in question is not updatable.<p>
      *
      * </div>
@@ -968,7 +968,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * object is an instance, the at-sign character `<code>@</code>',
      * the unsigned hexadecimal representation of the hash code of the
      * object and a comma-delimited list of this object's indexed attributes,
-     * enclosed in square brakets.
+     * enclosed in square brackets.
      *
      * @return  a string representation of the object.
      */

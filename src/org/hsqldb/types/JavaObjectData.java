@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.lib.InOutUtil;
  * requirement for all classes for objects stored in OTHER columns to be
  * available on the runtime class path of the engine. <p>
  *
- * In 1.7.2, the introduction of real preprared statement support allows us
+ * In 1.7.2, the introduction of real prepared statement support allows us
  * revert to the pre 1.7.0 behaviour without the artificial limitations. <p>
  *
  * The classes for stored objects need not be available to open and operate
@@ -116,9 +116,9 @@ public class JavaObjectData {
     }
 
     /**
-     * Returns String repsentation of this object.
+     * Returns String representation of this object.
      *
-     * @return a String represntation of this object.
+     * @return a String representation of this object.
      */
     public String toString() {
         return super.toString();

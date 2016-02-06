@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ import org.hsqldb.HsqlException;
  * Therefore, there may be at any time at most one transaction
  * managed by a XAResource object.
  * One implication is, the XAResource can track the current transaction
- * state with a scaler.
+ * state with a scalar.
  * Another implication is, the Xids for most of the XAResource interface
  * methods just introduce unnecessary complexity and an unnecessary point
  * of failure-- there can be only one transaction for this object, so
@@ -260,7 +260,7 @@ public class JDBCXAResource implements XAResource {
          * Should this method not attempt to clean up the aborted
          * transaction by rolling back or something?  Maybe the
          * tx manager will already have called rollback() if
-         * it were necessasry?
+         * it were necessary?
          */
         validateXid(xid);
 

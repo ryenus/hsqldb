@@ -395,7 +395,7 @@ public class FileUtil implements FileAccess {
      * Utility method for user applications. Attempts to delete all the files
      * for the database as listed by the getDatabaseFileList() method. If any
      * of the current, main database files cannot be deleted, it is renamed
-     * by adding a suffixe containting a hexadecimal timestamp portion and
+     * by adding a suffix containing a hexadecimal timestamp portion and
      * the ".old" extension. Also deletes the ".tmp" directory.
      *
      * @param dbNamePath full path or name of database (without a file extension)

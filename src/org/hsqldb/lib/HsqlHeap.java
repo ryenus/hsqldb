@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ package org.hsqldb.lib;
  *
  * Typically, an HsqlHeap will be implemented as a tree-like structure that
  * recursively guarantees a <i>Heap Invariant</i>, such that all nodes below
- * the root are greater than the root, given some comparison stragegy. <p>
+ * the root are greater than the root, given some comparison strategy. <p>
 
  * This in turn provides the basis for an efficient implementation of ADTs such
  * PriorityQueue, since Heap operations using the typical implementation are,

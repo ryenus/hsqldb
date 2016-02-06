@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import java.util.Arrays;
  * of linkTable which is the first element in the list of reclaimed nodes
  * (nodes no longer in index) or -1 if there is no such node.
  *
- * elemenet at and above linkTable[newNodePointer] have never been used
+ * elements at and above linkTable[newNodePointer] have never been used
  * as a node and their contents is not significant.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)

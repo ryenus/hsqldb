@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -416,7 +416,7 @@ public class CharacterType extends Type {
                 }
 
                 if (slen > precision) {
-                    if (getRightTrimSise((String) a, ' ') <= precision) {
+                    if (getRightTrimSize((String) a, ' ') <= precision) {
                         return ((String) a).substring(0, (int) precision);
                     } else {
                         throw Error.error(ErrorCode.X_22001);
@@ -437,7 +437,7 @@ public class CharacterType extends Type {
                 int slen = ((String) a).length();
 
                 if (slen > precision) {
-                    if (getRightTrimSise((String) a, ' ') <= precision) {
+                    if (getRightTrimSize((String) a, ' ') <= precision) {
                         return ((String) a).substring(0, (int) precision);
                     } else {
                         throw Error.error(ErrorCode.X_22001);
@@ -800,7 +800,6 @@ public class CharacterType extends Type {
 
             if (length > dataLength) {
                 offset = 0;
-                length = dataLength;
             } else {
                 offset = dataLength - length;
             }
@@ -1087,7 +1086,7 @@ public class CharacterType extends Type {
         return getCharacterType(this.typeCode, length, this.collation);
     }
 
-    public static int getRightTrimSise(String s, char trim) {
+    public static int getRightTrimSize(String s, char trim) {
 
         int endindex = s.length();
 

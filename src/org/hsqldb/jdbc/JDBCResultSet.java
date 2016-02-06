@@ -203,7 +203,7 @@ import org.hsqldb.types.Types;
  * to retrieve the next result from a sequence of multiple results.
  *
  * <P>The number, types and properties of a <code>ResultSet</code>
- * object's columns are provided by the <code>ResulSetMetaData</code>
+ * object's columns are provided by the <code>ResultSetMetaData</code>
  * object returned by the <code>ResultSet.getMetaData</code> method.
  * <!-- end generic documentation -->
  *
@@ -255,7 +255,7 @@ import org.hsqldb.types.Types;
  *
  * A result set is updatable if the SELECT statement
  * is updatable. This includes SELECT from TABLE and updatable VIEW objects.
- * An updatable SELECT statement has a single uderlying table or view.
+ * An updatable SELECT statement has a single underlying table or view.
  * HSQLDB supports both scrollable and forward-only result sets for updatability.
  *
  * <pre class="JavaCodeExample">
@@ -916,7 +916,7 @@ public class JDBCResultSet implements ResultSet {
      * {@link #getString(int) getString},
      * {@link #getUnicodeStream(int) getUnicodeStream} (<b>deprecated</b>)
      * and new to 1.7.0: {@link #getCharacterStream(int) getCharacterStream}
-     * (now prefered over the deprecated getUnicodeStream alternative).
+     * (now preferred over the deprecated getUnicodeStream alternative).
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4297,7 +4297,7 @@ public class JDBCResultSet implements ResultSet {
      * <code>null</code>.
      * <!-- end generic documentation -->
      *
-     * @return the <code>Statment</code> object that produced
+     * @return the <code>Statement</code> object that produced
      * this <code>ResultSet</code> object or <code>null</code>
      * if the result set was produced some other way
      * @exception SQLException if a database access error occurs

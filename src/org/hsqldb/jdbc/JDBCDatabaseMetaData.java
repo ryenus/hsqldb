@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ import org.hsqldb.types.Type;
 // patch 1.9.0
 // - java.sql.Wrapper implementation section title added
 // Revision 1.19  2006/07/09 07:07:01  boucherb
-// - getting the CVS Log variable ouptut format right
+// - getting the CVS Log variable output format right
 //
 // Revision 1.18  2006/07/09 07:02:38  boucherb
 // - patch 1.9.0 full synch up to Mustang Build 90
@@ -460,7 +460,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * By default HSQLDB sorts null at start and
      * this method returns <code>true</code>.
      * But a different value is returned if <code>sql.nulls_first</code> or
-     * <code>sql.nulls_lasst</code> properties have a non-default value.<p>
+     * <code>sql.nulls_last</code> properties have a non-default value.<p>
      * Use NULLS LAST in the ORDER BY clause to sort null at the end.
      * </div>
      * <!-- end release-specific documentation -->
@@ -484,7 +484,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * By default HSQLDB sorts null at start and
      * this method returns <code>false</code>.
      * But a different value is returned if <code>sql.nulls_first</code> or
-     * <code>sql.nulls_lasst</code> properties have a non-default value.<p>
+     * <code>sql.nulls_last</code> properties have a non-default value.<p>
      * Use NULLS LAST in the ORDER BY clause to sort null at the end.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1429,7 +1429,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * From 2.0, HSQLDB supports the ANSI92 full SQL grammar. The exceptions,
-     * such as support for ASSERTION, are not considered grammer issues.
+     * such as support for ASSERTION, are not considered grammar issues.
      * This method always returns <code>true</code>. <p>
      * </div>
      * <!-- end release-specific documentation -->
@@ -1831,7 +1831,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 2.0 supports updateable result sets;
+     * HSQLDB 2.0 supports updatable result sets;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1850,7 +1850,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 2.0 supports updateable result sets;
+     * HSQLDB 2.0 supports updatable result sets;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1869,7 +1869,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 2.0 supports updateable result sets;
+     * HSQLDB 2.0 supports updatable result sets;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2145,7 +2145,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
-     * memory availabily; this method always returns <code>0</code>.
+     * memory availability; this method always returns <code>0</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2170,7 +2170,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
-     * memory availabily; this method always returns <code>0</code>.
+     * memory availability; this method always returns <code>0</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2214,7 +2214,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
-     * memory availabily; this method always returns <code>0</code>.
+     * memory availability; this method always returns <code>0</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2235,7 +2235,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
-     * memory availabily; this method always returns <code>0</code>.
+     * memory availability; this method always returns <code>0</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2257,7 +2257,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
-     * memory availabily; this method always returns <code>0</code>.
+     * memory availability; this method always returns <code>0</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2279,7 +2279,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
-     * memory availabily; this method always returns <code>0</code>.
+     * memory availability; this method always returns <code>0</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2300,7 +2300,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
-     * memory availabily; this method always returns <code>0</code>.
+     * memory availability; this method always returns <code>0</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2322,7 +2322,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
-     * memory availabily; this method always returns <code>0</code>.
+     * memory availability; this method always returns <code>0</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2366,7 +2366,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
-     * memory and disk availabily; this method always returns <code>0</code>.
+     * memory and disk availability; this method always returns <code>0</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2454,7 +2454,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
-     * memory and disk availabily; this method always returns <code>0</code>.
+     * memory and disk availability; this method always returns <code>0</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2473,7 +2473,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Indormation:</h3><p>
+     * <h3>HSQLDB-Specific Information:</h3><p>
      *
      * Including 2.0, {@link #getMaxRowSize} <em>always</em> returns
      * 0, indicating that the maximum row size is unknown or has no limit.
@@ -2499,7 +2499,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
-     * memory availabily; this method always returns <code>0</code>.
+     * memory availability; this method always returns <code>0</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2521,7 +2521,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
-     * memory availabily; this method always returns <code>0</code>.
+     * memory availability; this method always returns <code>0</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2570,7 +2570,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
-     * memory availabily; this method always returns <code>0</code>.
+     * memory availability; this method always returns <code>0</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2615,7 +2615,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information</h3>
      *
-     * Default isolation mode in version 2.0 is TRANSACTION_READ_COMMITED.
+     * Default isolation mode in version 2.0 is TRANSACTION_READ_COMMITTED.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2954,7 +2954,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *  <LI><B>SQL_DATA_TYPE</B> int  => (JDBC4 new:) Reserved for future use
      *
      *        <p>HSQLDB-specific: CLI type from SQL 2003 Table 37,
-     *        tables 6-9 Annex A1, and/or addendums in other
+     *        tables 6-9 Annex A1, and/or addenda in other
      *        documents, such as:<br>
      *        SQL 2003 Part 9: Management of External Data (SQL/MED) : DATALINK<br>
      *        SQL 2003 Part 14: XML-Related Specifications (SQL/XML) : XML<p>
@@ -4323,7 +4323,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *  <LI><B>TYPE</B> short => index type:
      *      <UL>
      *      <LI> tableIndexStatistic - this identifies table statistics that are
-     *           returned in conjuction with a table's index descriptions
+     *           returned in conjunction with a table's index descriptions
      *      <LI> tableIndexClustered - this is a clustered index
      *      <LI> tableIndexHashed - this is a hashed index
      *      <LI> tableIndexOther - this is some other style of index
@@ -4338,7 +4338,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *  <LI><B>CARDINALITY</B> int => When TYPE is tableIndexStatistic, then
      *      this is the number of rows in the table; otherwise, it is the
      *      number of unique values in the index.
-     *  <LI><B>PAGES</B> int => When TYPE is  tableIndexStatisic then
+     *  <LI><B>PAGES</B> int => When TYPE is  tableIndexStatistic then
      *      this is the number of pages used for the table, otherwise it
      *      is the number of pages used for the current index.
      *  <LI><B>FILTER_CONDITION</B> String => Filter condition, if any.
@@ -4693,7 +4693,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
-     * @return <code>true</code> if this database supports batch upcates;
+     * @return <code>true</code> if this database supports batch updates;
      *         <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @since JDK 1.2 (JDK 1.1.x developers: read the overview
@@ -4880,7 +4880,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return <code>true</code> if a <code>CallableStatement</code> object
      *         can return multiple <code>ResultSet</code> objects
      *         simultaneously; <code>false</code> otherwise
-     * @exception SQLException if a datanase access error occurs
+     * @exception SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
 //#ifdef JAVA4
@@ -5506,7 +5506,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     /** @todo */
 
     /**
-     * Retrieves whether a <code>SQLException</code> while autoCommit is <code>true</code> inidcates
+     * Retrieves whether a <code>SQLException</code> while autoCommit is <code>true</code> indicates
      * that all open ResultSets are closed, even ones that are holdable.  When a <code>SQLException</code> occurs while
      * autocommit is <code>true</code>, it is vendor specific whether the JDBC driver responds with a commit operation, a
      * rollback operation, or by doing neither a commit nor a rollback.  A potential result of this difference

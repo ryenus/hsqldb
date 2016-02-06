@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -172,13 +172,13 @@ public class LdapAuthBean implements AuthFunctionBean {
             throw new IllegalStateException(
                     "If property 'roleSchemaValuePattern' is set, then you "
                     + "must also set property 'rolesSchemaAttribute' to "
-                    + "indicate which attribute to evalueate");
+                    + "indicate which attribute to evaluate");
         }
         if (accessValuePattern != null && accessAttribute == null) {
             throw new IllegalStateException(
                     "If property 'accessValuePattern' is set, then you "
                     + "must also set property 'accessAttribute' to "
-                    + "indicate which attribute to evalueate");
+                    + "indicate which attribute to evaluate");
         }
         if (rolesSchemaAttribute != null && accessAttribute != null) {
             attributeUnion = new String[]
@@ -305,7 +305,7 @@ public class LdapAuthBean implements AuthFunctionBean {
      * Defaults to "SIMPLE".
      *
      * @param mechanism  Either 'SIMPLE' (the default) for LDAP Simple, or
-     *                    one of the LDAP SASL mechamisms, such as 'DIGEST-MD5'.
+     *                    one of the LDAP SASL mechanisms, such as 'DIGEST-MD5'.
      */
     public void setSecurityMechanism(String mechanism) {
         this.mechanism = mechanism;
@@ -433,7 +433,7 @@ public class LdapAuthBean implements AuthFunctionBean {
      * of whether the rolesSchemaAttribute attribute is set.
      * </P> <P>
      * If you set just this property, then the local HyperSQL database will
-     * decide all roles for the user.  If you set this property and propety
+     * decide all roles for the user.  If you set this property and property
      * rolesSchemaAttribute then this attribute will determine access, and if
      * this attribute grants access then the rolesSchemaAttribute value will
      * determine the user's roles.

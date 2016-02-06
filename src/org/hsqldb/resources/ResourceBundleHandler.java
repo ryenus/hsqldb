@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.lib.HsqlArrayList;
  * Allows clients to get/set locale and get at localized resource bundle
  * content in a resource path independent manner, without having to worry
  * about handling exception states or deal directly with ResourceBundle
- * object instances. Instead, clients recieve numeric handles to the
+ * object instances. Instead, clients receive numeric handles to the
  * underlying objects.  Rather than causing exception states, missing or
  * inaccessible resources and underlying MissingResource and NullPointer
  * exceptions result in null return values when attempting to retrieve a
@@ -159,7 +159,7 @@ public final class ResourceBundleHandler {
      * @param handle an <code>int</code> handle to a
      *      <code>ResourceBundle</code> object
      * @param key A <code>String</code> key to a <code>String</code> value
-     * @return The String value correspoding to the specified handle and key.
+     * @return The String value corresponding to the specified handle and key.
      */
     public static String getString(int handle, String key) {
 

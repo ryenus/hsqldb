@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,9 +92,9 @@ public final class JDBCRowId implements RowId {
      * RowId objects, yet it also may need to be public to allow access from
      * other packages. As such (in the interest of efficiency) this object
      * maintains a reference to the given octet sequence rather than making a
-     * copy; special care should be taken by extenal clients never to use this
+     * copy; special care should be taken by external clients never to use this
      * constructor with a byte array object that may later be modified
-     * extenally.
+     * externally.
      *
      * @param id the octet sequence representing the Rowid value
      * @throws SQLException if the argument is null
@@ -120,7 +120,7 @@ public final class JDBCRowId implements RowId {
 
     /**
      * Constructs a new JDBCRowId instance whose internal octet sequence is
-     * is that represented by the given hexidecimal character sequence. <p>
+     * is that represented by the given hexadecimal character sequence. <p>
      * @param hex the hexadecimal character sequence from which to derive
      *        the internal octet sequence
      * @throws java.sql.SQLException if the argument is null or is not a valid

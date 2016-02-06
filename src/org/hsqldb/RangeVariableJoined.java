@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -335,7 +335,7 @@ public class RangeVariableJoined extends RangeVariable {
     }
 
     /**
-     * Retreives a String representation of this obejct. <p>
+     * Retrieves a String representation of this obejct. <p>
      *
      * The returned String describes this object's table, alias
      * access mode, index, join mode, Start, End and And conditions.

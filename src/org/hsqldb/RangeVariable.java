@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -417,7 +417,7 @@ public class RangeVariable {
     }
 
     /**
-     * Retruns index for column
+     * Returns index for column
      *
      * @param columnName name of column
      * @return int index or -1 if not found
@@ -870,8 +870,6 @@ public class RangeVariable {
 
             if (e == null || e.isTrue() || e.hasReference(ranges, exclude)) {
                 conditionsList.remove(i);
-
-                continue;
             }
         }
 
@@ -945,7 +943,7 @@ public class RangeVariable {
     }
 
     /**
-     * Retreives a String representation of this obejct. <p>
+     * Retrieves a String representation of this obejct. <p>
      *
      * The returned String describes this object's table, alias
      * access mode, index, join mode, Start, End and And conditions.

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,8 +48,8 @@ import org.hsqldb.map.BitMap;
  *
  * BIT values can be cast to BINARY and vice-versa. In casts, BIT values are
  * converted to their counterpart BINARY values by treating each set of 8 bits
- * or less as a signle byte. The first bit of a BIT string is treated as the most
- * significan bit of the resutling byte value. Binary values are converted by
+ * or less as a single byte. The first bit of a BIT string is treated as the most
+ * significant bit of the resulting byte value. Binary values are converted by
  * treating the bits in the sequence of bytes as sequence of bits in the BIT
  * string<p>
  *

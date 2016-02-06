@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -118,7 +118,7 @@ public interface Trigger {
      * @param type the type as one of the int values defined in the interface
      * @param trigName the name of the trigger
      * @param tabName the name of the table upon which the triggered action is
-     *   occuring
+     *   occurring
      * @param oldRow the old row
      * @param newRow the new row
      * @throws HsqlException

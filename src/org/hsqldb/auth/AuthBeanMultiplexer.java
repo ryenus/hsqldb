@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -132,7 +132,7 @@ public class AuthBeanMultiplexer {
     }
 
     /**
-     * Wrapper for setAuthFunctioNBeans(String, List<AuthFunctionBean>)
+     * Wrapper for setAuthFunctionBeans(String, List<AuthFunctionBean>)
      *
      * @param c  An open Connection to the desired database.
      * @throws SQLException if failed to obtain unique name from given

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
 
 /**
- * Collection of PersistenceStore itmes currently used by a session.
+ * Collection of PersistenceStore items currently used by a session.
  * An item is retrieved based on key returned by
  * TableBase.getPersistenceId().
  *

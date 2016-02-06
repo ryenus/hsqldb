@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -117,7 +117,7 @@ public class PgType {
      *                     instance of the type.
      *                     <b>IMPORTANT!</b> for all types with positive
      *                     lpConstraint other than Timestamps and Times,
-     *                     add an extra 4 to satisy crazy driver protocol.
+     *                     add an extra 4 to satisfy crazy driver protocol.
      */
     protected PgType(Type hType,
         int oid, Integer typeWidthObject, Integer lpConstraintObject) {
@@ -203,7 +203,7 @@ public class PgType {
                 return bitSingleton;
             case Types.SQL_BIT_VARYING:
                 return bitVaryingSingleton;
-                // I have no idea why length contstaint spec is not needed for
+                // I have no idea why length constraint spec is not needed for
                 // BIT_VARYING.
 
             case Types.SQL_DATE:
@@ -409,7 +409,7 @@ public class PgType {
     }
 
     /*
-     * The followign settings are a Java port of pgtypes.h
+     * The following settings are a Java port of pgtypes.h
      */
     public static final int TYPE_BOOL         =  16;
     public static final int TYPE_BYTEA        =  17;

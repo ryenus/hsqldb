@@ -887,7 +887,7 @@ public class Session implements SessionInterface {
     }
 
     /**
-     * Retreives the external JDBC connection
+     * Retrieves the external JDBC connection
      */
     public JDBCConnection getJDBCConnection() {
         return extConnection;
@@ -905,7 +905,7 @@ public class Session implements SessionInterface {
 //----------------------------------------------------------------
     private final long connectTime = System.currentTimeMillis();
 
-// more effecient for MetaData concerns than checkAdmin
+// more efficient for MetaData concerns than checkAdmin
 
     /**
      * Getter for admin attribute.
@@ -926,7 +926,7 @@ public class Session implements SessionInterface {
     }
 
     /**
-     * Count of acctions in current transaction.
+     * Count of actions in current transaction.
      *
      * @return the current value
      */
@@ -1517,7 +1517,7 @@ public class Session implements SessionInterface {
                 // to differentiate between things like
                 // stored procedure calls to methods with
                 // void return type and select statements with
-                // a single row/column containg null
+                // a single row/column containing null
                 updateCounts[count++] = ResultConstants.SUCCESS_NO_INFO;
             } else if (in.mode == ResultConstants.CALL_RESPONSE) {
                 updateCounts[count++] = ResultConstants.SUCCESS_NO_INFO;
@@ -1564,7 +1564,7 @@ public class Session implements SessionInterface {
                 // if (t instanceof OutOfMemoryError) {
                 // System.gc();
                 // }
-                // "in" alread equals "err"
+                // "in" already equals "err"
                 // maybe test for OOME and do a gc() ?
                 // t.printStackTrace();
             }
@@ -1577,7 +1577,7 @@ public class Session implements SessionInterface {
                 // to differentiate between things like
                 // stored procedure calls to methods with
                 // void return type and select statements with
-                // a single row/column containg null
+                // a single row/column containing null
                 updateCounts[count++] = ResultConstants.SUCCESS_NO_INFO;
             } else if (in.mode == ResultConstants.CALL_RESPONSE) {
                 updateCounts[count++] = ResultConstants.SUCCESS_NO_INFO;
