@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -256,7 +256,7 @@ public class StatementSchema extends Statement {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "StatemntSchema");
+                throw Error.runtimeError(ErrorCode.U_S0500, "StatementSchema");
         }
     }
 
@@ -332,9 +332,8 @@ public class StatementSchema extends Statement {
                     name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
                     if (name.type == SchemaObject.COLUMN) {
-                        Table table = schemaManager.getUserTable(session,
-                            name.parent);
-                        int index = table.getColumnIndex(name.name);
+                        Table table = schemaManager.getUserTable(name.parent);
+                        int   index = table.getColumnIndex(name.name);
 
                         object = table.getColumn(index);
                     } else {
@@ -365,8 +364,7 @@ public class StatementSchema extends Statement {
 
                             schemaManager.checkObjectIsReferenced(parent);
 
-                            Table table = schemaManager.getUserTable(session,
-                                parent);
+                            Table table = schemaManager.getUserTable(parent);
                             TriggerDef[] triggers = table.getTriggers();
 
                             for (int i = 0; i < triggers.length; i++) {
@@ -709,9 +707,8 @@ public class StatementSchema extends Statement {
                     int      objectType = ((Integer) arguments[1]).intValue();
                     boolean  cascade = ((Boolean) arguments[2]).booleanValue();
                     boolean ifExists = ((Boolean) arguments[3]).booleanValue();
-                    Table table = schemaManager.getUserTable(session,
-                        name.parent);
-                    int colindex = table.getColumnIndex(name.name);
+                    Table    table = schemaManager.getUserTable(name.parent);
+                    int      colindex   = table.getColumnIndex(name.name);
 
                     if (table.getColumnCount() == 1) {
                         throw Error.error(ErrorCode.X_42591);
@@ -1533,8 +1530,8 @@ public class StatementSchema extends Statement {
 
     private void dropTable(Session session, HsqlName name, boolean cascade) {
 
-        Table table = session.database.schemaManager.findUserTable(session,
-            name.name, name.schema.name);
+        Table table = session.database.schemaManager.findUserTable(name.name,
+            name.schema.name);
 
         session.database.schemaManager.dropTableOrView(session, table,
                 cascade);

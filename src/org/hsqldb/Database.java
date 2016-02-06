@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -217,24 +217,7 @@ public class Database {
         setState(DATABASE_OPENING);
 
         try {
-            lobManager     = new LobManager(this);
-            nameManager    = new HsqlNameManager(this);
-            granteeManager = new GranteeManager(this);
-            userManager    = new UserManager(this);
-            schemaManager  = new SchemaManager(this);
-            persistentStoreCollection =
-                new PersistentStoreCollectionDatabase(this);
-            isReferentialIntegrity = true;
-            sessionManager         = new SessionManager(this);
-            collation              = collation.newDatabaseInstance();
-            dbInfo = DatabaseInformation.newDatabaseInformation(this);
-            txManager              = new TransactionManager2PL(this);
-
-            lobManager.createSchema();
-            sessionManager.getSysLobSession().setSchema(
-                SqlInvariants.LOBS_SCHEMA);
-            schemaManager.setSchemaChangeTimestamp();
-            schemaManager.createSystemTables();
+            createObjectStructures();
 
             // completed metadata
             logger.open();
@@ -300,6 +283,27 @@ public class Database {
         dbInfo           = null;
         checkpointRunner = null;
         timeoutRunner    = null;
+    }
+
+    public void createObjectStructures() {
+
+        lobManager     = new LobManager(this);
+        nameManager    = new HsqlNameManager(this);
+        granteeManager = new GranteeManager(this);
+        userManager    = new UserManager(this);
+        schemaManager  = new SchemaManager(this);
+        persistentStoreCollection =
+            new PersistentStoreCollectionDatabase(this);
+        isReferentialIntegrity = true;
+        sessionManager         = new SessionManager(this);
+        collation              = Collation.newDatabaseInstance();
+        dbInfo = DatabaseInformation.newDatabaseInformation(this);
+        txManager              = new TransactionManager2PL(this);
+
+        lobManager.createSchema();
+        sessionManager.getSysLobSession().setSchema(SqlInvariants.LOBS_SCHEMA);
+        schemaManager.setSchemaChangeTimestamp();
+        schemaManager.createSystemTables();
     }
 
     /**
@@ -787,7 +791,7 @@ public class Database {
         addRows(r, list);
 
         // grantee rights
-        list = getGranteeManager().getRightstSQL();
+        list = getGranteeManager().getRightsSQL();
 
         addRows(r, list);
 

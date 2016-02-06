@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import org.hsqldb.types.Types;
  * Implementation of an SQL query expression
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 
@@ -260,7 +260,7 @@ public class QueryExpression implements RangeGroup {
                 rightQueryExpression.unionColumnMap = new int[columnCount];
 
             ArrayUtil.fillSequence(leftQueryExpression.unionColumnMap);
-            resolveColumnRefernecesInUnionOrderBy();
+            resolveColumnReferencesInUnionOrderBy();
 
             accessibleColumns    = leftQueryExpression.accessibleColumns;
             isReferencesResolved = true;
@@ -338,7 +338,7 @@ public class QueryExpression implements RangeGroup {
         columnCount      = unionCorrespondingColumns.size();
         unionColumnTypes = new Type[columnCount];
 
-        resolveColumnRefernecesInUnionOrderBy();
+        resolveColumnReferencesInUnionOrderBy();
 
         accessibleColumns = new boolean[columnCount];
 
@@ -350,7 +350,7 @@ public class QueryExpression implements RangeGroup {
     /**
      * Only simple column reference or column position allowed
      */
-    void resolveColumnRefernecesInUnionOrderBy() {
+    void resolveColumnReferencesInUnionOrderBy() {
 
         int orderCount = sortAndSlice.getOrderLength();
 
@@ -487,17 +487,6 @@ public class QueryExpression implements RangeGroup {
                 leftMeta.columns[leftIndex].getNullability();
             byte rightNullability =
                 rightMeta.columns[rightIndex].getNullability();
-
-            // redundant after 2.2.9 changes
-            if (column instanceof ColumnSchema
-                    && rightMeta.columns[rightIndex] instanceof ColumnBase) {
-                column = new ColumnBase();
-
-                column.setType(leftQueryExpression.unionColumnTypes[i]);
-                column.setNullability(leftNullability);
-
-                leftMeta.columns[leftIndex] = column;
-            }
 
             if (rightNullability == SchemaObject.Nullability
                     .NULLABLE || (rightNullability == SchemaObject.Nullability
@@ -987,13 +976,9 @@ public class QueryExpression implements RangeGroup {
                     ? TableBase.SYSTEM_SUBQUERY
                     : TableBase.RESULT_TABLE;
         columnList = leftQueryExpression.getUnionColumns();
-
-        try {
-            resultTable = new TableDerived(session.database, tableName,
-                                           tableType, unionColumnTypes,
-                                           columnList,
-                                           ValuePool.emptyIntArray);
-        } catch (Exception e) {}
+        resultTable = new TableDerived(session.database, tableName, tableType,
+                                       unionColumnTypes, columnList,
+                                       ValuePool.emptyIntArray);
     }
 
     public void setColumnsDefined() {

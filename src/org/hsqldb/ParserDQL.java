@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1351,6 +1351,7 @@ public class ParserDQL extends ParserBase {
 
                     if (token.tokenType == Tokens.JOIN) {
                         read();
+
                         left  = true;
                         right = true;
 
@@ -1409,6 +1410,7 @@ public class ParserDQL extends ParserBase {
 
             RangeVariable rightRange = readTableOrSubquery();
             Expression    condition  = null;
+
             rightRange.setJoinType(left, right);
 
             switch (type) {
@@ -1429,7 +1431,6 @@ public class ParserDQL extends ParserBase {
                 case Tokens.INNER :
                 case Tokens.FULL : {
                     boolean using = token.tokenType == Tokens.USING;
-
 
                     if (natural || using) {
                         leftRange.resolveRangeTable(
@@ -2020,7 +2021,7 @@ public class ParserDQL extends ParserBase {
 
         if (database.sqlSyntaxMss) {
             if (readIfThis(Tokens.WITH)) {
-                readNestedParanthesisedTokens();
+                readNestedParenthesisedTokens();
             }
         }
 
@@ -2209,7 +2210,7 @@ public class ParserDQL extends ParserBase {
     }
 
     // returns null
-    // <unsigned literl> | <general value specification>
+    // <unsigned literal> | <general value specification>
     Expression XreadUnsignedValueSpecificationOrNull() {
 
         Expression e;
@@ -2307,7 +2308,7 @@ public class ParserDQL extends ParserBase {
         return null;
     }
 
-    // <unsigned literl> | <dynamic parameter> | <variable>
+    // <unsigned literal> | <dynamic parameter> | <variable>
     Expression XreadSimpleValueSpecificationOrNull() {
 
         Expression e;
@@ -2812,7 +2813,7 @@ public class ParserDQL extends ParserBase {
     }
 
     // OK - composite production -
-    // <numeric primary> <charactr primary> <binary primary> <datetime primary> <interval primary>
+    // <numeric primary> <character primary> <binary primary> <datetime primary> <interval primary>
     Expression XreadAllTypesPrimary(boolean boole) {
 
         Expression e = null;
@@ -4220,7 +4221,7 @@ public class ParserDQL extends ParserBase {
     }
 
     // returns null
-    // must be called in conjusnction with <parenthesized ..
+    // must be called in conjunction with <parenthesized ..
     Expression XreadExplicitRowValueConstructorOrNull() {
 
         Expression e;
@@ -5681,12 +5682,6 @@ public class ParserDQL extends ParserBase {
 
             lastError = null;
         } catch (HsqlException e) {
-            if (!isOpenBracket) {
-                rewind(position);
-
-                return null;
-            }
-
             if (function.parseListAlt == null) {
                 throw e;
             }
@@ -6326,7 +6321,7 @@ public class ParserDQL extends ParserBase {
         return count;
     }
 
-    void readNestedParanthesisedTokens() {
+    void readNestedParenthesisedTokens() {
 
         readThis(Tokens.OPENBRACKET);
 
@@ -6334,7 +6329,7 @@ public class ParserDQL extends ParserBase {
             read();
 
             if (token.tokenType == Tokens.OPENBRACKET) {
-                readNestedParanthesisedTokens();
+                readNestedParenthesisedTokens();
             }
 
             if (token.tokenType == Tokens.X_ENDPARSE) {

@@ -642,14 +642,13 @@ public class ArrayUtil {
      * charset byte array.
      */
     public static int findNotIn(byte[] arra, int start, int limit,
-                                byte[] charset) {
+                                byte[] byteSet) {
 
-        int k = 0;
-
-        for (; k < limit; k++) {
-            for (int i = 0; i < charset.length; i++) {
-                if (arra[k] == charset[i]) {
-                    continue;
+        mainloop:
+        for (int k = start; k < limit; k++) {
+            for (int i = 0; i < byteSet.length; i++) {
+                if (arra[k] == byteSet[i]) {
+                    continue mainloop;
                 }
             }
 
@@ -666,9 +665,7 @@ public class ArrayUtil {
     public static int findIn(byte[] arra, int start, int limit,
                              byte[] byteSet) {
 
-        int k = 0;
-
-        for (; k < limit; k++) {
+        for (int k = start; k < limit; k++) {
             for (int i = 0; i < byteSet.length; i++) {
                 if (arra[k] == byteSet[i]) {
                     return k;
@@ -1673,11 +1670,11 @@ public class ArrayUtil {
      */
     public static long getBinaryNormalisedCeiling(long value, int scale) {
 
-        long mask    = 0xffffffffffffffffl << scale;
+        long mask    = 0xffffffffffffffffL << scale;
         long newSize = value & mask;
 
         if (newSize != value) {
-            newSize += 1 << scale;
+            newSize = newSize + (1L << scale);
         }
 
         return newSize;
@@ -1747,5 +1744,27 @@ public class ArrayUtil {
         }
 
         return shift;
+    }
+
+    public static int cdiv(int a, int b) {
+
+        int c = a / b;
+
+        if (a % b != 0) {
+            c++;
+        }
+
+        return c;
+    }
+
+    public static long cdiv(long a, long b) {
+
+        long c = a / b;
+
+        if (a % b != 0) {
+            c++;
+        }
+
+        return c;
     }
 }

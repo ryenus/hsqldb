@@ -422,7 +422,7 @@ class WebServerConnection implements Runnable {
             dataOut.close();
 
 // patch-end 2.2.9 by Aart 2012-05-15
-        } catch (Exception e) {
+        } catch (IOException e) {
             server.printStackTrace(e);
         }
     }

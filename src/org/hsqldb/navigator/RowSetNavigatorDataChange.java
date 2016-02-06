@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,7 @@ public interface RowSetNavigatorDataChange extends RangeIterator {
     Object[] addRow(Session session, Row row, Object[] data, Type[] types,
                     int[] columnMap);
 
-    public boolean addUpdate(Row row, Object[] data, int[] columnMap);
+    boolean addUpdate(Row row, Object[] data, int[] columnMap);
 
     boolean containsDeletedRow(Row row);
 

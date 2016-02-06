@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -515,10 +515,10 @@ public class QuerySpecification extends QueryExpression {
                                                rangeGroups, false);
         }
 
-        resolveColumnRefernecesInOrderBy(session, rangeGroups, sortAndSlice);
+        resolveColumnReferencesInOrderBy(session, rangeGroups, sortAndSlice);
     }
 
-    void resolveColumnRefernecesInOrderBy(Session session,
+    void resolveColumnReferencesInOrderBy(Session session,
                                           RangeGroup[] rangeGroups,
                                           SortAndSlice sortAndSlice) {
 
@@ -1209,7 +1209,7 @@ public class QuerySpecification extends QueryExpression {
         //     select cola , sum(colb) from t group by abs(cola) // not allowed because incorrect
         // - group by can introduce invisible, derived columns into the query table
         // - check the having expression can be decomposed into
-        //   select list expresions plus group by expressions
+        //   select list expressions plus group by expressions
         // - having cannot introduce additional, derived columns
         // - having cannot reference columns not in the select or group by list
         // - if there is any aggregate in select list but no group by, no
@@ -1219,7 +1219,7 @@ public class QuerySpecification extends QueryExpression {
         // - if grouped by, then order by should be decomposed into the
         //   select list plus group by list
         // - references to column aliases are allowed only in order by (Standard
-        //   compliance) and take precendence over references to non-alias
+        //   compliance) and take precedence over references to non-alias
         //   column names.
         // - references to table / correlation and column list in correlation
         //   names are handled according to the Standard
@@ -1931,12 +1931,9 @@ public class QuerySpecification extends QueryExpression {
             columnList.add(nameString, column);
         }
 
-        try {
-            resultTable = new TableDerived(session.database, tableName,
-                                           tableType, resultColumnTypes,
-                                           columnList,
-                                           ValuePool.emptyIntArray);
-        } catch (Exception e) {}
+        resultTable = new TableDerived(session.database, tableName, tableType,
+                                       resultColumnTypes, columnList,
+                                       ValuePool.emptyIntArray);
     }
 
     public String getSQL() {

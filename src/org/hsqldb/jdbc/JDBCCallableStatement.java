@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1343,7 +1343,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             return null;
         }
 
-        long millis = DateTimeType.normaliseTime(t.getSeconds()) * 1000;
+        long millis = DateTimeType.normaliseTime(t.getSeconds()) * 1000L;
 
         if (!parameterMetaData.columnTypes[--parameterIndex]
                 .isDateTimeTypeWithZone()) {
@@ -2351,7 +2351,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * or <code>Array</code>, the driver should pass it to the database as a
      * value of the corresponding SQL type.
      * <P>
-     * Note that this method may be used to pass datatabase-
+     * Note that this method may be used to pass database-
      * specific abstract data types.
      *
      * <!-- end generic documentation -->

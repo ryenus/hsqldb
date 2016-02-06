@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -572,7 +572,7 @@ public final class IntervalType extends DTIType {
                 }
             }
             case Types.SQL_INTERVAL_YEAR : {
-                long months = (((IntervalMonthData) a).units / 12) * 12;
+                long months = (((IntervalMonthData) a).units / 12) * 12L;
 
                 return new IntervalMonthData(months, this);
             }

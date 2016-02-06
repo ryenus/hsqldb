@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -831,7 +831,7 @@ public final class DateTimeType extends DTIType {
 
                     if (a instanceof java.sql.Timestamp) {
                         nanos = ((java.sql.Timestamp) a).getNanos();
-                        nanos = this.normaliseFraction(nanos, scale);
+                        nanos = DateTimeType.normaliseFraction(nanos, scale);
                     }
 
                     seconds = millis / 1000;
@@ -858,7 +858,7 @@ public final class DateTimeType extends DTIType {
 
             case Types.SQL_TIME :
             case Types.SQL_TIME_WITH_TIME_ZONE :
-                millis = ((TimeData) a).getSeconds() * 1000;
+                millis = ((TimeData) a).getSeconds() * 1000L;
                 millis += ((TimeData) a).getNanos() / 1000000;
 
                 return new java.sql.Time(millis);
@@ -894,7 +894,7 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIME : {
                 Calendar cal = session.getCalendar();
                 long millis = HsqlDateTime.convertMillisToCalendar(cal,
-                    ((TimeData) a).getSeconds() * 1000);
+                    ((TimeData) a).getSeconds() * 1000L);
 
                 millis = HsqlDateTime.getNormalisedTime(cal, millis);
 
@@ -905,7 +905,7 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIME_WITH_TIME_ZONE : {
                 int seconds = ((TimeData) a).getSeconds();
 
-                return new java.sql.Time(seconds * 1000);
+                return new java.sql.Time(seconds * 1000L);
             }
             case Types.SQL_DATE : {
                 Calendar cal = session.getCalendar();
@@ -1398,7 +1398,7 @@ public final class DateTimeType extends DTIType {
                 || typeCode == Types.SQL_TIME_WITH_TIME_ZONE) {
             millis =
                 (((TimeData) dateTime).getSeconds() + ((TimeData) dateTime)
-                    .getZone()) * 1000;
+                    .getZone()) * 1000L;
         } else {
             millis =
                 (((TimestampData) dateTime)
@@ -1414,9 +1414,9 @@ public final class DateTimeType extends DTIType {
 
         if (typeCode == Types.SQL_TIME
                 || typeCode == Types.SQL_TIME_WITH_TIME_ZONE) {
-            millis = ((TimeData) dateTime).getZone() * 1000;
+            millis = ((TimeData) dateTime).getZone() * 1000L;
         } else {
-            millis = ((TimestampData) dateTime).getZone() * 1000;
+            millis = ((TimestampData) dateTime).getZone() * 1000L;
         }
 
         return millis;
@@ -1597,7 +1597,7 @@ public final class DateTimeType extends DTIType {
                     int seconds = value.getSeconds() - localZone;
 
                     seconds =
-                        (int) (HsqlDateTime.getNormalisedTime(seconds * 1000)
+                        (int) (HsqlDateTime.getNormalisedTime(seconds * 1000L)
                                / 1000);
 
                     return new TimeData(seconds, value.getNanos(), targetZone);

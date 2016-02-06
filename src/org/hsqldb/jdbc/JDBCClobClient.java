@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -106,7 +106,7 @@ public class JDBCClobClient implements Clob {
                             : -1;
                 }
             }
-            public int read(byte b[], int off, int len) throws IOException {
+            public int read(byte[] b, int off, int len) throws IOException {
 
                 checkClosed();
 
@@ -140,13 +140,13 @@ public class JDBCClobClient implements Clob {
                                       ? ByteBuffer.allocate(len)
                                       : m_byteBuffer;
 
-                // Since ASCII is single-byte, retrict encoder character consumption
+                // Since ASCII is single-byte, restrict encoder character consumption
                 // to at most 'len' characters' to produce at most len ASCII
                 // characters
                 int cbLimit     = cb.limit();
-                int cbPosistion = cb.position();
+                int cbPosition = cb.position();
 
-                cb.limit(cbPosistion + len);
+                cb.limit(cbPosition + len);
                 bb.clear();
 
                 int         bbPosition = bb.position();
@@ -398,7 +398,7 @@ public class JDBCClobClient implements Clob {
                     this.write(oneByte, 0, 1);
                 }
             }
-            public void write(byte b[], int off, int len) throws IOException {
+            public void write(byte[] b, int off, int len) throws IOException {
 
                 checkClosed();
 

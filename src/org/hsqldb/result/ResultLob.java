@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -131,7 +131,7 @@ public final class ResultLob extends Result {
     }
 
     public static ResultLob newLobSetBytesRequest(long id, long offset,
-            byte block[]) {
+            byte[] block) {
 
         ResultLob result = new ResultLob();
 
@@ -170,7 +170,7 @@ public final class ResultLob extends Result {
     }
 
     public static ResultLob newLobGetBytesResponse(long id, long offset,
-            byte block[]) {
+            byte[] block) {
 
         ResultLob result = new ResultLob();
 

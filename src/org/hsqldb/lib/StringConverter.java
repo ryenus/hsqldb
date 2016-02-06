@@ -84,7 +84,7 @@ import org.hsqldb.map.BitMap;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.4
  * @since 1.7.2
  */
 public class StringConverter {
@@ -364,7 +364,7 @@ public class StringConverter {
             return;
         }
 
-        final int len = s.length();
+        final int len    = s.length();
         int       extras = 0;
 
         if (len == 0) {
@@ -758,7 +758,7 @@ public class StringConverter {
                 b.writeNoCheck('#');
                 b.writeBytes(String.valueOf(codePoint));
                 b.writeNoCheck(';');
-            } else if (c < 0x0020 ) {
+            } else if (c < 0x0020) {
                 b.writeNoCheck(' ');
             } else {
                 b.writeNoCheck(c);
@@ -776,9 +776,6 @@ public class StringConverter {
      */
     public static String toStringUUID(byte[] b) {
 
-        char[] chars = new char[36];
-        int    hexIndex;
-
         if (b == null) {
             return null;
         }
@@ -786,6 +783,9 @@ public class StringConverter {
         if (b.length != 16) {
             throw new NumberFormatException();
         }
+
+        char[] chars = new char[36];
+        int    hexIndex;
 
         for (int i = 0, j = 0; i < b.length; ) {
             hexIndex   = (b[i] & 0xf0) >> 4;
@@ -811,8 +811,6 @@ public class StringConverter {
      */
     public static byte[] toBinaryUUID(String s) {
 
-        byte[] bytes = new byte[16];
-
         if (s == null) {
             return null;
         }
@@ -820,6 +818,8 @@ public class StringConverter {
         if (s.length() != 36) {
             throw new NumberFormatException();
         }
+
+        byte[] bytes = new byte[16];
 
         for (int i = 0, j = 0; i < bytes.length; ) {
             char c    = s.charAt(j++);
@@ -833,7 +833,9 @@ public class StringConverter {
             if (i >= 4 && i <= 10 && (i % 2) == 0) {
                 c = s.charAt(j++);
 
-                if (c != '-') {}
+                if (c != '-') {
+                    throw new NumberFormatException();
+                }
             }
         }
 

@@ -1469,10 +1469,8 @@ class ServerConnection implements Runnable {
                 String svrMsg    = rf.toString();
                 String cliMsg    = rf.getClientMessage();
 
-                if (svrMsg != null) {
+                if (server.isTrace()) {
                     server.printWithThread(svrMsg);
-                } else if (server.isTrace()) {
-                    server.printWithThread("Client error: " + cliMsg);
                 }
 
                 if (cliMsg != null) {

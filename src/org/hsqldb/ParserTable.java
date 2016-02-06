@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,9 +57,8 @@ public class ParserTable extends ParserDML {
 
     StatementSchema compileCreateTable(int type) {
 
-        boolean ifNot = readIfNotExists();
-
-        HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE, false);
+        boolean  ifNot = readIfNotExists();
+        HsqlName name  = readNewSchemaObjectName(SchemaObject.TABLE, false);
 
         name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
@@ -117,8 +116,8 @@ public class ParserTable extends ParserDML {
             HsqlName   name = c.getMainTableName();
 
             if (name != null) {
-                Table t = database.schemaManager.findUserTable(null,
-                    name.name, name.schema.name);
+                Table t = database.schemaManager.findUserTable(name.name,
+                    name.schema.name);
 
                 if (t != null && !t.isTemp()) {
                     names.add(table.getName());
@@ -549,9 +548,8 @@ public class ParserTable extends ParserDML {
         if (mainTableName == table.getName()) {
             c.core.mainTable = table;
         } else {
-            Table mainTable =
-                session.database.schemaManager.findUserTable(session,
-                    mainTableName.name, mainTableName.schema.name);
+            Table mainTable = session.database.schemaManager.findUserTable(
+                mainTableName.name, mainTableName.schema.name);
 
             if (mainTable == null) {
                 if (constraintList == null) {
@@ -776,8 +774,8 @@ public class ParserTable extends ParserDML {
 
         checkIsSchemaObjectName();
 
-        Table table = database.schemaManager.findUserTable(session,
-            token.tokenString, schema.name);
+        Table table = database.schemaManager.findUserTable(token.tokenString,
+            schema.name);
 
         if (table == null) {
             name = database.nameManager.newHsqlName(schema, token.tokenString,

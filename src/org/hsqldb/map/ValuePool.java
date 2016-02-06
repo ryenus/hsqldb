@@ -93,9 +93,9 @@ public class ValuePool {
     public static final Integer INTEGER_MAX =
         ValuePool.getInt(Integer.MAX_VALUE);
     public static final BigDecimal BIG_DECIMAL_0 =
-        ValuePool.getBigDecimal(new BigDecimal(0.0));
+        ValuePool.getBigDecimal(BigDecimal.valueOf(0));
     public static final BigDecimal BIG_DECIMAL_1 =
-        ValuePool.getBigDecimal(new BigDecimal(1.0));
+        ValuePool.getBigDecimal(new BigDecimal(1));
 
     //
     public static final String[] emptyStringArray = new String[]{};

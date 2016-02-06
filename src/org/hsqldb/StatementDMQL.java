@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -49,7 +48,7 @@ import org.hsqldb.rights.Grantee;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.7.2
  */
 
@@ -326,7 +325,7 @@ public abstract class StatementDMQL extends Statement {
         return subQueryArray;
     }
 
-    void setDatabseObjects(Session session, CompileContext compileContext) {
+    void setDatabaseObjects(Session session, CompileContext compileContext) {
 
         parameters = compileContext.getParameters();
 
@@ -605,7 +604,7 @@ public abstract class StatementDMQL extends Statement {
 
             case StatementTypes.SELECT_CURSOR : {
                 sb.append(queryExpression.describe(session, 0));
-                appendParms(sb).append('\n');
+                appendParams(sb).append('\n');
                 appendSubqueries(session, sb, 2);
 
                 return sb.toString();
@@ -616,7 +615,7 @@ public abstract class StatementDMQL extends Statement {
                     sb.append('[').append('\n');
                     appendMultiColumns(sb, insertColumnMap).append('\n');
                     appendTable(sb).append('\n');
-                    appendParms(sb).append('\n');
+                    appendParams(sb).append('\n');
                     appendSubqueries(session, sb, 2).append(']');
 
                     return sb.toString();
@@ -627,7 +626,7 @@ public abstract class StatementDMQL extends Statement {
                     appendTable(sb).append('\n');
                     sb.append(queryExpression.describe(session,
                                                        blanks)).append('\n');
-                    appendParms(sb).append('\n');
+                    appendParams(sb).append('\n');
                     appendSubqueries(session, sb, 2).append(']');
 
                     return sb.toString();
@@ -645,7 +644,7 @@ public abstract class StatementDMQL extends Statement {
                             blanks)).append('\n');
                 }
 
-                appendParms(sb).append('\n');
+                appendParams(sb).append('\n');
                 appendSubqueries(session, sb, 2).append(']');
 
                 return sb.toString();
@@ -661,7 +660,7 @@ public abstract class StatementDMQL extends Statement {
                             blanks)).append('\n');
                 }
 
-                appendParms(sb).append('\n');
+                appendParams(sb).append('\n');
                 appendSubqueries(session, sb, 2).append(']');
 
                 return sb.toString();
@@ -685,7 +684,7 @@ public abstract class StatementDMQL extends Statement {
                             blanks)).append('\n');
                 }
 
-                appendParms(sb).append('\n');
+                appendParams(sb).append('\n');
                 appendSubqueries(session, sb, 2).append(']');
 
                 return sb.toString();
@@ -784,7 +783,7 @@ public abstract class StatementDMQL extends Statement {
         return sb;
     }
 
-    private StringBuffer appendParms(StringBuffer sb) {
+    private StringBuffer appendParams(StringBuffer sb) {
 
         sb.append("PARAMETERS=[");
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ import org.hsqldb.persist.HsqlProperties;
  * Maintains a reference to the timer used for file locks and logging.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.4
  * @since 1.7.2
  */
 public class DatabaseManager {
@@ -160,7 +160,7 @@ public class DatabaseManager {
 
     /**
      * Returns an existing session. Used with repeat HTTP connections
-     * belonging to the same JDBC Conenction / HSQL Session pair.
+     * belonging to the same JDBC Connection / HSQL Session pair.
      */
     public static Session getSession(int dbId, long sessionId) {
 
@@ -427,7 +427,7 @@ public class DatabaseManager {
      * The database is then removed form the sets for all servers and the
      * servers that have no other database are removed from the map.
      */
-    static HashMap serverMap = new HashMap();
+    static final HashMap serverMap = new HashMap();
 
     /**
      * Deregisters a server completely.

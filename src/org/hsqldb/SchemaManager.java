@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -641,7 +641,7 @@ public class SchemaManager {
                 HsqlName reference = (HsqlName) references.get(i);
 
                 if (reference.type == SchemaObject.TABLE) {
-                    Table table = findUserTable(null, reference.name,
+                    Table table = findUserTable(reference.name,
                                                 reference.schema.name);
 
                     if (table != null && !table.isTemp()) {
@@ -730,8 +730,8 @@ public class SchemaManager {
         }
     }
 
-    public Table getUserTable(Session session, HsqlName name) {
-        return getUserTable(session, name.name, name.schema.name);
+    public Table getUserTable(HsqlName name) {
+        return getUserTable(name.name, name.schema.name);
     }
 
     /**
@@ -739,9 +739,9 @@ public class SchemaManager {
      *  context of the specified Session.
      *  Throws if the table does not exist in the context.
      */
-    public Table getUserTable(Session session, String name, String schema) {
+    public Table getUserTable(String name, String schema) {
 
-        Table t = findUserTable(session, name, schema);
+        Table t = findUserTable(name, schema);
 
         if (t == null) {
             String longName = schema == null ? name
@@ -758,8 +758,7 @@ public class SchemaManager {
      *  context of the specified schema. It excludes system tables.
      *  Returns null if the table does not exist in the context.
      */
-    public Table findUserTable(Session session, String name,
-                               String schemaName) {
+    public Table findUserTable(String name, String schemaName) {
 
         readLock.lock();
 
@@ -940,7 +939,7 @@ public class SchemaManager {
         }
 
         if (table.tableType == TableBase.TEMP_TABLE) {
-            Session sessions[] = database.sessionManager.getAllSessions();
+            Session[] sessions = database.sessionManager.getAllSessions();
 
             for (int i = 0; i < sessions.length; i++) {
                 sessions[i].sessionData.persistentStoreCollection.removeStore(
@@ -1425,7 +1424,7 @@ public class SchemaManager {
                 return null;
             }
 
-            return findUserTable(session, indexName.parent.name, schemaName);
+            return findUserTable(indexName.parent.name, schemaName);
         } finally {
             readLock.unlock();
         }
@@ -1439,8 +1438,7 @@ public class SchemaManager {
         writeLock.lock();
 
         try {
-            Table t = getUserTable(session, name.parent.name,
-                                   name.parent.schema.name);
+            Table t = getUserTable(name.parent.name, name.parent.schema.name);
             TableWorks tw = new TableWorks(session, t);
 
             tw.dropIndex(name.name);
@@ -1457,8 +1455,7 @@ public class SchemaManager {
         writeLock.lock();
 
         try {
-            Table t = getUserTable(session, name.parent.name,
-                                   name.parent.schema.name);
+            Table t = getUserTable(name.parent.name, name.parent.schema.name);
             TableWorks tw = new TableWorks(session, t);
 
             tw.dropConstraint(name.name, cascade);
@@ -2802,7 +2799,7 @@ public class SchemaManager {
         HashMappedList columnList = new HashMappedList();
 
         for (int i = 0; i < columnTypes.length; i++) {
-            HsqlName name = database.nameManager.getAutoColumnName(i + 1);
+            HsqlName name = HsqlNameManager.getAutoColumnName(i + 1);
             ColumnSchema column = new ColumnSchema(name, columnTypes[i], true,
                                                    false, null);
 

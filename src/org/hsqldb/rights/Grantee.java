@@ -88,9 +88,6 @@ public class Grantee implements SchemaObject {
     /** true if this grantee has database administrator priv by any means. */
     private boolean isAdmin = false;
 
-    /** true if this user can create schemas with its own authorisation */
-    boolean isSchemaCreator = false;
-
     /** true if this grantee is PUBLIC. */
     boolean isPublic = false;
 
@@ -1150,7 +1147,7 @@ public class Grantee implements SchemaObject {
                     case SchemaObject.VIEW :
                         Table table =
                             granteeManager.database.schemaManager
-                                .findUserTable(null, hsqlname.name,
+                                .findUserTable(hsqlname.name,
                                                hsqlname.schema.name);
 
                         if (table != null) {

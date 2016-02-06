@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -619,7 +619,7 @@ public class Logger implements EventLogInterface {
             HsqlDatabaseProperties.hsqldb_nio_data_file);
         propNioMaxSize =
             database.databaseProperties.getIntegerProperty(
-                HsqlDatabaseProperties.hsqldb_nio_max_size) * 1024 * 1024L;
+                HsqlDatabaseProperties.hsqldb_nio_max_size) * 1024L * 1024L;
         propCacheMaxRows = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_cache_rows);
         propCacheMaxSize =

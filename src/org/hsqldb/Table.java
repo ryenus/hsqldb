@@ -79,7 +79,7 @@ public class Table extends TableBase implements SchemaObject {
     NumberSequence        identitySequence;    // next value of identity column
 
 // -----------------------------------------------------------------------
-    Constraint[]    constraintList;            // constrainst for the table
+    Constraint[]    constraintList;            // constraint for the table
     Constraint[]    fkConstraints;             //
     Constraint[]    fkMainConstraints;
     Constraint[]    checkConstraints;
@@ -906,7 +906,7 @@ public class Table extends TableBase implements SchemaObject {
                     .FOREIGN_KEY || c.getConstraintType() == SchemaObject
                     .ConstraintTypes.MAIN) {
                 if (c.getMain()
-                        != database.schemaManager.findUserTable(null,
+                        != database.schemaManager.findUserTable(
                             c.getMain().getName().name,
                             c.getMain().getName().schema.name)) {
                     throw Error.runtimeError(ErrorCode.U_S0500,
@@ -915,7 +915,7 @@ public class Table extends TableBase implements SchemaObject {
                 }
 
                 if (c.getRef()
-                        != database.schemaManager.findUserTable(null,
+                        != database.schemaManager.findUserTable(
                             c.getRef().getName().name,
                             c.getRef().getName().schema.name)) {
                     throw Error.runtimeError(ErrorCode.U_S0500,
@@ -1842,7 +1842,7 @@ public class Table extends TableBase implements SchemaObject {
      * required and avoids evaluating these values where they will be
      * overwritten.
      */
-    Object[] getNewRowData(Session session) {
+    public Object[] getNewRowData(Session session) {
 
         Object[] data = new Object[columnCount];
         int      i;

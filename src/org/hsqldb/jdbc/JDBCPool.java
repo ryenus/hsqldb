@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * @since 2.2.9
  */
 @SuppressWarnings("serial")
-public class JDBCPool extends JDBCCommonDataSource implements DataSource,
+public class JDBCPool implements DataSource,
                    Serializable, Referenceable, ConnectionEventListener,
                    StatementEventListener, Wrapper {
 
@@ -400,6 +400,15 @@ public class JDBCPool extends JDBCCommonDataSource implements DataSource,
     }
 
     /**
+     * Retrieves the jdbc database connection url attribute. <p>
+     *
+     * @return the jdbc database connection url attribute
+     */
+    public String getURL() {
+        return source.getUrl();
+    }
+
+    /**
      * Retrieves the user name for the connection. <p>
      *
      * @return the username for the connection
@@ -437,6 +446,16 @@ public class JDBCPool extends JDBCCommonDataSource implements DataSource,
     }
 
     /**
+     * Sets the jdbc database URL. <p>
+     *
+     * @param url the new value of this object's jdbc database connection
+     *      url attribute
+     */
+    public void setURL(String url) {
+        source.setUrl(url);
+    }
+
+    /**
      * Sets the password for the user name.
      *
      * @param password the password
@@ -455,7 +474,7 @@ public class JDBCPool extends JDBCCommonDataSource implements DataSource,
     }
 
     /**
-     * Sets connection properties. If user / password / logginTimeout has been
+     * Sets connection properties. If user / password / loginTimeout has been
      * set with one of the setXXX() methods it will be added to the Properties
      * object.
      *

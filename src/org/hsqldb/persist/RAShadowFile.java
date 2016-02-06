@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -277,11 +277,11 @@ public class RAShadowFile {
             return byteread;
         }
 
-        public int read(byte bytes[]) throws IOException {
+        public int read(byte[] bytes) throws IOException {
             return read(bytes, 0, bytes.length);
         }
 
-        public int read(byte bytes[], int offset,
+        public int read(byte[] bytes, int offset,
                         int length) throws IOException {
 
             if (!initialised) {

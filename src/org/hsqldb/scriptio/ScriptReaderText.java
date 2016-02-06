@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -179,8 +179,8 @@ public class ScriptReaderText extends ScriptReaderBase {
                         String schema = session.getSchemaName(currentSchema);
 
                         currentTable =
-                            database.schemaManager.getUserTable(session,
-                                tablename, schema);
+                            database.schemaManager.getUserTable(tablename,
+                                schema);
                         currentStore =
                             database.persistentStoreCollection.getStore(
                                 currentTable);
@@ -279,8 +279,7 @@ public class ScriptReaderText extends ScriptReaderBase {
         String name   = rowIn.getTableName();
         String schema = session.getCurrentSchemaHsqlName().name;
 
-        currentTable = database.schemaManager.getUserTable(session, name,
-                schema);
+        currentTable = database.schemaManager.getUserTable(name, schema);
         currentStore =
             database.persistentStoreCollection.getStore(currentTable);
 

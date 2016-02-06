@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -912,8 +912,8 @@ public class StatementCommand extends Statement {
                 try {
                     HsqlName name = (HsqlName) parameters[0];
                     Table table =
-                        session.database.schemaManager.getUserTable(session,
-                            name.name, name.schema.name);
+                        session.database.schemaManager.getUserTable(name.name,
+                            name.schema.name);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -924,8 +924,8 @@ public class StatementCommand extends Statement {
                 try {
                     HsqlName name = (HsqlName) parameters[0];
                     Table table =
-                        session.database.schemaManager.getUserTable(session,
-                            name.name, name.schema.name);
+                        session.database.schemaManager.getUserTable(name.name,
+                            name.schema.name);
 
                     session.checkAdmin();
                     session.checkDDLWrite();
@@ -977,8 +977,8 @@ public class StatementCommand extends Statement {
                     HsqlName name    = (HsqlName) parameters[0];
                     int      spaceid = ((Integer) parameters[1]).intValue();
                     Table table =
-                        session.database.schemaManager.getUserTable(session,
-                            name.name, name.schema.name);
+                        session.database.schemaManager.getUserTable(name.name,
+                            name.schema.name);
 
                     if (!session.isProcessingScript()) {
                         return Result.updateZeroResult;
@@ -1021,8 +1021,8 @@ public class StatementCommand extends Statement {
                     HsqlName name     = (HsqlName) parameters[0];
                     int[]    colIndex = (int[]) parameters[1];
                     Table table =
-                        session.database.schemaManager.getUserTable(session,
-                            name.name, name.schema.name);
+                        session.database.schemaManager.getUserTable(name.name,
+                            name.schema.name);
 
                     StatementSchema.checkSchemaUpdateAuthorisation(session,
                             table.getSchemaName());
@@ -1053,8 +1053,8 @@ public class StatementCommand extends Statement {
                     HsqlName name  = (HsqlName) parameters[0];
                     String   value = (String) parameters[1];
                     Table table =
-                        session.database.schemaManager.getUserTable(session,
-                            name.name, name.schema.name);
+                        session.database.schemaManager.getUserTable(name.name,
+                            name.schema.name);
 
                     if (session.isProcessingScript()) {
                         table.setIndexRoots(session, value);
@@ -1069,8 +1069,8 @@ public class StatementCommand extends Statement {
                 try {
                     HsqlName name = (HsqlName) parameters[0];
                     Table table =
-                        session.database.schemaManager.getUserTable(session,
-                            name.name, name.schema.name);
+                        session.database.schemaManager.getUserTable(name.name,
+                            name.schema.name);
                     boolean mode = ((Boolean) parameters[1]).booleanValue();
 
                     StatementSchema.checkSchemaUpdateAuthorisation(session,
@@ -1088,8 +1088,8 @@ public class StatementCommand extends Statement {
                 try {
                     HsqlName name = (HsqlName) parameters[0];
                     Table table =
-                        session.database.schemaManager.getUserTable(session,
-                            name.name, name.schema.name);
+                        session.database.schemaManager.getUserTable(name.name,
+                            name.schema.name);
 
                     StatementSchema.checkSchemaUpdateAuthorisation(session,
                             table.getSchemaName());
@@ -1154,8 +1154,8 @@ public class StatementCommand extends Statement {
 
                     //
                     Table table =
-                        session.database.schemaManager.getUserTable(session,
-                            name.name, name.schema.name);
+                        session.database.schemaManager.getUserTable(name.name,
+                            name.schema.name);
 
                     if (table.getTableType() == type) {
                         return Result.updateZeroResult;
@@ -1294,7 +1294,7 @@ public class StatementCommand extends Statement {
                 return Result.updateZeroResult;
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "StatemntCommand");
+                throw Error.runtimeError(ErrorCode.U_S0500, "StatementCommand");
         }
     }
 
@@ -1308,7 +1308,7 @@ public class StatementCommand extends Statement {
 
             if (name.type == SchemaObject.TABLE) {
                 Table table =
-                    session.database.schemaManager.getUserTable(session, name);
+                    session.database.schemaManager.getUserTable(name);
 
                 tables = new Table[]{ table };
 
@@ -1321,7 +1321,7 @@ public class StatementCommand extends Statement {
                                 table.fkMainConstraints[i].getRef().getName();
                             Table refTable =
                                 session.database.schemaManager.getUserTable(
-                                    session, tableName);
+                                    tableName);
 
                             if (!refTable.isEmpty(session)) {
                                 throw Error.error(ErrorCode.X_23504,
@@ -1356,8 +1356,7 @@ public class StatementCommand extends Statement {
                             if (objectName.parent.type == SchemaObject.TABLE) {
                                 Table refTable =
                                     (Table) session.database.schemaManager
-                                        .getUserTable(session,
-                                                      objectName.parent);
+                                        .getUserTable(objectName.parent);
 
                                 if (!refTable.isEmpty(session)) {
                                     throw Error.error(ErrorCode.X_23504,

@@ -751,8 +751,6 @@ public class Session implements SessionInterface {
             return;
         }
 
-        String name = (String) sessionContext.savepoints.getKey(0);
-
         database.txManager.rollbackSavepoint(this, 0);
     }
 
@@ -1684,7 +1682,7 @@ public class Session implements SessionInterface {
             if (localTime == null) {
                 int seconds =
                     (int) (HsqlDateTime.getNormalisedTime(
-                        currentMillis + getZoneSeconds() * 1000)) / 1000;
+                        currentMillis + getZoneSeconds() * 1000L)) / 1000;
                 int nanos = (int) (currentMillis % 1000) * 1000000;
 
                 localTime = new TimeData(seconds, nanos, 0);

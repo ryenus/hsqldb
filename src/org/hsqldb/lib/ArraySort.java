@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ package org.hsqldb.lib;
 import java.util.Comparator;
 
 /**
- * FastQSorts the [l,r] partition (inclusive) of the specfied array of
+ * FastQSorts the [l,r] partition (inclusive) of the specified array of
  * Rows, using the comparator.<p>
  *
  * Searches an ordered array.<p>
@@ -54,11 +54,11 @@ public class ArraySort {
     public static int searchFirst(Object[] array, int start, int limit,
                                   Object value, Comparator c) {
 
-        int low     = start;
-        int high    = limit;
-        int mid     = start;
-        int compare = 0;
-        int found   = limit;
+        int low   = start;
+        int high  = limit;
+        int found = limit;
+        int mid;
+        int compare;
 
         while (low < high) {
             mid     = (low + high) >>> 1;
@@ -127,7 +127,7 @@ public class ArraySort {
             i = (r + l) >>> 1;
 
             if (comparator.compare(array[i], array[l]) < 0) {
-                swap(array, l, i);    // Tri-Median Methode!
+                swap(array, l, i);    // Tri-Median Method!
             }
 
             if (comparator.compare(array[r], array[l]) < 0) {
