@@ -68,7 +68,7 @@ public class Database {
 
     int                        databaseID;
     String                     databaseUniqueName;
-    String                     databaseType;
+    DatabaseType               databaseType;
     private final String       canonicalPath;
     public HsqlProperties      urlProperties;
     private final String       path;
@@ -171,7 +171,7 @@ public class Database {
      *      combination is illegal or unavailable, or the database files the
      *      name and path resolves to are in use by another process
      */
-    Database(String type, String path, String canonicalPath,
+    Database(DatabaseType type, String path, String canonicalPath,
              HsqlProperties props) {
 
         setState(Database.DATABASE_SHUTDOWN);
@@ -181,7 +181,7 @@ public class Database {
         this.canonicalPath = canonicalPath;
         this.urlProperties = props;
 
-        if (databaseType == DatabaseURL.S_RES) {
+        if (databaseType == DatabaseType.DB_RES) {
             filesInJar    = true;
             filesReadOnly = true;
         }
@@ -327,7 +327,7 @@ public class Database {
     /**
      *  Returns the type of the database: "mem", "file", "res"
      */
-    public String getType() {
+    public DatabaseType getType() {
         return databaseType;
     }
 
@@ -814,7 +814,7 @@ public class Database {
     }
 
     public String getURI() {
-        return databaseType + canonicalPath;
+        return databaseType.value() + canonicalPath;
     }
 
     public String getCanonicalPath() {

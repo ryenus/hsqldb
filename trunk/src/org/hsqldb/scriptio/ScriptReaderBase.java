@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.persist.PersistentStore;
  * Base class for all script readers.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.4
  * @since 1.7.2
  */
 public abstract class ScriptReaderBase {
@@ -97,14 +97,6 @@ public abstract class ScriptReaderBase {
 
     public String getLoggedStatement() {
         return statement;
-    }
-
-    public NumberSequence getCurrentSequence() {
-        return currentSequence;
-    }
-
-    public long getSequenceValue() {
-        return sequenceValue;
     }
 
     public Table getCurrentTable() {

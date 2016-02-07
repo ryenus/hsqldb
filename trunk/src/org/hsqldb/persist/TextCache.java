@@ -34,7 +34,7 @@ package org.hsqldb.persist;
 import java.io.UnsupportedEncodingException;
 
 import org.hsqldb.Database;
-import org.hsqldb.DatabaseURL;
+import org.hsqldb.DatabaseType;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Table;
 import org.hsqldb.error.Error;
@@ -151,7 +151,7 @@ public class TextCache extends DataFileCache {
         fileFreePosition = 0;
 
         try {
-            int type = database.getType() == DatabaseURL.S_RES
+            int type = database.getType() == DatabaseType.DB_RES
                        ? RAFile.DATA_FILE_JAR
                        : RAFile.DATA_FILE_TEXT;
 
