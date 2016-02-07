@@ -780,7 +780,7 @@ public class Table extends TableBase implements SchemaObject {
         if (!value) {
             if (database.isFilesReadOnly() && isFileBased()) {
                 throw Error.error(ErrorCode.DATA_IS_READONLY);
-            } else if (database.getType() == DatabaseURL.S_MEM && isText) {
+            } else if (database.getType() == DatabaseType.DB_MEM && isText) {
                 throw Error.error(ErrorCode.DATA_IS_READONLY);
             }
         }

@@ -86,7 +86,7 @@ public interface ErrorCode {
     int S_00000 = 0;                               // successful completion
 
     //
-    int U_S0500 = 201;
+    int U_S0500 = 201;                             // unsupported internal operation
     int X_S0501 = 301;                             // no file name specified for source // TEXT_TABLE_SOURCE_FILENAME = 172
     int X_S0502 = 302;                             // no value specified for field // TEXT_TABLE_SOURCE_VALUE_MISSING= 173
     int X_S0503 = 303;                             // zero-length separator // TEXT_TABLE_SOURCE_SEPARATOR = 174

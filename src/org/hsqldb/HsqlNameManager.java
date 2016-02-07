@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -324,7 +324,7 @@ public final class HsqlNameManager {
         private SimpleName() {}
 
         private SimpleName(String name, boolean isNameQuoted) {
-            this.name         = new String(name);
+            this.name         = name;
             this.isNameQuoted = isNameQuoted;
         }
 
@@ -359,13 +359,15 @@ public final class HsqlNameManager {
         static HsqlName[] emptyArray = new HsqlName[]{};
 
         //
-        HsqlNameManager   manager;
-        public String     statementName;
-        public String     comment;
-        public HsqlName   schema;
-        public HsqlName   parent;
-        public Grantee    owner;
-        public final int  type;
+        HsqlNameManager  manager;
+        public String    statementName;
+        public String    comment;
+        public HsqlName  schema;
+        public HsqlName  parent;
+        public Grantee   owner;
+        public final int type;
+
+        //
         private final int hashCode;
 
         private HsqlName(HsqlNameManager man, int type) {
@@ -458,7 +460,7 @@ public final class HsqlNameManager {
             }
 
             // get rid of the excess
-            this.name          = new String(name);
+            this.name          = name;
             this.statementName = this.name;
             this.isNameQuoted  = isquoted;
 

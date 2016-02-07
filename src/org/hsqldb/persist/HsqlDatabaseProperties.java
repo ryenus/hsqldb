@@ -577,7 +577,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         boolean exists;
 
-        if (!DatabaseURL.isFileBasedDatabaseType(database.getType())) {
+        if (!database.getType().isFileBased()) {
             return true;
         }
 
@@ -623,8 +623,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     public void save() {
 
-        if (!DatabaseURL.isFileBasedDatabaseType(database.getType())
-                || database.isFilesReadOnly() || database.isFilesInJar()) {
+        if (!database.getType().isFileBased() || database.isFilesReadOnly()
+                || database.isFilesInJar()) {
             return;
         }
 

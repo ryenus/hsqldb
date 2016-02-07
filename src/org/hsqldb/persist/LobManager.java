@@ -47,7 +47,7 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 import org.hsqldb.Database;
-import org.hsqldb.DatabaseURL;
+import org.hsqldb.DatabaseType;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
@@ -373,9 +373,9 @@ public class LobManager {
             dataBuffer = new byte[largeBufferBlockSize];
         }
 
-        if (database.getType() == DatabaseURL.S_RES) {
+        if (database.getType() == DatabaseType.DB_RES) {
             lobStore = new LobStoreInJar(database, lobBlockSize);
-        } else if (database.getType() == DatabaseURL.S_FILE) {
+        } else if (database.getType() == DatabaseType.DB_FILE) {
             lobStore = new LobStoreRAFile(database, lobBlockSize);
 
             if (!database.isFilesReadOnly()) {

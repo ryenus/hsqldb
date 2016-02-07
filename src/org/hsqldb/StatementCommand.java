@@ -276,8 +276,7 @@ public class StatementCommand extends Statement {
                 try {
                     session.checkAdmin();
 
-                    if (!session.database.getType().equals(
-                            DatabaseURL.S_FILE)) {
+                    if (session.database.getType() != DatabaseType.DB_FILE) {
                         throw Error.error(ErrorCode.DATABASE_IS_MEMORY_ONLY);
                     }
 
@@ -446,7 +445,7 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
 
-                    if (session.database.getType().equals(DatabaseURL.S_RES)) {
+                    if (session.database.getType() == DatabaseType.DB_RES) {
                         return Result.updateZeroResult;
                     }
 
@@ -1294,7 +1293,8 @@ public class StatementCommand extends Statement {
                 return Result.updateZeroResult;
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "StatementCommand");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "StatementCommand");
         }
     }
 

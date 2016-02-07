@@ -40,7 +40,7 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hsqldb.Database;
-import org.hsqldb.DatabaseURL;
+import org.hsqldb.DatabaseType;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
@@ -257,7 +257,7 @@ public class Logger implements EventLogInterface {
         }
 
         propIsFileDatabase =
-            DatabaseURL.isFileBasedDatabaseType(database.getType());
+            database.getType().isFileBased();
         database.databaseProperties = new HsqlDatabaseProperties(database);
         propTextAllowFullPath = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.textdb_allow_full_path);
@@ -444,7 +444,7 @@ public class Logger implements EventLogInterface {
 
         // handle invalid paths as well as access issues
         if (!database.isFilesReadOnly()) {
-            if (database.getType() == DatabaseURL.S_MEM
+            if (database.getType() == DatabaseType.DB_MEM
                     || isStoredFileAccess) {
                 tempDirectoryPath = database.getProperties().getStringProperty(
                     HsqlDatabaseProperties.hsqldb_temp_directory);
@@ -2404,7 +2404,7 @@ public class Logger implements EventLogInterface {
     public String getSecurePath(String path, boolean allowFull,
                                 boolean includeRes) {
 
-        if (database.getType() == DatabaseURL.S_RES) {
+        if (database.getType() == DatabaseType.DB_RES) {
             if (includeRes) {
                 return path;
             } else {
@@ -2412,7 +2412,7 @@ public class Logger implements EventLogInterface {
             }
         }
 
-        if (database.getType() == DatabaseURL.S_MEM) {
+        if (database.getType() == DatabaseType.DB_MEM) {
             if (propTextAllowFullPath) {
                 return path;
             } else {
