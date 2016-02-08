@@ -126,8 +126,7 @@ public class TextCache extends DataFileCache {
         if (textFileSettings.isQuoted || textFileSettings.isAllQuoted) {
             rowIn = new RowInputTextQuoted(textFileSettings.fs,
                                            textFileSettings.vs,
-                                           textFileSettings.lvs,
-                                           textFileSettings.isAllQuoted);
+                                           textFileSettings.lvs);
             rowOut = new RowOutputTextQuoted(textFileSettings.fs,
                                              textFileSettings.vs,
                                              textFileSettings.lvs,
@@ -135,7 +134,7 @@ public class TextCache extends DataFileCache {
                                              textFileSettings.stringEncoding);
         } else {
             rowIn = new RowInputText(textFileSettings.fs, textFileSettings.vs,
-                                     textFileSettings.lvs, false);
+                                     textFileSettings.lvs);
             rowOut = new RowOutputText(textFileSettings.fs,
                                        textFileSettings.vs,
                                        textFileSettings.lvs, false,

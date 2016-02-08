@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -190,6 +190,8 @@ public class ExpressionAggregate extends Expression {
             case OpTypes.VAR_SAMP :
                 sb.append(Tokens.T_VAR_SAMP).append(' ');
                 break;
+
+            default :
         }
 
         if (getLeftNode() != null) {

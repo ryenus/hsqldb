@@ -223,6 +223,8 @@ public class ParserDQL extends ParserBase {
                     case Tokens.NCHAR :
                         typeNumber = Types.SQL_CHAR;
                         break;
+
+                    default :
                 }
             }
 
@@ -2194,6 +2196,8 @@ public class ParserDQL extends ParserBase {
 
                 minus = true;
                 break;
+
+            default :
         }
 
         e = XreadUnsignedValueSpecificationOrNull();
@@ -2902,7 +2906,9 @@ public class ParserDQL extends ParserBase {
                             } else {
                                 e1 = new ExpressionOp(e1, type);
                             }
+                            break;
                         }
+                        default :
                     }
                 }
 
@@ -3129,6 +3135,8 @@ public class ParserDQL extends ParserBase {
                     not = true;
                 }
                 break;
+
+            default :
         }
 
         e = XreadAllTypesPrimary(boole);
@@ -5874,6 +5882,8 @@ public class ParserDQL extends ParserBase {
                 read();
                 readThis(Tokens.VALUE);
                 break;
+
+            default :
         }
 
         readThis(Tokens.FOR);
@@ -6169,6 +6179,8 @@ public class ParserDQL extends ParserBase {
             case Tokens.ASENSITIVE :
                 read();
                 break;
+
+            default :
         }
 
         if (token.tokenType == Tokens.NO) {

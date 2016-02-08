@@ -269,7 +269,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.4
  * @revised JDK 1.6, HSQLDB 2.0
  * @revised JDK 1.7, HSQLDB 2.0.1
  * @see org.hsqldb.dbinfo.DatabaseInformation
@@ -5942,7 +5942,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     private boolean concatNulls = true;
     private boolean nullsFirst = true;
     private boolean nullsOrder = true;
-    private boolean uniqueNulls = true;
 
     /**
      * A CSV list representing the SQL IN list to use when generating
@@ -6240,7 +6239,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     private void setCurrentProperties() throws SQLException {
         ResultSet rs = executeSelect("SYSTEM_PROPERTIES",
            "PROPERTY_NAME IN "+
-           "('sql.concat_nulls', 'sql.nulls_first' , 'sql.nulls_order', 'sql.unique_nulls')");
+           "('sql.concat_nulls', 'sql.nulls_first' , 'sql.nulls_order')");
 
         while(rs.next()) {
             String prop = rs.getString(2);
@@ -6256,10 +6255,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
             if (prop.equals("sql.nulls_order")) {
                 nullsOrder = value;
-            } else
-
-            if (prop.equals("sql.unique_nulls")) {
-                uniqueNulls = value;
             }
         }
 

@@ -279,6 +279,8 @@ public class ParserBase {
                 case Tokens.X_MALFORMED_IDENTIFIER :
                     errorCode = ErrorCode.X_42583;
                     break;
+
+                default :
             }
 
             throw Error.error(errorCode, token.getFullString());

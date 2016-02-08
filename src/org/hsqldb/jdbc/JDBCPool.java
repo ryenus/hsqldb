@@ -31,31 +31,25 @@
 
 package org.hsqldb.jdbc;
 
-import java.io.Serializable;
-
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Wrapper;
-import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.Properties;
-
-import javax.sql.StatementEventListener;
-import javax.sql.StatementEvent;
-
+import java.util.concurrent.atomic.AtomicIntegerArray;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
-
-import javax.sql.ConnectionEventListener;
 import javax.sql.ConnectionEvent;
+import javax.sql.ConnectionEventListener;
 import javax.sql.DataSource;
 import javax.sql.PooledConnection;
+import javax.sql.StatementEvent;
+import javax.sql.StatementEventListener;
 
-import org.hsqldb.jdbc.pool.JDBCPooledDataSource;
 import org.hsqldb.jdbc.pool.JDBCPooledConnection;
-import org.hsqldb.persist.HsqlDatabaseProperties;
+import org.hsqldb.jdbc.pool.JDBCPooledDataSource;
 
 /**
  * <!-- start Release-specific documentation -->
@@ -79,7 +73,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  */
 @SuppressWarnings("serial")
 public class JDBCPool implements DataSource,
-                   Serializable, Referenceable, ConnectionEventListener,
+                   Referenceable, ConnectionEventListener,
                    StatementEventListener, Wrapper {
 
     /**

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import org.hsqldb.types.Types;
  * Class for reading the data for a database row in text table format.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.7.0
  */
 public class RowInputText extends RowInputBase implements RowInputInterface {
@@ -76,7 +76,6 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
     protected int     line;
     protected int     field;
     protected int     next = 0;
-    protected boolean allQuoted;
     protected Scanner scanner;
 
     //
@@ -86,8 +85,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
      * fredt@users - comment - in future may use a custom subclasse of
      * InputStream to read the data.
      */
-    public RowInputText(String fieldSep, String varSep, String longvarSep,
-                        boolean allQuoted) {
+    public RowInputText(String fieldSep, String varSep, String longvarSep) {
 
         super(new byte[0]);
 
@@ -109,7 +107,6 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             longvarSep    = longvarSep.substring(0, longvarSep.length() - 1);
         }
 
-        this.allQuoted  = allQuoted;
         this.fieldSep   = fieldSep;
         this.varSep     = varSep;
         this.longvarSep = longvarSep;
@@ -259,7 +256,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         }
 
         if (s.length() > this.maxPooledStringLength) {
-            return new String(s);
+            return s;
         } else {
             return ValuePool.getString(s);
         }

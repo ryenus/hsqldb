@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,8 +51,8 @@ public class RowInputTextQuoted extends RowInputText {
     private char[]           qtext;
 
     public RowInputTextQuoted(String fieldSep, String varSep,
-                              String longvarSep, boolean allQuoted) {
-        super(fieldSep, varSep, longvarSep, allQuoted);
+                              String longvarSep) {
+        super(fieldSep, varSep, longvarSep);
     }
 
     public void setSource(String text, long pos, int byteSize) {

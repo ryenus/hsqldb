@@ -444,6 +444,8 @@ public class FunctionCustom extends FunctionSQL {
                 case Tokens.RTRIM :
                     function.extractSpec = Tokens.TRAILING;
                     break;
+
+                default :
             }
         }
 
@@ -1624,6 +1626,8 @@ public class FunctionCustom extends FunctionSQL {
                         case FUNC_BITXOR :
                             v = a ^ b;
                             break;
+
+                        default :
                     }
 
                     switch (dataType.typeCode) {
@@ -3106,11 +3110,11 @@ public class FunctionCustom extends FunctionSQL {
                         dataType = Type.SQL_VARCHAR_DEFAULT;
                         break;
 
-                    case FUNC_REGEXP_SUBSTRING_ARRAY : {
+                    case FUNC_REGEXP_SUBSTRING_ARRAY :
                         dataType = Type.getDefaultArrayType(Types.SQL_VARCHAR);
-
                         break;
-                    }
+
+                    default :
                 }
 
                 break;

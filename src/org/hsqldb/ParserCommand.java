@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -533,8 +533,6 @@ public class ParserCommand extends ParserDDL {
     }
 
     private Statement compileSet() {
-
-        int position = super.getPosition();
 
         read();
 
@@ -1375,6 +1373,8 @@ public class ParserCommand extends ParserDDL {
 
                         mode = TransactionManager.LOCKS;
                         break;
+
+                    default :
                 }
 
                 HsqlName[] names =
@@ -1879,7 +1879,6 @@ public class ParserCommand extends ParserDDL {
 
             read();
 
-            String   sql  = getLastPart();
             Object[] args = new Object[]{ savepoint };
             Statement cs =
                 new StatementSession(StatementTypes.ROLLBACK_SAVEPOINT, args);
@@ -1921,7 +1920,6 @@ public class ParserCommand extends ParserDDL {
 
         read();
 
-        String   sql  = getLastPart();
         Object[] args = new Object[]{ name };
 
         return new StatementSession(StatementTypes.SAVEPOINT, args);
@@ -1936,7 +1934,6 @@ public class ParserCommand extends ParserDDL {
 
         read();
 
-        String   sql  = getLastPart();
         Object[] args = new Object[]{ name };
 
         return new StatementSession(StatementTypes.RELEASE_SAVEPOINT, args);
@@ -2036,8 +2033,6 @@ public class ParserCommand extends ParserDDL {
             }
         }
 
-        String sql = getLastPart();
-
         return new StatementSession(StatementTypes.SET_ROLE,
                                     new Expression[]{ e });
     }
@@ -2069,8 +2064,6 @@ public class ParserCommand extends ParserDDL {
                 throw Error.error(ErrorCode.X_42563);
             }
         }
-
-        String sql = getLastPart();
 
         return new StatementSession(StatementTypes.SET_TIME_ZONE,
                                     new Expression[]{ e });
@@ -2106,9 +2099,10 @@ public class ParserCommand extends ParserDDL {
                 read();
                 break;
 
-            // only semicolon is accepted here
+            default :
         }
 
+        // only semicolon is accepted here
         if (token.tokenType == Tokens.SEMICOLON) {
             read();
         }
@@ -2117,7 +2111,6 @@ public class ParserCommand extends ParserDDL {
             throw unexpectedToken();
         }
 
-        String   sql  = getLastPart();
         Object[] args = new Object[]{ new Integer(closemode) };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_SHUTDOWN,
                                             args, null, null);
@@ -2262,11 +2255,11 @@ public class ParserCommand extends ParserDDL {
                 read();
                 readThis(Tokens.TABLE);
 
-                Table    table = readTableName();
+                Table table = readTableName();
 
                 readThis(Tokens.INDEX);
 
-                Object[] args  = new Object[] {
+                Object[] args = new Object[] {
                     table.getName(), Integer.valueOf(1), null
                 };
                 HsqlName[] names =
