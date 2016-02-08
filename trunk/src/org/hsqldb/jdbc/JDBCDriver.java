@@ -335,8 +335,6 @@ public class JDBCDriver implements Driver {
 
         t.start();
 
-        final long start = System.currentTimeMillis();
-
         try {
             t.join(1000 * timeout);
         } catch (InterruptedException ie) {
