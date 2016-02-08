@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,6 +79,9 @@ public class SchemaObjectSet {
             case SchemaObject.INDEX :
                 map = new HashMap();
                 break;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "SchemaObjectSet");
         }
     }
 
@@ -187,6 +190,9 @@ public class SchemaObjectSet {
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :
                 value = name;
+                break;
+
+            default:
         }
 
         map.put(name.name, value);
@@ -265,6 +271,7 @@ public class SchemaObjectSet {
 
                 break;
             }
+            default:
         }
     }
 
@@ -496,6 +503,7 @@ public class SchemaObjectSet {
                         if (!resolved.contains(name)) {
                             isResolved = false;
                         }
+                        break;
                     default :
                 }
             }

@@ -1239,6 +1239,8 @@ public class Grantee implements SchemaObject {
                                 hsqlname.getSchemaQualifiedStatementName());
                         }
                         break;
+
+                    default:
                 }
 
                 if (sb.length() == 0) {

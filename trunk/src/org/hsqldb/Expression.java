@@ -1185,6 +1185,8 @@ public class Expression implements Cloneable {
                     unresolvedSet.add(this);
                 }
                 break;
+
+            default :
         }
 
         return unresolvedSet;

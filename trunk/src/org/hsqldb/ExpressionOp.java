@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -323,6 +323,8 @@ public class ExpressionOp extends Expression {
             case OpTypes.CONCAT_WS :
                 sb.append(Tokens.T_CONCAT_WS).append(' ');
                 break;
+
+            default :
         }
 
         if (getLeftNode() != null) {
@@ -353,6 +355,8 @@ public class ExpressionOp extends Expression {
             case OpTypes.CASEWHEN :
                 acceptsSequences = false;
                 break;
+
+            default :
         }
 
         for (int i = 0; i < nodes.length; i++) {

@@ -33,8 +33,10 @@ package org.hsqldb.jdbc.pool;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
+import java.util.HashSet;
+import java.util.HashMap;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
@@ -54,9 +56,6 @@ import org.hsqldb.jdbc.JDBCCommonDataSource;
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCDriver;
 import org.hsqldb.jdbc.JDBCUtil;
-import org.hsqldb.lib.HashMap;
-import org.hsqldb.lib.HashSet;
-import org.hsqldb.lib.Iterator;
 
 // @(#)$Id$
 

@@ -67,7 +67,7 @@ import org.hsqldb.types.Type;
  * object.
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.4
  * @since JDK 1.4, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0
  */
@@ -320,20 +320,6 @@ public class JDBCParameterMetaData
     /** The metadata object with which this object is constructed */
     ResultMetaData rmd;
 
-    /**
-     * The fully-qualified name of the Java class whose instances should
-     * be passed to the method PreparedStatement.setObject. <p>
-     *
-     * Note that changes to Function.java and Types.java allow passing
-     * objects of any class implementing java.io.Serializable and that,
-     * as such, the parameter expression resolution mechanism has been
-     * upgraded to provide the precise FQN for SQL function and stored
-     * procedure arguments, rather than the more generic
-     * org.hsqldb.JavaObject class that is used internally to represent
-     * and transport objects whose class is not in the standard mapping.
-     */
-    String[] classNames;
-
     /** The number of parameters in the described statement */
     int             parameterCount;
     private boolean translateTTIType;
@@ -455,7 +441,7 @@ public class JDBCParameterMetaData
                 sb.append(method.getName());
                 sb.append('=');
                 sb.append(method.invoke(this,
-                                        new Object[] { new Integer(i + 1) }));
+                                        new Object[] { Integer.valueOf(i + 1) }));
 
                 if (j + 1 < len) {
                     sb.append(',');

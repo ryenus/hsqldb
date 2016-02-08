@@ -137,6 +137,8 @@ public class TableDerived extends Table {
 
                 uniquePredicate = true;
                 break;
+
+            default:
         }
 
         if (dataExpression != null) {

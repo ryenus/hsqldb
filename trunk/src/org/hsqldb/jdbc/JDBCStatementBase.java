@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,9 +123,6 @@ class JDBCStatementBase {
 
     /** The first warning in the chain. Null if there are no warnings. */
     protected SQLWarning rootWarning;
-
-    /** Counter for ResultSet in getMoreResults(). */
-    protected int resultSetCounter;
 
     /** Query timeout in seconds */
     protected int queryTimeout;

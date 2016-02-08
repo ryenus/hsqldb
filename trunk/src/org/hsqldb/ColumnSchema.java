@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL table column metadata.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.4
  * @since 1.9.0
  */
 public final class ColumnSchema extends ColumnBase implements SchemaObject {
@@ -61,6 +61,11 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     private OrderedHashSet references;
     private OrderedHashSet generatedColumnReferences;
     private Expression     accessor;
+
+    ColumnSchema(HsqlName name, Type type) {
+        this.columnName = name;
+        this.dataType   = type;
+    }
 
     /**
      * Creates a column defined in DDL statement.
@@ -166,6 +171,8 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
             case SchemaObject.ParameterModes.PARAM_INOUT :
                 sb.append(Tokens.T_INOUT).append(' ');
                 break;
+
+            default :
         }
 
         if (columnName != null) {
@@ -244,11 +251,11 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
      * @return boolean
      */
     public boolean isWriteable() {
-        return !isGenerated();
+        return isWriteable;
     }
 
     public void setWriteable(boolean value) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "ColumnSchema");
+        isWriteable = value;
     }
 
     public boolean isSearchable() {
@@ -333,7 +340,10 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     }
 
     void setGeneratingExpression(Expression expr) {
+
         generatingExpression = expr;
+
+        setWriteable(generatingExpression == null);
     }
 
     public ColumnSchema duplicate() {

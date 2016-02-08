@@ -127,7 +127,7 @@ public final class UserManager {
         }
 
         // this cannot fail
-        boolean success = userList.add(name.name, user);
+        userList.add(name.name, user);
 
         return user;
     }

@@ -148,6 +148,10 @@ public final class Constraint implements SchemaObject {
             case SchemaObject.ReferentialAction.SET_DEFAULT :
             case SchemaObject.ReferentialAction.SET_NULL :
                 core.hasDeleteAction = true;
+                break;
+
+            default :
+
         }
 
         switch (core.updateAction) {
@@ -156,6 +160,9 @@ public final class Constraint implements SchemaObject {
             case SchemaObject.ReferentialAction.SET_DEFAULT :
             case SchemaObject.ReferentialAction.SET_NULL :
                 core.hasUpdateAction = true;
+                break;
+
+            default :
         }
     }
 
@@ -374,6 +381,8 @@ public final class Constraint implements SchemaObject {
 
                 // should not throw as it is already tested OK
                 break;
+
+            default :
         }
 
         return sb.toString();

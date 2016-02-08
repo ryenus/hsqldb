@@ -3126,7 +3126,7 @@ public class JDBCSQLXML implements SQLXML {
         }
 
         // --------------------- internal implementation -----------------------
-        protected class QualifiedName {
+        protected static class QualifiedName {
 
             public final String namespaceName;
             public final String prefix;

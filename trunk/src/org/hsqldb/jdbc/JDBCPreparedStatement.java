@@ -1309,6 +1309,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 (int) length);
 
             setParameter(parameterIndex, out.toByteArray());
+            out.close();
         } catch (Throwable e) {
             throw JDBCUtil.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
                                     e.toString(), e);
@@ -3877,15 +3878,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         session               = c.sessionProxy;
         sql                   = c.nativeSQL(sql);
 
-        int[] keyIndexes = null;
-
-        if (generatedIndexes != null) {
-            keyIndexes = new int[generatedIndexes.length];
-
-            for (int i = 0; i < generatedIndexes.length; i++) {
-                keyIndexes[i] = generatedIndexes[i] - 1;
-            }
-        }
         resultOut = Result.newPrepareStatementRequest();
 
         int props = ResultProperties.getValueForJDBC(resultSetType,
@@ -4707,9 +4699,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
     /** Lengths for streams. */
     protected long[] streamLengths;
-
-    /** Has a stream on one or more CLOB / BLOB parameter value. */
-    protected boolean hasStreams;
 
     /** Has one or more CLOB / BLOB type parameters. */
     protected boolean hasLOBs;

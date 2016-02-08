@@ -890,6 +890,8 @@ public class JDBCConnection implements Connection {
 
                         state = inside_escape;
                     }
+                    break;
+                default:
             }
         }
 

@@ -544,12 +544,10 @@ public class JDBCDriver implements Driver {
     }
 
 //#endif
-    public static JDBCDriver driverInstance;
+    public static final JDBCDriver driverInstance = new JDBCDriver();
 
     static {
         try {
-            driverInstance = new JDBCDriver();
-
             DriverManager.registerDriver(driverInstance);
         } catch (Exception e) {
         }

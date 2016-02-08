@@ -330,6 +330,8 @@ public class ClientConnection implements SessionInterface {
             case SessionInterface.INFO_CATALOG :
                 data[SessionInterface.INFO_VARCHAR] = value;
                 break;
+
+            default :
         }
 
         Result resultIn = execute(resultOut);

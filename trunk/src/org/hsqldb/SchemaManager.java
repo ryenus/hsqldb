@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * Manages all SCHEMA related database objects
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.8.0
  */
 public class SchemaManager {
@@ -606,7 +606,7 @@ public class SchemaManager {
                 }
                 case SchemaObject.INDEX :
                 case SchemaObject.CONSTRAINT :
-                    findSchemaObject(name.name, name.schema.name, name.type);
+                default:
             }
 
             SchemaObject object = findSchemaObject(name.name,
@@ -1021,6 +1021,8 @@ public class SchemaManager {
 
                         object.compile(session, null);
                         break;
+
+                    default:
                 }
             }
 
@@ -1070,6 +1072,8 @@ public class SchemaManager {
 
                         object.compile(session, null);
                         break;
+
+                    default:
                 }
             }
 
@@ -2008,7 +2012,6 @@ public class SchemaManager {
                         break;
 
                     default :
-                        break;
                 }
 
                 refName = null;

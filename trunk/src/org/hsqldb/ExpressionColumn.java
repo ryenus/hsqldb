@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -390,8 +390,7 @@ public class ExpressionColumn extends Expression {
             case OpTypes.COLUMN :
             case OpTypes.PARAMETER :
             case OpTypes.VARIABLE : {
-                boolean         resolved       = false;
-                boolean         tableQualified = tableName != null;
+                boolean         resolved      = false;
                 RangeVariable[] rangeVarArray = rangeGroup.getRangeVariables();
 
                 if (rangeVariable != null) {
@@ -489,7 +488,11 @@ public class ExpressionColumn extends Expression {
                 }
 
                 unresolvedSet.add(this);
+
+                break;
             }
+
+            default :
         }
 
         return unresolvedSet;

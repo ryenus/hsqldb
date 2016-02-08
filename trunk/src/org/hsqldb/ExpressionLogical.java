@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -255,6 +255,8 @@ public class ExpressionLogical extends Expression {
                         isSingleColumnEqual = true;
                     }
                     break;
+
+                default :
             }
         } else if (nodes[RIGHT].opType == OpTypes.COLUMN) {
             nodes[RIGHT].nullability = SchemaObject.Nullability.NO_NULLS;
@@ -271,6 +273,8 @@ public class ExpressionLogical extends Expression {
                         isSingleColumnEqual = true;
                     }
                     break;
+
+                default :
             }
         }
     }
@@ -1625,6 +1629,9 @@ public class ExpressionLogical extends Expression {
                             }
 
                             hasMatch = true;
+                            break;
+
+                        default :
                     }
                 }
 
