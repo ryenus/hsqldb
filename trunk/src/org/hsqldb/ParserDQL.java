@@ -2906,6 +2906,7 @@ public class ParserDQL extends ParserBase {
                             } else {
                                 e1 = new ExpressionOp(e1, type);
                             }
+
                             break;
                         }
                         default :
@@ -4460,7 +4461,12 @@ public class ParserDQL extends ParserBase {
         compileContext.registerSubquery(name.name, td);
         checkIsThis(Tokens.UNION);
 
-        int                unionType               = XreadUnionType();
+        int unionType = XreadUnionType();
+
+        if (database.sqlSyntaxDb2 && unionType == QueryExpression.UNION_ALL) {
+            unionType = QueryExpression.UNION;
+        }
+
         QuerySpecification rightQuerySpecification = XreadSimpleTable();
         QueryExpression queryExpression = new QueryExpression(compileContext,
             leftQuerySpecification);
