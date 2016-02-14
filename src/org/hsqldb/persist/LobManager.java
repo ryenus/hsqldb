@@ -436,8 +436,8 @@ public class LobManager {
 
     private Object[] getLobHeader(long lobID) {
 
-        ResultMetaData meta     = getLob.getParametersMetaData();
-        Object[]         params = new Object[meta.getColumnCount()];
+        ResultMetaData meta   = getLob.getParametersMetaData();
+        Object[]       params = new Object[meta.getColumnCount()];
 
         params[0] = ValuePool.getLong(lobID);
 
@@ -507,9 +507,9 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            Long           lobID    = getNewLobID();
-            ResultMetaData meta     = createLob.getParametersMetaData();
-            Object[]         params = new Object[meta.getColumnCount()];
+            Long           lobID  = getNewLobID();
+            ResultMetaData meta   = createLob.getParametersMetaData();
+            Object[]       params = new Object[meta.getColumnCount()];
 
             params[LOB_IDS.LOB_ID]          = lobID;
             params[LOB_IDS.LOB_LENGTH]      = ValuePool.getLong(length);
@@ -532,9 +532,9 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            Long           lobID    = getNewLobID();
-            ResultMetaData meta     = createLob.getParametersMetaData();
-            Object[]         params = new Object[meta.getColumnCount()];
+            Long           lobID  = getNewLobID();
+            ResultMetaData meta   = createLob.getParametersMetaData();
+            Object[]       params = new Object[meta.getColumnCount()];
 
             params[LOB_IDS.LOB_ID]          = lobID;
             params[LOB_IDS.LOB_LENGTH]      = ValuePool.getLong(length);
@@ -557,8 +557,8 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            ResultMetaData meta     = deleteLobCall.getParametersMetaData();
-            Object[]         params = new Object[meta.getColumnCount()];
+            ResultMetaData meta   = deleteLobCall.getParametersMetaData();
+            Object[]       params = new Object[meta.getColumnCount()];
 
             params[0] = ValuePool.getLong(lobID);
             params[1] = ValuePool.getLong(0);
@@ -599,7 +599,8 @@ public class LobManager {
                 }
             }
 
-            Object[] params = new Object[2];
+            ResultMetaData meta   = deleteUnusedLobs.getParametersMetaData();
+            Object[]       params = new Object[meta.getColumnCount()];
 
             params[0] = new Long(firstLobID);
 
@@ -1085,8 +1086,8 @@ public class LobManager {
                 return Result.newErrorResult(Error.error(ErrorCode.X_0F502));
             }
 
-            Long   newLobID = getNewLobID();
-            Object[] params = new Object[data.length];
+            Long     newLobID = getNewLobID();
+            Object[] params   = new Object[data.length];
 
             params[LOB_IDS.LOB_ID]          = newLobID;
             params[LOB_IDS.LOB_LENGTH]      = Long.valueOf(newLength);
@@ -1714,8 +1715,8 @@ public class LobManager {
 
             int blockOffset = (int) ((byteLength + lobBlockSize - 1)
                                      / lobBlockSize);
-            ResultMetaData meta = deleteLobPartCall.getParametersMetaData();
-            Object[]         params = new Object[meta.getColumnCount()];
+            ResultMetaData meta   = deleteLobPartCall.getParametersMetaData();
+            Object[]       params = new Object[meta.getColumnCount()];
 
             params[DELETE_BLOCKS.LOB_ID]       = ValuePool.getLong(lobID);
             params[DELETE_BLOCKS.BLOCK_OFFSET] = Integer.valueOf(blockOffset);
@@ -1737,8 +1738,8 @@ public class LobManager {
 
     private Result setLength(long lobID, long length) {
 
-        ResultMetaData meta     = updateLobLength.getParametersMetaData();
-        Object[]         params = new Object[meta.getColumnCount()];
+        ResultMetaData meta   = updateLobLength.getParametersMetaData();
+        Object[]       params = new Object[meta.getColumnCount()];
 
         params[UPDATE_LENGTH.LOB_LENGTH] = ValuePool.getLong(length);
         params[UPDATE_LENGTH.LOB_ID]     = ValuePool.getLong(lobID);
@@ -1754,8 +1755,8 @@ public class LobManager {
      */
     public Result adjustUsageCount(Session session, long lobID, int delta) {
 
-        ResultMetaData meta     = updateLobUsage.getParametersMetaData();
-        Object[]         params = new Object[meta.getColumnCount()];
+        ResultMetaData meta   = updateLobUsage.getParametersMetaData();
+        Object[]       params = new Object[meta.getColumnCount()];
 
         params[UPDATE_USAGE.BLOCK_COUNT] = ValuePool.getInt(delta);
         params[UPDATE_USAGE.LOB_ID]      = ValuePool.getLong(lobID);
@@ -1773,8 +1774,8 @@ public class LobManager {
 
     private int[][] getBlockAddresses(long lobID, int offset, int limit) {
 
-        ResultMetaData meta     = getSpanningBlocks.getParametersMetaData();
-        Object[]         params = new Object[meta.getColumnCount()];
+        ResultMetaData meta   = getSpanningBlocks.getParametersMetaData();
+        Object[]       params = new Object[meta.getColumnCount()];
 
         params[GET_LOB_PART.LOB_ID]       = ValuePool.getLong(lobID);
         params[GET_LOB_PART.BLOCK_OFFSET] = ValuePool.getInt(offset);
@@ -1810,8 +1811,8 @@ public class LobManager {
 
     private void deleteBlockAddresses(long lobID, int offset, int limit) {
 
-        ResultMetaData meta     = deleteLobPartCall.getParametersMetaData();
-        Object[]         params = new Object[meta.getColumnCount()];
+        ResultMetaData meta   = deleteLobPartCall.getParametersMetaData();
+        Object[]       params = new Object[meta.getColumnCount()];
 
         params[DELETE_BLOCKS.LOB_ID]       = ValuePool.getLong(lobID);
         params[DELETE_BLOCKS.BLOCK_OFFSET] = ValuePool.getInt(offset);
@@ -1826,8 +1827,8 @@ public class LobManager {
 
     private void divideBlockAddresses(long lobID, int offset) {
 
-        ResultMetaData meta     = divideLobPartCall.getParametersMetaData();
-        Object[]         params = new Object[meta.getColumnCount()];
+        ResultMetaData meta   = divideLobPartCall.getParametersMetaData();
+        Object[]       params = new Object[meta.getColumnCount()];
 
         params[DIVIDE_BLOCK.BLOCK_OFFSET] = ValuePool.getInt(offset);
         params[DIVIDE_BLOCK.LOB_ID]       = ValuePool.getLong(lobID);
@@ -1839,8 +1840,8 @@ public class LobManager {
 
     private Result createBlockAddresses(long lobID, int offset, int count) {
 
-        ResultMetaData meta     = createLobPartCall.getParametersMetaData();
-        Object[]         params = new Object[meta.getColumnCount()];
+        ResultMetaData meta   = createLobPartCall.getParametersMetaData();
+        Object[]       params = new Object[meta.getColumnCount()];
 
         params[ALLOC_BLOCKS.BLOCK_COUNT]  = ValuePool.getInt(count);
         params[ALLOC_BLOCKS.BLOCK_OFFSET] = ValuePool.getInt(offset);
@@ -1857,7 +1858,7 @@ public class LobManager {
             int count) {
 
         ResultMetaData meta = createSingleLobPartCall.getParametersMetaData();
-        Object[]         params = new Object[meta.getColumnCount()];
+        Object[]       params = new Object[meta.getColumnCount()];
 
         params[ALLOC_BLOCKS.BLOCK_COUNT]  = ValuePool.getInt(count);
         params[ALLOC_BLOCKS.BLOCK_OFFSET] = ValuePool.getInt(offset);
@@ -1874,8 +1875,8 @@ public class LobManager {
                               int byteLength, int blockOffset,
                               int blockCount) {
 
-        ResultMetaData meta     = createPart.getParametersMetaData();
-        Object[]         params = new Object[meta.getColumnCount()];
+        ResultMetaData meta   = createPart.getParametersMetaData();
+        Object[]       params = new Object[meta.getColumnCount()];
 
         params[ALLOC_PART.BLOCK_COUNT]  = ValuePool.getInt(blockCount);
         params[ALLOC_PART.BLOCK_OFFSET] = ValuePool.getInt(blockOffset);
@@ -1952,8 +1953,8 @@ public class LobManager {
 
     private long[][] getParts(long lobID, long offset, long limit) {
 
-        ResultMetaData meta     = getSpanningParts.getParametersMetaData();
-        Object[]         params = new Object[meta.getColumnCount()];
+        ResultMetaData meta   = getSpanningParts.getParametersMetaData();
+        Object[]       params = new Object[meta.getColumnCount()];
 
         params[GET_LOB_PART.LOB_ID]       = ValuePool.getLong(lobID);
         params[GET_LOB_PART.BLOCK_OFFSET] = ValuePool.getLong(offset);
@@ -2276,8 +2277,8 @@ public class LobManager {
 
     private long[] getLastPart(long lobID) {
 
-        ResultMetaData meta     = getLastPart.getParametersMetaData();
-        Object[]         params = new Object[meta.getColumnCount()];
+        ResultMetaData meta   = getLastPart.getParametersMetaData();
+        Object[]       params = new Object[meta.getColumnCount()];
 
         params[GET_LOB_PART.LOB_ID] = ValuePool.getLong(lobID);
 
