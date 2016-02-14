@@ -505,10 +505,14 @@
     <literal>&lt;regular expression&gt;</literal> is defined according to Java
     language regular expression rules. (HyperSQL)</para>
 
-    <simpara><emphasis role="bold">REGEXP_MATCHES</emphasis></simpara>
+    <indexterm significance="preferred" type="sql">
+      <primary>REGEXP_REPLACE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">REGEXP_REPLACE</emphasis></simpara>
 
     <para><literal>REGEXP_REPLACE ( &lt;char value expr 1&gt;, &lt;regular
-    expression&gt;, <literal>&lt;char value expr 3&gt;</literal> ) </literal></para>
+    expression&gt;, &lt;char value expr 3&gt; ) </literal></para>
 
     <para>Replaces <literal>&lt;char value expr 1&gt;</literal>
     regions that match the <literal>&lt;regular expression&gt;</literal> with <literal>&lt;char value expr 3&gt;</literal>. The
