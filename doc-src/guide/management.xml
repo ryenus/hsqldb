@@ -425,7 +425,7 @@
   </section>
 
   <section xml:id="mtc_backup">
-    <title>Backing Up Database Catalogs</title>
+    <title>Backing Up and Restoring Database Catalogs</title>
 
     <indexterm significance="preferred">
       <primary>backup</primary>
@@ -486,6 +486,20 @@
       <simpara>See the next section under Statements for details about the
       command and its options. See the sections below about restoring a
       backup.</simpara>
+    </section>
+
+    <section xml:id="mtc_backup_syntax">
+      <title>Offline Backup Utility Syntax</title>
+
+      <para>The <classname>DbBackup</classname> class is used from the
+      command-line to make offline backups and to restore backups.
+      Here is how to see all options for <classname>DbBackup</classname>.
+        <example>
+          <title>Displaying DbBackup Syntax</title>
+
+          <screen> java -cp hsqldb.jar org.hsqldb.lib.tar.DbBackupMain</screen>
+        </example>
+       </para>
     </section>
 
     <section xml:id="mtc_offline_backup">
