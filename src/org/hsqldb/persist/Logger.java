@@ -256,8 +256,7 @@ public class Logger implements EventLogInterface {
             fileAccess = FileUtil.getFileAccess(database.isFilesInJar());
         }
 
-        propIsFileDatabase =
-            database.getType().isFileBased();
+        propIsFileDatabase          = database.getType().isFileBased();
         database.databaseProperties = new HsqlDatabaseProperties(database);
         propTextAllowFullPath = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.textdb_allow_full_path);
@@ -298,7 +297,7 @@ public class Logger implements EventLogInterface {
         if (isNewDatabase) {
             String name = newUniqueName();
 
-            database.setUniqueName(name);
+            database.setDatabaseName(name);
 
             boolean checkExists = database.isFilesInJar();
 
@@ -376,7 +375,7 @@ public class Logger implements EventLogInterface {
         boolean version18 = database.databaseProperties.isVersion18();
 
         if (version18) {
-            database.setUniqueName(newUniqueName());
+            database.setDatabaseName(newUniqueName());
             database.schemaManager.createPublicSchema();
 
             HsqlName name = database.schemaManager.findSchemaHsqlName(
@@ -393,11 +392,11 @@ public class Logger implements EventLogInterface {
         loggingEnabled = propLogData && !database.isFilesReadOnly();
 
         if (version18) {
-            checkpoint(false);
+            checkpoint(null, false, false);
         }
 
-        if (database.getUniqueName() == null) {
-            database.setUniqueName(newUniqueName());
+        if (database.getNameString() == null) {
+            database.setDatabaseName(newUniqueName());
         }
 
         // URL database properties that can override .script file settings
@@ -791,7 +790,7 @@ public class Logger implements EventLogInterface {
             return;
         }
 
-        String name = database.getUniqueName();
+        String name = database.getNameString();
 
         if (name == null) {
 
@@ -804,7 +803,7 @@ public class Logger implements EventLogInterface {
 
         fwLogger = FrameworkLogger.getLog(SimpleLog.logTypeNameEngine,
                                           "hsqldb.db."
-                                          + database.getUniqueName());
+                                          + database.getNameString());
         /*
         sqlLogger = FrameworkLogger.getLog(SimpleLog.logTypeNameEngine,
                                            "hsqldb.sql."
@@ -1036,25 +1035,34 @@ public class Logger implements EventLogInterface {
      * @throws  HsqlException if there is a problem checkpointing the
      *      database
      */
-    public synchronized void checkpoint(boolean mode) {
+    public void checkpoint(Session session, boolean defrag, boolean lobs) {
 
         if (!backupState.compareAndSet(stateNormal, stateCheckpoint)) {
             throw Error.error(ErrorCode.ACCESS_IS_DENIED);
         }
 
+        database.lobManager.lock();
+
         try {
-            checkpointInternal(mode);
+            synchronized (this) {
+                checkpointInternal(session, defrag);
+
+                if (lobs) {
+                    database.lobManager.deleteUnusedLobs();
+                }
+            }
         } finally {
             backupState.set(stateNormal);
             checkpointState.set(stateCheckpointNormal);
+            database.lobManager.unlock();
         }
     }
 
-    void checkpointInternal(boolean mode) {
+    private void checkpointInternal(Session session, boolean defrag) {
 
         if (logsStatements) {
             logInfoEvent("Checkpoint start");
-            log.checkpoint(mode);
+            log.checkpoint(session, defrag);
             logInfoEvent("Checkpoint end - txts: "
                          + database.txManager.getGlobalChangeTimestamp());
         } else if (!isFileDatabase()) {
@@ -1440,12 +1448,10 @@ public class Logger implements EventLogInterface {
                 return new RowStoreAVLDiskData((Table) table);
 
             case TableBase.INFO_SCHEMA_TABLE :
-                return new RowStoreAVLHybridExtended(session, table,
-                                                     false);
+                return new RowStoreAVLHybridExtended(session, table, false);
 
             case TableBase.TEMP_TABLE :
-                return new RowStoreAVLHybridExtended(session, table,
-                                                     true);
+                return new RowStoreAVLHybridExtended(session, table, true);
 
             case TableBase.CHANGE_SET_TABLE :
                 return new RowStoreDataChange(session, collection, table);
@@ -1800,7 +1806,7 @@ public class Logger implements EventLogInterface {
         StringBuffer  sb   = new StringBuffer();
 
         sb.append("SET DATABASE ").append(Tokens.T_UNIQUE).append(' ');
-        sb.append(Tokens.T_NAME).append(' ').append(database.getUniqueName());
+        sb.append(Tokens.T_NAME).append(' ').append(database.getNameString());
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_GC).append(' ');

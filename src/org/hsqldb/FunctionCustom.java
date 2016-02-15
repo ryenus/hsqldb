@@ -815,7 +815,7 @@ public class FunctionCustom extends FunctionSQL {
                 return session.getDatabase().getPath();
 
             case FUNC_DATABASE_NAME :
-                return session.getDatabase().getUniqueName();
+                return session.getDatabase().getNameString();
 
             case FUNC_ISAUTOCOMMIT :
                 return session.isAutoCommit() ? Boolean.TRUE

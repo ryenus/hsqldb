@@ -575,6 +575,10 @@ public class LobManager {
         }
     }
 
+    public void setUsageChanged() {
+        usageChanged = true;
+    }
+
     public Result deleteUnusedLobs() {
 
         writeLock.lock();
@@ -1148,6 +1152,8 @@ public class LobManager {
                 getLobStore().setBlockBytes(bytes, blockOffset, 1);
             }
 
+            lobStore.synch();
+
             return ResultLob.newLobSetResponse(newLobID.longValue(),
                                                newLength);
         } finally {
@@ -1456,6 +1462,8 @@ public class LobManager {
             return Result.newErrorResult(e);
         }
 
+        lobStore.synch();
+
         storeModified = true;
 
         return ResultLob.newLobSetResponse(lobID, dataLength);
@@ -1537,6 +1545,8 @@ public class LobManager {
         }
 
         storeModified = true;
+
+        lobStore.synch();
 
         return ResultLob.newLobSetResponse(lobID, writeLength);
     }

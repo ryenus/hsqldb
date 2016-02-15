@@ -167,7 +167,7 @@ public class SessionManager {
     /**
      * Retrieves a transient transaction session.
      */
-    public Session newSysSession() {
+    synchronized public Session newSysSession() {
 
         Session session = new Session(sysSession.database,
                                       sysSession.getUser(), false, false,
@@ -183,7 +183,7 @@ public class SessionManager {
         return session;
     }
 
-    public Session newSysSession(HsqlName schema, User user) {
+    synchronized public Session newSysSession(HsqlName schema, User user) {
 
         Session session = new Session(sysSession.database, user, false, false,
                                       0, null, 0);
@@ -202,10 +202,12 @@ public class SessionManager {
         Session[] sessions = getAllSessions();
 
         for (int i = 0; i < sessions.length; i++) {
-            sessions[i].closeInternal();
+            sessions[i].close();
         }
 
-        sessionMap.clear();
+        synchronized(this) {
+            sessionMap.clear();
+        }
     }
 
     /**

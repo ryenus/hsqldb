@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.types.Type;
  * Base implementation of variables, columns of result or table.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class ColumnBase {
@@ -46,7 +46,7 @@ public class ColumnBase {
     private String    table;
     private String    schema;
     private String    catalog;
-    private boolean   isWriteable;
+    boolean           isWriteable;
     private boolean   isSearchable;
     protected byte    parameterMode;
     protected boolean isIdentity;
