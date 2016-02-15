@@ -111,8 +111,8 @@ public class Session implements SessionInterface {
     public OrderedHashSet   waitedSessions;
     public OrderedHashSet   waitingSessions;
     OrderedHashSet          tempSet;
+    OrderedHashSet          actionSet;
     public CountUpDownLatch latch = new CountUpDownLatch();
-    Statement               lockStatement;
     TimeoutManager          timeoutManager;
 
     // current settings
@@ -176,6 +176,7 @@ public class Session implements SessionInterface {
         waitedSessions              = new OrderedHashSet();
         waitingSessions             = new OrderedHashSet();
         tempSet                     = new OrderedHashSet();
+        actionSet                   = new OrderedHashSet();
         isolationLevelDefault       = database.defaultIsolationLevel;
         ignoreCase                  = database.sqlIgnoreCase;
         isolationLevel              = isolationLevelDefault;
@@ -520,22 +521,6 @@ public class Session implements SessionInterface {
 //        tempActionHistory.add("endAction ends " + actionTimestamp);
     }
 
-    public boolean hasLocks(Statement statement) {
-
-        if (lockStatement == statement) {
-            if (isolationLevel == SessionInterface.TX_REPEATABLE_READ
-                    || isolationLevel == SessionInterface.TX_SERIALIZABLE) {
-                return true;
-            }
-
-            if (statement.getTableNamesForRead().length == 0) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     /**
      * Explicit start of transaction by user
      */
@@ -628,6 +613,8 @@ public class Session implements SessionInterface {
 
     private void endTransaction(boolean commit, boolean chain) {
 
+        abortTransaction = false;
+
         sessionContext.resetStack();
         sessionContext.savepoints.clear();
         sessionContext.savepointTimestamps.clear();
@@ -635,8 +622,6 @@ public class Session implements SessionInterface {
         sessionData.persistentStoreCollection.clearTransactionTables();
         sessionData.closeAllTransactionNavigators();
         sessionData.clearLobOps();
-
-        lockStatement = null;
 
         if (!chain) {
             sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
@@ -1339,6 +1324,7 @@ public class Session implements SessionInterface {
             return r;
         }
 
+        repeatLoop:
         while (true) {
             actionIndex = rowActionList.size();
 
@@ -1356,10 +1342,16 @@ public class Session implements SessionInterface {
 
             timeoutManager.startTimeout(timeout);
 
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                abortTransaction = true;
+            while (true) {
+                try {
+                    latch.await();
+                } catch (InterruptedException e) {
+                    Thread.interrupted();
+
+                    continue;
+                }
+
+                break;
             }
 
             boolean abortAction = timeoutManager.endTimeout();
@@ -1369,7 +1361,7 @@ public class Session implements SessionInterface {
 
                 endAction(r);
 
-                break;
+                break repeatLoop;
             }
 
             if (abortTransaction) {
@@ -1389,8 +1381,6 @@ public class Session implements SessionInterface {
                                                   SimpleLog.LOG_NORMAL);
             }
 
-            lockStatement = sessionContext.currentStatement;
-
             //        tempActionHistory.add("sql execute end " + actionTimestamp + " " + rowActionList.size());
             endAction(r);
 
@@ -1401,14 +1391,24 @@ public class Session implements SessionInterface {
             if (redoAction) {
                 redoAction = false;
 
-                try {
-                    latch.await();
-                } catch (InterruptedException e) {
-                    abortTransaction = true;
+                while (true) {
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        Thread.interrupted();
+
+                        continue;
+                    }
+
+                    break;
                 }
             } else {
-                break;
+                break repeatLoop;
             }
+        }
+
+        if (abortTransaction) {
+            return handleAbortTransaction();
         }
 
         if (sessionContext.depth == 0
