@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 2.0.0
  */
 public class TransactionManagerMV2PL extends TransactionManagerCommon
@@ -65,6 +65,10 @@ implements TransactionManager {
 
     public long getGlobalChangeTimestamp() {
         return globalChangeTimestamp.get();
+    }
+
+    public void setGlobalChangeTimestamp(long ts) {
+        globalChangeTimestamp.set(ts);
     }
 
     public boolean isMVRows() {
@@ -159,12 +163,14 @@ implements TransactionManager {
                 addToCommittedQueue(session, list);
             }
 
+            session.isTransaction = false;
+
             endTransactionTPL(session);
         } finally {
             writeLock.unlock();
         }
 
-        session.tempSet.clear();
+        session.actionSet.clear();
 
         return true;
     }
@@ -180,6 +186,10 @@ implements TransactionManager {
 
             rollbackPartial(session, 0, session.transactionTimestamp);
             endTransaction(session);
+            session.logSequences();
+
+            session.isTransaction = false;
+
             endTransactionTPL(session);
         } finally {
             writeLock.unlock();
@@ -500,10 +510,6 @@ implements TransactionManager {
      */
     public void beginAction(Session session, Statement cs) {
 
-        if (session.hasLocks(cs)) {
-            return;
-        }
-
         writeLock.lock();
 
         try {
@@ -572,13 +578,10 @@ implements TransactionManager {
      * that are no longer required. remove transactions ended before the first
      * timestamp in liveTransactionsSession queue
      */
-    void endTransaction(Session session) {
+    private void endTransaction(Session session) {
 
         long timestamp = session.transactionTimestamp;
-
-        session.isTransaction = false;
-
-        int index = liveTransactionTimestamps.indexOf(timestamp);
+        int  index     = liveTransactionTimestamps.indexOf(timestamp);
 
         if (index >= 0) {
             transactionCount--;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,6 +57,10 @@ implements TransactionManager {
         return globalChangeTimestamp.get();
     }
 
+    public void setGlobalChangeTimestamp(long ts) {
+        globalChangeTimestamp.set(ts);
+    }
+
     public boolean isMVRows() {
         return false;
     }
@@ -109,6 +113,9 @@ implements TransactionManager {
 
             adjustLobUsage(session);
             persistCommit(session);
+
+            session.isTransaction = false;
+
             endTransactionTPL(session);
         } finally {
             writeLock.unlock();
@@ -130,6 +137,10 @@ implements TransactionManager {
 
             rollbackPartial(session, 0, session.transactionTimestamp);
             endTransaction(session);
+            session.logSequences();
+
+            session.isTransaction = false;
+
             endTransactionTPL(session);
         } finally {
             writeLock.unlock();
@@ -283,10 +294,6 @@ implements TransactionManager {
      */
     public void beginAction(Session session, Statement cs) {
 
-        if (session.hasLocks(cs)) {
-            return;
-        }
-
         writeLock.lock();
 
         try {
@@ -337,11 +344,9 @@ implements TransactionManager {
         super.resetSession(session, targetSession, mode);
     }
 
-    void endTransaction(Session session) {
+    private void endTransaction(Session session) {
 
         if (session.isTransaction) {
-            session.isTransaction = false;
-
             transactionCount--;
         }
     }

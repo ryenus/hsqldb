@@ -385,7 +385,7 @@ public class Log {
         }
 
         if (defrag) {
-            defrag();
+            defrag(session);
         } else {
             checkpoint();
         }
@@ -474,7 +474,7 @@ public class Log {
     /**
      *  Writes out all the rows to a new file without fragmentation.
      */
-    public void defrag() {
+    public void defrag(Session session) {
 
         database.logger.logInfoEvent("defrag start");
 
@@ -513,7 +513,7 @@ public class Log {
     }
 
     /**
-     * Returns true if lost space is above the threshold percentage
+     * Returns true if lost space is above the threshold percentage.
      */
     boolean forceDefrag() {
 

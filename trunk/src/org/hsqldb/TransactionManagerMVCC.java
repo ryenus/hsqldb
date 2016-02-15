@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 2.0.0
  */
 public class TransactionManagerMVCC extends TransactionManagerCommon
@@ -78,6 +78,10 @@ implements TransactionManager {
 
     public long getGlobalChangeTimestamp() {
         return globalChangeTimestamp.get();
+    }
+
+    public void setGlobalChangeTimestamp(long ts) {
+        globalChangeTimestamp.set(ts);
     }
 
     public boolean isMVRows() {
@@ -114,7 +118,7 @@ implements TransactionManager {
             for (int i = 0; i < limit; i++) {
                 RowAction action = (RowAction) session.rowActionList.get(i);
 
-                if (!action.canCommit(session, session.tempSet)) {
+                if (!action.canCommit(session, session.actionSet)) {
 
 //                System.out.println("commit conflicts " + session + " " + session.actionTimestamp);
                     return false;
@@ -129,9 +133,9 @@ implements TransactionManager {
                 action.prepareCommit(session);
             }
 
-            for (int i = 0; i < session.tempSet.size(); i++) {
+            for (int i = 0; i < session.actionSet.size(); i++) {
                 Session current =
-                    ((RowActionBase) session.tempSet.get(i)).session;
+                    ((RowActionBase) session.actionSet.get(i)).session;
 
                 current.abortTransaction = true;
             }
@@ -139,7 +143,7 @@ implements TransactionManager {
             return true;
         } finally {
             writeLock.unlock();
-            session.tempSet.clear();
+            session.actionSet.clear();
         }
     }
 
@@ -157,7 +161,7 @@ implements TransactionManager {
             for (int i = 0; i < limit; i++) {
                 RowAction action = (RowAction) session.rowActionList.get(i);
 
-                if (!action.canCommit(session, session.tempSet)) {
+                if (!action.canCommit(session, session.actionSet)) {
 
 //                  System.out.println("commit conflicts " + session + " " + session.actionTimestamp);
                     return false;
@@ -176,9 +180,9 @@ implements TransactionManager {
                 action.commit(session);
             }
 
-            for (int i = 0; i < session.tempSet.size(); i++) {
+            for (int i = 0; i < session.actionSet.size(); i++) {
                 Session current =
-                    ((RowActionBase) session.tempSet.get(i)).session;
+                    ((RowActionBase) session.actionSet.get(i)).session;
 
                 current.abortTransaction = true;
             }
@@ -221,7 +225,7 @@ implements TransactionManager {
             countDownLatches(session);
         } finally {
             writeLock.unlock();
-            session.tempSet.clear();
+            session.actionSet.clear();
         }
 
         return true;
@@ -341,7 +345,7 @@ implements TransactionManager {
                 if (session.isolationLevel == SessionInterface
                         .TX_REPEATABLE_READ || session
                         .isolationLevel == SessionInterface.TX_SERIALIZABLE) {
-                    session.tempSet.clear();
+                    session.actionSet.clear();
 
                     session.redoAction       = false;
                     session.abortTransaction = session.txConflictRollback;
@@ -351,7 +355,7 @@ implements TransactionManager {
 
                 // can redo when conflicting action is already committed
                 if (row.rowAction != null && row.rowAction.isDeleted()) {
-                    session.tempSet.clear();
+                    session.actionSet.clear();
 
                     session.redoAction = true;
 
@@ -360,13 +364,13 @@ implements TransactionManager {
                     throw Error.error(ErrorCode.X_40501);
                 }
 
-                redoAction = !session.tempSet.isEmpty();
+                redoAction = !session.actionSet.isEmpty();
 
                 if (redoAction) {
                     actionSession =
-                        ((RowActionBase) session.tempSet.get(0)).session;
+                        ((RowActionBase) session.actionSet.get(0)).session;
 
-                    session.tempSet.clear();
+                    session.actionSet.clear();
 
                     if (actionSession != null) {
                         redoAction = checkDeadlock(session, actionSession);
@@ -417,7 +421,7 @@ implements TransactionManager {
         try {
             store.indexRow(session, row);
         } catch (HsqlException e) {
-            if (session.tempSet.isEmpty()) {
+            if (session.actionSet.isEmpty()) {
                 throw e;
             }
 
@@ -442,11 +446,12 @@ implements TransactionManager {
         try {
             rollbackAction(session);
 
-            RowActionBase otherAction = (RowActionBase) session.tempSet.get(0);
+            RowActionBase otherAction =
+                (RowActionBase) session.actionSet.get(0);
 
             actionSession = otherAction.session;
 
-            session.tempSet.clear();
+            session.actionSet.clear();
 
             if (otherAction.commitTimestamp != 0) {
                 redoWait = false;
@@ -537,15 +542,15 @@ implements TransactionManager {
                 if (result) {
                     session.rowActionList.add(row.rowAction);
                 } else {
-                    if (!session.tempSet.isEmpty()) {
-                        Session current = (Session) session.tempSet.get(0);
+                    if (!session.actionSet.isEmpty()) {
+                        Session current = ((RowActionBase) session.actionSet.get(0)).session;
 
                         session.redoAction = true;
 
                         session.latch.countUp();
                         current.waitingSessions.add(session);
                         session.waitedSessions.add(current);
-                        session.tempSet.clear();
+                        session.actionSet.clear();
 
                         throw Error.error(ErrorCode.X_40501);
                     }
@@ -885,21 +890,6 @@ implements TransactionManager {
         // different administrative session
         session.waitedSessions.clear();
         session.waitingSessions.clear();
-    }
-
-    void getTransactionSessions(HashSet set) {
-
-        Session[] sessions = database.sessionManager.getAllSessions();
-
-        for (int i = 0; i < sessions.length; i++) {
-            long timestamp = sessions[i].getTransactionTimestamp();
-
-            if (sessions[i].isPreTransaction) {
-                set.add(sessions[i]);
-            } else if (sessions[i].isTransaction) {
-                set.add(sessions[i]);
-            }
-        }
     }
 
     void endTransactionTPL(Session session) {

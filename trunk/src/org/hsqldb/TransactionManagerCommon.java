@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMap;
+import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
@@ -308,6 +309,21 @@ class TransactionManagerCommon {
         return true;
     }
 
+    void getTransactionSessions(HashSet set) {
+
+        Session[] sessions = database.sessionManager.getAllSessions();
+
+        for (int i = 0; i < sessions.length; i++) {
+            long timestamp = sessions[i].transactionTimestamp;
+
+            if (sessions[i].isPreTransaction) {
+                set.add(sessions[i]);
+            } else if (sessions[i].isTransaction) {
+                set.add(sessions[i]);
+            }
+        }
+    }
+
     void endActionTPL(Session session) {
 
         if (session.isolationLevel == SessionInterface.TX_REPEATABLE_READ
@@ -521,6 +537,10 @@ class TransactionManagerCommon {
 
         if (session.abortTransaction) {
             return false;
+        }
+
+        if (cs.isCatalogLock()) {
+            getTransactionSessions(session.tempSet);
         }
 
         HsqlName[] nameList = cs.getTableNamesForWrite();
