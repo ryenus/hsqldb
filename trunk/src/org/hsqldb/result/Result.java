@@ -771,7 +771,7 @@ public class Result {
 
         result.sessionID    = sessionID;
         result.databaseID   = databaseID;
-        result.databaseName = database.getUniqueName();
+        result.databaseName = database.getNameString();
         result.mainString =
             database.getProperties().getClientPropertiesAsString();
 

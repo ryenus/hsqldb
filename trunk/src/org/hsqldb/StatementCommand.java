@@ -299,18 +299,14 @@ public class StatementCommand extends Statement {
             case StatementTypes.DATABASE_CHECKPOINT : {
                 boolean defrag = ((Boolean) parameters[0]).booleanValue();
 
-                session.database.lobManager.lock();
-
                 try {
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.logger.checkpoint(defrag);
+                    session.database.logger.checkpoint(session, defrag, true);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
-                } finally {
-                    session.database.lobManager.unlock();
                 }
             }
             case StatementTypes.SET_DATABASE_FILES_BACKUP_INCREMENT : {
@@ -866,7 +862,7 @@ public class StatementCommand extends Statement {
                     String name = (String) parameters[0];
 
                     session.checkAdmin();
-                    session.database.setUniqueName(name);
+                    session.database.setDatabaseName(name);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

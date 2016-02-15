@@ -222,19 +222,6 @@ public class Session implements SessionInterface {
             return;
         }
 
-        closeInternal();
-        database.sessionManager.removeSession(this);
-        database.closeIfLast();
-
-        database = null;
-    }
-
-    void closeInternal() {
-
-        if (isClosed) {
-            return;
-        }
-
         rollback(false);
 
         try {
@@ -253,6 +240,11 @@ public class Session implements SessionInterface {
         sessionContext.savepoints   = null;
         sessionContext.lastIdentity = null;
         intConnection               = null;
+
+        database.sessionManager.removeSession(this);
+        database.closeIfLast();
+
+        database = null;
     }
 
     /**
@@ -544,6 +536,9 @@ public class Session implements SessionInterface {
         return false;
     }
 
+    /**
+     * Explicit start of transaction by user
+     */
     public void startTransaction() {
         database.txManager.beginTransaction(this);
     }
@@ -667,6 +662,7 @@ public class Session implements SessionInterface {
 
     /**
      * Clear structures and reset variables to original. For JDBC use only.
+     * Note: sets autocommit true
      */
     public synchronized void resetSession() {
 
@@ -896,7 +892,7 @@ public class Session implements SessionInterface {
     }
 
     public String getDatabaseUniqueName() {
-        return database.getUniqueName();
+        return database.getNameString();
     }
 
 // boucherb@users 20020810 metadata 1.7.2
@@ -1295,9 +1291,7 @@ public class Session implements SessionInterface {
         Result r;
 
         if (abortTransaction) {
-            rollbackNoCheck(false);
-
-            return Result.newErrorResult(Error.error(ErrorCode.X_40001));
+            return handleAbortTransaction();
         }
 
         if (sessionContext.depth > 0) {
@@ -1357,11 +1351,7 @@ public class Session implements SessionInterface {
             }
 
             if (abortTransaction) {
-                rollbackNoCheck(false);
-
-                sessionContext.currentStatement = null;
-
-                return Result.newErrorResult(Error.error(ErrorCode.X_40001));
+                return handleAbortTransaction();
             }
 
             timeoutManager.startTimeout(timeout);
@@ -1383,11 +1373,7 @@ public class Session implements SessionInterface {
             }
 
             if (abortTransaction) {
-                rollbackNoCheck(false);
-
-                sessionContext.currentStatement = null;
-
-                return Result.newErrorResult(Error.error(ErrorCode.X_40001));
+                return handleAbortTransaction();
             }
 
             database.txManager.beginActionResume(this);
@@ -1409,12 +1395,7 @@ public class Session implements SessionInterface {
             endAction(r);
 
             if (abortTransaction) {
-                rollbackNoCheck(false);
-
-                sessionContext.currentStatement = null;
-
-                return Result.newErrorResult(Error.error(r.getException(),
-                        ErrorCode.X_40001, null));
+                return handleAbortTransaction();
             }
 
             if (redoAction) {
@@ -1450,6 +1431,15 @@ public class Session implements SessionInterface {
         sessionContext.currentStatement = null;
 
         return r;
+    }
+
+    private Result handleAbortTransaction() {
+
+        rollbackNoCheck(false);
+
+        sessionContext.currentStatement = null;
+
+        return Result.newErrorResult(Error.error(ErrorCode.X_40001));
     }
 
     private Result executeCompiledBatchStatement(Result cmd) {

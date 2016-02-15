@@ -67,7 +67,7 @@ import org.hsqldb.types.Collation;
 public class Database {
 
     int                        databaseID;
-    String                     databaseUniqueName;
+    HsqlName                   databaseUniqueName;
     DatabaseType               databaseType;
     private final String       canonicalPath;
     public HsqlProperties      urlProperties;
@@ -123,7 +123,7 @@ public class Database {
     private final boolean         shutdownOnNoConnection;
     int                           resultMaxMemoryRows;
 
-    // schema invarient objects
+    // schema invariant objects
     public UserManager     userManager;
     public GranteeManager  granteeManager;
     public HsqlNameManager nameManager;
@@ -176,6 +176,8 @@ public class Database {
 
         setState(Database.DATABASE_SHUTDOWN);
 
+        this.databaseUniqueName = HsqlNameManager.newSystemObjectName("",
+                SchemaObject.DATABASE);
         this.databaseType  = type;
         this.path          = path;
         this.canonicalPath = canonicalPath;
@@ -230,7 +232,7 @@ public class Database {
 
                 userManager.createFirstUser(username, password);
                 schemaManager.createPublicSchema();
-                logger.checkpoint(false);
+                logger.checkpoint(null, false, false);
             }
 
             lobManager.open();
@@ -313,15 +315,19 @@ public class Database {
         return this.databaseID;
     }
 
-    /**
-     * Returns a unique String identifier for the database.
-     */
-    public String getUniqueName() {
+    public HsqlName getName() {
         return databaseUniqueName;
     }
 
-    public void setUniqueName(String name) {
-        databaseUniqueName = name;
+    /**
+     * Returns a unique String identifier for the database.
+     */
+    public String getNameString() {
+        return databaseUniqueName.name;
+    }
+
+    public void setDatabaseName(String name) {
+        databaseUniqueName.rename(name, false);
     }
 
     /**
@@ -654,7 +660,7 @@ public class Database {
         DatabaseManager.removeDatabase(this);
 
         // todo - when hsqldb.sql. framework logging is supported, add another call
-        FrameworkLogger.clearLoggers("hsqldb.db." + getUniqueName());
+        FrameworkLogger.clearLoggers("hsqldb.db." + getNameString());
 
         if (he != null) {
             throw he;

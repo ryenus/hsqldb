@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,11 +39,12 @@ import org.hsqldb.rights.Grantee;
  * SQL schema object interface
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public interface SchemaObject {
 
+    int DATABASE         = 0;
     int CATALOG          = 1;
     int SCHEMA           = 2;
     int TABLE            = 3;

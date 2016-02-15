@@ -254,7 +254,7 @@ public final class UserManager {
          */
         Result result =
             extAuthenticationFunction.invokeJavaMethodDirect(new String[] {
-            granteeManager.database.getUniqueName(), name, password
+            granteeManager.database.getNameString(), name, password
         });
 
         if (result.isError()) {

@@ -73,7 +73,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Bob Preston (sqlbob@users dot sourceforge.net) - text table support
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.8.0
  */
 public class Log {
@@ -164,7 +164,7 @@ public class Log {
             // delete log file as zero length file is possible
             // fall through
             case HsqlDatabaseProperties.FILES_NOT_MODIFIED :
-                fa.removeElement(logFileName);
+                deleteLog();
                 database.logger.logInfoEvent(
                     "open start - state not modified");
 
@@ -360,9 +360,7 @@ public class Log {
         boolean result       = checkpointClose();
         boolean reopenResult = checkpointReopen();
 
-        if (result) {
-            database.lobManager.deleteUnusedLobs();
-        } else {
+        if (!result) {
             database.logger.logSevereEvent(
                 "checkpoint failed - see previous error", null);
         }
@@ -374,7 +372,7 @@ public class Log {
      * Performs checkpoint including pre and post operations. Returns to the
      * same state as before the checkpoint.
      */
-    void checkpoint(boolean defrag) {
+    void checkpoint(Session session, boolean defrag) {
 
         if (filesReadOnly) {
             return;
@@ -597,7 +595,7 @@ public class Log {
         try {
             dbLogWriter.writeOtherStatement(session, s);
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, getLogFileName());
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
@@ -612,7 +610,7 @@ public class Log {
         try {
             dbLogWriter.writeInsertStatement(session, row, t);
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, getLogFileName());
         }
     }
 
@@ -621,7 +619,7 @@ public class Log {
         try {
             dbLogWriter.writeDeleteStatement(session, t, row);
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, getLogFileName());
         }
     }
 
@@ -630,7 +628,7 @@ public class Log {
         try {
             dbLogWriter.writeSequenceStatement(session, s);
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, getLogFileName());
         }
 
         setModified();
@@ -641,7 +639,7 @@ public class Log {
         try {
             dbLogWriter.writeCommitStatement(session);
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, getLogFileName());
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
