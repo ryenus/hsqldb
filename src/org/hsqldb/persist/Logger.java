@@ -2206,10 +2206,24 @@ public class Logger implements EventLogInterface {
             throw Error.error(ErrorCode.BACKUP_ERROR, "backup in progress");
         }
 
-        try {
-            backupInternal(destPath, script, blocking, compressed, files);
-        } finally {
-            backupState.set(stateNormal);
+        if (blocking) {
+            database.lobManager.lock();
+
+            try {
+                synchronized (this) {
+                    backupInternal(destPath, script, blocking, compressed,
+                                   files);
+                }
+            } finally {
+                backupState.set(stateNormal);
+                database.lobManager.unlock();
+            }
+        } else {
+            try {
+                backupInternal(destPath, script, blocking, compressed, files);
+            } finally {
+                backupState.set(stateNormal);
+            }
         }
     }
 
@@ -2293,10 +2307,8 @@ public class Logger implements EventLogInterface {
             }
 
             if (archiveFile.exists()) {
-                throw Error.error(null, ErrorCode.BACKUP_ERROR, 0,
-                                  new Object[] {
-                    "file exists", archiveFile.getName()
-                });
+                throw Error.error(ErrorCode.BACKUP_ERROR,
+                                  "file exists :" + archiveFile.getName());
             }
         }
 
