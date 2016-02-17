@@ -721,6 +721,7 @@ implements TransactionManager {
             if (!session.isTransaction) {
                 session.actionTimestamp      = getNextGlobalChangeTimestamp();
                 session.transactionTimestamp = session.actionTimestamp;
+                session.isPreTransaction     = false;
                 session.isTransaction        = true;
 
                 liveTransactionTimestamps.addLast(
@@ -759,11 +760,11 @@ implements TransactionManager {
                 }
             }
 
-            session.isPreTransaction = true;
-
             if (session.abortTransaction) {
                 return;
             }
+
+            session.isPreTransaction = true;
 
             if (!isLockedMode && !cs.isCatalogLock()) {
                 return;
@@ -791,13 +792,12 @@ implements TransactionManager {
             }
 
             session.transactionTimestamp = session.actionTimestamp;
+            session.isPreTransaction     = false;
             session.isTransaction        = true;
 
             liveTransactionTimestamps.addLast(session.transactionTimestamp);
 
             transactionCount++;
-
-            session.isPreTransaction = false;
         } finally {
             writeLock.unlock();
         }
@@ -948,8 +948,7 @@ implements TransactionManager {
                 lockTxTs            = session.actionTimestamp;
                 lockSessionId       = session.getId();
 
-                getTransactionSessions(session.tempSet);
-                session.tempSet.remove(session);
+                getTransactionAndPreSessions(session);
 
                 if (!session.tempSet.isEmpty()) {
                     session.waitedSessions.addAll(session.tempSet);

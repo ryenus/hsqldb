@@ -309,12 +309,31 @@ class TransactionManagerCommon {
         return true;
     }
 
-    void getTransactionSessions(HashSet set) {
+    void getTransactionSessions(Session session) {
 
-        Session[] sessions = database.sessionManager.getAllSessions();
+        OrderedHashSet set      = session.tempSet;
+        Session[]      sessions = database.sessionManager.getAllSessions();
 
         for (int i = 0; i < sessions.length; i++) {
             long timestamp = sessions[i].transactionTimestamp;
+
+            if (session != sessions[i] && sessions[i].isTransaction) {
+                set.add(sessions[i]);
+            }
+        }
+    }
+
+    void getTransactionAndPreSessions(Session session) {
+
+        OrderedHashSet set      = session.tempSet;
+        Session[]      sessions = database.sessionManager.getAllSessions();
+
+        for (int i = 0; i < sessions.length; i++) {
+            long timestamp = sessions[i].transactionTimestamp;
+
+            if (session == sessions[i]) {
+                continue;
+            }
 
             if (sessions[i].isPreTransaction) {
                 set.add(sessions[i]);
@@ -540,7 +559,7 @@ class TransactionManagerCommon {
         }
 
         if (cs.isCatalogLock()) {
-            getTransactionSessions(session.tempSet);
+            getTransactionSessions(session);
         }
 
         HsqlName[] nameList = cs.getTableNamesForWrite();
