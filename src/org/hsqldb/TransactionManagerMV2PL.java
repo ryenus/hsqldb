@@ -492,6 +492,7 @@ implements TransactionManager {
             if (!session.isTransaction) {
                 session.actionTimestamp      = getNextGlobalChangeTimestamp();
                 session.transactionTimestamp = session.actionTimestamp;
+                session.isPreTransaction     = false;
                 session.isTransaction        = true;
 
                 transactionCount++;
@@ -555,6 +556,7 @@ implements TransactionManager {
 
             if (!session.isTransaction) {
                 session.transactionTimestamp = session.actionTimestamp;
+                session.isPreTransaction     = false;
                 session.isTransaction        = true;
 
                 liveTransactionTimestamps.addLast(
