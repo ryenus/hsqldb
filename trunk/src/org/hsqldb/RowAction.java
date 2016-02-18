@@ -162,11 +162,11 @@ public class RowAction extends RowActionBase {
                     case ACTION_DELETE : {
                         if (session != action.session) {
                             if (action.commitTimestamp == 0) {
-                                if (!session.tempSet.isEmpty()) {
-                                    session.tempSet.clear();
+                                if (!session.actionSet.isEmpty()) {
+                                    session.actionSet.clear();
                                 }
 
-                                session.tempSet.add(action);
+                                session.actionSet.add(action);
                             }
 
                             return null;
@@ -180,11 +180,11 @@ public class RowAction extends RowActionBase {
                             if (colMap == null
                                     || ArrayUtil.haveCommonElement(
                                         colMap, action.changeColumnMap)) {
-                                if (!session.tempSet.isEmpty()) {
-                                    session.tempSet.clear();
+                                if (!session.actionSet.isEmpty()) {
+                                    session.actionSet.clear();
                                 }
 
-                                session.tempSet.add(action);
+                                session.actionSet.add(action);
 
                                 return null;
                             }
@@ -242,11 +242,11 @@ public class RowAction extends RowActionBase {
                     if (action.changeColumnMap == null
                             || ArrayUtil.haveCommonElement(
                                 colMap, action.changeColumnMap)) {
-                        if (!session.tempSet.isEmpty()) {
-                            session.tempSet.clear();
+                        if (!session.actionSet.isEmpty()) {
+                            session.actionSet.clear();
                         }
 
-                        session.tempSet.add(action);
+                        session.actionSet.add(action);
 
                         return false;
                     }
@@ -802,8 +802,8 @@ public class RowAction extends RowActionBase {
                     } else if (mode == TransactionManager.ACTION_DUP) {
                         actionType = ACTION_INSERT;
 
-                        session.tempSet.clear();
-                        session.tempSet.add(action);
+                        session.actionSet.clear();
+                        session.actionSet.add(action);
                     } else if (mode == TransactionManager.ACTION_REF) {
                         actionType = ACTION_DELETE;
                     }
@@ -834,8 +834,8 @@ public class RowAction extends RowActionBase {
                     } else if (mode == TransactionManager.ACTION_DUP) {
                         actionType = ACTION_INSERT;
 
-                        session.tempSet.clear();
-                        session.tempSet.add(action);
+                        session.actionSet.clear();
+                        session.actionSet.add(action);
                     } else if (mode == TransactionManager.ACTION_REF) {
                         actionType = ACTION_DELETE;
                     }
