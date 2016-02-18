@@ -1,3 +1,5 @@
+18 February 2016 - version 2.3.4 RC
+-- fixed issue with user application Thread.interrupt disabling in-process database session
 -- fixed regression with interaction of FK constraints with ON DELETE CASCADE and NO ACTION
 -- fixed issue with SEQUENCE increment in multi-row inserts
 -- fixed issue with incorrect results in multiple LEFT JOIN with NATURAL or USING
