@@ -1065,8 +1065,6 @@ public class Logger implements EventLogInterface {
             log.checkpoint(session, defrag);
             logInfoEvent("Checkpoint end - txts: "
                          + database.txManager.getGlobalChangeTimestamp());
-        } else if (!isFileDatabase()) {
-            database.lobManager.deleteUnusedLobs();
         }
     }
 
