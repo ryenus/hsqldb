@@ -92,7 +92,7 @@ public interface ErrorCode {
     int X_S0503 = 303;                             // zero-length separator // TEXT_TABLE_SOURCE_SEPARATOR = 174
     int X_S0504 = 304;
     int X_S0521 = 320;                             // operation is not allowed on text table with data
-    int X_S0522 = 321;                             // invalid statemnet - text table required
+    int X_S0522 = 321;                             // invalid statement - text table required
     int X_S0531 = 331;                             // encode / decode error:
 
     // HSQLDB authentication
@@ -374,7 +374,7 @@ public interface ErrorCode {
     int X_23001 = 3501;                            // integrity constraint violation: restrict violation - 200x
     int X_23502 = 10;                              // integrity constraint violation: NOT NULL check constraint
     int X_23503 = 177;                             // integrity constraint violation: foreign key no parent
-    int X_23504 = 8;                               // integrity constraint violation: foreing key no action
+    int X_23504 = 8;                               // integrity constraint violation: foreign key no action
     int X_23505 = 104;                             // integrity constraint violation: unique constraint or index
     int X_23513 = 157;                             // integrity constraint violation: check constraint
 
@@ -519,7 +519,7 @@ public interface ErrorCode {
     int X_42512 = 5512;                            // invalid expression in CHECK or GENERATED clause
     int X_42513 = 5513;                            // assignment to generated column
 
-    // constraint defintition issues
+    // constraint definition issues
     int X_42520 = 5520;                            // SET NULL requires nullable column
     int X_42521 = 5521;                            // SET DEFAULT requires column default expression for
     int X_42522 = 5522;                            // a UNIQUE constraint already exists on the set of columns
@@ -551,8 +551,8 @@ public interface ErrorCode {
     int X_42545 = 5545;                            // INSERT, UPDATE, DELETE or TRUNCATE not permitted for table or view
     int X_42546 = 5546;                            // number of target columns does not match that of query expression
     int X_42547 = 5547;                            // merge when matched already used
-    int X_42548 = 5548;                            // merge when not matched altready used
-    int X_42549 = 5549;                            // LIMIT, OFFSET or FETCH altready used
+    int X_42548 = 5548;                            // merge when not matched already used
+    int X_42549 = 5549;                            // LIMIT, OFFSET or FETCH already used
 
     //
     int X_42551 = 5551;                            // too many identifier parts

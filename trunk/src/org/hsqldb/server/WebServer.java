@@ -247,7 +247,7 @@ public class WebServer extends Server {
     }
 
     /**
-     * Retrieves a string respresentaion of the network protocol
+     * Retrieves a string representation of the network protocol
      * this server offers, typically one of 'HTTP', HTTPS', 'HSQL' or 'HSQLS'.
      *
      * @return string representation of this server's protocol

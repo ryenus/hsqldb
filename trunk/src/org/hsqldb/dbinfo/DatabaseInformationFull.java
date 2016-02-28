@@ -782,7 +782,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * properties that can be set via the database properties file,
      * JDBC connection properties or SQL SET/ALTER statements will
      * eventually be reported here or, where more applicable, in an
-     * ANSI/ISO conforming feature info base table in the defintion
+     * ANSI/ISO conforming feature info base table in the definition
      * schema. <p>
      *
      * Currently, the database properties reported are: <p>
@@ -808,7 +808,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *     <LI>textdb.vs - default varchar field separator
      *     <LI>textdb.lvs - default long varchar field separator
      *     <LI>textdb.ignore_first - default policy regarding whether to ignore the first line
-     *     <LI>textdb.quoted - default policy regarding treatement character field values that _may_ require quoting
+     *     <LI>textdb.quoted - default policy regarding treatment character field values that _may_ require quoting
      *     <LI>IGNORECASE - create table VARCHAR_IGNORECASE?
      *     <LI>LOGSIZSE - # bytes to which REDO log grows before auto-checkpoint
      *     <LI>REFERENTIAL_INTEGITY - currently enforcing referential integrity?
@@ -7848,7 +7848,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      user or role who granted usage privileges on the object of the type
      *      identified by OBJECT_TYPE that is identified by OBJECT_CATALOG,
      *      OBJECT_SCHEMA, and OBJECT_NAME, to the user or role identified by the
-     *      value of GRANTEE forthe usage privilege being described. <p>
+     *      value of GRANTEE for the usage privilege being described. <p>
      *
      * <li> The value of GRANTEE is the &lt;authorization identifier&gt; of some
      *      user or role, or PUBLIC to indicate all users, to whom the usage

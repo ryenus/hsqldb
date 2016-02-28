@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -269,6 +269,7 @@ public class ArrayType extends Type {
 
             for (int i = 0; i < data.length; i++) {
                 Object o = dataType.convertJavaToSQL(session, data[i]);
+
                 array[i] = dataType.convertToTypeLimits(session, o);
             }
 
@@ -478,12 +479,9 @@ public class ArrayType extends Type {
             return true;
         }
 
-        if (other instanceof Type) {
-            if (((Type) other).typeCode != Types.SQL_ARRAY) {
-                return false;
-            }
-
-            return maxCardinality == ((ArrayType) other).maxCardinality
+        if (other instanceof ArrayType) {
+            return super.equals(other)
+                   && maxCardinality == ((ArrayType) other).maxCardinality
                    && dataType.equals(((ArrayType) other).dataType);
         }
 

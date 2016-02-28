@@ -383,13 +383,13 @@ public class GranteeManager {
             if (grant) {
                 if (grantee.getDirectRoles().contains(role)) {
 
-                    /** @todo  shouldnt throw */
+                    /** @todo  shouldn't throw */
                     throw Error.error(ErrorCode.X_0P000, granteeName);
                 }
             } else {
                 if (!grantee.getDirectRoles().contains(role)) {
 
-                    /** @todo  shouldnt throw */
+                    /** @todo  shouldn't throw */
                     throw Error.error(ErrorCode.X_0P000, roleName);
                 }
             }

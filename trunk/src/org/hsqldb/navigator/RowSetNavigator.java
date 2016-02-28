@@ -31,8 +31,6 @@
 
 package org.hsqldb.navigator;
 
-import java.io.IOException;
-
 import org.hsqldb.Row;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.error.Error;

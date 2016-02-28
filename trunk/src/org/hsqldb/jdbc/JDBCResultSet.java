@@ -7528,7 +7528,7 @@ public class JDBCResultSet implements ResultSet {
 
     /**
      * Factory method returns a new <code>JDBCResultSet</code> object for
-     * use with user defined functions that retrun a ResultSet object.
+     * use with user defined functions that return a ResultSet object.
      * See <code>org.hsqldb.jdbc.JDBCArrayBasic</code> for usage example.
      * <p>
      *
@@ -7541,7 +7541,7 @@ public class JDBCResultSet implements ResultSet {
         return new JDBCResultSetBasic(r, metaData);
     }
 
-    public static JDBCResultSet newEptyResultSet() {
+    public static JDBCResultSet newEmptyResultSet() {
         ResultMetaData md = ResultMetaData.newResultMetaData(1);
 
         ColumnBase column =

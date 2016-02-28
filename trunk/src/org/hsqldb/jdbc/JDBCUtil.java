@@ -341,7 +341,7 @@ public class JDBCUtil {
             // Condition                               Class SubClass
             // syntax error or access rule violation -  42   (no subclass) 000
             //
-            // SQL 2003 describes an Access Rule Violation as refering to
+            // SQL 2003 describes an Access Rule Violation as referring to
             // the case where, in the course of preparing or executing
             // an SQL statement, an Access Rule section pertaining
             // to one of the elements of the statement is violated.

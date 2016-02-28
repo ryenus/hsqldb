@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -297,7 +297,7 @@ public class DatabaseInformation {
      * Factory method returns the fullest system table producer
      * implementation available.  This instantiates implementations beginning
      * with the most complete, finally choosing an empty table producer
-     * implemenation (this class) if no better instance can be constructed.
+     * implementation (this class) if no better instance can be constructed.
      * @param db The Database object for which to produce system tables
      * @return the fullest system table producer
      *      implementation available

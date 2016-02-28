@@ -249,7 +249,7 @@ public class AuthBeanMultiplexer {
         /* This method both logs and throws because due to JDBC requirements,
          * the Exception messages will not make it to applications.
          * Though these messages won't make it to the end user, at least the
-         * application adminster will have access to problem details. */
+         * application administer will have access to problem details. */
         if (database == null || database.length() != 16) {
             throw new IllegalStateException("Internal problem.  "
                     + "Database name not exactly 16 characters long: "

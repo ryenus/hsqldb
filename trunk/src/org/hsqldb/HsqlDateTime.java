@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * operation.<p>
  *
  * Was reviewed for 1.7.2 resulting in centralising all DATETIME related
- * operstions.<p>
+ * operations.<p>
  *
  * From version 2.0.0, HSQLDB supports TIME ZONE with datetime types. The
  * values are stored internally as UTC seconds from 1970, regardless of the
@@ -241,21 +241,7 @@ public class HsqlDateTime {
      * @param       millis                  the time value in milliseconds
      */
     public static void setTimeInMillis(Calendar cal, long millis) {
-
-//#ifdef JAVA4
-        // Use method directly
         cal.setTimeInMillis(millis);
-
-//#else
-/*
-        // Have to go indirect
-        synchronized (tempDate) {
-            tempDate.setTime(millis);
-            cal.setTime(tempDate);
-        }
-*/
-
-//#endif JAVA4
     }
 
     /**
@@ -266,18 +252,7 @@ public class HsqlDateTime {
      * @return      the time value in milliseconds
      */
     public static long getTimeInMillis(Calendar cal) {
-
-//#ifdef JAVA4
-        // Use method directly
         return cal.getTimeInMillis();
-
-//#else
-/*
-        // Have to go indirect
-        return cal.getTime().getTime();
-*/
-
-//#endif JAVA4
     }
 
     public static long convertToNormalisedTime(long t) {
@@ -354,19 +329,7 @@ public class HsqlDateTime {
     }
 
     public static int getZoneMillis(Calendar cal, long millis) {
-
-//#ifdef JAVA4
-        // get zone for the specific date
         return cal.getTimeZone().getOffset(millis);
-
-//#else
-/*
-        // get zone for the specific date
-        setTimeInMillis(cal, millis);
-        return (cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET) );
-*/
-
-//#endif JAVA4
     }
 
     /**

@@ -104,7 +104,7 @@ public class JavaObjectData {
      * This method is called from classes implementing the JDBC
      * interfaces. Inside the engine it is used for conversion from a value of
      * type OTHER to another type. It will throw if the OTHER is an instance
-     * of a classe that is not available.
+     * of a class that is not available.
      */
     public Serializable getObject() {
 

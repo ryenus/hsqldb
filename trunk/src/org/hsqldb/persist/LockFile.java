@@ -1043,7 +1043,7 @@ public class LockFile {
      * Opens (constructs) this object's {@link #raf RandomAccessFile}. <p>
      *
      * @throws UnexpectedFileNotFoundException if a
-     *         <tt>FileNotFoundException</tt> is thrown in rseponse to
+     *         <tt>FileNotFoundException</tt> is thrown in response to
      *         constructing the <tt>RandomAccessFile</tt> object.
      * @throws FileSecurityException if a required system property value cannot
      *         be accessed, or if a Java security manager exists and its
@@ -2100,7 +2100,7 @@ public class LockFile {
          *
          * @param lockFile the underlying <tt>LockFile</tt> object
          * @param inMethod the name of the method in which the exception
-         *        was originally thrown (may be passed up srveral levels)
+         *        was originally thrown (may be passed up several levels)
          * @param read the time, in milliseconds since 1970-01-01, at which
          *      the heartbeat timestamp value was read from the lock file
          * @param heartbeat the heartbeat timestamp value, in milliseconds

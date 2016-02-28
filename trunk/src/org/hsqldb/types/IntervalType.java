@@ -43,7 +43,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 
 /**
- * Type subclass for various typs of INTERVAL.<p>
+ * Type subclass for various types of INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.4
@@ -716,8 +716,8 @@ public final class IntervalType extends DTIType {
             return false;
         }
 
-        return !(isYearMonthIntervalType()
-                 ^ ((IntervalType) otherType).isYearMonthIntervalType());
+        return isYearMonthIntervalType()
+               == ((IntervalType) otherType).isYearMonthIntervalType();
     }
 
     public int canMoveFrom(Type otherType) {

@@ -2107,9 +2107,9 @@ public class FunctionSQL extends Expression {
     public boolean equals(Expression other) {
 
         if (other instanceof FunctionSQL) {
-            if (funcType == ((FunctionSQL) other).funcType) {
-                return super.equals(other);
-            }
+            FunctionSQL o = (FunctionSQL) other;
+
+            return super.equals(other) && funcType == o.funcType;
         }
 
         return false;

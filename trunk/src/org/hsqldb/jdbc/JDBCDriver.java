@@ -131,7 +131,7 @@ import org.hsqldb.persist.HsqlProperties;
  * qualified class name ('org.hsqldb.jdbc.JDBCDriver') of the HSQLDB implementation
  * of <code>java.sql.Driver</code>. <p>
  *
- * Hence, under JDBC 4.0 or greater, applications no longer need to explictly
+ * Hence, under JDBC 4.0 or greater, applications no longer need to explicitly
  * load the HSQLDB JDBC driver using <code>Class.forName()</code>. Of course,
  * existing programs which do load JDBC drivers using
  * <code>Class.forName()</code> will continue to work without modification. <p>

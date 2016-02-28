@@ -48,7 +48,7 @@ public enum DatabaseType {
 
     private String value;
 
-    private DatabaseType(String value) {
+    DatabaseType(String value) {
         this.value = value;
     }
 

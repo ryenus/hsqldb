@@ -74,7 +74,7 @@ implements HandshakeCompletedListener {
     protected Object serverSocketFactory;
 
     /**
-     * Monitor object to guard against conncurrent modification
+     * Monitor object to guard against concurrent modification
      * of the underlying socket factory implementation member.
      */
     protected final Object socket_factory_mutex = new Object();

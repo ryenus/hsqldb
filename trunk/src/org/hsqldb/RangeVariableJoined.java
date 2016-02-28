@@ -179,9 +179,10 @@ public class RangeVariableJoined extends RangeVariable {
         int count    = 0;
         int colIndex = -1;
 
+        // this covers named column reference without tableName
         if (tableName == null
                 && namedJoinColumnExpressions.containsKey(columnName)) {
-            return super.findColumn(schemaName, tableName, columnName);
+            return super.findColumn(null, null, columnName);
         }
 
         for (int i = 0; i < rangeArray.length; i++) {
@@ -335,7 +336,7 @@ public class RangeVariableJoined extends RangeVariable {
     }
 
     /**
-     * Retrieves a String representation of this obejct. <p>
+     * Retrieves a String representation of this object. <p>
      *
      * The returned String describes this object's table, alias
      * access mode, index, join mode, Start, End and And conditions.

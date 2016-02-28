@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,10 +44,10 @@ import org.hsqldb.lib.StringConverter;
  * Type implementation for BINARY, VARBINARY and (part) BLOB.<p>
 
  * SQL:2008 Standard  specifies silent truncation of zero bytes at the end of the
- * binary strings used for assignment and contatenation.<p>
+ * binary strings used for assignment and concatenation.<p>
  *
  * * A binary string of type BINARY VALYING and BLOB when assigned to a column
- * of similar type but shorter maximum length.<p?
+ * of similar type but shorter maximum length.<p>
  *
  * * The Second operand of a concatenation when the length of the result exceeds
  * the maximum implementation-dependent length of BINARY VARYING and BLOB
@@ -60,7 +60,7 @@ import org.hsqldb.lib.StringConverter;
  * In most real-world use-cases, all the bytes of variable-length binary values
  * stored in a database are significant and should not be discarded.<p>
  *
- * HSQLDB follows the Standard completely, despite this inadequecy.<p>
+ * HSQLDB follows the Standard completely, despite this inadequacy.<p>
  *
  * Comparison of binary values follows the Standard. When two values are not
  * the same length and all the bytes of the shorter value equal the initial
@@ -148,7 +148,7 @@ public class BinaryType extends Type {
     }
 
     /**
-     * relaxes the SQL standard list to avoid problems with covnersion of
+     * relaxes the SQL standard list to avoid problems with conversion of
      * literals and java method parameter type issues
      */
     public int precedenceDegree(Type other) {

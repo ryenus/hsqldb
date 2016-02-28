@@ -572,11 +572,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         }
 
         if (other instanceof Type) {
-            if (((Type) other).typeCode == Types.SQL_ARRAY) {
-                return false;
-            }
-
-            if (((Type) other).typeCode == Types.SQL_ROW) {
+            if (getClass() != other.getClass()) {
                 return false;
             }
 

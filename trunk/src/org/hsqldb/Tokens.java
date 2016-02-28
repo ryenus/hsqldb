@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -640,14 +640,14 @@ public class Tokens {
     static final String        T_BODY                 = "BODY";
     static final String        T_BYTE                 = "BYTE";
     public static final String T_CACHE                = "CACHE";
-    static final String        T_CACHED               = "CACHED";
+    public static final String T_CACHED               = "CACHED";
     static final String        T_CASEWHEN             = "CASEWHEN";
     static final String        T_CHECKPOINT           = "CHECKPOINT";
     static final String        T_CITEXT               = "CITEXT";
     static final String        T_CLASS                = "CLASS";
     static final String        T_CLUSTERED            = "CLUSTERED";
     static final String        T_COMMENT              = "COMMENT";
-    static final String        T_COMPACT              = "COMPACT";
+    public static final String T_COMPACT              = "COMPACT";
     public static final String T_COMPRESSED           = "COMPRESSED";
     public static final String T_CONFLICT             = "CONFLICT";
     public static final String T_CONTROL              = "CONTROL";

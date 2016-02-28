@@ -274,7 +274,7 @@ public class JDBCArray implements Array {
 
     /**
      * <!-- start generic documentation -->
-     * Retreives a slice of the SQL <code>ARRAY</code> value
+     * Retrieves a slice of the SQL <code>ARRAY</code> value
      * designated by this <code>Array</code> object, beginning with the specified
      * <code>index</code> and containing up to <code>count</code>
      * successive elements of the SQL array.

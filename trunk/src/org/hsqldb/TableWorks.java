@@ -525,7 +525,7 @@ public class TableWorks {
 
     /**
      * Drops a set of fk constraints, their indexes and other indexes in table.
-     * Uses sets of names which contain names that are unrelated to
+     * Uses sets of names which may contain names that are unrelated to
      * this table.
      */
     void dropConstraintsAndIndexes(OrderedHashSet dropConstraintSet,
