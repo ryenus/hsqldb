@@ -111,7 +111,7 @@ import org.hsqldb.types.Types;
  * system tables.<p>
  *
  * sysTableSessionDependent indicates which tables contain data that is
- * dependent on the user rights of the User associatiod with the Session.<p>
+ * dependent on the user rights of the User associated with the Session.<p>
  *
  * sysTableSessions contains the Session with whose rights each cached table
  * was built.<p>
@@ -2378,7 +2378,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * Retrieves a <code>Table</code> object describing the table types
      * available in this database. <p>
      *
-     * In general, the range of values that may be commonly encounted across
+     * In general, the range of values that may be commonly encountered across
      * most DBMS implementations is: <p>
      *
      * <UL>
@@ -2470,7 +2470,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *                              NULL specified?
      * LOCAL_TYPE_NAME    VARCHAR   localized name of data type;
      *                              - NULL if not supported.
-     *                              - for human consuption only
+     *                              - for human consumption only
      * MINIMUM_SCALE      SMALLINT  minimum scale supported.
      * MAXIMUM_SCALE      SMALLINT  maximum scale supported.
      * SQL_DATA_TYPE      INTEGER   value expected in SQL CLI SQL_DESC_TYPE
@@ -3323,7 +3323,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
 /**
      * The TABLE_PRIVILEGES view has one row for each visible access
-     * right for each accessible table definied within this database. <p>
+     * right for each accessible table defined within this database. <p>
      *
      * Each row is a table privilege description with the following columns: <p>
      *

@@ -188,7 +188,7 @@ public class WrapperIterator implements Iterator {
             }
         }
 
-        // for other itertors
+        // for other iterators
         if (hasNext()) {
             return elements[i++];
         }

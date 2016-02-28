@@ -633,7 +633,7 @@ public final class Right {
         }
     }
 
-    public boolean canAcesssNonSelect() {
+    public boolean canAccesssNonSelect() {
 
         if (isFull) {
             return true;

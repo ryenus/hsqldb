@@ -2559,7 +2559,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     *  Sets the index roots of a cached/text table to specified file
+     *  Sets the index roots of a cached table to specified file
      *  pointers. If a
      *  file pointer is -1 then the particular index root is null. A null index
      *  root signifies an empty table. Accordingly, all index roots should be

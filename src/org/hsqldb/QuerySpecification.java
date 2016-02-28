@@ -449,7 +449,7 @@ public class QuerySpecification extends QueryExpression {
 
     /**
      * Resolves all column expressions in the GROUP BY clause and beyond.
-     * Replaces any alias column expression in the ORDER BY cluase
+     * Replaces any alias column expression in the ORDER BY clause
      * with the actual select column expression.
      */
     private void resolveColumnReferences(Session session,

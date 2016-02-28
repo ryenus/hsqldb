@@ -73,7 +73,7 @@ import org.hsqldb.result.Result;
  *
  * The implementation of this class and its subclasses support the formats
  * used for writing the data. Since 1.7.2 the data can also be
- * written as binray in order to speed up shutdown and startup.<p>
+ * written as binary in order to speed up shutdown and startup.<p>
  *
  * From 1.7.2, two separate files are used, one for the DDL + DATA BLOCK and
  * the other for the LOG BLOCK.<p>
@@ -86,7 +86,7 @@ import org.hsqldb.result.Result;
  * DatabaseScriptReader and its subclasses read back the data at startup time.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.3.4
  * @since 1.7.2
  */
 public abstract class ScriptWriterBase implements Runnable {
@@ -236,7 +236,6 @@ public abstract class ScriptWriterBase implements Runnable {
                 forceSync();
                 fileStreamOut.close();
 
-                fileStreamOut = null;
                 outDescriptor = null;
                 isClosed      = true;
             }

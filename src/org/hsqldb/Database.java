@@ -260,7 +260,7 @@ public class Database {
     }
 
     /**
-     * Clears the data structuress, making them elligible for garbage collection.
+     * Clears the data structures, making them elligible for garbage collection.
      */
     void clearStructures() {
 

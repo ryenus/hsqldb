@@ -49,7 +49,7 @@ import org.hsqldb.result.Result;
  * as lookup key when a session initially looks for an existing instance of
  * the compiled sql statement.<p>
  *
- * Once a session is linked with a statement, it uses the uniqe compiled
+ * Once a session is linked with a statement, it uses the unique compiled
  * statement id for the sql statement to access the statement.<p>
  *
  * Changes to database structure via DDL statements, will result in all
@@ -309,7 +309,7 @@ public final class StatementManager {
      * statement. If the statement is not linked with any other session, it is
      * removed from management.
      *
-     * @param csid the compiled statment identifier
+     * @param csid the compiled statement identifier
      */
     synchronized void freeStatement(long csid) {
 

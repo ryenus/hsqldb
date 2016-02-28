@@ -327,7 +327,7 @@ public class ParserCommand extends ParserDDL {
 
     private Statement compileDeclare() {
 
-        Statement    cs;
+        Statement      cs;
         ColumnSchema[] variables;
 
         cs = compileDeclareLocalTableOrNull();

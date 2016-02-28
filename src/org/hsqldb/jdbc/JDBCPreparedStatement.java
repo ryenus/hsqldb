@@ -170,7 +170,7 @@ import org.hsqldb.types.Types;
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
  * From version 2.0, the implementation meets the JDBC specification
- * requirment that any existing ResultSet is closed when execute() or
+ * requirement that any existing ResultSet is closed when execute() or
  * executeQuery() methods are called. The connection property close_result=true
  * is required for this behaviour.
  * <p>
@@ -185,7 +185,7 @@ import org.hsqldb.types.Types;
  * JDBCParameterMetaData object for each execution cycle. Indeed,
  * because the prepare and execute phases
  * both represent a round-trip to the engine, this practice is likely to be
- * noticably <em>less</em> performant for short-running statements (and
+ * noticeably <em>less</em> performant for short-running statements (and
  * possibly even orders of magnitude less performant over network connections
  * for short-running statements) than the equivalent process using JDBCStatement
  * objects, albeit far more convenient, less error prone and certainly much
@@ -194,7 +194,7 @@ import org.hsqldb.types.Types;
  *
  * Instead, when developing an application that is not totally oriented toward
  * the execution of ad hoc SQL, it is recommended to expend some effort toward
- * identifing the SQL statements that are good candidates for regular reuse and
+ * identifying the SQL statements that are good candidates for regular reuse and
  * adapting the structure of the application accordingly. Often, this is done
  * by recording the text of candidate SQL statements in an application resource
  * object (which has the nice side-benefit of isolating and hiding differences
@@ -1979,7 +1979,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
     /**
      * This method should always throw if called for a PreparedStatement or
-     * CallableStatment.
+     * CallableStatement.
      *
      * @param sql ignored
      * @throws SQLException always
@@ -1990,7 +1990,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
     /**
      * This method should always throw if called for a PreparedStatement or
-     * CallableStatment.
+     * CallableStatement.
      *
      * @param sql ignored
      * @throws SQLException always
@@ -2003,7 +2003,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
     /**
      * This method should always throw if called for a PreparedStatement or
-     * CallableStatment.
+     * CallableStatement.
      *
      * @param sql ignored
      * @throws SQLException always
@@ -2015,7 +2015,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
     /**
      * This method should always throw if called for a PreparedStatement or
-     * CallableStatment.
+     * CallableStatement.
      *
      * @param sql ignored
      * @throws SQLException always

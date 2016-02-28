@@ -957,7 +957,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
 
     /**
      * push key, value pair
-     * @return boolean true if susseful
+     * @return boolean true if successful
      */
     boolean push(int key, int value) {
         return addUnsorted(key, value);

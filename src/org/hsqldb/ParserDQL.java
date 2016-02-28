@@ -1769,7 +1769,7 @@ public class ParserDQL extends ParserBase {
             if (database.sqlNullsOrder) {
                 nullsLast = !database.sqlNullsFirst;
             } else {
-                nullsLast = !(database.sqlNullsFirst ^ isDesc);
+                nullsLast = database.sqlNullsFirst == isDesc;
             }
 
             o.setNullsLast(nullsLast);

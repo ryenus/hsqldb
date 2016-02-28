@@ -258,9 +258,9 @@ public class ClosableByteArrayOutputStream extends OutputStream {
     }
 
     /**
-     * Retrieves a copy of this stream's accumated data, as a byte array.
+     * Retrieves a copy of this stream's accumulated data, as a byte array.
      *
-     * @return a copy of this stream's accumated data, as a byte array.
+     * @return a copy of this stream's accumulated data, as a byte array.
      * @see #size()
      * @throws java.io.IOException if an I/O error occurs.
      *      In particular, an <tt>IOException</tt> may be thrown
@@ -274,7 +274,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
     }
 
     /**
-     * Returns the current size of this stream's accumated data.
+     * Returns the current size of this stream's accumulated data.
      *
      * @return the value of the <tt>count</tt> field, which is the number
      *      of valid bytes in this output stream.
@@ -329,10 +329,10 @@ public class ClosableByteArrayOutputStream extends OutputStream {
     }
 
     /**
-     * Converts this stream's accumuated data into a string, translating bytes
+     * Converts this stream's accumulated data into a string, translating bytes
      * into characters according to the platform's default character encoding.
      *
-     * @return String translated from this stream's accumuated data.
+     * @return String translated from this stream's accumulated data.
      * @throws RuntimeException may be thrown if this output stream has been
      *      {@link #free() freed}.
      */
@@ -348,7 +348,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
     }
 
     /**
-     * Converts this stream's accumuated data into a string, translating bytes
+     * Converts this stream's accumulated data into a string, translating bytes
      * into characters according to the specified character encoding.
      *
      * @return String translated from the buffer's contents.

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -154,13 +154,14 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
     public String readString() {
 
         try {
-            int    length = readInt();
+            int length = readInt();
 
             if (length < 0) {
-                throw Error.error(ErrorCode.GENERAL_IO_ERROR, "RowInputBinary - negative length");
+                throw Error.error(ErrorCode.GENERAL_IO_ERROR,
+                                  "RowInputBinary - negative length");
             }
 
-            String s      = StringConverter.readUTF(buffer, pos, length);
+            String s = StringConverter.readUTF(buffer, pos, length);
 
             s   = ValuePool.getString(s);
             pos += length;

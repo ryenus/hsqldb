@@ -612,7 +612,7 @@ public class ArrayUtil {
     }
 
     /**
-     * Returns the index of the first occurence of arrb in arra. Or -1 if not found.
+     * Returns the index of the first occurrence of arrb in arra. Or -1 if not found.
      */
     public static int find(byte[] arra, int start, int limit, byte[] arrb) {
 
@@ -1206,7 +1206,7 @@ public class ArrayUtil {
      *  shifted left or right accordingly when they are copied. If adjust is 0
      *  the addition is copied over the element at colindex.
      *
-     *  No checks are perfomed on array sizes and an exception is thrown
+     *  No checks are performed on array sizes and an exception is thrown
      *  if they are not consistent with the other arguments.
      */
     public static void copyAdjustArray(Object source, Object dest,
@@ -1267,7 +1267,7 @@ public class ArrayUtil {
      * and will be shorter than collar by one element.
      *
      * @param  colarr the source array
-     * @param  colindex index at which to perform adjustement
+     * @param  colindex index at which to perform adjustment
      * @param  adjust +1, 0 or -1
      * @return new, adjusted array
      */
@@ -1458,7 +1458,7 @@ public class ArrayUtil {
     }
 
     /**
-     * Returns true if char agrument is in array.
+     * Returns true if char argument is in array.
      */
     public static boolean isInSortedArray(char ch, char[] array) {
 

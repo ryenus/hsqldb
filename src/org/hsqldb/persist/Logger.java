@@ -1586,8 +1586,8 @@ public class Logger implements EventLogInterface {
 
         if (HsqlDatabaseProperties.hsqldb_default_table_type.equals(name)) {
             return database.schemaManager.getDefaultTableType()
-                   == TableBase.CACHED_TABLE ? "cached"
-                                             : "memory";
+                   == TableBase.CACHED_TABLE ? Tokens.T_CACHED
+                                             : Tokens.T_MEMORY;
         }
 
         if (HsqlDatabaseProperties.hsqldb_defrag_limit.equals(name)) {

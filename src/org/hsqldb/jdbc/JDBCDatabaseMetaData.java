@@ -2707,7 +2707,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *
      * HSQLDB does not support a mix of both data definition and
      * data manipulation statements within a transaction.  DDL commits the
-     * current transaction before proceding;
+     * current transaction before proceeding;
      * this method always returns <code>false</code>.
      * </div>
      * <!-- end release-specific documentation -->

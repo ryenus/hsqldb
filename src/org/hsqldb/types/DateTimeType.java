@@ -1247,7 +1247,7 @@ public final class DateTimeType extends DTIType {
 
     public boolean equals(Object other) {
 
-        if (other instanceof Type) {
+        if (other instanceof DateTimeType) {
             return super.equals(other)
                    && ((DateTimeType) other).withTimeZone == withTimeZone;
         }

@@ -257,12 +257,11 @@ public class ExpressionArrayAggregate extends Expression {
         if (other instanceof ExpressionArrayAggregate) {
             ExpressionArrayAggregate o = (ExpressionArrayAggregate) other;
 
-            if (opType == other.opType && exprSubType == other.exprSubType
-                    && isDistinctAggregate == o.isDistinctAggregate
-                    && separator.equals(o.separator)
-                    && condition.equals(o.condition)) {
-                return super.equals(other);
-            }
+            return super.equals(other) && opType == other.opType
+                   && exprSubType == other.exprSubType
+                   && isDistinctAggregate == o.isDistinctAggregate
+                   && separator.equals(o.separator)
+                   && condition.equals(o.condition);
         }
 
         return false;

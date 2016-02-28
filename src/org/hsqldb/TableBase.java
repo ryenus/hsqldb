@@ -430,7 +430,7 @@ public class TableBase implements Cloneable {
     public void dropIndex(Session session, int todrop) {
 
         Index[] list = (Index[]) ArrayUtil.toAdjustedArray(indexList, null,
-                todrop, -1);
+            todrop, -1);
 
         for (int i = 0; i < list.length; i++) {
             list[i].setPosition(i);
@@ -505,7 +505,7 @@ public class TableBase implements Cloneable {
             case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.TEMP_TABLE : {
 
-                // session may be an unregisterd sys session
+                // session may be an unregistered sys session
                 session.sessionData.persistentStoreCollection
                     .resetAccessorKeys(session, (Table) this, indexes);
 

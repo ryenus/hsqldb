@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 
 package org.hsqldb.navigator;
 
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.TreeMap;
 
@@ -183,7 +182,7 @@ implements Comparator {
     }
 
     public boolean addRow(Row row) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorData");
     }
 
     public void update(Object[] oldData, Object[] newData) {
@@ -269,7 +268,7 @@ implements Comparator {
     }
 
     public Row getCurrentRow() {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorData");
     }
 
     public Object[] getNextRowData() {

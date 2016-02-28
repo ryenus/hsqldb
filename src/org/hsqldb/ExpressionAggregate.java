@@ -265,9 +265,8 @@ public class ExpressionAggregate extends Expression {
         if (other instanceof ExpressionAggregate) {
             ExpressionAggregate o = (ExpressionAggregate) other;
 
-            if (isDistinctAggregate == o.isDistinctAggregate) {
-                return super.equals(other);
-            }
+            return super.equals(other)
+                   && isDistinctAggregate == o.isDistinctAggregate;
         }
 
         return false;
