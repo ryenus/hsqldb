@@ -916,9 +916,9 @@ public class QueryExpression implements RangeGroup {
 
     public HashMappedList getColumns() {
 
-        this.getResultTable();
+        TableDerived table = (TableDerived) getResultTable();
 
-        return ((TableDerived) getResultTable()).columnList;
+        return table.columnList;
     }
 
     /**

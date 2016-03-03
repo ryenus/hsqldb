@@ -151,13 +151,19 @@ public class RowSetNavigatorClient extends RowSetNavigator {
     }
 
     public void clear() {
+
         setData(emptyTable);
+
+        size = 0;
+
         reset();
     }
 
     public void release() {
+
         setData(emptyTable);
         reset();
+
         isClosed = true;
     }
 

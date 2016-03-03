@@ -197,8 +197,6 @@ public class ScriptReaderText extends ScriptReaderBase {
                                       statement);
                 }
             }
-
-            database.setReferentialIntegrity(true);
         } catch (Throwable t) {
             database.logger.logSevereEvent("readExistingData failed "
                                            + lineCount, t);
@@ -208,6 +206,8 @@ public class ScriptReaderText extends ScriptReaderBase {
                               new Object[] {
                 new Integer(lineCount), t.toString()
             });
+        } finally {
+            database.setReferentialIntegrity(true);
         }
     }
 
