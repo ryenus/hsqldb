@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2015, The HSQL Development Group
+ * Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -229,9 +229,7 @@ public class IndexAVL implements Index {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
-
-        sb = new StringBuffer(64);
+        StringBuffer sb =  new StringBuffer(128);
 
         sb.append(Tokens.T_CREATE).append(' ');
 
@@ -355,6 +353,10 @@ public class IndexAVL implements Index {
 
     public void setTable(TableBase table) {
         this.table = table;
+    }
+
+    public TableBase getTable() {
+        return table;
     }
 
     public void setClustered(boolean clustered) {
@@ -1992,12 +1994,13 @@ public class IndexAVL implements Index {
 
         public void release() {}
 
-        public boolean setRowColumns(boolean[] columns) {
-            return false;
-        }
-
         public long getRowId() {
             return nextnode.getPos();
         }
+
+        public TableBase getCurrentTable() {
+            return index.table;
+        }
+
     }
 }

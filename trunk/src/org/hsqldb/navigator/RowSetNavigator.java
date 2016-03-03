@@ -33,6 +33,7 @@ package org.hsqldb.navigator;
 
 import org.hsqldb.Row;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.result.ResultMetaData;
@@ -182,11 +183,11 @@ public abstract class RowSetNavigator implements RangeIterator {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
     }
 
-    public boolean setRowColumns(boolean[] columns) {
+    public long getRowId() {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
     }
 
-    public long getRowId() {
+    public TableBase getCurrentTable() {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
     }
 

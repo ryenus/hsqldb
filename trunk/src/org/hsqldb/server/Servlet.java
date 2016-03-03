@@ -75,6 +75,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -136,7 +137,7 @@ import org.hsqldb.rowio.RowOutputBinary;
  * @version 2.2.9
  * @since Hypersonic SQL
  */
-public class Servlet extends javax.servlet.http.HttpServlet {
+public class Servlet extends HttpServlet {
 
     private static final int BUFFER_SIZE = 256;
     private String           dbType;

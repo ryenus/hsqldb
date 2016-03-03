@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,12 @@
 package org.hsqldb.navigator;
 
 import org.hsqldb.Row;
+import org.hsqldb.TableBase;
 
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.4
  * @since 1.7.2
  */
 public interface RowIterator {
@@ -49,9 +50,9 @@ public interface RowIterator {
 
     void removeCurrent();
 
-    boolean setRowColumns(boolean[] columns);
-
     void release();
 
     long getRowId();
+
+    TableBase getCurrentTable();
 }

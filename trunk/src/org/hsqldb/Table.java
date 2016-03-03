@@ -2873,7 +2873,7 @@ public class Table extends TableBase implements SchemaObject {
      * If there is an identity column in the table, sets
      * the max identity value.
      */
-    protected void systemUpdateIdentityValue(Object[] data) {
+    public void systemUpdateIdentityValue(Object[] data) {
 
         if (identityColumn != -1) {
             Number id = (Number) data[identityColumn];

@@ -42,22 +42,16 @@ import org.hsqldb.types.Type;
 
 /*
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 2.2.7
  */
 public interface RowSetNavigatorDataChange extends RangeIterator {
-
-    void release();
 
     int getSize();
 
     int getRowPosition();
 
-    boolean next();
-
     boolean beforeFirst();
-
-    Row getCurrentRow();
 
     Object[] getCurrentChangedData();
 

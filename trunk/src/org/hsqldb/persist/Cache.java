@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -414,19 +414,20 @@ public class Cache extends BaseHashMap {
         saveRows(savecount);
     }
 
-    void logSaveRowsEvent(int saveCount, long startTime) {
+    void logSaveRowsEvent(int saveCount, long storageSize, long startTime) {
 
         long         time = saveAllTimer.elapsedTime();
         StringBuffer sb   = new StringBuffer();
 
-        sb.append("cache save rows [count,time] totals ");
-        sb.append(saveRowCount);
+        sb.append("cache save rows total [count,time] ");
+        sb.append(saveRowCount + saveCount);
         sb.append(',').append(time).append(' ');
-        sb.append("operation ").append(saveCount).append(',');
+        sb.append("operation [count,size,time]").append(saveCount).append(' ');
+        sb.append(storageSize).append(',');
         sb.append(time - startTime).append(' ');
 
 //
-        sb.append("txts ");
+        sb.append("tx-ts ");
         sb.append(dataFileCache.database.txManager.getGlobalChangeTimestamp());
 
 //

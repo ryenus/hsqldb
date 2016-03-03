@@ -1389,7 +1389,10 @@ public class ParserCommand extends ParserDDL {
             case Tokens.UNIQUE : {
                 read();
                 readThis(Tokens.NAME);
-                isUndelimitedSimpleName();
+
+                if (!isUndelimitedSimpleName()) {
+                    throw unexpectedToken();
+                }
 
                 name = token.tokenString;
 

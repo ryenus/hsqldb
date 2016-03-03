@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@ import java.io.IOException;
 
 import org.hsqldb.Row;
 import org.hsqldb.Session;
+import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
@@ -55,7 +56,7 @@ import org.hsqldb.types.Type;
 public class RowSetNavigatorDataChangeMemory
 implements RowSetNavigatorDataChange {
 
-    public static RowSetNavigatorDataChangeMemory emptyRowSet =
+    public static final RowSetNavigatorDataChangeMemory emptyRowSet =
         new RowSetNavigatorDataChangeMemory(null);
     int                   size;
     int                   currentPos = -1;
@@ -278,12 +279,12 @@ implements RowSetNavigatorDataChange {
 
     public void removeCurrent() {}
 
-    public boolean setRowColumns(boolean[] columns) {
-        return false;
-    }
-
     public long getRowId() {
         return getCurrentRow().getId();
+    }
+
+    public TableBase getCurrentTable() {
+        return getCurrentRow().getTable();
     }
 
     public boolean isBeforeFirst() {

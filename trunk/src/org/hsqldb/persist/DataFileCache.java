@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1253,8 +1253,9 @@ public class DataFileCache {
             return;
         }
 
-        int  pageCount = copyShadow(rows, offset, count);
-        long startTime = cache.saveAllTimer.elapsedTime();
+        int  pageCount   = copyShadow(rows, offset, count);
+        long startTime   = cache.saveAllTimer.elapsedTime();
+        long storageSize = 0;
 
         cache.saveAllTimer.start();
 
@@ -1267,11 +1268,12 @@ public class DataFileCache {
 
             saveRowNoLock(r);
 
-            rows[i] = null;
+            rows[i]     = null;
+            storageSize += r.getStorageSize();
         }
 
         cache.saveAllTimer.stop();
-        cache.logSaveRowsEvent(count, startTime);
+        cache.logSaveRowsEvent(count, storageSize, startTime);
     }
 
     /**

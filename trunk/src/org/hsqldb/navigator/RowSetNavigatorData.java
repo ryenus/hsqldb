@@ -39,6 +39,7 @@ import org.hsqldb.QuerySpecification;
 import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.SortAndSlice;
+import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -693,14 +694,14 @@ implements Comparator {
 
         public void removeCurrent() {}
 
-        public boolean setRowColumns(boolean[] columns) {
-            return false;
-        }
-
         public void release() {}
 
         public long getRowId() {
             return 0L;
+        }
+
+        public TableBase getCurrentTable() {
+            return null;
         }
     }
 

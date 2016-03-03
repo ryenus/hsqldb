@@ -1138,6 +1138,11 @@ public class RangeVariable {
                                         + ((long) currentRow.getPos());
         }
 
+        public TableBase getCurrentTable() {
+            return currentRow == null ? null
+                                      : currentRow.getTable();
+        }
+
         public Object getRowidObject() {
             return currentRow == null ? null
                                       : ValuePool.getLong(getRowId());
@@ -1169,10 +1174,6 @@ public class RangeVariable {
         }
 
         public Object[] getNext() {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
-        }
-
-        public boolean setRowColumns(boolean[] columns) {
             throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
         }
 
@@ -1981,12 +1982,13 @@ public class RangeVariable {
                         ExpressionLogical.andExpressions(indexEndCondition, e);
                 }
 
-                if (indexedColumnCount > 1 && opTypes[indexedColumnCount - 1] == OpTypes.MAX) {
-                    indexedColumnCount --;
-                    opTypes[indexedColumnCount] = 0;
+                if (indexedColumnCount > 1
+                        && opTypes[indexedColumnCount - 1] == OpTypes.MAX) {
+                    indexedColumnCount--;
+
+                    opTypes[indexedColumnCount]    = 0;
                     opTypesEnd[indexedColumnCount] = 0;
                 }
-
 
                 opType    = opTypes[indexedColumnCount - 1];
                 opTypeEnd = opTypesEnd[indexedColumnCount - 1];
