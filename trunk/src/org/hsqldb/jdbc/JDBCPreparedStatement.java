@@ -77,6 +77,7 @@ import org.hsqldb.lib.CharArrayWriter;
 import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
@@ -1911,6 +1912,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         checkStatementType(StatementTypes.RETURN_COUNT);
 
         if (!isBatch) {
+            if (connection.isEmptyBatchAllowed) {
+                return ValuePool.emptyIntArray;
+            }
+
             throw JDBCUtil.sqlExceptionSQL(ErrorCode.X_07506);
         }
         generatedResult = null;

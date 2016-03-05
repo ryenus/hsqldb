@@ -3527,11 +3527,14 @@ public class JDBCConnection implements Connection {
     /** used by a JDBCPool or other custom ConnectionPool instance */
     JDBCConnectionEventListener poolEventListener;
 
-    /** connection URL indicates to close old result when Statement is reused */
+    /** connection URL property close_result indicates to close old result when Statement is reused */
     boolean isCloseResultSet;
 
-    /** connection URL indicates to return column name in ResultMetadata */
+    /** connection URL property use_column_name indicates to return column name in ResultMetadata */
     boolean isUseColumnName = true;
+
+    /** connection URL property allow_empty_batch indicates to accept executeBatch() when the batch is empty */
+    boolean isEmptyBatchAllowed = false;
 
     /**
      * Constructs a new external <code>Connection</code> to an HSQLDB
@@ -3616,6 +3619,8 @@ public class JDBCConnection implements Connection {
                 HsqlDatabaseProperties.url_close_result, false);
             isUseColumnName = connProperties.isPropertyTrue(
                 HsqlDatabaseProperties.url_get_column_name, true);
+            isEmptyBatchAllowed = connProperties.isPropertyTrue(
+                HsqlDatabaseProperties.url_allow_empty_batch, false);
         } catch (HsqlException e) {
             throw JDBCUtil.sqlException(e);
         }

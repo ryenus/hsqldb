@@ -176,8 +176,6 @@ public class Database {
 
         setState(Database.DATABASE_SHUTDOWN);
 
-        this.databaseUniqueName = HsqlNameManager.newSystemObjectName("",
-                SchemaObject.DATABASE);
         this.databaseType  = type;
         this.path          = path;
         this.canonicalPath = canonicalPath;
@@ -306,6 +304,9 @@ public class Database {
         sessionManager.getSysLobSession().setSchema(SqlInvariants.LOBS_SCHEMA);
         schemaManager.setSchemaChangeTimestamp();
         schemaManager.createSystemTables();
+
+        databaseUniqueName = nameManager.newHsqlName("", false,
+                SchemaObject.DATABASE);
     }
 
     /**

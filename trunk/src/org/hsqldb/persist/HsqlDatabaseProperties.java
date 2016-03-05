@@ -183,12 +183,13 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String runtime_gc_interval = "runtime.gc_interval";
 
     //
-    public static final String url_ifexists        = "ifexists";
-    public static final String url_create          = "create";
-    public static final String url_default_schema  = "default_schema";
-    public static final String url_check_props     = "check_props";
-    public static final String url_get_column_name = "get_column_name";
-    public static final String url_close_result    = "close_result";
+    public static final String url_ifexists          = "ifexists";
+    public static final String url_create            = "create";
+    public static final String url_default_schema    = "default_schema";
+    public static final String url_check_props       = "check_props";
+    public static final String url_get_column_name   = "get_column_name";
+    public static final String url_close_result      = "close_result";
+    public static final String url_allow_empty_batch = "allow_empty_batch";
 
     //
     public static final String url_storage_class_name = "storage_class_name";

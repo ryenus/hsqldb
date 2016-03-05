@@ -872,6 +872,7 @@ public class TableWorks {
         moveData(table, tn, colIndex, -1);
         database.schemaManager.removeSchemaObjects(referencingObjects);
         database.schemaManager.removeSchemaObjects(constraintNameSet);
+        database.schemaManager.removeSchemaObjects(indexNameSet);
         database.schemaManager.removeSchemaObject(columnName);
         setNewTableInSchema(tn);
         setNewTablesInSchema(tableSet);
