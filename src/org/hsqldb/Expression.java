@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class Expression implements Cloneable {
@@ -171,6 +171,7 @@ public class Expression implements Cloneable {
 
     // aggregate
     private boolean isAggregate;
+    boolean isDistinctAggregate;
 
     // VALUE
     protected Object       valueData;
@@ -826,6 +827,10 @@ public class Expression implements Cloneable {
 
     boolean isAggregate() {
         return isAggregate;
+    }
+
+    boolean isDistinctAggregate() {
+        return isDistinctAggregate;
     }
 
     void setAggregate() {

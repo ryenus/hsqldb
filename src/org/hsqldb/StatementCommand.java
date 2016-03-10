@@ -330,10 +330,11 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
 
-                    if (check && !session.database.getProperties()
-                            .validateProperty(HsqlDatabaseProperties
-                                .hsqldb_cache_rows, value)) {
-                        throw Error.error(ErrorCode.X_42556);
+                    if (check) {
+                        value =
+                            session.database.getProperties()
+                                .getPropertyWithinRange(HsqlDatabaseProperties
+                                    .hsqldb_cache_rows, value);
                     }
 
                     session.database.logger.setCacheMaxRows(value);
@@ -351,10 +352,11 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
 
-                    if (check && !session.database.getProperties()
-                            .validateProperty(HsqlDatabaseProperties
-                                .hsqldb_cache_size, value)) {
-                        throw Error.error(ErrorCode.X_42556);
+                    if (check) {
+                        value =
+                            session.database.getProperties()
+                                .getPropertyWithinRange(HsqlDatabaseProperties
+                                    .hsqldb_cache_size, value);
                     }
 
                     session.database.logger.setCacheSize(value);

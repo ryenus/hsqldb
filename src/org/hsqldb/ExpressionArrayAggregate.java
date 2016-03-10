@@ -51,7 +51,6 @@ import org.hsqldb.types.Type;
  */
 public class ExpressionArrayAggregate extends Expression {
 
-    boolean      isDistinctAggregate;
     SortAndSlice sort;
     String       separator = ",";
     ArrayType    arrayDataType;

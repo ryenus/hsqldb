@@ -630,16 +630,7 @@ implements TransactionManager {
      * remove the transaction info
      */
     public void removeTransactionInfo(CachedObject object) {
-
-        if (object.isMemory()) {
-            return;
-        }
-
-        Row row = (Row) object;
-
-        if (row.getTable().tableType == TableBase.CACHED_TABLE) {
-            rowActionMap.remove(row.getPos());
-        }
+        rowActionMap.remove(object.getPos());
     }
 
     public void removeTransactionInfo(long id) {

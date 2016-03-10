@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,10 @@
 
 package org.hsqldb.lib;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
-public class StringComparator implements Comparator {
+public class StringComparator implements Comparator, Serializable {
 
     /*
      * @author Fred Toussi (fredt@users dot sourceforge.net)

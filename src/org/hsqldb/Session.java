@@ -1029,11 +1029,6 @@ public class Session implements SessionInterface {
                 } catch (Throwable t) {
                     String errorString = cmd.getMainString();
 
-                    if (database.getProperties().getErrorLevel()
-                            == HsqlDatabaseProperties.NO_MESSAGE) {
-                        errorString = null;
-                    }
-
                     return Result.newErrorResult(t, errorString);
                 }
 
