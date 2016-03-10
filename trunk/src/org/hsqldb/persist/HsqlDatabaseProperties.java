@@ -34,7 +34,6 @@ package org.hsqldb.persist;
 import java.util.Enumeration;
 
 import org.hsqldb.Database;
-import org.hsqldb.DatabaseURL;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMap;

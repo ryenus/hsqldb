@@ -1160,8 +1160,7 @@ public class QuerySpecification extends QueryExpression {
                             isSimpleCount = true;
                         } else if (expr.getNullability()
                                    == SchemaObject.Nullability.NO_NULLS) {
-                            if (((ExpressionAggregate) e)
-                                    .isDistinctAggregate) {
+                            if (e.isDistinctAggregate) {
                                 if (expr.opType == OpTypes.COLUMN) {
                                     Table t =
                                         expr.getRangeVariable().getTable();

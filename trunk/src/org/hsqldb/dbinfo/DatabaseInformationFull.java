@@ -1544,6 +1544,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);    // NOT NULL
+            addColumn(t, "TABLE_TYPE", SQL_IDENTIFIER);    // NOT NULL
             addColumn(t, "INDEX_NAME", SQL_IDENTIFIER);
             addColumn(t, "CARDINALITY", CARDINAL_NUMBER);
             addColumn(t, "ALLOCATED_ROWS", CARDINAL_NUMBER);
@@ -1560,7 +1561,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, new int[] {
-                0, 1, 2, 3
+                0, 1, 2, 4
             }, false);
 
             return t;
@@ -1570,6 +1571,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         String tableCatalog;
         String tableSchema;
         String tableName;
+        String tableType;
         String indexName;
 
         // Intermediate holders
@@ -1582,7 +1584,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int itable_cat   = 0;
         final int itable_schem = 1;
         final int itable_name  = 2;
-        final int iindex_name  = 3;
+        final int itable_type  = 3;
+        final int iindex_name  = 4;
 
         // Initialization
         tables =
@@ -1599,6 +1602,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             tableCatalog = table.getCatalogName().name;
             tableSchema  = table.getSchemaName().name;
             tableName    = table.getName().name;
+            tableType    = table.getTableTypeString();
             indexCount   = table.getIndexCount();
 
             // process all of the visible indices for this table
@@ -1610,6 +1614,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[itable_cat]   = tableCatalog;
                 row[itable_schem] = tableSchema;
                 row[itable_name]  = tableName;
+                row[itable_type]  = tableType;
                 row[iindex_name]  = indexName;
 
                 t.insertSys(session, store, row);
@@ -3713,9 +3718,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             } else if (type.isDateTimeType()) {
                 row[datetime_precision] = ValuePool.getLong(type.scale);
             } else if (type.isIntervalType()) {
-                row[data_type] = "INTERVAL";
-                row[interval_type] =
-                    IntervalType.getQualifier(type.typeCode);
+                row[data_type]          = "INTERVAL";
+                row[interval_type] = IntervalType.getQualifier(type.typeCode);
                 row[interval_precision] = ValuePool.getLong(type.precision);
                 row[datetime_precision] = ValuePool.getLong(type.scale);
             } else if (type.isBinaryType()) {
@@ -4055,9 +4059,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         } else if (type.isDateTimeType()) {
             row[datetime_precision] = ValuePool.getLong(type.scale);
         } else if (type.isIntervalType()) {
-            row[data_type] = "INTERVAL";
-            row[interval_type] =
-                IntervalType.getQualifier(type.typeCode);
+            row[data_type]          = "INTERVAL";
+            row[interval_type]      = IntervalType.getQualifier(type.typeCode);
             row[interval_precision] = ValuePool.getLong(type.precision);
             row[datetime_precision] = ValuePool.getLong(type.scale);
         } else if (type.isBinaryType()) {
@@ -8193,9 +8196,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             else if (type.isDateTimeType()) {
                 row[datetime_precision] = ValuePool.getLong(type.scale);
             } else if (type.isIntervalType()) {
-                row[data_type] = "INTERVAL";
-                row[interval_type] =
-                    IntervalType.getQualifier(type.typeCode);
+                row[data_type]          = "INTERVAL";
+                row[interval_type] = IntervalType.getQualifier(type.typeCode);
                 row[interval_precision] = ValuePool.getLong(type.precision);
                 row[datetime_precision] = ValuePool.getLong(type.scale);
             } else if (type.isBinaryType()) {

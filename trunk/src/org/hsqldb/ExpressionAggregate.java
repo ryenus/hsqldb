@@ -48,7 +48,6 @@ import org.hsqldb.types.RowType;
  */
 public class ExpressionAggregate extends Expression {
 
-    boolean   isDistinctAggregate;
     ArrayType arrayType;
 
     ExpressionAggregate(int type, boolean distinct, Expression e) {
