@@ -250,6 +250,7 @@ public class GranteeManager {
         if (!grantor.isGrantable(dbObject, right)) {
             session.addWarning(Error.error(ErrorCode.W_01007,
                                            grantor.getName().getNameString()));
+
             return;
         }
 

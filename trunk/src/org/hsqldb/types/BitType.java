@@ -426,7 +426,7 @@ public final class BitType extends BinaryType {
             return -1L;
         }
 
-        long otherLength = ((BlobData) data).bitLength(session);
+        long otherLength = data.bitLength(session);
 
         if (offset + otherLength > data.bitLength(session)) {
             return -1;
@@ -503,7 +503,7 @@ public final class BitType extends BinaryType {
         }
 
         if (!hasLength) {
-            length = ((BlobData) overlay).bitLength(session);
+            length = overlay.bitLength(session);
         }
 
         switch (typeCode) {

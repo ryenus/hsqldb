@@ -1490,10 +1490,9 @@ public class QuerySpecification extends QueryExpression {
 
     private Result buildResult(Session session, int[] limits) {
 
-        RowSetNavigatorData navigator = new RowSetNavigatorData(session,
-            (QuerySpecification) this);
-        Result  result        = Result.newResult(navigator);
-        boolean resultGrouped = isGrouped && !isSimpleDistinct;
+        RowSetNavigatorData navigator = new RowSetNavigatorData(session, this);
+        Result              result        = Result.newResult(navigator);
+        boolean             resultGrouped = isGrouped && !isSimpleDistinct;
 
         result.metaData = resultMetaData;
 
@@ -2152,8 +2151,6 @@ public class QuerySpecification extends QueryExpression {
         if (rangeVariables.length != 1) {
             isBaseMergeable = false;
             isMergeable     = false;
-
-            return;
         }
     }
 

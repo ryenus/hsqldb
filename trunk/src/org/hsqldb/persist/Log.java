@@ -68,9 +68,6 @@ import org.hsqldb.scriptio.ScriptWriterText;
  *  the contents of these files into its database file. The script format is
  *  always TEXT in this case.
  *
- *  Class has the same name as a class in Hypersonic SQL, but has been
- *  completely rewritten since HSQLDB 1.8.0 and earlier.
- *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Bob Preston (sqlbob@users dot sourceforge.net) - text table support
  * @version 2.3.4
@@ -791,7 +788,10 @@ public class Log {
     private void processLog() {
 
         if (fa.isStreamElement(logFileName)) {
-            ScriptRunner.runScript(database, logFileName);
+            boolean fullReplay = database.getURLProperties().isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_full_log_replay);
+
+            ScriptRunner.runScript(database, logFileName, fullReplay);
         }
     }
 

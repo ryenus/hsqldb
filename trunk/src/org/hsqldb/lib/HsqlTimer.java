@@ -678,7 +678,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
         boolean cancelled = false;
 
         /** Serializes concurrent access to the cancelled field. */
-        private Object cancel_mutex = new Object();
+        private final Object cancel_mutex = new Object();
 
         /**
          * Scheduling policy flag. <p>

@@ -1501,18 +1501,6 @@ public class Logger implements EventLogInterface {
         throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
     }
 
-    public Index newIndex(Table table, Index index, int[] columns) {
-
-        boolean[] modeFlags = new boolean[columns.length];
-        Type[]    colTypes  = new Type[columns.length];
-
-        ArrayUtil.projectRow(table.getColumnTypes(), columns, colTypes);
-
-        return newIndex(index.getName(), index.getPersistenceId(), table,
-                        columns, modeFlags, modeFlags, colTypes, false, false,
-                        false, false);
-    }
-
     public String getValueStringForProperty(String name) {
 
         String value = "";
@@ -2227,8 +2215,8 @@ public class Logger implements EventLogInterface {
 
     SimpleDateFormat backupFileFormat =
         new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-    private Character runtimeFileDelim =
-        new Character(System.getProperty("file.separator").charAt(0));
+    private static char runtimeFileDelim =
+        System.getProperty("file.separator").charAt(0);
     DbBackup backup;
 
     void backupInternal(String destPath, boolean script, boolean blocking,
@@ -2242,7 +2230,7 @@ public class Logger implements EventLogInterface {
         String instanceName = new File(dbPath).getName();
         char   lastChar     = destPath.charAt(destPath.length() - 1);
         boolean generateName = (lastChar == '/'
-                                || lastChar == runtimeFileDelim.charValue());
+                                || lastChar == runtimeFileDelim);
         File archiveFile;
 
         if (asFiles) {

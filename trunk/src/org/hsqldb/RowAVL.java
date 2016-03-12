@@ -85,6 +85,7 @@ import org.hsqldb.persist.PersistentStore;
  * Subclass RowAVLDisk implements rows for CACHED and TEXT tables.<p>
  * New class derived from Hypersonic SQL code and enhanced in HSQLDB.<p>
  *
+ * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @version 2.0.1
  * @since Hypersonic SQL

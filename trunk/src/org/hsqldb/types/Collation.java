@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -386,7 +386,7 @@ public class Collation implements SchemaObject {
         } catch (HsqlException e) {}
     }
 
-    public void setCollation(String newName, Boolean padSpace) {
+    public void setCollation(String newName, boolean padSpace) {
 
         if (isFinal) {
             throw Error.error(ErrorCode.X_42503, newName);

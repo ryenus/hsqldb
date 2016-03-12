@@ -73,7 +73,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
     private boolean   longvarSepEnd;
     private int       textLen;
     protected String  text;
-    protected int     line;
+    protected long    line;
     protected int     field;
     protected int     next = 0;
     protected Scanner scanner;
@@ -536,7 +536,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowInputText");
     }
 
-    public int getLineNumber() {
+    public long getLineNumber() {
         return line;
     }
 

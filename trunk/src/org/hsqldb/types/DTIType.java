@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -195,7 +195,7 @@ public abstract class DTIType extends Type {
             if (i == startPartIndex) {
                 int startDigits = precision == 0 ? 2
                                                  : (int) precision;
-                int zeros = (int) startDigits - getPrecisionExponent(part);
+                int zeros = startDigits - getPrecisionExponent(part);
 /*
                 for (int j = 0; j < zeros; j++) {
                     buffer.append('0');

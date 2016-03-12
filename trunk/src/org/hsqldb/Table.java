@@ -2328,7 +2328,7 @@ public class Table extends TableBase implements SchemaObject {
 
                 for (int j = 0; j < constraints.length; j++) {
                     constraints[j].checkCheckConstraint(session, this, column,
-                                                        (Object) data[i]);
+                                                        data[i]);
                 }
             }
 

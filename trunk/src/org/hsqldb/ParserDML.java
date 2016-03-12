@@ -469,7 +469,6 @@ public class ParserDML extends ParserDQL {
 
                 break;
             }
-
             default :
         }
 
@@ -498,7 +497,8 @@ public class ParserDML extends ParserDQL {
 
         if (withCommit) {
             Object[] args = new Object[] {
-                objectName, restartIdentity, noCheck
+                objectName, Boolean.valueOf(restartIdentity),
+                Boolean.valueOf(noCheck)
             };
 
             return new StatementCommand(StatementTypes.TRUNCATE, args, null,
@@ -961,6 +961,8 @@ public class ParserDML extends ParserDQL {
                     expressions.add(e);
                     read();
                     break;
+
+                default :
             }
 
             if (token.tokenType == Tokens.COMMA) {

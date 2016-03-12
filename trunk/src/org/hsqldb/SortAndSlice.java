@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -245,8 +245,7 @@ public final class SortAndSlice {
                 return;
             }
 
-            if (((ExpressionColumn) e).getRangeVariable()
-                    != select.rangeVariables[0]) {
+            if (e.getRangeVariable() != select.rangeVariables[0]) {
                 return;
             }
 
@@ -334,8 +333,7 @@ public final class SortAndSlice {
             return false;
         }
 
-        if (((ExpressionColumn) e).getRangeVariable()
-                != select.rangeVariables[0]) {
+        if (e.getRangeVariable() != select.rangeVariables[0]) {
             return false;
         }
 
@@ -352,7 +350,7 @@ public final class SortAndSlice {
         if (select.rangeVariables[0].hasSingleIndexCondition()) {
             int[] colIndexes = rangeIndex.getColumns();
 
-            if (colIndexes[0] != ((ExpressionColumn) e).getColumnIndex()) {
+            if (colIndexes[0] != e.getColumnIndex()) {
                 return false;
             }
 
@@ -363,8 +361,7 @@ public final class SortAndSlice {
             return false;
         } else {
             Table table = select.rangeVariables[0].getTable();
-            Index index = table.getIndexForColumn(
-                session, ((ExpressionColumn) e).getColumnIndex());
+            Index index = table.getIndexForColumn(session, e.getColumnIndex());
 
             if (index == null) {
                 return false;

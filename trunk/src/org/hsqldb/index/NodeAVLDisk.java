@@ -378,7 +378,7 @@ public class NodeAVLDisk extends NodeAVL {
     boolean equals(NodeAVL n) {
 
         if (n instanceof NodeAVLDisk) {
-            return this == n || (getPos() == ((NodeAVLDisk) n).getPos());
+            return this == n || (getPos() == n.getPos());
         }
 
         return false;

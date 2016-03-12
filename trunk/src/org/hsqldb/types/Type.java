@@ -31,7 +31,6 @@
 
 package org.hsqldb.types;
 
-import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;

@@ -36,9 +36,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.Principal;
-import java.security.Provider;
 import java.security.PublicKey;
-import java.security.Security;
 
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;

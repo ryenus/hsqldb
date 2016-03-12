@@ -41,8 +41,6 @@ import javax.naming.RefAddr;
 import javax.naming.spi.ObjectFactory;
 import javax.sql.DataSource;
 
-import org.hsqldb.persist.HsqlDatabaseProperties;
-
 /**
  * A JNDI ObjectFactory for creating data sources supported by HyperSQL
  *  {@link org.hsqldb.jdbc.JDBCDataSource JDBCDataSource} for plain

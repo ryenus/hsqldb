@@ -1553,7 +1553,7 @@ public class StatementSchema extends Statement {
                 return;
             }
 
-            Error.error(ErrorCode.X_42505, schema.name);
+            throw Error.error(ErrorCode.X_42505, schema.name);
         }
 
         session.getGrantee().checkSchemaUpdateOrGrantRights(schema.name);

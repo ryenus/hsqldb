@@ -75,7 +75,7 @@ public class ExpressionColumn extends Expression {
                 diagnosticsVariableTokens[i], SchemaObject.VARIABLE);
             Type type = Type.SQL_INTEGER;
 
-            if (diagnosticsVariableTokens[i] == Tokens.T_MORE) {
+            if (Tokens.T_MORE.equals(diagnosticsVariableTokens[i])) {
                 type = Type.SQL_CHAR;
             }
 

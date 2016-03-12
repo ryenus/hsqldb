@@ -84,11 +84,12 @@ import org.hsqldb.types.Type;
 /**
  * Reusable object for processing LIKE queries.
  *
- * Enhanced in successive versions of HSQLDB.
+ * Rewritten in HSQLDB based on original Hypersonic code.<p>
  *
+ * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @version 2.3.1
- * @since Hypersonic SQL
+ * @since 1.6.2
  */
 
 // boucherb@users 20030930 - patch 1.7.2 - optimize into joins if possible

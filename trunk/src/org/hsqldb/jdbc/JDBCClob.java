@@ -194,7 +194,7 @@ public class JDBCClob implements Clob {
         final int    dlen = data.length();
 
         if (pos < MIN_POS || pos > dlen) {
-            JDBCUtil.outOfRangeArgument("pos: " + pos);
+            throw JDBCUtil.outOfRangeArgument("pos: " + pos);
         }
         pos--;
 

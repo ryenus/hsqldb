@@ -38,7 +38,6 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.types.ArrayType;
-import org.hsqldb.types.NumberType;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
 
@@ -379,11 +378,9 @@ public class ExpressionArrayAggregate extends Expression {
                 if (even) {
                     Object val1 = array[(array.length / 2) - 1];
                     Object val2 = array[array.length / 2];
-                    Object val3 = ((NumberType) dataType).add(session, val1,
-                        val2, dataType);
+                    Object val3 = dataType.add(session, val1, val2, dataType);
 
-                    return ((NumberType) dataType).divide(session, val3,
-                                                          Integer.valueOf(2));
+                    return dataType.divide(session, val3, Integer.valueOf(2));
                 } else {
                     return dataType.convertToType(session,
                                                   array[array.length / 2],

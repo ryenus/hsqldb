@@ -35,7 +35,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.HsqlList;
-import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
@@ -1341,7 +1340,7 @@ public class ExpressionLogical extends Expression {
 
                 if (nodes[LEFT].dataType != null
                         && nodes[LEFT].dataType.isArrayType()) {
-                    return compareValues(session, (Object) o1, (Object) o2);
+                    return compareValues(session, o1, o2);
                 }
 
                 if (o1 instanceof Object[]) {
@@ -1417,18 +1416,15 @@ public class ExpressionLogical extends Expression {
      * For MATCH SIMPLE and FULL expressions, nulls in left are handled
      * prior to calling this method
      */
-    private Boolean compareValues(Session session, Object[] left,
-                                  Object[] right) {
+    private Boolean compareValues(Session session, Object[] leftList,
+                                  Object[] rightList) {
 
         int     result  = 0;
         boolean hasNull = false;
 
-        if (left == null || right == null) {
+        if (leftList == null || rightList == null) {
             return null;
         }
-
-        Object[] leftList  = (Object[]) left;
-        Object[] rightList = (Object[]) right;
 
         for (int i = 0; i < nodes[LEFT].nodes.length; i++) {
             if (leftList[i] == null) {
@@ -1728,7 +1724,7 @@ public class ExpressionLogical extends Expression {
 
     private Boolean testAllAnyCondition(Session session) {
 
-        Object[]     rowData = (Object[]) nodes[LEFT].getRowValue(session);
+        Object[]     rowData = nodes[LEFT].getRowValue(session);
         TableDerived td      = nodes[RIGHT].table;
 
         td.materialiseCorrelated(session);

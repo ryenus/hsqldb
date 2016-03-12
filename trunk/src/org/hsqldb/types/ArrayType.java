@@ -356,9 +356,9 @@ public class ArrayType extends Type {
         }
 
         if (maxCardinality >= ((ArrayType) otherType).maxCardinality) {
-            return dataType.canMoveFrom((ArrayType) otherType);
+            return dataType.canMoveFrom(otherType);
         } else {
-            if (dataType.canMoveFrom((ArrayType) otherType) == -1) {
+            if (dataType.canMoveFrom(otherType) == -1) {
                 return -1;
             }
 

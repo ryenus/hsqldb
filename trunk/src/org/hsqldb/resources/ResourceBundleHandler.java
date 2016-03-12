@@ -140,7 +140,7 @@ public final class ResourceBundleHandler {
 
                 bundleList.add(bundle);
 
-                bundleHandle = new Integer(bundleList.size() - 1);
+                bundleHandle = Integer.valueOf(bundleList.size() - 1);
 
                 bundleHandleMap.put(bundleKey, bundleHandle);
             }

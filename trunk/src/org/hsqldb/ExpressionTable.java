@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -189,7 +189,7 @@ public class ExpressionTable extends Expression {
                 Object[] value = table.getValues(session);
 
                 if (value.length == 1) {
-                    return ((Object[]) value)[0];
+                    return value[0];
                 }
 
                 return value;

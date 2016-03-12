@@ -539,7 +539,7 @@ public class LockFile {
      * @return a new <tt>NIOLockFile</tt>, or <tt>null</tt> if not available
      *      under the current runtime environment
      */
-    private static final LockFile newNIOLockFile() {
+    private static LockFile newNIOLockFile() {
 
         if (NIO_FILELOCK_AVAILABLE && NIO_LOCKFILE_CLASS != null) {
             try {
@@ -593,7 +593,7 @@ public class LockFile {
      *         method does not permit all necessary parent directories to be
      *         created
      */
-    public static final LockFile newLockFile(final String path)
+    public static LockFile newLockFile(final String path)
     throws FileCanonicalizationException, FileSecurityException {
 
         LockFile lockFile = newNIOLockFile();
@@ -622,7 +622,7 @@ public class LockFile {
      *      condition upon the file with the given path, appended with the
      *      extension '.lck'
      */
-    public static final LockFile newLockFileLock(final String path)
+    public static LockFile newLockFileLock(final String path)
     throws HsqlException {
 
         LockFile lockFile = null;
@@ -1387,7 +1387,7 @@ public class LockFile {
      *      acquisition of a cooperative lock condition using the specified
      *      <tt>path</tt>, else <tt>false</tt>
      */
-    public static final boolean isLocked(final String path) {
+    public static boolean isLocked(final String path) {
 
         boolean locked = true;
 

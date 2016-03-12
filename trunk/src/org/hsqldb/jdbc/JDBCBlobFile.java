@@ -129,7 +129,7 @@ public class JDBCBlobFile implements java.sql.Blob {
         InputStream           is   = null;
         ByteArrayOutputStream baos = null;
         final int initialBufferSize =
-            (int) Math.min(InOutUtil.DEFAULT_COPY_BUFFER_SIZE, length);
+            Math.min(InOutUtil.DEFAULT_COPY_BUFFER_SIZE, length);
 
         try {
             is   = getBinaryStream(pos, length);

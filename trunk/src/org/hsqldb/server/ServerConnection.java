@@ -116,14 +116,12 @@ import org.hsqldb.types.Type;
  *  shutdown it returns the result of the operation to the client.
  *  (fredt@users)<p>
  *
- * Rewritten in HSQLDB version 1.7.2, based on original Hypersonic code.<p>
  * ODBC support added for version 2.0.0 by Blaine Simpson.<p>
  *
  * @author Blaine Simpson (unsaved@users dot sourceforge.net
- * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.0
- * @since Hypersonic SQL
+ * @since 1.6.2
  */
 class ServerConnection implements Runnable {
 

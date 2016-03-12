@@ -632,11 +632,11 @@ public class CharacterType extends Type {
         } else if (a instanceof String) {
             s = (String) a;
         } else if (a instanceof java.sql.Date) {
-            s = ((java.sql.Date) a).toString();
+            s = a.toString();
         } else if (a instanceof java.sql.Time) {
-            s = ((java.sql.Time) a).toString();
+            s = a.toString();
         } else if (a instanceof java.sql.Timestamp) {
-            s = ((java.sql.Timestamp) a).toString();
+            s = a.toString();
         } else if (a instanceof java.util.Date) {
             s = HsqlDateTime.getTimestampString(((java.util.Date) a).getTime());
         } else {

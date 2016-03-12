@@ -72,7 +72,7 @@ import org.hsqldb.types.Type;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.8.0
  */
 public class Grantee implements SchemaObject {
@@ -303,9 +303,8 @@ public class Grantee implements SchemaObject {
     void grant(HsqlName name, Right right, Grantee grantor,
                boolean withGrant) {
 
-        final Right grantableRights =
-            ((Grantee) grantor).getAllGrantableRights(name);
-        Right existingRight = null;
+        final Right grantableRights = grantor.getAllGrantableRights(name);
+        Right       existingRight   = null;
 
         if (right == Right.fullRights) {
             if (grantableRights.isEmpty()) {
@@ -352,7 +351,7 @@ public class Grantee implements SchemaObject {
         if (!grantor.isSystem()) {
 
             // based on assumption that there is no need to access
-            ((Grantee) grantor).grantedRightsMap.put(name, existingRight);
+            grantor.grantedRightsMap.put(name, existingRight);
         }
 
         updateAllRights();
@@ -399,7 +398,7 @@ public class Grantee implements SchemaObject {
 
         if (right.isFull) {
             directRightsMap.remove(name, existing);
-            ((Grantee) grantor).grantedRightsMap.remove(name, existing);
+            grantor.grantedRightsMap.remove(name, existing);
             updateAllRights();
 
             return;
@@ -409,7 +408,7 @@ public class Grantee implements SchemaObject {
 
         if (existing.isEmpty()) {
             directRightsMap.remove(name, existing);
-            ((Grantee) grantor).grantedRightsMap.remove(name, existing);
+            grantor.grantedRightsMap.remove(name, existing);
         }
 
         updateAllRights();
@@ -1028,7 +1027,7 @@ public class Grantee implements SchemaObject {
     Right getAllGrantableRights(HsqlName name) {
 
         if (isAdmin) {
-            return ((Grantee) name.schema.owner).ownerRights;
+            return name.schema.owner.ownerRights;
         }
 
         if (name.schema.owner == this) {
@@ -1036,7 +1035,7 @@ public class Grantee implements SchemaObject {
         }
 
         if (roles.contains(name.schema.owner)) {
-            return ((Grantee) name.schema.owner).ownerRights;
+            return name.schema.owner.ownerRights;
         }
 
         OrderedHashSet set = getAllRoles();
@@ -1216,8 +1215,7 @@ public class Grantee implements SchemaObject {
                     case SchemaObject.FUNCTION :
                     case SchemaObject.SPECIFIC_ROUTINE :
                         SchemaObject routine =
-                            (SchemaObject) granteeManager.database
-                                .schemaManager
+                            granteeManager.database.schemaManager
                                 .findSchemaObject(hsqlname.name,
                                                   hsqlname.schema.name,
                                                   hsqlname.type);
@@ -1240,7 +1238,7 @@ public class Grantee implements SchemaObject {
                         }
                         break;
 
-                    default:
+                    default :
                 }
 
                 if (sb.length() == 0) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,8 +46,6 @@ import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
 import javax.sql.DataSource;
-
-import org.hsqldb.persist.HsqlDatabaseProperties;
 
 /**
  * <p>A factory for connections to the physical data source that this

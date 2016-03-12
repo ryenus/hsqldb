@@ -565,9 +565,10 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             parameterTypes[i] = param.dataType;
 
             if (i < 4) {
-                BitMap.setByte(typeGroups,
-                               (byte) param.dataType.typeComparisonGroup,
-                               i * 8);
+                typeGroups =
+                    BitMap.setByte(typeGroups,
+                                   (byte) param.dataType.typeComparisonGroup,
+                                   i * 8);
             }
         }
 
@@ -909,7 +910,8 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
                         head.addChainedResult(r);
                     }
                 } else {
-                    Error.error(ErrorCode.X_46000, "ResultSet not native");
+                    throw Error.error(ErrorCode.X_46000,
+                                      "ResultSet not native");
                 }
             }
         }

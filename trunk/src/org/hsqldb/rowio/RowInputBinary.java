@@ -184,8 +184,7 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
 
         int b = readByte();
 
-        return b == 0 ? true
-                      : false;
+        return b == 0;
     }
 
     protected String readChar(Type type) {

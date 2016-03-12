@@ -2996,8 +2996,8 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                dataType = isChar ? (Type) Type.SQL_VARCHAR_DEFAULT
-                                  : (Type) Type.SQL_VARBINARY_DEFAULT;
+                dataType = isChar ? Type.SQL_VARCHAR_DEFAULT
+                                  : Type.SQL_VARBINARY_DEFAULT;
 
                 break;
             }
@@ -3205,12 +3205,11 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 if (nodes[0].dataType == null) {
-                    nodes[0].dataType =
-                        ((ArrayType) nodes[1].dataType).collectionBaseType();
+                    nodes[0].dataType = nodes[1].dataType.collectionBaseType();
                 }
 
-                if (!((ArrayType) nodes[1].dataType).collectionBaseType()
-                        .canCompareDirect(nodes[0].dataType)) {
+                if (!nodes[1].dataType.collectionBaseType().canCompareDirect(
+                        nodes[0].dataType)) {
                     throw Error.error(ErrorCode.X_42563);
                 }
 

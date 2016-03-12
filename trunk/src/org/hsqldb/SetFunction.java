@@ -31,7 +31,6 @@
 
 package org.hsqldb;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -319,8 +318,8 @@ public class SetFunction {
                     case Types.SQL_SMALLINT :
                     case Types.SQL_INTEGER :
                         if (returnType.scale != 0) {
-                            return returnType.divide(session, currentLong,
-                                                     count);
+                            return returnType.divide(session, Long.valueOf(currentLong),
+                                                     Long.valueOf(count));
                         }
 
                         return Long.valueOf(currentLong / count);
@@ -343,7 +342,7 @@ public class SetFunction {
                                 new BigDecimal(count), BigDecimal.ROUND_DOWN);
                         } else {
                             return returnType.divide(session,
-                                                     currentBigDecimal, count);
+                                                     currentBigDecimal, Long.valueOf(count));
                         }
                     case Types.SQL_INTERVAL : {
                         BigInteger bi =

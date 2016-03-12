@@ -786,7 +786,7 @@ public class ParserCommand extends ParserDDL {
                     }
                 }
 
-                Object[] args = new Object[]{ new Integer(delay) };
+                Object[] args = new Object[]{ Integer.valueOf(delay) };
 
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_FILES_WRITE_DELAY, args, null,
@@ -794,12 +794,12 @@ public class ParserCommand extends ParserDDL {
             }
             case Tokens.PASSWORD : {
                 String  password;
-                boolean isDigest = false;
+                Boolean isDigest = Boolean.FALSE;
 
                 read();
 
                 if (readIfThis(Tokens.DIGEST)) {
-                    isDigest = true;
+                    isDigest = Boolean.TRUE;
                 }
 
                 password = readPassword();
@@ -954,7 +954,7 @@ public class ParserCommand extends ParserDDL {
 
                 read();
 
-                args[1] = new Integer(newType);
+                args[1] = Integer.valueOf(newType);
 
                 return new StatementCommand(StatementTypes.SET_TABLE_TYPE,
                                             args, null,
@@ -1083,7 +1083,7 @@ public class ParserCommand extends ParserDDL {
 
                 Integer  value = readIntegerObject();
                 Object[] args  = new Object[] {
-                    value, sqlLog
+                    value, Boolean.valueOf(sqlLog)
                 };
 
                 return new StatementCommand(
@@ -1603,7 +1603,7 @@ public class ParserCommand extends ParserDDL {
                     }
                 }
 
-                value = new Integer(delay);
+                value = Integer.valueOf(delay);
 
                 break;
             }
@@ -1614,11 +1614,11 @@ public class ParserCommand extends ParserDDL {
                 if (token.tokenType == Tokens.TEXT) {
                     read();
 
-                    value = new Integer(0);
+                    value = Integer.valueOf(0);
                 } else {
                     readThis(Tokens.COMPRESSED);
 
-                    value = new Integer(3);
+                    value = Integer.valueOf(3);
                 }
 
                 type = StatementTypes.SET_DATABASE_FILES_SCRIPT_FORMAT;
@@ -1631,8 +1631,8 @@ public class ParserCommand extends ParserDDL {
 
         Object[] args = new Object[2];
 
-        args[0] = flag == null ? (Object) value
-                               : (Object) flag;
+        args[0] = flag == null ? value
+                               : flag;
         args[1] = mode;
 
         return new StatementCommand(type, args, null, names);
@@ -1712,7 +1712,7 @@ public class ParserCommand extends ParserDDL {
                             throw unexpectedToken();
                     }
 
-                    args[1] = new Integer(level);
+                    args[1] = Integer.valueOf(level);
 
                     break;
                 }
@@ -2114,7 +2114,7 @@ public class ParserCommand extends ParserDDL {
             throw unexpectedToken();
         }
 
-        Object[] args = new Object[]{ new Integer(closemode) };
+        Object[] args = new Object[]{ Integer.valueOf(closemode) };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_SHUTDOWN,
                                             args, null, null);
 

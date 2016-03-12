@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@ package org.hsqldb.types;
 
 import org.hsqldb.Constraint;
 import org.hsqldb.Expression;
-import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;

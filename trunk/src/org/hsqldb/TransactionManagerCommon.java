@@ -138,8 +138,6 @@ class TransactionManagerCommon {
 
             manager.transactionCount = transactionCount;
             database.txManager       = (TransactionManager) manager;
-
-            return;
         } finally {
             writeLock.unlock();
         }

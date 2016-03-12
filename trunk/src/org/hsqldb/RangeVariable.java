@@ -1135,7 +1135,7 @@ public class RangeVariable {
 
             return currentRow == null ? 0
                                       : ((long) rangeVar.rangeTable.getId() << 32)
-                                        + ((long) currentRow.getPos());
+                                        + currentRow.getPos();
         }
 
         public TableBase getCurrentTable() {

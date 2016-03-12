@@ -68,8 +68,8 @@ public class FileUtil implements FileAccess {
     }
 
     public static FileAccess getFileAccess(boolean isResource) {
-        return isResource ? (FileAccess) fileAccessRes
-                          : (FileAccess) fileUtil;
+        return isResource ? fileAccessRes
+                          : fileUtil;
     }
 
     public boolean isStreamElement(String elementName) {

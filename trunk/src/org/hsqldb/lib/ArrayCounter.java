@@ -126,7 +126,7 @@ public class ArrayCounter {
                 return start;
             }
 
-            currentLimit = start + interval < limit ? (int) (start + interval)
+            currentLimit = start + interval < limit ? (start + interval)
                                                     : limit;
         }
     }

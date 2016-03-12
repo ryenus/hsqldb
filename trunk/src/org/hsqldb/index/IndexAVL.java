@@ -229,7 +229,7 @@ public class IndexAVL implements Index {
 
     public String getSQL() {
 
-        StringBuffer sb =  new StringBuffer(128);
+        StringBuffer sb = new StringBuffer(128);
 
         sb.append(Tokens.T_CREATE).append(' ');
 
@@ -1692,7 +1692,8 @@ public class IndexAVL implements Index {
                             break;
                         }
                         default :
-                            Error.runtimeError(ErrorCode.U_S0500, "Index");
+                            throw Error.runtimeError(ErrorCode.U_S0500,
+                                                     "Index");
                     }
                 } else if (i < 0) {
                     n = x.getRight(store);
@@ -2001,6 +2002,5 @@ public class IndexAVL implements Index {
         public TableBase getCurrentTable() {
             return index.table;
         }
-
     }
 }

@@ -146,7 +146,7 @@ public class ExpressionColumnAccessor extends Expression {
             return false;
         }
 
-        return column == ((Expression) other).getColumn();
+        return column == other.getColumn();
     }
 
     void replaceRangeVariables(RangeVariable[] ranges,

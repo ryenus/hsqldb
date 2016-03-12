@@ -700,7 +700,7 @@ public class Result {
     }
 
     public void addBatchedPreparedExecuteRequest(Object[] parameterValues) {
-        ((RowSetNavigatorClient) navigator).add(parameterValues);
+        navigator.add(parameterValues);
     }
 
     /**

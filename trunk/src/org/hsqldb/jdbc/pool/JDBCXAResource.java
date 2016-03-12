@@ -43,7 +43,6 @@ import org.hsqldb.jdbc.JDBCConnection;
 
 import java.sql.SQLException;
 
-import org.hsqldb.SessionInterface;
 import org.hsqldb.HsqlException;
 
 // @(#)$Id$
