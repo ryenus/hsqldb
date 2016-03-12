@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ public class ScriptReaderDecode extends ScriptReaderText {
     public ScriptReaderDecode(Database db, String fileName, Crypto crypto,
                               boolean forLog) throws IOException {
 
-        super(db);
+        super(db, fileName);
 
         this.crypto = crypto;
 
@@ -116,7 +116,7 @@ public class ScriptReaderDecode extends ScriptReaderText {
         try {
             s = new String(buffer, 0, count, "ISO-8859-1");
         } catch (UnsupportedEncodingException e) {
-            throw Error.error(e, ErrorCode.FILE_IO_ERROR, null);
+            throw Error.error(e, ErrorCode.FILE_IO_ERROR, fileNamePath);
         }
 
         lineCount++;

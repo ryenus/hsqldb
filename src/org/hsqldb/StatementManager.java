@@ -333,7 +333,7 @@ public final class StatementManager {
             int schemaid = cs.getSchemaName().hashCode();
             LongValueHashMap sqlMap =
                 (LongValueHashMap) schemaMap.get(schemaid);
-            String sql = (String) cs.getSQL();
+            String sql = cs.getSQL();
 
             sqlMap.remove(sql);
         }

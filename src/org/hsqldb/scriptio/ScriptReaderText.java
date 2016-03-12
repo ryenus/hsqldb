@@ -57,7 +57,7 @@ import org.hsqldb.types.Type;
  * corresponds to ScriptWriterText.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- *  @version 2.3.3
+ *  @version 2.3.4
  *  @since 1.7.2
  */
 public class ScriptReaderText extends ScriptReaderBase {
@@ -70,14 +70,14 @@ public class ScriptReaderText extends ScriptReaderBase {
     RowInputTextLog rowIn;
     boolean         isInsert;
 
-    ScriptReaderText(Database db) {
-        super(db);
+    ScriptReaderText(Database db, String fileName) {
+        super(db, fileName);
     }
 
     public ScriptReaderText(Database db, String fileName,
                             boolean compressed) throws IOException {
 
-        super(db);
+        super(db, fileName);
 
         inputStream =
             database.logger.getFileAccess().openInputStreamElement(fileName);
@@ -146,7 +146,7 @@ public class ScriptReaderText extends ScriptReaderBase {
                                 ErrorCode.ERROR_IN_SCRIPT_FILE,
                                 ErrorCode.M_DatabaseScriptReader_read,
                                 new Object[] {
-                    Integer.toString(lineCount) + " "
+                    Long.toString(lineCount) + " "
                     + database.getCanonicalPath(),
                     result.getMainString()
                 });
@@ -204,7 +204,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             throw Error.error(t, ErrorCode.ERROR_IN_SCRIPT_FILE,
                               ErrorCode.M_DatabaseScriptReader_read,
                               new Object[] {
-                new Integer(lineCount), t.toString()
+                Long.valueOf(lineCount), t.toString()
             });
         } finally {
             database.setReferentialIntegrity(true);
@@ -214,8 +214,6 @@ public class ScriptReaderText extends ScriptReaderBase {
     public boolean readLoggedStatement(Session session) {
 
         if (!sessionChanged) {
-
-            //fredt temporary solution - should read bytes directly from buffer
             try {
                 rawStatement = dataStreamIn.readLine();
             } catch (EOFException e) {

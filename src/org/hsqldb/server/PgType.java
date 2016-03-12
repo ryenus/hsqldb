@@ -82,7 +82,7 @@ public class PgType {
      * @see #PgType(Type, int, Integer, Integer)
      */
     protected PgType(Type hType, int oid, int typeWidth) {
-        this(hType, oid, new Integer(typeWidth), null);
+        this(hType, oid, Integer.valueOf(typeWidth), null);
     }
 
     /**
@@ -97,7 +97,7 @@ public class PgType {
      */
     protected PgType(Type hType, int oid, Integer dummy, long lpConstraint)
     throws RecoverableOdbcFailure {
-        this(hType, oid, dummy, new Integer((int) lpConstraint));
+        this(hType, oid, dummy, Integer.valueOf((int) lpConstraint));
         if (lpConstraint < 0) {
             throw new RecoverableOdbcFailure(
                 "Length/Precision value is below minimum value of 0");
@@ -211,19 +211,19 @@ public class PgType {
 
             // 4 bytes
             case Types.SQL_TIME :
-                return new PgType(hType, TYPE_TIME, new Integer(8),
+                return new PgType(hType, TYPE_TIME, Integer.valueOf(8),
                                   hType.precision);
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 return new PgType(hType, TYPE_TIME_WITH_TMZONE,
-                                  new Integer(12), hType.precision);
+                                  Integer.valueOf(12), hType.precision);
 
             case Types.SQL_TIMESTAMP :
                 return new PgType(hType, TYPE_TIMESTAMP_NO_TMZONE,
-                                  new Integer(8), hType.precision);
+                                  Integer.valueOf(8), hType.precision);
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                return new PgType(hType, TYPE_TIMESTAMP, new Integer(8),
+                return new PgType(hType, TYPE_TIMESTAMP, Integer.valueOf(8),
                                   hType.precision);
 
             // Postgresql is returning type DATETIME for this case.
@@ -480,7 +480,7 @@ public class PgType {
 
     /* Following stuff is to support code copied from
      * JDBCPreparedStatement.java. */
-    static final void throwError(HsqlException e) throws SQLException {
+    static void throwError(HsqlException e) throws SQLException {
 
 //#ifdef JAVA6
         throw JDBCUtil.sqlException(e.getMessage(), e.getSQLState(),

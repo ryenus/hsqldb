@@ -54,7 +54,6 @@ import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.JavaObjectData;
-import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
@@ -168,7 +167,7 @@ implements RowInputInterface {
 
         if (minus) {
             try {
-                value = ((NumberType) scanner.getDataType()).negate(value);
+                value = scanner.getDataType().negate(value);
             } catch (HsqlException e) {}
         }
     }

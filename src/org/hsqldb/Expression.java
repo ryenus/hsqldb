@@ -1624,7 +1624,7 @@ public class Expression implements Cloneable {
                 Object[] value = table.getValues(session);
 
                 if (value.length == 1) {
-                    return ((Object[]) value)[0];
+                    return value[0];
                 }
 
                 return value;

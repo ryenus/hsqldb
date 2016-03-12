@@ -878,9 +878,8 @@ public final class IntervalType extends DTIType {
                 } else if (a instanceof TimestampData
                            && b instanceof TimestampData) {
                     boolean isYear = typeCode == Types.SQL_INTERVAL_YEAR;
-                    long months =
-                        DateTimeType.subtractMonths((TimestampData) a,
-                                                    (TimestampData) b, isYear);
+                    long months = DateTimeType.subtractMonths(session,
+                        (TimestampData) a, (TimestampData) b, isYear);
 
                     return new IntervalMonthData(months, this);
                 }
@@ -1019,7 +1018,7 @@ public final class IntervalType extends DTIType {
                                           true);
         } else {
             if (isYearMonth) {
-                return result.longValue();
+                return Long.valueOf(result.longValue());
             } else {
                 return result;
             }
@@ -1549,7 +1548,7 @@ public final class IntervalType extends DTIType {
         switch (part) {
 
             case Types.SQL_INTERVAL_YEAR :
-                return (int) (((IntervalMonthData) interval).units / 12);
+                return ((IntervalMonthData) interval).units / 12;
 
             case Types.SQL_INTERVAL_MONTH :
                 units = ((IntervalMonthData) interval).units;

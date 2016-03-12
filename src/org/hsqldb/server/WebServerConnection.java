@@ -79,12 +79,9 @@ import org.hsqldb.rowio.RowOutputBinary;
  *  session.<p>
  *  (fredt@users)
  *
- * Rewritten in version HSQLDB 1.7.2, based on original Hypersonic code.
- *
- * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.2.9
- * @since Hypersonic SQL
+ * @since 1.6.2
  */
 class WebServerConnection implements Runnable {
 

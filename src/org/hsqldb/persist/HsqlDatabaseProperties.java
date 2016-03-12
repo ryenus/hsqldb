@@ -826,19 +826,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         return 500;
     }
 
-//---------------------
-// new properties to review / persist
-    public static final int NO_MESSAGE = 1;
-
-    public int getErrorLevel() {
-        return NO_MESSAGE;
-    }
-
-    public boolean divisionByZero() {
-        return false;
-    }
-
-//------------------------
     public void setDBModified(int mode) {
 
         String value;

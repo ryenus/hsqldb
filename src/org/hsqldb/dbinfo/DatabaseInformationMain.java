@@ -1002,7 +1002,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 }
 
                 if (type.isDateTimeType()) {
-                    int size = (int) column.getDataType().displaySize();
+                    int size = column.getDataType().displaySize();
 
                     row[icolumn_size] = ValuePool.getInt(size);
                     row[isql_datetime_sub] = ValuePool.getInt(
@@ -1175,7 +1175,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             constraintCount = constraints.length;
 
             for (int i = 0; i < constraintCount; i++) {
-                constraint = (Constraint) constraints[i];
+                constraint = constraints[i];
 
                 if (constraint.getConstraintType() == SchemaObject
                         .ConstraintTypes
@@ -1477,12 +1477,12 @@ class DatabaseInformationMain extends DatabaseInformation {
         String primaryKeyName;
 
         // Intermediate holders
-        Iterator       tables;
-        Table          table;
-        Object[]       row;
-        Constraint     constraint;
-        int[]          cols;
-        int            colCount;
+        Iterator   tables;
+        Table      table;
+        Object[]   row;
+        Constraint constraint;
+        int[]      cols;
+        int        colCount;
 
         // column number mappings
         final int itable_cat   = 0;
@@ -1757,7 +1757,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                     }
 
                     if (type.isDateTimeType()) {
-                        int size = (int) column.getDataType().displaySize();
+                        int size = column.getDataType().displaySize();
 
                         row[numeric_precision] = ValuePool.getInt(size);
                     }
@@ -3183,12 +3183,11 @@ class DatabaseInformationMain extends DatabaseInformation {
                     .SQL_DECIMAL) ? 10
                                   : 2;
 
-            row[sequence_catalog] = database.getCatalogName().name;
-            row[sequence_schema]  = sequence.getSchemaName().name;
-            row[sequence_name]    = sequence.getName().name;
-            row[data_type]        = sequence.getDataType().getFullNameString();
-            row[numeric_precision] =
-                ValuePool.getInt((int) type.getPrecision());
+            row[sequence_catalog]           = database.getCatalogName().name;
+            row[sequence_schema]            = sequence.getSchemaName().name;
+            row[sequence_name]              = sequence.getName().name;
+            row[data_type] = sequence.getDataType().getFullNameString();
+            row[numeric_precision] = ValuePool.getInt(type.getPrecision());
             row[numeric_precision_radix]    = ValuePool.getInt(radix);
             row[numeric_scale]              = ValuePool.INTEGER_0;
             row[maximum_value] = String.valueOf(sequence.getMaxValue());
@@ -3288,12 +3287,11 @@ class DatabaseInformationMain extends DatabaseInformation {
                     .SQL_DECIMAL) ? 10
                                   : 2;
 
-            row[sequence_catalog] = database.getCatalogName().name;
-            row[sequence_schema]  = sequence.getSchemaName().name;
-            row[sequence_name]    = sequence.getName().name;
-            row[data_type]        = sequence.getDataType().getFullNameString();
-            row[numeric_precision] =
-                ValuePool.getInt((int) type.getPrecision());
+            row[sequence_catalog]           = database.getCatalogName().name;
+            row[sequence_schema]            = sequence.getSchemaName().name;
+            row[sequence_name]              = sequence.getName().name;
+            row[data_type] = sequence.getDataType().getFullNameString();
+            row[numeric_precision] = ValuePool.getInt(type.getPrecision());
             row[numeric_precision_radix]    = ValuePool.getInt(radix);
             row[numeric_scale]              = ValuePool.INTEGER_0;
             row[maximum_value] = String.valueOf(sequence.getMaxValue());

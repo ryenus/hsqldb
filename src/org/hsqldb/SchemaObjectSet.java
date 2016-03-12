@@ -536,12 +536,16 @@ public class SchemaObjectSet {
 
                     case SchemaObject.FUNCTION :
                     case SchemaObject.PROCEDURE :
-                        if (((Routine) object).isRecursive) {
+                        Routine routine = ((Routine) object);
+
+                        if (routine.isRecursive) {
                             list.add(((Routine) object).getSQLDeclaration());
                             list.add(((Routine) object).getSQLAlter());
-
-                            break;
+                        } else {
+                            list.add(object.getSQL());
                         }
+                        break;
+
                     default :
                         list.add(object.getSQL());
                 }

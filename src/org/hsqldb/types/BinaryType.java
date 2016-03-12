@@ -584,7 +584,7 @@ public class BinaryType extends Type {
             return -1L;
         }
 
-        long otherLength = ((BlobData) data).length(session);
+        long otherLength = data.length(session);
 
         if (offset + otherLength > data.length(session)) {
             return -1;
@@ -628,7 +628,7 @@ public class BinaryType extends Type {
         length = end - offset;
 
         // change method signature to take long
-        byte[] bytes = ((BlobData) data).getBytes(session, offset,
+        byte[] bytes = data.getBytes(session, offset,
             (int) length);
 
         return new BinaryData(bytes, false);
@@ -651,13 +651,13 @@ public class BinaryType extends Type {
             return null;
         }
 
-        long length = ((BlobData) data).length(session);
+        long length = data.length(session);
 
         if (length > Integer.MAX_VALUE) {
             throw Error.error(ErrorCode.X_22027);
         }
 
-        byte[] bytes    = ((BlobData) data).getBytes(session, 0, (int) length);
+        byte[] bytes    = data.getBytes(session, 0, (int) length);
         int    endindex = bytes.length;
 
         if (trailing) {
@@ -703,7 +703,7 @@ public class BinaryType extends Type {
         }
 
         if (!hasLength) {
-            length = ((BlobData) overlay).length(session);
+            length = overlay.length(session);
         }
 
         switch (typeCode) {

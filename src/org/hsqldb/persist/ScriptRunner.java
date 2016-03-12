@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 package org.hsqldb.persist;
 
 import java.io.EOFException;
-import java.io.InputStream;
 
 import org.hsqldb.ColumnSchema;
 import org.hsqldb.Database;
@@ -48,7 +47,6 @@ import org.hsqldb.Table;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntKeyHashMap;
-import org.hsqldb.lib.StopWatch;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.result.Result;
 import org.hsqldb.scriptio.ScriptReaderBase;
@@ -72,7 +70,8 @@ public class ScriptRunner {
      *  This is used to read the *.log file and manage any necessary
      *  transaction rollback.
      */
-    public static void runScript(Database database, String logFilename) {
+    public static void runScript(Database database, String logFilename,
+                                 boolean fullReplay) {
 
         Crypto           crypto = database.logger.getCrypto();
         ScriptReaderBase scr;
@@ -99,10 +98,11 @@ public class ScriptRunner {
             return;
         }
 
-        runScript(database, scr);
+        runScript(database, scr, fullReplay);
     }
 
-    private static void runScript(Database database, ScriptReaderBase scr) {
+    private static void runScript(Database database, ScriptReaderBase scr,
+                                  boolean fullReplay) {
 
         IntKeyHashMap sessionMap = new IntKeyHashMap();
         Session       current    = null;
@@ -113,15 +113,13 @@ public class ScriptRunner {
                                            StatementTypes.X_SQL_DATA_CHANGE,
                                            null);
         String databaseFile = database.getCanonicalPath();
-        boolean fullReplay = database.getURLProperties().isPropertyTrue(
-            HsqlDatabaseProperties.hsqldb_full_log_replay);
+        String action       = fullReplay ? "open aborted"
+                                         : "open continued";
 
         dummy.setCompileTimestamp(Long.MAX_VALUE);
         database.setReferentialIntegrity(false);
 
         try {
-            StopWatch sw = new StopWatch();
-
             while (scr.readLoggedStatement(current)) {
                 int sessionId = scr.getSessionNumber();
 
@@ -130,6 +128,9 @@ public class ScriptRunner {
                     current   = (Session) sessionMap.get(currentId);
 
                     if (current == null) {
+
+                        // note the sessionId does not match the sessionId of
+                        // new session
                         current =
                             database.getSessionManager().newSessionForLog(
                                 database);
@@ -138,18 +139,14 @@ public class ScriptRunner {
                     }
                 }
 
-                if (current.isClosed()) {
-                    sessionMap.remove(currentId);
-
-                    continue;
-                }
-
                 Result result = null;
 
                 statementType = scr.getStatementType();
 
                 switch (statementType) {
 
+                    case ScriptReaderBase.SET_FILES_CHECK_STATEMENT :
+                        result = null;
                     case ScriptReaderBase.ANY_STATEMENT :
                         statement = scr.getLoggedStatement();
 
@@ -241,26 +238,34 @@ public class ScriptRunner {
                     case ScriptReaderBase.SESSION_ID : {
                         break;
                     }
+                    default :
+                        throw Error.error(ErrorCode.ERROR_IN_LOG_FILE);
                 }
 
                 if (current.isClosed()) {
+                    current = null;
+
                     sessionMap.remove(currentId);
                 }
             }
         } catch (HsqlException e) {
+            if (e.getErrorCode() == -ErrorCode.ERROR_IN_LOG_FILE) {
+                throw e;
+            }
 
             // stop processing on bad log line
-            String error = "statement error processing log " + databaseFile
-                           + " line: " + scr.getLineNumber();
+            String error = "statement error processing log - " + action
+                           + scr.getFileNamePath() + " line: "
+                           + scr.getLineNumber();
 
             database.logger.logSevereEvent(error, e);
 
             if (fullReplay) {
-                throw Error.error(e, ErrorCode.ERROR_IN_SCRIPT_FILE, error);
+                throw Error.error(e, ErrorCode.ERROR_IN_LOG_FILE, error);
             }
         } catch (OutOfMemoryError e) {
-            String error = "out of memory processing log" + databaseFile
-                           + " line: " + scr.getLineNumber();
+            String error = "out of memory processing log - "
+                           + databaseFile + " line: " + scr.getLineNumber();
 
             // catch out-of-memory errors and terminate
             database.logger.logSevereEvent(error, e);
@@ -268,16 +273,16 @@ public class ScriptRunner {
             throw Error.error(ErrorCode.OUT_OF_MEMORY);
         } catch (Throwable t) {
             HsqlException e =
-                Error.error(t, ErrorCode.ERROR_IN_SCRIPT_FILE,
+                Error.error(t, ErrorCode.ERROR_IN_LOG_FILE,
                             ErrorCode.M_DatabaseScriptReader_read,
-                            new Object[] {
-                Integer.toString(scr.getLineNumber()) + " " + databaseFile,
-                t.getMessage()
+                            new String[] {
+                scr.getLineNumber() + " " + databaseFile, t.getMessage()
             });
 
             // stop processing on bad script line
-            String error = "statement error processing log " + databaseFile
-                           + " line: " + scr.getLineNumber();
+            String error = "statement error processing log - " + action
+                           + scr.getFileNamePath() + " line: "
+                           + scr.getLineNumber();
 
             database.logger.logSevereEvent(error, e);
 

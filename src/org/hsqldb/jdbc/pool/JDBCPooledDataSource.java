@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,6 @@ import javax.sql.CommonDataSource;
 import org.hsqldb.jdbc.JDBCCommonDataSource;
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCDriver;
-import org.hsqldb.persist.HsqlDatabaseProperties;
 
 /**
  * A data source that implements {@link javax.sql.ConnectionPoolDataSource}.<p>

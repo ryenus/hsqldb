@@ -302,7 +302,7 @@ public class DatabaseInformation {
      * @return the fullest system table producer
      *      implementation available
      */
-    public static final DatabaseInformation newDatabaseInformation(
+    public static DatabaseInformation newDatabaseInformation(
             Database db) {
 
         Class c = null;

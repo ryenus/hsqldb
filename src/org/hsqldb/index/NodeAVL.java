@@ -95,6 +95,7 @@ import org.hsqldb.rowio.RowInputInterface;
  *
  *  New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
  *
+ * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @version 2.3.3
  * @since Hypersonic SQL

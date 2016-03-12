@@ -110,8 +110,10 @@ public class TextTable extends Table {
         }
 
         try {
-            cache = (TextCache) database.logger.textTableManager.openTextFilePersistence(this,
-                    securePath, readOnly, isReversed);
+            cache =
+                (TextCache) database.logger.textTableManager
+                    .openTextFilePersistence(this, securePath, readOnly,
+                                             isReversed);
 
             store.setCache(cache);
 
@@ -149,8 +151,8 @@ public class TextTable extends Table {
                 store.indexRow(session, row);
             }
         } catch (Throwable t) {
-            int linenumber = reader == null ? 0
-                                            : reader.getLineNumber();
+            long linenumber = reader == null ? 0
+                                             : reader.getLineNumber();
 
             clearAllData(session);
 
@@ -163,7 +165,7 @@ public class TextTable extends Table {
             // At this point table should either have a valid (old) data
             // source and cache or have an empty source and null cache.
             throw Error.error(t, ErrorCode.TEXT_FILE, 0, new Object[] {
-                new Integer(linenumber), t.toString()
+                Long.valueOf(linenumber), t.toString()
             });
         }
 

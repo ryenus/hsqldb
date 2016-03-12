@@ -85,8 +85,6 @@ import org.hsqldb.result.Result;
 import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.Right;
-import org.hsqldb.types.ArrayType;
-import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.Collation;
 import org.hsqldb.types.IntervalType;
@@ -1123,8 +1121,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[iuname]    = s.getUsername();
             row[iis_admin] = s.isAdmin() ? Boolean.TRUE
                                          : Boolean.FALSE;
-            row[iautocmt]  = s.sessionContext.isAutoCommit;
-            row[ireadonly] = s.isReadOnlyDefault;
+            row[iautocmt]  = Boolean.valueOf(s.sessionContext.isAutoCommit);
+            row[ireadonly] = Boolean.valueOf(s.isReadOnlyDefault);
 
             Number lastId = s.getLastIdentity();
 
@@ -2938,17 +2936,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[character_set_catalog] =
                         database.getCatalogName().name;
                     row[character_set_schema] =
-                        ((CharacterType) type).getCharacterSet()
-                            .getSchemaName().name;
+                        type.getCharacterSet().getSchemaName().name;
                     row[character_set_name] =
-                        ((CharacterType) type).getCharacterSet().getName()
-                            .name;
+                        type.getCharacterSet().getName().name;
                     row[collation_catalog] = database.getCatalogName().name;
                     row[collation_schema] =
-                        ((CharacterType) type).getCollation().getSchemaName()
-                            .name;
-                    row[collation_name] =
-                        ((CharacterType) type).getCollation().getName().name;
+                        type.getCollation().getSchemaName().name;
+                    row[collation_name] = type.getCollation().getName().name;
                 } else if (type.isNumberType()) {
                     row[numeric_precision] = ValuePool.getLong(
                         ((NumberType) type).getNumericPrecisionInRadix());
@@ -3690,15 +3684,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         * 2);
                 row[character_set_catalog] = database.getCatalogName().name;
                 row[character_set_schema] =
-                    ((CharacterType) type).getCharacterSet().getSchemaName()
-                        .name;
+                    type.getCharacterSet().getSchemaName().name;
                 row[character_set_name] =
-                    ((CharacterType) type).getCharacterSet().getName().name;
+                    type.getCharacterSet().getName().name;
                 row[collation_catalog] = database.getCatalogName().name;
                 row[collation_schema] =
-                    ((CharacterType) type).getCollation().getSchemaName().name;
-                row[collation_name] =
-                    ((CharacterType) type).getCollation().getName().name;
+                    type.getCollation().getSchemaName().name;
+                row[collation_name] = type.getCollation().getName().name;
             } else if (type.isNumberType()) {
                 row[numeric_precision] = ValuePool.getLong(
                     ((NumberType) type).getNumericPrecisionInRadix());
@@ -3872,7 +3864,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[object_type]                = "TABLE";
                 row[collection_type_identifier] = type.getDefinition();
 
-                addTypeInfo(row, ((ArrayType) type).collectionBaseType());
+                addTypeInfo(row, type.collectionBaseType());
 
                 try {
                     t.insertSys(session, store, row);
@@ -3901,7 +3893,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[object_type]                = "DOMAIN";
             row[collection_type_identifier] = type.getDefinition();
 
-            addTypeInfo(row, ((ArrayType) type).collectionBaseType());
+            addTypeInfo(row, type.collectionBaseType());
             t.insertSys(session, store, row);
         }
 
@@ -3925,7 +3917,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[object_type]                = "USER-DEFINED TYPE";
             row[collection_type_identifier] = type.getDefinition();
 
-            addTypeInfo(row, ((ArrayType) type).collectionBaseType());
+            addTypeInfo(row, type.collectionBaseType());
 
             try {
                 t.insertSys(session, store, row);
@@ -3957,7 +3949,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[object_type]                = "ROUTINE";
                 row[collection_type_identifier] = type.getDefinition();
 
-                addTypeInfo(row, ((ArrayType) type).collectionBaseType());
+                addTypeInfo(row, type.collectionBaseType());
 
                 try {
                     t.insertSys(session, store, row);
@@ -3988,7 +3980,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[object_type]                = "ROUTINE";
                 row[collection_type_identifier] = type.getDefinition();
 
-                addTypeInfo(row, ((ArrayType) type).collectionBaseType());
+                addTypeInfo(row, type.collectionBaseType());
 
                 try {
                     t.insertSys(session, store, row);
@@ -4032,14 +4024,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     * 2);
             row[character_set_catalog] = database.getCatalogName().name;
             row[character_set_schema] =
-                ((CharacterType) type).getCharacterSet().getSchemaName().name;
-            row[character_set_name] =
-                ((CharacterType) type).getCharacterSet().getName().name;
-            row[collation_catalog] = database.getCatalogName().name;
-            row[collation_schema] =
-                ((CharacterType) type).getCollation().getSchemaName().name;
-            row[collation_name] =
-                ((CharacterType) type).getCollation().getName().name;
+                type.getCharacterSet().getSchemaName().name;
+            row[character_set_name] = type.getCharacterSet().getName().name;
+            row[collation_catalog]  = database.getCatalogName().name;
+            row[collation_schema]   = type.getCollation().getSchemaName().name;
+            row[collation_name]     = type.getCollation().getName().name;
         } else if (type.isNumberType()) {
             row[numeric_precision] = ValuePool.getLong(
                 ((NumberType) type).getNumericPrecisionInRadix());
@@ -4642,19 +4631,15 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         row[character_set_catalog] =
                             database.getCatalogName().name;
                         row[character_set_schema] =
-                            ((CharacterType) type).getCharacterSet()
-                                .getSchemaName().name;
+                            type.getCharacterSet().getSchemaName().name;
                         row[character_set_name] =
-                            ((CharacterType) type).getCharacterSet().getName()
-                                .name;
+                            type.getCharacterSet().getName().name;
                         row[collation_catalog] =
                             database.getCatalogName().name;
                         row[collation_schema] =
-                            ((CharacterType) type).getCollation()
-                                .getSchemaName().name;
+                            type.getCollation().getSchemaName().name;
                         row[collation_name] =
-                            ((CharacterType) type).getCollation().getName()
-                                .name;
+                            type.getCollation().getName().name;
                     } else if (type.isNumberType()) {
                         row[numeric_precision] = ValuePool.getLong(
                             ((NumberType) type).getNumericPrecisionInRadix());
@@ -6216,17 +6201,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[character_set_catalog] =
                         database.getCatalogName().name;
                     row[character_set_schema] =
-                        ((CharacterType) type).getCharacterSet()
-                            .getSchemaName().name;
+                        type.getCharacterSet().getSchemaName().name;
                     row[character_set_name] =
-                        ((CharacterType) type).getCharacterSet().getName()
-                            .name;
+                        type.getCharacterSet().getName().name;
                     row[collation_catalog] = database.getCatalogName().name;
                     row[collation_schema] =
-                        ((CharacterType) type).getCollation().getSchemaName()
-                            .name;
-                    row[collation_name] =
-                        ((CharacterType) type).getCollation().getName().name;
+                        type.getCollation().getSchemaName().name;
+                    row[collation_name] = type.getCollation().getName().name;
                 } else if (type.isNumberType()) {
                     row[numeric_precision] = ValuePool.getLong(
                         ((NumberType) type).getNumericPrecisionInRadix());
@@ -8170,15 +8151,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         * 2);
                 row[character_set_catalog] = database.getCatalogName().name;
                 row[character_set_schema] =
-                    ((CharacterType) type).getCharacterSet().getSchemaName()
-                        .name;
+                    type.getCharacterSet().getSchemaName().name;
                 row[character_set_name] =
-                    ((CharacterType) type).getCharacterSet().getName().name;
+                    type.getCharacterSet().getName().name;
                 row[collation_catalog] = database.getCatalogName().name;
                 row[collation_schema] =
-                    ((CharacterType) type).getCollation().getSchemaName().name;
-                row[collation_name] =
-                    ((CharacterType) type).getCollation().getName().name;
+                    type.getCollation().getSchemaName().name;
+                row[collation_name] = type.getCollation().getName().name;
             } else if (type.isNumberType()) {
                 row[numeric_precision] = ValuePool.getLong(
                     ((NumberType) type).getNumericPrecisionInRadix());

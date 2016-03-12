@@ -232,8 +232,8 @@ public interface ErrorCode {
     int X_0F001 = 1801;                            // locator exception: invalid specification
 
     // HSQLDB locator
-    int X_0F502 = 3474;                            // lob is no longer valid
-    int X_0F503 = 3475;                            // lob stream is closed
+    int X_0F502 = 1852;                            // lob is no longer valid
+    int X_0F503 = 1853;                            // lob stream is closed
 
     // resignal when handler not active - xxxx
     int X_0K000 = 1900;                            // resignal when handler not active

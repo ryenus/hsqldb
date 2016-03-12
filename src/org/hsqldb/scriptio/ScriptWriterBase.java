@@ -37,7 +37,6 @@ import java.io.OutputStream;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseManager;
-import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Row;

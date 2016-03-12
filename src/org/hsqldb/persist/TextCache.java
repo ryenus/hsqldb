@@ -450,7 +450,7 @@ public class TextCache extends DataFileCache {
         }
     }
 
-    public int getLineNumber() {
+    public long getLineNumber() {
         return ((RowInputText) rowIn).getLineNumber();
     }
 

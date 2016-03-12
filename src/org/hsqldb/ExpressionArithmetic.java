@@ -35,7 +35,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.types.CharacterType;
-import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -641,8 +640,8 @@ public class ExpressionArithmetic extends Expression {
                 return value;
             }
             case OpTypes.NEGATE :
-                return ((NumberType) dataType).negate(
-                    nodes[LEFT].getValue(session, nodes[LEFT].dataType));
+                return dataType.negate(nodes[LEFT].getValue(session,
+                        nodes[LEFT].dataType));
         }
 
         Object a = nodes[LEFT].getValue(session);

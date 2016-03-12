@@ -66,7 +66,7 @@ import org.hsqldb.types.TimestampData;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.4
  * @since 1.7.2
  */
 public class ClientConnection implements SessionInterface {
@@ -572,7 +572,10 @@ public class ClientConnection implements SessionInterface {
     public Calendar getCalendarGMT() {
 
         if (calendarGMT == null) {
-            calendarGMT = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+            calendarGMT = new GregorianCalendar(TimeZone.getTimeZone("GMT"),
+                                                HsqlDateTime.defaultLocale);
+
+            calendarGMT.setLenient(false);
         }
 
         return calendarGMT;
@@ -583,7 +586,9 @@ public class ClientConnection implements SessionInterface {
         if (simpleDateFormatGMT == null) {
             simpleDateFormatGMT = new SimpleDateFormat("MMMM", Locale.ENGLISH);
 
-            Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+            Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"),
+                                                 HsqlDateTime.defaultLocale);
+            cal.setLenient(false);
 
             simpleDateFormatGMT.setCalendar(cal);
         }

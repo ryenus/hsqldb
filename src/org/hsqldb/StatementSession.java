@@ -102,7 +102,7 @@ public class StatementSession extends Statement {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "StateemntSession");
+                                         "StatementSession");
         }
     }
 
@@ -546,7 +546,7 @@ public class StatementSession extends Statement {
                     }
 
                     if (session.getGrantee().canChangeAuthorisation()) {
-                        session.setUser((User) userObject);
+                        session.setUser(userObject);
                         session.setRole(null);
                         session.resetSchema();
 

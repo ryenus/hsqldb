@@ -656,7 +656,7 @@ public class ParserDDL extends ParserRoutine {
 
         String   sql  = getLastPart();
         Object[] args = new Object[] {
-            name, new Integer(objectType), Boolean.valueOf(cascade),
+            name, Integer.valueOf(objectType), Boolean.valueOf(cascade),
             Boolean.valueOf(ifExists)
         };
         Statement cs = new StatementSchema(sql, statementType, args, null,
@@ -1838,8 +1838,8 @@ public class ParserDDL extends ParserRoutine {
 
         String   sql  = getLastPart();
         Object[] args = new Object[] {
-            StatementTypes.ADD_COLUMN, table, column, new Integer(colIndex),
-            list
+            Integer.valueOf(StatementTypes.ADD_COLUMN), table, column,
+            Integer.valueOf(colIndex), list
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
@@ -1925,7 +1925,7 @@ public class ParserDDL extends ParserRoutine {
                     String   sql  = getLastPart();
                     Object[] args = new Object[] {
                         StatementTypes.ALTER_COLUMN_DROP_DEFAULT, table,
-                        column, columnIndex
+                        column, Integer.valueOf(columnIndex)
                     };
 
                     return new StatementSchema(sql,
@@ -1937,7 +1937,7 @@ public class ParserDDL extends ParserRoutine {
                     String   sql  = getLastPart();
                     Object[] args = new Object[] {
                         StatementTypes.ALTER_COLUMN_DROP_GENERATED, table,
-                        column, columnIndex
+                        column, Integer.valueOf(columnIndex)
                     };
 
                     return new StatementSchema(sql,
@@ -1967,7 +1967,7 @@ public class ParserDDL extends ParserRoutine {
                         String     sql  = getLastPart();
                         Object[]   args = new Object[] {
                             StatementTypes.ALTER_COLUMN_DEFAULT, table, column,
-                            columnIndex, expr
+                            Integer.valueOf(columnIndex), expr
                         };
 
                         return new StatementSchema(sql,
@@ -2116,11 +2116,12 @@ public class ParserDDL extends ParserRoutine {
     }
 
     private Statement compileAlterColumnSetNullability(Table table,
-            ColumnSchema column, boolean b) {
+            ColumnSchema column, boolean nullable) {
 
         String   sql  = getLastPart();
         Object[] args = new Object[] {
-            StatementTypes.ALTER_COLUMN_NULL, table, column, b
+            StatementTypes.ALTER_COLUMN_NULL, table, column,
+            Boolean.valueOf(nullable)
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
@@ -2180,8 +2181,8 @@ public class ParserDDL extends ParserRoutine {
         NumberSequence sequence = readSequence(column);
         String         sql      = getLastPart();
         Object[]       args     = new Object[] {
-            StatementTypes.ALTER_COLUMN_SEQUENCE, table, column, colIndex,
-            sequence
+            StatementTypes.ALTER_COLUMN_SEQUENCE, table, column,
+            Integer.valueOf(colIndex), sequence
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
@@ -2346,8 +2347,8 @@ public class ParserDDL extends ParserRoutine {
 
         String   sql  = getLastPart();
         Object[] args = new Object[] {
-            StatementTypes.ALTER_COLUMN_SEQUENCE, table, column, columnIndex,
-            sequence
+            StatementTypes.ALTER_COLUMN_SEQUENCE, table, column,
+            Integer.valueOf(columnIndex), sequence
         };
         HsqlName[] writeLockNames = new HsqlName[] {
             database.getCatalogName(), table.getName()
@@ -2451,7 +2452,7 @@ public class ParserDDL extends ParserRoutine {
                 password = readPassword();
 
                 Object[] args = new Object[] {
-                    userObject, password, isDigest
+                    userObject, password, Boolean.valueOf(isDigest)
                 };
                 Statement cs =
                     new StatementCommand(StatementTypes.SET_USER_PASSWORD,
@@ -3076,7 +3077,7 @@ public class ParserDDL extends ParserRoutine {
                 return;
             }
 
-            Error.error(ErrorCode.X_42505, schema.name);
+            throw Error.error(ErrorCode.X_42505, schema.name);
         }
 
         session.getGrantee().checkSchemaUpdateOrGrantRights(schema.name);

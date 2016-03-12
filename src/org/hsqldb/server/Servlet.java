@@ -73,6 +73,7 @@ package org.hsqldb.server;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

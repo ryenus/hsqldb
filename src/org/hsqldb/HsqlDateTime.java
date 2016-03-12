@@ -69,7 +69,7 @@ public class HsqlDateTime {
      * A reusable static value for today's date. Should only be accessed
      * by getToday()
      */
-    private static Locale        defaultLocale = Locale.UK;
+    public static Locale         defaultLocale = Locale.UK;
     private static long          currentDateMillis;
     public static final Calendar tempCalDefault = new GregorianCalendar();
     public static final Calendar tempCalGMT =
@@ -216,19 +216,24 @@ public class HsqlDateTime {
 
     public static long convertMillisFromCalendar(Calendar calendar,
             long millis) {
+        return convertMillisFromCalendar(tempCalGMT, calendar, millis);
+    }
 
-        synchronized (tempCalGMT) {
+    public static long convertMillisFromCalendar(Calendar clendarGMT,
+            Calendar calendar, long millis) {
+
+        synchronized (clendarGMT) {
             synchronized (calendar) {
-                tempCalGMT.clear();
+                clendarGMT.clear();
                 calendar.setTimeInMillis(millis);
-                tempCalGMT.set(calendar.get(Calendar.YEAR),
+                clendarGMT.set(calendar.get(Calendar.YEAR),
                                calendar.get(Calendar.MONTH),
                                calendar.get(Calendar.DAY_OF_MONTH),
                                calendar.get(Calendar.HOUR_OF_DAY),
                                calendar.get(Calendar.MINUTE),
                                calendar.get(Calendar.SECOND));
 
-                return tempCalGMT.getTimeInMillis();
+                return clendarGMT.getTimeInMillis();
             }
         }
     }
@@ -271,16 +276,6 @@ public class HsqlDateTime {
         }
     }
 
-    public static long convertToNormalisedDate(long t, Calendar cal) {
-
-        synchronized (cal) {
-            setTimeInMillis(cal, t);
-            resetToDate(cal);
-
-            return getTimeInMillis(cal);
-        }
-    }
-
     public static long getNormalisedTime(long t) {
 
         Calendar cal = tempCalGMT;
@@ -313,10 +308,10 @@ public class HsqlDateTime {
         }
     }
 
-    public static long getNormalisedDate(Calendar cal, long d) {
+    public static long getNormalisedDate(Calendar cal, long t) {
 
         synchronized (cal) {
-            setTimeInMillis(cal, d);
+            setTimeInMillis(cal, t);
             resetToDate(cal);
 
             return getTimeInMillis(cal);

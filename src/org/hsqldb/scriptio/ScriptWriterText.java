@@ -37,7 +37,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.zip.GZIPOutputStream;
 
 import org.hsqldb.Database;
-import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Row;
@@ -209,7 +208,7 @@ public class ScriptWriterText extends ScriptWriterBase {
 
         writeSessionIdAndSchema(session);
         rowOut.reset();
-        ((RowOutputTextLog) rowOut).setMode(RowOutputTextLog.MODE_INSERT);
+        rowOut.setMode(RowOutputTextLog.MODE_INSERT);
         rowOut.write(BYTES_INSERT_INTO);
         rowOut.writeString(table.getName().statementName);
         rowOut.write(BYTES_VALUES);
@@ -261,7 +260,7 @@ public class ScriptWriterText extends ScriptWriterBase {
 
         writeSessionIdAndSchema(session);
         rowOut.reset();
-        ((RowOutputTextLog) rowOut).setMode(RowOutputTextLog.MODE_DELETE);
+        rowOut.setMode(RowOutputTextLog.MODE_DELETE);
         rowOut.write(BYTES_DELETE_FROM);
         rowOut.writeString(table.getName().statementName);
         rowOut.write(BYTES_WHERE);

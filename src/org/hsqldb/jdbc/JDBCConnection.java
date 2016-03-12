@@ -3284,9 +3284,9 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         if (schema == null) {
-            JDBCUtil.nullArgument("schema");
+            throw JDBCUtil.nullArgument("schema");
         } else if (schema.length() == 0) {
-            JDBCUtil.invalidArgument("Zero-length schema");
+            throw JDBCUtil.invalidArgument("Zero-length schema");
         } else {
             (new JDBCDatabaseMetaData(this)).setConnectionDefaultSchema(
                 schema);
@@ -3570,8 +3570,8 @@ public class JDBCConnection implements Connection {
         int    port     = props.getIntegerProperty("port", 0);
         String path     = props.getProperty("path");
         String database = props.getProperty("database");
-        boolean isTLS = (connType == DatabaseURL.S_HSQLS
-                         || connType == DatabaseURL.S_HTTPS);
+        boolean isTLS = (DatabaseURL.S_HSQLS.equals(connType)
+                         || DatabaseURL.S_HTTPS.equals(connType));
         boolean isTLSWrapper = props.isPropertyTrue(HsqlDatabaseProperties.url_tls_wrapper, false);
 
         isTLSWrapper &= isTLS;
@@ -3597,13 +3597,13 @@ public class JDBCConnection implements Connection {
                  */
                 sessionProxy = DatabaseManager.newSession(connType, database,
                         user, password, props, null, zoneSeconds);
-            } else if (connType == DatabaseURL.S_HSQL
-                       || connType == DatabaseURL.S_HSQLS) {
+            } else if (DatabaseURL.S_HSQL.equals(connType)
+                       || DatabaseURL.S_HSQLS.equals(connType)) {
                 sessionProxy = new ClientConnection(host, port, path,
                         database, isTLS, isTLSWrapper, user, password, zoneSeconds);
                 isNetConn = true;
-            } else if (connType == DatabaseURL.S_HTTP
-                       || connType == DatabaseURL.S_HTTPS) {
+            } else if (DatabaseURL.S_HTTP.equals(connType)
+                       || DatabaseURL.S_HTTPS.equals(connType)) {
                 sessionProxy = new ClientConnectionHTTP(host, port, path,
                         database, isTLS, isTLSWrapper, user, password, zoneSeconds);
                 isNetConn = true;

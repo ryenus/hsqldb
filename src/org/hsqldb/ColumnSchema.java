@@ -382,7 +382,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         }
 
         if (dataType.isDomainType() || dataType.isDistinctType()) {
-            HsqlName name = ((SchemaObject) dataType).getName();
+            HsqlName name = dataType.getName();
 
             if (references == null) {
                 references = new OrderedHashSet();

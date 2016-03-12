@@ -1451,7 +1451,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         Object[] data = null;
 
         if (x instanceof JDBCArray) {
-            data = (Object[]) ((JDBCArray) x).getArrayInternal();
+            data = ((JDBCArray) x).getArrayInternal();
         } else {
             Object object = x.getArray();
 
@@ -1578,13 +1578,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
 
         Type outType = parameterTypes[i];
-        Calendar calendar   = cal == null ? session.getCalendar()
+        Calendar calendar = cal == null ? session.getCalendar()
                 : cal;
 
-        long millis  = HsqlDateTime.convertMillisFromCalendar(calendar,
-            x.getTime());
+        long millis = HsqlDateTime.convertMillisFromCalendar(
+                session.getCalendarGMT(), calendar, x.getTime());
 
-        millis = HsqlDateTime.getNormalisedDate(millis);
+        millis = HsqlDateTime.getNormalisedDate(session.getCalendarGMT(),
+                millis);
 
         switch (outType.typeCode) {
 
@@ -1657,8 +1658,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         Calendar calendar   = cal == null ? session.getCalendar()
                 : cal;
 
-        millis = HsqlDateTime.convertMillisFromCalendar(calendar, millis);
-        millis = HsqlDateTime.convertToNormalisedTime(millis);
+        millis = HsqlDateTime.convertMillisFromCalendar(
+                session.getCalendarGMT(), calendar, millis);
+        millis = HsqlDateTime.convertToNormalisedTime(millis,
+                session.getCalendarGMT());
 
         switch (outType.typeCode) {
 
@@ -1733,7 +1736,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         Calendar calendar   = cal == null ? session.getCalendar()
                 : cal;
 
-        millis = HsqlDateTime.convertMillisFromCalendar(calendar, millis);
+        millis = HsqlDateTime.convertMillisFromCalendar(
+                session.getCalendarGMT(),calendar, millis);
         switch (outType.typeCode) {
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
@@ -1751,21 +1755,24 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 break;
             case Types.SQL_TIME :
-                millis = HsqlDateTime.getNormalisedTime(millis);
+                millis = HsqlDateTime.getNormalisedTime(
+                        session.getCalendarGMT(), millis);
                 parameterValues[i] = new TimeData((int) (millis / 1000),
                         x.getNanos(), 0);
 
                 break;
             case Types.SQL_TIME_WITH_TIME_ZONE :
-                millis = HsqlDateTime.getNormalisedTime(millis);
+                millis = HsqlDateTime.getNormalisedTime(
+                        session.getCalendarGMT(), millis);
                 zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
                 parameterValues[i] = new TimeData((int) (millis / 1000),
                         x.getNanos(), zoneOffset / 1000);
 
                 break;
             case Types.SQL_DATE :
-                millis             = HsqlDateTime.getNormalisedDate(millis);
-                seconds    = millis / 1000;
+                millis  = HsqlDateTime.getNormalisedDate(
+                        session.getCalendarGMT(), millis);
+                seconds = millis / 1000;
 
                 if (seconds < DateTimeType.epochSeconds
                     || seconds > DateTimeType.limitSeconds) {
@@ -2625,7 +2632,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                       long length) throws SQLException {
 
         if (length > Integer.MAX_VALUE) {
-            JDBCUtil.sqlException(ErrorCode.X_22001);
+            throw JDBCUtil.sqlException(ErrorCode.X_22001);
         }
 
         if (x == null) {
@@ -4372,7 +4379,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             JDBCClob clob = new JDBCClob((String) o);
 
             parameterValues[i - 1] = clob;
-            parameterSet[i - 1]    = false;
+            parameterSet[i - 1]    = Boolean.FALSE;
 
             return;
         }
