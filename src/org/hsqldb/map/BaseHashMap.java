@@ -1258,7 +1258,7 @@ public class BaseHashMap {
      * Return the max accessCount value for count elements with the lowest
      * access count. Always return at least accessMin + 1
      */
-    public int getAccessCountCeiling(int count, int margin) {
+    protected int getAccessCountCeiling(int count, int margin) {
         return ArrayCounter.rank(accessTable, hashIndex.newNodePointer, count,
                                  accessMin, accessCount, margin);
     }
@@ -1267,11 +1267,11 @@ public class BaseHashMap {
      * This is called after all elements below count accessCount have been
      * removed
      */
-    public void setAccessCountFloor(int count) {
+    protected void setAccessCountFloor(int count) {
         accessMin = count;
     }
 
-    public int incrementAccessCount() {
+    protected int incrementAccessCount() {
         return ++accessCount;
     }
 
@@ -1326,7 +1326,7 @@ public class BaseHashMap {
         accessMin   = 0;
     }
 
-    public int capacity() {
+    protected int capacity() {
         return hashIndex.linkTable.length;
     }
 

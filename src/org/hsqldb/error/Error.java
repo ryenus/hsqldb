@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,8 @@ public class Error {
     public static boolean TRACESYSTEMOUT = false;
 
     //
-    private static final String errPropsName = "sql-state-messages";
+    private static final String defaultMessage = "S1000 General error";
+    private static final String errPropsName   = "sql-state-messages";
     private static final int bundleHandle =
         ResourceBundleHandler.getBundleHandle(errPropsName, null);
     private static final String MESSAGE_TAG      = "$$";
@@ -234,7 +235,7 @@ public class Error {
      * @return  the error message associated with the error code
      */
     public static String getMessage(final int errorCode) {
-        return getResourceString(errorCode);
+        return getMessage(errorCode, 0, null);
     }
 
     /**
@@ -277,8 +278,13 @@ public class Error {
 
         String key = StringUtil.toZeroPaddedString(code, SQL_CODE_DIGITS,
             SQL_CODE_DIGITS);
+        String string = ResourceBundleHandler.getString(bundleHandle, key);
 
-        return ResourceBundleHandler.getString(bundleHandle, key);
+        if (string == null) {
+            string = defaultMessage;
+        }
+
+        return string;
     }
 
     public static HsqlException error(final Result result) {
