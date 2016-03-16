@@ -451,6 +451,10 @@ public class Cache extends BaseHashMap {
         return objectIterator;
     }
 
+    protected int incrementAccessCount() {
+        return super.incrementAccessCount();
+    }
+
     static final class CachedObjectComparator implements ObjectComparator {
 
         static final int COMPARE_LAST_ACCESS = 0;

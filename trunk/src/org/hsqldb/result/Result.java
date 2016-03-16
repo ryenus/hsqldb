@@ -1050,16 +1050,16 @@ public class Result {
             result.mainString = result.exception.getMessage();
             result.subString  = result.exception.getSQLState();
             result.errorCode  = result.exception.getErrorCode();
-        } else {
+        } else if (t instanceof Throwable) {
             result.exception = Error.error(ErrorCode.GENERAL_ERROR, t);
-            result.mainString = result.exception.getMessage() + " "
-                                + t.toString();
+            result.mainString = result.exception.getMessage();
             result.subString = result.exception.getSQLState();
             result.errorCode = result.exception.getErrorCode();
-
-            if (statement != null) {
-                result.mainString += " in statement [" + statement + "]";
-            }
+        } else {
+            result.exception = Error.error(ErrorCode.GENERAL_ERROR);
+            result.mainString = result.exception.getMessage();
+            result.subString  = result.exception.getSQLState();
+            result.errorCode  = result.exception.getErrorCode();
         }
 
         return result;

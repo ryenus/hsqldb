@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,6 +53,8 @@ public interface PersistentStore {
     int               LONG_STORE_SIZE  = 8;
     PersistentStore[] emptyArray       = new PersistentStore[]{};
 
+    boolean isRowStore();
+
     TableBase getTable();
 
     long getTimestamp();
@@ -62,8 +64,6 @@ public interface PersistentStore {
     boolean isMemory();
 
     void setMemory(boolean mode);
-
-    int getAccessCount();
 
     void set(CachedObject object);
 

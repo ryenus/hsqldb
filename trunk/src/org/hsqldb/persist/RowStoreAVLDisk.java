@@ -101,10 +101,6 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         return false;
     }
 
-    public int getAccessCount() {
-        return cache.getAccessCount();
-    }
-
     public void set(CachedObject object) {
         database.txManager.setTransactionInfo(this, object);
     }

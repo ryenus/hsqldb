@@ -117,14 +117,7 @@ public class NodeAVLDiskLarge extends NodeAVL {
     }
 
     public RowAVL getRow(PersistentStore store) {
-
-        if (!row.isInMemory()) {
-            return (RowAVLDisk) store.get(this.row, false);
-        } else {
-            row.updateAccessCount(store.getAccessCount());
-        }
-
-        return row;
+        return (RowAVLDisk) store.get(this.row, false);
     }
 
     public Object[] getData(PersistentStore store) {

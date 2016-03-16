@@ -161,10 +161,6 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         return false;
     }
 
-    public int getAccessCount() {
-        return cache.getAccessCount();
-    }
-
     public void set(CachedObject object) {}
 
     public CachedObject get(long key) {

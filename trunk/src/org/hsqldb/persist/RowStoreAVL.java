@@ -106,8 +106,6 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public void setMemory(boolean mode) {}
 
-    public abstract int getAccessCount();
-
     public abstract void set(CachedObject object);
 
     public abstract CachedObject get(long key, boolean keep);
@@ -503,11 +501,11 @@ public abstract class RowStoreAVL implements PersistentStore {
             ColumnSchema column = ((Table) table).getColumn(colindex);
 
             colvalue = column.getDefaultValue(session);
-            newtype  = ((Table) table).getColumnTypes()[colindex];
+            newtype  = table.getColumnTypes()[colindex];
         }
 
         if (adjust <= 0 && colindex != -1) {
-            oldtype = ((Table) other.getTable()).getColumnTypes()[colindex];
+            oldtype = other.getTable().getColumnTypes()[colindex];
         }
 
         try {

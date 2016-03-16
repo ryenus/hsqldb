@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,9 @@ public abstract class SimpleStore implements PersistentStore {
     protected TableSpaceManager spaceManager;
     protected int               defaultObjectSize;
 
+    public boolean isRowStore() {
+        return false;
+    }
     public void set(CachedObject object) {}
 
     public CachedObject get(long i) {
@@ -171,10 +174,6 @@ public abstract class SimpleStore implements PersistentStore {
 
     public RowIterator rowIterator() {
         return null;
-    }
-
-    public int getAccessCount() {
-        return 0;
     }
 
     public Index[] getAccessorKeys() {
