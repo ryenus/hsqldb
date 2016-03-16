@@ -91,6 +91,7 @@ import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.ClobInputStream;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.JavaObjectData;
+import org.hsqldb.types.JavaObjectDataInternal;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
@@ -4137,6 +4138,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             case Types.OTHER :
                 try {
+                    if (connection.isStoreLiveObject) {
+                        o = new JavaObjectDataInternal(o);
+
+                        break;
+                    }
+
                     if (o instanceof Serializable) {
                         o = new JavaObjectData((Serializable) o);
 

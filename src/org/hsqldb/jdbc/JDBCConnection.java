@@ -3536,6 +3536,9 @@ public class JDBCConnection implements Connection {
     /** connection URL property allow_empty_batch indicates to accept executeBatch() when the batch is empty */
     boolean isEmptyBatchAllowed = false;
 
+    /** database URL property hsqldb.live_object indicates to store non-serialized object in OTHER columns */
+    boolean isStoreLiveObject = true;
+
     /**
      * Constructs a new external <code>Connection</code> to an HSQLDB
      * <code>Database</code>. <p>
@@ -3621,6 +3624,12 @@ public class JDBCConnection implements Connection {
                 HsqlDatabaseProperties.url_get_column_name, true);
             isEmptyBatchAllowed = connProperties.isPropertyTrue(
                 HsqlDatabaseProperties.url_allow_empty_batch, false);
+            isStoreLiveObject = connProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_live_object, false);
+            if (isStoreLiveObject)  {
+                if(!DatabaseURL.S_MEM.equals(connType))
+                isStoreLiveObject = false;
+            }
         } catch (HsqlException e) {
             throw JDBCUtil.sqlException(e);
         }
