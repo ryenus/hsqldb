@@ -60,7 +60,7 @@ import org.hsqldb.lib.InOutUtil;
  * PreparedStatement variables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.4
  * @since 1.7.2
  */
 public class JavaObjectData {
@@ -106,7 +106,7 @@ public class JavaObjectData {
      * type OTHER to another type. It will throw if the OTHER is an instance
      * of a class that is not available.
      */
-    public Serializable getObject() {
+    public Object getObject() {
 
         try {
             return InOutUtil.deserialize(data);
