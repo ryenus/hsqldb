@@ -140,7 +140,7 @@ public class StatementExpression extends StatementDMQL {
 
             result = getResult(session);
         } catch (Throwable t) {
-            result = Result.newErrorResult(t, null);
+            result = Result.newErrorResult(t);
         }
 
         if (result.isError()) {
