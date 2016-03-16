@@ -185,7 +185,7 @@ public abstract class StatementDMQL extends Statement {
 
             result = getResult(session);
         } catch (Throwable t) {
-            result = Result.newErrorResult(t, null);
+            result = Result.newErrorResult(t);
 
             result.getException().setStatementType(group, type);
         } finally {

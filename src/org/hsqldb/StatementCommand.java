@@ -228,7 +228,7 @@ public class StatementCommand extends Statement {
         try {
             result = getResult(session);
         } catch (Throwable t) {
-            result = Result.newErrorResult(t, null);
+            result = Result.newErrorResult(t, getSQL());
         }
 
         if (result.isError()) {
@@ -242,7 +242,7 @@ public class StatementCommand extends Statement {
                 session.database.logger.writeOtherStatement(session, sql);
             }
         } catch (Throwable e) {
-            return Result.newErrorResult(e, sql);
+            return Result.newErrorResult(e, getSQL());
         }
 
         return result;

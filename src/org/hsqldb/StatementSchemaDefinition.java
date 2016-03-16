@@ -63,7 +63,7 @@ public class StatementSchemaDefinition extends StatementSchema {
         try {
             result = getResult(session);
         } catch (Throwable t) {
-            result = Result.newErrorResult(t, null);
+            result = Result.newErrorResult(t);
         }
 
         if (result.isError()) {

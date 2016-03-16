@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -219,7 +219,7 @@ public class TarReader {
                         /* Display entry summary before successful extraction.
                          * Both "tar" and "rsync" display the name of the
                          * currently extracting file, and we do the same.
-                         * Thefore the currently "shown" name is still being
+                         * Therefore the currently "shown" name is still being
                          * extracted.
                          */
                         System.out.println(header.toString());
