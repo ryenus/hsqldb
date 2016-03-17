@@ -73,6 +73,7 @@ public interface SchemaObject {
     int SERVER           = 26;
     int SUBQUERY         = 27;
     int SEARCH           = 28;
+    int REFERENCE        = 29;
 
     //
     SchemaObject[] emptyArray = new SchemaObject[]{};

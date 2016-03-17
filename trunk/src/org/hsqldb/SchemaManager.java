@@ -606,7 +606,7 @@ public class SchemaManager {
                 }
                 case SchemaObject.INDEX :
                 case SchemaObject.CONSTRAINT :
-                default:
+                default :
             }
 
             SchemaObject object = findSchemaObject(name.name,
@@ -1022,7 +1022,7 @@ public class SchemaManager {
                         object.compile(session, null);
                         break;
 
-                    default:
+                    default :
                 }
             }
 
@@ -1073,7 +1073,7 @@ public class SchemaManager {
                         object.compile(session, null);
                         break;
 
-                    default:
+                    default :
                 }
             }
 
@@ -1389,7 +1389,52 @@ public class SchemaManager {
             }
         }
 
+        {
+
+            // synonym
+            Schema schema = (Schema) schemaMap.get(prefix);
+
+            if (schema == null) {
+                return null;
+            }
+
+            HsqlName synonym = schema.findSynonymTarget(name);
+
+            if (synonym != null && synonym.type == type) {
+                name   = synonym.name;
+                prefix = synonym.schema.name;
+            }
+        }
+
         return findSchemaObject(name, prefix, type);
+    }
+
+    public HsqlName findSynonymTarget(String name, String schemaName) {
+
+        Schema schema = (Schema) schemaMap.get(schemaName);
+
+        if (schema == null) {
+            return null;
+        }
+
+        return schema.findSynonymTarget(name);
+    }
+
+    public SchemaObject findAnySchemaObject(String name, String schemaName) {
+
+        readLock.lock();
+
+        try {
+            Schema schema = (Schema) schemaMap.get(schemaName);
+
+            if (schema == null) {
+                return null;
+            }
+
+            return schema.findAnySchemaObject(name);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public SchemaObject findSchemaObject(String name, String schemaName,
@@ -1500,7 +1545,7 @@ public class SchemaManager {
 
         try {
 
-            // toDrop.schema may be null because it is not registerd
+            // toDrop.schema may be null because it is not registered
             Schema schema =
                 (Schema) schemaMap.get(toDrop.getSchemaName().name);
 
@@ -2467,6 +2512,15 @@ public class SchemaManager {
                 }
             }
 
+            it = unresolved.iterator();
+
+            while (it.hasNext()) {
+                SchemaObject object = (SchemaObject) it.next();
+
+                if (object instanceof ReferenceObject) {
+                    list.add(object.getSQL());
+                }
+            }
             schemas = schemaMap.values().iterator();
 
             while (schemas.hasNext()) {
@@ -2480,9 +2534,9 @@ public class SchemaManager {
                     continue;
                 }
 
-                String[] t = schema.getTriggerSQL();
+                HsqlArrayList t = schema.getTriggerSQL();
 
-                if (t.length > 0) {
+                if (t.size() > 0) {
                     list.add(Schema.getSetSchemaSQL(schema.getName()));
                     list.addAll(t);
                 }
