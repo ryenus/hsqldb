@@ -166,6 +166,7 @@ public class ParserDDL extends ParserRoutine {
                     case Tokens.TRIGGER :
                     case Tokens.TYPE :
                     case Tokens.VIEW :
+                    case Tokens.SYNONYM :
                         break;
 
                     default :
@@ -228,6 +229,9 @@ public class ParserDDL extends ParserRoutine {
             case Tokens.FUNCTION :
             case Tokens.PROCEDURE :
                 return compileCreateProcedureOrFunction(isOrReplace);
+
+            case Tokens.SYNONYM :
+                return compileCreateSynonym(isOrReplace);
 
             default : {
                 throw unexpectedToken();
@@ -536,6 +540,15 @@ public class ParserDDL extends ParserRoutine {
                 statementType = StatementTypes.DROP_TABLE;
                 objectType    = SchemaObject.TABLE;
                 canCascade    = true;
+                useIfExists   = true;
+                break;
+
+            case Tokens.SYNONYM :
+                read();
+
+                statementType = StatementTypes.DROP_REFERENCE;
+                objectType    = SchemaObject.REFERENCE;
+                canCascade    = false;
                 useIfExists   = true;
                 break;
 
@@ -1677,6 +1690,31 @@ public class ParserDDL extends ParserRoutine {
         }
 
         return tokenS;
+    }
+
+    StatementSchema compileCreateSynonym(boolean isOrReplace) {
+
+        HsqlName synonymHsqlName;
+        HsqlName targetHsqlName;
+
+        read();
+
+        synonymHsqlName = readNewSchemaObjectName(SchemaObject.REFERENCE,
+                true);
+
+        readThis(Tokens.FOR);
+
+        targetHsqlName = readNewSchemaObjectName(SchemaObject.REFERENCE, true);
+
+        String   sql  = getLastPart();
+        Object[] args = new Object[] {
+            synonymHsqlName, targetHsqlName
+        };
+
+        return new StatementSchema(sql, StatementTypes.CREATE_REFERENCE, args,
+                                   null,
+                                   new HsqlName[]{
+                                       database.getCatalogName() });
     }
 
     Statement compileRenameObject(HsqlName name, int type) {

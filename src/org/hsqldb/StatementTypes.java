@@ -257,6 +257,10 @@ public interface StatementTypes {
     int ALTER_COLUMN_TYPE_IDENTITY  = 1143;
 
     //
+    int CREATE_REFERENCE = 1146;
+    int DROP_REFERENCE   = 1147;
+
+    //
     int EXPLAIN_PLAN             = 1151;
     int RENAME_OBJECT            = 1152;
     int SET_TABLE_INDEX          = 1153;

@@ -241,6 +241,11 @@ public class StatementSchema extends Statement {
                 order = 4;
                 break;
 
+            case StatementTypes.CREATE_REFERENCE :
+                group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
+                order = 12;
+                break;
+
             case StatementTypes.COMMENT :
                 group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
                 order = 11;
@@ -267,7 +272,7 @@ public class StatementSchema extends Statement {
         try {
             result = getResult(session);
         } catch (Throwable t) {
-            result = Result.newErrorResult(t, null);
+            result = Result.newErrorResult(t, getSQL());
         }
 
         if (result.isError()) {
@@ -870,6 +875,10 @@ public class StatementSchema extends Statement {
                             schemaManager.dropConstraint(session, name,
                                                          cascade);
                             break;
+
+                        case StatementTypes.DROP_REFERENCE :
+                            dropObject(session, name, cascade);
+                            break;
                     }
 
                     break;
@@ -1350,6 +1359,38 @@ public class StatementSchema extends Statement {
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
+            }
+            case StatementTypes.CREATE_REFERENCE : {
+                HsqlName name;
+                HsqlName targetName;
+
+                name       = (HsqlName) arguments[0];
+                targetName = (HsqlName) arguments[1];
+
+                setSchemaName(session, null, name);
+                setSchemaName(session, null, targetName);
+                session.database.schemaManager.checkSchemaObjectNotExists(
+                    name);
+
+                // find the new target
+                SchemaObject object =
+                    session.database.schemaManager.findAnySchemaObject(
+                        targetName.name, targetName.schema.name);
+
+                if (object == null) {
+                    throw Error.error(ErrorCode.X_42501);
+                }
+
+                if (!session.getGrantee().isFullyAccessibleByRole(
+                        object.getName())) {
+                    throw Error.error(ErrorCode.X_42501);
+                }
+
+                targetName = object.getName();
+                SchemaObject reference = new ReferenceObject(name, targetName);
+                schemaManager.addSchemaObject(reference);
+
+                break;
             }
             case StatementTypes.COMMENT : {
                 HsqlName name    = (HsqlName) arguments[0];
