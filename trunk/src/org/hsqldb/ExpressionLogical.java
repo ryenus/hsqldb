@@ -48,7 +48,7 @@ import org.hsqldb.types.Types;
 /**
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class ExpressionLogical extends Expression {
@@ -957,6 +957,10 @@ public class ExpressionLogical extends Expression {
                             ^ nodes[RIGHT].dataType.isDateTimeTypeWithZone()) {
                         nodes[LEFT] = new ExpressionOp(nodes[LEFT]);
                     }
+                } else if (nodes[LEFT].dataType.canConvertFrom(
+                        nodes[RIGHT].dataType)) {
+                    nodes[RIGHT] = ExpressionOp.getCastExpression(session,
+                            nodes[RIGHT], nodes[LEFT].dataType);
                 } else {
                     throw Error.error(ErrorCode.X_42562);
                 }
