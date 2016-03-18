@@ -562,6 +562,8 @@ public class Logger implements EventLogInterface {
             HsqlDatabaseProperties.sql_enforce_tdcu);
         database.sqlTranslateTTI = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.jdbc_translate_tti_types);
+        database.sqlLiveObject = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_live_object);
         database.sqlConcatNulls = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_concat_nulls);
         database.sqlNullsFirst = database.databaseProperties.isPropertyTrue(
@@ -1740,6 +1742,10 @@ public class Logger implements EventLogInterface {
 
         if (HsqlDatabaseProperties.sql_unique_nulls.equals(name)) {
             return String.valueOf(database.sqlUniqueNulls);
+        }
+
+        if (HsqlDatabaseProperties.sql_live_object.equals(name)) {
+            return String.valueOf(database.sqlLiveObject);
         }
 
         if (HsqlDatabaseProperties.jdbc_translate_tti_types.equals(name)) {

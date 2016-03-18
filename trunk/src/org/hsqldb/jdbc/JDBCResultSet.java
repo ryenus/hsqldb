@@ -7519,10 +7519,7 @@ public class JDBCResultSet implements ResultSet {
         columnCount     = resultMetaData.getColumnCount();
 
         if (conn != null) {
-            if (conn.clientProperties != null) {
-                translateTTIType = conn.clientProperties.isPropertyTrue(
-                    HsqlDatabaseProperties.jdbc_translate_tti_types);
-            }
+            translateTTIType = conn.isTranslateTTIType;
         }
     }
 

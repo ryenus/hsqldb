@@ -106,9 +106,10 @@ public abstract class ScriptWriterBase implements Runnable {
      * this determines if the script is the normal script (false) used
      * internally by the engine or a user-initiated snapshot of the DB (true)
      */
-    boolean          isDump;
+    boolean          isUserScript;
     boolean          includeCachedData;
     boolean          includeIndexRoots;
+    boolean          includeTableInit;
     long             byteCount;
     long             lineCount;
     volatile boolean needsSync;
@@ -141,13 +142,13 @@ public abstract class ScriptWriterBase implements Runnable {
     }
 
     ScriptWriterBase(Database db, String file, boolean includeCachedData,
-                     boolean isNewFile, boolean isDump) {
+                     boolean isNewFile, boolean isUserScript) {
 
         initBuffers();
 
         boolean exists = false;
 
-        if (isDump) {
+        if (isUserScript) {
             exists = FileUtil.getFileUtil().exists(file);
         } else {
             exists = db.logger.getFileAccess().isStreamElement(file);
@@ -158,7 +159,7 @@ public abstract class ScriptWriterBase implements Runnable {
         }
 
         this.database          = db;
-        this.isDump            = isDump;
+        this.isUserScript      = isUserScript;
         this.includeCachedData = includeCachedData;
         this.includeIndexRoots = !includeCachedData;
         outFile                = file;
@@ -177,6 +178,10 @@ public abstract class ScriptWriterBase implements Runnable {
 
     public void setIncludeCachedData(boolean include) {
         this.includeCachedData = include;
+    }
+
+    public void setIncludeTableInit(boolean include) {
+        this.includeTableInit = include;
     }
 
     protected abstract void initBuffers();
@@ -267,8 +272,8 @@ public abstract class ScriptWriterBase implements Runnable {
     protected void openFile() {
 
         try {
-            FileAccess   fa  = isDump ? FileUtil.getFileUtil()
-                                      : database.logger.getFileAccess();
+            FileAccess   fa  = isUserScript ? FileUtil.getFileUtil()
+                                            : database.logger.getFileAccess();
             OutputStream fos = fa.openOutputStreamElement(outFile);
 
             outDescriptor = fa.getFileSync(fos);

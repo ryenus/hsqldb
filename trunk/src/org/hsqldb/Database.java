@@ -108,6 +108,7 @@ public class Database {
     public boolean                sqlNullsFirst          = true;
     public boolean                sqlNullsOrder          = true;
     public boolean                sqlConvertTruncate     = true;
+    public boolean                sqlLiveObject          = false;
     public int                    sqlAvgScale            = 0;
     public boolean                sqlDoubleNaN           = true;
     public boolean                sqlLongvarIsLob        = false;

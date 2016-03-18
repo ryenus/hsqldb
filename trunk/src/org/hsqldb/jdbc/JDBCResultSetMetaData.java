@@ -920,12 +920,8 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
             return;
         }
 
-        useColumnName = conn.isUseColumnName;
-
-        if (conn.clientProperties != null) {
-            translateTTIType = conn.clientProperties.isPropertyTrue(
-                HsqlDatabaseProperties.jdbc_translate_tti_types);
-        }
+        useColumnName    = conn.isUseColumnName;
+        translateTTIType = conn.isTranslateTTIType;
     }
 
     /**

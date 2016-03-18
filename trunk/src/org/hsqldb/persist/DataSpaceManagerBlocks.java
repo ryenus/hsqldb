@@ -752,11 +752,6 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         int blockIndex     = -1;
         int lastBlockIndex = tableSpace.getFileBlockIndex();
 
-        // test code
-        if (spaceId == tableIdDirectory) {
-            blockIndex = blockIndex;
-        }
-
         if (lastBlockIndex >= 0) {
             ba.initialise(false);
 
