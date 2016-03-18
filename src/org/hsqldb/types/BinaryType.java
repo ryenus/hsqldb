@@ -236,6 +236,9 @@ public class BinaryType extends Type {
                                                     : getBinaryType(
                                                     other.typeCode, precision);
 
+            case Types.SQL_GUID :
+                return other;
+
             default :
                 throw Error.error(ErrorCode.X_42562);
         }
@@ -264,6 +267,7 @@ public class BinaryType extends Type {
                 newType      = this;
                 break;
 
+            case Types.SQL_GUID :
             case Types.SQL_BINARY :
                 newType = this;
                 break;
@@ -421,6 +425,7 @@ public class BinaryType extends Type {
 
                 break;
             }
+            case Types.SQL_GUID :
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.SQL_BLOB :
@@ -551,6 +556,11 @@ public class BinaryType extends Type {
                                                             : -1;
                 }
 
+                if (otherType.typeCode == Types.SQL_GUID) {
+                    return precision >= otherType.precision ? 0
+                                                            : -1;
+                }
+
                 return -1;
             }
             case Types.SQL_BLOB : {
@@ -563,9 +573,13 @@ public class BinaryType extends Type {
             }
             case Types.SQL_BIT :
             case Types.SQL_BINARY : {
-                return otherType.typeCode == typeCode
-                       && precision == otherType.precision ? 0
-                                                           : -1;
+                if (otherType.typeCode == typeCode
+                        || otherType.typeCode == Types.SQL_GUID) {
+                    return precision == otherType.precision ? 0
+                                                            : -1;
+                }
+
+                return -1;
             }
             case Types.SQL_BIT_VARYING : {
                 return otherType.typeCode == typeCode
@@ -628,8 +642,7 @@ public class BinaryType extends Type {
         length = end - offset;
 
         // change method signature to take long
-        byte[] bytes = data.getBytes(session, offset,
-            (int) length);
+        byte[] bytes = data.getBytes(session, offset, (int) length);
 
         return new BinaryData(bytes, false);
     }
