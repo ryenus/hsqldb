@@ -120,8 +120,8 @@ public class ScriptWriterText extends ScriptWriterBase {
 
     public ScriptWriterText(Database db, String file,
                             boolean includeCachedData, boolean newFile,
-                            boolean isDump) {
-        super(db, file, includeCachedData, newFile, isDump);
+                            boolean isUserScript) {
+        super(db, file, includeCachedData, newFile, isUserScript);
     }
 
     public ScriptWriterText(Database db, String file,
@@ -224,7 +224,7 @@ public class ScriptWriterText extends ScriptWriterBase {
             return;
         }
 
-        if (schemaToLog == currentSession.loggedSchema) {
+        if (!includeTableInit && schemaToLog == currentSession.loggedSchema) {
             return;
         }
 

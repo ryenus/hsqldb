@@ -3533,11 +3533,14 @@ public class JDBCConnection implements Connection {
     /** connection URL property use_column_name indicates to return column name in ResultMetadata */
     boolean isUseColumnName = true;
 
+    /** database property for translation of INTERVAL types to VARCHAR */
+    boolean isTranslateTTIType = true;
+
     /** connection URL property allow_empty_batch indicates to accept executeBatch() when the batch is empty */
     boolean isEmptyBatchAllowed = false;
 
     /** database URL property hsqldb.live_object indicates to store non-serialized object in OTHER columns */
-    boolean isStoreLiveObject = true;
+    boolean isStoreLiveObject = false;
 
     /**
      * Constructs a new external <code>Connection</code> to an HSQLDB
@@ -3624,8 +3627,11 @@ public class JDBCConnection implements Connection {
                 HsqlDatabaseProperties.url_get_column_name, true);
             isEmptyBatchAllowed = connProperties.isPropertyTrue(
                 HsqlDatabaseProperties.url_allow_empty_batch, false);
-            isStoreLiveObject = connProperties.isPropertyTrue(
-                HsqlDatabaseProperties.hsqldb_live_object, false);
+            isTranslateTTIType = clientProperties.isPropertyTrue(
+                HsqlDatabaseProperties.jdbc_translate_tti_types, true);
+            isStoreLiveObject = clientProperties.isPropertyTrue(
+                HsqlDatabaseProperties.sql_live_object, false);
+
             if (isStoreLiveObject)  {
                 if(!DatabaseURL.S_MEM.equals(connType))
                 isStoreLiveObject = false;

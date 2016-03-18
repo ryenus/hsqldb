@@ -242,7 +242,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_large_data  = "hsqldb.large_data";
     public static final String hsqldb_files_space = "hsqldb.files_space";
     public static final String hsqldb_digest      = "hsqldb.digest";
-    public static final String hsqldb_live_object = "hsqldb.live_object";
 
     //
     public static final String jdbc_translate_tti_types =
@@ -275,6 +274,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_longvar_is_lob = "sql.longvar_is_lob";
     public static final String sql_pad_space      = "sql.pad_space";
     public static final String sql_ignore_case    = "sql.ignore_case";
+    public static final String sql_live_object    = "sql.live_object";
 
     //
     public static final String textdb_cache_scale = "textdb.cache_scale";
@@ -364,9 +364,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           SQL_PROPERTY, "MEMORY"));
         dbMeta.put(hsqldb_digest,
                    HsqlProperties.getMeta(hsqldb_digest, SQL_PROPERTY, "MD5"));
-        dbMeta.put(hsqldb_live_object,
-                   HsqlProperties.getMeta(hsqldb_live_object,
-                                          FILE_PROPERTY, false));
+        dbMeta.put(sql_live_object,
+                   HsqlProperties.getMeta(sql_live_object, SQL_PROPERTY,
+                                          false));
         dbMeta.put(tx_timestamp,
                    HsqlProperties.getMeta(tx_timestamp, SYSTEM_PROPERTY));
 

@@ -333,13 +333,9 @@ public class JDBCParameterMetaData
     JDBCParameterMetaData(JDBCConnection conn,
                           ResultMetaData metaData) throws SQLException {
 
-        rmd            = metaData;
-        parameterCount = rmd.getColumnCount();
-
-        if (conn.clientProperties != null) {
-            translateTTIType = conn.clientProperties.isPropertyTrue(
-                HsqlDatabaseProperties.jdbc_translate_tti_types);
-        }
+        rmd              = metaData;
+        parameterCount   = rmd.getColumnCount();
+        translateTTIType = conn.isTranslateTTIType;
     }
 
     /**
