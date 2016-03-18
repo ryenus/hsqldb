@@ -57,7 +57,7 @@ public class BinaryUUIDType extends BinaryType {
     public static final int binaryUUIDPrecision = 16;
 
     protected BinaryUUIDType() {
-        super(Types.SQL_BINARY, binaryUUIDPrecision);
+        super(Types.SQL_GUID, binaryUUIDPrecision);
     }
 
     public int displaySize() {
@@ -142,6 +142,7 @@ public class BinaryUUIDType extends BinaryType {
 
         switch (other.typeCode) {
 
+            case Types.SQL_GUID :
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.SQL_BLOB :
@@ -256,6 +257,7 @@ public class BinaryUUIDType extends BinaryType {
 
                 break;
             }
+            case Types.SQL_GUID :
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.SQL_BLOB :
@@ -349,6 +351,7 @@ public class BinaryUUIDType extends BinaryType {
             case Types.SQL_BLOB : {
                 return -1;
             }
+            case Types.SQL_GUID :
             case Types.SQL_BINARY : {
                 return precision == otherType.precision ? 0
                                                         : -1;

@@ -255,6 +255,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
                 o = readArray(type);
                 break;
 
+            case Types.SQL_GUID :
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
                 o = readBinary();
