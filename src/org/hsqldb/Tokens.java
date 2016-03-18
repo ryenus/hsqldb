@@ -903,7 +903,7 @@ public class Tokens {
     static final String        T_TRUNC            = "TRUNC";
     static final String        T_TODAY            = "TODAY";
     static final String        T_UCASE            = "UCASE";
-    static final String        T_UUID             = "UUID";
+    public static final String T_UUID             = "UUID";
     static final String        T_UNIX_MILLIS      = "UNIX_MILLIS";
     static final String        T_UNIX_TIMESTAMP   = "UNIX_TIMESTAMP";
 
