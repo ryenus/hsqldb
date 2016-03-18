@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2414,6 +2414,10 @@ public class Scanner {
     }
 
     public synchronized BinaryData convertToBinary(String s) {
+        return convertToBinary(s, false);
+    }
+
+    public synchronized BinaryData convertToBinary(String s, boolean uuid) {
 
         boolean hi = true;
         byte    b  = 0;
@@ -2423,11 +2427,16 @@ public class Scanner {
         byteOutputStream.reset(byteBuffer);
 
         for (; currentPosition < limit; currentPosition++, hi = !hi) {
-            int c = sqlString.charAt(currentPosition);
+            int ch = sqlString.charAt(currentPosition);
 
-            c = getHexValue(c);
+            int c = getHexValue(ch);
 
             if (c == -1) {
+                if (uuid && ch == '-' && hi) {
+                    hi = !hi;
+
+                    continue;
+                }
 
                 // bad character
                 token.tokenType   = Tokens.X_MALFORMED_BINARY_STRING;
@@ -2448,6 +2457,11 @@ public class Scanner {
         if (!hi) {
 
             // odd nibbles
+            token.tokenType   = Tokens.X_MALFORMED_BINARY_STRING;
+            token.isMalformed = true;
+        }
+
+        if (uuid && byteOutputStream.size() != 16) {
             token.tokenType   = Tokens.X_MALFORMED_BINARY_STRING;
             token.isMalformed = true;
         }

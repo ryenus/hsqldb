@@ -129,6 +129,7 @@ public class StatementSchema extends Statement {
             case StatementTypes.DROP_INDEX :
             case StatementTypes.DROP_CONSTRAINT :
             case StatementTypes.DROP_COLUMN :
+            case StatementTypes.DROP_REFERENCE :
                 group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
                 break;
 
