@@ -270,6 +270,12 @@
       </listitem>
 
       <listitem>
+        <para>The UUID type is for UUID (also called GUID) values. The value 
+		is stored as BINARY. UUID character strings, as well
+		as BINARY strings, can be used to insert or to compare.</para>
+      </listitem>
+
+      <listitem>
         <para>The datetime types DATE, TIME and TIMESTAMP, together with their
         WITH TIME ZONE variations are available. Read the details in this
         chapter on how to use these types.</para>
@@ -680,6 +686,13 @@
       1024 * 1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If
       BLOB is used without specifying the length, the length defaults to
       1GB.</para>
+
+      <para>The UUID type represents a UUID string. The type is similar to
+	  BINARY(16) but with the extra enforcement that disallows assigning,
+      casting or compareing with shorter or longer strings. Strings such as 
+	  '24ff1824-01e8-4dac-8eb3-3fee32ad2b9c' or '24ff182401e84dac8eb33fee32ad2b9c'
+	  are allowed. When a value of the UUID type is converted to a
+      CHARACTER type, the hyphens are inserted in the required positions.</para>
 
       <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
       paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
