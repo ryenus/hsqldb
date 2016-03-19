@@ -89,6 +89,8 @@ public class Table extends TableBase implements SchemaObject {
     private boolean hasDefaultValues;          // shortcut for above
     boolean[]       colGenerated;              // generated columns
     private boolean hasGeneratedValues;        // shortcut for above
+    boolean[]       colUpdated;                // auto update columns
+    private boolean hasUpdatedValues;          // shortcut for above
     boolean[]       colRefFK;                  // foreign key columns
     boolean[]       colMainFK;                 // columns referenced by foreign key
     int             referentialActions;        // has set null, set default or cascade
@@ -394,6 +396,12 @@ public class Table extends TableBase implements SchemaObject {
             if (defaultString != null) {
                 sb.append(' ').append(Tokens.T_DEFAULT).append(' ');
                 sb.append(defaultString);
+            }
+
+            if (column.isAutoUpdate()) {
+                sb.append(' ').append(Tokens.T_ON).append(' ');
+                sb.append(Tokens.T_UPDATE).append(' ');
+                sb.append(column.getUpdateExpression().getSQL());
             }
 
             if (column.isIdentity()) {
@@ -1165,6 +1173,11 @@ public class Table extends TableBase implements SchemaObject {
         return hasGeneratedValues;
     }
 
+    public boolean hasUpdatedColumn(int[] colMap) {
+        return hasUpdatedValues
+               && !ArrayUtil.isAnyIntIndexInBooleanArray(colMap, colUpdated);
+    }
+
     public boolean hasLobColumn() {
         return hasLobColumn;
     }
@@ -1551,6 +1564,7 @@ public class Table extends TableBase implements SchemaObject {
 
         hasDefaultValues   = false;
         hasGeneratedValues = false;
+        hasUpdatedValues   = false;
         hasNotNullColumns  = false;
         hasDomainColumns   = false;
         hasLobColumn       = false;
@@ -1558,6 +1572,7 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0; i < columnCount; i++) {
             hasDefaultValues   |= colDefaults[i] != null;
             hasGeneratedValues |= colGenerated[i];
+            hasUpdatedValues   |= colUpdated[i];
             hasNotNullColumns  |= colNotNull[i];
 
             if (colTypes[i].isDomainType()) {
@@ -1713,6 +1728,7 @@ public class Table extends TableBase implements SchemaObject {
         colDefaults      = new Expression[columnCount];
         colNotNull       = new boolean[columnCount];
         colGenerated     = new boolean[columnCount];
+        colUpdated       = new boolean[columnCount];
         defaultColumnMap = new int[columnCount];
 
         for (int i = 0; i < columnCount; i++) {
@@ -1746,6 +1762,7 @@ public class Table extends TableBase implements SchemaObject {
 
         colDefaults[i]  = column.getDefaultExpression();
         colGenerated[i] = column.isGenerated();
+        colUpdated[i]   = column.isAutoUpdate();
     }
 
     /**
@@ -2877,6 +2894,19 @@ public class Table extends TableBase implements SchemaObject {
                             getDefaultRanges()[0]);
 
                     range.setCurrent(data);
+
+                    data[i] = e.getValue(session, colTypes[i]);
+                }
+            }
+        }
+    }
+
+    public void setUpdatedColumns(Session session, Object[] data) {
+
+        if (hasUpdatedValues) {
+            for (int i = 0; i < colUpdated.length; i++) {
+                if (colUpdated[i]) {
+                    Expression e = getColumn(i).getUpdateExpression();
 
                     data[i] = e.getValue(session, colTypes[i]);
                 }

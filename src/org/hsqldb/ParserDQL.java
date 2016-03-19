@@ -5043,7 +5043,7 @@ public class ParserDQL extends ParserBase {
             readThis(Tokens.END);
             readIfThis(Tokens.CASE);
         } else {
-            elseExpr = new ExpressionValue((Object) null, null);
+            elseExpr = new ExpressionValue((Object) null, (Type) null);
 
             readThis(Tokens.END);
             readIfThis(Tokens.CASE);
