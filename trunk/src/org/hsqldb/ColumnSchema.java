@@ -48,7 +48,7 @@ import org.hsqldb.types.Types;
  * @version 2.3.4
  * @since 1.9.0
  */
-public final class ColumnSchema extends ColumnBase implements SchemaObject {
+public class ColumnSchema extends ColumnBase implements SchemaObject {
 
     public static final ColumnSchema[] emptyArray = new ColumnSchema[]{};
 
@@ -57,6 +57,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     private boolean        isPrimaryKey;
     private Expression     defaultExpression;
     private Expression     generatingExpression;
+    private Expression     updateExpression;
     private NumberSequence sequence;
     private OrderedHashSet references;
     private OrderedHashSet generatedColumnReferences;
@@ -241,10 +242,21 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         return generatingExpression != null;
     }
 
+    public boolean isAutoUpdate() {
+        return updateExpression != null;
+    }
+
     public boolean hasDefault() {
         return getDefaultExpression() != null;
     }
 
+    public void setUpdateExpression(Expression updateExpression) {
+        this.updateExpression = updateExpression;
+    }
+
+    public Expression getUpdateExpression() {
+        return updateExpression;
+    }
     /**
      * Is column writeable or always generated
      *

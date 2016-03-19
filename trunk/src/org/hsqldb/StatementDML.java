@@ -1079,7 +1079,8 @@ public class StatementDML extends StatementDMQL {
                RowSetNavigatorDataChange navigator,
                RowSetNavigator generatedNavigator) {
 
-        int rowCount = navigator.getSize();
+        int     rowCount          = navigator.getSize();
+        boolean autoUpdatedColumn = table.hasUpdatedColumn(updateColumnMap);
 
         // set identity column where null and check columns
         for (int i = 0; i < rowCount; i++) {
@@ -1097,6 +1098,10 @@ public class StatementDML extends StatementDMQL {
              */
             table.setIdentityColumn(session, data);
             table.setGeneratedColumns(session, data);
+
+            if (autoUpdatedColumn) {
+                table.setUpdatedColumns(session, data);
+            }
         }
 
         navigator.beforeFirst();

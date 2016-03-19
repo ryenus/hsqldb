@@ -145,12 +145,10 @@ public class ParserTable extends ParserDML {
 
         readThis(Tokens.OPENBRACKET);
 
-        {
-            Constraint c = new Constraint(null, null,
-                                          SchemaObject.ConstraintTypes.TEMP);
+        Constraint c = new Constraint(null, null,
+                                      SchemaObject.ConstraintTypes.TEMP);
 
-            tempConstraints.add(c);
-        }
+        tempConstraints.add(c);
 
         boolean start     = true;
         boolean startPart = true;
@@ -1234,6 +1232,27 @@ public class ParserTable extends ParserDML {
         boolean hasNotNullConstraint = false;
         boolean hasNullNoiseWord     = false;
         boolean hasPrimaryKey        = false;
+
+        if (column.getDataType().typeCode == Types.SQL_TIMESTAMP) {
+            if (token.tokenType == Tokens.ON) {
+                int position = getPosition();
+
+                try {
+                    read();
+                    readThis(Tokens.UPDATE);
+                    readThis(Tokens.CURRENT_TIMESTAMP);
+
+                    FunctionSQL function =
+                        FunctionSQL.newSQLFunction(Tokens.T_CURRENT_TIMESTAMP,
+                                                   compileContext);
+
+                    function.resolveTypes(session, null);
+                    column.setUpdateExpression(function);
+                } catch (Exception e) {
+                    rewind(position);
+                }
+            }
+        }
 
         while (true) {
             HsqlName constName = null;
