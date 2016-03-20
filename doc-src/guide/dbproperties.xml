@@ -521,21 +521,21 @@
           <row>
             <entry nameend="c3" namest="c1"><para>This property is used for
             compatibility with other JDBC driver implementations such as the
-            PostgreSQL driver. By default <methodname>PreparedStatement.executeBatch()</methodname> throws 
-			an exception if addBatch() has not been called at all. Setting this
-			property to true ignores the empty batch and returns an empty int[]. 
-			This property
-            can be specified differently for different connections to the same
-            database.</para><para>The default is false. 
-            Example below:</para><programlisting> jdbc:hsqldb:hsql://localhost/enrolments;allow_empty_batch=true</programlisting><para>When
-            a <classname>PreparedStatement</classname> is used inside a user-defined
-            stored procedure, the default, false, is always used for this
-            property.</para></entry>
+            PostgreSQL driver. By default
+            <methodname>PreparedStatement.executeBatch()</methodname> throws
+            an exception if addBatch() has not been called at all. Setting
+            this property to true ignores the empty batch and returns an empty
+            int[]. This property can be specified differently for different
+            connections to the same database.</para><para>The default is
+            false. Example below:</para><programlisting> jdbc:hsqldb:hsql://localhost/enrolments;allow_empty_batch=true</programlisting><para>When
+            a <classname>PreparedStatement</classname> is used inside a
+            user-defined stored procedure, the default, false, is always used
+            for this property.</para></entry>
           </row>
         </tbody>
       </tgroup>
     </table>
-	
+
     <table frame="all" pgwide="1" tocentry="1">
       <title>Creating New Database</title>
 
@@ -1429,6 +1429,47 @@
               databases that use case-insensitive comparison. It is better to
               specify the collation selectively for specific columns that
               require it.</para><para><programlisting>SET DATABASE COLLATION SQL_TEXT_UCC</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Storage of Live Java Objects</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.live_object</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>storage of Java Objects in OTHER columns with or without
+              serialization</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>By default when Java
+              Objects are stored in a column of type OTHER, the objects are
+              serialized. Setting this property to true results in the Object
+              to be stored without serialization. This option is available in
+              mem: database only.</para><para><programlisting>SET DATABASE LIVE OBJECT</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>

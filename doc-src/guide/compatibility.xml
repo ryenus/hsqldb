@@ -52,8 +52,8 @@
     testing and development targeted at other databases. Over the years, this
     usage resulted in developers finding and reporting many obscure bugs in
     HyperSQL, which have all been fixed. HyperSQL 2 has been written to the
-    SQL Standard and avoids the traps caused by superficial imitations of some
-    other RDBMS.</para>
+    SQL Standard and avoids the traps caused by superficial imitation of the
+    Standard by some other RDBMS.</para>
 
     <para>HyperSQL has many property settings that relax conformance to the
     Standard in order to allow compatibility with other RDBMS, without
@@ -62,8 +62,9 @@
     section of this chapter</para>
 
     <para>The SQL Standard has existed since 1989 and has been expanded over
-    the years in several revisions. Also, the X-Open specification has defined
-    a number of SQL functions which are implemented by most RDBMS.</para>
+    the years in several revisions. HyperSQL follows SQL:2011 Also, the X-Open
+    specification has defined a number of SQL functions which are implemented
+    by most RDBMS.</para>
 
     <para>Each RDBMS supports additional functions that are not covered by the
     standard. Some RDBMS use non-standard syntax for some operations.
@@ -109,9 +110,10 @@
       <itemizedlist>
         <listitem>
           <para>Use <literal>&lt;set database sql syntax PGS
-          statement&gt;</literal> to enable the PostgreSQL's non-standard
-          features. References to SERIAL, BIGSERIAL and TEXT data types, as
-          well as sequence functions, are translated into HyperSQL
+          statement&gt;</literal> or the equivalent URL property
+          <literal>sql.syntax_pgs=true</literal> to enable the PostgreSQL's
+          non-standard features. References to SERIAL, BIGSERIAL and TEXT data
+          types, as well as sequence functions, are translated into HyperSQL
           equivalents.</para>
         </listitem>
 
@@ -231,9 +233,10 @@
       <itemizedlist>
         <listitem>
           <para>Use <literal>&lt;set database sql syntax MYS
-          statement&gt;</literal> to enable support for AUTO_INCREMENT and
-          TEXT data types and several other types. These type definitions are
-          translated into HyperSQL equivalents.</para>
+          statement&gt;</literal> or the equivalent URL property
+          <literal>sql.syntax_mys=true</literal> to enable support for
+          AUTO_INCREMENT and TEXT data types and several other types. These
+          type definitions are translated into HyperSQL equivalents.</para>
         </listitem>
 
         <listitem>
@@ -307,6 +310,11 @@
         </listitem>
 
         <listitem>
+          <para>HyperSQL supports ON UPDATE CURRENT_TIMESTAMP for column
+          definitions.</para>
+        </listitem>
+
+        <listitem>
           <para>HyperSQL translates INSERT IGNORE, REPLACE and ON DUPLICATE
           KEY UPDATE variations of INSERT into predictable and error-free
           operations.</para>
@@ -372,8 +380,9 @@
       <itemizedlist>
         <listitem>
           <para>Use <literal>&lt;set database sql syntax ORA
-          statement&gt;</literal> to enable support for some non-standard
-          syntax of Oracle.</para>
+          statement&gt;</literal> or the equivalent URL property
+          <literal>sql.syntax_ora=true</literal> to enable support for some
+          non-standard syntax of Oracle.</para>
         </listitem>
 
         <listitem>
@@ -467,8 +476,9 @@
       <itemizedlist>
         <listitem>
           <para>Use <literal>&lt;set database sql syntax DB2
-          statement&gt;</literal> to enable support for some non-standard
-          syntax of DB2.</para>
+          statement&gt;</literal> or the equivalent URL property
+          <literal>sql.syntax_db2=true</literal> to enable support for some
+          non-standard syntax of DB2.</para>
         </listitem>
 
         <listitem>
@@ -513,7 +523,8 @@
       <itemizedlist>
         <listitem>
           <para>Use <literal>&lt;set database sql syntax MSS
-          statement&gt;</literal> to enable support for the
+          statement&gt;</literal> or the equivalent URL property
+          <literal>sql.syntax_mss=true</literal> to enable support for the
           <literal>CONVERT(&lt;type definition&gt;, &lt;expression)</literal>
           function with switched order of arguments</para>
         </listitem>

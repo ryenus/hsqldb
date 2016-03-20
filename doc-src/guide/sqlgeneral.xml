@@ -827,18 +827,38 @@
         <primary>OTHER type</primary>
       </indexterm>
 
-      <para>Any serializable JAVA Object can be inserted directly into a
+      <para>From version 2.3.4 there are two options for storing Java
+      Objcts.</para>
+
+      <para>The default option allows storing Serializable object. The objects
+      remain serialized inside the database until they are retrieved. The
+      application program that retrieves the object must include in its
+      classpath the Java Class for the object, otherwise it cannot retrieve
+      the object.</para>
+
+      <para>Any serializable Java Object can be inserted directly into a
       column of type OTHER using any variation of
       <methodname>PreparedStatement.setObject()</methodname> methods.</para>
+
+      <para>The alternative Live Object option is for <literal>mem:</literal>
+      databases only and is enabled when the database property
+      sql.live_object=true is appended to the connection property that creates
+      the mem database. For example
+      <literal>'jdbc:hsqldb:mem:mydb;sql.live_object=true'</literal>. With
+      this option, any Java object can be stored as it is not serialized. The
+      SQL statement <literal>SET DATABASE SQL LIVE OBJECT TRUE</literal> can
+      be also used. Note the SQL statement must be executed on the first
+      connection to the database before any data is inserted. No data access
+      should be made from this connection. Instead, new connections should be
+      used for data access.</para>
 
       <para>For comparison purposes and in indexes, any two Java Objects are
       considered equal unless one of them is NULL. You cannot search for a
       specific object or perform a join on a column of type OTHER.</para>
 
-      <para>Please note that HSQLDB is not an object-relational database. Java
-      Objects can simply be stored internally and no operations should be
-      performed on them other than assignment between columns of type OTHER or
-      tests for NULL. Tests such as <literal>WHERE object1 = object2
+      <para>Java Objects can simply be stored internally and no operations can
+      be performed on them other than assignment between columns of type OTHER
+      or checking for NULL. Tests such as <literal>WHERE object1 = object2
       </literal>do not mean what you might expect, as any non-null object
       would satisfy such a tests. But <literal>WHERE object1 IS NOT
       NULL</literal> is perfectly acceptable.</para>
@@ -849,6 +869,30 @@
       objectcol = intcol WHERE ...</literal>).</para>
 
       <simpara><literal>&lt;java object type&gt; ::= OTHER</literal></simpara>
+
+      <para>The default method of storage is used when the objects and their
+      state needs to be saved and retrieved in the future. This method is also
+      used when memory resources are limited and collections of objects are
+      stored and retrieved only when needed.</para>
+
+      <para>The Live Object option uses the database table as a collection of
+      objects. This allows storing some attributes of the objects in the same
+      table alongside the object itself and fast search and retrieval of
+      objects on their attributes. For example when many thousands of live
+      objects contain details of films, The film title and the director can be
+      stored in the table and searches can be performed for films on these
+      attributes:</para>
+
+      <informalexample>
+        <para><programlisting>CREATE TABLE movies (director VARCHAR(30), title VARCHAR(40), obj OTHER)
+SELECT obj FROM movies WHERE director LIKE 'Luc%'
+</programlisting></para>
+
+        <para>In any case, at least one attribute of the object should be
+        stored to allow efficient retrieval of the objects from both Live
+        Object and Serialized storage. Often an id number is used a the
+        attribute.</para>
+      </informalexample>
     </section>
 
     <section xml:id="sgc_length_precision">
@@ -1889,7 +1933,7 @@
   <section xml:id="sgc_query_opt">
     <title>Query Processing and Optimisation</title>
 
-    <para>HyperSQL 2.2.x changes the order of tables in a query in order to
+    <para>HyperSQL 2.3.x changes the order of tables in a query in order to
     optimise processing. This happens only when one of the tables has a
     narrowing condition and reordering does not change the result of the
     query.</para>
