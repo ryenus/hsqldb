@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2009-2013 Fred Toussi. Permission is granted to
+      <para>Copyright 2009-2016 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -51,7 +51,7 @@
     <para>The persistent elements of an SQL environment are database objects.
     The database consists of catalogs plus authorizations.</para>
 
-    <para>A catalog contains schemas, while schemas contain the objects that
+    <para>A catalog contains schemas, and schemas contain the objects that
     contain data or govern the data.</para>
 
     <para>Each catalog contains a special schema called INFORMATION_SCHEMA.
@@ -769,6 +769,26 @@
       Standard. HyperSQL has a dedicated name-space for indexes in each
       schema.</para>
     </section>
+
+    <section>
+      <title>Synonyms</title>
+
+      <para>Synonyms are user-defined names that refer to other schema
+      objects. Synonyms can be defined for TABLE, VIEW and SEQUENCE names and
+      used in SELECT, UPDATE, CALL, etc. statements. They cannot be used in
+      DDL statements. Synonym are in schemas, but they are used without a
+      schema qualifier. When used, a synonym is immediately translated to the
+      target name and the target name is used in the actual statement. The
+      access privileges to the target object are checked.</para>
+
+      <programlisting> CREATE SYNONYM REG FOR OTHER_SCHEMA.REGISTRATION_DETAIL_TABLE
+
+ SELECT R_ID, R_DATE FROM REG WHERE R_DATA &gt; CURRENT_DATE - 3 DAY
+</programlisting>
+
+      <para>A synonym cannot be the same as the name of any object in the
+      schema.</para>
+    </section>
   </section>
 
   <section xml:id="dbc_schema_def_statements">
@@ -920,10 +940,10 @@
       EXISTS</literal></simpara>
 
       <para>This clause is not part of the SQL standard and is a HyperSQL
-      extension to CREATE statements that create tables, views, sequences and 
-	  indexes, as well as ALTER TABLE ... ADD CONSTRAINT statements. If it is specified, then the statement does not
-      return an error if the create statement is for an object name that already 
-	  exists.</para>
+      extension to CREATE statements that create tables, views, sequences and
+      indexes, as well as ALTER TABLE ... ADD CONSTRAINT statements. If it is
+      specified, then the statement does not return an error if the create
+      statement is for an object name that already exists.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SPECIFIC</primary>
@@ -942,7 +962,9 @@
       <para>This clause is used in statements that need to specify one of the
       multiple versions of an overloaded routine. The <literal>&lt;specific
       name&gt;</literal> is the one specified in the <literal>&lt;routine
-      definition&gt;</literal> statement.</para>
+      definition&gt;</literal> statement. The keyword
+      <literal>ROUTINE</literal> can be used instead of either
+      <literal>FUNCTION</literal> or <literal>PROCEDURE</literal>.</para>
     </section>
 
     <section xml:id="dbc_renaming">
@@ -992,7 +1014,7 @@
       <para>Adds a comment to the object metadata, which can later be read
       from an INFORMATION_SCHEMA view. This command is not part of the SQL
       Standard. The strange syntax is due to compatibility with other database
-      engines that support the statement.<literal> The &lt;name&gt;</literal>
+      engines that support the statement. The <literal>&lt;name&gt;</literal>
       is the name of a table, view, column or routine. The name of the column
       consists of dot-separated<literal> &lt;table name&gt; . &lt;column
       name&gt;</literal>. The name of the table, view or routine can be a
@@ -1000,10 +1022,11 @@
       already a comment on the object, the new comment will replace it.</para>
 
       <para>The comments appear in the results returned by JDBC
-      DatabaseMetaData methods, getTables() and getColumns(). The
-      INFORMATION_SCHEMA.SYSTEM_COMMENTS view contains the comments. You can
-      query this view using the schema, table, and column names to retrieve
-      the comments.</para>
+      DatabaseMetaData methods, <literal>getTables()</literal> and
+      <literal>getColumns()</literal>. The
+      <literal>INFORMATION_SCHEMA.SYSTEM_COMMENTS</literal> view contains the
+      comments. You can query this view using the schema, table, and column
+      names to retrieve the comments.</para>
     </section>
 
     <section xml:id="dbc_schema_creation">
@@ -1017,18 +1040,18 @@
 
       <simpara><emphasis>schema definition</emphasis></simpara>
 
-      <para>The CREATE_SCHEMA or DBA role is required in order to create a
-      schema. A schema can be created with or without schema objects. Schema
-      objects can always be added after creating the schema, or existing ones
-      can be dropped. Within the <literal>&lt;schema definition&gt;</literal>
-      statement, all schema object creation takes place inside the newly
-      created schema. Therefore, if a schema name is specified for the schema
-      objects, the name must match that of the new schema. In addition to
-      statements for creating schema objects, the statement can include
-      instances of <literal>&lt;grant statement&gt;</literal> and
-      <literal>&lt;role definition&gt;</literal>. This is a curious aspect of
-      the SQL standard, as these elements do not really belong to schema
-      creation.</para>
+      <para>The <literal>CREATE_SCHEMA</literal> or <literal>DBA</literal>
+      role is required in order to create a schema. A schema can be created
+      with or without schema objects. Schema objects can always be added after
+      creating the schema, or existing ones can be dropped. Within the
+      <literal>&lt;schema definition&gt;</literal> statement, all schema
+      object creation takes place inside the newly created schema. Therefore,
+      if a schema name is specified for the schema objects, the name must
+      match that of the new schema. In addition to statements for creating
+      schema objects, the statement can include instances of
+      <literal>&lt;grant statement&gt;</literal> and <literal>&lt;role
+      definition&gt;</literal>. This is a curious aspect of the SQL standard,
+      as these elements do not really belong to schema creation.</para>
 
       <para><literal>&lt;schema definition&gt; ::= CREATE SCHEMA &lt;schema
       name clause&gt; [ &lt;schema character set specification&gt; ] [
@@ -1056,7 +1079,7 @@
       generator definition&gt; | &lt;grant statement&gt; | &lt;role
       definition&gt;</literal></para>
 
-      <para>An example of the command is given below. Note that a single
+      <para>An example of the statement is given below. Note that a single
       semicolon appears at the end. There should be no semicolon between the
       statements:</para>
 
@@ -1087,8 +1110,9 @@
       <para>This command destroys an existing schema. If <literal>&lt;drop
       behavior&gt;</literal> is <literal>RESTRICT</literal>, the schema must
       be empty, otherwise an error is raised. If <literal>CASCADE</literal> is
-      specified, then all the objects contained in the schema are destroyed
-      with a CASCADE option.</para>
+      specified as <literal>&lt;drop behavior&gt;</literal>, then all the
+      objects contained in the schema are destroyed with a CASCADE
+      option.</para>
     </section>
 
     <section xml:id="dbc_table_creation">
@@ -1103,9 +1127,9 @@
       <simpara><emphasis>table definition</emphasis></simpara>
 
       <simpara><literal>&lt;table definition&gt; ::= CREATE [ { &lt;table
-      scope&gt; | &lt;table type&gt; } ] TABLE [ IF NOT EXISTS ] &lt;table name&gt; &lt;table
-      contents source&gt; [ ON COMMIT { PRESERVE | DELETE } ROWS
-      ]</literal></simpara>
+      scope&gt; | &lt;table type&gt; } ] TABLE [ IF NOT EXISTS ] &lt;table
+      name&gt; &lt;table contents source&gt; [ ON COMMIT { PRESERVE | DELETE }
+      ROWS ]</literal></simpara>
 
       <simpara><literal>&lt;table scope&gt; ::= { GLOBAL | LOCAL }
       TEMPORARY</literal></simpara>
@@ -1198,8 +1222,9 @@
       <simpara><literal>&lt;column definition&gt; ::= &lt;column name&gt; [
       &lt;data type or domain name&gt; ] [ &lt;default clause&gt; |
       &lt;identity column specification&gt; | &lt;identity column sequence
-      specification&gt; | &lt;generation clause&gt; ] [ &lt;column constraint
-      definition&gt;... ] [ &lt;collate clause&gt; ]</literal></simpara>
+      specification&gt; | &lt;generation clause&gt; ] [ &lt;update clause&gt;
+      ] [ &lt;column constraint definition&gt;... ] [ &lt;collate clause&gt;
+      ]</literal></simpara>
 
       <simpara><literal>&lt;data type or domain name&gt; ::= &lt;data type&gt;
       | &lt;domain name&gt;</literal></simpara>
@@ -1226,6 +1251,8 @@
       <indexterm significance="preferred" type="sql">
         <primary>generated column specification</primary>
       </indexterm>
+
+      <simpara><emphasis role="bold">GENERATED</emphasis></simpara>
 
       <simpara><emphasis>generated columns</emphasis></simpara>
 
@@ -1357,6 +1384,29 @@
       <para>In PGS (PostgreSQL) compatibility mode, a NEXTVAL function can be
       used. Also, in MSS compatibility mode, the default value can be enclosed
       in parentheses.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ON UPDATE clause</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ON UPDATE</emphasis></simpara>
+
+      <simpara><emphasis>on update clause</emphasis></simpara>
+
+      <para>If a column has a <literal>&lt;on update clause&gt;</literal> then
+      every time an UPDATE or MERGE statement updates the values of the other
+      columns of the row, the value in this column is updated to the
+      CURRENT_TIMESTAMP. If the UPDATE statement explicitly updates this
+      column, then the explicit value is used instead of CURRENT TIMESTAMP.
+      </para>
+
+      <simpara><literal>&lt;on update clause&gt; ::= ON UPDATE
+      CURRENT_TIMESTAMP</literal></simpara>
+
+      <para>The type of the column must be TIMESTAMP or TIMESTAMP WITH TIME
+      ZONE.</para>
+
+      <para>This feature is similar to MySQL's ON UPDATE clause.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>CONSTRAINT name and characteristics</primary>
@@ -2153,9 +2203,10 @@
 
       <simpara><emphasis>view definition</emphasis></simpara>
 
-      <simpara><literal>&lt;view definition&gt; ::= CREATE VIEW [ IF NOT EXISTS ] 
-	  &lt;table name&gt; &lt;view specification&gt; AS &lt;query expression&gt; [ WITH [
-      CASCADED | LOCAL ] CHECK OPTION ]</literal></simpara>
+      <simpara><literal>&lt;view definition&gt; ::= CREATE VIEW [ IF NOT
+      EXISTS ] &lt;table name&gt; &lt;view specification&gt; AS &lt;query
+      expression&gt; [ WITH [ CASCADED | LOCAL ] CHECK OPTION
+      ]</literal></simpara>
 
       <simpara><literal>&lt;view specification&gt; ::= [ &lt;left paren&gt;
       &lt;view column list&gt; &lt;right paren&gt; ]</literal></simpara>
@@ -2684,8 +2735,8 @@
       <simpara><emphasis>sequence generator definition</emphasis></simpara>
 
       <simpara><literal>&lt;sequence generator definition&gt; ::= CREATE
-      SEQUENCE [ IF NOT EXISTS ] &lt;sequence generator name&gt; [ &lt;sequence generator
-      options&gt; ]</literal></simpara>
+      SEQUENCE [ IF NOT EXISTS ] &lt;sequence generator name&gt; [
+      &lt;sequence generator options&gt; ]</literal></simpara>
 
       <simpara><literal>&lt;sequence generator options&gt; ::= &lt;sequence
       generator option&gt; ...</literal></simpara>
@@ -2873,6 +2924,38 @@
       <title>Other Schema Object Creation</title>
 
       <indexterm significance="preferred" type="sql">
+        <primary>CREATE SYNONYM</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE SYNONYM</emphasis></simpara>
+
+      <simpara><emphasis>create synonym statement</emphasis></simpara>
+
+      <simpara><literal>&lt;create synonym statement&gt; ::= CREATE SYNONYM
+      &lt;synonym name&gt; FOR &lt;target object name&gt;</literal></simpara>
+
+      <para>Creates a synonym for the <literal>&lt;target object
+      name&gt;</literal>. The synonym is defined in the current schema, unless
+      the name is qualified with a different schema name. The target object
+      name can be a schema object in the current schema or in another schema.
+      The synonym can be used only without the schema name.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP SYNONYM</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP SYNONYM</emphasis></simpara>
+
+      <simpara><emphasis>drop synonym statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop synonym statement&gt; ::= DROP SYNONYM
+      &lt;synonym name&gt;</literal></simpara>
+
+      <para>Drops the synonym. The <literal>&lt;synonym name&gt;</literal> can
+      be the simple name of the synonym or qualified with the schema
+      name.</para>
+
+      <indexterm significance="preferred" type="sql">
         <primary>CREATE INDEX</primary>
       </indexterm>
 
@@ -2880,9 +2963,10 @@
 
       <simpara><emphasis>create index statement</emphasis></simpara>
 
-      <simpara><literal>&lt;create index statement&gt; ::= CREATE INDEX  [ IF NOT EXISTS ]
-      &lt;index name&gt; ON &lt;table name&gt; &lt;left paren&gt; {&lt;column
-      name&gt; [ASC | DESC]}, ... &lt;right paren&gt;</literal></simpara>
+      <simpara><literal>&lt;create index statement&gt; ::= CREATE INDEX [ IF
+      NOT EXISTS ] &lt;index name&gt; ON &lt;table name&gt; &lt;left paren&gt;
+      {&lt;column name&gt; [ASC | DESC]}, ... &lt;right
+      paren&gt;</literal></simpara>
 
       <para>Creates an index on a group of columns of a table. The optional
       [ASC | DESC] specifies if the column is indexed in the ascending or
