@@ -73,7 +73,6 @@ public class ParserDQL extends ParserBase {
     protected Database             database;
     protected Session              session;
     protected final CompileContext compileContext;
-    HsqlException                  lastError;
 
     /**
      *  Constructs a new Parser object with the given context.
@@ -1162,7 +1161,7 @@ public class ParserDQL extends ParserBase {
             case Tokens.TABLE : {
                 read();
 
-                Table table = readTableName();
+                Table table = readTableName(true);
 
                 if (table.isView()) {
                     table = ((View) table).newDerivedTable(session);
@@ -1804,7 +1803,7 @@ public class ParserDQL extends ParserBase {
 
     protected RangeVariable readRangeVariableForDataChange(int operation) {
 
-        Table      table = readTableName();
+        Table      table = readTableName(true);
         SimpleName alias = null;
 
         if (operation != StatementTypes.TRUNCATE) {
@@ -1818,6 +1817,12 @@ public class ParserDQL extends ParserBase {
                                                       isDelimitedIdentifier());
 
                 read();
+            }
+
+            if (alias == null && lastSynonym != null) {
+                alias =
+                    HsqlNameManager.getSimpleName(lastSynonym.name,
+                                                  lastSynonym.isNameQuoted);
             }
         }
 
@@ -1922,6 +1927,7 @@ public class ParserDQL extends ParserBase {
         OrderedHashSet columnList     = null;
         boolean        joinedTable    = false;
         boolean        isLateral      = false;
+        boolean        isTableName    = false;
 
         switch (token.tokenType) {
 
@@ -1975,7 +1981,8 @@ public class ParserDQL extends ParserBase {
                 table = readNamedSubqueryOrNull();
 
                 if (table == null) {
-                    table = readTableName();
+                    table       = readTableName(true);
+                    isTableName = true;
                 }
 
                 if (table.isView()) {
@@ -2019,6 +2026,11 @@ public class ParserDQL extends ParserBase {
             } else if (!hasAs && minus) {
                 rewind(position);
             }
+        }
+
+        if (isTableName && alias == null && lastSynonym != null) {
+            alias = HsqlNameManager.getSimpleName(lastSynonym.name,
+                                                  lastSynonym.isNameQuoted);
         }
 
         if (database.sqlSyntaxMss) {
@@ -5895,10 +5907,13 @@ public class ParserDQL extends ParserBase {
         readThis(Tokens.FOR);
         checkIsSchemaObjectName();
 
-        String schema = session.getSchemaName(token.namePrefix);
-        NumberSequence sequence =
-            database.schemaManager.getSequence(token.tokenString, schema,
-                                               true);
+        NumberSequence sequence = database.schemaManager.findSequence(session,
+            token.tokenString, token.namePrefix);
+
+        if (sequence == null) {
+            throw Error.error(ErrorCode.X_42501, token.tokenString);
+        }
+
         Token recordedToken = getRecordedToken();
 
         read();
@@ -6087,14 +6102,38 @@ public class ParserDQL extends ParserBase {
     }
 
     Table readTableName() {
+        return readTableName(false);
+    }
+
+    Table readTableName(boolean orSynonym) {
 
         checkIsIdentifier();
+
+        lastSynonym = null;
 
         Table table = database.schemaManager.findTable(session,
             token.tokenString, token.namePrefix, token.namePrePrefix);
 
         if (table == null) {
-            throw Error.error(ErrorCode.X_42501, token.tokenString);
+            boolean trySynonym = orSynonym && token.namePrefix == null
+                                 && !isViewDefinition;
+
+            if (trySynonym) {
+                ReferenceObject reference = database.schemaManager.findSynonym(
+                    token.tokenString,
+                    session.getCurrentSchemaHsqlName().name,
+                    SchemaObject.TABLE);
+
+                if (reference != null) {
+                    table = (Table) database.schemaManager.getSchemaObject(
+                        reference.getTarget());
+                    lastSynonym = reference.getName();
+                }
+            }
+
+            if (table == null) {
+                throw Error.error(ErrorCode.X_42501, token.tokenString);
+            }
         }
 
         getRecordedToken().setExpression(table);

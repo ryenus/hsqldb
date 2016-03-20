@@ -1009,9 +1009,12 @@ public class ParserDDL extends ParserRoutine {
         QueryExpression queryExpression;
 
         try {
-            queryExpression = XreadQueryExpression();
+            isViewDefinition = true;
+            queryExpression  = XreadQueryExpression();
         } catch (HsqlException e) {
             queryExpression = XreadJoinedTableAsView();
+        } finally {
+            isViewDefinition = false;
         }
 
         Token[] tokenisedStatement = getRecordedStatement();

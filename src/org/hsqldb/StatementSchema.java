@@ -750,7 +750,8 @@ public class StatementSchema extends Statement {
             case StatementTypes.DROP_ORDERING :
             case StatementTypes.DROP_VIEW :
             case StatementTypes.DROP_INDEX :
-            case StatementTypes.DROP_CONSTRAINT : {
+            case StatementTypes.DROP_CONSTRAINT :
+            case StatementTypes.DROP_REFERENCE : {
                 try {
                     HsqlName name       = (HsqlName) arguments[0];
                     int      objectType = ((Integer) arguments[1]).intValue();
@@ -838,6 +839,7 @@ public class StatementSchema extends Statement {
                         case StatementTypes.DROP_COLLATION :
                         case StatementTypes.DROP_SEQUENCE :
                         case StatementTypes.DROP_TRIGGER :
+                        case StatementTypes.DROP_REFERENCE :
                             dropObject(session, name, cascade);
                             break;
 
@@ -875,10 +877,6 @@ public class StatementSchema extends Statement {
                                                            name.schema);
                             schemaManager.dropConstraint(session, name,
                                                          cascade);
-                            break;
-
-                        case StatementTypes.DROP_REFERENCE :
-                            dropObject(session, name, cascade);
                             break;
                     }
 

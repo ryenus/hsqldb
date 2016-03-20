@@ -669,7 +669,10 @@ public class StatementCommand extends Statement {
                 session.checkAdmin();
                 session.checkDDLWrite();
 
-                if (HsqlDatabaseProperties.sql_enforce_names.equals(
+                if (HsqlDatabaseProperties.sql_live_object.equals(
+                    property)) {
+                    session.database.setLiveObject(mode);
+                } else if (HsqlDatabaseProperties.sql_enforce_names.equals(
                         property)) {
                     session.database.setStrictNames(mode);
                 } else if (HsqlDatabaseProperties.sql_regular_names.equals(

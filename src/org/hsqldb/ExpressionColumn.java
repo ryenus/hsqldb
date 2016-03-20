@@ -371,7 +371,6 @@ public class ExpressionColumn extends Expression {
 
             case OpTypes.MULTICOLUMN :
                 throw Error.error(ErrorCode.X_42581, "*");
-
             case OpTypes.ROWNUM :
             case OpTypes.DYNAMIC_PARAM :
             case OpTypes.ASTERISK :
@@ -443,9 +442,8 @@ public class ExpressionColumn extends Expression {
                         if (Tokens.T_CURRVAL.equals(columnName)
                                 || Tokens.T_PREVVAL.equals(columnName)) {
                             NumberSequence seq =
-                                session.database.schemaManager.getSequence(
-                                    tableName, session.getSchemaName(schema),
-                                    false);
+                                session.database.schemaManager.findSequence(
+                                    session, tableName, schema);
 
                             if (seq != null) {
                                 opType     = OpTypes.SEQUENCE_CURRENT;
@@ -458,9 +456,8 @@ public class ExpressionColumn extends Expression {
                             }
                         } else if (Tokens.T_NEXTVAL.equals(columnName)) {
                             NumberSequence seq =
-                                session.database.schemaManager.getSequence(
-                                    tableName, session.getSchemaName(schema),
-                                    false);
+                                session.database.schemaManager.findSequence(
+                                    session, tableName, schema);
 
                             if (seq != null) {
                                 opType     = OpTypes.SEQUENCE;
@@ -491,7 +488,6 @@ public class ExpressionColumn extends Expression {
 
                 break;
             }
-
             default :
         }
 

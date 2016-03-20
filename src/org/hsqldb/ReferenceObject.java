@@ -66,7 +66,12 @@ public class ReferenceObject implements SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
-        return new OrderedHashSet();
+
+        OrderedHashSet set = new OrderedHashSet();
+
+        set.add(target);
+
+        return set;
     }
 
     public OrderedHashSet getComponents() {
