@@ -338,8 +338,7 @@ public final class Schema implements SchemaObject {
     SchemaObject findAnySchemaObject(String name) {
 
         int[] types = {
-            SchemaObject.SEQUENCE, SchemaObject.TABLE, SchemaObject.ROUTINE,
-            SchemaObject.TYPE
+            SchemaObject.SEQUENCE, SchemaObject.TABLE
         };
 
         for (int type : types) {
@@ -357,15 +356,19 @@ public final class Schema implements SchemaObject {
      * synonyms are allowed for a table, view, sequence, procedure,
      * function, package, materialized view, user-defined type.
      */
-    HsqlName findSynonymTarget(String name) {
+    ReferenceObject findReference(String name, int type) {
+        ReferenceObject ref = (ReferenceObject) referenceList.get(name);
 
-        ReferenceObject reference = (ReferenceObject) referenceList.get(name);
 
-        if (reference == null) {
-            return null;
+        if(ref.getTarget().type == type) {
+            return ref;
         }
 
-        return reference.getTarget();
+        if (ref.getTarget().type == SchemaObject.VIEW && type == SchemaObject.TABLE) {
+            return ref;
+        }
+
+        return null;
     }
 
     SchemaObject findSchemaObject(String name, int type) {

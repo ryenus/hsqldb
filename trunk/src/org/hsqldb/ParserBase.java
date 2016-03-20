@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import java.math.BigDecimal;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
@@ -47,7 +48,7 @@ import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class ParserBase {
@@ -56,14 +57,17 @@ public class ParserBase {
     protected Token   token;
 
     //
-    protected boolean       isRecording;
-    protected HsqlArrayList recordedStatement;
-    private final Token     dummyToken = new Token();
+    private final Token dummyToken = new Token();
 
     //
-    protected boolean isCheckOrTriggerCondition;
-    protected boolean isSchemaDefinition;
-    protected int     parsePosition;
+    protected int           parsePosition;
+    protected HsqlException lastError;
+    protected HsqlName      lastSynonym;
+    protected boolean       isCheckOrTriggerCondition;
+    protected boolean       isSchemaDefinition;
+    protected boolean       isViewDefinition;
+    protected boolean       isRecording;
+    protected HsqlArrayList recordedStatement;
     static final BigDecimal LONG_MAX_VALUE_INCREMENT =
         BigDecimal.valueOf(Long.MAX_VALUE).add(BigDecimal.valueOf(1));
 
@@ -103,8 +107,11 @@ public class ParserBase {
 
         //
         parsePosition             = 0;
+        lastError                 = null;
+        lastSynonym               = null;
         isCheckOrTriggerCondition = false;
         isSchemaDefinition        = false;
+        isViewDefinition          = false;
         isRecording               = false;
         recordedStatement         = null;
     }

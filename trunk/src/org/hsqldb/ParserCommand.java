@@ -1151,6 +1151,18 @@ public class ParserCommand extends ParserDDL {
 
                 switch (token.tokenType) {
 
+                    case Tokens.LIVE :
+                        read();
+                        readThis(Tokens.OBJECT);
+
+                        property = HsqlDatabaseProperties.sql_live_object;
+                        flag     = processTrueOrFalseObject();
+
+                        Object[] args = new Object[] {
+                            property, flag, value
+                        };
+                        break;
+
                     case Tokens.NAMES :
                         read();
 
@@ -1819,7 +1831,7 @@ public class ParserCommand extends ParserDDL {
 
         outerloop:
         while (true) {
-            Table table = readTableName();
+            Table table = readTableName(true);
 
             switch (token.tokenType) {
 

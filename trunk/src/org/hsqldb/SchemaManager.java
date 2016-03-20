@@ -711,6 +711,13 @@ public class SchemaManager {
             case SchemaObject.SPECIFIC_ROUTINE :
                 set = schema.specificRoutineLookup;
                 break;
+
+            case SchemaObject.REFERENCE :
+                set = schema.referenceLookup;
+                break;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "SchemaObjectSet");
         }
 
         return set;
@@ -1112,6 +1119,28 @@ public class SchemaManager {
         return collation;
     }
 
+    public NumberSequence findSequence(Session session, String name,
+                                       String schemaName) {
+
+        NumberSequence seq = getSequence(name,
+                                         session.getSchemaName(schemaName),
+                                         false);
+
+        if (seq == null && schemaName == null) {
+            schemaName = session.getSchemaName(schemaName);
+
+            ReferenceObject ref = findSynonym(name, schemaName,
+                                              SchemaObject.SEQUENCE);
+
+            if (ref != null) {
+                seq = getSequence(ref.target.name, ref.target.schema.name,
+                                  false);
+            }
+        }
+
+        return seq;
+    }
+
     public NumberSequence getSequence(String name, String schemaName,
                                       boolean raise) {
 
@@ -1389,27 +1418,11 @@ public class SchemaManager {
             }
         }
 
-        {
-
-            // synonym
-            Schema schema = (Schema) schemaMap.get(prefix);
-
-            if (schema == null) {
-                return null;
-            }
-
-            HsqlName synonym = schema.findSynonymTarget(name);
-
-            if (synonym != null && synonym.type == type) {
-                name   = synonym.name;
-                prefix = synonym.schema.name;
-            }
-        }
-
         return findSchemaObject(name, prefix, type);
     }
 
-    public HsqlName findSynonymTarget(String name, String schemaName) {
+    public ReferenceObject findSynonym(String name, String schemaName,
+                                       int type) {
 
         Schema schema = (Schema) schemaMap.get(schemaName);
 
@@ -1417,7 +1430,9 @@ public class SchemaManager {
             return null;
         }
 
-        return schema.findSynonymTarget(name);
+        ReferenceObject reference = schema.findReference(name, type);
+
+        return reference;
     }
 
     public SchemaObject findAnySchemaObject(String name, String schemaName) {
@@ -1977,6 +1992,9 @@ public class SchemaManager {
                     Table table = (Table) schema.tableList.get(tableName.name);
 
                     return table.getIndex(name.name);
+
+                case SchemaObject.REFERENCE :
+                    return schema.referenceLookup.getObject(name.name);
             }
 
             return null;

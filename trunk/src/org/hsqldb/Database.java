@@ -447,6 +447,10 @@ public class Database {
         return granteeManager;
     }
 
+    public void setLiveObject(boolean mode) {
+        sqlLiveObject = mode;
+    }
+
     /**
      *  Sets the isReferentialIntegrity attribute.
      */

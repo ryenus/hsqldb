@@ -99,6 +99,8 @@ public class View extends TableDerived {
 
         ParserDQL p = new ParserDQL(session, new Scanner(statement), null);
 
+        p.isViewDefinition = true;
+
         p.read();
 
         TableDerived viewSubQueryTable = p.XreadViewSubqueryTable(this, true);
