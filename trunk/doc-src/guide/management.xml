@@ -408,7 +408,7 @@
       is to reduce the total size of database files and to allow a quick
       restart in case the database is closed without a proper shutdown. The
       <literal>CHECKPOINT DEFRAG</literal> variant compacts the
-      <literal>.data</literal> file in a similar but way as <literal>SHUTDOWN
+      <literal>.data</literal> file in a similar way to <literal>SHUTDOWN
       COMPACT</literal> does. Obviously this variant takes much longer than a
       normal <literal>CHECKPOINT</literal>. A database setting allows a
       <literal>CHECKPOINT DEFRAG</literal> to be performed automatically when
@@ -2255,8 +2255,8 @@
       and if it is larger than the specified percentage, a CHECKPOINT DEFRAG
       is performed instead of a CHECKPOINT. As the DEFRAG operation uses a lot
       of memory and takes a long time with large databases, setting the
-      threshold above zero is suitable for databases that are smaller than 500
-      MB.</simpara>
+      threshold well above zero is suitable for databases that are around than 500
+      MB or more.</simpara>
 
       <simpara>The default is 0, which indicates no DEFRAG. Useful values are
       between 30 to 60.</simpara>
