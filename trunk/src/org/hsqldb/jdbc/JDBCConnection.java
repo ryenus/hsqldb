@@ -37,16 +37,13 @@ import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
+import java.sql.Savepoint;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Calendar;
 import java.util.Map;
 
-//#ifdef JAVA4
-import java.sql.Savepoint;
-
-//#endif JAVA4
 //#ifdef JAVA6
 import java.sql.Array;
 import java.sql.SQLClientInfoException;
@@ -1899,7 +1896,6 @@ public class JDBCConnection implements Connection {
      * @see JDBCResultSet
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-//#ifdef JAVA4
     public synchronized void setHoldability(
             int holdability) throws SQLException {
 
@@ -1915,8 +1911,6 @@ public class JDBCConnection implements Connection {
         }
         rsHoldability = holdability;
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -1946,15 +1940,12 @@ public class JDBCConnection implements Connection {
      * @see JDBCResultSet
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-//#ifdef JAVA4
     public synchronized int getHoldability() throws SQLException {
 
         checkClosed();
 
         return rsHoldability;
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -1990,7 +1981,6 @@ public class JDBCConnection implements Connection {
      * @see java.sql.Savepoint
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-//#ifdef JAVA4
     public synchronized Savepoint setSavepoint() throws SQLException {
 
         checkClosed();
@@ -2009,8 +1999,6 @@ public class JDBCConnection implements Connection {
 
         return savepoint;
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -2048,7 +2036,6 @@ public class JDBCConnection implements Connection {
      * @see java.sql.Savepoint
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-//#ifdef JAVA4
     public synchronized Savepoint setSavepoint(
             String name) throws SQLException {
 
@@ -2074,8 +2061,6 @@ public class JDBCConnection implements Connection {
 
         return new JDBCSavepoint(name, this);
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -2117,7 +2102,6 @@ public class JDBCConnection implements Connection {
      * @see #rollback
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-//#ifdef JAVA4
     public synchronized void rollback(
             Savepoint savepoint) throws SQLException {
 
@@ -2167,8 +2151,6 @@ public class JDBCConnection implements Connection {
         }
     }
 
-//#endif JAVA4
-
     /**
      * <!-- start generic documentation -->
      *
@@ -2205,7 +2187,6 @@ public class JDBCConnection implements Connection {
      * @see java.sql.Savepoint
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-//#ifdef JAVA4
     public synchronized void releaseSavepoint(
             Savepoint savepoint) throws SQLException {
 
@@ -2255,8 +2236,6 @@ public class JDBCConnection implements Connection {
             throw JDBCUtil.sqlException(e);
         }
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -2316,7 +2295,6 @@ public class JDBCConnection implements Connection {
      * @see JDBCResultSet
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-//#ifdef JAVA4
     public synchronized Statement createStatement(int resultSetType,
             int resultSetConcurrency,
             int resultSetHoldability) throws SQLException {
@@ -2328,8 +2306,6 @@ public class JDBCConnection implements Connection {
 
         return new JDBCStatement(this, props);
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -2397,7 +2373,6 @@ public class JDBCConnection implements Connection {
      * @see JDBCResultSet
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-//#ifdef JAVA4
     public synchronized PreparedStatement prepareStatement(String sql,
             int resultSetType, int resultSetConcurrency,
             int resultSetHoldability) throws SQLException {
@@ -2412,8 +2387,6 @@ public class JDBCConnection implements Connection {
             throw JDBCUtil.sqlException(e);
         }
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -2475,7 +2448,6 @@ public class JDBCConnection implements Connection {
      * @see JDBCResultSet
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-//#ifdef JAVA4
     public synchronized CallableStatement prepareCall(String sql,
             int resultSetType, int resultSetConcurrency,
             int resultSetHoldability) throws SQLException {
@@ -2489,8 +2461,6 @@ public class JDBCConnection implements Connection {
             throw JDBCUtil.sqlException(e);
         }
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -2552,7 +2522,6 @@ public class JDBCConnection implements Connection {
      * this method with a constant of Statement.RETURN_GENERATED_KEYS
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-//#ifdef JAVA4
     public synchronized PreparedStatement prepareStatement(String sql,
             int autoGeneratedKeys) throws SQLException {
 
@@ -2573,8 +2542,6 @@ public class JDBCConnection implements Connection {
             throw JDBCUtil.sqlException(e);
         }
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -2634,7 +2601,6 @@ public class JDBCConnection implements Connection {
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-//#ifdef JAVA4
     public synchronized PreparedStatement prepareStatement(String sql,
             int[] columnIndexes) throws SQLException {
 
@@ -2650,8 +2616,6 @@ public class JDBCConnection implements Connection {
             throw JDBCUtil.sqlException(e);
         }
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -2712,7 +2676,6 @@ public class JDBCConnection implements Connection {
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
      */
-//#ifdef JAVA4
     public synchronized PreparedStatement prepareStatement(String sql,
             String[] columnNames) throws SQLException {
 
@@ -2729,7 +2692,6 @@ public class JDBCConnection implements Connection {
         }
     }
 
-//#endif JAVA4
     //------------------------- JDBC 4.0 -----------------------------------
 
     /**

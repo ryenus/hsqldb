@@ -31,11 +31,14 @@
 
 package org.hsqldb.types;
 
+import java.util.UUID;
+
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.StringConverter;
 
 /**
@@ -198,7 +201,7 @@ public class BinaryUUIDType extends BinaryType {
                                                : -1;
         }
 
-        throw Error.runtimeError(ErrorCode.U_S0500, "BinaryType");
+        throw Error.runtimeError(ErrorCode.U_S0500, "BinaryUUIDType");
     }
 
     public Object convertToTypeLimits(SessionInterface session, Object a) {
@@ -538,7 +541,12 @@ public class BinaryUUIDType extends BinaryType {
         return longValue;
     }
 
-    public static BinaryType getBinaryType(int type, long precision) {
-        return BINARY_UUID;
+    public static BinaryData getBinary(long hi, long lo) {
+        return new BinaryData(ArrayUtil.toByteArray(hi, lo), false);
+    }
+
+    public static BinaryData getBinary(UUID uuid) {
+        return getBinary(uuid.getMostSignificantBits(),
+                         uuid.getLeastSignificantBits());
     }
 }

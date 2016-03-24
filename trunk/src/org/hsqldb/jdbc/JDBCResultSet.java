@@ -5015,12 +5015,9 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-//#ifdef JAVA4
     public java.net.URL getURL(int columnIndex) throws SQLException {
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -5051,12 +5048,9 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-//#ifdef JAVA4
     public java.net.URL getURL(String columnLabel) throws SQLException {
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -5086,13 +5080,10 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-//#ifdef JAVA4
     public void updateRef(int columnIndex,
                           java.sql.Ref x) throws SQLException {
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -5122,13 +5113,10 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-//#ifdef JAVA4
     public void updateRef(String columnLabel,
                           java.sql.Ref x) throws SQLException {
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -5156,15 +5144,12 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-//#ifdef JAVA4
     public void updateBlob(int columnIndex,
                            java.sql.Blob x) throws SQLException {
         startUpdate(columnIndex);
         preparedStatement.setBlobParameter(columnIndex, x);
     }
 
-//#endif JAVA4
-
     /**
      * <!-- start generic documentation -->
      * Updates the designated column with a <code>java.sql.Blob</code> value.
@@ -5191,7 +5176,6 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-//#ifdef JAVA4
     public void updateBlob(String columnLabel,
                            java.sql.Blob x) throws SQLException {
 
@@ -5200,8 +5184,6 @@ public class JDBCResultSet implements ResultSet {
         updateBlob(columnIndex, x);
     }
 
-//#endif JAVA4
-
     /**
      * <!-- start generic documentation -->
      * Updates the designated column with a <code>java.sql.Clob</code> value.
@@ -5228,14 +5210,11 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-//#ifdef JAVA4
     public void updateClob(int columnIndex,
                            java.sql.Clob x) throws SQLException {
         startUpdate(columnIndex);
         preparedStatement.setClobParameter(columnIndex, x);
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -5265,7 +5244,6 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-//#ifdef JAVA4
     public void updateClob(String columnLabel,
                            java.sql.Clob x) throws SQLException {
 
@@ -5274,8 +5252,6 @@ public class JDBCResultSet implements ResultSet {
         updateClob(columnIndex, x);
     }
 
-//#endif JAVA4
-
     /**
      * <!-- start generic documentation -->
      * Updates the designated column with a <code>java.sql.Array</code> value.
@@ -5304,14 +5280,11 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-//#ifdef JAVA4
     public void updateArray(int columnIndex,
                             java.sql.Array x) throws SQLException {
         startUpdate(columnIndex);
         preparedStatement.setParameter(columnIndex, x);
     }
-
-//#endif JAVA4
 
     /**
      * <!-- start generic documentation -->
@@ -5343,7 +5316,6 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-//#ifdef JAVA4
     public void updateArray(String columnLabel,
                             java.sql.Array x) throws SQLException {
 
@@ -5352,7 +5324,6 @@ public class JDBCResultSet implements ResultSet {
         updateArray(columnIndex, x);
     }
 
-//#endif JAVA4
     //------------------------- JDBC 4.0 -----------------------------------
 
     /**
