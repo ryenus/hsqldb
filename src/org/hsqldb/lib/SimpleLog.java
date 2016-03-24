@@ -198,7 +198,6 @@ public class SimpleLog {
 
         sb.append(message);
 
-//#ifdef JAVA4
         Throwable           temp     = new Throwable();
         StackTraceElement[] elements = temp.getStackTrace();
 
@@ -216,7 +215,6 @@ public class SimpleLog {
             sb.append(' ').append(elements[0].getMethodName());
         }
 
-//#endif JAVA4
         sb.append(' ').append(t.toString());
         writer.println(sb.toString());
         sb.setLength(0);

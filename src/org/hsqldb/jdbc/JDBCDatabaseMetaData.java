@@ -4831,12 +4831,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public boolean supportsSavepoints() throws SQLException {
         return true;
     }
-
-//#endif JAVA4
 
     /**
      * Retrieves whether this database supports named parameters to callable
@@ -4856,12 +4853,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public boolean supportsNamedParameters() throws SQLException {
         return true;
     }
-
-//#endif JAVA4
 
     /**
      * Retrieves whether it is possible to have multiple <code>ResultSet</code> objects
@@ -4883,12 +4877,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public boolean supportsMultipleOpenResults() throws SQLException {
         return true;
     }
-
-//#endif JAVA4
 
     /**
      * Retrieves whether auto-generated keys can be retrieved after
@@ -4912,12 +4903,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public boolean supportsGetGeneratedKeys() throws SQLException {
         return true;
     }
-
-//#endif JAVA4
 
     /**
      * Retrieves a description of the user-defined type (UDT) hierarchies defined in a
@@ -4983,7 +4971,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @see #getSearchStringEscape (JDBC4 clarification)
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public ResultSet getSuperTypes(
             String catalog, String schemaPattern,
             String typeNamePattern) throws SQLException {
@@ -5007,8 +4994,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         return execute(select.toString());
     }
-
-//#endif JAVA4
 
     /**
      * Retrieves a description of the table hierarchies defined in a particular
@@ -5054,7 +5039,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @see #getSearchStringEscape (JDBC4 clarification)
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public ResultSet getSuperTables(
             String catalog, String schemaPattern,
             String tableNamePattern) throws SQLException {
@@ -5067,8 +5051,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         return execute(select.toString());
     }
-
-//#endif JAVA4
 
     /**
      * Retrieves a description of the given attribute of the given type
@@ -5158,7 +5140,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @see #getSearchStringEscape
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public ResultSet getAttributes(
             String catalog, String schemaPattern, String typeNamePattern,
             String attributeNamePattern) throws SQLException {
@@ -5179,8 +5160,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         return execute(select.toString());
     }
 
-//#endif JAVA4
-
     /**
      * Retrieves whether this database supports the given result set holdability.
      *
@@ -5200,14 +5179,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @see JDBCConnection
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public boolean supportsResultSetHoldability(
             int holdability) throws SQLException {
         return holdability == JDBCResultSet.HOLD_CURSORS_OVER_COMMIT
                || holdability == JDBCResultSet.CLOSE_CURSORS_AT_COMMIT;
     }
-
-//#endif JAVA4
 
     /**
      * (JDBC4 clarification:)
@@ -5232,12 +5208,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public int getResultSetHoldability() throws SQLException {
         return JDBCResultSet.HOLD_CURSORS_OVER_COMMIT;
     }
-
-//#endif JAVA4
 
     /**
      * Retrieves the major version number of the underlying database.
@@ -5252,7 +5225,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public int getDatabaseMajorVersion() throws SQLException {
 
         ResultSet rs = execute("call database_version()");
@@ -5265,8 +5237,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         return Integer.parseInt(v.substring(0, v.indexOf(".")));
     }
-
-//#endif JAVA4
 
     /**
      * Retrieves the minor version number of the underlying database.
@@ -5282,7 +5252,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public int getDatabaseMinorVersion() throws SQLException {
 
         ResultSet rs = execute("call database_version()");
@@ -5298,8 +5267,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         return Integer.parseInt(v.substring(start, v.indexOf(".", start)));
     }
 
-//#endif JAVA4
-
     /**
      * Retrieves the major JDBC version number for this
      * driver.
@@ -5314,12 +5281,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public int getJDBCMajorVersion() throws SQLException {
         return JDBC_MAJOR;
     }
-
-//#endif JAVA4
 
     /**
      * Retrieves the minor JDBC version number for this
@@ -5334,12 +5298,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public int getJDBCMinorVersion() throws SQLException {
         return 0;
     }
-
-//#endif JAVA4
 
     /**
      * (JDBC4 modified:)
@@ -5362,12 +5323,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @throws SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public int getSQLStateType() throws SQLException {
         return sqlStateSQL99;
     }
-
-//#endif JAVA4
 
     /**
      * Indicates whether updates made to a LOB are made on a copy or directly
@@ -5392,12 +5350,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @throws SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public boolean locatorsUpdateCopy() throws SQLException {
         return false;
     }
-
-//#endif JAVA4
 
     /**
      * Retrieves whether this database supports statement pooling.
@@ -5415,12 +5370,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @throws SQLException if a database access error occurs
      * @since JDK 1.4, HSQLDB 1.7
      */
-//#ifdef JAVA4
     public boolean supportsStatementPooling() throws SQLException {
         return (JDBC_MAJOR >= 4);
     }
 
-//#endif JAVA4
     //------------------------- JDBC 4.0 -----------------------------------
 
     /**
