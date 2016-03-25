@@ -47,6 +47,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
+import org.hsqldb.ReferenceObject;
 import org.hsqldb.Routine;
 import org.hsqldb.RoutineSchema;
 import org.hsqldb.Schema;

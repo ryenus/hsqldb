@@ -1299,8 +1299,7 @@ public class ParserDML extends ParserDQL {
             RoutineSchema routineSchema =
                 (RoutineSchema) database.schemaManager.findSchemaObject(
                     session, token.tokenString, token.namePrefix,
-                    token.namePrePrefix, token.namePrePrePrefix,
-                    SchemaObject.PROCEDURE);
+                    token.namePrePrefix, SchemaObject.PROCEDURE);
 
             if (routineSchema == null && token.namePrefix == null) {
                 String schema = session.getSchemaName(null);
