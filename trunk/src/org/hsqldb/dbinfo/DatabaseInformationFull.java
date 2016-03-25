@@ -186,14 +186,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             case SYSTEM_INDEXSTATS :
                 return SYSTEM_INDEXSTATS(session, store);
 
+            case SYSTEM_SESSIONS :
+                return SYSTEM_SESSIONS(session, store);
+
             case SYSTEM_SESSIONINFO :
                 return SYSTEM_SESSIONINFO(session, store);
 
             case SYSTEM_PROPERTIES :
                 return SYSTEM_PROPERTIES(session, store);
 
-            case SYSTEM_SESSIONS :
-                return SYSTEM_SESSIONS(session, store);
+            case SYSTEM_SYNONYMS :
+                return SYSTEM_SYNONYMS(session, store);
 
             case SYSTEM_TABLESTATS :
                 return SYSTEM_TABLESTATS(session, store);
@@ -1182,6 +1185,100 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[it_statement]   = st == null ? ""
                                              : st.getSQL();
             row[it_latch_count] = new Long(s.latch.getCount());
+
+            t.insertSys(session, store, row);
+        }
+
+        return t;
+    }
+
+    Table SYSTEM_SYNONYMS(Session session, PersistentStore store) {
+
+        Table t = sysTables[SYSTEM_SYNONYMS];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[SYSTEM_SYNONYMS]);
+
+            addColumn(t, "SYNONYM_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "SYNONYM_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "SYNONYM_NAME", SQL_IDENTIFIER);    // not null
+            addColumn(t, "OBJECT_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "OBJECT_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "OBJECT_NAME", SQL_IDENTIFIER);     // not null
+            addColumn(t, "OBJECT_TYPE", SQL_IDENTIFIER);
+
+            // ------------------------------------------------------------
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_SYNONYMS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2,
+            }, false);
+
+            return t;
+        }
+
+        // column number mappings
+        final int isynonym_cat   = 0;
+        final int isynonym_schem = 1;
+        final int isynonym_name  = 2;
+        final int object_catalog = 3;
+        final int object_schema  = 4;
+        final int object_name    = 5;
+        final int object_type    = 6;
+
+        //
+        // intermediate holders
+        Iterator        objects;
+        ReferenceObject synonym;
+        Object[]        row;
+
+        if (!session.isAdmin()) {
+            return t;
+        }
+
+        // Initialization
+        objects = database.schemaManager.databaseObjectIterator(
+            SchemaObject.REFERENCE);
+
+        // Do it.
+        while (objects.hasNext()) {
+            synonym             = (ReferenceObject) objects.next();
+            row                 = t.getEmptyRowData();
+            row[isynonym_cat]   = database.getCatalogName().name;
+            row[isynonym_schem] = synonym.getSchemaName().name;
+            row[isynonym_name]  = synonym.getName().name;
+            row[object_catalog] = database.getCatalogName().name;
+            row[object_schema]  = synonym.getTarget().schema.name;
+            row[object_name]    = synonym.getTarget().name;
+
+            switch (synonym.getTarget().type) {
+
+                case SchemaObject.TABLE :
+                    row[object_type] = "TABLE";
+                    break;
+
+                case SchemaObject.VIEW :
+                    row[object_type] = "VIEW";
+                    break;
+
+                case SchemaObject.SEQUENCE :
+                    row[object_type] = "SEQUENCE";
+                    break;
+
+                case SchemaObject.ROUTINE :
+                    row[object_type] = "ROUTINE";
+                    break;
+
+                case SchemaObject.FUNCTION :
+                    row[object_type] = "FUNCTION";
+                    break;
+
+                case SchemaObject.PROCEDURE :
+                    row[object_type] = "PROCEDURE";
+                    break;
+            }
 
             t.insertSys(session, store, row);
         }

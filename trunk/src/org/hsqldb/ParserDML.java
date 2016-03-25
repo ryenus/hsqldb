@@ -1299,7 +1299,25 @@ public class ParserDML extends ParserDQL {
             RoutineSchema routineSchema =
                 (RoutineSchema) database.schemaManager.findSchemaObject(
                     session, token.tokenString, token.namePrefix,
-                    token.namePrePrefix, SchemaObject.PROCEDURE);
+                    token.namePrePrefix, token.namePrePrePrefix,
+                    SchemaObject.PROCEDURE);
+
+            if (routineSchema == null && token.namePrefix == null) {
+                String schema = session.getSchemaName(null);
+                ReferenceObject synonym =
+                    database.schemaManager.findSynonym(token.tokenString,
+                                                       schema,
+                                                       SchemaObject.ROUTINE);
+
+                if (synonym != null) {
+                    HsqlName name = synonym.getTarget();
+
+                    routineSchema =
+                        (RoutineSchema) database.schemaManager
+                            .findSchemaObject(name.name, name.schema.name,
+                                              name.type);
+                }
+            }
 
             if (routineSchema != null) {
                 read();
@@ -1415,7 +1433,7 @@ public class ParserDML extends ParserDQL {
     }
 
     /**
-     * Used in ROUTINE statements. Accepts NEXT VALUE FOR SEQUENCE
+     * Used in ROUTINE statements. Accepts NEXT VALUE FOR SEQUENCE as source
      */
     void resolveOuterReferencesAndTypes(RangeGroup[] rangeGroups,
                                         Expression e) {
