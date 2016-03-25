@@ -2376,6 +2376,12 @@ public class SchemaManager {
 
                     break;
                 }
+                case SchemaObject.REFERENCE : {
+                    set    = schema.referenceLookup;
+                    object = set.getObject(name.name);
+
+                    break;
+                }
                 default :
                     throw Error.runtimeError(ErrorCode.U_S0500,
                                              "SchemaManager");
@@ -2539,6 +2545,7 @@ public class SchemaManager {
                     list.add(object.getSQL());
                 }
             }
+
             schemas = schemaMap.values().iterator();
 
             while (schemas.hasNext()) {
