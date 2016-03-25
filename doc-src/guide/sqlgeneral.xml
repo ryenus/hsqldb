@@ -828,7 +828,7 @@
       </indexterm>
 
       <para>From version 2.3.4 there are two options for storing Java
-      Objcts.</para>
+      Objects.</para>
 
       <para>The default option allows storing Serializable object. The objects
       remain serialized inside the database until they are retrieved. The
