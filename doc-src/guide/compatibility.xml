@@ -112,9 +112,9 @@
           <para>Use <literal>&lt;set database sql syntax PGS
           statement&gt;</literal> or the equivalent URL property
           <literal>sql.syntax_pgs=true</literal> to enable the PostgreSQL's
-          non-standard features. References to SERIAL, BIGSERIAL and TEXT data
-          types, as well as sequence functions, are translated into HyperSQL
-          equivalents.</para>
+          non-standard features. References to SERIAL, BIGSERIAL, TEXT and
+          UUID data types, as well as sequence functions, are translated into
+          HyperSQL equivalents.</para>
         </listitem>
 
         <listitem>
@@ -184,7 +184,7 @@
     <section xml:id="coc_compatibility_mysql">
       <title>MySQL Compatibility</title>
 
-      <para>The latest versions of MySQL have introduced greater Standard
+      <para>The latest versions of MySQL have introduced better Standard
       compatibility but some of these features have to be turned on via
       properties. You should therefore check the current Standard
       compatibility settings of your MySQL database and use the available

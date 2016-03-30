@@ -774,20 +774,21 @@
       <title>Synonyms</title>
 
       <para>Synonyms are user-defined names that refer to other schema
-      objects. Synonyms can be defined for TABLE, VIEW and SEQUENCE names and
-      used in SELECT, UPDATE, CALL, etc. statements. They cannot be used in
-      DDL statements. Synonym are in schemas, but they are used without a
-      schema qualifier. When used, a synonym is immediately translated to the
-      target name and the target name is used in the actual statement. The
-      access privileges to the target object are checked.</para>
+      objects. Synonyms can be defined for TABLE, VIEW, SEQUENCE, PROCEDURE
+      and FUNCTION names and used in SELECT, UPDATE, CALL, etc. statements.
+      They cannot be used in DDL statements. Synonym are in schemas, but they
+      are used without a schema qualifier. When used, a synonym is immediately
+      translated to the target name and the target name is used in the actual
+      statement. The access privileges to the target object are
+      checked.</para>
 
       <programlisting> CREATE SYNONYM REG FOR OTHER_SCHEMA.REGISTRATION_DETAIL_TABLE
 
  SELECT R_ID, R_DATE FROM REG WHERE R_DATA &gt; CURRENT_DATE - 3 DAY
 </programlisting>
 
-      <para>A synonym cannot be the same as the name of any object in the
-      schema.</para>
+      <para>A synonym cannot be the same as the name of any existing object in
+      the schema.</para>
     </section>
   </section>
 
@@ -1397,8 +1398,8 @@
       every time an UPDATE or MERGE statement updates the values of the other
       columns of the row, the value in this column is updated to the
       CURRENT_TIMESTAMP. If the UPDATE statement explicitly updates this
-      column, then the explicit value is used instead of CURRENT TIMESTAMP.
-      </para>
+      column, then the explicit value is used instead of CURRENT
+      TIMESTAMP.</para>
 
       <simpara><literal>&lt;on update clause&gt; ::= ON UPDATE
       CURRENT_TIMESTAMP</literal></simpara>
