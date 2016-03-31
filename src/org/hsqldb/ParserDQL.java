@@ -94,9 +94,9 @@ public class ParserDQL extends ParserBase {
      *
      * @param sql a new SQL character sequence to replace the current one
      */
-    void reset(String sql) {
+    void reset(Session session, String sql) {
 
-        super.reset(sql);
+        super.reset(session, sql);
         compileContext.reset();
 
         lastError = null;
@@ -2692,7 +2692,7 @@ public class ParserDQL extends ParserBase {
                     String  spec    = readQuotedString();
                     Scanner scanner = session.getScanner();
 
-                    scanner.reset(spec);
+                    scanner.reset(session, spec);
                     scanner.scanNext();
 
                     String schemaName =
@@ -2814,7 +2814,7 @@ public class ParserDQL extends ParserBase {
         String  spec    = readQuotedString();
         Scanner scanner = session.getScanner();
 
-        scanner.reset(spec);
+        scanner.reset(session, spec);
         scanner.scanNext();
 
         String schemaName = session.getSchemaName(scanner.token.namePrefix);

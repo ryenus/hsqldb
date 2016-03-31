@@ -100,7 +100,7 @@ public class StatementSchemaDefinition extends StatementSchema {
             } catch (HsqlException e) {}
 
             statements[i].setSchemaHsqlName(schemaDefinitionName);
-            session.parser.reset(statements[i].getSQL());
+            session.parser.reset(session, statements[i].getSQL());
 
             try {
                 session.parser.read();

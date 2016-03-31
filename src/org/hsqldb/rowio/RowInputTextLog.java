@@ -38,6 +38,7 @@ import java.util.GregorianCalendar;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Scanner;
+import org.hsqldb.Session;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -62,7 +63,7 @@ import org.hsqldb.types.Type;
  * Class for reading the data for a database row from the script file.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.7.3
  */
 public class RowInputTextLog extends RowInputBase
@@ -92,9 +93,9 @@ implements RowInputInterface {
         this.version18 = version18;
     }
 
-    public void setSource(String text) {
+    public void setSource(Session session, String text) {
 
-        scanner.reset(text);
+        scanner.reset(session, text);
 
         statementType = ScriptReaderBase.ANY_STATEMENT;
 

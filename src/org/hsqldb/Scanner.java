@@ -182,6 +182,7 @@ public class Scanner {
     Token   token = new Token();
     boolean nullAndBooleanAsValue;
     boolean backtickQuoting;
+    boolean charLiteral = true;
 
     //
     private boolean hasNonSpaceSeparator;
@@ -204,15 +205,18 @@ public class Scanner {
 
     public Scanner() {}
 
-    public Scanner(Session session) {
-
-        if (session.database.sqlSyntaxMys) {
-            backtickQuoting = true;
-        }
+    public Scanner(Session session, String sql) {
+        reset(session, sql);
     }
 
-    Scanner(String sql) {
+    public void reset(Session session, String sql) {
+
         reset(sql);
+
+        if (session != null) {
+            backtickQuoting = session.database.sqlSyntaxMys;
+            charLiteral     = session.database.sqlCharLiteral;
+        }
     }
 
     public void reset(String sql) {
@@ -1334,6 +1338,7 @@ public class Scanner {
      */
     void scanToken() {
 
+        int typeCode;
         int character = charAt(currentPosition);
 
         resetState();
@@ -1662,7 +1667,9 @@ public class Scanner {
                     return;
                 }
 
-                token.dataType = CharacterType.getCharacterType(Types.SQL_CHAR,
+                typeCode = charLiteral ? Types.SQL_CHAR
+                                       : Types.SQL_VARCHAR;
+                token.dataType = CharacterType.getCharacterType(typeCode,
                         token.tokenString.length());
                 token.tokenType   = Tokens.X_VALUE;
                 token.isDelimiter = true;
@@ -1720,8 +1727,10 @@ public class Scanner {
                         return;
                     }
 
-                    token.dataType = CharacterType.getCharacterType(
-                        Types.SQL_CHAR, token.tokenString.length());
+                    typeCode = charLiteral ? Types.SQL_CHAR
+                                           : Types.SQL_VARCHAR;
+                    token.dataType = CharacterType.getCharacterType(typeCode,
+                            token.tokenString.length());
                     token.tokenType = Tokens.X_VALUE;
 
                     return;
@@ -1742,9 +1751,10 @@ public class Scanner {
                             return;
                         }
 
+                        typeCode = charLiteral ? Types.SQL_CHAR
+                                               : Types.SQL_VARCHAR;
                         token.dataType = CharacterType.getCharacterType(
-                            Types.SQL_CHAR,
-                            ((String) token.tokenValue).length());
+                            typeCode, ((String) token.tokenValue).length());
 
                         return;
                     }
@@ -2428,8 +2438,7 @@ public class Scanner {
 
         for (; currentPosition < limit; currentPosition++, hi = !hi) {
             int ch = sqlString.charAt(currentPosition);
-
-            int c = getHexValue(ch);
+            int c  = getHexValue(ch);
 
             if (c == -1) {
                 if (uuid && ch == '-' && hi) {
@@ -2537,7 +2546,7 @@ public class Scanner {
                 scanToken();
 
                 if (token.tokenType != Tokens.X_VALUE
-                        || token.dataType.typeCode != Types.SQL_CHAR) {
+                        || !token.dataType.isCharacterType()) {
 
                     // error datetime bad literal
                     throw Error.error(errorCode);

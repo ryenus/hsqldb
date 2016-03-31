@@ -183,7 +183,8 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
     public void compile(Session session, SchemaObject parentObject) {
 
         ParserRoutine p = new ParserRoutine(session,
-                                            new Scanner(statement.getSQL()));
+                                            new Scanner(session,
+                                                statement.getSQL()));
 
         session.sessionContext.pushRoutineTables();
 
@@ -927,8 +928,8 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             returnValue = returnType.convertJavaToSQL(null, returnValue);
             result      = Result.newPSMResult(returnValue);
         } catch (Throwable t) {
-            result = Result.newErrorResult(
-                Error.error(t, ErrorCode.X_46000, getName().name));
+            result = Result.newErrorResult(Error.error(t, ErrorCode.X_46000,
+                    getName().name));
         }
 
         return result;
@@ -969,14 +970,14 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
                 result = Result.newPSMResult(returnValue);
             }
         } catch (InvocationTargetException e) {
-            result = Result.newErrorResult(
-                Error.error(e, ErrorCode.X_46000, getName().name));
+            result = Result.newErrorResult(Error.error(e, ErrorCode.X_46000,
+                    getName().name));
         } catch (IllegalAccessException e) {
-            result = Result.newErrorResult(
-                Error.error(e, ErrorCode.X_46000, getName().name));
+            result = Result.newErrorResult(Error.error(e, ErrorCode.X_46000,
+                    getName().name));
         } catch (Throwable e) {
-            result = Result.newErrorResult(
-                Error.error(e, ErrorCode.X_46000, getName().name));
+            result = Result.newErrorResult(Error.error(e, ErrorCode.X_46000,
+                    getName().name));
         }
 
         session.setCurrentSchemaHsqlName(oldSessionSchema);

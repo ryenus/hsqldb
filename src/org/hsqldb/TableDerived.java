@@ -154,7 +154,7 @@ public class TableDerived extends Table {
             ParserDQL p = new ParserDQL(session, new Scanner(),
                                         session.parser.compileContext);
 
-            p.reset(sql);
+            p.reset(session, sql);
             p.read();
             p.compileContext.setCurrentSubquery(tableName.name);
 

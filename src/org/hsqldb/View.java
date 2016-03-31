@@ -97,7 +97,7 @@ public class View extends TableDerived {
      */
     public void compile(Session session, SchemaObject parentObject) {
 
-        ParserDQL p = new ParserDQL(session, new Scanner(statement), null);
+        ParserDQL p = new ParserDQL(session, new Scanner(session, statement), null);
 
         p.isViewDefinition = true;
 
@@ -280,7 +280,7 @@ public class View extends TableDerived {
         ParserDQL p = new ParserDQL(session, new Scanner(),
                                     session.parser.compileContext);
 
-        p.reset(statement);
+        p.reset(session, statement);
         p.read();
 
         td = p.XreadViewSubqueryTable(this, false);

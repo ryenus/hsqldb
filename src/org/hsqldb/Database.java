@@ -95,24 +95,25 @@ public class Database {
      * Defaults are used in version upgrades, but overridden by
      *  databaseProperties or URL properties for new databases.
      */
+    public int                    sqlAvgScale            = 0;
+    public boolean                sqlCharLiteral         = true;
+    public boolean                sqlConcatNulls         = true;
+    public boolean                sqlConvertTruncate     = true;
+    public boolean                sqlDoubleNaN           = true;
     public boolean                sqlEnforceTypes        = false;
     public boolean                sqlEnforceRefs         = false;
     public boolean                sqlEnforceSize         = true;
     public boolean                sqlEnforceNames        = false;
-    public boolean                sqlRegularNames        = true;
     public boolean                sqlEnforceTDCD         = true;
     public boolean                sqlEnforceTDCU         = true;
-    public boolean                sqlTranslateTTI        = true;
-    public boolean                sqlConcatNulls         = true;
-    public boolean                sqlUniqueNulls         = true;
+    public boolean                sqlIgnoreCase          = false;
+    public boolean                sqlLiveObject          = false;
+    public boolean                sqlLongvarIsLob        = false;
     public boolean                sqlNullsFirst          = true;
     public boolean                sqlNullsOrder          = true;
-    public boolean                sqlConvertTruncate     = true;
-    public boolean                sqlLiveObject          = false;
-    public int                    sqlAvgScale            = 0;
-    public boolean                sqlDoubleNaN           = true;
-    public boolean                sqlLongvarIsLob        = false;
-    public boolean                sqlIgnoreCase          = false;
+    public boolean                sqlRegularNames        = true;
+    public boolean                sqlTranslateTTI        = true;
+    public boolean                sqlUniqueNulls         = true;
     public boolean                sqlSyntaxDb2           = false;
     public boolean                sqlSyntaxMss           = false;
     public boolean                sqlSyntaxMys           = false;
@@ -514,6 +515,10 @@ public class Database {
 
     public void setNullsOrder(boolean mode) {
         sqlNullsOrder = mode;
+    }
+
+    public void setCharacterLiteral(boolean mode) {
+        sqlCharLiteral = mode;
     }
 
     public void setConcatNulls(boolean mode) {

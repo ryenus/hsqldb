@@ -88,7 +88,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.7.0
  */
 public class Logger implements EventLogInterface {
@@ -480,7 +480,7 @@ public class Logger implements EventLogInterface {
             database.collation.setPadding(false);
         }
 
-        String temp = database.getProperties().getStringPropertyDefault(
+        String temp = database.getProperties().getStringProperty(
             HsqlDatabaseProperties.hsqldb_digest);
 
         database.granteeManager.setDigestAlgo(temp);
@@ -564,6 +564,8 @@ public class Logger implements EventLogInterface {
             HsqlDatabaseProperties.jdbc_translate_tti_types);
         database.sqlLiveObject = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_live_object);
+        database.sqlCharLiteral = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_char_literal);
         database.sqlConcatNulls = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_concat_nulls);
         database.sqlNullsFirst = database.databaseProperties.isPropertyTrue(
@@ -1660,6 +1662,10 @@ public class Logger implements EventLogInterface {
             return String.valueOf(database.sqlAvgScale);
         }
 
+        if (HsqlDatabaseProperties.sql_char_literal.equals(name)) {
+            return String.valueOf(database.sqlCharLiteral);
+        }
+
         if (HsqlDatabaseProperties.sql_concat_nulls.equals(name)) {
             return String.valueOf(database.sqlConcatNulls);
         }
@@ -1950,6 +1956,17 @@ public class Logger implements EventLogInterface {
         sb.append(' ').append(Tokens.T_TYPES).append(' ');
         sb.append(database.sqlTranslateTTI ? Tokens.T_TRUE
                                            : Tokens.T_FALSE);
+        if (!database.sqlCharLiteral) {
+            list.add(sb.toString());
+            sb.setLength(0);
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_CHARACTER).append(' ');
+            sb.append(Tokens.T_LITERAL).append(' ');
+            sb.append(database.sqlCharLiteral ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
+        }
+
+        list.add(sb.toString());
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
