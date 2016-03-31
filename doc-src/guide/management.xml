@@ -1284,24 +1284,24 @@
       statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>SET DATABASE UNIQUE NAME</primary>
+        <primary>SET DATABASE TEXT TABLE DEFAULTS</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">SET DATABASE UNIQUE
-      NAME</emphasis></simpara>
+      <simpara><emphasis role="bold">SET DATABASE TEXT TABLE
+      DEFAULTS</emphasis></simpara>
 
-      <simpara><emphasis>set database unique name</emphasis><literal>
-      </literal></simpara>
+      <simpara><emphasis>set database text table defaults
+      statement</emphasis></simpara>
 
-      <simpara><literal>&lt;set database unique name statement&gt; ::= SET
-      DATABASE UNIQUE NAME &lt;identifier&gt;</literal></simpara>
+      <simpara><literal>&lt;set database text table defaults statement&gt; ::=
+      SET DATABASE TEXT TABLE DEFAULTS &lt;character
+      literal&gt;</literal></simpara>
 
-      <simpara>Each HyperSQL catalog (database) has an engine-generated
-      internal name. This name is a 16 character long string, beginning with
-      HSQLDB and based on the time of creation of the database. The name is
-      used for the log events that are sent to external logging frameworks.
-      The new name must be exactly 16 characters long with no
-      spaces.</simpara>
+      <simpara>An optional property to override default text table settings.
+      The string literal has the same format as the string used for setting
+      the data source of a text table, but without the file name. See the
+      <link endterm="texttables-title" xlink:href="#texttables-chapt"></link>
+      chapter.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -1387,29 +1387,29 @@
       <literal>hsqldb.tx_level</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>SET DATABASE TEXT TABLE DEFAULTS</primary>
+        <primary>SET DATABASE UNIQUE NAME</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">SET DATABASE TEXT TABLE
-      DEFAULTS</emphasis></simpara>
+      <simpara><emphasis role="bold">SET DATABASE UNIQUE
+      NAME</emphasis></simpara>
 
-      <simpara><emphasis>set database text table defaults
-      statement</emphasis></simpara>
+      <simpara><emphasis>set database unique name</emphasis><literal>
+      </literal></simpara>
 
-      <simpara><literal>&lt;set database text table defaults statement&gt; ::=
-      SET DATABASE TEXT TABLE DEFAULTS &lt;character
-      literal&gt;</literal></simpara>
+      <simpara><literal>&lt;set database unique name statement&gt; ::= SET
+      DATABASE UNIQUE NAME &lt;identifier&gt;</literal></simpara>
 
-      <simpara>An optional property to override default text table settings.
-      The string literal has the same format as the string used for setting
-      the data source of a text table, but without the file name. See the
-      <link endterm="texttables-title" xlink:href="#texttables-chapt"></link>
-      chapter.</simpara>
+      <simpara>Each HyperSQL catalog (database) has an engine-generated
+      internal name. This name is a 16 character long string, beginning with
+      HSQLDB and based on the time of creation of the database. The name is
+      used for the log events that are sent to external logging frameworks.
+      The new name must be exactly 16 characters long with no
+      spaces.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
     </section>
-
+	
     <section xml:id="mtc_sql_settings">
       <title>SQL Conformance Settings</title>
 
@@ -1674,6 +1674,40 @@
       <literal>jdbc.translate_tti_types</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL CHARACTER LITERAL</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE SQL CHARACTER
+      LITERAL</emphasis></simpara>
+
+      <simpara><emphasis>set database sql character
+      literal</emphasis></simpara>
+
+      <simpara><literal>&lt;set database sql character literal statement&gt;
+      ::= SET DATABASE SQL CHARACTER LITERAL { TRUE | FALSE
+      }</literal></simpara>
+
+      <simpara>When the property is <literal>TRUE</literal>, the data type of
+      character literal strings is <literal>CHARACTER</literal>. When the
+      property is <literal>FALSE</literal> the data type is
+      <literal>VARCHAR</literal>.</simpara>
+
+      <simpara>Setting this property <literal>FALSE</literal> results in
+      strings not padded with spaces in <literal>CASE WHEN</literal>
+      expressions that have multiple literal alternatives.</simpara>
+
+      <simpara>SQL Standard requires the <literal>CHARACTER</literal>
+      type.</simpara>
+
+      <simpara>The property is <literal>TRUE</literal> by default.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.char_literal</literal>.</simpara>
+
+      <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL CONCAT NULLS</primary>
       </indexterm>
 
@@ -1694,7 +1728,7 @@
       <simpara>Setting this property <literal>FALSE</literal> results in
       concatenation behaviour similar to Oracle or MS SQL Server.</simpara>
 
-      <simpara>SQL Standard requires a NULL result..</simpara>
+      <simpara>SQL Standard requires a NULL result.</simpara>
 
       <simpara>The property is <literal>TRUE</literal> by default.</simpara>
 
@@ -1925,16 +1959,16 @@
         <primary>SET DATABASE LIVE OBJECT</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">SET DATABASE LIVE
+      <simpara><emphasis role="bold">SET DATABASE SQL LIVE
       OBJECT</emphasis></simpara>
 
-      <simpara><emphasis>set database live object</emphasis></simpara>
+      <simpara><emphasis>set database sql live object</emphasis></simpara>
 
-      <simpara><literal>&lt;set database live object&gt; ::= SET DATABASE LIVE
-      OBJECT { TRUE | FALSE }</literal></simpara>
+      <simpara><literal>&lt;set database sql live object&gt; ::= SET DATABASE
+      SQL LIVE OBJECT { TRUE | FALSE }</literal></simpara>
 
       <simpara>This property is <literal>FALSE</literal> by default and can
-      only be used in mem: databases.</simpara>
+      only be used in <literal>mem:</literal> databases.</simpara>
 
       <simpara>When the property is <literal>FALSE</literal>, all java objects
       stored in a column of type <literal>OTHER</literal> are serialized. When
@@ -2255,8 +2289,8 @@
       and if it is larger than the specified percentage, a CHECKPOINT DEFRAG
       is performed instead of a CHECKPOINT. As the DEFRAG operation uses a lot
       of memory and takes a long time with large databases, setting the
-      threshold well above zero is suitable for databases that are around than 500
-      MB or more.</simpara>
+      threshold well above zero is suitable for databases that are around than
+      500 MB or more.</simpara>
 
       <simpara>The default is 0, which indicates no DEFRAG. Useful values are
       between 30 to 60.</simpara>
