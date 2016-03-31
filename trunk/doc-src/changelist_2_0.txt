@@ -1,5 +1,5 @@
-21 March 2016 - version 2.3.4 RC 2
--- added support for storing live Java Objects in mem: databases with live_object connection property
+31 March 2016 - version 2.3.4 RC 3
+-- added support for storing live Java Objects in mem: databases with sql.live_object connection property
 -- added support for CREATE SYSNONYM FOR, for tables, views and sequences
 -- added support for ON UPDATE CURRENT_TIMESTAMP for auto updated TIMESTAMP columns
 -- added support for UUID data type
@@ -7,6 +7,7 @@
 -- added support for CallableStatement parameter reference by name
 -- added date range checks to setDate and setTimestamp methods in PreparedStatement
 -- added support for lowercase patterns for TO_DATE etc.
+-- added support for VARCHAR string literals with sql.char_literal property
 -- extensive review and improvement of transaction management in muti-threaded access
 -- fixed issue with user application Thread.interrupt disabling in-process database session
 -- fixed regression with interaction of FK constraints with ON DELETE CASCADE and NO ACTION
