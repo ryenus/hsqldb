@@ -696,6 +696,9 @@ public class StatementCommand extends Statement {
                 } else if (HsqlDatabaseProperties.jdbc_translate_tti_types
                         .equals(property)) {
                     session.database.setTranslateTTI(mode);
+                } else if (HsqlDatabaseProperties.sql_char_literal.equals(
+                        property)) {
+                    session.database.setCharacterLiteral(mode);
                 } else if (HsqlDatabaseProperties.sql_concat_nulls.equals(
                         property)) {
                     session.database.setConcatNulls(mode);

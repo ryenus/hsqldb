@@ -79,7 +79,7 @@ public class ParserCommand extends ParserDDL {
         HsqlArrayList list = new HsqlArrayList();
         Statement     cs   = null;
 
-        reset(sql);
+        reset(session, sql);
 
         while (true) {
             if (token.tokenType == Tokens.X_ENDPARSE) {
@@ -1221,6 +1221,14 @@ public class ParserCommand extends ParserDDL {
                         flag = processTrueOrFalseObject();
                         property =
                             HsqlDatabaseProperties.jdbc_translate_tti_types;
+                        break;
+
+                    case Tokens.CHARACTER :
+                        read();
+                        readThis(Tokens.LITERAL);
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_char_literal;
                         break;
 
                     case Tokens.CONCAT_WORD :

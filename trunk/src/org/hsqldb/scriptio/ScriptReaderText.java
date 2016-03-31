@@ -252,7 +252,7 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         sessionChanged = false;
 
-        rowIn.setSource(statement);
+        rowIn.setSource(session, statement);
 
         statementType = rowIn.getStatementType();
 

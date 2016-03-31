@@ -2655,7 +2655,7 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         int       indexCount  = getIndexCount();
-        ParserDQL p           = new ParserDQL(session, new Scanner(s), null);
+        ParserDQL p = new ParserDQL(session, new Scanner(session, s), null);
         long[]    roots       = new long[indexCount];
         long[]    uniqueSize  = new long[indexCount];
         long      cardinality = -1;

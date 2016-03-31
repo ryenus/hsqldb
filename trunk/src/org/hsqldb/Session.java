@@ -189,7 +189,7 @@ public class Session implements SessionInterface {
                                                  : Boolean.FALSE;
         sessionContext.isReadOnly   = isReadOnlyDefault ? Boolean.TRUE
                                                         : Boolean.FALSE;
-        parser = new ParserCommand(this, new Scanner(this));
+        parser = new ParserCommand(this, new Scanner());
 
         setResultMemoryRowCount(database.getResultMaxMemoryRows());
         resetSchema();
@@ -919,7 +919,7 @@ public class Session implements SessionInterface {
 
     public Statement compileStatement(String sql, int props) {
 
-        parser.reset(sql);
+        parser.reset(this, sql);
 
         Statement cs = parser.compileStatement(props);
 
@@ -928,7 +928,7 @@ public class Session implements SessionInterface {
 
     public Statement compileStatement(String sql) {
 
-        parser.reset(sql);
+        parser.reset(this, sql);
 
         Statement cs =
             parser.compileStatement(ResultProperties.defaultPropsValue);

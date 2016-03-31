@@ -101,9 +101,9 @@ public class ParserBase {
      *
      * @param sql a new SQL character sequence to replace the current one
      */
-    void reset(String sql) {
+    void reset(Session session, String sql) {
 
-        scanner.reset(sql);
+        scanner.reset(session, sql);
 
         //
         parsePosition             = 0;
@@ -457,6 +457,28 @@ public class ParserBase {
     boolean readIfThis(int tokenId) {
 
         if (token.tokenType == tokenId) {
+            read();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    void readThis(String tokenString) {
+
+        if (!tokenString.equals(token.tokenString)) {
+            String required = tokenString;
+
+            throw unexpectedTokenRequire(required);
+        }
+
+        read();
+    }
+
+    boolean readIfThis(String tokenString) {
+
+        if (tokenString.equals(token.tokenString)) {
             read();
 
             return true;
