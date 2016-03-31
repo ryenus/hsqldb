@@ -421,6 +421,7 @@ public class RowOutputBinary extends RowOutputBase {
 
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
+            case Types.SQL_GUID :
                 s += INT_STORE_SIZE;
                 s += ((BinaryData) o).length(null);
                 break;

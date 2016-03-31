@@ -44,7 +44,7 @@ import org.hsqldb.rights.Grantee;
  * Implementation of CHARACTER SET objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class Charset implements SchemaObject {
@@ -209,13 +209,15 @@ public class Charset implements SchemaObject {
             sb.append(name.getSchemaQualifiedStatementName());
         }
 
-        sb.append(' ').append(Tokens.T_AS).append(' ').append(Tokens.T_GET);
-        sb.append(' ');
+        if (base != null) {
+            sb.append(' ').append(Tokens.T_AS).append(' ').append(Tokens.T_GET);
+            sb.append(' ');
 
-        if (SqlInvariants.INFORMATION_SCHEMA.equals(base.schema.name)) {
-            sb.append(base.getStatementName());
-        } else {
-            sb.append(base.getSchemaQualifiedStatementName());
+            if (SqlInvariants.INFORMATION_SCHEMA.equals(base.schema.name)) {
+                sb.append(base.getStatementName());
+            } else {
+                sb.append(base.getSchemaQualifiedStatementName());
+            }
         }
 
         return sb.toString();

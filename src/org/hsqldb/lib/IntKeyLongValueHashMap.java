@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.map.BaseHashMap;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.4
  * @since 1.7.2
  */
 public class IntKeyLongValueHashMap extends BaseHashMap {
@@ -63,7 +63,7 @@ public class IntKeyLongValueHashMap extends BaseHashMap {
         throw new NoSuchElementException();
     }
 
-    public long get(int key, int defaultValue) {
+    public long get(int key, long defaultValue) {
 
         int lookup = getLookup(key);
 
@@ -87,7 +87,7 @@ public class IntKeyLongValueHashMap extends BaseHashMap {
         return false;
     }
 
-    public boolean put(int key, int value) {
+    public boolean put(int key, long value) {
 
         int oldSize = size();
 

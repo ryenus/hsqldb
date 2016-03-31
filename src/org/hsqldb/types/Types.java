@@ -550,6 +550,7 @@ public class Types {
         javaTypeNumbers.put("double", Types.SQL_DOUBLE);
         javaTypeNumbers.put("java.lang.Double", Types.SQL_DOUBLE);
         javaTypeNumbers.put("java.lang.String", Types.SQL_VARCHAR);
+        javaTypeNumbers.put("java.lang.CharSequence", Types.SQL_VARCHAR);
         javaTypeNumbers.put(DateClassName, Types.SQL_DATE);
         javaTypeNumbers.put(TimeClassName, Types.SQL_TIME);
         javaTypeNumbers.put(TimestampClassName, Types.SQL_TIMESTAMP);

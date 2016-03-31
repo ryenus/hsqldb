@@ -52,7 +52,7 @@ import java.util.Arrays;
  * as a node and their contents is not significant.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.7.2
  */
 public class HashIndex {
@@ -135,6 +135,13 @@ public class HashIndex {
         int index = (hash & 0x7fffffff) % hashTable.length;
 
         return hashTable[index];
+    }
+
+    /**
+     * Return the pointer
+     */
+    public int getNewNodePointer() {
+        return newNodePointer;
     }
 
     /**
