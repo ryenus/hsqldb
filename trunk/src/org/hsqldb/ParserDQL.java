@@ -5234,6 +5234,24 @@ public class ParserDQL extends ParserBase {
                 name, recordedToken.namePrefix, recordedToken.namePrePrefix,
                 SchemaObject.FUNCTION);
 
+        if (routineSchema == null && recordedToken.namePrefix == null
+                && !isViewDefinition) {
+            String schema = session.getSchemaName(null);
+            ReferenceObject synonym =
+                database.schemaManager.findSynonym(recordedToken.tokenString,
+                                                   schema,
+                                                   SchemaObject.ROUTINE);
+
+            if (synonym != null) {
+                HsqlName synonymName = synonym.getTarget();
+
+                routineSchema =
+                    (RoutineSchema) database.schemaManager.findSchemaObject(
+                        synonymName.name, synonymName.schema.name,
+                        SchemaObject.ROUTINE);
+            }
+        }
+
         if (routineSchema == null && isSimpleQuoted) {
             HsqlName schema =
                 database.schemaManager.getDefaultSchemaHsqlName();

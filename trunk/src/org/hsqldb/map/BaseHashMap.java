@@ -46,7 +46,7 @@ import org.hsqldb.lib.ObjectComparator;
  * Special getOrAddXXX() methods are used for object maps in some subclasses.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.7.2
  */
 public class BaseHashMap {
@@ -90,6 +90,8 @@ public class BaseHashMap {
     boolean           isObjectValue;
     protected boolean isTwoObjectValue;
     protected boolean isList;
+    protected boolean isAccessCount;
+    protected boolean isLastAccessCount;
 
     //
     private ValuesIterator valuesIterator;
@@ -192,6 +194,8 @@ public class BaseHashMap {
         } else {
             isNoValue = true;
         }
+
+        isLastAccessCount = hasAccessCount;
 
         if (hasAccessCount) {
             accessTable = new int[arraySize];
@@ -302,6 +306,8 @@ public class BaseHashMap {
 
     /**
      * generic method for adding or removing keys
+     *
+     * returns existing Object value if any (or Object key if this is a set)
      */
     protected Object addOrRemove(long longKey, long longValue,
                                  Object objectKey, Object objectValue,
@@ -390,6 +396,10 @@ public class BaseHashMap {
                 return returnValue;
             }
 
+            if (isObjectKey) {
+                returnValue = objectKeyTable[lookup];
+            }
+
             if (isObjectValue) {
                 returnValue              = objectValueTable[lookup];
                 objectValueTable[lookup] = objectValue;
@@ -399,8 +409,10 @@ public class BaseHashMap {
                 longValueTable[lookup] = longValue;
             }
 
-            if (accessTable != null) {
+            if (isLastAccessCount) {
                 accessTable[lookup] = ++accessCount;
+            } else if (isAccessCount) {
+                accessTable[lookup]++;
             }
 
             return returnValue;
@@ -450,8 +462,10 @@ public class BaseHashMap {
         }
 
         //
-        if (accessTable != null) {
+        if (isLastAccessCount) {
             accessTable[lookup] = ++accessCount;
+        } else if (isAccessCount) {
+            accessTable[lookup] = 1;
         }
 
         return returnValue;
@@ -648,8 +662,10 @@ public class BaseHashMap {
         }
 
         //
-        if (accessTable != null) {
+        if (isLastAccessCount) {
             accessTable[lookup] = ++accessCount;
+        } else if (isAccessCount) {
+            accessTable[lookup] = 1;
         }
 
         return returnValue;
@@ -719,8 +735,10 @@ public class BaseHashMap {
                 objectKeyTable[lookup] = objectValueTwo;
             }
 
-            if (accessTable != null) {
+            if (isLastAccessCount) {
                 accessTable[lookup] = ++accessCount;
+            } else if (isAccessCount) {
+                accessTable[lookup]++;
             }
 
             return returnValue;
@@ -759,8 +777,10 @@ public class BaseHashMap {
             objectKeyTable[lookup] = objectValueTwo;
         }
 
-        if (accessTable != null) {
+        if (isLastAccessCount) {
             accessTable[lookup] = ++accessCount;
+        } else if (isAccessCount) {
+            accessTable[lookup] = 1;
         }
 
         return returnValue;
@@ -846,8 +866,10 @@ public class BaseHashMap {
             } else {
                 objectKeyTable[lookup] = object;
 
-                if (accessTable != null) {
+                if (isLastAccessCount) {
                     accessTable[lookup] = ++accessCount;
+                } else if (isAccessCount) {
+                    accessTable[lookup]++;
                 }
             }
 
@@ -867,8 +889,10 @@ public class BaseHashMap {
         lookup                 = hashIndex.linkNode(index, lastLookup);
         objectKeyTable[lookup] = object;
 
-        if (accessTable != null) {
+        if (isLastAccessCount) {
             accessTable[lookup] = ++accessCount;
+        } else if (isAccessCount) {
+            accessTable[lookup] = 1;
         }
 
         return returnValue;
