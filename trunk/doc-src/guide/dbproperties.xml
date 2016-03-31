@@ -1066,6 +1066,47 @@
       </table>
 
       <table frame="all" pgwide="1" tocentry="1">
+        <title>Type of string literals in CASE WHEN</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.char_literal</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>result of CASE WHEN with strings of different
+              lengths</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              false, sets the type of all string literal to VARCHAR, as
+              opposed to CHARACTER. This results in strings not being padded
+              with spaces by CASE WHEN
+              expressions.</para><para><programlisting>SET DATABASE SQL CHARACTER LITERAL { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
         <title>Concatenation with NULL</title>
 
         <tgroup align="left" cols="3">
