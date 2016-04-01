@@ -18,8 +18,8 @@
   <info>
     <title xml:id="unix-title">HyperSQL on UNIX</title>
 
-    <subtitle>How to quickly get a HyperSQL (aka HSQLDB) Listener up and
-    running on UNIX, including Mac OS X</subtitle>
+    <subtitle>How to quickly get a HyperSQL Listener up and running on UNIX,
+    including Mac OS X</subtitle>
 
     <author>
       <personname><firstname>Blaine</firstname>
