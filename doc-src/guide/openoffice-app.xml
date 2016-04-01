@@ -49,7 +49,7 @@
 
     <simpara>OpenOffice.org / LibreOffice / ApacheOpenOffice includes HyperSQL
     and uses it for embedded databases. Our collaboration with OpenOffice.org
-    developers over the last few years has benefited the development and
+    developers over 6 years has benefited the development and
     maturity of HyperSQL. Before integration into OOo, HSQLDB was intended
     solely for application-specific database access. The application developer
     was expected to resolve any integration issues. Because OpenOffice.org is
@@ -67,8 +67,8 @@
     own application, rather than OpenOffice.</simpara>
 
     <simpara>HSQLDB version 1.8.0 is included in OOo, ApacheOpenOffice and
-    LibreOffice 3.x. You can simply replace the jar with an HSQLDB version
-    2.2.9 jar to use the latest capabilities with external databases. It is
+    LibreOffice. You can simply replace the jar with an HSQLDB version
+    2.3.4 jar to use the latest capabilities with external databases. It is
     not yet possible to create and use embedded databases with this
     version.</simpara>
 
@@ -98,7 +98,7 @@
     the PUBLIC schema. This limitation will hopefully disappear in the future
     versions of OOo.</simpara>
 
-    <simpara>There wil hopefuly be a version 2.x jar in the future versions of
+    <simpara>There wil hopefuly be a version HSQLDB 2.x jar in the future versions of
     OpenOffice.</simpara>
   </section>
 

@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2012 Fred Toussi. Permission is granted to
+      <para>Copyright 2010-2016 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -68,9 +68,9 @@
 
     <simpara>Usage constraints cannot always be expressed by SQL’s integrity
     constraint statements. Triggers can enforce these constraints. For
-    example, it is not possible to use a check constraint to prevent inserts
-    or deletes on weekends. A trigger can be used to enforce the time when
-    each operation is allowed.</simpara>
+    example, it is not possible to use a check constraint to prevent data
+    inserts or deletes on weekends. A trigger can be used to enforce the time
+    when each operation is allowed.</simpara>
 
     <simpara>A trigger is declared to activate when an UPDATE, INSERT or
     DELETE action is performed on a table. These actions may be direct or
@@ -112,9 +112,9 @@
     <section xml:id="trc_after_triggers">
       <title>AFTER Triggers</title>
 
-      <simpara>AFTER triggers can also perform additional data changes, for
-      example inserting an additional row into a different table for data
-      audits. These triggers cannot modify the rows that have been modified by
+      <simpara>AFTER triggers can perform additional data changes, for example
+      inserting an additional row into a different table for data audits or
+      logs. These triggers cannot modify the rows that have been modified by
       the INSERT or UPDATE action.</simpara>
     </section>
 
@@ -130,6 +130,10 @@
       tables, such as audit tables. With the use of INSTEAD OF triggers a
       read-only view can effectively become updatable or
       insertable-into.</simpara>
+
+      <simpara>An example of INSTEAD OF TRIGGERS is one that performs an
+      INSERT, UPDATE or DELETE on multiple tables that are used in the
+      view.</simpara>
     </section>
   </section>
 
@@ -181,7 +185,8 @@
       specify OLD ROW, NEW ROW, or OLD TABLE, NEW TABLE.</para>
 
       <para>A trigger declared as FOR EACH STATEMENT can only be an AFTER
-      trigger.</para>
+      trigger. These triggers are useful for logging the event that was
+      triggered.</para>
     </section>
 
     <section xml:id="trc_trigger_action_time">
@@ -543,7 +548,7 @@
     in the definition. The newly defined trigger will be executed before the
     specified other trigger. If this clause is not used, the new trigger is
     executed after all the previously defined triggers of the same scope
-    (BEFORE, AFTER, EACH ROW, EACH STATEMENT).</simpara>
+    (BEFORE / AFTER, EACH ROW / EACH STATEMENT).</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>DROP TRIGGER</primary>

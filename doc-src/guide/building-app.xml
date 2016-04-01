@@ -50,7 +50,7 @@
     <title>Purpose</title>
 
     <simpara>From version 2.0, the supplied <filename>hsqldb.jar</filename>
-    file is built with Java 1.6. If you want to run with a 1.5 or older JVM,
+    file is built with Java 1.6. If you want to run with a 1.5 JVM,
     or if you want to use an alternative jar
     (<filename>hsqldb-min.jar</filename>, etc.) you must build the desired jar
     with a Java SDK.</simpara>
