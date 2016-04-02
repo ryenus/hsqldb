@@ -1129,9 +1129,9 @@
             Either way, you can specify any RC filepath (absolute or relative) like so:
             <informalexample>
               <screen>    java -jar $HSQLDB_HOME/lib/sqltool.jar --rcFile=path/to/rc/file.name urlid</screen>
-            </informalexample></para>
+            </informalexample>
             If SqlTool can't open the specified RC file or there is a syntax
-            error in it, you'll get a useful error message.
+            error in it, you'll get a useful error message.</para>
             <para>
             The config file consists of stanza(s) like this:
         <informalexample><programlisting>    urlid web
