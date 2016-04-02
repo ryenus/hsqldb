@@ -1121,6 +1121,15 @@
             <informalexample>
               <screen>    java -jar $HSQLDB_HOME/lib/sqltool.jar x</screen>
             </informalexample></para><para>
+            There are cases where you can't use the RC file at the default
+            location.  You may have no home directory.
+            Another directory may be more secure.
+            Or you may have multiple RC files that you use for different
+            purposes.
+            Either way, you can specify any RC filepath (absolute or relative) like so:
+            <informalexample>
+              <screen>    java -jar $HSQLDB_HOME/lib/sqltool.jar --rcFile=path/to/rc/file.name urlid</screen>
+            </informalexample></para><para>
             The config file consists of stanza(s) like this:
         <informalexample><programlisting>    urlid web
     url jdbc:hsqldb:hsql://localhost
