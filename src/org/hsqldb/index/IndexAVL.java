@@ -371,25 +371,11 @@ public class IndexAVL implements Index {
      * Returns the node count.
      */
     public long size(Session session, PersistentStore store) {
-
-        store.readLock();
-
-        try {
-            return store.elementCount(session);
-        } finally {
-            store.readUnlock();
-        }
+        return store.elementCount(session);
     }
 
     public long sizeUnique(PersistentStore store) {
-
-        store.readLock();
-
-        try {
-            return store.elementCountUnique(this);
-        } finally {
-            store.readUnlock();
-        }
+        return store.elementCountUnique(this);
     }
 
     public double[] searchCost(Session session, PersistentStore store) {
@@ -513,23 +499,16 @@ public class IndexAVL implements Index {
 
     public long getNodeCount(Session session, PersistentStore store) {
 
-        long count = 0;
+        long        count = 0;
+        RowIterator it    = firstRow(session, store, 0, null);
 
-        store.writeLock();
+        while (it.hasNext()) {
+            it.getNextRow();
 
-        try {
-            RowIterator it = firstRow(session, store, 0, null);
-
-            while (it.hasNext()) {
-                it.getNextRow();
-
-                count++;
-            }
-
-            return count;
-        } finally {
-            store.writeUnlock();
+            count++;
         }
+
+        return count;
     }
 
     public boolean isEmpty(PersistentStore store) {
@@ -852,74 +831,62 @@ public class IndexAVL implements Index {
         int     compare      = -1;
         boolean compareRowId = !isUnique || hasNulls(session, row.getData());
 
-        store.writeLock();
+        n = getAccessor(store);
+        x = n;
 
-        try {
-            n = getAccessor(store);
-            x = n;
+        if (n == null) {
+            store.setAccessor(this, ((RowAVL) row).getNode(position));
+
+            return;
+        }
+
+        while (true) {
+            Row currentRow = n.getRow(store);
+
+            compare = compareRowForInsertOrDelete(session, row, currentRow,
+                                                  compareRowId, 0);
+
+            // after the first match and check, all compares are with row id
+            if (compare == 0 && session != null && !compareRowId
+                    && session.database.txManager.isMVRows()) {
+                if (!isEqualReadable(session, store, n)) {
+                    compareRowId = true;
+                    compare = compareRowForInsertOrDelete(session, row,
+                                                          currentRow,
+                                                          compareRowId,
+                                                          colIndex.length);
+                }
+            }
+
+            if (compare == 0) {
+                Constraint c = null;
+
+                if (isConstraint) {
+                    c = ((Table) table).getUniqueConstraintForIndex(this);
+                }
+
+                if (c == null) {
+                    throw Error.error(ErrorCode.X_23505, name.statementName);
+                } else {
+                    throw c.getException(row.getData());
+                }
+            }
+
+            isleft = compare < 0;
+            x      = n;
+            n      = x.child(store, isleft);
 
             if (n == null) {
-                store.setAccessor(this, ((RowAVL) row).getNode(position));
-
-                return;
+                break;
             }
-
-            while (true) {
-                Row currentRow = n.getRow(store);
-
-                compare = compareRowForInsertOrDelete(session, row,
-                                                      currentRow,
-                                                      compareRowId, 0);
-
-                // after the first match and check, all compares are with row id
-                if (compare == 0 && session != null && !compareRowId
-                        && session.database.txManager.isMVRows()) {
-                    if (!isEqualReadable(session, store, n)) {
-                        compareRowId = true;
-                        compare = compareRowForInsertOrDelete(session, row,
-                                                              currentRow,
-                                                              compareRowId,
-                                                              colIndex.length);
-                    }
-                }
-
-                if (compare == 0) {
-                    Constraint c = null;
-
-                    if (isConstraint) {
-                        c = ((Table) table).getUniqueConstraintForIndex(this);
-                    }
-
-                    if (c == null) {
-                        throw Error.error(ErrorCode.X_23505,
-                                          name.statementName);
-                    } else {
-                        throw c.getException(row.getData());
-                    }
-                }
-
-                isleft = compare < 0;
-                x      = n;
-                n      = x.child(store, isleft);
-
-                if (n == null) {
-                    break;
-                }
-            }
-
-            x = x.set(store, isleft, ((RowAVL) row).getNode(position));
-
-            balance(store, x, isleft);
-        } catch (RuntimeException e) {
-            throw e;
-        } finally {
-            store.writeUnlock();
         }
+
+        x = x.set(store, isleft, ((RowAVL) row).getNode(position));
+
+        balance(store, x, isleft);
     }
 
     public void delete(Session session, PersistentStore store, Row row) {
-
-        store.writeLock();
 
         row = (Row) store.get(row, false);
 
@@ -931,168 +898,162 @@ public class IndexAVL implements Index {
 
         NodeAVL n;
 
-        try {
-            if (x.getLeft(store) == null) {
-                n = x.getRight(store);
-            } else if (x.getRight(store) == null) {
-                n = x.getLeft(store);
-            } else {
-                NodeAVL d = x;
+        if (x.getLeft(store) == null) {
+            n = x.getRight(store);
+        } else if (x.getRight(store) == null) {
+            n = x.getLeft(store);
+        } else {
+            NodeAVL d = x;
 
-                x = x.getLeft(store);
+            x = x.getLeft(store);
 
-                while (true) {
-                    NodeAVL temp = x.getRight(store);
+            while (true) {
+                NodeAVL temp = x.getRight(store);
 
-                    if (temp == null) {
-                        break;
-                    }
-
-                    x = temp;
+                if (temp == null) {
+                    break;
                 }
 
-                // x will be replaced with n later
-                n = x.getLeft(store);
+                x = temp;
+            }
 
-                // swap d and x
-                int b = x.getBalance(store);
+            // x will be replaced with n later
+            n = x.getLeft(store);
 
-                x = x.setBalance(store, d.getBalance(store));
-                d = d.setBalance(store, b);
+            // swap d and x
+            int b = x.getBalance(store);
 
-                // set x.parent
-                NodeAVL xp = x.getParent(store);
-                NodeAVL dp = d.getParent(store);
+            x = x.setBalance(store, d.getBalance(store));
+            d = d.setBalance(store, b);
 
-                if (d.isRoot(store)) {
-                    store.setAccessor(this, x);
-                }
+            // set x.parent
+            NodeAVL xp = x.getParent(store);
+            NodeAVL dp = d.getParent(store);
 
-                x = x.setParent(store, dp);
+            if (d.isRoot(store)) {
+                store.setAccessor(this, x);
+            }
 
-                if (dp != null) {
-                    if (dp.isRight(d)) {
-                        dp = dp.setRight(store, x);
-                    } else {
-                        dp = dp.setLeft(store, x);
-                    }
-                }
+            x = x.setParent(store, dp);
 
-                // relink d.parent, x.left, x.right
-                if (d.equals(xp)) {
-                    d = d.setParent(store, x);
-
-                    if (d.isLeft(x)) {
-                        x = x.setLeft(store, d);
-
-                        NodeAVL dr = d.getRight(store);
-
-                        x = x.setRight(store, dr);
-                    } else {
-                        x = x.setRight(store, d);
-
-                        NodeAVL dl = d.getLeft(store);
-
-                        x = x.setLeft(store, dl);
-                    }
+            if (dp != null) {
+                if (dp.isRight(d)) {
+                    dp = dp.setRight(store, x);
                 } else {
-                    d  = d.setParent(store, xp);
-                    xp = xp.setRight(store, d);
+                    dp = dp.setLeft(store, x);
+                }
+            }
 
-                    NodeAVL dl = d.getLeft(store);
+            // relink d.parent, x.left, x.right
+            if (d.equals(xp)) {
+                d = d.setParent(store, x);
+
+                if (d.isLeft(x)) {
+                    x = x.setLeft(store, d);
+
                     NodeAVL dr = d.getRight(store);
 
-                    x = x.setLeft(store, dl);
                     x = x.setRight(store, dr);
+                } else {
+                    x = x.setRight(store, d);
+
+                    NodeAVL dl = d.getLeft(store);
+
+                    x = x.setLeft(store, dl);
                 }
+            } else {
+                d  = d.setParent(store, xp);
+                xp = xp.setRight(store, d);
 
-                x.getRight(store).setParent(store, x);
-                x.getLeft(store).setParent(store, x);
+                NodeAVL dl = d.getLeft(store);
+                NodeAVL dr = d.getRight(store);
 
-                // set d.left, d.right
-                d = d.setLeft(store, n);
-
-                if (n != null) {
-                    n = n.setParent(store, d);
-                }
-
-                d = d.setRight(store, null);
-                x = d;
+                x = x.setLeft(store, dl);
+                x = x.setRight(store, dr);
             }
 
-            boolean isleft = x.isFromLeft(store);
+            x.getRight(store).setParent(store, x);
+            x.getLeft(store).setParent(store, x);
 
-            x.replace(store, this, n);
+            // set d.left, d.right
+            d = d.setLeft(store, n);
 
-            n = x.getParent(store);
+            if (n != null) {
+                n = n.setParent(store, d);
+            }
 
-            x.delete();
+            d = d.setRight(store, null);
+            x = d;
+        }
 
-            while (n != null) {
-                x = n;
+        boolean isleft = x.isFromLeft(store);
 
-                int sign = isleft ? 1
-                                  : -1;
+        x.replace(store, this, n);
 
-                switch (x.getBalance(store) * sign) {
+        n = x.getParent(store);
 
-                    case -1 :
-                        x = x.setBalance(store, 0);
-                        break;
+        x.delete();
 
-                    case 0 :
-                        x = x.setBalance(store, sign);
+        while (n != null) {
+            x = n;
 
-                        return;
+            int sign = isleft ? 1
+                              : -1;
 
-                    case 1 :
-                        NodeAVL r = x.child(store, !isleft);
-                        int     b = r.getBalance(store);
+            switch (x.getBalance(store) * sign) {
 
-                        if (b * sign >= 0) {
-                            x.replace(store, this, r);
+                case -1 :
+                    x = x.setBalance(store, 0);
+                    break;
 
-                            NodeAVL child = r.child(store, isleft);
+                case 0 :
+                    x = x.setBalance(store, sign);
 
-                            x = x.set(store, !isleft, child);
-                            r = r.set(store, isleft, x);
+                    return;
 
-                            if (b == 0) {
-                                x = x.setBalance(store, sign);
-                                r = r.setBalance(store, -sign);
+                case 1 :
+                    NodeAVL r = x.child(store, !isleft);
+                    int     b = r.getBalance(store);
 
-                                return;
-                            }
+                    if (b * sign >= 0) {
+                        x.replace(store, this, r);
 
-                            x = x.setBalance(store, 0);
-                            r = r.setBalance(store, 0);
-                            x = r;
-                        } else {
-                            NodeAVL l = r.child(store, isleft);
+                        NodeAVL child = r.child(store, isleft);
 
-                            x.replace(store, this, l);
+                        x = x.set(store, !isleft, child);
+                        r = r.set(store, isleft, x);
 
-                            b = l.getBalance(store);
-                            r = r.set(store, isleft, l.child(store, !isleft));
-                            l = l.set(store, !isleft, r);
-                            x = x.set(store, !isleft, l.child(store, isleft));
-                            l = l.set(store, isleft, x);
-                            x = x.setBalance(store, (b == sign) ? -sign
-                                                                : 0);
-                            r = r.setBalance(store, (b == -sign) ? sign
-                                                                 : 0);
-                            l = l.setBalance(store, 0);
-                            x = l;
+                        if (b == 0) {
+                            x = x.setBalance(store, sign);
+                            r = r.setBalance(store, -sign);
+
+                            return;
                         }
-                }
 
-                isleft = x.isFromLeft(store);
-                n      = x.getParent(store);
+                        x = x.setBalance(store, 0);
+                        r = r.setBalance(store, 0);
+                        x = r;
+                    } else {
+                        NodeAVL l = r.child(store, isleft);
+
+                        x.replace(store, this, l);
+
+                        b = l.getBalance(store);
+                        r = r.set(store, isleft, l.child(store, !isleft));
+                        l = l.set(store, !isleft, r);
+                        x = x.set(store, !isleft, l.child(store, isleft));
+                        l = l.set(store, isleft, x);
+                        x = x.setBalance(store, (b == sign) ? -sign
+                                                            : 0);
+                        r = r.setBalance(store, (b == -sign) ? sign
+                                                             : 0);
+                        l = l.setBalance(store, 0);
+                        x = l;
+                    }
             }
-        } catch (RuntimeException e) {
-            throw e;
-        } finally {
-            store.writeUnlock();
+
+            isleft = x.isFromLeft(store);
+            n      = x.getParent(store);
         }
     }
 
