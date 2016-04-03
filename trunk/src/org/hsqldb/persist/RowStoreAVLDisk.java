@@ -32,8 +32,6 @@
 package org.hsqldb.persist;
 
 import java.io.IOException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.HsqlException;
@@ -68,9 +66,6 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
     DataFileCache      cache;
     RowOutputInterface rowOut;
     boolean            largeData;
-    ReadWriteLock      lock;
-    Lock               readLock;
-    Lock               writeLock;
 
     public RowStoreAVLDisk(DataFileCache cache, Table table) {
 

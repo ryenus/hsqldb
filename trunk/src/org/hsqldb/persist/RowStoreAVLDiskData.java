@@ -32,6 +32,7 @@
 package org.hsqldb.persist;
 
 import java.io.IOException;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
@@ -66,6 +67,9 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         this.table        = table;
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];
+        lock              = new ReentrantReadWriteLock();
+        readLock          = lock.readLock();
+        writeLock         = lock.writeLock();
     }
 
     public Object[] getData(RowAVLDiskData row) {
@@ -299,5 +303,21 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         cache = null;
 
         ArrayUtil.fillArray(accessorList, null);
+    }
+
+    public void readLock() {
+        readLock.lock();
+    }
+
+    public void readUnlock() {
+        readLock.unlock();
+    }
+
+    public void writeLock() {
+        writeLock.lock();
+    }
+
+    public void writeUnlock() {
+        writeLock.unlock();
     }
 }
