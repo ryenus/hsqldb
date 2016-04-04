@@ -1075,6 +1075,7 @@ public class ParserTable extends ParserDML {
                 new Constraint(constName, set,
                                SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
+            c.setSimpleIdentityPK();
             constraintList.set(0, c);
             column.setPrimaryKey(true);
         }
@@ -1133,7 +1134,9 @@ public class ParserTable extends ParserDML {
 
                 if (mainConst.getConstraintType()
                         == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
-                    throw Error.error(ErrorCode.X_42532);
+                    if (!mainConst.isSimpleIdentityPK) {
+                        throw Error.error(ErrorCode.X_42532);
+                    }
                 }
 
                 if (constName == null) {

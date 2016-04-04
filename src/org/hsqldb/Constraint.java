@@ -49,7 +49,7 @@ import org.hsqldb.types.Type;
  * by the constraint.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.6.0
  */
 public final class Constraint implements SchemaObject {
@@ -68,6 +68,7 @@ public final class Constraint implements SchemaObject {
     // for temp constraints only
     OrderedHashSet mainColSet;
     OrderedHashSet refColSet;
+    boolean        isSimpleIdentityPK;
 
     //
     public static final Constraint[] emptyArray = new Constraint[]{};
@@ -151,7 +152,6 @@ public final class Constraint implements SchemaObject {
                 break;
 
             default :
-
         }
 
         switch (core.updateAction) {
@@ -211,6 +211,10 @@ public final class Constraint implements SchemaObject {
         copy.rangeVariable      = rangeVariable;
 
         return copy;
+    }
+
+    void setSimpleIdentityPK() {
+        isSimpleIdentityPK = true;
     }
 
     void setColumnsIndexes(Table table) {
