@@ -99,8 +99,11 @@ public class StatementInsert extends StatementDML {
      */
     StatementInsert(Session session, Table targetTable, int[] insertColumnMap,
                     boolean[] insertCheckColumns,
-                    QueryExpression queryExpression, int specialAction,
-                    int override, CompileContext compileContext) {
+                    QueryExpression queryExpression,
+                    Expression[] updateExpressions,
+                    boolean[] updateCheckColumns, int[] updateColumnMap,
+                    Expression[] targets, int specialAction, int override,
+                    CompileContext compileContext) {
 
         super(StatementTypes.INSERT, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
@@ -113,6 +116,10 @@ public class StatementInsert extends StatementDML {
         this.insertCheckColumns = insertCheckColumns;
         this.queryExpression    = queryExpression;
         this.overrideUserValue  = override;
+        this.updateCheckColumns = updateCheckColumns;
+        this.updateExpressions  = updateExpressions;
+        this.updateColumnMap    = updateColumnMap;
+        this.targets            = targets;
         this.specialAction      = specialAction;
 
         setupChecks();
@@ -282,10 +289,11 @@ public class StatementInsert extends StatementDML {
         int[]  columnMap = insertColumnMap;
 
         //
-        Result                result = queryExpression.getResult(session, 0);
-        RowSetNavigator       nav         = result.initialiseNavigator();
-        Type[]                sourceTypes = result.metaData.columnTypes;
-        RowSetNavigatorClient newData     = new RowSetNavigatorClient(nav.getSize());
+        Result          result      = queryExpression.getResult(session, 0);
+        RowSetNavigator nav         = result.initialiseNavigator();
+        Type[]          sourceTypes = result.metaData.columnTypes;
+        RowSetNavigatorClient newData =
+            new RowSetNavigatorClient(nav.getSize());
 
         while (nav.hasNext()) {
             Object[] data       = baseTable.getNewRowData(session);

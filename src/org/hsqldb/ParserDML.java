@@ -400,11 +400,54 @@ public class ParserDML extends ParserDQL {
             tableToken.setWithColumnList();
         }
 
+        if (database.sqlSyntaxMys && isSpecial == StatementInsert.isNone
+                && readIfThis(Tokens.ON)) {
+            readThis(Tokens.DUPLICATE);
+            readThis(Tokens.KEY);
+            readThis(Tokens.UPDATE);
+
+            OrderedHashSet  targetSet    = new OrderedHashSet();
+            LongDeque       colIndexList = new LongDeque();
+            HsqlArrayList   exprList     = new HsqlArrayList();
+            RangeVariable[] rangeVariables;
+            RangeGroup      rangeGroup;
+
+            rangeVariables = new RangeVariable[]{ range };
+            rangeGroup     = new RangeGroupSimple(rangeVariables, false);
+            isSpecial      = StatementInsert.isUpdate;
+
+            readSetClauseList(rangeVariables, targetSet, colIndexList,
+                              exprList);
+
+            updateColumnMap = new int[colIndexList.size()];
+
+            colIndexList.toArray(updateColumnMap);
+
+            targets = new Expression[targetSet.size()];
+
+            targetSet.toArray(targets);
+
+            for (int i = 0; i < targets.length; i++) {
+                resolveReferencesAndTypes(rangeGroup, rangeGroups, targets[i]);
+            }
+
+            updateColumnCheckList = table.getColumnCheckList(updateColumnMap);
+            updateExpressions     = new Expression[exprList.size()];
+
+            exprList.toArray(updateExpressions);
+            resolveUpdateExpressions(table, rangeGroup, updateColumnMap,
+                                     updateExpressions, rangeGroups);
+        }
+
         StatementDMQL cs = new StatementInsert(session, table,
                                                insertColumnMap,
                                                insertColumnCheckList,
-                                               queryExpression, isSpecial,
-                                               overrideIndex, compileContext);
+                                               queryExpression,
+                                               updateExpressions,
+                                               updateColumnCheckList,
+                                               updateColumnMap, targets,
+                                               isSpecial, overrideIndex,
+                                               compileContext);
 
         return cs;
     }
@@ -901,7 +944,13 @@ public class ParserDML extends ParserDQL {
                 rewind(position);
             }
 
-            if (degree > 1) {
+            boolean values = false;
+
+            if (database.sqlSyntaxMys) {
+                values = readIfThis(Tokens.VALUES);
+            }
+
+            if (degree > 1 || values) {
                 readThis(Tokens.OPENBRACKET);
 
                 Expression e = readRow();
