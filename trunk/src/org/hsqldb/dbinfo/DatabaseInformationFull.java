@@ -1434,6 +1434,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_TYPE", SQL_IDENTIFIER);
             addColumn(t, "CARDINALITY", CARDINAL_NUMBER);
             addColumn(t, "SPACE_ID", CARDINAL_NUMBER);
             addColumn(t, "ALLOCATED_SPACE", CARDINAL_NUMBER);
@@ -1459,11 +1460,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int table_catalog = 0;
         final int table_schema  = 1;
         final int table_name    = 2;
-        final int cardinality   = 3;
-        final int space_id      = 4;
-        final int alloc_space   = 5;
-        final int used_space    = 6;
-        final int used_memory   = 7;
+        final int table_type    = 3;
+        final int cardinality   = 4;
+        final int space_id      = 5;
+        final int alloc_space   = 6;
+        final int used_space    = 7;
+        final int used_memory   = 8;
 
         if (!session.isAdmin()) {
             return t;
@@ -1495,6 +1497,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[table_catalog] = database.getCatalogName().name;
             row[table_schema]  = table.getSchemaName().name;
             row[table_name]    = table.getName().name;
+            row[table_type]    = table.getTableTypeString();
 
             switch (table.getTableType()) {
 

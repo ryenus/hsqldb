@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import java.util.NoSuchElementException;
  * A deque of long value. Implementation based on HsqlDeque class.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class LongDeque {
@@ -52,7 +52,11 @@ public class LongDeque {
     private static final int DEFAULT_INITIAL_CAPACITY = 8;
 
     public LongDeque() {
-        list = new long[DEFAULT_INITIAL_CAPACITY];
+        this(DEFAULT_INITIAL_CAPACITY);
+    }
+
+    public LongDeque(int capacity) {
+        list = new long[capacity];
     }
 
     public int size() {
