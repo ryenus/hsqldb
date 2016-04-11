@@ -862,7 +862,7 @@ public class ParserCommand extends ParserDDL {
 
         Table    table = readTableName();
         Object[] args  = new Object[] {
-            table.getName(), null
+            table.getName(), null, null
         };
 
         switch (token.tokenType) {
@@ -918,6 +918,7 @@ public class ParserCommand extends ParserDDL {
                 read();
 
                 args[1] = value;
+                args[2] = Integer.valueOf(TableBase.CACHED_TABLE);
 
                 return new StatementCommand(StatementTypes.SET_TABLE_INDEX,
                                             args, null,
@@ -946,6 +947,7 @@ public class ParserCommand extends ParserDDL {
 
                     case TableBase.MEMORY_TABLE :
                     case TableBase.CACHED_TABLE :
+                    case TableBase.TEXT_TABLE :
                         break;
 
                     default :
@@ -1456,19 +1458,20 @@ public class ParserCommand extends ParserDDL {
             case Tokens.CHECK : {
                 read();
 
-                long longValue = readBigint();
+                long longValue  = readBigint();
+                long longValue2 = -1;
 
                 type  = StatementTypes.SET_DATABASE_FILES_CHECK;
                 names = database.schemaManager.getCatalogNameArray();
 
                 if (readIfThis(Tokens.COMMA)) {
-                    readBigint();
+                    longValue2 = readBigint();
                 }
 
                 Object[] args = new Object[2];
 
                 args[0] = Long.valueOf(longValue);
-                args[1] = Long.valueOf(0);
+                args[1] = Long.valueOf(longValue2);
 
                 return new StatementCommand(type, args, null, names);
             }

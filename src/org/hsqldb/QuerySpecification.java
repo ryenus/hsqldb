@@ -807,7 +807,6 @@ public class QuerySpecification extends QueryExpression {
                             rightPosition);
                 } else if (rightRange.getColumnExpression(name) == null
                            && (!range.isLeftJoin || range.isRightJoin)) {
-
                     if (range.isLeftJoin && range.isRightJoin) {
                         e = new ExpressionLogical(col, e.getRightNode());
                     }
@@ -1127,6 +1126,7 @@ public class QuerySpecification extends QueryExpression {
                    && aggregateSet.size() == 1 && indexLimitVisible == 1) {
             Expression e      = exprColumns[indexStartAggregates];
             int        opType = e.getType();
+            Expression expr   = e.getLeftNode();
 
             switch (opType) {
 
@@ -1149,15 +1149,12 @@ public class QuerySpecification extends QueryExpression {
                     break;
                 }
                 case OpTypes.COUNT : {
-                    if (e.hasCondition()) {
-                        break;
-                    }
-
-                    if (rangeVariables.length == 1 && queryCondition == null) {
-                        Expression expr = e.getLeftNode();
-
+                    if (!e.hasCondition() && rangeVariables.length == 1
+                            && queryCondition == null) {
                         if (expr.getType() == OpTypes.ASTERISK) {
                             isSimpleCount = true;
+
+                            break;
                         } else if (expr.getNullability()
                                    == SchemaObject.Nullability.NO_NULLS) {
                             if (e.isDistinctAggregate) {
@@ -1169,16 +1166,18 @@ public class QuerySpecification extends QueryExpression {
                                         if (t.getColumn(t.getPrimaryKey()[0])
                                                 == expr.getColumn()) {
                                             isSimpleCount = true;
+
+                                            break;
                                         }
                                     }
                                 }
                             } else {
                                 isSimpleCount = true;
+
+                                break;
                             }
                         }
                     }
-
-                    break;
                 }
                 default :
             }

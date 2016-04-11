@@ -1555,6 +1555,22 @@ public class Result {
         lobCount   = 0;
     }
 
+    public void addRows(String[] sql) {
+
+        if (sql == null) {
+            return;
+        }
+
+        for (int i = 0; i < sql.length; i++) {
+            String[] s = new String[1];
+
+            s[0] = sql[i];
+
+            initialiseNavigator().add(s);
+        }
+    }
+
+
     private static Object[] readSimple(RowInputBinary in,
                                        ResultMetaData meta)
                                        throws IOException {

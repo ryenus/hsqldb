@@ -1437,8 +1437,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TABLE_TYPE", SQL_IDENTIFIER);
             addColumn(t, "CARDINALITY", CARDINAL_NUMBER);
             addColumn(t, "SPACE_ID", CARDINAL_NUMBER);
-            addColumn(t, "ALLOCATED_SPACE", CARDINAL_NUMBER);
             addColumn(t, "USED_SPACE", CARDINAL_NUMBER);
+            addColumn(t, "ALLOCATED_SPACE", CARDINAL_NUMBER);
             addColumn(t, "USED_MEMORY", CARDINAL_NUMBER);
 
             //
@@ -1463,8 +1463,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int table_type    = 3;
         final int cardinality   = 4;
         final int space_id      = 5;
-        final int alloc_space   = 6;
-        final int used_space    = 7;
+        final int used_space    = 6;
+        final int alloc_space   = 7;
         final int used_memory   = 8;
 
         if (!session.isAdmin()) {
