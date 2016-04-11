@@ -669,8 +669,7 @@ public class StatementCommand extends Statement {
                 session.checkAdmin();
                 session.checkDDLWrite();
 
-                if (HsqlDatabaseProperties.sql_live_object.equals(
-                    property)) {
+                if (HsqlDatabaseProperties.sql_live_object.equals(property)) {
                     session.database.setLiveObject(mode);
                 } else if (HsqlDatabaseProperties.sql_enforce_names.equals(
                         property)) {
@@ -1062,6 +1061,7 @@ public class StatementCommand extends Statement {
                 try {
                     HsqlName name  = (HsqlName) parameters[0];
                     String   value = (String) parameters[1];
+                    Integer  type  = (Integer) parameters[2];
                     Table table =
                         session.database.schemaManager.getUserTable(name.name,
                             name.schema.name);

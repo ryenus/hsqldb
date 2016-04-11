@@ -471,10 +471,9 @@ public abstract class RowStoreAVL implements PersistentStore {
     public long elementCount(Session session) {
 
         if (session != null) {
-            Index index   = this.indexList[0];
-            int txControl = session.database.txManager.getTransactionControl();
+            Index index = this.indexList[0];
 
-            if (txControl != TransactionManager.LOCKS) {
+            if (session.database.txManager.isMVRows()) {
                 switch (table.getTableType()) {
 
                     case TableBase.MEMORY_TABLE :

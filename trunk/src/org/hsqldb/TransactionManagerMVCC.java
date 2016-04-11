@@ -72,7 +72,7 @@ implements TransactionManager {
 
         database     = db;
         lobSession   = database.sessionManager.getSysLobSession();
-        rowActionMap = new LongKeyHashMap(10000);
+        rowActionMap = new LongKeyHashMap(8192);
         txModel      = MVCC;
     }
 
@@ -90,6 +90,10 @@ implements TransactionManager {
 
     public boolean isMVCC() {
         return true;
+    }
+
+    public boolean is2PL() {
+        return false;
     }
 
     public int getTransactionControl() {

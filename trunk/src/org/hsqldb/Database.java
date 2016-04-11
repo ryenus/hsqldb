@@ -761,73 +761,58 @@ public class Database {
         // properties
         String[] list = logger.getPropertiesSQL(indexRoots);
 
-        addRows(r, list);
+        r.addRows(list);
 
         list = getSettingsSQL();
 
-        addRows(r, list);
+        r.addRows(list);
 
         list = getGranteeManager().getSQL();
 
-        addRows(r, list);
+        r.addRows(list);
 
         // schemas and schema objects such as tables, sequences, etc.
         list = schemaManager.getSQLArray();
 
-        addRows(r, list);
+        r.addRows(list);
 
         // optional comments on tables etc.
         list = schemaManager.getCommentsArray();
 
-        addRows(r, list);
+        r.addRows(list);
 
         list = schemaManager.getTableSpaceSQL();
 
-        addRows(r, list);
+        r.addRows(list);
 
         // index roots
         if (indexRoots) {
             list = schemaManager.getIndexRootsSQL();
 
-            addRows(r, list);
+            r.addRows(list);
         }
 
         // text headers - readonly - clustered
         list = schemaManager.getTablePropsSQL(!indexRoots);
 
-        addRows(r, list);
+        r.addRows(list);
 
         // password complexity
         list = getUserManager().getAuthenticationSQL();
 
-        addRows(r, list);
+        r.addRows(list);
 
         // user session start schema names
         list = getUserManager().getInitialSchemaSQL();
 
-        addRows(r, list);
+        r.addRows(list);
 
         // grantee rights
         list = getGranteeManager().getRightsSQL();
 
-        addRows(r, list);
+        r.addRows(list);
 
         return r;
-    }
-
-    static void addRows(Result r, String[] sql) {
-
-        if (sql == null) {
-            return;
-        }
-
-        for (int i = 0; i < sql.length; i++) {
-            String[] s = new String[1];
-
-            s[0] = sql[i];
-
-            r.initialiseNavigator().add(s);
-        }
     }
 
     public String getURI() {

@@ -69,6 +69,10 @@ implements TransactionManager {
         return false;
     }
 
+    public boolean is2PL() {
+        return true;
+    }
+
     public int getTransactionControl() {
         return LOCKS;
     }

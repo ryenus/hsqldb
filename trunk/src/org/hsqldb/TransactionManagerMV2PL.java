@@ -58,7 +58,7 @@ implements TransactionManager {
 
         database        = db;
         lobSession      = database.sessionManager.getSysLobSession();
-        rowActionMap    = new LongKeyHashMap(10000);
+        rowActionMap    = new LongKeyHashMap(8192);
         txModel         = MVLOCKS;
         catalogNameList = new HsqlName[]{ database.getCatalogName() };
     }
@@ -76,6 +76,10 @@ implements TransactionManager {
     }
 
     public boolean isMVCC() {
+        return false;
+    }
+
+    public boolean is2PL() {
         return false;
     }
 

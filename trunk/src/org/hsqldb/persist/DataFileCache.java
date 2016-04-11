@@ -1241,6 +1241,8 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
+            cacheModified = true;
+
             return cache.release(pos);
         } finally {
             writeLock.unlock();

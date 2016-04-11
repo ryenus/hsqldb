@@ -213,18 +213,15 @@ public class StatementInsert extends StatementDML {
                     newDataNavigator.removeCurrent();
                 }
             }
-
-            if (specialAction != StatementInsert.isUpdate
-                    && changeNavigator != null) {
-                count = update(session, baseTable, changeNavigator, null);
-
-                changeNavigator.endMainDataSet();
-                newDataNavigator.beforeFirst();
-            }
         }
 
-        if (specialAction == StatementInsert.isUpdate
+        if (specialAction == StatementInsert.isReplace
                 && changeNavigator != null) {
+            count = update(session, baseTable, changeNavigator, null);
+
+            changeNavigator.endMainDataSet();
+        } else if (specialAction == StatementInsert.isUpdate
+                   && changeNavigator != null) {
             Type[] colTypes = baseTable.getColumnTypes();
 
             session.sessionContext.setRangeIterator(changeNavigator);
@@ -236,14 +233,9 @@ public class StatementInsert extends StatementDML {
                 Object[] data = row.getData();
                 Object[] newData;
 
-                if (specialAction == StatementInsert.isReplace) {
-                    newData = baseTable.getNewRowData(session);
-                } else {
-                    newData = getUpdatedData(session, targets, baseTable,
-                                             updateColumnMap,
-                                             updateExpressions, colTypes,
-                                             data);
-                }
+                newData = getUpdatedData(session, targets, baseTable,
+                                         updateColumnMap, updateExpressions,
+                                         colTypes, data);
 
                 changeNavigator.addUpdate(row, newData, updateColumnMap);
 

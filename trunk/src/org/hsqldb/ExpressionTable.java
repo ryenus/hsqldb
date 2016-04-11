@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorData;
@@ -45,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of table conversion.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.0
+ * @version 2.3.4
  * @since 2.0.0
  */
 public class ExpressionTable extends Expression {
@@ -217,11 +218,11 @@ public class ExpressionTable extends Expression {
 
         Result          result = nodes[LEFT].getResult(session);
         RowSetNavigator nav    = result.navigator;
-        int             size   = nav.getSize();
 
         while (nav.hasNext()) {
-            Object[] data = nav.getNext();
-            Row row = (Row) store.getNewCachedObject(session, data, false);
+            Object[] data    = nav.getNext();
+            Object[] newdata = (Object[]) ArrayUtil.duplicateArray(data);
+            Row row = (Row) store.getNewCachedObject(session, newdata, false);
 
             try {
                 store.indexRow(session, row);

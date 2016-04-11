@@ -266,10 +266,22 @@ implements RowSetNavigatorDataChange {
     }
 
     public Row getNextRow() {
+
+        if (next()) {
+            return getCurrentRow();
+        }
+
         return null;
     }
 
     public Object[] getNext() {
+
+        if (next()) {
+            Row row = getCurrentRow();
+
+            return row.getData();
+        }
+
         return null;
     }
 
