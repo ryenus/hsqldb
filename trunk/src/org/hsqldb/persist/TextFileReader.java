@@ -40,12 +40,14 @@ import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowInputText;
 
+// fredt@users - 2.3.4 - patch for user-defined quote char by Damjan Jovanovic
+
 /**
  * Reader for text files.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.4
  * @since 2.2.7
 */
 public class TextFileReader {
@@ -111,30 +113,30 @@ public class TextFileReader {
                     break;
                 }
 
-                switch (c) {
+                if (c == textFileSettings.quoteChar) {
+                    wasNormal = true;
+                    complete  = wasCR;
+                    wasCR     = false;
 
-                    case TextFileSettings.DOUBLE_QUOTE_CHAR :
-                        wasNormal = true;
-                        complete  = wasCR;
-                        wasCR     = false;
+                    if (textFileSettings.isQuoted) {
+                        hasQuote = !hasQuote;
+                    }
+                } else {
+                    switch (c) {
 
-                        if (textFileSettings.isQuoted) {
-                            hasQuote = !hasQuote;
-                        }
-                        break;
+                        case TextFileSettings.CR_CHAR :
+                            wasCR = !hasQuote;
+                            break;
 
-                    case TextFileSettings.CR_CHAR :
-                        wasCR = !hasQuote;
-                        break;
+                        case TextFileSettings.LF_CHAR :
+                            complete = !hasQuote;
+                            break;
 
-                    case TextFileSettings.LF_CHAR :
-                        complete = !hasQuote;
-                        break;
-
-                    default :
-                        wasNormal = true;
-                        complete  = wasCR;
-                        wasCR     = false;
+                        default :
+                            wasNormal = true;
+                            complete  = wasCR;
+                            wasCR     = false;
+                    }
                 }
 
                 buffer.write(c);
@@ -255,8 +257,8 @@ public class TextFileReader {
     private long findNextUsedLinePos(long pos) {
 
         try {
-            long     firstPos   = pos;
-            long     currentPos = pos;
+            long    firstPos   = pos;
+            long    currentPos = pos;
             boolean wasCR      = false;
 
             dataFile.seek(pos);

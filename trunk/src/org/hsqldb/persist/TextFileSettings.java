@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,8 @@ public class TextFileSettings {
     public String              fs;
     public String              vs;
     public String              lvs;
+    public String              qc;
+    public char                quoteChar;
     public String              stringEncoding;
     public boolean             isQuoted;
     public boolean             isAllQuoted;
@@ -109,6 +111,8 @@ public class TextFileSettings {
         vs  = tableprops.getProperty(HsqlDatabaseProperties.textdb_vs, vs);
         lvs = dbProps.getStringProperty(HsqlDatabaseProperties.textdb_lvs);
         lvs = tableprops.getProperty(HsqlDatabaseProperties.textdb_lvs, lvs);
+        qc = dbProps.getStringProperty(HsqlDatabaseProperties.textdb_qc);
+        qc = tableprops.getProperty(HsqlDatabaseProperties.textdb_qc, qc);
 
         if (vs == null) {
             vs = fs;
@@ -121,10 +125,15 @@ public class TextFileSettings {
         fs  = translateSep(fs);
         vs  = translateSep(vs);
         lvs = translateSep(lvs);
+        qc  = translateSep(qc);
 
         if (fs.length() == 0 || vs.length() == 0 || lvs.length() == 0) {
             throw Error.error(ErrorCode.X_S0503);
         }
+        if (qc.length() != 1) {
+            throw Error.error(ErrorCode.X_S0504);
+        }
+        quoteChar = qc.charAt(0);
 
         //-- Get booleans
         ignoreFirst =

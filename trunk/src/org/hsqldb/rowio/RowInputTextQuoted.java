@@ -34,13 +34,15 @@ package org.hsqldb.rowio;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 
+// fredt@users - 2.3.4 - patch for user-defined quote char by Damjan Jovanovic
+
 /**
  * Fields in the source file need not be quoted. Methods in this class unquote
  * the fields if they are quoted and handle quote character doubling in this
  * case.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.7.0
  */
 public class RowInputTextQuoted extends RowInputText {
@@ -49,10 +51,14 @@ public class RowInputTextQuoted extends RowInputText {
     private static final int NEED_END_QUOTE = 1;
     private static final int FOUND_QUOTE    = 2;
     private char[]           qtext;
+    private char             quoteChar;
 
     public RowInputTextQuoted(String fieldSep, String varSep,
-                              String longvarSep) {
+                              String longvarSep, char quoteChar) {
+
         super(fieldSep, varSep, longvarSep);
+
+        this.quoteChar = quoteChar;
     }
 
     public void setSource(String text, long pos, int byteSize) {
@@ -67,7 +73,7 @@ public class RowInputTextQuoted extends RowInputText {
         //fredt - now the only supported behaviour is emptyIsNull
         String s = null;
 
-        if (next >= qtext.length || qtext[next] != '\"') {
+        if (next >= qtext.length || qtext[next] != quoteChar) {
             return super.getField(sep, sepLen, isEnd);
         }
 
@@ -91,7 +97,7 @@ public class RowInputTextQuoted extends RowInputText {
                         if (next == end) {
                             next += sepLen;
                             done = true;
-                        } else if (qtext[next] == '\"') {
+                        } else if (qtext[next] == quoteChar) {
 
                             //-- Beginning of field
                             state = NEED_END_QUOTE;
@@ -101,7 +107,7 @@ public class RowInputTextQuoted extends RowInputText {
                         break;
 
                     case NEED_END_QUOTE :
-                        if (qtext[next] == '\"') {
+                        if (qtext[next] == quoteChar) {
                             state = FOUND_QUOTE;
                         } else {
                             sb.append(qtext[next]);
@@ -109,7 +115,7 @@ public class RowInputTextQuoted extends RowInputText {
                         break;
 
                     case FOUND_QUOTE :
-                        if (qtext[next] == '\"') {
+                        if (qtext[next] == quoteChar) {
 
                             //-- Escaped quote
                             sb.append(qtext[next]);
@@ -118,10 +124,13 @@ public class RowInputTextQuoted extends RowInputText {
                         } else {
                             if (!isEnd) {
                                 end = text.indexOf(sep, next);
+
                                 if (end < 0) {
                                     end = qtext.length;
                                 }
+
                                 sb.append(qtext, next, end - next);
+
                                 next = end + sepLen;
                                 done = true;
                             } else {

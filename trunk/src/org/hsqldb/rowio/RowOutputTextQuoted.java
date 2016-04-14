@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,19 +42,21 @@ import org.hsqldb.lib.StringConverter;
  * @since 1.7.0
  */
 public class RowOutputTextQuoted extends RowOutputText {
-
+    private char quoteChar;
+    
     public RowOutputTextQuoted(String fieldSep, String varSep,
-                               String longvarSep, boolean allQuoted,
-                               String encoding) {
+                               String longvarSep, char quoteChar,
+                               boolean allQuoted, String encoding) {
         super(fieldSep, varSep, longvarSep, allQuoted, encoding);
+        this.quoteChar = quoteChar;
     }
 
     protected String checkConvertString(String s, String sep) {
 
-        if (allQuoted || s.length() == 0 || s.indexOf('\"') != -1
+        if (allQuoted || s.length() == 0 || s.indexOf(quoteChar) != -1
                 || (sep.length() > 0 && s.indexOf(sep) != -1)
                 || hasUnprintable(s)) {
-            s = StringConverter.toQuotedString(s, '\"', true);
+            s = StringConverter.toQuotedString(s, quoteChar, true);
         }
 
         return s;
