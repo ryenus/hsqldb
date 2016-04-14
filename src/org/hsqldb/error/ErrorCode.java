@@ -90,7 +90,7 @@ public interface ErrorCode {
     int X_S0501 = 301;                             // no file name specified for source // TEXT_TABLE_SOURCE_FILENAME = 172
     int X_S0502 = 302;                             // no value specified for field // TEXT_TABLE_SOURCE_VALUE_MISSING= 173
     int X_S0503 = 303;                             // zero-length separator // TEXT_TABLE_SOURCE_SEPARATOR = 174
-    int X_S0504 = 304;
+    int X_S0504 = 304;                             // length of text quote character must be 1
     int X_S0521 = 320;                             // operation is not allowed on text table with data
     int X_S0522 = 321;                             // invalid statement - text table required
     int X_S0531 = 331;                             // encode / decode error:

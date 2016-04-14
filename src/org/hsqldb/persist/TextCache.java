@@ -126,10 +126,12 @@ public class TextCache extends DataFileCache {
         if (textFileSettings.isQuoted || textFileSettings.isAllQuoted) {
             rowIn = new RowInputTextQuoted(textFileSettings.fs,
                                            textFileSettings.vs,
-                                           textFileSettings.lvs);
+                                           textFileSettings.lvs,
+										   textFileSettings.quoteChar);
             rowOut = new RowOutputTextQuoted(textFileSettings.fs,
                                              textFileSettings.vs,
                                              textFileSettings.lvs,
+											 textFileSettings.quoteChar,
                                              textFileSettings.isAllQuoted,
                                              textFileSettings.stringEncoding);
         } else {

@@ -290,6 +290,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String textdb_fs           = "textdb.fs";
     public static final String textdb_vs           = "textdb.vs";
     public static final String textdb_lvs          = "textdb.lvs";
+    public static final String textdb_qc           = "textdb.qc";
 
     //
     public static final String hsqldb_min_reuse = "hsqldb.min_reuse";
@@ -315,6 +316,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                      HsqlProperties.getMeta(textdb_vs, SQL_PROPERTY, null));
         textMeta.put(textdb_lvs,
                      HsqlProperties.getMeta(textdb_lvs, SQL_PROPERTY, null));
+        textMeta.put(textdb_qc,
+                     HsqlProperties.getMeta(textdb_qc, SQL_PROPERTY, "\""));
         textMeta.put(textdb_encoding,
                      HsqlProperties.getMeta(textdb_encoding, SQL_PROPERTY,
                                             "ISO-8859-1"));
