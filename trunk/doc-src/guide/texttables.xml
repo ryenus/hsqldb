@@ -67,7 +67,7 @@
     <para>Text Table support for HSQLDB was originally developed by Bob
     Preston independently from the Project. Subsequently Bob joined the
     Project and incorporated this feature into version 1.7.0, with a number of
-    enhancements, especially the use of conventional SQL commands for
+    enhancements, especially the use of SQL commands for
     specifying the files used for Text Tables.</para>
 
     <para>In a nutshell, Text Tables are CSV or other delimited files treated
@@ -412,6 +412,14 @@
             <para>varchar separator</para>
           </listitem>
         </varlistentry>
+
+        <varlistentry>
+          <term>qc = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>quote character</para>
+          </listitem>
+        </varlistentry>
       </variablelist>
     </section>
 
@@ -548,6 +556,10 @@
       </listitem>
 
       <listitem>
+        <para>You can choose the quote character. The default is the double-quote character.</para>
+      </listitem>
+
+      <listitem>
         <para>SHUTDOWN COMPACT results in a complete rewrite of text table
         sources that are open at the time. The settings for quoted and
         all_quoted are applied for the rewrite.</para>
@@ -570,6 +582,10 @@
     <itemizedlist>
       <title>List of supported global properties</title>
 
+      <listitem>
+        <para><literal>qc="</literal></para>
+      </listitem>
+	  
       <listitem>
         <para><literal>fs=,</literal></para>
       </listitem>
