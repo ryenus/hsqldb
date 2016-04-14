@@ -116,13 +116,17 @@ public class RowInputTextQuoted extends RowInputText {
 
                             state = NEED_END_QUOTE;
                         } else {
-                            next  += sepLen - 1;
-                            state = NORMAL_FIELD;
-
                             if (!isEnd) {
-                                next++;
-
+                                end = text.indexOf(sep, next);
+                                if (end < 0) {
+                                    end = qtext.length;
+                                }
+                                sb.append(qtext, next, end - next);
+                                next = end + sepLen;
                                 done = true;
+                            } else {
+                                next  += sepLen - 1;
+                                state = NORMAL_FIELD;
                             }
                         }
                         break;
