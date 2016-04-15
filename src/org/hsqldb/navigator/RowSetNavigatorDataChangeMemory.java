@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class RowSetNavigatorDataChangeMemory
@@ -323,5 +323,82 @@ implements RowSetNavigatorDataChange {
 
     public int getRangePosition() {
         return 1;
+    }
+
+    public RangeIterator getUpdateRowIterator() {
+        return new UpdateRowIterator();
+    }
+
+    class UpdateRowIterator implements RangeIterator {
+
+        public Row getNextRow() {
+            return null;
+        }
+
+        public Object[] getNext() {
+
+            if (RowSetNavigatorDataChangeMemory.this.next()) {
+                return RowSetNavigatorDataChangeMemory.this
+                    .getCurrentChangedData();
+            }
+
+            return null;
+        }
+
+        public boolean hasNext() {
+            return RowSetNavigatorDataChangeMemory.this.hasNext();
+        }
+
+        public void removeCurrent() {}
+
+        public void release() {}
+
+        public long getRowId() {
+            return 0;
+        }
+
+        public boolean beforeFirst() {
+            return RowSetNavigatorDataChangeMemory.this.beforeFirst();
+        }
+
+        public Row getCurrentRow() {
+            return null;
+        }
+
+        public boolean next() {
+            return RowSetNavigatorDataChangeMemory.this.next();
+        }
+
+        public boolean isBeforeFirst() {
+            return RowSetNavigatorDataChangeMemory.this.isBeforeFirst();
+        }
+
+        public Object[] getCurrent() {
+            return RowSetNavigatorDataChangeMemory.this
+                .getCurrentChangedData();
+        }
+
+        public Object getCurrent(int i) {
+            return RowSetNavigatorDataChangeMemory.this
+                .getCurrentChangedData()[i];
+        }
+
+        public TableBase getCurrentTable() {
+            return null;
+        }
+
+        public void setCurrent(Object[] data) {}
+
+        public Object getRowidObject() {
+            return Long.valueOf(getRowId());
+        }
+
+        public void reset() {
+            beforeFirst();
+        }
+
+        public int getRangePosition() {
+            return 1;
+        }
     }
 }

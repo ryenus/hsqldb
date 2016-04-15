@@ -169,42 +169,38 @@ public class ParserDML extends ParserDQL {
                     colCount        = columnNames.size();
                     insertColumnMap = table.getColumnIndexes(columnNames);
                     hasColumnList   = true;
-
-                    if (token.tokenType != Tokens.VALUES
-                            && token.tokenType != Tokens.OVERRIDING) {
-                        break;
-                    }
-
-                    // fall through
                 } else {
                     rewind(position);
-
-                    break;
                 }
+
+                break;
+            }
+            default :
+        }
+
+        if (token.tokenType == Tokens.OVERRIDING) {
+            read();
+
+            if (token.tokenType == Tokens.USER) {
+                read();
+
+                overridingUser = true;
+            } else if (token.tokenType == Tokens.SYSTEM) {
+                read();
+
+                overridingSystem = true;
+            } else {
+                throw unexpectedToken();
             }
 
-            // fall through
-            case Tokens.OVERRIDING : {
-                if (token.tokenType == Tokens.OVERRIDING) {
-                    read();
+            readThis(Tokens.VALUE);
+        }
 
-                    if (token.tokenType == Tokens.USER) {
-                        read();
+        switch (token.tokenType) {
 
-                        overridingUser = true;
-                    } else if (token.tokenType == Tokens.SYSTEM) {
-                        read();
-
-                        overridingSystem = true;
-                    } else {
-                        throw unexpectedToken();
-                    }
-
-                    readThis(Tokens.VALUE);
-
-                    if (token.tokenType != Tokens.VALUES) {
-                        break;
-                    }
+            case Tokens.VALUE : {
+                if (!database.sqlSyntaxMys) {
+                    throw unexpectedToken();
                 }
             }
 
@@ -341,6 +337,7 @@ public class ParserDML extends ParserDQL {
 
                 return cs;
             }
+            case Tokens.OPENBRACKET :
             case Tokens.WITH :
             case Tokens.SELECT :
             case Tokens.TABLE : {

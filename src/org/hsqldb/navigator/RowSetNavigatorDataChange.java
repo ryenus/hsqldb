@@ -73,4 +73,6 @@ public interface RowSetNavigatorDataChange extends RangeIterator {
     boolean containsDeletedRow(Row row);
 
     boolean containsUpdatedRow(Row row, Row refRow, int[] keys);
+
+    RangeIterator getUpdateRowIterator();
 }

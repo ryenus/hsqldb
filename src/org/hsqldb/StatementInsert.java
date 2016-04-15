@@ -193,14 +193,9 @@ public class StatementInsert extends StatementDML {
                                 break;
                             }
 
-                            if (specialAction == StatementInsert.isReplace) {
-                                changeNavigator.addRow(
-                                    session, row, data,
-                                    baseTable.getColumnTypes(),
-                                    baseTable.defaultColumnMap);
-                            } else {
-                                changeNavigator.addRow(row);
-                            }
+                            changeNavigator.addRow(session, row, data,
+                                                   baseTable.getColumnTypes(),
+                                                   baseTable.defaultColumnMap);
 
                             count++;
                         }
@@ -224,7 +219,8 @@ public class StatementInsert extends StatementDML {
                    && changeNavigator != null) {
             Type[] colTypes = baseTable.getColumnTypes();
 
-            session.sessionContext.setRangeIterator(changeNavigator);
+            session.sessionContext.setRangeIterator(
+                changeNavigator.getUpdateRowIterator());
 
             while (changeNavigator.next()) {
                 session.sessionData.startRowProcessing();

@@ -1812,7 +1812,9 @@ public class ParserDQL extends ParserBase {
                 checkIsNonCoreReservedIdentifier();
             }
 
-            if (isNonCoreReservedIdentifier()) {
+            if (isNonCoreReservedIdentifier()
+                    && (!database.sqlSyntaxMys
+                        || operation != StatementTypes.INSERT)) {
                 alias = HsqlNameManager.getSimpleName(token.tokenString,
                                                       isDelimitedIdentifier());
 
