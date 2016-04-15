@@ -79,6 +79,17 @@ public class TextFileReader {
 
         buffer.reset();
 
+        if (textFileSettings.isUTF8() && pos == 0) {
+            try {
+                dataFile.seek(0);
+
+                if (dataFile.read() == 0xEF && dataFile.read() == 0xBB
+                        && dataFile.read() == 0xBF) {
+                    pos = 3;
+                }
+            } catch (IOException e) {}
+        }
+
         pos = findNextUsedLinePos(pos);
 
         if (pos == -1) {
