@@ -40,7 +40,7 @@ import org.hsqldb.error.ErrorCode;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.4
  * @since 2.2.6
  */
 public class TextFileSettings {
@@ -64,11 +64,11 @@ public class TextFileSettings {
     int      maxCacheBytes;
 
     //
-    static final byte[] BYTES_LINE_SEP    = NL.getBytes();
-    static final char   DOUBLE_QUOTE_CHAR = '\"';
-    static final char   BACKSLASH_CHAR    = '\\';
-    static final char   LF_CHAR           = '\n';
-    static final char   CR_CHAR           = '\r';
+    static final byte[]      BYTES_LINE_SEP    = NL.getBytes();
+    static final char        DOUBLE_QUOTE_CHAR = '\"';
+    static final char        BACKSLASH_CHAR    = '\\';
+    public static final char LF_CHAR           = '\n';
+    public static final char CR_CHAR           = '\r';
 
     /**
      *  The source string for a cached table is evaluated and the parameters
@@ -90,6 +90,7 @@ public class TextFileSettings {
         switch (tableprops.errorCodes.length) {
 
             case 0 :
+
                 // no source file name
                 this.dataFileName = null;
                 break;
@@ -111,8 +112,8 @@ public class TextFileSettings {
         vs  = tableprops.getProperty(HsqlDatabaseProperties.textdb_vs, vs);
         lvs = dbProps.getStringProperty(HsqlDatabaseProperties.textdb_lvs);
         lvs = tableprops.getProperty(HsqlDatabaseProperties.textdb_lvs, lvs);
-        qc = dbProps.getStringProperty(HsqlDatabaseProperties.textdb_qc);
-        qc = tableprops.getProperty(HsqlDatabaseProperties.textdb_qc, qc);
+        qc  = dbProps.getStringProperty(HsqlDatabaseProperties.textdb_qc);
+        qc  = tableprops.getProperty(HsqlDatabaseProperties.textdb_qc, qc);
 
         if (vs == null) {
             vs = fs;
@@ -130,9 +131,11 @@ public class TextFileSettings {
         if (fs.length() == 0 || vs.length() == 0 || lvs.length() == 0) {
             throw Error.error(ErrorCode.X_S0503);
         }
+
         if (qc.length() != 1) {
             throw Error.error(ErrorCode.X_S0504);
         }
+
         quoteChar = qc.charAt(0);
 
         //-- Get booleans
@@ -198,6 +201,14 @@ public class TextFileSettings {
 
     int getMaxCacheBytes() {
         return maxCacheBytes;
+    }
+
+    boolean isUTF8() {
+        return "UTF-8".equals(stringEncoding);
+    }
+
+    boolean isUTF16() {
+        return "UTF-16".equals(stringEncoding);
     }
 
     private static String translateSep(String sep) {
