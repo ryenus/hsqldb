@@ -56,6 +56,7 @@ public class TextFileSettings {
     public boolean             isQuoted;
     public boolean             isAllQuoted;
     public boolean             ignoreFirst;
+    public boolean             isLittleEndian;
 
     //
     Database database;

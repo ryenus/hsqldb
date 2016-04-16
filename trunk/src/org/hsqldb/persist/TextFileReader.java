@@ -58,6 +58,7 @@ public class TextFileReader {
     private String                    header;
     private boolean                   isReadOnly;
     private HsqlByteArrayOutputStream buffer;
+    private long                      position = 0;
 
     TextFileReader(RandomAccessInterface dataFile,
                    TextFileSettings textFileSettings, RowInputInterface rowIn,
@@ -68,9 +69,40 @@ public class TextFileReader {
         this.rowIn            = rowIn;
         this.isReadOnly       = isReadOnly;
         this.buffer           = new HsqlByteArrayOutputStream(128);
+
+        skipBOM();
     }
 
-    public RowInputInterface readObject(long pos) {
+    private void skipBOM() {
+
+        try {
+            if (textFileSettings.isUTF8()) {
+                dataFile.seek(0);
+
+                if (dataFile.read() == 0xEF && dataFile.read() == 0xBB
+                        && dataFile.read() == 0xBF) {
+                    position = 3;
+                }
+            } else if (textFileSettings.isUTF16()) {
+                dataFile.seek(0);
+
+                if (dataFile.read() == 0xFE && dataFile.read() == 0xFF) {
+                    position = 2;
+                } else {
+                    dataFile.seek(0);
+
+                    if (dataFile.read() == 0xFF && dataFile.read() == 0xFE) {
+                        position                        = 2;
+                        textFileSettings.isLittleEndian = true;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw Error.error(ErrorCode.TEXT_FILE_IO, e);
+        }
+    }
+
+    public RowInputInterface readObject() {
 
         boolean hasQuote  = false;
         boolean complete  = false;
@@ -79,25 +111,14 @@ public class TextFileReader {
 
         buffer.reset();
 
-        if (textFileSettings.isUTF8() && pos == 0) {
-            try {
-                dataFile.seek(0);
+        position = findNextUsedLinePos(position);
 
-                if (dataFile.read() == 0xEF && dataFile.read() == 0xBB
-                        && dataFile.read() == 0xBF) {
-                    pos = 3;
-                }
-            } catch (IOException e) {}
-        }
-
-        pos = findNextUsedLinePos(pos);
-
-        if (pos == -1) {
+        if (position == -1) {
             return null;
         }
 
         try {
-            dataFile.seek(pos);
+            dataFile.seek(position);
 
             while (!complete) {
                 int c = dataFile.read();
@@ -167,8 +188,10 @@ public class TextFileReader {
                     rowString = buffer.toString();
                 }
 
-                ((RowInputText) rowIn).setSource(rowString, pos,
+                ((RowInputText) rowIn).setSource(rowString, position,
                                                  buffer.size());
+
+                position += rowIn.getSize();
 
                 return rowIn;
             }
@@ -179,7 +202,7 @@ public class TextFileReader {
         }
     }
 
-    public int readHeaderLine() {
+    public void readHeaderLine() {
 
         boolean complete  = false;
         boolean wasCR     = false;
@@ -188,7 +211,7 @@ public class TextFileReader {
         buffer.reset();
 
         try {
-            dataFile.seek(0);
+            dataFile.seek(position);
         } catch (IOException e) {
             throw Error.error(ErrorCode.TEXT_FILE_IO, e);
         }
@@ -203,7 +226,7 @@ public class TextFileReader {
 
                 if (c == -1) {
                     if (buffer.size() == 0) {
-                        return 0;
+                        return;
                     }
 
                     complete = true;
@@ -253,10 +276,8 @@ public class TextFileReader {
             header = buffer.toString();
         }
 
-        return buffer.size();
+        position += buffer.size();
     }
-
-    // fredt - new method
 
     /**
      * Searches from file pointer, pos, and finds the beginning of the first

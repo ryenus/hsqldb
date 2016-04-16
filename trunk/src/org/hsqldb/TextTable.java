@@ -47,7 +47,7 @@ import org.hsqldb.rowio.RowInputInterface;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  */
 public class TextTable extends Table {
 
@@ -120,17 +120,15 @@ public class TextTable extends Table {
             reader = cache.getTextFileReader();
 
             // read and insert all the rows from the source file
-            Row  row     = null;
-            long nextpos = 0;
+            Row row = null;
 
             if (cache.isIgnoreFirstLine()) {
-                nextpos += reader.readHeaderLine();
-
+                reader.readHeaderLine();
                 cache.setHeaderInitialise(reader.getHeaderLine());
             }
 
             while (true) {
-                RowInputInterface rowIn = reader.readObject(nextpos);
+                RowInputInterface rowIn = reader.readObject();
 
                 if (rowIn == null) {
                     break;
@@ -143,8 +141,6 @@ public class TextTable extends Table {
                 }
 
                 Object[] data = row.getData();
-
-                nextpos = (int) row.getPos() + row.getStorageSize();
 
                 systemUpdateIdentityValue(data);
                 enforceRowConstraints(session, data);
