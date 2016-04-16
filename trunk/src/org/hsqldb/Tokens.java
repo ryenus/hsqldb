@@ -1169,7 +1169,7 @@ public class Tokens {
     public static final int PERCENT_RANK                     = 217;
     public static final int PERCENTILE_CONT                  = 218;
     public static final int PERCENTILE_DISC                  = 219;
-    public static final int PORIOD                           = 220;
+    public static final int PERIOD                           = 220;
     public static final int PORTION                          = 221;
     public static final int POSITION                         = 222;
     public static final int POSITION_REGEX                   = 223;
@@ -2064,6 +2064,7 @@ public class Tokens {
         reservedKeys.put(T_PERCENT_RANK, PERCENT_RANK);
         reservedKeys.put(T_PERCENTILE_CONT, PERCENTILE_CONT);
         reservedKeys.put(T_PERCENTILE_DISC, PERCENTILE_DISC);
+        reservedKeys.put(T_PERIOD, PERIOD);
         reservedKeys.put(T_POSITION, POSITION);
         reservedKeys.put(T_POSITION_REGEX, POSITION_REGEX);
         reservedKeys.put(T_POWER, POWER);
