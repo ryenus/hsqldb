@@ -3835,7 +3835,16 @@ public class ParserDQL extends ParserBase {
                     throw unexpectedToken();
                 }
 
-                e = XreadOverlapsPredicateRightPart(l);
+                e = XreadPeriodPredicateRightPart(OpTypes.RANGE_OVERLAPS, l);
+
+                break;
+            }
+            case Tokens.PRECEDES : {
+                if (hasNot) {
+                    throw unexpectedToken();
+                }
+
+                e = XreadPeriodPredicateRightPart(OpTypes.RANGE_PRECEDES, l);
 
                 break;
             }
@@ -4156,7 +4165,8 @@ public class ParserDQL extends ParserBase {
         return new ExpressionLogical(matchType, a, s);
     }
 
-    private ExpressionLogical XreadOverlapsPredicateRightPart(Expression l) {
+    private ExpressionLogical XreadPeriodPredicateRightPart(int opType,
+            Expression l) {
 
         if (l.getType() != OpTypes.ROW) {
             throw Error.error(ErrorCode.X_42564);
@@ -4178,7 +4188,7 @@ public class ParserDQL extends ParserBase {
             throw Error.error(ErrorCode.X_42564);
         }
 
-        return new ExpressionLogical(OpTypes.OVERLAPS, l, r);
+        return new ExpressionLogical(opType, l, r);
     }
 
     Expression XreadRowValueExpression() {

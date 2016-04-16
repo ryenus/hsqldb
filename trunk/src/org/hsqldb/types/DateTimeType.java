@@ -1126,7 +1126,7 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP :
                 if (b instanceof IntervalMonthData) {
                     return addMonths(session, (TimestampData) a,
-                                      ((IntervalMonthData) b).units);
+                                     ((IntervalMonthData) b).units);
                 } else if (b instanceof IntervalSecondData) {
                     return addSeconds((TimestampData) a,
                                       ((IntervalSecondData) b).units,
@@ -1175,7 +1175,7 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP :
                 if (b instanceof IntervalMonthData) {
                     return addMonths(session, (TimestampData) a,
-                                      -((IntervalMonthData) b).units);
+                                     -((IntervalMonthData) b).units);
                 } else if (b instanceof IntervalSecondData) {
                     return addSeconds((TimestampData) a,
                                       -((IntervalSecondData) b).units,
@@ -1656,8 +1656,29 @@ public final class DateTimeType extends DTIType {
         }
     }
 
-    public static Boolean overlaps(Session session, Object[] a, Type[] ta,
-                                   Object[] b, Type[] tb) {
+    /**
+     * For temporal predicate operations on periods, we need to make sure we
+     * compare data of the same types.
+     * We also switch the period boundaries if the first entry is after the
+     * second one.
+     * <p>
+     * Important: when this method returns, the boundaries of the periods may
+     * have been changed.
+     *
+     * @param session
+     * @param a First period to compare
+     * @param ta Types of the first period
+     * @param b Second period to compare
+     * @param tb Type of the second period
+     *
+     * @return The common data type of the boundaries of the two limits.
+     *         null if any of the two periods is null or if the first limit of
+     *         any period is null.
+     *
+     * @since 2.3.4
+     */
+    public static Type normalizeInput(Session session, Object[] a, Type[] ta,
+                                      Object[] b, Type[] tb) {
 
         if (a == null || b == null) {
             return null;
@@ -1706,6 +1727,38 @@ public final class DateTimeType extends DTIType {
             b[1] = temp;
         }
 
+        return commonType;
+    }
+
+    /**
+     * The predicate "a OVERLAPS b" applies when both a and b are either period
+     * names or period constructors.
+     * This predicate returns True if the two periods have at least one time
+     * point in common, i.e, if a[0] < b[1] and
+     * a[1] > b[0]. This predicates is commutative: "a OVERLAPS B" must return
+     * the same result of "b OVERLAPS a"
+     * <p>
+     * Important: when this method returns, the boundaries of the periods may
+     * have been changed.
+     *
+     * @param session
+     * @param a First period to compare
+     * @param ta Types of the first period
+     * @param b Second period to compare
+     * @param tb Type of the second period
+     *
+     * @return {@link Boolean#TRUE} if the two periods overlaps,
+     *          else {@link Boolean#FALSE}
+     */
+    public static Boolean overlaps(Session session, Object[] a, Type[] ta,
+                                   Object[] b, Type[] tb) {
+
+        Type commonType = normalizeInput(session, a, ta, b, tb);
+
+        if (commonType == null) {
+            return null;
+        }
+
         if (commonType.compare(session, a[0], b[0]) > 0) {
             Object[] temp = a;
 
@@ -1714,6 +1767,40 @@ public final class DateTimeType extends DTIType {
         }
 
         if (commonType.compare(session, a[1], b[0]) > 0) {
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
+    }
+
+    /**
+     * The predicate "a PRECEDES b" applies when both a and b are either period
+     * names or period constructors.
+     * In this case, the predicate returns True if the end value of a is less
+     * than or equal to the start value of b, i.e., if ae <= as.
+     * <p>
+     * Important: when this method returns, the boundaries of the periods may
+     * have been changed.
+     *
+     * @param session
+     * @param a First period to compare
+     * @param ta Types of the first period
+     * @param b Second period to compare
+     * @param tb Type of the second period
+     *
+     * @return {@link Boolean#TRUE} if period a precedes period b,
+     *          else {@link Boolean#FALSE}
+     */
+    public static Boolean precedes(Session session, Object[] a, Type[] ta,
+                                   Object[] b, Type[] tb) {
+
+        Type commonType = normalizeInput(session, a, ta, b, tb);
+
+        if (commonType == null) {
+            return null;
+        }
+
+        if (commonType.compare(session, a[1], b[0]) <= 0) {
             return Boolean.TRUE;
         }
 
