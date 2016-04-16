@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1964,7 +1964,7 @@ public class ParserRoutine extends ParserTable {
 
         if (readIfThis(Tokens.SET)) {
             readThis(Tokens.MESSAGE_TEXT);
-            readThis(Tokens.EQUALS);
+            readThis(Tokens.EQUALS_OP);
 
             message = XreadSimpleValueSpecificationOrNull();
 
@@ -1995,7 +1995,7 @@ public class ParserRoutine extends ParserTable {
 
             if (readIfThis(Tokens.SET)) {
                 readThis(Tokens.MESSAGE_TEXT);
-                readThis(Tokens.EQUALS);
+                readThis(Tokens.EQUALS_OP);
 
                 message = XreadSimpleValueSpecificationOrNull();
 

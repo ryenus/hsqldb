@@ -158,7 +158,7 @@ implements RowInputInterface {
         readFieldPrefix();
         scanner.scanNext();
 
-        boolean minus = scanner.getTokenType() == Tokens.MINUS;
+        boolean minus = scanner.getTokenType() == Tokens.MINUS_OP;
 
         if (minus) {
             scanner.scanNext();
@@ -270,7 +270,7 @@ implements RowInputInterface {
             return null;
         }
 
-        if (scanner.scanSpecialIdentifier(Tokens.T_DIVIDE)) {
+        if (scanner.scanSpecialIdentifier(Tokens.T_DIVIDE_OP)) {
             scanner.scanNext();
 
             Object divisor = scanner.getValue();

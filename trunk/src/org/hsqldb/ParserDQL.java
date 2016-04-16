@@ -2201,11 +2201,11 @@ public class ParserDQL extends ParserBase {
 
         switch (token.tokenType) {
 
-            case Tokens.PLUS :
+            case Tokens.PLUS_OP :
                 read();
                 break;
 
-            case Tokens.MINUS :
+            case Tokens.MINUS_OP :
                 read();
 
                 minus = true;
@@ -3024,17 +3024,17 @@ public class ParserDQL extends ParserBase {
         while (true) {
             switch (token.tokenType) {
 
-                case Tokens.PLUS :
+                case Tokens.PLUS_OP :
                     type  = OpTypes.ADD;
                     boole = false;
                     break;
 
-                case Tokens.MINUS :
+                case Tokens.MINUS_OP :
                     type  = OpTypes.SUBTRACT;
                     boole = false;
                     break;
 
-                case Tokens.CONCAT :
+                case Tokens.CONCAT_OP :
                     type  = OpTypes.CONCAT;
                     boole = false;
                     break;
@@ -3082,7 +3082,7 @@ public class ParserDQL extends ParserBase {
                     boole = false;
                     break;
 
-                case Tokens.DIVIDE :
+                case Tokens.DIVIDE_OP :
                     type  = OpTypes.DIVIDE;
                     boole = false;
                     break;
@@ -3130,13 +3130,13 @@ public class ParserDQL extends ParserBase {
 
         switch (token.tokenType) {
 
-            case Tokens.PLUS :
+            case Tokens.PLUS_OP :
                 read();
 
                 boole = false;
                 break;
 
-            case Tokens.MINUS :
+            case Tokens.MINUS_OP :
                 read();
 
                 boole = false;
@@ -3203,7 +3203,7 @@ public class ParserDQL extends ParserBase {
         Expression e         = XreadCharacterPrimary();
         Collation  collation = readCollateClauseOrNull();
 
-        while (token.tokenType == Tokens.CONCAT) {
+        while (token.tokenType == Tokens.CONCAT_OP) {
             read();
 
             Expression a = e;
@@ -3294,9 +3294,9 @@ public class ParserDQL extends ParserBase {
         while (true) {
             int type;
 
-            if (token.tokenType == Tokens.PLUS) {
+            if (token.tokenType == Tokens.PLUS_OP) {
                 type = OpTypes.ADD;
-            } else if (token.tokenType == Tokens.MINUS) {
+            } else if (token.tokenType == Tokens.MINUS_OP) {
                 type = OpTypes.SUBTRACT;
             } else {
                 break;
@@ -3321,7 +3321,7 @@ public class ParserDQL extends ParserBase {
         while (true) {
             if (token.tokenType == Tokens.ASTERISK) {
                 type = OpTypes.MULTIPLY;
-            } else if (token.tokenType == Tokens.DIVIDE) {
+            } else if (token.tokenType == Tokens.DIVIDE_OP) {
                 type = OpTypes.DIVIDE;
             } else {
                 break;
@@ -3348,9 +3348,9 @@ public class ParserDQL extends ParserBase {
         Expression e;
         boolean    minus = false;
 
-        if (token.tokenType == Tokens.PLUS) {
+        if (token.tokenType == Tokens.PLUS_OP) {
             read();
-        } else if (token.tokenType == Tokens.MINUS) {
+        } else if (token.tokenType == Tokens.MINUS_OP) {
             read();
 
             minus = true;
@@ -3376,9 +3376,9 @@ public class ParserDQL extends ParserBase {
         while (true) {
             int type;
 
-            if (token.tokenType == Tokens.PLUS) {
+            if (token.tokenType == Tokens.PLUS_OP) {
                 type = OpTypes.ADD;
-            } else if (token.tokenType == Tokens.MINUS) {
+            } else if (token.tokenType == Tokens.MINUS_OP) {
                 type = OpTypes.SUBTRACT;
             } else {
                 break;
@@ -3402,9 +3402,9 @@ public class ParserDQL extends ParserBase {
         while (true) {
             int type;
 
-            if (token.tokenType == Tokens.PLUS) {
+            if (token.tokenType == Tokens.PLUS_OP) {
                 type = OpTypes.ADD;
-            } else if (token.tokenType == Tokens.MINUS) {
+            } else if (token.tokenType == Tokens.MINUS_OP) {
                 type = OpTypes.SUBTRACT;
             } else {
                 break;
@@ -3839,10 +3839,10 @@ public class ParserDQL extends ParserBase {
 
                 break;
             }
-            case Tokens.EQUALS :
+            case Tokens.EQUALS_OP :
             case Tokens.GREATER_EQUALS :
-            case Tokens.GREATER :
-            case Tokens.LESS :
+            case Tokens.GREATER_OP :
+            case Tokens.LESS_OP :
             case Tokens.LESS_EQUALS :
             case Tokens.NOT_EQUALS : {
                 if (hasNot) {

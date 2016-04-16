@@ -1417,8 +1417,8 @@ public class Scanner {
                 return;
 
             case '=' :
-                token.tokenString = Tokens.T_EQUALS;
-                token.tokenType   = Tokens.EQUALS;
+                token.tokenString = Tokens.T_EQUALS_OP;
+                token.tokenType   = Tokens.EQUALS_OP;
 
                 currentPosition++;
 
@@ -1437,8 +1437,8 @@ public class Scanner {
                 return;
 
             case '+' :
-                token.tokenString = Tokens.T_PLUS;
-                token.tokenType   = Tokens.PLUS;
+                token.tokenString = Tokens.T_PLUS_OP;
+                token.tokenType   = Tokens.PLUS_OP;
 
                 currentPosition++;
 
@@ -1528,8 +1528,8 @@ public class Scanner {
                     return;
                 }
 
-                token.tokenString = Tokens.T_LESS;
-                token.tokenType   = Tokens.LESS;
+                token.tokenString = Tokens.T_LESS_OP;
+                token.tokenType   = Tokens.LESS_OP;
 
                 currentPosition++;
 
@@ -1547,8 +1547,8 @@ public class Scanner {
                     return;
                 }
 
-                token.tokenString = Tokens.T_GREATER;
-                token.tokenType   = Tokens.GREATER;
+                token.tokenString = Tokens.T_GREATER_OP;
+                token.tokenType   = Tokens.GREATER_OP;
 
                 currentPosition++;
 
@@ -1558,8 +1558,8 @@ public class Scanner {
 
             case '|' :
                 if (charAt(currentPosition + 1) == '|') {
-                    token.tokenString = Tokens.T_CONCAT;
-                    token.tokenType   = Tokens.CONCAT;
+                    token.tokenString = Tokens.T_CONCAT_OP;
+                    token.tokenType   = Tokens.CONCAT_OP;
                     currentPosition   += 2;
                     token.isDelimiter = true;
 
@@ -1612,8 +1612,8 @@ public class Scanner {
                     return;
                 }
 
-                token.tokenString = Tokens.T_DIVIDE;
-                token.tokenType   = Tokens.DIVIDE;
+                token.tokenString = Tokens.T_DIVIDE_OP;
+                token.tokenType   = Tokens.DIVIDE_OP;
 
                 currentPosition++;
 
@@ -1641,8 +1641,8 @@ public class Scanner {
                     return;
                 }
 
-                token.tokenString = Tokens.T_MINUS;
-                token.tokenType   = Tokens.MINUS;
+                token.tokenString = Tokens.T_MINUS_OP;
+                token.tokenType   = Tokens.MINUS_OP;
 
                 currentPosition++;
 
@@ -2392,10 +2392,10 @@ public class Scanner {
         scanToken();
         scanWhitespace();
 
-        if (token.tokenType == Tokens.PLUS) {
+        if (token.tokenType == Tokens.PLUS_OP) {
             scanToken();
             scanWhitespace();
-        } else if (token.tokenType == Tokens.MINUS) {
+        } else if (token.tokenType == Tokens.MINUS_OP) {
             minus = true;
 
             scanToken();
