@@ -498,7 +498,7 @@ public class ParserBase {
 
         boolean minus = false;
 
-        if (token.tokenType == Tokens.MINUS) {
+        if (token.tokenType == Tokens.MINUS_OP) {
             minus = true;
 
             read();
@@ -533,7 +533,7 @@ public class ParserBase {
 
         boolean minus = false;
 
-        if (token.tokenType == Tokens.MINUS) {
+        if (token.tokenType == Tokens.MINUS_OP) {
             minus = true;
 
             read();
@@ -625,11 +625,11 @@ public class ParserBase {
 
                 read();
 
-                if (token.tokenType == Tokens.MINUS) {
+                if (token.tokenType == Tokens.MINUS_OP) {
                     read();
 
                     minus = true;
-                } else if (token.tokenType == Tokens.PLUS) {
+                } else if (token.tokenType == Tokens.PLUS_OP) {
                     read();
                 }
 
@@ -762,9 +762,9 @@ public class ParserBase {
     static {
 
         // comparison
-        expressionTypeMap.put(Tokens.EQUALS, OpTypes.EQUAL);
-        expressionTypeMap.put(Tokens.GREATER, OpTypes.GREATER);
-        expressionTypeMap.put(Tokens.LESS, OpTypes.SMALLER);
+        expressionTypeMap.put(Tokens.EQUALS_OP, OpTypes.EQUAL);
+        expressionTypeMap.put(Tokens.GREATER_OP, OpTypes.GREATER);
+        expressionTypeMap.put(Tokens.LESS_OP, OpTypes.SMALLER);
         expressionTypeMap.put(Tokens.GREATER_EQUALS, OpTypes.GREATER_EQUAL);
         expressionTypeMap.put(Tokens.LESS_EQUALS, OpTypes.SMALLER_EQUAL);
         expressionTypeMap.put(Tokens.NOT_EQUALS, OpTypes.NOT_EQUAL);

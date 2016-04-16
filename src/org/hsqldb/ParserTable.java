@@ -99,7 +99,7 @@ public class ParserTable extends ParserDML {
 
         if (database.sqlSyntaxMys) {
             if (readIfThis(Tokens.COMMENT)) {
-                readIfThis(Tokens.EQUALS);
+                readIfThis(Tokens.EQUALS_OP);
 
                 String comment = readQuotedString();
 
@@ -1515,7 +1515,7 @@ public class ParserTable extends ParserDML {
                 // special for NaN
                 e = XreadNumericValueExpression();
             } else {
-                if (token.tokenType == Tokens.MINUS) {
+                if (token.tokenType == Tokens.MINUS_OP) {
                     read();
 
                     minus = true;

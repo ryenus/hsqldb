@@ -907,7 +907,7 @@ public class ParserDML extends ParserDQL {
                 degree = 1;
             }
 
-            readThis(Tokens.EQUALS);
+            readThis(Tokens.EQUALS_OP);
 
             int position = getPosition();
             int brackets = readOpenBrackets();
@@ -991,7 +991,7 @@ public class ParserDML extends ParserDQL {
                 throw Error.error(ErrorCode.X_42579, col.getName().name);
             }
 
-            readThis(Tokens.EQUALS);
+            readThis(Tokens.EQUALS_OP);
 
             switch (token.tokenType) {
 
