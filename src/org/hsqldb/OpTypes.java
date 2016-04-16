@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,13 @@
 
 package org.hsqldb;
 
+/**
+ * Enumerate expression operation types<p>
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.3.4
+ * @since 1.9.0
+ */
 public interface OpTypes {
 
     int NONE                 = 0,
@@ -85,41 +92,44 @@ public interface OpTypes {
         LIKE                 = 53,    // logical - predicates
         IN                   = 54,
         EXISTS               = 55,
-        OVERLAPS             = 56,
-        UNIQUE               = 57,
-        NOT_DISTINCT         = 58,
-        MATCH_SIMPLE         = 59,
-        MATCH_PARTIAL        = 60,
-        MATCH_FULL           = 61,
-        MATCH_UNIQUE_SIMPLE  = 62,
-        MATCH_UNIQUE_PARTIAL = 63,
-        MATCH_UNIQUE_FULL    = 64,
-        CONTAINS             = 65,
-        COUNT                = 71,    // aggregate functions
-        SUM                  = 72,
-        MIN                  = 73,
-        MAX                  = 74,
-        AVG                  = 75,
-        EVERY                = 76,
-        SOME                 = 77,
-        STDDEV_POP           = 78,
-        STDDEV_SAMP          = 79,
-        VAR_POP              = 80,
-        VAR_SAMP             = 81,
-        ARRAY_AGG            = 82,
-        GROUP_CONCAT         = 83,
-        PREFIX               = 84,
-        MEDIAN               = 85,
-        CONCAT_WS            = 86,
-        CAST                 = 91,    // other operations
-        ZONE_MODIFIER        = 92,
-        CASEWHEN             = 93,
-        ORDER_BY             = 94,
-        LIMIT                = 95,
-        ALTERNATIVE          = 96,
-        MULTICOLUMN          = 97,
-        USER_AGGREGATE       = 98,
-        ARRAY_ACCESS         = 99,
-        ARRAY_SUBQUERY       = 100
+        RANGE_OVERLAPS       = 56,
+        RANGE_PRECEDES       = 57,
+        RANGE_SUCCEEDS       = 58,
+        RANGE_EQUALS         = 59,
+        UNIQUE               = 60,
+        NOT_DISTINCT         = 61,
+        MATCH_SIMPLE         = 62,
+        MATCH_PARTIAL        = 63,
+        MATCH_FULL           = 64,
+        MATCH_UNIQUE_SIMPLE  = 65,
+        MATCH_UNIQUE_PARTIAL = 66,
+        MATCH_UNIQUE_FULL    = 67,
+        CONTAINS             = 68,
+        COUNT                = 69,    // aggregate functions
+        SUM                  = 70,
+        MIN                  = 71,
+        MAX                  = 72,
+        AVG                  = 73,
+        EVERY                = 74,
+        SOME                 = 75,
+        STDDEV_POP           = 76,
+        STDDEV_SAMP          = 77,
+        VAR_POP              = 78,
+        VAR_SAMP             = 79,
+        ARRAY_AGG            = 80,
+        GROUP_CONCAT         = 81,
+        PREFIX               = 82,
+        MEDIAN               = 83,
+        CONCAT_WS            = 84,
+        CAST                 = 85,    // other operations
+        ZONE_MODIFIER        = 86,
+        CASEWHEN             = 87,
+        ORDER_BY             = 88,
+        LIMIT                = 89,
+        ALTERNATIVE          = 90,
+        MULTICOLUMN          = 91,
+        USER_AGGREGATE       = 92,
+        ARRAY_ACCESS         = 93,
+        ARRAY_SUBQUERY       = 95
     ;
 }
