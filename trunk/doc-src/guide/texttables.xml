@@ -67,8 +67,8 @@
     <para>Text Table support for HSQLDB was originally developed by Bob
     Preston independently from the Project. Subsequently Bob joined the
     Project and incorporated this feature into version 1.7.0, with a number of
-    enhancements, especially the use of SQL commands for
-    specifying the files used for Text Tables.</para>
+    enhancements, especially the use of SQL commands for specifying the files
+    used for Text Tables.</para>
 
     <para>In a nutshell, Text Tables are CSV or other delimited files treated
     as SQL tables. Any ordinary CSV or other delimited file can be used. The
@@ -174,9 +174,9 @@
       to assign a different separator to the latter is provided. When a
       different separator is assigned to a VARCHAR, it will terminate any CSV
       field of that type. For example, if the first field is CHAR, and the
-      second field VARCHAR, and the separator fs has been defined as the pipe
-      (|) and vs as the period (.) then the data in the CSV file for a row
-      will look like:</para>
+      second field VARCHAR, and the separator <literal>fs</literal> has been
+      defined as the pipe (|) and <literal>vs</literal> as the period (.) then
+      the data in the CSV file for a row will look like:</para>
 
       <screen> First field data|Second field data.Third field data</screen>
 
@@ -274,15 +274,17 @@
       <varname>quoted</varname> and <varname>all_quoted</varname>. The
       <varname>ignore_first</varname> option (default false) tells HSQLDB to
       ignore the first line in a file. This option is used when the first line
-      of the file contains column headings. The <varname>all_quoted</varname>
-      option (default false) tells the program that it should use quotes
-      around all character fields when writing to the source file. The
-      <varname>quoted</varname> option (default true) uses quotes only when
-      necessary to distinguish a field that contains the separator character.
-      It can be set to false to prevent the use of quoting altogether and
-      treat quote characters as normal characters. These options may be
-      specified within the <literal>SET TABLE SOURCE</literal>
-      statement:</para>
+      of the file contains column headings or other title information. The
+      first line consists of the characters before the first end-of-line
+      symbol (line feed, carriage return, etc). It is simply set aside and not
+      processed. The <varname>all_quoted</varname> option (default false)
+      tells the program that it should use quotes around all character fields
+      when writing to the source file. The <varname>quoted</varname> option
+      (default true) uses quotes only when necessary to distinguish a field
+      that contains the separator character. It can be set to false to prevent
+      the use of quoting altogether and treat quote characters as normal
+      characters. All these options may be specified within the <literal>SET
+      TABLE SOURCE</literal> statement:</para>
 
       <programlisting> SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true"</programlisting>
 
@@ -290,7 +292,7 @@
       <literal>false</literal> and <literal>quoted=true</literal> are in
       force, fields that are written to a line of the csv file will be quoted
       only if they contain the separator or the quote character. The quote
-      character is doubled when used inside a string. When
+      character inside the field is doubled when written out to the file. When
       <literal>all_quoted=false</literal> and <literal>quoted=false</literal>
       the quote character is not doubled. With this option, it is not possible
       to insert any string containing the separator into the table, as it
@@ -301,11 +303,19 @@
       this basis.</para>
 
       <para>The character encoding for the source file is<literal> ASCII
-      </literal>by default. To support UNICODE or source files prepared with
-      different encodings this can be changed to <literal>UTF-8</literal> or
-      any other encoding. The default is <literal>encoding=ASCII </literal>and
-      the option <literal>encoding=UTF-8</literal> or other supported
-      encodings can be used.</para>
+      </literal>by default, which corresponds to the 8-bit ANSI character set.
+      To support UNICODE or source files prepared with different encodings
+      this can be changed to <literal>UTF-8</literal> or any other encoding.
+      The default is <literal>encoding=ASCII </literal>and the option
+      <literal>encoding=UTF-8</literal> or other supported encodings can be
+      used. From version 2.3.4, the two-byte-per-character encodings of UTF-16
+      are also supported. The <literal>encoding=UTF-16BE</literal> is
+      big-endian, while <literal>encoding=UTF-16LE</literal> is little-endian.
+      The <literal>encoding=UTF-16</literal> is big-endian by default. This
+      encoding reads a special Unicode character called BOM if it is present
+      at the beginning of an existing file and if this character indicates
+      little-indian, the file is treated as such. Note HSQLDB does not write a
+      BOM character to the files it creates from scratch.</para>
 
       <para>Finally, HSQLDB provides the ability to read a text file as READ
       ONLY, by placing the keyword "DESC" at the end of the SET TABLE SOURCE
@@ -556,7 +566,8 @@
       </listitem>
 
       <listitem>
-        <para>You can choose the quote character. The default is the double-quote character.</para>
+        <para>You can choose the quote character. The default is the
+        double-quote character.</para>
       </listitem>
 
       <listitem>
@@ -585,7 +596,7 @@
       <listitem>
         <para><literal>qc="</literal></para>
       </listitem>
-	  
+
       <listitem>
         <para><literal>fs=,</literal></para>
       </listitem>
