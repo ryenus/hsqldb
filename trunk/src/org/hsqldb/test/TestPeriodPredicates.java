@@ -474,4 +474,153 @@ public class TestPeriodPredicates extends TestBase {
 
         Assert.assertFalse(DateTimeType.precedes(null, a, ta, b, tb));
     }
+    
+    /**
+     * (TIMESTAMP '2000-02-01 01:02:03', TIMESTAMP '2000-03-01 01:02:03')
+     * SUCCEEDS
+     * (TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:03')
+     * is true
+     */
+    public void testFirstPeriodSucceedsSecondPeriod() {
+
+        Object[] a = {
+                scanner.newTimestamp("2000-02-01 01:02:03"),
+                scanner.newTimestamp("2000-03-01 01:02:03")
+            };
+        Object[] b = {
+            scanner.newTimestamp("2000-01-01 01:02:03"),
+            scanner.newTimestamp("2000-02-01 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertTrue(DateTimeType.succeeds(null, a, ta, b, tb));
+    }
+    
+    /**
+     * (TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:03')
+     * SUCCEEDS
+     * (TIMESTAMP '2000-02-01 01:02:03', TIMESTAMP '2000-03-01 01:02:03')
+     * is false
+     */
+    public void testFirstPeriodDoesNotSucceedsSecondPeriod() {
+
+        Object[] a = {
+                scanner.newTimestamp("2000-01-01 01:02:03"),
+                scanner.newTimestamp("2000-02-01 01:02:03")
+            };
+        Object[] b = {
+                scanner.newTimestamp("2000-02-01 01:02:03"),
+                scanner.newTimestamp("2000-03-01 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertFalse(DateTimeType.succeeds(null, a, ta, b, tb));
+    }
+    
+    /**
+     * (TIMESTAMP '2000-02-01 01:02:03', TIMESTAMP '2000-03-01 01:02:03')
+     * SUCCEEDS
+     * (TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:04')
+     * is false
+     */
+    public void testFirstPeriodDoesNotSucceedsSecondPeriod2() {
+
+        Object[] a = {
+                scanner.newTimestamp("2000-02-01 01:02:03"),
+                scanner.newTimestamp("2000-03-01 01:02:03")
+            };
+        Object[] b = {
+            scanner.newTimestamp("2000-01-01 01:02:03"),
+            scanner.newTimestamp("2000-02-01 01:02:04")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertFalse(DateTimeType.succeeds(null, a, ta, b, tb));
+    }
+    
+    /**
+     * (TIMESTAMP '2000-02-01 01:02:03', INTERVAL '31' DAY)
+     * SUCCEEDS
+     * (TIMESTAMP '2000-01-01 01:02:03', , INTERVAL '31' DAY)
+     * is true
+     */
+    public void testFirstPeriodSucceedsSecondPeriodWithInterval() {
+
+        Object[] a = {
+                scanner.newTimestamp("2000-02-01 01:02:03"),
+                scanner.newInterval(
+                        "31",
+                        IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+            };
+        Object[] b = {
+            scanner.newTimestamp("2000-01-01 01:02:03"),
+            scanner.newInterval(
+                    "31",
+                    IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
+        };
+
+        Assert.assertTrue(DateTimeType.succeeds(null, a, ta, b, tb));
+    }
+    
+    /**
+     * (TIMESTAMP '2000-02-01 01:02:03', INTERVAL '31' DAY)
+     * SUCCEEDS
+     * (TIMESTAMP '2000-01-01 01:02:03', , INTERVAL '32' DAY)
+     * is true
+     */
+    public void testFirstPeriodDoesNotSucceedsSecondPeriodWithInterval() {
+
+        Object[] a = {
+                scanner.newTimestamp("2000-02-01 01:02:03"),
+                scanner.newInterval(
+                        "31",
+                        IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+            };
+        Object[] b = {
+            scanner.newTimestamp("2000-01-01 01:02:03"),
+            scanner.newInterval(
+                    "32",
+                    IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
+        };
+
+        Assert.assertFalse(DateTimeType.succeeds(null, a, ta, b, tb));
+    }
+    
 }
