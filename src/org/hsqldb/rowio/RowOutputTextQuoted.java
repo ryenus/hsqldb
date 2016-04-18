@@ -32,31 +32,30 @@
 package org.hsqldb.rowio;
 
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.persist.TextFileSettings;
 
 /**
  * This class quotes strings only if they contain the quote character or
  * the separator for the field. The quote character is doubled.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.4
  * @since 1.7.0
  */
 public class RowOutputTextQuoted extends RowOutputText {
-    private char quoteChar;
-    
-    public RowOutputTextQuoted(String fieldSep, String varSep,
-                               String longvarSep, char quoteChar,
-                               boolean allQuoted, String encoding) {
-        super(fieldSep, varSep, longvarSep, allQuoted, encoding);
-        this.quoteChar = quoteChar;
+
+    public RowOutputTextQuoted(TextFileSettings textFileSettings) {
+        super(textFileSettings);
     }
 
     protected String checkConvertString(String s, String sep) {
 
-        if (allQuoted || s.length() == 0 || s.indexOf(quoteChar) != -1
+        if (textFileSettings.isAllQuoted || s.length() == 0
+                || s.indexOf(textFileSettings.quoteChar) != -1
                 || (sep.length() > 0 && s.indexOf(sep) != -1)
                 || hasUnprintable(s)) {
-            s = StringConverter.toQuotedString(s, quoteChar, true);
+            s = StringConverter.toQuotedString(s, textFileSettings.quoteChar,
+                                               true);
         }
 
         return s;

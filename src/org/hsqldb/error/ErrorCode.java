@@ -56,7 +56,7 @@ public interface ErrorCode {
     int M_HsqlProperties_load       = 28;          // properties name is null or empty
 
     //
-    int M_TEXT_SOURCE_FIELD_ERROR      = 41;       // Error in text source field
+    int M_TEXT_SOURCE_FIELD_ERROR      = 41;       // S1000 Error in text source field
     int M_TextCache_opening_file_error = 42;       // openning file: $$ error: $$
     int M_TextCache_closing_file_error = 43;       // closing file: $$ error: $$
     int M_TextCache_purging_file_error = 44;       // purging file: $$ error: $$
@@ -94,6 +94,7 @@ public interface ErrorCode {
     int X_S0521 = 320;                             // operation is not allowed on text table with data
     int X_S0522 = 321;                             // invalid statement - text table required
     int X_S0531 = 331;                             // encode / decode error:
+    int X_S0532 = 332;                             // UTF-16 encoding string required
 
     // HSQLDB authentication
     int PASSWORD_COMPLEXITY = 391;                 // S1000 password complexity
