@@ -124,23 +124,11 @@ public class TextCache extends DataFileCache {
     protected void initBuffers() {
 
         if (textFileSettings.isQuoted || textFileSettings.isAllQuoted) {
-            rowIn = new RowInputTextQuoted(textFileSettings.fs,
-                                           textFileSettings.vs,
-                                           textFileSettings.lvs,
-										   textFileSettings.quoteChar);
-            rowOut = new RowOutputTextQuoted(textFileSettings.fs,
-                                             textFileSettings.vs,
-                                             textFileSettings.lvs,
-											 textFileSettings.quoteChar,
-                                             textFileSettings.isAllQuoted,
-                                             textFileSettings.stringEncoding);
+            rowIn  = new RowInputTextQuoted(textFileSettings);
+            rowOut = new RowOutputTextQuoted(textFileSettings);
         } else {
-            rowIn = new RowInputText(textFileSettings.fs, textFileSettings.vs,
-                                     textFileSettings.lvs);
-            rowOut = new RowOutputText(textFileSettings.fs,
-                                       textFileSettings.vs,
-                                       textFileSettings.lvs, false,
-                                       textFileSettings.stringEncoding);
+            rowIn  = new RowInputText(textFileSettings);
+            rowOut = new RowOutputText(textFileSettings);
         }
     }
 
@@ -199,7 +187,7 @@ public class TextCache extends DataFileCache {
             cache.saveAll();
 
             boolean empty = (dataFile.length()
-                             <= TextFileSettings.NL.length());
+                             <= textFileSettings.bytesForLineEnd.length);
 
             dataFile.synch();
             dataFile.close();
@@ -289,15 +277,18 @@ public class TextCache extends DataFileCache {
     private void clearRowImage(CachedObject row) {
 
         try {
-            int length = row.getStorageSize()
-                         - ScriptWriterText.BYTES_LINE_SEP.length;
+            int length = row.getStorageSize();
+            int count  = length - textFileSettings.bytesForLineEnd.length;
 
             rowOut.reset();
 
             HsqlByteArrayOutputStream out = rowOut.getOutputStream();
 
-            out.fill(' ', length);
-            out.write(ScriptWriterText.BYTES_LINE_SEP);
+            for (; count > 0; count -= textFileSettings.bytesForSpace.length) {
+                out.write(textFileSettings.bytesForSpace);
+            }
+
+            out.write(textFileSettings.bytesForLineEnd);
             dataFile.seek(row.getPos());
             dataFile.write(out.getBuffer(), 0, out.size());
         } catch (Throwable t) {
@@ -351,7 +342,7 @@ public class TextCache extends DataFileCache {
                 buffer.setSize(object.getStorageSize());
 
                 String rowString =
-                    buffer.toString(textFileSettings.stringEncoding);
+                    buffer.toString(textFileSettings.charEncoding);
 
                 ((RowInputText) rowIn).setSource(rowString, object.getPos(),
                                                  buffer.size());
@@ -438,7 +429,7 @@ public class TextCache extends DataFileCache {
             String firstLine = header + TextFileSettings.NL;
 
             try {
-                buf = firstLine.getBytes(textFileSettings.stringEncoding);
+                buf = firstLine.getBytes(textFileSettings.charEncoding);
             } catch (UnsupportedEncodingException e) {
                 buf = firstLine.getBytes();
             }
@@ -469,7 +460,7 @@ public class TextCache extends DataFileCache {
     }
 
     public TextFileReader getTextFileReader() {
-        return new TextFileReader(dataFile, textFileSettings, rowIn,
-                                  cacheReadonly);
+        return TextFileReader8.newTextFileReader(dataFile, textFileSettings,
+                rowIn, cacheReadonly);
     }
 }

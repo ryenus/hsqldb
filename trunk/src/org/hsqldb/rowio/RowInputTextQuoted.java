@@ -54,12 +54,11 @@ public class RowInputTextQuoted extends RowInputText {
     private char             quoteChar;
     int                      charLength = 0;
 
-    public RowInputTextQuoted(String fieldSep, String varSep,
-                              String longvarSep, char quoteChar) {
+    public RowInputTextQuoted(TextFileSettings textFileSettings) {
 
-        super(fieldSep, varSep, longvarSep);
+        super(textFileSettings);
 
-        this.quoteChar = quoteChar;
+        this.quoteChar = textFileSettings.quoteChar;
     }
 
     public void setSource(String text, long pos, int byteSize) {

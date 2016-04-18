@@ -38,6 +38,7 @@ import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.map.ValuePool;
+import org.hsqldb.persist.TextFileSettings;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
@@ -62,21 +63,22 @@ import org.hsqldb.types.Types;
 public class RowInputText extends RowInputBase implements RowInputInterface {
 
     // text table specific
-    private String    fieldSep;
-    private String    varSep;
-    private String    longvarSep;
-    private int       fieldSepLen;
-    private int       varSepLen;
-    private int       longvarSepLen;
-    private boolean   fieldSepEnd;
-    private boolean   varSepEnd;
-    private boolean   longvarSepEnd;
-    private int       textLen;
-    protected String  text;
-    protected long    line;
-    protected int     field;
-    protected int     next = 0;
-    protected Scanner scanner;
+    protected TextFileSettings textFileSettings;
+    private String             fieldSep;
+    private String             varSep;
+    private String             longvarSep;
+    private int                fieldSepLen;
+    private int                varSepLen;
+    private int                longvarSepLen;
+    private boolean            fieldSepEnd;
+    private boolean            varSepEnd;
+    private boolean            longvarSepEnd;
+    private int                textLen;
+    protected String           text;
+    protected long             line;
+    protected int              field;
+    protected int              next = 0;
+    protected Scanner          scanner;
 
     //
     private int maxPooledStringLength = ValuePool.getMaxStringLength();
@@ -85,11 +87,15 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
      * fredt@users - comment - in future may use a custom subclasse of
      * InputStream to read the data.
      */
-    public RowInputText(String fieldSep, String varSep, String longvarSep) {
+    public RowInputText(TextFileSettings textFileSettings) {
 
         super(new byte[0]);
 
-        scanner = new Scanner();
+        scanner               = new Scanner();
+        this.textFileSettings = textFileSettings;
+        this.fieldSep         = textFileSettings.fs;
+        this.varSep           = textFileSettings.vs;
+        this.longvarSep       = textFileSettings.lvs;
 
         //-- Newline indicates that field should match to end of line.
         if (fieldSep.endsWith("\n")) {
@@ -107,12 +113,9 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             longvarSep    = longvarSep.substring(0, longvarSep.length() - 1);
         }
 
-        this.fieldSep   = fieldSep;
-        this.varSep     = varSep;
-        this.longvarSep = longvarSep;
-        fieldSepLen     = fieldSep.length();
-        varSepLen       = varSep.length();
-        longvarSepLen   = longvarSep.length();
+        fieldSepLen   = fieldSep.length();
+        varSepLen     = varSep.length();
+        longvarSepLen = longvarSep.length();
     }
 
     public void setSource(String text, long pos, int byteSize) {

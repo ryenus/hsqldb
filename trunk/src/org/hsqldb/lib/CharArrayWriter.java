@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import java.io.Reader;
  * A writer for char strings.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class CharArrayWriter {
@@ -176,6 +176,13 @@ public class CharArrayWriter {
         return count;
     }
 
+    public void setSize(int newPos) {
+        if (newPos > buffer.length) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+
+        count = newPos;
+    }
     /**
      * Converts input data to a string.
      * @return the string.

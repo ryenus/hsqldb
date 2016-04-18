@@ -31,6 +31,8 @@
 
 package org.hsqldb.persist;
 
+import java.io.UnsupportedEncodingException;
+
 import org.hsqldb.Database;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -56,16 +58,25 @@ public class TextFileSettings {
     public boolean             isQuoted;
     public boolean             isAllQuoted;
     public boolean             ignoreFirst;
+    public String              charEncoding;
+    public boolean             isUTF8;
+    public boolean             isUTF16;
+    public boolean             hasUTF16BOM;
     public boolean             isLittleEndian;
+
+    //
+    private static final byte[] BYTES_NL = NL.getBytes();
+    private static final byte[] SP       = new byte[]{ ' ' };
 
     //
     Database database;
     String   dataFileName;
     int      maxCacheRows;
     int      maxCacheBytes;
+    byte[]   bytesForLineEnd = BYTES_NL;
+    byte[]   bytesForSpace    = SP;
 
     //
-    static final byte[]      BYTES_LINE_SEP    = NL.getBytes();
     static final char        DOUBLE_QUOTE_CHAR = '\"';
     static final char        BACKSLASH_CHAR    = '\\';
     public static final char LF_CHAR           = '\n';
@@ -139,7 +150,11 @@ public class TextFileSettings {
 
         quoteChar = qc.charAt(0);
 
-        //-- Get booleans
+        if (quoteChar > 0x007F) {
+            throw Error.error(ErrorCode.X_S0504);
+        }
+
+        //-- get booleans
         ignoreFirst =
             dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_ignore_first);
         ignoreFirst = tableprops.isPropertyTrue(
@@ -154,11 +169,36 @@ public class TextFileSettings {
         isAllQuoted =
             tableprops.isPropertyTrue(HsqlDatabaseProperties.textdb_all_quoted,
                                       isAllQuoted);
+
+        //-- get string
         stringEncoding =
             dbProps.getStringProperty(HsqlDatabaseProperties.textdb_encoding);
         stringEncoding =
             tableprops.getProperty(HsqlDatabaseProperties.textdb_encoding,
                                    stringEncoding);
+        charEncoding = stringEncoding;
+
+        // UTF-8 files can begin with BOM 3-byte sequence
+        // UTF-16 files can begin with BOM 2-byte sequence for big-endian
+        // UTF-16BE files (big-endian) have no BOM
+        // UTF-16LE files (little-endian) have no BOM
+        if ("UTF8".equals(stringEncoding)) {
+            isUTF8 = true;
+        } else if ("UTF-8".equals(stringEncoding)) {
+            isUTF8 = true;
+        } else if ("UTF-16".equals(stringEncoding)) {
+
+            // avoid repeating the BOM in each encoded string
+            charEncoding = "UTF-16BE";
+            isUTF16      = true;
+        } else if ("UTF-16BE".equals(stringEncoding)) {
+            isUTF16 = true;
+        } else if ("UTF-16LE".equals(stringEncoding)) {
+            isUTF16        = true;
+            isLittleEndian = true;
+        }
+
+        setSpaceAndLineEnd();
 
         //-- get size and scale
         int cacheScale = dbProps.getIntegerProperty(
@@ -204,12 +244,34 @@ public class TextFileSettings {
         return maxCacheBytes;
     }
 
-    boolean isUTF8() {
-        return "UTF-8".equals(stringEncoding);
+    /**
+     * for UTF-16 with BOM in file
+     */
+    void setLittleEndianByteOrderMark() {
+
+        if ("UTF-16".equals(stringEncoding)) {
+            charEncoding   = "UTF-16LE";
+            isLittleEndian = true;
+            hasUTF16BOM    = true;
+
+            // normal - BOM is expected
+        } else {
+
+            // abnormal - no BOM allowed - must use "UTF-16" as encoding
+            throw Error.error(ErrorCode.X_S0531);
+        }
     }
 
-    boolean isUTF16() {
-        return "UTF-16".equals(stringEncoding);
+    void setSpaceAndLineEnd() {
+
+        try {
+            if (isUTF16) {
+                bytesForLineEnd = NL.getBytes(charEncoding);
+                bytesForSpace    = " ".getBytes(charEncoding);
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "TextFileError");
+        }
     }
 
     private static String translateSep(String sep) {
