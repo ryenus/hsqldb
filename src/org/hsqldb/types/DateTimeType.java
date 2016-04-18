@@ -1807,6 +1807,39 @@ public final class DateTimeType extends DTIType {
         return Boolean.FALSE;
     }
 
+    /**
+     * The predicate "x SUCCEEDS y" applies when both x and y are either period names or period constructors.
+     * In this case, the predicate returns True if the start value of x is greater than or equal to the end value of y,
+     * i.e., if xs >= ye.
+     * <p>
+     * Important: when this method returns, the boundaries of the periods may
+     * have been changed.
+     *
+     * @param session
+     * @param a First period to compare
+     * @param ta Types of the first period
+     * @param b Second period to compare
+     * @param tb Type of the second period
+     *
+     * @return {@link Boolean#TRUE} if period a precedes period b,
+     *          else {@link Boolean#FALSE}
+     */
+    public static Boolean succeeds(Session session, Object[] a, Type[] ta,
+                                   Object[] b, Type[] tb) {
+
+        Type commonType = normalizeInput(session, a, ta, b, tb);
+
+        if (commonType == null) {
+            return null;
+        }
+
+        if (commonType.compare(session, a[0], b[1]) >= 0) {
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
+    }
+
     public static BigDecimal subtractMonthsSpecial(Session session,
             TimestampData a, TimestampData b) {
 

@@ -3848,6 +3848,15 @@ public class ParserDQL extends ParserBase {
 
                 break;
             }
+            case Tokens.SUCCEEDS : {
+                if (hasNot) {
+                    throw unexpectedToken();
+                }
+
+                e = XreadPeriodPredicateRightPart(OpTypes.RANGE_SUCCEEDS, l);
+
+                break;
+            }
             case Tokens.EQUALS_OP :
             case Tokens.GREATER_EQUALS :
             case Tokens.GREATER_OP :
