@@ -71,10 +71,12 @@
       fastest one. This mode uses the proprietary <glossterm>hsql:</glossterm>
       communications protocol. The following example of the command for
       starting the server starts the server with one (default) database with
-      files named "mydb.*" and the public name (alias) of "xdb".</para>
+      files named "mydb.*" and the public name (alias) of "xdb". Note the
+      database property to set the transaction mode to MVCC is appended to the
+      database file path.</para>
 
       <informalexample>
-        <screen> java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 xdb</screen>
+        <screen> java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb;hsqldb.tx=mvcc --dbname.0 xdb</screen>
       </informalexample>
 
       <para>Alternatively, a server.properties file can be used for passing
@@ -457,6 +459,25 @@
  server.setLogWriter(null); // can use custom writer
  server.setErrWriter(null); // can use custom writer
  server.start();
+</programlisting>
+  </section>
+
+  <section xml:id="lsc_app_start">
+    <title>Shutting down a Server from your Application</title>
+
+    <para>To shut down the server, you can execute the SQL "SHUTDOWN"
+    statement on the server databases. When you start the server from your
+    application and keep a reference to the java Server object, you can also
+    shut it down programatically. Calling the <literal>shutdownCatalogs(int
+    shutdownMode)</literal> method of
+    <classname>org.hsqldb.server.Server</classname> closes all the open
+    databases, which results in server shtudown. The parameter value is
+    normally 1, which indicates normal shutdown. Other modes of shutdown, such
+    as SHUTDOWN IMMEDIATELY are also supported. See the javadoc for
+    <classname>org.hsqldb.server.Server</classname>. See the example
+    below:</para>
+
+    <programlisting> server.shutdownCatalogs(1);
 </programlisting>
 
     <para>The Server object has several alternative methods for setting
