@@ -1788,8 +1788,10 @@
 
             <row>
               <entry nameend="c3" namest="c1"><para>Indicates the transaction
-              control mode for the database. The values, locks, mvlocks and
-              mvcc are allowed.</para><para><programlisting>SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC }</programlisting></para></entry>
+              control mode for the database. The values,
+              <literal>locks</literal>, <literal>mvlocks</literal> and
+              <literal>mvcc</literal> are
+              allowed.</para><para><programlisting>SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
