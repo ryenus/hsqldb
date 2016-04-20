@@ -92,19 +92,19 @@ public interface OpTypes {
         LIKE                 = 53,    // logical - predicates
         IN                   = 54,
         EXISTS               = 55,
-        RANGE_OVERLAPS       = 56,
-        RANGE_PRECEDES       = 57,
-        RANGE_SUCCEEDS       = 58,
-        RANGE_EQUALS         = 59,
-        UNIQUE               = 60,
-        NOT_DISTINCT         = 61,
-        MATCH_SIMPLE         = 62,
-        MATCH_PARTIAL        = 63,
-        MATCH_FULL           = 64,
-        MATCH_UNIQUE_SIMPLE  = 65,
-        MATCH_UNIQUE_PARTIAL = 66,
-        MATCH_UNIQUE_FULL    = 67,
-        CONTAINS             = 68,
+        RANGE_CONTAINS       = 56,
+        RANGE_EQUALS         = 57,
+        RANGE_OVERLAPS       = 58,
+        RANGE_PRECEDES       = 59,
+        RANGE_SUCCEEDS       = 60,
+        UNIQUE               = 61,
+        NOT_DISTINCT         = 62,
+        MATCH_SIMPLE         = 63,
+        MATCH_PARTIAL        = 64,
+        MATCH_FULL           = 65,
+        MATCH_UNIQUE_SIMPLE  = 66,
+        MATCH_UNIQUE_PARTIAL = 67,
+        MATCH_UNIQUE_FULL    = 68,
         COUNT                = 69,    // aggregate functions
         SUM                  = 70,
         MIN                  = 71,
@@ -130,6 +130,6 @@ public interface OpTypes {
         MULTICOLUMN          = 91,
         USER_AGGREGATE       = 92,
         ARRAY_ACCESS         = 93,
-        ARRAY_SUBQUERY       = 95
+        ARRAY_SUBQUERY       = 94
     ;
 }
