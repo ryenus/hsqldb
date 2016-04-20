@@ -141,6 +141,7 @@ public class ExpressionLogical extends Expression {
 
             // fall through
             case OpTypes.NOT_EQUAL :
+            case OpTypes.RANGE_EQUALS :
             case OpTypes.RANGE_OVERLAPS :
             case OpTypes.RANGE_PRECEDES :
             case OpTypes.RANGE_SUCCEEDS :
@@ -618,6 +619,10 @@ public class ExpressionLogical extends Expression {
                 sb.append(Tokens.T_SUCCEEDS);
                 break;
 
+            case OpTypes.RANGE_EQUALS :
+                sb.append(Tokens.T_EQUALS);
+                break;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "ExpressionLogical");
@@ -821,6 +826,7 @@ public class ExpressionLogical extends Expression {
 
                 break;
             }
+            case OpTypes.RANGE_EQUALS :
             case OpTypes.RANGE_OVERLAPS :
             case OpTypes.RANGE_PRECEDES :
             case OpTypes.RANGE_SUCCEEDS :
@@ -1283,6 +1289,14 @@ public class ExpressionLogical extends Expression {
                 Object[] right = nodes[RIGHT].getRowValue(session);
 
                 return DateTimeType.succeeds(session, left,
+                                             nodes[LEFT].nodeDataTypes, right,
+                                             nodes[RIGHT].nodeDataTypes);
+            }
+            case OpTypes.RANGE_EQUALS : {
+                Object[] left  = nodes[LEFT].getRowValue(session);
+                Object[] right = nodes[RIGHT].getRowValue(session);
+
+                return DateTimeType.equals(session, left,
                                              nodes[LEFT].nodeDataTypes, right,
                                              nodes[RIGHT].nodeDataTypes);
             }
@@ -2278,6 +2292,7 @@ public class ExpressionLogical extends Expression {
                 return nodes[LEFT].costFactor(session, rangeVar, opType)
                        + nodes[RIGHT].costFactor(session, rangeVar, opType);
             }
+            case OpTypes.RANGE_EQUALS :
             case OpTypes.RANGE_OVERLAPS :
             case OpTypes.RANGE_PRECEDES :
             case OpTypes.RANGE_SUCCEEDS :
