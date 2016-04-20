@@ -623,4 +623,95 @@ public class TestPeriodPredicates extends TestBase {
         Assert.assertFalse(DateTimeType.succeeds(null, a, ta, b, tb));
     }
     
+    /**
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '2000-01-12 01:02:03')
+     * OVERLAPS
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '2000-01-12 01:02:03')
+     * is true
+     */
+    public void testFirstPeriodeEqualsSecondPeriod() {
+
+        Object[] a = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("2000-01-12 01:02:03")
+        };
+        Object[] b = {
+                scanner.newTimestamp("1999-12-01 01:02:03"),
+                scanner.newTimestamp("2000-01-12 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertTrue(DateTimeType.overlaps(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.overlaps(null, b, tb, a, ta));
+    }
+
+    /**
+     * (TIMESTAMP '1999-12-01 01:02:03', INTERVAL '10' DAY)
+     * OVERLAPS
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-11 01:02:03')
+     * is true
+     */
+    public void testFirstPeriodeEqualsSecondPeriodWithOneInterval() {
+
+        Object[] a = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newInterval(
+                    "10",
+                    IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+        };
+        Object[] b = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("1999-12-11 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertTrue(DateTimeType.overlaps(null, a, ta, b, tb));
+    }
+
+    /**
+     * (TIMESTAMP '1999-12-01 01:02:03', INTERVAL '10' DAY)
+     * OVERLAPS
+     * (TIMESTAMP '1999-12-01 01:02:03', INTERVAL '10' DAY)
+     * is true
+     */
+    public void testFirstPeriodeEqualsSecondPeriodWithTwoIntervals() {
+
+        Object[] a = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newInterval(
+                    "10",
+                    IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+        };
+        Object[] b = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newInterval(
+                    "10",
+                    IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
+        };
+
+        Assert.assertTrue(DateTimeType.overlaps(null, a, ta, b, tb));
+    }
+
 }
