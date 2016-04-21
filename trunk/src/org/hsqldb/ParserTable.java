@@ -1616,13 +1616,13 @@ public class ParserTable extends ParserDML {
                                            dataType.precision, 0);
             }
 
+            if (minus) {
+                value = valueType.negate(value);
+            }
+
             value = convertType.convertToType(session, value, valueType);
 
             read();
-
-            if (minus) {
-                value = dataType.negate(value);
-            }
 
             if (inParens) {
                 readThis(Tokens.CLOSEBRACKET);

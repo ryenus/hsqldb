@@ -554,7 +554,7 @@ public class Tokens {
     static final String        T_ORDERING             = "ORDERING";
     static final String        T_ORDINALITY           = "ORDINALITY";
     static final String        T_OTHERS               = "OTHERS";
-    static final String        T_OUTPUT               = "OTPUT";
+    static final String        T_OUTPUT               = "OUTPUT";
     public static final String T_OVERRIDING           = "OVERRIDING";
     public static final String T_P_FACTOR             = "P";
     public static final String T_PAD                  = "PAD";
