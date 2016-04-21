@@ -3830,6 +3830,24 @@ public class ParserDQL extends ParserBase {
 
                 break;
             }
+            case Tokens.CONTAINS : {
+                if (hasNot) {
+                    throw unexpectedToken();
+                }
+
+                e = XreadPeriodPredicateRightPart(OpTypes.RANGE_CONTAINS, l);
+
+                break;
+            }
+            case Tokens.EQUALS : {
+                if (hasNot) {
+                    throw unexpectedToken();
+                }
+
+                e = XreadPeriodPredicateRightPart(OpTypes.RANGE_EQUALS, l);
+
+                break;
+            }
             case Tokens.OVERLAPS : {
                 if (hasNot) {
                     throw unexpectedToken();
@@ -3854,15 +3872,6 @@ public class ParserDQL extends ParserBase {
                 }
 
                 e = XreadPeriodPredicateRightPart(OpTypes.RANGE_SUCCEEDS, l);
-
-                break;
-            }
-            case Tokens.EQUALS : {
-                if (hasNot) {
-                    throw unexpectedToken();
-                }
-
-                e = XreadPeriodPredicateRightPart(OpTypes.RANGE_EQUALS, l);
 
                 break;
             }

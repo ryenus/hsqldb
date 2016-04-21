@@ -625,11 +625,11 @@ public class TestPeriodPredicates extends TestBase {
     
     /**
      * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '2000-01-12 01:02:03')
-     * OVERLAPS
+     * EQUALS
      * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '2000-01-12 01:02:03')
      * is true
      */
-    public void testFirstPeriodeEqualsSecondPeriod() {
+    public void testFirstPeriodEqualsSecondPeriod() {
 
         Object[] a = {
             scanner.newTimestamp("1999-12-01 01:02:03"),
@@ -648,17 +648,17 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.overlaps(null, a, ta, b, tb));
-        Assert.assertTrue(DateTimeType.overlaps(null, b, tb, a, ta));
+        Assert.assertTrue(DateTimeType.equals(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.equals(null, b, tb, a, ta));
     }
 
     /**
      * (TIMESTAMP '1999-12-01 01:02:03', INTERVAL '10' DAY)
-     * OVERLAPS
+     * EQUALS
      * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-11 01:02:03')
      * is true
      */
-    public void testFirstPeriodeEqualsSecondPeriodWithOneInterval() {
+    public void testFirstPeriodEqualsSecondPeriodWithOneInterval() {
 
         Object[] a = {
             scanner.newTimestamp("1999-12-01 01:02:03"),
@@ -679,16 +679,16 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.overlaps(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.equals(null, a, ta, b, tb));
     }
 
     /**
      * (TIMESTAMP '1999-12-01 01:02:03', INTERVAL '10' DAY)
-     * OVERLAPS
+     * EQUALS
      * (TIMESTAMP '1999-12-01 01:02:03', INTERVAL '10' DAY)
      * is true
      */
-    public void testFirstPeriodeEqualsSecondPeriodWithTwoIntervals() {
+    public void testFirstPeriodEqualsSecondPeriodWithTwoIntervals() {
 
         Object[] a = {
             scanner.newTimestamp("1999-12-01 01:02:03"),
@@ -711,7 +711,203 @@ public class TestPeriodPredicates extends TestBase {
             IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
         };
 
-        Assert.assertTrue(DateTimeType.overlaps(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.equals(null, a, ta, b, tb));
+    }
+
+    /**
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-01 01:02:03')
+     * CONTAINS
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-01 01:02:03')
+     * is false
+     */
+    public void testFirstPeriodCannotContainsSecondPeriodIfTheyAreEquals() {
+
+        Object[] a = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("1999-12-01 01:02:03")
+        };
+        Object[] b = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("1999-12-01 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertFalse(DateTimeType.contains(null, a, ta, b, tb));
+    }
+
+    /**
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
+     * CONTAINS
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-01 01:02:03')
+     * is true
+     */
+    public void testFirstPeriodContainsItsStartDate() {
+
+        Object[] a = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("1999-12-31 01:02:03")
+        };
+        Object[] b = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("1999-12-01 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertTrue(DateTimeType.contains(null, a, ta, b, tb));
+    }
+
+    /**
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
+     * CONTAINS
+     * (TIMESTAMP '1999-12-31 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
+     * is false
+     */
+    public void testFirstPeriodDoesNotContainsItsEndDate() {
+
+        Object[] a = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("1999-12-31 01:02:03")
+        };
+        Object[] b = {
+            scanner.newTimestamp("1999-12-31 01:02:03"),
+            scanner.newTimestamp("1999-12-31 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertFalse(DateTimeType.contains(null, a, ta, b, tb));
+    }
+
+    /**
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
+     * CONTAINS
+     * (TIMESTAMP '1999-12-31 01:02:03', TIMESTAMP '1999-12-30 01:02:03')
+     * is true
+     */
+    public void testFirstPeriodContainsSecondPeriod() {
+
+        Object[] a = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("1999-12-31 01:02:03")
+        };
+        Object[] b = {
+            scanner.newTimestamp("1999-12-31 01:02:03"),
+            scanner.newTimestamp("1999-12-30 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertTrue(DateTimeType.contains(null, a, ta, b, tb));
+    }
+
+    /**
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
+     * CONTAINS
+     * (TIMESTAMP '1999-12-31 01:02:03', TIMESTAMP '1999-12-31 01:02:02')
+     * is true
+     */
+    public void testFirstPeriodContainsItselfMinus1Second() {
+
+        Object[] a = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("1999-12-31 01:02:03")
+        };
+        Object[] b = {
+            scanner.newTimestamp("1999-12-31 01:02:03"),
+            scanner.newTimestamp("1999-12-31 01:02:02")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertTrue(DateTimeType.contains(null, a, ta, b, tb));
+    }
+
+    /**
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
+     * CONTAINS
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
+     * is true
+     */
+    public void testFirstPeriodContainsSecondPeriodEvenIfEquals() {
+
+        Object[] a = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("1999-12-31 01:02:03")
+        };
+        Object[] b = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("1999-12-31 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertTrue(DateTimeType.contains(null, a, ta, b, tb));
+    }
+
+    /**
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
+     * CONTAINS
+     * (TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-12-31 01:02:03')
+     * is false
+     */
+    public void testFirstPeriodCannotContainsSecondPeriodWhenPrecedes() {
+
+        Object[] a = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("1999-12-31 01:02:03")
+        };
+        Object[] b = {
+            scanner.newTimestamp("2000-01-01 01:02:03"),
+            scanner.newTimestamp("2000-12-31 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertFalse(DateTimeType.contains(null, a, ta, b, tb));
     }
 
 }

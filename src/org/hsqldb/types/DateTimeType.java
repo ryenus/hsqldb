@@ -1821,7 +1821,7 @@ public final class DateTimeType extends DTIType {
      * @param b Second period to compare
      * @param tb Type of the second period
      *
-     * @return {@link Boolean#TRUE} if period a precedes period b,
+     * @return {@link Boolean#TRUE} if period a succeeds period b,
      *          else {@link Boolean#FALSE}
      */
     public static Boolean succeeds(Session session, Object[] a, Type[] ta,
@@ -1853,7 +1853,7 @@ public final class DateTimeType extends DTIType {
      * @param b Second period to compare
      * @param tb Type of the second period
      *
-     * @return {@link Boolean#TRUE} if period a precedes period b,
+     * @return {@link Boolean#TRUE} if period a equals period b,
      *          else {@link Boolean#FALSE}
      */
     public static Boolean equals(Session session, Object[] a, Type[] ta,
@@ -1868,6 +1868,52 @@ public final class DateTimeType extends DTIType {
         if (commonType.compare(session, a[0], b[0]) == 0
         		&& commonType.compare(session, a[1], b[1]) == 0) {
             return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
+    }
+
+    /**
+     * The predicate "x CONTAINS y" applies when<br>
+     * a) both x and y are either period names or period constructors. In this case, the predicate returns True if
+     * x contains every time point in y, i.e., if xs <= ys and xe >= ye.<br>
+     * b) x is either a period name or a period constructor and y is a datetime value expression. In this case, the
+     * predicate returns True if x contains y, i.e., if xs <= y and xe > y.
+     * <p>
+     * The <i>b</i> part of this definition is not supported yet. In order to get the same result, one have to specify
+     * a period with the same date time value for the period start and end.
+     * <p>
+     * Important: when this method returns, the boundaries of the periods may
+     * have been changed.
+     *
+     * @param session
+     * @param a First period to compare
+     * @param ta Types of the first period
+     * @param b Second period to compare
+     * @param tb Type of the second period
+     *
+     * @return {@link Boolean#TRUE} if period a contains period b,
+     *          else {@link Boolean#FALSE}
+     */
+    public static Boolean contains(Session session, Object[] a, Type[] ta,
+                                   Object[] b, Type[] tb) {
+
+        Type commonType = normalizeInput(session, a, ta, b, tb);
+
+        if (commonType == null) {
+            return null;
+        }
+
+    	if (commonType.compare(session, a[0], b[0]) <= 0
+        		&& commonType.compare(session, a[1], b[1]) >= 0)  {
+    		// if the end of the two period are equals, period a does not 
+    		// contains period b if it is defined by a single point in time
+        	if(commonType.compare(session, a[1], b[1]) == 0
+        			&& commonType.compare(session, b[0], b[1]) == 0) {
+        		return Boolean.FALSE;
+        	}
+
+       		return Boolean.TRUE;
         }
 
         return Boolean.FALSE;
