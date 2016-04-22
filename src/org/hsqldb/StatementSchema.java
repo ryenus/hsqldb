@@ -622,6 +622,16 @@ public class StatementSchema extends Statement {
 
                             break;
                         }
+                        case StatementTypes.ALTER_COLUMN_DROP_EXPRESSION : {
+                            ColumnSchema column = (ColumnSchema) arguments[2];
+                            int columnIndex =
+                                ((Integer) arguments[3]).intValue();
+
+                            column.setGeneratingExpression(null);
+                            table.setColumnTypeVars(columnIndex);
+
+                            break;
+                        }
                         case StatementTypes.ALTER_COLUMN_DROP_GENERATED : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
                             int columnIndex =

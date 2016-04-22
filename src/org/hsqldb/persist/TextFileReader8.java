@@ -36,10 +36,10 @@ import java.io.UnsupportedEncodingException;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.CharArrayWriter;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowInputText;
-import org.hsqldb.lib.CharArrayWriter;
 
 // fredt@users - 2.3.4 - patch for user-defined quote char by Damjan Jovanovic
 

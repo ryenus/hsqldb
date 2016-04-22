@@ -1972,7 +1972,21 @@ public class ParserDDL extends ParserRoutine {
                     return new StatementSchema(sql,
                                                StatementTypes.ALTER_TABLE,
                                                args, null, writeLockNames);
-                } else if (token.tokenType == Tokens.GENERATED) {
+                } else if (token.tokenType == Tokens.EXPRESSION) {
+                    read();
+
+                    String   sql  = getLastPart();
+                    Object[] args = new Object[] {
+                        StatementTypes.ALTER_COLUMN_DROP_EXPRESSION, table,
+                        column, Integer.valueOf(columnIndex)
+                    };
+
+                    return new StatementSchema(sql,
+                                               StatementTypes.ALTER_TABLE,
+                                               args, null, writeLockNames);
+                } else if (token.tokenType == Tokens.GENERATED ||
+                    token.tokenType == Tokens.IDENTITY
+                    ) {
                     read();
 
                     String   sql  = getLastPart();
