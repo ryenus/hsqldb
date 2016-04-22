@@ -39,6 +39,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowInputText;
+import org.hsqldb.lib.CharArrayWriter;
 
 // fredt@users - 2.3.4 - patch for user-defined quote char by Damjan Jovanovic
 
@@ -52,13 +53,15 @@ import org.hsqldb.rowio.RowInputText;
 */
 public class TextFileReader8 implements TextFileReader {
 
-    private RandomAccessInterface     dataFile;
-    private RowInputInterface         rowIn;
-    private TextFileSettings          textFileSettings;
-    private String                    header;
-    private boolean                   isReadOnly;
-    private HsqlByteArrayOutputStream buffer;
-    private long                      position = 0;
+    RandomAccessInterface dataFile;
+    RowInputInterface     rowIn;
+    TextFileSettings      textFileSettings;
+    String                header;
+    boolean               isReadOnly;
+    StringCreator         buffer;
+    long                  position = 0;
+
+    TextFileReader8() {}
 
     TextFileReader8(RandomAccessInterface dataFile,
                     TextFileSettings textFileSettings,
@@ -68,7 +71,8 @@ public class TextFileReader8 implements TextFileReader {
         this.textFileSettings = textFileSettings;
         this.rowIn            = rowIn;
         this.isReadOnly       = isReadOnly;
-        this.buffer           = new HsqlByteArrayOutputStream(128);
+        this.buffer = StringCreator.getStringCreator(byte.class,
+                textFileSettings.charEncoding);
 
         skipBOM();
     }
@@ -108,6 +112,9 @@ public class TextFileReader8 implements TextFileReader {
         boolean complete  = false;
         boolean wasCR     = false;
         boolean wasNormal = false;
+        long    currentPos;
+        long    fieldPos;
+        boolean quotedField = false;
 
         buffer.reset();
 
@@ -120,8 +127,11 @@ public class TextFileReader8 implements TextFileReader {
         try {
             dataFile.seek(position);
 
+            currentPos = 0;
+            fieldPos   = 0;
+
             while (!complete) {
-                int c = dataFile.read();
+                int c = readChar();
 
                 wasNormal = false;
 
@@ -140,18 +150,40 @@ public class TextFileReader8 implements TextFileReader {
                         dataFile.write(
                             textFileSettings.bytesForLineEnd, 0,
                             textFileSettings.bytesForLineEnd.length);
-                        buffer.write(textFileSettings.bytesForLineEnd);
+
+                        for (int i = 0;
+                                i < textFileSettings.bytesForLineEnd.length;
+                                i++) {
+                            buffer.write(textFileSettings.bytesForLineEnd[i]);
+                        }
                     }
 
                     break;
                 }
 
-                if (c == textFileSettings.quoteChar) {
+                if (c == textFileSettings.singleSeparator) {
+
+                    // quoted field reset
+                    if (!hasQuote) {
+                        fieldPos    = currentPos;
+                        quotedField = false;
+                        hasQuote    = false;
+                    }
+                } else if (c == textFileSettings.quoteChar) {
                     wasNormal = true;
                     complete  = wasCR;
                     wasCR     = false;
 
+                    // quoted field can begin only after separator
+                    // or anywhere when separator is multibyte
                     if (textFileSettings.isQuoted) {
+                        if (textFileSettings.singleSeparator == 0
+                                || currentPos == fieldPos + 1) {
+                            quotedField = true;
+                        }
+                    }
+
+                    if (quotedField) {
                         hasQuote = !hasQuote;
                     }
                 } else {
@@ -173,23 +205,25 @@ public class TextFileReader8 implements TextFileReader {
                 }
 
                 buffer.write(c);
+
+                currentPos++;
             }
 
             if (complete) {
                 if (wasNormal) {
-                    buffer.setPosition(buffer.size() - 1);
+                    buffer.setSize(buffer.size() - 1);
                 }
 
                 String rowString;
 
                 try {
-                    rowString = buffer.toString(textFileSettings.charEncoding);
+                    rowString = buffer.getString();
                 } catch (UnsupportedEncodingException e) {
-                    rowString = buffer.toString();
+                    throw Error.error(ErrorCode.X_S0531);
                 }
 
                 ((RowInputText) rowIn).setSource(rowString, position,
-                                                 buffer.size());
+                                                 buffer.getByteSize());
 
                 position += rowIn.getSize();
 
@@ -222,7 +256,7 @@ public class TextFileReader8 implements TextFileReader {
             int c;
 
             try {
-                c = dataFile.read();
+                c = readChar();
 
                 if (c == -1) {
                     if (buffer.size() == 0) {
@@ -235,7 +269,12 @@ public class TextFileReader8 implements TextFileReader {
                         dataFile.write(
                             textFileSettings.bytesForLineEnd, 0,
                             textFileSettings.bytesForLineEnd.length);
-                        buffer.write(textFileSettings.bytesForLineEnd);
+
+                        for (int i = 0;
+                                i < textFileSettings.bytesForLineEnd.length;
+                                i++) {
+                            buffer.write(textFileSettings.bytesForLineEnd[i]);
+                        }
                     }
 
                     break;
@@ -268,16 +307,16 @@ public class TextFileReader8 implements TextFileReader {
         }
 
         if (wasNormal) {
-            buffer.setPosition(buffer.size() - 1);
+            buffer.setSize(buffer.size() - 1);
         }
 
         try {
-            header = buffer.toString(textFileSettings.charEncoding);
+            header = buffer.getString();
         } catch (UnsupportedEncodingException e) {
-            header = buffer.toString();
+            throw Error.error(ErrorCode.X_S0531);
         }
 
-        position += buffer.size();
+        position += buffer.getByteSize();
     }
 
     /**
@@ -297,9 +336,9 @@ public class TextFileReader8 implements TextFileReader {
             dataFile.seek(position);
 
             while (true) {
-                int c = dataFile.read();
+                int c = readChar();
 
-                currentPos++;
+                currentPos += getByteSizeForChar();
 
                 switch (c) {
 
@@ -341,11 +380,123 @@ public class TextFileReader8 implements TextFileReader {
         }
     }
 
+    int getByteSizeForChar() {
+        return 1;
+    }
+
+    int readChar() {
+
+        try {
+            int c1 = dataFile.read();
+
+            return c1;
+        } catch (IOException e) {
+            throw Error.error(ErrorCode.TEXT_FILE_IO, e);
+        }
+    }
+
     public String getHeaderLine() {
         return header;
     }
 
     public long getLineNumber() {
         return ((RowInputText) rowIn).getLineNumber();
+    }
+
+    static abstract class StringCreator {
+
+        static StringCreator getStringCreator(Class cl, String encoding) {
+
+            if (byte.class.equals(cl)) {
+                return new StringCreatorBytes(encoding);
+            } else if (char.class.equals(cl)) {
+                return new StringCreatorChars();
+            } else {
+                throw Error.runtimeError(ErrorCode.U_S0500, "StringCreator");
+            }
+        }
+
+        abstract void reset();
+
+        abstract void write(int c);
+
+        abstract int size();
+
+        abstract void setSize(int size);
+
+        abstract String getString() throws UnsupportedEncodingException;
+
+        abstract int getByteSize();
+    }
+
+    static class StringCreatorBytes extends StringCreator {
+
+        private HsqlByteArrayOutputStream buffer;
+        private String                    encoding;
+
+        StringCreatorBytes(String encoding) {
+            this.buffer   = new HsqlByteArrayOutputStream(128);
+            this.encoding = encoding;
+        }
+
+        void reset() {
+            buffer.reset();
+        }
+
+        void write(int c) {
+            buffer.write(c);
+        }
+
+        int size() {
+            return buffer.size();
+        }
+
+        void setSize(int size) {
+            buffer.setSize(size);
+        }
+
+        String getString() throws UnsupportedEncodingException {
+            return buffer.toString(encoding);
+        }
+
+        int getByteSize() {
+            return buffer.size();
+        }
+    }
+
+    static class StringCreatorChars extends StringCreator {
+
+        private CharArrayWriter buffer;
+
+        StringCreatorChars() {
+            this.buffer = new CharArrayWriter(128);
+        }
+
+        void reset() {
+            buffer.reset();
+        }
+
+        void write(int c) {
+            buffer.write(c);
+        }
+
+        int size() {
+            return buffer.size();
+        }
+
+        void setSize(int size) {
+            buffer.setSize(size);
+        }
+
+        String getString() {
+
+            String string = new String(buffer.getBuffer(), 0, buffer.size());
+
+            return string;
+        }
+
+        int getByteSize() {
+            return buffer.size() * 2;
+        }
     }
 }

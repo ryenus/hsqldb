@@ -73,8 +73,9 @@ public class TextFileSettings {
     String   dataFileName;
     int      maxCacheRows;
     int      maxCacheBytes;
+    char     singleSeparator = 0;;
     byte[]   bytesForLineEnd = BYTES_NL;
-    byte[]   bytesForSpace    = SP;
+    byte[]   bytesForSpace   = SP;
 
     //
     static final char        DOUBLE_QUOTE_CHAR = '\"';
@@ -200,6 +201,11 @@ public class TextFileSettings {
 
         setSpaceAndLineEnd();
 
+        if (fs.length() == 1 || (fs.length() == 2 && fs.endsWith("\n"))) {
+            singleSeparator = fs.charAt(0);
+        }
+
+        //
         //-- get size and scale
         int cacheScale = dbProps.getIntegerProperty(
             HsqlDatabaseProperties.textdb_cache_scale);
@@ -267,10 +273,10 @@ public class TextFileSettings {
         try {
             if (isUTF16) {
                 bytesForLineEnd = NL.getBytes(charEncoding);
-                bytesForSpace    = " ".getBytes(charEncoding);
+                bytesForSpace   = " ".getBytes(charEncoding);
             }
         } catch (UnsupportedEncodingException e) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "TextFileError");
+            throw Error.error(ErrorCode.X_S0531);
         }
     }
 

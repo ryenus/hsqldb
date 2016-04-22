@@ -93,7 +93,7 @@ public interface ErrorCode {
     int X_S0504 = 304;                             // length of text quote character must be 1
     int X_S0521 = 320;                             // operation is not allowed on text table with data
     int X_S0522 = 321;                             // invalid statement - text table required
-    int X_S0531 = 331;                             // encode / decode error:
+    int X_S0531 = 331;                             // text file encode / decode error:
     int X_S0532 = 332;                             // UTF-16 encoding string required
 
     // HSQLDB authentication
