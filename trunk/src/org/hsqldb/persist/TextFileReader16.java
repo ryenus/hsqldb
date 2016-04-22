@@ -35,7 +35,6 @@ import java.io.IOException;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.CharArrayWriter;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowInputText;
 
