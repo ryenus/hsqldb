@@ -51,7 +51,7 @@ public class RowInputTextQuoted extends RowInputText {
     private static final int NORMAL_FIELD   = 0;
     private static final int NEED_END_QUOTE = 1;
     private static final int FOUND_QUOTE    = 2;
-    private char             quoteChar;
+    private final char       quoteChar;
     int                      charLength = 0;
 
     public RowInputTextQuoted(TextFileSettings textFileSettings) {

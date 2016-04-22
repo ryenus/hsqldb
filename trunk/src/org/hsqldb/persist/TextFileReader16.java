@@ -47,24 +47,20 @@ import org.hsqldb.rowio.RowInputText;
  * @version 2.3.4
  * @since 2.3.4
 */
-public class TextFileReader16 implements TextFileReader {
-
-    private RandomAccessInterface dataFile;
-    private RowInputInterface     rowIn;
-    private TextFileSettings      textFileSettings;
-    private String                header;
-    private boolean               isReadOnly;
-    private CharArrayWriter       buffer;
-    private long                  position = 0;
+public class TextFileReader16 extends TextFileReader8
+implements TextFileReader {
 
     TextFileReader16(RandomAccessInterface dataFile,
                      TextFileSettings textFileSettings,
                      RowInputInterface rowIn, boolean isReadOnly) {
 
+        super();
+
         this.dataFile         = dataFile;
         this.textFileSettings = textFileSettings;
         this.rowIn            = rowIn;
-        this.buffer           = new CharArrayWriter(128);
+        this.buffer = StringCreator.getStringCreator(char.class,
+                textFileSettings.charEncoding);
 
         skipBOM();
     }
@@ -92,231 +88,11 @@ public class TextFileReader16 implements TextFileReader {
         }
     }
 
-    public RowInputInterface readObject() {
-
-        boolean hasQuote  = false;
-        boolean complete  = false;
-        boolean wasCR     = false;
-        boolean wasNormal = false;
-
-        buffer.reset();
-
-        position = findNextUsedLinePos();
-
-        if (position == -1) {
-            return null;
-        }
-
-        try {
-            dataFile.seek(position);
-
-            while (!complete) {
-                int c = readChar();
-
-                wasNormal = false;
-
-                if (c == -1) {
-                    if (buffer.size() == 0) {
-                        return null;
-                    }
-
-                    complete = true;
-
-                    if (wasCR) {
-                        break;
-                    }
-
-                    break;
-                }
-
-                if (c == textFileSettings.quoteChar) {
-                    wasNormal = true;
-                    complete  = wasCR;
-                    wasCR     = false;
-
-                    if (textFileSettings.isQuoted) {
-                        hasQuote = !hasQuote;
-                    }
-                } else {
-                    switch (c) {
-
-                        case TextFileSettings.CR_CHAR :
-                            wasCR = !hasQuote;
-                            break;
-
-                        case TextFileSettings.LF_CHAR :
-                            complete = !hasQuote;
-                            break;
-
-                        default :
-                            wasNormal = true;
-                            complete  = wasCR;
-                            wasCR     = false;
-                    }
-                }
-
-                buffer.write(c);
-            }
-
-            if (complete) {
-                if (wasNormal) {
-                    buffer.setSize(buffer.size() - 1);
-                }
-
-                buffer.toCharArray();
-
-                String rowString = new String(buffer.toCharArray());
-
-                ((RowInputText) rowIn).setSource(rowString, position,
-                                                 buffer.size() * 2);
-
-                position += rowIn.getSize();
-
-                return rowIn;
-            }
-
-            return null;
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.TEXT_FILE_IO, e);
-        }
+    int getByteSizeForChar() {
+        return 2;
     }
 
-    public void readHeaderLine() {
-
-        boolean complete  = false;
-        boolean wasCR     = false;
-        boolean wasNormal = false;
-
-        buffer.reset();
-
-        try {
-            dataFile.seek(position);
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.TEXT_FILE_IO, e);
-        }
-
-        while (!complete) {
-            wasNormal = false;
-
-            int c;
-
-            try {
-                c = readChar();
-
-                if (c == -1) {
-                    if (buffer.size() == 0) {
-                        return;
-                    }
-
-                    complete = true;
-
-                    if (!isReadOnly) {
-                        dataFile.write(
-                            textFileSettings.bytesForLineEnd, 0,
-                            textFileSettings.bytesForLineEnd.length);
-                        buffer.write(textFileSettings.NL, 0,
-                                     textFileSettings.NL.length());
-                    }
-
-                    break;
-                }
-            } catch (IOException e) {
-                throw Error.error(ErrorCode.TEXT_FILE);
-            }
-
-            switch (c) {
-
-                case TextFileSettings.CR_CHAR :
-                    wasCR = true;
-                    break;
-
-                case TextFileSettings.LF_CHAR :
-                    complete = true;
-                    break;
-
-                default :
-                    wasNormal = true;
-                    complete  = wasCR;
-                    wasCR     = false;
-            }
-
-            if (wasCR || complete) {
-                continue;
-            }
-
-            buffer.write(c);
-        }
-
-        if (wasNormal) {
-            buffer.setSize(buffer.size() - 1);
-        }
-
-        header   = new String(buffer.toCharArray());
-        position += buffer.size() * 2;
-    }
-
-    /**
-     * Searches from file pointer, pos, and finds the beginning of the first
-     * line that contains any non-space character. Increments the row counter
-     * when a blank line is skipped.
-     *
-     * If none found return -1
-     */
-    private long findNextUsedLinePos() {
-
-        try {
-            long    firstPos   = position;
-            long    currentPos = position;
-            boolean wasCR      = false;
-
-            dataFile.seek(position);
-
-            while (true) {
-                int c = readChar();
-
-                currentPos += 2;
-
-                switch (c) {
-
-                    case TextFileSettings.CR_CHAR :
-                        wasCR = true;
-                        break;
-
-                    case TextFileSettings.LF_CHAR :
-                        wasCR = false;
-
-                        ((RowInputText) rowIn).skippedLine();
-
-                        firstPos = currentPos;
-                        break;
-
-                    case ' ' :
-                        if (wasCR) {
-                            wasCR = false;
-
-                            ((RowInputText) rowIn).skippedLine();
-                        }
-                        break;
-
-                    case -1 :
-                        return -1;
-
-                    default :
-                        if (wasCR) {
-                            wasCR = false;
-
-                            ((RowInputText) rowIn).skippedLine();
-                        }
-
-                        return firstPos;
-                }
-            }
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.TEXT_FILE_IO, e);
-        }
-    }
-
-    private int readChar() {
+    int readChar() {
 
         try {
             int c1 = dataFile.read();

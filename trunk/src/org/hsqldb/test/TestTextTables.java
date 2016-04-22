@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ public class TestTextTables extends TestBase {
 
     static String url =
         "jdbc:hsqldb:file:/hsql/testtext/test;sql.enforce_strict_size=true";
+    static String filepath = "/hsql/testtext/";
 
     public TestTextTables(String name) {
         super(name, url, false, false);
@@ -49,13 +50,19 @@ public class TestTextTables extends TestBase {
         super.setUp();
     }
 
+    private void deleteDatabaseAndSources() throws Exception {
+
+        TestUtil.deleteDatabase(filepath + "test");
+        TestUtil.delete(filepath + "t.txt");
+        TestUtil.delete(filepath + "tt.txt");
+        TestUtil.delete(filepath + "tident.txt");
+        TestUtil.delete(filepath + "tsingle.txt");
+        initDatabase();
+    }
+
     public void testSectionOne() throws Exception {
 
-        TestUtil.deleteDatabase("/hsql/testtext/test");
-        TestUtil.delete("/hsql/testtext/t.txt");
-        TestUtil.delete("/hsql/testtext/tt.txt");
-        TestUtil.delete("/hsql/testtext/tident.txt");
-        TestUtil.delete("/hsql/testtext/tsingle.txt");
+        deleteDatabaseAndSources();
         initDatabase();
         partA();
         partD();
@@ -63,11 +70,7 @@ public class TestTextTables extends TestBase {
 
     public void testSectionTwo() throws Exception {
 
-        TestUtil.deleteDatabase("/hsql/testtext/test");
-        TestUtil.delete("/hsql/testtext/t.txt");
-        TestUtil.delete("/hsql/testtext/tt.txt");
-        TestUtil.delete("/hsql/testtext/tident.txt");
-        TestUtil.delete("/hsql/testtext/tsingle.txt");
+        deleteDatabaseAndSources();
         initDatabase();
         partB();
         partD();
@@ -94,7 +97,6 @@ public class TestTextTables extends TestBase {
     public void testSectionFive() throws Exception {
 
         Connection conn = newConnection();
-
         PreparedStatement ps =
             conn.prepareStatement("insert into tident (c2) values ?");
 
@@ -144,35 +146,27 @@ public class TestTextTables extends TestBase {
     public void testSectionSix() throws Exception {
 
         Connection conn = newConnection();
-
-        Statement st = conn.createStatement();
+        Statement  st   = conn.createStatement();
 
         st.execute("set table tsingle read write");
-
         st.execute("SHUTDOWN SCRIPT");
 
         conn = newConnection();
-
-        st = conn.createStatement();
+        st   = conn.createStatement();
 
         st.execute("create memory table tmsingle (c1 int primary key)");
-
         st.execute("truncate table tident restart identity");
-
         st.execute("truncate table tsingle restart identity");
 
         ResultSet rs = st.executeQuery("select count(*) from tident");
 
         assertTrue(rs.next());
         assertEquals(0, rs.getInt(1));
-
         st.execute("set table tident source off");
         st.execute("set table tsingle source off");
-
         st.execute("alter table tsingle add unique(c1)");
-
-        st.execute("alter table tident add foreign key (c1) references tmsingle(c1)");
-
+        st.execute(
+            "alter table tident add foreign key (c1) references tmsingle(c1)");
         st.execute("set table tident source on");
         st.execute("set table tsingle source on");
 
@@ -185,7 +179,6 @@ public class TestTextTables extends TestBase {
 
         assertTrue(rs.next());
         assertEquals(0, rs.getInt(1));
-
 
         PreparedStatement ps =
             conn.prepareStatement("insert into tmsingle(c1) values ?");
@@ -207,8 +200,7 @@ public class TestTextTables extends TestBase {
 
         ps.close();
 
-        st   = conn.createStatement();
-
+        st = conn.createStatement();
         rs = st.executeQuery("select count(*) from tmsingle");
 
         assertTrue(rs.next());
@@ -218,14 +210,11 @@ public class TestTextTables extends TestBase {
 
         assertTrue(rs.next());
         assertEquals(20, rs.getInt(1));
-
-
         st.execute("SHUTDOWN SCRIPT");
 
         conn = newConnection();
         st   = conn.createStatement();
-
-        rs = st.executeQuery("select count(*) from tmsingle");
+        rs   = st.executeQuery("select count(*) from tmsingle");
 
         assertTrue(rs.next());
         assertEquals(20, rs.getInt(1));
