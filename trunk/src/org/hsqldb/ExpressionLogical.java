@@ -144,6 +144,8 @@ public class ExpressionLogical extends Expression {
             case OpTypes.RANGE_CONTAINS :
             case OpTypes.RANGE_EQUALS :
             case OpTypes.RANGE_OVERLAPS :
+            case OpTypes.RANGE_IMMEDIATELY_PRECEDES :
+            case OpTypes.RANGE_IMMEDIATELY_SUCCEEDS :
             case OpTypes.RANGE_PRECEDES :
             case OpTypes.RANGE_SUCCEEDS :
             case OpTypes.NOT_DISTINCT :
@@ -834,6 +836,8 @@ public class ExpressionLogical extends Expression {
             case OpTypes.RANGE_CONTAINS :
             case OpTypes.RANGE_EQUALS :
             case OpTypes.RANGE_OVERLAPS :
+            case OpTypes.RANGE_IMMEDIATELY_PRECEDES :
+            case OpTypes.RANGE_IMMEDIATELY_SUCCEEDS :
             case OpTypes.RANGE_PRECEDES :
             case OpTypes.RANGE_SUCCEEDS :
                 resolveTypesForPeriodPredicates();
@@ -1303,6 +1307,22 @@ public class ExpressionLogical extends Expression {
                 Object[] right = nodes[RIGHT].getRowValue(session);
 
                 return DateTimeType.precedes(session, left,
+                                             nodes[LEFT].nodeDataTypes, right,
+                                             nodes[RIGHT].nodeDataTypes);
+            }
+            case OpTypes.RANGE_IMMEDIATELY_PRECEDES : {
+                Object[] left  = nodes[LEFT].getRowValue(session);
+                Object[] right = nodes[RIGHT].getRowValue(session);
+
+                return DateTimeType.immediatelyPrecedes(session, left,
+                                             nodes[LEFT].nodeDataTypes, right,
+                                             nodes[RIGHT].nodeDataTypes);
+            }
+            case OpTypes.RANGE_IMMEDIATELY_SUCCEEDS : {
+                Object[] left  = nodes[LEFT].getRowValue(session);
+                Object[] right = nodes[RIGHT].getRowValue(session);
+
+                return DateTimeType.immediatelySucceeds(session, left,
                                              nodes[LEFT].nodeDataTypes, right,
                                              nodes[RIGHT].nodeDataTypes);
             }
@@ -2309,6 +2329,8 @@ public class ExpressionLogical extends Expression {
             case OpTypes.RANGE_CONTAINS :
             case OpTypes.RANGE_EQUALS :
             case OpTypes.RANGE_OVERLAPS :
+            case OpTypes.RANGE_IMMEDIATELY_PRECEDES :
+            case OpTypes.RANGE_IMMEDIATELY_SUCCEEDS :
             case OpTypes.RANGE_PRECEDES :
             case OpTypes.RANGE_SUCCEEDS :
             case OpTypes.IN :

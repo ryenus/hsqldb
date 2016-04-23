@@ -3760,6 +3760,7 @@ public class ParserDQL extends ParserBase {
     Expression XreadPredicateRightPart(final Expression l) {
 
         boolean           hasNot = false;
+        boolean           immediately = false;
         ExpressionLogical e      = null;
         Expression        r;
         int               position = getPosition();
@@ -3768,6 +3769,17 @@ public class ParserDQL extends ParserBase {
             read();
 
             hasNot = true;
+        }
+
+        // valid for PRECEDES and SUCCEEDS predicates
+        if (token.tokenType == Tokens.IMMEDIATELY) {
+            read();
+            
+            if(token.tokenType != Tokens.PRECEDES && token.tokenType != Tokens.SUCCEEDS) {
+                throw unexpectedToken();
+            }
+
+            immediately = true;
         }
 
         switch (token.tokenType) {
@@ -3862,8 +3874,12 @@ public class ParserDQL extends ParserBase {
                     throw unexpectedToken();
                 }
 
-                e = XreadPeriodPredicateRightPart(OpTypes.RANGE_PRECEDES, l);
-
+                if(immediately){
+                    e = XreadPeriodPredicateRightPart(OpTypes.RANGE_IMMEDIATELY_PRECEDES, l);
+                } else {
+                    e = XreadPeriodPredicateRightPart(OpTypes.RANGE_PRECEDES, l);
+                }
+                
                 break;
             }
             case Tokens.SUCCEEDS : {
@@ -3871,7 +3887,11 @@ public class ParserDQL extends ParserBase {
                     throw unexpectedToken();
                 }
 
-                e = XreadPeriodPredicateRightPart(OpTypes.RANGE_SUCCEEDS, l);
+                if(immediately){
+                    e = XreadPeriodPredicateRightPart(OpTypes.RANGE_IMMEDIATELY_SUCCEEDS, l);
+                } else {
+                    e = XreadPeriodPredicateRightPart(OpTypes.RANGE_SUCCEEDS, l);
+                }
 
                 break;
             }
