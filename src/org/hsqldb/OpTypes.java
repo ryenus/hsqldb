@@ -130,6 +130,8 @@ public interface OpTypes {
         MULTICOLUMN          = 91,
         USER_AGGREGATE       = 92,
         ARRAY_ACCESS         = 93,
-        ARRAY_SUBQUERY       = 94
+        ARRAY_SUBQUERY       = 94,
+        RANGE_IMMEDIATELY_PRECEDES = 95,
+        RANGE_IMMEDIATELY_SUCCEEDS = 96
     ;
 }

@@ -43,6 +43,10 @@ import junit.framework.Assert;
  * Tests the period predicates implementation of the {@link DateTimeType} class.
  * <p>
  * TODO: Add tests with intervals, other date types/time and time zone.
+ * 
+ * @author Pascal-Eric Servais (peservais@users dot sourceforge.net)
+ * @version 2.3.4
+ * @since 2.3.4
  */
 public class TestPeriodPredicates extends TestBase {
 
@@ -360,7 +364,7 @@ public class TestPeriodPredicates extends TestBase {
     }
 
     /**
-     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '2000-01-12 01:02:03')
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '2000-01-01 01:02:03')
      * PRECEDES
      * (TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:03')
      * is true
@@ -910,4 +914,116 @@ public class TestPeriodPredicates extends TestBase {
         Assert.assertFalse(DateTimeType.contains(null, a, ta, b, tb));
     }
 
+    /**
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '2000-01-01 01:02:03')
+     * PRECEDES
+     * (TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:03')
+     * is true
+     */
+    public void testFirstPeriodImmediatelyPrecedesSecondPeriod() {
+
+        Object[] a = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("2000-01-01 01:02:03")
+        };
+        Object[] b = {
+            scanner.newTimestamp("2000-01-01 01:02:03"),
+            scanner.newTimestamp("2000-02-01 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertTrue(DateTimeType.immediatelyPrecedes(null, a, ta, b, tb));
+    }
+
+    /**
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '2000-01-01 01:02:02')
+     * PRECEDES
+     * (TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:03')
+     * is true
+     */
+    public void testFirstPeriodDoesNotImmediatelyPrecedesSecondPeriod() {
+
+        Object[] a = {
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("2000-01-01 01:02:02")
+        };
+        Object[] b = {
+            scanner.newTimestamp("2000-01-01 01:02:03"),
+            scanner.newTimestamp("2000-02-01 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertFalse(DateTimeType.immediatelyPrecedes(null, a, ta, b, tb));
+    }
+
+    /**
+     * (TIMESTAMP '2000-02-01 01:02:03', TIMESTAMP '2000-03-01 01:02:03')
+     * SUCCEEDS
+     * (TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:03')
+     * is true
+     */
+    public void testFirstPeriodImmediatelySucceedsSecondPeriod() {
+
+        Object[] a = {
+                scanner.newTimestamp("2000-02-01 01:02:03"),
+                scanner.newTimestamp("2000-03-01 01:02:03")
+            };
+        Object[] b = {
+            scanner.newTimestamp("2000-01-01 01:02:03"),
+            scanner.newTimestamp("2000-02-01 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertTrue(DateTimeType.immediatelySucceeds(null, a, ta, b, tb));
+    }
+    
+    /**
+     * (TIMESTAMP '2000-02-01 01:02:03', TIMESTAMP '2000-03-01 01:02:03')
+     * SUCCEEDS
+     * (TIMESTAMP '2000-01-01 01:02:04', TIMESTAMP '2000-02-01 01:02:03')
+     * is true
+     */
+    public void testFirstPeriodDoesNotImmediatelySucceedsSecondPeriod() {
+
+        Object[] a = {
+                scanner.newTimestamp("2000-02-01 01:02:03"),
+                scanner.newTimestamp("2000-03-01 01:02:03")
+            };
+        Object[] b = {
+            scanner.newTimestamp("2000-01-01 01:02:04"),
+            scanner.newTimestamp("2000-02-01 01:02:03")
+        };
+        Type[] ta = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+        Type[] tb = {
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
+            new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
+        };
+
+        Assert.assertTrue(DateTimeType.immediatelySucceeds(null, a, ta, b, tb));
+    }
+    
 }
