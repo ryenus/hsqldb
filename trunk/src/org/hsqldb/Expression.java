@@ -895,6 +895,10 @@ public class Expression implements Cloneable {
         nodes[RIGHT] = e;
     }
 
+    int getSubType() {
+        return exprSubType;
+    }
+
     void setSubType(int subType) {
         exprSubType = subType;
     }

@@ -92,7 +92,7 @@ public class ParserTable extends ParserDML {
             tempIndexes);
 
         if (!isTable) {
-            return this.compileCreateTableAsSubqueryDefinition(table);
+            return compileCreateTableAsSubqueryDefinition(table);
         }
 
         readTableOnCommitClause(table);
@@ -650,7 +650,7 @@ public class ParserTable extends ParserDML {
                     break;
 
                 case Tokens.PARTIAL :
-                    throw super.unsupportedFeature();
+                    throw unsupportedFeature();
                 case Tokens.FULL :
                     read();
 
@@ -955,8 +955,7 @@ public class ParserTable extends ParserDML {
                         isIdentity = true;
                     } else if (token.tokenType == Tokens.OPENBRACKET) {
                         if (!generatedAlways) {
-                            throw super.unexpectedTokenRequire(
-                                Tokens.T_IDENTITY);
+                            throw unexpectedTokenRequire(Tokens.T_IDENTITY);
                         }
 
                         isGenerated = true;
@@ -970,7 +969,7 @@ public class ParserTable extends ParserDML {
                         if (token.namePrefix != null) {
                             if (!token.namePrefix.equals(
                                     table.getSchemaName().name)) {
-                                throw super.unexpectedToken(token.namePrefix);
+                                throw unexpectedToken(token.namePrefix);
                             }
                         }
 
@@ -1122,7 +1121,7 @@ public class ParserTable extends ParserDML {
 
             case Tokens.PRIMARY : {
                 if (schemaObject.getName().type != SchemaObject.TABLE) {
-                    throw this.unexpectedTokenRequire(Tokens.T_CHECK);
+                    throw unexpectedTokenRequire(Tokens.T_CHECK);
                 }
 
                 read();
@@ -1156,7 +1155,7 @@ public class ParserTable extends ParserDML {
             }
             case Tokens.UNIQUE : {
                 if (schemaObject.getName().type != SchemaObject.TABLE) {
-                    throw this.unexpectedTokenRequire(Tokens.T_CHECK);
+                    throw unexpectedTokenRequire(Tokens.T_CHECK);
                 }
 
                 read();
@@ -1185,7 +1184,7 @@ public class ParserTable extends ParserDML {
             }
             case Tokens.FOREIGN : {
                 if (schemaObject.getName().type != SchemaObject.TABLE) {
-                    throw this.unexpectedTokenRequire(Tokens.T_CHECK);
+                    throw unexpectedTokenRequire(Tokens.T_CHECK);
                 }
 
                 read();
