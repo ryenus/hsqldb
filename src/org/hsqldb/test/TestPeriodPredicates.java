@@ -31,7 +31,11 @@
 
 package org.hsqldb.test;
 
+import java.sql.Connection;
+
 import org.hsqldb.Scanner;
+import org.hsqldb.Session;
+import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
@@ -43,24 +47,30 @@ import junit.framework.Assert;
  * Tests the period predicates implementation of the {@link DateTimeType} class.
  * <p>
  * TODO: Add tests with intervals, other date types/time and time zone.
- * 
+ *
  * @author Pascal-Eric Servais (peservais@users dot sourceforge.net)
  * @version 2.3.4
  * @since 2.3.4
  */
 public class TestPeriodPredicates extends TestBase {
 
-    private Scanner scanner;
+    private Scanner    scanner;
+    private Connection conn;
+    private Session    session;
 
     public TestPeriodPredicates(String name) {
 
-        super(name);
+        super(name,  "jdbc:hsqldb:mem:test", false, false);
 
         scanner = new Scanner();
     }
 
     protected void setUp() throws Exception {
+
         super.setUp();
+
+        conn    = super.newConnection();
+        session = (Session) ((JDBCConnection) conn).getSession();
     }
 
     /**
@@ -88,8 +98,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.overlaps(null, a, ta, b, tb));
-        Assert.assertTrue(DateTimeType.overlaps(null, b, tb, a, ta));
+        Assert.assertTrue(DateTimeType.overlaps(session, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.overlaps(session, b, tb, a, ta));
     }
 
     /**
@@ -117,8 +127,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.overlaps(null, a, ta, b, tb));
-        Assert.assertTrue(DateTimeType.overlaps(null, b, tb, a, ta));
+        Assert.assertTrue(DateTimeType.overlapsRelaxed(session, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.overlapsRelaxed(session, b, tb, a, ta));
     }
 
     /**
@@ -146,8 +156,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.overlaps(null, a, ta, b, tb));
-        Assert.assertFalse(DateTimeType.overlaps(null, b, tb, a, ta));
+        Assert.assertFalse(DateTimeType.overlaps(session, a, ta, b, tb));
+        Assert.assertFalse(DateTimeType.overlaps(session, b, tb, a, ta));
     }
 
     /**
@@ -175,8 +185,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.overlaps(null, a, ta, b, tb));
-        Assert.assertFalse(DateTimeType.overlaps(null, b, tb, a, ta));
+        Assert.assertFalse(DateTimeType.overlaps(session, a, ta, b, tb));
+        Assert.assertFalse(DateTimeType.overlaps(session, b, tb, a, ta));
     }
 
     /**
@@ -204,8 +214,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.overlaps(null, a, ta, b, tb));
-        Assert.assertTrue(DateTimeType.overlaps(null, b, tb, a, ta));
+        Assert.assertTrue(DateTimeType.overlaps(session, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.overlaps(session, b, tb, a, ta));
     }
 
     /**
@@ -235,7 +245,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.overlaps(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.overlaps(session, a, ta, b, tb));
     }
 
     /**
@@ -265,7 +275,7 @@ public class TestPeriodPredicates extends TestBase {
             IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
         };
 
-        Assert.assertTrue(DateTimeType.overlaps(null, b2, tb, a2, ta));
+        Assert.assertTrue(DateTimeType.overlaps(session, b2, tb, a2, ta));
     }
 
     /**
@@ -295,7 +305,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.overlaps(null, a, ta, b, tb));
+        Assert.assertFalse(DateTimeType.overlaps(session, a, ta, b, tb));
     }
 
     /**
@@ -360,7 +370,7 @@ public class TestPeriodPredicates extends TestBase {
             IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
         };
 
-        Assert.assertTrue(DateTimeType.precedes(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.precedes(session, a, ta, b, tb));
     }
 
     /**
@@ -388,7 +398,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.precedes(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.precedes(session, a, ta, b, tb));
     }
 
     /**
@@ -416,7 +426,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.precedes(null, a, ta, b, tb));
+        Assert.assertFalse(DateTimeType.precedes(session, a, ta, b, tb));
     }
 
     /**
@@ -444,7 +454,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.precedes(null, a, ta, b, tb));
+        Assert.assertFalse(DateTimeType.precedes(session, a, ta, b, tb));
     }
 
     /**
@@ -476,9 +486,9 @@ public class TestPeriodPredicates extends TestBase {
             IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
         };
 
-        Assert.assertFalse(DateTimeType.precedes(null, a, ta, b, tb));
+        Assert.assertFalse(DateTimeType.precedes(session, a, ta, b, tb));
     }
-    
+
     /**
      * (TIMESTAMP '2000-02-01 01:02:03', TIMESTAMP '2000-03-01 01:02:03')
      * SUCCEEDS
@@ -488,9 +498,9 @@ public class TestPeriodPredicates extends TestBase {
     public void testFirstPeriodSucceedsSecondPeriod() {
 
         Object[] a = {
-                scanner.newTimestamp("2000-02-01 01:02:03"),
-                scanner.newTimestamp("2000-03-01 01:02:03")
-            };
+            scanner.newTimestamp("2000-02-01 01:02:03"),
+            scanner.newTimestamp("2000-03-01 01:02:03")
+        };
         Object[] b = {
             scanner.newTimestamp("2000-01-01 01:02:03"),
             scanner.newTimestamp("2000-02-01 01:02:03")
@@ -504,9 +514,9 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.succeeds(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.succeeds(session, a, ta, b, tb));
     }
-    
+
     /**
      * (TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:03')
      * SUCCEEDS
@@ -516,12 +526,12 @@ public class TestPeriodPredicates extends TestBase {
     public void testFirstPeriodDoesNotSucceedsSecondPeriod() {
 
         Object[] a = {
-                scanner.newTimestamp("2000-01-01 01:02:03"),
-                scanner.newTimestamp("2000-02-01 01:02:03")
-            };
+            scanner.newTimestamp("2000-01-01 01:02:03"),
+            scanner.newTimestamp("2000-02-01 01:02:03")
+        };
         Object[] b = {
-                scanner.newTimestamp("2000-02-01 01:02:03"),
-                scanner.newTimestamp("2000-03-01 01:02:03")
+            scanner.newTimestamp("2000-02-01 01:02:03"),
+            scanner.newTimestamp("2000-03-01 01:02:03")
         };
         Type[] ta = {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
@@ -532,9 +542,9 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.succeeds(null, a, ta, b, tb));
+        Assert.assertFalse(DateTimeType.succeeds(session, a, ta, b, tb));
     }
-    
+
     /**
      * (TIMESTAMP '2000-02-01 01:02:03', TIMESTAMP '2000-03-01 01:02:03')
      * SUCCEEDS
@@ -544,9 +554,9 @@ public class TestPeriodPredicates extends TestBase {
     public void testFirstPeriodDoesNotSucceedsSecondPeriod2() {
 
         Object[] a = {
-                scanner.newTimestamp("2000-02-01 01:02:03"),
-                scanner.newTimestamp("2000-03-01 01:02:03")
-            };
+            scanner.newTimestamp("2000-02-01 01:02:03"),
+            scanner.newTimestamp("2000-03-01 01:02:03")
+        };
         Object[] b = {
             scanner.newTimestamp("2000-01-01 01:02:03"),
             scanner.newTimestamp("2000-02-01 01:02:04")
@@ -560,9 +570,9 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.succeeds(null, a, ta, b, tb));
+        Assert.assertFalse(DateTimeType.succeeds(session, a, ta, b, tb));
     }
-    
+
     /**
      * (TIMESTAMP '2000-02-01 01:02:03', INTERVAL '31' DAY)
      * SUCCEEDS
@@ -572,16 +582,16 @@ public class TestPeriodPredicates extends TestBase {
     public void testFirstPeriodSucceedsSecondPeriodWithInterval() {
 
         Object[] a = {
-                scanner.newTimestamp("2000-02-01 01:02:03"),
-                scanner.newInterval(
-                        "31",
-                        IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
-            };
+            scanner.newTimestamp("2000-02-01 01:02:03"),
+            scanner.newInterval(
+                "31",
+                IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+        };
         Object[] b = {
             scanner.newTimestamp("2000-01-01 01:02:03"),
             scanner.newInterval(
-                    "31",
-                    IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+                "31",
+                IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
         };
         Type[] ta = {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
@@ -592,9 +602,9 @@ public class TestPeriodPredicates extends TestBase {
             IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
         };
 
-        Assert.assertTrue(DateTimeType.succeeds(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.succeeds(session, a, ta, b, tb));
     }
-    
+
     /**
      * (TIMESTAMP '2000-02-01 01:02:03', INTERVAL '31' DAY)
      * SUCCEEDS
@@ -604,16 +614,16 @@ public class TestPeriodPredicates extends TestBase {
     public void testFirstPeriodDoesNotSucceedsSecondPeriodWithInterval() {
 
         Object[] a = {
-                scanner.newTimestamp("2000-02-01 01:02:03"),
-                scanner.newInterval(
-                        "31",
-                        IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
-            };
+            scanner.newTimestamp("2000-02-01 01:02:03"),
+            scanner.newInterval(
+                "31",
+                IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+        };
         Object[] b = {
             scanner.newTimestamp("2000-01-01 01:02:03"),
             scanner.newInterval(
-                    "32",
-                    IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+                "32",
+                IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
         };
         Type[] ta = {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
@@ -624,9 +634,9 @@ public class TestPeriodPredicates extends TestBase {
             IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
         };
 
-        Assert.assertFalse(DateTimeType.succeeds(null, a, ta, b, tb));
+        Assert.assertFalse(DateTimeType.succeeds(session, a, ta, b, tb));
     }
-    
+
     /**
      * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '2000-01-12 01:02:03')
      * EQUALS
@@ -640,8 +650,8 @@ public class TestPeriodPredicates extends TestBase {
             scanner.newTimestamp("2000-01-12 01:02:03")
         };
         Object[] b = {
-                scanner.newTimestamp("1999-12-01 01:02:03"),
-                scanner.newTimestamp("2000-01-12 01:02:03")
+            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("2000-01-12 01:02:03")
         };
         Type[] ta = {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
@@ -652,8 +662,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.equals(null, a, ta, b, tb));
-        Assert.assertTrue(DateTimeType.equals(null, b, tb, a, ta));
+        Assert.assertTrue(DateTimeType.equals(session, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.equals(session, b, tb, a, ta));
     }
 
     /**
@@ -667,8 +677,8 @@ public class TestPeriodPredicates extends TestBase {
         Object[] a = {
             scanner.newTimestamp("1999-12-01 01:02:03"),
             scanner.newInterval(
-                    "10",
-                    IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+                "10",
+                IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
         };
         Object[] b = {
             scanner.newTimestamp("1999-12-01 01:02:03"),
@@ -683,7 +693,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.equals(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.equals(session, a, ta, b, tb));
     }
 
     /**
@@ -697,14 +707,14 @@ public class TestPeriodPredicates extends TestBase {
         Object[] a = {
             scanner.newTimestamp("1999-12-01 01:02:03"),
             scanner.newInterval(
-                    "10",
-                    IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+                "10",
+                IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
         };
         Object[] b = {
             scanner.newTimestamp("1999-12-01 01:02:03"),
             scanner.newInterval(
-                    "10",
-                    IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
+                "10",
+                IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0))
         };
         Type[] ta = {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
@@ -715,24 +725,24 @@ public class TestPeriodPredicates extends TestBase {
             IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
         };
 
-        Assert.assertTrue(DateTimeType.equals(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.equals(session, a, ta, b, tb));
     }
 
     /**
-     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-01 01:02:03')
+     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-02 01:02:03')
      * CONTAINS
-     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-01 01:02:03')
+     * TIMESTAMP '1999-12-01 01:02:03'
      * is false
      */
     public void testFirstPeriodCannotContainsSecondPeriodIfTheyAreEquals() {
 
         Object[] a = {
-            scanner.newTimestamp("1999-12-01 01:02:03"),
+            scanner.newTimestamp("1999-12-01 01:02:01"),
             scanner.newTimestamp("1999-12-01 01:02:03")
         };
         Object[] b = {
             scanner.newTimestamp("1999-12-01 01:02:03"),
-            scanner.newTimestamp("1999-12-01 01:02:03")
+            null
         };
         Type[] ta = {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
@@ -743,13 +753,14 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.contains(null, a, ta, b, tb));
+        Assert.assertFalse(DateTimeType.contains(session, a, ta, b, tb,
+                true));
     }
 
     /**
      * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
      * CONTAINS
-     * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-01 01:02:03')
+     * TIMESTAMP '1999-12-01 01:02:03'
      * is true
      */
     public void testFirstPeriodContainsItsStartDate() {
@@ -760,7 +771,7 @@ public class TestPeriodPredicates extends TestBase {
         };
         Object[] b = {
             scanner.newTimestamp("1999-12-01 01:02:03"),
-            scanner.newTimestamp("1999-12-01 01:02:03")
+            null
         };
         Type[] ta = {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
@@ -771,13 +782,13 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.contains(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.contains(session, a, ta, b, tb, true));
     }
 
     /**
      * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
      * CONTAINS
-     * (TIMESTAMP '1999-12-31 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
+     * TIMESTAMP '1999-12-31 01:02:03'
      * is false
      */
     public void testFirstPeriodDoesNotContainsItsEndDate() {
@@ -788,7 +799,7 @@ public class TestPeriodPredicates extends TestBase {
         };
         Object[] b = {
             scanner.newTimestamp("1999-12-31 01:02:03"),
-            scanner.newTimestamp("1999-12-31 01:02:03")
+            null
         };
         Type[] ta = {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
@@ -799,13 +810,14 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.contains(null, a, ta, b, tb));
+        Assert.assertFalse(DateTimeType.contains(session, a, ta, b, tb,
+                true));
     }
 
     /**
      * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
      * CONTAINS
-     * (TIMESTAMP '1999-12-31 01:02:03', TIMESTAMP '1999-12-30 01:02:03')
+     * (TIMESTAMP '1999-12-30 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
      * is true
      */
     public void testFirstPeriodContainsSecondPeriod() {
@@ -815,8 +827,8 @@ public class TestPeriodPredicates extends TestBase {
             scanner.newTimestamp("1999-12-31 01:02:03")
         };
         Object[] b = {
-            scanner.newTimestamp("1999-12-31 01:02:03"),
-            scanner.newTimestamp("1999-12-30 01:02:03")
+            scanner.newTimestamp("1999-12-30 01:02:03"),
+            scanner.newTimestamp("1999-12-31 01:02:03")
         };
         Type[] ta = {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
@@ -827,13 +839,13 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.contains(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.contains(session, a, ta, b, tb, false));
     }
 
     /**
      * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-31 01:02:03')
      * CONTAINS
-     * (TIMESTAMP '1999-12-31 01:02:03', TIMESTAMP '1999-12-31 01:02:02')
+     * (TIMESTAMP '1999-12-31 01:02:02', TIMESTAMP '1999-12-31 01:02:03')
      * is true
      */
     public void testFirstPeriodContainsItselfMinus1Second() {
@@ -843,8 +855,8 @@ public class TestPeriodPredicates extends TestBase {
             scanner.newTimestamp("1999-12-31 01:02:03")
         };
         Object[] b = {
-            scanner.newTimestamp("1999-12-31 01:02:03"),
-            scanner.newTimestamp("1999-12-31 01:02:02")
+            scanner.newTimestamp("1999-12-31 01:02:02"),
+            scanner.newTimestamp("1999-12-31 01:02:03")
         };
         Type[] ta = {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
@@ -855,7 +867,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.contains(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.contains(session, a, ta, b, tb, false));
     }
 
     /**
@@ -883,7 +895,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.contains(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.contains(session, a, ta, b, tb, false));
     }
 
     /**
@@ -911,7 +923,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.contains(null, a, ta, b, tb));
+        Assert.assertFalse(DateTimeType.contains(session, a, ta, b, tb,
+                false));
     }
 
     /**
@@ -939,7 +952,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.immediatelyPrecedes(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.immediatelyPrecedes(session, a, ta, b,
+                tb));
     }
 
     /**
@@ -967,7 +981,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.immediatelyPrecedes(null, a, ta, b, tb));
+        Assert.assertFalse(DateTimeType.immediatelyPrecedes(session, a, ta, b,
+                tb));
     }
 
     /**
@@ -979,9 +994,9 @@ public class TestPeriodPredicates extends TestBase {
     public void testFirstPeriodImmediatelySucceedsSecondPeriod() {
 
         Object[] a = {
-                scanner.newTimestamp("2000-02-01 01:02:03"),
-                scanner.newTimestamp("2000-03-01 01:02:03")
-            };
+            scanner.newTimestamp("2000-02-01 01:02:03"),
+            scanner.newTimestamp("2000-03-01 01:02:03")
+        };
         Object[] b = {
             scanner.newTimestamp("2000-01-01 01:02:03"),
             scanner.newTimestamp("2000-02-01 01:02:03")
@@ -995,9 +1010,10 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.immediatelySucceeds(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.immediatelySucceeds(session, a, ta, b,
+                tb));
     }
-    
+
     /**
      * (TIMESTAMP '2000-02-01 01:02:03', TIMESTAMP '2000-03-01 01:02:03')
      * SUCCEEDS
@@ -1007,9 +1023,9 @@ public class TestPeriodPredicates extends TestBase {
     public void testFirstPeriodDoesNotImmediatelySucceedsSecondPeriod() {
 
         Object[] a = {
-                scanner.newTimestamp("2000-02-01 01:02:03"),
-                scanner.newTimestamp("2000-03-01 01:02:03")
-            };
+            scanner.newTimestamp("2000-02-01 01:02:03"),
+            scanner.newTimestamp("2000-03-01 01:02:03")
+        };
         Object[] b = {
             scanner.newTimestamp("2000-01-01 01:02:04"),
             scanner.newTimestamp("2000-02-01 01:02:03")
@@ -1023,7 +1039,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.immediatelySucceeds(null, a, ta, b, tb));
+        Assert.assertTrue(DateTimeType.immediatelySucceeds(session, a, ta, b,
+                tb));
     }
-    
 }

@@ -2378,7 +2378,7 @@ public class ParserDQL extends ParserBase {
     // combined <value expression primary> and <predicate>
     // exclusively called
     // <explicit row value constructor> needed for predicate
-    Expression XreadAllTypesValueExpressionPrimary(boolean boole) {
+    Expression XreadAllTypesValueExpressionPrimary(boolean isBoolean) {
 
         Expression e = null;
 
@@ -2386,13 +2386,14 @@ public class ParserDQL extends ParserBase {
 
             case Tokens.EXISTS :
             case Tokens.UNIQUE :
-                if (boole) {
+                if (isBoolean) {
                     return XreadPredicate();
                 }
                 break;
 
+            case Tokens.PERIOD :
             case Tokens.ROW :
-                if (boole) {
+                if (isBoolean) {
                     break;
                 }
 
@@ -2413,13 +2414,19 @@ public class ParserDQL extends ParserBase {
         }
 
         if (e == null) {
-            boolean isRow = false;
+            boolean isRow    = false;
+            boolean isPeriod = false;
 
             if (token.tokenType == Tokens.ROW) {
                 read();
                 checkIsThis(Tokens.OPENBRACKET);
 
                 isRow = true;
+            } else if (token.tokenType == Tokens.PERIOD) {
+                read();
+                checkIsThis(Tokens.OPENBRACKET);
+
+                isPeriod = true;
             }
 
             if (token.tokenType == Tokens.OPENBRACKET) {
@@ -2429,10 +2436,14 @@ public class ParserDQL extends ParserBase {
                 e = XreadRowElementList(true);
 
                 readThis(Tokens.CLOSEBRACKET);
+
+                if (isPeriod) {
+                    e.setSubType(OpTypes.RANGE_EQUALS);
+                }
             }
         }
 
-        if (boole && e != null) {
+        if (isBoolean && e != null) {
             e = XreadPredicateRightPart(e);
         }
 
@@ -3759,9 +3770,9 @@ public class ParserDQL extends ParserBase {
 
     Expression XreadPredicateRightPart(final Expression l) {
 
-        boolean           hasNot = false;
+        boolean           hasNot      = false;
         boolean           immediately = false;
-        ExpressionLogical e      = null;
+        ExpressionLogical e           = null;
         Expression        r;
         int               position = getPosition();
 
@@ -3774,8 +3785,9 @@ public class ParserDQL extends ParserBase {
         // valid for PRECEDES and SUCCEEDS predicates
         if (token.tokenType == Tokens.IMMEDIATELY) {
             read();
-            
-            if(token.tokenType != Tokens.PRECEDES && token.tokenType != Tokens.SUCCEEDS) {
+
+            if (token.tokenType != Tokens.PRECEDES
+                    && token.tokenType != Tokens.SUCCEEDS) {
                 throw unexpectedToken();
             }
 
@@ -3874,12 +3886,14 @@ public class ParserDQL extends ParserBase {
                     throw unexpectedToken();
                 }
 
-                if(immediately){
-                    e = XreadPeriodPredicateRightPart(OpTypes.RANGE_IMMEDIATELY_PRECEDES, l);
+                if (immediately) {
+                    e = XreadPeriodPredicateRightPart(
+                        OpTypes.RANGE_IMMEDIATELY_PRECEDES, l);
                 } else {
-                    e = XreadPeriodPredicateRightPart(OpTypes.RANGE_PRECEDES, l);
+                    e = XreadPeriodPredicateRightPart(OpTypes.RANGE_PRECEDES,
+                                                      l);
                 }
-                
+
                 break;
             }
             case Tokens.SUCCEEDS : {
@@ -3887,10 +3901,12 @@ public class ParserDQL extends ParserBase {
                     throw unexpectedToken();
                 }
 
-                if(immediately){
-                    e = XreadPeriodPredicateRightPart(OpTypes.RANGE_IMMEDIATELY_SUCCEEDS, l);
+                if (immediately) {
+                    e = XreadPeriodPredicateRightPart(
+                        OpTypes.RANGE_IMMEDIATELY_SUCCEEDS, l);
                 } else {
-                    e = XreadPeriodPredicateRightPart(OpTypes.RANGE_SUCCEEDS, l);
+                    e = XreadPeriodPredicateRightPart(OpTypes.RANGE_SUCCEEDS,
+                                                      l);
                 }
 
                 break;
@@ -4212,6 +4228,10 @@ public class ParserDQL extends ParserBase {
         return new ExpressionLogical(matchType, a, s);
     }
 
+    /**
+     * OVERLAPS does not require PERIOD, others do.
+     * CONTAINS can have single value right side
+     */
     private ExpressionLogical XreadPeriodPredicateRightPart(int opType,
             Expression l) {
 
@@ -4223,15 +4243,53 @@ public class ParserDQL extends ParserBase {
             throw Error.error(ErrorCode.X_42564);
         }
 
+        if (opType != OpTypes.RANGE_OVERLAPS) {
+            if (l.getSubType() != OpTypes.RANGE_EQUALS) {
+                throw unexpectedTokenRequire(Tokens.T_PERIOD);
+            }
+        }
+
         read();
 
-        if (token.tokenType != Tokens.OPENBRACKET) {
-            throw unexpectedToken();
+        boolean period = false;
+
+        if (token.tokenType == Tokens.PERIOD) {
+            read();
+
+            period = true;
+
+            if (token.tokenType != Tokens.OPENBRACKET) {
+                throw unexpectedTokenRequire(Tokens.T_OPENBRACKET);
+            }
         }
 
         Expression r = XreadRowValuePredicand();
 
-        if (r.nodes.length != 2) {
+        if (period) {
+            if (r.nodes.length == 2) {
+                r.setSubType(OpTypes.RANGE_EQUALS);
+            } else {
+                throw Error.error(ErrorCode.X_42564);
+            }
+        }
+
+        if (r.nodes.length == 2) {
+            if (opType == OpTypes.RANGE_OVERLAPS) {
+                if (period) {
+                    if (l.getSubType() != OpTypes.RANGE_EQUALS) {
+                        throw unexpectedTokenRequire(Tokens.T_PERIOD);
+                    }
+                }
+            } else {
+                if (!period) {
+                    throw unexpectedTokenRequire(Tokens.T_PERIOD);
+                }
+            }
+        } else if (r.nodes.length < 2) {
+            if (opType != OpTypes.RANGE_CONTAINS) {
+                throw Error.error(ErrorCode.X_42564);
+            }
+        } else {
             throw Error.error(ErrorCode.X_42564);
         }
 
