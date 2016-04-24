@@ -746,7 +746,7 @@ public class ParserRoutine extends ParserTable {
                     readThis(Tokens.LEVEL);
                     routine.setNewSavepointLevel(false);
 
-                    throw super.unsupportedFeature(Tokens.T_OLD);
+                    throw unsupportedFeature(Tokens.T_OLD);
 
                     // break;
                 }
@@ -1363,7 +1363,7 @@ public class ParserRoutine extends ParserTable {
                         throw unexpectedToken();
                     }
 
-                    cs = this.compileGetStatement(rangeGroups);
+                    cs = compileGetStatement(rangeGroups);
                     break;
 
                 // control
