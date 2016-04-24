@@ -1659,6 +1659,75 @@ public final class DateTimeType extends DTIType {
     /**
      * For temporal predicate operations on periods, we need to make sure we
      * compare data of the same types.
+     * <p>
+     *
+     * @param session
+     * @param a First period to compare
+     * @param ta Types of the first period
+     * @param b Second period to compare
+     * @param tb Type of the second period
+     *
+     * @return The common data type of the boundaries of the two limits.
+     *         null if any of the two periods is null or if the first limit of
+     *         any period is null.
+     *
+     * @since 2.3.4
+     */
+    public static Type normalizeInput(Session session, Object[] a, Type[] ta,
+                                      Object[] b, Type[] tb,
+                                      boolean pointOfTime) {
+
+        if (a == null || b == null) {
+            return null;
+        }
+
+        if (a[0] == null || b[0] == null) {
+            return null;
+        }
+
+        if (a[1] == null) {
+            return null;
+        }
+
+        if (!pointOfTime && b[1] == null) {
+            return null;
+        }
+
+        Type commonType = SQL_TIMESTAMP_WITH_TIME_ZONE;
+
+        a[0] = commonType.castToType(session, a[0], ta[0]);
+        b[0] = commonType.castToType(session, b[0], tb[0]);
+
+        if (ta[1].isIntervalType()) {
+            a[1] = commonType.add(session, a[0], a[1], ta[1]);
+        } else {
+            a[1] = commonType.castToType(session, a[1], ta[1]);
+        }
+
+        if (tb[1].isIntervalType()) {
+            b[1] = commonType.add(session, b[0], b[1], tb[1]);
+        } else {
+            if (pointOfTime) {
+                b[1] = b[0];
+            } else {
+                b[1] = commonType.castToType(session, b[1], tb[1]);
+            }
+        }
+
+        if (commonType.compare(session, a[0], a[1]) >= 0) {
+            throw Error.error(ErrorCode.X_22020);
+        }
+
+        if (!pointOfTime && commonType.compare(session, b[0], b[1]) >= 0) {
+            throw Error.error(ErrorCode.X_22020);
+        }
+
+        return commonType;
+    }
+
+    /**
+     * For temporal predicate operations on periods, we need to make sure we
+     * compare data of the same types.
      * We also switch the period boundaries if the first entry is after the
      * second one.
      * <p>
@@ -1677,8 +1746,8 @@ public final class DateTimeType extends DTIType {
      *
      * @since 2.3.4
      */
-    public static Type normalizeInput(Session session, Object[] a, Type[] ta,
-                                      Object[] b, Type[] tb) {
+    public static Type normalizeInputRelaxed(Session session, Object[] a,
+            Type[] ta, Object[] b, Type[] tb) {
 
         if (a == null || b == null) {
             return null;
@@ -1738,8 +1807,6 @@ public final class DateTimeType extends DTIType {
      * a[1] > b[0]. This predicates is commutative: "a OVERLAPS B" must return
      * the same result of "b OVERLAPS a"
      * <p>
-     * Important: when this method returns, the boundaries of the periods may
-     * have been changed.
      *
      * @param session
      * @param a First period to compare
@@ -1753,7 +1820,49 @@ public final class DateTimeType extends DTIType {
     public static Boolean overlaps(Session session, Object[] a, Type[] ta,
                                    Object[] b, Type[] tb) {
 
-        Type commonType = normalizeInput(session, a, ta, b, tb);
+        Type commonType = normalizeInput(session, a, ta, b, tb, false);
+
+        if (commonType == null) {
+            return null;
+        }
+
+        if (commonType.compare(session, a[0], b[0]) > 0) {
+            Object[] temp = a;
+
+            a = b;
+            b = temp;
+        }
+
+        if (commonType.compare(session, a[1], b[0]) > 0) {
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
+    }
+
+    /**
+     * The predicate "a OVERLAPS b" applies when both a and b are rows.
+     * This predicate returns True if the two periods have at least one time
+     * point in common, i.e, if a[0] < b[1] and
+     * a[1] > b[0]. This predicates is commutative: "a OVERLAPS B" must return
+     * the same result of "b OVERLAPS a"
+     * <p>
+     * Important: when this method returns, the boundaries of the periods may
+     * have been changed.
+     *
+     * @param session
+     * @param a First period to compare
+     * @param ta Types of the first period
+     * @param b Second period to compare
+     * @param tb Type of the second period
+     *
+     * @return {@link Boolean#TRUE} if the two periods overlaps,
+     *          else {@link Boolean#FALSE}
+     */
+    public static Boolean overlapsRelaxed(Session session, Object[] a,
+                                          Type[] ta, Object[] b, Type[] tb) {
+
+        Type commonType = normalizeInputRelaxed(session, a, ta, b, tb);
 
         if (commonType == null) {
             return null;
@@ -1779,8 +1888,6 @@ public final class DateTimeType extends DTIType {
      * In this case, the predicate returns True if the end value of a is less
      * than or equal to the start value of b, i.e., if ae <= as.
      * <p>
-     * Important: when this method returns, the boundaries of the periods may
-     * have been changed.
      *
      * @param session
      * @param a First period to compare
@@ -1794,7 +1901,7 @@ public final class DateTimeType extends DTIType {
     public static Boolean precedes(Session session, Object[] a, Type[] ta,
                                    Object[] b, Type[] tb) {
 
-        Type commonType = normalizeInput(session, a, ta, b, tb);
+        Type commonType = normalizeInput(session, a, ta, b, tb, false);
 
         if (commonType == null) {
             return null;
@@ -1812,8 +1919,6 @@ public final class DateTimeType extends DTIType {
      * period constructors. In this case, the predicate returns True if the end value of x is equal to the start value
      * of y, i.e., if xe = ys.
      * <p>
-     * Important: when this method returns, the boundaries of the periods may
-     * have been changed.
      *
      * @param session
      * @param a First period to compare
@@ -1824,10 +1929,10 @@ public final class DateTimeType extends DTIType {
      * @return {@link Boolean#TRUE} if period a immediately precedes period b,
      *          else {@link Boolean#FALSE}
      */
-    public static Boolean immediatelyPrecedes(Session session, Object[] a, Type[] ta,
-                                   Object[] b, Type[] tb) {
+    public static Boolean immediatelyPrecedes(Session session, Object[] a,
+            Type[] ta, Object[] b, Type[] tb) {
 
-        Type commonType = normalizeInput(session, a, ta, b, tb);
+        Type commonType = normalizeInput(session, a, ta, b, tb, false);
 
         if (commonType == null) {
             return null;
@@ -1845,8 +1950,6 @@ public final class DateTimeType extends DTIType {
      * period constructors. In this case, the predicate returns True if the start value of x is equal to the end value
      * of y, i.e., if xs = ye.
      * <p>
-     * Important: when this method returns, the boundaries of the periods may
-     * have been changed.
      *
      * @param session
      * @param a First period to compare
@@ -1857,10 +1960,10 @@ public final class DateTimeType extends DTIType {
      * @return {@link Boolean#TRUE} if period a immediately succeeds period b,
      *          else {@link Boolean#FALSE}
      */
-    public static Boolean immediatelySucceeds(Session session, Object[] a, Type[] ta,
-                                   Object[] b, Type[] tb) {
+    public static Boolean immediatelySucceeds(Session session, Object[] a,
+            Type[] ta, Object[] b, Type[] tb) {
 
-        Type commonType = normalizeInput(session, a, ta, b, tb);
+        Type commonType = normalizeInput(session, a, ta, b, tb, false);
 
         if (commonType == null) {
             return null;
@@ -1878,8 +1981,6 @@ public final class DateTimeType extends DTIType {
      * In this case, the predicate returns True if the start value of x is greater than or equal to the end value of y,
      * i.e., if xs >= ye.
      * <p>
-     * Important: when this method returns, the boundaries of the periods may
-     * have been changed.
      *
      * @param session
      * @param a First period to compare
@@ -1893,7 +1994,7 @@ public final class DateTimeType extends DTIType {
     public static Boolean succeeds(Session session, Object[] a, Type[] ta,
                                    Object[] b, Type[] tb) {
 
-        Type commonType = normalizeInput(session, a, ta, b, tb);
+        Type commonType = normalizeInput(session, a, ta, b, tb, false);
 
         if (commonType == null) {
             return null;
@@ -1910,8 +2011,6 @@ public final class DateTimeType extends DTIType {
      * The predicate "x EQUALS y" applies when both x and y are either period names or period constructors.
      * This predicate returns True if the two periods have every time point in common, i.e., if xs = ys and xe = ye.
      * <p>
-     * Important: when this method returns, the boundaries of the periods may
-     * have been changed.
      *
      * @param session
      * @param a First period to compare
@@ -1923,16 +2022,16 @@ public final class DateTimeType extends DTIType {
      *          else {@link Boolean#FALSE}
      */
     public static Boolean equals(Session session, Object[] a, Type[] ta,
-                                   Object[] b, Type[] tb) {
+                                 Object[] b, Type[] tb) {
 
-        Type commonType = normalizeInput(session, a, ta, b, tb);
+        Type commonType = normalizeInput(session, a, ta, b, tb, false);
 
         if (commonType == null) {
             return null;
         }
 
         if (commonType.compare(session, a[0], b[0]) == 0
-        		&& commonType.compare(session, a[1], b[1]) == 0) {
+                && commonType.compare(session, a[1], b[1]) == 0) {
             return Boolean.TRUE;
         }
 
@@ -1949,8 +2048,6 @@ public final class DateTimeType extends DTIType {
      * The <i>b</i> part of this definition is not supported yet. In order to get the same result, one have to specify
      * a period with the same date time value for the period start and end.
      * <p>
-     * Important: when this method returns, the boundaries of the periods may
-     * have been changed.
      *
      * @param session
      * @param a First period to compare
@@ -1962,24 +2059,29 @@ public final class DateTimeType extends DTIType {
      *          else {@link Boolean#FALSE}
      */
     public static Boolean contains(Session session, Object[] a, Type[] ta,
-                                   Object[] b, Type[] tb) {
+                                   Object[] b, Type[] tb,
+                                   boolean pointOfTime) {
 
-        Type commonType = normalizeInput(session, a, ta, b, tb);
+        Type commonType = normalizeInput(session, a, ta, b, tb, pointOfTime);
 
         if (commonType == null) {
             return null;
         }
 
-    	if (commonType.compare(session, a[0], b[0]) <= 0
-        		&& commonType.compare(session, a[1], b[1]) >= 0)  {
-    		// if the end of the two period are equals, period a does not 
-    		// contains period b if it is defined by a single point in time
-        	if(commonType.compare(session, a[1], b[1]) == 0
-        			&& commonType.compare(session, b[0], b[1]) == 0) {
-        		return Boolean.FALSE;
-        	}
+        int compareStart = commonType.compare(session, a[0], b[0]);
+        int compareEnd   = commonType.compare(session, a[1], b[1]);
 
-       		return Boolean.TRUE;
+        if (compareStart <= 0 && compareEnd >= 0) {
+
+            // if the end of the two period are equals, period a does not
+            // contains period b if it is defined by a single point in time
+            if (pointOfTime) {
+                if (compareEnd == 0) {
+                    return Boolean.FALSE;
+                }
+            }
+
+            return Boolean.TRUE;
         }
 
         return Boolean.FALSE;

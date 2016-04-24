@@ -355,6 +355,7 @@ public interface ErrorCode {
     int X_22026 = 3459;                            // data exception: string data, length mismatch - 200x
     int X_22027 = 3460;                            // data exception: trim error - 200x
     int X_22029 = 3461;                            // data exception: noncharacter in UCS string - 200x
+    int X_22020 = 3462;                            // data exception: invalid period value - 200x
 
     // HSQLDB data exception
     int X_22501 = 3471;                            // value cannot be converted to target type

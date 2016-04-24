@@ -840,7 +840,7 @@ public class ExpressionLogical extends Expression {
             case OpTypes.RANGE_IMMEDIATELY_SUCCEEDS :
             case OpTypes.RANGE_PRECEDES :
             case OpTypes.RANGE_SUCCEEDS :
-                resolveTypesForPeriodPredicates();
+                resolveTypesForPeriodPredicates(session);
                 break;
 
             case OpTypes.IN :
@@ -1136,8 +1136,20 @@ public class ExpressionLogical extends Expression {
         return false;
     }
 
-    void resolveTypesForPeriodPredicates() {
+    void resolveTypesForPeriodPredicates(Session session) {
 
+        // convert CONTAINS right part if necessary
+        if (nodes[RIGHT].nodes.length == 0) {
+            Expression[] newNodes = new Expression[] {
+                nodes[RIGHT], new ExpressionValue(null, nodes[RIGHT].dataType)
+            };
+
+            nodes[RIGHT] = new Expression(OpTypes.ROW, newNodes);
+
+            nodes[RIGHT].resolveTypes(session, null);
+        }
+
+        // end convert
         if (nodes[LEFT].nodes[0].isUnresolvedParam()) {
             nodes[LEFT].nodes[0].dataType = nodes[RIGHT].nodes[0].dataType;
         }
@@ -1159,16 +1171,13 @@ public class ExpressionLogical extends Expression {
             nodes[RIGHT].nodes[1].dataType = nodes[LEFT].nodes[0].dataType;
         }
 
-        if (!DTIType
-                .isValidDatetimeRange(nodes[LEFT].nodes[0]
-                    .dataType, nodes[LEFT].nodes[1].dataType) || !DTIType
-                        .isValidDatetimeRange(nodes[RIGHT].nodes[0]
-                            .dataType, nodes[RIGHT].nodes[1].dataType)) {
+        if (!DTIType.isValidDatetimeRange(nodes[LEFT].nodes[0].dataType,
+                                          nodes[LEFT].nodes[1].dataType)) {
             throw Error.error(ErrorCode.X_42563);
         }
 
-        if (!DTIType.isValidDatetimeRange(nodes[LEFT].nodes[0].dataType,
-                                          nodes[LEFT].nodes[1].dataType)) {
+        if (!DTIType.isValidDatetimeRange(nodes[RIGHT].nodes[0].dataType,
+                                          nodes[RIGHT].nodes[1].dataType)) {
             throw Error.error(ErrorCode.X_42563);
         }
 
@@ -1281,26 +1290,36 @@ public class ExpressionLogical extends Expression {
             case OpTypes.RANGE_CONTAINS : {
                 Object[] left  = nodes[LEFT].getRowValue(session);
                 Object[] right = nodes[RIGHT].getRowValue(session);
+                boolean pointOfTime = nodes[RIGHT].exprSubType
+                                      != OpTypes.RANGE_EQUALS;
 
                 return DateTimeType.contains(session, left,
                                              nodes[LEFT].nodeDataTypes, right,
-                                             nodes[RIGHT].nodeDataTypes);
+                                             nodes[RIGHT].nodeDataTypes,
+                                             pointOfTime);
             }
             case OpTypes.RANGE_EQUALS : {
                 Object[] left  = nodes[LEFT].getRowValue(session);
                 Object[] right = nodes[RIGHT].getRowValue(session);
 
                 return DateTimeType.equals(session, left,
-                                             nodes[LEFT].nodeDataTypes, right,
-                                             nodes[RIGHT].nodeDataTypes);
+                                           nodes[LEFT].nodeDataTypes, right,
+                                           nodes[RIGHT].nodeDataTypes);
             }
             case OpTypes.RANGE_OVERLAPS : {
                 Object[] left  = nodes[LEFT].getRowValue(session);
                 Object[] right = nodes[RIGHT].getRowValue(session);
 
-                return DateTimeType.overlaps(session, left,
-                                             nodes[LEFT].nodeDataTypes, right,
-                                             nodes[RIGHT].nodeDataTypes);
+                if (nodes[LEFT].exprSubType == OpTypes.RANGE_EQUALS) {
+                    return DateTimeType.overlaps(session, left,
+                                                 nodes[LEFT].nodeDataTypes,
+                                                 right,
+                                                 nodes[RIGHT].nodeDataTypes);
+                } else {
+                    return DateTimeType.overlapsRelaxed(
+                        session, left, nodes[LEFT].nodeDataTypes, right,
+                        nodes[RIGHT].nodeDataTypes);
+                }
             }
             case OpTypes.RANGE_PRECEDES : {
                 Object[] left  = nodes[LEFT].getRowValue(session);
@@ -1315,16 +1334,16 @@ public class ExpressionLogical extends Expression {
                 Object[] right = nodes[RIGHT].getRowValue(session);
 
                 return DateTimeType.immediatelyPrecedes(session, left,
-                                             nodes[LEFT].nodeDataTypes, right,
-                                             nodes[RIGHT].nodeDataTypes);
+                        nodes[LEFT].nodeDataTypes, right,
+                        nodes[RIGHT].nodeDataTypes);
             }
             case OpTypes.RANGE_IMMEDIATELY_SUCCEEDS : {
                 Object[] left  = nodes[LEFT].getRowValue(session);
                 Object[] right = nodes[RIGHT].getRowValue(session);
 
                 return DateTimeType.immediatelySucceeds(session, left,
-                                             nodes[LEFT].nodeDataTypes, right,
-                                             nodes[RIGHT].nodeDataTypes);
+                        nodes[LEFT].nodeDataTypes, right,
+                        nodes[RIGHT].nodeDataTypes);
             }
             case OpTypes.RANGE_SUCCEEDS : {
                 Object[] left  = nodes[LEFT].getRowValue(session);

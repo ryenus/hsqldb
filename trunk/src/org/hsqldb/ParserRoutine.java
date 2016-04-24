@@ -51,7 +51,7 @@ import org.hsqldb.types.Types;
  * Parser for SQL stored procedures and functions - PSM
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class ParserRoutine extends ParserTable {
