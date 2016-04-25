@@ -76,7 +76,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     void reset(Session session, String sql) {
-        reset(session, sql);
+        super.reset(session, sql);
     }
 
     StatementSchema compileCreate() {
