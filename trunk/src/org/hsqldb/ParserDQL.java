@@ -2380,7 +2380,9 @@ public class ParserDQL extends ParserBase {
     // <explicit row value constructor> needed for predicate
     Expression XreadAllTypesValueExpressionPrimary(boolean isBoolean) {
 
-        Expression e = null;
+        Expression e        = null;
+        boolean    isRow    = false;
+        boolean    isPeriod = false;
 
         switch (token.tokenType) {
 
@@ -2392,6 +2394,7 @@ public class ParserDQL extends ParserBase {
                 break;
 
             case Tokens.PERIOD :
+                isPeriod = true;
             case Tokens.ROW :
                 if (isBoolean) {
                     break;
@@ -2403,6 +2406,10 @@ public class ParserDQL extends ParserBase {
                 e = XreadRowElementList(true);
 
                 readThis(Tokens.CLOSEBRACKET);
+
+                if (isPeriod) {
+                    e.setSubType(OpTypes.RANGE_EQUALS);
+                }
                 break;
 
             default :
@@ -2414,9 +2421,6 @@ public class ParserDQL extends ParserBase {
         }
 
         if (e == null) {
-            boolean isRow    = false;
-            boolean isPeriod = false;
-
             if (token.tokenType == Tokens.ROW) {
                 read();
                 checkIsThis(Tokens.OPENBRACKET);
