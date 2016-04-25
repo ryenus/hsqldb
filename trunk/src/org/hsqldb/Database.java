@@ -296,6 +296,9 @@ public class Database {
         schemaManager  = new SchemaManager(this);
         persistentStoreCollection =
             new PersistentStoreCollectionDatabase(this);
+        databaseUniqueName = nameManager.newHsqlName("", false,
+                SchemaObject.DATABASE);
+
         isReferentialIntegrity = true;
         sessionManager         = new SessionManager(this);
         collation              = Collation.newDatabaseInstance();
@@ -307,8 +310,6 @@ public class Database {
         schemaManager.setSchemaChangeTimestamp();
         schemaManager.createSystemTables();
 
-        databaseUniqueName = nameManager.newHsqlName("", false,
-                SchemaObject.DATABASE);
     }
 
     /**

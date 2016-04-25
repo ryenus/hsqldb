@@ -6543,7 +6543,7 @@ public class ParserDQL extends ParserBase {
     }
 
     void rewind(int position) {
-        rewind(position);
+        super.rewind(position);
         compileContext.rewind(position);
     }
 
