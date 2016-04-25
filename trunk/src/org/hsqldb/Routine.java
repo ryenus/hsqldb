@@ -414,7 +414,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
         StringBuffer sb = new StringBuffer();
 
-        switch (this.dataImpact) {
+        switch (dataImpact) {
 
             case NO_SQL :
                 sb.append(Tokens.T_NO).append(' ').append(Tokens.T_SQL);
@@ -652,7 +652,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         isRecursive = false;
 
         if (set.contains(getSpecificName())) {
-            set.remove(this.getSpecificName());
+            set.remove(getSpecificName());
 
             isRecursive = true;
         }

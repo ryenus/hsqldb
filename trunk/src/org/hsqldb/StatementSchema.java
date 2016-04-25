@@ -902,7 +902,7 @@ public class StatementSchema extends Statement {
                     OrderedHashSet granteeList = (OrderedHashSet) arguments[0];
                     HsqlName       name        = (HsqlName) arguments[1];
 
-                    this.setSchemaName(session, null, name);
+                    setSchemaName(session, null, name);
 
                     name = schemaManager.getSchemaObjectName(name.schema,
                             name.name, name.type, true);
@@ -1396,7 +1396,9 @@ public class StatementSchema extends Statement {
                 }
 
                 targetName = object.getName();
+
                 SchemaObject reference = new ReferenceObject(name, targetName);
+
                 schemaManager.addSchemaObject(reference);
 
                 break;

@@ -773,7 +773,7 @@ public class ParserCommand extends ParserDDL {
 
                     read();
                 } else {
-                    delay = this.readInteger();
+                    delay = readInteger();
 
                     if (delay < 0) {
                         delay = 0;
@@ -997,7 +997,7 @@ public class ParserCommand extends ParserDDL {
             case Tokens.SPACE : {
                 read();
 
-                Integer id = super.readIntegerObject();
+                Integer id = readIntegerObject();
 
                 args = new Object[] {
                     table.getName(), id
@@ -1613,7 +1613,7 @@ public class ParserCommand extends ParserDDL {
 
                     read();
                 } else {
-                    delay = this.readInteger();
+                    delay = readInteger();
 
                     if (delay < 0) {
                         delay = 0;
@@ -2292,8 +2292,8 @@ public class ParserCommand extends ParserDDL {
                     database.schemaManager.getCatalogAndBaseTableNames(
                         table.getName());
 
-                return new StatementCommand(StatementTypes.CHECK_INDEX,
-                                            args, null, names);
+                return new StatementCommand(StatementTypes.CHECK_INDEX, args,
+                                            null, names);
             }
             default :
                 throw unexpectedToken();

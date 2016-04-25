@@ -104,9 +104,9 @@ public class Table extends TableBase implements SchemaObject {
     //
     public Table(Database database, HsqlName name, int type) {
 
-        this.database = database;
-        tableName     = name;
-        persistenceId = database.persistentStoreCollection.getNextId();
+        this.database      = database;
+        this.tableName     = name;
+        this.persistenceId = database.persistentStoreCollection.getNextId();
 
         switch (type) {
 
@@ -306,7 +306,7 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         for (int i = 0; i < fkConstraints.length; i++) {
-            if (fkConstraints[i].getMainTableName() != this.getName()) {
+            if (fkConstraints[i].getMainTableName() != getName()) {
                 set.add(fkConstraints[i].getName());
             }
         }
@@ -1716,7 +1716,7 @@ public class Table extends TableBase implements SchemaObject {
             new Constraint(indexName, this, getPrimaryIndex(),
                            SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
-        this.addConstraint(c);
+        addConstraint(c);
     }
 
     void setColumnStructures() {

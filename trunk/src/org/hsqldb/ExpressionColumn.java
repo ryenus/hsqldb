@@ -1045,7 +1045,7 @@ public class ExpressionColumn extends Expression {
 
                 for (int i = 0; i < length; i++) {
                     if (columns[i] instanceof ExpressionColumn) {
-                        if (this.equals(columns[i])) {
+                        if (equals(columns[i])) {
                             if (matchIndex < 0) {
                                 matchIndex = i;
                             } else if (session.database.sqlEnforceRefs) {
