@@ -76,7 +76,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     void reset(Session session, String sql) {
-        super.reset(session, sql);
+        reset(session, sql);
     }
 
     StatementSchema compileCreate() {
@@ -376,7 +376,7 @@ public class ParserDDL extends ParserRoutine {
 
         read();
 
-        objectTokenType = this.token.tokenType;
+        objectTokenType = token.tokenType;
 
         switch (objectTokenType) {
 
@@ -914,7 +914,7 @@ public class ParserDDL extends ParserRoutine {
 
     StatementSession compileDeclareLocalTableOrNull() {
 
-        int position = super.getPosition();
+        int position = getPosition();
 
         try {
             readThis(Tokens.DECLARE);
@@ -1269,7 +1269,7 @@ public class ParserDDL extends ParserRoutine {
         String    methodFQN = null;
 
         if (!session.isProcessingScript()) {
-            throw super.unsupportedFeature();
+            throw unsupportedFeature();
         }
 
         read();
@@ -1436,8 +1436,8 @@ public class ParserDDL extends ParserRoutine {
             readThis(Tokens.CHARACTER);
             readThis(Tokens.SET);
 
-            characterSetName =
-                this.readNewSchemaObjectName(SchemaObject.CHARSET, false);
+            characterSetName = readNewSchemaObjectName(SchemaObject.CHARSET,
+                    false);
         }
 
         String     sql            = getLastPart();
@@ -1758,7 +1758,7 @@ public class ParserDDL extends ParserRoutine {
                     SchemaObject.CONSTRAINT);
         }
 
-        int[] cols = this.readColumnList(table, false);
+        int[] cols = readColumnList(table, false);
         HsqlName indexname = database.nameManager.newAutoName("IDX",
             name.name, table.getSchemaName(), table.getName(),
             SchemaObject.INDEX);
@@ -1984,9 +1984,8 @@ public class ParserDDL extends ParserRoutine {
                     return new StatementSchema(sql,
                                                StatementTypes.ALTER_TABLE,
                                                args, null, writeLockNames);
-                } else if (token.tokenType == Tokens.GENERATED ||
-                    token.tokenType == Tokens.IDENTITY
-                    ) {
+                } else if (token.tokenType == Tokens.GENERATED
+                           || token.tokenType == Tokens.IDENTITY) {
                     read();
 
                     String   sql  = getLastPart();
@@ -2588,7 +2587,7 @@ public class ParserDDL extends ParserRoutine {
                 if (token.tokenType == Tokens.DEFAULT) {
                     read();
 
-                    String   sql  = this.getLastPart();
+                    String   sql  = getLastPart();
                     Object[] args = new Object[] {
                         StatementTypes.DROP_DEFAULT, domain
                     };
@@ -2609,7 +2608,7 @@ public class ParserDDL extends ParserRoutine {
 
                     read();
 
-                    String   sql  = this.getLastPart();
+                    String   sql  = getLastPart();
                     Object[] args = new Object[] {
                         StatementTypes.DROP_CONSTRAINT, domain, name
                     };
@@ -2629,7 +2628,7 @@ public class ParserDDL extends ParserRoutine {
                 readThis(Tokens.DEFAULT);
 
                 Expression e    = readDefaultClause(domain);
-                String     sql  = this.getLastPart();
+                String     sql  = getLastPart();
                 Object[]   args = new Object[] {
                     StatementTypes.ADD_DEFAULT, domain, e
                 };
@@ -2654,7 +2653,7 @@ public class ParserDDL extends ParserRoutine {
                     compileContext.currentDomain = null;
 
                     Constraint c    = (Constraint) tempConstraints.get(0);
-                    String     sql  = this.getLastPart();
+                    String     sql  = getLastPart();
                     Object[]   args = new Object[] {
                         StatementTypes.ADD_CONSTRAINT, domain, c
                     };

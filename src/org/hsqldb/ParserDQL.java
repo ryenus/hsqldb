@@ -954,7 +954,7 @@ public class ParserDQL extends ParserBase {
                 readThis(Tokens.CLOSEBRACKET);
 
                 if (token.tokenType == Tokens.CYCLE) {
-                    throw super.unsupportedFeature();
+                    throw unsupportedFeature();
                 }
 
                 if (recursive && token.tokenType == Tokens.CYCLE) {
@@ -2164,7 +2164,7 @@ public class ParserDQL extends ParserBase {
                 if (type == OpTypes.GROUP_CONCAT) {
                     if (token.tokenType == Tokens.SEPARATOR) {
                         read();
-                        super.checkIsValue(Types.SQL_CHAR);
+                        checkIsValue(Types.SQL_CHAR);
 
                         separator = (String) token.tokenValue;
 
@@ -4191,8 +4191,7 @@ public class ParserDQL extends ParserBase {
             escape = XreadStringValueExpression();
         }
 
-        return new ExpressionLike(a, b, escape,
-                                  this.isCheckOrTriggerCondition);
+        return new ExpressionLike(a, b, escape, isCheckOrTriggerCondition);
     }
 
     private ExpressionLogical XreadMatchPredicateRightPart(Expression a) {
@@ -4833,7 +4832,7 @@ public class ParserDQL extends ParserBase {
         e.resolveTypes(session, null);
         e.prepareTable(session, null, e.nodes[0].nodes.length);
 
-        TableDerived td = this.newSubQueryTable(e, OpTypes.VALUELIST);
+        TableDerived td = newSubQueryTable(e, OpTypes.VALUELIST);
 
         td.prepareTable(session, colNames);
 
@@ -5003,7 +5002,7 @@ public class ParserDQL extends ParserBase {
         readThis(Tokens.OPENBRACKET);
         compileContext.incrementDepth();
 
-        Expression e = this.XreadValueExpression();
+        Expression e = XreadValueExpression();
 
         if (e.getType() != OpTypes.FUNCTION
                 && e.getType() != OpTypes.SQL_FUNCTION) {
@@ -5248,9 +5247,9 @@ public class ParserDQL extends ParserBase {
 
                 readThis(Tokens.COMMA);
 
-                e = this.XreadValueExpressionOrNull();
+                e = XreadValueExpressionOrNull();
             } else {
-                e = this.XreadValueExpressionOrNull();
+                e = XreadValueExpressionOrNull();
 
                 readThis(Tokens.COMMA);
 
@@ -5265,7 +5264,7 @@ public class ParserDQL extends ParserBase {
         } else {
             readThis(Tokens.OPENBRACKET);
 
-            e = this.XreadValueExpressionOrNull();
+            e = XreadValueExpressionOrNull();
 
             readThis(Tokens.AS);
 
@@ -6339,7 +6338,7 @@ public class ParserDQL extends ParserBase {
         int scrollability = ResultConstants.SQL_NONSCROLLABLE;
         int holdability   = ResultConstants.SQL_NONHOLDABLE;
         int returnability = ResultConstants.SQL_WITHOUT_RETURN;
-        int position      = super.getPosition();
+        int position      = getPosition();
 
         readThis(Tokens.DECLARE);
 
@@ -6544,7 +6543,7 @@ public class ParserDQL extends ParserBase {
     }
 
     void rewind(int position) {
-        super.rewind(position);
+        rewind(position);
         compileContext.rewind(position);
     }
 

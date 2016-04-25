@@ -171,7 +171,7 @@ public class Expression implements Cloneable {
 
     // aggregate
     private boolean isAggregate;
-    boolean isDistinctAggregate;
+    boolean         isDistinctAggregate;
 
     // VALUE
     protected Object       valueData;
@@ -916,7 +916,7 @@ public class Expression implements Cloneable {
     Expression replaceAliasInOrderBy(Session session, Expression[] columns,
                                      int length) {
 
-        if (this.isSelfAggregate()) {
+        if (isSelfAggregate()) {
             return this;
         }
 

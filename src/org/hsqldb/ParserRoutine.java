@@ -227,7 +227,7 @@ public class ParserRoutine extends ParserTable {
         targetSet.toArray(targets);
 
         for (int i = 0; i < targets.length; i++) {
-            this.resolveOuterReferencesAndTypes(rangeGroups, targets[i]);
+            resolveOuterReferencesAndTypes(rangeGroups, targets[i]);
         }
 
         resolveOuterReferencesAndTypes(rangeGroups, expression);
@@ -887,15 +887,14 @@ public class ParserRoutine extends ParserTable {
 
     Table readLocalTableVariableDeclarationOrNull(Routine routine) {
 
-        int position = super.getPosition();
+        int position = getPosition();
 
         readThis(Tokens.DECLARE);
 
         if (token.tokenType == Tokens.TABLE) {
             read();
 
-            HsqlName name = super.readNewSchemaObjectName(SchemaObject.TABLE,
-                false);
+            HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE, false);
 
             name.schema = SqlInvariants.MODULE_HSQLNAME;
 
@@ -916,7 +915,7 @@ public class ParserRoutine extends ParserTable {
 
     ColumnSchema[] readLocalVariableDeclarationOrNull() {
 
-        int           position = super.getPosition();
+        int           position = getPosition();
         Type          type;
         HsqlArrayList names = new HsqlArrayList();
 
@@ -1332,7 +1331,7 @@ public class ParserRoutine extends ParserTable {
                         if (routine.triggerType == TriggerDef.BEFORE
                                 && routine.triggerOperation
                                    != StatementTypes.DELETE_WHERE) {
-                            int position = super.getPosition();
+                            int position = getPosition();
 
                             try {
                                 cs = compileTriggerSetStatement(

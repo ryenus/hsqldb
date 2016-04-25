@@ -613,7 +613,7 @@ public class QueryExpression implements RangeGroup {
 
             first.setNavigator(navigator);
 
-            first.metaData = this.getMetaData();
+            first.metaData = getMetaData();
 
             if (memory) {
                 rowSet = new RowSetNavigatorData(session, this);
@@ -1125,4 +1125,6 @@ public class QueryExpression implements RangeGroup {
         leftQueryExpression.replaceRangeVariables(ranges, newRanges);
         rightQueryExpression.replaceRangeVariables(ranges, newRanges);
     }
+
+    public void setAsExists() {}
 }

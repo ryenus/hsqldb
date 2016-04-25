@@ -203,7 +203,7 @@ public class StatementProcedure extends StatementDMQL {
             int          mode  = param.getParameterMode();
 
             if (mode != SchemaObject.ParameterModes.PARAM_IN) {
-                if (this.arguments[i].isDynamicParam()) {
+                if (arguments[i].isDynamicParam()) {
                     int paramIndex = arguments[i].parameterIndex;
 
                     session.sessionContext.dynamicArguments[paramIndex] =
@@ -219,9 +219,10 @@ public class StatementProcedure extends StatementDMQL {
 
         Result r = result;
 
-        result = Result.newCallResponse(
-            this.getParametersMetaData().getParameterTypes(), this.id,
-            session.sessionContext.dynamicArguments);
+        result =
+            Result.newCallResponse(getParametersMetaData().getParameterTypes(),
+                                   id,
+                                   session.sessionContext.dynamicArguments);
 
         if (procedure.returnsTable()) {
             result.addChainedResult(r);
