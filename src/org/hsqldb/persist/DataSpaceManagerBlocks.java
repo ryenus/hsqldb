@@ -444,7 +444,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         for (int i = blockIndex; i < blockIndex + blockCount; i++) {
             if (directoryIndex != i / blockSize) {
                 if (directory != null) {
-                    directory.setInMemory(false);
+                    directory.keepInMemory(false);
                 }
 
                 directory      = getDirectory(i, true);
@@ -456,7 +456,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             directory.getTableIdArray()[offset] = tableId;
         }
 
-        directory.setInMemory(false);
+        directory.keepInMemory(false);
     }
 
     public TableSpaceManager getDefaultTableSpace() {

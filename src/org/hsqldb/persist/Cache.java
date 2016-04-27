@@ -212,6 +212,12 @@ public class Cache extends BaseHashMap {
 
         Object existing = super.addOrRemoveObject(row, row.getPos(), false);
 
+        if (existing != null) {
+            dataFileCache.logSevereEvent("existing object in Cache.put() "
+                                         + row.getPos() + " "
+                                         + row.getStorageSize(), null);
+        }
+
         row.setInMemory(true);
 
         cacheBytesLength += row.getStorageSize();
@@ -247,6 +253,23 @@ public class Cache extends BaseHashMap {
             int          index = list.findFirstEqualKeyIndex(block);
 
             if (index >= 0) {
+                o.setInMemory(false);
+                objectIterator.remove();
+
+                cacheBytesLength -= o.getStorageSize();
+            }
+        }
+    }
+
+    public void releaseRange(long startPos, long limitPos) {
+
+        objectIterator.reset();
+
+        while (objectIterator.hasNext()) {
+            CachedObject o   = (CachedObject) objectIterator.next();
+            long         pos = o.getPos();
+
+            if (pos >= startPos && pos < limitPos) {
                 o.setInMemory(false);
                 objectIterator.remove();
 

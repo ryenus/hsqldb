@@ -487,7 +487,7 @@ public class Log {
             database.lobManager.synch();
             deleteOldDataFiles();
 
-            DataFileDefrag dfd = cache.defrag();
+            DataFileDefrag dfd = cache.defrag(session);
 
             database.persistentStoreCollection.setNewTableSpaces();
             database.schemaManager.setIndexRoots(dfd.getIndexRoots());

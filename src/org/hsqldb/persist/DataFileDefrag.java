@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package org.hsqldb.persist;
 
 import org.hsqldb.Database;
+import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
@@ -52,7 +53,7 @@ import org.hsqldb.lib.StringUtil;
  *  image after translating the old pointers to the new.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version    2.3.3
+ * @version    2.3.4
  * @since      1.7.2
  */
 final class DataFileDefrag {
@@ -74,7 +75,7 @@ final class DataFileDefrag {
         this.dataFileName = cache.getFileName();
     }
 
-    void process() {
+    void process(Session session) {
 
         Throwable error = null;
 

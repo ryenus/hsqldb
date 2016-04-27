@@ -677,6 +677,7 @@ public class StatementSession extends Statement {
                 Table         table           = (Table) parameters[0];
                 HsqlArrayList tempConstraints = (HsqlArrayList) parameters[1];
                 StatementDMQL statement       = (StatementDMQL) parameters[3];
+                Boolean       ifNotExists     = (Boolean) parameters[4];
 
                 try {
                     if (tempConstraints.size() != 0) {
@@ -686,7 +687,17 @@ public class StatementSession extends Statement {
                     }
 
                     table.compile(session, null);
-                    session.sessionContext.addSessionTable(table);
+
+                    try {
+                        session.sessionContext.addSessionTable(table);
+                    } catch (HsqlException e) {
+                        if (ifNotExists != null
+                                && ifNotExists.booleanValue()) {
+                            return Result.updateZeroResult;
+                        } else {
+                            return Result.newErrorResult(e, sql);
+                        }
+                    }
 
                     if (table.hasLobColumn) {
                         throw Error.error(ErrorCode.X_42534);
