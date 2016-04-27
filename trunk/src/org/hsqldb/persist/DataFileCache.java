@@ -52,6 +52,7 @@ import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputBinary180;
 import org.hsqldb.rowio.RowOutputBinaryEncode;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.Session;
 
 /**
  * Acts as a manager for CACHED table persistence.<p>
@@ -245,7 +246,7 @@ public class DataFileCache {
 
             if (readonly || database.isFilesInJar()) {
                 dataFile = RAFile.newScaledRAFile(database, dataFileName,
-                                                  readonly, fileType);
+                                                  true, fileType);
 
                 int flags = getFlags();
 
@@ -838,7 +839,7 @@ public class DataFileCache {
         }
     }
 
-    DataFileDefrag defrag() {
+    DataFileDefrag defrag(Session session) {
 
         writeLock.lock();
 
@@ -847,7 +848,7 @@ public class DataFileCache {
 
             DataFileDefrag dfd = new DataFileDefrag(database, this);
 
-            dfd.process();
+            dfd.process(session);
             close();
             cache.clear();
 
@@ -1209,17 +1210,9 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            Iterator it = cache.getIterator();
+            cacheModified = true;
 
-            while (it.hasNext()) {
-                CachedObject o   = (CachedObject) it.next();
-                long         pos = o.getPos();
-
-                if (pos >= startPos && pos < limitPos) {
-                    o.setInMemory(false);
-                    it.remove();
-                }
-            }
+            cache.releaseRange(startPos, limitPos);
         } finally {
             writeLock.unlock();
         }
@@ -1230,6 +1223,8 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
+            cacheModified = true;
+
             cache.releaseRange(list, fileBlockItemCount);
         } finally {
             writeLock.unlock();

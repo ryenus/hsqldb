@@ -940,7 +940,8 @@ public class ParserDDL extends ParserRoutine {
             throw unexpectedToken();
         }
 
-        HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE, false);
+        boolean  ifNot = readIfNotExists();
+        HsqlName name  = readNewSchemaObjectName(SchemaObject.TABLE, false);
 
         name.schema = SqlInvariants.MODULE_HSQLNAME;
 
@@ -950,7 +951,7 @@ public class ParserDDL extends ParserRoutine {
         if (token.tokenType == Tokens.AS) {
             cs = compileCreateTableAsSubqueryDefinition(table);
         } else {
-            cs = compileCreateTableBody(table, false);
+            cs = compileCreateTableBody(table, ifNot);
 
             HsqlArrayList constraints = (HsqlArrayList) cs.arguments[1];
 
@@ -1311,10 +1312,8 @@ public class ParserDDL extends ParserRoutine {
 
     StatementSchema compileCreateIndex(boolean unique) {
 
-        Table         table;
-        HsqlName      indexHsqlName;
-        String[]      qualifiers = null;
-        HsqlArrayList list       = new HsqlArrayList();
+        Table    table;
+        HsqlName indexHsqlName;
 
         read();
 
@@ -1322,15 +1321,14 @@ public class ParserDDL extends ParserRoutine {
 
         indexHsqlName = readNewSchemaObjectName(SchemaObject.INDEX, true);
 
-        while (token.tokenType != Tokens.ON) {
-            checkIsIdentifier();
-            list.add(token.tokenString);
-            read();
+        if (database.sqlSyntaxMys) {
+            if (readIfThis(Tokens.USING)) {
+                if (!readIfThis("HASH")) {
+                    readThis("BTREE");
+                }
+            }
         }
 
-        qualifiers = new String[list.size()];
-
-        list.toArray(qualifiers);
         readThis(Tokens.ON);
 
         table = readTableName();
@@ -1347,9 +1345,24 @@ public class ParserDDL extends ParserRoutine {
 
         indexHsqlName.schema = table.getSchemaName();
 
-        int[]    indexColumns = readColumnList(table, true);
-        String   sql          = getLastPart();
-        Object[] args         = new Object[] {
+        int[] indexColumns = readColumnList(table, true);
+
+        if (database.sqlSyntaxMys) {
+            if (readIfThis(Tokens.USING)) {
+                if (!readIfThis("HASH")) {
+                    readThis("BTREE");
+                }
+            }
+
+            if (readIfThis(Tokens.COMMENT)) {
+                String comment = readQuotedString();
+
+                indexHsqlName.comment = comment;
+            }
+        }
+
+        String   sql  = getLastPart();
+        Object[] args = new Object[] {
             table, indexColumns, indexHsqlName, Boolean.valueOf(unique), null,
             ifNotExists
         };
