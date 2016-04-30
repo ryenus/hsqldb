@@ -37,6 +37,9 @@ import java.sql.ResultSet;
 import java.sql.SQLDataException;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -315,16 +318,38 @@ public class TestSqlPeriodPredicates extends TestBase {
     }
 
     /**
-     * When using the {@code PERIOD} keyword, we cannot specify a single point in time period.
+     * When using the {@code PERIOD} keyword, the start date of the period must be before the end date.
      */
-    public void testPeriodCannotBeSinglePointInTime() throws SQLException {
-    	String query = "SELECT emp_id FROM PUBLIC.EMP WHERE PERIOD (BUS_START, BUS_END) OVERLAPS PERIOD (?, ?);";
-		PreparedStatement stmt = conn.prepareStatement(query);
-		try {
-			executeAndTestQuery(stmt, "TIMESTAMP '2000-01-11 01:02:03'", "TIMESTAMP '2000-01-11 01:02:03'");
-			Assert.fail("An exception should have been raised!");
-		} catch (SQLDataException e) {
-		}
+    public void testInvalidPeriodDateSpecification() {
+    	PreparedStatement stmt = null;
+    	List<String> predicates = new LinkedList<>();
+    	Collections.addAll(predicates, "OVERLAPS", "EQUALS", "CONTAINS", "PRECEDES", "SUCCEEDS", "IMMEDIATELY PRECEDES", "IMMEDIATELY SUCCEEDS");
+			for (String predicate: predicates) {
+		    	String query = String.format("SELECT emp_id FROM PUBLIC.EMP WHERE PERIOD (BUS_START, BUS_END) %s PERIOD (?, ?);", predicate);
+				try {
+					stmt = conn.prepareStatement(query);
+					// testing with start after end
+					executeAndTestQuery(stmt, "TIMESTAMP '2000-01-11 01:02:03'", "TIMESTAMP '2000-01-10 01:02:03'");
+					Assert.fail(String.format("An exception should have been raised for predicate %s when start is after end!", predicate));
+				} catch (SQLDataException e) {
+					// This is Ok. The test pass.
+					Assert.assertEquals("data exception: invalid period value", e.getMessage());
+				} catch (SQLException e) {
+					e.printStackTrace();
+					Assert.fail(e.getMessage());
+				}
+				try {
+				// testing with start equals end
+				executeAndTestQuery(stmt, "TIMESTAMP '2000-01-11 01:02:03'", "TIMESTAMP '2000-01-11 01:02:03'");
+				Assert.fail(String.format("An exception should have been raised for predicate %s when start equals end!", predicate));
+				} catch (SQLDataException e) {
+					// This is Ok. The test pass.
+					Assert.assertEquals("data exception: invalid period value", e.getMessage());
+				} catch (SQLException e) {
+					e.printStackTrace();
+					Assert.fail(e.getMessage());
+				}
+			}
     }
 
 }
