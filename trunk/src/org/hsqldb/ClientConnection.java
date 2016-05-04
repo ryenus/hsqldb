@@ -588,8 +588,8 @@ public class ClientConnection implements SessionInterface {
 
             Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"),
                                                  HsqlDateTime.defaultLocale);
-            cal.setLenient(false);
 
+            cal.setLenient(false);
             simpleDateFormatGMT.setCalendar(cal);
         }
 

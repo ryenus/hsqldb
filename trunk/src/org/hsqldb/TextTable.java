@@ -208,7 +208,7 @@ public class TextTable extends Table {
         isReversed = (isReversedNew && dataSource.length() > 0);
 
         try {
-            connect(session, isReadOnlyNew);
+            connect(session, isReadOnlyNew || isReversedNew);
         } catch (HsqlException e) {
             dataSource = dataSourceOld;
             isReversed = isReversedOld;

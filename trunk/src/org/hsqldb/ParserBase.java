@@ -381,10 +381,10 @@ public class ParserBase {
         }
     }
 
-    void checkIsValue(int dataTypeCode) {
+    void checkIsQuotedString() {
 
         if (token.tokenType != Tokens.X_VALUE
-                || token.dataType.typeCode != dataTypeCode) {
+                || !token.dataType.isCharacterType()) {
             throw unexpectedToken();
         }
     }
@@ -432,7 +432,7 @@ public class ParserBase {
 
         checkIsValue();
 
-        if (token.dataType.typeCode != Types.SQL_CHAR) {
+        if (!token.dataType.isCharacterType()) {
             throw Error.error(ErrorCode.X_42563);
         }
 
@@ -574,7 +574,7 @@ public class ParserBase {
                 read();
 
                 if (token.tokenType != Tokens.X_VALUE
-                        || token.dataType.typeCode != Types.SQL_CHAR) {
+                        || !token.dataType.isCharacterType()) {
                     break;
                 }
 
@@ -590,7 +590,7 @@ public class ParserBase {
                 read();
 
                 if (token.tokenType != Tokens.X_VALUE
-                        || token.dataType.typeCode != Types.SQL_CHAR) {
+                        || !token.dataType.isCharacterType()) {
                     break;
                 }
 
@@ -607,7 +607,7 @@ public class ParserBase {
                 read();
 
                 if (token.tokenType != Tokens.X_VALUE
-                        || token.dataType.typeCode != Types.SQL_CHAR) {
+                        || !token.dataType.isCharacterType()) {
                     break;
                 }
 
@@ -640,8 +640,8 @@ public class ParserBase {
                 String s = token.tokenString;
 
                 /* INT literal accepted in addition to string literal */
-                if (token.dataType.typeCode != Types.SQL_INTEGER
-                        && token.dataType.typeCode != Types.SQL_CHAR) {
+                if (!token.dataType.isIntegralType()
+                        && !token.dataType.isCharacterType()) {
                     break;
                 }
 

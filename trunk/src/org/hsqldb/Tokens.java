@@ -693,6 +693,7 @@ public class Tokens {
     static final String        T_DUPLICATE            = "DUPLICATE";
     public static final String T_ERROR                = "ERROR";
     public static final String T_EVENT                = "EVENT";
+    static final String        T_EXCLUSIVE            = "EXCLUSIVE";
     static final String        T_EXPLAIN              = "EXPLAIN";
     static final String        T_FEATURE              = "FEATURE";
     static final String        T_FILE                 = "FILE";
@@ -713,6 +714,7 @@ public class Tokens {
         "IS_READONLY_DATABASE_FILES";
     static final String        T_IS_READONLY_SESSION  = "IS_READONLY_SESSION";
     static final String        T_ISNULL               = "ISNULL";
+    static final String        T_KEEP                 = "KEEP";
     static final String        T_LASTVAL              = "LASTVAL";
     static final String        T_LIMIT                = "LIMIT";
     public static final String T_LOB                  = "LOB";
@@ -763,6 +765,7 @@ public class Tokens {
     static final String        T_SCRIPT               = "SCRIPT";
     static final String        T_SEPARATOR            = "SEPARATOR";
     static final String        T_BLOCKING             = "BLOCKING";
+    static final String        T_SHARE                = "SHARE";
     static final String        T_SHUTDOWN             = "SHUTDOWN";
     static final String        T_SQL_TSI_DAY          = "SQL_TSI_DAY";
     static final String        T_SQL_TSI_FRAC_SECOND  = "SQL_TSI_FRAC_SECOND";
@@ -931,6 +934,7 @@ public class Tokens {
     static final String        T_TRUNC            = "TRUNC";
     static final String        T_TODAY            = "TODAY";
     static final String        T_UCASE            = "UCASE";
+    static final String        T_USE              = "USE";
     public static final String T_UUID             = "UUID";
     static final String        T_UNIX_MILLIS      = "UNIX_MILLIS";
     static final String        T_UNIX_TIMESTAMP   = "UNIX_TIMESTAMP";
@@ -1602,8 +1606,9 @@ public class Tokens {
     static final int TOP            = 663;
     static final int TTI            = 664;
     static final int TYPES          = 665;
-    static final int VARCHAR2       = 666;
-    static final int WRITE_DELAY    = 667;
+    static final int USE            = 666;
+    static final int VARCHAR2       = 667;
+    static final int WRITE_DELAY    = 668;
 
     //
     static final int        ACOS                       = 671;
@@ -2429,6 +2434,7 @@ public class Tokens {
         commandSet.put(T_TYPE, TYPE);
         commandSet.put(T_UNCOMMITTED, UNCOMMITTED);
         commandSet.put(T_USAGE, USAGE);
+        commandSet.put(T_USE, USE);
         commandSet.put(T_VIEW, VIEW);
         commandSet.put(T_VARCHAR2, VARCHAR2);
         commandSet.put(T_WORK, WORK);

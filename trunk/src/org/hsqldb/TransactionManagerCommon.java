@@ -39,7 +39,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMap;
-import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
@@ -846,10 +845,6 @@ class TransactionManagerCommon {
 
     void resetSession(Session session, Session targetSession, int mode) {
 
-        if (session == targetSession) {
-            return;
-        }
-
         writeLock.lock();
 
         try {
@@ -875,7 +870,13 @@ class TransactionManagerCommon {
                     break;
 
                 case TransactionManager.resetSessionRollback :
+                    if (session == targetSession) {
+                        return;
+                    }
+
                     if (targetSession.isInMidTransaction()) {
+                        prepareReset(targetSession);
+
                         if (targetSession.latch.getCount() > 0) {
                             targetSession.abortTransaction = true;
 
@@ -886,7 +887,29 @@ class TransactionManagerCommon {
                     }
                     break;
 
+                case TransactionManager.resetSessionAbort :
+                    if (session == targetSession) {
+                        return;
+                    }
+
+                    if (targetSession.isInMidTransaction()) {
+                        prepareReset(targetSession);
+
+                        if (targetSession.latch.getCount() > 0) {
+                            targetSession.abortAction = true;
+
+                            targetSession.latch.setCount(0);
+                        } else {
+                            targetSession.abortAction = true;
+                        }
+                    }
+                    break;
+
                 case TransactionManager.resetSessionClose :
+                    if (session == targetSession) {
+                        return;
+                    }
+
                     if (!targetSession.isInMidTransaction()) {
                         targetSession.rollbackNoCheck(true);
                         targetSession.close();
@@ -897,4 +920,19 @@ class TransactionManagerCommon {
             writeLock.unlock();
         }
     }
+
+    void prepareReset(Session session) {
+
+        OrderedHashSet waitedSessions = session.waitedSessions;
+
+        for (int i = 0; i < waitedSessions.size(); i++) {
+            Session current = (Session) waitedSessions.get(i);
+
+            current.waitingSessions.remove(session);
+        }
+
+        waitedSessions.clear();
+    }
+
+    public void abortAction(Session session) {}
 }

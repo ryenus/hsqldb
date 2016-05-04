@@ -2164,7 +2164,7 @@ public class ParserDQL extends ParserBase {
                 if (type == OpTypes.GROUP_CONCAT) {
                     if (token.tokenType == Tokens.SEPARATOR) {
                         read();
-                        checkIsValue(Types.SQL_CHAR);
+                        checkIsQuotedString();
 
                         separator = (String) token.tokenValue;
 
@@ -5181,10 +5181,10 @@ public class ParserDQL extends ParserBase {
             readIfThis(Tokens.CASE);
         }
 
-        Expression alternatives = new ExpressionOp(OpTypes.ALTERNATIVE,
-            current, elseExpr);
+        Expression alt = new ExpressionOp(OpTypes.ALTERNATIVE, current,
+                                          elseExpr);
         Expression casewhen = new ExpressionOp(OpTypes.CASEWHEN, condition,
-                                               alternatives);
+                                               alt);
 
         return casewhen;
     }
@@ -5720,13 +5720,14 @@ public class ParserDQL extends ParserBase {
 
         readThis(Tokens.COMMA);
 
-        Expression e           = XreadValueExpression();
-        Expression condition   = new ExpressionLogical(OpTypes.IS_NULL, c);
-        Expression alternative = new ExpressionOp(OpTypes.ALTERNATIVE, e, c);
+        Expression e         = XreadValueExpression();
+        Expression condition = new ExpressionLogical(OpTypes.IS_NULL, c);
+        Expression alt       = new ExpressionOp(OpTypes.ALTERNATIVE, e, c);
 
-        c = new ExpressionOp(OpTypes.CASEWHEN, condition, alternative);
+        c = new ExpressionOp(OpTypes.CASEWHEN, condition, alt);
 
         c.setSubType(OpTypes.CAST);
+        alt.setSubType(OpTypes.CAST);
         readThis(Tokens.CLOSEBRACKET);
 
         return c;
@@ -5755,13 +5756,14 @@ public class ParserDQL extends ParserBase {
 
         readThis(Tokens.COMMA);
 
-        Expression e2          = XreadValueExpression();
-        Expression condition   = new ExpressionLogical(OpTypes.IS_NULL, c);
-        Expression alternative = new ExpressionOp(OpTypes.ALTERNATIVE, e2, e1);
+        Expression e2        = XreadValueExpression();
+        Expression condition = new ExpressionLogical(OpTypes.IS_NULL, c);
+        Expression alt       = new ExpressionOp(OpTypes.ALTERNATIVE, e2, e1);
 
-        c = new ExpressionOp(OpTypes.CASEWHEN, condition, alternative);
+        c = new ExpressionOp(OpTypes.CASEWHEN, condition, alt);
 
         c.setSubType(OpTypes.CAST);
+        alt.setSubType(OpTypes.CAST);
         readThis(Tokens.CLOSEBRACKET);
 
         return c;
@@ -5793,12 +5795,13 @@ public class ParserDQL extends ParserBase {
                 (Type) null);
             Expression condition = new ExpressionLogical(OpTypes.IS_NULL,
                 current);
-            Expression alternatives = new ExpressionOp(OpTypes.ALTERNATIVE,
-                expressionNull, current);
+            Expression alt = new ExpressionOp(OpTypes.ALTERNATIVE,
+                                              expressionNull, current);
             Expression casewhen = new ExpressionOp(OpTypes.CASEWHEN,
-                                                   condition, alternatives);
+                                                   condition, alt);
 
             if (session.database.sqlSyntaxMys) {
+                alt.setSubType(OpTypes.CAST);
                 casewhen.setSubType(OpTypes.CAST);
             }
 
@@ -5808,7 +5811,7 @@ public class ParserDQL extends ParserBase {
                 leaf.setLeftNode(casewhen);
             }
 
-            leaf = alternatives;
+            leaf = alt;
 
             readThis(Tokens.COMMA);
         }
@@ -6455,6 +6458,31 @@ public class ParserDQL extends ParserBase {
 
                     readColumnNameList(colNames, null, false);
                 }
+            }
+        }
+
+        if (database.sqlSyntaxDb2) {
+            if (readIfThis(Tokens.WITH)) {
+                if (!readIfThis("CS")) {
+                    if (!readIfThis("RR")) {
+                        if (!readIfThis("RS")) {
+                            readThis("UR");
+                        }
+                    }
+                }
+            }
+
+            if (readIfThis(Tokens.USE)) {
+                readThis(Tokens.AND);
+                readThis(Tokens.T_KEEP);
+
+                if (!readIfThis(Tokens.T_EXCLUSIVE)) {
+                    if (!readIfThis(Tokens.T_SHARE)) {
+                        readThis(Tokens.UPDATE);
+                    }
+                }
+
+                readThis(Tokens.LOCKS);
             }
         }
 

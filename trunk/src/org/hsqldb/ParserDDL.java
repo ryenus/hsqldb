@@ -3298,6 +3298,12 @@ public class ParserDDL extends ParserRoutine {
                 read();
                 break;
 
+            case Tokens.END :
+                read();
+
+                readThis(Tokens.STATEMENT);
+                break;
+
             default :
                 throw unexpectedToken();
         }

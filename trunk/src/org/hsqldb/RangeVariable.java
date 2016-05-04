@@ -1103,6 +1103,10 @@ public class RangeVariable {
                 throw Error.error(ErrorCode.X_40000);
             }
 
+            if (session.abortAction) {
+                throw Error.error(ErrorCode.X_40502);
+            }
+
             currentRow = it.getNextRow();
 
             if (currentRow == null) {
@@ -1234,6 +1238,10 @@ public class RangeVariable {
 
             if (session.abortTransaction) {
                 throw Error.error(ErrorCode.X_40000);
+            }
+
+            if (session.abortAction) {
+                throw Error.error(ErrorCode.X_40502);
             }
 
             while (condIndex < conditions.length) {

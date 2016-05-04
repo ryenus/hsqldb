@@ -489,7 +489,7 @@ public class ExpressionOp extends Expression {
                 // the parent evaluates to true), while its right node is case 2
                 // (how to get the value when the condition in
                 // the parent evaluates to false).
-                resolveTypesForCaseWhen(session);
+                resolveTypesForCaseWhen(session, parent);
                 break;
 
             case OpTypes.CONCAT_WS :
@@ -501,6 +501,7 @@ public class ExpressionOp extends Expression {
                 break;
 
             case OpTypes.ALTERNATIVE :
+                resolveTypesForAlternative(session);
                 break;
 
             case OpTypes.LIMIT :
@@ -533,32 +534,58 @@ public class ExpressionOp extends Expression {
         }
     }
 
+    void resolveTypesForAlternative(Session session) {
+
+        if (nodes[LEFT].dataType == null) {
+            nodes[LEFT].dataType = nodes[RIGHT].dataType;
+        }
+
+        if (nodes[RIGHT].dataType == null) {
+            nodes[RIGHT].dataType = nodes[LEFT].dataType;
+        }
+
+        if (exprSubType == OpTypes.CAST) {
+            if (nodes[RIGHT].dataType == null) {
+                nodes[RIGHT].dataType = nodes[LEFT].dataType =
+                    Type.SQL_VARCHAR_DEFAULT;;
+            }
+
+            dataType = nodes[RIGHT].dataType;
+
+            if (!nodes[RIGHT].dataType.equals(nodes[LEFT].dataType)) {
+                if (dataType.isCharacterType()) {
+                    dataType = Type.SQL_VARCHAR_DEFAULT;
+                }
+
+                nodes[LEFT] = new ExpressionOp(nodes[LEFT], dataType);
+            }
+        } else {
+            dataType = Type.getAggregateType(nodes[LEFT].dataType, dataType);
+            dataType = Type.getAggregateType(nodes[RIGHT].dataType, dataType);
+        }
+    }
+
     /**
      * For CASE WHEN and its special cases section 9.3 of the SQL standard
      * on type aggregation is implemented.
      */
-    void resolveTypesForCaseWhen(Session session) {
+    void resolveTypesForCaseWhen(Session session, Expression parent) {
 
-        if (dataType != null) {
-            return;
-        }
+        nodes[RIGHT].resolveTypes(session, this);
 
         Expression expr = this;
 
         while (expr.opType == OpTypes.CASEWHEN) {
-            dataType =
-                Type.getAggregateType(expr.nodes[RIGHT].nodes[LEFT].dataType,
-                                      dataType);
-            dataType =
-                Type.getAggregateType(expr.nodes[RIGHT].nodes[RIGHT].dataType,
-                                      dataType);
+            if (expr.exprSubType == OpTypes.CAST) {
+                dataType = expr.nodes[RIGHT].dataType;
+            } else {
+                dataType = Type.getAggregateType(expr.nodes[RIGHT].dataType,
+                                                 dataType);
+            }
 
             if (expr.nodes[RIGHT].nodes[RIGHT].opType == OpTypes.CASEWHEN) {
                 expr = expr.nodes[RIGHT].nodes[RIGHT];
             } else {
-                expr.nodes[RIGHT].nodes[RIGHT].resolveTypes(session,
-                        expr.nodes[RIGHT]);
-
                 expr = expr.nodes[RIGHT].nodes[LEFT];
             }
         }
@@ -566,15 +593,17 @@ public class ExpressionOp extends Expression {
         expr = this;
 
         while (expr.opType == OpTypes.CASEWHEN) {
-            if (expr.nodes[RIGHT].nodes[LEFT].dataType == null) {
-                expr.nodes[RIGHT].nodes[LEFT].dataType = dataType;
+            if (expr.nodes[RIGHT].dataType == null) {
+                expr.nodes[RIGHT].dataType = dataType;
             }
 
             if (expr.nodes[RIGHT].nodes[RIGHT].dataType == null) {
                 expr.nodes[RIGHT].nodes[RIGHT].dataType = dataType;
             }
 
-            expr.nodes[RIGHT].dataType = dataType;
+            if (expr.nodes[RIGHT].nodes[LEFT].dataType == null) {
+                expr.nodes[RIGHT].nodes[LEFT].dataType = dataType;
+            }
 
             if (expr.nodes[RIGHT].nodes[RIGHT].opType == OpTypes.CASEWHEN) {
                 expr = expr.nodes[RIGHT].nodes[RIGHT];
@@ -603,60 +632,10 @@ public class ExpressionOp extends Expression {
             expr = expr.nodes[RIGHT].nodes[RIGHT];
         }
 
-        if (exprSubType == OpTypes.CAST) {
-            if (nodes[RIGHT].nodes[RIGHT].dataType != null
-                    && nodes[RIGHT].nodes[RIGHT].dataType
-                       != nodes[RIGHT].nodes[LEFT].dataType) {
-                Type castType = nodes[RIGHT].nodes[RIGHT].dataType;
-
-                if (castType.isCharacterType()) {
-                    castType = Type.SQL_VARCHAR_DEFAULT;
-                }
-
-                nodes[RIGHT].nodes[LEFT] =
-                    new ExpressionOp(nodes[RIGHT].nodes[LEFT], castType);
+        if (parent == null || parent.opType != OpTypes.ALTERNATIVE) {
+            if (dataType == null || dataType.typeCode == Types.SQL_ALL_TYPES) {
+                throw Error.error(ErrorCode.X_42567);
             }
-        }
-
-        expr = this;
-
-        while (expr.opType == OpTypes.CASEWHEN) {
-            dataType =
-                Type.getAggregateType(expr.nodes[RIGHT].nodes[LEFT].dataType,
-                                      dataType);
-            dataType =
-                Type.getAggregateType(expr.nodes[RIGHT].nodes[RIGHT].dataType,
-                                      dataType);
-
-            if (expr.nodes[RIGHT].nodes[RIGHT].opType == OpTypes.CASEWHEN) {
-                expr = expr.nodes[RIGHT].nodes[RIGHT];
-            } else {
-                expr = expr.nodes[RIGHT].nodes[LEFT];
-            }
-        }
-
-        expr = this;
-
-        while (expr.opType == OpTypes.CASEWHEN) {
-            if (expr.nodes[RIGHT].nodes[LEFT].dataType == null) {
-                expr.nodes[RIGHT].nodes[LEFT].dataType = dataType;
-            }
-
-            if (expr.nodes[RIGHT].nodes[RIGHT].dataType == null) {
-                expr.nodes[RIGHT].nodes[RIGHT].dataType = dataType;
-            }
-
-            expr.nodes[RIGHT].dataType = dataType;
-
-            if (expr.nodes[RIGHT].nodes[RIGHT].opType == OpTypes.CASEWHEN) {
-                expr = expr.nodes[RIGHT].nodes[RIGHT];
-            } else {
-                expr = expr.nodes[RIGHT].nodes[LEFT];
-            }
-        }
-
-        if (dataType == null || dataType.typeCode == Types.SQL_ALL_TYPES) {
-            throw Error.error(ErrorCode.X_42567);
         }
     }
 

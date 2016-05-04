@@ -245,15 +245,13 @@ public class Result {
     }
 
     public static Result newResult(DataInput dataInput,
-                                   RowInputBinary in)
-                                   throws IOException {
+                                   RowInputBinary in) throws IOException {
         return newResult(null, dataInput.readByte(), dataInput, in);
     }
 
     public static Result newResult(Session session, int mode,
                                    DataInput dataInput,
-                                   RowInputBinary in)
-                                   throws IOException {
+                                   RowInputBinary in) throws IOException {
 
         try {
             if (mode == ResultConstants.LARGE_OBJECT_OP) {
@@ -270,8 +268,7 @@ public class Result {
 
     public void readAdditionalResults(SessionInterface session,
                                       DataInputStream inputStream,
-                                      RowInputBinary in)
-                                      throws IOException {
+                                      RowInputBinary in) throws IOException {
 
         Result currentResult = this;
 
@@ -292,8 +289,7 @@ public class Result {
 
     public void readLobResults(SessionInterface session,
                                DataInputStream inputStream,
-                               RowInputBinary in)
-                               throws IOException {
+                               RowInputBinary in) throws IOException {
 
         Result  currentResult = this;
         boolean hasLob        = false;
@@ -330,8 +326,7 @@ public class Result {
 
     private static Result newResult(Session session, DataInput dataInput,
                                     RowInputBinary in,
-                                    int mode)
-                                    throws IOException {
+                                    int mode) throws IOException {
 
         Result result = newResult(mode);
         int    length = dataInput.readInt();
@@ -764,16 +759,16 @@ public class Result {
         return result;
     }
 
-    public static Result newConnectionAcknowledgeResponse(Database database,
-            long sessionID, int databaseID) {
+    public static Result newConnectionAcknowledgeResponse(Session session) {
 
         Result result = newResult(ResultConstants.CONNECTACKNOWLEDGE);
 
-        result.sessionID    = sessionID;
-        result.databaseID   = databaseID;
-        result.databaseName = database.getNameString();
+        result.sessionID    = session.getId();
+        result.databaseID   = session.getDatabase().getDatabaseID();
+        result.databaseName = session.getDatabase().getNameString();
         result.mainString =
-            database.getProperties().getClientPropertiesAsString();
+            session.getDatabase().getProperties()
+                .getClientPropertiesAsString();
 
         return result;
     }
@@ -1051,12 +1046,12 @@ public class Result {
             result.subString  = result.exception.getSQLState();
             result.errorCode  = result.exception.getErrorCode();
         } else if (t instanceof Throwable) {
-            result.exception = Error.error(ErrorCode.GENERAL_ERROR, t);
+            result.exception  = Error.error(ErrorCode.GENERAL_ERROR, t);
             result.mainString = result.exception.getMessage();
-            result.subString = result.exception.getSQLState();
-            result.errorCode = result.exception.getErrorCode();
+            result.subString  = result.exception.getSQLState();
+            result.errorCode  = result.exception.getErrorCode();
         } else {
-            result.exception = Error.error(ErrorCode.GENERAL_ERROR);
+            result.exception  = Error.error(ErrorCode.GENERAL_ERROR);
             result.mainString = result.exception.getMessage();
             result.subString  = result.exception.getSQLState();
             result.errorCode  = result.exception.getErrorCode();
@@ -1066,8 +1061,7 @@ public class Result {
     }
 
     public void write(SessionInterface session, DataOutputStream dataOut,
-                      RowOutputInterface rowOut)
-                      throws IOException {
+                      RowOutputInterface rowOut) throws IOException {
 
         rowOut.reset();
         rowOut.writeByte(mode);
@@ -1570,6 +1564,14 @@ public class Result {
         }
     }
 
+    public void addRow(String[] sql) {
+
+        if (sql == null) {
+            return;
+        }
+
+        initialiseNavigator().add(sql);
+    }
 
     private static Object[] readSimple(RowInputBinary in,
                                        ResultMetaData meta)
