@@ -355,8 +355,8 @@ class WebServerConnection implements Runnable {
 
                     resultIn.readAdditionalResults(session, dataIn, rowIn);
 
-                    resultOut = Result.newConnectionAcknowledgeResponse(
-                        session.getDatabase(), session.getId(), dbID);
+                    resultOut =
+                        Result.newConnectionAcknowledgeResponse(session);
                 } catch (HsqlException e) {
                     resultOut = Result.newErrorResult(e);
                 } catch (RuntimeException e) {

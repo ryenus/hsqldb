@@ -104,6 +104,7 @@ public class Session implements SessionInterface {
     boolean                 isPreTransaction;
     boolean                 isTransaction;
     boolean                 isBatch;
+    volatile boolean        abortAction;
     volatile boolean        abortTransaction;
     volatile boolean        redoAction;
     HsqlArrayList           rowActionList;
@@ -189,7 +190,7 @@ public class Session implements SessionInterface {
                                                  : Boolean.FALSE;
         sessionContext.isReadOnly   = isReadOnlyDefault ? Boolean.TRUE
                                                         : Boolean.FALSE;
-        parser = new ParserCommand(this, new Scanner());
+        parser                      = new ParserCommand(this, new Scanner());
 
         setResultMemoryRowCount(database.getResultMaxMemoryRows());
         resetSchema();
@@ -212,6 +213,10 @@ public class Session implements SessionInterface {
      */
     public long getId() {
         return sessionId;
+    }
+
+    public int getRandomId() {
+        return randomId;
     }
 
     /**
@@ -447,6 +452,10 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_40001);
         }
 
+        if (abortAction) {
+            throw Error.error(ErrorCode.X_40502);
+        }
+
         database.txManager.addDeleteAction(this, table, store, row, colMap);
     }
 
@@ -460,6 +469,10 @@ public class Session implements SessionInterface {
         // abort only after adding so that the new row gets removed from indexes
         if (abortTransaction) {
             throw Error.error(ErrorCode.X_40001);
+        }
+
+        if (abortAction) {
+            throw Error.error(ErrorCode.X_40502);
         }
     }
 
@@ -502,6 +515,8 @@ public class Session implements SessionInterface {
     public void endAction(Result result) {
 
 //        tempActionHistory.add("endAction " + actionTimestamp);
+        abortAction = false;
+
         sessionData.persistentStoreCollection.clearStatementTables();
 
         if (result.mode == ResultConstants.ERROR) {
@@ -1349,8 +1364,6 @@ public class Session implements SessionInterface {
                 break;
             }
 
-            boolean abortAction = timeoutManager.endTimeout();
-
             if (abortAction) {
                 r = Result.newErrorResult(Error.error(ErrorCode.X_40502));
 
@@ -1380,7 +1393,7 @@ public class Session implements SessionInterface {
             endAction(r);
 
             if (abortTransaction) {
-                return handleAbortTransaction();
+                break repeatLoop;
             }
 
             if (redoAction) {
@@ -2133,6 +2146,7 @@ public class Session implements SessionInterface {
     SimpleDateFormat simpleDateFormatGMT;
     Random           randomGenerator = new Random();
     long             seed            = -1;
+    public final int randomId        = randomGenerator.nextInt();
 
     //
     public TypedComparator getComparator() {
@@ -2322,7 +2336,8 @@ public class Session implements SessionInterface {
                 currentTimeout = 0;
                 aborted        = true;
 
-                latch.setCount(0);
+                database.txManager.resetSession(
+                    null, Session.this, TransactionManager.resetSessionAbort);
 
                 return true;
             }

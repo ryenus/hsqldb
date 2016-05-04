@@ -84,6 +84,12 @@ public interface ResultConstants {
     int PREPARE_ACK = HSQL_API_BASE + 4;
 
     /**
+     * Indicates that Result encapsulates a request to cancel execution of
+     * a CLI routine.
+     */
+    int SQLCANCEL = HSQL_API_BASE + 5;
+
+    /**
      * Indicates that the Result object encapsulates a result
      * set for setting session attributes.
      */

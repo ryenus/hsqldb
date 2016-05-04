@@ -1296,6 +1296,13 @@ public class StatementCommand extends Statement {
                                     targetSession,
                                     TransactionManager.resetSessionRollback);
                             break;
+
+                        case Tokens.END :
+                            session.database.txManager.resetSession(session,
+                                    targetSession,
+                                    TransactionManager.resetSessionAbort);
+                            break;
+
                     }
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);

@@ -46,7 +46,6 @@ import org.hsqldb.rowio.RowInputText;
 import org.hsqldb.rowio.RowInputTextQuoted;
 import org.hsqldb.rowio.RowOutputText;
 import org.hsqldb.rowio.RowOutputTextQuoted;
-import org.hsqldb.scriptio.ScriptWriterText;
 
 // Ito Kazumitsu 20030328 - patch 1.7.2 - character encoding support
 // Dimitri Maziuk - patch for NL in string support

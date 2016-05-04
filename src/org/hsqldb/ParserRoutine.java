@@ -797,7 +797,7 @@ public class ParserRoutine extends ParserTable {
 
         read();
         readThis(Tokens.NAME);
-        checkIsValue(Types.SQL_CHAR);
+        checkIsQuotedString();
         routine.setMethodURL((String) token.tokenValue);
         read();
 
@@ -1103,7 +1103,7 @@ public class ParserRoutine extends ParserTable {
     String parseSQLStateValue() {
 
         readIfThis(Tokens.VALUE);
-        checkIsValue(Types.SQL_CHAR);
+        checkIsQuotedString();
 
         String sqlState = token.tokenString;
 

@@ -54,12 +54,12 @@ import org.hsqldb.lib.java.JavaSystem;
  */
 public class CharacterType extends Type {
 
-    static final int  defaultCharPrecision    = 256;
-    static final int  defaultVarcharPrecision = 32 * 1024;
+    static final int         defaultCharPrecision    = 256;
+    static final int         defaultVarcharPrecision = 32 * 1024;
     public static final long maxCharPrecision        = Integer.MAX_VALUE;
-    Collation         collation;
-    Charset           charset;
-    String            nameString;
+    Collation                collation;
+    Charset                  charset;
+    String                   nameString;
 
     public CharacterType(Collation collation, int type, long precision) {
 
@@ -638,7 +638,8 @@ public class CharacterType extends Type {
         } else if (a instanceof java.sql.Timestamp) {
             s = a.toString();
         } else if (a instanceof java.util.Date) {
-            s = HsqlDateTime.getTimestampString(((java.util.Date) a).getTime());
+            s = HsqlDateTime.getTimestampString(
+                ((java.util.Date) a).getTime());
         } else {
             throw Error.error(ErrorCode.X_42561);
         }
@@ -749,6 +750,13 @@ public class CharacterType extends Type {
 
     public Charset getCharacterSet() {
         return charset;
+    }
+
+    /**
+     * can add collation and charset equality
+     */
+    public boolean equals(Object other) {
+        return super.equals(other);
     }
 
     public long position(SessionInterface session, Object data,

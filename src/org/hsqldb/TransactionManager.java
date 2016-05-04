@@ -58,7 +58,8 @@ public interface TransactionManager {
     int resetSessionTables   = 2;
     int resetSessionResetAll = 3;
     int resetSessionRollback = 4;
-    int resetSessionClose    = 5;
+    int resetSessionAbort    = 5;
+    int resetSessionClose    = 6;
 
     long getGlobalChangeTimestamp();
 

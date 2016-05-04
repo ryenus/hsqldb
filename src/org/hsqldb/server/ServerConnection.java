@@ -1580,9 +1580,7 @@ class ServerConnection implements Runnable {
                                        + "'");
             }
 
-            return Result.newConnectionAcknowledgeResponse(
-                session.getDatabase(), session.getId(),
-                session.getDatabase().getDatabaseID());
+            return Result.newConnectionAcknowledgeResponse(session);
         } catch (HsqlException e) {
             session = null;
 
