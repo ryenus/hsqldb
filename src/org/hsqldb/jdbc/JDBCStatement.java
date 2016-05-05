@@ -485,8 +485,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 2.0, HSQLDB does <i>not</i> support aborting an SQL
-     * statement; calls to this method are ignored.
+     * HSQLDB version 2.3.4 and later supports aborting an SQL query
+     * or data update statement.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -495,8 +495,16 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-    public synchronized void cancel() throws SQLException {
+    public void cancel() throws SQLException {
         checkClosed();
+        String sql = resultOut.getMainString();
+        Result request = Result.newCancelRequest(-1, sql);
+
+        try {
+            Result response = connection.sessionProxy.cancel(request);
+        } catch (HsqlException e) {
+            throw JDBCUtil.sqlException(e);
+        }
     }
 
     /**

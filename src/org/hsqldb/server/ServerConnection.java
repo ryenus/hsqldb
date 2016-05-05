@@ -120,7 +120,7 @@ import org.hsqldb.types.Type;
  *
  * @author Blaine Simpson (unsaved@users dot sourceforge.net
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.4
  * @since 1.6.2
  */
 class ServerConnection implements Runnable {
@@ -294,15 +294,9 @@ class ServerConnection implements Runnable {
                         });
                     }
 
-                    Result resultIn = Result.newResult(dataInput, rowIn);
+                    int msgType = dataInput.readByte();
 
-                    resultIn.readAdditionalResults(session, dataInput, rowIn);
-
-                    Result resultOut;
-
-                    resultOut = setDatabase(resultIn);
-
-                    resultOut.write(session, dataOutput, rowOut);
+                    receiveResult(msgType);
                     break;
 
                 case ODBC_STREAM_PROTOCOL :
@@ -368,6 +362,12 @@ class ServerConnection implements Runnable {
 
             case ResultConstants.CONNECT : {
                 resultOut = setDatabase(resultIn);
+
+                break;
+            }
+            case ResultConstants.SQLCANCEL : {
+                resultOut = cancelStatement(resultIn);
+                terminate = true;
 
                 break;
             }
@@ -1589,6 +1589,33 @@ class ServerConnection implements Runnable {
             session = null;
 
             return Result.newErrorResult(e);
+        }
+    }
+
+    private Result cancelStatement(Result resultIn) {
+
+        try {
+            dbID = resultIn.getDatabaseId();
+
+            long sessionId = resultIn.getSessionId();
+
+            session = DatabaseManager.getSession(dbID, sessionId);
+
+            if (!server.isSilent()) {
+                server.printWithThread(mThread
+                                       + ":Trying to cancel statement "
+                                       + " to DB (" + dbID + ')');
+            }
+
+            return session.cancel(resultIn);
+        } catch (HsqlException e) {
+            session = null;
+
+            return Result.updateZeroResult;
+        } catch (Throwable t) {
+            session = null;
+
+            return Result.updateZeroResult;
         }
     }
 

@@ -3252,8 +3252,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 2.0, HSQLDB does <i>not</i> support aborting an SQL
-     * statement; calls to this method are ignored.
+     * HSQLDB version 2.3.4 and later supports aborting an SQL query
+     * or data update statement.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3264,6 +3264,15 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public void cancel() throws SQLException {
         checkClosed();
+        String sql = resultOut.getMainString();
+        Result request = Result.newCancelRequest(statementID, sql);
+
+        try {
+            Result response = connection.sessionProxy.cancel(request);
+        } catch (HsqlException e) {
+            throw JDBCUtil.sqlException(e);
+        }
+
     }
 
     /**

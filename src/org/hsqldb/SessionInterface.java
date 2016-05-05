@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -113,6 +113,8 @@ public interface SessionInterface {
     void releaseSavepoint(String name);
 
     void addWarning(HsqlException warning);
+
+    Result cancel(Result r);
 
     Object getAttribute(int id);
 

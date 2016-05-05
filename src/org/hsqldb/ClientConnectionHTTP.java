@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.result.Result;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.4
  * @since 1.7.2
  */
 public class ClientConnectionHTTP extends ClientConnection {
@@ -63,6 +63,10 @@ public class ClientConnectionHTTP extends ClientConnection {
                                 String password, int timeZoneSeconds) {
         super(host, port, path, database, isTLS, isTLSWrapper, user, password,
               timeZoneSeconds);
+    }
+
+    public ClientConnectionHTTP(ClientConnectionHTTP other) {
+        super(other);
     }
 
     // Empty since HTTP has an empty handshake() method. execute() will open connection
@@ -117,6 +121,15 @@ public class ClientConnectionHTTP extends ClientConnection {
         closeConnection();
 
         return result;
+    }
+
+    public Result cancel(Result result) {
+
+        ClientConnectionHTTP connection = new ClientConnectionHTTP(this);
+
+        result.setSessionRandomID(randomID);
+
+        return connection.execute(result);
     }
 
     protected void write(Result r) throws IOException, HsqlException {

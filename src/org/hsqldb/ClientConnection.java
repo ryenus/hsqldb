@@ -69,7 +69,7 @@ import org.hsqldb.types.TimestampData;
  * @version 2.3.4
  * @since 1.7.2
  */
-public class ClientConnection implements SessionInterface {
+public class ClientConnection implements SessionInterface, Cloneable {
 
     /**
      * Specifies the Compatibility version required for both Servers and
@@ -85,8 +85,8 @@ public class ClientConnection implements SessionInterface {
      * are multiplied by 100 to power p and added up, then negated, to form the
      * integer representation of version string.
      */
-    public static final String NETWORK_COMPATIBILITY_VERSION     = "2.1.0.0";
-    public static final int    NETWORK_COMPATIBILITY_VERSION_INT = -2010000;
+    public static final String NETWORK_COMPATIBILITY_VERSION     = "2.3.4.0";
+    public static final int    NETWORK_COMPATIBILITY_VERSION_INT = -2030400;
 
     //
     static final int             BUFFER_SIZE = 0x1000;
@@ -100,6 +100,7 @@ public class ClientConnection implements SessionInterface {
     private Result               resultOut;
     private long                 sessionID;
     private long                 lobIDSequence = -1;
+    protected int                randomID;
 
     //
     private boolean  isReadOnlyDefault = false;
@@ -142,12 +143,10 @@ public class ClientConnection implements SessionInterface {
         this.zoneString   = TimeZone.getDefault().getID();
 
         initStructures();
+        initConnection(host, port, isTLS);
 
         Result login = Result.newConnectionAttemptRequest(user, password,
             database, zoneString, timeZoneSeconds);
-
-        initConnection(host, port, isTLS);
-
         Result resultIn = execute(login);
 
         if (resultIn.isError()) {
@@ -158,6 +157,29 @@ public class ClientConnection implements SessionInterface {
         databaseID             = resultIn.getDatabaseId();
         databaseUniqueName     = resultIn.getDatabaseName();
         clientPropertiesString = resultIn.getMainString();
+        randomID               = resultIn.getSessionRandomID();
+    }
+
+    protected ClientConnection(ClientConnection other) {
+
+        this.host         = other.host;
+        this.port         = other.port;
+        this.path         = other.path;
+        this.database     = other.database;
+        this.isTLS        = other.isTLS;
+        this.isTLSWrapper = other.isTLSWrapper;
+        this.zoneSeconds  = other.zoneSeconds;
+        this.zoneString   = other.zoneString;
+
+        //
+        this.sessionID              = other.sessionID;
+        this.databaseID             = other.databaseID;
+        this.databaseUniqueName     = other.databaseUniqueName;
+        this.clientPropertiesString = other.clientPropertiesString;
+        this.randomID               = other.randomID;
+
+        initStructures();
+        initConnection(host, port, isTLS);
     }
 
     /**
@@ -523,6 +545,19 @@ public class ClientConnection implements SessionInterface {
      */
     public synchronized String getInternalConnectionURL() {
         return null;
+    }
+
+    public Result cancel(Result result) {
+
+        ClientConnection connection = new ClientConnection(this);
+
+        try {
+            result.setSessionRandomID(randomID);
+
+            return connection.execute(result);
+        } finally {
+            connection.closeConnection();
+        }
     }
 
     public synchronized long getLobId() {
