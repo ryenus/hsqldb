@@ -409,6 +409,7 @@ public class Result {
                 result.sessionID    = in.readLong();
                 result.databaseName = in.readString();
                 result.mainString   = in.readString();
+                result.generateKeys = in.readInt();
                 break;
 
             case ResultConstants.UPDATECOUNT :
@@ -460,6 +461,14 @@ public class Result {
 
                 break;
             }
+            case ResultConstants.SQLCANCEL :
+                result.databaseID   = in.readInt();
+                result.sessionID    = in.readLong();
+                result.statementID  = in.readLong();
+                result.generateKeys = in.readInt();
+                result.mainString   = in.readString();
+                break;
+
             case ResultConstants.PREPARE_ACK :
                 result.statementReturnType = in.readByte();
                 result.statementID         = in.readLong();
@@ -769,6 +778,7 @@ public class Result {
         result.mainString =
             session.getDatabase().getProperties()
                 .getClientPropertiesAsString();
+        result.generateKeys = session.getRandomId();
 
         return result;
     }
@@ -849,6 +859,16 @@ public class Result {
         r.statementReturnType = statement.getStatementReturnType();
         r.metaData            = statement.getResultMetaData();
         r.parameterMetaData   = statement.getParametersMetaData();
+
+        return r;
+    }
+
+    public static Result newCancelRequest(long statementId, String sql) {
+
+        Result r = newResult(ResultConstants.SQLCANCEL);
+
+        r.statementID = statementId;
+        r.mainString  = sql;
 
         return r;
     }
@@ -1138,6 +1158,7 @@ public class Result {
                 rowOut.writeLong(sessionID);
                 rowOut.writeString(databaseName);
                 rowOut.writeString(mainString);
+                rowOut.writeInt(generateKeys);
                 break;
 
             case ResultConstants.UPDATECOUNT :
@@ -1169,6 +1190,14 @@ public class Result {
 
                 break;
             }
+            case ResultConstants.SQLCANCEL :
+                rowOut.writeInt(databaseID);
+                rowOut.writeLong(sessionID);
+                rowOut.writeLong(statementID);
+                rowOut.writeInt(generateKeys);
+                rowOut.writeString(mainString);
+                break;
+
             case ResultConstants.PREPARE_ACK :
                 rowOut.writeByte(statementReturnType);
                 rowOut.writeLong(statementID);
@@ -1480,6 +1509,14 @@ public class Result {
 
     public int getStatementType() {
         return statementReturnType;
+    }
+
+    public void setSessionRandomID(int id) {
+        generateKeys = id;
+    }
+
+    public int getSessionRandomID() {
+        return generateKeys;
     }
 
     public int getGeneratedResultType() {

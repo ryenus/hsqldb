@@ -1977,6 +1977,18 @@ public class Session implements SessionInterface {
         return DatabaseURL.S_URL_PREFIX + database.getURI();
     }
 
+    public Result cancel(Result result) {
+
+        if (result.getType() == ResultConstants.SQLCANCEL) {
+            if (result.getSessionRandomID()  == randomId) {
+                database.txManager.resetSession(
+                    null, this, TransactionManager.resetSessionAbort);
+            }
+        }
+
+        return Result.updateZeroResult;
+    }
+
     public boolean isProcessingScript() {
         return isProcessingScript;
     }
