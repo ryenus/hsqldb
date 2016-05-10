@@ -508,7 +508,7 @@ import org.hsqldb.types.Type;
  * </div> <!-- end release-specific documentation -->
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.4
  * @revised JDK 1.6, HSQLDB 2.0
  * @revised JDK 1.7, HSQLDB 2.1.0
  * @see JDBCDriver
@@ -2657,7 +2657,8 @@ public class JDBCConnection implements Connection {
      *
      * Starting with version 2.0, HSQLDB supports returning generated columns
      * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
-     * The columnNames may specify any set of columns of the table.
+     * The columnNames may specify any set of columns of the table. The names
+     * are case-sensitive, unlike column names in ResultSet methods.
      *
      * </div> <!-- end release-specific documentation -->
      *
@@ -3583,21 +3584,7 @@ public class JDBCConnection implements Connection {
             connProperties   = props;
             clientProperties = sessionProxy.getClientProperties();
 
-            isCloseResultSet = connProperties.isPropertyTrue(
-                HsqlDatabaseProperties.url_close_result, false);
-            isUseColumnName = connProperties.isPropertyTrue(
-                HsqlDatabaseProperties.url_get_column_name, true);
-            isEmptyBatchAllowed = connProperties.isPropertyTrue(
-                HsqlDatabaseProperties.url_allow_empty_batch, false);
-            isTranslateTTIType = clientProperties.isPropertyTrue(
-                HsqlDatabaseProperties.jdbc_translate_tti_types, true);
-            isStoreLiveObject = clientProperties.isPropertyTrue(
-                HsqlDatabaseProperties.sql_live_object, false);
-
-            if (isStoreLiveObject)  {
-                if(!DatabaseURL.S_MEM.equals(connType))
-                isStoreLiveObject = false;
-            }
+            setLocalVariables();
         } catch (HsqlException e) {
             throw JDBCUtil.sqlException(e);
         }
@@ -3664,14 +3651,32 @@ public class JDBCConnection implements Connection {
         isPooled          = true;
         poolEventListener = eventListener;
 
-        if (connProperties != null) {
-            isCloseResultSet = connProperties.isPropertyTrue(
-                HsqlDatabaseProperties.url_close_result, false);
-            isUseColumnName = connProperties.isPropertyTrue(
-                HsqlDatabaseProperties.url_get_column_name, true);
-        }
+        setLocalVariables();
     }
 
+    private void setLocalVariables() {
+        if (connProperties == null) {
+            return;
+        }
+
+        isCloseResultSet = connProperties.isPropertyTrue(
+            HsqlDatabaseProperties.url_close_result, false);
+        isUseColumnName = connProperties.isPropertyTrue(
+            HsqlDatabaseProperties.url_get_column_name, true);
+        isEmptyBatchAllowed = connProperties.isPropertyTrue(
+            HsqlDatabaseProperties.url_allow_empty_batch, false);
+        isTranslateTTIType = clientProperties.isPropertyTrue(
+            HsqlDatabaseProperties.jdbc_translate_tti_types, true);
+        isStoreLiveObject = clientProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_live_object, false);
+
+        if (isStoreLiveObject)  {
+            String connType = connProperties.getProperty("connection_type");
+            if(!DatabaseURL.S_MEM.equals(connType))
+            isStoreLiveObject = false;
+        }
+
+    }
     /**
      *  The default implementation simply attempts to silently {@link
      *  #close() close()} this <code>Connection</code>
