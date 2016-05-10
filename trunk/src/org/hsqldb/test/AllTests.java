@@ -49,6 +49,7 @@ public class AllTests extends TestCase {
         suite.addTestSuite(org.hsqldb.test.TestDatabaseMetaData.class);
         suite.addTestSuite(org.hsqldb.test.TestDateTime.class);
         suite.addTestSuite(org.hsqldb.test.TestPeriodPredicates.class);
+        suite.addTestSuite(org.hsqldb.test.TestCreateTableWithPeriod.class);
         suite.addTestSuite(org.hsqldb.test
             .TestINPredicateParameterizationAndCorrelation.class);
         suite.addTestSuite(org.hsqldb.test.TestJDBCGeneratedColumns.class);
