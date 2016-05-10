@@ -379,7 +379,6 @@ public interface ErrorCode {
     int X_23504 = 8;                               // integrity constraint violation: foreign key no action
     int X_23505 = 104;                             // integrity constraint violation: unique constraint or index
     int X_23513 = 157;                             // integrity constraint violation: check constraint
-    int X_23514 = 3502;                            // integrity constraint violation: period start not before period end
 
     // invalid cursor state - xxxx
     int X_24000 = 3600;                            // invalid cursor state - 2003
@@ -646,15 +645,6 @@ public interface ErrorCode {
 
     // HSQLDB - SQL/JRT
     int X_46511 = 6021;                            // declared parameter types do not match method signature
-
-    // Period definition errors
-    int X_46520 = 6030;                          // the period name cannot be a column name
-    int X_46521 = 6031;                          // the period must have exactly two columns
-    int X_46522 = 6032;                          // the columns of the period must exists
-    int X_46523 = 6033;                          // the two columns must be set as not null
-    int X_46524 = 6034;                          // the columns must be of date or timestamp type
-    int X_46525 = 6035;                          // the two columns must be of the same date time type
-    int X_46526 = 6036;                          // at most one period definition of this type can be defined
 
     // Unknown Error: Catch-All - xxxx
     int X_99000 = 6500;                            // Unknown Error: Catch-All

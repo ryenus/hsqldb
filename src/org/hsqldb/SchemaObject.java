@@ -74,7 +74,6 @@ public interface SchemaObject {
     int SUBQUERY         = 27;
     int SEARCH           = 28;
     int REFERENCE        = 29;
-    int PERIOD           = 30;
 
     //
     SchemaObject[] emptyArray = new SchemaObject[]{};
@@ -154,10 +153,5 @@ public interface SchemaObject {
         byte NO_NULLS         = 0;    // java.sql.ResultSetMetaData.columnNoNulls
         byte NULLABLE         = 1;    // java.sql.ResultSetMetaData.columnNullable
         byte NULLABLE_UNKNOWN = 2;    // java.sql.ResultSetMetaData.columnNullableUnknown
-    }
-    
-    interface PeriodTypes {
-    	int APPLICATION = 0;      // application period type
-    	int SYSTEM      = 1;      // system period type
     }
 }
