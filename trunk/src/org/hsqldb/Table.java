@@ -99,8 +99,6 @@ public class Table extends TableBase implements SchemaObject {
     private boolean hasDomainColumns;          // shortcut
     private boolean hasNotNullColumns;         // shortcut
     protected int[] defaultColumnMap;          // holding 0,1,2,3,...
-    private boolean hasApplicationPeriod;      // has an application period
-    private boolean hasSystemPeriod;           // has a system period
     RangeVariable[] defaultRanges;
 
     //
@@ -1188,23 +1186,7 @@ public class Table extends TableBase implements SchemaObject {
         return identityColumn != -1;
     }
 
-    public boolean hasApplicationPeriod() {
-		return hasApplicationPeriod;
-	}
-
-	public void setHasApplicationPeriod(boolean hasApplicationPeriod) {
-		this.hasApplicationPeriod = hasApplicationPeriod;
-	}
-
-	public boolean hasSystemPeriod() {
-		return hasSystemPeriod;
-	}
-
-	public void setHasSystemPeriod(boolean hasSystemPeriod) {
-		this.hasSystemPeriod = hasSystemPeriod;
-	}
-
-	public long getNextIdentity() {
+    public long getNextIdentity() {
         return identitySequence.peek();
     }
 
@@ -1580,14 +1562,12 @@ public class Table extends TableBase implements SchemaObject {
      */
     void resetDefaultsFlag() {
 
-        hasDefaultValues     = false;
-        hasGeneratedValues   = false;
-        hasUpdatedValues     = false;
-        hasNotNullColumns    = false;
-        hasDomainColumns     = false;
-        hasLobColumn         = false;
-        hasApplicationPeriod = false;
-        hasSystemPeriod      = false;
+        hasDefaultValues   = false;
+        hasGeneratedValues = false;
+        hasUpdatedValues   = false;
+        hasNotNullColumns  = false;
+        hasDomainColumns   = false;
+        hasLobColumn       = false;
 
         for (int i = 0; i < columnCount; i++) {
             hasDefaultValues   |= colDefaults[i] != null;

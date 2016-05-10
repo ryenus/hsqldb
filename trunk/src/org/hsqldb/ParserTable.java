@@ -184,16 +184,6 @@ public class ParserTable extends ParserDML {
                     startPart = false;
                     break;
 
-                case Tokens.PERIOD:
-                    if (!startPart) {
-                        throw unexpectedToken();
-                    }
-                    
-                    readPeriod(table, tempConstraints);
-                	
-                    start     = false;
-                    startPart = false;
-                	break;
                 case Tokens.COMMA :
                     if (startPart) {
                         throw unexpectedToken();
@@ -258,119 +248,6 @@ public class ParserTable extends ParserDML {
         }
 
         return true;
-    }
-
-    /**
-     * Read and validate the period information.
-     * If the period is valid, two constaints are created and added to the {@code tempConstraints} parameter:
-     * <ul>
-     * <li>CHECH (PERIOD START &lt; PERIOD END)</li>
-     * <li>UNIQUE (PERIOD START, PERIOD END)</li>
-     * </ul>
-     *  
-     * @param table
-     * @param tempConstraints
-     * 
-     * @throws HsqlException if the syntax rules are violated
-     */
-    void readPeriod(Table table, HsqlArrayList tempConstraints) {
-        // must be within a table content source
-        if (table.getName().type != SchemaObject.TABLE) {
-            throw unexpectedTokenRequire(Tokens.T_PERIOD);
-        }
-        read();
-        readThis(Tokens.FOR);
-        HsqlName periodName = readNewDependentSchemaObjectName(table.getName(), SchemaObject.PERIOD);
-        if(!Tokens.T_SYSTEM_TIME.equals(periodName.getNameString())) {
-            if(table.hasApplicationPeriod()) {
-                // cannot have more thant two application period within a table
-                throw Error.error(ErrorCode.X_46526, periodName.getNameString());
-            }
-            table.setHasApplicationPeriod(true);
-            int inx = table.findColumn(periodName.getNameString());
-            if(inx >= 0) {
-                // tha period name cannot be the same as a column name of the table
-                throw Error.error(ErrorCode.X_46520, periodName.getNameString());
-            }
-        } else {
-            // not yet implemented
-            throw Error.error(ErrorCode.U_S0500, Tokens.T_SYSTEM_TIME);
-        }
-        
-        OrderedHashSet columnNames = readColumnNames(false);
-        ColumnSchema[] columns = getPeriodColumns(table, columnNames, periodName.getNameString());
-        addPeriodCheckConstraint(tempConstraints, table, periodName, columns);
-        addPeriodUniqueConstraint(tempConstraints, table, periodName, columnNames);
-    }
-
-    private void addPeriodCheckConstraint(HsqlArrayList tempConstraints, Table table, HsqlName periodName, ColumnSchema[] columns) {
-        // add the check : period start < period end
-        // the prefix is "PC" for "PERIOD CONSTRAINT"
-        HsqlName constName = session.database.nameManager.newAutoName("PC", periodName.getNameString(), table.getSchemaName(), table.getName(), SchemaObject.CONSTRAINT);
-        Constraint periodCheck = new Constraint(constName, null, SchemaObject.ConstraintTypes.CHECK);
-        ExpressionColumn leftColumn = new ExpressionColumn(columns[0].getSchemaNameString(), table.getName().name, columns[0].getNameString());
-        ExpressionColumn rightColumn = new ExpressionColumn(columns[1].getSchemaNameString(), table.getName().name, columns[1].getNameString());
-        
-        ExpressionLogical constraintExpression = new ExpressionLogical(OpTypes.SMALLER, leftColumn, rightColumn);
-        periodCheck.check = constraintExpression;
-        
-        periodCheck.isForPeriod = true;
-        tempConstraints.add(periodCheck);
-    }
-
-    private void addPeriodUniqueConstraint(HsqlArrayList tempConstraints, Table table, HsqlName periodName, OrderedHashSet columnNames) {
-        HsqlName indexName = session.database.nameManager.newAutoName("PC_IDX", periodName.getNameString(), table.getSchemaName(), table.getName(), SchemaObject.CONSTRAINT);
-        Constraint uniqueConstraint = new Constraint(indexName, columnNames, SchemaObject.ConstraintTypes.UNIQUE);
-        
-        uniqueConstraint.isForPeriod = true;
-        tempConstraints.add(uniqueConstraint);
-    }
-
-/**
-     * Returns the columns definition referenced by a period.
-     * 
-     * @param table Table containing the period and columns' definition
-     * @param columnNames Name of the referenced columns
-     * @param periodName Name of the period
-     * @return An ordered list of the columns' schema
-     * 
-     * @throws HsqlException if the syntax rules are violated
-     */
-    private ColumnSchema[] getPeriodColumns(Table table, OrderedHashSet columnNames, String periodName) {
-        
-        int refColumnIndex;
-        ColumnSchema[] columns = new ColumnSchema[2];
-
-        // the period must have exactly two columns
-        if(columnNames == null || columnNames.size() != 2) {
-            throw Error.error(ErrorCode.X_46521, periodName);
-        }
-
-        for(int inx = 0; inx < columnNames.size(); inx++) {
-            // the columns of the period must exists
-            refColumnIndex = table.findColumn((String)columnNames.get(inx));
-            if(refColumnIndex < 0) {
-                throw Error.error(ErrorCode.X_46522, periodName);
-            }
-            columns[inx] = table.getColumn(refColumnIndex);
-            
-            // the two columns must be set as not null
-            if(columns[inx].isNullable()) {
-                throw Error.error(ErrorCode.X_46523, periodName);
-            }
-            
-            // the columns must be of date time type
-            if(!columns[inx].getDataType().isDateOrTimestampType()) {
-                throw Error.error(ErrorCode.X_46524, periodName);
-            }
-        }
-        
-        // the two columns must be of the same date time type
-        if(!columns[0].getDataType().equals(columns[1].getDataType())) {
-            throw Error.error(ErrorCode.X_46525, periodName);
-        }
-
-        return columns;
     }
 
     void readTableOnCommitClause(Table table) {
@@ -603,14 +480,10 @@ public class ParserTable extends ParserDML {
                         throw Error.error(ErrorCode.X_42522);
                     }
 
-                    if(c.isForPeriod) {
-                        indexName = c.getName();
-                    } else {
                     // create an autonamed index
                     indexName = session.database.nameManager.newAutoName("IDX",
                             c.getName().name, table.getSchemaName(),
                             table.getName(), SchemaObject.INDEX);
-                    }
 
                     Index index = table.createAndAddIndexStructure(session,
                         indexName, c.core.mainCols, null, null, true, true,
@@ -1528,7 +1401,6 @@ public class ParserTable extends ParserDML {
                     constraintList.add(c);
 
                     hasNotNullConstraint = true;
-                    column.setNullable(false);
 
                     break;
                 }

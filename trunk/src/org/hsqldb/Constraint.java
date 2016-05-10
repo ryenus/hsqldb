@@ -69,7 +69,6 @@ public final class Constraint implements SchemaObject {
     OrderedHashSet mainColSet;
     OrderedHashSet refColSet;
     boolean        isSimpleIdentityPK;
-    boolean        isForPeriod;
 
     //
     public static final Constraint[] emptyArray = new Constraint[]{};
