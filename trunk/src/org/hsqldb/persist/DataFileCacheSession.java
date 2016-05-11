@@ -41,7 +41,7 @@ import org.hsqldb.lib.Iterator;
  * A file-based row store for temporary CACHED table persistence.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.9.0
  */
 public class DataFileCacheSession extends DataFileCache {
@@ -82,7 +82,7 @@ public class DataFileCacheSession extends DataFileCache {
 
             initBuffers();
 
-            spaceManager = new DataSpaceManagerSimple(this);
+            spaceManager = new DataSpaceManagerSimple(this, false);
         } catch (Throwable t) {
             database.logger.logWarningEvent("Failed to open Session RA file",
                                             t);

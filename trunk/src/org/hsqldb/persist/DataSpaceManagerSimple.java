@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
     /**
      * Used for default, readonly, Text and Session data files
      */
-    DataSpaceManagerSimple(DataFileCache cache) {
+    DataSpaceManagerSimple(DataFileCache cache, boolean isReadOnly) {
 
         this.cache = cache;
 
@@ -65,9 +65,11 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
                     DataSpaceManager.tableIdDefault, fileBlockSize, capacity,
                     cache.getDataFileScale(), 0);
 
-            initialiseSpaces();
+            if (!isReadOnly) {
+                initialiseSpaces();
 
-            cache.spaceManagerPosition = 0;
+                cache.spaceManagerPosition = 0;
+            }
         }
 
         totalFragmentSize = cache.lostSpaceSize;
