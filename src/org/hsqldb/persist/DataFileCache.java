@@ -175,7 +175,7 @@ public class DataFileCache {
         if (database.logger.getDataFileSpaces() > 0) {
             spaceManager = new DataSpaceManagerBlocks(this);
         } else {
-            spaceManager = new DataSpaceManagerSimple(this);
+            spaceManager = new DataSpaceManagerSimple(this, false);
         }
     }
 
@@ -267,7 +267,7 @@ public class DataFileCache {
 
                 initBuffers();
 
-                spaceManager = new DataSpaceManagerSimple(this);
+                spaceManager = new DataSpaceManagerSimple(this, true);
 
                 return;
             }
@@ -389,7 +389,7 @@ public class DataFileCache {
             if (database.logger.getDataFileSpaces() > 0) {
                 spaceManager = new DataSpaceManagerBlocks(this);
             } else {
-                spaceManager = new DataSpaceManagerSimple(this);
+                spaceManager = new DataSpaceManagerSimple(this, false);
             }
 
             logInfoEvent("dataFileCache open end");
@@ -424,7 +424,7 @@ public class DataFileCache {
             if (fileSpaceSize == 0 && spaceManagerPosition != 0) {
                 spaceManager.reset();
 
-                spaceManager = new DataSpaceManagerSimple(this);
+                spaceManager = new DataSpaceManagerSimple(this, false);
 
                 return true;
             }
@@ -505,7 +505,7 @@ public class DataFileCache {
 
             fileModified  = false;
             cacheModified = false;
-            spaceManager  = new DataSpaceManagerSimple(this);
+            spaceManager  = new DataSpaceManagerSimple(this, false);
 
             logInfoEvent("dataFileCache open end");
         } catch (Throwable t) {
