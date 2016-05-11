@@ -742,7 +742,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                 }
 
                 if (strict && !validVal) {
-                    throw Error.error(ErrorCode.X_42556, propertyName);
+                    throw Error.error(ErrorCode.X_42556, error);
                 }
             }
         }

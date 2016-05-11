@@ -50,7 +50,7 @@ import org.hsqldb.map.ValuePool;
  * allow saving and loading.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.4
  * @since 1.7.0
  */
 public class HsqlProperties {
@@ -509,23 +509,27 @@ public class HsqlProperties {
         }
 
         if (meta[indexClass].equals("Integer")) {
-            int number = Integer.parseInt(value);
+            try {
+                int number = Integer.parseInt(value);
 
-            if (Boolean.TRUE.equals(meta[indexIsRange])) {
-                int low  = ((Integer) meta[indexRangeLow]).intValue();
-                int high = ((Integer) meta[indexRangeHigh]).intValue();
+                if (Boolean.TRUE.equals(meta[indexIsRange])) {
+                    int low  = ((Integer) meta[indexRangeLow]).intValue();
+                    int high = ((Integer) meta[indexRangeHigh]).intValue();
 
-                if (number < low || high < number) {
-                    return "value outside range for property: " + key;
+                    if (number < low || high < number) {
+                        return "value outside range for property: " + key;
+                    }
                 }
-            }
 
-            if (meta[indexValues] != null) {
-                int[] values = (int[]) meta[indexValues];
+                if (meta[indexValues] != null) {
+                    int[] values = (int[]) meta[indexValues];
 
-                if (ArrayUtil.find(values, number) == -1) {
-                    return "value not supported for property: " + key;
+                    if (ArrayUtil.find(values, number) == -1) {
+                        return "value not supported for property: " + key;
+                    }
                 }
+            } catch (NumberFormatException e) {
+                return "invalid integer value for property: " + key;
             }
 
             return null;
@@ -549,7 +553,7 @@ public class HsqlProperties {
 
                 if (number < low) {
                     return low;
-                } else if( high < number) {
+                } else if (high < number) {
                     return high;
                 }
             }
@@ -558,7 +562,6 @@ public class HsqlProperties {
                 int[] values = (int[]) meta[indexValues];
 
                 if (ArrayUtil.find(values, number) == -1) {
-
                     return values[0];
                 }
             }
