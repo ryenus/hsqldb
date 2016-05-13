@@ -13,6 +13,7 @@
 -- added support for lowercase patterns for TO_DATE etc.
 -- added support for VARCHAR string literals with sql.char_literal property
 -- improved MYS syntax mode for INSERT, REPLACE and ON DUPLICATE KEY UPDATE
+-- improved DB2 syntax mode for queries
 -- extensive review and improvement of transaction management in muti-threaded access
 -- fixed issue with user application Thread.interrupt disabling in-process database session
 -- fixed regression with interaction of FK constraints with ON DELETE CASCADE and NO ACTION
