@@ -1851,6 +1851,61 @@
       xlink:href="#databaseobjects-chapt"></link> chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
+        <primary>CONTAINS predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CONTAINS</emphasis></simpara>
+
+      <simpara><emphasis>contains predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;contains predicate&gt; ::= PERIOD &lt;row value
+      predicand&gt; CONTAINS PERIOD &lt;row value
+      predicand&gt;</literal></simpara>
+
+      <simpara>Specify a test for two datetime periods. Each <literal>&lt;row
+      value predicand&gt;</literal> must have two fields and the fields
+      together represent a datetime period. So the predicates is always in the
+      form <literal>PERIOD (X1, X2) CONTAINS PERIOD (Y1, Y2)</literal>. The
+      first field in each period is always a datetime value, while the second
+      field is either a datetime value or a positive interval value.
+      </simpara>
+
+      <simpara>If the second field in a period is an interval value, it is
+      replaced with the sum of the datetime value and itself, for example
+      <literal>PERIOD(X1, X1 + X2) OVERLAPS PERIOD (Y1, Y1 + Y
+      2)</literal>.</simpara>
+
+      <simpara>All datetime values are converted to TIMESTAMP WITH TIME ZONE.
+      The second datetime value must be after the first, otherwise a data
+      error is returned.</simpara>
+
+      <simpara>If the second period is fully within the first period, the
+      result is TRUE. Otherwise it is false.</simpara>
+
+      <simpara>If any of the values is NULL, the result is UNDEFINED.
+      </simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>EQUALS predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">EQUALS</emphasis></simpara>
+
+      <simpara><emphasis>equals predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;equals predicate&gt; ::= PERIOD &lt;row value
+      predicand&gt; EQUALS PERIOD &lt;row value
+      predicand&gt;</literal></simpara>
+
+      <simpara>Specify a test for two datetime periods. The conversions and
+      checks are applied the same way as with the CONTAINS predicate. If the
+      two period have the same begin and end datatime values the result is
+      TRUE. Otherwise it is false.</simpara>
+
+      <simpara>If any of the values is NULL, the result is
+      UNDEFINED.</simpara>
+
+      <indexterm significance="preferred" type="sql">
         <primary>OVERLAPS predicate</primary>
       </indexterm>
 
@@ -1861,24 +1916,75 @@
       <simpara><literal>&lt;overlaps predicate&gt; ::= &lt;row value
       predicand&gt; OVERLAPS &lt;row value predicand&gt;</literal></simpara>
 
-      <simpara>Specify a test for an overlap between two datetime periods.
-      Each <literal>&lt;row value predicand&gt;</literal> must have two fields
-      and the fields together represent a datetime period. So the predicates
-      is always in the form <literal>(X1, X2) OVERLAPS (Y1, Y2)</literal>. The
-      first field is always a datetime value, while the second field is either
-      a datetime value or an interval value.</simpara>
+      <simpara><literal>&lt;overlaps predicate&gt; ::= PERIOD &lt;row value
+      predicand&gt; OVERLAPS PERIOD &lt;row value
+      predicand&gt;</literal></simpara>
 
-      <simpara>If the second value is an interval value, it is replaced with
-      the sum of the datetime value and itself, for example <literal>(X1, X1 +
-      X2) OVERLAPS (Y1, Y1 + Y 2)</literal>.</simpara>
+      <simpara>The OVERLAPS predicate tests for an overlap between two
+      datetime periods. This predicate has two forms. The one without the
+      PERIOD keywords is more relaxed in terms of valid periods.</simpara>
+
+      <simpara>If there is there is any overlap between the two datetime
+      periods, the result is TRUE. Otherwise it is false.</simpara>
+
+      <simpara>If any of the values is NULL, the result is
+      UNDEFINED.</simpara>
+
+      <simpara>In the example below, the period is compared with a week long
+      period ending yesterday.</simpara>
+
+      <programlisting> (startdate, enddate) OVERLAPS (CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY)</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>PRECEDES predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">PRECEDES</emphasis></simpara>
+
+      <simpara><emphasis>precedes predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;precedes predicate&gt; ::= PERIOD &lt;row value
+      predicand&gt; [ IMMEDIATELY] PRECEDES PERIOD &lt;row value
+      predicand&gt;</literal></simpara>
+
+      <simpara>Specify a test for two datetime periods. The conversions and
+      checks are applied the same way as with the CONTAINS predicate. If the
+      second period begins after the end of the first period, the result is
+      TRUE. Otherwise it is false.</simpara>
+
+      <simpara>If IMMEDIATELY is specified, the second period must follow
+      immediately after the end of the first period. This means the end of the
+      first period is the same point of time as the start of the second
+      period.</simpara>
+
+      <simpara>If any of the values is NULL, the result is
+      UNDEFINED.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SUCCEEDS predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SUCCEEDS</emphasis></simpara>
+
+      <simpara><emphasis>succeeds predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;succeeds predicate&gt; ::= PERIOD &lt;row value
+      predicand&gt; [ IMMEDIATELY ] SUCCEEDS PEDIOD &lt;row value
+      predicand&gt;</literal></simpara>
+
+      <simpara>Specify a test for two datetime periods with similar syntax to
+      PRECEDES. If the first period begins after the end of the second period,
+      the result is TRUE. Otherwise it is false.</simpara>
+
+      <simpara>If IMMEDIATELY is specified, the first period must follow
+      immediately after the end of the second period.</simpara>
 
       <simpara>If any of the values is NULL, the result is UNKNOWN.</simpara>
 
-      <simpara>The expression is true if there is there is any overlap between
-      the two datetime periods. In the example below, the period is compared
-      with a week long period ending yesterday.</simpara>
+      <simpara>The example below shows a predicate that returns
+      TRUE.</simpara>
 
-      <programlisting> (startdate, enddate) OVERLAPS (CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY)</programlisting>
+      <programlisting>PERIOD (CURRENT_DATE - 7 DAY, CURRENT_DATE) IMMEDIATELY PRECEDES (CURRENT_DATE, CURRENT_DATE + 7 DAY)</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>IS DISTINCT predicate</primary>

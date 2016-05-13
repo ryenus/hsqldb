@@ -735,7 +735,7 @@
 
             <entry><literal>false</literal></entry>
 
-            <entry>checks the validity of the connection properties</entry>
+            <entry>checks the validity of the database properties</entry>
           </row>
 
           <row>

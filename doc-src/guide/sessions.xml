@@ -357,24 +357,22 @@
       transaction has committed. The transaction then continues automatically.
       This isolation level is called READ CONSISTENCY.</para>
 
-      <para>Deadlock is completely avoided by the engine. The database setting, 
-	  SET DATABASE TRANSACTION ROLLBACK ON CONFLICT, determines what happens in
-	  case of deadlock. In theory, conflict (deadlock) is possible if
-      each transaction is waiting for a different row modified by the other
+      <para>Deadlock is completely avoided by the engine. The database
+      setting, SET DATABASE TRANSACTION ROLLBACK ON CONFLICT, determines what
+      happens in case of deadlock. In theory, conflict (deadlock) is possible
+      if each transaction is waiting for a different row modified by the other
       transaction. In this case, one of the transactions is immediately
-      terminated by rolling back all the previous statements in the transaction
-	  in order to allow the other transaction to continue.
-	  If the setting has been changed to FALSE with the
-      <literal>&lt;set database transaction rollback on conflict
-      statement&gt;</literal>, the
-      session that avoided executing the deadlock-causing statement returns an
-      error, but without rolling back the previous statements in the current 
-	  transaction. This session should perform an alternative statement to 
-	  continue and commit or roll back the transaction. Once the session has 
-	  committed or rolled back, the other session can continue.
-	  This allows maximum flexibility and compatibility with
-      other database engines which do not roll back the transaction upon
-      deadlock.</para>
+      terminated by rolling back all the previous statements in the
+      transaction in order to allow the other transaction to continue. If the
+      setting has been changed to FALSE with the <literal>&lt;set database
+      transaction rollback on conflict statement&gt;</literal>, the session
+      that avoided executing the deadlock-causing statement returns an error,
+      but without rolling back the previous statements in the current
+      transaction. This session should perform an alternative statement to
+      continue and commit or roll back the transaction. Once the session has
+      committed or rolled back, the other session can continue. This allows
+      maximum flexibility and compatibility with other database engines which
+      do not roll back the transaction upon deadlock.</para>
 
       <para>When transactions are running in REPEATABLE READ or SERIALIZABLE
       isolation levels, conflict is more likely to happen. There is no
@@ -538,15 +536,17 @@
     <simpara><emphasis>alter session statement</emphasis></simpara>
 
     <simpara><literal>&lt;alter session statement&gt; ::= ALTER SESSION
-    &lt;numeric literal&gt; { CLOSE | RELEASE }</literal></simpara>
+    &lt;numeric literal&gt; { CLOSE | RELEASE | END
+    STATEMENT}</literal></simpara>
 
-    <simpara>The &lt;alter session statement&gt; is used by an administrator
-    to close another session or to rollback the transaction in another
-    session. This statement is different from the other statements discussed
-    in this chapter as it is not used for changing the settings of the current
-    session. When RELEASE is used, the current transaction is terminated with
-    a rollback. The session remains open. CLOSE should be used after RELEASE
-    has completed.</simpara>
+    <simpara>The <literal>&lt;alter session statement&gt;</literal> is used by
+    an administrator to close another session or to rollback the transaction
+    in another session. This statement is different from the other statements
+    discussed in this chapter as it is not used for changing the settings of
+    the current session. When END STATEMENT is used, the current statement
+    that is waiting to run or being executed is aborted. When RELEASE is used,
+    the current transaction is terminated with a rollback. The session remains
+    open. CLOSE should be used after RELEASE has completed.</simpara>
 
     <simpara>The session ID is used as a <literal>&lt;numeric
     literal&gt;</literal> in this statement. The administrator can use the
