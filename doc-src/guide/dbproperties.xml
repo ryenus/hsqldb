@@ -2081,7 +2081,7 @@
               <entry><literal>0</literal></entry>
 
               <entry>application logging level - can also be used when
-              openning an existing <literal>file:</literal> database</entry>
+              opening an existing <literal>file:</literal> database</entry>
             </row>
 
             <row>
@@ -2122,7 +2122,7 @@
 
               <entry><literal>0</literal></entry>
 
-              <entry>sql logging level - can also be used when openning an
+              <entry>sql logging level - can also be used when opening an
               existing <literal>file:</literal> database</entry>
             </row>
 
@@ -2209,7 +2209,7 @@
               <entry><literal>512</literal></entry>
 
               <entry>maximum number of unused space recovery - can also be
-              used when openning an existing <literal>file:</literal>
+              used when opening an existing <literal>file:</literal>
               database</entry>
             </row>
 
