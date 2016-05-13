@@ -314,7 +314,7 @@
       The <literal>encoding=UTF-16</literal> is big-endian by default. This
       encoding reads a special Unicode character called BOM if it is present
       at the beginning of an existing file and if this character indicates
-      little-indian, the file is treated as such. Note HSQLDB does not write a
+      little-endian, the file is treated as such. Note HSQLDB does not write a
       BOM character to the files it creates from scratch.</para>
 
       <para>Finally, HSQLDB provides the ability to read a text file as READ
