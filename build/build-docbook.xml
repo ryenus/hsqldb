@@ -489,4 +489,12 @@ file.</echo>
   <target name="-validation-setup">
     <fail message="Something is wrong.  '-validation-setup' is abstract"/>
   </target>
+
+  <target name="dumplibs" description="Dump FO and PDF libs"
+          depends="-gen-docs-setup, -fop-setup">
+      <pathconvert property="cp2" refid="fop.cpref"/>
+      <echo>FOP classpath (${cp2})</echo>
+      <pathconvert property="cp1" refid="xalan.cpref"/>
+      <echo>Xalan classpath (${cp1})</echo>
+  </target>
 </project>
