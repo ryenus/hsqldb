@@ -462,7 +462,7 @@
 </programlisting>
   </section>
 
-  <section xml:id="lsc_app_start">
+  <section xml:id="lsc_app_stop">
     <title>Shutting down a Server from your Application</title>
 
     <para>To shut down the server, you can execute the SQL "SHUTDOWN"
