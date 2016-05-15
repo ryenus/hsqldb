@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,13 +89,25 @@ public abstract class TestBase extends TestCase {
         super(name);
     }
 
-    public TestBase(String name, String url, boolean isNetwork,
+    public TestBase(String name, boolean isNetwork,
                     boolean isHTTP) {
 
         super(name);
 
         this.isNetwork = isNetwork;
-        this.url       = url;
+        this.isHTTP    = isHTTP;
+    }
+
+    public TestBase(String name, String url, boolean isNetwork,
+                    boolean isHTTP) {
+
+        super(name);
+
+        if (url != null) {
+            this.url = url;
+        }
+
+        this.isNetwork = isNetwork;
         this.isHTTP    = isHTTP;
     }
 
