@@ -147,12 +147,11 @@ public class IntIndex {
     }
 
     /**
-     * Adds a key, value pair into the table with the guarantee that the key
+     * Adds a key into the table with the guarantee that the key
      * is equal or larger than the largest existing key. This prevents a sort
      * from taking place on next call to find()
      *
      * @param key the key
-     * @param value the value
      * @return true or false depending on success
      */
     public synchronized boolean addSorted(int key) {

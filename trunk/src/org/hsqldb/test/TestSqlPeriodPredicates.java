@@ -322,7 +322,7 @@ public class TestSqlPeriodPredicates extends TestBase {
      */
     public void testInvalidPeriodDateSpecification() {
     	PreparedStatement stmt = null;
-    	List<String> predicates = new LinkedList<>();
+    	List<String> predicates = new LinkedList<String>();
     	Collections.addAll(predicates, "OVERLAPS", "EQUALS", "CONTAINS", "PRECEDES", "SUCCEEDS", "IMMEDIATELY PRECEDES", "IMMEDIATELY SUCCEEDS");
 			for (String predicate: predicates) {
 		    	String query = String.format("SELECT emp_id FROM PUBLIC.EMP WHERE PERIOD (BUS_START, BUS_END) %s PERIOD (?, ?);", predicate);
