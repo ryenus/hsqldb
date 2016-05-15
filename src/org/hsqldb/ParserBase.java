@@ -74,7 +74,7 @@ public class ParserBase {
     /**
      * Constructs a new BaseParser object with the given context.
      *
-     * @param t the token source from which to parse commands
+     * @param scanner the token source from which to parse commands
      */
     ParserBase(Scanner scanner) {
         this.scanner = scanner;

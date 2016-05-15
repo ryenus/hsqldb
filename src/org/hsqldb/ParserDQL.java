@@ -78,7 +78,7 @@ public class ParserDQL extends ParserBase {
      *  Constructs a new Parser object with the given context.
      *
      * @param  session the connected context
-     * @param  t the token source from which to parse commands
+     * @param  scanner the token source from which to parse commands
      */
     ParserDQL(Session session, Scanner scanner, CompileContext baseContext) {
 
