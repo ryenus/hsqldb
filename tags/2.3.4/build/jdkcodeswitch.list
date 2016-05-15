@@ -1,0 +1,25 @@
+# Files listed here will be code-switched
+# This eliminates the need for CodeSwitcher to scan all source files.
+
+org/hsqldb/HsqlDateTime.java
+org/hsqldb/lib/tar/TarFileOutputStream.java
+org/hsqldb/lib/tar/TarGenerator.java
+org/hsqldb/lib/tar/TarReader.java
+org/hsqldb/jdbc/JDBCCallableStatement.java
+org/hsqldb/jdbc/JDBCCommonDataSource.java
+org/hsqldb/jdbc/JDBCConnection.java
+org/hsqldb/jdbc/JDBCDatabaseMetaData.java
+org/hsqldb/jdbc/JDBCDataSource.java
+org/hsqldb/jdbc/JDBCDriver.java
+org/hsqldb/jdbc/JDBCParameterMetaData.java
+org/hsqldb/jdbc/JDBCPreparedStatement.java
+org/hsqldb/jdbc/JDBCResultSet.java
+org/hsqldb/jdbc/JDBCResultSetMetaData.java
+org/hsqldb/jdbc/JDBCStatement.java
+org/hsqldb/jdbc/JDBCUtil.java
+org/hsqldb/jdbc/pool/JDBCPooledDataSource.java
+org/hsqldb/jdbc/pool/JDBCPooledConnection.java
+org/hsqldb/jdbc/pool/JDBCXADataSource.java
+org/hsqldb/lib/java/JavaSystem.java
+org/hsqldb/lib/SimpleLog.java
+org/hsqldb/server/PgType.java

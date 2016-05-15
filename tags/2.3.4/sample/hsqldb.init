@@ -1,0 +1,500 @@
+#!/bin/sh
+# For boot-up and system shutdown, most UNIXes explicitly run a shell
+# interpreter.  In that case, the interpreter line above is ignored.
+# There are a few UNIXes (notably Darwin) that require the interpreter line.
+
+# Copyright (c) 2001-2008, The HSQL Development Group
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# Redistributions of source code must retain the above copyright notice, this
+# list of conditions and the following disclaimer.
+#
+# Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+#
+# Neither the name of the HSQL Development Group nor the names of its
+# contributors may be used to endorse or promote products derived from this
+# software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG, 
+# OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+# $Id$
+
+# UNIX init script for HSQLDB.
+
+# IMPORTANT!  Users running multiple HSQLDB ***Server processes*** must use a 
+# unique "SERVICE" name for each Server process.  Most users will run just one 
+# server instance, possibly serving lots of database instances.  Multi-server
+# runners must change the value on the following line, and, if your system 
+# uses chkconfig or insserv, you must change the value of "hsqldb" to the 
+# same thing (as SERVICE) in the chkconfig and/or insserv blocks a few
+# lines down from here (incl. in the pidfile and config file paths).  (Sorry 
+# to say, but you need to repeat this procedure after every HSQLDB upgrade).
+SERVICE=hsqldb
+# This is the one setting which users will commonly change in this file.
+# It's impossible to determine this script name (in a portable way) at boot-up 
+# time, since ${0} is entirely different for init scripts, depending on UNIX 
+# version.
+
+# See the "HyperSQL on UNIX" chapter of the HyperSQL User Guide for how to
+# use this file.
+# This block only used by chkconfig systems (incl. SuSE Linux).
+# chkconfig: 345 87 13
+# description: HyperSQL Database, A High Performance Java Database Server
+# pidfile: /var/run/hsqldb.pid
+# config: /etc/sysconfig/hsqldb
+
+# This block only used by insserv systems (incl. SuSE Linux).
+### BEGIN INIT INFO
+# Provides:          hsqldb
+# Required-Start:    $syslog $remote_fs $network $named
+# Required-Stop:
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 6
+# Short-Description: HyperSQL Database Server
+# Description:       HyperSQL Database, A High Performance Java Database Server
+### END INIT INFO
+
+# UNIX System-V and Linux users should copy this script to the common
+# init script directory (/etc/init.d/ on most systems) with name "hsqldb",
+# or whatever you have SERVICE set to (no ".init" suffix!).
+
+# N.b.  Being a system script, this script does not use inherited variables.
+# If you want to adjust a setting, edit the config file.
+
+# Strategy of this init script is to avoid shell-specific functionality,
+# and use only lowest-common-denominator Bourne capabilities.
+# We don't include OS-specific functions, and we don't use shell-
+# implementation-specific functionality like "echo ...\c" or "echo -n...".
+# Since some Bourne shells don't support shell functions at all, we don't
+# even define any local functions.
+
+# This script has been generalized to the point that it can now "start"
+# any combination of classes with the normal static main methods.
+# You can supply invocation arguments to the
+# TARGET_CLASS invocation, and can start as many other classes as you
+# wish by using the INVOC_ADDL_ARGS setting (this includes running
+# multiple HSQLDB Servers of various types).
+
+# Template config file can be obtained from the HyperSQL distribution.
+# On the day I write this, I have it located at "sample/hsqldb.cfg" in the
+# distro, but that could change.  You need to copy then edit it before it
+# will work.
+# Recommended locations for runtime configuration file:
+#   Darwin, SunOS, Solaris:  /etc/hsqldb.conf
+#              (However, Sunfreeware.com builds use /usr/local/etc).
+#   Linux:  /etc/sysconfig
+#   FreeBSD:  /usr/local/etc/hsqldb.cfg
+# (Replace the base name "hsqldb" with whatever you have SERVICE set to at
+# the top of this file).
+# You can put it at any of these locations and it will be used.  For
+# your sanity, only put a file at one of these locations.
+
+#  -- blaine.simpson@admc.com
+
+set +u
+
+# Following function is Copyright Apache 2.0 by Axis Data Management Corp.
+# and code is copied verbatim from
+# http://pub.admc.com/scripts/bin/minsleep-nov.fnc
+# Sleeps until process dies or file appears.
+# 2nd parameter is assumed to be a PID if it is an integer.
+minsleep() {
+    [ $# -eq 2 ] || {
+        echo 'SYNTAX:  minsleep MAXSECS PID|PATH   (for integers MAXSECS and PID)' 1>&2
+        return 2
+    }
+    TARGET_PID= TARGET_PATH=
+    MAXSECS=$1; shift
+    case "$1" in *[!0-9]*) TARGET_PATH="$1";; *) TARGET_PID="$1";; esac; shift
+    _secs=0
+    while [ $_secs -lt $MAXSECS ]; do
+        _secs=`expr $_secs + 1`
+        if [ -n "$TARGET_PID" ]; then
+            kill -0 $TARGET_PID > /dev/null 2>&1 || return 0  # Target proc died
+        elif [ -s "$TARGET_PATH" ]; then
+            return 0  # Target process died
+        fi
+        sleep 1
+    done
+    return 1  # Timed out
+}
+
+# This is only used for recursive invocations.
+# Will not necessarily be set correctly at system bootup invocations
+# (where it is sometimes invoked like "sh... /path/to/hsqldb start"),
+# but, in those cases there will be no recursion.
+INVOC_PATH=`dirname "$0"` || {
+    echo "'dirname' failed" 1>&2
+    exit 2
+}
+[ -n "$INVOC_PATH" ] && INVOC_PATH="${INVOC_PATH}/"
+
+SYNTAX_MSG="SYNTAX:  ${INVOC_PATH}${SERVICE} start|stop|stopcompact|restart|restartcmpacted|status"
+
+# You can override any of these default values in your config file:
+
+# Max time for background su command to start up and echo pid.
+# (0 works for moderately fast servers).
+SU_ECHO_SECS=30
+# File used as semaphore.  If file is removed, a running pid checker
+# process will exit.
+PIDCHECKER_FLAGFILE=/tmp/pidchecker.run
+# The following settings get overridden by optional setting in the config file.
+# Max time for JVM to die after all HSQLDB instances stopped.
+MAX_TERMINATE_SECS=60
+# We require all Server/WebServer instances to be accessible within 
+# $MAX_START_SECS from when the Server/WebServer is started.
+MAX_START_SECS=60
+# Class to start
+TARGET_CLASS=org.hsqldb.server.Server
+
+CLIENT_JVMARGS=
+SERVER_JVMARGS=
+CFGFILE=
+LOGFILE=
+PIDFILE=
+BASEDIR=
+AUTH_FILE=
+SHUTDOWN_OPTION=
+SERVER_ADDL_CLASSPATH=
+INVOC_ADDL_ARGS=
+case "`uname`" in
+    Darwin)     # I.e. Mac OS X.  I don't know about older Mac OSes.
+        LOGFILE=/var/log/${SERVICE}.log
+        PIDFILE=/var/run/${SERVICE}.pid
+    ;;
+    Linux)
+        LOGFILE=/var/log/${SERVICE}.log
+        PIDFILE=/var/run/${SERVICE}.pid
+    ;;
+    FreeBSD)
+        LOGFILE=/var/log/${SERVICE}.log
+        PIDFILE=/var/run/${SERVICE}.pid
+    ;;
+    SunOS)
+        LOGFILE=/var/log/${SERVICE}.log
+        PIDFILE=/etc/${SERVICE}.pid
+    ;;
+    *)
+        LOGFILE=/var/log/${SERVICE}.log
+        PIDFILE=/etc/${SERVICE}.pid
+    ;;
+esac
+
+for candidate in /etc/sysconfig/${SERVICE} /etc/${SERVICE}.conf  \
+        /etc/${SERVICE}.cfg  /Library/Hsqldb/conf/${SERVICE}.cfg  \
+        /Library/Hsqldb/${SERVICE}.cfg /usr/local/etc/${SERVICE}.cfg; do
+    [ -f $candidate ] && {
+        CFGFILE=$candidate
+        break
+    }
+done
+[ -n "$CFGFILE" ] || {
+    echo "No global config file found in any of allowed locations" 1>&2
+    exit 11
+}
+
+# Sanity check
+[ -n "$LOGFILE" ] && [ -n "$PIDFILE" ] || {
+    echo "Internal problem in init script" 1>&2
+    exit 11
+}
+
+[ $# -eq 1 ] || {
+    echo "$SYNTAX_MSG" 1>&2
+    exit 4
+}
+
+# It would be nice to permit some uses, like "status" by non-root users,
+# but for now our goal is a superuser init script.
+[ -w / ] || {   # Very portable, but perhaps not perfect, test for superuser.
+    echo "Only 'root' may use this init script" 1>&2
+    exit 4
+}
+
+# Use bsd-style enable/disable if it's in place.
+BSDCFG=
+[ -r /etc/rc.conf ] && [ -f /etc/rc.conf ] && {
+    . /etc/rc.conf
+    BSDCFG=1
+}
+[ -r /etc/rc.conf.local ] && [ -f /etc/rc.conf.local ] && {
+    . /etc/rc.conf.local
+    BSDCFG=1
+}
+[ -n "$BSDCFG" ] && {
+    case "$hsqldb_enable" in [Yy][Ee][Ss]);; [Oo][Nn]);; [Tt][Rr][Uu][Ee]);;
+        *) exit 0;;  # Don't run if not enabled for BSD startup
+    esac
+}
+
+COMMAND="$1"; shift
+
+[ -r "$CFGFILE" ] || {
+    echo "Unable to read config file '$CFGFILE'" 1>&2
+    exit 2
+}
+[ -f "$CFGFILE" ] || {
+    echo "'$CFGFILE' is not a regular file" 1>&2
+    exit 2
+}
+HSQLDB_OWNER=
+JAVA_EXECUTABLE=
+SQLTOOL_JAR_PATH=
+SERVER_HOME=
+SHUTDOWN_URLIDS=
+URLIDS=
+. "$CFGFILE"
+# Suffix delimiter to $SERVER_ADDL_CLASSPATH, if it is set.
+[ -n "$SERVER_ADDL_CLASSPATH" ] &&
+SERVER_ADDL_CLASSPATH="${SERVER_ADDL_CLASSPATH}:"
+# Validate that config file sets all required variables.
+[ -n "$JAVA_EXECUTABLE" ] && [ -n "$SQLTOOL_JAR_PATH" ] &&
+[ -n "$SERVER_HOME" ] && [ -n "$URLIDS" ] || {
+    echo "Config file '$CFGFILE' does not set one or more of following variables
+    JAVA_EXECUTABLE, SQLTOOL_JAR_PATH, SERVER_HOME, URLIDS" 1>&2
+    exit 2
+}
+[ -d "$SERVER_HOME" ] || {
+    echo "SERVER_HOME variable in '$CFGFILE' is set to a non-directory." 1>&2
+    exit 2
+}
+[ -f "$JAVA_EXECUTABLE" ] && [ -f "$SQLTOOL_JAR_PATH" ] || {
+    echo "JAVA_EXECUTABLE or SQLTOOL_JAR_PATH in '$CFGFILE' is set to a non-file." 1>&2
+    exit 2
+}
+
+[ -r "$SQLTOOL_JAR_PATH" ] || {
+    echo "'$SQLTOOL_JAR_PATH' isn't readable" 1>&2
+    exit 2
+}
+[ -x "$JAVA_EXECUTABLE" ] || {
+    echo "No Java executable found at '$JAVA_EXECUTABLE'" 1>&2
+    exit 2
+}
+
+# "chown" lives here on some UNIXes.
+PATH="$PATH:/usr/sbin"
+
+# Make a good effort (but not bullet-proof) check on permissions of the
+# auth file.  Unfortunately, if auth-file is not specified, this depends
+# upon both (a) $HOME being set; and (b) SqlToolSprayer and SqlTool defaults.
+# On the other hand, it works great if AUTH_FILE is set explicitly by user.
+if [ -z "$AUTH_FILE" ] && [ -z "$HOME" ]; then
+    : # Lousy init environment didn't set $HOME, so can't find dflt cfg file.
+else
+    _AUTH_TEST_PATH="$AUTH_FILE"
+    [ -n "${_AUTH_TEST_PATH}" ] || _AUTH_TEST_PATH="$HOME/sqltool.rc"
+    [ -f "$_AUTH_TEST_PATH" ] || {
+        echo "No auth file found at '$_AUTH_TEST_PATH'" 1>&2
+        exit 2
+    }
+    [ -r "$_AUTH_TEST_PATH" ] || {
+        echo "Auth file '$_AUTH_TEST_PATH' not readable" 1>&2
+        exit 2
+    }
+    ls -lLd "$_AUTH_TEST_PATH" | grep '^-..------' > /dev/null 2>&1 || {
+        echo "Fix permissions on '$_AUTH_TEST_PATH' like 'chmod 600 $_AUTH_TEST_PATH'" 1>&2
+        exit 2
+    }
+fi
+
+# Set HSQLDB_PID according to pid file.
+HSQLDB_PID=
+[ -r "$PIDFILE" ]  && {
+    [ -f "$PIDFILE" ] || {
+        echo "'$PIDFILE' is not a regular file" 1>&2
+        exit 6
+    }
+    [ -w "$PIDFILE" ] || {
+        echo "'$PIDFILE' is not writable" 1>&2
+        exit 6
+    }
+    HSQLDB_PID="`cat $PIDFILE`" || {
+        echo "Failed to read pid file '$PIDFILE'" 1>&2
+        exit 6
+    }
+    case "$HSQLDB_PID" in
+        *[a-zA-Z/!@#$%*+=_~]*) HSQLDB_PID=;;
+        *'^'*) HSQLDB_PID=;;
+    esac
+    [ -n "$HSQLDB_PID" ] || {
+        echo "Pid file '$PIDFILE' does not contain a valid process identifier" 1>&2
+        exit 6
+    }
+    kill -0 "$HSQLDB_PID" > /dev/null 2>&1 || {
+        echo 'Removing stale pid file'
+        rm -f "$PIDFILE" || {
+            echo "Failed to remove pid file '$PIDFILE'" 1>&2
+            exit 6
+        }
+        HSQLDB_PID=
+    }
+    #echo "PID is ($HSQLDB_PID)"
+}
+
+case "$COMMAND" in
+    status)
+        [ -n "$HSQLDB_PID" ] || {
+            echo "I don't know of any running ${SERVICE} server."
+            exit 0
+        }
+        echo "There is an ${SERVICE} server loaded from $SQLTOOL_JAR_PATH
+running with pid $HSQLDB_PID."
+        # I would give a nice ps command here, were ps not so damned 
+        # OS-specific.
+        AUTH_FILE_SWITCH=
+        # N.b., there will be a problem if there are special characters or
+        # spaces inside of $AUTH_FILE.
+        [ -n "$AUTH_FILE" ] &&
+        AUTH_FILE_SWITCH="-Dsqltoolsprayer.rcfile=$AUTH_FILE"
+        # Might as well set CLASSPATH for a cleaner command.
+        CLASSPATH="$SQLTOOL_JAR_PATH"
+        export CLASSPATH
+        export PATH   # Required only for some funny init environments.
+        exec "$JAVA_EXECUTABLE" $AUTH_FILE_SWITCH $CLIENT_JVMARGS \
+            "-Dsqltoolsprayer.monfile=$PIDFILE" \
+            org.hsqldb.cmdline.SqlToolSprayer 'CALL true;' $URLIDS > /dev/null
+    ;;
+    start)
+        [ -n "$TLS_KEYSTORE" ] || [ -n "$TLS_PASSWORD" ] &&
+            echo "WARNING:  The TLS_* settings have been obsoleted.
+See the comments in the new sample 'hsqldb.cfg' file." 1>&2
+        [ -n "$HSQLDB_PID" ] && {
+        echo "There is already a ${SERVICE} server running with pid $HSQLDB_PID." 1>&2
+            exit 1
+        }
+        if [ -n "$HSQLDB_OWNER" ]; then
+            touch "$PIDFILE" || {
+                echo "Failed to create pid file" 1>&2
+                exit 1
+            }
+            chown "$HSQLDB_OWNER" "$PIDFILE" || {
+                echo "Failed to chown pid file to '$HSQLDB_OWNER'" 1>&2
+                exit 1
+            }
+            # Some OSes choke if there are newlines in this string.
+            # N.b.!!!  The shell of the -c command is the target user's default
+            # login shell, so keep this command shell-independent!
+            nohup su "$HSQLDB_OWNER" -c "cd '$SERVER_HOME' && echo "'$$'" > '$PIDFILE' && exec '$JAVA_EXECUTABLE' $SERVER_JVMARGS -classpath '${SERVER_ADDL_CLASSPATH}${SQLTOOL_JAR_PATH}' org.hsqldb.util.MainInvoker $TARGET_CLASS $INVOC_ADDL_ARGS" >> "$LOGFILE" 2>&1 &
+        else
+            cd "$SERVER_HOME" || {
+                echo "Failed to cd to '$SERVER_HOME'" 1>&2
+                exit 1
+            }
+            export JAVA_EXECUTABLE
+            export SQLTOOL_JAR_PATH
+            export PIDFILE
+            export SERVER_JVMARGS
+            export TARGET_CLASS
+            export INVOC_ADDL_ARGS
+            export SERVER_ADDL_CLASSPATH
+            nohup sh -c '
+                echo $$ > "$PIDFILE" || {
+                    echo "Failed to write pid to pid file" 1>&2
+                    exit 1
+                }
+                eval exec "$JAVA_EXECUTABLE" $SERVER_JVMARGS -classpath "${SERVER_ADDL_CLASSPATH}${SQLTOOL_JAR_PATH}"  org.hsqldb.util.MainInvoker $TARGET_CLASS $INVOC_ADDL_ARGS
+            ' >> "$LOGFILE" 2>&1 &
+        fi
+        minsleep $SU_ECHO_SECS "$PIDFILE"
+        # Make sure bg commands have time to echo pid.
+        AUTH_FILE_SWITCH=
+        # N.b., there will be a problem if there are special characters or
+        # spaces inside of $AUTH_FILE.
+        [ -n "$AUTH_FILE" ] &&
+        AUTH_FILE_SWITCH="-Dsqltoolsprayer.rcfile=$AUTH_FILE"
+        # Might as well set CLASSPATH for a cleaner command.
+        CLASSPATH="$SQLTOOL_JAR_PATH"
+        export CLASSPATH
+        export PATH   # Required only for some funny init environments.
+        # There are many reasons why we could fail to read the pid file,
+        # but regardless of why, the pid file does not contain a valid pid.
+        touch "$PIDCHECKER_FLAGFILE" || {
+            echo "Failed to touch file '$PIDCHECKER_FLAGFILE'" 1>&2
+            exit 1
+        }
+        export PIDCHECKER_FLAGFILE
+        export PIDFILE
+        (
+            while true; do
+                # Could possibly use minsleep to simplify this, but I don't
+                # want to take the time to test the function export behavior.
+                # -a and -e tests are not portable.
+                [ -f "$PIDCHECKER_FLAGFILE" ] || exit 0
+                kill -0 "`cat $PIDFILE`" > /dev/null 2>&1 || {
+                    rm -f "$PIDFILE" "$PIDCHECKER_FLAGFILE"
+                    exit 1
+                }
+                sleep 1
+            done
+        ) &
+        "$JAVA_EXECUTABLE" $AUTH_FILE_SWITCH $CLIENT_JVMARGS \
+            "-Dsqltoolsprayer.monfile=$PIDFILE" \
+            "-Dsqltoolsprayer.maxtime=${MAX_START_SECS}000" \
+            org.hsqldb.cmdline.SqlToolSprayer 'CALL true;' $URLIDS > /dev/null && {
+            rm -f "$PIDCHECKER_FLAGFILE"
+            echo "$TARGET_CLASS started with pid `cat $PIDFILE`"
+            exit 0
+        }
+        rm -f "$PIDCHECKER_FLAGFILE"
+        echo "Failed to start $TARGET_CLASS.
+See log file '$LOGFILE'." 1>&2
+        exit 1
+    ;;
+    stop|stopcompact)
+        [ "$COMMAND" = stopcompact ] && SHUTDOWN_OPTION='compact'
+        [ -n "$HSQLDB_PID" ] || {
+            echo "I don't know of any running ${SERVICE} server." 1>&2
+            exit 1
+        }
+        AUTH_FILE_SWITCH=
+        # N.b., there will be a problem if there are special characters or
+        # spaces inside of $AUTH_FILE.
+        [ -n "$AUTH_FILE" ] &&
+        AUTH_FILE_SWITCH="-Dsqltoolsprayer.rcfile=$AUTH_FILE"
+        # Might as well set CLASSPATH for a cleaner command.
+        CLASSPATH="$SQLTOOL_JAR_PATH"
+        export CLASSPATH
+        export PATH   # Required only for some funny init environments.
+        "$JAVA_EXECUTABLE" $AUTH_FILE_SWITCH $CLIENT_JVMARGS \
+            org.hsqldb.cmdline.SqlToolSprayer "shutdown ${SHUTDOWN_OPTION};" \
+            $URLIDS $SHUTDOWN_URLIDS || exit 1
+        minsleep $MAX_TERMINATE_SECS $HSQLDB_PID || {
+            echo "WARNING:  ${SERVICE} is still running!" 1>&2
+            exit 1
+        }
+        rm -f "$PIDFILE" || {
+            echo "Failed to remove pid file '$PIDFILE'" 1>&2
+            exit 1
+        }
+        echo "Successful shutdown ${SHUTDOWN_OPTION} (for the $TARGET_CLASS process)!"
+        exit 0
+    ;;
+    restart|restartcompacted)
+        STOP_COMMAND=stop
+        [ "$COMMAND" = restartcompacted ] && STOP_COMMAND=stopcompact
+        "${INVOC_PATH}"${SERVICE} $STOP_COMMAND || exit $?
+        exec "${INVOC_PATH}"/${SERVICE} start
+    ;;
+    *)
+        echo "$SYNTAX_MSG" 1>&2
+        exit 5
+    ;;
+esac

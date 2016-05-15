@@ -1,0 +1,171 @@
+# $Id$
+
+# This is a sample RC configuration file used by SqlTool, DatabaseManager,
+# and any other program that uses the org.hsqldb.lib.RCData class.
+# See the documentation for SqlTool for various ways to use this file.
+
+# If you have the least concerns about security, then secure access to
+# your RC file.
+
+# You can run SqlTool right now by copying this file to your home directory
+# and running
+#    java -jar /path/to/sqltool.jar mem
+# This will access the first urlid definition below in order to use a 
+# personal Memory-Only database.
+# "url" values may, of course, contain JDBC connection properties, delimited
+# with semicolons.
+# As of revision 3347 of SqlFile, you can also connect to datasources defined
+# here from within an SqlTool session/file with the command "\j urlid".
+
+# You can use Java system property values in this file like this:  ${user.home}
+
+# The only feature added recently is the optional "transiso" setting,
+# which may be set to an all-caps transaction isolation level as listed
+# in the Java API Spec for java.sql.Connection.
+# Windows users are advised to use forward slashes instead of reverse slashes,
+# and to avoid paths containing spaces or other funny characters.  (This
+# recommendation applies to any Java app, not just SqlTool).
+
+# A personal Memory-Only (non-persistent) database.
+urlid mem
+url jdbc:hsqldb:mem:memdbid
+username SA
+password
+
+# A personal, local, persistent database.
+urlid personal
+url jdbc:hsqldb:file:${user.home}/db/personal;shutdown=true
+username SA
+password
+transiso TRANSACTION_READ_COMMITTED
+# When connecting directly to a file database like this, you should 
+# use the shutdown connection property like this to shut down the DB
+# properly when you exit the JVM.
+
+# This is for a hsqldb Server running with default settings on your local
+# computer (and for which you have not changed the password for "SA").
+urlid localhost-sa
+url jdbc:hsqldb:hsql://localhost
+username SA
+password
+
+
+
+# Template for a urlid for an Oracle database.
+# You will need to put the oracle.jdbc.OracleDriver class into your 
+# classpath.
+# In the great majority of cases, you want to use jhe desired version of a
+# file odbc*.jar (previously JDBC distributed as classes12.zip),
+# which you can get from the directory $ORACLE_HOME/jdbc/lib of any
+# Oracle installation compatible with your server.
+# Since you need to add to the classpath, you can't invoke SqlTool with
+# the jar switch, like "java -jar .../sqltool.jar...".
+# Put both the SqlTool jar and odbc*.jar in your classpath (and export!)
+# and run something like "java org.hsqldb.util.SqlTool...".
+# You could use the thick driver instead of the thin, but I know of no reason
+# why any Java app should.
+
+#urlid cardiff2
+#url jdbc:oracle:thin:@aegir.admc.com:1521:TRAFFIC_SID
+# Thin SID URLs must specify both port and SID, there are no defaults.
+# Oracle listens to 1521 by default, so that's what you will usually specify.
+# But can alternatively use global service name (not tnsnames.ora service
+# alias, in which case the port does default to 1521):
+#url jdbc:oracle:thin:@centos.admc.com/tstsid.admc
+#username blaine
+#password secretpassword
+#driver oracle.jdbc.OracleDriver
+
+
+
+# Template for a TLS-encrypted HSQLDB Server.
+# Remember that the hostname in hsqls (and https) JDBC URLs must match the
+# CN of the server certificate (the port and instance alias that follows 
+# are not part of the certificate at all).
+# You only need to set "truststore" if the server cert is not approved by
+# your system default truststore (which a commercial certificate probably
+# would be).
+
+#urlid tls
+#url jdbc:hsqldb:hsqls://db.admc.com:9001/lm2
+#username BLAINE
+#password asecret
+#truststore ${user.home}/ca/db/db-trust.store
+
+
+# Template for a Postgresql database
+#urlid blainedb
+#url jdbc:postgresql://idun.africawork.org/blainedb
+#username blaine
+#password losung1
+#driver org.postgresql.Driver
+
+# Template for a MySQL database.  MySQL has poor JDBC support.
+#urlid mysql-testdb
+#url jdbc:mysql://hostname:3306/dbname
+#username root
+#password hiddenpwd
+#driver com.mysql.jdbc.Driver
+
+# Note that "databases" in SQL Server and Sybase are traditionally used for
+# the same purpose as "schemas" with more SQL-compliant databases.
+
+# Template for a Microsoft SQL Server database using Microsoft's Driver
+# (I find that the JTDS driver is much more responsive than Microsoft's).
+# Port defaults to 1433.
+# MSDN implies instances are port-specific, so can specify port or instname.
+#urlid msprojsvr
+# url/driver for Current 2011 JDBC Driver for Microsoft SQL Server:
+# Requires just the new sqljdbc4.jar.  (Microsoft just loves back-slashes)
+#url jdbc:sqlserver://hostname\instname;databaseName=dbname
+# OR
+#url jdbc:sqlserver://hostname;instanceName=instname;databaseName=dbname
+#driver com.microsoft.jdbc.sqlserver.SQLServerDriver
+# url/deriver for OLDER JDBC Driver:
+#url jdbc:microsoft:sqlserver://hostname;DatabaseName=DbName;SelectMethod=Cursor
+# The SelectMethod setting is required to do more than one thing on a JDBC
+# session (I guess Microsoft thought nobody would really use Java for 
+# anything other than a "hello world" program).
+# This is for Microsoft's SQL Server 2000 driver (requires mssqlserver.jar
+# and msutil.jar).
+#driver com.microsoft.jdbc.sqlserver.SQLServerDriver
+#username myuser
+#password hiddenpwd
+
+# Template for Microsoft SQL Server database using the JTDS Driver
+# http://jtds.sourceforge.net  Jar file has name like "jtds-1.2.5.jar".
+# Port defaults to 1433.
+# MSDN implies instances are port-specific, so can specify port or instname.
+#urlid nlyte
+#username myuser
+#password hiddenpwd
+#url jdbc:jtds:sqlserver://myhost/nlyte;instance=MSSQLSERVER
+# Where database is 'nlyte' and instance is 'MSSQLSERVER'.
+# N.b. this is diff. from MS tools and JDBC driver where (depending on which
+# document you read), instance or database X are specified like  HOSTNAME\X.
+#driver net.sourceforge.jtds.jdbc.Driver
+
+# Template for a Sybase database
+#urlid sybase
+#url jdbc:sybase:Tds:hostname:4100/dbname
+#username blaine
+#password hiddenpwd
+# This is for the jConnect driver (requires jconn3.jar).
+#driver com.sybase.jdbc3.jdbc.SybDriver
+
+# Template for Embedded Derby / Java DB.
+#urlid derby1
+#url jdbc:derby:path/to/derby/directory;create=true
+#username ${user.name}
+#password any_noauthbydefault
+#driver org.apache.derby.jdbc.EmbeddedDriver
+# The embedded Derby driver requires derby.jar.
+# There'a also the org.apache.derby.jdbc.ClientDriver driver with URL
+# like jdbc:derby://<server>[:<port>]/databaseName, which requires
+# derbyclient.jar.
+# You can use \= to commit, since the Derby team decided (why???)
+# not to implement the SQL standard statement "commit"!!
+# Note that SqlTool can not shut down an embedded Derby database properly,
+# since that requires an additional SQL connection just for that purpose.
+# However, I've never lost data by not shutting it down properly.
+# Other than not supporting this quirk of Derby, SqlTool is miles ahead of ij.
