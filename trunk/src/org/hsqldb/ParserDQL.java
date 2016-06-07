@@ -919,7 +919,7 @@ public class ParserDQL extends ParserBase {
 
             boolean recursive = readIfThis(Tokens.RECURSIVE);
 
-            compileContext.initSubqueryNames();
+            compileContext.unregisterSubqueries();
 
             while (true) {
                 checkIsSimpleName();
@@ -1909,10 +1909,6 @@ public class ParserDQL extends ParserBase {
 
         if (td.isRecompiled()) {
             td = td.newDerivedTable(session);
-        } else {
-
-            // after first use of named subqueries
-            td.canRecompile = true;
         }
 
         return td;
@@ -4545,28 +4541,51 @@ public class ParserDQL extends ParserBase {
     TableDerived XreadTableNamedSubqueryBody(HsqlName name,
             HsqlName[] columnNames, int type) {
 
+        TableDerived td;
+        int          position = getPosition();
+        int          depth    = compileContext.getDepth();
+
         switch (type) {
 
             case OpTypes.RECURSIVE_SUBQUERY : {
-                TableDerived td = XreadRecursiveSubqueryBody(name,
-                    columnNames);
+                try {
+                    td = XreadRecursiveSubqueryBody(name, columnNames);
 
-                return td;
-            }
-            case OpTypes.TABLE_SUBQUERY : {
-                TableDerived td = XreadSubqueryTableBody(name, type);
-
-                if (td.queryExpression != null) {
-                    td.queryExpression.resolve(session);
+                    break;
+                } catch (HsqlException e) {
+                    rewind(position);
+                    compileContext.decrementDepth(depth);
                 }
+            }
 
-                td.prepareTable(session, columnNames);
+            // fall through
+            case OpTypes.TABLE_SUBQUERY : {
+                try {
+                    td = XreadSubqueryTableBody(name, type);
 
-                return td;
+                    if (td.queryExpression != null) {
+                        td.canRecompile = true;
+
+                        td.queryExpression.resolve(session);
+                    }
+
+                    td.prepareTable(session, columnNames);
+
+                    break;
+                } catch (HsqlException e) {
+                    rewind(position);
+                    compileContext.decrementDepth(depth);
+
+                    td = XreadRecursiveSubqueryBody(name, columnNames);
+
+                    break;
+                }
             }
             default :
                 throw unexpectedToken();
         }
+
+        return td;
     }
 
     TableDerived XreadRecursiveSubqueryBody(HsqlName name,
@@ -4588,7 +4607,6 @@ public class ParserDQL extends ParserBase {
 
         compileContext.decrementDepth();
         td.prepareTable(session, columnNames);
-        compileContext.initSubqueryNames();
         compileContext.registerSubquery(name.name);
         compileContext.registerSubquery(name.name, td);
         checkIsThis(Tokens.UNION);
@@ -6657,10 +6675,19 @@ public class ParserDQL extends ParserBase {
 
         public void decrementDepth() {
 
+            clearSubqueries();
+
             subqueryDepth--;
 
             if (baseContext != null) {
                 baseContext.subqueryDepth--;
+            }
+        }
+
+        public void decrementDepth(int toDepth) {
+
+            while (subqueryDepth > toDepth) {
+                decrementDepth();
             }
         }
 
@@ -6822,12 +6849,26 @@ public class ParserDQL extends ParserBase {
                 set = new HashMappedList();
 
                 namedSubqueries.set(subqueryDepth, set);
-            } else {
-                set.clear();
+            }
+        }
+
+        private void clearSubqueries() {
+
+            if (namedSubqueries != null) {
+                if (namedSubqueries.size() > subqueryDepth) {
+                    HashMappedList set =
+                        (HashMappedList) namedSubqueries.get(subqueryDepth);
+
+                    if (set != null) {
+                        set.clear();
+                    }
+                }
             }
         }
 
         private void registerSubquery(String name) {
+
+            initSubqueryNames();
 
             HashMappedList set =
                 (HashMappedList) namedSubqueries.get(subqueryDepth);

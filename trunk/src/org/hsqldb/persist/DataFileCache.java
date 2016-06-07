@@ -1178,7 +1178,7 @@ public class DataFileCache {
 
             HsqlException ex = Error.error(ErrorCode.DATA_FILE_ERROR, t);
 
-            if (rowIn.getPos() != pos) {
+            if (rowIn.getFilePosition() != pos) {
                 rowIn.resetRow(pos, 0);
             }
 

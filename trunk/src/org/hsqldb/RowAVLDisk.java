@@ -146,7 +146,7 @@ public class RowAVLDisk extends RowAVL {
 
         super(t, (Object[]) null);
 
-        position    = in.getPos();
+        position    = in.getFilePosition();
         storageSize = in.getSize();
 
         int indexcount = t.getIndexCount();

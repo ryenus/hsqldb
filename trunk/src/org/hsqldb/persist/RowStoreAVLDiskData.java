@@ -127,7 +127,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         try {
             RowAVLDiskData row = new RowAVLDiskData(this, table, in);
 
-            row.setPos(in.getPos());
+            row.setPos(in.getFilePosition());
             row.setStorageSize(in.getSize());
             row.setChanged(false);
             ((TextCache) cache).addInit(row);

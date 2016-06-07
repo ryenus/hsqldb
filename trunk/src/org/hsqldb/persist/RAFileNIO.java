@@ -499,6 +499,10 @@ final class RAFileNIO implements RandomAccessInterface {
 
     private void setCurrentBuffer(long offset) {
 
+        if(readOnly) {
+            return;
+        }
+
         int bufferIndex = (int) (offset >> largeBufferScale);
 
         // when moving to last position in file
@@ -521,6 +525,9 @@ final class RAFileNIO implements RandomAccessInterface {
      */
     private void checkBuffer() {
 
+        if(readOnly) {
+            return;
+        }
         int bufferIndex = (int) (currentPosition >> largeBufferScale);
 
         if (currentPosition != bufferPosition + buffer.position()) {

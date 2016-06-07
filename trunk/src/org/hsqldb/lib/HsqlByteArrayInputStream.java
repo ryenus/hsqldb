@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import java.io.InputStream;
  * (without synchronization) and java.io.DataInputStream
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.7.2
  */
 public class HsqlByteArrayInputStream extends InputStream
@@ -65,6 +65,10 @@ implements DataInput {
         this.pos    = offset;
         this.count  = Math.min(offset + length, buf.length);
         this.mark   = offset;
+    }
+
+    public final long getPos() {
+        return pos;
     }
 
     // methods that implement java.io.DataInput
