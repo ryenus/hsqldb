@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+    Document   : mydoc_1_0.dtd
+    Created on : May 28, 2006, 8:13 PM CST
+    Author     : boucherb@users
+    Description: Test JDBCSQLXML
+
+    PUBLIC ID  : -//MYDOC//DTD MYDOC 1.0//EN
+    SYSTEM ID  : http://server/path/mydoc_1_0.dtd
+-->
+
+<!ELEMENT mydoc (parent|whee|stuff)*>
+<!ATTLIST mydoc
+    version CDATA #IMPLIED
+  >
+
+<!ELEMENT stuff (#PCDATA)>
+
+<!ELEMENT whee (#PCDATA)>
+
+<!ELEMENT parent (child)*>
+<!ATTLIST parent
+    name CDATA #IMPLIED
+  >
+
+<!ELEMENT child (#PCDATA)>
+<!ATTLIST child
+    name CDATA #IMPLIED
+  >

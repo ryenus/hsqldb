@@ -1,0 +1,714 @@
+defaultTasks 'help'
+
+/**
+ * The only end-user Gradle build properties used at this time are:
+ *     ivyDepFile  Path to ivy dependencies file.  Defaults to 'ivy.xml'.
+ *                 (This corresponds to Ivy's property 'ivy.dep.file').
+ *     gradled.retain  Set to 'true' to retain the temporary files
+ *                     "build-gradled.xml", "build-docbook-gradled.xml"
+ *                     in the parent (real project root) directory.
+ *                     IMPORTANT: If you get non-trivial Ant build errors,
+ *                     definitely run gradle with '-i' switch and with
+ *                     ratain.gradles true.
+ *     allTasks   Used only by the 'tasks' task.  Setting this to 'true' is
+ *                equivalent to the task-specific switch '--all' for the
+ *                out-of-the-box 'tasks' task.  I.e., our
+ *                'gradlew -PallTasks=true tasks'
+ *                emulates out-of-the-box 'gradlew tasks --all'.
+ *     newVersion  Used only by the 'updateWrapper' task, which is only for
+ *                 baseline maintainers.
+ * There are probably a few other task-specific properties, but these tasks
+ * are written to abort cleanly and tell you if they need a property set.
+ * Other build properties are loaded indirectly by Ant, so you must use
+ * Gradle's -D switch to set those Ant properties as Java system properties.
+ *
+ * @author Blaine Simpson  (blaine dot simpson at admc dot com)
+ */
+
+buildscript { dependencies {
+    classpath fileTree(dir: '.', include: 'gradle-javaPropFile-plugin-*.jar')
+    classpath fileTree(dir: '.', include: 'gradle-ivyxml-plugin-*.jar')
+} }
+
+apply plugin: 'javaPropFile'
+apply plugin: 'ivyxml'
+
+import com.admc.gradle.JavaPropFile
+def buildPropertiesFile = file('build.properties')
+def localBookPropertiesFile = file('local-docbook.properties')
+propFileLoader.typeCasting = true
+if (buildPropertiesFile.isFile()) propFileLoader.load(buildPropertiesFile)
+if (localBookPropertiesFile.isFile())
+    propFileLoader.load(localBookPropertiesFile)
+
+repositories { mavenCentral() }
+
+if (!project.hasProperty('mvnBuild')) project.ext.mvnBuild = false
+task checkIt << {
+    println "mvnBuild is " + project.mvnBuild
+}
+
+if (!project.hasProperty('retainGradled'))
+    ext.retainGradled = (project.hasProperty('gradled.retain')
+        && Boolean.parseBoolean(project.property('gradled.retain')))
+
+configurations {
+    xcsdeRngvalJar
+    xcsdeRngvalDeps
+    xalan
+    fop
+    bndJar
+    jflexJar
+}
+
+task noop  // Quiet task for testing root-level Groovy/Gradle development
+noop.description = 'Noop for testing Gradle'
+
+// This task only for SCM administrator.  Update version and execute this task.
+task updateWrapper(type: Wrapper) { doFirst {
+    assert project.hasProperty('newVersion') :
+        '''Property 'newVersion' is required for task 'updateWrapper'.'''
+    assert project.newVersion == gradle.gradleVersion :
+        "You invoke Gradle system with version $gradle.gradleVersion instead of desired version $project.newVersion"
+} }
+updateWrapper << {
+    gradleVersion = project['newVersion']
+    println 'WARNING:  Merge our customizations into the newly-generated wrapper scripts'
+}
+updateWrapper.description = 'Update Gradle version.  For HSQLDB Administrators.'
+
+def javaPluginTasks = [
+    'compileJava',
+    'processResources',
+    'classes',
+    'compileTestJava',
+    'processTestResources',
+    'testClasses',
+    'jar',
+    'javadoc',
+    'test',
+    'uploadArchives',
+    'clean',
+]
+
+void resolveCheck(configName) {
+    int artCount = configurations[configName].files.size()
+    // Following test works only if deps' transitive is false.
+    if (configurations[configName].allDependencies.size() != artCount) {
+        logger.error(
+                "Didn't resolve all dependencies for config '$configName'.  "
+                + configurations[configName].allDependencies.size()
+                + ' dependencies:\n    ' + configurations[configName]
+                .allDependencies .collect({it.name}).join('\n    ')
+                + '\nbut ' + artCount
+                + ' resolved artifacts:\n    '
+                + configurations[configName].files.collect({it}).join('\n    ')
+                + '\n'
+        )
+        assert false : '''Didn't resolve all dependencies.'''
+    }
+    //configurations[configName].files.each { println '+' + it }
+    //throw new GradleException('''Quittin' early''')
+    logger.info "$artCount  artifacts resolved"
+}
+
+/*  This task will become useful for native Gradle compilations
+compileJava.dependsOn << {
+    if (!project.hasProperty('resolveCheck.skip')
+            || !Boolean.parseBoolean(project.property('resolveCheck.skip')))
+        resolveCheck('compile')
+}
+*/
+
+task checkTabs << {
+    FileTree tree = fileTree(dir: '..')
+    tree.exclude '**/javadoc.css'
+    tree.exclude '**/*.jar'
+    tree.exclude '**/*.png'
+    tree.exclude '**/*.class'
+    tree.exclude '**/*.zip'
+    tree.exclude '**/*.gif'
+    tree.exclude '**/*.data'
+    tree.exclude '**/.*/**'
+    tree.exclude '**/images/**'
+    tree.exclude 'sample/sample'
+    tree.include  '*.text'
+    tree.include  'build/*'
+    tree.include  'src/**'
+    tree.include  'test-src/**'
+    tree.include  'sample/**'
+    tree.include  'integration/**'
+    tree.include  'bin'
+    tree.include  'stylesheets/**'
+    tree.include  'doc-src/**'
+    def tabFiles = []
+    tree.each { if (it.text.indexOf('\t') > -1) tabFiles << relativePath(it) }
+    if (tabFiles.size() > 0) println '  ' + tabFiles.join('\n  ')
+}
+checkTabs.description = 'Reports on any text files containing tab characters'
+
+import java.util.regex.Pattern
+import java.util.regex.Matcher
+import groovy.xml.XmlUtil
+import groovy.xml.StreamingMarkupBuilder
+
+private void recursivePush(newName, dli, msl, ips) {
+    assert !msl.contains(newName) :
+            "Recursion duplication for target '$newName'"
+    if (ips.contains(newName))
+        throw new GradleException("Recursion cycle for target '$newName'")
+    ips.add(0, newName)
+    dli.each { superEl ->
+        if (superEl.contains(newName)) for (subEl in superEl) {
+            if (subEl == newName) break
+            if (ips.contains(subEl))
+                throw new GradleException(
+                        "Dependency cycle exists for target '$subEl'")
+            if (!msl.contains(subEl)) // Recurse
+                recursivePush(subEl, dli, msl, ips)
+        }
+    }
+    msl.add(newName)
+    assert ips.remove(0) == newName : 'Internal IPS stack problem'
+}
+
+import groovy.util.slurpersupport.GPathResult
+
+/**
+ * @param fileNameInsertion.
+ *        For translating input filenames to new output files.
+ * @closures Will call these with param of the corresponding Slurped XML
+ *           (same number of elements as number of input files).
+ *           Null to not do anything with it.
+ */
+File[] resequenceAntDependencies(String fileNameInsertion,
+        closures, prohibitedTasks, inFiles) {
+    def projectGpathRs = []
+    inFiles.each { f ->
+        GPathResult gPathR = new XmlSlurper().parseText(f.getText('UTF-8'))
+        assert gPathR.name() == 'project' :
+                ("Root element in file '$f.absolutePath' not 'project': "
+                + gPathR.name())
+        projectGpathRs << gPathR
+    }
+
+    project.ext.prohibitionMap = [:]
+    
+    if (prohibitedTasks != null) projectGpathRs.each { pGpathR ->
+        pGpathR.'**'.findAll {
+            it.@target.list().size() > 0
+        }.each { targ ->
+            if (prohibitedTasks.contains(targ.@target.text())) {
+                String n = targ.@target.text()
+                if (!prohibitionMap.containsKey(n))
+                    prohibitionMap[n] = 'ant' + n.capitalize()
+                targ.@target = prohibitionMap[n]
+            }
+        }
+        prohibitedTasks.each { k ->
+            pGpathR.target.each {
+                if (it.@name.text() == k) {
+                    if (!prohibitionMap.containsKey(k))
+                        prohibitionMap[k] = 'ant' + k.capitalize()
+                    it.@name = prohibitionMap[k]
+                }
+                def de = it.@depends
+                if (de.list().size() < 1) return
+                List depEls = de.text().split(/[\s,]+/)
+                int i = depEls.indexOf(k)
+                if (i < 0) return
+                if (!prohibitionMap.containsKey(k))
+                    prohibitionMap[k] = 'ant' + k.capitalize()
+                depEls.remove(i)
+                depEls.add(i, prohibitionMap[k])
+                it.@depends = depEls.join(', ')
+            }
+        }
+    }
+
+    // 3.5: Conditionally execute user-specified closures
+    if (closures != null) {
+        assert closures.size() == projectGpathRs.size() :
+               ('Size of given projectGpathRs != size of closures: '
+               + projectGpathRs.size() + ' vs. ' + closures.size())
+        closures.eachWithIndex { closure, i ->
+            if (closures != null) closure(projectGpathRs[i])
+        }
+    }
+
+    // 4: Write modified Ant build file
+    List<File> outFiles = []
+    File outFile
+    Pattern dotPattern = Pattern.compile('\\.')
+    inFiles.eachWithIndex { inFile, i ->
+        if (inFile.name.indexOf('.') < 0)
+            throw new GradleException(
+                    'Input file name has no extension:  ' + inFile.name)
+        outFile = new File(
+                ((project.hasProperty('resequence.destDir'))
+                        ? project['resequence.destDir']
+                        : inFile.getParentFile()),
+                dotPattern.matcher(inFile.getName()).replaceFirst(
+                fileNameInsertion + '.'))
+        outFiles << outFile
+        logger.info "Writing '$outFile.absolutePath'"
+        outFile.write(XmlUtil.serialize(new StreamingMarkupBuilder().bind {
+                mkp.yield projectGpathRs[i]
+        }), 'UTF-8')
+    }
+    return outFiles
+}
+
+// RESEQUENCE
+project.ext.set('resequence.destDir', file('..'))
+// The top-level entry Build file must be first!!!
+project.ext.set('sourceAntBuildFiles',
+  [file('build.xml'), file('build-docbook.xml')])
+if (project.hasProperty('addlAntBuildFiles'))
+    sourceAntBuildFiles = addlAntBuildFiles + sourceAntBuildFiles
+//throw new GradleException(sourceAntBuildFiles.join(','))
+
+project.ext.set('antBuildClosures', [{
+        it.import.@file = 'build-docbook-gradled.xml'
+        it.@name = it.@name.text() + '_gradled'
+        it.attributes().remove('basedir')
+        // Global var because needed for our replacement task definition below
+    }, {
+        it.@name = it.@name.text() + '_gradled'
+        it.import.replaceNode {}
+        // Global var because needed for our replacement task definition below
+        project.ext.set('ivySetupTaskName', '-ivy-setup')
+        it.appendNode { target(name: ivySetupTaskName) }
+    }
+])
+if (project.hasProperty('addlAntBuildClosures'))
+    antBuildClosures = addlAntBuildClosures + antBuildClosures
+
+File[] outFs = resequenceAntDependencies(
+        '-gradled', antBuildClosures, (project.mvnBuild ? javaPluginTasks : null),
+        sourceAntBuildFiles)
+
+ant.importBuild(outFs[0].absolutePath)
+if (!ext.retainGradled) outFs.each { it.deleteOnExit() }
+version = ant.properties['hsqldb.version']  // Inherit version from "build.xml"
+
+// This removes descriptions from sub-project tasks
+getTasks().each { t ->
+    if (t.description != null && t.name.indexOf('.') > 0) t.description = null
+}
+
+task serialver(dependsOn: ['classes16', 'util']) << {
+    assert project.hasProperty('className'):
+            '''Property 'className' is required for task 'serialver'.'''
+    String fileSep = System.properties['file.separator']
+    // Could alternatively use Gradle's ExecSpec via exec(...)
+    String javaHome = System.properties['java.home']
+    String javacHome = (javaHome.endsWith("jre")
+            ? javaHome.substring(0, javaHome.length() - "/jre".length())
+            : javaHome)
+    Process process = new ProcessBuilder([
+        javacHome + fileSep + 'bin' + fileSep + 'serialver',
+        '-classpath',
+        '../classes',
+        project.property('className')
+    ]).redirectErrorStream(true).start()
+    // Must read input before waitFor-ing
+    File outFile = new File(System.properties['java.io.tmpdir'],
+                'serialVer-' + System.properties['user.name'] + '.txt')
+    process.inputStream.eachLine { println it; outFile.write(it + '\n') }
+    assert process.waitFor() == 0:  '''Execution of 'serialver' failed'''
+    println """Also written to file '$outFile.absolutePath'
+so you can read it into your editor."""
+}
+serialver.description = "Generates Java serialversion for specified 'classname'"
+
+ivyxml.load()
+
+import org.apache.tools.ant.types.Path
+project.task([overwrite: true], ivySetupTaskName) << {
+    ant.references['xcsde-rngval-jar.cpref'] =
+            new Path(ant.project, configurations['xcsdeRngvalJar'].asPath)
+    ant.references['xcsde-rngval-deps.cpref'] =
+            new Path(ant.project, configurations['xcsdeRngvalDeps'].asPath)
+    ant.references['fop.cpref'] =
+            new Path(ant.project, configurations['fop'].asPath)
+    ant.references['xalan.cpref'] =
+            new Path(ant.project, configurations['xalan'].asPath)
+    ant.references['jflex-jar.cpref'] =
+            new Path(ant.project, configurations['jflexJar'].asPath)
+    ant.references['bnd-jar.cpref'] =
+            new Path(ant.project, configurations['bndJar'].asPath)
+}
+
+private def recursiveAggregator(additions, inMap, assemblage) {
+    additions.each { addition ->
+        if (!assemblage.contains(addition)) {
+            recursiveAggregator(inMap[addition], inMap, assemblage)
+            assemblage << addition
+        }
+    }
+    return assemblage
+}
+
+def hsqldbTask = tasks['hsqldb']
+hsqldbTask.outputs.file file('../lib/hsqldb.jar')
+hsqldbTask.inputs.source fileTree (
+    dir:'..',
+    excludes: ['classes/org/hsqldb/jmx/**', 'classes/org/hsqldb/cmdline/**'],
+    includes: ['doc/*_lic.txt', 'classes/**']
+)
+
+def sqltoolTask = tasks['sqltool']
+sqltoolTask.outputs.file file('../lib/sqltool.jar')
+sqltoolTask.inputs.source fileTree (
+    dir:'..',
+    includes: ['doc/*_lic.txt', 'classes/org/hsqldb/cmdline/**',
+            'classes/org/hsqldb/lib/**', 'classes/org/hsqldb/resources/jdklog*']
+)
+
+def osgiTask = tasks['osgi']
+osgiTask.outputs.file file('../lib/hsqldb-osgi.jar')
+osgiTask.inputs.files files(file('../lib/hsqldb.jar'), file('hsqldb.bnd'))
+
+task standaloneValidation << {
+    if (!project.hasProperty('install.parent.dir')) {
+        // Load some properties from Ant build file, for use in our message.
+        String threadStackSize = ant.properties['xmlvalidation.threadstacksize']
+        String xmlCatalogFiles = ant.properties['xml.catalog.files']
+        String dbxirngUrl = ant.properties['dbxirng.url']
+        println """If you have set build property 'install.parent.dir', then task 'standalone'
+will install the standalone XML validator that you can use to validate HyperSQL
+DocBook document source files.
+If you have not set build property 'install.parent.dir', you will see these
+instructions.
+
+Validating our DocBook source files requires a powerful XML validator that
+supports Xincludes, XML catalogs, DTD entities, and other advanced XML features.
+You can use the task 'validate-docs' or 'validate-doc' using Gradle (or Ant),
+but if you want to run a standalone validator, we will install one for you...
+read on.
+
+To use the standalone validator, xcsde-rngval, you need to know the full path
+to the file 'xcsde-rngval-*.jar' which will reside wherever you install the
+validator to.  You then cd to the directory containing your XML source files
+and run a command like this:
+
+  java -Xss$threadStackSize -Dxml.catalog.files=$xmlCatalogFiles -jar .../xcsde-rngval-*.jar -v $dbxirngUrl file.xml...
+
+See the XML Commons docs about the Java System Properties to use for XML
+catalog resolution:
+
+  http://xml.apache.org/commons/components/resolver/resolver-article.html#ctrlresolver
+
+To install the validator, just set build property 'install.parent.dir' to the
+directory under which you want the validator installed (a new subdirectory will
+be created) and re-run this 'standaloneValidation' task.
+You can set the property by adding a switch to your gradlew invocation, like
+    gradlew -P install.parent.dir=c:/Users/cindy
+or by editing file '${projectDir.absolutePath}/build.properties' (creating it
+if it doesn't already exist) and adding a line like
+    install.parent.dir=c:/Users/cindy
+Afterwards, if you want to see these instructions again, you can re-run this
+same task, 'standaloneValidation', as many times as you want to, without the
+property (remove the line from the properties file or omit the command-line
+switch)."""
+        return
+    }
+    String zipFileName = 'xcsde-rngval-LATEST.zip'
+    String zipUrlString =
+            'http://cloud.github.com/downloads/unsaved/xcsde-rngval/' +
+            zipFileName
+
+    File localZip = new File(System.properties['java.io.tmpdir'], zipFileName)
+    BufferedOutputStream bos =
+            new BufferedOutputStream(new FileOutputStream(localZip))
+    localZip.deleteOnExit()
+    //println localZip.absolutePath
+    zipUrlString.toURL().withInputStream() { bos << it }
+    bos.close()
+
+    File pDir = new File(project.property('install.parent.dir'))
+    assert pDir.canWrite() : "Can't write to '$installParentDir'"
+    // Unfortunately, the following writes temp files under build/build/tmp.
+    // Too complicated to clean it up safely, so we'll leave it there for now.
+    File newDir =
+            new File(pDir, zipTree(localZip).iterator().next().parentFile.name)
+    assert !newDir.exists() :
+            "New target directory already exists: $newDir.absolutePath"
+    ant.unzip(src:localZip.absolutePath,
+            dest:pDir.absolutePath, overwrite:'false')
+    if (!newDir.isDirectory())
+        throw new IOException("Extraction into '$newDir.absolutePath' failed")
+    println """Installed xcsde-rng validator to new directory: $newDir.absolutePath
+For usage instructions, re-run this target, 'standaloneValidation' without the
+'install.parent.dir' build property."""
+}
+standaloneValidation.description =
+        'Install standalone XML validator, and instructions for same'
+
+/**
+ *
+ * Override both the Gradle out-of-the-box 'help' task, as well as our HSQLDB
+ * Ant 'help' target, because the latter is very Ant-specific.
+ * To get the both of both worlds, we combine the output of Gradle's OOTB
+ * 'help' with Gradle-translated output of our Ant 'help' target.
+ */
+task help(overwrite:true) << {
+    String antVer = ant.properties['ant.version']
+            .replaceFirst('^[^\\d]*(\\d\\S+).*$', '$1')
+    print """
+Welcome to Gradle $gradle.gradleVersion.  (Wrapping Ant $antVer).
+
+To run a build, run 'gradlew <task> ...'
+
+To see a list of available tasks, run 'gradlew tasks'.
+Add switch -q to make Gradle run quieter, or -i -s to run louder
+(or -d -S for very loud).
+
+
+Usage:
+   gradlew --help           Display 'gradlew' command syntax
+   gradlew tasks            Display all invocable targets
+   gradlew explainjars      List all targets which build jar files
+   gradlew explainprops     Explain how to change build properties
+   gradlew ANYTHING ELSE    'gradlew --help' and 'gradlew tasks' for details
+
+examples:
+   gradlew hsqldb
+   gradlew clean
+"""
+}
+help.description = 'Displays a help message'
+
+task explainprops << {
+    println '''
+There are two types of build properties that you can change.
+See comments at top of "build-*.xml" files for available Ant build properties.
+See comments at top of "build-*.gradle" files for available Gradle build
+properties.
+
+For property settings that you want to apply to most builds, use a Java
+properties file named "build.properties".  For example, to usually build
+non-debug/speed-and-size optimized Java classes, set
+   build.debug=true
+Whether or not you set properties in this way, you can override with
+invocation-specific properties as follow.
+
+For invocation-specific Ant property settings, use -D switches.  For example
+    gradlew -Dbuild.debug=false hsqldb
+
+For invocation-specific Gradle property settings, use -P switches like this:
+    gradlew -Pgradled.retain=true hsqldb
+'''
+}
+explainprops.description = 'Explain how to change default build properties'
+
+task installDbImages << {
+    assert !project.hasProperty('dbimage.path') :
+            '''Property 'dbimage.path' may not be set when running target 'installDbImages'.\n''' +
+    'If you have it set in a properties file, please remove it and try again.'
+    if (project.hasProperty('nsstylebase.url')) {
+        File dbimageDir = null
+        String nsStyleBaseUrlString = project.property('nsstylebase.url')
+        if (nsStyleBaseUrlString.startsWith('file:')) {
+            Matcher nsm = nsStyleBaseUrlString =~ 'file:(.+)'
+            if (nsm.matches()) {
+                String nsStyleBasePath = nsm.group(1)
+                // First try relative to the Ant basedir
+                File nsStyleBaseDir =
+                       new File(project.projectDir.parentFile, nsStyleBasePath)
+                if (!nsStyleBaseDir.isDirectory()) nsStyleBaseDir = null
+                if (nsStyleBaseDir == null) {
+                    nsStyleBaseDir = new File(nsStyleBasePath)
+                    if (!nsStyleBaseDir.isDirectory())
+                        nsStyleBaseDir = null
+                }
+                if (nsStyleBaseDir != null) {
+                    dbimageDir = new File(nsStyleBaseDir, 'images')
+                    if (!dbimageDir.isDirectory())
+                        dbimageDir = null
+                }
+            }
+        }
+        if (dbimageDir != null) {
+            file('local-docbook.properties').append(
+                    "dbimage.path=$dbimageDir".replace('\\', '\\\\') + '\n',
+                    'ISO-8859-1')
+            println '''File 'local-docbook.properties' updated with dbimage.path of'''
+            println "'$dbimageDir'."
+            println '''We used your existing 'nsstylebase.url' installation.'''
+            return
+        }
+    }
+    if (!project.hasProperty('install.parent.dir')) {
+        println """Task 'installDbImages will install either the entire DocBook v.5 NS Style
+Sheet distribution, or just the images resources from it.
+Only the image resources are required, but having all of the style sheets on
+your local file system would decrease future DocBook build times and reduce
+dependency on network and Internet connection.
+
+So, now you must select an existng local directory into which the
+'installDbImages' task will create a new directory to install the new resources
+underneath.
+
+You must set Gradle property 'install.parent.dir' to the directory that you
+have chosen.  If you want to install the entire style sheet distribution, you
+should also set property 'install.dbstyles.entire' to true.
+If running Gradle on the command line, rerun the 'installDbImages' task with
+-P switches like:
+
+    gradlew -Pinstall.parent.dir=c:\\data -Pinstall.dbstyles.entire=true
+
+(Skip the second -P if you want to install only the required images).
+If running graphically, add settings like the following to file
+$project.projectDir.absolutePath/build.properties:
+
+    install.parent.dir=c:\\data
+    install.dbstyles.entire=true
+
+(Skip the second setting if you want to install only the required images).
+And then rerun the 'installDbImages' task.
+You can remove these install.* settings when you are finished running
+'installDbImages'.
+"""
+        return
+    }
+    boolean installAll = (project.hasProperty('install.dbstyles.entire')
+        && Boolean.parseBoolean(project.property('install.dbstyles.entire')))
+    File installParentDir = new File(project.property('install.parent.dir'))
+    assert installParentDir.canWrite() : "Can't write to '$installParentDir'"
+    GroovyScriptEngine gse = new GroovyScriptEngine(
+            [ projectDir.absolutePath ] as String[])
+    Binding binding = new Binding()
+    binding.setVariable('params', [installParentDir, installAll])
+    gse.run('dbuInstallSheetsWrapper.groovy', binding)
+    String newRootName = binding.getVariable('retVal')
+    File newRootDir = new File(installParentDir, newRootName)
+    File dbimageDir = null
+    if (installAll) {
+        dbimageDir = new File(newRootDir, 'images')
+        file('local-docbook.properties').append(
+                "nsstylebase.url=file:$newRootDir".replace('\\', '\\\\') + '\n',
+                'ISO-8859-1')
+        println '''File 'local-docbook.properties' updated with nsstylebase.url of '''
+        println "'$newRootDir'."
+    } else {
+        dbimageDir = newRootDir
+    }
+    file('local-docbook.properties')
+            .append("dbimage.path=$dbimageDir".replace('\\', '\\\\') + '\n',
+            'ISO-8859-1')
+    println '''File 'local-docbook.properties' updated with dbimage.path of '''
+    println """'$dbimageDir'.
+
+You will have the fastest doc builds and minimal network/Internet 
+dependencies if you use stylesheets (via 'nsstylebase.url'), schema file, and
+entities locally, as described in comments at top of file "build-docbook.xml".
+"""
+}
+installDbImages.description = 'Install DocBook resources (minimal by defaul)'
+
+/**
+ * Override OOTB 'tasks'.
+ * Hides -private tasks from Ant.
+ * Hides tasks without descriptions.
+ * Hides Ant-subproject tasks because for tasks in sub-projects, Gradle always
+ *  creates unqualified and one qualified to the sub-project.
+ *
+ * Only problem here is that Gradle gives us no way to discern overridden
+ * tasks, so that we could present both the sub-project target and the
+ * super-project target in this case.
+ * In this case, we present only the overriding target until Gradle fixes the
+ * bug that I registered.
+ */
+task tasks << {
+    Pattern privatePattern = Pattern.compile('(?:\\d{3})?(-.*)')
+    print """
+------------------------------------------------------------
+Root Project
+------------------------------------------------------------
+
+Help tasks
+----------
+dependencies - Displays the dependencies of root project '$project.name'.
+explainjars - List all targets which build jar files
+explainprops - How to change build properties of root project '$project.name'.
+help - Displays a help message
+projects - Displays the sub-projects of root project '$project.name'.
+properties - Displays the properties of root project '$project.name'.
+tasks - Displays the tasks in root project '$project.name'.
+
+Other tasks
+-----------
+"""
+    boolean displayAll = (project.hasProperty('allTasks')
+            && Boolean.parseBoolean(project.property('allTasks')))
+    def describedPrivates = []
+    def hardTaskDescriptions =
+            ['tasks', 'help', 'explainprops', 'explainjars'] as Set
+    Matcher pMatcher
+    getTasks().each { t ->
+        assert t.name.length() > 0: 'Task with 0 length name encountered.'
+        if (t.description != null) {
+            pMatcher = privatePattern.matcher(t.name)
+            if (pMatcher.matches()) {
+                 assert pMatcher.groupCount() == 1 && pMatcher.group(1) != null:
+                        "Internal problem w/ regex pattern: $privatePattern"
+                describedPrivates << pMatcher.group(1)
+                return
+            }
+        }
+        if (!displayAll && t.description != null
+                && !hardTaskDescriptions.contains(t.name))
+            println "$t.name - $t.description"
+    }
+
+    if (displayAll) {
+        def dependOnMap = [:]
+        def depList
+        getTasks().each { t ->
+            depList = []
+            dependOnMap[t] = depList
+            t.dependsOn.each { u ->
+                if (u instanceof Task) depList << u
+                else if (u instanceof TaskDependency)
+                    // Retarded that t must pass itself as param to its own u:
+                    u.getDependencies(t).each { depList << it }
+            }
+        }
+        def allDependees = [] as Set  // Purposefully excluding wrappees
+        dependOnMap.values().each { allDependees.addAll(it) }
+        getTasks().each { t ->
+            if (!allDependees.contains(t)
+                    && !hardTaskDescriptions.contains(t.name)) {
+                // t is now non-depended-upon
+                print t.name
+                if (t.description != null) print " - $t.description"
+                println()
+                recursiveAggregator(dependOnMap[t], dependOnMap, []).each {
+                    print "    $it.name"
+                    if (it.description != null) print " - $it.description"
+                    println()
+                }
+            }
+        }
+    } else {
+        println('''
+To see all tasks and more detail, run 'gradle -PallTasks=true tasks'.
+(N.b. our -P switch differs from Gradle's out-of-the-box --all switch for this
+purpose).''')
+    }
+    if (describedPrivates.size() > 0)
+        logger.warn('\nWARNING:  Private Ant tasks have descriptions: '
+                + describedPrivates.join(', '))
+    if (prohibitionMap.size() > 0)
+        logger.warn('''\nWARNING:  The following tasks have been renamed to avoid conflict with
+    Gradle plugin task names:
+        ''' + prohibitionMap)
+}
+tasks['tasks'].description =
+        "Displays the tasks in root project '$project.name'."
+if (prohibitionMap.size() > 0)
+    logger.warn('''\nWARNING:  The following tasks have been renamed to avoid conflict with
+Gradle plugin task names:
+    ''' + prohibitionMap)
