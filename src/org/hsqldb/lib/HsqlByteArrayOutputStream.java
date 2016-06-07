@@ -326,7 +326,7 @@ implements DataOutput {
         return newbuf;
     }
 
-    public int size() {
+    final public int size() {
         return count;
     }
 

@@ -82,7 +82,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
         size = buf.length;
     }
 
-    public long getPos() {
+    public long getFilePosition() {
 
         if (filePos == NO_POS) {
 

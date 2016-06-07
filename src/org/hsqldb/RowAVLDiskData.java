@@ -82,7 +82,7 @@ public class RowAVLDiskData extends RowAVL {
 
         setNewNodes(store);
 
-        position       = in.getPos();
+        position       = in.getFilePosition();
         storageSize    = in.getSize();
         rowData        = in.readData(table.getColumnTypes());
         hasDataChanged = false;
