@@ -4613,8 +4613,10 @@ public class ParserDQL extends ParserBase {
 
         int unionType = XreadUnionType();
 
-        if (database.sqlSyntaxDb2 && unionType == QueryExpression.UNION_ALL) {
-            unionType = QueryExpression.UNION;
+        if (database.sqlSyntaxDb2 || database.sqlSyntaxOra) {
+            if (unionType == QueryExpression.UNION_ALL) {
+                unionType = QueryExpression.UNION;
+            }
         }
 
         QuerySpecification rightQuerySpecification = XreadSimpleTable();
