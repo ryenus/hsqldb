@@ -57,7 +57,7 @@ import org.hsqldb.types.Types;
  * Class for reading the data for a database row in text table format.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.7.0
  */
 public class RowInputText extends RowInputBase implements RowInputInterface {
@@ -462,7 +462,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        BinaryData data = scanner.convertToBinary(s);
+        BinaryData data = scanner.convertToBinary(s, false);
 
         if (data.length(null) == 0) {
             return null;
@@ -484,6 +484,18 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         return data;
     }
 
+    protected BinaryData readUUID() {
+        String s = readString();
+
+        if (s == null) {
+            return null;
+        }
+
+        BinaryData data = scanner.convertToBinary(s, true);
+
+        return data;
+    }
+
     protected BinaryData readBinary() {
 
         String s = readString();
@@ -492,7 +504,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        BinaryData data = scanner.convertToBinary(s);
+        BinaryData data = scanner.convertToBinary(s, false);
 
         return data;
     }

@@ -295,10 +295,6 @@ implements RowSetNavigatorDataChange {
         return getCurrentRow().getId();
     }
 
-    public TableBase getCurrentTable() {
-        return getCurrentRow().getTable();
-    }
-
     public boolean isBeforeFirst() {
         return currentPos == -1;
     }
@@ -307,7 +303,7 @@ implements RowSetNavigatorDataChange {
         return getCurrentRow().getData();
     }
 
-    public Object getCurrent(int i) {
+    public Object getField(int i) {
         return getCurrentRow().getData()[i];
     }
 
@@ -378,13 +374,9 @@ implements RowSetNavigatorDataChange {
                 .getCurrentChangedData();
         }
 
-        public Object getCurrent(int i) {
+        public Object getField(int i) {
             return RowSetNavigatorDataChangeMemory.this
                 .getCurrentChangedData()[i];
-        }
-
-        public TableBase getCurrentTable() {
-            return null;
         }
 
         public void setCurrent(Object[] data) {}

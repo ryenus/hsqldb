@@ -63,7 +63,7 @@ import org.hsqldb.types.Type;
  * Class for reading the data for a database row from the script file.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.7.3
  */
 public class RowInputTextLog extends RowInputBase
@@ -449,6 +449,25 @@ implements RowInputInterface {
         scanner.scanBitStringWithQuote();
 
         if (scanner.getTokenType() == Tokens.X_MALFORMED_BIT_STRING) {
+            throw Error.error(ErrorCode.X_42587);
+        }
+
+        value = scanner.getValue();
+
+        return (BinaryData) value;
+    }
+
+    protected BinaryData readUUID() {
+
+        readFieldPrefix();
+
+        if (scanner.scanNull()) {
+            return null;
+        }
+
+        scanner.scanUUIDStringWithQuote();
+
+        if (scanner.getTokenType() == Tokens.X_MALFORMED_BINARY_STRING) {
             throw Error.error(ErrorCode.X_42587);
         }
 

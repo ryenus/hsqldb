@@ -53,6 +53,4 @@ public interface RowIterator {
     void release();
 
     long getRowId();
-
-    TableBase getCurrentTable();
 }

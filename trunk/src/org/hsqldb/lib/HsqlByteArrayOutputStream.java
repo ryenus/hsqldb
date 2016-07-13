@@ -45,7 +45,7 @@ import java.io.UnsupportedEncodingException;
  * (without synchronization) and java.io.DataOutputStream
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.7.0
  */
 public class HsqlByteArrayOutputStream extends OutputStream
@@ -399,6 +399,7 @@ implements DataOutput {
         count = 0;
 
         if (newSize > buffer.length) {
+            newSize = (int) ArrayUtil.getBinaryMultipleCeiling(newSize, 4096);
             buffer = new byte[newSize];
         }
     }
@@ -408,12 +409,10 @@ implements DataOutput {
         this.buffer = buffer;
     }
 
+    /**
+     * size must fit in buffer
+     */
     public void setSize(int size) {
-
-        if (size > buffer.length) {
-            reset(size);
-        }
-
         count = size;
     }
 }

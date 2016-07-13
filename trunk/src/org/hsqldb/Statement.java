@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,9 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
@@ -41,7 +44,7 @@ import org.hsqldb.result.ResultProperties;
  * Base class for compiled statement objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.5
  * @since 1.9.0
  */
 public abstract class Statement {
@@ -91,6 +94,20 @@ public abstract class Statement {
 
     //
     int cursorPropertiesRequest;
+
+    /**
+     * Parse-order array of Expression objects, all of type PARAMETER ,
+     * involved in some way in any INSERT_XXX, UPDATE, DELETE, SELECT or
+     * CALL CompiledStatement
+     */
+    ExpressionColumn[] parameters;
+
+    /**
+     * ResultMetaData for parameters
+     */
+    ResultMetaData      parameterMetaData  = ResultMetaData.emptyParamMetaData;
+    static final String PCOL_PREFIX        = "@p";
+    static final String RETURN_COLUMN_NAME = "@p0";
 
     public abstract Result execute(Session session);
 
@@ -249,7 +266,7 @@ public abstract class Statement {
     }
 
     public ResultMetaData getParametersMetaData() {
-        return ResultMetaData.emptyParamMetaData;
+        return this.parameterMetaData;
     }
 
     public int getResultProperties() {
@@ -269,4 +286,76 @@ public abstract class Statement {
     }
 
     public void clearStructures(Session session) {}
+
+    void setDatabaseObjects(Session session, CompileContext compileContext) {
+
+        parameters = compileContext.getParameters();
+
+        setParameterMetaData();
+    }
+
+    void setParameterMetaData() {
+
+        int     offset;
+        int     idx;
+        boolean hasReturnValue;
+
+        offset = 0;
+
+        if (parameters.length == 0) {
+            parameterMetaData = ResultMetaData.emptyParamMetaData;
+
+            return;
+        }
+
+// NO:  Not yet
+//        hasReturnValue = (type == CALL && !expression.isProcedureCall());
+//
+//        if (hasReturnValue) {
+//            outlen++;
+//            offset = 1;
+//        }
+        parameterMetaData =
+            ResultMetaData.newParameterMetaData(parameters.length);
+
+// NO: Not yet
+//        if (hasReturnValue) {
+//            e = expression;
+//            out.sName[0]       = DIProcedureInfo.RETURN_COLUMN_NAME;
+//            out.sClassName[0]  = e.getValueClassName();
+//            out.colType[0]     = e.getDataType();
+//            out.colSize[0]     = e.getColumnSize();
+//            out.colScale[0]    = e.getColumnScale();
+//            out.nullability[0] = e.nullability;
+//            out.isIdentity[0]  = false;
+//            out.paramMode[0]   = expression.PARAM_OUT;
+//        }
+        for (int i = 0; i < parameters.length; i++) {
+            idx = i + offset;
+
+            // always i + 1.  We currently use the convention of @p0 to name the
+            // return value OUT parameter
+            parameterMetaData.columnLabels[idx] = StatementDMQL.PCOL_PREFIX
+                                                  + (i + 1);
+            parameterMetaData.columnTypes[idx] = parameters[i].dataType;
+
+            if (parameters[i].dataType == null) {
+                throw Error.error(ErrorCode.X_42567);
+            }
+
+            byte parameterMode = SchemaObject.ParameterModes.PARAM_IN;
+
+            if (parameters[i].column != null
+                    && parameters[i].column.getParameterMode()
+                       != SchemaObject.ParameterModes.PARAM_UNKNOWN) {
+                parameterMode = parameters[i].column.getParameterMode();
+            }
+
+            parameterMetaData.paramModes[idx] = parameterMode;
+            parameterMetaData.paramNullable[idx] =
+                parameters[i].column == null
+                ? SchemaObject.Nullability.NULLABLE
+                : parameters[i].column.getNullability();
+        }
+    }
 }

@@ -660,7 +660,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         new BinaryType(Types.SQL_VARBINARY, 32 * 1024);
     public static final BlobType SQL_BLOB =
         new BlobType(BlobType.defaultBlobSize);
-    public static final BinaryType BINARY_UUID = new BinaryUUIDType();
+    public static final BinaryType SQL_GUID = new BinaryUUIDType();
 
     // other type
     public static final OtherType OTHER = OtherType.getOtherType();
@@ -1079,7 +1079,7 @@ public abstract class Type implements SchemaObject, Cloneable {
                 return BinaryType.getBinaryType(type, precision);
 
             case Types.SQL_GUID :
-                return BINARY_UUID;
+                return SQL_GUID;
 
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :

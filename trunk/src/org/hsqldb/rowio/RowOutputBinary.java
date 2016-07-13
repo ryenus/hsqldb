@@ -261,6 +261,10 @@ public class RowOutputBinary extends RowOutputBase {
         write(o.getBytes(), 0, o.getBytes().length);
     }
 
+    protected void writeUUID(BinaryData o) {
+        writeByteArray(o.getBytes());
+    }
+
     protected void writeBinary(BinaryData o) {
         writeByteArray(o.getBytes());
     }

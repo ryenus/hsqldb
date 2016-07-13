@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -231,7 +231,7 @@ public final class BlobType extends BinaryType {
 
         if (otherType.typeCode == Types.SQL_VARCHAR
                 || otherType.typeCode == Types.SQL_CHAR) {
-            a         = session.getScanner().convertToBinary((String) a);
+            a = session.getScanner().convertToBinary((String) a, false);
             otherType = Type.SQL_VARBINARY;
         }
 

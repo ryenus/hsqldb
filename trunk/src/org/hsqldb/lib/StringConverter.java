@@ -80,11 +80,11 @@ import org.hsqldb.map.BitMap;
  * Collection of static methods for converting strings between different
  * formats and to and from byte arrays.<p>
  *
- * Includes some methods based on Hypersonic code as indicated.
+ * Includes two methods based on Hypersonic code as indicated.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.7.2
  */
 public class StringConverter {
@@ -316,17 +316,21 @@ public class StringConverter {
      * @param o output array
      * @param from offset into output array
      * @param b input array
+     * @return written count
      */
-    public static void writeHexBytes(byte[] o, int from, byte[] b) {
+    public static int writeHexBytes(byte[] o, final int from, byte[] b) {
 
         int len = b.length;
+        int pos = from;
 
         for (int i = 0; i < len; i++) {
             int c = ((int) b[i]) & 0xff;
 
-            o[from++] = HEXBYTES[c >> 4 & 0xf];
-            o[from++] = HEXBYTES[c & 0xf];
+            o[pos++] = HEXBYTES[c >> 4 & 0xf];
+            o[pos++] = HEXBYTES[c & 0xf];
         }
+
+        return pos - from;
     }
 
     public static String byteArrayToString(byte[] b, String charset) {
@@ -801,6 +805,31 @@ public class StringConverter {
         }
 
         return new String(chars);
+    }
+
+    public static int writeUUIDHexBytes(byte[] o, final int from, byte[] b) {
+
+        if (b.length != 16) {
+            throw new NumberFormatException();
+        }
+
+        int pos = from;
+        int hexIndex;
+
+        for (int i = 0; i < b.length; ) {
+            hexIndex = (b[i] & 0xf0) >> 4;
+            o[pos++] = HEXBYTES[hexIndex];
+            hexIndex = b[i] & 0xf;
+            o[pos++] = HEXBYTES[hexIndex];
+
+            i++;
+
+            if (i >= 4 && i <= 10 && (i % 2) == 0) {
+                o[pos++] = '-';
+            }
+        }
+
+        return pos - from;
     }
 
     /**

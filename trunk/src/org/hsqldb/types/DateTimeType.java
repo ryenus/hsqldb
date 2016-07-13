@@ -1204,6 +1204,8 @@ public final class DateTimeType extends DTIType {
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 millis = HsqlDateTime.getNormalisedTime(millis);
+
+            //fall through
             case Types.SQL_TIME : {
                 return new TimeData((int) (millis / 1000), 0,
                                     ((TimeData) a).getZone());

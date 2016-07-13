@@ -666,9 +666,8 @@ public class ExpressionColumn extends Expression {
             case OpTypes.COLUMN : {
                 RangeIterator[] iterators =
                     session.sessionContext.rangeIterators;
-                Object value =
-                    iterators[rangeVariable.rangePosition].getCurrent(
-                        columnIndex);
+                Object value = iterators[rangeVariable.rangePosition].getField(
+                    columnIndex);
 
                 if (dataType != column.dataType) {
                     value = dataType.convertToType(session, value,
@@ -680,7 +679,7 @@ public class ExpressionColumn extends Expression {
             case OpTypes.SIMPLE_COLUMN : {
                 Object value =
                     session.sessionContext.rangeIterators[rangePosition]
-                        .getCurrent(columnIndex);
+                        .getField(columnIndex);
 
                 return value;
             }

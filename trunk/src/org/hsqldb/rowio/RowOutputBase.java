@@ -57,7 +57,7 @@ import org.hsqldb.types.Types;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.7.0
  */
 abstract class RowOutputBase extends HsqlByteArrayOutputStream
@@ -143,6 +143,8 @@ implements RowOutputInterface {
     protected abstract void writeOther(JavaObjectData o);
 
     protected abstract void writeBit(BinaryData o);
+
+    protected abstract void writeUUID(BinaryData o);
 
     protected abstract void writeBinary(BinaryData o);
 
@@ -284,6 +286,9 @@ implements RowOutputInterface {
                 break;
 
             case Types.SQL_GUID :
+                writeUUID((BinaryData) o);
+                break;
+
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
                 writeBinary((BinaryData) o);

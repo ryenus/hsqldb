@@ -70,7 +70,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     int           released = 0;
 
     //
-    static final int blockSize               = 1024 * 2;
+    static final int dirBlockSize            = 1024 * 2;
     static final int fileBlockItemCountLimit = 64 * 1024;
 
     //
@@ -116,12 +116,12 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         rootStore = new BlockObjectStore(cache, directorySpaceManager,
                                          IntArrayCachedObject.class,
                                          IntArrayCachedObject.fileSizeFactor
-                                         * blockSize, blockSize);
+                                         * dirBlockSize, dirBlockSize);
         directoryStore =
             new BlockObjectStore(cache, directorySpaceManager,
                                  DirectoryBlockCachedObject.class,
                                  DirectoryBlockCachedObject.fileSizeFactor
-                                 * blockSize, blockSize);
+                                 * dirBlockSize, dirBlockSize);
         bitMapStore = new BlockObjectStore(cache, directorySpaceManager,
                                            BitMapCachedObject.class,
                                            bitmapStorageSize, bitmapIntSize);
@@ -167,7 +167,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         directorySpaceManager.initialiseFileBlock(null, lastFreePosition,
                 cache.getFileFreePos());
 
-        IntArrayCachedObject root = new IntArrayCachedObject(blockSize);
+        IntArrayCachedObject root = new IntArrayCachedObject(dirBlockSize);
 
         rootStore.add(root, true);
 
@@ -194,7 +194,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     private long calculateDirectorySpaceSize(long blockCount) {
 
         long blockLimit = ArrayUtil.getBinaryMultipleCeiling(blockCount + 1,
-            blockSize);
+            dirBlockSize);
         long currentSize = IntArrayCachedObject.fileSizeFactor * blockLimit;    // root
 
         currentSize += DirectoryBlockCachedObject.fileSizeFactor * blockLimit;    // directory
@@ -212,7 +212,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
         int dirObjectSize = bitmapStorageSize * blockCount
                             + DirectoryBlockCachedObject.fileSizeFactor
-                              * blockSize;
+                              * dirBlockSize;
 
         if (!directorySpaceManager.hasFileRoom(dirObjectSize)) {
             int index         = getBlockIndexLimit();
@@ -300,7 +300,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         //
         int bitmapBlockPos = (int) (bitMap.getPos() * dataFileScale
                                     / fixedBlockSizeUnit);
-        int blockOffset = fileBlockIndex % blockSize;
+        int blockOffset = fileBlockIndex % dirBlockSize;
         DirectoryBlockCachedObject directory = getDirectory(fileBlockIndex,
             true);
 
@@ -321,7 +321,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             boolean keep) {
 
         DirectoryBlockCachedObject directory;
-        int                        indexInRoot = fileBlockIndex / blockSize;
+        int                        indexInRoot = fileBlockIndex / dirBlockSize;
         long position = rootBlock.getIntArray()[indexInRoot];
 
         if (position == 0) {
@@ -339,11 +339,11 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
         DirectoryBlockCachedObject directory;
 
-        directory = new DirectoryBlockCachedObject(blockSize);
+        directory = new DirectoryBlockCachedObject(dirBlockSize);
 
         directoryStore.add(directory, false);
 
-        int indexInRoot = fileBlockIndex / blockSize;
+        int indexInRoot = fileBlockIndex / dirBlockSize;
         int blockPosition = (int) (directory.getPos() * dataFileScale
                                    / fixedBlockSizeUnit);
 
@@ -389,7 +389,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             }
         }
 
-        return rootBlockIndex * blockSize + directoryBlockOffset;
+        return rootBlockIndex * dirBlockSize + directoryBlockOffset;
     }
 
     private void initialiseSpaceList() {
@@ -442,16 +442,16 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         DirectoryBlockCachedObject directory      = null;
 
         for (int i = blockIndex; i < blockIndex + blockCount; i++) {
-            if (directoryIndex != i / blockSize) {
+            if (directoryIndex != i / dirBlockSize) {
                 if (directory != null) {
                     directory.keepInMemory(false);
                 }
 
                 directory      = getDirectory(i, true);
-                directoryIndex = i / blockSize;
+                directoryIndex = i / dirBlockSize;
             }
 
-            int offset = i % blockSize;
+            int offset = i % dirBlockSize;
 
             directory.getTableIdArray()[offset] = tableId;
         }
@@ -739,7 +739,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         directoryList = new DirectoryBlockCachedObject[count];
 
         for (int i = 0; i < directoryList.length; i++) {
-            directoryList[i] = getDirectory(i * blockSize, false);
+            directoryList[i] = getDirectory(i * dirBlockSize, false);
         }
 
         return directoryList;
@@ -851,10 +851,10 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
                 currentBitMap = null;
 
-                if (currentDirIndex != fileBlockIndex / blockSize) {
+                if (currentDirIndex != fileBlockIndex / dirBlockSize) {
                     reset();
 
-                    currentDirIndex = fileBlockIndex / blockSize;
+                    currentDirIndex = fileBlockIndex / dirBlockSize;
                     currentDir = getDirectory(fileBlockIndex, currentKeep);
                 }
 
@@ -865,7 +865,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                 }
 
                 currentBlockIndex  = fileBlockIndex;
-                currentBlockOffset = fileBlockIndex % blockSize;
+                currentBlockOffset = fileBlockIndex % dirBlockSize;
 
                 long position =
                     currentDir.getBitmapAddressArray()[currentBlockOffset];

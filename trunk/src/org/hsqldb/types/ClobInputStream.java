@@ -157,7 +157,9 @@ public final class ClobInputStream extends Reader {
 
         long readLength = availableLength - currentPosition;
 
-        if (readLength <= 0) {}
+        if (readLength <= 0) {
+            return;
+        }
 
         if (readLength > streamBlockSize) {
             readLength = streamBlockSize;

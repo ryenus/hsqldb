@@ -61,7 +61,7 @@ import org.hsqldb.types.Types;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.7.0
  */
 public class RowInputBinary extends RowInputBase implements RowInputInterface {
@@ -273,6 +273,10 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         readFully(b);
 
         return BinaryData.getBitData(b, length);
+    }
+
+    protected BinaryData readUUID() {
+        return new BinaryData(readByteArray(), false);
     }
 
     protected BinaryData readBinary() {

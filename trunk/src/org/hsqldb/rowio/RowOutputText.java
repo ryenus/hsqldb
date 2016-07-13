@@ -352,6 +352,13 @@ public class RowOutputText extends RowOutputBase {
         writeString(s);
     }
 
+    protected void writeUUID(BinaryData o) {
+
+        String s = StringConverter.toStringUUID(o.getBytes());
+
+        writeString(s);
+    }
+
     protected void writeBinary(BinaryData o) {
         writeByteArray(o.getBytes());
     }

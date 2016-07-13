@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,16 +44,14 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for data change lists.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.5
  * @since 2.2.7
  */
 public class RowStoreDataChange extends RowStoreAVLHybrid {
 
     Session session;
 
-    public RowStoreDataChange(Session session,
-                              PersistentStoreCollection manager,
-                              TableBase table) {
+    public RowStoreDataChange(Session session, TableBase table) {
 
         super(session, table, true);
 

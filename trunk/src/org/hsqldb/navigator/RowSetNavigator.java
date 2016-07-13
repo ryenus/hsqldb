@@ -82,7 +82,7 @@ public abstract class RowSetNavigator implements RangeIterator {
      */
     public abstract Object[] getCurrent();
 
-    public Object getCurrent(int i) {
+    public Object getField(int i) {
 
         Object[] current = getCurrent();
 
@@ -184,10 +184,6 @@ public abstract class RowSetNavigator implements RangeIterator {
     }
 
     public long getRowId() {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
-    }
-
-    public TableBase getCurrentTable() {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
     }
 
