@@ -495,20 +495,27 @@ class TransactionManagerCommon {
         final int waitingCount = session.waitingSessions.size();
 
         for (int i = 0; i < waitingCount; i++) {
-            Session current = (Session) session.waitingSessions.get(i);
+            Session current  = (Session) session.waitingSessions.get(i);
+            boolean testCode = false;
 
-/*
-            if (!current.abortTransaction && current.tempSet.isEmpty()) {
+            if (testCode) {
+                if (!current.abortTransaction && current.tempSet.isEmpty()) {
 
+                    // test code valid only for top level statements
+                    boolean hasLocks =
+                        hasLocks(current,
+                                 current.sessionContext.currentStatement);
 
-                // test code valid only for top level statements
-                boolean hasLocks = hasLocks(current, current.sessionContext.currentStatement);
-                if (!hasLocks) {
-                    System.out.println("trouble");
+                    if (!hasLocks) {
+                        System.out.println("tx graph");
+
+                        hasLocks =
+                            hasLocks(current,
+                                     current.sessionContext.currentStatement);
+                    }
                 }
-
             }
-*/
+
             setWaitingSessionTPL(current);
         }
 
@@ -525,16 +532,25 @@ class TransactionManagerCommon {
         final int waitingCount = session.tempSet.size();
 
         for (int i = 0; i < waitingCount; i++) {
-            Session current = (Session) session.tempSet.get(i);
+            Session current  = (Session) session.tempSet.get(i);
+            boolean testCode = false;
 
-            if (!current.abortTransaction && current.tempSet.isEmpty()) {
+            if (testCode) {
+                if (!current.abortTransaction && current.tempSet.isEmpty()) {
 
-                // valid for top level statements
-//                boolean hasLocks = hasLocks(current, current.sessionContext.currentStatement);
-//                if (!hasLocks) {
-//                    System.out.println("trouble");
-//                    hasLocks(current, current.sessionContext.currentStatement);
-//                }
+                    // test code valid for top level statements
+                    boolean hasLocks =
+                        hasLocks(current,
+                                 current.sessionContext.currentStatement);
+
+                    if (!hasLocks) {
+                        System.out.println("tx graph");
+
+                        hasLocks =
+                            hasLocks(current,
+                                     current.sessionContext.currentStatement);
+                    }
+                }
             }
 
             setWaitingSessionTPL(current);

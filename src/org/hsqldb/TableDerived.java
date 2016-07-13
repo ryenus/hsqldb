@@ -138,6 +138,10 @@ public class TableDerived extends Table {
                 uniquePredicate = true;
                 break;
 
+            case OpTypes.MATCH_SIMPLE :
+                queryExpression.setFullOrder();
+                break;
+
             default:
         }
 
@@ -160,7 +164,9 @@ public class TableDerived extends Table {
 
             td = p.XreadSubqueryTableBody(tableName, OpTypes.TABLE_SUBQUERY);
 
-            td.queryExpression.resolve(session);
+            td.queryExpression.resolve(session,
+                                       p.compileContext.getOuterRanges(),
+                                       null);
 
             td.columnList   = columnList;
             td.columnCount  = columnList.size();
@@ -305,8 +311,15 @@ public class TableDerived extends Table {
     private void setTableIndexesForSubquery(Session session) {
 
         int[] cols = null;
+        boolean hasFullIndex = false;
 
-        if (uniqueRows || uniquePredicate) {
+        if (queryExpression != null) {
+            if (queryExpression.fullIndex != null) {
+                hasFullIndex = true;
+            }
+        }
+
+        if (hasFullIndex || uniqueRows || uniquePredicate) {
             cols = new int[getColumnCount()];
 
             ArrayUtil.fillSequence(cols);
@@ -319,7 +332,7 @@ public class TableDerived extends Table {
 
         if (uniqueRows) {
             fullIndex = getPrimaryIndex();
-        } else if (uniquePredicate) {
+        } else if (uniquePredicate || hasFullIndex) {
             fullIndex = createIndexForColumns(session, cols);
         }
     }

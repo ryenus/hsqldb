@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ import org.hsqldb.Row;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.3.5
  * @since 1.9.0
  */
 public interface RangeIterator extends RowIterator {
@@ -48,7 +48,7 @@ public interface RangeIterator extends RowIterator {
 
     Object[] getCurrent();
 
-    Object getCurrent(int i);
+    Object getField(int i);
 
     void setCurrent(Object[] data);
 

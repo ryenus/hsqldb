@@ -4203,24 +4203,36 @@ public class ParserDQL extends ParserBase {
             isUnique = true;
         }
 
-        if (token.tokenType == Tokens.SIMPLE) {
+        switch (token.tokenType) {
+
+            default :
+                matchType = isUnique ? OpTypes.MATCH_UNIQUE_SIMPLE
+                                     : OpTypes.MATCH_SIMPLE;
+                break;
+
+            case Tokens.SIMPLE :
             read();
 
             matchType = isUnique ? OpTypes.MATCH_UNIQUE_SIMPLE
                                  : OpTypes.MATCH_SIMPLE;
-        } else if (token.tokenType == Tokens.PARTIAL) {
+                break;
+
+            case Tokens.PARTIAL :
             read();
 
             matchType = isUnique ? OpTypes.MATCH_UNIQUE_PARTIAL
                                  : OpTypes.MATCH_PARTIAL;
-        } else if (token.tokenType == Tokens.FULL) {
+                break;
+
+            case Tokens.FULL :
             read();
 
             matchType = isUnique ? OpTypes.MATCH_UNIQUE_FULL
                                  : OpTypes.MATCH_FULL;
+                break;
         }
 
-        int        mode = isUnique ? OpTypes.TABLE_SUBQUERY
+        int        mode = isUnique ? OpTypes.MATCH_SIMPLE
                                    : OpTypes.IN;
         Expression s    = XreadTableSubquery(mode);
 
@@ -4566,19 +4578,25 @@ public class ParserDQL extends ParserBase {
                     if (td.queryExpression != null) {
                         td.canRecompile = true;
 
-                        td.queryExpression.resolve(session);
+                        td.queryExpression.resolve(
+                            session, compileContext.getOuterRanges(), null);
                     }
 
                     td.prepareTable(session, columnNames);
 
                     break;
                 } catch (HsqlException e) {
+                    if (database.sqlSyntaxDb2 || database.sqlSyntaxOra) {
+
                     rewind(position);
                     compileContext.decrementDepth(depth);
 
                     td = XreadRecursiveSubqueryBody(name, columnNames);
 
                     break;
+                }
+
+                    throw e;
                 }
             }
             default :
@@ -6788,6 +6806,11 @@ public class ParserDQL extends ParserBase {
         }
 
         public RangeGroup[] getOuterRanges() {
+
+            if (baseContext != null) {
+                return baseContext.outerRangeGroups;
+            }
+
             return outerRangeGroups;
         }
 

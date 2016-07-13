@@ -1578,7 +1578,7 @@ public class Expression implements Cloneable {
             case OpTypes.SIMPLE_COLUMN : {
                 Object value =
                     session.sessionContext.rangeIterators[rangePosition]
-                        .getCurrent(columnIndex);
+                        .getField(columnIndex);
 
                 return value;
             }

@@ -699,10 +699,6 @@ implements Comparator {
         public long getRowId() {
             return 0L;
         }
-
-        public TableBase getCurrentTable() {
-            return null;
-        }
     }
 
     public int compare(Object a, Object b) {

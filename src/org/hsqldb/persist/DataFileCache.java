@@ -96,7 +96,9 @@ public class DataFileCache {
     protected Database database;
     protected boolean  logEvents = true;
 
-    // this flag is used externally to determine if a backup is required
+    /**
+     * this flag is used externally to determine if a backup is required
+     */
     protected boolean fileModified;
     protected boolean cacheModified;
     protected int     dataFileScale;

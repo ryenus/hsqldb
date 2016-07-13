@@ -59,9 +59,6 @@ import org.hsqldb.rights.Grantee;
 // fredt@users - 1.9.0 - support for multi-row inserts
 public abstract class StatementDMQL extends Statement {
 
-    public static final String PCOL_PREFIX        = "@p";
-    static final String        RETURN_COLUMN_NAME = "@p0";
-
     /** target table for INSERT_XXX, UPDATE and DELETE and MERGE */
     Table targetTable;
     Table baseTable;
@@ -118,18 +115,6 @@ public abstract class StatementDMQL extends Statement {
      * Name of cursor
      */
     HsqlName cursorName;
-
-    /**
-     * Parse-order array of Expression objects, all of type PARAMETER ,
-     * involved in some way in any INSERT_XXX, UPDATE, DELETE, SELECT or
-     * CALL CompiledStatement
-     */
-    ExpressionColumn[] parameters;
-
-    /**
-     * ResultMetaData for parameters
-     */
-    ResultMetaData parameterMetaData;
 
     /**
      * Subqueries inverse usage depth order
@@ -508,71 +493,6 @@ public abstract class StatementDMQL extends Statement {
      */
     public ResultMetaData getParametersMetaData() {
         return parameterMetaData;
-    }
-
-    void setParameterMetaData() {
-
-        int     offset;
-        int     idx;
-        boolean hasReturnValue;
-
-        offset = 0;
-
-        if (parameters.length == 0) {
-            parameterMetaData = ResultMetaData.emptyParamMetaData;
-
-            return;
-        }
-
-// NO:  Not yet
-//        hasReturnValue = (type == CALL && !expression.isProcedureCall());
-//
-//        if (hasReturnValue) {
-//            outlen++;
-//            offset = 1;
-//        }
-        parameterMetaData =
-            ResultMetaData.newParameterMetaData(parameters.length);
-
-// NO: Not yet
-//        if (hasReturnValue) {
-//            e = expression;
-//            out.sName[0]       = DIProcedureInfo.RETURN_COLUMN_NAME;
-//            out.sClassName[0]  = e.getValueClassName();
-//            out.colType[0]     = e.getDataType();
-//            out.colSize[0]     = e.getColumnSize();
-//            out.colScale[0]    = e.getColumnScale();
-//            out.nullability[0] = e.nullability;
-//            out.isIdentity[0]  = false;
-//            out.paramMode[0]   = expression.PARAM_OUT;
-//        }
-        for (int i = 0; i < parameters.length; i++) {
-            idx = i + offset;
-
-            // always i + 1.  We currently use the convention of @p0 to name the
-            // return value OUT parameter
-            parameterMetaData.columnLabels[idx] = StatementDMQL.PCOL_PREFIX
-                                                  + (i + 1);
-            parameterMetaData.columnTypes[idx] = parameters[i].dataType;
-
-            if (parameters[i].dataType == null) {
-                throw Error.error(ErrorCode.X_42567);
-            }
-
-            byte parameterMode = SchemaObject.ParameterModes.PARAM_IN;
-
-            if (parameters[i].column != null
-                    && parameters[i].column.getParameterMode()
-                       != SchemaObject.ParameterModes.PARAM_UNKNOWN) {
-                parameterMode = parameters[i].column.getParameterMode();
-            }
-
-            parameterMetaData.paramModes[idx] = parameterMode;
-            parameterMetaData.paramNullable[idx] =
-                parameters[i].column == null
-                ? SchemaObject.Nullability.NULLABLE
-                : parameters[i].column.getNullability();
-        }
     }
 
     /**

@@ -1126,7 +1126,7 @@ public class RangeVariable {
             return currentData;
         }
 
-        public Object getCurrent(int i) {
+        public Object getField(int i) {
             return currentData == null ? null
                                        : currentData[i];
         }
@@ -1140,11 +1140,6 @@ public class RangeVariable {
             return currentRow == null ? 0
                                       : ((long) rangeVar.rangeTable.getId() << 32)
                                         + currentRow.getPos();
-        }
-
-        public TableBase getCurrentTable() {
-            return currentRow == null ? null
-                                      : currentRow.getTable();
         }
 
         public Object getRowidObject() {

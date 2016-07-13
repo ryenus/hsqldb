@@ -55,7 +55,7 @@ public interface DataSpaceManager {
 
     int getNewTableSpaceID();
 
-    long getFileBlocks(int tableId, int blockCount);
+    long getFileBlocks(int spaceId, int blockCount);
 
     void freeTableSpace(int spaceId);
 

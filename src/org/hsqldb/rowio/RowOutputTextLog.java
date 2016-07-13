@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  */
 public class RowOutputTextLog extends RowOutputBase {
 
@@ -125,13 +125,24 @@ public class RowOutputTextLog extends RowOutputBase {
         write('\'');
     }
 
+    protected void writeUUID(BinaryData o) {
+
+        ensureRoom(40);
+        write('\'');
+
+        count += StringConverter.writeUUIDHexBytes(getBuffer(), count,
+                o.getBytes());
+
+        write('\'');
+    }
+
     protected void writeBinary(BinaryData o) {
 
         ensureRoom((int) (o.length(null) * 2 + 2));
         write('\'');
-        StringConverter.writeHexBytes(getBuffer(), count, o.getBytes());
 
-        count += (o.length(null) * 2);
+        count += StringConverter.writeHexBytes(getBuffer(), count,
+                                               o.getBytes());
 
         write('\'');
     }
@@ -147,8 +158,8 @@ public class RowOutputTextLog extends RowOutputBase {
     protected void writeArray(Object[] o, Type type) {
 
         type = type.collectionBaseType();
-
         noSeparators = true;
+
         write(BYTES_ARRAY);
 
         for (int i = 0; i < o.length; i++) {
@@ -160,6 +171,7 @@ public class RowOutputTextLog extends RowOutputBase {
         }
 
         write(']');
+
         noSeparators = false;
     }
 

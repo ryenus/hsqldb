@@ -243,10 +243,6 @@ public class IntIndex {
 
         int i = binarySlotSearch();
 
-        if (i == -1) {
-            return i;
-        }
-
         hasChanged = true;
 
         if (count != i) {

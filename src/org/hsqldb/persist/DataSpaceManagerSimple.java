@@ -92,7 +92,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
         return spaceIdSequence++;
     }
 
-    public long getFileBlocks(int tableId, int blockCount) {
+    public long getFileBlocks(int spaceId, int blockCount) {
 
         long filePosition = cache.enlargeFileSpace((long) blockCount
             * fileBlockSize);

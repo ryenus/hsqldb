@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Scans for SQL tokens.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class Scanner {
@@ -182,6 +182,7 @@ public class Scanner {
     Token   token = new Token();
     boolean nullAndBooleanAsValue;
     boolean backtickQuoting;
+    boolean hyphenInBinary;
     boolean charLiteral = true;
 
     //
@@ -386,6 +387,24 @@ public class Scanner {
         return c;
     }
 
+    public void scanUUIDStringWithQuote() {
+
+        try {
+            hyphenInBinary = true;
+
+            scanBinaryStringWithQuote();
+
+            if (token.tokenValue instanceof BinaryData) {
+                if (((BinaryData) token.tokenValue).length(null) != 16) {
+                    token.tokenType   = Tokens.X_MALFORMED_BINARY_STRING;
+                    token.isMalformed = true;
+                }
+            }
+        } finally {
+            hyphenInBinary = false;
+        }
+    }
+
     public void scanBinaryStringWithQuote() {
 
         resetState();
@@ -411,6 +430,11 @@ public class Scanner {
 
         for (; currentPosition < limit; currentPosition++) {
             int c = sqlString.charAt(currentPosition);
+
+            // code to remove hyphens from UUID strings
+            if (hyphenInBinary && c == '-') {
+                continue;
+            }
 
             if (c == ' ') {
                 continue;
@@ -2421,10 +2445,6 @@ public class Scanner {
         }
 
         throw Error.error(ErrorCode.X_22018);
-    }
-
-    public synchronized BinaryData convertToBinary(String s) {
-        return convertToBinary(s, false);
     }
 
     public synchronized BinaryData convertToBinary(String s, boolean uuid) {

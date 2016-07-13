@@ -398,7 +398,8 @@ public class ParserCommand extends ParserDDL {
             new ExpressionValue(password, Type.SQL_VARCHAR)
         };
         Statement cs =
-            new StatementSession(StatementTypes.SET_SESSION_AUTHORIZATION,
+            new StatementSession(session, compileContext,
+                                 StatementTypes.SET_SESSION_AUTHORIZATION,
                                  args);
 
         return cs;
@@ -563,7 +564,8 @@ public class ParserCommand extends ParserDDL {
 
                 Expression[] args = new Expression[]{ e };
 
-                return new StatementSession(StatementTypes.SET_CATALOG, args);
+                return new StatementSession(session, compileContext,
+                                            StatementTypes.SET_CATALOG, args);
             }
             case Tokens.SCHEMA : {
                 read();
@@ -578,19 +580,10 @@ public class ParserCommand extends ParserDDL {
                                                 args);
                 }
 
-                if (!e.getDataType().isCharacterType()) {
-                    throw Error.error(ErrorCode.X_0P000);
-                }
-
-                if (e.getType() != OpTypes.VALUE
-                        && (e.getType() != OpTypes.SQL_FUNCTION
-                            || !((FunctionSQL) e).isValueFunction())) {
-                    throw Error.error(ErrorCode.X_0P000);
-                }
-
                 Expression[] args = new Expression[]{ e };
 
-                return new StatementSession(StatementTypes.SET_SCHEMA, args);
+                return new StatementSession(session, compileContext,
+                                            StatementTypes.SET_SCHEMA, args);
             }
             case Tokens.NO : {
                 read();
@@ -2003,6 +1996,7 @@ public class ParserCommand extends ParserDDL {
                 };
 
                 return new StatementSession(
+                    session, compileContext,
                     StatementTypes.SET_SESSION_AUTHORIZATION, args);
             }
             case Tokens.RESULT : {
@@ -2059,7 +2053,8 @@ public class ParserCommand extends ParserDDL {
             }
         }
 
-        return new StatementSession(StatementTypes.SET_ROLE,
+        return new StatementSession(session, compileContext,
+                                    StatementTypes.SET_ROLE,
                                     new Expression[]{ e });
     }
 
@@ -2075,23 +2070,10 @@ public class ParserCommand extends ParserDDL {
             e = new ExpressionValue(null, Type.SQL_INTERVAL_HOUR_TO_MINUTE);
         } else {
             e = XreadIntervalValueExpression();
-
-            HsqlList unresolved = e.resolveColumnReferences(session,
-                RangeGroup.emptyGroup, RangeGroup.emptyArray, null);
-
-            ExpressionColumn.checkColumnsResolved(unresolved);
-            e.resolveTypes(session, null);
-
-            if (e.dataType == null) {
-                throw Error.error(ErrorCode.X_42563);
             }
 
-            if (e.dataType.typeCode != Types.SQL_INTERVAL_HOUR_TO_MINUTE) {
-                throw Error.error(ErrorCode.X_42563);
-            }
-        }
-
-        return new StatementSession(StatementTypes.SET_TIME_ZONE,
+        return new StatementSession(session, compileContext,
+                                    StatementTypes.SET_TIME_ZONE,
                                     new Expression[]{ e });
     }
 
@@ -2273,6 +2255,9 @@ public class ParserCommand extends ParserDDL {
 
     private Statement compilePerform() {
 
+        Integer type   = Integer.valueOf(1);
+        Integer number = Integer.valueOf(-1);
+
         read();
 
         switch (token.tokenType) {
@@ -2286,7 +2271,7 @@ public class ParserCommand extends ParserDDL {
                 readThis(Tokens.INDEX);
 
                 Object[] args = new Object[] {
-                    table.getName(), Integer.valueOf(1), null
+                    table.getName(), type, number
                 };
                 HsqlName[] names =
                     database.schemaManager.getCatalogAndBaseTableNames(

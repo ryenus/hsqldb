@@ -53,7 +53,7 @@ import org.hsqldb.types.Types;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.7.0
  */
 abstract class RowInputBase extends HsqlByteArrayInputStream {
@@ -129,6 +129,8 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
     protected abstract IntervalSecondData readDaySecondInterval(Type type);
 
     protected abstract Object readOther();
+
+    protected abstract BinaryData readUUID();
 
     protected abstract BinaryData readBinary();
 
@@ -256,6 +258,9 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
                 break;
 
             case Types.SQL_GUID :
+                o = readUUID();
+                break;
+
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
                 o = readBinary();

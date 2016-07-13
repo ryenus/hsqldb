@@ -361,10 +361,6 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
 
         int i = binarySlotSearch(true);
 
-        if (i == -1) {
-            return i;
-        }
-
         hasChanged = true;
 
         if (count != i) {

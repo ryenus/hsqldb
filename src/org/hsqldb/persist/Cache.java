@@ -445,9 +445,9 @@ public class Cache extends BaseHashMap {
         sb.append("cache save rows total [count,time] ");
         sb.append(saveRowCount + saveCount);
         sb.append(',').append(time).append(' ');
-        sb.append("operation [count,size,time]").append(saveCount).append(' ');
-        sb.append(storageSize).append(',');
-        sb.append(time - startTime).append(' ');
+        sb.append("operation [count,time,size]").append(saveCount).append(',');
+        sb.append(time - startTime).append(',');
+        sb.append(storageSize).append(' ');
 
 //
         sb.append("tx-ts ");

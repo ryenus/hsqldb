@@ -1456,7 +1456,7 @@ public class Logger implements EventLogInterface {
                 return new RowStoreAVLHybridExtended(session, table, true);
 
             case TableBase.CHANGE_SET_TABLE :
-                return new RowStoreDataChange(session, collection, table);
+                return new RowStoreDataChange(session, table);
 
             case TableBase.FUNCTION_TABLE :
             case TableBase.RESULT_TABLE :

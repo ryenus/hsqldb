@@ -1959,9 +1959,5 @@ public class IndexAVL implements Index {
         public long getRowId() {
             return nextnode.getPos();
         }
-
-        public TableBase getCurrentTable() {
-            return index.table;
-        }
     }
 }
