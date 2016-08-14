@@ -413,8 +413,8 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
             RowIterator it = rowIterator();
 
             // todo - check this - must remove from old space, not new one
-            while (it.hasNext()) {
-                Row row = it.getNextRow();
+            while (it.next()) {
+                Row row = it.getCurrentRow();
 
                 cache.remove(row);
                 tableSpace.release(row.getPos(), row.getStorageSize());
@@ -440,8 +440,8 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
         RowIterator it = indexList[0].firstRow(this);
 
-        while (it.hasNext()) {
-            CachedObject row = it.getNextRow();
+        while (it.next()) {
+            CachedObject row = it.getCurrentRow();
 
             pointerLookup.addUnsorted(row.getPos(), row.getStorageSize());
         }
@@ -457,8 +457,8 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
         it = indexList[0].firstRow(this);
 
-        while (it.hasNext()) {
-            CachedObject row    = it.getNextRow();
+        while (it.next()) {
+            CachedObject row    = it.getCurrentRow();
             long         newPos = pointerLookup.lookup(row.getPos());
 
             // write

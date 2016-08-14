@@ -38,7 +38,7 @@ package org.hsqldb.lib;
  * containing a matching key, or  or -1 if not found.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 2.3.3
  */
 public class IntIndex {
@@ -313,7 +313,7 @@ public class IntIndex {
                     baseIndex = i - 1;
                 }
 
-                if (i - baseIndex + 1 == count) {
+                if (i - baseIndex + 1 == number) {
                     return baseIndex;
                 }
             } else {
@@ -321,7 +321,7 @@ public class IntIndex {
             }
         }
 
-        return baseIndex;
+        return -1;
     }
 
     /**

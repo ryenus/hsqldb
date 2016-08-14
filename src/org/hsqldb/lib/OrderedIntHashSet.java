@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ import org.hsqldb.map.BaseHashMap;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class OrderedIntHashSet extends BaseHashMap {
@@ -131,6 +131,20 @@ public class OrderedIntHashSet extends BaseHashMap {
 
         while (it.hasNext()) {
             add(it.nextInt());
+        }
+
+        return oldSize != size();
+    }
+
+    public boolean addAll(OrderedIntHashSet set) {
+
+        int oldSize = size();
+        int setSize = set.size();
+
+        for (int i = 0; i < setSize; i++) {
+            int value = set.get(i);
+
+            add(value);
         }
 
         return oldSize != size();

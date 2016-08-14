@@ -56,7 +56,7 @@ import org.hsqldb.types.Types;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.7.0
  */
 public class RowOutputBinary extends RowOutputBase {
@@ -110,6 +110,10 @@ public class RowOutputBinary extends RowOutputBase {
 
     public void writeData(Row row, Type[] types) {
         super.writeData(row, types);
+    }
+
+    public long scalePosition(long position) {
+        return (position + scale - 1) & (long) mask;
     }
 
     public void setStorageSize(int size) {
@@ -302,6 +306,10 @@ public class RowOutputBinary extends RowOutputBase {
     public void writeByteArray(byte[] b) {
         writeInt(b.length);
         write(b, 0, b.length);
+    }
+
+    public void writeByteArray16(byte[] b) {
+        write(b, 0, 16);
     }
 
     // fredt@users - comment - helper and conversion methods

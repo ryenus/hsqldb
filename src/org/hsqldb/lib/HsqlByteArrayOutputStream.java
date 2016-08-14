@@ -400,7 +400,7 @@ implements DataOutput {
 
         if (newSize > buffer.length) {
             newSize = (int) ArrayUtil.getBinaryMultipleCeiling(newSize, 4096);
-            buffer = new byte[newSize];
+            buffer  = new byte[newSize];
         }
     }
 

@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * existing table which may result in a new Table object
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.7.0
  */
 public class TableWorks {
@@ -1151,8 +1151,8 @@ public class TableWorks {
         int         colIndex = table.getColumnIndex(oldCol.getName().name);
         RowIterator it       = table.rowIterator(session);
 
-        while (it.hasNext()) {
-            Row    row = it.getNextRow();
+        while (it.next()) {
+            Row    row = it.getCurrentRow();
             Object o   = row.getData()[colIndex];
 
             if (!newCol.isNullable() && o == null) {

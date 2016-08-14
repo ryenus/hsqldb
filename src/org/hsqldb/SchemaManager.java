@@ -937,9 +937,8 @@ public class SchemaManager {
         if (!table.isView() && table.hasLobColumn()) {
             RowIterator it = table.rowIterator(session);
 
-            while (it.hasNext()) {
-                Row      row  = it.getNextRow();
-                Object[] data = row.getData();
+            while (it.next()) {
+                Object[] data = it.getCurrent();
 
                 session.sessionData.adjustLobUsageCount(table, data, -1);
             }

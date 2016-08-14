@@ -66,7 +66,7 @@ import org.hsqldb.types.TimestampData;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.7.2
  */
 public class ClientConnection implements SessionInterface, Cloneable {
@@ -499,6 +499,10 @@ public class ClientConnection implements SessionInterface, Cloneable {
         return sessionID;
     }
 
+    public int getRandomId() {
+        return randomID;
+    }
+
     /**
      * Used by pooled connections to reset the server-side session to a new
      * one. In case of failure, the connection is closed.
@@ -552,8 +556,6 @@ public class ClientConnection implements SessionInterface, Cloneable {
         ClientConnection connection = new ClientConnection(this);
 
         try {
-            result.setSessionRandomID(randomID);
-
             return connection.execute(result);
         } finally {
             connection.closeConnection();

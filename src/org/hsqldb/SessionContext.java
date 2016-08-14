@@ -50,7 +50,7 @@ import org.hsqldb.result.Result;
  * Session execution context and temporary data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class SessionContext {
@@ -201,7 +201,7 @@ public class SessionContext {
         savepointTimestamps  = (LongDeque) stack.remove(stack.size() - 1);
         savepoints           = (HashMappedList) stack.remove(stack.size() - 1);
         rangeIterators = (RangeIterator[]) stack.remove(stack.size() - 1);
-        routineCursors       = (Result[]) stack.remove(stack.size() -1);
+        routineCursors       = (Result[]) stack.remove(stack.size() - 1);
         routineVariables     = (Object[]) stack.remove(stack.size() - 1);
         triggerArguments     = ((Object[][]) stack.remove(stack.size() - 1));
         routineArguments     = (Object[]) stack.remove(stack.size() - 1);
@@ -264,16 +264,23 @@ public class SessionContext {
         }
     }
 
-    public RangeIteratorBase getCheckIterator(RangeVariable rangeVariable) {
+    RangeIterator checkIterator = new RangeVariable.RangeIteratorCheck();
 
-        RangeIterator it = rangeIterators[0];
+    public RangeIterator getCheckIterator(RangeVariable rangeVariable) {
 
-        if (it == null) {
-            it                = rangeVariable.getIterator(session);
-            rangeIterators[0] = it;
+        int position = rangeVariable.rangePosition;
+
+        if (position >= rangeIterators.length) {
+            int size = (int) ArrayUtil.getBinaryNormalisedCeiling(position
+                + 1);
+
+            rangeIterators =
+                (RangeIterator[]) ArrayUtil.resizeArray(rangeIterators, size);
         }
 
-        return (RangeIteratorBase) it;
+        rangeIterators[position] = checkIterator;
+
+        return checkIterator;
     }
 
     public void setRangeIterator(RangeIterator iterator) {
@@ -281,9 +288,11 @@ public class SessionContext {
         int position = iterator.getRangePosition();
 
         if (position >= rangeIterators.length) {
+            int size = (int) ArrayUtil.getBinaryNormalisedCeiling(position
+                + 1);
+
             rangeIterators =
-                (RangeIterator[]) ArrayUtil.resizeArray(rangeIterators,
-                    position + 4);
+                (RangeIterator[]) ArrayUtil.resizeArray(rangeIterators, size);
         }
 
         rangeIterators[position] = iterator;

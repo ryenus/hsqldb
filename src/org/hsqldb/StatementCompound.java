@@ -496,9 +496,7 @@ public class StatementCompound extends Statement implements RangeGroup {
 
         Result result = Result.updateZeroResult;
 
-        while (queryResult.navigator.hasNext()) {
-            queryResult.navigator.next();
-
+        while (queryResult.navigator.next()) {
             Object[] data = queryResult.navigator.getCurrent();
 
             initialiseVariables(session, data,

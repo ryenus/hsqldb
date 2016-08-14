@@ -54,6 +54,7 @@ import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.types.LobData;
 import org.hsqldb.types.Type;
 
 /*
@@ -309,8 +310,8 @@ public abstract class RowStoreAVL implements PersistentStore {
 
             RowIterator it = rowIterator();
 
-            while (it.hasNext()) {
-                Row row = it.getNextRow();
+            while (it.next()) {
+                Row row = it.getCurrentRow();
 
                 ((RowAVL) row).clearNonPrimaryNodes();
 
@@ -535,8 +536,8 @@ public abstract class RowStoreAVL implements PersistentStore {
             Table       table = (Table) this.table;
             RowIterator it    = other.rowIterator();
 
-            while (it.hasNext()) {
-                Row      row      = it.getNextRow();
+            while (it.next()) {
+                Row      row      = it.getCurrentRow();
                 Object[] olddata  = row.getData();
                 Object[] data     = table.getEmptyRowData();
                 Object   oldvalue = null;
@@ -571,10 +572,10 @@ public abstract class RowStoreAVL implements PersistentStore {
             if (oldtype != null && oldtype.isLobType()) {
                 it = other.rowIterator();
 
-                while (it.hasNext()) {
-                    Row      row      = it.getNextRow();
+                while (it.next()) {
+                    Row      row      = it.getCurrentRow();
                     Object[] olddata  = row.getData();
-                    Object   oldvalue = olddata[colindex];
+                    LobData  oldvalue = (LobData) olddata[colindex];
 
                     if (oldvalue != null) {
                         session.sessionData.adjustLobUsageCount(oldvalue, -1);
@@ -585,10 +586,10 @@ public abstract class RowStoreAVL implements PersistentStore {
             if (newtype != null && newtype.isLobType()) {
                 it = rowIterator();
 
-                while (it.hasNext()) {
-                    Row      row   = it.getNextRow();
+                while (it.next()) {
+                    Row      row   = it.getCurrentRow();
                     Object[] data  = row.getData();
-                    Object   value = data[colindex];
+                    LobData  value = (LobData) data[colindex];
 
                     if (value != null) {
                         session.sessionData.adjustLobUsageCount(value, +1);
@@ -609,8 +610,8 @@ public abstract class RowStoreAVL implements PersistentStore {
 
             RowIterator it = table.rowIterator(this);
 
-            while (it.hasNext()) {
-                RowAVL row = (RowAVL) it.getNextRow();
+            while (it.next()) {
+                RowAVL row = (RowAVL) it.getCurrentRow();
 
                 row.getNode(index.getPosition()).delete();
                 index.insert(session, this, row);
@@ -635,8 +636,8 @@ public abstract class RowStoreAVL implements PersistentStore {
         RowIterator it       = primaryIndex.firstRow(this);
         int         position = oldIndex.getPosition() - 1;
 
-        while (it.hasNext()) {
-            Row     row      = it.getNextRow();
+        while (it.next()) {
+            Row     row      = it.getCurrentRow();
             int     i        = position - 1;
             NodeAVL backnode = ((RowAVL) row).getNode(0);
 
@@ -662,8 +663,8 @@ public abstract class RowStoreAVL implements PersistentStore {
             HsqlException error    = null;
 
             try {
-                while (it.hasNext()) {
-                    Row row = it.getNextRow();
+                while (it.next()) {
+                    Row row = it.getCurrentRow();
 
                     ((RowAVL) row).insertNode(position);
 
@@ -686,8 +687,8 @@ public abstract class RowStoreAVL implements PersistentStore {
             // rowCount rows have been modified
             it = primaryIndex.firstRow(this);
 
-            for (int i = 0; i < rowCount; i++) {
-                Row     row      = it.getNextRow();
+            while (it.next()) {
+                Row     row      = it.getCurrentRow();
                 NodeAVL backnode = ((RowAVL) row).getNode(0);
                 int     j        = position;
 

@@ -4211,24 +4211,24 @@ public class ParserDQL extends ParserBase {
                 break;
 
             case Tokens.SIMPLE :
-            read();
+                read();
 
-            matchType = isUnique ? OpTypes.MATCH_UNIQUE_SIMPLE
-                                 : OpTypes.MATCH_SIMPLE;
+                matchType = isUnique ? OpTypes.MATCH_UNIQUE_SIMPLE
+                                     : OpTypes.MATCH_SIMPLE;
                 break;
 
             case Tokens.PARTIAL :
-            read();
+                read();
 
-            matchType = isUnique ? OpTypes.MATCH_UNIQUE_PARTIAL
-                                 : OpTypes.MATCH_PARTIAL;
+                matchType = isUnique ? OpTypes.MATCH_UNIQUE_PARTIAL
+                                     : OpTypes.MATCH_PARTIAL;
                 break;
 
             case Tokens.FULL :
-            read();
+                read();
 
-            matchType = isUnique ? OpTypes.MATCH_UNIQUE_FULL
-                                 : OpTypes.MATCH_FULL;
+                matchType = isUnique ? OpTypes.MATCH_UNIQUE_FULL
+                                     : OpTypes.MATCH_FULL;
                 break;
         }
 
@@ -4587,14 +4587,13 @@ public class ParserDQL extends ParserBase {
                     break;
                 } catch (HsqlException e) {
                     if (database.sqlSyntaxDb2 || database.sqlSyntaxOra) {
+                        rewind(position);
+                        compileContext.decrementDepth(depth);
 
-                    rewind(position);
-                    compileContext.decrementDepth(depth);
+                        td = XreadRecursiveSubqueryBody(name, columnNames);
 
-                    td = XreadRecursiveSubqueryBody(name, columnNames);
-
-                    break;
-                }
+                        break;
+                    }
 
                     throw e;
                 }

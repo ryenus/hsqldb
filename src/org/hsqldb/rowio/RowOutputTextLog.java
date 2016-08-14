@@ -109,6 +109,10 @@ public class RowOutputTextLog extends RowOutputBase {
         this.writeBytes(o.toString());
     }
 
+    public long scalePosition(long position) {
+        return position;
+    }
+
     public void setStorageSize(int size) {}
 
     public void writeEnd() {}
@@ -157,7 +161,7 @@ public class RowOutputTextLog extends RowOutputBase {
 
     protected void writeArray(Object[] o, Type type) {
 
-        type = type.collectionBaseType();
+        type         = type.collectionBaseType();
         noSeparators = true;
 
         write(BYTES_ARRAY);

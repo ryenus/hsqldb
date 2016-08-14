@@ -1233,8 +1233,8 @@ public class StatementSchema extends Statement {
                     if (table.hasLobColumn) {
                         RowIterator it = table.rowIterator(session);
 
-                        while (it.hasNext()) {
-                            Row      row  = it.getNextRow();
+                        while (it.next()) {
+                            Row      row  = it.getCurrentRow();
                             Object[] data = row.getData();
 
                             session.sessionData.adjustLobUsageCount(table,

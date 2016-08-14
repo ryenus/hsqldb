@@ -342,8 +342,8 @@ public abstract class ScriptWriterBase implements Runnable {
                         RowIterator it =
                             t.rowIteratorClustered(currentSession);
 
-                        while (it.hasNext()) {
-                            Row row = it.getNextRow();
+                        while (it.next()) {
+                            Row row = it.getCurrentRow();
 
                             writeRow(currentSession, row, t);
                         }
@@ -367,8 +367,8 @@ public abstract class ScriptWriterBase implements Runnable {
 
         RowSetNavigator nav = r.initialiseNavigator();
 
-        while (nav.hasNext()) {
-            Object[] data = nav.getNext();
+        while (nav.next()) {
+            Object[] data = nav.getCurrent();
 
             writeLogStatement(currentSession, (String) data[0]);
         }

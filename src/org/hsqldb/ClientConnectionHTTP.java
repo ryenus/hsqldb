@@ -46,7 +46,7 @@ import org.hsqldb.result.Result;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.7.2
  */
 public class ClientConnectionHTTP extends ClientConnection {
@@ -126,8 +126,6 @@ public class ClientConnectionHTTP extends ClientConnection {
     public Result cancel(Result result) {
 
         ClientConnectionHTTP connection = new ClientConnectionHTTP(this);
-
-        result.setSessionRandomID(randomID);
 
         return connection.execute(result);
     }

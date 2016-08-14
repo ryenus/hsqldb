@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class Expression implements Cloneable {
@@ -1613,8 +1613,8 @@ public class Expression implements Cloneable {
 
                 nav.beforeFirst();
 
-                for (int i = 0; nav.hasNext(); i++) {
-                    Object[] data = nav.getNextRowData();
+                for (int i = 0; nav.next(); i++) {
+                    Object[] data = nav.getCurrent();
 
                     array[i] = data[0];
                 }
@@ -1648,8 +1648,8 @@ public class Expression implements Cloneable {
 
                 navigator.beforeFirst();
 
-                for (int i = 0; navigator.hasNext(); i++) {
-                    Object[] data = navigator.getNext();
+                for (int i = 0; navigator.next(); i++) {
+                    Object[] data = navigator.getCurrent();
 
                     array[i] = data[0];
                 }

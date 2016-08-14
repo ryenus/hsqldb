@@ -49,7 +49,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for SQL session statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class StatementSession extends Statement {
@@ -159,7 +159,7 @@ public class StatementSession extends Statement {
 
         super(type);
 
-        this.arguments        = args;
+        this.arguments         = args;
         isTransactionStatement = false;
         isLogged               = false;
 
@@ -449,8 +449,13 @@ public class StatementSession extends Statement {
                     Result result = (Result) value;
 
                     if (result.isData()) {
-                        Object[] data   = result.getNavigator().getNext();
-                        boolean  single = !result.getNavigator().next();
+                        Object[] data   = null;
+                        boolean  single = false;
+
+                        if (result.getNavigator().next()) {
+                            data   = result.getNavigator().getCurrent();
+                            single = !result.getNavigator().next();
+                        }
 
                         if (single && data != null && data[0] != null) {
                             value = data[0];

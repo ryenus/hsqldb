@@ -45,7 +45,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * a server-side row set.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class RowSetNavigatorClient extends RowSetNavigator {
