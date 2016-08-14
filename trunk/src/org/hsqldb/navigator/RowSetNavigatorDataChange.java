@@ -42,7 +42,7 @@ import org.hsqldb.types.Type;
 
 /*
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 2.2.7
  */
 public interface RowSetNavigatorDataChange extends RangeIterator {

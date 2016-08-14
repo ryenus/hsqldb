@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class RowSetNavigatorDataChangeMemory
@@ -265,30 +265,6 @@ implements RowSetNavigatorDataChange {
         return false;
     }
 
-    public Row getNextRow() {
-
-        if (next()) {
-            return getCurrentRow();
-        }
-
-        return null;
-    }
-
-    public Object[] getNext() {
-
-        if (next()) {
-            Row row = getCurrentRow();
-
-            return row.getData();
-        }
-
-        return null;
-    }
-
-    public boolean hasNext() {
-        return currentPos < size - 1;
-    }
-
     public void removeCurrent() {}
 
     public long getRowId() {
@@ -309,10 +285,6 @@ implements RowSetNavigatorDataChange {
 
     public void setCurrent(Object[] data) {}
 
-    public Object getRowidObject() {
-        return Long.valueOf(getRowId());
-    }
-
     public void reset() {
         beforeFirst();
     }
@@ -326,24 +298,6 @@ implements RowSetNavigatorDataChange {
     }
 
     class UpdateRowIterator implements RangeIterator {
-
-        public Row getNextRow() {
-            return null;
-        }
-
-        public Object[] getNext() {
-
-            if (RowSetNavigatorDataChangeMemory.this.next()) {
-                return RowSetNavigatorDataChangeMemory.this
-                    .getCurrentChangedData();
-            }
-
-            return null;
-        }
-
-        public boolean hasNext() {
-            return RowSetNavigatorDataChangeMemory.this.hasNext();
-        }
 
         public void removeCurrent() {}
 
@@ -380,10 +334,6 @@ implements RowSetNavigatorDataChange {
         }
 
         public void setCurrent(Object[] data) {}
-
-        public Object getRowidObject() {
-            return Long.valueOf(getRowId());
-        }
 
         public void reset() {
             beforeFirst();

@@ -32,12 +32,12 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
@@ -49,7 +49,7 @@ import org.hsqldb.types.Type;
  * by the constraint.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.6.0
  */
 public final class Constraint implements SchemaObject {
@@ -797,14 +797,12 @@ public final class Constraint implements SchemaObject {
      */
     void checkCheckConstraint(Session session, Table table, Object[] data) {
 
-        RangeIteratorBase it =
+        RangeIterator it =
             session.sessionContext.getCheckIterator(rangeVariable);
 
         it.setCurrent(data);
 
         boolean nomatch = Boolean.FALSE.equals(check.getValue(session));
-
-        it.setCurrent(null);
 
         if (nomatch) {
             String[] info = new String[] {
@@ -939,14 +937,8 @@ public final class Constraint implements SchemaObject {
 
         RowIterator it = table.rowIterator(session);
 
-        while (true) {
-            Row row = it.getNextRow();
-
-            if (row == null) {
-                break;
-            }
-
-            Object[] rowData = row.getData();
+        while (it.next()) {
+            Object[] rowData = it.getCurrent();
 
             checkInsert(session, table, rowData, false);
         }

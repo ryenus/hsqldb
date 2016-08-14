@@ -502,9 +502,7 @@ public class IndexAVL implements Index {
         long        count = 0;
         RowIterator it    = firstRow(session, store, 0, null);
 
-        while (it.hasNext()) {
-            it.getNextRow();
-
+        while (it.next()) {
             count++;
         }
 
@@ -1889,14 +1887,45 @@ public class IndexAVL implements Index {
             nextnode = node;
         }
 
+        public Object getField(int col) {
+
+            if (lastrow == null) {
+                return null;
+            }
+
+            return lastrow.getData()[col];
+        }
+
+        public boolean next() {
+
+            getNextRow();
+
+            return lastrow != null;
+        }
+
+        public Row getCurrentRow() {
+            return lastrow;
+        }
+
+        public Object[] getCurrent() {
+
+            if (lastrow == null) {
+                return null;
+            }
+
+            return lastrow.getData();
+        }
+
         public boolean hasNext() {
             return nextnode != null;
         }
 
-        public Row getNextRow() {
+        private Row getNextRow() {
 
             if (nextnode == null) {
                 release();
+
+                lastrow = null;
 
                 return null;
             }
@@ -1941,14 +1970,6 @@ public class IndexAVL implements Index {
             return lastrow;
         }
 
-        public Object[] getNext() {
-
-            Row row = getNextRow();
-
-            return row == null ? null
-                               : row.getData();
-        }
-
         public void removeCurrent() {
             store.delete(session, lastrow);
             store.remove(lastrow);
@@ -1957,7 +1978,7 @@ public class IndexAVL implements Index {
         public void release() {}
 
         public long getRowId() {
-            return nextnode.getPos();
+            return lastrow.getPos();
         }
     }
 }

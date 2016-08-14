@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
  * Metadata for a result set.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.3.5
  * @since 1.8.0
  */
 public final class ResultMetaData {
@@ -125,6 +125,23 @@ public final class ResultMetaData {
         md.columns[0] = new ColumnBase(null, null, null, colName);
 
         md.columns[0].setType(Type.SQL_VARCHAR_DEFAULT);
+        md.prepareData();
+
+        return md;
+    }
+
+    public static ResultMetaData newDoubleColumnMetaData(String colNameA,
+            String colNameB) {
+
+        ResultMetaData md = ResultMetaData.newResultMetaData(2);
+
+        md.columns[0] = new ColumnBase(null, null, null, colNameA);
+
+        md.columns[0].setType(Type.SQL_VARCHAR_DEFAULT);
+
+        md.columns[1] = new ColumnBase(null, null, null, colNameB);
+
+        md.columns[1].setType(Type.SQL_VARCHAR_DEFAULT);
         md.prepareData();
 
         return md;

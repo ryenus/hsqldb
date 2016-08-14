@@ -111,6 +111,13 @@ public class StatementCommand extends Statement {
 
                 break;
             }
+            case StatementTypes.CHECK_INDEX : {
+                statementReturnType = StatementTypes.RETURN_RESULT;
+                group = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
+                isLogged            = false;
+
+                break;
+            }
             case StatementTypes.DATABASE_BACKUP :
                 group = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
 
@@ -919,12 +926,11 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.CHECK_INDEX : {
                 try {
-                    HsqlName name = (HsqlName) arguments[0];
-                    Table table =
-                        session.database.schemaManager.getUserTable(name.name,
-                            name.schema.name);
+                    int type = ((Integer) arguments[1]).intValue();
+                    Result result = Result.newDoubleColumnResult("TABLE_NAME",
+                        "INFO");
 
-                    return Result.updateZeroResult;
+                    return result;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }

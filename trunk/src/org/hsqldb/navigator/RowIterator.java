@@ -37,16 +37,18 @@ import org.hsqldb.TableBase;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.7.2
  */
 public interface RowIterator {
 
-    Row getNextRow();
+    Object getField(int col);
 
-    Object[] getNext();
+    boolean next();
 
-    boolean hasNext();
+    Row getCurrentRow();
+
+    Object[] getCurrent();
 
     void removeCurrent();
 

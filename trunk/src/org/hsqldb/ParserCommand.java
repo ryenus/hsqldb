@@ -35,7 +35,6 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -44,7 +43,6 @@ import org.hsqldb.result.ResultProperties;
 import org.hsqldb.rights.User;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.Types;
 
 /**
  * Parser for session and management statements
@@ -2070,7 +2068,7 @@ public class ParserCommand extends ParserDDL {
             e = new ExpressionValue(null, Type.SQL_INTERVAL_HOUR_TO_MINUTE);
         } else {
             e = XreadIntervalValueExpression();
-            }
+        }
 
         return new StatementSession(session, compileContext,
                                     StatementTypes.SET_TIME_ZONE,
@@ -2266,16 +2264,13 @@ public class ParserCommand extends ParserDDL {
                 read();
                 readThis(Tokens.TABLE);
 
-                Table table = readTableName();
-
-                readThis(Tokens.INDEX);
+                readThis(Tokens.SPACE);
 
                 Object[] args = new Object[] {
-                    table.getName(), type, number
+                    null, type, number
                 };
                 HsqlName[] names =
-                    database.schemaManager.getCatalogAndBaseTableNames(
-                        table.getName());
+                    database.schemaManager.getCatalogAndBaseTableNames();
 
                 return new StatementCommand(StatementTypes.CHECK_INDEX, args,
                                             null, names);

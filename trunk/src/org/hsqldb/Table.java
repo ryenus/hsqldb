@@ -32,7 +32,6 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -45,6 +44,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.map.ValuePool;
+import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorDataChange;
@@ -192,6 +192,7 @@ public class Table extends TableBase implements SchemaObject {
                 isView           = true;
                 break;
 
+            case MODULE_TABLE :
             case RESULT_TABLE :
                 persistenceScope = SCOPE_SESSION;
                 isSessionBased   = true;
@@ -723,6 +724,9 @@ public class Table extends TableBase implements SchemaObject {
 
             case TableBase.TEXT_TABLE :
                 return Tokens.T_TEXT;
+
+            case TableBase.MODULE_TABLE :
+                return Tokens.T_MODULE;
 
             case TableBase.FUNCTION_TABLE :
                 return Tokens.T_FUNCTION;
@@ -1617,6 +1621,7 @@ public class Table extends TableBase implements SchemaObject {
 
         switch (tableType) {
 
+            case TableBase.MODULE_TABLE :
             case TableBase.FUNCTION_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.INFO_SCHEMA_TABLE :
@@ -1725,11 +1730,12 @@ public class Table extends TableBase implements SchemaObject {
             colTypes = new Type[columnCount];
         }
 
-        colDefaults      = new Expression[columnCount];
-        colNotNull       = new boolean[columnCount];
-        colGenerated     = new boolean[columnCount];
-        colUpdated       = new boolean[columnCount];
-        defaultColumnMap = new int[columnCount];
+        colDefaults          = new Expression[columnCount];
+        colNotNull           = new boolean[columnCount];
+        emptyColumnCheckList = new boolean[columnCount];
+        colGenerated         = new boolean[columnCount];
+        colUpdated           = new boolean[columnCount];
+        defaultColumnMap     = new int[columnCount];
 
         for (int i = 0; i < columnCount; i++) {
             setSingleColumnTypeVars(i);
@@ -2412,7 +2418,7 @@ public class Table extends TableBase implements SchemaObject {
 
         switch (tableType) {
 
-//            case TableBase.MEMORY_TABLE :
+            case TableBase.MODULE_TABLE :
             case TableBase.FUNCTION_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.INFO_SCHEMA_TABLE :
@@ -2438,7 +2444,7 @@ public class Table extends TableBase implements SchemaObject {
 
         switch (tableType) {
 
-//            case TableBase.MEMORY_TABLE :
+            case TableBase.MODULE_TABLE :
             case TableBase.FUNCTION_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.INFO_SCHEMA_TABLE :
@@ -2504,6 +2510,7 @@ public class Table extends TableBase implements SchemaObject {
             // index is not full;
             switch (tableType) {
 
+                case TableBase.MODULE_TABLE :
                 case TableBase.FUNCTION_TABLE :
                 case TableBase.SYSTEM_SUBQUERY :
                 case TableBase.INFO_SCHEMA_TABLE :
@@ -2727,8 +2734,8 @@ public class Table extends TableBase implements SchemaObject {
         PersistentStore store = getRowStore(session);
         RowSetNavigator nav   = result.initialiseNavigator();
 
-        while (nav.hasNext()) {
-            Object[] data = nav.getNext();
+        while (nav.next()) {
+            Object[] data = nav.getCurrent();
             Object[] newData =
                 (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
 
@@ -2758,8 +2765,8 @@ public class Table extends TableBase implements SchemaObject {
         RowSetNavigator nav   = ins.getNavigator();
         int             count = 0;
 
-        while (nav.hasNext()) {
-            insertSys(session, store, nav.getNext());
+        while (nav.next()) {
+            insertSys(session, store, nav.getCurrent());
 
             count++;
         }
@@ -2775,8 +2782,8 @@ public class Table extends TableBase implements SchemaObject {
 
         RowSetNavigator nav = ins.initialiseNavigator();
 
-        while (nav.hasNext()) {
-            Object[] data = nav.getNext();
+        while (nav.next()) {
+            Object[] data = nav.getCurrent();
             Object[] newData =
                 (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
 
@@ -2889,7 +2896,7 @@ public class Table extends TableBase implements SchemaObject {
             for (int i = 0; i < colGenerated.length; i++) {
                 if (colGenerated[i]) {
                     Expression e = getColumn(i).getGeneratingExpression();
-                    RangeIteratorBase range =
+                    RangeIterator range =
                         session.sessionContext.getCheckIterator(
                             getDefaultRanges()[0]);
 
@@ -2957,18 +2964,16 @@ public class Table extends TableBase implements SchemaObject {
             RowIterator it = index.findFirstRow(session, store, data,
                                                 colsSequence);
 
-            row = it.getNextRow();
+            it.next();
+
+            row = it.getCurrentRow();
 
             it.release();
         } else if (bestIndex == null) {
             RowIterator it = rowIterator(session);
 
-            while (true) {
-                row = it.getNextRow();
-
-                if (row == null) {
-                    break;
-                }
+            while (it.next()) {
+                row = it.getCurrentRow();
 
                 if (Table.compareRows(
                         session, row.getData(), data, defaultColumnMap,
@@ -2981,12 +2986,8 @@ public class Table extends TableBase implements SchemaObject {
         } else {
             RowIterator it = bestIndex.findFirstRow(session, store, data);
 
-            while (true) {
-                row = it.getNextRow();
-
-                if (row == null) {
-                    break;
-                }
+            while (it.next()) {
+                row = it.getCurrentRow();
 
                 Object[] rowdata = row.getData();
 

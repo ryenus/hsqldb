@@ -31,8 +31,6 @@
 
 package org.hsqldb.navigator;
 
-import org.hsqldb.Row;
-
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.5
@@ -42,17 +40,7 @@ public interface RangeIterator extends RowIterator {
 
     boolean isBeforeFirst();
 
-    boolean next();
-
-    Row getCurrentRow();
-
-    Object[] getCurrent();
-
-    Object getField(int i);
-
     void setCurrent(Object[] data);
-
-    Object getRowidObject();
 
     void reset();
 

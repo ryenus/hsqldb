@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * The  base of all HSQLDB table implementations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.7.2
  */
 public class TableBase implements Cloneable {
@@ -65,6 +65,7 @@ public class TableBase implements Cloneable {
     public static final int FUNCTION_TABLE    = 11;
     public static final int SYSTEM_TABLE      = 12;
     public static final int CHANGE_SET_TABLE  = 13;
+    public static final int MODULE_TABLE      = 14;
 
     //
     public static final int SCOPE_ROUTINE     = 20;
@@ -90,6 +91,7 @@ public class TableBase implements Cloneable {
     boolean[]     colNotNull;                   // nullability
     Type[]        colTypes;                     // types of columns
     protected int columnCount;
+    boolean[]     emptyColumnCheckList;
 
     //
     int               tableType;
@@ -112,14 +114,15 @@ public class TableBase implements Cloneable {
     public TableBase(Session session, Database database, int scope, int type,
                      Type[] colTypes) {
 
-        tableType        = type;
-        persistenceScope = scope;
-        isSessionBased   = true;
-        persistenceId    = database.persistentStoreCollection.getNextId();
-        this.database    = database;
-        this.colTypes    = colTypes;
-        columnCount      = colTypes.length;
-        indexList        = Index.emptyArray;
+        tableType            = type;
+        persistenceScope     = scope;
+        isSessionBased       = true;
+        persistenceId        = database.persistentStoreCollection.getNextId();
+        this.database        = database;
+        this.colTypes        = colTypes;
+        columnCount          = colTypes.length;
+        indexList            = Index.emptyArray;
+        emptyColumnCheckList = new boolean[columnCount];
 
         createPrimaryIndex(ValuePool.emptyIntArray, Type.emptyArray, null);
     }
@@ -128,14 +131,13 @@ public class TableBase implements Cloneable {
 
         TableBase copy;
 
-
         try {
             copy = (TableBase) super.clone();
         } catch (CloneNotSupportedException ex) {
             throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
         }
 
-        copy.persistenceId    = database.persistentStoreCollection.getNextId();
+        copy.persistenceId = database.persistentStoreCollection.getNextId();
 
         return copy;
     }
@@ -222,6 +224,10 @@ public class TableBase implements Cloneable {
      */
     public final boolean[] getNewColumnCheckList() {
         return new boolean[getColumnCount()];
+    }
+
+    public final boolean[] getEmptyColumnCheckList() {
+        return emptyColumnCheckList;
     }
 
     /**

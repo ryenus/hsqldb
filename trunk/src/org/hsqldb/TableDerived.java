@@ -47,7 +47,7 @@ import org.hsqldb.types.Type;
  * Table with data derived from a query expression.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class TableDerived extends Table {
@@ -142,7 +142,7 @@ public class TableDerived extends Table {
                 queryExpression.setFullOrder();
                 break;
 
-            default:
+            default :
         }
 
         if (dataExpression != null) {
@@ -310,7 +310,7 @@ public class TableDerived extends Table {
 
     private void setTableIndexesForSubquery(Session session) {
 
-        int[] cols = null;
+        int[]   cols         = null;
         boolean hasFullIndex = false;
 
         if (queryExpression != null) {
@@ -435,10 +435,10 @@ public class TableDerived extends Table {
 
         RowIterator it = rowIterator(session);
 
-        if (it.hasNext()) {
-            Row row = it.getNextRow();
+        if (it.next()) {
+            Row row = it.getCurrentRow();
 
-            if (it.hasNext()) {
+            if (it.next()) {
                 throw Error.error(ErrorCode.X_21000);
             }
 

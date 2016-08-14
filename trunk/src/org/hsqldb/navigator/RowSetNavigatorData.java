@@ -39,7 +39,6 @@ import org.hsqldb.QuerySpecification;
 import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.SortAndSlice;
-import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -54,7 +53,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class RowSetNavigatorData extends RowSetNavigator
@@ -129,8 +128,8 @@ implements Comparator {
 
         setCapacity(navigator.size);
 
-        while (navigator.hasNext()) {
-            add(navigator.getNext());
+        while (navigator.next()) {
+            add(navigator.getCurrent());
         }
     }
 
@@ -310,8 +309,8 @@ implements Comparator {
         out.writeInt(0);    // offset
         out.writeInt(size);
 
-        while (hasNext()) {
-            Object[] data = getNext();
+        while (next()) {
+            Object[] data = getCurrent();
 
             out.writeData(meta.getExtendedColumnCount(), meta.columnTypes,
                           data, null, null);
@@ -326,8 +325,8 @@ implements Comparator {
 
     public void copy(RowIterator other, int[] rightColumnIndexes) {
 
-        while (other.hasNext()) {
-            Object[] currentData = other.getNext();
+        while (other.next()) {
+            Object[] currentData = other.getCurrent();
 
             addAdjusted(currentData, rightColumnIndexes);
         }
@@ -342,8 +341,8 @@ implements Comparator {
 
         mainIndex = fullIndex;
 
-        while (other.hasNext()) {
-            currentData = other.getNext();
+        while (other.next()) {
+            currentData = other.getCurrent();
 
             int position = ArraySort.searchFirst(table, 0, size, currentData,
                                                  this);
@@ -365,8 +364,8 @@ implements Comparator {
 
         other.reset();
 
-        while (other.hasNext()) {
-            Object[] currentData = other.getNext();
+        while (other.next()) {
+            Object[] currentData = other.getCurrent();
 
             add(currentData);
         }
@@ -379,8 +378,8 @@ implements Comparator {
         removeDuplicates(session);
         other.sortFull(session);
 
-        while (hasNext()) {
-            Object[] currentData = getNext();
+        while (next()) {
+            Object[] currentData = getCurrent();
             boolean  hasRow      = other.containsRow(currentData);
 
             if (!hasRow) {
@@ -402,8 +401,8 @@ implements Comparator {
 
         it = fullIndex.emptyIterator();
 
-        while (hasNext()) {
-            Object[] currentData = getNext();
+        while (next()) {
+            Object[] currentData = getCurrent();
             boolean newGroup =
                 compareData == null
                 || fullIndex.compareRowNonUnique(
@@ -415,13 +414,14 @@ implements Comparator {
                 it          = other.findFirstRow(currentData);
             }
 
-            otherData = it.getNext();
+            if (it.next()) {
+                otherData = it.getCurrent();
 
-            if (otherData != null
-                    && fullIndex.compareRowNonUnique(
+                if (fullIndex.compareRowNonUnique(
                         session, currentData, otherData,
                         visibleColumnCount) == 0) {
-                continue;
+                    continue;
+                }
             }
 
             removeCurrent();
@@ -435,8 +435,8 @@ implements Comparator {
         removeDuplicates(session);
         other.sortFull(session);
 
-        while (hasNext()) {
-            Object[] currentData = getNext();
+        while (next()) {
+            Object[] currentData = getCurrent();
             boolean  hasRow      = other.containsRow(currentData);
 
             if (hasRow) {
@@ -458,8 +458,8 @@ implements Comparator {
 
         it = fullIndex.emptyIterator();
 
-        while (hasNext()) {
-            Object[] currentData = getNext();
+        while (next()) {
+            Object[] currentData = getCurrent();
             boolean newGroup =
                 compareData == null
                 || fullIndex.compareRowNonUnique(
@@ -471,13 +471,14 @@ implements Comparator {
                 it          = other.findFirstRow(currentData);
             }
 
-            otherData = it.getNext();
+            if (it.next()) {
+                otherData = it.getCurrent();
 
-            if (otherData != null
-                    && fullIndex.compareRowNonUnique(
+                if (fullIndex.compareRowNonUnique(
                         session, currentData, otherData,
                         fullIndex.getColumnCount()) == 0) {
-                removeCurrent();
+                    removeCurrent();
+                }
             }
         }
 
@@ -491,8 +492,8 @@ implements Comparator {
 
         Object[] lastRowData = null;
 
-        while (hasNext()) {
-            Object[] currentData = getNext();
+        while (next()) {
+            Object[] currentData = getCurrent();
 
             if (hasNull(currentData)) {
                 continue;
@@ -518,8 +519,8 @@ implements Comparator {
         int      lastRowPos  = -1;
         Object[] lastRowData = null;
 
-        while (hasNext()) {
-            Object[] currentData = getNext();
+        while (next()) {
+            Object[] currentData = getCurrent();
 
             if (lastRowData == null) {
                 lastRowPos  = currentPos;
@@ -576,8 +577,7 @@ implements Comparator {
             next();
         }
 
-        while (hasNext()) {
-            next();
+        while (next()) {
             removeCurrent();
         }
 
@@ -673,23 +673,37 @@ implements Comparator {
             pos = position;
         }
 
-        public Row getNextRow() {
-            return null;
+        public Object getField(int col) {
+
+            if (pos < size) {
+                return table[pos][col];
+            } else {
+                return null;
+            }
         }
 
-        public Object[] getNext() {
+        public boolean next() {
 
             if (hasNext()) {
                 pos++;
 
-                return table[pos];
+                return true;
             }
 
+            return false;
+        }
+
+        public Row getCurrentRow() {
             return null;
         }
 
-        public boolean hasNext() {
-            return pos < size - 1;
+        public Object[] getCurrent() {
+
+            if (pos < size) {
+                return table[pos];
+            } else {
+                return null;
+            }
         }
 
         public void removeCurrent() {}

@@ -70,7 +70,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class Result {
@@ -847,6 +847,18 @@ public class Result {
         return result;
     }
 
+    public static Result newDoubleColumnResult(String colNameA,
+            String colNameB) {
+
+        Result result = newResult(ResultConstants.DATA);
+
+        result.metaData = ResultMetaData.newDoubleColumnMetaData(colNameA,
+                colNameB);
+        result.navigator = new RowSetNavigatorClient(8);
+
+        return result;
+    }
+
     public static Result newPrepareResponse(Statement statement) {
 
         Result r = newResult(ResultConstants.PREPARE_ACK);
@@ -863,12 +875,13 @@ public class Result {
         return r;
     }
 
-    public static Result newCancelRequest(long statementId, String sql) {
+    public static Result newCancelRequest(int randomId, long statementId, String sql) {
 
         Result r = newResult(ResultConstants.SQLCANCEL);
 
         r.statementID = statementId;
         r.mainString  = sql;
+        r.generateKeys = randomId;
 
         return r;
     }
@@ -1483,7 +1496,10 @@ public class Result {
 
     public Object[] getSingleRowData() {
 
-        Object[] data = initialiseNavigator().getNext();
+        initialiseNavigator();
+        navigator.next();
+
+        Object[] data = navigator.getCurrent();
 
         data = (Object[]) ArrayUtil.resizeArrayIfDifferent(data,
                 metaData.getColumnCount());
@@ -1496,7 +1512,11 @@ public class Result {
     }
 
     public Object[] getSessionAttributes() {
-        return initialiseNavigator().getNext();
+
+        initialiseNavigator();
+        navigator.next();
+
+        return navigator.getCurrent();
     }
 
     public void setResultType(int type) {

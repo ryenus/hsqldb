@@ -76,7 +76,7 @@ import org.hsqldb.types.Type.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -1378,6 +1378,8 @@ public class Session implements SessionInterface {
 
             database.txManager.beginActionResume(this);
 
+            timeoutManager.resumeTimeout();
+
             //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
             sessionContext.setDynamicArguments(pvals);
 
@@ -1487,8 +1489,8 @@ public class Session implements SessionInterface {
 
         Result error = null;
 
-        while (nav.hasNext()) {
-            Object[] pvals = nav.getNext();
+        while (nav.next()) {
+            Object[] pvals = nav.getCurrent();
             Result in = executeCompiledStatement(cs, pvals, cmd.queryTimeout);
 
             // On the client side, iterate over the vals and throw
@@ -1499,8 +1501,8 @@ public class Session implements SessionInterface {
                     RowSetNavigator navgen =
                         in.getChainedResult().getNavigator();
 
-                    while (navgen.hasNext()) {
-                        Object[] generatedRow = navgen.getNext();
+                    while (navgen.next()) {
+                        Object[] generatedRow = navgen.getCurrent();
 
                         generatedResult.getNavigator().add(generatedRow);
                     }
@@ -1544,9 +1546,9 @@ public class Session implements SessionInterface {
 
         Result error = null;
 
-        while (nav.hasNext()) {
+        while (nav.next()) {
             Result   in;
-            Object[] data = nav.getNext();
+            Object[] data = nav.getCurrent();
             String   sql  = (String) data[0];
 
             try {
@@ -2316,6 +2318,10 @@ public class Session implements SessionInterface {
             actionTimestamp = Session.this.actionTimestamp;
 
             database.timeoutRunner.addSession(Session.this);
+        }
+
+        void resumeTimeout() {
+            actionTimestamp = Session.this.actionTimestamp;
         }
 
         boolean endTimeout() {

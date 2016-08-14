@@ -1605,7 +1605,7 @@ public class QuerySpecification extends QueryExpression {
 
             for (int i = indexLimitVisible; i < indexLimitRowId; i++) {
                 if (i == indexLimitVisible) {
-                    data[i] = it.getRowidObject();
+                    data[i] = Long.valueOf(it.getRowId());
                 } else {
                     data[i] = it.getCurrentRow();
                 }
@@ -1718,8 +1718,8 @@ public class QuerySpecification extends QueryExpression {
         navigator.reset();
 
         if (havingCondition != null) {
-            while (navigator.hasNext()) {
-                Object[] data = navigator.getNext();
+            while (navigator.next()) {
+                Object[] data = navigator.getCurrent();
 
                 if (!Boolean.TRUE.equals(
                         data[indexLimitVisible + groupByColumnCount])) {

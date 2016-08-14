@@ -65,6 +65,8 @@ public interface TransactionManager {
 
     long getNextGlobalChangeTimestamp();
 
+    void setGlobalChangeTimestamp(long ts);
+
     RowAction addDeleteAction(Session session, Table table,
                               PersistentStore store, Row row, int[] colMap);
 

@@ -387,8 +387,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         ArrayUtil.fillArray(nullsList, false);
         elementCount.set(0);
 
-        while (iterator.hasNext()) {
-            Row row = iterator.getNextRow();
+        while (iterator.next()) {
+            Row row = iterator.getCurrentRow();
             Row newRow = (Row) getNewCachedObject(session, row.getData(),
                                                   false);
 

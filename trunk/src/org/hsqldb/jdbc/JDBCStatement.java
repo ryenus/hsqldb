@@ -498,7 +498,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
     public void cancel() throws SQLException {
         checkClosed();
         String sql = resultOut.getMainString();
-        Result request = Result.newCancelRequest(-1, sql);
+        int randomId = connection.sessionProxy.getRandomId();
+        Result request = Result.newCancelRequest(randomId, -1, sql);
 
         try {
             Result response = connection.sessionProxy.cancel(request);
@@ -1105,8 +1106,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
         RowSetNavigator navigator    = resultIn.getNavigator();
         int[]           updateCounts = new int[navigator.getSize()];
 
-        for (int i = 0; i < updateCounts.length; i++) {
-            Object[] data = navigator.getNext();
+        for (int i = 0; navigator.next(); i++) {
+            Object[] data = navigator.getCurrent();
 
             updateCounts[i] = ((Integer) data[0]).intValue();
         }

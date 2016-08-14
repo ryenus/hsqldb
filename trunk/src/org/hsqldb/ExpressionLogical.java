@@ -1748,8 +1748,8 @@ public class ExpressionLogical extends Expression {
                     RowIterator it =
                         nodes[RIGHT].getTable().rowIterator(session);
 
-                    while (it.hasNext()) {
-                        Object[] rowData = it.getNextRow().getData();
+                    while (it.next()) {
+                        Object[] rowData = it.getCurrent();
                         Boolean result = compareValues(session, data, rowData);
 
                         if (result == null) {
@@ -1773,10 +1773,10 @@ public class ExpressionLogical extends Expression {
                                     : Boolean.FALSE;
                 }
 
-                RowIterator it =
-                    nodes[RIGHT].getTable().getPrimaryIndex().findFirstRow(
-                        session, store, data);
-                boolean result = it.hasNext();
+                // now nulls == 0;
+                RowIterator it = nodes[RIGHT].getTable().getFullIndex(
+                    session).findFirstRow(session, store, data);
+                boolean result = it.next();
 
                 if (!result) {
                     return Boolean.FALSE;
@@ -1790,21 +1790,23 @@ public class ExpressionLogical extends Expression {
                         return Boolean.TRUE;
                 }
 
-                it.getNextRow();
+                // only one match allowed for MATCH UNIQUE xxxx
+                while (true) {
+                    result = it.next();
 
-                result = it.hasNext();
+                    if (!result) {
+                        break;
+                    }
 
-                if (!result) {
-                    return Boolean.TRUE;
+                    Object[] rowData = it.getCurrent();
+
+                    if (Boolean.TRUE.equals(compareValues(session, data,
+                                                          rowData))) {
+                        return Boolean.FALSE;
+                    }
                 }
 
-                Object[] rowData = it.getNextRow().getData();
-                Boolean returnValue =
-                    Boolean.TRUE.equals(compareValues(session, data, rowData))
-                    ? Boolean.FALSE
-                    : Boolean.TRUE;
-
-                return returnValue;
+                return Boolean.TRUE;
             }
             default : {
                 throw Error.runtimeError(ErrorCode.U_S0500,
@@ -1841,8 +1843,6 @@ public class ExpressionLogical extends Expression {
         Index           index = table.getFullIndex(session);
         RowIterator     it;
         PersistentStore store = table.getRowStore(session);
-        Row             firstrow;
-        Row             lastrow;
         Object[]        firstdata;
         Object[]        lastdata;
         boolean         hasNullValue = false;
@@ -1868,7 +1868,7 @@ public class ExpressionLogical extends Expression {
                 if (opType == OpTypes.EQUAL) {
                     it = index.findFirstRow(session, store, data);
 
-                    if (it.hasNext()) {
+                    if (it.next()) {
                         return Boolean.TRUE;
                     } else {
                         if (hasNullValue) {
@@ -1885,15 +1885,17 @@ public class ExpressionLogical extends Expression {
                     it = index.findFirstRowNotNull(session, store);
                 }
 
-                firstrow = it.getNextRow();
-
-                if (firstrow == null) {
+                if (!it.next()) {
                     return null;
                 }
 
-                firstdata = firstrow.getData();
-                lastrow = index.lastRow(session, store, 0, null).getNextRow();
-                lastdata  = lastrow.getData();
+                firstdata = it.getCurrent();
+
+                RowIterator lastIt = index.lastRow(session, store, 0, null);
+
+                lastIt.next();
+
+                lastdata = lastIt.getCurrent();
 
                 Boolean comparefirst = compareValues(session, data, firstdata);
                 Boolean comparelast  = compareValues(session, data, lastdata);
@@ -1937,9 +1939,11 @@ public class ExpressionLogical extends Expression {
                     return null;
                 }
 
-                it        = index.firstRow(session, store, 0, null);
-                firstrow  = it.getNextRow();
-                firstdata = firstrow.getData();
+                it = index.firstRow(session, store, 0, null);
+
+                it.next();
+
+                firstdata = it.getCurrent();
 
                 if (countNulls(firstdata) == data.length) {
                     return null;
@@ -1951,7 +1955,7 @@ public class ExpressionLogical extends Expression {
                 it = index.findFirstRow(session, store, data);
 
                 if (opType == OpTypes.EQUAL) {
-                    if (it.hasNext()) {
+                    if (it.next()) {
                         return store.elementCount(session) == 1 ? Boolean.TRUE
                                                                 : Boolean
                                                                 .FALSE;
@@ -1961,12 +1965,15 @@ public class ExpressionLogical extends Expression {
                 }
 
                 if (opType == OpTypes.NOT_EQUAL) {
-                    return it.hasNext() ? Boolean.FALSE
-                                        : Boolean.TRUE;
+                    return it.next() ? Boolean.FALSE
+                                     : Boolean.TRUE;
                 }
 
-                lastrow  = index.lastRow(session, store, 0, null).getNextRow();
-                lastdata = lastrow.getData();
+                RowIterator lastIt = index.lastRow(session, store, 0, null);
+
+                lastIt.next();
+
+                lastdata = lastIt.getCurrent();
 
                 Boolean comparefirst = compareValues(session, data, firstdata);
                 Boolean comparelast  = compareValues(session, data, lastdata);

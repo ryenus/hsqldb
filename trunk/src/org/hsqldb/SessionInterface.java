@@ -122,6 +122,8 @@ public interface SessionInterface {
 
     long getId();
 
+    int getRandomId();
+
     void resetSession();
 
     String getInternalConnectionURL();

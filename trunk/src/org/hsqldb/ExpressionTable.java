@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of table conversion.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 2.0.0
  */
 public class ExpressionTable extends Expression {
@@ -219,8 +219,8 @@ public class ExpressionTable extends Expression {
         Result          result = nodes[LEFT].getResult(session);
         RowSetNavigator nav    = result.navigator;
 
-        while (nav.hasNext()) {
-            Object[] data    = nav.getNext();
+        while (nav.next()) {
+            Object[] data    = nav.getCurrent();
             Object[] newdata = (Object[]) ArrayUtil.duplicateArray(data);
             Row row = (Row) store.getNewCachedObject(session, newdata, false);
 

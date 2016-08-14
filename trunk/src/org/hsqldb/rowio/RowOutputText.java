@@ -102,6 +102,10 @@ public class RowOutputText extends RowOutputBase {
 
     public void setStorageSize(int size) {}
 
+    public long scalePosition(long pos) {
+        return pos;
+    }
+
     public void writeEnd() {
 
         // terminate at the end of row

@@ -96,6 +96,8 @@ implements RowOutputInterface {
         super(buffer);
     }
 
+    public abstract long scalePosition(long position);
+
     public abstract void setStorageSize(int size);
 
 // fredt@users - comment - methods for writing Result column type, name and data size

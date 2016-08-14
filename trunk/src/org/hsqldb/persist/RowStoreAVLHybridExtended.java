@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -153,8 +153,8 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
         RowIterator iterator = rowIterator();
 
-        while (iterator.hasNext()) {
-            Row row = iterator.getNextRow();
+        while (iterator.next()) {
+            Row row = iterator.getCurrentRow();
             Row newRow = (Row) tempStore.getNewCachedObject(session,
                 row.getData(), false);
 

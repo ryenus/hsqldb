@@ -160,9 +160,9 @@ public class StatementInsert extends StatementDML {
         RowSetNavigatorDataChange changeNavigator = null;
 
         if (specialAction != StatementInsert.isNone) {
-            while (newDataNavigator.hasNext()) {
+            while (newDataNavigator.next()) {
                 boolean  remove = false;
-                Object[] data   = newDataNavigator.getNext();
+                Object[] data   = newDataNavigator.getCurrent();
 
                 for (int i = 0, size = baseTable.constraintList.length;
                         i < size; i++) {
@@ -172,7 +172,7 @@ public class StatementInsert extends StatementDML {
                         RowIterator it = constraint.findUniqueRows(session,
                             data);
 
-                        while (it.hasNext()) {
+                        while (it.next()) {
                             remove = true;
 
                             if (specialAction == StatementInsert.isIgnore) {
@@ -185,7 +185,7 @@ public class StatementInsert extends StatementDML {
                                         session);
                             }
 
-                            Row row = it.getNextRow();
+                            Row row = it.getCurrentRow();
 
                             if (constraint.core.mainIndex.compareRowNonUnique(
                                     session, row.getData(), data,
@@ -283,9 +283,9 @@ public class StatementInsert extends StatementDML {
         RowSetNavigatorClient newData =
             new RowSetNavigatorClient(nav.getSize());
 
-        while (nav.hasNext()) {
+        while (nav.next()) {
             Object[] data       = baseTable.getNewRowData(session);
-            Object[] sourceData = nav.getNext();
+            Object[] sourceData = nav.getCurrent();
 
             for (int i = 0; i < columnMap.length; i++) {
                 int j = columnMap[i];

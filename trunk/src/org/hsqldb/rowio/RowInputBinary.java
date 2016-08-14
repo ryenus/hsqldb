@@ -348,6 +348,15 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         return b;
     }
 
+    public byte[] readByteArray16() {
+
+        byte[] b      = new byte[16];
+
+        readFully(b);
+
+        return b;
+    }
+
     public char[] readCharArray() throws IOException {
 
         int    length = readInt();

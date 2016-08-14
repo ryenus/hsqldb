@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ import org.hsqldb.types.LobData;
  * Session semi-persistent data structures.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class SessionData {
@@ -325,7 +325,7 @@ public class SessionData {
     LongKeyLongValueHashMap resultLobs = new LongKeyLongValueHashMap();
 
     // lobs in transaction
-    public void adjustLobUsageCount(Object value, int adjust) {
+    public void adjustLobUsageCount(LobData value, int adjust) {
 
         if (session.isProcessingLog() || session.isProcessingScript()) {
             return;
@@ -335,9 +335,7 @@ public class SessionData {
             return;
         }
 
-        database.lobManager.adjustUsageCount(session,
-                                             ((LobData) value).getId(),
-                                             adjust);
+        database.lobManager.adjustUsageCount(session, value.getId(), adjust);
 
         hasLobOps = true;
     }
@@ -468,6 +466,7 @@ public class SessionData {
                     byte[] byteArray  = result.getByteArray();
                     Result actionResult = database.lobManager.setBytes(blobId,
                         result.getOffset(), byteArray, (int) dataLength);
+
                     // FIXME: actionResult not used anymore!?
                     break;
                 }
@@ -479,8 +478,8 @@ public class SessionData {
                     char[] charArray  = result.getCharArray();
                     Result actionResult = database.lobManager.setChars(clobId,
                         result.getOffset(), charArray, (int) dataLength);
-                    // FIXME: actionResult not used anymore!?
 
+                    // FIXME: actionResult not used anymore!?
                     break;
                 }
             }
@@ -512,8 +511,8 @@ public class SessionData {
             Result actionResult =
                 database.lobManager.setBytes(result.getLobID(), currentOffset,
                                              byteArray, byteArrayOS.size());
-            // FIXME: actionResult not used anymore!?
 
+            // FIXME: actionResult not used anymore!?
             currentOffset += byteArrayOS.size();
 
             if (byteArrayOS.size() < bufferLength) {
@@ -546,8 +545,8 @@ public class SessionData {
 
             Result actionResult = database.lobManager.setChars(lobID,
                 currentOffset, charArray, charWriter.size());
-            // FIXME: actionResult not used anymore!?
 
+            // FIXME: actionResult not used anymore!?
             currentOffset += charWriter.size();
 
             if (charWriter.size() < bufferLength) {
@@ -624,7 +623,9 @@ public class SessionData {
             throw Error.error(ErrorCode.FILE_IO_ERROR, e.toString());
         } finally {
             try {
-                is.close();
+                if (is != null) {
+                    is.close();
+                }
             } catch (Exception e) {}
         }
     }
@@ -648,7 +649,9 @@ public class SessionData {
             throw Error.error(ErrorCode.FILE_IO_ERROR);
         } finally {
             try {
-                is.close();
+                if (is != null) {
+                    is.close();
+                }
             } catch (Exception e) {}
         }
     }
