@@ -37,7 +37,7 @@ import java.lang.reflect.Array;
  * Collection of static methods for operations on arrays
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.7.2
  */
 public class ArrayUtil {
@@ -1615,6 +1615,19 @@ public class ArrayUtil {
         }
 
         return bytes;
+    }
+
+    public static long byteSequenceToLong(byte[] bytes, int pos) {
+
+        long val = 0;
+
+        for (int i = 0; i < 8; i++) {
+            long b = bytes[pos + i] & 0xff;
+
+            val += (b << ((7 - i) * 8));
+        }
+
+        return val;
     }
 
     /**
