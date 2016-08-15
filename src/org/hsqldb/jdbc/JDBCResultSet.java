@@ -73,6 +73,7 @@ import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.BinaryData;
+import org.hsqldb.types.BinaryUUIDType;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.DateTimeType;
@@ -315,7 +316,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since HSQLDB 1.9.0
  * @revised JDK 7, HSQLDB 2.0.1
  */
@@ -1663,6 +1664,9 @@ public class JDBCResultSet implements ResultSet {
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
                 return getBytes(columnIndex);
+            case Types.SQL_GUID :
+                BinaryData bd = (BinaryData) getColumnValue(columnIndex);
+                return BinaryUUIDType.getJavaUUID(bd);
             case Types.SQL_BIT : {
                 boolean b = getBoolean(columnIndex);
 
@@ -7225,6 +7229,23 @@ public class JDBCResultSet implements ResultSet {
     }
 
     /**
+     * Internal get value.
+     */
+    protected Object getColumnValue(int columnIndex) throws SQLException {
+
+        Object[] rowData = getCurrent();
+        Object value;
+
+        checkColumn(columnIndex);
+
+        value = rowData[columnIndex - 1];
+
+        trackNull(value);
+
+        return value;
+    }
+
+    /**
      * Internal value converter. <p>
      *
      * All trivially successful getXXX methods eventually go through this
@@ -7245,18 +7266,14 @@ public class JDBCResultSet implements ResultSet {
     protected Object getColumnInType(int columnIndex,
                                      Type targetType) throws SQLException {
 
-        Object[] rowData = getCurrent();
-        Type     sourceType;
-        Object   value;
+        Object value = getColumnValue(columnIndex);
+        Type sourceType;
 
-        checkColumn(columnIndex);
-
-        sourceType = resultMetaData.columnTypes[--columnIndex];
-        value      = rowData[columnIndex];
-
-        if (trackNull(value)) {
+        if (value == null) {
             return null;
         }
+
+        sourceType = resultMetaData.columnTypes[columnIndex - 1];
 
         if (translateTTIType && targetType.isIntervalType()) {
             targetType = ((IntervalType) targetType).getCharacterType();

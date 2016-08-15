@@ -52,7 +52,7 @@ import org.hsqldb.lib.StringConverter;
  * Cast to CHARACTER types converts to a hexadecimal UUID string.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 2.3.4
  */
 public class BinaryUUIDType extends BinaryType {
@@ -550,5 +550,18 @@ public class BinaryUUIDType extends BinaryType {
     public static BinaryData getBinary(UUID uuid) {
         return getBinary(uuid.getMostSignificantBits(),
                          uuid.getLeastSignificantBits());
+    }
+
+    public static UUID getJavaUUID(BinaryData data) {
+
+        if (data == null) {
+            return null;
+        }
+
+        byte[] bytes = data.getBytes();
+        long   msb   = ArrayUtil.byteSequenceToLong(bytes, 0);
+        long   lsb   = ArrayUtil.byteSequenceToLong(bytes, 8);
+
+        return new UUID(msb, lsb);
     }
 }
