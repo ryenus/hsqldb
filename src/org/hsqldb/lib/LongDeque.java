@@ -302,6 +302,17 @@ public class LongDeque {
         }
     }
 
+    public long[] toArray() {
+
+        long[] array = new long[elementCount];
+
+        for (int i = 0; i < elementCount; i++) {
+            array[i] = get(i);
+        }
+
+        return array;
+    }
+
     private int getInternalIndex(int i) throws IndexOutOfBoundsException {
 
         if (i < 0 || i >= elementCount) {

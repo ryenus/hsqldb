@@ -717,9 +717,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         cache.writeLock.lock();
 
         try {
-            try {
-                ba.initialise(false);
+            ba.initialise(false);
 
+            try {
                 for (;;) {
                     boolean result = ba.nextBlock();
 
@@ -854,7 +854,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                     break;
                 }
 
-                position   = blockPos * (fixedBlockSizeUnit / dataFileScale);
+                position = blockPos
+                           * (DataSpaceManager.fixedBlockSizeUnit
+                              / dataFileScale);
                 spaceId    = findTableSpace(position);
                 blockIndex = i * dirBlockSize + j;
 
@@ -903,7 +905,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                 }
 
                 long position = blockPos
-                                * (fixedBlockSizeUnit / dataFileScale);
+                                * (DataSpaceManager.fixedBlockSizeUnit
+                                   / dataFileScale);
                 int spaceId    = findTableSpace(position);
                 int blockIndex = i * dirBlockSize + j;
                 BitMapCachedObject currentBitMap =
@@ -944,9 +947,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         int lastBlockIndex = tableSpace.getFileBlockIndex();
 
         if (lastBlockIndex >= 0) {
-            try {
-                ba.initialise(false);
+            ba.initialise(false);
 
+            try {
                 boolean result = ba.moveToBlock(lastBlockIndex);
 
                 if (result) {
@@ -1076,7 +1079,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                 }
 
                 if (currentKeep) {
-                    position *= (fixedBlockSizeUnit / dataFileScale);
+                    position *= (DataSpaceManager.fixedBlockSizeUnit
+                                 / dataFileScale);
                     currentBitMap =
                         (BitMapCachedObject) bitMapStore.get(position, true);
                 }
