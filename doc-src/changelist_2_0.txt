@@ -1,3 +1,10 @@
+15 August 2016
+-- improved support for WITH named subqueries in routines, allowing parameters to be referenced
+-- improved support for WITH RECURSIVE named subqueries to be used in othre subqueries
+-- fixed issue with cancel() method of java.sql.Statement with in-process connections
+-- fixed issue with the timeout setting of java.sql.Statement
+-- core code refactor of iterator for rows of tables and results
+
 16 May 2016 - version 2.3.4
 -- added support for storing live Java Objects in mem: databases with sql.live_object connection property
 -- added support for UUID data type
