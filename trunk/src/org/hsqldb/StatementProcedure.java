@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for callable procedures.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class StatementProcedure extends StatementDMQL {
@@ -384,7 +384,11 @@ public class StatementProcedure extends StatementDMQL {
         ResultMetaData meta = super.getParametersMetaData();
 
         for (int i = 0; i < meta.columnLabels.length; i++) {
-            meta.columnLabels[i] = parameters[i].getColumn().getNameString();
+            ColumnSchema param = parameters[i].getColumn();
+
+            if (param != null && param.getName() != null) {
+                meta.columnLabels[i] = param.getNameString();
+            }
         }
 
         return meta;
