@@ -48,7 +48,7 @@ import org.hsqldb.types.Types;
 /**
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class ExpressionLogical extends Expression {
@@ -934,8 +934,7 @@ public class ExpressionLogical extends Expression {
 
             if (!nodes[LEFT].dataType.canCompareDirect(
                     nodes[RIGHT].dataType)) {
-                if (convertDateTimeLiteral(session, nodes[LEFT],
-                                           nodes[RIGHT])) {
+                if (convertDateTime(session)) {
 
                     // compatibility for BIT with number and BOOLEAN - convert bit to other type
                 } else if (nodes[LEFT].dataType.isBitType()
@@ -1098,39 +1097,49 @@ public class ExpressionLogical extends Expression {
      * for compatibility, convert a datetime character string to a datetime
      * value for comparison
      */
-    private boolean convertDateTimeLiteral(Session session, Expression a,
-                                           Expression b) {
+    private boolean convertDateTime(Session session) {
 
-        if (a.dataType.isDateTimeType()) {
+        int a = LEFT;
+        int b = RIGHT;
+
+        if (nodes[a].dataType.isDateTimeType()) {
 
             //
-        } else if (b.dataType.isDateTimeType()) {
-            Expression c = a;
-
-            a = b;
-            b = c;
+        } else if (nodes[b].dataType.isDateTimeType()) {
+            a = RIGHT;
+            b = LEFT;
         } else {
             return false;
         }
 
-        if (a.dataType.isDateTimeTypeWithZone()) {
+        if (nodes[a].dataType.isDateTimeTypeWithZone()) {
             return false;
         }
 
-        if (b.opType == OpTypes.VALUE && b.dataType.isCharacterType()) {
-            try {
-                b.valueData = a.dataType.castToType(session, b.valueData,
-                                                    b.dataType);
-                b.dataType = a.dataType;
-            } catch (HsqlException e) {
-                if (a.dataType == Type.SQL_DATE) {
-                    b.valueData = Type.SQL_TIMESTAMP.castToType(session,
-                            b.valueData, b.dataType);
-                    b.dataType = Type.SQL_TIMESTAMP;
+        if (nodes[b].dataType.isCharacterType()) {
+            if (nodes[b].opType == OpTypes.VALUE) {
+                try {
+                    nodes[b].valueData = nodes[a].dataType.castToType(session,
+                            nodes[b].valueData, nodes[b].dataType);
+                    nodes[b].dataType = nodes[a].dataType;
+                } catch (HsqlException e) {
+                    if (nodes[a].dataType == Type.SQL_DATE) {
+                        nodes[b].valueData =
+                            Type.SQL_TIMESTAMP.castToType(session,
+                                                          nodes[b].valueData,
+                                                          nodes[b].dataType);
+                        nodes[b].dataType = Type.SQL_TIMESTAMP;
+                    }
                 }
-            }
 
-            return true;
+                return true;
+            } else {
+                nodes[b] = new ExpressionOp(nodes[b], nodes[a].dataType);
+
+                nodes[b].resolveTypes(session, this);
+
+                return true;
+            }
         }
 
         return false;
