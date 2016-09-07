@@ -61,7 +61,7 @@ import org.hsqldb.types.Type;
  * Base implementation of PersistentStore for different table types.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.9.0
  */
 public abstract class RowStoreAVL implements PersistentStore {
@@ -638,7 +638,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         while (it.next()) {
             Row     row      = it.getCurrentRow();
-            int     i        = position - 1;
+            int     i        = position;
             NodeAVL backnode = ((RowAVL) row).getNode(0);
 
             while (i-- > 0) {
