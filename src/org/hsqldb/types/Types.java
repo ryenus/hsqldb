@@ -48,7 +48,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * has been added to differentiate HSQLDB-specific type specializations.
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.7.2
  */
 public class Types {
@@ -340,6 +340,15 @@ public class Types {
     public static final int REF = 2006;
 
     /**
+     * The constant in the Java programming language, sometimes referred to
+     * as a type code, that identifies the generic SQL type
+     * <code>REF_CURSOR</code>.
+     *
+     * @since JDK 1.8
+     */
+    public static final int REF_CURSOR = 2012;
+
+    /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
      * <code>SMALLINT</code>.
@@ -365,9 +374,27 @@ public class Types {
     /**
      * <P>The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type
+     * <code>TIME_WITH_TIMEZONE </code>.
+     *
+     * @since JDK 1.8
+     */
+    public static final int TIME_WITH_TIMEZONE = 2013;
+
+    /**
+     * <P>The constant in the Java programming language, sometimes referred
+     * to as a type code, that identifies the generic SQL type
      * <code>TIMESTAMP</code>.
      */
     public static final int TIMESTAMP = SQL_TIMESTAMP;
+
+    /**
+     * <P>The constant in the Java programming language, sometimes referred
+     * to as a type code, that identifies the generic SQL type
+     * <code>TIMESTAMP_WITH_TIMEZONE </code>.
+     *
+     * @since JDK 1.8
+     */
+    public static final int TIMESTAMP_WITH_TIMEZONE = 2014;
 
     /**
      * <P>The constant in the Java programming language, sometimes referred

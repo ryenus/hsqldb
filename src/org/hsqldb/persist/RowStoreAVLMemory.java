@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for MEMORY tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
@@ -188,7 +188,12 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
             case RowAction.ACTION_INSERT_DELETE :
 
                 // INSERT + DELETE
-                remove(row);
+                if (txModel == TransactionManager.LOCKS) {
+                    remove(row);
+                } else {
+                    delete(session, row);
+                    remove(row);
+                }
                 break;
         }
     }
