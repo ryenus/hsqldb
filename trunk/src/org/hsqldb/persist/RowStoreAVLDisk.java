@@ -58,7 +58,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of PersistentStore for CACHED tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
@@ -299,16 +299,17 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
                 break;
 
             case RowAction.ACTION_INSERT_DELETE :
-                if (txModel != TransactionManager.LOCKS) {
+                if (txModel == TransactionManager.LOCKS) {
+                    remove(row);
+                } else {
 
                     // INSERT + DELETE
                     delete(session, row);
 
                     // remove info after delete but before removing persistence
                     database.txManager.removeTransactionInfo(row);
+                    remove(row);
                 }
-
-                remove(row);
                 break;
         }
     }
