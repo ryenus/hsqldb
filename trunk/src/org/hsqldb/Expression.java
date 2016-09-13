@@ -825,7 +825,7 @@ public class Expression implements Cloneable {
         }
     }
 
-    boolean isAggregate() {
+    boolean hasAggregate() {
         return isAggregate;
     }
 

@@ -65,7 +65,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -295,9 +295,9 @@ public class QuerySpecification extends QueryExpression {
         finaliseColumns();
         resolveColumnReferences(session, rangeGroups);
         setReferenceableColumns();
-        Expression.resolveColumnSet(session, RangeVariable.emptyArray,
-                                    rangeGroups, unresolvedExpressions);
 
+        unresolvedExpressions = Expression.resolveColumnSet(session,
+                RangeVariable.emptyArray, rangeGroups, unresolvedExpressions);
         unionColumnTypes     = new Type[indexLimitVisible];
         isReferencesResolved = true;
     }
@@ -1330,7 +1330,7 @@ public class QuerySpecification extends QueryExpression {
                     continue;
                 }
 
-                if (!e.isAggregate()
+                if (!e.hasAggregate()
                         && !e.isComposedOf(
                             exprColumns, 0,
                             indexLimitVisible + groupByColumnCount,
@@ -1356,7 +1356,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = 0; i < indexStartHaving; i++) {
-            if (exprColumns[i].isAggregate()) {
+            if (exprColumns[i].hasAggregate()) {
                 continue;
             }
 
@@ -1375,13 +1375,13 @@ public class QuerySpecification extends QueryExpression {
         for (int i = 0; i < orderCount; i++) {
             Expression e = (Expression) sortAndSlice.exprList.get(i);
 
-            if (e.getLeftNode().isAggregate()) {
+            if (e.getLeftNode().hasAggregate()) {
                 e.setAggregate();
             }
         }
 
         for (int i = indexStartOrderBy; i < indexStartAggregates; i++) {
-            if (exprColumns[i].getLeftNode().isAggregate()) {
+            if (exprColumns[i].getLeftNode().hasAggregate()) {
                 exprColumns[i].setAggregate();
             }
         }
@@ -1389,13 +1389,13 @@ public class QuerySpecification extends QueryExpression {
         for (int i = 0; i < indexStartAggregates; i++) {
             Expression e = exprColumns[i];
 
-            if (!e.isAggregate() /* && !e.isCorrelated() */) {
+            if (!e.hasAggregate() /* && !e.isCorrelated() */) {
                 continue;
             }
 
             aggregateCheck[i] = true;
 
-            if (e.isAggregate()) {
+            if (e.hasAggregate()) {
                 e.convertToSimpleColumn(expressions, columnExpressions);
             }
         }
@@ -2416,10 +2416,6 @@ public class QuerySpecification extends QueryExpression {
 
     public Table getBaseTable() {
         return baseTable;
-    }
-
-    public OrderedHashSet collectAllSubqueries(OrderedHashSet set) {
-        return set;
     }
 
     public OrderedHashSet collectOuterColumnExpressions(OrderedHashSet set,

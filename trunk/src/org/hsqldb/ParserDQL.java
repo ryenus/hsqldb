@@ -2812,7 +2812,7 @@ public class ParserDQL extends ParserBase {
 
         e = readColumnOrFunctionExpression();
 
-        if (e.isAggregate()) {
+        if (e.hasAggregate()) {
             readFilterClause(e);
         }
 
