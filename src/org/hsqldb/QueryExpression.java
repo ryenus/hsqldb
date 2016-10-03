@@ -388,7 +388,7 @@ public class QueryExpression implements RangeGroup {
             throw Error.error(ErrorCode.X_42576);
         }
 
-        sortAndSlice.prepare(null);
+        sortAndSlice.prepare(0);
     }
 
     private void addUnresolvedExpressions(HsqlList expressions) {
@@ -1124,6 +1124,15 @@ public class QueryExpression implements RangeGroup {
                                       RangeVariable[] newRanges) {
         leftQueryExpression.replaceRangeVariables(ranges, newRanges);
         rightQueryExpression.replaceRangeVariables(ranges, newRanges);
+    }
+
+    /**
+     * non-working temp code for replacing aggregate functions with simple column
+     */
+    public void replaceExpressions(OrderedHashSet expressions,
+                                   HsqlList replacements) {
+        leftQueryExpression.replaceExpressions(expressions, replacements);
+        rightQueryExpression.replaceExpressions(expressions, replacements);
     }
 
     public void setAsExists() {}

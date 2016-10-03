@@ -1570,6 +1570,10 @@ public final class DateTimeType extends DTIType {
                     return SQL_TIMESTAMP;
                 }
 
+                if (scale == 0) {
+                    return SQL_TIMESTAMP_NO_FRACTION;
+                }
+
                 return new DateTimeType(Types.SQL_TIMESTAMP, type, scale);
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :

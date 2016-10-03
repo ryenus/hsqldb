@@ -2240,6 +2240,7 @@ public class Tokens {
         commandSet.put(T_DATA, DATA);
         commandSet.put(T_DATABASE, DATABASE);
         commandSet.put(T_DEADLOCK, DEADLOCK);
+        commandSet.put(T_DEFERRABLE, DEFERRABLE);
         commandSet.put(T_DEFAULTS, DEFAULTS);
         commandSet.put(T_DEFINER, DEFINER);
         commandSet.put(T_DEFRAG, DEFRAG);
@@ -2258,6 +2259,7 @@ public class Tokens {
         commandSet.put(T_FILES, FILES);
         commandSet.put(T_FINAL, FINAL);
         commandSet.put(T_FIRST, FIRST);
+        commandSet.put(T_FOLLOWING, FOLLOWING);
         commandSet.put(T_FORMAT, FORMAT);
         commandSet.put(T_FOUND, FOUND);
         commandSet.put(T_G_FACTOR, G);
@@ -2339,6 +2341,7 @@ public class Tokens {
         commandSet.put(T_PERFORM, PERFORM);
         commandSet.put(T_PLACING, PLACING);
         commandSet.put(T_PLAN, PLAN);
+        commandSet.put(T_PRECEDING, PRECEDING);
         commandSet.put(T_PRESERVE, PRESERVE);
         commandSet.put(T_PREVVAL, PREVVAL);
         commandSet.put(T_PRIVILEGES, PRIVILEGES);
@@ -2411,6 +2414,7 @@ public class Tokens {
         commandSet.put(T_SQL_TSI_WEEK, SQL_TSI_WEEK);
         commandSet.put(T_SQL_TSI_YEAR, SQL_TSI_YEAR);
         commandSet.put(T_STATEMENT, STATEMENT);
+        commandSet.put(T_STRUCTURE, STRUCTURE);
         commandSet.put(T_STYLE, STYLE);
         commandSet.put(T_SYNONYM, SYNONYM);
         commandSet.put(T_SYNTAX, SYNTAX);
@@ -2432,6 +2436,7 @@ public class Tokens {
         commandSet.put(T_TRANSACTS_ROLLED_BACK, TRANSACTIONS_ROLLED_BACK);
         commandSet.put(T_TTI, TTI);
         commandSet.put(T_TYPE, TYPE);
+        commandSet.put(T_UNBOUNDED, UNBOUNDED);
         commandSet.put(T_UNCOMMITTED, UNCOMMITTED);
         commandSet.put(T_USAGE, USAGE);
         commandSet.put(T_USE, USE);

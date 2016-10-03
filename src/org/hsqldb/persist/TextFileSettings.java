@@ -69,7 +69,6 @@ public class TextFileSettings {
     private static final byte[] SP       = new byte[]{ ' ' };
 
     //
-    Database database;
     String   dataFileName;
     int      maxCacheRows;
     int      maxCacheBytes;
@@ -92,8 +91,6 @@ public class TextFileSettings {
      *  (3) program defaults
      */
     TextFileSettings(Database database, String fileSettingsString) {
-
-        this.database = database;
 
         HsqlProperties tableprops =
             HsqlProperties.delimitedArgPairsToProps(fileSettingsString, "=",

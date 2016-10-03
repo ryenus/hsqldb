@@ -1257,13 +1257,6 @@ public class ExpressionLogical extends Expression {
             case OpTypes.VALUE :
                 return valueData;
 
-            case OpTypes.SIMPLE_COLUMN : {
-                Object value =
-                    session.sessionContext.rangeIterators[rangePosition]
-                        .getField(columnIndex);
-
-                return value;
-            }
             case OpTypes.NEGATE :
                 return ((NumberType) dataType).negate(
                     nodes[LEFT].getValue(session, nodes[LEFT].dataType));

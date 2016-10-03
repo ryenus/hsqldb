@@ -2047,13 +2047,17 @@ public class Scanner {
 
         scanDateParts(5);
 
-        try {
-            seconds = HsqlDateTime.getTimestampSeconds(s.substring(0,
-                    intervalPosition));
-        } catch (Throwable e) {
-            throw Error.error(ErrorCode.X_22007);
-        }
+        if (intervalPosition == 10) {
+            seconds = HsqlDateTime.getDateSeconds(s.substring(0,
+                intervalPosition));
 
+            dateTimeType = Type.SQL_TIMESTAMP_NO_FRACTION;
+
+            return new TimestampData(seconds, fraction, (int) zoneSeconds);
+        } else {
+            seconds = HsqlDateTime.getTimestampSeconds(s.substring(0,
+                intervalPosition));
+        }
         int position;
 
         fraction = scanIntervalFraction(DTIType.maxFractionPrecision);
@@ -2105,10 +2109,12 @@ public class Scanner {
             if (i == intervalString.length()) {
                 if (currentPart == lastPart) {
                     endOfPart = true;
-                } else {
+                } else if (currentPart < 2) {
 
                     // parts missing
                     throw Error.error(ErrorCode.X_22007);
+                } else {
+                    endOfPart = true;
                 }
             } else {
                 int character = intervalString.charAt(i);

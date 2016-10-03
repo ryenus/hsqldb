@@ -754,6 +754,10 @@ public class ParserTable extends ParserDML {
             }
         }
 
+        if(readIfThis(Tokens.NOT)) {
+            readThis(Tokens.DEFERRABLE);
+        }
+
         if (constraintName == null) {
             constraintName = database.nameManager.newAutoName("FK",
                     refTable.getSchemaName(), refTable.getName(),

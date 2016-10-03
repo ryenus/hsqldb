@@ -49,7 +49,7 @@ import org.hsqldb.rights.Grantee;
  * Base class for type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.9.0
  */
 public abstract class Type implements SchemaObject, Cloneable {
@@ -418,6 +418,14 @@ public abstract class Type implements SchemaObject, Cloneable {
     }
 
     public boolean isIntervalType() {
+        return false;
+    }
+
+    public boolean isIntervalYearMonthType() {
+        return false;
+    }
+
+    public boolean isIntervalDaySecondType() {
         return false;
     }
 

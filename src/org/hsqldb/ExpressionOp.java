@@ -49,7 +49,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class ExpressionOp extends Expression {
@@ -800,13 +800,6 @@ public class ExpressionOp extends Expression {
 
                     return new String(newArray, 0, j);
                 }
-            }
-            case OpTypes.SIMPLE_COLUMN : {
-                Object value =
-                    session.sessionContext.rangeIterators[rangePosition]
-                        .getField(columnIndex);
-
-                return value;
             }
             case OpTypes.ORDER_BY :
                 return nodes[LEFT].getValue(session);

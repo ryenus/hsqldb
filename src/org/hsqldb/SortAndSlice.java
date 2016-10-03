@@ -43,7 +43,7 @@ import org.hsqldb.types.Type;
  * Implementation of ORDER BY and LIMIT properties of query expressions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.9.0
  */
 public final class SortAndSlice {
@@ -132,7 +132,7 @@ public final class SortAndSlice {
         }
     }
 
-    public void prepare(int degree) {
+    public void prepareExtraColumn(int degree) {
 
         columnCount = exprList.size();
 
@@ -155,7 +155,7 @@ public final class SortAndSlice {
         }
     }
 
-    public void prepare(QuerySpecification select) {
+    public void prepare(int startColumn) {
 
         columnCount = exprList.size();
 
@@ -171,7 +171,7 @@ public final class SortAndSlice {
             ExpressionOrderBy sort = (ExpressionOrderBy) exprList.get(i);
 
             if (sort.getLeftNode().queryTableColumnIndex == -1) {
-                sortOrder[i] = select.indexStartOrderBy + i;
+                sortOrder[i] = startColumn + i;
             } else {
                 sortOrder[i] = sort.getLeftNode().queryTableColumnIndex;
             }
