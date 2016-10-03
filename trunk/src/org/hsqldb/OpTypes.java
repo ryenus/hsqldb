@@ -132,5 +132,6 @@ public interface OpTypes {
         MULTICOLUMN                = 93,
         USER_AGGREGATE             = 94,
         ARRAY_ACCESS               = 95,
-        ARRAY_SUBQUERY             = 96;
+        ARRAY_SUBQUERY             = 96,
+        GROUPING                   = 98;
 }

@@ -279,7 +279,13 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return ValuePool.getInt(Integer.parseInt(s));
+        try {
+            int val = Integer.parseInt(s);
+
+            return ValuePool.getInt(val);
+        } catch (NumberFormatException e) {
+            throw Error.error(e, ErrorCode.X_22501, s);
+        }
     }
 
     protected Integer readInteger() {
@@ -296,7 +302,13 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return ValuePool.getInt(Integer.parseInt(s));
+        try {
+            int val = Integer.parseInt(s);
+
+            return ValuePool.getInt(val);
+        } catch (NumberFormatException e) {
+            throw Error.error(e, ErrorCode.X_22501, s);
+        }
     }
 
     protected Long readBigint() {
@@ -313,7 +325,13 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return ValuePool.getLong(Long.parseLong(s));
+        try {
+            long val = Long.parseLong(s);
+
+            return ValuePool.getLong(val);
+        } catch (NumberFormatException e) {
+            throw Error.error(e, ErrorCode.X_22501, s);
+        }
     }
 
     protected Double readReal() {
@@ -330,7 +348,11 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return Double.valueOf(s);
+        try {
+            return Double.valueOf(s);
+        } catch (NumberFormatException e) {
+            throw Error.error(e, ErrorCode.X_22501, s);
+        }
     }
 
     protected BigDecimal readDecimal(Type type) {
@@ -347,7 +369,11 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return new BigDecimal(s);
+        try {
+            return new BigDecimal(s);
+        } catch (NumberFormatException e) {
+            throw Error.error(e, ErrorCode.X_22501, s);
+        }
     }
 
     protected TimeData readTime(Type type) {
@@ -485,6 +511,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
     }
 
     protected BinaryData readUUID() {
+
         String s = readString();
 
         if (s == null) {

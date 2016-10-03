@@ -43,7 +43,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class ExpressionArithmetic extends Expression {
@@ -632,13 +632,6 @@ public class ExpressionArithmetic extends Expression {
             case OpTypes.VALUE :
                 return valueData;
 
-            case OpTypes.SIMPLE_COLUMN : {
-                Object value =
-                    session.sessionContext.rangeIterators[rangePosition]
-                        .getField(columnIndex);
-
-                return value;
-            }
             case OpTypes.NEGATE :
                 return dataType.negate(nodes[LEFT].getValue(session,
                         nodes[LEFT].dataType));

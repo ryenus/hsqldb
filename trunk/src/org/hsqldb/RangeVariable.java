@@ -78,7 +78,6 @@ public class RangeVariable {
     private OrderedHashSet columnNames;
     OrderedHashSet         namedJoinColumns;
     HashMap                namedJoinColumnExpressions;
-    private Object[]       emptyData;
     boolean[]              columnsInGroupBy;
     boolean                hasKeyedColumnInGroupBy;
     boolean[]              usedColumns;
@@ -132,7 +131,6 @@ public class RangeVariable {
         this.rangeType   = rangeType;
         rangeTable       = null;
         tableAlias       = rangeName;
-        emptyData        = null;
         columnsInGroupBy = null;
         usedColumns      = null;
         joinConditions = new RangeVariableConditions[]{
@@ -180,7 +178,6 @@ public class RangeVariable {
         rangeType        = TABLE_RANGE;
         rangeTable       = table;
         tableAlias       = null;
-        emptyData        = rangeTable.getEmptyRowData();
         columnsInGroupBy = rangeTable.getNewColumnCheckList();
         usedColumns      = rangeTable.getNewColumnCheckList();
         rangePosition    = position;
@@ -197,7 +194,6 @@ public class RangeVariable {
             throw Error.error(ErrorCode.X_42593);
         }
 
-        emptyData                     = rangeTable.getEmptyRowData();
         columnsInGroupBy              = rangeTable.getNewColumnCheckList();
         usedColumns                   = rangeTable.getNewColumnCheckList();
         joinConditions[0].rangeIndex  = rangeTable.getPrimaryIndex();
@@ -406,7 +402,7 @@ public class RangeVariable {
 
         if (namedJoinColumnExpressions != null
                 && namedJoinColumnExpressions.containsKey(columnName)) {
-            if (tableName != null) {
+            if (tableName != null && !resolvesTableName(tableName)) {
                 return -1;
             }
         }
@@ -760,6 +756,35 @@ public class RangeVariable {
 
         if (joinCondition != null) {
             joinCondition.replaceRangeVariables(ranges, newRanges);
+        }
+    }
+
+    public void replaceExpressions(OrderedHashSet expressions,
+                                   HsqlList replacements) {
+
+        QueryExpression queryExpression = rangeTable.getQueryExpression();
+        Expression      dataExpression  = rangeTable.getDataExpression();
+
+        if (dataExpression != null) {
+            dataExpression = dataExpression.replaceExpressions(expressions,
+                    replacements);
+        }
+
+        if (queryExpression != null) {
+            queryExpression.replaceExpressions(expressions, replacements);
+        }
+
+        if (joinCondition != null) {
+            joinCondition = joinCondition.replaceExpressions(expressions,
+                    replacements);
+        }
+
+        for (int i = 0; i < joinConditions.length; i++) {
+            joinConditions[i].replaceExpressions(expressions, replacements);
+        }
+
+        for (int i = 0; i < whereConditions.length; i++) {
+            whereConditions[i].replaceExpressions(expressions, replacements);
         }
     }
 
@@ -2159,6 +2184,54 @@ public class RangeVariable {
             if (terminalCondition != null) {
                 terminalCondition =
                     terminalCondition.replaceColumnReferences(range, list);
+            }
+        }
+
+        private void replaceExpressions(OrderedHashSet expressions,
+                                        HsqlList replacements) {
+
+            if (indexCond != null) {
+                for (int i = 0; i < indexCond.length; i++) {
+                    if (indexCond[i] != null) {
+                        indexCond[i] =
+                            indexCond[i].replaceExpressions(expressions,
+                                                            replacements);
+                    }
+                }
+            }
+
+            if (indexEndCond != null) {
+                for (int i = 0; i < indexEndCond.length; i++) {
+                    if (indexEndCond[i] != null) {
+                        indexEndCond[i] =
+                            indexEndCond[i].replaceExpressions(expressions,
+                                                               replacements);
+                    }
+                }
+            }
+
+            if (indexEndCondition != null) {
+                indexEndCondition =
+                    indexEndCondition.replaceExpressions(expressions,
+                        replacements);
+            }
+
+            if (excludeConditions != null) {
+                excludeConditions =
+                    excludeConditions.replaceExpressions(expressions,
+                        replacements);
+            }
+
+            if (nonIndexCondition != null) {
+                nonIndexCondition =
+                    nonIndexCondition.replaceExpressions(expressions,
+                        replacements);
+            }
+
+            if (terminalCondition != null) {
+                terminalCondition =
+                    terminalCondition.replaceExpressions(expressions,
+                        replacements);
             }
         }
     }

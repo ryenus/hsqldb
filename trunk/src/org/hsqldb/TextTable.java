@@ -120,32 +120,13 @@ public class TextTable extends Table {
             reader = cache.getTextFileReader();
 
             // read and insert all the rows from the source file
-            Row row = null;
 
             if (cache.isIgnoreFirstLine()) {
                 reader.readHeaderLine();
                 cache.setHeaderInitialise(reader.getHeaderLine());
             }
 
-            while (true) {
-                RowInputInterface rowIn = reader.readObject();
-
-                if (rowIn == null) {
-                    break;
-                }
-
-                row = (Row) store.get(rowIn);
-
-                if (row == null) {
-                    break;
-                }
-
-                Object[] data = row.getData();
-
-                systemUpdateIdentityValue(data);
-                enforceRowConstraints(session, data);
-                store.indexRow(session, row);
-            }
+            readDataIntoTable(session, store, reader);
         } catch (Throwable t) {
             long linenumber = reader == null ? 0
                                              : reader.getLineNumber();
@@ -167,6 +148,29 @@ public class TextTable extends Table {
 
         isConnected = true;
         isReadOnly  = withReadOnlyData;
+    }
+
+    private void readDataIntoTable(Session session, PersistentStore store,
+                                   TextFileReader reader) {
+        while (true) {
+            RowInputInterface rowIn = reader.readObject();
+
+            if (rowIn == null) {
+                break;
+            }
+
+            Row row = (Row) store.get(rowIn);
+
+            if (row == null) {
+                break;
+            }
+
+            Object[] data = row.getData();
+
+            systemUpdateIdentityValue(data);
+            enforceRowConstraints(session, data);
+            store.indexRow(session, row);
+        }
     }
 
     /**

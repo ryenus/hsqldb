@@ -46,7 +46,7 @@ import org.hsqldb.lib.ArrayUtil;
  * Type subclass for various types of INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public final class IntervalType extends DTIType {
@@ -306,7 +306,7 @@ public final class IntervalType extends DTIType {
         return true;
     }
 
-    public boolean isYearMonthIntervalType() {
+    public boolean isIntervalYearMonthType() {
 
         switch (typeCode) {
 
@@ -320,7 +320,7 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public boolean isDaySecondIntervalType() {
+    public boolean isIntervalDaySecondType() {
 
         switch (typeCode) {
 
@@ -716,8 +716,8 @@ public final class IntervalType extends DTIType {
             return false;
         }
 
-        return isYearMonthIntervalType()
-               == ((IntervalType) otherType).isYearMonthIntervalType();
+        return isIntervalYearMonthType()
+               == ((IntervalType) otherType).isIntervalYearMonthType();
     }
 
     public int canMoveFrom(Type otherType) {

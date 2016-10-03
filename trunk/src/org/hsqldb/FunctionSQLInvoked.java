@@ -44,7 +44,7 @@ import org.hsqldb.types.Type;
  * Implementation of SQL-invoked user-defined function calls - PSM and JRT
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class FunctionSQLInvoked extends Expression {
@@ -187,14 +187,6 @@ public class FunctionSQLInvoked extends Expression {
     }
 
     public Object getValue(Session session) {
-
-        if (opType == OpTypes.SIMPLE_COLUMN) {
-            Object value =
-                session.sessionContext.rangeIterators[rangePosition].getField(
-                    columnIndex);
-
-            return value;
-        }
 
         Object returnValue = getValueInternal(session, null);
 

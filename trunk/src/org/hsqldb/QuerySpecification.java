@@ -87,10 +87,10 @@ public class QuerySpecification extends QueryExpression {
     Expression            rowExpression;
     Expression[]          exprColumns;
     HsqlArrayList         exprColumnList;
-    public int            indexLimitVisible;
-    private int           indexLimitRowId;
     private int           groupByColumnCount;    // columns in 'group by'
     private int           havingColumnCount;     // columns in 'having' (0 or 1)
+    public int            indexLimitVisible;
+    private int           indexLimitRowId;
     private int           indexStartHaving;
     public int            indexStartOrderBy;
     public int            indexStartAggregates;
@@ -118,9 +118,8 @@ public class QuerySpecification extends QueryExpression {
     private OrderedHashSet tempSet = new OrderedHashSet();
 
     //
-    int[]                  columnMap;
-    private Table          baseTable;
-    private OrderedHashSet conditionTables;      // for view super-view references
+    int[]         columnMap;
+    private Table baseTable;
 
     //
     public Index groupIndex;
@@ -564,7 +563,7 @@ public class QuerySpecification extends QueryExpression {
                     this, rangeGroups, unresolvedExpressions);
         }
 
-        sortAndSlice.prepare(this);
+        sortAndSlice.prepare(indexStartOrderBy);
     }
 
     private boolean resolveColumnReferences(Session session, Expression e,
@@ -1396,21 +1395,21 @@ public class QuerySpecification extends QueryExpression {
             aggregateCheck[i] = true;
 
             if (e.hasAggregate()) {
-                e.convertToSimpleColumn(expressions, columnExpressions);
+                e.replaceExpressions(expressions, columnExpressions);
             }
         }
 
         for (int i = 0; i < aggregateSet.size(); i++) {
             Expression e = (Expression) aggregateSet.get(i);
 
-            e.convertToSimpleColumn(expressions, columnExpressions);
+            e.replaceExpressions(expressions, columnExpressions);
         }
 
         if (resolvedSubqueryExpressions != null) {
             for (int i = 0; i < resolvedSubqueryExpressions.size(); i++) {
                 Expression e = (Expression) resolvedSubqueryExpressions.get(i);
 
-                e.convertToSimpleColumn(expressions, columnExpressions);
+                e.replaceExpressions(expressions, columnExpressions);
             }
         }
     }
@@ -2534,6 +2533,29 @@ public class QuerySpecification extends QueryExpression {
 
         for (int i = 0, len = rangeVariables.length; i < len; i++) {
             rangeVariables[i].getSubqueries();
+        }
+    }
+
+    public void replaceExpressions(OrderedHashSet expressions,
+                                   HsqlList replacements) {
+
+        for (int i = 0; i < indexStartAggregates; i++) {
+            exprColumns[i] = exprColumns[i].replaceExpressions(expressions,
+                    replacements);
+        }
+
+        if (queryCondition != null) {
+            queryCondition = queryCondition.replaceExpressions(expressions,
+                    replacements);
+        }
+
+        if (havingCondition != null) {
+            havingCondition = havingCondition.replaceExpressions(expressions,
+                    replacements);
+        }
+
+        for (int i = 0, len = rangeVariables.length; i < len; i++) {
+            rangeVariables[i].replaceExpressions(expressions, replacements);
         }
     }
 

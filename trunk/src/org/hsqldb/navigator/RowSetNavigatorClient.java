@@ -112,7 +112,7 @@ public class RowSetNavigatorClient extends RowSetNavigator {
             return null;
         }
 
-        if (currentPos == currentOffset + table.length) {
+        if (currentPos >= currentOffset + table.length) {
             getBlock(currentOffset + table.length);
         }
 

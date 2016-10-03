@@ -469,9 +469,6 @@ public class Expression implements Cloneable {
 
         switch (opType) {
 
-            case OpTypes.SIMPLE_COLUMN :
-                return this.columnIndex == other.columnIndex;
-
             case OpTypes.VALUE :
                 return equals(valueData, other.valueData);
 
@@ -776,15 +773,15 @@ public class Expression implements Cloneable {
         }
     }
 
-    void convertToSimpleColumn(OrderedHashSet expressions,
-                               OrderedHashSet replacements) {
+    Expression replaceExpressions(OrderedHashSet expressions,
+                                     HsqlList replacements) {
 
         if (opType == OpTypes.VALUE) {
-            return;
+            return this;
         }
 
         if (opType == OpTypes.SIMPLE_COLUMN) {
-            return;
+            return this;
         }
 
         int index = expressions.getIndex(this);
@@ -792,12 +789,7 @@ public class Expression implements Cloneable {
         if (index != -1) {
             Expression e = (Expression) replacements.get(index);
 
-            nodes         = emptyArray;
-            opType        = OpTypes.SIMPLE_COLUMN;
-            columnIndex   = e.columnIndex;
-            rangePosition = e.rangePosition;
-
-            return;
+            return e;
         }
 
         for (int i = 0; i < nodes.length; i++) {
@@ -805,24 +797,18 @@ public class Expression implements Cloneable {
                 continue;
             }
 
-            nodes[i].convertToSimpleColumn(expressions, replacements);
+            nodes[i] = nodes[i].replaceExpressions(expressions,
+                    replacements);
         }
 
         if (table != null) {
             if (table.queryExpression != null) {
-                OrderedHashSet set = new OrderedHashSet();
-
-                table.queryExpression.collectAllExpressions(set,
-                        Expression.columnExpressionSet,
-                        Expression.emptyExpressionSet);
-
-                for (int i = 0; i < set.size(); i++) {
-                    Expression e = (Expression) set.get(i);
-
-                    e.convertToSimpleColumn(expressions, replacements);
-                }
+                table.queryExpression.replaceExpressions(expressions,
+                        replacements);
             }
         }
+
+        return this;
     }
 
     boolean hasAggregate() {
@@ -1575,13 +1561,6 @@ public class Expression implements Cloneable {
             case OpTypes.VALUE :
                 return valueData;
 
-            case OpTypes.SIMPLE_COLUMN : {
-                Object value =
-                    session.sessionContext.rangeIterators[rangePosition]
-                        .getField(columnIndex);
-
-                return value;
-            }
             case OpTypes.ROW : {
                 if (nodes.length == 1) {
                     return nodes[0].getValue(session);

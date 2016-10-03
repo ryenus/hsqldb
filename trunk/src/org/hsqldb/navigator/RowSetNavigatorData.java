@@ -62,10 +62,6 @@ implements Comparator {
     public static final Object[][] emptyTable = new Object[0][];
 
     //
-    int currentOffset;
-    int baseBlockSize;
-
-    //
     private Object[][] dataTable = emptyTable;
 
     //
@@ -260,11 +256,7 @@ implements Comparator {
             return null;
         }
 
-        if (currentPos == currentOffset + dataTable.length) {
-            getBlock(currentOffset + dataTable.length);
-        }
-
-        return dataTable[currentPos - currentOffset];
+        return dataTable[currentPos];
     }
 
     public Row getCurrentRow() {

@@ -60,7 +60,7 @@ public interface StatementTypes {
     int DELETE_CURSOR                    = 18;
     int DELETE_WHERE                     = 19;
     int DESCRIBE                         = 20;
-    int SELECT_DIRECT_SINGLE             = 21;   // identifier is SELECT
+    int SELECT_DIRECT_SINGLE             = 21;    // identifier is SELECT
     int DISCONNECT                       = 22;
     int CREATE_DOMAIN                    = 23;
     int DROP_ASSERTION                   = 24;
@@ -84,7 +84,7 @@ public interface StatementTypes {
     int DYNAMIC_FETCH                    = 42;
     int DYNAMIC_OPEN                     = 43;
     int SELECT_CURSOR                    = 44;
-    int SELECT_SINGLE_DYNAMIC            = 45;   // identifier is SELECT
+    int SELECT_SINGLE_DYNAMIC            = 45;    // identifier is SELECT
     int DYNAMIC_UPDATE_CURSOR            = 46;
     int EXECUTE_IMMEDIATE                = 47;
     int EXECUTE                          = 48;
@@ -109,7 +109,7 @@ public interface StatementTypes {
     int SAVEPOINT                        = 67;
     int CREATE_SCHEMA                    = 68;
     int CREATE_ROUTINE                   = 69;
-    int SELECT_SINGLE                    = 70;   // identifier is SELECT
+    int SELECT_SINGLE                    = 70;    // identifier is SELECT
     int CREATE_SEQUENCE                  = 71;
     int SET_CATALOG                      = 72;
     int SET_CONNECTION                   = 73;
@@ -136,7 +136,7 @@ public interface StatementTypes {
     int CREATE_TYPE                      = 94;
     int CREATE_ORDERING                  = 95;
     int CREATE_VIEW                      = 96;
-    int ASSIGNMENT                       = 97;   // PSM
+    int ASSIGNMENT                       = 97;    // PSM
     int CASE                             = 98;
     int BEGIN_END                        = 99;
     int DROP_MODULE                      = 100;
@@ -173,8 +173,7 @@ public interface StatementTypes {
     int DATABASE_CHECKPOINT = 1002;
     int DATABASE_SHUTDOWN   = 1003;
     int DATABASE_SCRIPT     = 1004;
-    int ALTER_SESSION       = 1005;
-    int CHECK_INDEX         = 1006;
+    int CHECK_INDEX         = 1005;
 
     // hsqldb database settings
     int SET_DATABASE_FILES_BACKUP_INCREMENT    = 1011;
@@ -231,6 +230,7 @@ public interface StatementTypes {
     int SET_SESSION_RESULT_MEMORY_ROWS = 1117;
     int ROLLBACK_SAVEPOINT             = 1118;
     int DECLARE_SESSION_TABLE          = 1119;
+    int ALTER_SESSION                  = 1120;
 
     // hsqldb schema
     int ALTER_INDEX                  = 1121;
