@@ -2379,6 +2379,7 @@ public class ParserDQL extends ParserBase {
         Expression e        = null;
         boolean    isRow    = false;
         boolean    isPeriod = false;
+        int        position = getPosition();
 
         switch (token.tokenType) {
 
@@ -2390,7 +2391,28 @@ public class ParserDQL extends ParserBase {
                 break;
 
             case Tokens.PERIOD :
-                isPeriod = true;
+                if (isBoolean) {
+                    break;
+                }
+
+                read();
+
+                if (readIfThis(Tokens.OPENBRACKET)) {
+                    e = XreadRowElementList(true);
+
+                    readThis(Tokens.CLOSEBRACKET);
+                    e.setSubType(OpTypes.RANGE_EQUALS);
+                } else {
+                    rewind(position);
+
+                    e = XreadSimpleValueExpressionPrimary();
+
+                    if (e != null) {
+                        e = XreadArrayElementReference(e);
+                    }
+                }
+                break;
+
             case Tokens.ROW :
                 if (isBoolean) {
                     break;
@@ -2402,10 +2424,6 @@ public class ParserDQL extends ParserBase {
                 e = XreadRowElementList(true);
 
                 readThis(Tokens.CLOSEBRACKET);
-
-                if (isPeriod) {
-                    e.setSubType(OpTypes.RANGE_EQUALS);
-                }
                 break;
 
             default :
@@ -2661,14 +2679,14 @@ public class ParserDQL extends ParserBase {
             case Tokens.ARRAY :
                 return readCollection(OpTypes.ARRAY);
 
-            case Tokens.ANY :
-            case Tokens.SOME :
-            case Tokens.EVERY :
             case Tokens.COUNT :
+            case Tokens.AVG :
             case Tokens.MAX :
             case Tokens.MIN :
             case Tokens.SUM :
-            case Tokens.AVG :
+            case Tokens.ANY :
+            case Tokens.SOME :
+            case Tokens.EVERY :
             case Tokens.STDDEV_POP :
             case Tokens.STDDEV_SAMP :
             case Tokens.VAR_POP :

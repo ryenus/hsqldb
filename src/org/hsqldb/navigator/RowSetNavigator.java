@@ -56,7 +56,6 @@ public abstract class RowSetNavigator implements RangeIterator {
     long             id;
     int              size;
     int              mode;
-    boolean          isIterator;
     int              currentPos = -1;
     int              rangePosition;
     boolean          hadNext;

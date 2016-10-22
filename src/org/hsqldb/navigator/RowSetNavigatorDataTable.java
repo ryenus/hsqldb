@@ -58,7 +58,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public PersistentStore store;
     RowIterator            iterator;
     Row                    currentRow;
-    int                    maxMemoryRowCount;
     Object[]               tempRowData;
 
     public RowSetNavigatorDataTable(Session session,
@@ -67,7 +66,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         super(session);
 
         this.rangePosition = select.resultRangePosition;
-        maxMemoryRowCount  = session.getResultMemoryRowCount();
         visibleColumnCount = select.indexLimitVisible;
         table              = select.resultTable.duplicate();
         store = session.sessionData.getNewResultRowStore(table,
@@ -102,7 +100,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
         super(session);
 
-        maxMemoryRowCount  = session.getResultMemoryRowCount();
         table              = queryExpression.resultTable.duplicate();
         visibleColumnCount = table.getColumnCount();
         store = session.sessionData.getNewResultRowStore(table, true);
@@ -115,7 +112,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
         super(session);
 
-        maxMemoryRowCount  = session.getResultMemoryRowCount();
         this.table         = table;
         visibleColumnCount = table.getColumnCount();
         mainIndex          = table.getPrimaryIndex();

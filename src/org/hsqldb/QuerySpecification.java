@@ -1350,8 +1350,9 @@ public class QuerySpecification extends QueryExpression {
             Expression e = exprColumns[i];
             Expression c = new ExpressionColumn(e, i, resultRangePosition);
 
-            expressions.add(e);
-            columnExpressions.add(c);
+            if (expressions.add(e)) {
+                columnExpressions.add(c);
+            }
         }
 
         for (int i = 0; i < indexStartHaving; i++) {
@@ -1393,16 +1394,8 @@ public class QuerySpecification extends QueryExpression {
             }
 
             aggregateCheck[i] = true;
-
-            if (e.hasAggregate()) {
-                e.replaceExpressions(expressions, columnExpressions);
-            }
-        }
-
-        for (int i = 0; i < aggregateSet.size(); i++) {
-            Expression e = (Expression) aggregateSet.get(i);
-
-            e.replaceExpressions(expressions, columnExpressions);
+            exprColumns[i] = e.replaceExpressions(expressions,
+                                                  columnExpressions);
         }
 
         if (resolvedSubqueryExpressions != null) {

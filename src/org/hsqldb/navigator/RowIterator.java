@@ -32,7 +32,6 @@
 package org.hsqldb.navigator;
 
 import org.hsqldb.Row;
-import org.hsqldb.TableBase;
 
 /**
  *
