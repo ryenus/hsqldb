@@ -170,7 +170,7 @@ public class Expression implements Cloneable {
     SimpleName alias;
 
     // aggregate
-    private boolean isAggregate;
+    private boolean hasAggregate;
     boolean         isDistinctAggregate;
 
     // VALUE
@@ -774,7 +774,7 @@ public class Expression implements Cloneable {
     }
 
     Expression replaceExpressions(OrderedHashSet expressions,
-                                     HsqlList replacements) {
+                                  HsqlList replacements) {
 
         if (opType == OpTypes.VALUE) {
             return this;
@@ -797,8 +797,7 @@ public class Expression implements Cloneable {
                 continue;
             }
 
-            nodes[i] = nodes[i].replaceExpressions(expressions,
-                    replacements);
+            nodes[i] = nodes[i].replaceExpressions(expressions, replacements);
         }
 
         if (table != null) {
@@ -812,7 +811,7 @@ public class Expression implements Cloneable {
     }
 
     boolean hasAggregate() {
-        return isAggregate;
+        return hasAggregate;
     }
 
     boolean isDistinctAggregate() {
@@ -820,7 +819,7 @@ public class Expression implements Cloneable {
     }
 
     void setAggregate() {
-        isAggregate = true;
+        hasAggregate = true;
     }
 
     boolean isSelfAggregate() {
