@@ -52,6 +52,7 @@ import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Collation;
 import org.hsqldb.types.NullType;
+import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -67,6 +68,7 @@ public class Expression implements Cloneable {
 
     public static final int LEFT    = 0;
     public static final int RIGHT   = 1;
+    public static final int THIRD   = 2;
     public static final int UNARY   = 1;
     public static final int BINARY  = 2;
     public static final int TERNARY = 3;
@@ -575,6 +577,8 @@ public class Expression implements Cloneable {
         }
 
         switch (opType) {
+            case OpTypes.COLUMN :
+                return false;
 
             case OpTypes.LIKE :
             case OpTypes.MATCH_SIMPLE :
@@ -628,7 +632,7 @@ public class Expression implements Cloneable {
         }
 
         if (nodes.length == 0) {
-            return false;
+            return true;
         }
 
         boolean result = true;
@@ -648,9 +652,14 @@ public class Expression implements Cloneable {
     boolean isComposedOf(OrderedHashSet expressions, RangeGroup[] rangeGroups,
                          OrderedIntHashSet excludeSet) {
 
-        if (opType == OpTypes.VALUE || opType == OpTypes.DYNAMIC_PARAM
-                || opType == OpTypes.PARAMETER || opType == OpTypes.VARIABLE) {
-            return true;
+        switch (opType) {
+
+            case OpTypes.VALUE :
+            case OpTypes.DYNAMIC_PARAM :
+            case OpTypes.PARAMETER :
+            case OpTypes.VARIABLE : {
+                return true;
+            }
         }
 
         if (excludeSet.contains(opType)) {
@@ -1212,6 +1221,8 @@ public class Expression implements Cloneable {
                         nodeDataTypes[i] = nodes[i].dataType;
                     }
                 }
+
+                dataType = new RowType(nodeDataTypes);
                 break;
 
             case OpTypes.ARRAY : {

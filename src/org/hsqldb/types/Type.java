@@ -563,6 +563,10 @@ public abstract class Type implements SchemaObject, Cloneable {
         return 0;
     }
 
+    public boolean isNegative(Object a) {
+        return false;
+    }
+
     int hashCode(Object a) {
 
         if (a == null) {

@@ -381,6 +381,16 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     }
 
     /**
+     * Returns true if this server is not running
+     */
+    public boolean isNotRunning() {
+
+        int state = getState();
+
+        return state == ServerConstants.SERVER_STATE_SHUTDOWN;
+    }
+
+    /**
      * Closes all connections to this Server.
      *
      * @jmx.managed-operation
@@ -688,7 +698,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      */
     public String getStateDescriptor() {
 
-        String    state;
+        String state;
 
         switch (serverState) {
 
@@ -1137,10 +1147,11 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      */
     public void setSilent(boolean silent) {
 
-        printWithThread("setSilent(" + silent + ")");
         serverProperties.setProperty(ServerProperties.sc_key_silent, silent);
 
         isSilent = silent;
+
+        printWithThread("setSilent(" + silent + ")");
     }
 
     /**
@@ -1223,7 +1234,9 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     public void setProperties(HsqlProperties props)
     throws IOException, ServerAcl.AclFormatException {
 
-        checkRunning(false);
+        if (!isNotRunning()) {
+            checkRunning(false);
+        }
 
         if (props != null) {
             props.validate();

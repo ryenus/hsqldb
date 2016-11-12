@@ -34,7 +34,7 @@ package org.hsqldb.lib;
 import java.util.NoSuchElementException;
 
 /**
- * A deque of long value. Implementation based on HsqlDeque class.
+ * A deque of long values. Implementation based on HsqlDeque class.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.4
