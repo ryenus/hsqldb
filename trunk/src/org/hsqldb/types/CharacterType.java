@@ -640,6 +640,8 @@ public class CharacterType extends Type {
         } else if (a instanceof java.util.Date) {
             s = HsqlDateTime.getTimestampString(
                 ((java.util.Date) a).getTime());
+        } else if (a instanceof java.util.UUID) {
+            s = a.toString();
         } else {
             throw Error.error(ErrorCode.X_42561);
         }
