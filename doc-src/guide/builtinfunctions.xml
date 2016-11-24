@@ -1864,10 +1864,14 @@
       'day' | 'hh' | 'hour' | 'mi' | 'minute' | 'ss' | 'second' | 'ms' |
       'millisecond'</literal></para>
 
+      <para><literal>&lt;field&gt; ::= YY | YEAR | MM | MONTH | DD |
+      DAY | HH | HOUR | MI | MINUTE | SS | SECOND | MS |
+      MILLISECOND</literal></para>
+	  
       <para>The DATEADD and DATEDIFF functions are alternatives to
       TIMESTAMPADD and TIMESTAMPDIFF, with fewer available field options. The
-      field names are specified as strings, rather than keywords. The fields
-      translate to YEAR, MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND.
+      field names are specified as strings or as keywords. The short field
+      names translate to YEAR, MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND.
       <literal>DATEDIFF</literal> is evaluated as &lt;datetime value expr
       2&gt; - &lt;datetime value expr 1&gt;. (HyperSQL}</para>
 
