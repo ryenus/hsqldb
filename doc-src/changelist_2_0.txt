@@ -1,12 +1,14 @@
-22 October 2016
+24 November 2016
 -- improved support for WITH named subqueries in routines, allowing parameters to be referenced
 -- improved support for WITH RECURSIVE named subqueries to be used in othre subqueries
 -- improved support for UUID in ResultSet to return a Java UUID with getObject()
+-- improved support for UUID in PreparedStatement setObject() with VARCHAR parameters
 -- improved use of allow_empty_batch connection property
+-- improved field param setting of DATEADD and DATEDIFF functions
 -- fixed issue with cancel() method of java.sql.Statement with in-process connections
 -- fixed issue with the timeout setting of java.sql.Statement
--- fixed issue with duplicate row with INSERT followed by UPDATE and ROLLBACK in memory tables
--- fixed issue with dropping indexes and constraints in memory tables
+-- fixed issue with duplicate row with INSERT followed by UPDATE and ROLLBACK in MEMORY tables
+-- fixed issue with dropping indexes and constraints in MEMORY tables
 -- fixed issue with queries on DECIMAL or NUMERIC columns containing very large values
 -- fixed issue with ResultSet when calling next() multiple times was not followed by a get(...) call
 -- core code refactor of iterator for rows of tables and results
