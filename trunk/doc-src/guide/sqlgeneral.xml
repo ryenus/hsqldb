@@ -1005,8 +1005,9 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
  TIMESTAMP(2) WITH TIME ZONE
 </programlisting>
 
-    <para>Examples of the string literals used to represent date time values,
-    some with time zone, some without, are below:</para>
+    <para>TIME or TIMESTAMP literals containing a zone displacement value 
+	are WITH TIME ZONE. Examples of the string literals used to represent
+	date time values, some with time zone, some without, are below:</para>
 
     <programlisting> DATE '2008-08-22'
  TIMESTAMP '2008-08-08 20:08:08'
@@ -1097,7 +1098,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <simpara><emphasis role="bold">Type Conversion</emphasis></simpara>
 
-    <para>CAST is used to for all other conversions. Examples:</para>
+    <para>CAST is used for all other conversions. Examples:</para>
 
     <programlisting> CAST (&lt;value&gt; AS TIME WITHOUT TIME ZONE)
  CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
@@ -1247,18 +1248,19 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     ResultSet interface which have a Calendar parameter can be used with a
     Calendar argument to retrieve the values.</para>
 
-    <para>JDBC has an unfortunate limitation and does not include type codes
+    <para>JDBC 4 has an unfortunate limitation and does not include type codes
     for SQL datetime types that have a TIME ZONE property. Therefore, for
     compatibility with database tools that are limited to the JDBC type codes,
     HyperSQL reports these types by default as datetime types without TIME
-    ZONE. You can use the URL property
+    ZONE. The new type code for TIMESTAMP WITH TIME ZONE introduced in JAVA 8 
+	will be supported at some point. You can use the URL property
     <literal>hsqldb.translate_dti_types=false</literal> to override the
     default behaviour.</para>
 
     <simpara><emphasis role="bold">Non-Standard
     Extensions</emphasis></simpara>
 
-    <para>HyperSQL version 2.3.0 supports some extenstions to the SQL standard
+    <para>HyperSQL version 2.3 supports some extensions to the SQL standard
     treatment of datetime and interval types. For example, the Standard
     expression to add a number of days to a date has an explicit INTERVAL
     value but HSQLDB also allows an integer to be used without specifying DAY.
