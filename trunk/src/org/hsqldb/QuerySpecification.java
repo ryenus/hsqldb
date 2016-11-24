@@ -256,6 +256,10 @@ public class QuerySpecification extends QueryExpression {
         queryCondition = e;
     }
 
+    void setDistinctSelect() {
+        isDistinctSelect = true;
+    }
+
     void addGroupByColumnExpression(Expression e) {
 
         if (e.getType() == OpTypes.ROW) {

@@ -1825,6 +1825,7 @@ public class Tokens {
     static final int X_OPTION      = 902;
     static final int X_REPEAT      = 903;
     static final int X_POS_INTEGER = 904;
+    static final int X_TOKEN       = 905;
 
     //
     public static final int X_VALUE                    = 911;
