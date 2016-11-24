@@ -76,7 +76,7 @@ import org.hsqldb.types.Types;
  * Some functions are translated into equivalent SQL Standard functions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class FunctionCustom extends FunctionSQL {
@@ -607,10 +607,24 @@ public class FunctionCustom extends FunctionSQL {
 
             case FUNC_DATEDIFF :
                 parseList = new short[] {
+                    Tokens.OPENBRACKET, Tokens.X_TOKEN, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.COMMA, Tokens.QUESTION,
+                    Tokens.CLOSEBRACKET
+                };
+                parseListAlt = new short[] {
                     Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.COMMA,
                     Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
                     Tokens.QUESTION, Tokens.CLOSEBRACKET
                 };
+                break;
+
+            case FUNC_DATEADD :
+                parseList = new short[] {
+                    Tokens.OPENBRACKET, Tokens.X_TOKEN, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.COMMA, Tokens.QUESTION,
+                    Tokens.CLOSEBRACKET
+                };
+                parseListAlt = tripleParamList;
                 break;
 
             case FUNC_DATE_ADD :
@@ -618,7 +632,6 @@ public class FunctionCustom extends FunctionSQL {
                 parseList = doubleParamList;
                 break;
 
-            case FUNC_DATEADD :
             case FUNC_NEW_TIME :
             case FUNC_SEQUENCE_ARRAY :
             case FUNC_TRANSLATE :
@@ -1251,6 +1264,11 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TO_TIMESTAMP : {
                 if (data[0] == null || data[1] == null) {
                     return null;
+                }
+
+                if (nodes[0].dataType.isDateOrTimestampType()) {
+                    return dataType.convertToType(session, data[0],
+                                                  nodes[0].dataType);
                 }
 
                 SimpleDateFormat format = session.getSimpleDateFormatGMT();
@@ -2653,7 +2671,11 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 if (!nodes[0].dataType.isCharacterType()
-                        || !nodes[1].dataType.isCharacterType()) {
+                        && !nodes[0].dataType.isDateOrTimestampType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                if (!nodes[1].dataType.isCharacterType()) {
                     throw Error.error(ErrorCode.X_42563);
                 }
 

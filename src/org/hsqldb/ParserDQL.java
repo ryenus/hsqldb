@@ -1227,7 +1227,7 @@ public class ParserDQL extends ParserBase {
         }
 
         if (token.tokenType == Tokens.DISTINCT) {
-            select.isDistinctSelect = true;
+            select.setDistinctSelect();
 
             read();
         } else if (token.tokenType == Tokens.ALL) {
@@ -2830,7 +2830,7 @@ public class ParserDQL extends ParserBase {
 
         e = readColumnOrFunctionExpression();
 
-        if (e.hasAggregate()) {
+        if (e.isSelfAggregate()) {
             readFilterClause(e);
         }
 
@@ -5943,6 +5943,20 @@ public class ParserDQL extends ParserBase {
                     exprList.add(e);
 
                     continue;
+                }
+                case Tokens.X_TOKEN : {
+                    if (super.isUndelimitedSimpleName()) {
+                        Expression e = new ExpressionValue(token.tokenString,
+                                                           Type.SQL_VARCHAR);
+
+                        read();
+                        exprList.add(e);
+
+                        continue;
+                    }
+
+                    throw unexpectedToken();
+
                 }
                 case Tokens.X_POS_INTEGER : {
                     Expression e     = null;

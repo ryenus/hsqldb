@@ -43,7 +43,7 @@ import org.hsqldb.lib.IntKeyIntValueHashMap;
  * Common elements for Type instances for DATETIME and INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.5
  * @since 1.9.0
  */
 public abstract class DTIType extends Type {
@@ -253,8 +253,7 @@ public abstract class DTIType extends Type {
             case DAY_OF_YEAR :
             case DAY_OF_WEEK :
             case WEEK_OF_YEAR :
-                if (!isDateTimeType()
-                        || startIntervalType != Types.SQL_INTERVAL_YEAR) {
+                if (!isDateTimeType()) {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
