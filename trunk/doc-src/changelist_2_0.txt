@@ -1,10 +1,12 @@
-24 November 2016
+05 December 2016
+-- added support for several functions SINH COSH TANH NEXT_DAY DATAPART DATENAME EOMONTH NEWID SYS_GUID
 -- improved support for WITH named subqueries in routines, allowing parameters to be referenced
 -- improved support for WITH RECURSIVE named subqueries to be used in othre subqueries
 -- improved support for UUID in ResultSet to return a Java UUID with getObject()
 -- improved support for UUID in PreparedStatement setObject() with VARCHAR parameters
 -- improved use of allow_empty_batch connection property
--- improved field param setting of DATEADD and DATEDIFF functions
+-- improved field param setting of DATEADD DATEDIFF TIMESTAMPADD TIMESTAMPDIFF functions
+-- improved ORA, MSS and MYS syntax compatibility modes for type names and functions
 -- fixed issue with cancel() method of java.sql.Statement with in-process connections
 -- fixed issue with the timeout setting of java.sql.Statement
 -- fixed issue with duplicate row with INSERT followed by UPDATE and ROLLBACK in MEMORY tables
