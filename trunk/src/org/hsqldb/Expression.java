@@ -87,20 +87,20 @@ public class Expression implements Cloneable {
 
     static {
         aggregateFunctionSet.add(OpTypes.COUNT);
-        aggregateFunctionSet.add(OpTypes.SUM);
-        aggregateFunctionSet.add(OpTypes.MIN);
-        aggregateFunctionSet.add(OpTypes.MAX);
         aggregateFunctionSet.add(OpTypes.AVG);
+        aggregateFunctionSet.add(OpTypes.MAX);
+        aggregateFunctionSet.add(OpTypes.MIN);
+        aggregateFunctionSet.add(OpTypes.SUM);
         aggregateFunctionSet.add(OpTypes.EVERY);
         aggregateFunctionSet.add(OpTypes.SOME);
         aggregateFunctionSet.add(OpTypes.STDDEV_POP);
         aggregateFunctionSet.add(OpTypes.STDDEV_SAMP);
         aggregateFunctionSet.add(OpTypes.VAR_POP);
         aggregateFunctionSet.add(OpTypes.VAR_SAMP);
-        aggregateFunctionSet.add(OpTypes.GROUP_CONCAT);
         aggregateFunctionSet.add(OpTypes.ARRAY_AGG);
-        aggregateFunctionSet.add(OpTypes.MEDIAN);
         aggregateFunctionSet.add(OpTypes.USER_AGGREGATE);
+        aggregateFunctionSet.add(OpTypes.GROUP_CONCAT);
+        aggregateFunctionSet.add(OpTypes.MEDIAN);
     }
 
     static final OrderedIntHashSet columnExpressionSet =
@@ -122,25 +122,8 @@ public class Expression implements Cloneable {
         new OrderedIntHashSet();
 
     static {
-        subqueryAggregateExpressionSet.add(OpTypes.COUNT);
-        subqueryAggregateExpressionSet.add(OpTypes.SUM);
-        subqueryAggregateExpressionSet.add(OpTypes.MIN);
-        subqueryAggregateExpressionSet.add(OpTypes.MAX);
-        subqueryAggregateExpressionSet.add(OpTypes.AVG);
-        subqueryAggregateExpressionSet.add(OpTypes.EVERY);
-        subqueryAggregateExpressionSet.add(OpTypes.SOME);
-        subqueryAggregateExpressionSet.add(OpTypes.STDDEV_POP);
-        subqueryAggregateExpressionSet.add(OpTypes.STDDEV_SAMP);
-        subqueryAggregateExpressionSet.add(OpTypes.VAR_POP);
-        subqueryAggregateExpressionSet.add(OpTypes.VAR_SAMP);
-        subqueryAggregateExpressionSet.add(OpTypes.GROUP_CONCAT);
-        subqueryAggregateExpressionSet.add(OpTypes.ARRAY_AGG);
-        subqueryAggregateExpressionSet.add(OpTypes.MEDIAN);
-        subqueryAggregateExpressionSet.add(OpTypes.USER_AGGREGATE);
-
-        //
-        subqueryAggregateExpressionSet.add(OpTypes.TABLE_SUBQUERY);
-        subqueryAggregateExpressionSet.add(OpTypes.ROW_SUBQUERY);
+        subqueryAggregateExpressionSet.addAll(aggregateFunctionSet);
+        subqueryAggregateExpressionSet.addAll(subqueryExpressionSet);
     }
 
     static final OrderedIntHashSet functionExpressionSet =
@@ -577,6 +560,7 @@ public class Expression implements Cloneable {
         }
 
         switch (opType) {
+
             case OpTypes.COLUMN :
                 return false;
 
@@ -592,19 +576,6 @@ public class Expression implements Cloneable {
             case OpTypes.ARRAY :
             case OpTypes.ARRAY_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
-
-            //
-            case OpTypes.COUNT :
-            case OpTypes.SUM :
-            case OpTypes.MIN :
-            case OpTypes.MAX :
-            case OpTypes.AVG :
-            case OpTypes.EVERY :
-            case OpTypes.SOME :
-            case OpTypes.STDDEV_POP :
-            case OpTypes.STDDEV_SAMP :
-            case OpTypes.VAR_POP :
-            case OpTypes.VAR_SAMP :
                 return false;
 
             case OpTypes.ROW_SUBQUERY : {
@@ -629,6 +600,10 @@ public class Expression implements Cloneable {
 
                 return qs.collectOuterColumnExpressions(null, set) == null;
             }
+        }
+
+        if (aggregateFunctionSet.contains(opType)) {
+            return false;
         }
 
         if (nodes.length == 0) {
@@ -685,20 +660,6 @@ public class Expression implements Cloneable {
         }
 
         switch (opType) {
-
-            case OpTypes.COUNT :
-            case OpTypes.SUM :
-            case OpTypes.MIN :
-            case OpTypes.MAX :
-            case OpTypes.AVG :
-            case OpTypes.EVERY :
-            case OpTypes.SOME :
-            case OpTypes.STDDEV_POP :
-            case OpTypes.STDDEV_SAMP :
-            case OpTypes.VAR_POP :
-            case OpTypes.VAR_SAMP :
-                return false;
-
             case OpTypes.FUNCTION :
             case OpTypes.SQL_FUNCTION :
                 if (nodes.length == 0) {
@@ -722,6 +683,10 @@ public class Expression implements Cloneable {
         case OpCodes.TABLE_SUBQUERY :
         case OpCodes.ROW_SUBQUERY :
 */
+        if (aggregateFunctionSet.contains(opType)) {
+            return false;
+        }
+
         if (nodes.length == 0) {
             return false;
         }

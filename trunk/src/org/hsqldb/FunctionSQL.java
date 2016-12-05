@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL standard function calls
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class FunctionSQL extends Expression {
@@ -296,14 +296,15 @@ public class FunctionSQL extends Expression {
             case FUNC_EXTRACT :
                 name      = Tokens.T_EXTRACT;
                 parseList = new short[] {
-                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 17, Tokens.YEAR,
+                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 20, Tokens.YEAR,
                     Tokens.MONTH, Tokens.DAY, Tokens.HOUR, Tokens.MINUTE,
                     Tokens.SECOND, Tokens.DAY_OF_WEEK, Tokens.WEEK_OF_YEAR,
                     Tokens.QUARTER, Tokens.DAY_OF_YEAR, Tokens.DAY_OF_MONTH,
                     Tokens.WEEK_OF_YEAR, Tokens.DAY_NAME, Tokens.MONTH_NAME,
                     Tokens.SECONDS_MIDNIGHT, Tokens.TIMEZONE_HOUR,
-                    Tokens.TIMEZONE_MINUTE, Tokens.FROM, Tokens.QUESTION,
-                    Tokens.CLOSEBRACKET
+                    Tokens.TIMEZONE_MINUTE, Tokens.MILLISECOND,
+                    Tokens.MICROSECOND, Tokens.NANOSECOND, Tokens.FROM,
+                    Tokens.QUESTION, Tokens.CLOSEBRACKET
                 };
                 break;
 
@@ -623,33 +624,7 @@ public class FunctionSQL extends Expression {
             case FUNC_POSITION_REGEX :
             */
             case FUNC_EXTRACT : {
-                if (data[1] == null) {
-                    return null;
-                }
-
-                int part = ((Number) nodes[0].valueData).intValue();
-
-                part = DTIType.getFieldNameTypeForToken(part);
-
-                switch (part) {
-
-                    case Types.SQL_INTERVAL_SECOND : {
-                        return ((DTIType) nodes[1].dataType).getSecondPart(
-                            data[1]);
-                    }
-                    case DTIType.MONTH_NAME :
-                    case DTIType.DAY_NAME : {
-                        return ((DateTimeType) nodes[1].dataType)
-                            .getPartString(session, data[1], part);
-                    }
-                    default : {
-                        int value =
-                            ((DTIType) nodes[1].dataType).getPart(session,
-                                data[1], part);
-
-                        return ValuePool.getInt(value);
-                    }
-                }
+                return getExtractValue(session, data);
             }
             case FUNC_CHAR_LENGTH : {
                 if (data[0] == null) {
@@ -1810,6 +1785,35 @@ public class FunctionSQL extends Expression {
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionSQL");
+        }
+    }
+
+    Object getExtractValue(Session session, Object[] data) {
+
+        if (data[1] == null) {
+            return null;
+        }
+
+        int part = ((Number) nodes[0].valueData).intValue();
+
+        part = DTIType.getFieldNameTypeForToken(part);
+
+        switch (part) {
+
+            case Types.SQL_INTERVAL_SECOND : {
+                return ((DTIType) nodes[1].dataType).getSecondPart(data[1]);
+            }
+            case DTIType.MONTH_NAME :
+            case DTIType.DAY_NAME : {
+                return ((DateTimeType) nodes[1].dataType).getPartString(
+                    session, data[1], part);
+            }
+            default : {
+                int value = ((DTIType) nodes[1].dataType).getPart(session,
+                    data[1], part);
+
+                return ValuePool.getInt(value);
+            }
         }
     }
 

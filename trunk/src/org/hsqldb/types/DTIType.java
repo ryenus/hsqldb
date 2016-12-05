@@ -124,7 +124,11 @@ public abstract class DTIType extends Type {
     public static final int MONTH_NAME      = Types.SQL_TYPE_NUMBER_LIMIT + 9;
     public static final int SECONDS_MIDNIGHT = Types.SQL_TYPE_NUMBER_LIMIT
         + 10;
-    public static final int ISO_YEAR = Types.SQL_TYPE_NUMBER_LIMIT + 11;
+    public static final int ISO_YEAR    = Types.SQL_TYPE_NUMBER_LIMIT + 11;
+    public static final int MILLISECOND = Types.SQL_TYPE_NUMBER_LIMIT + 12;
+    public static final int MICROSECOND = Types.SQL_TYPE_NUMBER_LIMIT + 13;
+    public static final int NANOSECOND  = Types.SQL_TYPE_NUMBER_LIMIT + 14;
+    public static final int TIMEZONE = Types.SQL_TYPE_NUMBER_LIMIT + 15;
 
     //
     public final int startIntervalType;
@@ -195,7 +199,7 @@ public abstract class DTIType extends Type {
             if (i == startPartIndex) {
                 int startDigits = precision == 0 ? 2
                                                  : (int) precision;
-                int zeros = startDigits - getPrecisionExponent(part);
+                int zeros       = startDigits - getPrecisionExponent(part);
 /*
                 for (int j = 0; j < zeros; j++) {
                     buffer.append('0');
@@ -288,6 +292,12 @@ public abstract class DTIType extends Type {
 
                 return Type.SQL_INTEGER;
 
+            // used for DATEPART function
+            case MILLISECOND :
+            case MICROSECOND :
+            case NANOSECOND :
+                return Type.SQL_BIGINT;
+
             case SECONDS_MIDNIGHT :
                 if (!isDateTimeType()
                         || endIntervalType < Types.SQL_INTERVAL_SECOND) {
@@ -296,6 +306,7 @@ public abstract class DTIType extends Type {
 
                 return Type.SQL_INTEGER;
 
+            case TIMEZONE :
             case TIMEZONE_HOUR :
             case TIMEZONE_MINUTE :
                 if (typeCode != Types.SQL_TIMESTAMP_WITH_TIME_ZONE
@@ -350,11 +361,23 @@ public abstract class DTIType extends Type {
             case Tokens.SECOND :
                 return Types.SQL_INTERVAL_SECOND;
 
+            case Tokens.MILLISECOND :
+                return MILLISECOND;
+
+            case Tokens.MICROSECOND :
+                return MICROSECOND;
+
+            case Tokens.NANOSECOND :
+                return NANOSECOND;
+
             case Tokens.TIMEZONE_HOUR :
                 return TIMEZONE_HOUR;
 
             case Tokens.TIMEZONE_MINUTE :
                 return TIMEZONE_MINUTE;
+
+            case Tokens.TIMEZONE :
+                return TIMEZONE;
 
             case Tokens.DAY_NAME :
                 return DAY_NAME;

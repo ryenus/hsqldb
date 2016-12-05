@@ -46,7 +46,7 @@ import org.hsqldb.types.Types;
  * Parser for SQL table definition
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class ParserTable extends ParserDML {
@@ -754,7 +754,7 @@ public class ParserTable extends ParserDML {
             }
         }
 
-        if(readIfThis(Tokens.NOT)) {
+        if (readIfThis(Tokens.NOT)) {
             readThis(Tokens.DEFERRABLE);
         }
 
@@ -1020,6 +1020,31 @@ public class ParserTable extends ParserDML {
 
         ColumnSchema column = new ColumnSchema(hsqlName, typeObject,
                                                isNullable, false, defaultExpr);
+
+        if (database.sqlSyntaxMys && typeObject.isDomainType()
+                && typeObject.getName().name.equals("ENUM")) {
+            typeObject.userTypeModifier = null;
+
+            HsqlName constName = database.nameManager.newAutoName("CT",
+                table.getSchemaName(), table.getName(),
+                SchemaObject.CONSTRAINT);
+            Constraint c = new Constraint(constName, null,
+                                          SchemaObject.ConstraintTypes.CHECK);
+
+            constraintList.add(c);
+            readThis(Tokens.OPENBRACKET);
+
+            Expression left  = new ExpressionColumn(column);
+            Expression right = super.XreadInValueListConstructor(1);
+
+            readThis(Tokens.CLOSEBRACKET);
+
+            ExpressionLogical in = new ExpressionLogical(OpTypes.IN, left,
+                right);
+
+            in.noOptimisation = true;
+            c.check           = in;
+        }
 
         column.setGeneratingExpression(generateExpr);
         readColumnConstraints(table, column, constraintList);

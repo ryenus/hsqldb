@@ -1207,24 +1207,32 @@ public final class IntervalType extends DTIType {
             case Types.SQL_INTERVAL_YEAR :
                 if (precision == DTIType.defaultIntervalPrecision) {
                     return SQL_INTERVAL_YEAR;
+                } else if (precision == DTIType.maxIntervalPrecision) {
+                    return SQL_INTERVAL_YEAR_MAX_PRECISION;
                 }
                 break;
 
             case Types.SQL_INTERVAL_YEAR_TO_MONTH :
                 if (precision == DTIType.defaultIntervalPrecision) {
                     return SQL_INTERVAL_YEAR_TO_MONTH;
+                } else if (precision == DTIType.maxIntervalPrecision) {
+                    return SQL_INTERVAL_YEAR_TO_MONTH_MAX_PRECISION;
                 }
                 break;
 
             case Types.SQL_INTERVAL_MONTH :
                 if (precision == DTIType.defaultIntervalPrecision) {
                     return SQL_INTERVAL_MONTH;
+                } else if (precision == DTIType.maxIntervalPrecision) {
+                    return SQL_INTERVAL_MONTH_MAX_PRECISION;
                 }
                 break;
 
             case Types.SQL_INTERVAL_DAY :
                 if (precision == DTIType.defaultIntervalPrecision) {
                     return SQL_INTERVAL_DAY;
+                } else if (precision == DTIType.maxIntervalPrecision) {
+                    return SQL_INTERVAL_DAY_MAX_PRECISION;
                 }
                 break;
 
@@ -1251,6 +1259,8 @@ public final class IntervalType extends DTIType {
             case Types.SQL_INTERVAL_HOUR :
                 if (precision == DTIType.defaultIntervalPrecision) {
                     return SQL_INTERVAL_HOUR;
+                } else if (precision == DTIType.maxIntervalPrecision) {
+                    return SQL_INTERVAL_HOUR_MAX_PRECISION;
                 }
                 break;
 
@@ -1263,6 +1273,8 @@ public final class IntervalType extends DTIType {
             case Types.SQL_INTERVAL_MINUTE :
                 if (precision == DTIType.defaultIntervalPrecision) {
                     return SQL_INTERVAL_MINUTE;
+                } else if (precision == DTIType.maxIntervalPrecision) {
+                    return SQL_INTERVAL_MINUTE_MAX_PRECISION;
                 }
                 break;
 
@@ -1595,6 +1607,15 @@ public final class IntervalType extends DTIType {
                 return part == startIntervalType ? (int) units
                                                  : (int) (units % 60);
             }
+            case MILLISECOND :
+                return ((IntervalSecondData) interval).nanos / 1000000;
+
+            case MICROSECOND :
+                return ((IntervalSecondData) interval).nanos / 1000;
+
+            case NANOSECOND :
+                return ((IntervalSecondData) interval).nanos;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "IntervalType");
         }

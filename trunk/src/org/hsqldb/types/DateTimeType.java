@@ -2307,16 +2307,34 @@ public final class DateTimeType extends DTIType {
                         && ((Session) session).database.sqlSyntaxOra) {
                     String pattern;
 
-                    if (s.length() == 9) {
-                        pattern = "DD-MON-YY";
-                    } else if (s.length() == 11) {
-                        pattern = "DD-MON-YYYY";
-                    } else if (s.length() == 20) {
-                        pattern = "DD-MON-YYYY HH24:MI:SS";
-                    } else if (s.length() > 20) {
-                        pattern = "DD-MON-YYYY HH24:MI:SS.FF";
-                    } else {
-                        break;
+                    switch (s.length()) {
+
+                        case 8 :
+                        case 9 : {
+                            pattern = "DD-MON-YY";
+
+                            break;
+                        }
+                        case 10 :
+                        case 11 : {
+                            pattern = "DD-MON-YYYY";
+
+                            break;
+                        }
+                        case 19 :
+                        case 20 : {
+                            pattern = "DD-MON-YYYY HH24:MI:SS";
+
+                            break;
+                        }
+                        default :
+
+                        // if (s.length() > 20)
+                        {
+                            pattern = "DD-MON-YYYY HH24:MI:SS.FF";
+
+                            break;
+                        }
                     }
 
                     SimpleDateFormat format = session.getSimpleDateFormatGMT();
@@ -2332,6 +2350,65 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIME :
             case Types.SQL_TIME_WITH_TIME_ZONE :
             default :
+        }
+
+        throw Error.error(ErrorCode.X_22007);
+    }
+
+    public static TimestampData nextDayOfWeek(Session session,
+            TimestampData d, int day) {
+
+        Calendar cal = session.getCalendarGMT();
+
+        cal.setTimeInMillis(d.getSeconds() * 1000);
+
+        int start = cal.get(Calendar.DAY_OF_WEEK);
+
+        if (start >= day) {
+            day += 7;
+        }
+
+        int diff = day - start;
+
+        cal.add(Calendar.DAY_OF_MONTH, diff);
+
+        long millis = cal.getTimeInMillis();
+
+        millis = HsqlDateTime.getNormalisedDate(cal, millis);
+
+        return new TimestampData(millis / 1000);
+    }
+
+    public static int getDayOfWeek(String name) {
+
+        int c = Character.toUpperCase(name.charAt(0));
+
+        switch (c) {
+
+            case 'M' :
+                return 2;
+
+            case 'T' :
+                if (Character.toUpperCase(name.charAt(1)) == 'U') {
+                    return 3;
+                } else if (Character.toUpperCase(name.charAt(1)) == 'H') {
+                    return 5;
+                }
+                break;
+
+            case 'W' :
+                return 4;
+
+            case 'F' :
+                return 6;
+
+            case 'S' :
+                if (Character.toUpperCase(name.charAt(1)) == 'A') {
+                    return 7;
+                } else if (Character.toUpperCase(name.charAt(1)) == 'U') {
+                    return 1;
+                }
+                break;
         }
 
         throw Error.error(ErrorCode.X_22007);

@@ -36,6 +36,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowIterator;
@@ -992,17 +993,13 @@ public final class Constraint implements SchemaObject {
         // to ensure no subselects etc. are in condition
         check.checkValidCheckConstraint();
 
-        if (table == null) {
-            check.resolveTypes(session, null);
-        } else {
-            QuerySpecification checkSelect = Expression.getCheckSelect(session,
-                table, check);
+        QuerySpecification checkSelect = Expression.getCheckSelect(session,
+            table, check);
 
-            rangeVariable = checkSelect.rangeVariables[0];
+        rangeVariable = checkSelect.rangeVariables[0];
 
-            // removes reference to the Index object in range variable
-            rangeVariable.setForCheckConstraint();
-        }
+        // removes reference to the Index object in range variable
+        rangeVariable.setForCheckConstraint();
 
         if (check.getType() == OpTypes.NOT
                 && check.getLeftNode().getType() == OpTypes.IS_NULL
@@ -1012,6 +1009,23 @@ public final class Constraint implements SchemaObject {
                 check.getLeftNode().getLeftNode().getColumnIndex();
             isNotNull = true;
         }
+    }
+
+    void prepareDomainCheckConstraint(Session session) {
+
+        // to ensure no subselects etc. are in condition
+        check.checkValidCheckConstraint();
+
+        HsqlList list = check.resolveColumnReferences(session,
+            RangeGroup.emptyGroup, 0, RangeGroup.emptyArray, null, false);
+
+        if (list != null) {
+            Expression e = ((Expression) list.get(0));
+
+            throw Error.error(ErrorCode.X_42501, e.getSQL());
+        }
+
+        check.resolveTypes(session, null);
     }
 
     void checkCheckConstraint(Session session, Table table) {

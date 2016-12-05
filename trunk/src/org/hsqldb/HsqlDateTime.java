@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  * timezone.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.7.0
  */
 public class HsqlDateTime {
@@ -69,8 +69,7 @@ public class HsqlDateTime {
      * A reusable static value for today's date. Should only be accessed
      * by getToday()
      */
-    public static Locale         defaultLocale = Locale.UK;
-    private static long          currentDateMillis;
+    public static Locale         defaultLocale  = Locale.UK;
     public static final Calendar tempCalDefault = new GregorianCalendar();
     public static final Calendar tempCalGMT =
         new GregorianCalendar(TimeZone.getTimeZone("GMT"), defaultLocale);
@@ -95,10 +94,6 @@ public class HsqlDateTime {
         sdfts.setCalendar(new GregorianCalendar(TimeZone.getTimeZone("GMT"),
                 defaultLocale));
         sdfts.setLenient(false);
-    }
-
-    static {
-        currentDateMillis = getNormalisedDate(System.currentTimeMillis());
     }
 
     public static long getDateSeconds(String s) {
@@ -157,15 +152,6 @@ public class HsqlDateTime {
 
             return sdfts.format(sysDate);
         }
-    }
-
-    public static synchronized long getCurrentDateMillis(long millis) {
-
-        if (millis - currentDateMillis >= 24 * 3600 * 1000) {
-            currentDateMillis = getNormalisedDate(millis);
-        }
-
-        return currentDateMillis;
     }
 
     private static java.util.Date sysDate = new java.util.Date();
@@ -249,17 +235,6 @@ public class HsqlDateTime {
         cal.setTimeInMillis(millis);
     }
 
-    /**
-     * Gets the time from the given Calendar as a milliseconds value; wrapper method to
-     * allow use of more efficient JDK1.4 method on JDK1.4 (was protected in earlier versions).
-     *
-     * @param       cal                             the Calendar
-     * @return      the time value in milliseconds
-     */
-    public static long getTimeInMillis(Calendar cal) {
-        return cal.getTimeInMillis();
-    }
-
     public static long convertToNormalisedTime(long t) {
         return convertToNormalisedTime(t, tempCalGMT);
     }
@@ -270,7 +245,7 @@ public class HsqlDateTime {
             setTimeInMillis(cal, t);
             resetToDate(cal);
 
-            long t1 = getTimeInMillis(cal);
+            long t1 = cal.getTimeInMillis();
 
             return t - t1;
         }
@@ -284,7 +259,7 @@ public class HsqlDateTime {
             setTimeInMillis(cal, t);
             resetToTime(cal);
 
-            return getTimeInMillis(cal);
+            return cal.getTimeInMillis();
         }
     }
 
@@ -294,7 +269,7 @@ public class HsqlDateTime {
             setTimeInMillis(cal, t);
             resetToTime(cal);
 
-            return getTimeInMillis(cal);
+            return cal.getTimeInMillis();
         }
     }
 
@@ -304,7 +279,7 @@ public class HsqlDateTime {
             setTimeInMillis(tempCalGMT, d);
             resetToDate(tempCalGMT);
 
-            return getTimeInMillis(tempCalGMT);
+            return tempCalGMT.getTimeInMillis();
         }
     }
 
@@ -314,7 +289,7 @@ public class HsqlDateTime {
             setTimeInMillis(cal, t);
             resetToDate(cal);
 
-            return getTimeInMillis(cal);
+            return cal.getTimeInMillis();
         }
     }
 
@@ -624,6 +599,8 @@ public class HsqlDateTime {
 
             if (weekOfYear == 1 && cal.get(Calendar.DAY_OF_YEAR) > 360) {
                 year++;
+            } else if (weekOfYear > 51 && cal.get(Calendar.DAY_OF_YEAR) < 4) {
+                year--;
             }
 
             String yearString = String.valueOf(year);
