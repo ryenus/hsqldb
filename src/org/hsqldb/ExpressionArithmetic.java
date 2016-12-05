@@ -451,33 +451,36 @@ public class ExpressionArithmetic extends Expression {
         }
 
         // datetime subtract - type predetermined
-        if (dataType != null && dataType.isIntervalType()) {
-            if (nodes[LEFT].dataType.isDateTimeType()
-                    && nodes[RIGHT].dataType.isDateTimeType()) {
-                if (nodes[LEFT].dataType.typeComparisonGroup
-                        != nodes[RIGHT].dataType.typeComparisonGroup) {
-                    throw Error.error(ErrorCode.X_42562);
-                }
-            } else {
-                Type type = nodes[LEFT].dataType.getCombinedType(session,
-                    nodes[RIGHT].dataType, opType);
-
-                if (type == null) {
-                    throw Error.error(ErrorCode.X_42562);
-                }
-
-                if (type.isIntervalType()) {
-                    if (type.typeCode != dataType.typeCode) {
+        if (dataType != null) {
+            if (dataType.isIntervalType()) {
+                if (nodes[LEFT].dataType.isDateTimeType()
+                        && nodes[RIGHT].dataType.isDateTimeType()) {
+                    if (nodes[LEFT].dataType.typeComparisonGroup
+                            != nodes[RIGHT].dataType.typeComparisonGroup) {
                         throw Error.error(ErrorCode.X_42562);
                     }
-                } else if (type.isNumberType()) {
-                    nodes[LEFT]  = new ExpressionOp(nodes[LEFT], dataType);
-                    nodes[RIGHT] = new ExpressionOp(nodes[RIGHT], dataType);
-
-                    nodes[LEFT].resolveTypes(session, this);
-                    nodes[RIGHT].resolveTypes(session, this);
                 } else {
-                    throw Error.error(ErrorCode.X_42562);
+                    Type type = nodes[LEFT].dataType.getCombinedType(session,
+                        nodes[RIGHT].dataType, opType);
+
+                    if (type == null) {
+                        throw Error.error(ErrorCode.X_42562);
+                    }
+
+                    if (type.isIntervalType()) {
+                        if (type.typeCode != dataType.typeCode) {
+                            throw Error.error(ErrorCode.X_42562);
+                        }
+                    } else if (type.isNumberType()) {
+                        nodes[LEFT] = new ExpressionOp(nodes[LEFT], dataType);
+                        nodes[RIGHT] = new ExpressionOp(nodes[RIGHT],
+                                                        dataType);
+
+                        nodes[LEFT].resolveTypes(session, this);
+                        nodes[RIGHT].resolveTypes(session, this);
+                    } else {
+                        throw Error.error(ErrorCode.X_42562);
+                    }
                 }
             }
         } else {

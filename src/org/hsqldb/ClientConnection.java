@@ -636,9 +636,10 @@ public class ClientConnection implements SessionInterface, Cloneable {
     public TimestampData getCurrentDate() {
 
         long currentMillis = System.currentTimeMillis();
-        long seconds = HsqlDateTime.getCurrentDateMillis(currentMillis) / 1000;
 
-        return new TimestampData(seconds);
+        currentMillis = HsqlDateTime.getNormalisedDate(currentMillis);
+
+        return new TimestampData(currentMillis / 1000);
     }
 
     public int getZoneSeconds() {

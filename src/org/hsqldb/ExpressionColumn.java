@@ -133,7 +133,7 @@ public class ExpressionColumn extends Expression {
     }
 
     /**
-     * Creates a temporary OpTypes.COLUMN expression
+     * Creates a temporary OpTypes.SIMPLE_COLUMN expression
      */
     ExpressionColumn(Expression e, int colIndex, int rangePosition) {
 
@@ -900,11 +900,11 @@ public class ExpressionColumn extends Expression {
     static void checkColumnsResolved(HsqlList set) {
 
         if (set != null && !set.isEmpty()) {
-            StringBuffer sb = new StringBuffer();
-            Expression   e  = (Expression) set.get(0);
+            Expression e = (Expression) set.get(0);
 
             if (e instanceof ExpressionColumn) {
-                ExpressionColumn c = (ExpressionColumn) e;
+                StringBuffer     sb = new StringBuffer();
+                ExpressionColumn c  = (ExpressionColumn) e;
 
                 if (c.schema != null) {
                     sb.append(c.schema + '.');

@@ -60,12 +60,13 @@ import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
+import org.hsqldb.types.UserTypeModifier;
 
 /**
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -184,27 +185,9 @@ public class ParserDQL extends ParserBase {
                                                 ClobType.defaultClobSize, 0);
                         }
                     case Tokens.NUMBER :
-                        read();
+                        typeNumber = Types.SQL_DECIMAL;
+                        break;
 
-                        if (token.tokenType == Tokens.OPENBRACKET) {
-                            read();
-
-                            int precision = readInteger();
-                            int scale     = 0;
-
-                            if (token.tokenType == Tokens.COMMA) {
-                                read();
-
-                                scale = readInteger();
-                            }
-
-                            readThis(Tokens.CLOSEBRACKET);
-
-                            return Type.getType(Types.SQL_DECIMAL, null, null,
-                                                precision, scale);
-                        } else {
-                            return Type.SQL_DECIMAL_DEFAULT;
-                        }
                     case Tokens.RAW :
                         typeNumber = Types.SQL_VARBINARY;
                         break;
@@ -227,6 +210,32 @@ public class ParserDQL extends ParserBase {
                 }
             }
 
+            if (database.sqlSyntaxMss) {
+                if (Tokens.T_MONEY.equals(token.tokenString)) {
+                    return Type.getType(Types.SQL_DECIMAL, null, null, 18, 4);
+                } else if (Tokens.T_UNIQUEIDENTIFIER.equals(
+                        token.tokenString)) {
+                    return Type.SQL_GUID;
+                } else if (Tokens.T_DATETIME2.equals(token.tokenString)) {
+                    typeNumber = Types.SQL_TIMESTAMP;
+                } else if (Tokens.T_IMAGE.equals(token.tokenString)) {
+                    typeNumber = Types.LONGVARBINARY;
+                } else if (Tokens.T_NTEXT.equals(token.tokenString)) {
+                    typeNumber = Types.LONGVARCHAR;
+                }
+
+                switch (token.tokenType) {
+
+                    case Tokens.DATETIMEOFFSET :
+                        typeNumber = Types.SQL_TIMESTAMP_WITH_TIME_ZONE;
+                        break;
+
+                    case Tokens.TEXT :
+                        typeNumber = Types.LONGVARCHAR;
+                        break;
+                }
+            }
+
             if (database.sqlSyntaxPgs) {
                 switch (token.tokenType) {
 
@@ -243,6 +252,9 @@ public class ParserDQL extends ParserBase {
 
             if (database.sqlSyntaxMys) {
                 switch (token.tokenType) {
+
+                    case Tokens.ENUM :
+                        return readMysEnum();
 
                     case Tokens.TINYTEXT :
                         typeNumber     = Types.VARCHAR;
@@ -325,7 +337,7 @@ public class ParserDQL extends ParserBase {
                 break;
 
             case Types.SQL_INTERVAL :
-                return readIntervalType(false);
+                return readIntervalType(session, false);
 
             default :
         }
@@ -401,6 +413,12 @@ public class ParserDQL extends ParserBase {
                         } else {
                             throw unexpectedToken(token.getFullString());
                         }
+                    case Tokens.MAX :
+                        if (database.sqlSyntaxMss) {
+                            token.tokenValue = Long.valueOf(Integer.MAX_VALUE);
+
+                            break;
+                        }
                     default :
                         throw unexpectedToken();
                 }
@@ -435,6 +453,16 @@ public class ParserDQL extends ParserBase {
                     scale = readInteger();
 
                     if (scale < 0) {
+                        if (typeNumber == Types.SQL_DECIMAL
+                                && database.sqlSyntaxOra) {
+
+                            //
+                        } else {
+                            throw Error.error(ErrorCode.X_42592);
+                        }
+                    }
+
+                    if (typeNumber == Types.SQL_DECIMAL && scale > length) {
                         throw Error.error(ErrorCode.X_42592);
                     }
 
@@ -651,6 +679,22 @@ public class ParserDQL extends ParserBase {
         }
 
         return typeObject;
+    }
+
+    Type readMysEnum() {
+
+        read();
+        checkIsThis(Tokens.OPENBRACKET);
+
+        HsqlName name = database.nameManager.newHsqlName("ENUM", false,
+            SchemaObject.DOMAIN);
+        Type t = Type.getType(Types.SQL_VARCHAR, null, null, 32, 0);
+        UserTypeModifier m = new UserTypeModifier(name, SchemaObject.DOMAIN,
+            t);
+
+        t.userTypeModifier = m;
+
+        return t;
     }
 
     void readSimpleColumnNames(OrderedHashSet columns, RangeVariable rangeVar,
@@ -1228,7 +1272,6 @@ public class ParserDQL extends ParserBase {
 
         if (token.tokenType == Tokens.DISTINCT) {
             select.setDistinctSelect();
-
             read();
         } else if (token.tokenType == Tokens.ALL) {
             read();
@@ -2054,20 +2097,28 @@ public class ParserDQL extends ParserBase {
         return range;
     }
 
-    private Expression readAggregate() {
+    private Expression readAggregateFunctionOrNull() {
 
-        int        tokenT = token.tokenType;
-        Expression e;
+        int        position = getPosition();
+        int        tokenT   = token.tokenType;
+        Expression expr;
 
         read();
+
+        if (token.tokenType != Tokens.OPENBRACKET) {
+            rewind(position);
+
+            return null;
+        }
+
         readThis(Tokens.OPENBRACKET);
 
-        e = readAggregateExpression(tokenT);
+        expr = readAggregateExpression(tokenT);
 
         readThis(Tokens.CLOSEBRACKET);
-        readFilterClause(e);
+        readFilterClause(expr);
 
-        return e;
+        return expr;
     }
 
     private void readFilterClause(Expression e) {
@@ -2656,8 +2707,15 @@ public class ParserDQL extends ParserBase {
                 break;
             }
             case Tokens.CAST :
-            case Tokens.CONVERT : {
                 e = readCastExpressionOrNull();
+
+                if (e != null) {
+                    return e;
+                }
+                break;
+
+            case Tokens.CONVERT : {
+                e = readConvertExpressionOrNull();
 
                 if (e != null) {
                     return e;
@@ -2694,7 +2752,12 @@ public class ParserDQL extends ParserBase {
             case Tokens.GROUP_CONCAT :
             case Tokens.ARRAY_AGG :
             case Tokens.MEDIAN :
-                return readAggregate();
+                e = readAggregateFunctionOrNull();           // general set function
+
+                if (e != null) {
+                    return e;
+                }
+                break;
 
             case Tokens.NEXT : {
                 e = readSequenceExpressionOrNull(OpTypes.SEQUENCE);
@@ -2748,8 +2811,8 @@ public class ParserDQL extends ParserBase {
                     readThis(Tokens.OPENBRACKET);
                     readThis(Tokens.CLOSEBRACKET);
 
-                    return FunctionCustom.newCustomFunction(Tokens.T_IDENTITY,
-                            Tokens.IDENTITY);
+                    return FunctionCustom.newCustomFunction(session,
+                            Tokens.T_IDENTITY, Tokens.IDENTITY);
                 }
 
                 break;
@@ -2942,7 +3005,8 @@ public class ParserDQL extends ParserBase {
                         case Tokens.HOUR :
                         case Tokens.MINUTE :
                         case Tokens.SECOND : {
-                            IntervalType type = readIntervalType(false);
+                            IntervalType type = readIntervalType(session,
+                                                                 false);
 
                             if (e1.getType() == OpTypes.SUBTRACT) {
                                 e1.dataType = type;
@@ -2966,7 +3030,7 @@ public class ParserDQL extends ParserBase {
             case Tokens.HOUR :
             case Tokens.MINUTE :
             case Tokens.SECOND : {
-                IntervalType type = readIntervalType(true);
+                IntervalType type = readIntervalType(session, true);
 
                 if (e.getType() == OpTypes.SUBTRACT) {
                     e.dataType = type;
@@ -3495,14 +3559,14 @@ public class ParserDQL extends ParserBase {
                 break;
 
             case Tokens.SYSTIMESTAMP :
-                if (!database.sqlSyntaxOra) {
-                    return null;
-                }
             case Tokens.NOW :
             case Tokens.TODAY :
             case Tokens.SYSDATE :
-                function = FunctionCustom.newCustomFunction(token.tokenString,
-                        token.tokenType);
+                function = FunctionCustom.newCustomFunction(session,
+                        token.tokenString, token.tokenType);
+                if (function == null) {
+                    return null;
+                }
                 break;
 
             default :
@@ -4847,7 +4911,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    private Expression XreadInValueListConstructor(int degree) {
+    Expression XreadInValueListConstructor(int degree) {
 
         int position = getPosition();
 
@@ -5283,47 +5347,62 @@ public class ParserDQL extends ParserBase {
      */
     private Expression readCastExpressionOrNull() {
 
-        boolean    isConvert = token.tokenType == Tokens.CONVERT;
+        Expression e;
+        Type       typeObject;
+        int        position = getPosition();
+
+        read();
+        readThis(Tokens.OPENBRACKET);
+
+        e = XreadValueExpressionOrNull();
+
+        readThis(Tokens.AS);
+
+        typeObject = readTypeDefinition(false, true);
+
+        if (e.isUnresolvedParam()) {
+            e.setDataType(session, typeObject);
+        } else {
+            e = new ExpressionOp(e, typeObject);
+        }
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        return e;
+    }
+
+    private Expression readConvertExpressionOrNull() {
+
         Expression e;
         Type       typeObject;
         int        position = getPosition();
 
         read();
 
-        if (isConvert) {
-            if (!readIfThis(Tokens.OPENBRACKET)) {
-                rewind(position);
+        if (!readIfThis(Tokens.OPENBRACKET)) {
+            rewind(position);
 
-                return null;
-            }
+            return null;
+        }
 
-            if (database.sqlSyntaxMss) {
-                typeObject = readTypeDefinition(false, true);
+        if (database.sqlSyntaxMss) {
+            typeObject = readTypeDefinition(false, true);
 
-                readThis(Tokens.COMMA);
-
-                e = XreadValueExpressionOrNull();
-            } else {
-                e = XreadValueExpressionOrNull();
-
-                readThis(Tokens.COMMA);
-
-                typeObject = Type.getTypeForJDBCConvertToken(token.tokenType);
-
-                if (typeObject == null) {
-                    typeObject = readTypeDefinition(false, true);
-                } else {
-                    read();
-                }
-            }
-        } else {
-            readThis(Tokens.OPENBRACKET);
+            readThis(Tokens.COMMA);
 
             e = XreadValueExpressionOrNull();
+        } else {
+            e = XreadValueExpressionOrNull();
 
-            readThis(Tokens.AS);
+            readThis(Tokens.COMMA);
 
-            typeObject = readTypeDefinition(false, true);
+            typeObject = Type.getTypeForJDBCConvertToken(token.tokenType);
+
+            if (typeObject == null) {
+                typeObject = readTypeDefinition(false, true);
+            } else {
+                read();
+            }
         }
 
         if (e.isUnresolvedParam()) {
@@ -5349,46 +5428,10 @@ public class ParserDQL extends ParserBase {
         checkIsIdentifier();
 
         if (isUndelimitedSimpleName()) {
-            int tokenType = token.tokenType;
-            FunctionSQL function =
-                FunctionCustom.newCustomFunction(token.tokenString,
-                                                 token.tokenType);
+            Expression e = readFunction();
 
-            if (function != null && tokenType == Tokens.SYSTIMESTAMP) {
-                if (!database.sqlSyntaxOra) {
-                    function = null;
-                }
-            }
-
-            if (function != null) {
-                int pos = getPosition();
-
-                try {
-                    Expression e = readSQLFunction(function);
-
-                    if (e != null) {
-                        return e;
-                    }
-                } catch (HsqlException ex) {
-                    ex.setLevel(compileContext.subqueryDepth);
-
-                    if (lastError == null
-                            || lastError.getLevel() < ex.getLevel()) {
-                        lastError = ex;
-                    }
-
-                    rewind(pos);
-                }
-            } else if (isReservedKey()) {
-                function = FunctionSQL.newSQLFunction(name, compileContext);
-
-                if (function != null) {
-                    Expression e = readSQLFunction(function);
-
-                    if (e != null) {
-                        return e;
-                    }
-                }
+            if (e != null) {
+                return e;
             }
         }
 
@@ -5483,6 +5526,46 @@ public class ParserDQL extends ParserBase {
         recordedToken.setExpression(routineSchema);
 
         return function;
+    }
+
+    Expression readFunction() {
+
+        FunctionSQL function = FunctionCustom.newCustomFunction(session,
+            token.tokenString, token.tokenType);
+
+        if (function != null) {
+            int pos = getPosition();
+
+            try {
+                Expression e = readSQLFunction(function);
+
+                if (e != null) {
+                    return e;
+                }
+            } catch (HsqlException ex) {
+                ex.setLevel(compileContext.subqueryDepth);
+
+                if (lastError == null
+                        || lastError.getLevel() < ex.getLevel()) {
+                    lastError = ex;
+                }
+
+                rewind(pos);
+            }
+        } else if (isReservedKey()) {
+            function = FunctionSQL.newSQLFunction(token.tokenString,
+                                                  compileContext);
+
+            if (function != null) {
+                Expression e = readSQLFunction(function);
+
+                if (e != null) {
+                    return e;
+                }
+            }
+        }
+
+        return null;
     }
 
     Expression readCollection(int type) {
@@ -5956,7 +6039,6 @@ public class ParserDQL extends ParserBase {
                     }
 
                     throw unexpectedToken();
-
                 }
                 case Tokens.X_POS_INTEGER : {
                     Expression e     = null;
@@ -6526,6 +6608,10 @@ public class ParserDQL extends ParserBase {
                     colNames = new OrderedHashSet();
 
                     readColumnNameList(colNames, null, false);
+                }
+
+                if (database.sqlSyntaxOra) {
+                    readIfThis(Tokens.NOWAIT);
                 }
             }
         }

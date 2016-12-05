@@ -1136,7 +1136,7 @@ public class ParserDDL extends ParserRoutine {
         for (int i = 0; i < tempConstraints.size(); i++) {
             Constraint c = (Constraint) tempConstraints.get(i);
 
-            c.prepareCheckConstraint(session, null);
+            c.prepareDomainCheckConstraint(session);
             userTypeModifier.addConstraint(c);
         }
 

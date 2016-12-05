@@ -74,6 +74,7 @@ public class ExpressionAggregate extends Expression {
 
             case OpTypes.COUNT :
                 sb.append(' ').append(Tokens.T_COUNT).append('(');
+                sb.append(left).append(')');
                 break;
 
             case OpTypes.SUM :
@@ -295,8 +296,8 @@ public class ExpressionAggregate extends Expression {
     /**
      * Get the result of a SetFunction or an ordinary value
      *
+     * @param session session
      * @param currValue instance of set function or value
-     * @param session context
      * @return object
      */
     public Object getAggregatedValue(Session session, Object currValue) {

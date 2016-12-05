@@ -647,7 +647,7 @@ public class ParserBase {
 
                 read();
 
-                IntervalType dataType = readIntervalType(false);
+                IntervalType dataType = readIntervalType(session, false);
                 Object       interval = scanner.newInterval(s, dataType);
 
                 dataType = (IntervalType) scanner.dateTimeType;
@@ -667,14 +667,19 @@ public class ParserBase {
         return null;
     }
 
-    IntervalType readIntervalType(boolean maxPrecisionDefault) {
+    IntervalType readIntervalType(Session session,
+                                  boolean maxPrecisionDefault) {
 
-        int precision = -1;
-        int scale     = -1;
-        int startToken;
-        int endToken;
+        int    precision = -1;
+        int    scale     = -1;
+        int    startToken;
+        int    endToken;
+        String startTokenString;
+        int    startIndex = -1;
+        int    endIndex   = -1;
 
-        startToken = endToken = token.tokenType;
+        startToken       = endToken = token.tokenType;
+        startTokenString = token.tokenString;
 
         read();
 
@@ -728,10 +733,9 @@ public class ParserBase {
             readThis(Tokens.CLOSEBRACKET);
         }
 
-        int startIndex = ArrayUtil.find(Tokens.SQL_INTERVAL_FIELD_CODES,
-                                        startToken);
-        int endIndex = ArrayUtil.find(Tokens.SQL_INTERVAL_FIELD_CODES,
-                                      endToken);
+        startIndex = ArrayUtil.find(Tokens.SQL_INTERVAL_FIELD_CODES,
+                                    startToken);
+        endIndex = ArrayUtil.find(Tokens.SQL_INTERVAL_FIELD_CODES, endToken);
 
         if (precision == -1 && maxPrecisionDefault) {
             if (startIndex == IntervalType.INTERVAL_SECOND_INDEX) {
@@ -739,6 +743,16 @@ public class ParserBase {
             } else {
                 precision = IntervalType.maxIntervalPrecision;
             }
+        }
+
+        if (startIndex == -1 && session.database.sqlSyntaxMys) {
+            int type = FunctionCustom.getSQLTypeForToken(startTokenString);
+            int startType = IntervalType.getStartIntervalType(type);
+            int endType   = IntervalType.getEndIntervalType(type);
+
+            return IntervalType.getIntervalType(
+                type, startType, endType, IntervalType.maxIntervalPrecision,
+                IntervalType.maxFractionPrecision, true);
         }
 
         return IntervalType.getIntervalType(startIndex, endIndex, precision,
@@ -788,6 +802,14 @@ public class ParserBase {
     }
 
     HsqlException unexpectedToken(String tokenS) {
+        return Error.parseError(ErrorCode.X_42581, tokenS,
+                                scanner.getLineNumber());
+    }
+
+    HsqlException unexpectedToken(int token) {
+
+        String tokenS = Tokens.getKeyword(token);
+
         return Error.parseError(ErrorCode.X_42581, tokenS,
                                 scanner.getLineNumber());
     }

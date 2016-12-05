@@ -106,6 +106,11 @@ public class StatementSession extends Statement {
                     e.setDataType(session, Type.SQL_INTERVAL_HOUR_TO_MINUTE);
                 }
 
+                if (e.dataType.isCharacterType()) {
+                    e = new ExpressionOp(e, Type.SQL_INTERVAL_HOUR_TO_MINUTE);
+                    expressions[0] = e;
+                }
+
                 if (e.dataType.typeCode != Types.SQL_INTERVAL_HOUR_TO_MINUTE) {
                     throw Error.error(ErrorCode.X_42563);
                 }
