@@ -895,6 +895,7 @@ class TestBench {
                     aBalance = RS.getInt(1);
                 }
 
+                RS.close();
                 pstmt3.setInt(1, delta);
                 pstmt3.setInt(2, tid);
                 pstmt3.executeUpdate();
@@ -973,7 +974,7 @@ class TestBench {
 
             while (count-- > 0) {
                 int account = TestBench.getRandomID(ACCOUNT);
-                int branch  = TestBench.getRandomID(BRANCH);
+                int branch  = account / naccounts;
                 int teller  = TestBench.getRandomID(TELLER);
                 int delta   = TestBench.getRandomInt(-1000, 1000);
 
@@ -1014,14 +1015,18 @@ class TestBench {
                 pstmt1.setInt(3, bid);
                 pstmt1.setInt(4, delta);
                 pstmt1.execute();
+                pstmt1.getUpdateCount();
 
-                ResultSet rs = pstmt1.getResultSet();
+                if (pstmt1.getMoreResults()) {
+                    ResultSet rs = pstmt1.getResultSet();
 
-                while (rs.next()) {
-                    aBalance = rs.getInt(1);
+                    while (rs.next()) {
+                        aBalance = rs.getInt(1);
+                    }
+
+                    rs.close();
                 }
 
-                rs.close();
                 pstmt1.clearWarnings();
                 Conn.commit();
 
