@@ -1337,6 +1337,12 @@ public final class DateTimeType extends DTIType {
                 } else {
                     return ((TimeData) dateTime).getZone() / 60 % 60;
                 }
+            case TIMEZONE :
+                if (typeCode == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
+                    return ((TimestampData) dateTime).getZone() / 60;
+                } else {
+                    return ((TimeData) dateTime).getZone() / 60;
+                }
             case QUARTER :
                 increment    = 1;
                 divisor      = 3;
@@ -1347,6 +1353,18 @@ public final class DateTimeType extends DTIType {
                 calendarPart = Calendar.DAY_OF_YEAR;
                 break;
 
+            case MILLISECOND :
+                if (this.isDateOrTimestampType()) {
+                    return ((TimestampData) dateTime).getNanos() / 1000000;
+                } else {
+                    return ((TimeData) dateTime).getNanos() / 1000000;
+                }
+            case NANOSECOND :
+                if (this.isDateOrTimestampType()) {
+                    return ((TimestampData) dateTime).getNanos();
+                } else {
+                    return ((TimeData) dateTime).getNanos();
+                }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "DateTimeType - " + part);
@@ -2342,7 +2360,7 @@ public final class DateTimeType extends DTIType {
                     return HsqlDateTime.toDate(s, pattern, format);
                 }
 
-            //
+            // fall through
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
 
             //

@@ -1257,12 +1257,14 @@ class DatabaseInformationMain extends DatabaseInformation {
      * ORDINAL_POSITION SMALLINT  column sequence number within index
      * COLUMN_NAME      VARCHAR   simple column name
      * ASC_OR_DESC      VARCHAR   col. sort sequence: {"A" (Asc) | "D" (Desc)}
-     * CARDINALITY      INTEGER   # of unique values in index (not implemented)
-     * PAGES            INTEGER   index page use (not implemented)
+     * CARDINALITY      BIGINT    # of unique values in index (not implemented)
+     * PAGES            BIGINT    index page use (not implemented)
      * FILTER_CONDITION VARCHAR   filter condition, if any (not implemented)
      * // HSQLDB-extension
      * ROW_CARDINALITY  INTEGER   total # of rows in index (not implemented)
      * </pre> <p>
+     *
+     * CARDINALITY and PAGES columns are BIGINT instead of INT since 2.3.5
      *
      * @return a <code>Table</code> object describing the visible
      *        <code>Index</code> objects for each accessible
@@ -1286,8 +1288,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "ORDINAL_POSITION", Type.SQL_SMALLINT);    // NOT NULL
             addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);
             addColumn(t, "ASC_OR_DESC", CHARACTER_DATA);
-            addColumn(t, "CARDINALITY", Type.SQL_INTEGER);
-            addColumn(t, "PAGES", Type.SQL_INTEGER);
+            addColumn(t, "CARDINALITY", CARDINAL_NUMBER);
+            addColumn(t, "PAGES", CARDINAL_NUMBER);
             addColumn(t, "FILTER_CONDITION", CHARACTER_DATA);
 
             // HSQLDB extension

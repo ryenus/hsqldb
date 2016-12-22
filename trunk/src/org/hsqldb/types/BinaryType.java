@@ -46,7 +46,7 @@ import org.hsqldb.lib.StringConverter;
  * SQL:2008 Standard  specifies silent truncation of zero bytes at the end of the
  * binary strings used for assignment and concatenation.<p>
  *
- * * A binary string of type BINARY VALYING and BLOB when assigned to a column
+ * * A binary string of type BINARY VARYING and BLOB when assigned to a column
  * of similar type but shorter maximum length.<p>
  *
  * * The Second operand of a concatenation when the length of the result exceeds

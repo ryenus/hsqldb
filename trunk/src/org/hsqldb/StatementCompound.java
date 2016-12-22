@@ -746,6 +746,11 @@ public class StatementCompound extends Statement implements RangeGroup {
             }
         }
 
+        if (loopCursor != null) {
+            set.addAll(loopCursor.getReferences());
+            readTableNamesSet.addAll(loopCursor.getTableNamesForRead());
+        }
+
         if (condition != null) {
             set.addAll(condition.getReferences());
             readTableNamesSet.addAll(condition.getTableNamesForRead());

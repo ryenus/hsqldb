@@ -95,7 +95,9 @@ public class BinaryData implements BlobData {
 
         long length = (b1.length(session) + b2.length(session));
 
-        if (length > Integer.MAX_VALUE) {
+        if (length > Integer.MAX_VALUE
+                || b1.length(session) > Integer.MAX_VALUE
+                || b2.length(session) > Integer.MAX_VALUE) {
             throw Error.error(ErrorCode.X_22001);
         }
 

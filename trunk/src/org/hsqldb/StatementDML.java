@@ -417,11 +417,18 @@ public class StatementDML extends StatementDMQL {
             case ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES :
                 String[] columnNames = meta.getGeneratedColumnNames();
 
-                generatedIndexes = baseTable.getColumnIndexes(columnNames);
+                generatedIndexes = baseTable.findColumnIndexes(columnNames);
 
                 for (int i = 0; i < generatedIndexes.length; i++) {
                     if (generatedIndexes[i] < 0) {
-                        throw Error.error(ErrorCode.X_42501, columnNames[0]);
+                        String upperName = columnNames[i].toUpperCase();
+
+                        generatedIndexes[i] = baseTable.findColumn(upperName);
+
+                        if (generatedIndexes[i] < 0) {
+                            throw Error.error(ErrorCode.X_42501,
+                                              columnNames[0]);
+                        }
                     }
                 }
                 break;

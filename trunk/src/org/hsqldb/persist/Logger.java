@@ -1956,6 +1956,7 @@ public class Logger implements EventLogInterface {
         sb.append(' ').append(Tokens.T_TYPES).append(' ');
         sb.append(database.sqlTranslateTTI ? Tokens.T_TRUE
                                            : Tokens.T_FALSE);
+
         if (!database.sqlCharLiteral) {
             list.add(sb.toString());
             sb.setLength(0);
@@ -1963,7 +1964,7 @@ public class Logger implements EventLogInterface {
             sb.append(Tokens.T_CHARACTER).append(' ');
             sb.append(Tokens.T_LITERAL).append(' ');
             sb.append(database.sqlCharLiteral ? Tokens.T_TRUE
-                      : Tokens.T_FALSE);
+                                              : Tokens.T_FALSE);
         }
 
         list.add(sb.toString());
@@ -2366,6 +2367,8 @@ public class Logger implements EventLogInterface {
                             dataFileCache.getShadowFile();
 
                         if (shadowFile == null) {
+
+                            // non-incremental backup - ignore .data file
                             backup.setFileIgnore(dataFileExtension);
                         } else {
                             file = new File(dataFileCache.dataFileName);

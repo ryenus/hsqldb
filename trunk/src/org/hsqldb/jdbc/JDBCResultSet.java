@@ -38,9 +38,13 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.sql.Array;
+import java.sql.BatchUpdateException;
 import java.sql.Blob;
 import java.sql.Clob;
+import java.sql.Connection;
 import java.sql.Date;
+import java.sql.ParameterMetaData;
+import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -49,15 +53,28 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Map;
+import java.util.UUID;
 
 //#ifdef JAVA6
 import java.sql.NClob;
 import java.sql.RowId;
 import java.sql.SQLXML;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.SQLTimeoutException;
 
 //#endif JAVA6
+
+//#ifdef JAVA8
+/*
+import java.sql.JDBCType;
+import java.sql.SQLType;
+*/
+
+//#endif JAVA8
+
 import org.hsqldb.ColumnBase;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.HsqlDateTime;
@@ -269,43 +286,6 @@ import org.hsqldb.types.Types;
  * SELECT A, B FROM T WHERE ...
  * </pre>
  *
- * <b>JRE 1.1.x Notes:</b> <p>
- *
- * In general, JDBC 2 support requires Java 1.2 and above, and JDBC 3 requires
- * Java 1.4 and above. In HSQLDB, support for methods introduced in different
- * versions of JDBC depends on the JDK version used for compiling and building
- * HSQLDB.<p>
- *
- * Since 1.7.0, it is possible to build the product so that
- * all JDBC 2 methods can be called while executing under the version 1.1.x
- * <em>Java Runtime Environment</em><sup><font size="-2">TM</font></sup>.
- * However, some of these method calls require <code>int</code> values that
- * are defined only in the JDBC 2 or greater version of the
- * {@link java.sql.ResultSet ResultSet} interface.  For this reason, when the
- * product is compiled under JDK 1.1.x, these values are defined here, in this
- * class. <p>
- *
- * In a JRE 1.1.x environment, calling JDBC 2 methods that take or return the
- * JDBC2-only <code>ResultSet</code> values can be achieved by referring
- * to them in parameter specifications and return value comparisons,
- * respectively, as follows: <p>
- *
- * <pre class="JavaCodeExample">
- * JDBCResultSet.FETCH_FORWARD
- * JDBCResultSet.TYPE_FORWARD_ONLY
- * JDBCResultSet.TYPE_SCROLL_INSENSITIVE
- * JDBCResultSet.CONCUR_READ_ONLY
- * // etc.
- * </pre>
- *
- * However, please note that code written in such a manner will not be
- * compatible for use with other JDBC 2 drivers, since they expect and use
- * <code>ResultSet</code>, rather than <code>JDBCResultSet</code>.  Also
- * note, this feature is offered solely as a convenience to developers
- * who must work under JDK 1.1.x due to operating constraints, yet wish to
- * use some of the more advanced features available under the JDBC 2
- * specification.<p>
- *
  * (fredt@users) <br>
  * (boucherb@users)<p>
  *
@@ -316,9 +296,11 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.0
  * @since HSQLDB 1.9.0
- * @revised JDK 7, HSQLDB 2.0.1
+ * @revised JDK 1.6, HSQLDB 2.0
+ * @revised JDK 1.7, HSQLDB 2.0.1
+ * @revised JDK 1.8, HSQLDB 2.4.0
  */
 public class JDBCResultSet implements ResultSet {
 
@@ -4145,8 +4127,6 @@ public class JDBCResultSet implements ResultSet {
         performDelete();
     }
 
-    /** @todo - fredt - implement */
-
     /**
      * <!-- start generic documentation -->
      * Refreshes the current row with its most recent value in
@@ -7006,12 +6986,9 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-//#ifdef JAVA5
     public <T>T getObject(int columnIndex, Class<T> type) throws SQLException {
         return (T) getObject(columnIndex);
     }
-
-//#endif
 
     /**
      * <p>Retrieves the value of the designated column in the current row
@@ -7040,13 +7017,177 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-//#ifdef JAVA5
     public <T>T getObject(String columnLabel,
                           Class<T> type) throws SQLException {
         return getObject(findColumn(columnLabel), type);
     }
 
+//------------------------- JDBC 4.2 -----------------------------------
+
+    /**
+     * Updates the designated column with an {@code Object} value.
+     *
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not
+     * update the underlying database; instead the {@code updateRow} or
+     * {@code insertRow} methods are called to update the database.
+     *<p>
+     * If the second argument is an {@code InputStream} then the stream must contain
+     * the number of bytes specified by scaleOrLength.  If the second argument is a
+     * {@code Reader} then the reader must contain the number of characters specified
+     * by scaleOrLength. If these conditions are not true the driver will generate a
+     * {@code SQLException} when the statement is executed.
+     *<p>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param x the new column value
+     * @param targetSqlType the SQL type to be sent to the database
+     * @param scaleOrLength for an object of {@code java.math.BigDecimal} ,
+     *          this is the number of digits after the decimal point. For
+     *          Java Object types {@code InputStream} and {@code Reader},
+     *          this is the length
+     *          of the data in the stream or reader.  For all other types,
+     *          this value will be ignored.
+     * @exception SQLException if the columnIndex is not valid;
+     * if a database access error occurs;
+     * the result set concurrency is {@code CONCUR_READ_ONLY}
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not
+     * support this method; if the JDBC driver does not support the specified targetSqlType
+     * @see JDBCType
+     * @see SQLType
+     * @since 1.8
+     */
+//#ifdef JAVA8
+/*
+    public void updateObject(int columnIndex, Object x,
+                              SQLType targetSqlType, int scaleOrLength)  throws SQLException {
+        startUpdate(columnIndex);
+        preparedStatement.setObject(columnIndex, x, targetSqlType, scaleOrLength);
+    }
+*/
+
 //#endif
+
+    /**
+     * Updates the designated column with an {@code Object} value.
+     *
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not
+     * update the underlying database; instead the {@code updateRow} or
+     * {@code insertRow} methods are called to update the database.
+     *<p>
+     * If the second argument is an {@code InputStream} then the stream must
+     * contain number of bytes specified by scaleOrLength.  If the second
+     * argument is a {@code Reader} then the reader must contain the number
+     * of characters specified by scaleOrLength. If these conditions are not
+     * true the driver will generate a
+     * {@code SQLException} when the statement is executed.
+     *<p>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param columnLabel the label for the column specified with the SQL AS
+     * clause.  If the SQL AS clause was not specified, then the label is
+     * the name of the column
+     * @param x the new column value
+     * @param targetSqlType the SQL type to be sent to the database
+     * @param scaleOrLength for an object of {@code java.math.BigDecimal} ,
+     *          this is the number of digits after the decimal point. For
+     *          Java Object types {@code InputStream} and {@code Reader},
+     *          this is the length
+     *          of the data in the stream or reader.  For all other types,
+     *          this value will be ignored.
+     * @exception SQLException if the columnLabel is not valid;
+     * if a database access error occurs;
+     * the result set concurrency is {@code CONCUR_READ_ONLY}
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not
+     * support this method; if the JDBC driver does not support the specified targetSqlType
+     * @see JDBCType
+     * @see SQLType
+     * @since 1.8
+     */
+//#ifdef JAVA8
+/*
+    public  void updateObject(String columnLabel, Object x,
+                              SQLType targetSqlType, int scaleOrLength) throws SQLException {
+        updateObject(findColumn(columnLabel), x, targetSqlType, scaleOrLength);
+    }
+*/
+
+//#endif
+
+    /**
+     * Updates the designated column with an {@code Object} value.
+     *
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not
+     * update the underlying database; instead the {@code updateRow} or
+     * {@code insertRow} methods are called to update the database.
+     *<p>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param x the new column value
+     * @param targetSqlType the SQL type to be sent to the database
+     * @exception SQLException if the columnIndex is not valid;
+     * if a database access error occurs;
+     * the result set concurrency is {@code CONCUR_READ_ONLY}
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not
+     * support this method; if the JDBC driver does not support the specified targetSqlType
+     * @see JDBCType
+     * @see SQLType
+     * @since 1.8
+     */
+
+//#ifdef JAVA8
+/*
+    public void updateObject(int columnIndex, Object x, SQLType targetSqlType)
+            throws SQLException {
+        preparedStatement.setObject(columnIndex, x, targetSqlType);
+    }
+*/
+
+//#endif
+
+    /**
+     * Updates the designated column with an {@code Object} value.
+     *
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not
+     * update the underlying database; instead the {@code updateRow} or
+     * {@code insertRow} methods are called to update the database.
+     *<p>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param columnLabel the label for the column specified with the SQL AS
+     * clause.  If the SQL AS clause was not specified, then the label is
+     * the name of the column
+     * @param x the new column value
+     * @param targetSqlType the SQL type to be sent to the database
+     * @exception SQLException if the columnLabel is not valid;
+     * if a database access error occurs;
+     * the result set concurrency is {@code CONCUR_READ_ONLY}
+     * or this method is called on a closed result set
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not
+     * support this method; if the JDBC driver does not support the specified targetSqlType
+     * @see JDBCType
+     * @see SQLType
+     * @since 1.8
+     */
+
+//#ifdef JAVA8
+/*
+    public void updateObject(String columnLabel, Object x,
+                              SQLType targetSqlType) throws SQLException {
+        updateObject(findColumn(columnLabel), x, targetSqlType);
+    }
+*/
+
+//#endif
+
 //------------------------ Internal Implementation -----------------------------
 
     /** The internal representation. */

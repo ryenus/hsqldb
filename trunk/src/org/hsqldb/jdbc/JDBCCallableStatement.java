@@ -52,9 +52,19 @@ import java.util.Map;
 //#ifdef JAVA6
 import java.sql.NClob;
 import java.sql.RowId;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLXML;
 
 //#endif JAVA6
+
+//#ifdef JAVA8
+/*
+import java.sql.JDBCType;
+import java.sql.SQLType;
+*/
+
+//#endif JAVA8
+
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlDateTime;
@@ -74,7 +84,7 @@ import org.hsqldb.types.Types;
 
 /* $Id$ */
 
-/** @todo fredt 1.9.0 - review wrt multiple result sets, named parameters etc. */
+/** @todo fredt 1.9.0 - continuous review wrt multiple result sets, named parameters etc. */
 
 // boucherb@users patch 1.7.2 - CallableStatement impl removed
 // from JDBCParameterMetaData and moved here; sundry changes elsewhere to
@@ -199,10 +209,11 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
- * @since 1.7.2
+ * @version 2.4.0
+ * @since HSQLDB 1.9.0
  * @revised JDK 1.6, HSQLDB 2.0
  * @revised JDK 1.7, HSQLDB 2.0.1
+ * @revised JDK 1.8, HSQLDB 2.4.0
  * @see JDBCConnection#prepareCall
  * @see JDBCResultSet
  */
@@ -1037,11 +1048,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see #setObject
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCParameterMetaData)
+     * @since JDK 1.2
      */
-
-//#ifdef JAVA6
     public Object getObject(int parameterIndex,
                             Map<String, Class<?>> map) throws SQLException {
 
@@ -1049,16 +1057,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         throw JDBCUtil.notSupported();
     }
-
-//#else
-/*
-    public Object getObject(int parameterIndex, Map map) throws SQLException {
-            checkGetParameterIndex(parameterIndex);
-        throw JDBCUtil.notSupported();
-    }
-*/
-
-//#endif
 
     /**
      * <!-- start generic documentation -->
@@ -3145,16 +3143,12 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see #setObject
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-
-    /** @todo: how to use CodeSwitcher and +JAVA6 to specifiy Map<String,Class<?>> */
-//#ifdef JAVA6
     @SuppressWarnings("unchecked")
-
-//#endif JAVA6
     public synchronized Object getObject(String parameterName,
-            Map map) throws SQLException {
+            Map<String, Class<?>> map) throws SQLException {
         return getObject(findParameterIndex(parameterName), map);
     }
+
 
     /**
      * <!-- start generic documentation -->
@@ -3571,13 +3565,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setNString(String parameterName,
                                         String value) throws SQLException {
         super.setNString(findParameterIndex(parameterName), value);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object. The
@@ -3596,14 +3587,11 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setNCharacterStream(String parameterName,
             Reader value, long length) throws SQLException {
         super.setNCharacterStream(findParameterIndex(parameterName), value,
                                   length);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>java.sql.NClob</code> object. The object
@@ -3649,13 +3637,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setClob(String parameterName, Reader reader,
                                      long length) throws SQLException {
         super.setClob(findParameterIndex(parameterName), reader, length);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>InputStream</code> object.  The <code>inputstream</code> must contain  the number
@@ -3683,14 +3668,11 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setBlob(String parameterName,
                                      InputStream inputStream,
                                      long length) throws SQLException {
         super.setBlob(findParameterIndex(parameterName), inputStream, length);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.  The <code>reader</code> must contain  the number
@@ -3715,13 +3697,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setNClob(String parameterName, Reader reader,
                                       long length) throws SQLException {
         super.setNClob(findParameterIndex(parameterName), reader, length);
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -3937,15 +3916,12 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 2.0
      * @see #setNString
      */
-//#ifdef JAVA6
     public String getNString(int parameterIndex) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
 
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -3985,13 +3961,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 2.0
      * @see #setNString
      */
-//#ifdef JAVA6
     public synchronized String getNString(
             String parameterName) throws SQLException {
         return getNString(findParameterIndex(parameterName));
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -4025,15 +3998,12 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public Reader getNCharacterStream(int parameterIndex) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
 
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -4067,13 +4037,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized Reader getNCharacterStream(
             String parameterName) throws SQLException {
         return getNCharacterStream(findParameterIndex(parameterName));
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -4101,7 +4068,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public Reader getCharacterStream(int parameterIndex) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
@@ -4123,8 +4089,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         throw JDBCUtil.sqlException(ErrorCode.X_42561);
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -4154,13 +4118,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized Reader getCharacterStream(
             String parameterName) throws SQLException {
         return getCharacterStream(findParameterIndex(parameterName));
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>java.sql.Blob</code> object.
@@ -4176,13 +4137,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      *  @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setBlob(String parameterName,
                                      Blob x) throws SQLException {
         super.setBlob(findParameterIndex(parameterName), x);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>java.sql.Clob</code> object.
@@ -4198,13 +4156,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      *  @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setClob(String parameterName,
                                      Clob x) throws SQLException {
         super.setClob(findParameterIndex(parameterName), x);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given input stream, which will have
@@ -4229,7 +4184,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setAsciiStream(String parameterName,
             java.io.InputStream x, long length) throws SQLException {
 
@@ -4241,8 +4195,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
         this.setAsciiStream(parameterName, x, (int) length);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given input stream, which will have
@@ -4266,7 +4218,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setBinaryStream(String parameterName,
             java.io.InputStream x, long length) throws SQLException {
 
@@ -4278,8 +4229,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
         setBinaryStream(parameterName, x, (int) length);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>Reader</code>
@@ -4305,7 +4254,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setCharacterStream(String parameterName,
             java.io.Reader reader, long length) throws SQLException {
 
@@ -4316,8 +4264,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
         setCharacterStream(parameterName, reader, (int) length);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given input stream.
@@ -4342,13 +4288,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *   @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setAsciiStream(String parameterName,
             java.io.InputStream x) throws SQLException {
         super.setAsciiStream(findParameterIndex(parameterName), x);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given input stream.
@@ -4372,13 +4315,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setBinaryStream(String parameterName,
             java.io.InputStream x) throws SQLException {
         super.setBinaryStream(findParameterIndex(parameterName), x);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>Reader</code>
@@ -4405,13 +4345,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setCharacterStream(String parameterName,
             java.io.Reader reader) throws SQLException {
         super.setCharacterStream(findParameterIndex(parameterName), reader);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object. The
@@ -4436,13 +4373,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setNCharacterStream(String parameterName,
             Reader value) throws SQLException {
         super.setNCharacterStream(findParameterIndex(parameterName), value);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.
@@ -4465,13 +4399,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setClob(String parameterName,
                                      Reader reader) throws SQLException {
         super.setClob(findParameterIndex(parameterName), reader);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>InputStream</code> object.
@@ -4495,14 +4426,11 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setBlob(
             String parameterName,
             InputStream inputStream) throws SQLException {
         super.setBlob(findParameterIndex(parameterName), inputStream);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.
@@ -4526,13 +4454,11 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setNClob(String parameterName,
                                       Reader reader) throws SQLException {
         super.setNClob(findParameterIndex(parameterName), reader);
     }
 
-//#endif JAVA6
     //------------------------- JDBC 4.1 -----------------------------------
 
     /**
@@ -4560,13 +4486,33 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-//#ifdef JAVA5
     public <T>T getObject(int parameterIndex,
                           Class<T> type) throws SQLException {
-        return (T) this.getObject(parameterIndex);
-    }
+        Type targetType;
 
-//#endif
+        if (type == Integer.class) {
+            targetType = Type.SQL_INTEGER ;
+        } else if (type == Long.class) {
+            targetType = Type.SQL_BIGINT ;
+        } else if (type == BigDecimal.class) {
+            targetType = Type.SQL_DECIMAL_DEFAULT ;
+        } else if (type == Double.class) {
+            targetType = Type.SQL_DOUBLE ;
+        } else if (type == String.class) {
+            targetType = Type.SQL_VARCHAR ;
+        } else if (type == byte[].class) {
+            targetType = Type.SQL_VARBINARY ;
+        } else if (type == Boolean.class) {
+            targetType = Type.SQL_BOOLEAN ;
+        } else {
+            Object c = Object.class;
+            HsqlException err = Error.error(ErrorCode.X_42561);
+
+            throw JDBCUtil.sqlException(err);
+        }
+
+        return (T) getColumnInType(parameterIndex, targetType);
+    }
 
     /**
      * <p>Returns an object representing the value of OUT parameter
@@ -4594,13 +4540,378 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-//#ifdef JAVA5
     public <T>T getObject(String parameterName,
                           Class<T> type) throws SQLException {
-        return getObject(this.findParameterIndex(parameterName), type);
+
+        return getObject(findParameterIndex(parameterName), type);
     }
 
-//#endif
+    /**
+     * <p>Sets the value of the designated parameter with the given object.
+     *
+     * If the second argument is an {@code InputStream} then the stream
+     * must contain the number of bytes specified by scaleOrLength.
+     * If the second argument is a {@code Reader} then the reader must
+     * contain the number of characters specified
+     * by scaleOrLength. If these conditions are not true the driver
+     * will generate a
+     * {@code SQLException} when the prepared statement is executed.
+     *
+     * <p>The given Java object will be converted to the given targetSqlType
+     * before being sent to the database.
+     *
+     * If the object has a custom mapping (is of a class implementing the
+     * interface {@code SQLData}),
+     * the JDBC driver should call the method {@code SQLData.writeSQL} to
+     * write it to the SQL data stream.
+     * If, on the other hand, the object is of a class implementing
+     * {@code Ref}, {@code Blob}, {@code Clob},  {@code NClob},
+     *  {@code Struct}, {@code java.net.URL},
+     * or {@code Array}, the driver should pass it to the database as a
+     * value of the corresponding SQL type.
+     *
+     * <p>Note that this method may be used to pass database-specific
+     * abstract data types.
+     *<P>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param parameterName the name of the parameter
+     * @param x the object containing the input parameter value
+     * @param targetSqlType the SQL type to be
+     * sent to the database. The scale argument may further qualify this type.
+     * @param scaleOrLength for {@code java.sql.JDBCType.DECIMAL}
+     *          or {@code java.sql.JDBCType.NUMERIC types},
+     *          this is the number of digits after the decimal point. For
+     *          Java Object types {@code InputStream} and {@code Reader},
+     *          this is the length
+     *          of the data in the stream or reader.  For all other types,
+     *          this value will be ignored.
+     * @exception SQLException if parameterName does not correspond to a named
+     * parameter; if a database access error occurs
+     * or this method is called on a closed {@code CallableStatement}  or
+     *            if the Java Object specified by x is an InputStream
+     *            or Reader object and the value of the scale parameter is less
+     *            than zero
+     * @exception SQLFeatureNotSupportedException if
+     * the JDBC driver does not support the specified targetSqlType
+     * @see JDBCType
+     * @see SQLType
+     *
+     * @since 1.8
+     */
+//#ifdef JAVA8
+/*
+    public void setObject(String parameterName, Object x, SQLType targetSqlType,
+                           int scaleOrLength) throws SQLException {
+        setObject(parameterName, x, targetSqlType.getVendorTypeNumber(), scaleOrLength);
+    }
+*/
+//#endif JAVA8
+    /**
+     * Sets the value of the designated parameter with the given object.
+     *
+     * This method is similar to {@link #setObject(String parameterName,
+     * Object x, SQLType targetSqlType, int scaleOrLength)},
+     * except that it assumes a scale of zero.
+     *<P>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param parameterName the name of the parameter
+     * @param x the object containing the input parameter value
+     * @param targetSqlType the SQL type to be sent to the database
+     * @exception SQLException if parameterName does not correspond to a named
+     * parameter; if a database access error occurs
+     * or this method is called on a closed {@code CallableStatement}
+     * @exception SQLFeatureNotSupportedException if
+     * the JDBC driver does not support the specified targetSqlType
+     * @see JDBCType
+     * @see SQLType
+     * @since 1.8
+     */
+//#ifdef JAVA8
+/*
+    public void setObject(String parameterName, Object x, SQLType targetSqlType)
+            throws SQLException {
+        setObject(parameterName, x, targetSqlType.getVendorTypeNumber());
+    }
+*/
+//#endif JAVA8
+
+    /**
+     * Registers the OUT parameter in ordinal position
+     * {@code parameterIndex} to the JDBC type
+     * {@code sqlType}.  All OUT parameters must be registered
+     * before a stored procedure is executed.
+     * <p>
+     * The JDBC type specified by {@code sqlType} for an OUT
+     * parameter determines the Java type that must be used
+     * in the {@code get} method to read the value of that parameter.
+     * <p>
+     * If the JDBC type expected to be returned to this output parameter
+     * is specific to this particular database, {@code sqlType}
+     * may be {@code JDBCType.OTHER} or a {@code SQLType} that is supported by
+     * the JDBC driver.  The method
+     * {@link #getObject} retrieves the value.
+     *<P>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2,
+     *        and so on
+     * @param sqlType the JDBC type code defined by {@code SQLType} to use to
+     * register the OUT Parameter.
+     *        If the parameter is of JDBC type {@code JDBCType.NUMERIC}
+     *        or {@code JDBCType.DECIMAL}, the version of
+     *        {@code registerOutParameter} that accepts a scale value
+     *        should be used.
+     *
+     * @exception SQLException if the parameterIndex is not valid;
+     * if a database access error occurs or
+     * this method is called on a closed {@code CallableStatement}
+     * @exception SQLFeatureNotSupportedException if
+     * the JDBC driver does not support the specified sqlType
+     * @see JDBCType
+     * @see SQLType
+     * @since 1.8
+     */
+//#ifdef JAVA8
+/*
+    public void registerOutParameter(int parameterIndex, SQLType sqlType)
+            throws SQLException {
+        registerOutParameter(parameterIndex,sqlType.getVendorTypeNumber());
+    }
+*/
+//#endif JAVA8
+
+    /**
+     * Registers the parameter in ordinal position
+     * {@code parameterIndex} to be of JDBC type
+     * {@code sqlType}. All OUT parameters must be registered
+     * before a stored procedure is executed.
+     * <p>
+     * The JDBC type specified by {@code sqlType} for an OUT
+     * parameter determines the Java type that must be used
+     * in the {@code get} method to read the value of that parameter.
+     * <p>
+     * This version of {@code  registerOutParameter} should be
+     * used when the parameter is of JDBC type {@code JDBCType.NUMERIC}
+     * or {@code JDBCType.DECIMAL}.
+     *<P>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2,
+     * and so on
+     * @param sqlType the JDBC type code defined by {@code SQLType} to use to
+     * register the OUT Parameter.
+     * @param scale the desired number of digits to the right of the
+     * decimal point.  It must be greater than or equal to zero.
+     * @exception SQLException if the parameterIndex is not valid;
+     * if a database access error occurs or
+     * this method is called on a closed {@code CallableStatement}
+     * @exception SQLFeatureNotSupportedException if
+     * the JDBC driver does not support the specified sqlType
+     * @see JDBCType
+     * @see SQLType
+     * @since 1.8
+     */
+//#ifdef JAVA8
+/*
+    public void registerOutParameter(int parameterIndex, SQLType sqlType,
+                                      int scale) throws SQLException {
+        registerOutParameter(parameterIndex,sqlType.getVendorTypeNumber(), scale);
+    }
+*/
+//#endif JAVA8
+
+    /**
+     * Registers the designated output parameter.
+     * This version of
+     * the method {@code  registerOutParameter}
+     * should be used for a user-defined or {@code REF} output parameter.
+     * Examples
+     * of user-defined types include: {@code STRUCT}, {@code DISTINCT},
+     * {@code JAVA_OBJECT}, and named array types.
+     *<p>
+     * All OUT parameters must be registered
+     * before a stored procedure is executed.
+     * <p>  For a user-defined parameter, the fully-qualified SQL
+     * type name of the parameter should also be given, while a {@code REF}
+     * parameter requires that the fully-qualified type name of the
+     * referenced type be given.  A JDBC driver that does not need the
+     * type code and type name information may ignore it.   To be portable,
+     * however, applications should always provide these values for
+     * user-defined and {@code REF} parameters.
+     *
+     * Although it is intended for user-defined and {@code REF} parameters,
+     * this method may be used to register a parameter of any JDBC type.
+     * If the parameter does not have a user-defined or {@code REF} type, the
+     * <i>typeName</i> parameter is ignored.
+     *
+     * <P><B>Note:</B> When reading the value of an out parameter, you
+     * must use the getter method whose Java type corresponds to the
+     * parameter's registered SQL type.
+     *<P>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2,...
+     * @param sqlType the JDBC type code defined by {@code SQLType} to use to
+     * register the OUT Parameter.
+     * @param typeName the fully-qualified name of an SQL structured type
+     * @exception SQLException if the parameterIndex is not valid;
+     * if a database access error occurs or
+     * this method is called on a closed {@code CallableStatement}
+     * @exception SQLFeatureNotSupportedException if
+     * the JDBC driver does not support the specified sqlType
+     * @see JDBCType
+     * @see SQLType
+     * @since 1.8
+     */
+//#ifdef JAVA8
+/*
+    public void registerOutParameter (int parameterIndex, SQLType sqlType,
+                                       String typeName) throws SQLException {
+        registerOutParameter(parameterIndex,sqlType.getVendorTypeNumber(), typeName);
+    }
+*/
+//#endif JAVA8
+
+    /**
+     * Registers the OUT parameter named
+     * <code>parameterName</code> to the JDBC type
+     * {@code sqlType}.  All OUT parameters must be registered
+     * before a stored procedure is executed.
+     * <p>
+     * The JDBC type specified by {@code sqlType} for an OUT
+     * parameter determines the Java type that must be used
+     * in the {@code get} method to read the value of that parameter.
+     * <p>
+     * If the JDBC type expected to be returned to this output parameter
+     * is specific to this particular database, {@code sqlType}
+     * should be {@code JDBCType.OTHER} or a {@code SQLType} that is supported
+     * by the JDBC driver..  The method
+     * {@link #getObject} retrieves the value.
+     *<P>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param parameterName the name of the parameter
+     * @param sqlType the JDBC type code defined by {@code SQLType} to use to
+     * register the OUT Parameter.
+     * If the parameter is of JDBC type {@code JDBCType.NUMERIC}
+     * or {@code JDBCType.DECIMAL}, the version of
+     * {@code  registerOutParameter} that accepts a scale value
+     * should be used.
+     * @exception SQLException if parameterName does not correspond to a named
+     * parameter; if a database access error occurs or
+     * this method is called on a closed {@code CallableStatement}
+     * @exception SQLFeatureNotSupportedException if
+     * the JDBC driver does not support the specified sqlType
+     * or if the JDBC driver does not support
+     * this method
+     * @since 1.8
+     * @see JDBCType
+     * @see SQLType
+     */
+//#ifdef JAVA8
+/*
+    public void registerOutParameter(String parameterName, SQLType sqlType)
+            throws SQLException {
+        registerOutParameter(parameterName,sqlType.getVendorTypeNumber());
+    }
+*/
+//#endif JAVA8
+
+    /**
+     * Registers the parameter named
+     * <code>parameterName</code> to be of JDBC type
+     * {@code sqlType}.  All OUT parameters must be registered
+     * before a stored procedure is executed.
+     * <p>
+     * The JDBC type specified by {@code sqlType} for an OUT
+     * parameter determines the Java type that must be used
+     * in the {@code get} method to read the value of that parameter.
+     * <p>
+     * This version of {@code  registerOutParameter} should be
+     * used when the parameter is of JDBC type {@code JDBCType.NUMERIC}
+     * or {@code JDBCType.DECIMAL}.
+     *<P>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param parameterName the name of the parameter
+     * @param sqlType the JDBC type code defined by {@code SQLType} to use to
+     * register the OUT Parameter.
+     * @param scale the desired number of digits to the right of the
+     * decimal point.  It must be greater than or equal to zero.
+     * @exception SQLException if parameterName does not correspond to a named
+     * parameter; if a database access error occurs or
+     * this method is called on a closed {@code CallableStatement}
+     * @exception SQLFeatureNotSupportedException if
+     * the JDBC driver does not support the specified sqlType
+     * or if the JDBC driver does not support
+     * this method
+     * @since 1.8
+     * @see JDBCType
+     * @see SQLType
+     */
+//#ifdef JAVA8
+/*
+    public void registerOutParameter(String parameterName, SQLType sqlType,
+                                      int scale) throws SQLException {
+        registerOutParameter(parameterName,sqlType.getVendorTypeNumber(), scale);
+    }
+*/
+//#endif JAVA8
+
+    /**
+     * Registers the designated output parameter.  This version of
+     * the method {@code  registerOutParameter}
+     * should be used for a user-named or REF output parameter.  Examples
+     * of user-named types include: STRUCT, DISTINCT, JAVA_OBJECT, and
+     * named array types.
+     *<p>
+     * All OUT parameters must be registered
+     * before a stored procedure is executed.
+     * </p>
+     * For a user-named parameter the fully-qualified SQL
+     * type name of the parameter should also be given, while a REF
+     * parameter requires that the fully-qualified type name of the
+     * referenced type be given.  A JDBC driver that does not need the
+     * type code and type name information may ignore it.   To be portable,
+     * however, applications should always provide these values for
+     * user-named and REF parameters.
+     *
+     * Although it is intended for user-named and REF parameters,
+     * this method may be used to register a parameter of any JDBC type.
+     * If the parameter does not have a user-named or REF type, the
+     * typeName parameter is ignored.
+     *
+     * <P><B>Note:</B> When reading the value of an out parameter, you
+     * must use the {@code getXXX} method whose Java type XXX corresponds to the
+     * parameter's registered SQL type.
+     *<P>
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
+     *
+     * @param parameterName the name of the parameter
+     * @param sqlType the JDBC type code defined by {@code SQLType} to use to
+     * register the OUT Parameter.
+     * @param typeName the fully-qualified name of an SQL structured type
+     * @exception SQLException if parameterName does not correspond to a named
+     * parameter; if a database access error occurs or
+     * this method is called on a closed {@code CallableStatement}
+     * @exception SQLFeatureNotSupportedException if
+     * the JDBC driver does not support the specified sqlType
+     * or if the JDBC driver does not support this method
+     * @see JDBCType
+     * @see SQLType
+     * @since 1.8
+     */
+//#ifdef JAVA8
+/*
+    public void registerOutParameter (String parameterName, SQLType sqlType,
+                                       String typeName) throws SQLException {
+        registerOutParameter(parameterName,sqlType.getVendorTypeNumber(), typeName);
+    }
+*/
+//#endif JAVA8
+
 // --------------------------- Internal Implementation -------------------------
 
     /** parameter name => parameter index */
