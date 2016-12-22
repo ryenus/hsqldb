@@ -1,7 +1,9 @@
+21 December 
+-- added support for new JAVA 8 JDBC methods to ResultSet and Statement classes
 05 December 2016
 -- added support for several functions SINH COSH TANH NEXT_DAY DATAPART DATENAME EOMONTH NEWID SYS_GUID
 -- improved support for WITH named subqueries in routines, allowing parameters to be referenced
--- improved support for WITH RECURSIVE named subqueries to be used in othre subqueries
+-- improved support for WITH RECURSIVE named subqueries to be used in other subqueries
 -- improved support for UUID in ResultSet to return a Java UUID with getObject()
 -- improved support for UUID in PreparedStatement setObject() with VARCHAR parameters
 -- improved use of allow_empty_batch connection property
