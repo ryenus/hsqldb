@@ -44,7 +44,7 @@ import org.hsqldb.map.BitMap;
 /**
  *
  * Operations allowed on BIT strings are CONCAT, SUBSTRING, POSITION,
- * BIT_LENGTH and OCTECT_LENGTH.<p>
+ * BIT_LENGTH and OCTET_LENGTH.<p>
  *
  * BIT values can be cast to BINARY and vice-versa. In casts, BIT values are
  * converted to their counterpart BINARY values by treating each set of 8 bits

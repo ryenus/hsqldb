@@ -900,6 +900,8 @@ public final class NumberType extends Type {
 
                     break;
                 }
+
+            // fall through
             default :
                 throw Error.error(ErrorCode.X_42561);
         }
@@ -1357,6 +1359,8 @@ public final class NumberType extends Type {
                         || otherType.typeCode == Types.SQL_DOUBLE) {
                     return 0;
                 }
+
+            // fall through
             default :
         }
 

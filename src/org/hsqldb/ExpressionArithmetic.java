@@ -315,6 +315,23 @@ public class ExpressionArithmetic extends Expression {
 
         if (nodes[LEFT].isUnresolvedParam()
                 && nodes[RIGHT].isUnresolvedParam()) {
+            if (parent instanceof ExpressionLogical) {
+                Expression e = parent.nodes[LEFT];
+
+                if (e == this) {
+                    e = parent.nodes[RIGHT];
+                }
+
+                if (e.dataType != null) {
+                    if (e.dataType.isDateOrTimestampType()) {
+                        nodes[LEFT].dataType = e.dataType;
+                    }
+                }
+            }
+        }
+
+        if (nodes[LEFT].isUnresolvedParam()
+                && nodes[RIGHT].isUnresolvedParam()) {
             nodes[LEFT].dataType  = Type.SQL_INTEGER;
             nodes[RIGHT].dataType = Type.SQL_INTEGER;
         }

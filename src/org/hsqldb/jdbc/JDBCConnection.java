@@ -3308,8 +3308,6 @@ public class JDBCConnection implements Connection {
      * @see java.util.concurrent.Executor
      * @since JDK 1.7, HSQLDB 2.0.1
      */
-
-//#ifdef JAVA5
     public void abort(
             java.util.concurrent.Executor executor) throws SQLException {
 
@@ -3318,8 +3316,6 @@ public class JDBCConnection implements Connection {
         }
         close();
     }
-
-//#endif
 
     /**
      *
@@ -3411,7 +3407,6 @@ public class JDBCConnection implements Connection {
      * @see java.util.concurrent.Executor
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-//#ifdef JAVA5
     public void setNetworkTimeout(java.util.concurrent.Executor executor,
                                   int milliseconds) throws SQLException {
 
@@ -3419,8 +3414,6 @@ public class JDBCConnection implements Connection {
 
         throw JDBCUtil.notSupported();
     }
-
-//#endif
 
     /**
      * Retrieves the number of milliseconds the driver will

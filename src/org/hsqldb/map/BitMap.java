@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,9 +53,9 @@ public class BitMap {
 
     public BitMap(int size, boolean extend) {
 
-        int words = size / 32;
+        int words = size / Integer.SIZE;
 
-        if (size == 0 || size % 32 != 0) {
+        if (size == 0 || size % Integer.SIZE != 0) {
             words++;
         }
 
@@ -68,7 +68,7 @@ public class BitMap {
     public BitMap(int[] map) {
 
         this.map      = map;
-        initialSize   = map.length * 32;
+        initialSize   = map.length * Integer.SIZE;
         limitPos      = initialSize;
         canChangeSize = false;
     }
@@ -285,7 +285,7 @@ public class BitMap {
 
         int setCount = 0;
 
-        for (int windex = 0; windex < limitPos / 32; windex++) {
+        for (int windex = 0; windex < limitPos / Integer.SIZE; windex++) {
             int word = map[windex];
 
             if (word == 0) {
@@ -293,7 +293,7 @@ public class BitMap {
             }
 
             if (word == -1) {
-                setCount += 32;
+                setCount += Integer.SIZE;
 
                 continue;
             }
@@ -301,9 +301,9 @@ public class BitMap {
             setCount += Integer.bitCount(word);
         }
 
-        if (limitPos % 32 != 0) {
+        if (limitPos % Integer.SIZE != 0) {
             int maskend = 0x80000000 >> ((limitPos - 1) & 0x1F);
-            int word    = map[limitPos / 32] & maskend;
+            int word    = map[limitPos / Integer.SIZE] & maskend;
 
             setCount += Integer.bitCount(word);
         }
@@ -317,11 +317,11 @@ public class BitMap {
     public int countSetBitsEnd() {
 
         int count  = 0;
-        int windex = (limitPos / 32) - 1;
+        int windex = (limitPos / Integer.SIZE) - 1;
 
         for (; windex >= 0; windex--) {
             if (map[windex] == 0xffffffff) {
-                count += 32;
+                count += Integer.SIZE;
 
                 continue;
             }
@@ -391,7 +391,7 @@ public class BitMap {
             }
         }
 
-        if (newSize <= map.length * 32) {
+        if (newSize <= map.length * Integer.SIZE) {
             if (newSize > limitPos) {
                 limitPos = newSize;
             }
@@ -401,7 +401,7 @@ public class BitMap {
 
         int newMapLength = map.length;
 
-        while (newSize > newMapLength * 32) {
+        while (newSize > newMapLength * Integer.SIZE) {
             newMapLength *= 2;
         }
 
@@ -421,7 +421,7 @@ public class BitMap {
         int mask  = 0x01;
         int count = 0;
 
-        for (; count < 32; count++) {
+        for (; count < Integer.SIZE; count++) {
             if ((map & mask) == 0) {
                 break;
             }
@@ -441,10 +441,10 @@ public class BitMap {
         int count = 0;
 
         if (map == 0) {
-            return 32;
+            return Integer.SIZE;
         }
 
-        for (; count < 32; count++) {
+        for (; count < Integer.SIZE; count++) {
             if ((map & mask) != 0) {
                 break;
             }

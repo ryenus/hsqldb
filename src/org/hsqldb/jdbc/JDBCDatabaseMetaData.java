@@ -34,12 +34,12 @@ package org.hsqldb.jdbc;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 //#ifdef JAVA6
 import java.sql.RowIdLifetime;
 
 //#endif JAVA6
-import java.sql.SQLException;
 
 import org.hsqldb.FunctionCustom;
 import org.hsqldb.lib.StringConverter;
@@ -64,10 +64,6 @@ import org.hsqldb.types.Type;
 //              - 20060709
 // fredt@users    20080805 - full review and update to doc and method return values
 
-/**
- * @todo 1.9.0 - fredt - revise all selects from system tables to use
- *  SQL/SCHEMATA views with column renaming to JDBC spec
- */
 // Revision 1.20  2006/07/12 12:06:54  boucherb
 // patch 1.9.0
 // - java.sql.Wrapper implementation section title added
@@ -166,6 +162,10 @@ import org.hsqldb.types.Type;
  * from INFORMATION_SCHEMA.SYSTEM_TABLES and INFORMATION_SCHEMA.SYSTEM_COLUMNS,
  * respectively.<p>
  *
+ * Since HSQLDB 2.0 the INFORMATION_SCHEMA views have been vastly expanded
+ * in compliance with the SQL:2011 Standard and report the properties of all
+ * database objects.</p>
+ *
  * <h4>Schema Metadata</h4>
  *
  * The SQL SCHEMA concept became fully supported in the HSQLDB 1.8.x series and
@@ -205,10 +205,7 @@ import org.hsqldb.types.Type;
  *
  * It must still be noted that as of the most recent release, HSQLDB continues
  * to ignore the <code>approximate</code> argument of {@link #getIndexInfo
- * getIndexInfo()} which continues to be simply indicative of absence of a fully
- * statistics-driven cost-based SQL plan optimization facility.  When,
- * such a facility is implemented, corresponding improvements to
- * <code>getIndexInfo</code> will be provided. <p>
+ * getIndexInfo()} as no data is returned for CARDINALITY and PAGES coloumns.<p>
  *
  * <h4>Notes for developers extending metadata table production</h4>
  *
@@ -225,43 +222,6 @@ import org.hsqldb.types.Type;
  *
  * <hr>
  *
- * <b>JRE 1.1.x Notes:</b> <p>
- *
- * In general, JDBC 2 support requires Java 1.2 and above, and JDBC3 requires
- * Java 1.4 and above. In HSQLDB, support for methods introduced in different
- * versions of JDBC depends on the JDK version used for compiling and building
- * HSQLDB.<p>
- *
- * Since 1.7.0, it is possible to build the product so that
- * all JDBC 2 methods can be called while executing under the version 1.1.x
- * <em>Java Runtime Environment</em><sup><font size="-2">TM</font></sup>.
- * However, some of these method calls require <code>int</code> values that
- * are defined only in the JDBC 2 or greater version of the
- * {@link java.sql.ResultSet ResultSet} interface.  For this reason, when the
- * product is compiled under JDK 1.1.x, these values are defined in
- * {@link JDBCResultSet JDBCResultSet}.<p>
- *
- * In a JRE 1.1.x environment, calling JDBC 2 methods that take or return the
- * JDBC2-only <code>ResultSet</code> values can be achieved by referring
- * to them in parameter specifications and return value comparisons,
- * respectively, as follows: <p>
- *
- * <pre class="JavaCodeExample">
- * JDBCResultSet.FETCH_FORWARD
- * JDBCResultSet.TYPE_FORWARD_ONLY
- * JDBCResultSet.TYPE_SCROLL_INSENSITIVE
- * JDBCResultSet.CONCUR_READ_ONLY
- * // etc
- * </pre>
- *
- * However, please note that code written in such a manner will not be
- * compatible for use with other JDBC 2 drivers, since they expect and use
- * <code>ResultSet</code>, rather than <code>JDBCResultSet</code>.  Also
- * note, this feature is offered solely as a convenience to developers
- * who must work under JDK 1.1.x due to operating constraints, yet wish to
- * use some of the more advanced features available under the JDBC 2
- * specification.<p>
- *
  * (fredt@users)<br>
  * (boucherb@users)
  * </div>
@@ -269,9 +229,10 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.0
  * @revised JDK 1.6, HSQLDB 2.0
  * @revised JDK 1.7, HSQLDB 2.0.1
+ * @revised JDK 1.8, HSQLDB 2.4.0
  * @see org.hsqldb.dbinfo.DatabaseInformation
  * @see org.hsqldb.dbinfo.DatabaseInformationMain
  * @see org.hsqldb.dbinfo.DatabaseInformationFull
@@ -5866,6 +5827,34 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
     public boolean generatedKeyAlwaysReturned() throws SQLException {
+        return true;
+    }
+
+    //--------------------------JDBC 4.2 -----------------------------
+
+    /**
+     *
+     * Retrieves the maximum number of bytes this database allows for
+     * the logical size for a {@code LOB}.
+     *
+     * @return the maximum number of bytes allowed; a result of zero
+     * means that there is no limit or the limit is not known
+     * @exception SQLException if a database access error occurs
+     * @since 1.8
+     */
+    public long getMaxLogicalLobSize() throws SQLException {
+        return Type.SQL_BLOB.maxBlobPrecision;
+    }
+
+    /**
+     * Retrieves whether this database supports REF CURSOR.
+
+     * @return {@code true} if this database supports REF CURSOR;
+     *         {@code false} otherwise
+     * @exception SQLException if a database access error occurs
+     * @since 1.8
+     */
+    public boolean supportsRefCursors() throws SQLException {
         return true;
     }
 

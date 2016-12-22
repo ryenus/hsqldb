@@ -237,6 +237,7 @@ public class TableWorks {
         mainTable.addConstraint(new Constraint(mainName, c));
         updateConstraints(tn, emptySet);
         database.schemaManager.recompileDependentObjects(tn);
+        database.schemaManager.recompileDependentObjects(mainTable);
 
         table = tn;
     }
@@ -571,6 +572,7 @@ public class TableWorks {
         indexes[position] = newIndex;
 
         store.reindex(session, newIndex);
+        database.schemaManager.recompileDependentObjects(table);
     }
 
     /**

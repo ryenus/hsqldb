@@ -717,7 +717,7 @@ public final class IntervalType extends DTIType {
         }
 
         return isIntervalYearMonthType()
-               == ((IntervalType) otherType).isIntervalYearMonthType();
+               == otherType.isIntervalYearMonthType();
     }
 
     public int canMoveFrom(Type otherType) {
