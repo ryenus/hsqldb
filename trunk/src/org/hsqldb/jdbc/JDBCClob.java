@@ -38,6 +38,10 @@ import java.io.StringReader;
 import java.sql.Clob;
 import java.sql.SQLException;
 
+//#ifdef JAVA6
+import java.sql.SQLFeatureNotSupportedException;
+//#endif JAVA6
+
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.KMPSearchAlgorithm;
 import org.hsqldb.lib.java.JavaSystem;
