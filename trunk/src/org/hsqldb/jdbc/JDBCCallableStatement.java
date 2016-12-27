@@ -211,9 +211,6 @@ import org.hsqldb.types.Types;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.0
  * @since HSQLDB 1.9.0
- * @revised JDK 1.6, HSQLDB 2.0
- * @revised JDK 1.7, HSQLDB 2.0.1
- * @revised JDK 1.8, HSQLDB 2.4.0
  * @see JDBCConnection#prepareCall
  * @see JDBCResultSet
  */
@@ -980,8 +977,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setBigDecimal
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized BigDecimal getBigDecimal(
             int parameterIndex) throws SQLException {
@@ -1086,8 +1082,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public Ref getRef(int parameterIndex) throws SQLException {
 
@@ -1122,8 +1117,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized Blob getBlob(int parameterIndex) throws SQLException {
 
@@ -1170,8 +1164,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized Clob getClob(int parameterIndex) throws SQLException {
 
@@ -1218,8 +1211,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public Array getArray(int parameterIndex) throws SQLException {
 
@@ -1274,8 +1266,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setDate
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *      JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized Date getDate(int parameterIndex,
                                      Calendar cal) throws SQLException {
@@ -1329,8 +1320,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setTime
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized Time getTime(int parameterIndex,
                                      Calendar cal) throws SQLException {
@@ -1388,8 +1378,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * if a database access error occurs or
      * this method is called on a closed <code>CallableStatement</code>
      * @see #setTimestamp
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized Timestamp getTimestamp(int parameterIndex,
             Calendar cal) throws SQLException {
@@ -1475,8 +1464,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * or  <code>STRUCT</code> data type and the JDBC driver does not support
      * this data type
      * @see java.sql.Types
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCParameterMetaData)
+     * @since JDK 1.2
      *
      */
     public synchronized void registerOutParameter(int parameterIndex,

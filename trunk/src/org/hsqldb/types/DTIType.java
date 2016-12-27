@@ -128,7 +128,7 @@ public abstract class DTIType extends Type {
     public static final int MILLISECOND = Types.SQL_TYPE_NUMBER_LIMIT + 12;
     public static final int MICROSECOND = Types.SQL_TYPE_NUMBER_LIMIT + 13;
     public static final int NANOSECOND  = Types.SQL_TYPE_NUMBER_LIMIT + 14;
-    public static final int TIMEZONE = Types.SQL_TYPE_NUMBER_LIMIT + 15;
+    public static final int TIMEZONE    = Types.SQL_TYPE_NUMBER_LIMIT + 15;
 
     //
     public final int startIntervalType;
@@ -267,20 +267,20 @@ public abstract class DTIType extends Type {
                     return Type.SQL_INTEGER;
                 }
             case Types.SQL_INTERVAL_SECOND :
-                if (part == startIntervalType) {
-                    if (scale != 0) {
-                        return new NumberType(Types.SQL_DECIMAL,
-                                              precision + scale, scale);
+                if (part == startIntervalType || part == endIntervalType) {
+
+                    // type is INTERVAL SECOND
+                    // or TIMESTAMP or INTERVAL x TO SECOND
+                    if (scale == 0) {
+                        return Type.SQL_BIGINT;
                     }
-                } else if (part == endIntervalType) {
-                    if (scale != 0) {
-                        return new NumberType(Types.SQL_DECIMAL,
-                                              maxIntervalPrecision + scale,
-                                              scale);
-                    }
+
+                    return new NumberType(Types.SQL_DECIMAL,
+                                          maxIntervalSecondPrecision + scale,
+                                          scale);
                 }
 
-            // fall through
+                throw Error.error(ErrorCode.X_42561);
             case Types.SQL_INTERVAL_YEAR :
             case Types.SQL_INTERVAL_MONTH :
             case Types.SQL_INTERVAL_DAY :

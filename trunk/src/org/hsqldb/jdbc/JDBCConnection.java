@@ -81,8 +81,6 @@ import org.hsqldb.types.Type;
 
 // fredt@users    20020320 - patch 1.7.0 - JDBC 2 support and error trapping
 //
-// JDBC 2 methods can now be called from jdk 1.1.x - see javadoc comments
-//
 // boucherb@users 20020509 - added "throws SQLException" to all methods where
 //                           it was missing here but specified in the
 //                           java.sql.Connection interface,
@@ -443,47 +441,6 @@ import org.hsqldb.types.Type;
  * files, please read the general documentation, especially the Advanced Users
  * Guide. <p>
  *
- * <hr>
- *
- * <b>JRE 1.1.x Notes:</b> <p>
- *
- * In general, JDBC 2 support requires Java 1.2 and above, and JDBC3 requires
- * Java 1.4 and above. In HSQLDB, support for methods introduced in different
- * versions of JDBC depends on the JDK version used for compiling and building
- * HSQLDB.<p>
- *
- * Since 1.7.0, it is possible to build the product so that
- * all JDBC 2 methods can be called while executing under the version 1.1.x
- * <em>Java Runtime Environment</em><sup><font size="-2">TM</font></sup>.
- * However, in addition to this technique requiring explicit casts to the
- * org.hsqldb.jdbc.* classes, some of the method calls also require
- * <code>int</code> values that are defined only in the JDBC 2 or greater
- * version of the {@link java.sql.ResultSet ResultSet} interface.  For this
- * reason, when the product is compiled under JDK 1.1.x, these values are
- * defined in {@link JDBCResultSet JDBCResultSet}. <p>
- *
- * In a JRE 1.1.x environment, calling JDBC 2 methods that take or return the
- * JDBC 2+ <code>ResultSet</code> values can be achieved by referring
- * to them in parameter specifications and return value comparisons,
- * respectively, as follows: <p>
- *
- * <pre class="JavaCodeExample">
- * JDBCResultSet.FETCH_FORWARD
- * JDBCResultSet.TYPE_FORWARD_ONLY
- * JDBCResultSet.TYPE_SCROLL_INSENSITIVE
- * JDBCResultSet.CONCUR_READ_ONLY
- * // etc.
- * </pre>
- *
- * However, please note that code written to use HSQLDB JDBC 2 features under
- * JDK 1.1.x will not be compatible for use with other JDBC 2 drivers. Please
- * also note that this feature is offered solely as a convenience to developers
- * who must work under JDK 1.1.x due to operating constraints, yet wish to
- * use some of the more advanced features available under the JDBC 2
- * specification. <p>
- *
- * <hr>
- *
  * <b>JDBC 4.0 Notes:</b><p>
  *
  * Starting with JDBC 4.0 (JDK 1.6), the <code>DriverManager</code> methods
@@ -509,8 +466,7 @@ import org.hsqldb.types.Type;
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.4
- * @revised JDK 1.6, HSQLDB 2.0
- * @revised JDK 1.7, HSQLDB 2.1.0
+ * @since HSQLDB 1.9.0
  * @see JDBCDriver
  * @see JDBCStatement
  * @see JDBCParameterMetaData
@@ -1585,8 +1541,7 @@ public class JDBCConnection implements Connection {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method or this method is not supported for the specified result
      * set type and result set concurrency.
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *  for JDBCConnection)
+     * @since JDK 1.2
      */
     public synchronized Statement createStatement(int resultSetType,
             int resultSetConcurrency) throws SQLException {
@@ -1653,8 +1608,7 @@ public class JDBCConnection implements Connection {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method or this method is not supported for the specified result
      * set type and result set concurrency.
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *  for JDBCConnection)
+     * @since JDK 1.2
      */
     public synchronized PreparedStatement prepareStatement(String sql,
             int resultSetType, int resultSetConcurrency) throws SQLException {
@@ -1723,8 +1677,7 @@ public class JDBCConnection implements Connection {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method or this method is not supported for the specified result
      * set type and result set concurrency.
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     * for JDBCConnection)
+     * @since JDK 1.2
      */
     public synchronized CallableStatement prepareCall(String sql,
             int resultSetType, int resultSetConcurrency) throws SQLException {
@@ -1773,8 +1726,7 @@ public class JDBCConnection implements Connection {
      * or this method is called on a closed connection
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for JDBCConnection)
+     * @since JDK 1.2
      * @see #setTypeMap
      */
 
@@ -1838,8 +1790,7 @@ public class JDBCConnection implements Connection {
      *        object
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for JDBCConnection)
+     * @since JDK 1.2
      * @see #getTypeMap
      */
 //#ifdef JAVA6
@@ -1888,7 +1839,7 @@ public class JDBCConnection implements Connection {
      * @throws SQLException if a database access occurs, this method is called
      * (JDBC4 Clarification:)
      * on a closed connection, or the given parameter
-     * (:JDBC4 Clarification)
+     * (JDBC4 Clarification:)
      *         is not a <code>ResultSet</code> constant indicating holdability
      * @exception SQLFeatureNotSupportedException if the given holdability is not supported
      * @see #getHoldability

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,12 +33,15 @@ package org.hsqldb.test;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import junit.framework.TestCase;
+
+import java.sql.Array;
 
 /**
  * @author fredt@users
@@ -226,6 +229,7 @@ public class TestPreparedStatements extends TestCase {
 
         Statement statement = con.createStatement();
 
+        statement.execute("DROP TABLE IF EXISTS users CASCADE");
         statement.execute(
             "CREATE TABLE IF NOT EXISTS users (id INTEGER, name VARCHAR(25), PRIMARY KEY(id))");
         statement.executeUpdate("INSERT INTO users VALUES(1, 'Ramiro')");
@@ -247,21 +251,182 @@ public class TestPreparedStatements extends TestCase {
 
         boolean result = callableStatement.execute();
 
-        if (!result) {
-            int value = callableStatement.getUpdateCount();
+        assertFalse(result);
 
-            assertTrue(value == 0);
-            result = callableStatement.getMoreResults();
-            assertTrue(result);
-            ResultSet result1 = callableStatement.getResultSet();
-            result = callableStatement.getMoreResults();
-            assertTrue(result);
-            ResultSet result2 = callableStatement.getResultSet();
-            result = callableStatement.getMoreResults();
-            assertFalse(result);
-            value = callableStatement.getUpdateCount();
-            assertTrue(value == -1);
+        int value = callableStatement.getUpdateCount();
 
-        }
+        assertTrue(value == 0);
+
+        result = callableStatement.getMoreResults();
+
+        assertTrue(result);
+
+        ResultSet result1 = callableStatement.getResultSet();
+
+        assertTrue(result1.next());
+
+        result = callableStatement.getMoreResults();
+
+        assertTrue(result);
+
+        ResultSet result2 = callableStatement.getResultSet();
+
+        assertTrue(result2.next());
+
+        result = callableStatement.getMoreResults();
+
+        assertFalse(result);
+
+        value = callableStatement.getUpdateCount();
+
+        assertTrue(value == -1);
     }
+
+    public void testC() throws SQLException, ClassNotFoundException {
+
+        Statement statement = con.createStatement();
+
+        statement.execute("DROP TABLE IF EXISTS testusers");
+        statement.execute(
+            "CREATE TABLE IF NOT EXISTS testusers (id INTEGER, name VARCHAR(25), PRIMARY KEY(id))");
+        statement.executeUpdate("INSERT INTO testusers VALUES(1, 'John')");
+        statement.executeUpdate("INSERT INTO testusers VALUES(2, 'Tom')");
+        statement.executeUpdate("INSERT INTO testusers VALUES(3, 'Carl')");
+        statement.executeUpdate("INSERT INTO testusers VALUES(4, 'Greg')");
+        statement.executeUpdate("INSERT INTO testusers VALUES(5, 'David')");
+        statement.executeUpdate("INSERT INTO testusers VALUES(6, 'Keith')");
+
+        String select = "SELECT name FROM testusers WHERE name IN (UNNEST(?))";
+        PreparedStatement preparedStatement = con.prepareStatement(select,
+            ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        String[] ids   = new String[] {
+            "Paul", "Greg", "Tom"
+        };
+        Array    array = con.createArrayOf("VARCHAR", ids);
+
+        preparedStatement.setArray(1, array);
+
+        ResultSet result1 = preparedStatement.executeQuery();
+
+        assertTrue(result1.next());
+        assertTrue(result1.next());
+    }
+
+    public void testD() throws SQLException, ClassNotFoundException {
+
+        String            select            = "SET SCHEMA ?";
+        PreparedStatement preparedStatement = con.prepareStatement(select);
+
+        preparedStatement.setString(1, "INFORMATION_SCHEMA");
+
+        int updateCount = preparedStatement.executeUpdate();
+
+        assertEquals(0, updateCount);
+    }
+
+    /**
+     * two statements with same SQL
+     */
+    public void testE() throws SQLException, ClassNotFoundException {
+
+        Statement statement = con.createStatement();
+
+        statement.execute("DROP TABLE IF EXISTS testusers");
+        statement.execute(
+            "CREATE TABLE IF NOT EXISTS testusers (id INTEGER, name VARCHAR(25), PRIMARY KEY(id))");
+
+        try {
+            statement.executeUpdate("INSERT INTO testusers VALUES(1, 'John')");
+            statement.executeUpdate("INSERT INTO testusers VALUES(2, 'Tom')");
+            statement.executeUpdate("INSERT INTO testusers VALUES(3, 'Carl')");
+            statement.executeUpdate("INSERT INTO testusers VALUES(4, 'Greg')");
+            statement.executeUpdate(
+                "INSERT INTO testusers VALUES(5, 'David')");
+            statement.executeUpdate(
+                "INSERT INTO testusers VALUES(6, 'Keith')");
+        } catch (SQLException e) {}
+
+        String select = "SELECT name FROM testusers WHERE name = ?";
+        PreparedStatement preparedStatementOne = con.prepareStatement(select,
+            ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
+        preparedStatementOne.setString(1, "Tom");
+
+        ResultSet result1 = preparedStatementOne.executeQuery();
+
+        assertTrue(result1.next());
+
+        PreparedStatement preparedStatementTwo = con.prepareStatement(select,
+            ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
+        preparedStatementTwo.setString(1, "Tom");
+
+        ResultSet result2 = preparedStatementTwo.executeQuery();
+
+        assertTrue(result2.next());
+
+        // close first statement
+        preparedStatementOne.close();
+
+        // second statement should still be valid
+        preparedStatementTwo.setString(1, "Greg");
+
+        result2 = preparedStatementTwo.executeQuery();
+
+        assertTrue(result2.next());
+    }
+
+    /**
+     * two statements with same SQL
+     */
+    public void testF() throws SQLException, ClassNotFoundException {
+
+        Statement st = con.createStatement();
+
+        st.execute("DROP TABLE IF EXISTS testtable");
+        st.execute("CREATE TABLE testtable (column1 DATE)");
+        st.execute("INSERT INTO testtable VALUES (sysdate)");
+
+        PreparedStatement pst = con.prepareStatement(
+            "select * from testtable where column1 between ?-? and ?");
+        Date date = new Date(System.currentTimeMillis());
+
+        pst.setDate(1, date);
+        pst.setInt(2, 3);
+        pst.setDate(3, date);
+
+        ResultSet resultSet = pst.executeQuery();
+    }
+
+    /**
+     * generated column name case-sensitivity
+     */
+    public void testG() throws SQLException, ClassNotFoundException {
+
+        Statement st = con.createStatement();
+
+        st.execute("DROP TABLE IF EXISTS testtable");
+        st.execute("CREATE TABLE testtable (id INT GENERATED BY DEFAULT AS IDENTITY, column1 DATE)");
+        st.execute("INSERT INTO testtable (column1) VALUES (sysdate)", new String[]{"id"});
+
+        ResultSet rs = st.getGeneratedKeys();
+
+        boolean genFound = rs.next();
+
+        assertTrue(genFound);
+
+        PreparedStatement pst = con.prepareStatement(
+            "select * from testtable where column1 between ?-? and ?");
+        Date date = new Date(System.currentTimeMillis());
+
+        pst.setDate(1, date);
+        pst.setInt(2, 3);
+        pst.setDate(3, date);
+
+        ResultSet resultSet = pst.executeQuery();
+
+        boolean found = rs.next();
+
+    }
+
 }

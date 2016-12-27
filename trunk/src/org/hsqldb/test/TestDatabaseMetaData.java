@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -267,29 +267,6 @@ public class TestDatabaseMetaData extends TestBase {
             assertTrue("unable to prepare or execute DDL", false);
         } finally {
             conn.close();
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        TestResult            result;
-        TestCase              test;
-        java.util.Enumeration failures;
-        int                   count;
-
-        result = new TestResult();
-        test   = new TestDatabaseMetaData("test");
-
-        test.run(result);
-
-        count = result.failureCount();
-
-        System.out.println("TestDatabaseMetaData failure count: " + count);
-
-        failures = result.failures();
-
-        while (failures.hasMoreElements()) {
-            System.out.println(failures.nextElement());
         }
     }
 }

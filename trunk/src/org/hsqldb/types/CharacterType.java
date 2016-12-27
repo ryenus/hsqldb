@@ -647,8 +647,6 @@ public class CharacterType extends Type {
         }
 
         return s;
-
-        // return convertToType(session, a, Type.SQL_VARCHAR);
     }
 
     public Object convertJavaToSQL(SessionInterface session, Object a) {

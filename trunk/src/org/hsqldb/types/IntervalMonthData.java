@@ -105,7 +105,7 @@ public class IntervalMonthData {
         }
     }
 
-    public long getMonths() {
+    public int getMonths() {
         return units;
     }
 

@@ -504,7 +504,8 @@ public class HsqlDateTime {
     private static final char e = 0xffff;
 
     public static TimestampData toDate(String string, String pattern,
-                                       SimpleDateFormat format) {
+                                       SimpleDateFormat format,
+                                       boolean fraction) {
 
         long   millis;
         int    nanos       = 0;
@@ -544,7 +545,7 @@ public class HsqlDateTime {
             throw Error.error(ErrorCode.X_22007, e.toString());
         }
 
-        if (matchIndex >= 0) {
+        if (matchIndex >= 0 && fraction) {
             javaPattern = tempPattern;
 
             try {

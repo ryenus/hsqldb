@@ -803,8 +803,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <code>ResultSet.getObject</code> to retrieve the value in the specified
      * column. This is the class name used for custom mapping.
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *      JDBCResultSet)
+     * @since JDK 1.2
      */
     public String getColumnClassName(int column) throws SQLException {
 

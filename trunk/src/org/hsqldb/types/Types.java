@@ -593,11 +593,11 @@ public class Types {
         javaTypeNumbers.put("java.lang.Short", Types.SQL_SMALLINT);
         javaTypeNumbers.put("long", Types.SQL_BIGINT);
         javaTypeNumbers.put("java.lang.Long", Types.SQL_BIGINT);
-        javaTypeNumbers.put("[B", Types.SQL_BINARY);
+        javaTypeNumbers.put("[B", Types.SQL_VARBINARY);
         javaTypeNumbers.put("java.lang.Object", Types.OTHER);
         javaTypeNumbers.put("java.lang.Void", Types.SQL_ALL_TYPES);
+        javaTypeNumbers.put("java.util.UUID", Types.SQL_GUID);
 
-        //
         illegalParameterClasses = new HashSet();
 
         illegalParameterClasses.add(Byte.TYPE);

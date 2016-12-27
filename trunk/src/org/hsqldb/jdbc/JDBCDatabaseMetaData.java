@@ -230,9 +230,7 @@ import org.hsqldb.types.Type;
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.0
- * @revised JDK 1.6, HSQLDB 2.0
- * @revised JDK 1.7, HSQLDB 2.0.1
- * @revised JDK 1.8, HSQLDB 2.4.0
+ * @since HSQLDB 1.9.0
  * @see org.hsqldb.dbinfo.DatabaseInformation
  * @see org.hsqldb.dbinfo.DatabaseInformationMain
  * @see org.hsqldb.dbinfo.DatabaseInformationFull
@@ -4379,12 +4377,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return <code>true</code> if so; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @see JDBCConnection
-     * @since  JDK 1.2 (JDK 1.1.x developers: read the overview
-     *      for JDBCDatabaseMetaData)
+     * @since  JDK 1.2
      */
     public boolean supportsResultSetType(int type) throws SQLException {
-        return (type == JDBCResultSet.TYPE_FORWARD_ONLY
-                || type == JDBCResultSet.TYPE_SCROLL_INSENSITIVE);
+        return (type == ResultSet.TYPE_FORWARD_ONLY
+                || type == ResultSet.TYPE_SCROLL_INSENSITIVE);
     }
 
     /**
@@ -4396,15 +4393,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return <code>true</code> if so; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      * @see JDBCConnection
-     * @since  JDK 1.2 (JDK 1.1.x developers: read the overview
-     *      for JDBCDatabaseMetaData)
+     * @since  JDK 1.2
      */
     public boolean supportsResultSetConcurrency(int type,
             int concurrency) throws SQLException {
 
         return supportsResultSetType(type)
-               && (concurrency == JDBCResultSet.CONCUR_READ_ONLY
-                   || concurrency == JDBCResultSet.CONCUR_UPDATABLE);
+               && (concurrency == ResultSet.CONCUR_READ_ONLY
+                   || concurrency == ResultSet.CONCUR_UPDATABLE);
     }
 
     /**
@@ -4426,8 +4422,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return <code>true</code> if updates are visible for the given result set type;
      *        <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for JDBCDatabaseMetaData)
+     * @since JDK 1.2
      */
     public boolean ownUpdatesAreVisible(int type) throws SQLException {
         return false;
@@ -4451,8 +4446,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return <code>true</code> if deletes are visible for the given result set type;
      *        <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for JDBCDatabaseMetaData)
+     * @since JDK 1.2
      */
     public boolean ownDeletesAreVisible(int type) throws SQLException {
         return false;
@@ -4476,8 +4470,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return <code>true</code> if inserts are visible for the given result set type;
      *        <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for JDBCDatabaseMetaData)
+     * @since JDK 1.2
      */
     public boolean ownInsertsAreVisible(int type) throws SQLException {
         return false;
@@ -4502,8 +4495,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *        are visible for the given result set type;
      *        <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for JDBCDatabaseMetaData)
+     * @since JDK 1.2
      */
     public boolean othersUpdatesAreVisible(int type) throws SQLException {
         return false;
@@ -4528,8 +4520,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *        are visible for the given result set type;
      *        <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for JDBCDatabaseMetaData)
+     * @since JDK 1.2
      */
     public boolean othersDeletesAreVisible(int type) throws SQLException {
         return false;
@@ -4554,8 +4545,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      *         are visible for the given result set type;
      *         <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for JDBCDatabaseMetaData)
+     * @since JDK 1.2
      */
     public boolean othersInsertsAreVisible(int type) throws SQLException {
         return false;
@@ -4580,8 +4570,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return <code>true</code> if changes are detected by the result set type;
      *         <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for JDBCDatabaseMetaData)
+     * @since JDK 1.2
      */
     public boolean updatesAreDetected(int type) throws SQLException {
         return false;
@@ -4610,8 +4599,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return <code>true</code> if deletes are detected by the given result set type;
      *         <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for JDBCDatabaseMetaData)
+     * @since JDK 1.2
      */
     public boolean deletesAreDetected(int type) throws SQLException {
         return false;
@@ -4636,8 +4624,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return <code>true</code> if changes are detected by the specified result
      *         set type; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for JDBCDatabaseMetaData)
+     * @since JDK 1.2
      */
     public boolean insertsAreDetected(int type) throws SQLException {
         return false;
@@ -4657,8 +4644,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return <code>true</code> if this database supports batch updates;
      *         <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for JDBCDatabaseMetaData)
+     * @since JDK 1.2
      */
     public boolean supportsBatchUpdates() throws SQLException {
         return true;
@@ -4728,8 +4714,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @return <code>ResultSet</code> object in which each row describes a UDT
      * @exception SQLException if a database access error occurs
      * @see #getSearchStringEscape (JDBC4 clarification)
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *     for JDBCDatabaseMetaData)
+     * @since JDK 1.2
      */
     public ResultSet getUDTs(String catalog, String schemaPattern,
                              String typeNamePattern,
@@ -4766,8 +4751,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <P>
      * @return the connection that produced this metadata object
      * @exception SQLException if a database access error occurs
-     * @since  JDK 1.2 (JDK 1.1.x developers: read the overview
-     *      for JDBCDatabaseMetaData)
+     * @since  JDK 1.2
      */
     public Connection getConnection() throws SQLException {
         return connection;
@@ -5142,8 +5126,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      */
     public boolean supportsResultSetHoldability(
             int holdability) throws SQLException {
-        return holdability == JDBCResultSet.HOLD_CURSORS_OVER_COMMIT
-               || holdability == JDBCResultSet.CLOSE_CURSORS_AT_COMMIT;
+        return holdability == ResultSet.HOLD_CURSORS_OVER_COMMIT
+               || holdability == ResultSet.CLOSE_CURSORS_AT_COMMIT;
     }
 
     /**
@@ -5170,7 +5154,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @since JDK 1.4, HSQLDB 1.7
      */
     public int getResultSetHoldability() throws SQLException {
-        return JDBCResultSet.HOLD_CURSORS_OVER_COMMIT;
+        return ResultSet.HOLD_CURSORS_OVER_COMMIT;
     }
 
     /**
@@ -5855,7 +5839,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @since 1.8
      */
     public boolean supportsRefCursors() throws SQLException {
-        return true;
+        return false;
     }
 
     //----------------------- Internal Implementation --------------------------
@@ -6096,8 +6080,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         // Also, cannot use single, shared JDBCStatement object, as each
         // fetchResult() closes any old JDBCResultSet before fetching the
         // next, causing the JDBCResultSet's Result object to be nullified
-        final int scroll = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
-        final int concur = JDBCResultSet.CONCUR_READ_ONLY;
+        final int scroll = ResultSet.TYPE_SCROLL_INSENSITIVE;
+        final int concur = ResultSet.CONCUR_READ_ONLY;
         JDBCStatement st = (JDBCStatement) connection.createStatement(scroll,
             concur);
 
