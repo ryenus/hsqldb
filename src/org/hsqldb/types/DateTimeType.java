@@ -560,10 +560,10 @@ public final class DateTimeType extends DTIType {
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
                         long seconds = ((TimestampData) a).getSeconds()
                                        + ((TimestampData) a).getZone();
-                        long l = HsqlDateTime.getNormalisedDate(
+                        long millis = HsqlDateTime.getNormalisedDate(
                             session.getCalendarGMT(), seconds * 1000);
 
-                        return new TimestampData(l / 1000);
+                        return new TimestampData(millis / 1000);
                     }
                     case Types.SQL_TIMESTAMP : {
                         long l = HsqlDateTime.getNormalisedDate(

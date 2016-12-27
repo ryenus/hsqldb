@@ -38,6 +38,18 @@ import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.util.Properties;
 
+//#ifdef JAVA6
+import java.sql.SQLFeatureNotSupportedException;
+
+//#endif JAVA6
+
+//#ifdef JAVA8
+/*
+import java.sql.DriverAction;
+*/
+
+//#endif JAVA8
+
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -96,11 +108,13 @@ import org.hsqldb.persist.HsqlProperties;
  * existing programs which do load JDBC drivers using
  * <code>Class.forName()</code> will continue to work without modification. <p>
  *
+ * JDBC 4.2 methods added in Java 8 are generally supported when the HSQLDB jar
+ * is compiled with JDK 8
  * <hr>
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
- * @revised JDK 1.7, HLSQLDB 2.0.1
+ * @version 2.4.0
+ * @since HSQLDB 1.9.0
  * </div> <!-- end release-specific documentation -->
  *
  * @see org.hsqldb.jdbc.JDBCConnection
