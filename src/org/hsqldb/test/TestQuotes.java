@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import junit.framework.TestSuite;
 public class TestQuotes extends TestCase {
 
     private static final String CREATETABLE =
-        "create table quotetest (test varchar(100))";
+        "create table if not exists quotetest (test varchar(100))";
     private static final String DELETE = "delete from quotetest";
     private static final String TESTSTRING =
         "insert into quotetest (test) values (?)";

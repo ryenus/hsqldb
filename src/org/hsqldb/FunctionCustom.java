@@ -1409,13 +1409,12 @@ public class FunctionCustom extends FunctionSQL {
                                                   nodes[0].dataType);
                 }
 
+                boolean fraction = funcType == FUNC_TO_TIMESTAMP;
+
                 SimpleDateFormat format = session.getSimpleDateFormatGMT();
                 TimestampData value = HsqlDateTime.toDate((String) data[0],
-                    (String) data[1], format);
+                    (String) data[1], format, fraction);
 
-                if (funcType == FUNC_TO_DATE) {
-                    value.clearNanos();
-                }
 
                 return value;
             }

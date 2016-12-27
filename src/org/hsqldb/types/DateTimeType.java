@@ -901,7 +901,7 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIME : {
                 Calendar cal = session.getCalendar();
                 long millis = HsqlDateTime.convertMillisToCalendar(cal,
-                    ((TimeData) a).getSeconds() * 1000L);
+                    ((TimeData) a).getMillis());
 
                 millis = HsqlDateTime.getNormalisedTime(cal, millis);
 
@@ -910,14 +910,14 @@ public final class DateTimeType extends DTIType {
                 return value;
             }
             case Types.SQL_TIME_WITH_TIME_ZONE : {
-                int seconds = ((TimeData) a).getSeconds();
+                long millis = ((TimeData) a).getMillis();
 
-                return new java.sql.Time(seconds * 1000L);
+                return new java.sql.Time(millis);
             }
             case Types.SQL_DATE : {
                 Calendar cal = session.getCalendar();
                 long millis = HsqlDateTime.convertMillisToCalendar(cal,
-                    ((TimestampData) a).getSeconds() * 1000);
+                    ((TimestampData) a).getMillis());
 
                 // millis = HsqlDateTime.getNormalisedDate(cal, millis);
                 java.sql.Date value = new java.sql.Date(millis);
@@ -927,7 +927,7 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP : {
                 Calendar cal = session.getCalendar();
                 long millis = HsqlDateTime.convertMillisToCalendar(cal,
-                    ((TimestampData) a).getSeconds() * 1000);
+                    ((TimestampData) a).getMillis());
                 java.sql.Timestamp value = new java.sql.Timestamp(millis);
 
                 value.setNanos(((TimestampData) a).getNanos());
@@ -935,9 +935,8 @@ public final class DateTimeType extends DTIType {
                 return value;
             }
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-                long seconds = ((TimestampData) a).getSeconds();
-                java.sql.Timestamp value = new java.sql.Timestamp(seconds
-                    * 1000);
+                long millis = ((TimestampData) a).getMillis();
+                java.sql.Timestamp value = new java.sql.Timestamp(millis);
 
                 value.setNanos(((TimestampData) a).getNanos());
 
@@ -2357,7 +2356,7 @@ public final class DateTimeType extends DTIType {
 
                     SimpleDateFormat format = session.getSimpleDateFormatGMT();
 
-                    return HsqlDateTime.toDate(s, pattern, format);
+                    return HsqlDateTime.toDate(s, pattern, format, true);
                 }
 
             // fall through

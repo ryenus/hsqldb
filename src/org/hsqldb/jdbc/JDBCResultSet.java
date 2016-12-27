@@ -298,9 +298,6 @@ import org.hsqldb.types.Types;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.0
  * @since HSQLDB 1.9.0
- * @revised JDK 1.6, HSQLDB 2.0
- * @revised JDK 1.7, HSQLDB 2.0.1
- * @revised JDK 1.8, HSQLDB 2.4.0
  */
 public class JDBCResultSet implements ResultSet {
 
@@ -1638,9 +1635,11 @@ public class JDBCResultSet implements ResultSet {
             case Types.SQL_DATE :
                 return getDate(columnIndex);
             case Types.SQL_TIME :
+                return getTime(columnIndex);
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 return getTime(columnIndex);
             case Types.SQL_TIMESTAMP :
+                return getTimestamp(columnIndex);
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return getTimestamp(columnIndex);
             case Types.SQL_BINARY :
@@ -1962,8 +1961,7 @@ public class JDBCResultSet implements ResultSet {
      * <code>null</code> in the Java programming language.
      * @exception SQLException if a database access error occurs or this method is
      *            called on a closed result set
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
 
@@ -2006,8 +2004,7 @@ public class JDBCResultSet implements ResultSet {
      * <code>null</code> in the Java programming language.
      * @exception SQLException if a database access error occurs or this method is
      *            called on a closed result set
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
         return getBigDecimal(findColumn(columnLabel));
@@ -2035,8 +2032,7 @@ public class JDBCResultSet implements ResultSet {
      *            called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public boolean isBeforeFirst() throws SQLException {
 
@@ -2067,8 +2063,7 @@ public class JDBCResultSet implements ResultSet {
      *            called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public boolean isAfterLast() throws SQLException {
 
@@ -2101,8 +2096,7 @@ public class JDBCResultSet implements ResultSet {
      *            called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public boolean isFirst() throws SQLException {
 
@@ -2136,8 +2130,7 @@ public class JDBCResultSet implements ResultSet {
      *            called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public boolean isLast() throws SQLException {
 
@@ -2162,8 +2155,7 @@ public class JDBCResultSet implements ResultSet {
      * result set type is <code>TYPE_FORWARD_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public void beforeFirst() throws SQLException {
 
@@ -2188,8 +2180,7 @@ public class JDBCResultSet implements ResultSet {
      * or the result set type is <code>TYPE_FORWARD_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public void afterLast() throws SQLException {
 
@@ -2215,8 +2206,7 @@ public class JDBCResultSet implements ResultSet {
      * or the result set type is <code>TYPE_FORWARD_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public boolean first() throws SQLException {
 
@@ -2243,8 +2233,7 @@ public class JDBCResultSet implements ResultSet {
      * or the result set type is <code>TYPE_FORWARD_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public boolean last() throws SQLException {
 
@@ -2274,8 +2263,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public int getRow() throws SQLException {
 
@@ -2327,8 +2315,7 @@ public class JDBCResultSet implements ResultSet {
      * or the result set type is <code>TYPE_FORWARD_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public boolean absolute(int row) throws SQLException {
 
@@ -2373,8 +2360,7 @@ public class JDBCResultSet implements ResultSet {
      *            <code>TYPE_FORWARD_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public boolean relative(int rows) throws SQLException {
 
@@ -2413,8 +2399,7 @@ public class JDBCResultSet implements ResultSet {
      * or the result set type is <code>TYPE_FORWARD_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public boolean previous() throws SQLException {
 
@@ -2461,8 +2446,7 @@ public class JDBCResultSet implements ResultSet {
      * method is called on a closed result set or
      * the result set type is <code>TYPE_FORWARD_ONLY</code> and the fetch
      * direction is not <code>FETCH_FORWARD</code>
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      * @see JDBCStatement#setFetchDirection
      * @see #getFetchDirection
      */
@@ -2472,15 +2456,15 @@ public class JDBCResultSet implements ResultSet {
 
         switch (direction) {
 
-            case FETCH_FORWARD : {
+            case ResultSet.FETCH_FORWARD : {
                 break;
             }
-            case FETCH_REVERSE : {
+            case ResultSet.FETCH_REVERSE : {
                 checkNotForwardOnly();
 
                 break;
             }
-            case FETCH_UNKNOWN : {
+            case ResultSet.FETCH_UNKNOWN : {
                 checkNotForwardOnly();
 
                 break;
@@ -2509,15 +2493,14 @@ public class JDBCResultSet implements ResultSet {
      * @return the current fetch direction for this <code>ResultSet</code> object
      * @exception SQLException if a database access error occurs
      * or this method is called on a closed result set
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      * @see #setFetchDirection
      */
     public int getFetchDirection() throws SQLException {
 
         checkClosed();
 
-        return FETCH_FORWARD;
+        return ResultSet.FETCH_FORWARD;
     }
 
     /**
@@ -2548,8 +2531,7 @@ public class JDBCResultSet implements ResultSet {
      * is called on a closed result set or the
      * (JDBC4 clarification:)
      * condition <code>rows >= 0 </code> is not satisfied
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      * @see #getFetchSize
      * @see JDBCStatement#setFetchSize
      * @see JDBCStatement#getFetchSize
@@ -2579,8 +2561,7 @@ public class JDBCResultSet implements ResultSet {
      * @return the current fetch size for this <code>ResultSet</code> object
      * @exception SQLException if a database access error occurs
      * or this method is called on a closed result set
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      * @see #setFetchSize
      * @see JDBCStatement#getFetchSize
      * @see JDBCStatement#setFetchSize
@@ -2613,8 +2594,7 @@ public class JDBCResultSet implements ResultSet {
      *         or <code>ResultSet.TYPE_SCROLL_SENSITIVE</code>
      * @exception SQLException if a database access error occurs
      * or this method is called on a closed result set
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public int getType() throws SQLException {
 
@@ -2644,8 +2624,7 @@ public class JDBCResultSet implements ResultSet {
      *         or <code>ResultSet.CONCUR_UPDATABLE</code>
      * @exception SQLException if a database access error occurs
      * or this method is called on a closed result set
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public int getConcurrency() throws SQLException {
 
@@ -2681,8 +2660,7 @@ public class JDBCResultSet implements ResultSet {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see JDBCDatabaseMetaData#updatesAreDetected
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public boolean rowUpdated() throws SQLException {
 
@@ -2715,8 +2693,7 @@ public class JDBCResultSet implements ResultSet {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see JDBCDatabaseMetaData#insertsAreDetected
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public boolean rowInserted() throws SQLException {
 
@@ -2752,8 +2729,7 @@ public class JDBCResultSet implements ResultSet {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see JDBCDatabaseMetaData#deletesAreDetected
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public boolean rowDeleted() throws SQLException {
 
@@ -2787,8 +2763,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateNull(int columnIndex) throws SQLException {
         startUpdate(columnIndex);
@@ -2819,8 +2794,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateBoolean(int columnIndex, boolean x) throws SQLException {
 
@@ -2855,8 +2829,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateByte(int columnIndex, byte x) throws SQLException {
         startUpdate(columnIndex);
@@ -2887,8 +2860,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateShort(int columnIndex, short x) throws SQLException {
         startUpdate(columnIndex);
@@ -2919,8 +2891,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateInt(int columnIndex, int x) throws SQLException {
         startUpdate(columnIndex);
@@ -2951,8 +2922,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateLong(int columnIndex, long x) throws SQLException {
         startUpdate(columnIndex);
@@ -2983,8 +2953,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateFloat(int columnIndex, float x) throws SQLException {
 
@@ -3018,8 +2987,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateDouble(int columnIndex, double x) throws SQLException {
 
@@ -3054,8 +3022,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateBigDecimal(int columnIndex,
                                  BigDecimal x) throws SQLException {
@@ -3087,8 +3054,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateString(int columnIndex, String x) throws SQLException {
         startUpdate(columnIndex);
@@ -3119,8 +3085,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateBytes(int columnIndex, byte[] x) throws SQLException {
         startUpdate(columnIndex);
@@ -3151,8 +3116,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateDate(int columnIndex, Date x) throws SQLException {
         startUpdate(columnIndex);
@@ -3183,8 +3147,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateTime(int columnIndex, Time x) throws SQLException {
         startUpdate(columnIndex);
@@ -3216,8 +3179,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateTimestamp(int columnIndex,
                                 Timestamp x) throws SQLException {
@@ -3251,8 +3213,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateAsciiStream(int columnIndex, java.io.InputStream x,
                                   int length) throws SQLException {
@@ -3287,8 +3248,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateBinaryStream(int columnIndex, java.io.InputStream x,
                                    int length) throws SQLException {
@@ -3323,8 +3283,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateCharacterStream(int columnIndex, java.io.Reader x,
                                       int length) throws SQLException {
@@ -3369,8 +3328,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateObject(int columnIndex, Object x,
                              int scaleOrLength) throws SQLException {
@@ -3402,8 +3360,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateObject(int columnIndex, Object x) throws SQLException {
         startUpdate(columnIndex);
@@ -3433,8 +3390,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateNull(String columnLabel) throws SQLException {
         updateNull(findColumn(columnLabel));
@@ -3464,8 +3420,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateBoolean(String columnLabel,
                               boolean x) throws SQLException {
@@ -3496,8 +3451,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateByte(String columnLabel, byte x) throws SQLException {
         updateByte(findColumn(columnLabel), x);
@@ -3527,8 +3481,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateShort(String columnLabel, short x) throws SQLException {
         updateShort(findColumn(columnLabel), x);
@@ -3558,8 +3511,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateInt(String columnLabel, int x) throws SQLException {
         updateInt(findColumn(columnLabel), x);
@@ -3589,8 +3541,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateLong(String columnLabel, long x) throws SQLException {
         updateLong(findColumn(columnLabel), x);
@@ -3620,8 +3571,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateFloat(String columnLabel, float x) throws SQLException {
         updateFloat(findColumn(columnLabel), x);
@@ -3651,8 +3601,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateDouble(String columnLabel,
                              double x) throws SQLException {
@@ -3684,8 +3633,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateBigDecimal(String columnLabel,
                                  BigDecimal x) throws SQLException {
@@ -3716,8 +3664,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateString(String columnLabel,
                              String x) throws SQLException {
@@ -3749,8 +3696,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateBytes(String columnLabel, byte[] x) throws SQLException {
         updateBytes(findColumn(columnLabel), x);
@@ -3780,8 +3726,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateDate(String columnLabel, Date x) throws SQLException {
         updateDate(findColumn(columnLabel), x);
@@ -3811,8 +3756,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateTime(String columnLabel, Time x) throws SQLException {
         updateTime(findColumn(columnLabel), x);
@@ -3843,8 +3787,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateTimestamp(String columnLabel,
                                 Timestamp x) throws SQLException {
@@ -3878,8 +3821,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateAsciiStream(String columnLabel, java.io.InputStream x,
                                   int length) throws SQLException {
@@ -3913,8 +3855,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateBinaryStream(String columnLabel, java.io.InputStream x,
                                    int length) throws SQLException {
@@ -3949,8 +3890,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateCharacterStream(String columnLabel,
                                       java.io.Reader reader,
@@ -3995,8 +3935,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateObject(String columnLabel, Object x,
                              int scaleOrLength) throws SQLException {
@@ -4027,8 +3966,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateObject(String columnLabel,
                              Object x) throws SQLException {
@@ -4058,8 +3996,7 @@ public class JDBCResultSet implements ResultSet {
      * the insert row have been given a non-null value
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void insertRow() throws SQLException {
         performInsert();
@@ -4090,8 +4027,7 @@ public class JDBCResultSet implements ResultSet {
      * if this method is called when the cursor is on the insert row
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void updateRow() throws SQLException {
         performUpdate();
@@ -4120,8 +4056,7 @@ public class JDBCResultSet implements ResultSet {
      * or if this method is called when the cursor is on the insert row
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void deleteRow() throws SQLException {
         performDelete();
@@ -4165,8 +4100,7 @@ public class JDBCResultSet implements ResultSet {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method or this method is not supported for the specified result
      * set type and result set concurrency.
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public void refreshRow() throws SQLException {
         clearUpdates();
@@ -4199,8 +4133,7 @@ public class JDBCResultSet implements ResultSet {
      *            on the insert row
      *  @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void cancelRowUpdates() throws SQLException {
         clearUpdates();
@@ -4238,8 +4171,7 @@ public class JDBCResultSet implements ResultSet {
      * or the result set concurrency is <code>CONCUR_READ_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public void moveToInsertRow() throws SQLException {
         startInsert();
@@ -4264,8 +4196,7 @@ public class JDBCResultSet implements ResultSet {
      *  or the result set concurrency is <code>CONCUR_READ_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public void moveToCurrentRow() throws SQLException {
         endInsert();
@@ -4285,8 +4216,7 @@ public class JDBCResultSet implements ResultSet {
      * if the result set was produced some other way
      * @exception SQLException if a database access error occurs
      * or this method is called on a closed result set
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *    JDBCResultSet)
+     * @since JDK 1.2
      */
     public Statement getStatement() throws SQLException {
 
@@ -4324,8 +4254,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public Object getObject(int columnIndex, Map map) throws SQLException {
         return getObject(columnIndex);
@@ -4355,8 +4284,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCResultSet)
+     * @since JDK 1.2
      */
     public Ref getRef(int columnIndex) throws SQLException {
         throw JDBCUtil.notSupported();
@@ -4506,8 +4434,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      *  @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public Array getArray(int columnIndex) throws SQLException {
 
@@ -4557,8 +4484,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      *  @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public Object getObject(String columnLabel, Map map) throws SQLException {
         return getObject(findColumn(columnLabel), map);
@@ -4587,8 +4513,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      *  @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public Ref getRef(String columnLabel) throws SQLException {
         return getRef(findColumn(columnLabel));
@@ -4680,8 +4605,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public Array getArray(String columnLabel) throws SQLException {
         return getArray(findColumn(columnLabel));
@@ -4705,8 +4629,7 @@ public class JDBCResultSet implements ResultSet {
      * the value returned is <code>null</code> in the Java programming language
      * @exception SQLException if a database access error occurs
      * or this method is called on a closed result set
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public Date getDate(int columnIndex, Calendar cal) throws SQLException {
 
@@ -4746,8 +4669,7 @@ public class JDBCResultSet implements ResultSet {
      * the value returned is <code>null</code> in the Java programming language
      * @exception SQLException if a database access error occurs
      * or this method is called on a closed result set
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public Date getDate(String columnLabel, Calendar cal) throws SQLException {
         return getDate(findColumn(columnLabel), cal);
@@ -4787,8 +4709,7 @@ public class JDBCResultSet implements ResultSet {
      * the value returned is <code>null</code> in the Java programming language
      * @exception SQLException if a database access error occurs
      * or this method is called on a closed result set
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCResultSet)
+     * @since JDK 1.2
      */
     public Time getTime(int columnIndex, Calendar cal) throws SQLException {
 
@@ -4848,8 +4769,7 @@ public class JDBCResultSet implements ResultSet {
      * the value returned is <code>null</code> in the Java programming language
      * @exception SQLException if a database access error occurs
      * or this method is called on a closed result set
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public Time getTime(String columnLabel, Calendar cal) throws SQLException {
         return getTime(findColumn(columnLabel), cal);
@@ -4892,8 +4812,7 @@ public class JDBCResultSet implements ResultSet {
      * the value returned is <code>null</code> in the Java programming language
      * @exception SQLException if a database access error occurs
      * or this method is called on a closed result set
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public Timestamp getTimestamp(int columnIndex,
                                   Calendar cal) throws SQLException {
@@ -4962,8 +4881,7 @@ public class JDBCResultSet implements ResultSet {
      * the value returned is <code>null</code> in the Java programming language
      * @exception SQLException if a database access error occurs
      * or this method is called on a closed result set
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCResultSet)
+     * @since JDK 1.2
      */
     public Timestamp getTimestamp(String columnLabel,
                                   Calendar cal) throws SQLException {
@@ -6987,7 +6905,7 @@ public class JDBCResultSet implements ResultSet {
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
     public <T>T getObject(int columnIndex, Class<T> type) throws SQLException {
-        return (T) getObject(columnIndex);
+        throw JDBCUtil.notSupported();
     }
 
     /**
@@ -7250,49 +7168,6 @@ public class JDBCResultSet implements ResultSet {
 
     /** The underlying result. */
     public Result result;
-
-    // ---------------------- Public Attributes --------------------------------
-    // Support for JDBC 2 from JRE 1.1.x
-
-    /** Copy of java.sql.ResultSet constant, for JDK 1.1 clients. */
-    public static final int FETCH_FORWARD = 1000;
-
-    /** Copy of java.sql.ResultSet constant, for JDK 1.1 clients. */
-    public static final int FETCH_REVERSE = 1001;
-
-    /** Copy of java.sql.ResultSet constant, for JDK 1.1 clients. */
-    public static final int FETCH_UNKNOWN = 1002;
-
-    /** Copy of java.sql.ResultSet constant, for JDK 1.1 clients. */
-    public static final int TYPE_FORWARD_ONLY = 1003;
-
-    /**
-     * Copy of java.sql.ResultSet constant, for JDK 1.1 clients. <p>
-     *
-     *  (JDBC4 clarification:) scrollable but generally not sensitive
-     *  to changes to the data that underlies the <code>ResultSet</code>.
-     */
-    public static final int TYPE_SCROLL_INSENSITIVE = 1004;
-
-    /**
-     * Copy of java.sql.ResultSet constant, for JDK 1.1 clients. <p>
-     *
-     *  (JDBC4 clarification:) scrollable and generally sensitive
-     *  to changes to the data that underlies the <code>ResultSet</code>.
-     */
-    public static final int TYPE_SCROLL_SENSITIVE = 1005;
-
-    /** Copy of java.sql.ResultSet constant, for JDK 1.1 clients. */
-    public static final int CONCUR_READ_ONLY = 1007;
-
-    /** Copy of java.sql.ResultSet constant, for JDK 1.1 clients. */
-    public static final int CONCUR_UPDATABLE = 1008;
-
-    /** Copy of java.sql.ResultSet constant, for JDK 1.1 clients. */
-    public static final int HOLD_CURSORS_OVER_COMMIT = 1;
-
-    /** Copy of java.sql.ResultSet constant, for JDK 1.1 clients. */
-    public static final int CLOSE_CURSORS_AT_COMMIT = 2;
 
     //-------------------------- Private Methods -------------------------------
 

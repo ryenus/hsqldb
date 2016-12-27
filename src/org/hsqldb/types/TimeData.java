@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ package org.hsqldb.types;
  * Implementation of data item for TIME.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 3.5.5
  * @since 1.9.0
  */
 public class TimeData {
@@ -73,6 +73,10 @@ public class TimeData {
 
     public int getZone() {
         return zone;
+    }
+
+    public long getMillis() {
+        return seconds * 1000;
     }
 
     public boolean equals(Object other) {

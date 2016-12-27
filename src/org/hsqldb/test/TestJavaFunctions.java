@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -133,8 +133,6 @@ public class TestJavaFunctions extends TestBase {
 
         c.close();
     }
-
-    public static void main(String[] args) throws SQLException {}
 
     public static ResultSet getQueryResult(Connection connection,
                                            int i) throws SQLException {

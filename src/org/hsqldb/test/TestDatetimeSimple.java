@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,6 +64,8 @@ public class TestDatetimeSimple extends TestCase {
 
     public void testTimestampParam() throws SQLException {
 
+        System.out.println("testTimestampParam " + TimeZone.getDefault());
+
         Connection c = DriverManager.getConnection("jdbc:hsqldb:mem:db", "sa",
             "");
         Statement stmt = c.createStatement();
@@ -128,6 +130,8 @@ public class TestDatetimeSimple extends TestCase {
     }
 
     public void testSimple() throws SQLException {
+
+        System.out.println("testSimple " + TimeZone.getDefault());
 
         TestUtil.deleteDatabase("/hsql/tests/testdatetimesimple");
 
@@ -197,7 +201,7 @@ public class TestDatetimeSimple extends TestCase {
         /** ********  TIMESTAMP COL BELOW ********* */
         st.executeUpdate("DROP TABLE t2 IF EXISTS");
         st.executeUpdate("CREATE TABLE t2(i int, ts timestamp)");
-        /* These all fail:
+        /* These all failed with the original version
         st.executeUpdate("INSERT INTO t2 VALUES(1, '2008-11-27')");
         st.executeUpdate("INSERT INTO t2 VALUES(1, timestamp '2008-11-27')");
         in both cases, the string is not a valid timestamp string
@@ -221,11 +225,18 @@ public class TestDatetimeSimple extends TestCase {
                            + " ; Date: " + rs.getObject("ts")            //
                            + "; String: " + rs.getString("ts"));
         rs.close();
+
+        // these failed execute in original version
+        st.executeUpdate("INSERT INTO t2 VALUES(1, '2008-11-27')");
+        st.executeUpdate("INSERT INTO t2 VALUES(1, timestamp '2008-11-27')");
+
         st.executeUpdate("SHUTDOWN");
         conn.close();
     }
 
     public void testValues() throws SQLException {
+
+        System.out.println("testValues " + TimeZone.getDefault());
 
         TestUtil.deleteDatabase("/hsql/tests/testdatetimesimple");
 
@@ -338,7 +349,7 @@ public class TestDatetimeSimple extends TestCase {
     public static void main(String[] argv) {
 
         TestDatetimeSimple testA = new TestDatetimeSimple();
-        String[]           zones = { "GMT-05:00" };
+        String[]           zones = { "GMT+05:00", "GMT", "GMT-05:00" };
 
         try {
             for (int i = 0; i < zones.length; i++) {

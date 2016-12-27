@@ -44,6 +44,7 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.DatabaseMetaData;
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
@@ -236,9 +237,6 @@ import org.hsqldb.types.Types;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.0
  * @since HSQLDB 1.9.0
- * @revised JDK 1.6, HSQLDB 2.0
- * @revised JDK 1.7, HSQLDB 2.0.1
- * @revised JDK 1.8, HSQLDB 2.4.0
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
  */
@@ -1099,8 +1097,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
      * @see JDBCStatement#addBatch
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized void addBatch() throws SQLException {
 
@@ -1162,8 +1159,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @param length the number of characters in the stream
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized void setCharacterStream(int parameterIndex,
             java.io.Reader reader, int length) throws SQLException {
@@ -1192,8 +1188,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public void setRef(int parameterIndex, Ref x) throws SQLException {
         throw JDBCUtil.notSupported();
@@ -1232,8 +1227,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     * JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized void setBlob(int parameterIndex,
                                      Blob x) throws SQLException {
@@ -1327,8 +1321,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *  JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized void setClob(int parameterIndex,
                                      Clob x) throws SQLException {
@@ -1406,8 +1399,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized void setArray(int parameterIndex,
                                       Array x) throws SQLException {
@@ -1487,8 +1479,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * this method is called on a closed <code>PreparedStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized ResultSetMetaData getMetaData() throws SQLException {
 
@@ -1538,8 +1529,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *            to construct the date
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized void setDate(int parameterIndex, Date x,
                                      Calendar cal) throws SQLException {
@@ -1613,8 +1603,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *            to construct the time
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized void setTime(int parameterIndex, Time x,
                                      Calendar cal) throws SQLException {
@@ -1690,8 +1679,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *            to construct the timestamp
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized void setTimestamp(int parameterIndex, Timestamp x,
             Calendar cal) throws SQLException {
@@ -1810,8 +1798,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *  <code>REF</code>, <code>ROWID</code>, <code>SQLXML</code>
      * or  <code>STRUCT</code> data type and the JDBC driver does not support
      * this data type or if the JDBC driver does not support this method
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview for
-     *   JDBCParameterMetaData)
+     * @since JDK 1.2
      */
     public synchronized void setNull(int parameterIndex, int sqlType,
                                      String typeName) throws SQLException {
@@ -1886,8 +1873,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *
      * @see #addBatch
      * @see java.sql.DatabaseMetaData#supportsBatchUpdates()
-     * @since JDK 1.3 (JDK 1.1.x developers: read the overview for
-     * JDBCStatement)
+     * @since JDK 1.3
      */
     public synchronized int[] executeBatch() throws SQLException {
 
@@ -3462,8 +3448,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * or the given direction
      * is not one of <code>ResultSet.FETCH_FORWARD</code>,
      * <code>ResultSet.FETCH_REVERSE</code>, or <code>ResultSet.FETCH_UNKNOWN</code>
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *    for JDBCStatement)
+     * @since JDK 1.2
      * @see #getFetchDirection
      */
     public synchronized void setFetchDirection(
@@ -3473,9 +3458,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             checkClosed();
         }
 
-        if (direction != JDBCResultSet.FETCH_FORWARD
-                && direction != JDBCResultSet.FETCH_REVERSE
-                && direction != JDBCResultSet.FETCH_UNKNOWN) {
+        if (direction != ResultSet.FETCH_FORWARD
+                && direction != ResultSet.FETCH_REVERSE
+                && direction != ResultSet.FETCH_UNKNOWN) {
             throw JDBCUtil.notSupported();
         }
         fetchDirection = direction;
@@ -3508,8 +3493,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *          from this <code>Statement</code> object
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *    for JDBCStatement)
+     * @since JDK 1.2
      * @see #setFetchDirection
      */
     public synchronized int getFetchDirection() throws SQLException {
@@ -3545,8 +3529,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * this method is called on a closed <code>Statement</code> or the
      *        (JDBC4 modified:)
      *        condition  <code>rows >= 0</code> is not satisfied.
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *   for JDBCStatement)
+     * @since JDK 1.2
      * @see #getFetchSize
      */
     public synchronized void setFetchSize(int rows) throws SQLException {
@@ -3583,8 +3566,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *          from this <code>Statement</code> object
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *  for JDBCStatement)
+     * @since JDK 1.2
      * @see #setFetchSize
      */
     public synchronized int getFetchSize() throws SQLException {
@@ -3615,8 +3597,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <code>ResultSet.CONCUR_UPDATABLE</code>
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *  for JDBCStatement)
+     * @since JDK 1.2
      */
     public synchronized int getResultSetConcurrency() throws SQLException {
 
@@ -3647,8 +3628,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <code>ResultSet.TYPE_SCROLL_SENSITIVE</code>
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *   for JDBCStatement)
+     * @since JDK 1.2
      */
     public synchronized int getResultSetType() throws SQLException {
 
@@ -3682,8 +3662,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *  this method is called on a closed <code>Statement</code> or the
      * driver does not support batch updates
      * @see #addBatch
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *   for JDBCStatement)
+     * @since JDK 1.2
      */
     public synchronized void clearBatch() throws SQLException {
 
@@ -3705,8 +3684,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @return the connection that produced this statement
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>Statement</code>
-     * @since JDK 1.2 (JDK 1.1.x developers: read the overview
-     *    for JDBCStatement)
+     * @since JDK 1.2
      */
     public synchronized Connection getConnection() throws SQLException {
 
@@ -3718,7 +3696,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     }
 
     //----------------------------- JDBC 4.0 -----------------------------------
-// --------------------------- Added: Mustang Build 81 -------------------------
+
     boolean poolable = true;
 
     /**
@@ -4046,8 +4024,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @exception SQLException if parameterIndex does not correspond to a
      * parameter marker in the SQL statement; if a database access error occurs
      * or this method is called on a closed {@code PreparedStatement}
-     * @exception SQLFeatureNotSupportedException if
-     * the JDBC driver does not support the specified targetSqlType
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * the specified targetSqlType
      * @see JDBCType
      * @see SQLType
      * @since 1.8
@@ -4343,7 +4321,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
     /**
      * The internal parameter value setter always converts the parameter to
-     * the Java type required for data transmission.
+     * the type required for data transmission.
      *
      * @param i parameter index
      * @param o object

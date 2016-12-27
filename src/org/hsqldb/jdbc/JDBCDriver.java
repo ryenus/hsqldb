@@ -46,7 +46,6 @@ import org.hsqldb.persist.HsqlProperties;
 // fredt@users 20011220 - patch 1.7.0 by fredt
 // new version numbering scheme
 // fredt@users 20020320 - patch 1.7.0 - JDBC 2 support and error trapping
-// JDBC 2 methods can now be called from jdk 1.1.x - see javadoc comments
 // fredt@users 20030528 - patch 1.7.2 suggested by Gerhard Hiller - support for properties in URL
 // boucherb@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
 
@@ -77,45 +76,6 @@ import org.hsqldb.persist.HsqlProperties;
  *
  *  For detailed information about how to obtain HSQLDB JDBC Connections,
  *  please see {@link org.hsqldb.jdbc.JDBCConnection JDBCConnection}.<p>
- *
- * <hr>
- *
- * <b>JRE 1.1.x Notes:</b> <p>
- *
- * In general, JDBC 2 support requires Java 1.2 and above, and JDBC3 requires
- * Java 1.4 and above. In HSQLDB, support for methods introduced in different
- * versions of JDBC depends on the JDK version used for compiling and building
- * HSQLDB.<p>
- *
- * Since 1.7.0, it is possible to build the product so that
- * all JDBC 2 methods can be called while executing under the version 1.1.x
- * <em>Java Runtime Environment</em><sup><font size="-2">TM</font></sup>.
- * However, in addition to this technique requiring explicit casts to the
- * org.hsqldb.jdbc.* classes, some of the method calls also require
- * <code>int</code> values that are defined only in the JDBC 2 or greater
- * version of the {@link java.sql.ResultSet ResultSet} interface.  For this
- * reason, when the product is compiled under JDK 1.1.x, these values are
- * defined in {@link org.hsqldb.jdbc.JDBCResultSet JDBCResultSet}. <p>
- *
- * In a JRE 1.1.x environment, calling JDBC 2 methods that take or return the
- * JDBC2-only <code>ResultSet</code> values can be achieved by referring
- * to them in parameter specifications and return value comparisons,
- * respectively, as follows: <p>
- *
- * <pre class="JavaCodeExample">
- * JDBCResultSet.FETCH_FORWARD
- * JDBCResultSet.TYPE_FORWARD_ONLY
- * JDBCResultSet.TYPE_SCROLL_INSENSITIVE
- * JDBCResultSet.CONCUR_READ_ONLY
- * // etc.
- * </pre>
- *
- * However, please note that code written to use HSQLDB JDBC 2 features under
- * JDK 1.1.x will not be compatible for use with other JDBC 2 drivers. Please
- * also note that this feature is offered solely as a convenience to developers
- * who must work under JDK 1.1.x due to operating constraints, yet wish to
- * use some of the more advanced features available under the JDBC 2
- * specification. <p>
  *
  * </div> <!-- end release-specific documentation -->
  * <hr>
