@@ -5,6 +5,8 @@
 org/hsqldb/lib/tar/TarFileOutputStream.java
 org/hsqldb/lib/tar/TarGenerator.java
 org/hsqldb/lib/tar/TarReader.java
+org/hsqldb/jdbc/JDBCBlob.java
+org/hsqldb/jdbc/JDBCClob.java
 org/hsqldb/jdbc/JDBCCallableStatement.java
 org/hsqldb/jdbc/JDBCCommonDataSource.java
 org/hsqldb/jdbc/JDBCConnection.java
@@ -24,3 +26,7 @@ org/hsqldb/jdbc/pool/JDBCXADataSource.java
 org/hsqldb/lib/java/JavaSystem.java
 org/hsqldb/lib/SimpleLog.java
 org/hsqldb/server/PgType.java
+org/hsqldb/types/CharacterType.java
+org/hsqldb/types/DateTimeType.java
+org/hsqldb/types/IntervalType.java
+org/hsqldb/types/Types.java
