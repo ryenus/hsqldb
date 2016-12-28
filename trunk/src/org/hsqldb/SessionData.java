@@ -137,6 +137,8 @@ public class SessionData {
 
             returned = ResultProperties.addScrollable(returned,
                     ResultProperties.isScrollable(required));
+            returned = ResultProperties.addHoldable(returned,
+                    ResultProperties.isHoldable(required));
             result.rsProperties = returned;
         }
     }
