@@ -46,7 +46,7 @@ import org.hsqldb.lib.ArrayUtil;
  * Type subclass for various types of INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.0
  * @since 1.9.0
  */
 public final class IntervalType extends DTIType {
@@ -643,9 +643,47 @@ public final class IntervalType extends DTIType {
     }
 
     public Object convertJavaToSQL(SessionInterface session, Object a) {
+
+        Object o = convertJavaTimeObject(session, a);
+
+        if (o != null) {
+            return o;
+        }
+
         return convertToDefaultType(session, a);
     }
 
+//#ifdef JAVA8
+/*
+    Object convertJavaTimeObject(SessionInterface session, Object a) {
+
+        if (this.isIntervalYearMonthType()) {
+            if (a instanceof java.time.Period) {
+                java.time.Period v = (java.time.Period) a;
+                int months = v.getYears() * 12 + v.getMonths();
+
+                return new IntervalMonthData(months, this);
+            }
+        } else {
+            if (a instanceof java.time.Duration) {
+                java.time.Duration v = (java.time.Duration) a;
+                long second = v.getSeconds();
+                int nano   = v.getNano();
+
+                return new IntervalSecondData(second, nano, this, true);
+            }
+        }
+
+        return null;
+    }
+*/
+
+//#else
+    TimestampData convertJavaTimeObject(SessionInterface session, Object a) {
+        return null;
+    }
+
+//#endif JAVA8
     public String convertToString(Object a) {
 
         if (a == null) {
@@ -1684,6 +1722,35 @@ public final class IntervalType extends DTIType {
         }
     }
 
+    public double convertToDouble(Object interval) {
+
+        if (this.isIntervalYearMonthType()) {
+            double months = ((IntervalMonthData) interval).units;
+
+            return months;
+        } else {
+            double seconds = ((IntervalSecondData) interval).units;
+
+            seconds += ((double) ((IntervalSecondData) interval).nanos)
+                       / nanoScaleFactors[0];
+
+            return seconds;
+        }
+    }
+
+    public Object convertFromDouble(double value) {
+
+        long units = (long) value;
+
+        if (this.isIntervalYearMonthType()) {
+            return new IntervalMonthData(units);
+        } else {
+            int nanos = (int) ((value - units) * nanoScaleFactors[0]);
+
+            return new IntervalSecondData(units, nanos);
+        }
+    }
+
     public CharacterType getCharacterType() {
 
         CharacterType type = CharacterType.getCharacterType(Types.SQL_VARCHAR,
@@ -1692,5 +1759,14 @@ public final class IntervalType extends DTIType {
         type.nameString = getNameString();
 
         return type;
+    }
+
+    public Object getValue(long units, int nanos) {
+
+        if (this.isIntervalYearMonthType()) {
+            return new IntervalMonthData(units, this);
+        } else {
+            return new IntervalSecondData(units, nanos, this, true);
+        }
     }
 }

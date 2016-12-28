@@ -48,7 +48,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * has been added to differentiate HSQLDB-specific type specializations.
  *
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.0
  * @since 1.7.2
  */
 public class Types {
@@ -597,6 +597,13 @@ public class Types {
         javaTypeNumbers.put("java.lang.Object", Types.OTHER);
         javaTypeNumbers.put("java.lang.Void", Types.SQL_ALL_TYPES);
         javaTypeNumbers.put("java.util.UUID", Types.SQL_GUID);
+        javaTypeNumbers.put("java.time.LocalDate", Types.SQL_DATE);
+        javaTypeNumbers.put("java.time.LocalTime", Types.SQL_TIME);
+        javaTypeNumbers.put("java.time.LocalDateTime", Types.SQL_TIMESTAMP);
+        javaTypeNumbers.put("java.time.OffsetDateTime", Types.SQL_TIMESTAMP_WITH_TIME_ZONE);
+        javaTypeNumbers.put("java.time.OffsetTime", Types.SQL_TIME_WITH_TIME_ZONE);
+        javaTypeNumbers.put("java.time.Duration", Types.SQL_INTERVAL_SECOND);
+        javaTypeNumbers.put("java.time.Period", Types.SQL_INTERVAL_MONTH);
 
         illegalParameterClasses = new HashSet();
 

@@ -49,7 +49,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * Type subclass for CHARACTER, VARCHAR, etc.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.4.0
  * @since 1.9.0
  */
 public class CharacterType extends Type {
@@ -643,13 +643,41 @@ public class CharacterType extends Type {
         } else if (a instanceof java.util.UUID) {
             s = a.toString();
         } else {
-            throw Error.error(ErrorCode.X_42561);
+            s = convertJavaTimeObject(session, a);
+
+            if (s == null) {
+                throw Error.error(ErrorCode.X_42561);
+            }
         }
 
         return s;
     }
 
-    public Object convertJavaToSQL(SessionInterface session, Object a) {
+//#ifdef JAVA8
+/*
+    String convertJavaTimeObject(SessionInterface session, Object a) {
+
+        switch(a.getClass().getName()){
+            case "java.time.LocalDate":
+            case "java.time.LocalTime":
+                return a.toString();
+            case "java.time.LocalDateTime":
+            case "java.time.OffsetDateTime":
+            case "java.time.OffsetTime":
+                return a.toString().replace('T', ' ');
+        }
+
+        return null;
+    }
+*/
+//#else
+    String convertJavaTimeObject(SessionInterface session, Object a) {
+        return null;
+    }
+//#endif JAVA8
+
+
+public Object convertJavaToSQL(SessionInterface session, Object a) {
         return convertToDefaultType(session, a);
     }
 
