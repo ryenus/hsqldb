@@ -71,8 +71,15 @@ import java.sql.SQLTimeoutException;
 /*
 import java.sql.JDBCType;
 import java.sql.SQLType;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.ZoneOffset;
 */
-
 //#endif JAVA8
 
 import org.hsqldb.ColumnBase;
@@ -1637,11 +1644,11 @@ public class JDBCResultSet implements ResultSet {
             case Types.SQL_TIME :
                 return getTime(columnIndex);
             case Types.SQL_TIME_WITH_TIME_ZONE :
-                return getTime(columnIndex);
+                return getTimeWithZone(columnIndex);
             case Types.SQL_TIMESTAMP :
                 return getTimestamp(columnIndex);
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                return getTimestamp(columnIndex);
+                return getTimestampWithZone(columnIndex);
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
                 return getBytes(columnIndex);
@@ -6904,9 +6911,180 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
+
+//#ifdef JAVA8
+/*
+    public <T>T getObject(int columnIndex, Class<T> type) throws SQLException {
+
+        if (type == null) {
+            throw JDBCUtil.nullArgument();
+        }
+
+        Type hsqlType = Types.getParameterSQLType(type);
+
+        if(hsqlType == null) {
+            throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42561));
+        }
+
+        Type sourceType = resultMetaData.columnTypes[columnIndex - 1];
+
+
+        Object source = getColumnValue(columnIndex);
+
+        if (wasNullValue) {
+            return (T) null;
+        }
+
+        Object o = null;
+
+        switch(type.getName()){
+            case "int":
+            case "java.lang.Integer":
+                o = getInt(columnIndex);
+                break;
+            case "double":
+            case "java.lang.Double":
+                o = getDouble(columnIndex);
+                break;
+            case "boolean":
+            case "java.lang.Boolean":
+                o = getBoolean(columnIndex);
+                break;
+            case "byte":
+            case "java.lang.Byte":
+                o = getByte(columnIndex);
+                break;
+            case "short":
+            case "java.lang.Short":
+                o = getShort(columnIndex);
+                break;
+            case "long":
+            case "java.lang.Long":
+                o = getLong(columnIndex);
+                break;
+            case "[B":
+                o = getBytes(columnIndex);
+                break;
+            case "java.lang.Object":
+                o = getObject(columnIndex);
+                break;
+            case "java.math.BigDecimal":
+                o = getBigDecimal(columnIndex);
+                break;
+            case "java.sql.Blob":
+                o = getBlob(columnIndex);
+                break;
+
+            case "java.sql.Clob":
+                o = getClob(columnIndex);
+                break;
+            case "java.lang.String":
+            case "java.lang.CharSequence":
+                o = getString(columnIndex);
+                break;
+
+            case "java.sql.Date": {
+                o = getDate(columnIndex);
+                break;
+            }
+            case "java.sql.Time": {
+                o = getTime(columnIndex);
+                break;
+            }
+            case "java.sql.Timestamp": {
+                o = getTimestamp(columnIndex);
+                break;
+            }
+            case "java.util.UUID":
+                if (sourceType.typeCode == Types.SQL_GUID) {
+                    o = getObject(columnIndex);
+
+                } else if (sourceType.isBinaryType()) {
+                    o = Type.SQL_GUID.convertToType(session, source, sourceType);
+
+                } else if (sourceType.isCharacterType()) {
+                    o = Type.SQL_GUID.convertToType(session, source, sourceType);
+
+                }
+                break;
+            case "java.lang.time.LocalDate": {
+                source = hsqlType.convertToType(session, source, sourceType);
+                TimestampData v = (TimestampData) source;
+                o = LocalDate.ofEpochDay(v.getDays());
+                break;
+            }
+            case "java.time.LocalTime": {
+                source = hsqlType.convertToType(session, source, sourceType);
+                TimeData v = (TimeData) source;
+                o = LocalTime.ofNanoOfDay(v.getSeconds() * 1000_000_000L + v.getNanos());
+                break;
+            }
+            case "java.time.LocalDateTime": {
+                source = hsqlType.convertToType(session, source, sourceType);
+                TimestampData v = (TimestampData) source;
+                o = LocalDateTime.ofEpochSecond(v.getSeconds(), v.getNanos(), ZoneOffset.UTC);
+                break;
+            }
+            case "java.time.OffsetTime": {
+                source = hsqlType.convertToType(session, source, sourceType);
+                TimeData v = (TimeData) source;
+                int seconds = v.getSeconds();
+                ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
+                LocalTime lt = LocalTime.ofNanoOfDay( seconds * 1000_000_000L + v.getNanos());
+                o = OffsetTime.of(lt, z);
+                break;
+            }
+            case "java.time.OffsetDateTime": {
+                source = hsqlType.convertToType(session, source, sourceType);
+                TimestampData v = (TimestampData) source;
+                long seconds = v.getSeconds();
+                ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
+                LocalDateTime ldt = LocalDateTime.ofEpochSecond(seconds - v.getZone(), v.getNanos(), z);
+                o = OffsetDateTime.of(ldt, z);
+                break;
+            }
+            case "java.time.Duration": {
+                if (sourceType.isIntervalDaySecondType()) {
+                    hsqlType = sourceType;
+                } else {
+                    source = hsqlType.convertToType(session, source, sourceType);
+                }
+                IntervalSecondData v = (IntervalSecondData) source;
+
+                o = Duration.ofSeconds(v.getSeconds(), v.getNanos());
+                break;
+            }
+            case "java.time.Period": {
+                if (sourceType.isIntervalYearMonthType()) {
+                    hsqlType = sourceType;
+                } else {
+                    source = hsqlType.convertToType(session, source, sourceType);
+                }
+                IntervalMonthData v = (IntervalMonthData) source;
+                int months = v.getMonths();
+
+                if (hsqlType.typeCode == Types.SQL_INTERVAL_MONTH) {
+                    o = Period.ofMonths(months);
+                } else {
+                    o = Period.of(months / 12, months % 12, 0);
+                }
+                break;
+            }
+        }
+
+        if (o == null) {
+            throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42561));
+        }
+
+        return (T) o;
+    }
+*/
+//#else
     public <T>T getObject(int columnIndex, Class<T> type) throws SQLException {
         throw JDBCUtil.notSupported();
     }
+
+//#endif JAVA8
 
     /**
      * <p>Retrieves the value of the designated column in the current row
@@ -7105,6 +7283,55 @@ public class JDBCResultSet implements ResultSet {
 */
 
 //#endif
+
+
+//#ifdef JAVA8
+/*
+    private Object getTimestampWithZone(int columnIndex) throws SQLException {
+        TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
+
+        if (v == null) {
+            return null;
+        }
+
+        ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
+        LocalDateTime ldt = LocalDateTime.ofEpochSecond(v.getSeconds() - v.getZone(), v.getNanos(), z);
+        return OffsetDateTime.of(ldt, z);
+    }
+
+    private Object getTimeWithZone(int columnIndex) throws SQLException {
+        TimeData v = (TimeData) getColumnInType(columnIndex, Type.SQL_TIME_WITH_TIME_ZONE);
+
+        if (v == null) {
+            return null;
+        }
+
+        ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
+        LocalTime lt = LocalTime.ofNanoOfDay(v.getSeconds() * 1000_000_000L + v.getNanos());
+        return OffsetTime.of(lt, z);
+    }
+*/
+
+//#else
+    private Object getTimestampWithZone(int columnIndex) throws SQLException {
+        TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
+
+        if (v == null) {
+            return null;
+        }
+        return Type.SQL_TIMESTAMP.convertSQLToJava(session, v);
+    }
+
+    private Object getTimeWithZone(int columnIndex) throws SQLException {
+        TimeData v = (TimeData) getColumnInType(columnIndex, Type.SQL_TIME_WITH_TIME_ZONE);
+
+        if (v == null) {
+            return null;
+        }
+        return Type.SQL_TIME.convertSQLToJava(session, v);
+    }
+//#endif
+
 
 //------------------------ Internal Implementation -----------------------------
 

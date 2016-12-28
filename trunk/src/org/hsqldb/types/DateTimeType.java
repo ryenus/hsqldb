@@ -50,7 +50,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.0
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -786,6 +786,14 @@ public final class DateTimeType extends DTIType {
                     return new TimeData((int) millis / 1000, nanos,
                                         zoneSeconds);
                 }
+
+                TimeData time = convertJavaTimeObject(session, a);
+
+                if (time != null) {
+                    return time;
+                }
+
+
                 break;
 
             case Types.SQL_DATE : {
@@ -809,6 +817,12 @@ public final class DateTimeType extends DTIType {
                     }
 
                     return new TimestampData(seconds);
+                }
+
+                TimestampData timestamp = convertJavaTimeObject(session, a,false);
+
+                if (timestamp != null) {
+                    return timestamp;
                 }
 
                 break;
@@ -850,12 +864,146 @@ public final class DateTimeType extends DTIType {
                     return new TimestampData(seconds, nanos, zoneSeconds);
                 }
 
+                TimestampData timestamp = convertJavaTimeObject(session, a,true);
+
+                if (timestamp != null) {
+                    return timestamp;
+                }
+
                 break;
             }
         }
 
         throw Error.error(ErrorCode.X_42561);
     }
+
+
+//#ifdef JAVA8
+/*
+    TimestampData convertJavaTimeObject(SessionInterface session, Object a, boolean timestamp) {
+        if (a instanceof java.time.OffsetDateTime) {
+            java.time.OffsetDateTime odt = (java.time.OffsetDateTime) a;
+            long seconds = odt.toEpochSecond();
+            int nanos = 0;
+            int zoneSeconds = 0;
+
+            if(timestamp) {
+                nanos = odt.getNano();
+                nanos = DateTimeType.normaliseFraction(nanos, scale);
+
+                if(withTimeZone) {
+                    zoneSeconds = odt.get(java.time.temporal.ChronoField.OFFSET_SECONDS);
+                }
+            } else {
+                seconds = HsqlDateTime.getNormalisedDate(session.getCalendarGMT(),seconds * 1000) / 1000;
+            }
+            return new TimestampData(seconds, nanos, zoneSeconds);
+        } else if (a instanceof java.time.LocalDateTime) {
+            java.time.LocalDateTime odt = (java.time.LocalDateTime) a;
+            int year = odt.getYear();
+            int month = odt.getMonthValue() - 1;
+            int day = odt.getDayOfMonth();
+            int hour = 0;
+            int minute = 0;
+            int second = 0;
+            int nanos = 0;
+            int zoneSeconds = 0;
+
+            if(timestamp) {
+                hour = odt.getHour();
+                minute = odt.getMinute();
+                second = odt.getSecond();
+                nanos = odt.getNano();
+                nanos = DateTimeType.normaliseFraction(nanos, scale);
+
+                if(withTimeZone) {
+                    zoneSeconds = session.getZoneSeconds();
+                }
+            }
+
+            Calendar cal = session.getCalendarGMT();
+            cal.clear();
+            cal.set(year, month, day, hour, minute, second);
+            long seconds = cal.getTimeInMillis() / 1000;
+            return new TimestampData(seconds, nanos, zoneSeconds);
+        } else if (a instanceof java.time.LocalDate) {
+            java.time.LocalDate odt = (java.time.LocalDate) a;
+            int year = odt.getYear();
+            int month = odt.getMonthValue() - 1;
+            int day = odt.getDayOfMonth();
+            int zoneSeconds = 0;
+
+            if(timestamp) {
+                if(withTimeZone) {
+                    zoneSeconds = session.getZoneSeconds();
+                }
+            }
+
+            Calendar cal = session.getCalendarGMT();
+            cal.clear();
+
+            cal.set(year, month, day);
+            long milis = cal.getTimeInMillis();
+            return new TimestampData(milis, 0, zoneSeconds);
+        }
+
+        return null;
+    }
+
+    TimeData convertJavaTimeObject(SessionInterface session, Object a) {
+        if (a instanceof java.time.OffsetTime) {
+            java.time.OffsetTime odt = (java.time.OffsetTime) a;
+            int zoneSeconds = 0;
+
+            int hour = odt.getHour();
+            int minute = odt.getMinute();
+            int second = odt.getSecond();
+            int nanos = odt.getNano();
+            nanos = DateTimeType.normaliseFraction(nanos, scale);
+
+            if(withTimeZone) {
+                zoneSeconds = odt.get(java.time.temporal.ChronoField.OFFSET_SECONDS);
+            }
+
+            Calendar cal = session.getCalendarGMT();
+            cal.clear();
+            cal.set(1970, 1, 1, hour, minute, second);
+            int seconds = (int) cal.getTimeInMillis() / 1000;
+            return new TimeData(seconds, nanos, zoneSeconds);
+
+        } else if (a instanceof java.time.LocalTime) {
+            java.time.LocalTime odt = (java.time.LocalTime) a;
+            int zoneSeconds = 0;
+
+            int hour = odt.getHour();
+            int minute = odt.getMinute();
+            int second = odt.getSecond();
+            int nanos = odt.getNano();
+            nanos = DateTimeType.normaliseFraction(nanos, scale);
+
+            if(withTimeZone) {
+                zoneSeconds = session.getZoneSeconds();
+            }
+
+            Calendar cal = session.getCalendarGMT();
+            cal.clear();
+            cal.set(1970, 1, 1, hour, minute, second);
+            int seconds = (int) cal.getTimeInMillis() / 1000;
+            return new TimeData(seconds, nanos, zoneSeconds);
+        }
+
+        return null;
+    }
+*/
+//#else
+    TimestampData convertJavaTimeObject(SessionInterface session, Object a, boolean timestamp) {
+        return null;
+    }
+
+    TimeData convertJavaTimeObject(SessionInterface session, Object a) {
+        return null;
+    }
+//#endif JAVA8
 
     public Object convertSQLToJavaGMT(SessionInterface session, Object a) {
 
