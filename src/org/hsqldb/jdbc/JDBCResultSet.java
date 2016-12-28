@@ -101,6 +101,8 @@ import org.hsqldb.types.BinaryUUIDType;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.IntervalMonthData;
+import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
@@ -7007,10 +7009,13 @@ public class JDBCResultSet implements ResultSet {
 
                 }
                 break;
-            case "java.lang.time.LocalDate": {
+            case "java.time.LocalDate": {
                 source = hsqlType.convertToType(session, source, sourceType);
                 TimestampData v = (TimestampData) source;
-                o = LocalDate.ofEpochDay(v.getDays());
+                long millis = v.getMillis();
+                Calendar cal = session.getCalendarGMT();
+                cal.setTimeInMillis(millis);
+                o = LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
                 break;
             }
             case "java.time.LocalTime": {

@@ -42,7 +42,7 @@ import org.hsqldb.error.ErrorCode;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 2.2.6
  */
 public class TextFileSettings {
@@ -355,6 +355,10 @@ public class TextFileSettings {
                     sb.append('\'');
 
                     start += 4;
+                } else if (sep.startsWith("colon", next)) {
+                    sb.append(':');
+
+                    start += 5;
                 } else {
                     sb.append(BACKSLASH_CHAR);
                     sb.append(sepArray[next]);
