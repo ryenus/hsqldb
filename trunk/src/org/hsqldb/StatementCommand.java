@@ -678,6 +678,9 @@ public class StatementCommand extends Statement {
 
                 if (HsqlDatabaseProperties.sql_live_object.equals(property)) {
                     session.database.setLiveObject(mode);
+                } else if (HsqlDatabaseProperties.sql_restrict_exec.equals(
+                        property)) {
+                    session.database.setRestrictExec(mode);
                 } else if (HsqlDatabaseProperties.sql_enforce_names.equals(
                         property)) {
                     session.database.setStrictNames(mode);

@@ -5826,9 +5826,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since 1.8
      */
+//#ifdef JAVA8
+/*
     public long getMaxLogicalLobSize() throws SQLException {
         return Type.SQL_BLOB.maxBlobPrecision;
     }
+*/
+
+//#endif JAVA8
 
     /**
      * Retrieves whether this database supports REF CURSOR.
@@ -5838,9 +5843,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since 1.8
      */
+//#ifdef JAVA8
+/*
     public boolean supportsRefCursors() throws SQLException {
         return false;
     }
+*/
+
+//#endif JAVA8
 
     //----------------------- Internal Implementation --------------------------
 

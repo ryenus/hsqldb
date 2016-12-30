@@ -153,7 +153,7 @@ public class Tokens {
     static final String        T_ESCAPE            = "ESCAPE";
     static final String        T_EVERY             = "EVERY";
     static final String        T_EXCEPT            = "EXCEPT";
-    static final String        T_EXEC              = "EXEC";
+    public static final String T_EXEC              = "EXEC";
     public static final String T_EXECUTE           = "EXECUTE";
     static final String        T_EXISTS            = "EXISTS";
     static final String        T_EXP               = "EXP";
@@ -583,7 +583,7 @@ public class Tokens {
     static final String        T_RESPECT              = "RESPECT";
     static final String        T_RESTART              = "RESTART";
     static final String        T_RESET                = "RESET";
-    static final String        T_RESTRICT             = "RESTRICT";
+    public static final String T_RESTRICT             = "RESTRICT";
     static final String        T_RETURNED_CARDINALITY = "RETURNED_CARDINALITY";
     static final String        T_RETURNED_LENGTH      = "RETURNED_LENGTH";
     static final String T_RETURNED_OCTET_LENGTH = "RETURNED_OCTET_LENGTH";
@@ -1785,6 +1785,7 @@ public class Tokens {
     static final int        NEWID                      = 850;
     static final int        NANVL                      = 851;
     static final int        SYS_GUID                   = 852;
+
     //
     public static final int MICROSECOND = 871;
     public static final int MILLISECOND = 872;

@@ -61,7 +61,7 @@ import org.hsqldb.types.Collation;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class Database {
@@ -96,6 +96,7 @@ public class Database {
      *  databaseProperties or URL properties for new databases.
      */
     public int                    sqlAvgScale            = 0;
+    public boolean                sqlRestrictExec          = false;
     public boolean                sqlCharLiteral         = true;
     public boolean                sqlConcatNulls         = true;
     public boolean                sqlConvertTruncate     = true;
@@ -473,6 +474,10 @@ public class Database {
 
     public void setResultMaxMemoryRows(int size) {
         resultMaxMemoryRows = size;
+    }
+
+    public void setRestrictExec(boolean mode) {
+        sqlRestrictExec = mode;
     }
 
     public void setStrictNames(boolean mode) {

@@ -105,6 +105,12 @@ public class ParserCommand extends ParserDDL {
             list.add(cs);
         }
 
+        if (list.size() > 1) {
+            if (database.sqlRestrictExec) {
+                throw Error.error(ErrorCode.X_07502);
+            }
+        }
+
         int returnType = cmd.getStatementType();
 
         if (returnType != StatementTypes.RETURN_ANY) {
@@ -116,8 +122,11 @@ public class ParserCommand extends ParserDDL {
                 }
             } else if (returnType == StatementTypes.RETURN_RESULT) {
 
-                // comment out to allow update count statements with Statement.executeQuery() to return an empty result set
-                throw Error.error(ErrorCode.X_07504);
+                //  allow update count statements with Statement.executeQuery()
+                // to return an empty result set
+                if (database.sqlRestrictExec) {
+                    throw Error.error(ErrorCode.X_07504);
+                }
             }
         }
 
@@ -1144,6 +1153,15 @@ public class ParserCommand extends ParserDDL {
 
                 switch (token.tokenType) {
 
+                    case Tokens.RESTRICT :
+                        read();
+                        readThis(Tokens.EXEC);
+
+                        property = HsqlDatabaseProperties.sql_restrict_exec;
+                        flag     = processTrueOrFalseObject();
+
+                        break;
+
                     case Tokens.LIVE :
                         read();
                         readThis(Tokens.OBJECT);
@@ -1151,9 +1169,6 @@ public class ParserCommand extends ParserDDL {
                         property = HsqlDatabaseProperties.sql_live_object;
                         flag     = processTrueOrFalseObject();
 
-                        Object[] args = new Object[] {
-                            property, flag, value
-                        };
                         break;
 
                     case Tokens.NAMES :

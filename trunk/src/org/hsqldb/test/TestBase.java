@@ -75,7 +75,7 @@ import junit.framework.TestResult;
  */
 public abstract class TestBase extends TestCase {
 
-    String  dbPath = "mem:test;sql.enforce_strict_size=true";
+    String  dbPath = "mem:test;sql.enforce_strict_size=true;sql.restrict_exec=true";
     String  serverProps;
     String  url;
     String  user     = "sa";

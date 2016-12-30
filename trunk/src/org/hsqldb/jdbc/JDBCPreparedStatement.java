@@ -236,7 +236,7 @@ import org.hsqldb.types.Types;
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.0
- * @since HSQLDB 1.9.0
+ * @since 1.9.0
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
  */
@@ -3826,9 +3826,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @see #execute
      * @since 1.8
      */
+//#ifdef JAVA8
+/*
     public long getLargeUpdateCount() throws SQLException {
         return super.getUpdateCount();
     }
+*/
+
+//#endif JAVA8
 
     /**
      * Sets the limit for the maximum number of rows that any
@@ -3849,12 +3854,17 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @see #getMaxRows
      * @since 1.8
      */
+//#ifdef JAVA8
+/*
     public void setLargeMaxRows(long max) throws SQLException {
 
         int maxRows = max > Integer.MAX_VALUE ? Integer.MAX_VALUE :
                                                 (int) max;
         setMaxRows(maxRows);
     }
+*/
+
+//#endif JAVA8
 
     /**
      * Retrieves the maximum number of rows that a
@@ -3875,9 +3885,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @see #setMaxRows
      * @since 1.8
      */
+//#ifdef JAVA8
+/*
     public long getLargeMaxRows() throws SQLException {
         return maxRows;
     }
+*/
+
+//#endif JAVA8
 
     /**
      * Submits a batch of commands to the database for execution and
@@ -3934,6 +3949,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @see DatabaseMetaData#supportsBatchUpdates
      * @since 1.8
      */
+//#ifdef JAVA8
+/*
     public long[] executeLargeBatch() throws SQLException {
         int[] updateCounts = executeBatch();
 
@@ -3945,6 +3962,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         return longCounts;
     }
+*/
+
+//#endif JAVA8
 
     /**
      * <p>Sets the value of the designated parameter with the given object.
@@ -3997,7 +4017,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @see SQLType
      * @since 1.8
      */
-
 //#ifdef JAVA8
 /*
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType,
@@ -4030,7 +4049,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @see SQLType
      * @since 1.8
      */
-
 //#ifdef JAVA8
 /*
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType)
