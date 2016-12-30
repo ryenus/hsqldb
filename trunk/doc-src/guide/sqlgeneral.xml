@@ -1005,9 +1005,9 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
  TIMESTAMP(2) WITH TIME ZONE
 </programlisting>
 
-    <para>TIME or TIMESTAMP literals containing a zone displacement value 
-	are WITH TIME ZONE. Examples of the string literals used to represent
-	date time values, some with time zone, some without, are below:</para>
+    <para>TIME or TIMESTAMP literals containing a zone displacement value are
+    WITH TIME ZONE. Examples of the string literals used to represent date
+    time values, some with time zone, some without, are below:</para>
 
     <programlisting> DATE '2008-08-22'
  TIMESTAMP '2008-08-08 20:08:08'
@@ -1039,7 +1039,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <para>The time zone displacement is of the type INTERVAL HOUR TO MINUTE.
     This data type is described in the next section. The legal values are
-    between '–14:00' and   '+14:00'.</para>
+    between '–18:00' and   '+18:00'.</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>Datetime Operations</primary>
@@ -1241,21 +1241,67 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <para>If you want to store and retrieve UTC values that are independent of
     any session's time zone, you can use a TIMESTAMP WITH TIME ZONE column.
-    The setTime(...) and setTimestamp(...) methods of the PreparedStatement
-    interface which have a Calendar parameter can be used to assign the
-    values. The time zone of the given Calendar argument is used as the time
-    zone. Conversely, the getTime(...) and getTimestamp(...) methods of the
-    ResultSet interface which have a Calendar parameter can be used with a
-    Calendar argument to retrieve the values.</para>
+    The <methodname>setTime(...)</methodname> and
+    <methodname>setTimestamp(...)</methodname> methods of the
+    PreparedStatement interface which have a Calendar parameter can be used to
+    assign the values. The time zone of the given Calendar argument is used as
+    the time zone. Conversely, the <methodname>getTime(...)</methodname> and
+    <methodname>getTimestamp(...)</methodname> methods of the ResultSet
+    interface which have a Calendar parameter can be used with a Calendar
+    argument to retrieve the values.</para>
 
-    <para>JDBC 4 has an unfortunate limitation and does not include type codes
-    for SQL datetime types that have a TIME ZONE property. Therefore, for
-    compatibility with database tools that are limited to the JDBC type codes,
-    HyperSQL reports these types by default as datetime types without TIME
-    ZONE. The new type code for TIMESTAMP WITH TIME ZONE introduced in JAVA 8 
-	will be supported at some point. You can use the URL property
-    <literal>hsqldb.translate_dti_types=false</literal> to override the
-    default behaviour.</para>
+    <para>JDBC 4 and JAVA6 has an unfortunate limitation and does not include
+    type codes for SQL datetime types that have a TIME ZONE property.
+    Therefore, for compatibility with database tools that are limited to the
+    JDBC type codes, HyperSQL reports these types by default as datetime types
+    without TIME ZONE.</para>
+
+    <simpara><emphasis role="bold">Java 8 Extensions</emphasis></simpara>
+
+    <para>JAVA 8 introduced new type codes for TIMESTAMP WITH TIME ZONE and
+    TIME WITH TIME ZONE. HSQLDB 2.4.0 and later when compiled with JDK8
+    supports this in <classname>ResultSet</classname>,
+    <classname>PreparedStatement</classname> and
+    <classname>CallableStatement</classname>.</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>The <methodname>getObject(int columnIndex)</methodname> method
+        on a column of TIMESTAMP WITH TIME ZONE returns an
+        <classname>java.time.OffsetDateTime</classname> object. </para>
+      </listitem>
+
+      <listitem>
+        <para>The <methodname>getObject(int columnIndex)</methodname> method
+        on a column of TIME WITH TIME ZONE returns an
+        <classname>java.time.OffsetTime</classname> object.</para>
+      </listitem>
+
+      <listitem>
+        <para>The <methodname>getObject(int columnIndex, Class
+        type)</methodname> method on any date, time and timestamp supports the
+        <classname>java.time</classname> package types:
+        <classname>LocalDate</classname>, <classname>LocalTime</classname>,
+        <classname>LocalDateTime</classname>,
+        <classname>OffsetTime</classname> and
+        <classname>OffsetDateTime</classname> as well as
+        <classname>java.sql</classname> package types,
+        <classname>Date</classname>, <classname>Time</classname> and
+        <classname>Timestamp</classname>.</para>
+      </listitem>
+
+      <listitem>
+        <para>The <methodname>setObject</methodname> methods also support Java
+        objects of the types listed above.</para>
+      </listitem>
+
+      <listitem>
+        <para>The <methodname>getObject</methodname> and
+        <methodname>setObject</methodname> methods with column name parameters
+        bahave just like their counterparts with columnIndexe
+        parameters.</para>
+      </listitem>
+    </itemizedlist>
 
     <simpara><emphasis role="bold">Non-Standard
     Extensions</emphasis></simpara>
@@ -1508,6 +1554,38 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     default as VARCHAR. You can use the URL property
     <literal>hsqldb.translate_dti_types=false</literal> to override the
     default behaviour.</para>
+
+    <simpara><emphasis role="bold">Java 8 Extensions</emphasis></simpara>
+
+    <para>JAVA 8 does not have a type codes for INTERVAL types. HSQLDB 2.4.0
+    and later when compiled with JDK8 supports
+    <classname>java.time</classname> types for INTERVAL types in
+    <classname>ResultSet</classname>, <classname>PreparedStatement</classname>
+    and <classname>CallableStatement</classname>.</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>The <methodname>getObject(int columnIndex, Class
+        type)</methodname> method on an INTERVAL supports
+        <classname>java.time.Period</classname> type for YEAR and MONTH
+        interval and <classname>java.time.Duration</classname> type for other
+        interval types that cover DAY to SECOND.</para>
+      </listitem>
+
+      <listitem>
+        <para>The <methodname>setObject(int columnIndex)</methodname> method
+        accepts <classname>java.time.Period</classname> and
+        <classname>java.time.Duration</classname> objects for columns of
+        relevant INTERVAL types.</para>
+      </listitem>
+
+      <listitem>
+        <para>The <methodname>getObject</methodname> and
+        <methodname>setObject</methodname> methods with column name parameters
+        bahave just like their counterparts with columnIndexe
+        parameters.</para>
+      </listitem>
+    </itemizedlist>
   </section>
 
   <section xml:id="sgc_array">
@@ -1522,7 +1600,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <para>Elements of the array are either NULL, or of the same data type. It
     is possible to define arrays of all supported types, including the types
-    covered in this chapter and user defined types, except LOB types. An SQL
+    covered in this chapter and user-defined types, except LOB types. An SQL
     array is one dimensional and is addressed from position 1. An empty array
     can also be used, which has no element.</para>
 

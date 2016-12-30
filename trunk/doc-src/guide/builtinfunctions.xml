@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2016 Fred Toussi. Permission is granted to
+      <para>Copyright 2010-2017 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -514,10 +514,11 @@
     <para><literal>REGEXP_REPLACE ( &lt;char value expr 1&gt;, &lt;regular
     expression&gt;, &lt;char value expr 3&gt; ) </literal></para>
 
-    <para>Replaces <literal>&lt;char value expr 1&gt;</literal>
-    regions that match the <literal>&lt;regular expression&gt;</literal> with <literal>&lt;char value expr 3&gt;</literal>. The
-    <literal>&lt;regular expression&gt;</literal> is defined according to Java
-    language regular expression rules. (HyperSQL)</para>
+    <para>Replaces <literal>&lt;char value expr 1&gt;</literal> regions that
+    match the <literal>&lt;regular expression&gt;</literal> with
+    <literal>&lt;char value expr 3&gt;</literal>. The <literal>&lt;regular
+    expression&gt;</literal> is defined according to Java language regular
+    expression rules. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>REGEXP_SUBSTRING function</primary>
@@ -926,6 +927,17 @@
     as a value of DOUBLE type. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>COSH function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">COSH</emphasis></simpara>
+
+    <para><literal>COSH ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the hyperbolic cosine of the argument
+    as a value of DOUBLE type. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>COT function</primary>
     </indexterm>
 
@@ -1006,19 +1018,33 @@
     <para>Returns the base 10 logarithm of the argument as a value of DOUBLE
     type. (JDBC)</para>
 
-    <para><literal>MOD ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt; )
-    </literal></para>
-
     <indexterm significance="preferred" type="sql">
       <primary>MOD function</primary>
     </indexterm>
 
     <simpara><emphasis role="bold">MOD</emphasis></simpara>
 
+    <para><literal>MOD ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt; )
+    </literal></para>
+
     <para>Returns the remainder (modulus) of <literal>&lt;num value expr
     1&gt;</literal> divided by <literal>&lt;num value expr 2&gt;.</literal>
     The data type of the returned value is the same as the second argument.
     (JDBC and Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>NAVL function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">NANVL</emphasis></simpara>
+
+    <para><literal>NANVL ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt; )
+    </literal></para>
+
+    <para>Returns an alternative for the NaN (Not a Number) double value in <literal>&lt;num value expr
+    1&gt;</literal> as <literal>&lt;num value expr 2&gt;.</literal>, otherwise returns the first argument.
+    The data type of the returned value is DOUBLE.
+    (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>PI function</primary>
@@ -1117,6 +1143,17 @@
     a value of DOUBLE type. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>SINH function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SINH</emphasis></simpara>
+
+    <para><literal>SINH ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the hyperbolic sine of the argument as
+    a value of DOUBLE type. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>SQRT function</primary>
     </indexterm>
 
@@ -1137,6 +1174,17 @@
 
     <para>Returns the tangent of the argument (an angle expressed in radians)
     as a value of DOUBLE type. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TANH function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TANH</emphasis></simpara>
+
+    <para><literal>TANH ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the hyperbolic tangent of the argument
+    as a value of DOUBLE type. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TO_NUMBER function</primary>
@@ -1422,6 +1470,16 @@
       <title>Functions to Extract an Element of a Datetime</title>
 
       <indexterm significance="preferred" type="sql">
+        <primary>DATENAME, DATEPART and EOMONTH functions</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DATENAME, DATEPART and EOMONTH</emphasis></simpara>
+
+      <para>These functions are available in the MSS compatibility mode
+	  and perform the equivalent of EXTRACT function or the LAST_DAY function.
+      (HyperSQL)</para>
+	  
+      <indexterm significance="preferred" type="sql">
         <primary>DAYNAME function</primary>
       </indexterm>
 
@@ -1578,9 +1636,9 @@
       </literal></para>
 
       <para>This function returns a BIGINT value. With no parameter, it
-      returns the number of milliseconds since 1970-01-01. With a DATE or TIMESTAMP
-      parameter, it converts the argument into number of milliseconds since
-      1970-01-01. (HyperSQL)</para>
+      returns the number of milliseconds since 1970-01-01. With a DATE or
+      TIMESTAMP parameter, it converts the argument into number of
+      milliseconds since 1970-01-01. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>UNIX_TIMESTAMP function</primary>
@@ -1678,6 +1736,22 @@
     <section xml:id="bfc_datetime_arithmetic">
       <title>Functions for Datetime Arithmetic</title>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>NEXT_DAY function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">NEXT_DAY</emphasis></simpara>
+
+      <para><literal>NEXT_DAY ( &lt;datetime value expr&gt;, &lt;character
+      value expr&gt;)</literal></para>
+
+      <para>This function returns a value of the same type as the first argument.
+	  The return value is the next weekday named by the second argument that
+	  occurs after the first date. For example next Wednesday is
+	  expressed as <literal>NEXT_DAY(CURRENT_DATE, 'WEDNESDAY')</literal>.
+	  (HyperSQL)</para>
+
+	  
       <indexterm significance="preferred" type="sql">
         <primary>ADD_MONTHS function</primary>
       </indexterm>
@@ -1864,16 +1938,15 @@
       'day' | 'hh' | 'hour' | 'mi' | 'minute' | 'ss' | 'second' | 'ms' |
       'millisecond'</literal></para>
 
-      <para><literal>&lt;field&gt; ::= YY | YEAR | MM | MONTH | DD |
-      DAY | HH | HOUR | MI | MINUTE | SS | SECOND | MS |
-      MILLISECOND</literal></para>
-	  
+      <para><literal>&lt;field&gt; ::= YY | YEAR | MM | MONTH | DD | DAY | HH
+      | HOUR | MI | MINUTE | SS | SECOND | MS | MILLISECOND</literal></para>
+
       <para>The DATEADD and DATEDIFF functions are alternatives to
       TIMESTAMPADD and TIMESTAMPDIFF, with fewer available field options. The
       field names are specified as strings or as keywords. The short field
-      names translate to YEAR, MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND.
-      <literal>DATEDIFF</literal> is evaluated as &lt;datetime value expr
-      2&gt; - &lt;datetime value expr 1&gt;. (HyperSQL}</para>
+      names translate to YEAR, MONTH, DAY, HOUR, MINUTE, SECOND and
+      MILLISECOND. <literal>DATEDIFF</literal> is evaluated as &lt;datetime
+      value expr 2&gt; - &lt;datetime value expr 1&gt;. (HyperSQL}</para>
 
       <para><literal>DATEDIFF ( &lt;datetime value expr 1&gt;, &lt;datetime
       value expr 2&gt; )</literal></para>
@@ -2601,7 +2674,17 @@
     byte binary value. With a UUID hexadecimal string argument, it returns the
     16 byte binary value of the UUID. With a 16 byte binary argument, it
     returns the formatted UUID character representation. (HyperSQL)</para>
-  </section>
+
+    <simpara><emphasis role="bold">SYS_GUID</emphasis></simpara>
+
+    <para><literal>SYS_GUID () </literal></para>
+
+    <simpara><emphasis role="bold">NEWID</emphasis></simpara>
+
+    <para><literal>NEWID () </literal></para>
+
+    <para>These are synonyms for the UUID function in ORA and MSS compatibility modes. (HyperSQL)</para>
+	</section>
 
   <section xml:id="bfc_system_functions">
     <title>System Functions</title>
@@ -2944,7 +3027,7 @@
 
     <para>Returns the current row number (from 1) being processed in a select
     statement. This has the same semantics as the ROWNUM pseudo-column in
-    Oracle syntax mode, but can be used in any syntax mode. The function is
+    ORA syntax mode, but can be used in any syntax mode. The function is
     used in a SELECT or DELETE statement. The ROWNUM of a row is incremented
     as the rows are added to the result set. It is therefore possible to use a
     condition such as WHERE ROWNUM() &lt; 10, but not ROWNUM() &gt; 10 or
