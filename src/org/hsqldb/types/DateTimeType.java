@@ -2525,7 +2525,7 @@ public final class DateTimeType extends DTIType {
 
         Calendar cal = session.getCalendarGMT();
 
-        cal.setTimeInMillis(d.getSeconds() * 1000);
+        cal.setTimeInMillis(d.getMillis());
 
         int start = cal.get(Calendar.DAY_OF_WEEK);
 

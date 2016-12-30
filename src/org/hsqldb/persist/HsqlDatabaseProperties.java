@@ -248,6 +248,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "jdbc.translate_tti_types";
 
     //
+    public static final String sql_restrict_exec       = "sql.restrict_exec";
     public static final String sql_ref_integrity       = "sql.ref_integrity";
     public static final String sql_compare_in_locale = "sql.compare_in_locale";
     public static final String sql_enforce_size        = "sql.enforce_size";
@@ -399,6 +400,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_ref_integrity,
                    HsqlProperties.getMeta(sql_ref_integrity, SQL_PROPERTY,
                                           true));
+        dbMeta.put(sql_restrict_exec,
+                   HsqlProperties.getMeta(sql_restrict_exec, SQL_PROPERTY,
+                                          false));
 
         // SQL reserved words not allowed as some identifiers
         dbMeta.put(sql_enforce_names,

@@ -88,7 +88,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.7.0
  */
 public class Logger implements EventLogInterface {
@@ -546,6 +546,8 @@ public class Logger implements EventLogInterface {
         database.txConflictRollback =
             database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.hsqldb_tx_conflict_rollback);
+        database.sqlRestrictExec = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_restrict_exec);
         database.sqlEnforceNames = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_names);
         database.sqlRegularNames = database.databaseProperties.isPropertyTrue(
@@ -1658,6 +1660,10 @@ public class Logger implements EventLogInterface {
             return database.granteeManager.getDigestAlgo();
         }
 
+        if (HsqlDatabaseProperties.sql_restrict_exec.equals(name)) {
+            return String.valueOf(database.sqlRestrictExec);
+        }
+
         if (HsqlDatabaseProperties.sql_avg_scale.equals(name)) {
             return String.valueOf(database.sqlAvgScale);
         }
@@ -1908,6 +1914,16 @@ public class Logger implements EventLogInterface {
                                            : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
+
+        if (database.sqlRestrictExec) {
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_RESTRICT).append(' ');
+            sb.append(Tokens.T_EXEC).append(' ');
+            sb.append(database.sqlRestrictExec ? Tokens.T_TRUE
+                                               : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
 
         if (!database.sqlRegularNames) {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');

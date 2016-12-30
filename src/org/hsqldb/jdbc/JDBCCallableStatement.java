@@ -61,6 +61,14 @@ import java.sql.SQLXML;
 /*
 import java.sql.JDBCType;
 import java.sql.SQLType;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.ZoneOffset;
 */
 
 //#endif JAVA8
@@ -76,6 +84,8 @@ import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.IntervalMonthData;
+import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
@@ -210,7 +220,7 @@ import org.hsqldb.types.Types;
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.0
- * @since HSQLDB 1.9.0
+ * @since 1.9.0
  * @see JDBCConnection#prepareCall
  * @see JDBCResultSet
  */
@@ -911,11 +921,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             case Types.SQL_DATE :
                 return getDate(parameterIndex);
             case Types.SQL_TIME :
-            case Types.SQL_TIME_WITH_TIME_ZONE :
                 return getTime(parameterIndex);
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                return getTimeWithZone(parameterIndex);
             case Types.SQL_TIMESTAMP :
-            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return getTimestamp(parameterIndex);
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                return getTimestampWithZone(parameterIndex);
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
                 return getBytes(parameterIndex);
@@ -3131,7 +3143,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see #setObject
      * @since JDK 1.4, HSQLDB 1.7.0
      */
-    @SuppressWarnings("unchecked")
     public synchronized Object getObject(String parameterName,
             Map<String, Class<?>> map) throws SQLException {
         return getObject(findParameterIndex(parameterName), map);
@@ -3553,10 +3564,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setNString(String parameterName,
                                         String value) throws SQLException {
         super.setNString(findParameterIndex(parameterName), value);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object. The
@@ -3575,11 +3589,14 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setNCharacterStream(String parameterName,
             Reader value, long length) throws SQLException {
         super.setNCharacterStream(findParameterIndex(parameterName), value,
                                   length);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>java.sql.NClob</code> object. The object
@@ -3625,10 +3642,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setClob(String parameterName, Reader reader,
                                      long length) throws SQLException {
         super.setClob(findParameterIndex(parameterName), reader, length);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>InputStream</code> object.  The <code>inputstream</code> must contain  the number
@@ -3656,11 +3676,14 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setBlob(String parameterName,
                                      InputStream inputStream,
                                      long length) throws SQLException {
         super.setBlob(findParameterIndex(parameterName), inputStream, length);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.  The <code>reader</code> must contain  the number
@@ -3685,10 +3708,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setNClob(String parameterName, Reader reader,
                                       long length) throws SQLException {
         super.setNClob(findParameterIndex(parameterName), reader, length);
     }
+
+//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -3904,12 +3930,15 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 2.0
      * @see #setNString
      */
+//#ifdef JAVA6
     public String getNString(int parameterIndex) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
 
         throw JDBCUtil.notSupported();
     }
+
+//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -3949,10 +3978,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 2.0
      * @see #setNString
      */
+//#ifdef JAVA6
     public synchronized String getNString(
             String parameterName) throws SQLException {
         return getNString(findParameterIndex(parameterName));
     }
+
+//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -3986,12 +4018,15 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public Reader getNCharacterStream(int parameterIndex) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
 
         throw JDBCUtil.notSupported();
     }
+
+//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -4025,10 +4060,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized Reader getNCharacterStream(
             String parameterName) throws SQLException {
         return getNCharacterStream(findParameterIndex(parameterName));
     }
+
+//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -4056,6 +4094,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public Reader getCharacterStream(int parameterIndex) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
@@ -4077,6 +4116,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         throw JDBCUtil.sqlException(ErrorCode.X_42561);
     }
+
+//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -4106,10 +4147,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized Reader getCharacterStream(
             String parameterName) throws SQLException {
         return getCharacterStream(findParameterIndex(parameterName));
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>java.sql.Blob</code> object.
@@ -4125,10 +4169,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      *  @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setBlob(String parameterName,
                                      Blob x) throws SQLException {
         super.setBlob(findParameterIndex(parameterName), x);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>java.sql.Clob</code> object.
@@ -4144,10 +4191,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      *  @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setClob(String parameterName,
                                      Clob x) throws SQLException {
         super.setClob(findParameterIndex(parameterName), x);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given input stream, which will have
@@ -4172,6 +4222,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setAsciiStream(String parameterName,
             java.io.InputStream x, long length) throws SQLException {
 
@@ -4183,6 +4234,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
         this.setAsciiStream(parameterName, x, (int) length);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given input stream, which will have
@@ -4206,6 +4259,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setBinaryStream(String parameterName,
             java.io.InputStream x, long length) throws SQLException {
 
@@ -4217,6 +4271,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
         setBinaryStream(parameterName, x, (int) length);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>Reader</code>
@@ -4242,6 +4298,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setCharacterStream(String parameterName,
             java.io.Reader reader, long length) throws SQLException {
 
@@ -4252,6 +4309,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
         setCharacterStream(parameterName, reader, (int) length);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given input stream.
@@ -4276,10 +4335,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *   @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setAsciiStream(String parameterName,
             java.io.InputStream x) throws SQLException {
         super.setAsciiStream(findParameterIndex(parameterName), x);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given input stream.
@@ -4303,10 +4365,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setBinaryStream(String parameterName,
             java.io.InputStream x) throws SQLException {
         super.setBinaryStream(findParameterIndex(parameterName), x);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>Reader</code>
@@ -4333,10 +4398,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setCharacterStream(String parameterName,
             java.io.Reader reader) throws SQLException {
         super.setCharacterStream(findParameterIndex(parameterName), reader);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object. The
@@ -4361,10 +4429,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setNCharacterStream(String parameterName,
             Reader value) throws SQLException {
         super.setNCharacterStream(findParameterIndex(parameterName), value);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.
@@ -4387,10 +4458,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setClob(String parameterName,
                                      Reader reader) throws SQLException {
         super.setClob(findParameterIndex(parameterName), reader);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>InputStream</code> object.
@@ -4414,11 +4488,14 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setBlob(
             String parameterName,
             InputStream inputStream) throws SQLException {
         super.setBlob(findParameterIndex(parameterName), inputStream);
     }
+
+//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.
@@ -4442,11 +4519,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * JDK 1.6, HSQLDB 2.0
      */
+//#ifdef JAVA6
     public synchronized void setNClob(String parameterName,
                                       Reader reader) throws SQLException {
         super.setNClob(findParameterIndex(parameterName), reader);
     }
 
+//#endif JAVA6
     //------------------------- JDBC 4.1 -----------------------------------
 
     /**
@@ -4474,33 +4553,162 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-    public <T>T getObject(int parameterIndex,
-                          Class<T> type) throws SQLException {
-        Type targetType;
+//#ifdef JAVA8
+/*
+    public <T>T getObject(int columnIndex, Class<T> type) throws SQLException {
 
-        if (type == Integer.class) {
-            targetType = Type.SQL_INTEGER ;
-        } else if (type == Long.class) {
-            targetType = Type.SQL_BIGINT ;
-        } else if (type == BigDecimal.class) {
-            targetType = Type.SQL_DECIMAL_DEFAULT ;
-        } else if (type == Double.class) {
-            targetType = Type.SQL_DOUBLE ;
-        } else if (type == String.class) {
-            targetType = Type.SQL_VARCHAR ;
-        } else if (type == byte[].class) {
-            targetType = Type.SQL_VARBINARY ;
-        } else if (type == Boolean.class) {
-            targetType = Type.SQL_BOOLEAN ;
-        } else {
-            Object c = Object.class;
-            HsqlException err = Error.error(ErrorCode.X_42561);
-
-            throw JDBCUtil.sqlException(err);
+        if (type == null) {
+            throw JDBCUtil.nullArgument();
         }
 
-        return (T) getColumnInType(parameterIndex, targetType);
+        Type hsqlType = Types.getParameterSQLType(type);
+
+        if(hsqlType == null) {
+            throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42561));
+        }
+
+        Object source;
+
+        if (wasNullValue) {
+            return (T) null;
+        }
+
+        Object o = null;
+
+        switch(type.getName()){
+            case "int":
+            case "java.lang.Integer":
+                o = getInt(columnIndex);
+                break;
+            case "double":
+            case "java.lang.Double":
+                o = getDouble(columnIndex);
+                break;
+            case "boolean":
+            case "java.lang.Boolean":
+                o = getBoolean(columnIndex);
+                break;
+            case "byte":
+            case "java.lang.Byte":
+                o = getByte(columnIndex);
+                break;
+            case "short":
+            case "java.lang.Short":
+                o = getShort(columnIndex);
+                break;
+            case "long":
+            case "java.lang.Long":
+                o = getLong(columnIndex);
+                break;
+            case "[B":
+                o = getBytes(columnIndex);
+                break;
+            case "java.lang.Object":
+                o = getObject(columnIndex);
+                break;
+            case "java.math.BigDecimal":
+                o = getBigDecimal(columnIndex);
+                break;
+            case "java.sql.Blob":
+                o = getBlob(columnIndex);
+                break;
+
+            case "java.sql.Clob":
+                o = getClob(columnIndex);
+                break;
+            case "java.lang.String":
+            case "java.lang.CharSequence":
+                o = getString(columnIndex);
+                break;
+
+            case "java.sql.Date": {
+                o = getDate(columnIndex);
+                break;
+            }
+            case "java.sql.Time": {
+                o = getTime(columnIndex);
+                break;
+            }
+            case "java.sql.Timestamp": {
+                o = getTimestamp(columnIndex);
+                break;
+            }
+            case "java.util.UUID":
+                source = getColumnInType(columnIndex, hsqlType);
+                o = Type.SQL_GUID.convertSQLToJava(session, source);
+                break;
+            case "java.time.LocalDate": {
+                source = getColumnInType(columnIndex, hsqlType);
+                TimestampData v = (TimestampData) source;
+                long millis = v.getMillis();
+                Calendar cal = session.getCalendarGMT();
+                cal.setTimeInMillis(millis);
+                o = LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
+                break;
+            }
+            case "java.time.LocalTime": {
+                source = getColumnInType(columnIndex, hsqlType);
+                TimeData v = (TimeData) source;
+                o = LocalTime.ofNanoOfDay(v.getSeconds() * 1000_000_000L + v.getNanos());
+                break;
+            }
+            case "java.time.LocalDateTime": {
+                source = getColumnInType(columnIndex, hsqlType);
+                TimestampData v = (TimestampData) source;
+                o = LocalDateTime.ofEpochSecond(v.getSeconds(), v.getNanos(), ZoneOffset.UTC);
+                break;
+            }
+            case "java.time.OffsetTime": {
+                o = getTimeWithZone(columnIndex);
+                break;
+            }
+            case "java.time.OffsetDateTime": {
+                o = getTimestampWithZone(columnIndex);
+                break;
+            }
+            case "java.time.Duration": {
+                Type sourceType = parameterMetaData.columnTypes[columnIndex - 1];
+
+                if (!sourceType.isIntervalDaySecondType()) {
+                    break;
+                }
+                source = getColumnInType(columnIndex, hsqlType);
+                IntervalSecondData v = (IntervalSecondData) source;
+                o = Duration.ofSeconds(v.getSeconds(), v.getNanos());
+                break;
+            }
+            case "java.time.Period": {
+                Type sourceType = parameterMetaData.columnTypes[columnIndex - 1];
+
+                if (!sourceType.isIntervalYearMonthType()) {
+                    break;
+                }
+                source = getColumnInType(columnIndex, hsqlType);
+                IntervalMonthData v = (IntervalMonthData) source;
+                int months = v.getMonths();
+
+                if (sourceType.typeCode == Types.SQL_INTERVAL_MONTH) {
+                    o = Period.ofMonths(months);
+                } else {
+                    o = Period.of(months / 12, months % 12, 0);
+                }
+                break;
+            }
+        }
+
+        if (o == null) {
+            throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42561));
+        }
+
+        return (T) o;
     }
+*/
+//#else
+    public <T>T getObject(int columnIndex, Class<T> type) throws SQLException {
+        throw JDBCUtil.notSupported();
+    }
+
+//#endif JAVA8
 
     /**
      * <p>Returns an object representing the value of OUT parameter
@@ -5095,6 +5303,53 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         return value;
     }
+
+//#ifdef JAVA8
+/*
+    private Object getTimestampWithZone(int columnIndex) throws SQLException {
+        TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
+
+        if (v == null) {
+            return null;
+        }
+
+        ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
+        LocalDateTime ldt = LocalDateTime.ofEpochSecond(v.getSeconds() - v.getZone(), v.getNanos(), z);
+        return OffsetDateTime.of(ldt, z);
+    }
+
+    private Object getTimeWithZone(int columnIndex) throws SQLException {
+        TimeData v = (TimeData) getColumnInType(columnIndex, Type.SQL_TIME_WITH_TIME_ZONE);
+
+        if (v == null) {
+            return null;
+        }
+
+        ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
+        LocalTime lt = LocalTime.ofNanoOfDay(v.getSeconds() * 1000_000_000L + v.getNanos());
+        return OffsetTime.of(lt, z);
+    }
+*/
+
+//#else
+    private Object getTimestampWithZone(int columnIndex) throws SQLException {
+        TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
+
+        if (v == null) {
+            return null;
+        }
+        return Type.SQL_TIMESTAMP.convertSQLToJava(session, v);
+    }
+
+    private Object getTimeWithZone(int columnIndex) throws SQLException {
+        TimeData v = (TimeData) getColumnInType(columnIndex, Type.SQL_TIME_WITH_TIME_ZONE);
+
+        if (v == null) {
+            return null;
+        }
+        return Type.SQL_TIME.convertSQLToJava(session, v);
+    }
+//#endif
 
     private boolean trackNull(Object o) {
         return (wasNullValue = (o == null));

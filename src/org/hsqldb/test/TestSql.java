@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,8 +70,9 @@ public class TestSql extends TestBase {
 
     public void testMetaData() {
 
-        String ddl0 =
-            "DROP TABLE ADDRESSBOOK IF EXISTS; DROP TABLE ADDRESSBOOK_CATEGORY IF EXISTS; DROP TABLE USER IF EXISTS;";
+        String ddl01 = "DROP TABLE ADDRESSBOOK IF EXISTS";
+        String ddl02 = "DROP TABLE ADDRESSBOOK_CATEGORY IF EXISTS";
+        String ddl03 = "DROP TABLE USER IF EXISTS";
         String ddl1 =
             "CREATE TABLE USER(USER_ID INTEGER NOT NULL PRIMARY KEY,LOGIN_ID VARCHAR(128) NOT NULL,USER_NAME VARCHAR(254) DEFAULT ' ' NOT NULL,CREATE_DATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,UPDATE_DATE TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,LAST_ACCESS_DATE TIMESTAMP,CONSTRAINT IXUQ_LOGIN_ID0 UNIQUE(LOGIN_ID))";
         String ddl2 =
@@ -85,7 +86,9 @@ public class TestSql extends TestBase {
         String result5 = "5";
 
         try {
-            stmnt.execute(ddl0);
+            stmnt.execute(ddl01);
+            stmnt.execute(ddl02);
+            stmnt.execute(ddl03);
             stmnt.execute(ddl1);
             stmnt.execute(ddl2);
             stmnt.execute(ddl3);
@@ -359,13 +362,14 @@ public class TestSql extends TestBase {
         double  value    = 0;
         boolean wasEqual = false;
         String  message  = "DB operation completed";
-        String ddl1 =
-            "DROP TABLE t1 IF EXISTS;"
-            + "CREATE TABLE t1 ( d DECIMAL, f DOUBLE, l BIGINT, i INTEGER, s SMALLINT, t TINYINT, "
+        String  ddl1     = "DROP TABLE t1 IF EXISTS;";
+        String ddl2 =
+            "CREATE TABLE t1 ( d DECIMAL, f DOUBLE, l BIGINT, i INTEGER, s SMALLINT, t TINYINT, "
             + "dt DATE DEFAULT CURRENT_DATE, ti TIME DEFAULT CURRENT_TIME, ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP );";
 
         try {
             stmnt.execute(ddl1);
+            stmnt.execute(ddl2);
 
             PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO t1 (d,f,l,i,s,t,dt,ti,ts) VALUES (?,?,?,?,?,?,?,?,?)");

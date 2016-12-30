@@ -832,7 +832,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws java.sql.SQLException If no object found that implements the interface
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6
      */
 //#ifdef JAVA6
     @SuppressWarnings("unchecked")
@@ -860,7 +860,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
      * @throws java.sql.SQLException  if an error occurs while determining whether this is a wrapper
      * for an object with the given interface.
-     * @since JDK 1.6, HSQLDB 1.8.x
+     * @since JDK 1.6
      */
 //#ifdef JAVA6
     public boolean isWrapperFor(

@@ -306,7 +306,7 @@ import org.hsqldb.types.Types;
  * @author Campbell Burnet (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.0
- * @since HSQLDB 1.9.0
+ * @since 1.9.0
  */
 public class JDBCResultSet implements ResultSet {
 
@@ -6398,11 +6398,14 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since 1.6
      */
+//#ifdef JAVA6
     public void updateNCharacterStream(
             int columnIndex, java.io.Reader reader) throws SQLException {
         startUpdate(columnIndex);
         preparedStatement.setCharacterStream(columnIndex, reader);
     }
+
+//#endif JAVA6
 
     /**
      * Updates the designated column with a character stream value.
@@ -6433,6 +6436,7 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since 1.6
      */
+//#ifdef JAVA6
     public void updateNCharacterStream(
             String columnLabel, java.io.Reader reader) throws SQLException {
 
@@ -6441,6 +6445,8 @@ public class JDBCResultSet implements ResultSet {
         startUpdate(columnIndex);
         preparedStatement.setCharacterStream(columnIndex, reader);
     }
+
+//#endif JAVA6
 
     /**
      * Updates the designated column with an ascii stream value.
@@ -6466,11 +6472,14 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since 1.6
      */
+//#ifdef JAVA6
     public void updateAsciiStream(int columnIndex,
                                   java.io.InputStream x) throws SQLException {
         startUpdate(columnIndex);
         preparedStatement.setAsciiStream(columnIndex, x);
     }
+
+//#endif JAVA6
 
     /**
      * Updates the designated column with a binary stream value.
@@ -6496,11 +6505,14 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since 1.6
      */
+//#ifdef JAVA6
     public void updateBinaryStream(int columnIndex,
                                    java.io.InputStream x) throws SQLException {
         startUpdate(columnIndex);
         preparedStatement.setBinaryStream(columnIndex, x);
     }
+
+//#endif JAVA6
 
     /**
      * Updates the designated column with a character stream value.
@@ -6526,11 +6538,14 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since 1.6
      */
+//#ifdef JAVA6
     public void updateCharacterStream(int columnIndex,
                                       java.io.Reader x) throws SQLException {
         startUpdate(columnIndex);
         preparedStatement.setCharacterStream(columnIndex, x);
     }
+
+//#endif JAVA6
 
     /**
      * Updates the designated column with an ascii stream value.
@@ -6556,6 +6571,7 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since 1.6
      */
+//#ifdef JAVA6
     public void updateAsciiStream(String columnLabel,
                                   java.io.InputStream x) throws SQLException {
 
@@ -6564,6 +6580,8 @@ public class JDBCResultSet implements ResultSet {
         startUpdate(columnIndex);
         preparedStatement.setAsciiStream(columnIndex, x);
     }
+
+//#endif JAVA6
 
     /**
      * Updates the designated column with a binary stream value.
@@ -6589,6 +6607,7 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since 1.6
      */
+//#ifdef JAVA6
     public void updateBinaryStream(String columnLabel,
                                    java.io.InputStream x) throws SQLException {
 
@@ -6597,6 +6616,8 @@ public class JDBCResultSet implements ResultSet {
         startUpdate(columnIndex);
         preparedStatement.setBinaryStream(columnIndex, x);
     }
+
+//#endif JAVA6
 
     /**
      * Updates the designated column with a character stream value.
@@ -6622,6 +6643,7 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since 1.6
      */
+//#ifdef JAVA6
     public void updateCharacterStream(
             String columnLabel, java.io.Reader reader) throws SQLException {
 
@@ -6630,6 +6652,8 @@ public class JDBCResultSet implements ResultSet {
         startUpdate(columnIndex);
         preparedStatement.setCharacterStream(columnIndex, reader);
     }
+
+//#endif JAVA6
 
     /**
      * Updates the designated column using the given input stream. The data will be read from the stream
@@ -6654,11 +6678,14 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since 1.6
      */
+//#ifdef JAVA6
     public void updateBlob(int columnIndex,
                            InputStream inputStream) throws SQLException {
         startUpdate(columnIndex);
         preparedStatement.setBlob(columnIndex, inputStream);
     }
+
+//#endif JAVA6
 
     /**
      * Updates the designated column using the given input stream. The data will be read from the stream
@@ -6683,6 +6710,7 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since 1.6
      */
+//#ifdef JAVA6
     public void updateBlob(String columnLabel,
                            InputStream inputStream) throws SQLException {
 
@@ -6691,6 +6719,8 @@ public class JDBCResultSet implements ResultSet {
         startUpdate(columnIndex);
         preparedStatement.setBlob(columnIndex, inputStream);
     }
+
+//#endif JAVA6
 
     /**
      * Updates the designated column using the given <code>Reader</code>
@@ -6719,11 +6749,14 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since 1.6
      */
+//#ifdef JAVA6
     public void updateClob(int columnIndex,
                            Reader reader) throws SQLException {
         startUpdate(columnIndex);
         preparedStatement.setClob(columnIndex, reader);
     }
+
+//#endif JAVA6
 
     /**
      * Updates the designated column using the given <code>Reader</code>
@@ -6751,6 +6784,7 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since 1.6
      */
+//#ifdef JAVA6
     public void updateClob(String columnLabel,
                            Reader reader) throws SQLException {
 
@@ -6759,6 +6793,8 @@ public class JDBCResultSet implements ResultSet {
         startUpdate(columnIndex);
         preparedStatement.setClob(columnIndex, reader);
     }
+
+//#endif JAVA6
 
     /**
      *  Updates the designated column using the given <code>Reader</code>
@@ -6789,11 +6825,14 @@ public class JDBCResultSet implements ResultSet {
      *  this method
      *  @since 1.6
      */
+//#ifdef JAVA6
     public void updateNClob(int columnIndex,
                             Reader reader) throws SQLException {
         startUpdate(columnIndex);
         preparedStatement.setClob(columnIndex, reader);
     }
+
+//#endif JAVA6
 
     /**
      * Updates the designated column using the given <code>Reader</code>
@@ -6823,6 +6862,7 @@ public class JDBCResultSet implements ResultSet {
      * this method
      * @since 1.6
      */
+//#ifdef JAVA6
     public void updateNClob(String columnLabel,
                             Reader reader) throws SQLException {
 
@@ -6831,6 +6871,8 @@ public class JDBCResultSet implements ResultSet {
         startUpdate(columnIndex);
         preparedStatement.setClob(columnIndex, reader);
     }
+
+//#endif JAVA6
 
     // --------------------- java.sql.Wrapper implementation -------------------
 
@@ -6928,10 +6970,7 @@ public class JDBCResultSet implements ResultSet {
             throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42561));
         }
 
-        Type sourceType = resultMetaData.columnTypes[columnIndex - 1];
-
-
-        Object source = getColumnValue(columnIndex);
+        Object source;
 
         if (wasNullValue) {
             return (T) null;
@@ -6998,19 +7037,11 @@ public class JDBCResultSet implements ResultSet {
                 break;
             }
             case "java.util.UUID":
-                if (sourceType.typeCode == Types.SQL_GUID) {
-                    o = getObject(columnIndex);
-
-                } else if (sourceType.isBinaryType()) {
-                    o = Type.SQL_GUID.convertToType(session, source, sourceType);
-
-                } else if (sourceType.isCharacterType()) {
-                    o = Type.SQL_GUID.convertToType(session, source, sourceType);
-
-                }
+                source = getColumnInType(columnIndex, hsqlType);
+                o = Type.SQL_GUID.convertSQLToJava(session, source);
                 break;
             case "java.time.LocalDate": {
-                source = hsqlType.convertToType(session, source, sourceType);
+                source = getColumnInType(columnIndex, hsqlType);
                 TimestampData v = (TimestampData) source;
                 long millis = v.getMillis();
                 Calendar cal = session.getCalendarGMT();
@@ -7019,56 +7050,47 @@ public class JDBCResultSet implements ResultSet {
                 break;
             }
             case "java.time.LocalTime": {
-                source = hsqlType.convertToType(session, source, sourceType);
+                source = getColumnInType(columnIndex, hsqlType);
                 TimeData v = (TimeData) source;
                 o = LocalTime.ofNanoOfDay(v.getSeconds() * 1000_000_000L + v.getNanos());
                 break;
             }
             case "java.time.LocalDateTime": {
-                source = hsqlType.convertToType(session, source, sourceType);
+                source = getColumnInType(columnIndex, hsqlType);
                 TimestampData v = (TimestampData) source;
                 o = LocalDateTime.ofEpochSecond(v.getSeconds(), v.getNanos(), ZoneOffset.UTC);
                 break;
             }
             case "java.time.OffsetTime": {
-                source = hsqlType.convertToType(session, source, sourceType);
-                TimeData v = (TimeData) source;
-                int seconds = v.getSeconds();
-                ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
-                LocalTime lt = LocalTime.ofNanoOfDay( seconds * 1000_000_000L + v.getNanos());
-                o = OffsetTime.of(lt, z);
+                o = getTimeWithZone(columnIndex);
                 break;
             }
             case "java.time.OffsetDateTime": {
-                source = hsqlType.convertToType(session, source, sourceType);
-                TimestampData v = (TimestampData) source;
-                long seconds = v.getSeconds();
-                ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
-                LocalDateTime ldt = LocalDateTime.ofEpochSecond(seconds - v.getZone(), v.getNanos(), z);
-                o = OffsetDateTime.of(ldt, z);
+                o = getTimestampWithZone(columnIndex);
                 break;
             }
             case "java.time.Duration": {
-                if (sourceType.isIntervalDaySecondType()) {
-                    hsqlType = sourceType;
-                } else {
-                    source = hsqlType.convertToType(session, source, sourceType);
-                }
-                IntervalSecondData v = (IntervalSecondData) source;
+                Type sourceType = resultMetaData.columnTypes[columnIndex - 1];
 
+                if (!sourceType.isIntervalDaySecondType()) {
+                    break;
+                }
+                source = getColumnValue(columnIndex);
+                IntervalSecondData v = (IntervalSecondData) source;
                 o = Duration.ofSeconds(v.getSeconds(), v.getNanos());
                 break;
             }
             case "java.time.Period": {
-                if (sourceType.isIntervalYearMonthType()) {
-                    hsqlType = sourceType;
-                } else {
-                    source = hsqlType.convertToType(session, source, sourceType);
+                Type sourceType = resultMetaData.columnTypes[columnIndex - 1];
+
+                if (!sourceType.isIntervalYearMonthType()) {
+                    break;
                 }
+                source = getColumnValue(columnIndex);
                 IntervalMonthData v = (IntervalMonthData) source;
                 int months = v.getMonths();
 
-                if (hsqlType.typeCode == Types.SQL_INTERVAL_MONTH) {
+                if (sourceType.typeCode == Types.SQL_INTERVAL_MONTH) {
                     o = Period.ofMonths(months);
                 } else {
                     o = Period.of(months / 12, months % 12, 0);
@@ -7242,7 +7264,6 @@ public class JDBCResultSet implements ResultSet {
      * @see SQLType
      * @since 1.8
      */
-
 //#ifdef JAVA8
 /*
     public void updateObject(int columnIndex, Object x, SQLType targetSqlType)
@@ -7278,7 +7299,6 @@ public class JDBCResultSet implements ResultSet {
      * @see SQLType
      * @since 1.8
      */
-
 //#ifdef JAVA8
 /*
     public void updateObject(String columnLabel, Object x,

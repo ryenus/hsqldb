@@ -455,7 +455,6 @@ public class FunctionCustom extends FunctionSQL {
                 }
                 break;
 
-            case Tokens.NANVL :
             case Tokens.SYS_GUID :
             case Tokens.SYSTIMESTAMP :
                 if (!session.database.sqlSyntaxOra) {
