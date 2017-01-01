@@ -1205,8 +1205,11 @@ public class ParserDQL extends ParserBase {
             case Tokens.TABLE : {
                 read();
 
-                Table table = readTableName(true);
+                Table table = readNamedSubqueryOrNull();
 
+                if (table == null) {
+                    table = readTableName(true);
+                }
                 if (table.isView()) {
                     table = ((View) table).newDerivedTable(session);
                 }

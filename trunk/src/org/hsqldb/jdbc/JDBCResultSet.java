@@ -7097,6 +7097,10 @@ public class JDBCResultSet implements ResultSet {
                 }
                 break;
             }
+            case "java.sql.Array": {
+                o = getArray(columnIndex);
+                break;
+            }
         }
 
         if (o == null) {
