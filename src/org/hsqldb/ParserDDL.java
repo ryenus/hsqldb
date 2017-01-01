@@ -320,7 +320,7 @@ public class ParserDDL extends ParserRoutine {
                 return compileAlterDomain();
             }
             case Tokens.VIEW : {
-                return compileCreateView(true, false);
+                return compileAlterView();
             }
             case Tokens.SESSION : {
                 return compileAlterSession();
@@ -2041,18 +2041,8 @@ public class ParserDDL extends ParserRoutine {
                     case Tokens.DEFAULT : {
                         read();
 
-                        //ALTER TABLE .. ALTER COLUMN .. SET DEFAULT
-                        Type       type = column.getDataType();
-                        Expression expr = readDefaultClause(type);
-                        String     sql  = getLastPart();
-                        Object[]   args = new Object[] {
-                            StatementTypes.ALTER_COLUMN_DEFAULT, table, column,
-                            Integer.valueOf(columnIndex), expr
-                        };
-
-                        return new StatementSchema(sql,
-                                                   StatementTypes.ALTER_TABLE,
-                                                   args, null, writeLockNames);
+                        return compileAlterColumnDefault(table, column,
+                                                         columnIndex);
                     }
                     case Tokens.NOT : {
 
@@ -2202,6 +2192,25 @@ public class ParserDDL extends ParserRoutine {
         Object[] args = new Object[] {
             StatementTypes.ALTER_COLUMN_NULL, table, column,
             Boolean.valueOf(nullable)
+        };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
+
+        return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
+                                   null, writeLockNames);
+    }
+
+    private Statement compileAlterColumnDefault(Table table,
+            ColumnSchema column, int columnIndex) {
+
+        //ALTER TABLE .. ALTER COLUMN .. SET DEFAULT
+        Type       type = column.getDataType();
+        Expression expr = readDefaultClause(type);
+        String     sql  = getLastPart();
+        Object[]   args = new Object[] {
+            StatementTypes.ALTER_COLUMN_DEFAULT, table, column,
+            Integer.valueOf(columnIndex), expr
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
@@ -2678,6 +2687,39 @@ public class ParserDDL extends ParserRoutine {
                                                StatementTypes.ALTER_DOMAIN,
                                                args, null, writeLockNames);
                 }
+            }
+        }
+
+        throw unexpectedToken();
+    }
+
+    private Statement compileAlterView() {
+
+        int position = getPosition();
+
+        read();
+
+        String   tableName = token.tokenString;
+        HsqlName schema    = session.getSchemaHsqlName(token.namePrefix);
+
+        checkSchemaUpdateAuthorisation(schema);
+
+        Table t = database.schemaManager.getUserTable(tableName, schema.name);
+
+        read();
+
+        switch (token.tokenType) {
+
+            case Tokens.RENAME : {
+                read();
+                readThis(Tokens.TO);
+
+                return compileRenameObject(t.getName(), SchemaObject.VIEW);
+            }
+            case Tokens.AS : {
+                rewind(position);
+
+                return compileCreateView(true, false);
             }
         }
 
@@ -3300,7 +3342,6 @@ public class ParserDDL extends ParserRoutine {
 
             case Tokens.END :
                 read();
-
                 readThis(Tokens.STATEMENT);
                 break;
 
