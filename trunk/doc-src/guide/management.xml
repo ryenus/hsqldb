@@ -46,7 +46,7 @@
   </info>
 
   <section xml:id="mtc_modes_tables">
-    <title>Mode of Operation and Tables</title>
+    <title>Modes of Operation</title>
 
     <para>HyperSQL has many modes of operation and features that allow it to
     be used in very different scenarios. Levels of memory usage, speed and
@@ -54,7 +54,7 @@
     deployed.</para>
 
     <section xml:id="mtc_modes_operation">
-      <title>Mode of Operation</title>
+      <title>Deployment Types</title>
 
       <para>The decision to run HyperSQL as a separate server process or as an
       <glossterm>in-process</glossterm> database should be based on the
@@ -76,6 +76,11 @@
             <para>Server connections are slower than
             <glossterm>in-process</glossterm> connections due to the overhead
             of streaming the data for each JDBC call.</para>
+          </listitem>
+
+          <listitem>
+            <para>You can access a Server from outside the main application
+            and perform backups and other maintenance operations.</para>
           </listitem>
 
           <listitem>
@@ -301,7 +306,7 @@
     <para>HyperSQL's persistence mechanism has proven reliable, as the last
     critical issue was fixed 2 years before the release of version 2.0.</para>
 
-    <para>There are further enhancements in version 2.3.4</para>
+    <para>There are further enhancements in the latest version.</para>
 
     <itemizedlist>
       <listitem>
@@ -796,13 +801,46 @@
     required level of security.</para>
 
     <section xml:id="mtc_security_defaults">
-      <title>Security Defaults</title>
+      <title>Basic Security Recommendations</title>
 
-      <para>The default setting are generally adequate for most embedded use
-      of the database or for servers on the host that are accessed from the
-      same machine. For servers accessed within a network, and especially for
-      those accessed from outside the network, additional security settings
-      must be used.</para>
+      <para>The default setting are generally adequate for embedded use of the
+      database in single-user applications. For servers on the host that are
+      accessed from the same machine or accessed within a network, and
+      especially for those accessed from outside the network, additional
+      security settings must be used. This is the minimum list of changes you
+      need to make:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Change the admin password. Change the admin name (the default
+          is SA) as well for extra security.</para>
+        </listitem>
+
+        <listitem>
+          <para>Create a non-admin user for normal database access and grant
+          the required SELECT, INSERT, UPDATE and DELETE privileges to this
+          user. Connect with this user's credentials from the
+          application.</para>
+        </listitem>
+
+        <listitem>
+          <para>Set up SSL and IP address access control on the Server.</para>
+        </listitem>
+
+        <listitem>
+          <para>Restrict the execution of multiple statements with
+          <literal>SET DATABASE SQL RESTRICT EXEC TRUE</literal> .</para>
+        </listitem>
+
+        <listitem>
+          <para>Backup the database regularly and store the backups in a
+          different location than the machine running the Server.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section xml:id="mtc_security_defaults">
+      <title>Beyond Security Defaults</title>
 
       <para>The default settings for server and web server do not use SSL or
       IP access control lists. These features are enabled programatically, or
@@ -831,7 +869,8 @@
       was always SA in older versions of HSQLDB, but not in the latest
       versions. The name of the first DBA user and its password can be
       specified when the database is created by the first connection to the
-      database. These settings are then stored in the database.</para>
+      database. These settings are then stored in the database. You can also
+      change the name after creating the database.</para>
 
       <para>The initial user with the DBA role should be used for admin
       purposes only. At least one additional role should be created for normal
@@ -1243,7 +1282,7 @@
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
 
-      <simpara>In version 2.3, the equivalent URL properties,
+      <simpara>From version 2.3, the equivalent URL properties,
       <literal>hsqldb.app_log</literal> and <literal>hsqldb.sql_log</literal>,
       can be used not only for a new database, but also when opening an
       existing file database to change the event log level.</simpara>
