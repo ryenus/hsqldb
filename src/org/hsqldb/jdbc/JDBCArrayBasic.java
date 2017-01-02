@@ -497,6 +497,13 @@ public class JDBCArrayBasic implements Array {
     Type     elementType;
     Object[] data;
 
+    /**
+     * Public constructor to create an Array object from an Object[] and an
+     * HSQLDB org.hsqldb.types.Type object.
+     *
+     * @param data the Object[]
+     * @param type the HSQLDB org.hsqldb.types.Type object
+     */
     public JDBCArrayBasic(Object[] data, Type type) {
         this.data        = data;
         this.elementType = type;
