@@ -71,6 +71,8 @@ public class TestJavaFunctions extends TestBase {
 
         s.executeUpdate("DROP FUNCTION TEST_QUERY IF EXISTS");
         s.executeUpdate("DROP FUNCTION TEST_CUSTOM_RESULT IF EXISTS");
+        s.executeUpdate("DROP FUNCTION SORT_BYTE_ARRAY IF EXISTS");
+        s.executeUpdate("DROP FUNCTION SORT_BINARY_ARRAY IF EXISTS");
         s.executeUpdate("DROP TABLE T IF EXISTS");
         s.executeUpdate("CREATE TABLE T(C VARCHAR(20), I INT)");
         s.executeUpdate("INSERT INTO T VALUES 'Thames', 10");
@@ -83,6 +85,12 @@ public class TestJavaFunctions extends TestBase {
         s.executeUpdate(
             "CREATE FUNCTION TEST_CUSTOM_RESULT(BIGINT, BIGINT) RETURNS TABLE(I BIGINT, N VARBINARY(1000)) "
             + " READS SQL DATA LANGUAGE JAVA EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestJavaFunctions.getCustomResult'");
+        s.executeUpdate(
+            "CREATE FUNCTION SORT_BYTE_ARRAY(VARBINARY(20)) RETURNS VARBINARY(20) "
+            + " NO SQL LANGUAGE JAVA EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestJavaFunctions.getSortedByteArray'");
+        s.executeUpdate(
+            "CREATE FUNCTION SORT_BINARY_ARRAY(VARBINARY(20) ARRAY) RETURNS VARBINARY(20) ARRAY "
+            + " NO SQL LANGUAGE JAVA EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestJavaFunctions.getSortedArrayByteArray'");
         s.executeUpdate("CHECKPOINT");
         c.close();
     }
@@ -118,7 +126,6 @@ public class TestJavaFunctions extends TestBase {
         }
 
         r = s.executeQuery();
-
         s = c.prepareCall("CALL TEST_CUSTOM_RESULT(6, 1900)");
 
         try {
@@ -150,6 +157,24 @@ public class TestJavaFunctions extends TestBase {
     public static ResultSet getQueryResult(Connection connection, String p1,
                                            String p2) throws SQLException {
         return getQueryResult(connection, 20);
+    }
+
+    public static byte[] getSortedByteArray(byte[] bytes) throws SQLException {
+
+        bytes = (byte[]) java.util.Arrays.copyOf(bytes, bytes.length);
+
+        java.util.Arrays.sort(bytes);
+
+        return bytes;
+    }
+
+    public static byte[][] getSortedArrayByteArray(byte[][] bytes) throws SQLException {
+
+        bytes = (byte[][]) java.util.Arrays.copyOf(bytes, bytes.length);
+
+        java.util.Arrays.sort(bytes);
+
+        return bytes;
     }
 
     private static Result newTwoColumnResult() {
