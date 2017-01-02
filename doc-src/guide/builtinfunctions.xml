@@ -934,8 +934,8 @@
 
     <para><literal>COSH ( &lt;num value expr&gt; ) </literal></para>
 
-    <para>Returns the hyperbolic cosine of the argument
-    as a value of DOUBLE type. (HyperSQL)</para>
+    <para>Returns the hyperbolic cosine of the argument as a value of DOUBLE
+    type. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>COT function</primary>
@@ -1038,13 +1038,13 @@
 
     <simpara><emphasis role="bold">NANVL</emphasis></simpara>
 
-    <para><literal>NANVL ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt; )
-    </literal></para>
+    <para><literal>NANVL ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt;
+    ) </literal></para>
 
-    <para>Returns an alternative for the NaN (Not a Number) double value in <literal>&lt;num value expr
-    1&gt;</literal> as <literal>&lt;num value expr 2&gt;.</literal>, otherwise returns the first argument.
-    The data type of the returned value is DOUBLE.
-    (HyperSQL)</para>
+    <para>Returns an alternative for the NaN (Not a Number) double value in
+    <literal>&lt;num value expr 1&gt;</literal> as <literal>&lt;num value expr
+    2&gt;.</literal>, otherwise returns the first argument. The data type of
+    the returned value is DOUBLE. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>PI function</primary>
@@ -1150,8 +1150,8 @@
 
     <para><literal>SINH ( &lt;num value expr&gt; ) </literal></para>
 
-    <para>Returns the hyperbolic sine of the argument as
-    a value of DOUBLE type. (HyperSQL)</para>
+    <para>Returns the hyperbolic sine of the argument as a value of DOUBLE
+    type. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SQRT function</primary>
@@ -1183,8 +1183,8 @@
 
     <para><literal>TANH ( &lt;num value expr&gt; ) </literal></para>
 
-    <para>Returns the hyperbolic tangent of the argument
-    as a value of DOUBLE type. (HyperSQL)</para>
+    <para>Returns the hyperbolic tangent of the argument as a value of DOUBLE
+    type. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TO_NUMBER function</primary>
@@ -1439,8 +1439,8 @@
 
       <para><literal>SYSDATE</literal></para>
 
-      <para>This function is equivalent to <literal>LOCALTIMESTAMP.
-      </literal>(HyperSQL)</para>
+      <para>This function is similar to <literal>LOCALTIMESTAMP </literal>but
+      it returns the timestamp when it is called. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SYSTIMESTAMP function</primary>
@@ -1450,9 +1450,9 @@
 
       <para><literal>SYSTIMESTAMP</literal></para>
 
-      <para>This no-arg function is equivalent to
+      <para>This no-arg function is similar to
       <literal>CURRENT_TIMESTAMP</literal> and is enabled in ORA syntax mode
-      only. (HyperSQL)</para>
+      only. It returns the timestamp when it is called. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>TODAY function</primary>
@@ -1473,12 +1473,13 @@
         <primary>DATENAME, DATEPART and EOMONTH functions</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">DATENAME, DATEPART and EOMONTH</emphasis></simpara>
+      <simpara><emphasis role="bold">DATENAME, DATEPART and
+      EOMONTH</emphasis></simpara>
 
-      <para>These functions are available in the MSS compatibility mode
-	  and perform the equivalent of EXTRACT function or the LAST_DAY function.
+      <para>These functions are available in the MSS compatibility mode and
+      perform the equivalent of EXTRACT function or the LAST_DAY function.
       (HyperSQL)</para>
-	  
+
       <indexterm significance="preferred" type="sql">
         <primary>DAYNAME function</primary>
       </indexterm>
@@ -1745,13 +1746,12 @@
       <para><literal>NEXT_DAY ( &lt;datetime value expr&gt;, &lt;character
       value expr&gt;)</literal></para>
 
-      <para>This function returns a value of the same type as the first argument.
-	  The return value is the next weekday named by the second argument that
-	  occurs after the first date. For example next Wednesday is
-	  expressed as <literal>NEXT_DAY(CURRENT_DATE, 'WEDNESDAY')</literal>.
-	  (HyperSQL)</para>
+      <para>This function returns a value of the same type as the first
+      argument. The return value is the next weekday named by the second
+      argument that occurs after the first date. For example next Wednesday is
+      expressed as <literal>NEXT_DAY(CURRENT_DATE, 'WEDNESDAY')</literal>.
+      (HyperSQL)</para>
 
-	  
       <indexterm significance="preferred" type="sql">
         <primary>ADD_MONTHS function</primary>
       </indexterm>
@@ -2683,8 +2683,9 @@
 
     <para><literal>NEWID () </literal></para>
 
-    <para>These are synonyms for the UUID function in ORA and MSS compatibility modes. (HyperSQL)</para>
-	</section>
+    <para>These are synonyms for the UUID function in ORA and MSS
+    compatibility modes. (HyperSQL)</para>
+  </section>
 
   <section xml:id="bfc_system_functions">
     <title>System Functions</title>
@@ -3026,13 +3027,13 @@
     <para><literal>ROW_NUMBER() OVER()</literal></para>
 
     <para>Returns the current row number (from 1) being processed in a select
-    statement. This has the same semantics as the ROWNUM pseudo-column in
-    ORA syntax mode, but can be used in any syntax mode. The function is
-    used in a SELECT or DELETE statement. The ROWNUM of a row is incremented
-    as the rows are added to the result set. It is therefore possible to use a
-    condition such as WHERE ROWNUM() &lt; 10, but not ROWNUM() &gt; 10 or
-    ROWNUM = 10. The <literal>ROW_NUMBER() OVER()</literal> alternative
-    performs the same function and is included for compatibility with other
-    database engines.(HyperSQL)</para>
+    statement. This has the same semantics as the ROWNUM pseudo-column in ORA
+    syntax mode, but can be used in any syntax mode. The function is used in a
+    SELECT or DELETE statement. The ROWNUM of a row is incremented as the rows
+    are added to the result set. It is therefore possible to use a condition
+    such as WHERE ROWNUM() &lt; 10, but not ROWNUM() &gt; 10 or ROWNUM = 10.
+    The <literal>ROW_NUMBER() OVER()</literal> alternative performs the same
+    function and is included for compatibility with other database
+    engines.(HyperSQL)</para>
   </section>
 </chapter>
