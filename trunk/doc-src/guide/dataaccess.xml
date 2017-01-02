@@ -296,8 +296,9 @@
       parameter type limits are checked and enforced when the parameter is
       set.</para>
 
-      <para>In the example below the setString() calls do not raise an
-      exception, but one of the execute() statements does.</para>
+      <para>In the example below the <methodname>setString()</methodname>
+      calls do not raise an exception, but one of the
+      <methodname>execute()</methodname> statements does.</para>
 
       <programlisting> // table definition: CREATE TABLE T (NAME VARCHAR(12), ...)
  Connection c = newConnection();
@@ -313,16 +314,15 @@
 
 </programlisting>
 
-      <para>All of the above also applies to setting the values in new and
-      updated rows in updatable ResultSet objects.</para>
-
       <para>JDBC parameters can be set with any compatible type, as supported
       by the JDBC specification. For CLOB and BLOB types, you can use streams,
       or create instances of BLOB or CLOB before assigning them to the
       parameters. You can even use CLOB or BLOB objects returned from
-      connections to other RDBMS servers. The Connection.createBlob() and
-      createClob() methods can be used to create the new LOBs. For very large
-      LOB's the stream methods are preferable as they use less memory.</para>
+      connections to other RDBMS servers. The
+      <methodname>Connection.createBlob()</methodname> and
+      <methodname>createClob()</methodname> methods can be used to create the
+      new LOBs. For very large LOB's the stream methods are preferable as they
+      use less memory.</para>
 
       <para>For array parameters, you must use a
       <classname>java.sql.Array</classname> object that contains the array
@@ -330,6 +330,16 @@
       <code>Connection.createArrayOf(...)</code> method can be used to create
       a new object, or you can use an Array returned from connections to other
       RDBMS servers.</para>
+
+      <para>The above also applies to the methods of
+      <classname>java.sql.ResultSet</classname> that are used for setting
+      values in new and updated rows in updatable ResultSet objects.</para>
+
+      <para>When the Java 8 version of HSQLDB jar is used, the setObject()
+      methods of <classname>PreparedStatement</classname> and
+      <classname>CallableStatement</classname> also accept objects of the new
+      types introduced in Java 8 and listed below under JDBC Returend
+      Values.</para>
     </section>
 
     <section xml:id="dac_jdbc_data_change">
@@ -337,14 +347,15 @@
 
       <para>Data change statements, also called data manipulation statements
       (DML) such as INSERT, UPDATE, MERGE can be called with different
-      executeUpdate() methods of java.sql.Statement and
-      java.sql.PreparedStatement. Some of these methods allow you to specify
-      how values for generated columns of the table are returned. These
-      methods are documented in the JavaDoc for org.hsqldb.jdbc.JDBCStatement
-      and org.hsqldb.jdbc.JDBCPreparedStatement. HyperSQL can return not just
-      the generated columns, but any set of columns of the table. You can use
-      this to retrieve the columns values that may be modified by a BEFORE
-      TRIGGER on the table.</para>
+      <methodname>executeUpdate()</methodname> methods of java.sql.Statement
+      and <classname>java.sql.PreparedStatement</classname>. Some of these
+      methods allow you to specify how values for generated columns of the
+      table are returned. These methods are documented in the JavaDoc for
+      <classname>org.hsqldb.jdbc.JDBCStatement</classname> and
+      <classname>org.hsqldb.jdbc.JDBCPreparedStatement</classname>. HyperSQL
+      can return not just the generated columns, but any set of columns of the
+      table. You can use this to retrieve the columns values that may be
+      modified by a BEFORE TRIGGER on the table.</para>
     </section>
 
     <section xml:id="dac_jdbc_callable_statement">
@@ -362,8 +373,9 @@
       parameters with the appropriate getXXX() method.</para>
 
       <para>Procedures can also return one or more result sets. You should
-      call the getResultSet() and getMoreResults() methods to retrieve the
-      result sets one by one.</para>
+      call the <methodname>getResultSet()</methodname> and
+      <methodname>getMoreResults()</methodname> methods to retrieve the result
+      sets one by one.</para>
 
       <para>SQL functions can also return a table. You can call such functions
       the same way as procedures and retrieve the table as a ResultSet.</para>
@@ -372,23 +384,109 @@
     <section xml:id="dac_jdbc_return_values">
       <title>JDBC Returned Values</title>
 
-      <para>The methods of the JDBC ResultSet interface can be used to return
+      <para>The methods of the JDBC ResultSet interface are used to return
       values and to convert value to different types as supported by the JDBC
-      specification.</para>
+      specification. Methods of JDBC CallableStatement that have the same
+      signature are used to return values from procedure calls.</para>
 
       <para>When a CLOB and BLOB object is returned from a ResultSet, no data
       is transferred until the data is read by various methods of
-      java.sql.CLOB and java.sql.BLOB. Data is streamed in large blocks to
-      avoid excessive memory use.</para>
+      <classname>java.sql.CLOB</classname> and
+      <classname>java.sql.BLOB</classname>. Data is streamed in large blocks
+      to avoid excessive memory use.</para>
 
-      <para>Array objects are returned as instances of java.sql.Array.</para>
+      <para>Array objects are returned as instances of
+      <classname>java.sql.Array</classname>.</para>
+
+      <para>When the Java 8 version of HSQLDB jar is used, the methods added
+      in Java 8 become available and the behaviour of the
+      <methodname>getObject(int columnIndex)</methodname> method for
+      retrieving TIMESTAMP WITH TIME ZONE values changes. With Java 7 and
+      older, this method returns a <classname>java.sql.Timestamp</classname>
+      object. With Java 8 it returns a
+      <classname>java.time.OffsetDateTime</classname> object which contains
+      the time zone offset value as well as the other fields of the TIMESTAMP.
+      </para>
+
+      <para>A new method, <methodname>getObject(int columnIndex,
+      Class&lt;T&gt; type)</methodname> is available in Java 8. With this
+      method, you specify the required return type. The common types such as
+      String, Integer, byte[] are supported as well as new types that can be
+      use for DATE, TIME, TIMESTAMP and INTERVAL values. The table below shows
+      which Java classes are the most appropriate for the specified SQL TYPES.
+      In addition, you can use these Java types for values of SQL type that
+      are not fully matched. For example,
+      <classname>java.time.LocalDateTime</classname> can be used to retrieve a
+      DATE value.</para>
+
+      <informaltable>
+        <tgroup cols="1">
+          <tbody>
+            <row>
+              <entry><classname>java.util.UUID</classname> = UUID</entry>
+            </row>
+
+            <row>
+              <entry><classname>java.time.LocalDate</classname> = DATE</entry>
+            </row>
+
+            <row>
+              <entry><classname>java.sql.Date</classname> = DATE</entry>
+            </row>
+
+            <row>
+              <entry><classname>java.time.LocalTime</classname> = TIME</entry>
+            </row>
+
+            <row>
+              <entry><classname>java.sql.Time</classname> = TIME</entry>
+            </row>
+
+            <row>
+              <entry><classname>java.time.LocalDateTime</classname> =
+              TIMESTAMP</entry>
+            </row>
+
+            <row>
+              <entry><classname>java.sql.Timestamp</classname> =
+              TIMESTAMP</entry>
+            </row>
+
+            <row>
+              <entry><classname>java.time.OffsetTime</classname> = TIME WITH
+              TIME ZONE</entry>
+            </row>
+
+            <row>
+              <entry><classname>java.time.OffsetDateTime</classname> =
+              TIMESTAMP WITH TIME ZONE</entry>
+            </row>
+
+            <row>
+              <entry><classname>java.time.Duration</classname> = INTERVAL
+              MONTH, INTERVAL YEAR, INTERVAL YEAR TO MONTH</entry>
+            </row>
+
+            <row>
+              <entry><classname>java.time.Period</classname> = INTERVAL
+              SECOND, INTERVAL MINUTE, INTERVAL HOUR, INTERVAL DAY, and their
+              range combinations</entry>
+            </row>
+
+            <row>
+              <entry><classname>java.sql.Array</classname> = all ARRAY
+              </entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </informaltable>
     </section>
 
     <section xml:id="dac_declare_cursor">
       <title>Cursor Declaration</title>
 
       <para>The DECLARE CURSOR statement is used within an SQL PROCEDURE body.
-      In the current version HyperSQL 2.3, the cursor is used only to return a
+      In the current version HyperSQL 2.4, the cursor is used only to return a
       result set from the procedure. Therefore the cursor must be declared
       WITH RETURN and can only be READ ONLY.</para>
 
@@ -1867,8 +1965,7 @@
       together represent a datetime period. So the predicates is always in the
       form <literal>PERIOD (X1, X2) CONTAINS PERIOD (Y1, Y2)</literal>. The
       first field in each period is always a datetime value, while the second
-      field is either a datetime value or a positive interval value.
-      </simpara>
+      field is either a datetime value or a positive interval value.</simpara>
 
       <simpara>If the second field in a period is an interval value, it is
       replaced with the sum of the datetime value and itself, for example
@@ -1882,8 +1979,8 @@
       <simpara>If the second period is fully within the first period, the
       result is TRUE. Otherwise it is false.</simpara>
 
-      <simpara>If any of the values is NULL, the result is UNDEFINED.
-      </simpara>
+      <simpara>If any of the values is NULL, the result is
+      UNDEFINED.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>EQUALS predicate</primary>
