@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,12 +43,12 @@ import org.hsqldb.rowio.RowInputInterface;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.5
  * @since 2.3.0
  */
 public abstract class SimpleStore implements PersistentStore {
 
-    public DataFileCache        cache;
+    protected DataFileCache        cache;
     protected TableSpaceManager spaceManager;
     protected int               defaultObjectSize;
 

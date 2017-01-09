@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -43,6 +44,7 @@ import org.hsqldb.result.ResultProperties;
 import org.hsqldb.rights.User;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * Parser for session and management statements
@@ -122,7 +124,7 @@ public class ParserCommand extends ParserDDL {
                 }
             } else if (returnType == StatementTypes.RETURN_RESULT) {
 
-                //  allow update count statements with Statement.executeQuery()
+                // allow update count statements with Statement.executeQuery()
                 // to return an empty result set
                 if (database.sqlRestrictExec) {
                     throw Error.error(ErrorCode.X_07504);
@@ -585,6 +587,16 @@ public class ParserCommand extends ParserDDL {
 
                     return new StatementSession(StatementTypes.SET_SCHEMA,
                                                 args);
+                }
+
+                if (!e.getDataType().isCharacterType()) {
+                    throw Error.error(ErrorCode.X_0P000);
+                }
+
+                if (e.getType() != OpTypes.VALUE
+                        && (e.getType() != OpTypes.SQL_FUNCTION
+                            || !((FunctionSQL) e).isValueFunction())) {
+                    throw Error.error(ErrorCode.X_0P000);
                 }
 
                 Expression[] args = new Expression[]{ e };
@@ -2083,6 +2095,20 @@ public class ParserCommand extends ParserDDL {
             e = new ExpressionValue(null, Type.SQL_INTERVAL_HOUR_TO_MINUTE);
         } else {
             e = XreadIntervalValueExpression();
+
+            HsqlList unresolved = e.resolveColumnReferences(session,
+                RangeGroup.emptyGroup, RangeGroup.emptyArray, null);
+
+            ExpressionColumn.checkColumnsResolved(unresolved);
+            e.resolveTypes(session, null);
+
+            if (e.dataType == null) {
+                throw Error.error(ErrorCode.X_42563);
+            }
+
+            if (e.dataType.typeCode != Types.SQL_INTERVAL_HOUR_TO_MINUTE) {
+                throw Error.error(ErrorCode.X_42563);
+            }
         }
 
         return new StatementSession(session, compileContext,

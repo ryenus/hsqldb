@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1560,6 +1560,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         long used      = 0;
         long empty     = 0;
         long system    = 0;
+        long setaside  = 0;
 
         for (int i = 0; i < directoryList.length; i++) {
             int[]  tableIdList   = directoryList[i].getTableIdArray();
@@ -1576,6 +1577,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 } else if (tableIdList[j]
                            == DataSpaceManager.tableIdDirectory) {
                     system += fileBlockSize;
+                } else if (tableIdList[j]
+                           == DataSpaceManager.tableIdSetAside) {
+                    setaside += fileBlockSize;
                 }
             }
         }
@@ -1604,6 +1608,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[space_id]    = Long.valueOf(DataSpaceManager.tableIdDirectory);
 
             t.insertSys(session, store, row);
+
+            if (setaside != 0) {
+                row              = t.getEmptyRowData();
+                row[table_name]  = "SET_ASIDE_SPACE";
+                row[alloc_space] = Long.valueOf(setaside);
+                row[used_space]  = Long.valueOf(setaside);
+                row[space_id] =
+                    Long.valueOf(DataSpaceManager.tableIdDirectory);
+
+                t.insertSys(session, store, row);
+            }
         }
 
         return t;
