@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,57 +50,61 @@ import org.hsqldb.lib.OrderedIntHashSet;
 public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     //
-    DataFileCache           cache;
-    TableSpaceManagerBlocks defaultSpaceManager;
-    TableSpaceManagerBlocks directorySpaceManager;
+    final DataFileCache           cache;
+    final TableSpaceManagerBlocks defaultSpaceManager;
+    final TableSpaceManagerBlocks directorySpaceManager;
 
     //
-    IntKeyHashMap spaceManagerList;
+    final IntKeyHashMap spaceManagerList;
 
     //
-    BlockObjectStore rootStore;
-    BlockObjectStore directoryStore;
-    BlockObjectStore bitMapStore;
+    final BlockObjectStore rootStore;
+    final BlockObjectStore directoryStore;
+    final BlockObjectStore bitMapStore;
 
     //
     IntArrayCachedObject rootBlock;
 
     //
-    AtomicInteger spaceIdSequence = new AtomicInteger(tableIdFirst);
-    IntIndex      emptySpaceList;
-    int           released = 0;
+    final AtomicInteger spaceIdSequence = new AtomicInteger(tableIdFirst);
+    final IntIndex      emptySpaceList;
+    int                 released = 0;
 
     //
-    static final int dirBlockSize            = 1024 * 2;
-    static final int fileBlockItemCountLimit = 64 * 1024;
+    public static final int dirBlockSize            = 1024 * 2;
+    public static final int fileBlockItemCountLimit = 64 * 1024;
 
     //
-    int bitmapIntSize;
-    int bitmapStorageSize;
-    int fileBlockItemCount;
-    int fileBlockSize;
-    int dataFileScale;
+    final int bitmapIntSize;
+    final int bitmapStorageSize;
+    final int fileBlockItemCount;
+    final int fileBlockSize;
+    final int dataFileScale;
 
     //
     BlockAccessor ba;
 
     public DataSpaceManagerBlocks(DataFileCache dataFileCache) {
 
+        int bitmapStoreSizeTemp;
+
         cache         = dataFileCache;
         dataFileScale = cache.getDataFileScale();
         fileBlockSize = cache.database.logger.getDataFileSpaces() * 1024
                         * 1024;
         fileBlockItemCount = fileBlockSize / dataFileScale;
-        bitmapIntSize      = fileBlockItemCount / 32;
-        bitmapStorageSize  = BitMapCachedObject.fileSizeFactor * bitmapIntSize;
+        bitmapIntSize      = fileBlockItemCount / Integer.SIZE;
+        bitmapStoreSizeTemp = BitMapCachedObject.fileSizeFactor
+                              * bitmapIntSize;
 
-        if (bitmapStorageSize < DataSpaceManager.fixedBlockSizeUnit) {
-            bitmapStorageSize = DataSpaceManager.fixedBlockSizeUnit;
+        if (bitmapStoreSizeTemp < DataSpaceManager.fixedBlockSizeUnit) {
+            bitmapStoreSizeTemp = DataSpaceManager.fixedBlockSizeUnit;
         }
 
-        ba               = new BlockAccessor();
-        spaceManagerList = new IntKeyHashMap();
-        emptySpaceList   = new IntIndex(32, false);
+        bitmapStorageSize = bitmapStoreSizeTemp;
+        ba                = new BlockAccessor();
+        spaceManagerList  = new IntKeyHashMap();
+        emptySpaceList    = new IntIndex(32, false);
 
         //
         directorySpaceManager = new TableSpaceManagerBlocks(this,
@@ -211,11 +215,14 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
      */
     private void ensureDirectorySpaceAvailable(int blockCount) {
 
-        int dirObjectSize = bitmapStorageSize * blockCount
-                            + DirectoryBlockCachedObject.fileSizeFactor
-                              * dirBlockSize;
+        int dirObjectSize = bitmapStorageSize * blockCount;
 
-        if (!directorySpaceManager.hasFileRoom(dirObjectSize)) {
+        dirObjectSize += DirectoryBlockCachedObject.fileSizeFactor
+                         * dirBlockSize;
+
+        boolean hasRoom = directorySpaceManager.hasFileRoom(dirObjectSize);
+
+        if (!hasRoom) {
             int index         = getBlockIndexLimit();
             int dirBlockCount = dirObjectSize / fileBlockSize + 1;
             long filePosition = cache.enlargeFileSpace((long) dirBlockCount
@@ -476,6 +483,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             int offset = i % dirBlockSize;
 
             directory.getTableIdArray()[offset] = tableId;
+
+            directory.setChanged(true);
         }
 
         directory.keepInMemory(false);
@@ -509,7 +518,6 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                     cache.database.logger.propMaxFreeBlocks, dataFileScale,
                     minReuse);
 
-                initialiseTableSpace(manager);
                 spaceManagerList.put(spaceId, manager);
             }
 
@@ -760,14 +768,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         cache.writeLock.lock();
 
         try {
-            Iterator it = spaceManagerList.values().iterator();
-
-            while (it.hasNext()) {
-                TableSpaceManagerBlocks tableSpace =
-                    (TableSpaceManagerBlocks) it.next();
-
-                initialiseTableSpace(tableSpace);
-            }
+            initialiseTableSpace(directorySpaceManager);
         } finally {
             cache.writeLock.unlock();
         }
