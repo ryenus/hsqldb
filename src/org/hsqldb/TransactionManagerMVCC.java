@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 2.0.0
  */
 public class TransactionManagerMVCC extends TransactionManagerCommon
@@ -58,7 +58,7 @@ implements TransactionManager {
     boolean isLockedMode;
     Session catalogWriteSession;
 
-    //
+    // information
     long lockTxTs;
     long lockSessionId;
     long unlockTxTs;
@@ -70,7 +70,8 @@ implements TransactionManager {
     //
     public TransactionManagerMVCC(Database db) {
 
-        database     = db;
+        super(db);
+
         lobSession   = database.sessionManager.getSysLobSession();
         rowActionMap = new LongKeyHashMap(8192);
         txModel      = MVCC;
@@ -228,8 +229,8 @@ implements TransactionManager {
 
             countDownLatches(session);
         } finally {
-            writeLock.unlock();
             session.actionSet.clear();
+            writeLock.unlock();
         }
 
         return true;
@@ -745,14 +746,16 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
-            if (cs.getCompileTimestamp()
-                    < database.schemaManager.getSchemaChangeTimestamp()) {
-                cs = session.statementManager.getStatement(session, cs);
-                session.sessionContext.currentStatement = cs;
+            if (hasExpired) {
+                session.redoAction = true;
 
-                if (cs == null) {
-                    return;
-                }
+                return;
+            }
+
+            cs = updateCurrentStatement(session, cs);
+
+            if (cs == null) {
+                return;
             }
 
             if (session.abortTransaction) {
@@ -761,7 +764,7 @@ implements TransactionManager {
 
             session.isPreTransaction = true;
 
-            if (!isLockedMode && !cs.isCatalogLock()) {
+            if (!isLockedMode && !cs.isCatalogLock(txModel)) {
                 return;
             }
 
@@ -900,7 +903,7 @@ implements TransactionManager {
             Session   current = (Session) session.waitingSessions.get(i);
             Statement st      = current.sessionContext.currentStatement;
 
-            if (st != null && st.isCatalogLock()) {
+            if (st != null && st.isCatalogLock(txModel)) {
                 nextSession = current;
 
                 break;
@@ -936,7 +939,7 @@ implements TransactionManager {
 
         session.tempSet.clear();
 
-        if (cs.isCatalogLock()) {
+        if (cs.isCatalogLock(txModel)) {
             if (catalogWriteSession == null) {
                 catalogWriteSession = session;
                 isLockedMode        = true;

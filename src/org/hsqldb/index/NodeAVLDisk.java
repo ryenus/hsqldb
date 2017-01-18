@@ -209,10 +209,6 @@ public class NodeAVLDisk extends NodeAVL {
 
         NodeAVLDisk node = findNode(store, iLeft);
 
-        if (node != null && node.iParent != this.getPos()) {
-            node = (NodeAVLDisk) node.setParent(store, this);
-        }
-
         return node;
     }
 
@@ -223,10 +219,6 @@ public class NodeAVLDisk extends NodeAVL {
         }
 
         NodeAVLDisk node = findNode(store, iRight);
-
-        if (node != null && node.iParent != this.getPos()) {
-            node = (NodeAVLDisk) node.setParent(store, this);
-        }
 
         return node;
     }

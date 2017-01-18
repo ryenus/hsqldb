@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -128,6 +128,10 @@ public class StatementSignal extends Statement {
         }
     }
 
+    void setMessage(Expression message) {
+        messageExpression = message;
+    }
+
     String getMessage(Session session) {
 
         if (messageExpression == null) {
@@ -161,7 +165,7 @@ public class StatementSignal extends Statement {
         return "";
     }
 
-    public boolean isCatalogLock() {
+    public boolean isCatalogLock(int model) {
         return false;
     }
 

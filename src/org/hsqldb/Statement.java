@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -204,7 +204,7 @@ public abstract class Statement {
         return writeTableNames;
     }
 
-    public boolean isCatalogLock() {
+    public boolean isCatalogLock(int model) {
 
         switch (group) {
 
@@ -219,6 +219,8 @@ public abstract class Statement {
                     return false;
                 }
             case StatementTypes.X_SQL_SCHEMA_DEFINITION :
+                return model == TransactionManager.MVCC;
+
             case StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION :
             case StatementTypes.X_HSQLDB_DATABASE_OPERATION :
                 return true;

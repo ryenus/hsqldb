@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -180,6 +180,8 @@ public class ParserDQL extends ParserBase {
                                                 null,
                                                 BlobType.defaultBlobSize, 0);
                         } else {
+                            readIfThis(Tokens.VARCHAR);
+
                             return Type.getType(Types.SQL_VARCHAR, null,
                                                 database.collation,
                                                 ClobType.defaultClobSize, 0);

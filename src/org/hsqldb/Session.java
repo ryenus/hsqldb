@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1340,6 +1340,12 @@ public class Session implements SessionInterface {
 
             database.txManager.beginAction(this, cs);
 
+            if (redoAction) {
+                redoAction = false;
+
+                continue;
+            }
+
             cs = sessionContext.currentStatement;
 
             if (cs == null) {
@@ -1377,7 +1383,6 @@ public class Session implements SessionInterface {
             }
 
             database.txManager.beginActionResume(this);
-
             timeoutManager.resumeTimeout();
 
             //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
@@ -1982,7 +1987,7 @@ public class Session implements SessionInterface {
     public Result cancel(Result result) {
 
         if (result.getType() == ResultConstants.SQLCANCEL) {
-            if (result.getSessionRandomID()  == randomId) {
+            if (result.getSessionRandomID() == randomId) {
                 database.txManager.resetSession(
                     null, this, TransactionManager.resetSessionAbort);
             }

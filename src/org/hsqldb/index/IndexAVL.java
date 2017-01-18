@@ -580,7 +580,9 @@ public class IndexAVL implements Index {
         return x;
     }
 
-    public void checkIndex(PersistentStore store) {
+    public int checkIndex(Session session, PersistentStore store) {
+
+        int errors = 0;
 
         store.readLock();
 
@@ -599,35 +601,64 @@ public class IndexAVL implements Index {
             p = f;
 
             while (f != null) {
-                checkNodes(store, f);
+                errors += checkNodes(store, f);
 
-                f = next(store, f);
+                NodeAVL fnext = next(store, f);
+
+                if (fnext != null) {
+                    int c = compareRowForInsertOrDelete(session,
+                                                        fnext.getRow(store),
+                                                        f.getRow(store), true,
+                                                        0);
+
+                    if (c <= 0) {
+                        System.out.print("broken index order "
+                                         + getName().name);
+
+                        errors++;
+                    }
+                }
+
+                f = fnext;
             }
         } finally {
             store.readUnlock();
         }
+
+        return errors;
     }
 
-    void checkNodes(PersistentStore store, NodeAVL p) {
+    int checkNodes(PersistentStore store, NodeAVL p) {
 
-        NodeAVL l = p.getLeft(store);
-        NodeAVL r = p.getRight(store);
+        NodeAVL l      = p.nLeft;
+        NodeAVL r      = p.nRight;
+        int     errors = 0;
 
         if (l != null && l.getBalance(store) == -2) {
             System.out.print("broken index - deleted");
+
+            errors++;
         }
 
         if (r != null && r.getBalance(store) == -2) {
             System.out.print("broken index -deleted");
+
+            errors++;
         }
 
         if (l != null && !p.equals(l.getParent(store))) {
             System.out.print("broken index - no parent");
+
+            errors++;
         }
 
         if (r != null && !p.equals(r.getParent(store))) {
             System.out.print("broken index - no parent");
+
+            errors++;
         }
+
+        return errors;
     }
 
     /**

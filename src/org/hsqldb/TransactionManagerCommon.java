@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 2.0.0
  */
 class TransactionManagerCommon {
@@ -73,16 +73,24 @@ class TransactionManagerCommon {
     AtomicLong globalChangeTimestamp = new AtomicLong(1);
 
     //
-    int transactionCount = 0;
+    long transactionCount = 0;
 
     //
     HashMap           tableWriteLocks = new HashMap();
     MultiValueHashMap tableReadLocks  = new MultiValueHashMap();
 
+    //
+    volatile boolean hasExpired;
+
     // functional unit - cached table transactions
 
     /** Map : rowID -> RowAction */
     public LongKeyHashMap rowActionMap;
+
+    TransactionManagerCommon(Database database) {
+        this.database   = database;
+        catalogNameList = new HsqlName[]{ database.getCatalogName() };
+    }
 
     void setTransactionControl(Session session, int mode) {
 
@@ -108,10 +116,24 @@ class TransactionManagerCommon {
             switch (mode) {
 
                 case TransactionManager.MVCC : {
-                    manager = new TransactionManagerMVCC(database);
+                    TransactionManagerMVCC txMan =
+                        new TransactionManagerMVCC(database);
 
-                    manager.liveTransactionTimestamps.addLast(
+                    txMan.liveTransactionTimestamps.addLast(
                         session.transactionTimestamp);
+
+                    txMan.catalogWriteSession = session;
+                    txMan.isLockedMode        = true;
+
+                    OrderedHashSet set = session.waitingSessions;
+
+                    for (int i = 0; i < set.size(); i++) {
+                        Session current = (Session) set.get(i);
+
+                        current.waitedSessions.add(session);
+                    }
+
+                    manager = txMan;
 
                     break;
                 }
@@ -121,10 +143,26 @@ class TransactionManagerCommon {
                     manager.liveTransactionTimestamps.addLast(
                         session.transactionTimestamp);
 
+                    OrderedHashSet set = session.waitingSessions;
+
+                    for (int i = 0; i < set.size(); i++) {
+                        Session current = (Session) set.get(i);
+
+                        current.waitedSessions.clear();
+                    }
+
                     break;
                 }
                 case TransactionManager.LOCKS : {
                     manager = new TransactionManager2PL(database);
+
+                    OrderedHashSet set = session.waitingSessions;
+
+                    for (int i = 0; i < set.size(); i++) {
+                        Session current = (Session) set.get(i);
+
+                        current.waitedSessions.clear();
+                    }
 
                     break;
                 }
@@ -136,6 +174,7 @@ class TransactionManagerCommon {
             manager.globalChangeTimestamp.set(globalChangeTimestamp.get());
 
             manager.transactionCount = transactionCount;
+            hasExpired               = true;
             database.txManager       = (TransactionManager) manager;
         } finally {
             writeLock.unlock();
@@ -189,6 +228,17 @@ class TransactionManagerCommon {
                 lobAction.commit(session);
             }
         }
+    }
+
+    Statement updateCurrentStatement(Session session, Statement cs) {
+
+        if (cs.getCompileTimestamp()
+                < database.schemaManager.getSchemaChangeTimestamp()) {
+            cs = session.statementManager.getStatement(session, cs);
+            session.sessionContext.currentStatement = cs;
+        }
+
+        return cs;
     }
 
     void persistCommit(Session session) {
@@ -571,7 +621,7 @@ class TransactionManagerCommon {
             return false;
         }
 
-        if (cs.isCatalogLock()) {
+        if (cs.isCatalogLock(txModel)) {
             getTransactionSessions(session);
         }
 

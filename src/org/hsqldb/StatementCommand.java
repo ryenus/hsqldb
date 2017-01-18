@@ -128,6 +128,10 @@ public class StatementCommand extends Statement {
                 isLogged = false;
                 break;
 
+            case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL :
+                group = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
+                break;
+
             case StatementTypes.SET_DATABASE_UNIQUE_NAME :
             case StatementTypes.SET_DATABASE_FILES_WRITE_DELAY :
             case StatementTypes.SET_DATABASE_FILES_TEMP_PATH :
@@ -136,7 +140,6 @@ public class StatementCommand extends Statement {
                 group                  = StatementTypes.X_HSQLDB_SETTING;
                 break;
 
-//
             case StatementTypes.SET_DATABASE_DEFAULT_INITIAL_SCHEMA :
             case StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE :
             case StatementTypes.SET_DATABASE_FILES_CACHE_ROWS :
@@ -157,12 +160,9 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS :
             case StatementTypes.SET_DATABASE_SQL_REFERENTIAL_INTEGRITY :
             case StatementTypes.SET_DATABASE_SQL :
-            case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL :
             case StatementTypes.SET_DATABASE_DEFAULT_ISOLATION_LEVEL :
             case StatementTypes.SET_DATABASE_TRANSACTION_CONFLICT :
             case StatementTypes.SET_DATABASE_GC :
-
-//
             case StatementTypes.SET_DATABASE_SQL_COLLATION :
             case StatementTypes.SET_DATABASE_FILES_BACKUP_INCREMENT :
             case StatementTypes.SET_DATABASE_TEXT_SOURCE :

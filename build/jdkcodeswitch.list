@@ -25,6 +25,7 @@ org/hsqldb/jdbc/pool/JDBCPooledDataSource.java
 org/hsqldb/jdbc/pool/JDBCXADataSource.java
 org/hsqldb/lib/java/JavaSystem.java
 org/hsqldb/lib/SimpleLog.java
+org/hsqldb/persist/HsqlDatabaseProperties.java
 org/hsqldb/server/PgType.java
 org/hsqldb/types/CharacterType.java
 org/hsqldb/types/DateTimeType.java

@@ -269,7 +269,7 @@ class ServerConnection implements Runnable {
             socket.setTcpNoDelay(true);
 
             dataInput = new DataInputStream(
-                new BufferedInputStream(socket.getInputStream()));
+                new BufferedInputStream(socket.getInputStream(), 16 * 1024));
             dataOutput = new DataOutputStream(socket.getOutputStream());
 
             int firstInt = handshake();
