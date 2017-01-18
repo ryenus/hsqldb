@@ -188,17 +188,17 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
     public void testDeletesAreDetected() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
         //--
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
+        int type = ResultSet.TYPE_FORWARD_ONLY;
         boolean expResult = getBooleanProperty("dbmd.deletes.are.detected.type.forward.only", defaultValueFor().deletesAreDetected(type)); // false
         boolean result = dbmd.deletesAreDetected(type);
         assertEquals("DeletesAreDetected - TYPE_FORWARD_ONLY", expResult, result);
         //--
-        type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
+        type = ResultSet.TYPE_SCROLL_INSENSITIVE;
         expResult = getBooleanProperty("dbmd.deletes.are.detected.type.scroll.insensitive", defaultValueFor().deletesAreDetected(type)); // false
         result = dbmd.deletesAreDetected(type);
         assertEquals("DeletesAreDetected - TYPE_SCROLL_INSENSITIVE", expResult, result);
         //--
-        type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
+        type = ResultSet.TYPE_SCROLL_SENSITIVE;
         expResult = getBooleanProperty("dbmd.deletes.are.detected.type.scroll.sensitive", defaultValueFor().deletesAreDetected(type)); // false
         result = dbmd.deletesAreDetected(type);
         assertEquals("DeletesAreDetected - TYPE_SCROLL_SENSITIVE", expResult, result);
@@ -301,7 +301,7 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
     public void testGetColumnPrivileges() throws Exception {
         String catalog = null;
         String schema = null;
-        String table = null;
+        String table = "COLUMNS";
         String columnNamePattern = "%";
         DatabaseMetaData dbmd = getMetaData();
         ResultSet result = dbmd.getColumnPrivileges(catalog, schema, table, columnNamePattern);
@@ -1143,17 +1143,17 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
     public void testInsertsAreDetected() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
         //--
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
+        int type = ResultSet.TYPE_FORWARD_ONLY;
         boolean expResult = getBooleanProperty("dbmd.inserts.are.detected.type.forward.only", defaultValueFor().insertsAreDetected(type)); // false
         boolean result = dbmd.insertsAreDetected(type);
         assertEquals("InsertsAreDetected - TYPE_FORWARD_ONLY", expResult, result);
         //--
-        type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
+        type = ResultSet.TYPE_SCROLL_INSENSITIVE;
         expResult = getBooleanProperty("dbmd.inserts.are.detected.type.scroll.insensitive", defaultValueFor().insertsAreDetected(type)); // false
         result = dbmd.insertsAreDetected(type);
         assertEquals("InsertsAreDetected - TYPE_SCROLL_INSENSITIVE", expResult, result);
         //--
-        type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
+        type = ResultSet.TYPE_SCROLL_SENSITIVE;
         expResult = getBooleanProperty("dbmd.inserts.are.detected.type.scroll.sensitive", defaultValueFor().insertsAreDetected(type)); // false
         result = dbmd.insertsAreDetected(type);
         assertEquals("InsertsAreDetected - TYPE_SCROLL_SENSITIVE", expResult, result);
@@ -1265,16 +1265,16 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "othersDeletesAreVisible()")
     public void testOthersDeletesAreVisible() throws Exception {
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
+        int type = ResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.others.deletes.are.visible.type.forward.only", defaultValueFor().othersDeletesAreVisible(type)); // false
         boolean result = dbmd.othersDeletesAreVisible(type);
         assertEquals("OthersDeletesAreVisible - TYPE_FORWARD_ONLY", expResult, result);
-        type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
+        type = ResultSet.TYPE_SCROLL_INSENSITIVE;
         expResult = getBooleanProperty("dbmd.others.deletes.are.visible.type.scroll.insensitive", defaultValueFor().othersDeletesAreVisible(type)); // false
         result = dbmd.othersDeletesAreVisible(type);
         assertEquals("OthersDeletesAreVisible - TYPE_SCROLL_INSENSITIVE", expResult, result);
-        type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
+        type = ResultSet.TYPE_SCROLL_SENSITIVE;
         expResult = getBooleanProperty("dbmd.others.deletes.are.visible.type.scroll.sensitive", defaultValueFor().othersDeletesAreVisible(type)); // false
         result = dbmd.othersDeletesAreVisible(type);
         assertEquals("OthersDeletesAreVisible - TYPE_SCROLL_SENSITIVE", expResult, result);
@@ -1285,16 +1285,16 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "othersInsertsAreVisible()")
     public void testOthersInsertsAreVisible() throws Exception {
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
+        int type = ResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.others.inserts.are.visible.type.forward.only", defaultValueFor().othersInsertsAreVisible(type)); // false
         boolean result = dbmd.othersInsertsAreVisible(type);
         assertEquals("OthersInsertsAreVisible - TYPE_FORWARD_ONLY", expResult, result);
-        type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
+        type = ResultSet.TYPE_SCROLL_INSENSITIVE;
         expResult = getBooleanProperty("dbmd.others.inserts.are.visible.type.scroll.insensitive", defaultValueFor().othersInsertsAreVisible(type)); // false
         result = dbmd.othersInsertsAreVisible(type);
         assertEquals("OthersInsertsAreVisible - TYPE_SCROLL_INSENSITIVE", expResult, result);
-        type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
+        type = ResultSet.TYPE_SCROLL_SENSITIVE;
         expResult = getBooleanProperty("dbmd.others.inserts.are.visible.type.scroll.sensitive", defaultValueFor().othersInsertsAreVisible(type)); // false
         result = dbmd.othersInsertsAreVisible(type);
         assertEquals("OthersInsertsAreVisible - TYPE_SCROLL_SENSITIVE", expResult, result);
@@ -1305,16 +1305,16 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "othersUpdatesAreVisible()")
     public void testOthersUpdatesAreVisible() throws Exception {
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
+        int type = ResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.others.updates.are.visible.type.forward.only", defaultValueFor().othersUpdatesAreVisible(type)); // false
         boolean result = dbmd.othersUpdatesAreVisible(type);
         assertEquals("OthersUpdatesAreVisible - TYPE_FORWARD_ONLY", expResult, result);
-        type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
+        type = ResultSet.TYPE_SCROLL_INSENSITIVE;
         expResult = getBooleanProperty("dbmd.others.updates.are.visible.type.scroll.insensitive", defaultValueFor().othersUpdatesAreVisible(type)); // false
         result = dbmd.othersUpdatesAreVisible(type);
         assertEquals("OthersUpdatesAreVisible - TYPE_SCROLL_INSENSITIVE", expResult, result);
-        type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
+        type = ResultSet.TYPE_SCROLL_SENSITIVE;
         expResult = getBooleanProperty("dbmd.others.updates.are.visible.type.scroll.sensitive", defaultValueFor().othersUpdatesAreVisible(type)); // false
         result = dbmd.othersUpdatesAreVisible(type);
         assertEquals("OthersUpdatesAreVisible - TYPE_SCROLL_SENSITIVE", expResult, result);
@@ -1325,16 +1325,16 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "ownDeletesAreVisible()")
     public void testOwnDeletesAreVisible() throws Exception {
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
+        int type = ResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.own.deletes.are.visible.type.forward.only", defaultValueFor().ownDeletesAreVisible(type)); // false
         boolean result = dbmd.ownDeletesAreVisible(type);
         assertEquals("OwnDeletesAreVisible - TYPE_FORWARD_ONLY", expResult, result);
-        type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
+        type = ResultSet.TYPE_SCROLL_INSENSITIVE;
         expResult = getBooleanProperty("dbmd.own.deletes.are.visible.type.scroll.insensitive", defaultValueFor().ownDeletesAreVisible(type)); // false
         result = dbmd.ownDeletesAreVisible(type);
         assertEquals("OwnDeletesAreVisible - TYPE_SCROLL_INSENSITIVE", expResult, result);
-        type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
+        type = ResultSet.TYPE_SCROLL_SENSITIVE;
         expResult = getBooleanProperty("dbmd.own.deletes.are.visible.type.scroll.sensitive", defaultValueFor().ownDeletesAreVisible(type)); // false
         result = dbmd.ownDeletesAreVisible(type);
         assertEquals("OwnDeletesAreVisible - TYPE_SCROLL_SENSITIVE", expResult, result);
@@ -1345,16 +1345,16 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "ownInsertsAreVisible()")
     public void testOwnInsertsAreVisible() throws Exception {
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
+        int type = ResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.own.inserts.are.visible.type.forward.only", defaultValueFor().ownInsertsAreVisible(type)); // false
         boolean result = dbmd.ownInsertsAreVisible(type);
         assertEquals("OwnInsertsAreVisible - TYPE_FORWARD_ONLY", expResult, result);
-        type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
+        type = ResultSet.TYPE_SCROLL_INSENSITIVE;
         expResult = getBooleanProperty("dbmd.own.inserts.are.visible.type.scroll.insensitive", defaultValueFor().ownInsertsAreVisible(type)); // false
         result = dbmd.ownInsertsAreVisible(type);
         assertEquals("OwnInsertsAreVisible - TYPE_SCROLL_INSENSITIVE", expResult, result);
-        type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
+        type = ResultSet.TYPE_SCROLL_SENSITIVE;
         expResult = getBooleanProperty("dbmd.own.inserts.are.visible.type.scroll.sensitive", defaultValueFor().ownInsertsAreVisible(type)); // false
         result = dbmd.ownInsertsAreVisible(type);
         assertEquals("OwnInsertsAreVisible - TYPE_SCROLL_SENSITIVE", expResult, result);
@@ -1365,16 +1365,16 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "ownUpdatesAreVisible()")
     public void testOwnUpdatesAreVisible() throws Exception {
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
+        int type = ResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.own.updates.are.visible.type.forward.only", defaultValueFor().ownUpdatesAreVisible(type)); // false
         boolean result = dbmd.ownUpdatesAreVisible(type);
         assertEquals("OwnUpdatesAreVisible - TYPE_FORWARD_ONLY", expResult, result);
-        type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
+        type = ResultSet.TYPE_SCROLL_INSENSITIVE;
         expResult = getBooleanProperty("dbmd.own.updates.are.visible.type.scroll.insensitive", defaultValueFor().ownUpdatesAreVisible(type)); // false
         result = dbmd.ownUpdatesAreVisible(type);
         assertEquals("OwnUpdatesAreVisible - TYPE_SCROLL_INSENSITIVE", expResult, result);
-        type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
+        type = ResultSet.TYPE_SCROLL_SENSITIVE;
         expResult = getBooleanProperty("dbmd.own.updates.are.visible.type.scroll.sensitive", defaultValueFor().ownUpdatesAreVisible(type)); // false
         result = dbmd.ownUpdatesAreVisible(type);
         assertEquals("OwnUpdatesAreVisible - TYPE_SCROLL_SENSITIVE", expResult, result);
@@ -1935,8 +1935,8 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "supportsResultSetConcurrency(int,int)")
     public void testSupportsResultSetConcurrency_TYPE_FORWARD_ONLY_CONCUR_READ_ONLY() throws Exception {
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
-        int concurrency = JDBCResultSet.CONCUR_READ_ONLY;
+        int type = ResultSet.TYPE_FORWARD_ONLY;
+        int concurrency = ResultSet.CONCUR_READ_ONLY;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.supports.result.set.concurrency.forward.only.read.only", defaultValueFor().supportsResultSetConcurrency(type, concurrency)); // true
         boolean result = dbmd.supportsResultSetConcurrency(type, concurrency);
@@ -1948,8 +1948,8 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "supportsResultSetConcurrency(int,int)")
     public void testSupportsResultSetConcurrency_TYPE_FORWARD_ONLY_CONCUR_UPDATABLE() throws Exception {
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
-        int concurrency = JDBCResultSet.CONCUR_UPDATABLE;
+        int type = ResultSet.TYPE_FORWARD_ONLY;
+        int concurrency = ResultSet.CONCUR_UPDATABLE;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.supports.result.set.concurrency.forward.only.updatable", defaultValueFor().supportsResultSetConcurrency(type, concurrency)); // true
         boolean result = dbmd.supportsResultSetConcurrency(type, concurrency);
@@ -1961,8 +1961,8 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "supportsResultSetConcurrency(int,int)")
     public void testSupportsResultSetConcurrency_TYPE_SCROLL_INSENSITIVE_CONCUR_READ_ONLY() throws Exception {
-        int type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
-        int concurrency = JDBCResultSet.CONCUR_READ_ONLY;
+        int type = ResultSet.TYPE_SCROLL_INSENSITIVE;
+        int concurrency = ResultSet.CONCUR_READ_ONLY;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.supports.result.set.concurrency.scroll.insensitive.read.only", defaultValueFor().supportsResultSetConcurrency(type, concurrency)); // true
         boolean result = dbmd.supportsResultSetConcurrency(type, concurrency);
@@ -1974,8 +1974,8 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "supportsResultSetConcurrency(int,int)")
     public void testSupportsResultSetConcurrency_TYPE_SCROLL_INSENSITIVE_CONCUR_UPDATABLE() throws Exception {
-        int type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
-        int concurrency = JDBCResultSet.CONCUR_UPDATABLE;
+        int type = ResultSet.TYPE_SCROLL_INSENSITIVE;
+        int concurrency = ResultSet.CONCUR_UPDATABLE;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.supports.result.set.concurrency.scroll.insensitive.updatable", defaultValueFor().supportsResultSetConcurrency(type, concurrency)); // true
         boolean result = dbmd.supportsResultSetConcurrency(type, concurrency);
@@ -1987,8 +1987,8 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "supportsResultSetConcurrency(int,int)")
     public void testSupportsResultSetConcurrency_TYPE_SCROLL_SENSITIVE_CONCUR_READ_ONLY() throws Exception {
-        int type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
-        int concurrency = JDBCResultSet.CONCUR_READ_ONLY;
+        int type = ResultSet.TYPE_SCROLL_SENSITIVE;
+        int concurrency = ResultSet.CONCUR_READ_ONLY;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.supports.result.set.concurrency.scroll.sensitive.read.only", defaultValueFor().supportsResultSetConcurrency(type, concurrency)); // true
         boolean result = dbmd.supportsResultSetConcurrency(type, concurrency);
@@ -2000,8 +2000,8 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "supportsResultSetConcurrency(int,int)")
     public void testSupportsResultSetConcurrency_TYPE_SCROLL_SENSITIVE_CONCUR_UPDATABLE() throws Exception {
-        int type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
-        int concurrency = JDBCResultSet.CONCUR_UPDATABLE;
+        int type = ResultSet.TYPE_SCROLL_SENSITIVE;
+        int concurrency = ResultSet.CONCUR_UPDATABLE;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.supports.result.set.concurrency.scroll.sensitive.updatable", defaultValueFor().supportsResultSetConcurrency(type, concurrency)); // true
         boolean result = dbmd.supportsResultSetConcurrency(type, concurrency);
@@ -2013,7 +2013,7 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "supportsResultSetHoldability(int)")
     public void testSupportsResultSetHoldability_CLOSE_CURSORS_AT_COMMIT() throws Exception {
-        int holdability = JDBCResultSet.CLOSE_CURSORS_AT_COMMIT;
+        int holdability = ResultSet.CLOSE_CURSORS_AT_COMMIT;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.supports.result.set.holdability.close.cursors.at.commit", defaultValueFor().supportsResultSetHoldability(holdability)); // true
         boolean result = dbmd.supportsResultSetHoldability(holdability);
@@ -2025,7 +2025,7 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
      */
     @OfMethod(value = "supportsResultSetHoldability(int)")
     public void testSupportsResultSetHoldability_HOLD_CURSORS_OVER_COMMIT() throws Exception {
-        int holdability = JDBCResultSet.HOLD_CURSORS_OVER_COMMIT;
+        int holdability = ResultSet.HOLD_CURSORS_OVER_COMMIT;
         DatabaseMetaData dbmd = getMetaData();
         boolean expResult = getBooleanProperty("dbmd.supports.result.set.holdability.hold.cursors.over.commit", defaultValueFor().supportsResultSetHoldability(holdability)); // true
         boolean result = dbmd.supportsResultSetHoldability(holdability);
@@ -2321,17 +2321,17 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
     public void testUpdatesAreDetected() throws Exception {
         DatabaseMetaData dbmd = getMetaData();
         //--
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
+        int type = ResultSet.TYPE_FORWARD_ONLY;
         boolean expResult = getBooleanProperty("dbmd.updates.are.detected.type.forward.only", defaultValueFor().updatesAreDetected(type)); // false
         boolean result = dbmd.updatesAreDetected(type);
         assertEquals("UpdatesAreDetected - TYPE_FORWARD_ONLY", expResult, result);
         //--
-        type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
+        type = ResultSet.TYPE_SCROLL_INSENSITIVE;
         expResult = getBooleanProperty("dbmd.updates.are.detected.type.scroll.insensitive", defaultValueFor().updatesAreDetected(type)); // false
         result = dbmd.updatesAreDetected(type);
         assertEquals("UpdatesAreDetected - TYPE_SCROLL_INSENSITIVE", expResult, result);
         //--
-        type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
+        type = ResultSet.TYPE_SCROLL_SENSITIVE;
         expResult = getBooleanProperty("dbmd.updates.are.detected.type.scroll.sensitive", defaultValueFor().updatesAreDetected(type)); // false
         result = dbmd.updatesAreDetected(type);
         assertEquals("UpdatesAreDetected - TYPE_SCROLL_SENSITIVE", expResult, result);

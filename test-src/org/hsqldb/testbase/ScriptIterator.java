@@ -110,13 +110,13 @@ public class ScriptIterator implements Iterator {
                 } catch (IOException ioe) {
                     closeReader();
 
-		    throw new RuntimeException(ioe);
+                    throw new RuntimeException(ioe);
                 }
 
                 if (line == null) {
                     closeReader();
 
-		    break;
+                    break;
                 }
 
                 String trimmed = line.trim();
@@ -158,14 +158,14 @@ public class ScriptIterator implements Iterator {
 
         if (this.hasNext()) {
             out          = this.segment;
-	    this.segment = null;
+            this.segment = null;
         }
 
         if (out == null) {
-	    throw new NoSuchElementException();
-	}
+            throw new NoSuchElementException();
+        }
 
-	return out;
+        return out;
     }
 
     /**

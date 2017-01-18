@@ -1598,7 +1598,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
         assertEquals(
                 "fetch direction",
-                JDBCResultSet.FETCH_FORWARD,
+                ResultSet.FETCH_FORWARD,
                 rs.getFetchDirection());
 
         rs.close();

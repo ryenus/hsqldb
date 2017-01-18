@@ -131,7 +131,7 @@ public abstract class BaseResultSetMetaDataTestCase extends BaseJdbcTestCase {
     }
 
     protected int getExpectedColumnDisplaySize(int columnIndex) {
-        return getPositiveIntProperty("rsmd.column.display.size." + columnIndex);
+        return getPositiveIntProperty("rsmd.display.size." + columnIndex);
     }
 
     protected String getExpectedColumnLabel(int columnIndex) {
@@ -305,10 +305,9 @@ public abstract class BaseResultSetMetaDataTestCase extends BaseJdbcTestCase {
         ResultSetMetaData rsmd = newResultSetMetaData();
         int columnCount = rsmd.getColumnCount();
         for (int i = 1; i <= columnCount; i++) {
-            assertEquals("column: " + i,
-                    this.getExpectedColumnDisplaySize(i),
-                    getExpectedColumnDisplaySize(i),
-                    rsmd.getColumnDisplaySize(i));
+            int expectedSize = getExpectedColumnDisplaySize(i);
+            int actualSize = rsmd.getColumnDisplaySize(i);
+            assertEquals("column: " + i,  expectedSize, actualSize);
         }
     }
 

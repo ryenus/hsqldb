@@ -199,13 +199,14 @@ public class JDBCXAConnectionTest extends BaseJdbcTestCase {
             }
         });
 
-        
-        testSubject.close();
-        
-// fredt - close event is for the user connection, not the pooled connection
-//        assertEquals(true, connectionClosedEventOccured[0]);
 
-        assertEquals(true, connection.isClosed());
+        connection.close();
+
+// fredt - close event is for the user connection, not the pooled connection
+        assertEquals(true, connectionClosedEventOccured[0]);
+
+        boolean closed = connection.isClosed();
+        assertEquals(true, closed);
 
         connectionClosedEventOccured[0] = false;
         testSubject = newTestSubject();
