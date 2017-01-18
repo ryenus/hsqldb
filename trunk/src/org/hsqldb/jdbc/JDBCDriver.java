@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -477,7 +477,7 @@ public class JDBCDriver implements Driver {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     *  HSQLDB 2.0 is aimed to be compliant with JDBC 4.0 specification.
+     *  HSQLDB 2.0 is aimed to be compliant with JDBC 4.2 specification.
      *  It supports SQL 92 Entry Level and beyond.
      * </div> <!-- end release-specific documentation -->
      *

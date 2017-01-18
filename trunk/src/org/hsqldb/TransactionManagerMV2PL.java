@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,11 +56,11 @@ implements TransactionManager {
 
     public TransactionManagerMV2PL(Database db) {
 
-        database        = db;
-        lobSession      = database.sessionManager.getSysLobSession();
-        rowActionMap    = new LongKeyHashMap(8192);
-        txModel         = MVLOCKS;
-        catalogNameList = new HsqlName[]{ database.getCatalogName() };
+        super(db);
+
+        lobSession   = database.sessionManager.getSysLobSession();
+        rowActionMap = new LongKeyHashMap(8192);
+        txModel      = MVLOCKS;
     }
 
     public long getGlobalChangeTimestamp() {
@@ -518,19 +518,23 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
-            if (cs.getCompileTimestamp()
-                    < database.schemaManager.getSchemaChangeTimestamp()) {
-                cs = session.statementManager.getStatement(session, cs);
-                session.sessionContext.currentStatement = cs;
+            if (hasExpired) {
+                session.redoAction = true;
 
-                if (cs == null) {
-                    return;
-                }
+                return;
+            }
+
+            cs = updateCurrentStatement(session, cs);
+
+            if (cs == null) {
+                return;
             }
 
             boolean canProceed = setWaitedSessionsTPL(session, cs);
 
             if (canProceed) {
+                session.isPreTransaction = true;
+
                 if (session.tempSet.isEmpty()) {
                     lockTablesTPL(session, cs);
 

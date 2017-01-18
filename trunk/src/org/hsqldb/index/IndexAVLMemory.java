@@ -120,56 +120,6 @@ public class IndexAVLMemory extends IndexAVL {
               unique, constraint, forward);
     }
 
-    public void checkIndex(PersistentStore store) {
-
-        store.readLock();
-
-        try {
-            NodeAVL p = getAccessor(store);
-            NodeAVL f = null;
-
-            while (p != null) {
-                f = p;
-
-                checkNodes(store, p);
-
-                p = p.nLeft;
-            }
-
-            p = f;
-
-            while (f != null) {
-                checkNodes(store, f);
-
-                f = next(store, f);
-            }
-        } finally {
-            store.readUnlock();
-        }
-    }
-
-    void checkNodes(PersistentStore store, NodeAVL p) {
-
-        NodeAVL l = p.nLeft;
-        NodeAVL r = p.nRight;
-
-        if (l != null && l.getBalance(store) == -2) {
-            System.out.print("broken index - deleted");
-        }
-
-        if (r != null && r.getBalance(store) == -2) {
-            System.out.print("broken index -deleted");
-        }
-
-        if (l != null && !p.equals(l.getParent(store))) {
-            System.out.print("broken index - no parent");
-        }
-
-        if (r != null && !p.equals(r.getParent(store))) {
-            System.out.print("broken index - no parent");
-        }
-    }
-
     /**
      * Insert a node into the index
      */

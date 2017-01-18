@@ -2303,12 +2303,15 @@ public class ParserCommand extends ParserDDL {
 
             case Tokens.CHECK : {
                 read();
+
+                HsqlName tableName = null;
+
                 readThis(Tokens.TABLE);
 
                 readThis(Tokens.SPACE);
 
                 Object[] args = new Object[] {
-                    null, type, number
+                    tableName, type, number
                 };
                 HsqlName[] names =
                     database.schemaManager.getCatalogAndBaseTableNames();

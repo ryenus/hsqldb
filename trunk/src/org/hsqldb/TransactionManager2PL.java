@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,8 @@ implements TransactionManager {
 
     public TransactionManager2PL(Database db) {
 
-        database   = db;
+        super(db);
+
         lobSession = database.sessionManager.getSysLobSession();
         txModel    = LOCKS;
     }
@@ -302,19 +303,23 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
-            if (cs.getCompileTimestamp()
-                    < database.schemaManager.getSchemaChangeTimestamp()) {
-                cs = session.statementManager.getStatement(session, cs);
-                session.sessionContext.currentStatement = cs;
+            if (hasExpired) {
+                session.redoAction = true;
 
-                if (cs == null) {
-                    return;
-                }
+                return;
+            }
+
+            cs = updateCurrentStatement(session, cs);
+
+            if (cs == null) {
+                return;
             }
 
             boolean canProceed = setWaitedSessionsTPL(session, cs);
 
             if (canProceed) {
+                session.isPreTransaction = true;
+
                 if (session.tempSet.isEmpty()) {
                     lockTablesTPL(session, cs);
 
