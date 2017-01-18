@@ -26,7 +26,7 @@
   -->
 
    <property file='build/build.properties'/>
-   <property name="hsqldb.version" value="2.3.4"/>
+   <property name="hsqldb.version" value="2.4.0"/>
 
    <tstamp>
        <format property="timestamp" pattern="yyyy/MM/dd-HH:mm:ss"
@@ -114,6 +114,7 @@ examples:
       <available classname="java.util.EnumSet" property="ant.java.iscjava15"/>
       <available classname="java.net.IDN" property="ant.java.iscjava16"/>
       <available classname="java.sql.JDBCType" property="ant.java.iscjava18"/>
+	  <available classname="java.sql.ShardingKey" property="ant.java.iscjava19"/>
    </target>
 
    <target name="-prepare" depends="init,-set-jvmvars">
