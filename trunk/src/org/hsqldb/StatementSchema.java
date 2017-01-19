@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1065,8 +1065,9 @@ public class StatementSchema extends Statement {
                 }
             }
             case StatementTypes.CREATE_SCHEMA : {
-                HsqlName name  = (HsqlName) arguments[0];
-                Grantee  owner = (Grantee) arguments[1];
+                HsqlName name        = (HsqlName) arguments[0];
+                Grantee  owner       = (Grantee) arguments[1];
+                Boolean  ifNotExists = (Boolean) arguments[2];
 
                 try {
                     session.checkDDLWrite();
@@ -1076,6 +1077,11 @@ public class StatementSchema extends Statement {
                                 && SqlInvariants.PUBLIC_SCHEMA.equals(
                                     name.name)) {}
                         else {
+                            if (ifNotExists != null
+                                    && ifNotExists.booleanValue()) {
+                                return Result.updateZeroResult;
+                            }
+
                             throw Error.error(ErrorCode.X_42504, name.name);
                         }
                     } else {

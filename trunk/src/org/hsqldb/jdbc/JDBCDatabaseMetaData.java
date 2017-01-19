@@ -5244,7 +5244,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @since JDK 1.4, HSQLDB 1.7
      */
     public int getJDBCMinorVersion() throws SQLException {
-        return 0;
+        return JDBC_MINOR;
     }
 
     /**
@@ -5941,6 +5941,16 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 */
 
 //#endif JAVA6
+
+//#ifdef JAVA8
+/*
+    public static final int JDBC_MINOR = 2;
+*/
+
+//#else
+    public static final int JDBC_MINOR = 0;
+
+//#endif JAVA8
 
     /**
      * Constructs a new <code>JDBCDatabaseMetaData</code> object using the
