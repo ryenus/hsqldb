@@ -27,7 +27,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hsqldb.store;
+package org.hsqldb.map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -38,8 +38,10 @@ import org.hsqldb.testbase.OfMethod;
 @ForSubject(BitMap.class)
 public class BitMapTest extends BaseTestCase {
 
-    @OfMethod({"leftShift([byte,int","and([byte,byte,int"})
-    public void testBitMap() {
+    @OfMethod({"leftShift(byte[],int)","and(byte[],byte,int)"})
+    public void testByteBitMap() {
+
+        int value;
 
         byte[] map = new byte[]{
             0, 0, (byte) 255, (byte) 255, 0, 0
