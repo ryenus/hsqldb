@@ -1381,6 +1381,8 @@ public class ParserDDL extends ParserRoutine {
 
         read();
 
+        Boolean ifNotExists = readIfNotExists();
+
         if (token.tokenType != Tokens.AUTHORIZATION) {
             schemaName = readNewSchemaName();
         }
@@ -1436,7 +1438,9 @@ public class ParserDDL extends ParserRoutine {
             if (session.isProcessingScript()
                     && SqlInvariants.PUBLIC_SCHEMA.equals(schemaName.name)) {}
             else {
-                throw Error.error(ErrorCode.X_42504, schemaName.name);
+                if (!ifNotExists.booleanValue()) {
+                    throw Error.error(ErrorCode.X_42504, schemaName.name);
+                }
             }
         }
 
@@ -1455,7 +1459,7 @@ public class ParserDDL extends ParserRoutine {
 
         String     sql            = getLastPart();
         Object[]   args           = new Object[] {
-            schemaName, owner
+            schemaName, owner, ifNotExists
         };
         HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
         StatementSchema cs = new StatementSchema(sql,
