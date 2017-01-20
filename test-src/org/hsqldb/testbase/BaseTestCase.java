@@ -66,7 +66,7 @@ import org.hsqldb.testbase.ConnectionFactory.ConnectionFactoryEventListener;
 /**
  * Abstract HSQLDB-targeted JUnit 3.8 test case. <p>
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.0.1
  * @since 1.9.0
  */

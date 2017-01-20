@@ -40,7 +40,7 @@ import org.hsqldb.testbase.OfMethod;
 
 /**
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.1.0
  * @since HSQLDB 2.1.0
  */

@@ -41,7 +41,7 @@ import org.hsqldb.testbase.BaseTestCase;
 /**
  * Abstract JDBC-focused Junit test case. <p>
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.7.2
  */

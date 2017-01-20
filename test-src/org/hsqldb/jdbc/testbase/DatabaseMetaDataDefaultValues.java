@@ -53,7 +53,7 @@ import org.hsqldb.testbase.PropertyGetter;
  * This is a start toward upgrading the test suite to allow cross driver testing
  * with spi style bases and inheritance.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.1
  * @since HSQLDB 2.1
  */

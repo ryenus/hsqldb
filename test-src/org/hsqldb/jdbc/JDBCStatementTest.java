@@ -45,7 +45,7 @@ import org.hsqldb.testbase.OfMethod;
 /**
  * Test of interface java.sql.Statement.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(Statement.class)
 public class JDBCStatementTest extends BaseJdbcTestCase {

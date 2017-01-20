@@ -39,7 +39,7 @@ import org.hsqldb.testbase.ForSubject;
 /**
  * Test of class JDBCDatabaseMetaData.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(JDBCDatabaseMetaData.class)
 public class JDBCDatabaseMetaDataTest extends BaseDatabaseMetaDataTestCase {

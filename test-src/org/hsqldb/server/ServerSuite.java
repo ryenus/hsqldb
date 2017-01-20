@@ -37,7 +37,7 @@ import junit.textui.TestRunner;
 
 /**
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 public class ServerSuite extends TestCase {
 
@@ -56,7 +56,7 @@ public class ServerSuite extends TestCase {
 
     public static void main(java.lang.String[] args) {
         if (args.length > 0 && args[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(ServerSuite.class);
+//            junit.swingui.TestRunner.run(ServerSuite.class);
         } else {
             junit.framework.TestResult result = TestRunner.run(suite());
 

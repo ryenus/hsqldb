@@ -43,7 +43,7 @@ import org.hsqldb.testbase.OfMethod;
 /**
  * Test of of interface java.sql.Savepoint.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(Savepoint.class)
 public class JDBCSavepointTest extends BaseJdbcTestCase {

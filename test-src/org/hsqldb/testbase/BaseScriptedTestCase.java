@@ -48,7 +48,7 @@ import org.hsqldb.lib.StringUtil;
 /**
  * Initial port of org.hqldb.test.TestUtil.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 public abstract class BaseScriptedTestCase extends BaseTestCase {
 
@@ -246,7 +246,6 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
          * @param list
          * @return
          */
-        @Override
         public BaseSection createSection(List list) {
             char sectionType = ' ';
             String[] lines = null;

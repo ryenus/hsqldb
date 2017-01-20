@@ -40,7 +40,7 @@ import org.hsqldb.testbase.ForSubject;
 /**
  * Test of org.hsqldb.jdbc.JDBCBlob
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(JDBCBlob.class)
 public class JDBCBlobTest extends BaseBlobTestCase {
