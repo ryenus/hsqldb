@@ -112,7 +112,7 @@ public class Database {
     public boolean                sqlLongvarIsLob        = false;
     public boolean                sqlNullsFirst          = true;
     public boolean                sqlNullsOrder          = true;
-    public boolean                sqlSysIndexNames       = true;
+    public boolean                sqlSysIndexNames       = false;
     public boolean                sqlRegularNames        = true;
     public boolean                sqlTranslateTTI        = true;
     public boolean                sqlUniqueNulls         = true;
