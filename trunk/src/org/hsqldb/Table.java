@@ -2094,6 +2094,23 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
+     * Returns the Index object of the given name or null if not found.
+     */
+    Index getSystemIndex(String indexName) {
+
+        Index[] indexes = indexList;
+
+        for (int i = 0; i < indexes.length; i++) {
+            if (indexName.equals(indexes[i].getName().name)) {
+                if (indexes[i].isConstraint()) {
+                    return indexes[i];
+                }
+            }
+        }
+
+        return null;
+    }
+    /**
      *  Return the position of the constraint within the list
      */
     int getConstraintIndex(String constraintName) {
