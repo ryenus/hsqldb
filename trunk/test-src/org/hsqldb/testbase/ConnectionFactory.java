@@ -57,7 +57,7 @@ import java.util.List;
  * class to optionally register an action to close all embedded HSQLDB database
  * instances in response to test fixture tear down completion. <p>
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.0.1
  * @since 1.9.0
  */

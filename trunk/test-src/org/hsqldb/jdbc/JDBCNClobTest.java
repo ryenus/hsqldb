@@ -43,7 +43,7 @@ import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 public class JDBCNClobTest extends BaseJdbcTestCase {
 

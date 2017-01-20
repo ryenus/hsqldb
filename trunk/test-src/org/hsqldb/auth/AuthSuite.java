@@ -39,7 +39,7 @@ import junit.textui.TestRunner;
 
 /**
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 public class AuthSuite extends TestCase {
 

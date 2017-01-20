@@ -36,7 +36,7 @@ import java.lang.annotation.Target;
 
 /**
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.0.1
  * @since 2.0.1
  */

@@ -47,7 +47,7 @@ import org.hsqldb.testbase.OfMethod;
 
 /**
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(JDBCPooledDataSource.class)
 public class JDBCPooledDataSourceTest extends BaseJdbcTestCase {
@@ -77,7 +77,7 @@ public class JDBCPooledDataSourceTest extends BaseJdbcTestCase {
 
     protected JDBCPooledDataSource newTestSubject() {
         JDBCPooledDataSource testSubject = new JDBCPooledDataSource();
-        
+
         testSubject.setUser(getUser());
         testSubject.setPassword(getPassword());
         testSubject.setUrl(getUrl());
@@ -105,13 +105,11 @@ public class JDBCPooledDataSourceTest extends BaseJdbcTestCase {
         final PreparedStatement[] statementErrorEventStatement = new  PreparedStatement[1];
 
         pooledConnection.addConnectionEventListener(new ConnectionEventListener() {
-            @Override
             public void connectionClosed(ConnectionEvent event) {
                connectionClosedEventOccured[0] = true;
                connectionClosedEventException[0] = event.getSQLException();
             }
 
-            @Override
             public void connectionErrorOccurred(ConnectionEvent event) {
                connectionErrorEventOccured[0] = true;
                connectionErrorEventException[0] = event.getSQLException();
@@ -119,14 +117,12 @@ public class JDBCPooledDataSourceTest extends BaseJdbcTestCase {
         });
 
         pooledConnection.addStatementEventListener(new StatementEventListener() {
-            @Override
             public void statementClosed(StatementEvent event) {
                 statementClosedEventOccured[0] = true;
                 statementClosedEventException[0] = event.getSQLException();
                 statementClosedEventStatement[0] = event.getStatement();
             }
 
-            @Override
             public void statementErrorOccurred(StatementEvent event) {
                 statementErrorEventOccured[0] = true;
                 statementErrorEventException[0] = event.getSQLException();

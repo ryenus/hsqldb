@@ -53,7 +53,7 @@ import org.hsqldb.testbase.OfMethod;
 /**
  * Test of class org.hsqldb.jdbc.JDBCCallableStatement.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(JDBCCallableStatement.class)
 public class JDBCCallableStatementTest extends BaseCallableStatementTestCase {
@@ -578,22 +578,18 @@ public class JDBCCallableStatementTest extends BaseCallableStatementTestCase {
 
             private Object m_value;
 
-            @Override
             public String getBaseTypeName() throws SQLException {
                 return null;
             }
 
-            @Override
             public Object getObject(Map<String, Class<?>> map) throws SQLException {
                 return m_value;
             }
 
-            @Override
             public Object getObject() throws SQLException {
                 return m_value;
             }
 
-            @Override
             public void setObject(Object value) throws SQLException {
                 m_value = value;
             }
@@ -712,22 +708,18 @@ public class JDBCCallableStatementTest extends BaseCallableStatementTestCase {
 
             private Object m_value;
 
-            @Override
             public String getBaseTypeName() throws SQLException {
                 return null;
             }
 
-            @Override
             public Object getObject(Map<String, Class<?>> map) throws SQLException {
                 return m_value;
             }
 
-            @Override
             public Object getObject() throws SQLException {
                 return m_value;
             }
 
-            @Override
             public void setObject(Object value) throws SQLException {
                 m_value = value;
             }

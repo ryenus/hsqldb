@@ -40,7 +40,7 @@ import org.hsqldb.persist.Logger;
  * Provides support for deleting by database URL the files that compose an
  * HSQLDB database.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.2.5
  * @since 2.0.1
  */
@@ -86,7 +86,6 @@ public final class HsqldbEmbeddedDatabaseDeleter implements ConnectionFactory.Co
 
     //<editor-fold defaultstate="collapsed" desc="Methods">
     //<editor-fold defaultstate="collapsed" desc="closedRegisteredObjects(ConnectionFactory)">
-    @Override
     public void finishedClosingRegisteredObjects(final ConnectionFactory source) {
         final boolean success = deleteDatabase(m_dataseUrl);
 

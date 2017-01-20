@@ -13,7 +13,7 @@ import org.hsqldb.testbase.OfMethod;
 /**
  * Basis for test of interface java.sql.DatabaseMetaData.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(java.sql.DatabaseMetaData.class)
 public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {

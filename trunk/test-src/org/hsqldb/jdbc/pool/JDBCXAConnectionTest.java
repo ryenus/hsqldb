@@ -47,7 +47,7 @@ import org.hsqldb.testbase.OfMethod;
 
 /**
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(JDBCXAConnection.class)
 public class JDBCXAConnectionTest extends BaseJdbcTestCase {
@@ -121,13 +121,11 @@ public class JDBCXAConnectionTest extends BaseJdbcTestCase {
         final PreparedStatement[] statementErrorEventStatement = new  PreparedStatement[1];
 
         testSubject.addConnectionEventListener(new ConnectionEventListener() {
-            @Override
             public void connectionClosed(ConnectionEvent event) {
                connectionClosedEventOccured[0] = true;
                connectionClosedEventException[0] = event.getSQLException();
             }
 
-            @Override
             public void connectionErrorOccurred(ConnectionEvent event) {
                connectionErrorEventOccured[0] = true;
                connectionErrorEventException[0] = event.getSQLException();
@@ -135,14 +133,12 @@ public class JDBCXAConnectionTest extends BaseJdbcTestCase {
         });
 
         testSubject.addStatementEventListener(new StatementEventListener() {
-            @Override
             public void statementClosed(StatementEvent event) {
                 statementClosedEventOccured[0] = true;
                 statementClosedEventException[0] = event.getSQLException();
                 statementClosedEventStatement[0] = event.getStatement();
             }
 
-            @Override
             public void statementErrorOccurred(StatementEvent event) {
                 statementErrorEventOccured[0] = true;
                 statementErrorEventException[0] = event.getSQLException();
@@ -186,13 +182,11 @@ public class JDBCXAConnectionTest extends BaseJdbcTestCase {
 
 
         testSubject.addConnectionEventListener(new ConnectionEventListener() {
-            @Override
             public void connectionClosed(ConnectionEvent event) {
                connectionClosedEventOccured[0] = true;
                connectionClosedEventException[0] = event.getSQLException();
             }
 
-            @Override
             public void connectionErrorOccurred(ConnectionEvent event) {
                connectionErrorEventOccured[0] = true;
                connectionErrorEventException[0] = event.getSQLException();

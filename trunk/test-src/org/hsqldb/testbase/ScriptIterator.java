@@ -45,7 +45,7 @@ import org.hsqldb.lib.Iterator;
  * Ignores lines starting with '//' and '--', as well as lines consisting only
  * of whitespace.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 public class ScriptIterator implements Iterator {
     private static final String SLASH_COMMENT = "//";

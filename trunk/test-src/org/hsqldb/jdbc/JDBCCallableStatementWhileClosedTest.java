@@ -56,7 +56,7 @@ import org.hsqldb.testbase.OfMethod;
 // TODO:  See if this can be done reflectively.
 /**
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(JDBCCallableStatement.class)
 public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {

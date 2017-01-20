@@ -21,7 +21,7 @@ import org.hsqldb.testbase.OfMethod;
 /**
  * Test of class org.hsqldb.jdbc.jdbcClob.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(java.sql.Clob.class)
 public abstract class BaseClobTestCase extends BaseJdbcTestCase {
