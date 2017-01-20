@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -934,6 +934,7 @@ public class Tokens {
     static final String        T_SORT_ARRAY       = "SORT_ARRAY";
     static final String        T_SOUNDEX          = "SOUNDEX";
     static final String        T_SUBSTR           = "SUBSTR";
+    static final String        T_SYS              = "SYS";
     static final String        T_SYS_EXTRACT_UTC  = "SYS_EXTRACT_UTC";
     static final String        T_SYS_GUID         = "SYS_GUID";
     static final String        T_SYSDATE          = "SYSDATE";
@@ -1743,48 +1744,49 @@ public class Tokens {
     static final int        SOUNDEX                    = 808;
     static final int        SPACE_WORD                 = 809;
     static final int        SUBSTR                     = 810;
-    static final int        SYS_EXTRACT_UTC            = 811;
-    static final int        SYSDATE                    = 812;
-    static final int        SYSTIMESTAMP               = 813;
-    static final int        TAN                        = 814;
-    static final int        TANH                       = 815;
-    static final int        TIMESTAMP_WITH_ZONE        = 816;
-    static final int        TIMESTAMPADD               = 817;
-    static final int        TIMESTAMPDIFF              = 818;
-    public static final int TIMEZONE                   = 819;
-    static final int        TO_CHAR                    = 820;
-    static final int        TO_DATE                    = 821;
-    static final int        TO_DSINTERVAL              = 822;
-    static final int        TO_YMINTERVAL              = 823;
-    static final int        TO_NUMBER                  = 824;
-    static final int        TO_TIMESTAMP               = 825;
-    static final int        TO_TIMESTAMP_TZ            = 826;
-    static final int        TODAY                      = 827;
-    static final int        TRANSACTION_CONTROL        = 828;
-    static final int        TRANSACTION_ID             = 829;
-    static final int        TRANSACTION_SIZE           = 830;
-    static final int        TRUNC                      = 831;
-    static final int        TZ_OFFSET                  = 832;
-    static final int        UCASE                      = 833;
-    static final int        UNIX_MILLIS                = 834;
-    static final int        UNIX_TIMESTAMP             = 835;
-    static final int        UUID                       = 836;
-    static final int        WEEK                       = 837;
-    public static final int WEEK_OF_YEAR               = 838;
-    static final int        LONGBLOB                   = 839;
-    static final int        LONGTEXT                   = 840;
-    static final int        MEDIUMBLOB                 = 841;
-    static final int        MEDIUMTEXT                 = 842;
-    static final int        TINYBLOB                   = 843;
-    static final int        TINYTEXT                   = 844;
-    static final int        DUPLICATE                  = 845;
-    static final int        DATETIMEOFFSET             = 846;
-    static final int        DATENAME                   = 847;
-    static final int        DATEPART                   = 848;
-    static final int        EOMONTH                    = 849;
-    static final int        NEWID                      = 850;
-    static final int        NANVL                      = 851;
-    static final int        SYS_GUID                   = 852;
+    static final int        SYS                        = 811;
+    static final int        SYS_EXTRACT_UTC            = 812;
+    static final int        SYSDATE                    = 813;
+    static final int        SYSTIMESTAMP               = 814;
+    static final int        TAN                        = 815;
+    static final int        TANH                       = 816;
+    static final int        TIMESTAMP_WITH_ZONE        = 817;
+    static final int        TIMESTAMPADD               = 818;
+    static final int        TIMESTAMPDIFF              = 819;
+    public static final int TIMEZONE                   = 820;
+    static final int        TO_CHAR                    = 821;
+    static final int        TO_DATE                    = 822;
+    static final int        TO_DSINTERVAL              = 823;
+    static final int        TO_YMINTERVAL              = 824;
+    static final int        TO_NUMBER                  = 825;
+    static final int        TO_TIMESTAMP               = 826;
+    static final int        TO_TIMESTAMP_TZ            = 827;
+    static final int        TODAY                      = 828;
+    static final int        TRANSACTION_CONTROL        = 829;
+    static final int        TRANSACTION_ID             = 830;
+    static final int        TRANSACTION_SIZE           = 831;
+    static final int        TRUNC                      = 832;
+    static final int        TZ_OFFSET                  = 833;
+    static final int        UCASE                      = 834;
+    static final int        UNIX_MILLIS                = 835;
+    static final int        UNIX_TIMESTAMP             = 836;
+    static final int        UUID                       = 837;
+    static final int        WEEK                       = 838;
+    public static final int WEEK_OF_YEAR               = 839;
+    static final int        LONGBLOB                   = 840;
+    static final int        LONGTEXT                   = 841;
+    static final int        MEDIUMBLOB                 = 842;
+    static final int        MEDIUMTEXT                 = 843;
+    static final int        TINYBLOB                   = 844;
+    static final int        TINYTEXT                   = 845;
+    static final int        DUPLICATE                  = 846;
+    static final int        DATETIMEOFFSET             = 847;
+    static final int        DATENAME                   = 848;
+    static final int        DATEPART                   = 849;
+    static final int        EOMONTH                    = 850;
+    static final int        NEWID                      = 851;
+    static final int        NANVL                      = 852;
+    static final int        SYS_GUID                   = 853;
 
     //
     public static final int MICROSECOND = 871;
@@ -2593,6 +2595,7 @@ public class Tokens {
         commandSet.put(T_SOUNDEX, SOUNDEX);
         commandSet.put(T_SPACE, SPACE);
         commandSet.put(T_SUBSTR, SUBSTR);
+        commandSet.put(T_SYS, SYS);
         commandSet.put(T_SYS_EXTRACT_UTC, SYS_EXTRACT_UTC);
         commandSet.put(T_SYS_GUID, SYS_GUID);
         commandSet.put(T_SYSDATE, SYSDATE);
