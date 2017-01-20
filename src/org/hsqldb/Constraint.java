@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -727,8 +727,8 @@ public final class Constraint implements SchemaObject {
             core.mainTable = newTable;
 
             if (core.mainIndex != null) {
-                core.mainIndex =
-                    core.mainTable.getIndex(core.mainIndex.getName().name);
+                core.mainIndex = core.mainTable.getSystemIndex(
+                    core.mainIndex.getName().name);
                 core.mainCols = ArrayUtil.toAdjustedColumnArray(core.mainCols,
                         colIndex, adjust);
             }
@@ -739,7 +739,7 @@ public final class Constraint implements SchemaObject {
 
             if (core.refIndex != null) {
                 core.refIndex =
-                    core.refTable.getIndex(core.refIndex.getName().name);
+                    core.refTable.getSystemIndex(core.refIndex.getName().name);
                 core.refCols = ArrayUtil.toAdjustedColumnArray(core.refCols,
                         colIndex, adjust);
             }
