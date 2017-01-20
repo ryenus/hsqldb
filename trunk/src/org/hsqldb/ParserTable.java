@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -481,9 +481,9 @@ public class ParserTable extends ParserDML {
                     }
 
                     // create an autonamed index
-                    indexName = session.database.nameManager.newAutoName("IDX",
-                            c.getName().name, table.getSchemaName(),
-                            table.getName(), SchemaObject.INDEX);
+                    indexName =
+                        session.database.nameManager.newConstraintIndexName(
+                            table.getName(), c.getName(), session.database.sqlSysIndexNames);
 
                     Index index = table.createAndAddIndexStructure(session,
                         indexName, c.core.mainCols, null, null, true, true,
@@ -587,8 +587,10 @@ public class ParserTable extends ParserDML {
             isForward = true;
         }
 
-        HsqlName refIndexName = session.database.nameManager.newAutoName("IDX",
-            table.getSchemaName(), table.getName(), SchemaObject.INDEX);
+        HsqlName refIndexName =
+            session.database.nameManager.newConstraintIndexName(
+                table.getName(), c.getName(),
+                session.database.sqlSysIndexNames);
         Index index = table.createAndAddIndexStructure(session, refIndexName,
             c.core.refCols, null, null, false, true, isForward);
         HsqlName mainName = session.database.nameManager.newAutoName("REF",

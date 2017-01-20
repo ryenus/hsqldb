@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -203,8 +203,10 @@ public class TableWorks {
         HsqlName mainName = database.nameManager.newAutoName("REF",
             c.getName().name, table.getSchemaName(), table.getName(),
             SchemaObject.INDEX);
-        HsqlName indexName = database.nameManager.newAutoName("IDX",
-            table.getSchemaName(), table.getName(), SchemaObject.INDEX);
+        HsqlName indexName =
+            session.database.nameManager.newConstraintIndexName(
+                table.getName(), c.getName(),
+                session.database.sqlSysIndexNames);
         Index refIndex = table.createIndexStructure(indexName, c.core.refCols,
             null, null, false, true, isForward);
 

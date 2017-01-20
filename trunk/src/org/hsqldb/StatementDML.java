@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ public class StatementDML extends StatementDMQL {
     ResultMetaData generatedInputMetaData;
 
     //
-    int limit = Integer.MAX_VALUE;
+    SortAndSlice sortAndSlice;
 
     /** column indexes for generated values */
     int[] generatedIndexes;
@@ -105,13 +105,7 @@ public class StatementDML extends StatementDMQL {
                                                             .getBaseTable();
         this.targetRangeVariables = rangeVars;
         this.restartIdentity      = restartIdentity;
-
-        if (sortAndSlice != null) {
-            int[] limits = sortAndSlice.getLimits(session, null,
-                                                  Integer.MAX_VALUE);
-
-            limit = limits[1];
-        }
+        this.sortAndSlice         = sortAndSlice;
 
         setDatabaseObjects(session, compileContext);
         checkAccessRights(session);
@@ -144,13 +138,7 @@ public class StatementDML extends StatementDMQL {
         this.updateExpressions    = colExpressions;
         this.updateCheckColumns   = checkColumns;
         this.targetRangeVariables = rangeVars;
-
-        if (sortAndSlice != null) {
-            int[] limits = sortAndSlice.getLimits(session, null,
-                                                  Integer.MAX_VALUE);
-
-            limit = limits[1];
-        }
+        this.sortAndSlice         = sortAndSlice;
 
         setupChecks();
         setDatabaseObjects(session, compileContext);
@@ -220,11 +208,19 @@ public class StatementDML extends StatementDMQL {
     Result getResult(Session session) {
 
         Result result = null;
+        int    limit  = Integer.MAX_VALUE;
+
+        if (sortAndSlice != null) {
+            int[] limits = sortAndSlice.getLimits(session, null,
+                                                  Integer.MAX_VALUE);
+
+            limit = limits[1];
+        }
 
         switch (type) {
 
             case StatementTypes.UPDATE_WHERE :
-                result = executeUpdateStatement(session);
+                result = executeUpdateStatement(session, limit);
                 break;
 
             case StatementTypes.MERGE :
@@ -235,7 +231,7 @@ public class StatementDML extends StatementDMQL {
                 if (isTruncate) {
                     result = executeDeleteTruncateStatement(session);
                 } else {
-                    result = executeDeleteStatement(session);
+                    result = executeDeleteStatement(session, limit);
                 }
                 break;
 
@@ -524,7 +520,7 @@ public class StatementDML extends StatementDMQL {
      *
      * @return Result object
      */
-    Result executeUpdateStatement(Session session) {
+    Result executeUpdateStatement(Session session, int limit) {
 
         int count = 0;
         RowSetNavigatorDataChange rowset =
@@ -1262,7 +1258,7 @@ public class StatementDML extends StatementDMQL {
      *
      * @return the result of executing the statement
      */
-    Result executeDeleteStatement(Session session) {
+    Result executeDeleteStatement(Session session, int limit) {
 
         int count = 0;
         RangeIterator it = RangeVariable.getIterator(session,

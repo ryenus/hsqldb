@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -215,6 +215,24 @@ public final class HsqlNameManager {
                                     type);
 
         return name;
+    }
+
+    public HsqlName newConstraintIndexName(HsqlName tableName,
+                                           HsqlName constName,
+                                           boolean useConstraint) {
+
+        if (useConstraint) {
+            HsqlName name = new HsqlName(this, constName.name,
+                                         SchemaObject.INDEX, false);
+
+            name.schema = tableName.schema;
+            name.parent = tableName;
+
+            return name;
+        } else {
+            return newAutoName("IDX", tableName.schema, tableName,
+                               SchemaObject.INDEX);
+        }
     }
 
     public HsqlName newSpecificRoutineName(HsqlName name) {
