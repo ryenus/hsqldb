@@ -1990,7 +1990,7 @@ public class SchemaManager {
                     HsqlName tableName = name.parent;
                     Table table = (Table) schema.tableList.get(tableName.name);
 
-                    return table.getIndex(name.name);
+                    return table.getUserIndex(name.name);
 
                 case SchemaObject.REFERENCE :
                     return schema.referenceLookup.getObject(name.name);
