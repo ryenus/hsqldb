@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2073,6 +2073,24 @@ public class Table extends TableBase implements SchemaObject {
 
         return i == -1 ? null
                        : indexes[i];
+    }
+
+    /**
+     * Returns the Index object of the given name or null if not found.
+     */
+    Index getUserIndex(String indexName) {
+
+        Index[] indexes = indexList;
+
+        for (int i = 0; i < indexes.length; i++) {
+            if (indexName.equals(indexes[i].getName().name)) {
+                if (!indexes[i].isConstraint()) {
+                    return indexes[i];
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
