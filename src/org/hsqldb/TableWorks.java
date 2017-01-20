@@ -752,7 +752,7 @@ public class TableWorks {
 
         checkModifyTable(false);
 
-        index = table.getIndex(indexName);
+        index = table.getUserIndex(indexName);
 
         if (table.isIndexingMutable()) {
             table.dropIndex(session, index.getPosition());
