@@ -112,6 +112,7 @@ public class Database {
     public boolean                sqlLongvarIsLob        = false;
     public boolean                sqlNullsFirst          = true;
     public boolean                sqlNullsOrder          = true;
+    public boolean                sqlSysIndexNames       = true;
     public boolean                sqlRegularNames        = true;
     public boolean                sqlTranslateTTI        = true;
     public boolean                sqlUniqueNulls         = true;
@@ -553,6 +554,10 @@ public class Database {
 
     public void setIgnoreCase(boolean mode) {
         sqlIgnoreCase = mode;
+    }
+
+    public void setSysIndexNames(boolean mode) {
+        sqlSysIndexNames = mode;
     }
 
     public void setSyntaxDb2(boolean mode) {

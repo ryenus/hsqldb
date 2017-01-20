@@ -1776,10 +1776,10 @@ public class ParserDDL extends ParserRoutine {
         }
 
         int[] cols = readColumnList(table, false);
-        HsqlName indexname = database.nameManager.newAutoName("IDX",
-            name.name, table.getSchemaName(), table.getName(),
-            SchemaObject.INDEX);
-        Index index = table.createIndexStructure(indexname, cols, null, null,
+        HsqlName indexName =
+            session.database.nameManager.newConstraintIndexName(
+                table.getName(), name, session.database.sqlSysIndexNames);
+        Index index = table.createIndexStructure(indexName, cols, null, null,
             true, true, false);
         Constraint c = new Constraint(name, table, index,
                                       SchemaObject.ConstraintTypes.UNIQUE);
