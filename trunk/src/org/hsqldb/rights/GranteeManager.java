@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ import org.hsqldb.lib.StringConverter;
  * Administrative privileges.
  *
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
@@ -339,12 +339,12 @@ public class GranteeManager {
             throw Error.error(ErrorCode.X_0P501, granteeName);
         }
 
-        // boucherb@users 20050515
+        // campbell-burnet@users 20050515
         // SQL 2003 Foundation, 4.34.3
         // No cycles of role grants are allowed.
         if (role.hasRole(grantee)) {
 
-            // boucherb@users
+            // campbell-burnet@users
 
             /** @todo: Correct reporting of actual grant path */
             throw Error.error(ErrorCode.X_0P501, roleName);

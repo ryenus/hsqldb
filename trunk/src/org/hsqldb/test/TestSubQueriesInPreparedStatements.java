@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import java.sql.Statement;
 
 /**
  *
- * @author boucherb@users
+ * @author campbell-burnet@users
  */
 public class TestSubQueriesInPreparedStatements {
 

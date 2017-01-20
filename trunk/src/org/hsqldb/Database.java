@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import org.hsqldb.rights.UserManager;
 import org.hsqldb.types.Collation;
 
 // incorporates following contributions
-// boucherb@users - javadoc comments
+// campbell-burnet@users - javadoc comments
 
 /**
  * Database is the root class for HSQL Database Engine database. <p>

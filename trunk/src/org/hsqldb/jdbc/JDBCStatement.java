@@ -58,7 +58,7 @@ import org.hsqldb.result.ResultProperties;
 //
 // SCROLL_INSENSITIVE and FORWARD_ONLY types for ResultSet are now supported
 //
-// boucherb@users 20020509 - added "throws SQLException" to all methods where
+// campbell-burnet@users 20020509 - added "throws SQLException" to all methods where
 //                           it was missing here but specified in the
 //                           java.sql.Statement interface,
 //                           updated generic documentation to JDK 1.4, and
@@ -66,9 +66,9 @@ import org.hsqldb.result.ResultProperties;
 // boucherb &     20020505 - extensive review and update of docs and behaviour
 // fredt@users               to comply with java.sql specification
 // fredt@users    20030620 - patch 1.7.2 - rewritten and simplified
-// boucherb@users 200404xx - javadoc updates toward 1.7.2 final
-// boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
-// boucherb@users 20060522 - doc   1.9.0 full synch up to Mustang Build 84
+// campbell-burnet@users 200404xx - javadoc updates toward 1.7.2 final
+// campbell-burnet@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
+// campbell-burnet@users 20060522 - doc   1.9.0 full synch up to Mustang Build 84
 // Revision 1.16  2006/07/12 12:40:59  boucherb
 // patch 1.9.0
 // - full synch up to Mustang b90
@@ -100,12 +100,12 @@ import org.hsqldb.result.ResultProperties;
  * <p>
  *
  * (fredt@users)<br>
- * (boucherb@users)<p>
+ * (campbell-burnet@users)<p>
  *
  * </div>
  * <!-- end release-specific documentation -->
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.0
  * @since HSQLDB 1.9.0

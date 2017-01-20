@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,18 +48,18 @@ import org.hsqldb.lib.java.JavaSystem;
 
 /* $Id$ */
 
-// boucherb@users 2004-03/04-xx - doc 1.7.2 - javadocs updated; methods put in
+// campbell-burnet@users 2004-03/04-xx - doc 1.7.2 - javadocs updated; methods put in
 //                                            correct (historical, interface
 //                                            declared) order
-// boucherb@users 2004-03/04-xx - patch 1.7.2 - null check for constructor (a
+// campbell-burnet@users 2004-03/04-xx - patch 1.7.2 - null check for constructor (a
 //                                              null CLOB value is Java null,
 //                                              not a Clob object with null
 //                                              data);moderate thread safety;
 //                                              simplification; optimization
 //                                              of operations between jdbcClob
 //                                              instances
-// boucherb@users 2005-12-07    - patch 1.8.0.x - initial JDBC 4.0 support work
-// boucherb@users 2006-05-22    - doc   1.9.0 - full synch up to Mustang Build 84
+// campbell-burnet@users 2005-12-07    - patch 1.8.0.x - initial JDBC 4.0 support work
+// campbell-burnet@users 2006-05-22    - doc   1.9.0 - full synch up to Mustang Build 84
 //                              - patch 1.9.0 - setAsciiStream &
 //                                              setCharacterStream improvement
 // patch 1.9.0
@@ -123,7 +123,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * </div>
  * <!-- end release-specific documentation -->
  *
- * @author  boucherb@users
+ * @author  campbell-burnet@users
  * @version 2.3.0
  * @since JDK 1.2, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0

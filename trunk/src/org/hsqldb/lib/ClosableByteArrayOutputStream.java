@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ import java.io.UnsupportedEncodingException;
  * exhibit true Closable behaviour in response both to internally tracked
  * events and to client invocation of the <tt>OutputStream.close()</tt> method.
  *
- * @author boucherb@users
+ * @author campbell-burnet@users
  * @version 1.9.0
  * @since 1.9.0
  */

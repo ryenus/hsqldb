@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,9 +38,9 @@ import org.hsqldb.resources.ResourceBundleHandler;
 // fredt@users 20020215 - patch 1.7.0 by fredt
 // method re-organised to use new HsqlServerProperties class
 // unsaved@users 20021113 - patch 1.7.2 - SSL support
-// boucherb@users 20030510 - patch 1.7.2 - SSL support moved to factory interface
-// boucherb@users 20030510 - patch 1.7.2 - moved all common code to Server
-// boucherb@users 20030510 - patch 1.7.2 - general lint removal
+// campbell-burnet@users 20030510 - patch 1.7.2 - SSL support moved to factory interface
+// campbell-burnet@users 20030510 - patch 1.7.2 - moved all common code to Server
+// campbell-burnet@users 20030510 - patch 1.7.2 - general lint removal
 
 /**
  *  The HSQLDB HTTP protocol network database server. <p>
@@ -111,7 +111,7 @@ import org.hsqldb.resources.ResourceBundleHandler;
  *   <li>File extensions for mime types must be lowercase and start with '.'
  * </ul>
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.2

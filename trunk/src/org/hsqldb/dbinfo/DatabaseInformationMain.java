@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,12 +72,12 @@ import org.hsqldb.types.Types;
 /* $Id$ */
 
 // fredt@users - 1.7.2 - structural modifications to allow inheritance
-// boucherb@users - 1.7.2 - 20020225
+// campbell-burnet@users - 1.7.2 - 20020225
 // - factored out all reusable code into DIXXX support classes
 // - completed Fred's work on allowing inheritance
-// boucherb@users - 1.7.2 - 20020304 - bug fixes, refinements, better java docs
+// campbell-burnet@users - 1.7.2 - 20020304 - bug fixes, refinements, better java docs
 // fredt@users - 1.8.0 - updated to report latest enhancements and changes
-// boucherb@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
+// campbell-burnet@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
 // Revision 1.9  2006/07/12 11:36:59  boucherb
 // - JDBC 4.0, Mustang b87: support for new DatabaseMetaData.getColumns() IS_AUTOINCREMENT result column
 // - minor javadoc and code comment updates
@@ -141,7 +141,7 @@ import org.hsqldb.types.Types;
  * object or it is out of date, the table contents are cleared and rebuilt. <p>
  *
  * (fredt@users) <p>
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.3
  * @since 1.7.2

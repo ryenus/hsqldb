@@ -92,7 +92,7 @@ import org.hsqldb.types.Type;
  * @since 1.6.2
  */
 
-// boucherb@users 20030930 - patch 1.7.2 - optimize into joins if possible
+// campbell-burnet@users 20030930 - patch 1.7.2 - optimize into joins if possible
 // fredt@users 20031006 - patch 1.7.2 - reuse Like objects for all rows
 // fredt@users 1.9.0 - LIKE for binary strings
 // fredt@users 1.9.0 - CompareAt() changes for performance suggested by Gary Frost

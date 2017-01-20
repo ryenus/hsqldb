@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ import org.hsqldb.types.Type;
 
 // fredt@users    20020320 - patch 1.7.0 - JDBC 2 support and error trapping
 //
-// boucherb@users 20020509 - added "throws SQLException" to all methods where
+// campbell-burnet@users 20020509 - added "throws SQLException" to all methods where
 //                           it was missing here but specified in the
 //                           java.sql.Connection interface,
 //                           updated generic documentation to JDK 1.4, and
@@ -94,12 +94,12 @@ import org.hsqldb.types.Type;
 // kneedeepincode@users
 //                20021110 - patch 635816 - correction to properties
 // unsaved@users  20021113 - patch 1.7.2 - SSL support
-// boucherb@users 2003 ??? - patch 1.7.2 - SSL support moved to factory interface
+// campbell-burnet@users 2003 ??? - patch 1.7.2 - SSL support moved to factory interface
 // fredt@users    20030620 - patch 1.7.2 - reworked to use a SessionInterface
-// boucherb@users 20030801 - JavaDoc updates to reflect new connection urls
-// boucherb@users 20030819 - patch 1.7.2 - partial fix for broken nativeSQL method
-// boucherb@users 20030819 - patch 1.7.2 - SQLWarning cases implemented
-// boucherb@users 20051207 - 1.9.0       - JDBC 4.0 support - docs and methods
+// campbell-burnet@users 20030801 - JavaDoc updates to reflect new connection urls
+// campbell-burnet@users 20030819 - patch 1.7.2 - partial fix for broken nativeSQL method
+// campbell-burnet@users 20030819 - patch 1.7.2 - SQLWarning cases implemented
+// campbell-burnet@users 20051207 - 1.9.0       - JDBC 4.0 support - docs and methods
 //              - 20060712               - full synch up to Mustang Build 90
 // fredt@users    20090810 - 1.9.0       - full review and updates
 //
@@ -460,10 +460,10 @@ import org.hsqldb.types.Type;
  * <hr>
  *
  * (fredt@users)<br>
- * (boucherb@users)<p>
+ * (campbell-burnet@users)<p>
  *
  * </div> <!-- end release-specific documentation -->
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.4
  * @since HSQLDB 1.9.0
@@ -912,7 +912,7 @@ public class JDBCConnection implements Connection {
      * client as a whole; the generic documentation will apply. The fetch
      * size is taken into account
      *
-     * (boucherb@users) </div> <!-- end release-specific
+     * (campbell-burnet@users) </div> <!-- end release-specific
      * documentation -->
      *
      * @param autoCommit <code>true</code> to enable auto-commit mode;

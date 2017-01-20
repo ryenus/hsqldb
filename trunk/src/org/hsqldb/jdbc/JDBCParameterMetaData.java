@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,8 +48,8 @@ import org.hsqldb.types.Type;
 
 // fredt@users 20040412 - removed DITypeInfo dependencies
 // fredt@users 1.9.0 - utilise the new type support
-// boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
-// boucherb@users 20060522 - doc   1.9.0 full synch up to Mustang Build 84
+// campbell-burnet@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
+// campbell-burnet@users 20060522 - doc   1.9.0 full synch up to Mustang Build 84
 // Revision 1.14  2006/07/12 12:20:49  boucherb
 // - remove unused imports
 // - full synch up to Mustang b90
@@ -66,7 +66,7 @@ import org.hsqldb.types.Type;
  * types and properties for each parameter marker in a <code>CallableStatement</code>
  * object.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.3.4
  * @since JDK 1.4, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0

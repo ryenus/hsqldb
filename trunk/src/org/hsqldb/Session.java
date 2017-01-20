@@ -895,7 +895,7 @@ public class Session implements SessionInterface {
         return database.getNameString();
     }
 
-// boucherb@users 20020810 metadata 1.7.2
+// campbell-burnet@users 20020810 metadata 1.7.2
 //----------------------------------------------------------------
     private final long connectTime = System.currentTimeMillis();
 

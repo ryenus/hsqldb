@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
 
-// boucherb@users 20030510 - patch 1.7.2 - added cooperative file locking
+// campbell-burnet@users 20030510 - patch 1.7.2 - added cooperative file locking
 
 /**
  *  The public interface of persistence and logging classes.<p>
@@ -673,7 +673,7 @@ public class Logger implements EventLogInterface {
                 HsqlDatabaseProperties.hsqldb_min_reuse));
     }
 
-// fredt@users 20020130 - patch 495484 by boucherb@users
+// fredt@users 20020130 - patch 495484 by campbell-burnet@users
 
     /**
      *  Shuts down the logging process using the specified mode. <p>

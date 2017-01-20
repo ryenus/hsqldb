@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import org.hsqldb.lib.StringConverter;
 /**
  * The default secure socket factory implementation.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
  * @version 2.3.1
@@ -230,7 +230,7 @@ implements HandshakeCompletedListener {
 // handler (which is only available in Java >= 1.4), then we need to do
 // the verification: hostname == cert CN
 //
-// boucherb@users 20030503:
+// campbell-burnet@users 20030503:
 // CHEKME/TODO:
 //
 // Stricter verify?  Either require SunJSSE (assume its trust manager properly

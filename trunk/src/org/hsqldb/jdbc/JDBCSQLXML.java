@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -341,7 +341,7 @@ import org.xml.sax.SAXException;
  * </div>
  * <!-- end release-specific documentation -->
  *
- * @author boucherb@users
+ * @author campbell-burnet@users
  * @see javax.xml.parsers
  * @see javax.xml.stream
  * @see javax.xml.transform

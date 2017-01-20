@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.hsqldb.jdbc.JDBCUtil;
 
 // fredt@users 20020215 - patch 461556 by paul-h@users - modified
 // minor changes to support the new ServerProperties class
-// boucherb@users 20030501 - Server now implements HsqlSocketRequestHandler
+// campbell-burnet@users 20030501 - Server now implements HsqlSocketRequestHandler
 
 /**
  * HsqlServerFactory

@@ -96,7 +96,7 @@ import org.hsqldb.types.Types;
 
 /** @todo fredt 1.9.0 - continuous review wrt multiple result sets, named parameters etc. */
 
-// boucherb@users patch 1.7.2 - CallableStatement impl removed
+// campbell-burnet@users patch 1.7.2 - CallableStatement impl removed
 // from JDBCParameterMetaData and moved here; sundry changes elsewhere to
 // comply
 // TODO: 1.7.2 Alpha N :: DONE
@@ -108,13 +108,13 @@ import org.hsqldb.types.Types;
 //       engine and client-side mechanisms for adding, retrieving,
 //       navigating (and perhaps controlling holdability of) multiple
 //       results generated from a single execution.
-// boucherb@users 2004-03/04-xx - patch 1.7.2 - some minor code cleanup
+// campbell-burnet@users 2004-03/04-xx - patch 1.7.2 - some minor code cleanup
 //                                            - parameter map NPE correction
 //                                            - embedded SQL/SQLCLI client usability
 //                                              (parameter naming changed from @n to @pn)
-// boucherb@users 2004-04-xx - doc 1.7.2 - javadocs added/updated
-// boucherb@users 2005-12-07 - patch 1.8.0.x - initial JDBC 4.0 support work
-// boucherb@users 2006-05-22 - doc 1.9.0 - full synch up to Mustang Build 84
+// campbell-burnet@users 2004-04-xx - doc 1.7.2 - javadocs added/updated
+// campbell-burnet@users 2005-12-07 - patch 1.8.0.x - initial JDBC 4.0 support work
+// campbell-burnet@users 2006-05-22 - doc 1.9.0 - full synch up to Mustang Build 84
 // Revision 1.14  2006/07/12 11:58:49  boucherb
 //  - full synch up to Mustang b90
 
@@ -213,11 +213,11 @@ import org.hsqldb.types.Types;
  *
  * </pre>
  *
- * (boucherb@users)
+ * (campbell-burnet@users)
  * </div>
  * <!-- end Release-specific documentation -->
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.0
  * @since 1.9.0
