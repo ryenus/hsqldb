@@ -445,12 +445,11 @@ public class ParserTable extends ParserDML {
             HsqlArrayList tempConstraints, HsqlArrayList constraintList,
             boolean addToSchema) {
 
-        Constraint c        = (Constraint) tempConstraints.get(0);
-        String     namePart = c.getName() == null ? null
-                                                  : c.getName().name;
-        HsqlName indexName = session.database.nameManager.newAutoName("IDX",
-            namePart, table.getSchemaName(), table.getName(),
-            SchemaObject.INDEX);
+        Constraint c = (Constraint) tempConstraints.get(0);
+        HsqlName indexName =
+            session.database.nameManager.newConstraintIndexName(
+                table.getName(), c.getName(),
+                session.database.sqlSysIndexNames && c.getName() != null);
 
         c.setColumnsIndexes(table);
         table.createPrimaryKey(indexName, c.core.mainCols, true);
@@ -483,7 +482,8 @@ public class ParserTable extends ParserDML {
                     // create an autonamed index
                     indexName =
                         session.database.nameManager.newConstraintIndexName(
-                            table.getName(), c.getName(), session.database.sqlSysIndexNames);
+                            table.getName(), c.getName(),
+                            session.database.sqlSysIndexNames);
 
                     Index index = table.createAndAddIndexStructure(session,
                         indexName, c.core.mainCols, null, null, true, true,
