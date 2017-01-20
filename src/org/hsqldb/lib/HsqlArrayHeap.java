@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import java.util.Comparator;
  * {@link ObjectComparator ObjectComparator}.  This implementation
  * is non-blocking, dynamically resizing and thread-safe.
  *
- * @author boucherb@users
+ * @author campbell-burnet@users
  * @version 1.9.0
  * @since 1.7.2
  */

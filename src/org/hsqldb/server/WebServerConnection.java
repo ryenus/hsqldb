@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,9 +63,9 @@ import org.hsqldb.rowio.RowOutputBinary;
 
 // fredt@users 20021002 - patch 1.7.1 - changed notification method
 // unsaved@users 20021113 - patch 1.7.2 - SSL support
-// boucherb@users 20030510 - patch 1.7.2 - SSL support moved to factory interface
-// boucherb@users 20030510 - patch 1.7.2 - general lint removal
-// boucherb@users 20030514 - patch 1.7.2 - localized error responses
+// campbell-burnet@users 20030510 - patch 1.7.2 - SSL support moved to factory interface
+// campbell-burnet@users 20030510 - patch 1.7.2 - general lint removal
+// campbell-burnet@users 20030514 - patch 1.7.2 - localized error responses
 // fredt@users 20030628 - patch 1.7.2 - new protocol, persistent sessions
 
 /**

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,10 +40,10 @@ import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.persist.PersistentStore;
 
 // fredt@users - 1.7.2 - structural modifications to allow inheritance
-// boucherB@users 20020305 - completed inheritance work, including final access
-// boucherB@users 20020305 - javadoc updates/corrections
-// boucherB@users 20020305 - SYSTEM_VIEWS brought in line with SQL 200n
-// boucherb@users 20050514 - further SQL 200n metdata support
+// campbell-burnet@users 20020305 - completed inheritance work, including final access
+// campbell-burnet@users 20020305 - javadoc updates/corrections
+// campbell-burnet@users 20020305 - SYSTEM_VIEWS brought in line with SQL 200n
+// campbell-burnet@users 20050514 - further SQL 200n metdata support
 
 /**
  * Base class for system tables. Includes a factory method which returns the
@@ -53,7 +53,7 @@ import org.hsqldb.persist.PersistentStore;
  * This class has been developed from scratch to replace the previous
  * DatabaseInformation implementations. <p>
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.0.1
  * @since 1.7.2
  */

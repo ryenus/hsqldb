@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 
-// boucherb@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
+// campbell-burnet@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
 // fredt@users - 2.0.0 code changes
 
 /**
@@ -47,7 +47,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * or those defined by ansi/iso SQL 2003 otherwise. A type sub-identifier
  * has been added to differentiate HSQLDB-specific type specializations.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.4.0
  * @since 1.7.2
  */
@@ -563,7 +563,7 @@ public class Types {
 // lookup for types
     static final IntValueHashMap javaTypeNumbers;
 
-//  boucherb@users - We can't handle method invocations in
+//  campbell-burnet@users - We can't handle method invocations in
 //                   Function.java whose number class is
 //                   narrower than the corresponding internal
 //                   wrapper

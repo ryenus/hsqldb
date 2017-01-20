@@ -59,7 +59,7 @@ import org.hsqldb.persist.HsqlProperties;
 // new version numbering scheme
 // fredt@users 20020320 - patch 1.7.0 - JDBC 2 support and error trapping
 // fredt@users 20030528 - patch 1.7.2 suggested by Gerhard Hiller - support for properties in URL
-// boucherb@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
+// campbell-burnet@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
 
 /**
  * Provides the java.sql.Driver interface implementation required by
@@ -111,7 +111,7 @@ import org.hsqldb.persist.HsqlProperties;
  * JDBC 4.2 methods added in Java 8 are generally supported when the HSQLDB jar
  * is compiled with JDK 8
  * <hr>
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.0
  * @since HSQLDB 1.9.0

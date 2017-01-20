@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2011, The HSQL Development Group
+ * Copyright (c) 2001-2016, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,7 +97,7 @@ class Grid extends Panel {
     // drawing
     private Dimension dMinimum;
 
-// boucherb@users changed access for databasemanager2
+// campbell-burnet@users changed access for databasemanager2
     protected Font fFont;
 
 // --------------------------------------------------
@@ -112,7 +112,7 @@ class Grid extends Panel {
     private int iX, iY;
 
     // data
-// boucherb@users changed access for databasemanager2
+// campbell-burnet@users changed access for databasemanager2
     protected String[] sColHead = new String[0];
     protected Vector   vData    = new Vector();
 
@@ -120,7 +120,7 @@ class Grid extends Panel {
     private int[] iColWidth;
     private int   iColCount;
 
-// boucherb@users changed access for databasemanager2
+// campbell-burnet@users changed access for databasemanager2
     protected int iRowCount;
 
 // --------------------------------------------------

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.lib.StringUtil;
 
 // peterhudson@users 20020130 - patch 478657 by peterhudson - new class
 // fredt@users 20030727 - signature altered
-// boucherb@users 20040315 - sample updated
+// campbell-burnet@users 20040315 - sample updated
 
 /**
  * <P>Sample code for use of triggers in hsqldb.
@@ -121,7 +121,7 @@ import org.hsqldb.lib.StringUtil;
  * </ol>
  *
  * @author Peter Hudson
- * @author boucherb@users
+ * @author campbell-burnet@users
  * @version 1.7.2
  * @since 1.7.0
  */

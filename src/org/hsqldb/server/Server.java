@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,8 +66,8 @@ import org.hsqldb.result.ResultConstants;
 // fredt@users 20020424 - patch 1.7.0 - shutdown without exit
 // see the comments in ServerConnection.java
 // unsaved@users 20021113 - patch 1.7.2 - SSL support
-// boucherb@users 20030510-14 - 1.7.2 - SSL support moved to factory interface
-// boucherb@users 20030510-14 - 1.7.2 - service control, JavaBean API
+// campbell-burnet@users 20030510-14 - 1.7.2 - SSL support moved to factory interface
+// campbell-burnet@users 20030510-14 - 1.7.2 - service control, JavaBean API
 // fredt@users 20030916 - 1.7.2 - review, simplification and multiple DB's
 // fredt@users 20040320 - 1.7.2 - review and correction
 // fredt@users 20050225 - 1.8.0 - minor corrections

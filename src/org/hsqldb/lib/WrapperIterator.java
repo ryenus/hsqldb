@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import java.util.NoSuchElementException;
  *  iterators etc. The collection of objects returned depends on the
  *  constructor used.<p>
  *
- *  Based on similar Enumerator code by boucherb@users
+ *  Based on similar Enumerator code by campbell-burnet@users
  *
  * @author fred@users
  * @version 1.9.0

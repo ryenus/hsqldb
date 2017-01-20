@@ -46,14 +46,14 @@ import org.hsqldb.rights.Grantee;
 /**
  * Statement implementation for DML and base DQL statements.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.5
  * @since 1.7.2
  */
 
 // fredt@users 20040404 - patch 1.7.2 - fixed type resolution for parameters
-// boucherb@users 200404xx - patch 1.7.2 - changed parameter naming scheme for SQLCI client usability/support
+// campbell-burnet@users 200404xx - patch 1.7.2 - changed parameter naming scheme for SQLCI client usability/support
 // fredt@users 20050609 - 1.8.0 - fixed EXPLAIN PLAN by implementing describe(Session)
 // fredt@users - 1.9.0 - support for generated column reporting
 // fredt@users - 1.9.0 - support for multi-row inserts

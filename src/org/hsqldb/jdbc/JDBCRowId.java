@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import java.util.Arrays;
 
 /* $Id$ */
 
-//boucherb@users 20060522 - doc 1.8.1 full synch up to Mustang Build 84
+//campbell-burnet@users 20060522 - doc 1.8.1 full synch up to Mustang Build 84
 
 /**
  *
@@ -76,7 +76,7 @@ import java.util.Arrays;
  *
  * @see java.sql.DatabaseMetaData
  * @since JDK 1.6, HSQLDB 2.0
- * @author boucherb@users
+ * @author campbell-burnet@users
  */
 public final class JDBCRowId implements RowId {
 

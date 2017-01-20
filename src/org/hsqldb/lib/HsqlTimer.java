@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import java.util.Date;
  * An additional (minor) advantage over java.util.Timer is that this class does
  * not retain a live background thread during periods when the task queue is
  * empty.
- * @author boucherb@users
+ * @author campbell-burnet@users
  * @version 1.9.0
  * @since 1.7.2
  */

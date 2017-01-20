@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ import java.sql.Savepoint;
  * <!-- end release-specific documentation -->
  *
  *
- * @author boucherb@users
+ * @author campbell-burnet@users
  * @since JDK 1.4, HSQLDB 1.7.2
  */
 public class JDBCSavepoint implements Savepoint {

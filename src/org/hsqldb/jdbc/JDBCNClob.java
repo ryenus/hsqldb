@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ import java.sql.NClob;
  * <!-- end Release-specific documentation -->
  *
  * @since JDK 1.6, HSQLDB 2.0
- * @author boucherb@users
+ * @author campbell-burnet@users
  * @see JDBCClob
  * @see JDBCClobClient
  */

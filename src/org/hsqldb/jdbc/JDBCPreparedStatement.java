@@ -129,23 +129,23 @@ import org.hsqldb.types.Types;
 // boucherb &     20020409 - extensive review and update of docs and behaviour
 // fredt@users  - 20020505   to comply with previous and latest java.sql specification
 //
-// boucherb@users 20020509 - added "throws SQLException" to all methods where it
+// campbell-burnet@users 20020509 - added "throws SQLException" to all methods where it
 //                           was missing here but specified in the java.sql.PreparedStatement and
 //                           java.sqlCallableStatement interfaces, updated generic documentation to
 //                           JDK 1.4, and added JDBC3 methods and docs
 // fredt@users    20020627 - patch 574234 for setCharacterStream by ohioedge@users
 // fredt@users    20030620 - patch 1.7.2 - rewritten to support real prepared statements
-// boucherb@users 20030801 - patch 1.7.2 - support for batch execution
-// boucherb@users 20030801 - patch 1.7.2 - support for getMetaData and getParameterMetadata
-// boucherb@users 20030801 - patch 1.7.2 - updated some setXXX methods, incl. setCharacterStream
-// boucherb@users 20030801 - patch 1.7.2 - setBlob method implemented
-// boucherb@users 200403/4 - doc 1.7.2   - javadoc updates toward 1.7.2 final
-// boucherb@users 200403/4 - patch 1.7.2 - eliminate eager buffer allocation from setXXXStream/Blob/Clob
-// boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
+// campbell-burnet@users 20030801 - patch 1.7.2 - support for batch execution
+// campbell-burnet@users 20030801 - patch 1.7.2 - support for getMetaData and getParameterMetadata
+// campbell-burnet@users 20030801 - patch 1.7.2 - updated some setXXX methods, incl. setCharacterStream
+// campbell-burnet@users 20030801 - patch 1.7.2 - setBlob method implemented
+// campbell-burnet@users 200403/4 - doc 1.7.2   - javadoc updates toward 1.7.2 final
+// campbell-burnet@users 200403/4 - patch 1.7.2 - eliminate eager buffer allocation from setXXXStream/Blob/Clob
+// campbell-burnet@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 // fredt@users    20060215 - patch 1.8.0 - check for unset parameters
 // fredt@users    20061008 - patch 1.9.0 - partial rewrite with enhancements - separated from jdbcStatement
-// boucherb@users 20060424 - patch 1.8.x - Mustang Build 81 JDBC 4.0 support
-// boucherb@users 20060424 - doc   1.9.0 - Full synch up to Mustang Build 84
+// campbell-burnet@users 20060424 - patch 1.8.x - Mustang Build 81 JDBC 4.0 support
+// campbell-burnet@users 20060424 - doc   1.9.0 - Full synch up to Mustang Build 84
 // Revision 1.19  2006/07/12 12:24:17  boucherb
 // patch 1.9.0
 // - full synch up to Mustang b90
@@ -228,12 +228,12 @@ import org.hsqldb.types.Types;
  * PreparedStatement Object.<p>
  *
  * (fredt@users)<br>
- * (boucherb@users)<p>
+ * (campbell-burnet@users)<p>
  *
  * </div>
  * <!-- end release-specific documentation -->
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.0
  * @since 1.9.0

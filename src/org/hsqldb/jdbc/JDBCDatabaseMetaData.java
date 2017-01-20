@@ -55,12 +55,12 @@ import org.hsqldb.types.Type;
 // boucherb &     20020409 - extensive review and update of docs and behaviour
 // fredt@users  - 20020505   to comply with previous and latest java.sql
 //                           specification
-// boucherb@users 20020509 - update to JDK 1.4 / JDBC3 methods and docs
-// boucherb@users 2002     - extensive rewrite to support new
+// campbell-burnet@users 20020509 - update to JDK 1.4 / JDBC3 methods and docs
+// campbell-burnet@users 2002     - extensive rewrite to support new
 //              - 20030121   1.7.2 system table and metadata features.
-// boucherb@users 20040422 - doc 1.7.2 - javadoc updates toward 1.7.2 final
+// campbell-burnet@users 20040422 - doc 1.7.2 - javadoc updates toward 1.7.2 final
 // fredt@users    20050505 - patch 1.8.0 - enforced JDBC rules for non-pattern params
-// boucherb@users 20051207 - update to JDK 1.6 JDBC 4.0 methods and docs
+// campbell-burnet@users 20051207 - update to JDK 1.6 JDBC 4.0 methods and docs
 //              - 20060709
 // fredt@users    20080805 - full review and update to doc and method return values
 
@@ -223,11 +223,11 @@ import org.hsqldb.types.Type;
  * <hr>
  *
  * (fredt@users)<br>
- * (boucherb@users)
+ * (campbell-burnet@users)
  * </div>
  * <!-- end release-specific documentation -->
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.0
  * @since HSQLDB 1.9.0

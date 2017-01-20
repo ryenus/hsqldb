@@ -112,9 +112,9 @@ import org.hsqldb.types.Types;
 
 /* $Id$ */
 
-//boucherb@users 20051207 - patch 1.9.0 - initial JDBC 4.0 support work
+//campbell-burnet@users 20051207 - patch 1.9.0 - initial JDBC 4.0 support work
 //fredt@users    20060431 - patch 1.9.0 rewrite with RowSetNavigator
-//boucherb@users 20060522 - doc   1.9.0 - full synch up to Mustang Build 84
+//campbell-burnet@users 20060522 - doc   1.9.0 - full synch up to Mustang Build 84
 // Revision 1.21  2006/07/12 12:27:25  boucherb
 // patch 1.9.0
 // - full synch up to Mustang b90
@@ -296,14 +296,14 @@ import org.hsqldb.types.Types;
  * </pre>
  *
  * (fredt@users) <br>
- * (boucherb@users)<p>
+ * (campbell-burnet@users)<p>
  *
  * </div>
  * @see JDBCStatement#executeQuery
  * @see JDBCStatement#getResultSet
  * @see java.sql.ResultSetMetaData
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.0
  * @since 1.9.0

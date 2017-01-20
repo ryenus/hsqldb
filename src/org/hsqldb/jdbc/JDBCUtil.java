@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.result.Result;
 
 /* $Id$ */
 
-// boucherb@users - 20060523 - patch 1.9.0 - removed some unused imports
+// campbell-burnet@users - 20060523 - patch 1.9.0 - removed some unused imports
 // Revision 1.16  2006/07/12 11:53:53  boucherb
 //  - merging back remaining material overwritten by Fred's type-system upgrades
 
@@ -60,7 +60,7 @@ import org.hsqldb.result.Result;
  * Provides driver constants and a gateway from internal HsqlExceptions to
  * external SQLExceptions.
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.0.1
  * @since 1.7.2

@@ -44,11 +44,11 @@ import org.hsqldb.types.Types;
 /* $Id$ */
 
 // fredt@users    - 20040412 - removed DITypeInfo dependencies
-// boucherb@users - 200404xx - removed unused imports;refinement for better
+// campbell-burnet@users - 200404xx - removed unused imports;refinement for better
 //                             usability of getColumnDisplaySize;
 //                             javadoc updates
-// boucherb@users - 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
-// boucherb@users - 20060522 - doc   1.9.0 full synch up to Mustang Build 84
+// campbell-burnet@users - 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
+// campbell-burnet@users - 20060522 - doc   1.9.0 full synch up to Mustang Build 84
 // fredt@users - 1.9.0 usage of types and new ResultMetadata and ColumnMetaData
 // Revision 1.15  2006/07/12 12:29:42  boucherb
 // patch 1.9.0
@@ -91,11 +91,11 @@ import org.hsqldb.types.Types;
  * speed, accuracy, jar-footprint and retention of JDBC resources. <p>
  *
  * (fredt@users) <br>
- * (boucherb@users)<p>
+ * (campbell-burnet@users)<p>
  * </div>
  * <!-- end release-specific documentation -->
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.2.6
  * @revised JDK 1.6, HSQLDB 2.0

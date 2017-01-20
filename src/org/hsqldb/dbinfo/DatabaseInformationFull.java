@@ -94,13 +94,13 @@ import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 // fredt@users - 1.7.2 - structural modifications to allow inheritance
-// boucherb@users - 1.7.2 - 20020225
+// campbell-burnet@users - 1.7.2 - 20020225
 // - factored out all reusable code into DIXXX support classes
 // - completed Fred's work on allowing inheritance
-// boucherb@users - 1.7.2 - 20020304 - bug fixes, refinements, better java docs
+// campbell-burnet@users - 1.7.2 - 20020304 - bug fixes, refinements, better java docs
 // fredt@users - 1.8.0 - updated to report latest enhancements and changes
-// boucherb@users - 1.8.0 - 20050515 - further SQL 2003 metadata support
-// boucherb@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
+// campbell-burnet@users - 1.8.0 - 20050515 - further SQL 2003 metadata support
+// campbell-burnet@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
 // fredt@users - 1.9.0 - new tables + renaming + upgrade of some others to SQL/SCHEMATA
 // Revision 1.12  2006/07/12 11:42:09  boucherb
 //  - merging back remaining material overritten by Fred's type-system upgrades
@@ -116,7 +116,7 @@ import org.hsqldb.types.Type;
  * The definitions for the rest of system vies are provided by
  * DatabaseInformationMain, which this class extends. <p>
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.3
  * @since 1.7.2

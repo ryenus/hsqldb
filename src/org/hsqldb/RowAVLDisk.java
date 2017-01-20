@@ -85,7 +85,7 @@ import org.hsqldb.rowio.RowOutputInterface;
 // fredt@users 20020920 - patch 1.7.1 - refactoring to cut memory footprint
 // fredt@users 20021205 - patch 1.7.2 - enhancements
 // fredt@users 20021215 - doc 1.7.2 - javadoc comments
-// boucherb@users - 20040411 - doc 1.7.2 - javadoc comments
+// campbell-burnet@users - 20040411 - doc 1.7.2 - javadoc comments
 
 /**
  *  In-memory representation of a disk-based database row object with  methods

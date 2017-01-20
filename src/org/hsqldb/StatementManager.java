@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,12 +62,12 @@ import org.hsqldb.result.Result;
  * statement is linked to a session. It unregisters a compiled statement when
  * no session remains linked to it.<p>
  *
- * Modified by fredt@users from the original by boucherb@users to simplify,
+ * Modified by fredt@users from the original by campbell-burnet@users to simplify,
  * support multiple identical prepared statements per session, and avoid
  * memory leaks. Modified further to support schemas. Changed implementation
  * in 1.9 as a session object<p>
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
  * @version 2.3.5

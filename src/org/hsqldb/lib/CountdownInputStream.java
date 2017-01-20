@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import java.io.InputStream;
  * from an InputStream that is in turn to be used as the source for an
  * {@link java.io.InputStreamReader InputStreamReader}.
  *
- * @author boucherb@users
+ * @author campbell-burnet@users
  * @version 2.1.1
  * @since 1.9.0
  */
@@ -80,7 +80,7 @@ public final class CountdownInputStream extends InputStream {
 
         if (buf == null) {
             throw new NullPointerException();
-        } 
+        }
 
         if (m_count <= 0) {
             return -1;
@@ -106,7 +106,7 @@ public final class CountdownInputStream extends InputStream {
 
         if (buf == null) {
             throw new NullPointerException();
-        } 
+        }
 
         if (m_count <= 0) {
             return -1;
