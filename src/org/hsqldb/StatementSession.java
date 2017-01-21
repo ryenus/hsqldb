@@ -787,6 +787,8 @@ public class StatementSession extends Statement {
                     }
                 }
 
+                session.sessionData.persistentStoreCollection.removeStore(
+                    table);
                 session.sessionContext.dropSessionTable(name.name);
 
                 return Result.updateZeroResult;

@@ -560,12 +560,13 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_nio_max_size,
                    HsqlProperties.getMeta(hsqldb_nio_max_size, SQL_PROPERTY,
                                           256, 64, 262144));
-        dbMeta.put(hsqldb_min_reuse,
-                   HsqlProperties.getMeta(hsqldb_min_reuse, SQL_PROPERTY, 0,
-                                          0, 1024 * 1024));
         dbMeta.put(sql_sys_index_names,
                    HsqlProperties.getMeta(sql_sys_index_names, SQL_PROPERTY,
                                           false));
+        dbMeta.put(hsqldb_min_reuse,
+                   HsqlProperties.getMeta(hsqldb_min_reuse, SQL_PROPERTY, 0,
+                                          0, 1024 * 1024));
+
     }
 
     private Database database;
