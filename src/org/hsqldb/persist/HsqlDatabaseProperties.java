@@ -267,29 +267,30 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_enforce_size        = "sql.enforce_size";
     public static final String sql_enforce_strict_size =
         "sql.enforce_strict_size";    // synonym for sql_enforce_size
-    public static final String sql_enforce_refs   = "sql.enforce_refs";
-    public static final String sql_enforce_names  = "sql.enforce_names";
-    public static final String sql_regular_names  = "sql.regular_names";
-    public static final String sql_enforce_types  = "sql.enforce_types";
-    public static final String sql_enforce_tdcd   = "sql.enforce_tdc_delete";
-    public static final String sql_enforce_tdcu   = "sql.enforce_tdc_update";
-    public static final String sql_char_literal   = "sql.char_literal";
-    public static final String sql_concat_nulls   = "sql.concat_nulls";
-    public static final String sql_nulls_first    = "sql.nulls_first";
-    public static final String sql_nulls_order    = "sql.nulls_order";
-    public static final String sql_unique_nulls   = "sql.unique_nulls";
-    public static final String sql_convert_trunc  = "sql.convert_trunc";
-    public static final String sql_avg_scale      = "sql.avg_scale";
-    public static final String sql_double_nan     = "sql.double_nan";
-    public static final String sql_syntax_db2     = "sql.syntax_db2";
-    public static final String sql_syntax_mss     = "sql.syntax_mss";
-    public static final String sql_syntax_mys     = "sql.syntax_mys";
-    public static final String sql_syntax_ora     = "sql.syntax_ora";
-    public static final String sql_syntax_pgs     = "sql.syntax_pgs";
-    public static final String sql_longvar_is_lob = "sql.longvar_is_lob";
-    public static final String sql_pad_space      = "sql.pad_space";
-    public static final String sql_ignore_case    = "sql.ignore_case";
-    public static final String sql_live_object    = "sql.live_object";
+    public static final String sql_enforce_refs    = "sql.enforce_refs";
+    public static final String sql_enforce_names   = "sql.enforce_names";
+    public static final String sql_regular_names   = "sql.regular_names";
+    public static final String sql_enforce_types   = "sql.enforce_types";
+    public static final String sql_enforce_tdcd    = "sql.enforce_tdc_delete";
+    public static final String sql_enforce_tdcu    = "sql.enforce_tdc_update";
+    public static final String sql_char_literal    = "sql.char_literal";
+    public static final String sql_concat_nulls    = "sql.concat_nulls";
+    public static final String sql_nulls_first     = "sql.nulls_first";
+    public static final String sql_nulls_order     = "sql.nulls_order";
+    public static final String sql_unique_nulls    = "sql.unique_nulls";
+    public static final String sql_convert_trunc   = "sql.convert_trunc";
+    public static final String sql_avg_scale       = "sql.avg_scale";
+    public static final String sql_double_nan      = "sql.double_nan";
+    public static final String sql_syntax_db2      = "sql.syntax_db2";
+    public static final String sql_syntax_mss      = "sql.syntax_mss";
+    public static final String sql_syntax_mys      = "sql.syntax_mys";
+    public static final String sql_syntax_ora      = "sql.syntax_ora";
+    public static final String sql_syntax_pgs      = "sql.syntax_pgs";
+    public static final String sql_longvar_is_lob  = "sql.longvar_is_lob";
+    public static final String sql_pad_space       = "sql.pad_space";
+    public static final String sql_ignore_case     = "sql.ignore_case";
+    public static final String sql_live_object     = "sql.live_object";
+    public static final String sql_sys_index_names = "sql.sys_index_names";
 
     //
     public static final String textdb_cache_scale = "textdb.cache_scale";
@@ -562,6 +563,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_min_reuse,
                    HsqlProperties.getMeta(hsqldb_min_reuse, SQL_PROPERTY, 0,
                                           0, 1024 * 1024));
+        dbMeta.put(sql_sys_index_names,
+                   HsqlProperties.getMeta(sql_sys_index_names, SQL_PROPERTY,
+                                          false));
     }
 
     private Database database;

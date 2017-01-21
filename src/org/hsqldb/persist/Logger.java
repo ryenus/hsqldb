@@ -597,6 +597,8 @@ public class Logger implements EventLogInterface {
             HsqlDatabaseProperties.sql_syntax_ora);
         database.sqlSyntaxPgs = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_syntax_pgs);
+        database.sqlSysIndexNames = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_sys_index_names);
 
         if (database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_compare_in_locale)) {
@@ -1768,6 +1770,10 @@ public class Logger implements EventLogInterface {
             return String.valueOf(this.propMinReuse);
         }
 
+        if (HsqlDatabaseProperties.sql_sys_index_names.equals(name)) {
+            return String.valueOf(database.sqlSysIndexNames);
+        }
+
 /*
         if (HsqlDatabaseProperties.textdb_all_quoted.equals(name)) {
             return null;
@@ -1972,19 +1978,28 @@ public class Logger implements EventLogInterface {
         sb.append(' ').append(Tokens.T_TYPES).append(' ');
         sb.append(database.sqlTranslateTTI ? Tokens.T_TRUE
                                            : Tokens.T_FALSE);
+        list.add(sb.toString());
+
+        if (database.sqlSysIndexNames) {
+            sb.setLength(0);
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_SYS).append(' ').append(Tokens.T_INDEX);
+            sb.append(' ').append(Tokens.T_NAMES).append(' ');
+            sb.append(database.sqlSysIndexNames ? Tokens.T_TRUE
+                                                : Tokens.T_FALSE);
+            list.add(sb.toString());
+        }
 
         if (!database.sqlCharLiteral) {
-            list.add(sb.toString());
             sb.setLength(0);
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_CHARACTER).append(' ');
             sb.append(Tokens.T_LITERAL).append(' ');
             sb.append(database.sqlCharLiteral ? Tokens.T_TRUE
                                               : Tokens.T_FALSE);
+            list.add(sb.toString());
         }
 
-        list.add(sb.toString());
-        list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_CONCAT_WORD).append(' ');
