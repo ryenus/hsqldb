@@ -1910,7 +1910,12 @@ public class Logger implements EventLogInterface {
 
         if (database.schemaManager.getDefaultTableType()
                 == TableBase.CACHED_TABLE) {
-            list.add("SET DATABASE DEFAULT TABLE TYPE CACHED");
+            sb.append("SET DATABASE ").append(Tokens.T_DEFAULT).append(' ');
+            sb.append(Tokens.T_TABLE).append(' ');
+            sb.append(Tokens.T_TYPE).append(' ');
+            sb.append(Tokens.T_CACHED);
+            list.add(sb.toString());
+            sb.setLength(0);
         }
 
         //
@@ -1972,13 +1977,16 @@ public class Logger implements EventLogInterface {
         sb.append(database.sqlEnforceTDCU ? Tokens.T_TRUE
                                           : Tokens.T_FALSE);
         list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
-        sb.append(Tokens.T_TRANSLATE).append(' ').append(Tokens.T_TTI);
-        sb.append(' ').append(Tokens.T_TYPES).append(' ');
-        sb.append(database.sqlTranslateTTI ? Tokens.T_TRUE
-                                           : Tokens.T_FALSE);
-        list.add(sb.toString());
+
+        if (!database.sqlTranslateTTI) {
+            sb.setLength(0);
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_TRANSLATE).append(' ').append(Tokens.T_TTI);
+            sb.append(' ').append(Tokens.T_TYPES).append(' ');
+            sb.append(database.sqlTranslateTTI ? Tokens.T_TRUE
+                                               : Tokens.T_FALSE);
+            list.add(sb.toString());
+        }
 
         if (database.sqlSysIndexNames) {
             sb.setLength(0);
@@ -2224,13 +2232,11 @@ public class Logger implements EventLogInterface {
             sb.setLength(0);
         }
 
-        {
-            if (propFileSpaceValue != 0) {
-                sb.append("SET FILES ").append(Tokens.T_SPACE).append(' ');
-                sb.append(propFileSpaceValue);
-                list.add(sb.toString());
-                sb.setLength(0);
-            }
+        if (propFileSpaceValue != 0) {
+            sb.append("SET FILES ").append(Tokens.T_SPACE).append(' ');
+            sb.append(propFileSpaceValue);
+            list.add(sb.toString());
+            sb.setLength(0);
         }
 
         String[] array = new String[list.size()];
