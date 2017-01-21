@@ -751,6 +751,9 @@ public class StatementCommand extends Statement {
                 } else if (HsqlDatabaseProperties.sql_syntax_pgs.equals(
                         property)) {
                     session.database.setSyntaxPgs(mode);
+                } else if (HsqlDatabaseProperties.sql_sys_index_names.equals(
+                        property)) {
+                    session.database.setSysIndexNames(mode);
                 }
 
                 return Result.updateZeroResult;

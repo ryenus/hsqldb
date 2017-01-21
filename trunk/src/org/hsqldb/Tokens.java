@@ -934,7 +934,7 @@ public class Tokens {
     static final String        T_SORT_ARRAY       = "SORT_ARRAY";
     static final String        T_SOUNDEX          = "SOUNDEX";
     static final String        T_SUBSTR           = "SUBSTR";
-    static final String        T_SYS              = "SYS";
+    public static final String T_SYS              = "SYS";
     static final String        T_SYS_EXTRACT_UTC  = "SYS_EXTRACT_UTC";
     static final String        T_SYS_GUID         = "SYS_GUID";
     static final String        T_SYSDATE          = "SYSDATE";

@@ -1171,7 +1171,6 @@ public class ParserCommand extends ParserDDL {
 
                         property = HsqlDatabaseProperties.sql_restrict_exec;
                         flag     = processTrueOrFalseObject();
-
                         break;
 
                     case Tokens.LIVE :
@@ -1180,7 +1179,6 @@ public class ParserCommand extends ParserDDL {
 
                         property = HsqlDatabaseProperties.sql_live_object;
                         flag     = processTrueOrFalseObject();
-
                         break;
 
                     case Tokens.NAMES :
@@ -1351,6 +1349,16 @@ public class ParserCommand extends ParserDDL {
                         flag = processTrueOrFalseObject();
                         break;
 
+                    case Tokens.SYS : {
+                        read();
+                        readThis(Tokens.INDEX);
+                        readThis(Tokens.NAMES);
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_sys_index_names;
+
+                        break;
+                    }
                     default :
                         throw unexpectedToken();
                 }
