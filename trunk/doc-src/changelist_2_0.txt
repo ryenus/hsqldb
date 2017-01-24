@@ -1,7 +1,7 @@
-21 December 
+24 January 
 -- added support for new JAVA 8 JDBC methods to ResultSet and Statement classes
-05 December 2016
 -- added support for several functions SINH COSH TANH NEXT_DAY DATEPART DATENAME EOMONTH NEWID SYS_GUID
+-- added support for execution of DDL statements concurrently with other transactions
 -- improved support for WITH named subqueries in routines, allowing parameters to be referenced
 -- improved support for WITH RECURSIVE named subqueries to be used in other subqueries
 -- improved support for UUID in ResultSet to return a Java UUID with getObject()
