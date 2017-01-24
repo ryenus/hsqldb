@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2016 Fred Toussi. Permission is granted to
+      <para>Copyright 2010-2017 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -544,9 +544,9 @@
     in another session. This statement is different from the other statements
     discussed in this chapter as it is not used for changing the settings of
     the current session. When END STATEMENT is used, the current statement
-    that is waiting to run or being executed is aborted. When RELEASE is used,
+    that is waiting to run or is being executed is aborted. When RELEASE is used,
     the current transaction is terminated with a rollback. The session remains
-    open. CLOSE should be used after RELEASE has completed.</simpara>
+    open. CLOSE may be used after RELEASE has completed.</simpara>
 
     <simpara>The session ID is used as a <literal>&lt;numeric
     literal&gt;</literal> in this statement. The administrator can use the
