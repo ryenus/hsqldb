@@ -589,14 +589,29 @@ public class ParserCommand extends ParserDDL {
                                                 args);
                 }
 
+                if (e.isUnresolvedParam()) {
+                    e.setDataType(session, Type.SQL_VARCHAR_DEFAULT);
+                }
+
                 if (!e.getDataType().isCharacterType()) {
                     throw Error.error(ErrorCode.X_0P000);
                 }
 
-                if (e.getType() != OpTypes.VALUE
-                        && (e.getType() != OpTypes.SQL_FUNCTION
-                            || !((FunctionSQL) e).isValueFunction())) {
-                    throw Error.error(ErrorCode.X_0P000);
+                switch (e.getType()) {
+
+                    case OpTypes.PARAMETER :
+                    case OpTypes.DYNAMIC_PARAM :
+                    case OpTypes.VALUE :
+                        break;
+
+                    case OpTypes.SQL_FUNCTION :
+                        if (((FunctionSQL) e).isValueFunction()) {
+                            break;
+                        }
+
+                    // fall through
+                    default :
+                        throw Error.error(ErrorCode.X_0P000);
                 }
 
                 Expression[] args = new Expression[]{ e };
@@ -2315,8 +2330,13 @@ public class ParserCommand extends ParserDDL {
                 HsqlName tableName = null;
 
                 readThis(Tokens.TABLE);
-
                 readThis(Tokens.SPACE);
+
+                if (readIfThis(Tokens.AND)) {
+                    readThis("FIX");
+
+                    type = Integer.valueOf(2);
+                }
 
                 Object[] args = new Object[] {
                     tableName, type, number

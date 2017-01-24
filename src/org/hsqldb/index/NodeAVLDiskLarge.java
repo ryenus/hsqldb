@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -136,7 +136,7 @@ public class NodeAVLDiskLarge extends NodeAVL {
         return ret;
     }
 
-    boolean isLeft(NodeAVL n) {
+    boolean isLeft(PersistentStore store, NodeAVL n) {
 
         if (n == null) {
             return iLeft == NO_POS;
@@ -145,7 +145,7 @@ public class NodeAVLDiskLarge extends NodeAVL {
         return iLeft == n.getPos();
     }
 
-    boolean isRight(NodeAVL n) {
+    boolean isRight(PersistentStore store, NodeAVL n) {
 
         if (n == null) {
             return iRight == NO_POS;

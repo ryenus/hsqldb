@@ -523,7 +523,7 @@ public class IndexAVL implements Index {
     /**
      * Removes all links between memory nodes
      */
-    public void unlinkNodes(NodeAVL primaryRoot) {
+    public void unlinkNodes(PersistentStore store, NodeAVL primaryRoot) {
 
         NodeAVL x = primaryRoot;
         NodeAVL l = x;
@@ -534,13 +534,13 @@ public class IndexAVL implements Index {
         }
 
         while (x != null) {
-            NodeAVL n = nextUnlink(x);
+            NodeAVL n = nextUnlink(store, x);
 
             x = n;
         }
     }
 
-    private NodeAVL nextUnlink(NodeAVL x) {
+    private NodeAVL nextUnlink(PersistentStore store, NodeAVL x) {
 
         NodeAVL temp = x.getRight(null);
 
@@ -559,7 +559,7 @@ public class IndexAVL implements Index {
         temp = x;
         x    = x.getParent(null);
 
-        while (x != null && x.isRight(temp)) {
+        while (x != null && x.isRight(store, temp)) {
             x.nRight = null;
 
             temp.getRow(null).destroy();
@@ -612,8 +612,10 @@ public class IndexAVL implements Index {
                                                         0);
 
                     if (c <= 0) {
-                        System.out.print("broken index order "
-                                         + getName().name);
+                        if (errors < 10) {
+                            System.out.println("broken index order "
+                                               + getName().name);
+                        }
 
                         errors++;
                     }
@@ -623,6 +625,10 @@ public class IndexAVL implements Index {
             }
         } finally {
             store.readUnlock();
+        }
+
+        if (errors > 0) {
+            System.out.println("total errors " + getName().name);
         }
 
         return errors;
@@ -966,7 +972,7 @@ public class IndexAVL implements Index {
             x = x.setParent(store, dp);
 
             if (dp != null) {
-                if (dp.isRight(d)) {
+                if (dp.isRight(store, d)) {
                     dp = dp.setRight(store, x);
                 } else {
                     dp = dp.setLeft(store, x);
@@ -977,7 +983,7 @@ public class IndexAVL implements Index {
             if (d.equals(xp)) {
                 d = d.setParent(store, x);
 
-                if (d.isLeft(x)) {
+                if (d.isLeft(store, x)) {
                     x = x.setLeft(store, d);
 
                     NodeAVL dr = d.getRight(store);
@@ -1396,7 +1402,7 @@ public class IndexAVL implements Index {
         temp = x;
         x    = x.getParent(store);
 
-        while (x != null && x.isRight(temp)) {
+        while (x != null && x.isRight(store, temp)) {
             temp = x;
             x    = x.getParent(store);
         }
@@ -1439,7 +1445,7 @@ public class IndexAVL implements Index {
 
         depth--;
 
-        while (x != null && x.isRight(temp)) {
+        while (x != null && x.isRight(store, temp)) {
             temp = x;
             x    = x.getParent(store);
 
@@ -1478,7 +1484,7 @@ public class IndexAVL implements Index {
         temp = x;
         x    = x.getParent(store);
 
-        while (x != null && x.isLeft(temp)) {
+        while (x != null && x.isLeft(store, temp)) {
             temp = x;
             x    = x.getParent(store);
         }

@@ -140,11 +140,11 @@ public class NodeAVL implements CachedObject {
         return iBalance;
     }
 
-    boolean isLeft(NodeAVL node) {
+    boolean isLeft(PersistentStore store, NodeAVL node) {
         return nLeft == node;
     }
 
-    boolean isRight(NodeAVL node) {
+    boolean isRight(PersistentStore store, NodeAVL node) {
         return nRight == node;
     }
 
