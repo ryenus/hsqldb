@@ -41,7 +41,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2016 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2017 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -1561,6 +1561,45 @@
               serialized. Setting this property to true results in the Object
               to be stored without serialization. This option is available in
               mem: database only.</para><para><programlisting>SET DATABASE LIVE OBJECT</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Names of System Indexes Used for Constraints</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm" />
+
+          <colspec colname="c2" colwidth="1.5cm" />
+
+          <colspec colname="c3" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.sys_index_names</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>name of system generated indexes for constraints</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>HSQLDB automatically creates a system index for each PRIMARY KEY,
+			  UNIQUE and FOREIGN KEY constraint. By default the names of those indexes are generated the system
+			  as a string beginning with SYS_. When the setting is changed to true, the names will be the same
+			  as the constraint names.</para><para><programlisting>SET DATABASE SQL SYS TABLE NAMES { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>

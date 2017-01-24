@@ -2049,6 +2049,37 @@
       <literal>sql.live_object</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL SYS INDEX NAMES</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE SQL SYS INDEX
+      NAMES</emphasis></simpara>
+
+      <simpara><emphasis>set database sql sys index names</emphasis></simpara>
+
+      <simpara><literal>&lt;set database sql sys table names statement&gt; ::= SET
+      DATABASE SQL SYS INDEX NAMES { TRUE | FALSE }</literal></simpara>
+
+      <simpara>This property, when set TRUE, changes the naming method for
+	  system generated indexes that are used to back constraints. By default,
+	  the names of those indexes are generated as strings with SYS_ prefixes.
+	  When the property is set TRUE, the names will be the same as the constraint
+	  names.</simpara>
+ 
+      <simpara>Changing the property does not affect the names of indexes for tha
+	  constraints that have already been defined. After a restart of the database
+	  all system-generated indexes are named according to the setting for
+	  this property.</simpara>
+
+      <simpara>The property is <literal>FALSE</literal> by default.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.sys_index_names</literal>.</simpara>
+	  
+      <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SYNTAX DB2</primary>
       </indexterm>
 
