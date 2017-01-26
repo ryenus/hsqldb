@@ -234,8 +234,8 @@ examples:
             description="self explanatory" if="ant.java.iscjava18">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
           <arg value="+JAVA6"/>
-          <arg value="+JAVA8"/>
-          <arg value="--pathlist=jdkcodeswitch.list"/>
+          <arg value="+JAVA8"/>          
+		  <arg value="--pathlist=${basedir}/build/jdkcodeswitch.list"/>
           <arg value="--basedir=${swsrc}"/>
           <!-- Since these paths are interpreted by the JVM, not ant,
                the path must be relative to run dir (build), not the
@@ -435,6 +435,7 @@ examples:
              destdir="classes"
              debug="${build.debug}"
              optimize="${build.optimize}"
+			 classpath="${ant.home}/lib/ant.jar"  
       >
          <include name="org/hsqldb/util/preprocessor/**"/>
       </javac>
