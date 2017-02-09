@@ -471,7 +471,7 @@ public final class Constraint implements SchemaObject {
     /**
      *  Returns the main index
      */
-    Index getMainIndex() {
+    public Index getMainIndex() {
         return core.mainIndex;
     }
 
@@ -485,7 +485,7 @@ public final class Constraint implements SchemaObject {
     /**
      *  Returns the reference index
      */
-    Index getRefIndex() {
+    public Index getRefIndex() {
         return core.refIndex;
     }
 

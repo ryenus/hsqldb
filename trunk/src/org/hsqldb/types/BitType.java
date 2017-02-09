@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,8 @@
 
 
 package org.hsqldb.types;
+
+import java.util.BitSet;
 
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
@@ -378,6 +380,19 @@ public final class BitType extends BinaryType {
             return convertToType(session, a, Type.SQL_INTEGER);
         } else if (a instanceof Long) {
             return convertToType(session, a, Type.SQL_BIGINT);
+        } else if (a instanceof BitSet) {
+            BitSet bs    = (BitSet) a;
+            byte[] bytes = new byte[bs.size() / Byte.SIZE];
+
+            for (int i = 0; i < bs.size(); i++) {
+                boolean set = bs.get(i);
+
+                if (set) {
+                    BitMap.set(bytes, i);
+                }
+            }
+
+            return new BinaryData(bytes, bs.size());
         }
 
         throw Error.error(ErrorCode.X_22501);
@@ -576,5 +591,22 @@ public final class BitType extends BinaryType {
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "BitType");
         }
+    }
+
+    public static BitSet getJavaBitSet(BinaryData data) {
+
+        int    bits  = (int) data.bitLength(null);
+        BitSet bs    = new BitSet(bits);
+        byte[] bytes = data.getBytes();
+
+        for (int i = 0; i < bits; i++) {
+            boolean set = BitMap.isSet(bytes, i);
+
+            if (set) {
+                bs.set(i);
+            }
+        }
+
+        return bs;
     }
 }

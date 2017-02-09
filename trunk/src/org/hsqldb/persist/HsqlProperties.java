@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,9 @@ package org.hsqldb.persist;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 
 import org.hsqldb.error.Error;
@@ -50,7 +52,7 @@ import org.hsqldb.map.ValuePool;
  * allow saving and loading.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.7.0
  */
 public class HsqlProperties {
@@ -604,29 +606,30 @@ public class HsqlProperties {
 
     public String toString() {
 
-        StringBuffer sb;
+        StringBuffer sb = new StringBuffer();
 
-        sb = new StringBuffer();
-
-        sb.append('[');
+        sb.append('{');
 
         int         len = stringProps.size();
         Enumeration en  = stringProps.propertyNames();
+        List list = Collections.list(en);
+        Collections.sort(list);
 
         for (int i = 0; i < len; i++) {
-            String key = (String) en.nextElement();
+            String key = (String) list.get(i);
 
             sb.append(key);
             sb.append('=');
+            sb.append('"');
             sb.append(stringProps.get(key));
-
+            sb.append('"');
             if (i + 1 < len) {
                 sb.append(',');
                 sb.append(' ');
             }
-
-            sb.append(']');
         }
+
+        sb.append('}');
 
         return sb.toString();
     }
