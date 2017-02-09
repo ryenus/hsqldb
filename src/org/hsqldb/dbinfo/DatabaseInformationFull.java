@@ -118,7 +118,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -186,6 +186,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             case SYSTEM_INDEXSTATS :
                 return SYSTEM_INDEXSTATS(session, store);
+
+            case SYSTEM_KEY_INDEX_USAGE :
+                return SYSTEM_KEY_INDEX_USAGE(session, store);
 
             case SYSTEM_SESSIONS :
                 return SYSTEM_SESSIONS(session, store);
@@ -1732,6 +1735,128 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[iindex_name]  = indexName;
 
                 t.insertSys(session, store, row);
+            }
+        }
+
+        return t;
+    }
+    /**
+     * The SYSTEM_KEY_INDEX_USAGE view has one row for each unique, primary or
+     * foreign key constraint of each accessible table for which the current
+     * authorization has has <i>some privilege</i> on each column of the
+     * constraint.
+     * <p>
+     * <b>Definition</b>
+     * <pre class="SqlCodeExample">
+     * CREATE TABLE SYSTEM_KEY_INDEX_USAGE
+     * (
+     *     CONSTRAINT_CATALOG INFORMATION_SCHEMA.SQL_IDENTIFIER,
+     *     CONSTRAINT_SCHEMA  INFORMATION_SCHEMA.SQL_IDENTIFIER,
+     *     CONSTRAINT_NAME    INFORMATION_SCHEMA.SQL_IDENTIFIER,
+     *     INDEX_CATALOG      INFORMATION_SCHEMA.SQL_IDENTIFIER,
+     *     INDEX_SCHEMA       INFORMATION_SCHEMA.SQL_IDENTIFIER,
+     *     INDEX_NAME         INFORMATION_SCHEMA.SQL_IDENTIFIER
+     * )</pre>
+     */
+    final Table SYSTEM_KEY_INDEX_USAGE(Session session, PersistentStore store) {
+        Table t = sysTables[SYSTEM_KEY_INDEX_USAGE];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[SYSTEM_KEY_INDEX_USAGE]);
+
+
+            addColumn(t, "CONSTRAINT_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "CONSTRAINT_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "CONSTRAINT_NAME", SQL_IDENTIFIER);
+            addColumn(t, "INDEX_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "INDEX_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "INDEX_NAME", SQL_IDENTIFIER);
+
+            // order: CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA,CONSTRAINT_NAME,
+            //        INDEX_CATALOG, INDEX_SCHEMA, INDEX_NAME
+            // true PK, as each primary, unique, or foreign key constraint
+            // is back by at most one index.
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_KEY_INDEX_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2, 3, 4, 5
+            }, true);
+
+            return t;
+        };
+
+        // column number mappings
+        final int constraint_catalog            = 0;
+        final int constraint_schema             = 1;
+        final int constraint_name               = 2;
+        final int index_catalog                 = 3;
+        final int index_schema                  = 4;
+        final int index_name                    = 5;
+
+        // Initialization
+        Iterator tables
+                = database.schemaManager.databaseObjectIterator(
+                        SchemaObject.TABLE);
+
+        while (tables.hasNext()) {
+            Table table = (Table) tables.next();
+            if (table.isView()) {
+                continue;
+            }
+            if (!session.getGrantee().isAccessible(table.getName())) {
+                continue;
+            }
+
+            String catalogName = table.getCatalogName().name;
+            String schemaName = table.getName().schema.name;
+
+            Constraint[] constraints  = table.getConstraints();
+
+            for (int i = 0; i < constraints.length; i++) {
+                Constraint constraint = constraints[i];
+
+                boolean includeConstraint = false;
+                int contraintType = constraint.getConstraintType();
+                int[] cols = null;
+                Index backingIndex = null;
+
+                switch(contraintType) {
+                    case SchemaObject.ConstraintTypes.PRIMARY_KEY:
+                    case SchemaObject.ConstraintTypes.UNIQUE: {
+                         cols = constraint.getMainColumns();
+                         backingIndex = constraint.getMainIndex();
+                         includeConstraint = true;
+                         break;
+                    }
+                    case SchemaObject.ConstraintTypes.FOREIGN_KEY:
+                    {
+                        cols = constraint.getRefColumns();
+                        backingIndex = constraint.getRefIndex();
+                        includeConstraint = true;
+                        break;
+                    }
+                }
+
+                if (!includeConstraint) {
+                    continue;
+                }
+
+                if (!session.getGrantee().hasColumnRights(table, cols)) {
+                    continue;
+                }
+
+                Object[] row = t.getEmptyRowData();
+                row[constraint_catalog] = catalogName;
+                row[constraint_schema] = schemaName;
+                row[constraint_name] =  constraint.getName().name;
+                row[index_catalog] = catalogName;
+                row[index_schema] = backingIndex.getName().schema.name;
+                row[index_name] = backingIndex.getName().name;
+
+                t.insertSys(session, store, row);
+
             }
         }
 

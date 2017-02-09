@@ -54,7 +54,7 @@ import org.hsqldb.persist.PersistentStore;
  * DatabaseInformation implementations. <p>
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.3.5
  * @since 1.7.2
  */
 public class DatabaseInformation {
@@ -82,85 +82,87 @@ public class DatabaseInformation {
     protected static final int SYSTEM_COMMENTS              = 17;
     protected static final int SYSTEM_CONNECTION_PROPERTIES = 18;
     protected static final int SYSTEM_INDEXSTATS            = 19;
-    protected static final int SYSTEM_PROPERTIES            = 20;
-    protected static final int SYSTEM_SESSIONINFO           = 21;
-    protected static final int SYSTEM_SESSIONS              = 22;
-    protected static final int SYSTEM_TABLESTATS            = 23;
-    protected static final int SYSTEM_TEXTTABLES            = 24;
-    protected static final int SYSTEM_SYNONYMS              = 25;
+    protected static final int SYSTEM_KEY_INDEX_USAGE       = 20;
+    protected static final int SYSTEM_PROPERTIES            = 21;
+    protected static final int SYSTEM_SESSIONINFO           = 22;
+    protected static final int SYSTEM_SESSIONS              = 23;
+    protected static final int SYSTEM_TABLESTATS            = 24;
+    protected static final int SYSTEM_TEXTTABLES            = 25;
+    protected static final int SYSTEM_SYNONYMS              = 26;
 
     // SQL 200n tables
-    protected static final int ADMINISTRABLE_ROLE_AUTHORIZATIONS = 26;
-    protected static final int APPLICABLE_ROLES                  = 27;
-    protected static final int ASSERTIONS                        = 28;
-    protected static final int AUTHORIZATIONS                    = 29;
-    protected static final int CHARACTER_SETS                    = 30;
-    protected static final int CHECK_CONSTRAINT_ROUTINE_USAGE    = 31;
-    protected static final int CHECK_CONSTRAINTS                 = 32;
-    protected static final int COLLATIONS                        = 33;
-    protected static final int COLUMN_COLUMN_USAGE               = 34;
-    protected static final int COLUMN_DOMAIN_USAGE               = 35;
-    protected static final int COLUMN_PRIVILEGES                 = 36;
-    protected static final int COLUMN_UDT_USAGE                  = 37;
-    protected static final int COLUMNS                           = 38;
-    protected static final int CONSTRAINT_COLUMN_USAGE           = 39;
-    protected static final int CONSTRAINT_TABLE_USAGE            = 40;
-    protected static final int DATA_TYPE_PRIVILEGES              = 41;
-    protected static final int DOMAIN_CONSTRAINTS                = 42;
-    protected static final int DOMAINS                           = 43;
-    protected static final int ELEMENT_TYPES                     = 44;
-    protected static final int ENABLED_ROLES                     = 45;
-    protected static final int INFORMATION_SCHEMA_CATALOG_NAME   = 46;
-    protected static final int JAR_JAR_USAGE                     = 47;
-    protected static final int JARS                              = 48;
-    protected static final int KEY_COLUMN_USAGE                  = 49;
-    protected static final int METHOD_SPECIFICATIONS             = 50;
-    protected static final int MODULE_COLUMN_USAGE               = 51;
-    protected static final int MODULE_PRIVILEGES                 = 52;
-    protected static final int MODULE_TABLE_USAGE                = 53;
-    protected static final int MODULES                           = 54;
-    protected static final int PARAMETERS                        = 55;
-    protected static final int REFERENTIAL_CONSTRAINTS           = 56;
-    protected static final int ROLE_AUTHORIZATION_DESCRIPTORS    = 57;
-    protected static final int ROLE_COLUMN_GRANTS                = 58;
-    protected static final int ROLE_MODULE_GRANTS                = 59;
-    protected static final int ROLE_ROUTINE_GRANTS               = 60;
-    protected static final int ROLE_TABLE_GRANTS                 = 61;
-    protected static final int ROLE_UDT_GRANTS                   = 62;
-    protected static final int ROLE_USAGE_GRANTS                 = 63;
-    protected static final int ROUTINE_COLUMN_USAGE              = 64;
-    protected static final int ROUTINE_JAR_USAGE                 = 65;
-    protected static final int ROUTINE_PRIVILEGES                = 66;
-    protected static final int ROUTINE_ROUTINE_USAGE             = 67;
-    protected static final int ROUTINE_SEQUENCE_USAGE            = 68;
-    protected static final int ROUTINE_TABLE_USAGE               = 69;
-    protected static final int ROUTINES                          = 70;
-    protected static final int SCHEMATA                          = 71;
-    protected static final int SEQUENCES                         = 72;
-    protected static final int SQL_FEATURES                      = 73;
-    protected static final int SQL_IMPLEMENTATION_INFO           = 74;
-    protected static final int SQL_PACKAGES                      = 75;
-    protected static final int SQL_PARTS                         = 76;
-    protected static final int SQL_SIZING                        = 77;
-    protected static final int SQL_SIZING_PROFILES               = 78;
-    protected static final int TABLE_CONSTRAINTS                 = 79;
-    protected static final int TABLE_PRIVILEGES                  = 80;
-    protected static final int TABLES                            = 81;
-    protected static final int TRANSLATIONS                      = 82;
-    protected static final int TRIGGER_COLUMN_USAGE              = 83;
-    protected static final int TRIGGER_ROUTINE_USAGE             = 84;
-    protected static final int TRIGGER_SEQUENCE_USAGE            = 85;
-    protected static final int TRIGGER_TABLE_USAGE               = 86;
-    protected static final int TRIGGERED_UPDATE_COLUMNS          = 87;
-    protected static final int TRIGGERS                          = 88;
-    protected static final int TYPE_JAR_USAGE                    = 89;
-    protected static final int UDT_PRIVILEGES                    = 90;
-    protected static final int USAGE_PRIVILEGES                  = 91;
-    protected static final int USER_DEFINED_TYPES                = 92;
-    protected static final int VIEW_COLUMN_USAGE                 = 93;
-    protected static final int VIEW_ROUTINE_USAGE                = 94;
-    protected static final int VIEW_TABLE_USAGE                  = 95;
-    protected static final int VIEWS                             = 96;
+    protected static final int ADMINISTRABLE_ROLE_AUTHORIZATIONS = 27;
+    protected static final int APPLICABLE_ROLES                  = 28;
+    protected static final int ASSERTIONS                        = 29;
+    protected static final int AUTHORIZATIONS                    = 30;
+    protected static final int CHARACTER_SETS                    = 31;
+    protected static final int CHECK_CONSTRAINT_ROUTINE_USAGE    = 32;
+    protected static final int CHECK_CONSTRAINTS                 = 33;
+    protected static final int COLLATIONS                        = 34;
+    protected static final int COLUMN_COLUMN_USAGE               = 35;
+    protected static final int COLUMN_DOMAIN_USAGE               = 36;
+    protected static final int COLUMN_PRIVILEGES                 = 37;
+    protected static final int COLUMN_UDT_USAGE                  = 38;
+    protected static final int COLUMNS                           = 39;
+    protected static final int CONSTRAINT_COLUMN_USAGE           = 40;
+    protected static final int CONSTRAINT_TABLE_USAGE            = 41;
+    protected static final int DATA_TYPE_PRIVILEGES              = 42;
+    protected static final int DOMAIN_CONSTRAINTS                = 43;
+    protected static final int DOMAINS                           = 44;
+    protected static final int ELEMENT_TYPES                     = 45;
+    protected static final int ENABLED_ROLES                     = 46;
+    protected static final int INFORMATION_SCHEMA_CATALOG_NAME   = 47;
+    protected static final int JAR_JAR_USAGE                     = 48;
+    protected static final int JARS                              = 49;
+    protected static final int KEY_COLUMN_USAGE                  = 50;
+    protected static final int METHOD_SPECIFICATIONS             = 51;
+    protected static final int MODULE_COLUMN_USAGE               = 52;
+    protected static final int MODULE_PRIVILEGES                 = 53;
+    protected static final int MODULE_TABLE_USAGE                = 54;
+    protected static final int MODULES                           = 55;
+    protected static final int PARAMETERS                        = 56;
+    protected static final int REFERENTIAL_CONSTRAINTS           = 57;
+    protected static final int ROLE_AUTHORIZATION_DESCRIPTORS    = 58;
+    protected static final int ROLE_COLUMN_GRANTS                = 59;
+    protected static final int ROLE_MODULE_GRANTS                = 60;
+    protected static final int ROLE_ROUTINE_GRANTS               = 61;
+    protected static final int ROLE_TABLE_GRANTS                 = 62;
+    protected static final int ROLE_UDT_GRANTS                   = 63;
+    protected static final int ROLE_USAGE_GRANTS                 = 64;
+    protected static final int ROUTINE_COLUMN_USAGE              = 65;
+    protected static final int ROUTINE_JAR_USAGE                 = 66;
+    protected static final int ROUTINE_PRIVILEGES                = 67;
+    protected static final int ROUTINE_ROUTINE_USAGE             = 68;
+    protected static final int ROUTINE_SEQUENCE_USAGE            = 69;
+    protected static final int ROUTINE_TABLE_USAGE               = 70;
+    protected static final int ROUTINES                          = 71;
+    protected static final int SCHEMATA                          = 72;
+    protected static final int SEQUENCES                         = 73;
+    protected static final int SQL_FEATURES                      = 74;
+    protected static final int SQL_IMPLEMENTATION_INFO           = 75;
+    protected static final int SQL_PACKAGES                      = 76;
+    protected static final int SQL_PARTS                         = 77;
+    protected static final int SQL_SIZING                        = 78;
+    protected static final int SQL_SIZING_PROFILES               = 79;
+    protected static final int TABLE_CONSTRAINTS                 = 80;
+    protected static final int TABLE_PRIVILEGES                  = 81;
+    protected static final int TABLES                            = 82;
+    protected static final int TRANSLATIONS                      = 83;
+    protected static final int TRIGGER_COLUMN_USAGE              = 84;
+    protected static final int TRIGGER_ROUTINE_USAGE             = 85;
+    protected static final int TRIGGER_SEQUENCE_USAGE            = 86;
+    protected static final int TRIGGER_TABLE_USAGE               = 87;
+    protected static final int TRIGGERED_UPDATE_COLUMNS          = 88;
+    protected static final int TRIGGERS                          = 89;
+    protected static final int TYPE_JAR_USAGE                    = 90;
+    protected static final int UDT_PRIVILEGES                    = 91;
+    protected static final int USAGE_PRIVILEGES                  = 92;
+    protected static final int USER_DEFINED_TYPES                = 93;
+    protected static final int VIEW_COLUMN_USAGE                 = 94;
+    protected static final int VIEW_ROUTINE_USAGE                = 95;
+    protected static final int VIEW_TABLE_USAGE                  = 96;
+    protected static final int VIEWS                             = 97;
+
 
     /** system table names strictly in order of their ids */
     protected static final String[] sysTableNames = {
@@ -186,6 +188,7 @@ public class DatabaseInformation {
         "SYSTEM_COMMENTS",                                       //
         "SYSTEM_CONNECTION_PROPERTIES",                          //
         "SYSTEM_INDEXSTATS",                                     //
+        "SYSTEM_KEY_INDEX_USAGE",                                //
         "SYSTEM_PROPERTIES",                                     //
         "SYSTEM_SESSIONINFO",                                    //
         "SYSTEM_SESSIONS",                                       //
@@ -272,7 +275,7 @@ public class DatabaseInformation {
 
     static {
         synchronized (DatabaseInformation.class) {
-            sysTableNamesMap = new IntValueHashMap(97);
+            sysTableNamesMap = new IntValueHashMap(101);
 
             for (int i = 0; i < sysTableNames.length; i++) {
                 sysTableNamesMap.put(sysTableNames[i], i);
@@ -288,7 +291,7 @@ public class DatabaseInformation {
     protected final Database database;
 
     /**
-     * state flag -- if true, contentful tables are to be produced, else
+     * state flag -- if true, tables are to be produced with content, else
      * empty (surrogate) tables are to be produced.  This allows faster
      * database startup where user views reference system tables and faster
      * system table structural reflection for table metadata.
@@ -334,7 +337,7 @@ public class DatabaseInformation {
 
     /**
      * Constructs a new DatabaseInformation instance which knows the names of
-     * all system tables (isSystemTable()) but simpy returns null for all
+     * all system tables (isSystemTable()) but simply returns null for all
      * getSystemTable() requests. <p>
      *
      * @param db The Database object for which to produce system tables
@@ -375,10 +378,10 @@ public class DatabaseInformation {
 
     /**
      * Switches this table producer between producing empty (surrogate)
-     * or contentful tables. <p>
+     * or tables with (row) content. <p>
      *
-     * @param withContent if true, then produce contentful tables, else
-     *        produce emtpy (surrogate) tables
+     * @param withContent if true, then produce tables with (row) content, else
+     *        produce empty (surrogate) tables
      */
     public final void setWithContent(boolean withContent) {
         this.withContent = withContent;

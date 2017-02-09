@@ -338,8 +338,7 @@ public final class HsqlNameManager {
         public boolean equals(Object other) {
 
             if (other instanceof SimpleName) {
-                return ((SimpleName) other).isNameQuoted == isNameQuoted
-                       && ((SimpleName) other).name.equals(name);
+                return ((SimpleName) other).name.equals(name);
             }
 
             return false;

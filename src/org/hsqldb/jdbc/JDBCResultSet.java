@@ -91,6 +91,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringInputStream;
+import org.hsqldb.map.BitMap;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
@@ -1654,15 +1655,20 @@ public class JDBCResultSet implements ResultSet {
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
                 return getBytes(columnIndex);
-            case Types.SQL_GUID :
+            case Types.SQL_GUID : {
                 BinaryData bd = (BinaryData) getColumnValue(columnIndex);
                 return BinaryUUIDType.getJavaUUID(bd);
+            }
             case Types.SQL_BIT : {
-                boolean b = getBoolean(columnIndex);
+                BinaryData bd = (BinaryData) getColumnValue(columnIndex);
 
-                return wasNull() ? null
-                                 : b ? Boolean.TRUE
-                                     : Boolean.FALSE;
+                if (wasNull()) {
+                    return null;
+                }
+
+                boolean b = BitMap.isSet(bd.getBytes(), 0);
+                return b ? Boolean.TRUE
+                         : Boolean.FALSE;
             }
             case Types.SQL_CLOB :
                 return getClob(columnIndex);

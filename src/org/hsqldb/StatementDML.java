@@ -907,7 +907,7 @@ public class StatementDML extends StatementDMQL {
 
             // for identity using global sequence
             session.sessionData.startRowProcessing();
-            baseTable.generateAndCheckData(session, data);
+            baseTable.insertSingleRow(session, store, data, null);
 
             if (updatableTableCheck != null) {
                 checkIterator.setCurrent(data);
@@ -918,8 +918,6 @@ public class StatementDML extends StatementDMQL {
                     throw Error.error(ErrorCode.X_44000);
                 }
             }
-
-            baseTable.insertSingleRow(session, store, data, null);
 
             if (generatedNavigator != null) {
                 Object[] generatedValues = getGeneratedColumns(data);
@@ -963,14 +961,6 @@ public class StatementDML extends StatementDMQL {
 
         baseTable.insertSingleRow(session, store, data, null);
         performIntegrityChecks(session, baseTable, null, data, null);
-
-        if (session.database.isReferentialIntegrity()) {
-            for (int i = 0, size = baseTable.fkConstraints.length; i < size;
-                    i++) {
-                baseTable.fkConstraints[i].checkInsert(session, baseTable,
-                                                       data, true);
-            }
-        }
 
         if (baseTable.triggerLists[Trigger.INSERT_AFTER_ROW].length > 0) {
             baseTable.fireTriggers(session, Trigger.INSERT_AFTER_ROW, null,

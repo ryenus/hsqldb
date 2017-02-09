@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -226,6 +226,10 @@ public class BinaryUUIDType extends BinaryType {
 
         if (a instanceof byte[]) {
             return new BinaryData((byte[]) a, true);
+        }
+
+        if (a instanceof UUID) {
+            return getBinary((UUID) a);
         }
 
         throw Error.error(ErrorCode.X_42561);

@@ -55,6 +55,7 @@ import java.sql.SQLWarning;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -4401,6 +4402,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                     }
 
                     if (o instanceof String) {
+                        o = outType.convertToDefaultType(session, o);
+
+                        break;
+                    }
+
+                    if (o instanceof BitSet) {
                         o = outType.convertToDefaultType(session, o);
 
                         break;
