@@ -928,7 +928,8 @@
      DECLARE temp_id INTEGER;
      DECLARE UNDO HANDLER FOR SQLEXCEPTION
      INSERT INTO invalid_customers VALUES(firstanme, lastname, address);
-     -- last statement is part of the handler
+     -- last statement is part of the handler; it is called if the next statements throw an exception
+
      INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
      SET temp_id = IDENTITY();
      INSERT INTO ADDRESSES VALUES (DEFAULT, temp_id, address);
@@ -2026,7 +2027,7 @@
       can use the <classname>org.hsqldb.jdbc.JDBCArrayBasic</classname> class
       to create a JDBC Array in your Java static method. This class also
       includes code to construct a <classname>JDBCResultSetBasic</classname>
-      instance. </para>
+      instance.</para>
 
       <para>Java language procedures SQL/JRT are used in an identical manner
       to SQL/PSM routines. See the section under SQL/PSM routines, Returning
