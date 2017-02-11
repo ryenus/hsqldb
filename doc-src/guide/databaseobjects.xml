@@ -941,10 +941,11 @@
       EXISTS</literal></simpara>
 
       <para>This clause is not part of the SQL standard and is a HyperSQL
-      extension to CREATE statements that create tables, views, sequences and
-      indexes, as well as ALTER TABLE ... ADD CONSTRAINT statements. If it is
-      specified, then the statement does not return an error if the create
-      statement is for an object name that already exists.</para>
+      extension to CREATE statements that create schemas, tables, views,
+      sequences and indexes, as well as ALTER TABLE ... ADD CONSTRAINT
+      statements. If it is specified, then the statement does not return an
+      error if the create statement is for an object name that already
+      exists.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SPECIFIC</primary>
@@ -1815,6 +1816,14 @@
 
           <listitem>
             <para>varchar separator</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>qc = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>quote character</para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -3987,6 +3996,15 @@
         <para>SYSTEM_INDEXINFO</para>
 
         <para>For DatabaseMetaData.getIndexInfo</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_KEY_INDEX_USAGE</primary>
+        </indexterm>
+
+        <para>SYSTEM_KEY_INDEX_USAGE</para>
+
+        <para>List of system-generated index names for each PRIMARY KEY,
+        UNIQUE and FOREIGN KEY constraint.</para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_PRIMARYKEYS</primary>

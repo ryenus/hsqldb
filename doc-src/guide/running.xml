@@ -60,8 +60,8 @@
 
     <para>HyperSQL version 2.4.0 is compatible with Java 8 or later. Versions
     of the HSQLDB jar that are compiled with JDK 6 or JDK 5 are also
-	available. Those versions are numbered 2.3.5 to distinguish the capability
-	differences.</para>
+    available. Those versions are numbered 2.3.5 to distinguish the capability
+    differences.</para>
 
     <para>HyperSQL is used for development, testing and deployment of database
     applications.</para>
@@ -419,13 +419,13 @@
       <title>HyperSQL HTTP Servlet</title>
 
       <para>This method of access also uses the HTTP protocol. It is used when
-      a separate servlet engine (or application server) such as Tomcat or
-      Resin provides access to the database. The Servlet Mode cannot be
-      started independently from the servlet engine. The
-      <filename>Servlet</filename> class, in the HSQLDB jar, should be
-      installed on the application server to provide the connection. The
-      database file path is specified using an application server property.
-      Refer to the source file <filename xlink:href="#Servlet.java-link">
+      a servlet engine (or application server) such as Tomcat or Resin
+      provides access to the database. The Servlet Mode cannot be started
+      independently from the servlet engine. The <filename>Servlet</filename>
+      class, in the HSQLDB jar, should be installed on the application server
+      to provide the connection. The database file path is specified using an
+      application server property. Refer to the source file <filename
+      xlink:href="#Servlet.java-link">
       src/org/hsqldb/server/Servlet.java</filename> to see the details.</para>
 
       <para>Both HTTP Server and Servlet modes can be accessed using the JDBC

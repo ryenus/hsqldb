@@ -324,12 +324,13 @@
       new LOBs. For very large LOB's the stream methods are preferable as they
       use less memory.</para>
 
-      <para>For array parameters, you must use a
+      <para>For array parameters, you can use a
       <classname>java.sql.Array</classname> object that contains the array
       elements before assigning to JDBC parameters. The
       <code>Connection.createArrayOf(...)</code> method can be used to create
       a new object, or you can use an Array returned from connections to other
-      RDBMS servers.</para>
+      RDBMS servers. You can also use Java arrays of primitives to assign to
+      the SQL array parameters.</para>
 
       <para>The above also applies to the methods of
       <classname>java.sql.ResultSet</classname> that are used for setting
@@ -338,8 +339,10 @@
       <para>When the Java 8 version of HSQLDB jar is used, the setObject()
       methods of <classname>PreparedStatement</classname> and
       <classname>CallableStatement</classname> also accept objects of the new
-      types introduced in Java 8 and listed below under JDBC Returend
-      Values.</para>
+      types introduced in Java 8 and listed below under JDBC Returned Values.
+      The new Java 8 method, <methodname>getObject(int columnIndex,
+      Class&lt;T&gt; type)</methodname>, can be used to retrieve the value of
+      an OUT parameter from a <classname>CallableStatement</classname>.</para>
     </section>
 
     <section xml:id="dac_jdbc_data_change">
@@ -405,8 +408,8 @@
       older, this method returns a <classname>java.sql.Timestamp</classname>
       object. With Java 8 it returns a
       <classname>java.time.OffsetDateTime</classname> object which contains
-      the time zone offset value as well as the other fields of the TIMESTAMP.
-      </para>
+      the time zone offset value as well as the other fields of the
+      TIMESTAMP.</para>
 
       <para>A new method, <methodname>getObject(int columnIndex,
       Class&lt;T&gt; type)</methodname> is available in Java 8. With this
@@ -474,8 +477,7 @@
             </row>
 
             <row>
-              <entry><classname>java.sql.Array</classname> = all ARRAY
-              </entry>
+              <entry><classname>java.sql.Array</classname> = all ARRAY</entry>
             </row>
           </tbody>
         </tgroup>
@@ -3831,6 +3833,10 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       especially useful when some columns have a default clause which is a
       function, or when there are BEFORE triggers on the table that may
       provide the inserted value for some of the columns.</para>
+
+      <para>In MySQL syntax compatibility mode, HyperSQL supports and INSERT
+      IGNORE, REPLACE and ON DUPLICATE KEY UPDATE variations of the INSERT
+      statement.</para>
     </section>
 
     <section xml:id="dac_update_statement">
@@ -4094,6 +4100,8 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
 
     <para>The value of <literal>ROW_COUNT</literal> is stored in the specified
     target.</para>
+
+    <para>This statement is often used in CREATE PROCEDURE statements.</para>
 
     <para>In future versions, more options will be supported for diagnostics
     values.</para>
