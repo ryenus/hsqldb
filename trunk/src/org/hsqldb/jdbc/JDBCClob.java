@@ -907,7 +907,7 @@ public class JDBCClob implements Clob {
         return getData();
     }
 
-    private synchronized String getData() throws SQLException {
+    synchronized String getData() throws SQLException {
 
         checkClosed();
 
