@@ -44,7 +44,6 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.DatabaseMetaData;
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
@@ -1351,7 +1350,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             Clob x) throws SQLException {
 
         if (x instanceof JDBCClob) {
-            setParameter(parameterIndex, ((JDBCClob) x).data());
+            setParameter(parameterIndex, ((JDBCClob) x).getData());
 
             return;
         } else if (x == null) {
