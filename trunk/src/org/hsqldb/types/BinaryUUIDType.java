@@ -527,24 +527,17 @@ public class BinaryUUIDType extends BinaryType {
         byte[]     bytes     = binary.getBytes();
         long       longValue = 0;
 
-        if (bytes.length == 0) {
-            return Long.MIN_VALUE;
-        }
+        for (int i = 0; i < 8; i++) {
+            longValue |= (bytes[i] & 0x000000ff);
 
-        byte byteValue = bytes[0];
-
-        byteValue += Byte.MIN_VALUE;
-        longValue |= (byteValue & 0x000000ff);
-
-        for (int i = 1; i < 8; i++) {
-            longValue <<= 8;
-
-            if (i < bytes.length) {
-                longValue |= (bytes[i] & 0x000000ff);
+            if (i == 7) {
+                break;
             }
+
+            longValue <<= 8;
         }
 
-        return longValue;
+        return longValue + Long.MIN_VALUE;
     }
 
     public static BinaryData getBinary(long hi, long lo) {

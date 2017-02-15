@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * Manages all SCHEMA related database objects
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.8.0
  */
 public class SchemaManager {
@@ -101,6 +101,8 @@ public class SchemaManager {
             schema.typeLookup.add(TypeInvariants.CHARACTER_DATA, false);
             schema.typeLookup.add(TypeInvariants.SQL_IDENTIFIER, false);
             schema.typeLookup.add(TypeInvariants.TIME_STAMP, false);
+            schema.typeLookup.add(TypeInvariants.NCNAME, false);
+            schema.typeLookup.add(TypeInvariants.URI, false);
         } catch (HsqlException e) {}
     }
 
