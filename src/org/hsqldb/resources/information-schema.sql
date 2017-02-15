@@ -294,7 +294,7 @@ VALUES
 ('F501', 'Features and conformance views', '', '', 'YES', NULL, ''),
 ('F501', 'Features and conformance views', '01', 'SQL_FEATURES view', 'YES', NULL, ''),
 ('F501', 'Features and conformance views', '02', 'SQL_SIZING view', 'YES', NULL, ''),
-('F501', 'Features and conformance views', '03', 'SQL_LANGUAGES view', 'YES', NULL, ''),
+('F501', 'Features and conformance views', '03', 'SQL_LANGUAGES view', 'NO', NULL, ''),
 ('F502', 'Enhanced documentation tables', '', '', 'YES', NULL, ''),
 ('F502', 'Enhanced documentation tables', '01', 'SQL_SIZING_PROFILES view', 'YES', NULL, ''),
 ('F502', 'Enhanced documentation tables', '02', 'SQL_IMPLEMENTATION_INFO view', 'YES', NULL, ''),

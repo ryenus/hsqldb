@@ -56,7 +56,7 @@ import org.hsqldb.map.BitMap;
  * string<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.3.5
  * @since 1.9.0
  */
 public final class BitType extends BinaryType {

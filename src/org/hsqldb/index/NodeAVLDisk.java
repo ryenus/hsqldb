@@ -97,7 +97,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.3.4
+ * @version 2.3.5
  * @since Hypersonic SQL
  */
 public class NodeAVLDisk extends NodeAVL {
@@ -232,33 +232,33 @@ public class NodeAVLDisk extends NodeAVL {
 
     NodeAVL getLeft(PersistentStore store) {
 
-        if (iLeft == NO_POS) {
+        NodeAVLDisk node = findNode(store);
+
+        if (node.iLeft == NO_POS) {
             return null;
         }
-
-        NodeAVLDisk node = findNode(store);
 
         return findNode(store, node.iLeft);
     }
 
     NodeAVL getRight(PersistentStore store) {
 
-        if (iRight == NO_POS) {
+        NodeAVLDisk node = findNode(store);
+
+        if (node.iRight == NO_POS) {
             return null;
         }
-
-        NodeAVLDisk node = findNode(store);
 
         return findNode(store, node.iRight);
     }
 
     NodeAVL getParent(PersistentStore store) {
 
-        if (iParent == NO_POS) {
+        NodeAVLDisk node = findNode(store);
+
+        if (node.iParent == NO_POS) {
             return null;
         }
-
-        NodeAVLDisk node = findNode(store);
 
         return findNode(store, node.iParent);
     }
@@ -329,10 +329,10 @@ public class NodeAVLDisk extends NodeAVL {
         RowAVLDisk  row  = (RowAVLDisk) store.get(this.row, true);
         NodeAVLDisk node = (NodeAVLDisk) row.getNode(iId);
 
-        row.setNodesChanged();
-
         node.iLeft = n == null ? NO_POS
                                : (int) n.getPos();
+
+        row.setNodesChanged();
 
         row.keepInMemory(false);
 
@@ -344,10 +344,10 @@ public class NodeAVLDisk extends NodeAVL {
         RowAVLDisk  row  = (RowAVLDisk) store.get(this.row, true);
         NodeAVLDisk node = (NodeAVLDisk) row.getNode(iId);
 
-        row.setNodesChanged();
-
         node.iRight = n == null ? NO_POS
                                 : (int) n.getPos();
+
+        row.setNodesChanged();
 
         row.keepInMemory(false);
 
@@ -365,7 +365,7 @@ public class NodeAVLDisk extends NodeAVL {
         }
 
         if (n != null) {
-            n.setParent(store, this);
+            n.setParent(store, x);
         }
 
         return x;
@@ -373,7 +373,9 @@ public class NodeAVLDisk extends NodeAVL {
 
     public void replace(PersistentStore store, Index index, NodeAVL n) {
 
-        if (iParent == NO_POS) {
+        NodeAVLDisk node = findNode(store);
+
+        if (node.iParent == NO_POS) {
             if (n != null) {
                 n = n.setParent(store, null);
             }

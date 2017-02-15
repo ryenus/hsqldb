@@ -792,8 +792,6 @@ public final class DateTimeType extends DTIType {
                 if (time != null) {
                     return time;
                 }
-
-
                 break;
 
             case Types.SQL_DATE : {
@@ -819,7 +817,8 @@ public final class DateTimeType extends DTIType {
                     return new TimestampData(seconds);
                 }
 
-                TimestampData timestamp = convertJavaTimeObject(session, a,false);
+                TimestampData timestamp = convertJavaTimeObject(session, a,
+                    false);
 
                 if (timestamp != null) {
                     return timestamp;
@@ -864,7 +863,8 @@ public final class DateTimeType extends DTIType {
                     return new TimestampData(seconds, nanos, zoneSeconds);
                 }
 
-                TimestampData timestamp = convertJavaTimeObject(session, a, true);
+                TimestampData timestamp = convertJavaTimeObject(session, a,
+                    true);
 
                 if (timestamp != null) {
                     return timestamp;
@@ -876,7 +876,6 @@ public final class DateTimeType extends DTIType {
 
         throw Error.error(ErrorCode.X_42561);
     }
-
 
 //#ifdef JAVA8
 /*
@@ -995,16 +994,18 @@ public final class DateTimeType extends DTIType {
         return null;
     }
 */
+
 //#else
-    TimestampData convertJavaTimeObject(SessionInterface session, Object a, boolean timestamp) {
+    TimestampData convertJavaTimeObject(SessionInterface session, Object a,
+                                        boolean timestamp) {
         return null;
     }
 
     TimeData convertJavaTimeObject(SessionInterface session, Object a) {
         return null;
     }
-//#endif JAVA8
 
+//#endif JAVA8
     public Object convertSQLToJavaGMT(SessionInterface session, Object a) {
 
         long millis;
@@ -1083,8 +1084,8 @@ public final class DateTimeType extends DTIType {
                 return value;
             }
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-                long millis = ((TimestampData) a).getMillis();
-                java.sql.Timestamp value = new java.sql.Timestamp(millis);
+                long               millis = ((TimestampData) a).getMillis();
+                java.sql.Timestamp value  = new java.sql.Timestamp(millis);
 
                 value.setNanos(((TimestampData) a).getNanos());
 

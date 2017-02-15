@@ -1953,10 +1953,6 @@ public class IndexAVL implements Index {
             return lastrow.getData();
         }
 
-        public boolean hasNext() {
-            return nextnode != null;
-        }
-
         private Row getNextRow() {
 
             if (nextnode == null) {

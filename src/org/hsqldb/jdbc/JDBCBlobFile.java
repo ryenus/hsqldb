@@ -41,15 +41,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.io.Reader;
+import java.io.Writer;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.FileUtil;
+import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.InOutUtil;
 import org.hsqldb.lib.KMPSearchAlgorithm;
 
@@ -74,10 +76,12 @@ import org.hsqldb.lib.KMPSearchAlgorithm;
  * </div>
  * <!-- end release-specific documentation -->
  * @author campbell-burnet@users
- * @version 2.1.1
+ * @version 2.4.0
  * @since HSQLDB 2.1
  */
 public class JDBCBlobFile implements java.sql.Blob {
+    private static final FrameworkLogger LOG = FrameworkLogger.getLog(
+            JDBCBlobFile.class);
 
     /**
      * Returns the number of bytes in the <code>BLOB</code> value
@@ -85,7 +89,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * @return length of the <code>BLOB</code> in bytes
      * @exception SQLException if there is an error accessing the
      * length of the <code>BLOB</code>
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.2
      */
@@ -95,7 +99,7 @@ public class JDBCBlobFile implements java.sql.Blob {
 
         try {
             return m_file.length();
-        } catch (Exception e) {
+        } catch (SecurityException e) {
             throw JDBCUtil.sqlException(e);
         }
     }
@@ -118,7 +122,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * @exception SQLException if there is an error accessing the
      *            <code>BLOB</code> value; if pos is less than 1 or length is
      * less than 0
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see #setBytes
      * @since JDK 1.2
@@ -136,16 +140,10 @@ public class JDBCBlobFile implements java.sql.Blob {
             baos = new ByteArrayOutputStream(initialBufferSize);
 
             InOutUtil.copy(is, baos, length);
-        } catch (SQLException ex) {
-            throw ex;
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             throw JDBCUtil.sqlException(ex);
         } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (Exception ex) {}
-            }
+            closeSafely(is);
         }
 
         return baos.toByteArray();
@@ -158,7 +156,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * @return a stream containing the <code>BLOB</code> data
      * @exception SQLException if there is an error accessing the
      *            <code>BLOB</code> value
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see #setBinaryStream
      * @since JDK 1.2
@@ -180,7 +178,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * @return the position at which the pattern appears, else -1
      * @exception SQLException if there is an error accessing the
      * <code>BLOB</code> or if start is less than 1
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.2
      */
@@ -189,31 +187,40 @@ public class JDBCBlobFile implements java.sql.Blob {
 
         if (start < 1) {
             throw JDBCUtil.outOfRangeArgument("start: " + start);
-        } else if (pattern == null || pattern.length == 0
-                   || start > length()) {
+        } else if (pattern == null || pattern.length == 0) {
             return -1L;
         }
 
+        final long length = this.length();
+
+        if (start > length || pattern.length > length || start > length
+                - pattern.length) {
+            return -1;
+        }
+
+        return position0(pattern, start);
+    }
+
+    private long position0(final byte[] pattern, final long start) throws
+            SQLException {
         InputStream is = null;
 
         try {
             is = getBinaryStream(start, Long.MAX_VALUE);
 
+            //@todo maybe single-byte encoding reader
+            //      and java.util.Scanner.findWithinHorizon.
+            //      Need to do comparative benchmark and unit
+            //      tests first.
             final long matchOffset = KMPSearchAlgorithm.search(is, pattern,
-                KMPSearchAlgorithm.computeTable(pattern));
+                    KMPSearchAlgorithm.computeTable(pattern));
 
             return (matchOffset == -1) ? -1
-                                       : start + matchOffset;
-        } catch (SQLException ex) {
-            throw ex;
-        } catch (Exception ex) {
+                    : start + matchOffset;
+        } catch (IOException ex) {
             throw JDBCUtil.sqlException(ex);
         } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (Exception ex) {}
-            }
+            closeSafely(is);
         }
     }
 
@@ -230,35 +237,42 @@ public class JDBCBlobFile implements java.sql.Blob {
      * @return the position at which the pattern begins, else -1
      * @exception SQLException if there is an error accessing the
      *            <code>BLOB</code> value or if start is less than 1
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.2
      */
     public long position(final Blob pattern,
                          final long start) throws SQLException {
 
-        long patternLength;
-
         if (start < 1) {
             throw JDBCUtil.outOfRangeArgument("start: " + start);
-        } else if ((patternLength = (pattern == null) ? 0
-                                                      : pattern.length()) == 0 || start
-                                                      > length()) {
-            return -1L;
+        }
+
+        if (pattern == null) {
+            return -1;
+        }
+
+        final long patternLength = pattern.length();
+
+        if (patternLength == 0) {
+            return -1;
         } else if (patternLength > Integer.MAX_VALUE) {
             throw JDBCUtil.outOfRangeArgument("pattern.length(): "
-                                          + patternLength);
+                    + patternLength);
         }
 
-        byte[] bytePattern;
+        final long length = this.length();
 
-        if (pattern instanceof JDBCBlob) {
-            bytePattern = ((JDBCBlob) pattern).data();
-        } else {
-            bytePattern = pattern.getBytes(1L, (int) patternLength);
+        if (start > length || patternLength > length || start > length
+                - patternLength) {
+            return -1;
         }
 
-        return position(bytePattern, start);
+        final byte[] bytePattern = (pattern instanceof JDBCBlob)
+                ? ((JDBCBlob) pattern).data()
+                : pattern.getBytes(1L, (int) patternLength);
+
+        return position0(bytePattern, start);
     }
 
     // -------------------------- JDBC 3.0 -----------------------------------
@@ -300,7 +314,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * @return the number of bytes written
      * @exception SQLException if there is an error accessing the
      *            <code>BLOB</code> value or if pos is less than 1
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see #getBytes
      * @since JDK 1.4
@@ -354,7 +368,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * @return the number of bytes written
      * @exception SQLException if there is an error accessing the
      *            <code>BLOB</code> value or if pos is less than 1
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see #getBytes
      * @since JDK 1.4
@@ -370,12 +384,10 @@ public class JDBCBlobFile implements java.sql.Blob {
 
         try {
             os.write(bytes, offset, len);
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             throw JDBCUtil.sqlException(ex);
         } finally {
-            try {
-                os.close();
-            } catch (Exception ex) {}
+            closeSafely(os);
         }
 
         return len;
@@ -406,7 +418,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * To propagate the updated Blob value to a database, it is required to
      * supply the Blob instance to an updating or inserting setXXX method of a
      * Prepared or Callable Statement, or to supply the Blob instance to an
-     * updateXXX method of an updatable ResultSet. <p>
+     * updateXXX method of an updateable ResultSet. <p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -417,7 +429,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      *         be written
      * @exception SQLException if there is an error accessing the
      *            <code>BLOB</code> value or if pos is less than 1
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see #getBinaryStream
      * @since JDK 1.4
@@ -435,9 +447,12 @@ public class JDBCBlobFile implements java.sql.Blob {
 
         try {
             adapter = new OutputStreamAdapter(m_file, pos - 1) {
-
-                public void close() throws IOException {
-
+                private boolean closed;
+                public synchronized void close() throws IOException {
+                    if (closed) {
+                        return;
+                    }
+                    closed = true;
                     try {
                         super.close();
                     } finally {
@@ -445,7 +460,11 @@ public class JDBCBlobFile implements java.sql.Blob {
                     }
                 }
             };
-        } catch (Exception ex) {
+        } catch (IOException ex) {
+            throw JDBCUtil.sqlException(ex);
+        } catch (IllegalArgumentException ex) {
+            throw JDBCUtil.sqlException(ex);
+        } catch (SecurityException ex) {
             throw JDBCUtil.sqlException(ex);
         }
 
@@ -484,7 +503,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      *        that this <code>Blob</code> object represents should be truncated
      * @exception SQLException if there is an error accessing the
      *            <code>BLOB</code> value or if len is less than 0
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.4
      */
@@ -502,14 +521,14 @@ public class JDBCBlobFile implements java.sql.Blob {
             randomAccessFile = new RandomAccessFile(m_file, "rw");
 
             randomAccessFile.setLength(len);
-        } catch (Exception ex) {
+        } catch (IOException ex) {
+            throw JDBCUtil.sqlException(ex);
+        } catch (IllegalArgumentException ex) {
+            throw JDBCUtil.sqlException(ex);
+        } catch (SecurityException ex) {
             throw JDBCUtil.sqlException(ex);
         } finally {
-            if (randomAccessFile != null) {
-                try {
-                    randomAccessFile.close();
-                } catch (Exception ex) {}
-            }
+            closeSafely(randomAccessFile);
         }
     }
 
@@ -540,7 +559,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      *
      * @throws SQLException if an error occurs releasing
      * the Blob's resources
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @see #setDeleteOnFree(boolean)
      * @see #isDeleteOnFree()
@@ -554,36 +573,20 @@ public class JDBCBlobFile implements java.sql.Blob {
 
         m_closed = true;
 
-        final List streams = new ArrayList();
-
-        streams.addAll(m_streams);
+        final List<Object> streams = new ArrayList<Object>(m_streams);
 
         m_streams = null;
 
-        for (Iterator itr = streams.iterator(); itr.hasNext(); ) {
+        for (Iterator<Object> itr = streams.iterator(); itr.hasNext(); ) {
             final Object stream = itr.next();
 
-            if (stream instanceof InputStream) {
-                try {
-                    ((InputStream) stream).close();
-                } catch (Exception ex) {
-
-                    //
-                }
-            } else if (stream instanceof OutputStream) {
-                try {
-                    ((OutputStream) stream).close();
-                } catch (Exception ex) {
-
-                    //
-                }
-            }
+            closeSafely(stream);
         }
 
         if (m_deleteOnFree) {
             try {
                 m_file.delete();
-            } catch (Exception e) {}
+            } catch (SecurityException e) {}
         }
     }
 
@@ -599,7 +602,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * in the <code>Blob</code> or if pos + length is greater than the number of bytes
      * in the <code>Blob</code>
      *
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.6
      */
@@ -616,9 +619,13 @@ public class JDBCBlobFile implements java.sql.Blob {
 
         try {
             result = new InputStreamAdapter(m_file, pos - 1, length) {
+                private boolean closed;
 
                 public void close() throws IOException {
-
+                    if (closed) {
+                        return;
+                    }
+                    closed = true;
                     try {
                         super.close();
                     } finally {
@@ -665,18 +672,6 @@ public class JDBCBlobFile implements java.sql.Blob {
         m_deleteOnFree = deleteOnFree;
     }
 
-    /**
-     * Ensures this object is freed in response to finalization.
-     */
-    protected void finalize() throws Throwable {
-
-        try {
-            super.finalize();
-        } finally {
-            this.free();
-        }
-    }
-
     //--------------------------------------------------------------------------
     // Internal Implementation
     //--------------------------------------------------------------------------
@@ -687,7 +682,8 @@ public class JDBCBlobFile implements java.sql.Blob {
     private final File m_file;
     private boolean    m_closed;
     private boolean    m_deleteOnFree;
-    private List       m_streams = new ArrayList();
+    private List<Object> m_streams = new ArrayList<Object>();
+
 
     /**
      * Convenience constructor; equivalent to JDBCBlobFile(true);
@@ -720,7 +716,7 @@ public class JDBCBlobFile implements java.sql.Blob {
         try {
             m_file = File.createTempFile(TEMP_FILE_PREFIX,
                                          TEMP_FILE_SUFFIX).getCanonicalFile();
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             throw JDBCUtil.sqlException(ex);
         }
     }
@@ -760,11 +756,11 @@ public class JDBCBlobFile implements java.sql.Blob {
 
         try {
             m_file = file.getCanonicalFile();
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             throw JDBCUtil.sqlException(ex);
         }
 
-        checkIsFile( /*checkExists*/false);
+        checkIsFile(/*checkExists*/false);
     }
 
     protected final void checkIsFile(boolean checkExists) throws SQLException {
@@ -809,20 +805,101 @@ public class JDBCBlobFile implements java.sql.Blob {
                 FileUtil.getFileUtil().makeParentDirectories(m_file);
                 m_file.createNewFile();
             }
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             throw JDBCUtil.sqlException(ex);
         }
 
         checkIsFile( /*checkExists*/true);
     }
 
+   //<editor-fold defaultstate="collapsed" desc="JAVA 1.2 compliant closeSafely(...)">
+    private static void closeSafely(RandomAccessFile target) {
+        if (target != null) {
+            try {
+                target.close();
+            } catch (IOException ignoredIoe) {
+                LOG.info(ignoredIoe.getMessage(), ignoredIoe);
+            } catch (RuntimeException ignoredRex) {
+                LOG.info(ignoredRex.getMessage(), ignoredRex);
+            }
+        }
+    }
+
+    private static void closeSafely(InputStream target) {
+        if (target != null) {
+            try {
+                target.close();
+            } catch (IOException ignoredIoe) {
+                LOG.info(ignoredIoe.getMessage(), ignoredIoe);
+            } catch (RuntimeException ignoredRex) {
+                LOG.info(ignoredRex.getMessage(), ignoredRex);
+            }
+        }
+    }
+
+    private static void closeSafely(OutputStream target) {
+        if (target != null) {
+            try {
+                target.close();
+            } catch (IOException ignoredIoe) {
+                LOG.info(ignoredIoe.getMessage(), ignoredIoe);
+            } catch (RuntimeException ignoredRex) {
+                LOG.info(ignoredRex.getMessage(), ignoredRex);
+            }
+        }
+    }
+
+    private static void closeSafely(Reader target) {
+        if (target != null) {
+            try {
+                target.close();
+            } catch (IOException ignoredIoe) {
+                LOG.info(ignoredIoe.getMessage(), ignoredIoe);
+            } catch (RuntimeException ignoredRex) {
+                LOG.info(ignoredRex.getMessage(), ignoredRex);
+            }
+        }
+    }
+
+    private static void closeSafely(Writer target) {
+        if (target != null) {
+            try {
+                target.close();
+            } catch (IOException ignoredIoe) {
+                LOG.info(ignoredIoe.getMessage(), ignoredIoe);
+            } catch (RuntimeException ignoredRex) {
+                LOG.info(ignoredRex.getMessage(), ignoredRex);
+            }
+        }
+    }
+
+    private void closeSafely(Object target) {
+        if (target instanceof RandomAccessFile) {
+            closeSafely((RandomAccessFile) target);
+        } else if (target instanceof InputStream) {
+            closeSafely((InputStream) target);
+        } else if (target instanceof OutputStream) {
+            closeSafely((OutputStream) target);
+        } else if (target instanceof Reader) {
+            closeSafely((Reader) target);
+        } else if (target instanceof Writer) {
+            closeSafely((Writer) target);
+        }
+    }
+    //</editor-fold>
+
+    // @todo JDK7 + can use java.nio.SeekableByteChannel instead of adapters.
+
     protected static class OutputStreamAdapter extends OutputStream {
 
         private final RandomAccessFile m_randomAccessFile;
 
-        public OutputStreamAdapter(final File file,
+        protected OutputStreamAdapter(final File file,
                                    final long pos)
-                                   throws FileNotFoundException, IOException {
+                                   throws FileNotFoundException, IOException,
+                                          IllegalArgumentException,
+                                          NullPointerException,
+                                          SecurityException {
 
             if (pos < 0) {
                 throw new IllegalArgumentException("pos: " + pos);
@@ -830,7 +907,23 @@ public class JDBCBlobFile implements java.sql.Blob {
 
             m_randomAccessFile = new RandomAccessFile(file, "rw");
 
-            m_randomAccessFile.seek(pos);
+            boolean seekSucceeded = false;
+
+            try {
+                m_randomAccessFile.seek(pos);
+                seekSucceeded = true;
+            } finally {
+                if (!seekSucceeded) {
+                    closeSafely(m_randomAccessFile);
+                }
+            }
+        }
+
+        protected OutputStreamAdapter(RandomAccessFile randomAccessFile) {
+            if (randomAccessFile == null) {
+                throw new NullPointerException();
+            }
+            m_randomAccessFile = randomAccessFile;
         }
 
         public void write(int b) throws IOException {
@@ -846,7 +939,9 @@ public class JDBCBlobFile implements java.sql.Blob {
         }
 
         public void flush() throws IOException {
-            m_randomAccessFile.getFD().sync();
+            if (m_randomAccessFile.getFD().valid()) {
+                m_randomAccessFile.getFD().sync();
+            }
         }
 
         public void close() throws IOException {
@@ -856,11 +951,13 @@ public class JDBCBlobFile implements java.sql.Blob {
 
     static class InputStreamAdapter extends InputStream {
 
-        private final CountdownInputStream m_countdownInputStream;
+        private final CountdownInputStream m_ciStream;
 
         InputStreamAdapter(final File file, final long pos,
                            final long length)
-                           throws FileNotFoundException, IOException {
+                           throws FileNotFoundException, IOException,
+                                  SecurityException, NullPointerException,
+                                  IllegalArgumentException  {
 
             if (file == null) {
                 throw new NullPointerException("file");
@@ -874,10 +971,25 @@ public class JDBCBlobFile implements java.sql.Blob {
                 throw new IllegalArgumentException("length: " + length);
             }
 
-            final FileInputStream fis = new FileInputStream(file);
+            FileInputStream fis = null;
+            boolean success = false;
+            try {
+                fis = new FileInputStream(file);
 
-            if (pos > 0) {
-                final long actualPos = fis.skip(pos);
+                if (pos > 0) {
+                    // skip is a 'native' method and is likely to
+                    // be at least as efficient as RandomAccessFile.seek
+                    final long actualPos = fis.skip(pos);
+                    // Ignoring actualPos because it is 'ok' if
+                    // pos > file.length or pos > file.length - length, since
+                    // the client code ends up with an 'empty' stream (no data).
+
+                }
+                success = true;
+            } finally {
+                if (!success) {
+                    closeSafely(fis);
+                }
             }
 
             final BufferedInputStream  bis = new BufferedInputStream(fis);
@@ -885,31 +997,31 @@ public class JDBCBlobFile implements java.sql.Blob {
 
             cis.setCount(length);
 
-            m_countdownInputStream = cis;
+            m_ciStream = cis;
         }
 
         public int available() throws IOException {
-            return m_countdownInputStream.available();
+            return m_ciStream.available();
         }
 
         public int read() throws IOException {
-            return m_countdownInputStream.read();
+            return m_ciStream.read();
         }
 
         public int read(byte[] b) throws IOException {
-            return m_countdownInputStream.read(b);
+            return m_ciStream.read(b);
         }
 
         public int read(byte[] b, int off, int len) throws IOException {
-            return m_countdownInputStream.read(b, off, len);
+            return m_ciStream.read(b, off, len);
         }
 
         public long skip(long n) throws IOException {
-            return m_countdownInputStream.skip(n);
+            return m_ciStream.skip(n);
         }
 
         public void close() throws IOException {
-            m_countdownInputStream.close();
+            m_ciStream.close();
         }
     }
 }

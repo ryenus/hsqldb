@@ -1740,6 +1740,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         return t;
     }
+
     /**
      * The SYSTEM_KEY_INDEX_USAGE view has one row for each unique, primary or
      * foreign key constraint of each accessible table for which the current
