@@ -83,8 +83,8 @@ SET SCHEMA public;
 /*c1*/SELECT i, next value for ps1 FROM pt;
 SET SCHEMA bsch;
 /*c1*/SELECT i, next value for public.ps2 FROM public.pt;
--- Don't own
-/*e*/GRANT ALL ON SEQUENCE public.ps2 TO PUBLIC;
+-- Don't own - previously threw error but now adds a warning
+/*E*/GRANT ALL ON SEQUENCE public.ps2 TO PUBLIC;
 /*u0*/GRANT ALL ON SEQUENCE bsch.bs5 TO PUBLIC;
 -- By virtue of schema ownership
 /*c1*/SELECT i, next value for bs2 FROM bt;

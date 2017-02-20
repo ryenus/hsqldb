@@ -1,6 +1,6 @@
 drop table main if exists;
 drop table ref if exists;
-create table main (id int primary key, data varchar(20))
+create table main (id int primary key, data varchar(20) default'' not null)
 create table ref (id int primary key, data varchar(20) unique, ref int references main(id))
 insert into main values 10, 'data'
 insert into ref values 1, 'data', 10
@@ -75,6 +75,7 @@ insert into "testac" values default, 8
 */select * from "testac" order by "a" desc;
 --
 alter table "testac" alter column "a" drop generated;
+insert into "testac" values 9, 9
 
 -- PK definition not allowed in alter column
 /*e*/alter table "testac" alter column "a" integer primary key;
@@ -157,7 +158,7 @@ alter table "testac" drop "a";
  7
  8
  9
-*/select * from "testac";
+*/select * from "testac" order by 1;
 -- tests for changing column size
 alter table "testacc" add column "c" varchar(4) default 'aa' not null;
 update "testacc" set "c" = "c" || cast("a" as varchar(5));
