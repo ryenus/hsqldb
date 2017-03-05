@@ -95,6 +95,10 @@ public class BinaryUUIDType extends BinaryType {
         return true;
     }
 
+    public boolean isUUIDType() {
+        return true;
+    }
+
     public boolean acceptsPrecision() {
         return false;
     }

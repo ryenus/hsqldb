@@ -63,7 +63,7 @@ import org.hsqldb.Session;
  * Rewritten for 1.8.0 and 2.x
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 1.7.2
  */
 public class DataFileCache {

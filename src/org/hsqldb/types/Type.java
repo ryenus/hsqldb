@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -417,6 +417,10 @@ public abstract class Type implements SchemaObject, Cloneable {
         return false;
     }
 
+    public boolean isTimestampType() {
+        return false;
+    }
+
     public boolean isIntervalType() {
         return false;
     }
@@ -430,6 +434,10 @@ public abstract class Type implements SchemaObject, Cloneable {
     }
 
     public boolean isBinaryType() {
+        return false;
+    }
+
+    public boolean isUUIDType() {
         return false;
     }
 

@@ -768,7 +768,18 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         cache.writeLock.lock();
 
         try {
-            initialiseTableSpace(directorySpaceManager);
+            Iterator it = spaceManagerList.values().iterator();
+
+            while (it.hasNext()) {
+                TableSpaceManagerBlocks tableSpace =
+                    (TableSpaceManagerBlocks) it.next();
+
+                if (tableSpace.getSpaceID() == DataSpaceManager
+                        .tableIdDirectory || tableSpace
+                        .getFileBlockIndex() != -1) {
+                    initialiseTableSpace(tableSpace);
+                }
+            }
         } finally {
             cache.writeLock.unlock();
         }
@@ -943,50 +954,74 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     private void initialiseTableSpace(TableSpaceManagerBlocks tableSpace) {
 
         int spaceId        = tableSpace.getSpaceID();
-        int maxFree        = 0;
         int blockIndex     = -1;
         int lastBlockIndex = tableSpace.getFileBlockIndex();
 
         if (lastBlockIndex >= 0) {
-            ba.initialise(false);
-
-            try {
-                boolean result = ba.moveToBlock(lastBlockIndex);
-
-                if (result) {
-                    if (ba.getTableId() == spaceId) {
-                        if (ba.getFreeBlockValue() > 0) {
-                            blockIndex = lastBlockIndex;
-                        }
-                    }
-                }
-            } finally {
-                ba.reset();
+            if (hasFreeSpace(spaceId, lastBlockIndex)) {
+                blockIndex = lastBlockIndex;
             }
         }
 
         if (blockIndex < 0) {
-            ba.initialise(false);
-
-            try {
-                for (; ba.nextBlockForTable(spaceId); ) {
-
-                    // find the largest free
-                    int currentFree = ba.getFreeBlockValue();
-
-                    if (currentFree > maxFree) {
-                        blockIndex = ba.currentBlockIndex;
-                        maxFree    = currentFree;
-                    }
-                }
-            } finally {
-                ba.reset();
-            }
+            blockIndex = findLargestFreeSpace(spaceId);
         }
 
         if (blockIndex < 0) {
             return;
         }
+
+        initialiseTableSpace(tableSpace, blockIndex);
+    }
+
+    private boolean hasFreeSpace(int spaceId, int blockIndex) {
+
+        ba.initialise(false);
+
+        try {
+            boolean result = ba.moveToBlock(blockIndex);
+
+            if (result) {
+                if (ba.getTableId() == spaceId) {
+                    if (ba.getFreeBlockValue() > 0) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        } finally {
+            ba.reset();
+        }
+    }
+
+    private int findLargestFreeSpace(int spaceId) {
+
+        int maxFree    = 0;
+        int blockIndex = -1;
+
+        ba.initialise(false);
+
+        try {
+            for (; ba.nextBlockForTable(spaceId); ) {
+
+                // find the largest free
+                int currentFree = ba.getFreeBlockValue();
+
+                if (currentFree > maxFree) {
+                    blockIndex = ba.currentBlockIndex;
+                    maxFree    = currentFree;
+                }
+            }
+
+            return blockIndex;
+        } finally {
+            ba.reset();
+        }
+    }
+
+    private void initialiseTableSpace(TableSpaceManagerBlocks tableSpace,
+                                      int blockIndex) {
 
         // get existing file block and initialise
         ba.initialise(true);
