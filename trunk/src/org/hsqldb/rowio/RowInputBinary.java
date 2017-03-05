@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,7 +97,8 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             super.readFully(b);
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR, "RowInputBinary");
+            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
+                              "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -106,7 +107,8 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             return super.readLong();
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR, "RowInputBinary");
+            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
+                              "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -115,7 +117,8 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             return super.readInt();
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR, "RowInputBinary");
+            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
+                              "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -124,7 +127,8 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             return super.readShort();
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR, "RowInputBinary");
+            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
+                              "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -133,7 +137,8 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             return super.readChar();
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR, "RowInputBinary");
+            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
+                              "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -142,7 +147,8 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             return super.readByte();
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR, "RowInputBinary");
+            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
+                              "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -151,7 +157,8 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
         try {
             return super.readBoolean();
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR, "RowInputBinary");
+            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
+                              "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 
@@ -176,7 +183,8 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
 
             return s;
         } catch (IOException e) {
-            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR, "RowInputBinary");
+            throw Error.error(e, ErrorCode.GENERAL_IO_ERROR,
+                              "RowInputBinary" + ' ' + getFilePosition());
         }
     }
 

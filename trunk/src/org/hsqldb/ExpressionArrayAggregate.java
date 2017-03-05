@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -340,7 +340,7 @@ public class ExpressionArrayAggregate extends Expression {
             case OpTypes.ARRAY_AGG : {
                 Object[] resultArray = new Object[array.length];
 
-                for (int i = 0; i < list.size(); i++) {
+                for (int i = 0; i < array.length; i++) {
                     Object[] row = (Object[]) array[i];
 
                     resultArray[i] = row[row.length - 1];

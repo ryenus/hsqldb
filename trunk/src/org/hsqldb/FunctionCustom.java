@@ -2587,10 +2587,7 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                if (nodes[2].dataType.typeCode != Types.SQL_DATE
-                        && nodes[2].dataType.typeCode != Types.SQL_TIMESTAMP
-                        && nodes[2].dataType.typeCode
-                           != Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
+                if (!nodes[2].dataType.isDateOrTimestampType()) {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
@@ -2607,10 +2604,7 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                if (nodes[2].dataType.typeCode != Types.SQL_DATE
-                        && nodes[2].dataType.typeCode != Types.SQL_TIMESTAMP
-                        && nodes[2].dataType.typeCode
-                           != Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
+                if (!nodes[2].dataType.isDateOrTimestampType()) {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
