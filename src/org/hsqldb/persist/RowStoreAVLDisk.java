@@ -337,7 +337,13 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
     public CachedObject getAccessor(Index key) {
 
-        NodeAVL node = (NodeAVL) accessorList[key.getPosition()];
+        int position = key.getPosition();
+
+        if (position >= accessorList.length) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
+        }
+
+        NodeAVL node = (NodeAVL) accessorList[position];
 
         if (node == null) {
             return null;

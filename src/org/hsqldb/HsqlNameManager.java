@@ -31,12 +31,12 @@
 
 package org.hsqldb;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.rights.Grantee;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Provides Name Management for SQL objects. <p>
@@ -61,7 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * than all the existing names.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.3.5
  * @since 1.7.2
  */
 public final class HsqlNameManager {
@@ -83,8 +83,8 @@ public final class HsqlNameManager {
         }
     }
 
-    private AtomicInteger serialNumber = new AtomicInteger(1);    // 0 is reserved in lookups
-    private int      sysNumber = 10000;                           // avoid name clash in older scripts
+    private AtomicLong serialNumber = new AtomicLong(1);     // 0 is reserved in lookups
+    private AtomicLong sysNumber = new AtomicLong(10000);    // avoid name clash in older scripts
     private HsqlName catalogName;
     private boolean  sqlRegularNames;
     HsqlName         subqueryTableName;
@@ -239,7 +239,7 @@ public final class HsqlNameManager {
 
         StringBuffer sb = new StringBuffer();
 
-        sb.append(name.name).append('_').append(++sysNumber);
+        sb.append(name.name).append('_').append(sysNumber.incrementAndGet());
 
         HsqlName hsqlName = new HsqlName(this, sb.toString(),
                                          SchemaObject.SPECIFIC_ROUTINE,
@@ -301,7 +301,7 @@ public final class HsqlNameManager {
                     sb.append('_');
                 }
 
-                sb.append(++sysNumber);
+                sb.append(sysNumber.incrementAndGet());
             }
         } else {
             sb.append(namepart);
@@ -370,7 +370,7 @@ public final class HsqlNameManager {
         public final int type;
 
         //
-        private final int hashCode;
+        private final long hashCode;
 
         private HsqlName(HsqlNameManager man, int type) {
 
@@ -477,8 +477,8 @@ public final class HsqlNameManager {
                 try {
                     int temp = Integer.parseInt(name.substring(length));
 
-                    if (temp > manager.sysNumber) {
-                        manager.sysNumber = temp;
+                    if (temp > manager.sysNumber.get()) {
+                        manager.sysNumber.set(temp);
                     }
                 } catch (NumberFormatException e) {}
             }
@@ -513,7 +513,7 @@ public final class HsqlNameManager {
          * hash code for this object is its unique serial number.
          */
         public int hashCode() {
-            return hashCode;
+            return (int) hashCode;
         }
 
         /**
@@ -554,10 +554,6 @@ public final class HsqlNameManager {
                    + "[this.hashCode()=" + this.hashCode + ", name=" + name
                    + ", name.hashCode()=" + name.hashCode()
                    + ", isNameQuoted=" + isNameQuoted + "]";
-        }
-
-        public int compareTo(Object o) {
-            return hashCode - o.hashCode();
         }
 
         /**
