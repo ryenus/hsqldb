@@ -324,7 +324,9 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public CachedObject getAccessor(Index key) {
 
-        NodeAVL node = (NodeAVL) accessorList[key.getPosition()];
+        int position = key.getPosition();
+
+        NodeAVL node = (NodeAVL) accessorList[position];
 
         if (node == null) {
             return null;

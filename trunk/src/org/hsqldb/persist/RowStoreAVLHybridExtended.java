@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,11 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
     public CachedObject getNewCachedObject(Session session, Object object,
                                            boolean tx) {
+
+        if (!resettingAccessor && table.getIndexCount() != indexList.length) {
+            resetAccessorKeys();
+        }
+
         return super.getNewCachedObject(session, object, tx);
     }
 
@@ -116,7 +121,15 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         }
     }
 
+    boolean resettingAccessor = false;
+
     public CachedObject getAccessor(Index key) {
+
+        if (!resettingAccessor && key.getPosition() > 0
+                && table.getIndexCount() != indexList.length) {
+            resetAccessorKeys();
+        }
+
         return super.getAccessor(key);
     }
 
@@ -128,40 +141,52 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
             return;
         }
+    }
 
-        if (isCached) {
-            resetAccessorKeysForCached(keys);
+    private void resetAccessorKeys() {
+
+        if (indexList.length == 0 || accessorList[0] == null) {
+            indexList    = table.getIndexList();
+            accessorList = new CachedObject[indexList.length];
 
             return;
         }
 
-        super.resetAccessorKeys(session, keys);
-    }
-
-    private void resetAccessorKeysForCached(Index[] keys) {
+        resettingAccessor = true;
 
         TableBase newTable = table.duplicate();
 
         newTable.persistenceId = table.persistenceId;
 
-        newTable.setIndexes(keys);
+        newTable.setIndexes(indexList);
 
         RowStoreAVLHybrid tempStore = new RowStoreAVLHybridExtended(session,
             newTable, true);
 
-        tempStore.changeToDiskTable(session);
+        if (isCached) {
+            tempStore.changeToDiskTable(session);
+        }
 
-        RowIterator iterator = rowIterator();
+        tempStore.accessorList = accessorList;
+
+        tempStore.elementCount.set(elementCount.get());
+
+        //
+        indexList    = table.getIndexList();
+        accessorList = new CachedObject[indexList.length];
+
+        elementCount.set(0);
+
+        RowIterator iterator = tempStore.rowIterator();
 
         while (iterator.next()) {
             Row row = iterator.getCurrentRow();
-            Row newRow = (Row) tempStore.getNewCachedObject(session,
-                row.getData(), false);
+            Row newRow = (Row) getNewCachedObject(session, row.getData(),
+                                                  false);
 
-            tempStore.indexRow(session, newRow);
+            indexRow(session, newRow);
         }
 
-        indexList    = keys;
-        accessorList = tempStore.accessorList;
+        resettingAccessor = false;
     }
 }
