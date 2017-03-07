@@ -26,25 +26,25 @@ public class TestWrapperIterator extends junit.framework.TestCase
 {
     public void test()
     {
-        WrapperIterator<String> iter1 = new WrapperIterator<String>();
+        WrapperIterator iter1 = new WrapperIterator();
         assertFalse( iter1.hasNext() );
 
-        WrapperIterator<String> iter2 = new WrapperIterator<String>( "tutego" );
+        WrapperIterator iter2 = new WrapperIterator( "tutego" );
         assertTrue( iter2.hasNext() );
         assertEquals( "tutego", iter2.next() );
         assertFalse( iter2.hasNext() );
 
         String[] array = { "a", "b" };
-        WrapperIterator<String> iter3 = new WrapperIterator<String>( array );
+        WrapperIterator iter3 = new WrapperIterator( array );
         assertTrue( iter3.hasNext() );
         assertEquals( "a", iter3.next() );
         assertTrue( iter3.hasNext() );
         assertEquals( "b", iter3.next() );
         assertFalse( iter3.hasNext() );
         
-        Iterator<String> iter4 = new HsqlArrayList<String>( new String[] {"a", "b"}, 2 ).iterator(); 
-        Iterator<String> iter5 = new HsqlArrayList<String>( new String[] {"c", "d"}, 2 ).iterator(); 
-        WrapperIterator<String> iter6 = new WrapperIterator<String>(iter4, iter5);
+        Iterator iter4 = new HsqlArrayList( new String[] {"a", "b"}, 2 ).iterator();
+        Iterator iter5 = new HsqlArrayList( new String[] {"c", "d"}, 2 ).iterator();
+        WrapperIterator iter6 = new WrapperIterator(iter4, iter5);
         assertEquals( "a", iter6.next() );
         assertEquals( "b", iter6.next() );
         assertEquals( "c", iter6.next() );
