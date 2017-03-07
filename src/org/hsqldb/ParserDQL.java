@@ -1212,6 +1212,7 @@ public class ParserDQL extends ParserBase {
                 if (table == null) {
                     table = readTableName(true);
                 }
+
                 if (table.isView()) {
                     table = ((View) table).newDerivedTable(session);
                 }
@@ -2757,7 +2758,7 @@ public class ParserDQL extends ParserBase {
             case Tokens.GROUP_CONCAT :
             case Tokens.ARRAY_AGG :
             case Tokens.MEDIAN :
-                e = readAggregateFunctionOrNull();           // general set function
+                e = readAggregateFunctionOrNull();    // general set function
 
                 if (e != null) {
                     return e;
@@ -3569,6 +3570,7 @@ public class ParserDQL extends ParserBase {
             case Tokens.SYSDATE :
                 function = FunctionCustom.newCustomFunction(session,
                         token.tokenString, token.tokenType);
+
                 if (function == null) {
                     return null;
                 }
@@ -4717,7 +4719,8 @@ public class ParserDQL extends ParserBase {
 
         int unionType = XreadUnionType();
 
-        if (database.sqlSyntaxDb2 || database.sqlSyntaxOra) {
+        if (database.sqlSyntaxDb2 || database.sqlSyntaxOra
+                || database.sqlSyntaxMss || database.sqlSyntaxPgs) {
             if (unionType == QueryExpression.UNION_ALL) {
                 unionType = QueryExpression.UNION;
             }
