@@ -415,13 +415,6 @@ public class ExpressionOp extends Expression {
 
                 if (node.opType == OpTypes.VALUE) {
                     setAsConstantValue(session, parent);
-
-                    node.dataType  = dataType;
-                    node.valueData = valueData;
-
-                    if (parent != null) {
-                        parent.replaceNode(this, node);
-                    }
                 } else if (nodes[LEFT].opType == OpTypes.DYNAMIC_PARAM) {
                     node.dataType = dataType;
                 }
