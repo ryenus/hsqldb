@@ -45,7 +45,7 @@ import org.hsqldb.navigator.RowIterator;
  * Implementation of PersistentStore for information schema and temp tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.5
  * @since 2.0.1
  */
 public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
@@ -64,7 +64,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
                                            boolean tx) {
 
         if (!resettingAccessor && table.getIndexCount() != indexList.length) {
-            resetAccessorKeys();
+            resetAccessorKeys(session, table.getIndexList());
         }
 
         return super.getNewCachedObject(session, object, tx);
@@ -127,7 +127,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
         if (!resettingAccessor && key.getPosition() > 0
                 && table.getIndexCount() != indexList.length) {
-            resetAccessorKeys();
+            resetAccessorKeys(session, table.getIndexList());
         }
 
         return super.getAccessor(key);
@@ -135,44 +135,43 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
     public synchronized void resetAccessorKeys(Session session, Index[] keys) {
 
-        if (indexList.length == 0 || accessorList[0] == null) {
-            indexList    = keys;
-            accessorList = new CachedObject[indexList.length];
+        resettingAccessor = true;
+        try {
+            if (indexList.length == 0 || accessorList[0] == null) {
+                indexList = keys;
+                accessorList = new CachedObject[indexList.length];
 
-            return;
+                return;
+            }
+
+            boolean result;
+
+            if (isCached) {
+                resetAccessorKeysCached(keys);
+            }
+            else {
+                super.resetAccessorKeys(session, keys);
+            }
+        } finally {
+            resettingAccessor = false;
         }
+
     }
 
-    private void resetAccessorKeys() {
-
-        if (indexList.length == 0 || accessorList[0] == null) {
-            indexList    = table.getIndexList();
-            accessorList = new CachedObject[indexList.length];
-
-            return;
-        }
-
-        resettingAccessor = true;
-
-        TableBase newTable = table.duplicate();
-
-        newTable.persistenceId = table.persistenceId;
-
-        newTable.setIndexes(indexList);
+    private void resetAccessorKeysCached(Index[] keys) {
 
         RowStoreAVLHybrid tempStore = new RowStoreAVLHybridExtended(session,
-            newTable, true);
+            table, true);
 
-        if (isCached) {
-            tempStore.changeToDiskTable(session);
-        }
+        tempStore.changeToDiskTable(session);
 
+        tempStore.indexList    = indexList;
         tempStore.accessorList = accessorList;
 
         tempStore.elementCount.set(elementCount.get());
 
         //
-        indexList    = table.getIndexList();
+        indexList    = keys;
         accessorList = new CachedObject[indexList.length];
 
         elementCount.set(0);
@@ -186,7 +185,5 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
             indexRow(session, newRow);
         }
-
-        resettingAccessor = false;
     }
 }
