@@ -407,7 +407,7 @@ public class TableBase implements Cloneable {
         return newindex;
     }
 
-    final Index createIndexStructure(HsqlName name, int[] columns,
+    public final Index createIndexStructure(HsqlName name, int[] columns,
                                      boolean[] descending,
                                      boolean[] nullsLast, boolean unique,
                                      boolean constraint, boolean forward) {
@@ -504,19 +504,6 @@ public class TableBase implements Cloneable {
             store.resetAccessorKeys(session, indexes);
 
             return;
-        }
-
-        switch (tableType) {
-
-            case TableBase.INFO_SCHEMA_TABLE :
-            case TableBase.TEMP_TABLE : {
-
-                // session may be an unregistered sys session
-                session.sessionData.persistentStoreCollection
-                    .resetAccessorKeys(session, (Table) this, indexes);
-
-                break;
-            }
         }
     }
 

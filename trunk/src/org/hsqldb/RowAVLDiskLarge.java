@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.rowio.RowInputInterface;
 /**
  * Subclass of Row huge databases. <p>
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.2.9
+ * @version 2.3.5
  * @since 2.2.9
  */
 public class RowAVLDiskLarge extends RowAVLDisk {
@@ -65,14 +65,14 @@ public class RowAVLDiskLarge extends RowAVLDisk {
      * @param in data source
      * @throws IOException
      */
-    public RowAVLDiskLarge(TableBase t, RowInputInterface in) throws IOException {
+    public RowAVLDiskLarge(PersistentStore store, RowInputInterface in) throws IOException {
 
-        super(t);
+        super(store.getTable());
 
         position    = in.getFilePosition();
         storageSize = in.getSize();
 
-        int indexcount = t.getIndexCount();
+        int indexcount = store.getAccessorKeys().length;
 
         nPrimaryNode = new NodeAVLDiskLarge(this, in, 0);
 

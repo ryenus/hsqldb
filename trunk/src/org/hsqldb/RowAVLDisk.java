@@ -95,7 +95,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.3.4
+ * @version 2.3.5
  * @since Hypersonic SQL
  */
 public class RowAVLDisk extends RowAVL {
@@ -142,14 +142,15 @@ public class RowAVLDisk extends RowAVL {
      * @param in data source
      * @throws IOException
      */
-    public RowAVLDisk(TableBase t, RowInputInterface in) throws IOException {
+    public RowAVLDisk(PersistentStore store,
+                      RowInputInterface in) throws IOException {
 
-        super(t, (Object[]) null);
+        super(store.getTable(), (Object[]) null);
 
         position    = in.getFilePosition();
         storageSize = in.getSize();
 
-        int indexcount = t.getIndexCount();
+        int indexcount = store.getAccessorKeys().length;
 
         nPrimaryNode = new NodeAVLDisk(this, in, 0);
 

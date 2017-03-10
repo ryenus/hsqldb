@@ -62,7 +62,7 @@ import org.hsqldb.types.Type;
  * Holds the data structures and methods for creation of a named database table.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {
@@ -1621,12 +1621,12 @@ public class Table extends TableBase implements SchemaObject {
 
         switch (tableType) {
 
+            case TableBase.TEMP_TABLE :
+            case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.MODULE_TABLE :
             case TableBase.FUNCTION_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.INFO_SCHEMA_TABLE :
-            case TableBase.VIEW_TABLE :
-            case TableBase.TEMP_TABLE : {
+            case TableBase.VIEW_TABLE : {
                 Index index = createIndexForColumns(session, new int[]{ col });
 
                 return index;
@@ -2110,6 +2110,7 @@ public class Table extends TableBase implements SchemaObject {
 
         return null;
     }
+
     /**
      *  Return the position of the constraint within the list
      */
@@ -2453,12 +2454,12 @@ public class Table extends TableBase implements SchemaObject {
 
         switch (tableType) {
 
+            case TableBase.TEMP_TABLE :
+            case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.MODULE_TABLE :
             case TableBase.FUNCTION_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.INFO_SCHEMA_TABLE :
-            case TableBase.VIEW_TABLE :
-            case TableBase.TEMP_TABLE : {
+            case TableBase.VIEW_TABLE : {
                 return Index.INDEX_NON_UNIQUE;
             }
         }
@@ -2467,7 +2468,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     *  Finds an existing index for a column group
+     *  Finds an existing index for a column group - for persistent tables
      */
     synchronized Index getIndexForColumns(Session session, int[] cols) {
 
@@ -2475,20 +2476,6 @@ public class Table extends TableBase implements SchemaObject {
 
         if (i > -1) {
             return indexList[i];
-        }
-
-        switch (tableType) {
-
-            case TableBase.MODULE_TABLE :
-            case TableBase.FUNCTION_TABLE :
-            case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.INFO_SCHEMA_TABLE :
-            case TableBase.VIEW_TABLE :
-            case TableBase.TEMP_TABLE : {
-                Index index = createIndexForColumns(session, cols);
-
-                return index;
-            }
         }
 
         return null;
@@ -2541,23 +2528,25 @@ public class Table extends TableBase implements SchemaObject {
             ordered);
 
         if (indexUse.length == 0) {
+            Index selected = null;
 
             // index is not full;
             switch (tableType) {
 
+                case TableBase.TEMP_TABLE :
+                case TableBase.INFO_SCHEMA_TABLE :
                 case TableBase.MODULE_TABLE :
                 case TableBase.FUNCTION_TABLE :
                 case TableBase.SYSTEM_SUBQUERY :
-                case TableBase.INFO_SCHEMA_TABLE :
-                case TableBase.VIEW_TABLE :
-                case TableBase.TEMP_TABLE : {
-                    Index selected = createIndexForColumns(session,
-                                                           set.toArray());
+                case TableBase.VIEW_TABLE : {
+                    selected = createIndexForColumns(session, set.toArray());
 
-                    if (selected != null) {
-                        indexUse = selected.asArray();
-                    }
+                    break;
                 }
+            }
+
+            if (selected != null) {
+                indexUse = selected.asArray();
             }
         }
 

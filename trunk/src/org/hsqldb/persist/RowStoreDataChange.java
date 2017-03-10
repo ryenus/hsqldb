@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ public class RowStoreDataChange extends RowStoreAVLHybrid {
     public CachedObject get(RowInputInterface in) {
 
         try {
-            return new RowDiskDataChange(session, table, in);
+            return new RowDiskDataChange(session, this, in);
         } catch (HsqlException e) {
             return null;
         } catch (IOException e1) {

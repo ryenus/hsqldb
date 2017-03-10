@@ -148,9 +148,9 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
         try {
             if (largeData) {
-                return new RowAVLDiskLarge(table, in);
+                return new RowAVLDiskLarge(this, in);
             } else {
-                return new RowAVLDisk(table, in);
+                return new RowAVLDisk(this, in);
             }
         } catch (IOException e) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
