@@ -1190,10 +1190,6 @@ public class Table extends TableBase implements SchemaObject {
         return identityColumn != -1;
     }
 
-    public long getNextIdentity() {
-        return identitySequence.peek();
-    }
-
     /**
      * Match two valid, equal length, columns arrays for type of columns for
      * referential constraints
