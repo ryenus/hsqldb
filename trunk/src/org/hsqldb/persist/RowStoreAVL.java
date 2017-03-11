@@ -346,8 +346,6 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public void resetAccessorKeys(Session session, Index[] keys) {
 
-        Index[] oldIndexList = indexList;
-
         searchCost = null;
 
         if (indexList.length == 0 || accessorList[0] == null) {
@@ -362,6 +360,7 @@ public abstract class RowStoreAVL implements PersistentStore {
             return;
         }
 
+        Index[]        oldIndexList = indexList;
         CachedObject[] oldAccessors = accessorList;
         int            limit        = indexList.length;
         int            diff         = keys.length - indexList.length;
