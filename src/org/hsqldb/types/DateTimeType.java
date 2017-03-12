@@ -103,8 +103,19 @@ public final class DateTimeType extends DTIType {
 
     public int getJDBCTypeCode() {
 
-        // JDBC numbers happen to be the same as SQL
-        return typeCode;
+        switch (typeCode) {
+
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                return Types.TIME_WITH_TIMEZONE;
+
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                return Types.TIMESTAMP_WITH_TIMEZONE;
+
+            default :
+
+                // JDBC numbers happen to be the same as SQL
+                return typeCode;
+        }
     }
 
     public Class getJDBCClass() {
@@ -115,12 +126,27 @@ public final class DateTimeType extends DTIType {
                 return java.sql.Date.class;
 
             case Types.SQL_TIME :
-            case Types.SQL_TIME_WITH_TIME_ZONE :
                 return java.sql.Time.class;
 
             case Types.SQL_TIMESTAMP :
+                return java.sql.Timestamp.class;
+
+
+//#ifdef JAVA8
+/*
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                return java.time.OffsetTime.class;
+
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                return java.time.OffsetDateTime.class;
+*/
+//#else
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                return java.sql.Time.class;
+
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return java.sql.Timestamp.class;
+//#endif JAVA8
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
@@ -135,12 +161,26 @@ public final class DateTimeType extends DTIType {
                 return "java.sql.Date";
 
             case Types.SQL_TIME :
-            case Types.SQL_TIME_WITH_TIME_ZONE :
                 return "java.sql.Time";
 
             case Types.SQL_TIMESTAMP :
+                return "java.sql.Timestamp";
+
+//#ifdef JAVA8
+/*
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                return "java.time.OffsetTime";
+
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                return "java.time.OffsetDateTime";
+*/
+//#else
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                return "java.sql.Time";
+
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return "java.sql.Timestamp";
+//#endif JAVA8
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
@@ -264,6 +304,7 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return true;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
         }
