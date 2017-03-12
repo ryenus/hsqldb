@@ -474,7 +474,7 @@ public class HsqlDateTime {
         "MMM", "MMMMM",
         "MM",
         "EEEE", "EE",
-        "'*WW'", "w", "dd", "D",
+        "'*WW'", "'*IW'", "dd", "D",
         "'*W'",
         "HH", "KK", "KK",
         "mm", "ss",
@@ -625,6 +625,21 @@ public class HsqlDateTime {
             int           dayOfYear   = cal.get(Calendar.DAY_OF_YEAR);
             int           weekOfYear  = ((dayOfYear - 1) / 7) + 1;
             StringBuilder sb          = new StringBuilder(result);
+
+            sb.replace(matchIndex, matchIndex + matchLength,
+                       String.valueOf(weekOfYear));
+
+            result = sb.toString();
+        }
+
+        matchIndex = result.indexOf("*IW");
+
+        if (matchIndex >= 0) {
+            Calendar cal         = format.getCalendar();
+            int      matchLength = 3;
+            int weekOfYear = getDateTimePart(date.getTime(),
+                                             Calendar.WEEK_OF_YEAR);
+            StringBuilder sb = new StringBuilder(result);
 
             sb.replace(matchIndex, matchIndex + matchLength,
                        String.valueOf(weekOfYear));
