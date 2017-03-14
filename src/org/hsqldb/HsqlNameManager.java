@@ -230,7 +230,7 @@ public final class HsqlNameManager {
 
             return name;
         } else {
-            return newAutoName("IDX", tableName.schema, tableName,
+            return newAutoName("IDX", constName.name, tableName.schema, tableName,
                                SchemaObject.INDEX);
         }
     }

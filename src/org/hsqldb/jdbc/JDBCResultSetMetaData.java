@@ -947,8 +947,6 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
         if (this.translateTTIType) {
             if (type.isIntervalType()) {
                 type = ((IntervalType) type).getCharacterType();
-            } else if (type.isDateTimeTypeWithZone()) {
-                type = ((DateTimeType) type).getDateTimeTypeWithoutZone();
             }
         }
 
