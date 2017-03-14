@@ -221,6 +221,10 @@ public final class HsqlNameManager {
                                            HsqlName constName,
                                            boolean useConstraint) {
 
+        if (constName == null) {
+            useConstraint = false;
+        }
+
         if (useConstraint) {
             HsqlName name = new HsqlName(this, constName.name,
                                          SchemaObject.INDEX, false);
@@ -230,8 +234,11 @@ public final class HsqlNameManager {
 
             return name;
         } else {
-            return newAutoName("IDX", constName.name, tableName.schema, tableName,
-                               SchemaObject.INDEX);
+            String constNameString = constName == null ? null
+                                                       : constName.name;
+
+            return newAutoName("IDX", constNameString, tableName.schema,
+                               tableName, SchemaObject.INDEX);
         }
     }
 

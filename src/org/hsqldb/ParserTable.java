@@ -449,7 +449,7 @@ public class ParserTable extends ParserDML {
         HsqlName indexName =
             session.database.nameManager.newConstraintIndexName(
                 table.getName(), c.getName(),
-                session.database.sqlSysIndexNames && c.getName() != null);
+                session.database.sqlSysIndexNames);
 
         c.setColumnsIndexes(table);
         table.createPrimaryKey(indexName, c.core.mainCols, true);
