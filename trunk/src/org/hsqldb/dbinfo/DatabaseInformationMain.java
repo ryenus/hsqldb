@@ -757,9 +757,6 @@ class DatabaseInformationMain extends DatabaseInformation {
                 if (translateTTI) {
                     if (type.isIntervalType()) {
                         type = ((IntervalType) type).getCharacterType();
-                    } else if (type.isDateTimeTypeWithZone()) {
-                        type = ((DateTimeType) type)
-                            .getDateTimeTypeWithoutZone();
                     }
                 }
 
@@ -952,9 +949,6 @@ class DatabaseInformationMain extends DatabaseInformation {
                 if (translateTTI) {
                     if (type.isIntervalType()) {
                         type = ((IntervalType) type).getCharacterType();
-                    } else if (type.isDateTimeTypeWithZone()) {
-                        type = ((DateTimeType) type)
-                            .getDateTimeTypeWithoutZone();
                     }
                 }
 
@@ -1711,9 +1705,6 @@ class DatabaseInformationMain extends DatabaseInformation {
                     if (translateTTI) {
                         if (type.isIntervalType()) {
                             type = ((IntervalType) type).getCharacterType();
-                        } else if (type.isDateTimeTypeWithZone()) {
-                            type = ((DateTimeType) type)
-                                .getDateTimeTypeWithoutZone();
                         }
                     }
 
@@ -2576,8 +2567,6 @@ class DatabaseInformationMain extends DatabaseInformation {
             if (translateTTI) {
                 if (type.isIntervalType()) {
                     type = ((IntervalType) type).getCharacterType();
-                } else if (type.isDateTimeTypeWithZone()) {
-                    type = ((DateTimeType) type).getDateTimeTypeWithoutZone();
                 }
             }
 
@@ -2731,8 +2720,6 @@ class DatabaseInformationMain extends DatabaseInformation {
             if (translateTTI) {
                 if (type.isIntervalType()) {
                     type = ((IntervalType) type).getCharacterType();
-                } else if (type.isDateTimeTypeWithZone()) {
-                    type = ((DateTimeType) type).getDateTimeTypeWithoutZone();
                 }
             }
 
