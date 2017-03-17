@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -210,7 +210,7 @@ public class Cache extends BaseHashMap {
             updateObjectAccessCounts();
         }
 
-        Object existing = super.addOrRemoveObject(row, row.getPos(), false);
+        Object existing = addOrRemoveObject(row, row.getPos(), false);
 
         if (existing != null) {
             dataFileCache.logSevereEvent("existing object in Cache.put() "
@@ -228,8 +228,7 @@ public class Cache extends BaseHashMap {
      */
     CachedObject release(long pos) {
 
-        CachedObject r = (CachedObject) super.addOrRemoveObject(null, pos,
-            true);
+        CachedObject r = (CachedObject) addOrRemoveObject(null, pos, true);
 
         if (r == null) {
             return null;

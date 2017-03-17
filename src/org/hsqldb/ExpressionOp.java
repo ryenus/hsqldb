@@ -122,6 +122,20 @@ public class ExpressionOp extends Expression {
     }
 
     /**
+     * creates a CONVERT expression with format
+     * when format is null, it is a simple CAST
+     */
+    ExpressionOp(Expression e, Type dataType, Expression format) {
+
+        super(OpTypes.CAST);
+
+        nodes         = new Expression[UNARY];
+        nodes[LEFT]   = e;
+        this.dataType = dataType;
+        this.alias    = e.alias;
+    }
+
+    /**
      * creates a special conversion for time / timestamp comparison
      */
     ExpressionOp(Expression e) {

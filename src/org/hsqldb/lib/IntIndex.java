@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,6 @@ public class IntIndex {
     private int           capacity;
     private boolean       sorted       = true;
     private boolean       sortOnValues = true;
-    private boolean       hasChanged;
     private final boolean fixedSize;
     private int[]         keys;
 
@@ -59,7 +58,6 @@ public class IntIndex {
         this.capacity  = capacity;
         keys           = new int[capacity];
         this.fixedSize = fixedSize;
-        hasChanged     = true;
     }
 
     public synchronized int getKey(int i) {
@@ -101,7 +99,7 @@ public class IntIndex {
         return keys;
     }
 
-    public long getTotalValues() {
+    public synchronized long getTotalValues() {
 
         long total = 0;
 
@@ -110,10 +108,6 @@ public class IntIndex {
         }
 
         return total;
-    }
-
-    public void setSize(int newSize) {
-        count = newSize;
     }
 
     /**
@@ -138,7 +132,6 @@ public class IntIndex {
             }
         }
 
-        hasChanged  = true;
         keys[count] = key;
 
         count++;
@@ -170,7 +163,6 @@ public class IntIndex {
             }
         }
 
-        hasChanged  = true;
         keys[count] = key;
 
         count++;
@@ -205,8 +197,6 @@ public class IntIndex {
         if (i == -1) {
             return false;
         }
-
-        hasChanged = true;
 
         if (count != i) {
             moveRows(i, i + 1, count - i);
@@ -243,8 +233,6 @@ public class IntIndex {
 
         int i = binarySlotSearch();
 
-        hasChanged = true;
-
         if (count != i) {
             moveRows(i, i + 1, count - i);
         }
@@ -258,6 +246,17 @@ public class IntIndex {
 
     public void clear() {
         removeAll();
+    }
+
+    public synchronized int findFirstIndexUnsorted(int value) {
+
+        for (int i = 0; i < count; i++) {
+            if (keys[i] == value) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     /**
@@ -468,7 +467,8 @@ public class IntIndex {
             indices.pop();
 
             if (end - start >= threshold) {
-                int pivot = partition(start, end, start + ((end - start) >>> 1));
+                int pivot = partition(start, end,
+                                      start + ((end - start) >>> 1));
 
                 indices.push(start, pivot - 1);
                 indices.push(pivot + 1, end);
@@ -633,7 +633,7 @@ public class IntIndex {
         capacity *= 2;
     }
 
-    public void removeRange(int start, int limit) {
+    public synchronized void removeRange(int start, int limit) {
 
         ArrayUtil.adjustArray(ArrayUtil.CLASS_CODE_INT, keys, count, start,
                               start - limit);
@@ -641,59 +641,19 @@ public class IntIndex {
         count -= (limit - start);
     }
 
-    public void removeAll() {
-
-        hasChanged = true;
+    public synchronized void removeAll() {
 
         ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_INT, keys, 0, count);
 
         count = 0;
     }
 
-    public void copyTo(IntIndex other) {
-        System.arraycopy(keys, 0, other.keys, 0, count);
-        other.setSize(count);
-    }
-
     public final synchronized void remove(int position) {
-
-        hasChanged = true;
 
         moveRows(position + 1, position, count - position - 1);
 
         count--;
 
-        keys[count]   = 0;
-    }
-
-    /**
-     * peek the key at top of stack. Uses the data structure as a stack.
-     * @return int key
-     */
-    private int peek() {
-        return getKey(count - 1);
-    }
-
-    /**
-     * pop the pair at top of stack
-     * @return boolean if there was an element
-     */
-    private boolean pop() {
-
-        if (count > 0) {
-            count--;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * push key, value pair
-     * @return boolean true if successful
-     */
-    private boolean push(int key) {
-        return addUnsorted(key);
+        keys[count] = 0;
     }
 }
