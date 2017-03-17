@@ -5382,6 +5382,7 @@ public class ParserDQL extends ParserBase {
     private Expression readConvertExpressionOrNull() {
 
         Expression e;
+        Expression mode = null;
         Type       typeObject;
         int        position = getPosition();
 
@@ -5399,6 +5400,10 @@ public class ParserDQL extends ParserBase {
             readThis(Tokens.COMMA);
 
             e = XreadValueExpressionOrNull();
+
+            if (readIfThis(Tokens.COMMA)) {
+                mode = this.XreadSimpleValueSpecificationOrNull();
+            }
         } else {
             e = XreadValueExpressionOrNull();
 
@@ -5413,10 +5418,10 @@ public class ParserDQL extends ParserBase {
             }
         }
 
-        if (e.isUnresolvedParam()) {
+        if (e.isUnresolvedParam() && mode == null) {
             e.setDataType(session, typeObject);
         } else {
-            e = new ExpressionOp(e, typeObject);
+            e = new ExpressionOp(e, typeObject, mode);
         }
 
         readThis(Tokens.CLOSEBRACKET);

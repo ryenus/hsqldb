@@ -1128,7 +1128,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[iuname]    = s.getUsername();
             row[iis_admin] = s.isAdmin() ? Boolean.TRUE
                                          : Boolean.FALSE;
-            row[iautocmt]  = Boolean.valueOf(s.sessionContext.isAutoCommit);
+            row[iautocmt]  = s.sessionContext.isAutoCommit;
             row[ireadonly] = Boolean.valueOf(s.isReadOnlyDefault);
 
             Number lastId = s.getLastIdentity();
