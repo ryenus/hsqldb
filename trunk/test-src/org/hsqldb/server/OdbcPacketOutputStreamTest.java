@@ -281,7 +281,7 @@ public class OdbcPacketOutputStreamTest extends BaseTestCase {
         /** TODO:  Test high-order characters */
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        String testString1 = "Ein groß Baum\nwith blossom";
+        String testString1 = "Ein gro\u00df Baum\nwith blossom";
         String testString2 = "Another string";
         targetPacket.write(testString1, false);
         targetPacket.write(testString2, false);
@@ -308,7 +308,7 @@ public class OdbcPacketOutputStreamTest extends BaseTestCase {
         /** TODO:  Test high-order characters */
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        String testString1 = "Ein groß Baum\nwith blossom";
+        String testString1 = "Ein gro\u00df Baum\nwith blossom";
         String testString2 = "Another string";
         targetPacket.write(testString1, true);
         targetPacket.write(testString2, true);
@@ -354,7 +354,7 @@ public class OdbcPacketOutputStreamTest extends BaseTestCase {
         /** TODO:  Test high-order characters */
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        String testString1 = "Ein groß Baum\nwith blossom";
+        String testString1 = "Ein gro\u00df Baum\nwith blossom";
         String testString2 = "Another string";
         targetPacket.writeSized(testString1);
         int str2BytePos = targetPacket.getSize();
