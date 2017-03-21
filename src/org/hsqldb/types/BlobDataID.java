@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import org.hsqldb.result.ResultLob;
  * Locator for BLOB.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class BlobDataID implements BlobData {
@@ -87,6 +87,16 @@ public class BlobDataID implements BlobData {
     }
 
     public byte[] getBytes(SessionInterface session, long pos, int length) {
+
+        long blobLength = length(session);
+
+        if (pos >= blobLength) {
+            return new byte[0];
+        }
+
+        if (pos + length >= blobLength) {
+            length = (int) (blobLength - pos);
+        }
 
         ResultLob resultOut = ResultLob.newLobGetBytesRequest(id, pos, length);
         Result    resultIn  = session.execute(resultOut);
