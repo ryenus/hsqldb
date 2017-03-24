@@ -2134,7 +2134,7 @@
 
             <row>
               <entry nameend="c3" namest="c1"><para>By default, up to 2
-              billion rows can be stored in disk-based CACHED tables. Setting
+              billion rows can be stored in all disk-based CACHED tables. Setting
               this property to true increases the limit to 256 billion rows.
               This property is used as a connection
               property.</para><para><programlisting>this property cannot be set with an SQL statement - it can be used as a connection property for the connection that opens the database</programlisting></para></entry>
@@ -2272,7 +2272,7 @@
       </table>
 
       <table frame="all" pgwide="1" tocentry="1">
-        <title>Rows Cached In Memory</title>
+        <title>Unused Space Recovery</title>
 
         <tgroup align="left" cols="3">
           <colspec colname="c1" colwidth="6.5cm" />
@@ -2347,7 +2347,7 @@
             <row>
               <entry nameend="c3" namest="c1"><para>Indicates the maximum
               number of rows of cached tables that are held in
-              memory.</para><para>The value can range between 100- 4 billion.
+              memory.</para><para>The value can range between 100- 4 million.
               If the value is set via SET FILES CACHE ROWS then it becomes
               effective after the next database
               SHUTDOWN.</para><para><programlisting>SET FILES CACHE ROWS &lt;numeric value&gt;</programlisting></para></entry>
