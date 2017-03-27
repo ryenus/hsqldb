@@ -341,7 +341,7 @@ import org.xml.sax.SAXException;
  * </div>
  * <!-- end release-specific documentation -->
  *
- * @author campbell-burnet@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @see javax.xml.parsers
  * @see javax.xml.stream
  * @see javax.xml.transform

@@ -76,7 +76,7 @@ import java.util.Arrays;
  *
  * @see java.sql.DatabaseMetaData
  * @since JDK 1.6, HSQLDB 2.0
- * @author campbell-burnet@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 public final class JDBCRowId implements RowId {
 
