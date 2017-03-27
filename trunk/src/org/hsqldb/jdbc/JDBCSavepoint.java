@@ -64,7 +64,7 @@ import java.sql.Savepoint;
  * <!-- end release-specific documentation -->
  *
  *
- * @author campbell-burnet@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @since JDK 1.4, HSQLDB 1.7.2
  */
 public class JDBCSavepoint implements Savepoint {

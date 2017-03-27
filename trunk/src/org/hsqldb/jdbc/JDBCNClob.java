@@ -67,7 +67,7 @@ import java.sql.NClob;
  * <!-- end Release-specific documentation -->
  *
  * @since JDK 1.6, HSQLDB 2.0
- * @author campbell-burnet@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @see JDBCClob
  * @see JDBCClobClient
  */
