@@ -176,6 +176,9 @@ public class Expression implements Cloneable {
     //
     int queryTableColumnIndex = -1;    // >= 0 when it is used for order by
 
+    // self position in the result table
+    int resultTableColumnIndex = -1;
+
     // index of a session-dependent field
     int parameterIndex = -1;
 
@@ -660,6 +663,7 @@ public class Expression implements Cloneable {
         }
 
         switch (opType) {
+
             case OpTypes.FUNCTION :
             case OpTypes.SQL_FUNCTION :
                 if (nodes.length == 0) {
@@ -748,7 +752,7 @@ public class Expression implements Cloneable {
     }
 
     Expression replaceExpressions(OrderedHashSet expressions,
-                                  HsqlList replacements) {
+                                  int resultRangePosition) {
 
         if (opType == OpTypes.VALUE) {
             return this;
@@ -758,12 +762,14 @@ public class Expression implements Cloneable {
             return this;
         }
 
-        int index = expressions.getIndex(this);
+        Expression exp = (Expression) expressions.get(this);
 
-        if (index != -1) {
-            Expression e = (Expression) replacements.get(index);
+        if (exp != null) {
+            Expression col = new ExpressionColumn(this,
+                                                  exp.resultTableColumnIndex,
+                                                  resultRangePosition);
 
-            return e;
+            return col;
         }
 
         for (int i = 0; i < nodes.length; i++) {
@@ -771,13 +777,14 @@ public class Expression implements Cloneable {
                 continue;
             }
 
-            nodes[i] = nodes[i].replaceExpressions(expressions, replacements);
+            nodes[i] = nodes[i].replaceExpressions(expressions,
+                                                   resultRangePosition);
         }
 
         if (table != null) {
             if (table.queryExpression != null) {
                 table.queryExpression.replaceExpressions(expressions,
-                        replacements);
+                        resultRangePosition);
             }
         }
 

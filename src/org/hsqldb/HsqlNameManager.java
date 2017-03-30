@@ -69,7 +69,7 @@ public final class HsqlNameManager {
     private static final HsqlNameManager staticManager = new HsqlNameManager();
 
     static {
-        staticManager.serialNumber.set(Integer.MIN_VALUE);
+        staticManager.serialNumber.set(Long.MIN_VALUE);
     }
 
     private static final HsqlName[] autoColumnNames       = new HsqlName[32];

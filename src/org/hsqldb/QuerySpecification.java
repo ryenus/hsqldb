@@ -34,7 +34,6 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
-import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.RangeVariable.RangeIteratorRight;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -1352,6 +1351,9 @@ public class QuerySpecification extends QueryExpression {
 
         for (int i = indexStartAggregates; i < indexLimitExpressions; i++) {
             Expression e = exprColumns[i];
+
+            e.resultTableColumnIndex = i;
+
             Expression c = new ExpressionColumn(e, i, resultRangePosition);
 
             if (expressions.add(e)) {
@@ -1365,6 +1367,8 @@ public class QuerySpecification extends QueryExpression {
             }
 
             Expression e = exprColumns[i];
+
+            e.resultTableColumnIndex = i;
 
             if (expressions.add(e)) {
                 Expression c = new ExpressionColumn(e, i, resultRangePosition);
@@ -1399,14 +1403,14 @@ public class QuerySpecification extends QueryExpression {
 
             aggregateCheck[i] = true;
             exprColumns[i] = e.replaceExpressions(expressions,
-                                                  columnExpressions);
+                                                  resultRangePosition);
         }
 
         if (resolvedSubqueryExpressions != null) {
             for (int i = 0; i < resolvedSubqueryExpressions.size(); i++) {
                 Expression e = (Expression) resolvedSubqueryExpressions.get(i);
 
-                e.replaceExpressions(expressions, columnExpressions);
+                e.replaceExpressions(expressions, resultRangePosition);
             }
         }
     }
@@ -2534,25 +2538,26 @@ public class QuerySpecification extends QueryExpression {
     }
 
     public void replaceExpressions(OrderedHashSet expressions,
-                                   HsqlList replacements) {
+                                   int resultRangePosition) {
 
         for (int i = 0; i < indexStartAggregates; i++) {
             exprColumns[i] = exprColumns[i].replaceExpressions(expressions,
-                    replacements);
+                    resultRangePosition);
         }
 
         if (queryCondition != null) {
             queryCondition = queryCondition.replaceExpressions(expressions,
-                    replacements);
+                    resultRangePosition);
         }
 
         if (havingCondition != null) {
             havingCondition = havingCondition.replaceExpressions(expressions,
-                    replacements);
+                    resultRangePosition);
         }
 
         for (int i = 0, len = rangeVariables.length; i < len; i++) {
-            rangeVariables[i].replaceExpressions(expressions, replacements);
+            rangeVariables[i].replaceExpressions(expressions,
+                                                 resultRangePosition);
         }
     }
 
