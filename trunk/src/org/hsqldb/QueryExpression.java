@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1130,9 +1130,12 @@ public class QueryExpression implements RangeGroup {
      * non-working temp code for replacing aggregate functions with simple column
      */
     public void replaceExpressions(OrderedHashSet expressions,
-                                   HsqlList replacements) {
-        leftQueryExpression.replaceExpressions(expressions, replacements);
-        rightQueryExpression.replaceExpressions(expressions, replacements);
+                                   int resultRangePosition) {
+
+        leftQueryExpression.replaceExpressions(expressions,
+                                               resultRangePosition);
+        rightQueryExpression.replaceExpressions(expressions,
+                resultRangePosition);
     }
 
     public void setAsExists() {}

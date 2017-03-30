@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import org.hsqldb.types.Type;
  * Metadata for range variables, including conditions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.5
  * @since 1.9.0
  */
 public class RangeVariable {
@@ -760,31 +760,34 @@ public class RangeVariable {
     }
 
     public void replaceExpressions(OrderedHashSet expressions,
-                                   HsqlList replacements) {
+                                   int resultRangePosition) {
 
         QueryExpression queryExpression = rangeTable.getQueryExpression();
         Expression      dataExpression  = rangeTable.getDataExpression();
 
         if (dataExpression != null) {
             dataExpression = dataExpression.replaceExpressions(expressions,
-                    replacements);
+                    resultRangePosition);
         }
 
         if (queryExpression != null) {
-            queryExpression.replaceExpressions(expressions, replacements);
+            queryExpression.replaceExpressions(expressions,
+                                               resultRangePosition);
         }
 
         if (joinCondition != null) {
             joinCondition = joinCondition.replaceExpressions(expressions,
-                    replacements);
+                    resultRangePosition);
         }
 
         for (int i = 0; i < joinConditions.length; i++) {
-            joinConditions[i].replaceExpressions(expressions, replacements);
+            joinConditions[i].replaceExpressions(expressions,
+                                                 resultRangePosition);
         }
 
         for (int i = 0; i < whereConditions.length; i++) {
-            whereConditions[i].replaceExpressions(expressions, replacements);
+            whereConditions[i].replaceExpressions(expressions,
+                                                  resultRangePosition);
         }
     }
 
@@ -2188,14 +2191,13 @@ public class RangeVariable {
         }
 
         private void replaceExpressions(OrderedHashSet expressions,
-                                        HsqlList replacements) {
+                                        int resultRangePosition) {
 
             if (indexCond != null) {
                 for (int i = 0; i < indexCond.length; i++) {
                     if (indexCond[i] != null) {
-                        indexCond[i] =
-                            indexCond[i].replaceExpressions(expressions,
-                                                            replacements);
+                        indexCond[i] = indexCond[i].replaceExpressions(
+                            expressions, resultRangePosition);
                     }
                 }
             }
@@ -2203,9 +2205,8 @@ public class RangeVariable {
             if (indexEndCond != null) {
                 for (int i = 0; i < indexEndCond.length; i++) {
                     if (indexEndCond[i] != null) {
-                        indexEndCond[i] =
-                            indexEndCond[i].replaceExpressions(expressions,
-                                                               replacements);
+                        indexEndCond[i] = indexEndCond[i].replaceExpressions(
+                            expressions, resultRangePosition);
                     }
                 }
             }
@@ -2213,25 +2214,25 @@ public class RangeVariable {
             if (indexEndCondition != null) {
                 indexEndCondition =
                     indexEndCondition.replaceExpressions(expressions,
-                        replacements);
+                        resultRangePosition);
             }
 
             if (excludeConditions != null) {
                 excludeConditions =
                     excludeConditions.replaceExpressions(expressions,
-                        replacements);
+                        resultRangePosition);
             }
 
             if (nonIndexCondition != null) {
                 nonIndexCondition =
                     nonIndexCondition.replaceExpressions(expressions,
-                        replacements);
+                        resultRangePosition);
             }
 
             if (terminalCondition != null) {
                 terminalCondition =
                     terminalCondition.replaceExpressions(expressions,
-                        replacements);
+                        resultRangePosition);
             }
         }
     }
