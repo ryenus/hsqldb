@@ -224,6 +224,82 @@
       </example>
     </section>
 
+    <section xml:id="dec_nio_access">
+      <title>Using NIO File Access</title>
+
+      <para>This method of file access uses the operating system's
+      memory-mapped file buffer for the <literal>.data</literal> file. For
+      larger databases with CACHED tables, use of nio improves database access
+      speed significantly. Performance improvements can be tenfold or even
+      higher. By default, NIO is used for .data files from 16 MB up to 256 MB.
+      You can increase the limit with the <literal>SET FILES NIO SIZE
+      &lt;value&gt;</literal> statement. There should be enough RAM available
+      to accommodate the memory mapped buffers. For vary large nio usage, a 64
+      bit JVM must be used. The memory is not taken from the JVM memory
+      allocation, therefore there is no need to increase the -Xmx parameter of
+      the JVM. If not enough memory is available for the specified value, nio
+      is not used.</para>
+    </section>
+
+    <section xml:id="dec_nio_access">
+      <title>Using Table Spaces</title>
+
+      <para>Data for all CACHED tables is stored in the .data file. With new
+      optional setting, HSQLDB 2.4.0 allocates separate blocks of the data
+      file to different CACHED tables. This method has the following
+      advantages:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>When a table is dropped, all its data allocation blocks are
+          freed and become available for reuse. </para>
+        </listitem>
+
+        <listitem>
+          <para>When old rows are deleted in bulk, the space is immediately
+          released and reused.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The following statement should be executed once to start the table
+      spaces for the whole database: </para>
+
+      <para><literal>SET FILES SPACE TRUE </literal></para>
+
+      <para>Then the statement below should be executed for each CACHED table
+      that will have its own space:</para>
+
+      <para><literal>SET TABLE &lt;table name&gt; NEW SPACE</literal></para>
+
+      <para>If the above statement is not executed, the table is stored in
+      common blocks shared by a number of tables.</para>
+
+      <para>If either of the above statements is executed again after the
+      first time, it does not change any settings.</para>
+
+      <para>It is better to set any table that is known to grow larger than
+      several hundred rows its own space before any data is stored. If the
+      above commands are executed when there are already some rows in the
+      table, the existing data remains in the common space. Only the new rows
+      are stored in the table’s own space. When CHCKPOINT DEFRAG, SHUTDOWN
+      COMPACT or SHUTDOWN SCRIPT is executed, all the data is stored in the
+      table's own space.</para>
+
+      <para>The size of the file block is 2MB when the hsqldb.cache_file_scale
+      is the default 32 (the size doubles as the scale doubles). It is
+      possible to reduce the block size to 1MB for databases that contain many
+      small tables that use their own, dedicated spaces. The statement
+      <literal>SET FILES SPACE 1</literal> is be executed instead of
+      <literal>SET FILES SPACE TRUE</literal> for a reduced block size.</para>
+
+      <para>As the table grows in size, more blocks are allocated to the
+      table. These blocks are allocated from the freed file blocks if there is
+      any available. The INFORMATION_SCHEMA.SYSTEM_TABLESTATS provides
+      information on the space usage of table spaces. In this table, the
+      SPACE_ID column contains the space id for the table. This value is 7 for
+      tables that use the common space.</para>
+    </section>
+
     <section xml:id="dec_disk_space">
       <title>Disk Space</title>
 
@@ -232,6 +308,89 @@
       during operation. Spare space, at least equal to the size of the .data
       and .script file is needed. The .lobs file is not backed up during
       operation as it is not necessary for safety.</para>
+    </section>
+
+    <section xml:id="dec_no_logging">
+      <title>Using HyperSQL Without Logging Data Change</title>
+
+      <para>All file database that are not readonly, write changes to the .log
+      file. There are scenarios where writing to the .log file can be turned
+      off to improve performance, especially with larger databases. For these
+      applications you can set the property
+      <literal>hsqldb.log_data=false</literal> to disable the recovery log and
+      speed up data change performance. The equivalent SQL command is SET
+      FILES LOG FALSE.</para>
+
+      <para>With this setting, no data is logged, but all the changes to
+      cached tables are written to the .data file. To persist all the data
+      changes up to date, you can use the CHECKPOINT command. If you perform
+      SHUTDOWN, the data is also persisted correctly. If you do not use
+      CHECKPOINT or SHUTDOWN when you terminate the application, all the
+      changes are lost and the database reverts to its original state when it
+      is opened without losing any of the original data.</para>
+
+      <para>Your server applications can use a database as a temporary disk
+      data cache which is not persisted past the lifetime of the application.
+      For this usage, delete the database files when the application
+      ends.</para>
+
+      <para>On some platforms, such as embedded devices which have a reliable
+      storage device, this is also a useful option. Your application issues
+      CHECKPOINT to save the changes made so far. This method of use reduces
+      write operations on SSD devices. For this usage, the lock file should
+      also be disabled with the connection property
+      <literal>hsqldb.lock_file=false</literal>.</para>
+    </section>
+
+    <section xml:id="dec_bulk_operations">
+      <title>Bulk Inserts, Updates and Deletes</title>
+
+      <para>Bulk inserts, deletes and updates are performed with the best
+      performance with the following method. The database remains safe and
+      consistent using this method. In the event of a machine crash during the
+      operation, the database can be recovered to the point just before the
+      bulk operation.</para>
+
+      <orderedlist>
+        <listitem>
+          <para>Before the operation, execute the SET FILES LOG FALSE
+          statement.</para>
+        </listitem>
+
+        <listitem>
+          <para>Execute the CHECKPOINT statement.</para>
+        </listitem>
+
+        <listitem>
+          <para>Perform all the bulk operations, using batched prepared
+          statements. A batch size of 1000 to 10000 is adequate. Perform
+          commit after each batch.</para>
+        </listitem>
+
+        <listitem>
+          <para>After all the bulk operations are complete, execute the SET
+          FILES LOG TRUE statement.</para>
+        </listitem>
+
+        <listitem>
+          <para>Finally execute the CHECKPOINT statement.</para>
+        </listitem>
+
+        <listitem>
+          <para>If you have performed many thousands of updates or deletes
+          (not just inserts), it is a good idea to execute CHECKPOINT DEFRAG,
+          instead of CHECKPOINT at the end.</para>
+        </listitem>
+
+        <listitem>
+          <para>If things go wrong during the bulk operation, for example when
+          a unique constraint violation aborts the operation, and you want to
+          redo the whole operation, just use SHUTDOWN IMMEDIATELY instead of
+          CHECKPOINT. When you restart the database it will revert to the
+          state at the first CHECKPOINT and the bulk operation can be
+          redone.</para>
+        </listitem>
+      </orderedlist>
     </section>
   </section>
 
@@ -462,106 +621,6 @@
       number of Java class main method invocations in a single JVM. See the
       API spec for <classname xlink:href="#MainInvoker.html-link">
       MainInvoker</classname> for details on its usage.</simpara>
-    </section>
-
-    <section xml:id="dec_no_logging">
-      <title>Using HyperSQL Without Logging Data Change</title>
-
-      <para>All file database that are not readonly, write changes to the .log
-      file. There are scenarios where writing to the .log file can be turned
-      off to improve performance, especially with larger databases. For these
-      applications you can set the property
-      <literal>hsqldb.log_data=false</literal> to disable the recovery log and
-      speed up data change performance. The equivalent SQL command is SET
-      FILES LOG FALSE.</para>
-
-      <para>With this setting, no data is logged, but all the changes to
-      cached tables are written to the .data file. To persist all the data
-      changes up to date, you can use the CHECKPOINT command. If you perform
-      SHUTDOWN, the data is also persisted correctly. If you do not use
-      CHECKPOINT or SHUTDOWN when you terminate the application, all the
-      changes are lost and the database reverts to its original state when it
-      is opened without losing any of the original data.</para>
-
-      <para>Your server applications can use a database as a temporary disk
-      data cache which is not persisted past the lifetime of the application.
-      For this usage, delete the database files when the application
-      ends.</para>
-
-      <para>On some platforms, such as embedded devices which have a reliable
-      storage device, this is also a useful option. Your application issues
-      CHECKPOINT to save the changes made so far. This method of use reduces
-      write operations on SSD devices. For this usage, the lock file should
-      also be disabled with the connection property
-      <literal>hsqldb.lock_file=false</literal>.</para>
-    </section>
-
-    <section xml:id="dec_bulk_operations">
-      <title>Bulk Inserts, Updates and Deletes</title>
-
-      <para>Bulk inserts, deletes and updates are performed with the best
-      performance with the following method. The database remains safe and
-      consistent using this method. In the event of a machine crash during the
-      operation, the database can be recovered to the point just before the
-      bulk operation.</para>
-
-      <orderedlist>
-        <listitem>
-          <para>Before the operation, execute the SET FILES LOG FALSE
-          statement.</para>
-        </listitem>
-
-        <listitem>
-          <para>Execute the CHECKPOINT statement.</para>
-        </listitem>
-
-        <listitem>
-          <para>Perform all the bulk operations, using batched prepared
-          statements. A batch size of 1000 to 10000 is adequate. Perform
-          commit after each batch.</para>
-        </listitem>
-
-        <listitem>
-          <para>After all the bulk operations are complete, execute the SET
-          FILES LOG TRUE statement.</para>
-        </listitem>
-
-        <listitem>
-          <para>Finally execute the CHECKPOINT statement.</para>
-        </listitem>
-
-        <listitem>
-          <para>If you have performed many thousands of updates or deletes
-          (not just inserts), it is a good idea to execute CHECKPOINT DEFRAG,
-          instead of CHECKPOINT at the end.</para>
-        </listitem>
-
-        <listitem>
-          <para>If things go wrong during the bulk operation, for example when
-          a unique constraint violation aborts the operation, and you want to
-          redo the whole operation, just use SHUTDOWN IMMEDIATELY instead of
-          CHECKPOINT. When you restart the database it will revert to the
-          state at the first CHECKPOINT and the bulk operation can be
-          redone.</para>
-        </listitem>
-      </orderedlist>
-    </section>
-
-    <section xml:id="dec_nio_access">
-      <title>Using NIO File Access</title>
-
-      <para>This method of file access uses the operating system's
-      memory-mapped file buffer for the <literal>.data</literal> file. For
-      larger databases with CACHED tables, use of nio improves database access
-      speed significantly. Performance improvements can be tenfold or even
-      higher. By default, NIO is used for .data files from 16 MB up to 256 MB.
-      You can increase the limit with the <literal>SET FILES NIO SIZE
-      &lt;value&gt;</literal> statement. There should be enough RAM available
-      to accommodate the memory mapped buffers. For vary large nio usage, a 64
-      bit JVM must be used. The memory is not taken from the JVM memory
-      allocation, therefore there is no need to increase the -Xmx parameter of
-      the JVM. If not enough memory is available for the specified value, nio
-      is not used.</para>
     </section>
 
     <section xml:id="dec_server_db">
