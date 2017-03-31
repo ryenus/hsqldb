@@ -1,4 +1,4 @@
-24 January 
+31 March 2017 - release candidate
 -- added support for new JAVA 8 JDBC methods to ResultSet and Statement classes
 -- added support for several functions SINH COSH TANH NEXT_DAY DATEPART DATENAME EOMONTH NEWID SYS_GUID
 -- added support for execution of DDL statements concurrently with other transactions
@@ -15,6 +15,7 @@
 -- fixed issue with dropping indexes and constraints in MEMORY tables
 -- fixed issue with queries on DECIMAL or NUMERIC columns containing very large values
 -- fixed issue with ResultSet when calling next() multiple times was not followed by a get(...) call
+-- fixed issue with temp table indexes
 -- core code refactor of iterator for rows of tables and results
 -- fixed several minor bugs
 
