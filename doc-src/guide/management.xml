@@ -1487,7 +1487,7 @@
 
       <simpara>This property is <literal>FALSE</literal> by default. SQL
       Standard and JDBC require restriction to a single statement. It is
-      advisable to restrict execution. </simpara>
+      advisable to restrict execution.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2057,19 +2057,19 @@
 
       <simpara><emphasis>set database sql sys index names</emphasis></simpara>
 
-      <simpara><literal>&lt;set database sql sys table names statement&gt; ::= SET
-      DATABASE SQL SYS INDEX NAMES { TRUE | FALSE }</literal></simpara>
+      <simpara><literal>&lt;set database sql sys table names statement&gt; ::=
+      SET DATABASE SQL SYS INDEX NAMES { TRUE | FALSE }</literal></simpara>
 
       <simpara>This property, when set TRUE, changes the naming method for
-	  system generated indexes that are used to back constraints. By default,
-	  the names of those indexes are generated as strings with SYS_ prefixes.
-	  When the property is set TRUE, the names will be the same as the constraint
-	  names.</simpara>
- 
-      <simpara>Changing the property does not affect the names of indexes for tha
-	  constraints that have already been defined. After a restart of the database
-	  all system-generated indexes are named according to the setting for
-	  this property.</simpara>
+      system generated indexes that are used to back constraints. By default,
+      the names of those indexes are generated as strings with SYS_ prefixes.
+      When the property is set TRUE, the names will be the same as the
+      constraint names.</simpara>
+
+      <simpara>Changing the property does not affect the names of indexes for
+      tha constraints that have already been defined. After a restart of the
+      database all system-generated indexes are named according to the setting
+      for this property.</simpara>
 
       <simpara>The property is <literal>FALSE</literal> by default.</simpara>
 
@@ -2078,7 +2078,7 @@
 
       <simpara>This is equivalent to the connection property
       <literal>sql.sys_index_names</literal>.</simpara>
-	  
+
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE SQL SYNTAX DB2</primary>
       </indexterm>
@@ -2633,6 +2633,44 @@
       default is text. Using COMPRESSED results in the storage of the .script
       file in gzip compressed form. Using this command causes a
       CHECKPOINT.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES SPACE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET FILES SPACE</emphasis></simpara>
+
+      <simpara><emphasis>set files space</emphasis></simpara>
+
+      <simpara><literal>&lt;set files space statement&gt; ::= SET FILES SPACE
+      TRUE</literal></simpara>
+
+      <simpara>Enables use of table spaces for CACHED tables. Each table is
+      allocated space in blocks. The size of each block in mega bytes is equal
+      to the data file scale divided by 16. The default data file scale is 32
+      so the default size of each block is 2 MB. See the SET TABLE NEW SPACE
+      statement below.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE NEW SPACE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE NEW SPACE</emphasis></simpara>
+
+      <simpara><emphasis>set table new space</emphasis></simpara>
+
+      <simpara><literal>&lt;set table new space statement&gt; ::= SET TABLE
+      &lt;table name&gt; NEW SPACE</literal></simpara>
+
+      <simpara>Sets the named table to use it's own space blocks within the
+      .data file. Use of table spaces should be enabled with the SET FILES
+      SPACE statement above, before this statement is executed.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
