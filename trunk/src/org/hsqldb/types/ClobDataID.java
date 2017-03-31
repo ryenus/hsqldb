@@ -137,6 +137,10 @@ public class ClobDataID implements ClobData {
 
     public void truncate(SessionInterface session, long len) {
 
+        if (len >= length(session)) {
+            return;
+        }
+
         ResultLob resultOut = ResultLob.newLobTruncateRequest(id, len);
         Result    resultIn  = session.execute(resultOut);
 
