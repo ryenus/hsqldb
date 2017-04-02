@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -155,7 +155,7 @@ public class JDBCXAResource implements XAResource {
      *
      * @param xid Xid
      * @param onePhase boolean
-     * @throws XAException
+     * @throws XAException on error
      */
     public void commit(Xid xid, boolean onePhase) throws XAException {
 
@@ -251,7 +251,7 @@ public class JDBCXAResource implements XAResource {
      *
      * @see javax.transaction.xa.XAResource#forget(Xid)
      * @param xid Xid
-     * @throws XAException
+     * @throws XAException on error
      */
     public void forget(Xid xid) throws XAException {
 
@@ -276,8 +276,7 @@ public class JDBCXAResource implements XAResource {
 
     /**
      *
-     * @todo: Implement
-     * @throws XAException
+     * @throws XAException on error
      * @return int
      */
     public int getTransactionTimeout() throws XAException {
@@ -288,9 +287,9 @@ public class JDBCXAResource implements XAResource {
      * Stub. See implementation comment in the method for why this is not
      * implemented yet.
      *
-     * @return false.
      * @param xares XAResource
-     * @throws XAException
+     * @return false.
+     * @throws XAException on error
      */
     public boolean isSameRM(XAResource xares) throws XAException {
 
@@ -358,7 +357,7 @@ public class JDBCXAResource implements XAResource {
      * XADataSource.
      *
      * @param flag int
-     * @throws XAException
+     * @throws XAException on error
      * @return Xid[]
      */
     public Xid[] recover(int flag) throws XAException {
@@ -371,7 +370,7 @@ public class JDBCXAResource implements XAResource {
      * object.
      *
      * @param xid Xid
-     * @throws XAException
+     * @throws XAException on error
      */
     public void rollback(Xid xid) throws XAException {
 
@@ -418,9 +417,8 @@ public class JDBCXAResource implements XAResource {
 
     /**
      *
-     * @todo: Implement
      * @param seconds int
-     * @throws XAException
+     * @throws XAException on error
      * @return boolean
      */
     public boolean setTransactionTimeout(int seconds) throws XAException {
