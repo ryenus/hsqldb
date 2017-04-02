@@ -292,7 +292,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @param max the new column size limit in bytes; zero means there is no limit
      * @exception SQLException if a database access error occurs,
      * this method is called on a closed <code>Statement</code>
-     *            or the condition max >= 0 is not satisfied
+     *            or the condition {@code max >= 0} is not satisfied
      * @see #getMaxFieldSize
      */
     public void setMaxFieldSize(int max) throws SQLException {
@@ -339,7 +339,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @param max the new max rows limit; zero means there is no limit
      * @exception SQLException if a database access error occurs,
      * this method is called on a closed <code>Statement</code>
-     *            or the condition max >= 0 is not satisfied
+     *            or the condition {@code max >= 0} is not satisfied
      * @see #getMaxRows
      */
     public synchronized void setMaxRows(int max) throws SQLException {
@@ -429,7 +429,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      *        there is no limit
      * @exception SQLException if a database access error occurs,
      * this method is called on a closed <code>Statement</code>
-     *            or the condition seconds >= 0 is not satisfied
+     *            or the condition {@code seconds >= 0} is not satisfied
      * @see #getQueryTimeout
      */
     public void setQueryTimeout(int seconds) throws SQLException {
@@ -672,9 +672,9 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      *
      * <P>There are no more results when the following is true:
      * <PRE>
-     *     // stmt is a Statement object
+     *     // stmt is a Statement object {@code
      *     ((stmt.getMoreResults() == false) && (stmt.getUpdateCount() == -1))
-     * </PRE>
+     * }</PRE>
      * <!-- end generic documentation -->
      *
      * @return <code>true</code> if the next result is a <code>ResultSet</code>
@@ -708,6 +708,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB accepts all valid parameters. <p>
+     * </div>
      * <!-- end release-specific documentation -->
      *
      * @param direction the initial direction for processing rows
@@ -793,7 +794,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @exception SQLException if a database access error occurs,
      * this method is called on a closed <code>Statement</code> or the
      *        (JDBC4 modified:)
-     *        condition  <code>rows >= 0</code> is not satisfied.
+     *        condition  {@code rows >= 0} is not satisfied.
      * @since JDK 1.2
      * @see #getFetchSize
      */
@@ -998,7 +999,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <code>BatchUpdateException.getUpdateCounts</code>
      * will contain as many elements as there are commands in the batch, and
      * at least one of the elements will be the following:
-     * <P>
+     *
      * <LI>A value of <code>EXECUTE_FAILED</code> -- indicates that the command failed
      * to execute successfully and occurs only if a driver continues to
      * process commands after a command fails
@@ -1118,9 +1119,9 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      *
      * <P>There are no more results when the following is true:
      * <PRE>
-     *     // stmt is a Statement object
+     *     // stmt is a Statement object{@code
      *     ((stmt.getMoreResults(current) == false) && (stmt.getUpdateCount() == -1))
-     * </PRE>
+     * }</PRE>
      * <!-- end generic documentation -->
      *
      * <!-- start release-specific documentation -->

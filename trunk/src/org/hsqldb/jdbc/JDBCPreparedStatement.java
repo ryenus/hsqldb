@@ -44,6 +44,7 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.DatabaseMetaData;
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
@@ -1215,7 +1216,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * length. <p>
      *
      * For BINARY and VARBINARY parameter types setBlob(i,x) is roughly
-     * equivalent (null and length handling not shown) to:<p>
+     * equivalent (null and length handling not shown) to:
      *
      * <pre class="JavaCodeExample">
      * <b>setBinaryStream</b>(i, x.<b>getBinaryStream</b>(), (<span class="JavaKeyWord">int</span>) x.<b>length</b>());
@@ -1310,7 +1311,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * length. <p>
      *
      * For CHARACTER and VARCHAR parameter types setClob(i,x) is roughly
-     * equivalent (null and length handling not shown) to:<p>
+     * equivalent (null and length handling not shown) to:
      *
      * <pre class="JavaCodeExample">
      * <b>setCharacterStream</b>(i, x.<b>getCharacterStream</b>(), (<span class="JavaKeyWord">int</span>) x.<b>length</b>());
@@ -1835,7 +1836,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <code>BatchUpdateException.getUpdateCounts</code>
      * will contain as many elements as there are commands in the batch, and
      * at least one of the elements will be the following:
-     * <P>
      * <LI>A value of <code>EXECUTE_FAILED</code> -- indicates that the command failed
      * to execute successfully and occurs only if a driver continues to
      * process commands after a command fails
@@ -1845,7 +1845,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * The possible implementations and return values have been modified in
      * the Java 2 SDK, Standard Edition, version 1.3 to
      * accommodate the option of continuing to proccess commands in a batch
-     * update after a <code>BatchUpdateException</code> object has been thrown. <p>
+     * update after a <code>BatchUpdateException</code> object has been thrown.
      * <!-- end generic documentation -->
      *
      * <!-- start release-specific documentation -->
@@ -1934,7 +1934,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
     /**
      * <!-- start generic documentation -->
-     * Sets escape processing on or off. <p>
+     * Sets escape processing on or off.
      * <!-- end generic documentation -->
      *
      * <!-- start release-specific documentation -->
@@ -2198,10 +2198,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <code>true</code> if the next result is a <code>ResultSet</code> object.
      *
      * <P>There are no more results when the following is true:
-     * <PRE>
+     * <PRE>{@code
      *     // stmt is a Statement object
      *     ((stmt.getMoreResults(current) == false) && (stmt.getUpdateCount() == -1))
-     * </PRE>
+     * }</PRE>
      * <!-- end generic documentation -->
      *
      * <!-- start release-specific documentation -->
@@ -2315,7 +2315,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * Retrieves whether this <code>Statement</code> object has been closed. A <code>Statement</code> is closed if the
      * method close has been called on it, or if it is automatically closed.
      * @return true if this <code>Statement</code> object is closed; false if it is still open
-     * @throws SQLException if a database access error occurs
      * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized boolean isClosed() {
@@ -2799,8 +2798,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <!-- start release-specific documentation -->
-     * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * This method does not use streaming to send the data,
@@ -3062,7 +3059,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @param max the new column size limit in bytes; zero means there is no limit
      * @exception SQLException if a database access error occurs,
      * this method is called on a closed <code>Statement</code>
-     *            or the condition max >= 0 is not satisfied
+     *            or the condition {@code max >= 0} is not satisfied
      * @see #getMaxFieldSize
      */
     public synchronized void setMaxFieldSize(int max) throws SQLException {
@@ -3113,7 +3110,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @param max the new max rows limit; zero means there is no limit
      * @exception SQLException if a database access error occurs,
      * this method is called on a closed <code>Statement</code>
-     *            or the condition max >= 0 is not satisfied
+     *            or the condition {@code max >= 0} is not satisfied
      * @see #getMaxRows
      */
     public synchronized void setMaxRows(int max) throws SQLException {
@@ -3184,7 +3181,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *        there is no limit
      * @exception SQLException if a database access error occurs,
      * this method is called on a closed <code>Statement</code>
-     *            or the condition seconds >= 0 is not satisfied
+     *            or the condition {@code seconds >= 0} is not satisfied
      * @see #getQueryTimeout
      */
     public synchronized void setQueryTimeout(int seconds) throws SQLException {
@@ -3398,10 +3395,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * object(s) obtained with the method <code>getResultSet</code>.
      *
      * <P>There are no more results when the following is true:
-     * <PRE>
+     * <PRE>{@code
      *     // stmt is a Statement object
      *     ((stmt.getMoreResults() == false) && (stmt.getUpdateCount() == -1))
-     * </PRE>
+     * }</PRE>
      * <!-- end generic documentation -->
      *
      * @return <code>true</code> if the next result is a <code>ResultSet</code>
@@ -3528,7 +3525,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @exception SQLException if a database access error occurs,
      * this method is called on a closed <code>Statement</code> or the
      *        (JDBC4 modified:)
-     *        condition  <code>rows >= 0</code> is not satisfied.
+     *        condition  {@code <code>rows >= 0</code>} is not satisfied.
      * @since JDK 1.2
      * @see #getFetchSize
      */

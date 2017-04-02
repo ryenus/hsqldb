@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package org.hsqldb.jdbc;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 
 //#ifdef JAVA6
@@ -62,7 +63,6 @@ import javax.sql.CommonDataSource;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.3
  * @since JDK 1.2, HSQLDB 2.0
- * @revised JDK 1.7, HSQLDB 2.0.1
  */
 //#ifdef JAVA6
 public abstract class JDBCCommonDataSource
@@ -343,7 +343,7 @@ public abstract class JDBCCommonDataSource implements Serializable {
      * In the worst case, this may be the root Logger.
      *
      * @return the parent Logger for this data source
-     * @throws SQLFeatureNotSupportedException if the data source does not use <code>java.util.logging<code>.
+     * @throws SQLFeatureNotSupportedException if the data source does not use <code>java.util.logging</code>.
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
 //#ifdef JAVA6

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package org.hsqldb.jdbc;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Wrapper;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicIntegerArray;
@@ -489,7 +490,7 @@ public class JDBCPool implements DataSource,
      * In the worst case, this may be the root Logger.
      *
      * @return the parent Logger for this data source
-     * @throws SQLFeatureNotSupportedException if the data source does not use <code>java.util.logging<code>.
+     * @throws SQLFeatureNotSupportedException if the data source does not use <code>java.util.logging</code>.
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.2.9
      */
 //#ifdef JAVA6
@@ -524,7 +525,7 @@ public class JDBCPool implements DataSource,
      * closing all existing connections in the pool.
      *
      * @param wait int number of seconds to wait before closing the connections, maximum 60 seconds
-     * @throws SQLException
+     * @throws SQLException on any error
      */
     public void close(int wait) throws SQLException {
 

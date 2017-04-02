@@ -541,7 +541,6 @@ public class JDBCBlobFile implements java.sql.Blob {
      * method other than <code>free</code> will result in a <code>SQLException</code>
      * being thrown.  If <code>free</code> is called multiple times, the subsequent
      * calls to <code>free</code> are treated as a no-op.
-     * <p>
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">

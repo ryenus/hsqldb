@@ -147,7 +147,6 @@ import org.hsqldb.types.Types;
  * For maximum portability, a call's <code>ResultSet</code> objects and
  * update counts should be processed prior to getting the values of output
  * parameters.
- * <P>
  *
  * <!-- end generic documentation -->
  *
@@ -836,7 +835,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <!-- start generic documentation -->
      *
      * Retrieves the value of the designated JDBC <code>TIMESTAMP</code>
-     * parameter as a <code>java.sql.Timestamp</code> object. <p>
+     * parameter as a <code>java.sql.Timestamp</code> object.
      *
      * <!-- end generic documentation -->
      *
@@ -4555,7 +4554,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
 //#ifdef JAVA8
 /*
-    public <T>T getObject(int columnIndex, Class<T> type) throws SQLException {
+    public <T>T getObject(int parameterIndex, Class<T> type) throws SQLException {
 
         if (type == null) {
             throw JDBCUtil.nullArgument();
@@ -4578,67 +4577,67 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         switch(type.getName()){
             case "int":
             case "java.lang.Integer":
-                o = getInt(columnIndex);
+                o = getInt(parameterIndex);
                 break;
             case "double":
             case "java.lang.Double":
-                o = getDouble(columnIndex);
+                o = getDouble(parameterIndex);
                 break;
             case "boolean":
             case "java.lang.Boolean":
-                o = getBoolean(columnIndex);
+                o = getBoolean(parameterIndex);
                 break;
             case "byte":
             case "java.lang.Byte":
-                o = getByte(columnIndex);
+                o = getByte(parameterIndex);
                 break;
             case "short":
             case "java.lang.Short":
-                o = getShort(columnIndex);
+                o = getShort(parameterIndex);
                 break;
             case "long":
             case "java.lang.Long":
-                o = getLong(columnIndex);
+                o = getLong(parameterIndex);
                 break;
             case "[B":
-                o = getBytes(columnIndex);
+                o = getBytes(parameterIndex);
                 break;
             case "java.lang.Object":
-                o = getObject(columnIndex);
+                o = getObject(parameterIndex);
                 break;
             case "java.math.BigDecimal":
-                o = getBigDecimal(columnIndex);
+                o = getBigDecimal(parameterIndex);
                 break;
             case "java.sql.Blob":
-                o = getBlob(columnIndex);
+                o = getBlob(parameterIndex);
                 break;
 
             case "java.sql.Clob":
-                o = getClob(columnIndex);
+                o = getClob(parameterIndex);
                 break;
             case "java.lang.String":
             case "java.lang.CharSequence":
-                o = getString(columnIndex);
+                o = getString(parameterIndex);
                 break;
 
             case "java.sql.Date": {
-                o = getDate(columnIndex);
+                o = getDate(parameterIndex);
                 break;
             }
             case "java.sql.Time": {
-                o = getTime(columnIndex);
+                o = getTime(parameterIndex);
                 break;
             }
             case "java.sql.Timestamp": {
-                o = getTimestamp(columnIndex);
+                o = getTimestamp(parameterIndex);
                 break;
             }
             case "java.util.UUID":
-                source = getColumnInType(columnIndex, hsqlType);
+                source = getColumnInType(parameterIndex, hsqlType);
                 o = Type.SQL_GUID.convertSQLToJava(session, source);
                 break;
             case "java.time.LocalDate": {
-                source = getColumnInType(columnIndex, hsqlType);
+                source = getColumnInType(parameterIndex, hsqlType);
                 TimestampData v = (TimestampData) source;
                 long millis = v.getMillis();
                 Calendar cal = session.getCalendarGMT();
@@ -4647,43 +4646,43 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
                 break;
             }
             case "java.time.LocalTime": {
-                source = getColumnInType(columnIndex, hsqlType);
+                source = getColumnInType(parameterIndex, hsqlType);
                 TimeData v = (TimeData) source;
                 o = LocalTime.ofNanoOfDay(v.getSeconds() * 1000_000_000L + v.getNanos());
                 break;
             }
             case "java.time.LocalDateTime": {
-                source = getColumnInType(columnIndex, hsqlType);
+                source = getColumnInType(parameterIndex, hsqlType);
                 TimestampData v = (TimestampData) source;
                 o = LocalDateTime.ofEpochSecond(v.getSeconds(), v.getNanos(), ZoneOffset.UTC);
                 break;
             }
             case "java.time.OffsetTime": {
-                o = getTimeWithZone(columnIndex);
+                o = getTimeWithZone(parameterIndex);
                 break;
             }
             case "java.time.OffsetDateTime": {
-                o = getTimestampWithZone(columnIndex);
+                o = getTimestampWithZone(parameterIndex);
                 break;
             }
             case "java.time.Duration": {
-                Type sourceType = parameterMetaData.columnTypes[columnIndex - 1];
+                Type sourceType = parameterMetaData.columnTypes[parameterIndex - 1];
 
                 if (!sourceType.isIntervalDaySecondType()) {
                     break;
                 }
-                source = getColumnInType(columnIndex, hsqlType);
+                source = getColumnInType(parameterIndex, hsqlType);
                 IntervalSecondData v = (IntervalSecondData) source;
                 o = Duration.ofSeconds(v.getSeconds(), v.getNanos());
                 break;
             }
             case "java.time.Period": {
-                Type sourceType = parameterMetaData.columnTypes[columnIndex - 1];
+                Type sourceType = parameterMetaData.columnTypes[parameterIndex - 1];
 
                 if (!sourceType.isIntervalYearMonthType()) {
                     break;
                 }
-                source = getColumnInType(columnIndex, hsqlType);
+                source = getColumnInType(parameterIndex, hsqlType);
                 IntervalMonthData v = (IntervalMonthData) source;
                 int months = v.getMonths();
 
@@ -5125,6 +5124,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @param  c the connection on which this statement will execute
      * @param sql the SQL statement this object represents
      * @param resultSetType the type of result this statement will produce
+     * @param resultSetConcurrency (updatability)
+     * @param resultSetHoldability (validity beyond commit)
      * @throws HsqlException if the statement is not accepted by the database
      * @throws SQLException if preprocessing by driver fails
      */

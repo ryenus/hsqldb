@@ -98,7 +98,6 @@ import org.hsqldb.types.Types;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.2.6
- * @revised JDK 1.6, HSQLDB 2.0
  * @see JDBCStatement#executeQuery
  * @see JDBCStatement#getResultSet
  * @see java.sql.ResultSetMetaData
@@ -330,19 +329,19 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * HSQLDB 2.0 fully supports this feature.  <p>
      *
-     * The current calculation follows these rules: <p>
+     * The current calculation follows these rules:
      *
      * <ol>
      * <li>Long character types and datetime types:<p>
      *
-     *     The maximum length/precision, repectively.<p>
+     *     The maximum length/precision, repectively.
      *
-     * <li>CHAR and VARCHAR types: <p>
+     * <li>CHAR and VARCHAR types:
      *
      *      <ul>
      *      <li> If the result set column is a direct pass through of a table
      *           column value and column size was declared, then the declared
-     *           value is returned. <p>
+     *           value is returned.
      *
      *      <li> Otherwise, the computed length according to SQL Standard is
      *           returned. For very large values, the value of the system property
@@ -359,19 +358,19 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *      and serves only as the current best effort at providing a
      *      value that maximizes usability across a wide range of tools,
      *      given that the HSQLDB database engine allows very large
-     *      lengths to be declared. <p>
+     *      lengths to be declared.
      *
      * <li>Number types: <p>
      *
      *     The max precision, plus the length of the negation character (1),
      *     plus (if applicable) the maximum number of characters that may
      *     occupy the exponent character sequence.  Note that some legacy tools
-     *     do not correctly handle BIGINT values of greater than 18 digits. <p>
+     *     do not correctly handle BIGINT values of greater than 18 digits.
      *
      * <li>BOOLEAN type: <p>
      *
      *     The length of the character sequence "false" (5), the longer of the
-     *     two boolean value String representations. <p>
+     *     two boolean value String representations.
      *
      * <li>Remaining types: <p>
      *
@@ -413,12 +412,12 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * In HSQLDB, a <code>ResultSet</code> column label is determined using the
-     * following order of precedence:<p>
+     * following order of precedence:
      *
      * <OL>
      * <LI>The label (alias) specified in the generating query.</LI>
      * <LI>The name of the underlying column, if no label is specified.<br>
-     * <L1>C1, C2, etc. for computed columns that have no label.</LI>
+     * <LI>C1, C2, etc. for computed columns that have no label.</LI>
      * </OL> <p>
      *
      * </div>
@@ -451,13 +450,13 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * In HSQLDB, a ResultSet column name is determined using the following
-     * order of precedence:<p>
+     * order of precedence:
      *
      * <OL>
      * <LI>The name of the underlying column, if the ResultSet column
      *   represents a column in a table.</LI>
      * <LI>The label or alias specified in the generating query.</LI>
-     * <L1>C1, C2, etc. for computed columns that have no label.</LI>
+     * <LI>C1, C2, etc. for computed columns that have no label.</LI>
      * </OL> <p>
      *
      * If the <code>jdbc.get_column_name</code> property of the JDBC Connection

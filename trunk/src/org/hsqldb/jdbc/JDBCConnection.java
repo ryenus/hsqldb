@@ -39,6 +39,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Savepoint;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Calendar;
@@ -166,7 +167,7 @@ import org.hsqldb.types.Type;
  *
  * To get a <code>Connection</code> to an HSQLDB database, the
  * following code may be used (updated to reflect the most recent
- * recommendations): <p>
+ * recommendations):
  *
  * <hr>
  *
@@ -174,7 +175,7 @@ import org.hsqldb.types.Type;
  * <b>'jdbc:hsqldb:'</b><p>
  *
  * Since 1.7.2, connection properties (&lt;key-value-pairs&gt;) may be appended
- * to the database connection <b>&lt;url&gt;</b>, using the form: <p>
+ * to the database connection <b>&lt;url&gt;</b>, using the form:
  *
  * <blockquote>
  *      <b>'&lt;url&gt;[;key=value]*'</b>
@@ -183,14 +184,14 @@ import org.hsqldb.types.Type;
  * Also since 1.7.2, the allowable forms of the HSQLDB database connection
  * <b>&lt;url&gt;</b> have been extended.  However, all legacy forms continue
  * to work, with unchanged semantics.  The extensions are as described in the
- * following material. <p>
+ * following material.
  *
  * <hr>
  *
  * <b>Network Server Database Connections:</b> <p>
  *
  * The {@link org.hsqldb.server.Server Server} database connection <b>&lt;url&gt;</b>
- * takes one of the two following forms: <p>
+ * takes one of the two following forms:
  *
  * <div class="GeneralExample">
  * <ol>
@@ -202,7 +203,7 @@ import org.hsqldb.types.Type;
  * </div> <p>
  *
  * The {@link org.hsqldb.server.WebServer WebServer} database connection <b>&lt;url&gt;</b>
- * takes one of two following forms: <p>
+ * takes one of two following forms:
  *
  * <div class="GeneralExample">
  * <ol>
@@ -224,14 +225,14 @@ import org.hsqldb.types.Type;
  * databases and assigning them <b>&lt;alias&gt;</b> values, please read the
  * Java API documentation for {@link org.hsqldb.server.Server Server} and related
  * chapters in the general documentation, especially the <em>Advanced Users
- * Guide</em>. <p>
+ * Guide</em>.
  *
  * <hr>
  *
  * <b>Transient, In-Process Database Connections:</b> <p>
  *
  * The 100% in-memory (transient, in-process) database connection
- * <b>&lt;url&gt;</b> takes one of the two following forms: <p>
+ * <b>&lt;url&gt;</b> takes one of the two following forms:
  *
  * <div class="GeneralExample">
  * <ol>
@@ -261,7 +262,7 @@ import org.hsqldb.types.Type;
  * <b>Persistent, In-Process Database Connections:</b> <p>
  *
  * The standalone (persistent, in-process) database connection
- * <b>&lt;url&gt;</b> takes one of the three following forms: <p>
+ * <b>&lt;url&gt;</b> takes one of the three following forms:
  *
  * <div class="GeneralExample">
  * <ol>
@@ -282,7 +283,7 @@ import org.hsqldb.types.Type;
  *
  * From 1.7.2, although other files may be involved (such as transient working
  * files and/or TEXT table CSV data source files), the essential set that may,
- * at any particular point in time, compose an HSQLDB database is: <p>
+ * at any particular point in time, compose an HSQLDB database is:
  *
  * <div class="GeneralExample">
  * <ul>
@@ -313,10 +314,10 @@ import org.hsqldb.types.Type;
  * component of <b>file:</b> protocol database connection* <b>&lt;url&gt;</b>s.
  * <p>
  *
- * Under <em>Windows</em> <sup><font size="-2">TM</font> </sup>, <b>
- * 'jdbc:hsqldb:file:c:\databases\test'</b> connects to a database located
+ * Under <em>Windows</em>,
+ * <b>'jdbc:hsqldb:file:c:\databases\test'</b> connects to a database located
  * on drive <b>'C:'</b> in the directory <b>'databases'</b>, composed
- * of some subset of the files: <p>
+ * of some subset of the files:
  *
  * <pre class="GeneralExample">
  * C:\
@@ -331,7 +332,7 @@ import org.hsqldb.types.Type;
  *
  * Under most variations of UNIX, <b>'jdbc:hsqldb:file:/databases/test'</b>
  * connects to a database located in the directory <b>'databases'</b> directly
- * under root, once again composed of some subset of the files: <p>
+ * under root, once again composed of some subset of the files:
  *
  * <pre class="GeneralExample">
  *
@@ -344,24 +345,24 @@ import org.hsqldb.types.Type;
  *    +--test.lck
  * </pre>
  *
- * <b>Some Guidelines:</b> <p>
+ * <b>Some Guidelines:</b>
  *
  * <ol>
- * <li> Both relative and absolute database file paths are supported. <p>
+ * <li> Both relative and absolute database file paths are supported.
  *
  * <li> Relative database file paths can be specified in a platform independent
- *      manner as: <b>'[dir1/dir2/.../dirn/]&lt;file-name-prefix&gt;'</b>. <p>
+ *      manner as: <b>'[dir1/dir2/.../dirn/]&lt;file-name-prefix&gt;'</b>.
  *
  * <li> Specification of absolute file paths is operating-system specific.<br>
- *      Please read your OS file system documentation. <p>
+ *      Please read your OS file system documentation.
  *
  * <li> Specification of network mounts may be operating-system specific.<br>
- *      Please read your OS file system documentation. <p>
+ *      Please read your OS file system documentation.
  *
  * <li> Special care may be needed w.r.t. file path specifications
  *      containing whitespace, mixed-case, special characters and/or
  *      reserved file names.<br>
- *      Please read your OS file system documentation. <p>
+ *      Please read your OS file system documentation.
  * </ol> <p>
  *
  * <b>Note:</b> Versions of HSQLDB previous to 1.7.0 did not support creating
@@ -369,7 +370,7 @@ import org.hsqldb.types.Type;
  * database connection <b>&lt;url&gt;</b> form, in the case that they did
  * not already exist.  Starting with HSQLDB 1.7.0, directories <i>will</i>
  * be created if they do not already exist., but only if HSQLDB is built under
- * a version of the compiler greater than JDK 1.1.x. <p>
+ * a version of the compiler greater than JDK 1.1.x.
  *
  * <hr>
  *
@@ -416,8 +417,8 @@ import org.hsqldb.types.Type;
  * In short, a <b>res:</b> type database connection <b>&lt;url&gt;</b> is
  * designed specifically to connect to a <b>'files_in_jar'</b> mode database
  * instance, which in turn is designed specifically to operate under
- * <em>Java WebStart</em><sup><font size="-2">TM</font></sup> and
- * <em>Java Applet</em><sup><font size="-2">TM</font></sup>configurations,
+ * <em>Java WebStart</em> and
+ * <em>Java Applet</em> configurations,
  * where co-locating the database files in the jars that make up the
  * <em>WebStart</em> application or Applet avoids the need for special security
  * configuration or code signing. <p>
@@ -432,7 +433,7 @@ import org.hsqldb.types.Type;
  * org.hsqldb.persist.Logger class. That is, if the <b>&lt;path&gt;</b>
  * component does not start with '/', then'/' is prepended when obtaining the
  * resource URLs used to read the database files, and only the effective class
- * path of org.hsqldb.persist.Logger's ClassLoader is searched. <p>
+ * path of org.hsqldb.persist.Logger's ClassLoader is searched.
  *
  * <hr>
  *
@@ -455,7 +456,7 @@ import org.hsqldb.types.Type;
  * Hence, under JDBC 4.0 or greater, applications no longer need to explicitly
  * load the HSQLDB JDBC driver using <code>Class.forName()</code>. Of course,
  * existing programs which do load JDBC drivers using
- * <code>Class.forName()</code> will continue to work without modification. <p>
+ * <code>Class.forName()</code> will continue to work without modification.
  *
  * <hr>
  *
@@ -718,7 +719,7 @@ public class JDBCConnection implements Connection {
      *
      * In any event, 1.7.2 now correctly processes the following JDBC escape
      * forms to arbitrary nesting depth, but only if the exact whitespace
-     * layout described below is used: <p>
+     * layout described below is used:
      *
      * <ol>
      * <li>{call ...}
@@ -895,16 +896,13 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including HSQLDB 2.0, <p>
+     * Up to and including HSQLDB 2.0,
      *
      * <ol>
      *   <li> All rows of a result set are retrieved internally <em>
      *   before</em> the first row can actually be fetched.<br>
      *   Therefore, a statement can be considered complete as soon as
      *   any XXXStatement.executeXXX method returns. </li>
-     *
-     *   <li> Multiple result sets and output parameters are not yet
-     *   supported. </li>
      * </ol>
      * <p>
      *
@@ -1048,7 +1046,6 @@ public class JDBCConnection implements Connection {
      * commits or rolls back an active transaction prior to calling the
      * <code>close</code> method.  If the <code>close</code> method is called
      * and there is an active transaction, the results are implementation-defined.
-     * <P>
      *
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
@@ -1704,7 +1701,6 @@ public class JDBCConnection implements Connection {
      * <code>Map</code> object returned from
      *  <code>getTypeMap</code> as a JDBC driver may create an internal
      * copy of the <code>Map</code> object passed to <code>setTypeMap</code>:
-     * <p>
      * <pre>
      *      Map&lt;String,Class&lt;?&gt;&gt; myMap = con.getTypeMap();
      *      myMap.put("mySchemaName.ATHLETES", Athletes.class);
@@ -1762,7 +1758,7 @@ public class JDBCConnection implements Connection {
      * You must set the the values for the <code>TypeMap</code> prior to
      * calling <code>setMap</code> as a JDBC driver may create an internal copy
      * of the <code>TypeMap</code>:
-     * <p>
+     *
      * <pre>
      *      Map myMap&lt;String,Class&lt;?&gt;&gt; = new HashMap&lt;String,Class&lt;?&gt;&gt;();
      *      myMap.put("mySchemaName.ATHLETES", Athletes.class);
@@ -2765,12 +2761,12 @@ public class JDBCConnection implements Connection {
      *                                              completes, this method returns false.  A value of
      *                                              0 indicates a timeout is not applied to the
      *                                              database operation.
-     * <p>
+     *
      * @return true if the connection is valid, false otherwise
      * @exception SQLException if the value supplied for <code>timeout</code>
      * is less then 0
      * @since JDK 1.6, HSQLDB 2.0
-     * <p>
+     *
      * @see JDBCDatabaseMetaData#getClientInfoProperties
      */
 //#ifdef JAVA6
@@ -2864,7 +2860,7 @@ public class JDBCConnection implements Connection {
      * required to support these properties however if the driver supports a
      * client info property that can be described by one of the standard
      * properties, the standard property name should be used.
-     * <p>
+     *
      * <ul>
      * <li>ApplicationName  -       The name of the application currently utilizing
      *                                                  the connection</li>
@@ -2875,7 +2871,7 @@ public class JDBCConnection implements Connection {
      * <li>ClientHostname   -       The host name of the computer the application
      *                                                  using the connection is running on.</li>
      * </ul>
-     * <p>
+     *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
@@ -2939,7 +2935,7 @@ public class JDBCConnection implements Connection {
      * @throws SQLClientInfoException if the database server returns an error while
      *                  setting the clientInfo values on the database server or this method
      * is called on a closed connection
-     * <p>
+     *
      */
 //#ifdef JAVA6
     public void setClientInfo(
@@ -2983,7 +2979,7 @@ public class JDBCConnection implements Connection {
      * or this method is called on a closed connection
      * <p>
      * @since JDK 1.6, HSQLDB 2.0
-     * <p>
+     *
      * @see java.sql.DatabaseMetaData#getClientInfoProperties
      */
 //#ifdef JAVA6
@@ -3585,6 +3581,9 @@ public class JDBCConnection implements Connection {
 
     /**
      * Constructor for use with connection pooling and XA.
+     * 
+     * @param c the connection
+     * @param eventListener the listener
      */
     public JDBCConnection(JDBCConnection c,
                           JDBCConnectionEventListener eventListener) {

@@ -72,7 +72,7 @@ import org.hsqldb.persist.HsqlProperties;
  *  to try to connect to the target URL. <p>
  *
  *  The application developer will normally not need to call any function of
- *  the Driver directly. All required calls are made by the DriverManager. <p>
+ *  the Driver directly. All required calls are made by the DriverManager.
  *
  * <!-- start release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
@@ -87,9 +87,8 @@ import org.hsqldb.persist.HsqlProperties;
  *  </pre>
  *
  *  For detailed information about how to obtain HSQLDB JDBC Connections,
- *  please see {@link org.hsqldb.jdbc.JDBCConnection JDBCConnection}.<p>
+ *  please see {@link org.hsqldb.jdbc.JDBCConnection JDBCConnection}.
  *
- * </div> <!-- end release-specific documentation -->
  * <hr>
  *
  * <b>JDBC 4.0 notes:</b><p>
@@ -133,16 +132,16 @@ public class JDBCDriver implements Driver {
      * Returns "null" if this is the wrong kind of driver to connect to the
      * given URL.  This will be common, as when the JDBC driver manager is asked
      * to connect to a given URL it passes the URL to each loaded driver in
-     * turn. <p>
+     * turn.
      *
      * <P>The driver throws an <code>SQLException</code> if it is the right
      * driver to connect to the given URL but has trouble connecting to
-     * the database. <p>
+     * the database.
      *
      * <P>The <code>java.util.Properties</code> argument can be used to pass
      * arbitrary string tag/value pairs as connection arguments.
      * Normally at least "user" and "password" properties should be
-     * included in the <code>Properties</code> object. <p>
+     * included in the <code>Properties</code> object.
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
@@ -151,13 +150,13 @@ public class JDBCDriver implements Driver {
      *  For the HSQL Database Engine, at least "user" and
      *  "password" properties should be included in the Properties.<p>
      *
-     *  From version 1.7.1, two optional properties are supported:<p>
+     *  From version 1.7.1, two optional properties are supported:
      *
      *  <ul>
      *      <li><code>get_column_name</code> (default true) -  if set to false,
      *          a ResultSetMetaData.getColumnName() call will return the user
      *          defined label (getColumnLabel()) instead of the column
-     *          name.<br/>
+     *          name.<br>
      *
      *          This property is available in order to achieve
      *          compatibility with certain non-HSQLDB JDBC driver
@@ -170,7 +169,7 @@ public class JDBCDriver implements Driver {
      *
      *  From version 1.8.0.x, <code>strict_md</code> is deprecated (ignored)
      *  because metadata reporting is always strict (JDBC-compliant), and
-     *  three new optional properties are supported: <p>
+     *  three new optional properties are supported:
      *
      *  <ul>
      *      <li><code>ifexits</code> (default false) - when true, an exception
@@ -187,7 +186,7 @@ public class JDBCDriver implements Driver {
      *          the database is automatically shut down. The property takes
      *          effect only when the first connection is made to the database.
      *          This means the connection that opens the database. It has no
-     *          effect if used with subsequent, simultaneous connections. <br/>
+     *          effect if used with subsequent, simultaneous connections. <br>
      *
      *          This command has two uses. One is for test suites, where
      *          connections to the database are made from one JVM context,
@@ -380,7 +379,7 @@ public class JDBCDriver implements Driver {
      *  get enough information to connect to a database. Note that depending
      *  on the values the human has supplied so far, additional values may
      *  become necessary, so it may be necessary to iterate though several
-     *  calls to getPropertyInfo.<p>
+     *  calls to getPropertyInfo.
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
@@ -465,13 +464,13 @@ public class JDBCDriver implements Driver {
     }
 
     /**
-     * Reports whether this driver is a genuine JDBC Compliant<sup><font
-     * size=-2>TM</font></sup> driver. A driver may only report
+     * Reports whether this driver is a genuine JDBC Compliant&trade; driver.
+     * A driver may only report
      * <code>true</code> here if it passes the JDBC compliance tests; otherwise
      * it is required to return <code>false</code>. <p>
      *
      * JDBC compliance requires full support for the JDBC API and full support
-     * for SQL 92 Entry Level. <p>
+     * for SQL 92 Entry Level.
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
@@ -505,7 +504,7 @@ public class JDBCDriver implements Driver {
      * In the worst case, this may be the root Logger.
      *
      * @return the parent Logger for this driver
-     * @throws SQLFeatureNotSupportedException if the driver does not use <code>java.util.logging<code>.
+     * @throws SQLFeatureNotSupportedException if the driver does not use <code>java.util.logging</code>.
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
 //#ifdef JAVA6
