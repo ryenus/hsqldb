@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -141,6 +141,8 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      *
      * HSQLDB does not allow changing the isolation level inside a transaction
      * of any kind.<p>
+     *
+     * @param level isolation level
      */
     public void setTransactionIsolation(int level) throws SQLException {
         validateNotWithinTransaction();
