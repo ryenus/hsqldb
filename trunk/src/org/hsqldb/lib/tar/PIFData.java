@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
  * Pax Interchange Format object constituted from an Input Stream.
  * <P>
  * Right now, the only Pax property that we support directly is "size".
- * </P> <P>
+ *
  */
 public class PIFData extends HashMap<String, String> {
     static final long serialVersionUID = 3086795680582315773L;
@@ -54,6 +54,7 @@ public class PIFData extends HashMap<String, String> {
     /**
      * N.b. this is nothing to do with HashMap.size() or Map.size().
      * This returns the value of the Pax "size" property.
+     * @return Pax size
      */
     public Long getSize() {
         return sizeObject;

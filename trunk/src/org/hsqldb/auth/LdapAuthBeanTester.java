@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,22 +50,22 @@ public class LdapAuthBeanTester {
      * Passwords typed on the command line are inherently not secure, so only
      * use this program when the computer it is run on is secured and where
      * your command line may not be observed, directly or indirectly, by others.
-     * </P> <P>
+     * <P>
      * Set the properties in a properties file to match your LDAP security and
      * Directory Information Tree structure and use this program to check
      * everything between the LdapAuthBean and your LDAP server.
      * You then know the exact settings to use for an LdapAuthBean that you can
      * plug into AuthBeanMultiplexer.
-     * </P> <P>
+     * <P>
      * Run with no arguments to see required syntax.
-     * </P> <P>
+     * <P>
      *   The property file may contain any of the following properties, which
      *   exactly match the corresponding setter methods in this class.
      *   <UL>
      *     <LI>trustStore.  This is the only property without a corresponding
      *         setter method.  Setting this property has the same effect as
      *         setting Java system property
-     *         <CODE>'javax.net.ssl.trustStore'<CODE>.
+     *         <CODE>'javax.net.ssl.trustStore'</CODE>.
      *     <LI>startTls.  Takes a boolean value according to
      *         method java.util.Boolean.parseBoolean.
      *     <LI>roleSchemaValuePattern.  Corresponds to method
@@ -83,12 +83,15 @@ public class LdapAuthBeanTester {
      *     <LI>rolesSchemaAttribute
      *     <LI>accessAttribute
      *   </UL>
+     * <P>
      *   Tokens like ${this} will not be expanded to system property values,
      *   and your bean will get the values exactly as you type them in.
-     * </P> <P>
+     * <P>
      * The file sample/ldap-exerciser.properties in the HyperSQL distribution
      * may be used as a template or example.
-     * </P>
+     *
+     * @param sa arguments
+     * @throws IOException on io error
      */
     public static void main(String[] sa) throws IOException {
 

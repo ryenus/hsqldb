@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,15 +52,13 @@ import org.hsqldb.map.BitMap;
  * <P>
  * The ACL file is reloaded whenever a modification to it is detected.
  * If you copy in a file with an older file date, you will need to touch it.
- * </P>
- *
  * <P>
  * The public runtime method is permitAccess().
  * The public setup method is the constructor.
- * </P> <P>
+ * <P>
  * Each non-comment line in the ACL file must be a rule of the format:
  * <PRE><CODE>
- *     {allow|deny} <ip_address>[/significant-bits]
+ *     {allow|deny} &lt;ip_address&gt;[/significant-bits]
  * </CODE></PRE>
  * For example
  * <PRE><CODE>
@@ -69,7 +67,8 @@ import org.hsqldb.map.BitMap;
  *     allow 127.0.0.1
  *     allow 2001:db8::/32
  * </CODE></PRE>
- * </P> <P>
+ *
+ * <P>
  * In order to detect bit specification mistakes, we require that
  * non-significant bits be zero in the values.
  * An undesirable consequence of this is, you can't use a specification like
@@ -77,7 +76,8 @@ import org.hsqldb.map.BitMap;
  * <PRE><CODE>
  *     allow x.admc.com/24
  * </CODE></PRE>
- * </P>
+ *
+ *
  *
  * @see #ServerAcl(File)
  * @see #permitAccess
@@ -188,7 +188,9 @@ public final class ServerAcl {
     }
 
     /**
-     * @param uba  Unsigned byte array
+     *
+     * @param uba Unsigned byte array
+     * @return String
      */
     public static String dottedNotation(byte[] uba) {
 
@@ -206,7 +208,9 @@ public final class ServerAcl {
     }
 
     /**
-     * @param uba  Unsigned byte array
+     *
+     * @param uba Unsigned byte array
+     * @return String
      */
     public static String colonNotation(byte[] uba) {
 
@@ -277,15 +281,15 @@ public final class ServerAcl {
 
     /**
      * Uses system network libraries to resolve the given String to an IP addr,
-     * then determine whether this address is permitted or denied.
-     *
-     * Specified name may be a numerical-based String like "1.2.3.4", a
-     * constant known to the networking libraries, or a host name to be
-     * resolved by the systems name resolution system.
-     *
-     * If the given String can't be resolved to an IP addr, false is returned.
+     * then determine whether this address is permitted or denied. Specified
+     * name may be a numerical-based String like "1.2.3.4", a constant known to
+     * the networking libraries, or a host name to be resolved by the systems
+     * name resolution system. If the given String can't be resolved to an IP
+     * addr, false is returned.
      *
      * @see #permitAccess(byte[])
+     * @param s String
+     * @return boolean
      */
     public boolean permitAccess(String s) {
 
@@ -299,12 +303,10 @@ public final class ServerAcl {
     }
 
     /**
+     *
      * @return true if access for the candidate address should be permitted,
-     *          false if access should be denied.
-     * @throws RuntimeException if no rule covers the candidate address.
-     *          This would be the case if this class is applied to some
-     *          network protocol other than ipv4 or ipv6, without adding a
-     *          default rule for it.
+     *   false if access should be denied.
+     * @param addr byte[]
      */
     public boolean permitAccess(byte[] addr) {
 
@@ -473,11 +475,13 @@ public final class ServerAcl {
     }
 
     /**
-     * Utility method that allows interactive testing of individual
-     * ACL records, as well as the net effect of the ACL record list.
+     * Utility method that allows interactive testing of individual ACL records,
+     * as well as the net effect of the ACL record list. Run "java -cp
+     * path/to/hsqldb.jar org.hsqldb.server.ServerAcl --help" for Syntax help.
      *
-     * Run  "java -cp path/to/hsqldb.jar org.hsqldb.server.ServerAcl --help"
-     * for Syntax help.
+     * @param sa String[]
+     * @throws AclFormatException when badly formatted
+     * @throws IOException when io error
      */
     public static void main(String[] sa)
     throws AclFormatException, IOException {

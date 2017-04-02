@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,10 +95,10 @@ import org.hsqldb.cmdline.sqltool.FileRecordReader;
  * The file <CODE>src/org/hsqldb/sample/SqlFileEmbedder.java</CODE>
  * in the HSQLDB distribution provides an example for using SqlFile to
  * execute SQL files directly from your own Java classes.
- * <P/><P>
+ * <P>
  * The complexities of passing userVars and macros maps are to facilitate
  * strong scoping (among blocks and nested scripts).
- * <P/><P>
+ * <P>
  * Some implementation comments and variable names use keywords based
  * on the following definitions.  <UL>
  * <LI> COMMAND = Statement || SpecialCommand || BufferCommand
@@ -106,7 +106,7 @@ import org.hsqldb.cmdline.sqltool.FileRecordReader;
  * <LI>SpecialCommand =  Special Command like "\x arg..."
  * <LI>BufferCommand =  Editing/buffer command like ":s/this/that/"
  * </UL>
- * <P/><P>
+ * <P>
  * When entering SQL statements, you are always "appending" to the
  * "immediate" command (not the "buffer", which is a different thing).
  * All you can do to the immediate command is append new lines to it,
@@ -117,32 +117,31 @@ import org.hsqldb.cmdline.sqltool.FileRecordReader;
  * The buffer usually contains either an exact copy of the last command
  * executed or sent to buffer by entering a blank line,
  * but BUFFER commands can change the contents of the buffer.
- * <P/><P>
+ * <P>
  * In general, the special commands mirror those of Postgresql's psql,
  * but SqlFile handles command editing very differently than Postgresql
  * does, in part because of Java's lack of support for raw tty I/O.
  * The \p special command, in particular, is very different from psql's.
- * <P/><P>
+ * <P>
  * Buffer commands are unique to SQLFile.  The ":" commands allow
  * you to edit the buffer and to execute the buffer.
- * <P/><P>
+ * <P>
  * \d commands are very poorly supported for Mysql because
  * (a) Mysql lacks most of the most basic JDBC support elements, and
  * the most basic role and schema features, and
  * (b) to access the Mysql data dictionary, one must change the database
  * instance (to do that would require work to restore the original state
  * and could have disastrous effects upon transactions).
- * <P/><P>
+ * <P>
  * The process*() methods, other than processBuffHist() ALWAYS execute
  * on "buffer", and expect it to contain the method specific prefix
  * (if any).
- * <P/><P>
+ * <P>
  * The input/output Reader/Stream are generally managed by the caller.
  * An exception is that the input reader may be closed automatically or on
  * demand by the user, since in some cases this class builds the Reader.
  * There is no corresponding functionality for output since the user always
  * has control over that object (which may be null or System.out).
- * <P/>
  *
  * @see <a href="../../../../util-guide/sqltool-chapt.html" target="guide">
  *     The SqlTool chapter of the
@@ -460,8 +459,8 @@ public class SqlFile {
 
     /**
      * Convenience wrapper for the SqlFile(File, String) constructor
-     *
-     * @throws IOException
+     * @param inputFile input file
+     * @throws IOException on read errors
      * @see #SqlFile(File, String)
      */
     public SqlFile(File inputFile) throws IOException {
@@ -471,9 +470,10 @@ public class SqlFile {
     /**
      * Convenience wrapper for the SqlFile(File, String, boolean) constructor
      *
-     * @param encoding is applied to both the given File and other files
-     *        read in or written out. Null will use your env+JVM settings.
-     * @throws IOException
+     * @param inputFile the input File
+     * @param encoding is applied to both the given File and other files read
+     *   in or written out. Null will use your env+JVM settings.
+     * @throws IOException on read errors
      * @see #SqlFile(File, String, boolean)
      */
     public SqlFile(File inputFile, String encoding) throws IOException {
@@ -484,12 +484,13 @@ public class SqlFile {
      * Constructor for non-interactive usage with a SQL file, using the
      * specified encoding and sending normal output to stdout.
      *
+     * @param inputFile the input File
      * @param encoding is applied to the given File and other files
      *        read in or written out. Null will use your env+JVM settings.
      * @param interactive  If true, prompts are printed, the interactive
      *                     Special commands are enabled, and
      *                     continueOnError defaults to true.
-     * @throws IOException
+     * @throws IOException on read errors
      * @see #SqlFile(Reader, String, PrintStream, String, boolean, File)
      */
     public SqlFile(File inputFile, String encoding, boolean interactive)
@@ -509,7 +510,7 @@ public class SqlFile {
      * @param interactive  If true, prompts are printed, the interactive
      *                     Special commands are enabled, and
      *                     continueOnError defaults to true.
-     * @throws IOException
+     * @throws IOException on read errors
      * @see #SqlFile(Reader, String, PrintStream, String, boolean, File)
      */
     public SqlFile(String encoding, boolean interactive) throws IOException {
@@ -537,15 +538,18 @@ public class SqlFile {
      *                     Caller is responsible for setting up encoding.
      *                     (the 'encoding' parameter will NOT be applied
      *                     to this reader).
+     * @param inputStreamLabel the lable
      * @param psStd        PrintStream for normal output.
      *                     If null, normal output will be discarded.
      *                     Caller is responsible for settingup encoding
      *                     (the 'encoding' parameter will NOT be applied
      *                     to this stream).
+     * @param encoding     the encoding
      * @param interactive  If true, prompts are printed, the interactive
      *                     Special commands are enabled, and
      *                     continueOnError defaults to true.
-     * @throws IOException
+     * @param baseDir      the base dir
+     * @throws IOException on read errors
      * @see #execute()
      */
     public SqlFile(Reader reader, String inputStreamLabel,
@@ -686,6 +690,8 @@ public class SqlFile {
      * Since you are getting a reference to the private map used inside this
      * class, update this map with great caution and attention to lifecycle
      * handling of the variable map.
+     *
+     * @return user variable map
      */
     public Map<String, String> getUserVars() {
         return shared.userVars;
@@ -738,10 +744,11 @@ public class SqlFile {
      * to true).
      * You may want to set this to false if you want to stop execution with
      * \q or similar, then continue using the Reader or underlying Stream.
-     * </P> <P>
+     * <P>
      * The caller is always responsible for closing the output object (if any)
      * used by SqlFile.
-     * </P>
+     *
+     * @param autoClose boolean
      */
     public void setAutoClose(boolean autoClose) {
         this.autoClose = autoClose;
@@ -753,7 +760,7 @@ public class SqlFile {
      * SQL commands in the content get executed against the current JDBC
      * data source connection.
      *
-     * @throws SQLExceptions thrown by JDBC driver.
+     * @throws SQLException thrown by JDBC driver.
      *                       Only possible if in "\c false" mode.
      * @throws SqlToolError  all other errors.
      *               This includes including QuitNow, BreakException,
@@ -1255,7 +1262,7 @@ public class SqlFile {
      * Due to the nature of the goal here, we don't trim() "other" like
      * we do for other kinds of commands.
      *
-     * @param inString Complete command, less the leading ':' character.
+     * @param token Complete command, less the leading ':' character.
      * @throws SQLException  thrown by JDBC driver.
      * @throws BadSpecial    special-command-specific errors.
      * @throws SqlToolError  all other errors.
@@ -4770,7 +4777,13 @@ public class SqlFile {
 
     /**
      * As the name says...
+     *
      * This method always closes the input stream.
+     *
+     * @param is InputStream
+     * @param cs String
+     * @throws IOException on read errors
+     * @return String
      */
     public String streamToString(InputStream is, String cs)
             throws IOException {
@@ -4829,6 +4842,10 @@ public class SqlFile {
 
     /**
      * As the name says...
+     *
+     * @param is input
+     * @throws IOException on read errors
+     * @return byte[]
      */
     public static byte[] streamToBytes(InputStream is) throws IOException {
         byte[]                xferBuffer = new byte[10240];
@@ -4848,7 +4865,9 @@ public class SqlFile {
     /**
      * Binary file load
      *
-     * @return The bytes which are the content of the fil
+     * @return The bytes which are the content of the file
+     * @throws IOException on read errors
+     * @param binFile File
      */
     public static byte[] loadBinary(File binFile) throws IOException {
         byte[]                xferBuffer = new byte[10240];
@@ -4888,6 +4907,8 @@ public class SqlFile {
      * value displayable.
      * </P>
      *
+     * @param i JDBC type number
+     * @return boolean
      * @see <A href="http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html">http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html
      *      The table on this page lists the most common SqlTypes, all of which
      *      must implement toString()</A>
@@ -4919,6 +4940,9 @@ public class SqlFile {
 
     /**
      * Return a String representation of the specified java.sql.Types type.
+     *
+     * @param i int
+     * @return String
      */
     public static String sqlTypeToString(int i) {
         switch (i) {
@@ -5026,6 +5050,7 @@ public class SqlFile {
      * Validate that String is safe to write TO DSV file.
      *
      * @throws SqlToolError if validation fails.
+     * @param s String
      */
     public void dsvSafe(String s) throws SqlToolError {
         assert pwDsv != null && dsvColDelim != null && dsvRowDelim != null
@@ -5066,6 +5091,9 @@ public class SqlFile {
      * </UL>
      *
      * Java 1.4 String methods will make this into a 1 or 2 line task.
+     *
+     * @param inString input string
+     * @return converted string
      */
     public static String convertEscapes(String inString) {
         if (inString == null) return null;
@@ -5124,7 +5152,11 @@ public class SqlFile {
     }
 
     /**
-     * @param string  Non-null String to modify.
+     *
+     * @param string Non-null String to modify.
+     * @param from String
+     * @param to String
+     * @return String
      */
     private static String convertEscapes(String string, String from, String to) {
         String workString = string;
@@ -5150,6 +5182,11 @@ public class SqlFile {
 
     /**
      * Convert CSV 'line' into DSV 'lines'.
+     *
+     * @param s String
+     * @param lineNum int
+     * @throws SqlToolError
+     * @return String
      */
     private String preprocessCsvQuoting(String s, int lineNum)
             throws SqlToolError {
@@ -5195,6 +5232,8 @@ public class SqlFile {
     /**
      * Name is self-explanatory.
      *
+     * @param filePath String
+     * @param skipPrefix String
      * @throws SqlToolError  Would prefer to throw an internal exception,
      *                       but we want this method to have external
      *                       visibility.
@@ -5874,8 +5913,11 @@ public class SqlFile {
     }
 
     /**
-     * Does a poor-man's parse of a MSDOS command line and parses it
-     * into a WIndows cmd.exe invocation to approximate.
+     * Does a poor-man's parse of a MSDOS command line and parses it into a
+     * WIndows cmd.exe invocation to approximate.
+     *
+     * @param monolithic String
+     * @return String[]
      */
     private static String[] genWinArgs(String monolithic) {
         List<String> list = new ArrayList<String>();
@@ -5915,22 +5957,27 @@ public class SqlFile {
 
     /**
      * Parses input into command tokens, but does not perform the commands
-     * (unless you consider parsing blocks of nested commands to be
-     * "performing" a command).
+     * (unless you consider parsing blocks of nested commands to be "performing"
+     * a command).
      *
-     * Throws only if I/O error or if nestingCommand != null and
-     * EOF encountered before end of entire file
-     * (encountered at any level of recursion).
+     * <p> Throws only if I/O error or if nestingCommand != null and EOF
+     * encountered before end of entire file (encountered at any level of
+     * recursion).
      *
-     * Exceptions thrown within this method percolate right up to the
-     * external call (in scanpass), regardless of ContinueOnErr setting.
-     * This is because it's impossible to know when to terminate blocks
-     * if there is a parsing error.
-     * Only a separate SqlFile invocation (incl. \i command) will cause
-     * a seekTokenSource exception to be handled at a level other than
-     * the very top.
+     * <p> Exceptions thrown within this method percolate right up to the
+     * external call (in scanpass), regardless of ContinueOnErr setting. This is
+     * because it's impossible to know when to terminate blocks if there is a
+     * parsing error.
+     *
+     * <p> Only a separate SqlFile invocation (incl. \i command) will cause a
+     * seekTokenSource exception to be handled at a level other than the very
+     * top.
      *
      * @param nestingCommand Set to null to read scanner until EOF.
+     * @throws BadSpecial
+     * @throws IOException
+     * @throws SqlToolError
+     * @return TokenList
      */
     private TokenList seekTokenSource(String nestingCommand)
             throws BadSpecial, IOException, SqlToolError {
@@ -5980,9 +6027,11 @@ public class SqlFile {
     }
 
     /**
-     * We want leading space to be trimmed.
-     * Leading space should probably not be trimmed, but it is trimmed now
-     * (by the Scanner).
+     * We want leading space to be trimmed. Leading space should probably not be
+     * trimmed, but it is trimmed now (by the Scanner).
+     *
+     * @param defToken Token
+     * @throws BadSpecial
      */
     private void processMacro(Token defToken) throws BadSpecial {
         Matcher matcher;
@@ -6133,8 +6182,11 @@ public class SqlFile {
     }
 
     /**
-     * Convert a String to a byte array by interpreting every 2 characters as
-     * an octal byte value.
+     * Convert a String to a byte array by interpreting every 2 characters as an
+     * octal byte value.
+     *
+     * @param hexChars String
+     * @return byte[]
      */
     public static byte[] hexCharOctetsToBytes(String hexChars) {
         int chars = hexChars.length();
@@ -6181,6 +6233,9 @@ public class SqlFile {
 
     /**
      * Just a stub for now.
+     *
+     * @param hexChars String
+     * @return byte[]
      */
     public static byte[] bitCharsToBytes(String hexChars) {
         if (hexChars == null) throw new NullPointerException();
@@ -6195,9 +6250,11 @@ public class SqlFile {
     }
 
     /**
-     * Returns a String report for the specified JDBC Connection.
+     * Returns a String report for the specified JDBC Connection. For databases
+     * with poor JDBC support, you won't get much detail.
      *
-     * For databases with poor JDBC support, you won't get much detail.
+     * @param c Connection
+     * @return String
      */
     public static String getBanner(Connection c) {
         try {
@@ -6235,6 +6292,9 @@ public class SqlFile {
     /**
      * Escaping rules taken from 'Reserved Characters in HTML table at
      * http://www.w3schools.com/tags/ref_entities.asp
+     *
+     * @param s String
+     * @return String
      */
     public static String escapeHtml(String s) {
         StringBuilder sb = new StringBuilder();
@@ -6263,7 +6323,11 @@ public class SqlFile {
     }
 
     /**
+     *
+     * @param pWriter PrintWriter
      * @param filePath only used for error reporting.
+     * @throws BadSpecial
+     * @throws SqlToolError
      */
     private void writeHeader(PrintWriter pWriter, String filePath)
             throws BadSpecial, SqlToolError {
@@ -6302,7 +6366,9 @@ public class SqlFile {
     }
 
     /**
+     * @param pwQuery the writer
      * @param filePath only used for error reporting.
+     * @throws SqlToolError
      */
     private void writeFooter(PrintWriter pwQuery, String filePath)
             throws SqlToolError {

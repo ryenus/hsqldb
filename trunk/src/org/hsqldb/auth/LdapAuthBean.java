@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,6 +130,8 @@ public class LdapAuthBean implements AuthFunctionBean {
     /**
      * If this is set, then the entire (brief) transaction with the LDAP server
      * will be encrypted.
+     *
+     * @param isTls boolean
      */
     public void setStartTls(boolean isTls) {
         this.tls = isTls;
@@ -192,41 +194,40 @@ public class LdapAuthBean implements AuthFunctionBean {
     }
 
     /**
-     * Assign a pattern to detect honored accessAttribute values.
-     * If you set accessAttribute but not accessValuePattern, then all that will
-     * be checked for access is if the RDN + parentDN entry has the
-     * accessAttribute attribute.  (I.e. the specific value will not matter
-     * whatsoever).
-     * </P><P>
-     * You may only use this property if you have set property accessAttribute.
-     * If you have set accessAttribute but not this property, then access will
-     * be decided based solely upon existence of this attribute.
-     * </P><P>
-     * Capture groups in the pattern will be ignored and serve no purpose.
-     * </P><P>
-     * N.b. this Pattern will be used for the matches() operation, therefore it
-     * must match the entire candidate value strings (this is different than
+     * Assign a pattern to detect honored accessAttribute values. If you set
+     * accessAttribute but not accessValuePattern, then all that will be checked
+     * for access is if the RDN + parentDN entry has the accessAttribute
+     * attribute. (I.e. the specific value will not matter whatsoever).
+     *
+     * <P> You may only use this property if you have set property
+     * accessAttribute. If you have set accessAttribute but not this property,
+     * then access will be decided based solely upon existence of this
+     * attribute.
+     *
+     * <P> Capture groups in the pattern will be ignored and serve no purpose.
+     *
+     *
+     * <P> N.b. this Pattern will be used for the matches() operation, therefore
+     * it must match the entire candidate value strings (this is different than
      * the find operation which does not need to satisfy the entire candidate
      * value).
-     * </P><P>Example1 :<CODE><PRE>
-     *     TRUE
-     * </PRE></CODE>
-     * This will match true values per OpenLDAP's boolean OID.
-     * </P>
+     *
+     * <P>Example1 :<PRE><CODE> TRUE </CODE></PRE> This will match true values
+     * per OpenLDAP's boolean OID.
      *
      * @see Matcher#matches()
+     * @param accessValuePattern Pattern
      */
     public void setAccessValuePattern(Pattern accessValuePattern) {
         this.accessValuePattern = accessValuePattern;
     }
 
     /**
-     * String wrapper for method setAccessValuePattern(Pattern)
+     * String wrapper for method setAccessValuePattern(Pattern) Use the (x?)
+     * Pattern constructs to set options.
      *
-     * Use the (x?) Pattern constructs to set options.
-     *
-     * @throws java.util.regex.PatternSyntaxException
      * @see #setAccessValuePattern(Pattern)
+     * @param patternString String
      */
     public void setAccessValuePatternString(String patternString) {
         setAccessValuePattern(Pattern.compile(patternString));
@@ -238,17 +239,17 @@ public class LdapAuthBean implements AuthFunctionBean {
      * If your rolesSchemaAttribute holds only the String values precisely as
      * HyperSQL needs them, then don't use this method at all and all matching
      * attribute values will be passed directly.
-     * </P><P>
+     * <P>
      * You may only use this property if you have set property
      * rolesSchemaAttribute.
      * If rolesSchemaAttribute is set but this property is not set, then
      * the value will directly determine the user's roles and schema.
-     * </P><P>
+     * <P>
      * <B>Unlike the rolesSchemaAttribute, the property at-hand uses the
      * singular for "role", because whereas rolesSchemaAttribute is the
      * attribute for listing multiple roles, roleSchemaValuePattern is used
      * to evaluate single role values.</B>
-     * </P><P>
+     * <P>
      * These are two distinct and important purposes for the specified Pattern.
      * <OL>
      *   <LI>
@@ -263,27 +264,31 @@ public class LdapAuthBean implements AuthFunctionBean {
      *      acceptance decision, and the LDAP-provided value will be returned
      *      verbatim.
      * </OL>
-     * </P><P>
+     *
+     * <P>
      * Together, these two features work great to extract just the needed role
      * and schema names from 'memberof' DNs, and will have no problem if you
      * also use 'memberof' for unrelated purposes.
-     * </P><P>
+     *
+     * <P>
      * N.b. this Pattern will be used for the matches() operation, therefore it
      * must match the entire candidate value strings (this is different than
      * the find operation which does not need to satisfy the entire candidate
      * value).
-     * </P><P>Example1 :<CODE><PRE>
+     *
+     * <P>Example1 :<PRE><CODE>
      *     cn=([^,]+),ou=dbRole,dc=admc,dc=com
-     * </PRE></CODE>
+     * </CODE></PRE>
      *     will extract the CN value from matching attribute values.
-     * </P><P>Example1 :<CODE><PRE>
+     *
+     * <P>Example1 :<PRE><CODE>
      *     cn=[^,]+,ou=dbRole,dc=admc,dc=com
-     * </PRE></CODE>
+     * </CODE></PRE>
      *     will return the entire <CODE>cn...com</CODE> string for matching
      *     attribute values.
-     * </P>
      *
      * @see Matcher#matches()
+     * @param roleSchemaValuePattern pattern
      */
     public void setRoleSchemaValuePattern(Pattern roleSchemaValuePattern) {
         this.roleSchemaValuePattern = roleSchemaValuePattern;
@@ -294,8 +299,10 @@ public class LdapAuthBean implements AuthFunctionBean {
      *
      * Use the (x?) Pattern constructs to set options.
      *
-     * @throws java.util.regex.PatternSyntaxException
+     * @throws java.util.regex.PatternSyntaxException exception
      * @see #setRoleSchemaValuePattern(Pattern)
+     *
+     * @param patternString pattern
      */
     public void setRoleSchemaValuePatternString(String patternString) {
         setRoleSchemaValuePattern(Pattern.compile(patternString));
@@ -324,6 +331,7 @@ public class LdapAuthBean implements AuthFunctionBean {
      * </P>
      *
      * @see JaasAuthBean
+     * @param ldapHost host
      */
     public void setLdapHost(String ldapHost) {
         this.ldapHost = ldapHost;
@@ -336,20 +344,21 @@ public class LdapAuthBean implements AuthFunctionBean {
      * <P>
      * If you supply a principalTemplate that does not contain '${username}',
      * then authentication will be user-independent.
-     * </P> <P>
+     * <P>
      * It is common to authenticate to LDAP servers with the DN of the user's
      * LDAP entry.  In this situation, set principalTemplate to
      * <CODE>&lt;RDN_ATTR=&gt;${username},&lt;PARENT_DN&gt;</CODE>.
      * For example if you use parentDn of
      * <CODE>"ou=people,dc=admc,dc=com"</CODE> and rdnAttribute of
-     * <CODE>uid</CODE>, then you would set <CODE><PRE>
+     * <CODE>uid</CODE>, then you would set <PRE><CODE>
      *     "uid=${username},ou=people,dc=admc,dc=com"
-     * </PRE></CODE>
-     * </P> <P>
+     * </CODE></PRE>
+     * <P>
      * By default the user name will be passed exactly as it is, so don't use
      * this setter if that is what you want.  (This works great for OpenLDAP
      * with DIGEST-MD5 SASL, for example).
-     * </P>
+     *
+     * @param principalTemplate template
      */
     public void setPrincipalTemplate(String principalTemplate) {
         this.principalTemplate = principalTemplate;
@@ -360,6 +369,8 @@ public class LdapAuthBean implements AuthFunctionBean {
      * "com.sun.jndi.ldap.LdapCtxFactory".
      * Use this method if you prefer to use a context factory provided by your
      * framework or container, for example, or if you are using a non-Sun JRE.
+     *
+     * @param initialContextFactory factory
      */
     public void setInitialContextFactory(String initialContextFactory) {
         this.initialContextFactory = initialContextFactory;
@@ -373,6 +384,8 @@ public class LdapAuthBean implements AuthFunctionBean {
      * <P>
      * Don't use this setter if you are not setting a SASL mechanism.
      * </P>
+     *
+     * @param saslRealm realm
      */
     public void setSaslRealm(String saslRealm) {
         this.saslRealm = saslRealm;
@@ -381,6 +394,8 @@ public class LdapAuthBean implements AuthFunctionBean {
     /**
      * Set DN which is parent of the user DNs.
      * E.g.  "ou=people,dc=admc,dc=com"
+     *
+     * @param parentDn parent DN
      */
     public void setParentDn(String parentDn) {
         this.parentDn = parentDn;
@@ -395,6 +410,8 @@ public class LdapAuthBean implements AuthFunctionBean {
      * </P>
      *
      * @see #setParentDn(String)
+     *
+     * @param rdnAttribute RDN attribute
      */
     public void setRdnAttribute(String rdnAttribute) {
         this.rdnAttribute = rdnAttribute;
@@ -419,6 +436,8 @@ public class LdapAuthBean implements AuthFunctionBean {
      * attribute set here will only be consulted if the accessAttribute check
      * succeeds.
      * </P>
+     *
+     * @param attribute attribute
      */
     public void setRolesSchemaAttribute(String attribute) {
         rolesSchemaAttribute = attribute;
@@ -438,13 +457,20 @@ public class LdapAuthBean implements AuthFunctionBean {
      * this attribute grants access then the rolesSchemaAttribute value will
      * determine the user's roles.
      * </P>
+     *
+     * @param attribute attribute
      */
     public void setAccessAttribute(String attribute) {
         accessAttribute = attribute;
     }
 
     /**
+     *
      * @see AuthFunctionBean#authenticate(String, String)
+     * @param userName String
+     * @param password String
+     * @throws DenyException on access denial
+     * @return String[]
      */
     public String[] authenticate(String userName, String password)
             throws DenyException {

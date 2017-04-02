@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,6 @@ import java.util.StringTokenizer;
  * The file <CODE>src/org/hsqldb/sample/SqlFileEmbedder.java</CODE>
  * in the HSQLDB distribution provides an example of how to use RCData for your
  * own programs.
- * <P/>
  *
  * @see <A href="../../../../util-guide/sqltool-chapt.html#sqltool_auth-sect"
  *      target="guide">
@@ -87,10 +86,11 @@ public class RCData {
      * Creates a RCDataObject by looking up the given key in the
      * given authentication file.
      *
+     * @param file File containing the authentication information.
      * @param dbKey Key to look up in the file.
      *              If null, then will echo all urlids in the file to stdout.
      *              (A rather ill-conceived design).
-     * @param file File containing the authentication information.
+     * @throws Exception any exception
      */
     public RCData(File file, String dbKey) throws Exception {
 
@@ -257,7 +257,6 @@ public class RCData {
      * The parameters driver, charset, truststore, and libpath are optional.
      * Setting these parameters to <code>NULL</code> will set them to their
      * default values.
-     * <P/>
      *
      * @param id The identifier for these connection settings
      * @param url The URL of the database to connect to
@@ -267,6 +266,7 @@ public class RCData {
      * @param charset The character set to use
      * @param truststore The trust store to use
      * @param libpath The JDBC library to add to CLASSPATH
+     * @param ti The transaction level
      * @throws Exception if the a non-optional parameter is set to <code>NULL</code>
      */
     public RCData(String id, String url, String username, String password,
@@ -309,6 +309,9 @@ public class RCData {
      * Gets a JDBC Connection using the data of this RCData object.
      *
      * @return New JDBC Connection
+     * @throws ClassNotFoundException on class not found
+     * @throws SQLException on database access error
+     * @throws MalformedURLException on malformed URL
      */
     public Connection getConnection()
     throws ClassNotFoundException, SQLException, MalformedURLException {
@@ -319,7 +322,12 @@ public class RCData {
      * Gets a JDBC Connection using the data of this RCData object with
      * specified override elements
      *
+     * @param curDriverIn driver
+     * @param curTrustStoreIn trusted store
      * @return New JDBC Connection
+     * @throws ClassNotFoundException on class not found
+     * @throws MalformedURLException on malformed URL
+     * @throws SQLException on database access error
      */
     public Connection getConnection(String curDriverIn, String curTrustStoreIn)
                                     throws ClassNotFoundException,
@@ -479,8 +487,9 @@ public class RCData {
      * <P>
      * Database implementations are free to provide their own transaction
      * isolation levels, so you can't depend upon this method to much.
-     * </P>
-     * Returns null, since DB implementations are free to provide
+     *
+     * @param ti Transaction levle
+     * @return The string representation
      */
     public static String tiToString(int ti) {
         switch (ti) {

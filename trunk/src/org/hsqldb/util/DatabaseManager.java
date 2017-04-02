@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,8 +80,9 @@ import org.hsqldb.lib.java.JavaSystem;
 */
 
 /**
- * AWT Tool for manageing a JDBC database.<p>
+ * AWT Tool for manageing a JDBC database.
  * <pre>
+ * {@code
  *             Usage: java DatabaseManagerSwing [--options]
  *             where options include:
  *              --driver <classname>  jdbc driver class
@@ -92,6 +93,7 @@ import org.hsqldb.lib.java.JavaSystem;
  *              --rcfile <file>       use instead of default (with urlid)
  *              --dir <path>          default directory
  *              --script <file>       reads from script file
+ * }
  *</pre>
  *
  * Originally in HypersonicSQL. Extended in various versions of HSQLDB.
@@ -237,6 +239,7 @@ implements ActionListener, WindowListener, KeyListener {
     /**
      * Run with --help switch for usage instructions.
      *
+     * @param arg arguments
      * @throws IllegalArgumentException for the obvious reason
      */
     public static void main(String[] arg) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,8 @@ public interface AuthFunctionBean {
      * A return value of String[0] is different from returning null, and means
      * that the user should not be granted any roles.
      *
+     * @param userName String
+     * @param password String
      * @throws Exception If user should not be allowed access to the specified
      *         database.  Other registered AuthFunctionBeans will not be attempted.
      * @throws RuntimeException Upon system problem.  The exception will be
