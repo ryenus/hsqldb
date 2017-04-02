@@ -4703,7 +4703,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     }
 */
 //#else
-    public <T>T getObject(int columnIndex, Class<T> type) throws SQLException {
+    public <T>T getObject(int parameterIndex, Class<T> type) throws SQLException {
         throw JDBCUtil.notSupported();
     }
 
