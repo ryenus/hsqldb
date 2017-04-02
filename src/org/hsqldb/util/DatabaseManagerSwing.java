@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,8 +130,9 @@ import org.hsqldb.lib.java.JavaSystem;
 //unsaved@users 2005xxxx - improvements and bug fixes
 
 /**
- * Swing Tool for managing a JDBC database.<p>
+ * Swing Tool for managing a JDBC database.
  * <pre>
+ * {@code
  *             Usage: java DatabaseManagerSwing [--options]
  *             where options include:
  *              --driver <classname>  jdbc driver class
@@ -143,6 +144,7 @@ import org.hsqldb.lib.java.JavaSystem;
  *              --urlid <urlid>       get connection info from RC file
  *              --rcfile <file>       use instead of default (with urlid)
  *              --noexit              Don't exit JVM
+ * }
  * </pre>
  *
  * Note that the sys-table switch will not work for Oracle, because Oracle

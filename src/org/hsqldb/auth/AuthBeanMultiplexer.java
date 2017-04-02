@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,9 +68,6 @@ public class AuthBeanMultiplexer {
 
     private static AuthBeanMultiplexer singleton = new AuthBeanMultiplexer();
 
-    /**
-     * @see #setAuthFunctionBeans(List)
-     */
     private static Map<String, List<AuthFunctionBean>> beans =
             new HashMap<String, List<AuthFunctionBean>>();
 
@@ -132,7 +129,7 @@ public class AuthBeanMultiplexer {
     }
 
     /**
-     * Wrapper for setAuthFunctionBeans(String, List<AuthFunctionBean>)
+     * Wrapper for {@code setAuthFunctionBeans(String, List<AuthFunctionBean>)}
      *
      * @param c  An open Connection to the desired database.
      * @throws SQLException if failed to obtain unique name from given

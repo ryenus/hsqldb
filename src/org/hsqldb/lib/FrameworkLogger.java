@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,39 +50,41 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * A logging framework wrapper that supports java.util.logging and log4j.
- * <P/>
+ * <P>
  * Logger hierarchies are stored at the Class level.
  * Log4j will be used if the Log4j system (not necessarily config files) are
  * found in the runtime classpath.
  * Otherwise, java.util.logging will be used.
- * <P/>
+ * <P>
  * This is pretty safe because for use cases where multiple hierarchies
  * are desired, classloader hierarchies will effectively isolate multiple
  * class-level Logger hierarchies.
- * <P/>
+ * <P>
  * Sad as it is, the java.util.logging facility lacks the most basic
  * developer-side and configuration-side capabilities.
  * Besides having a non-scalable discovery system, the designers didn't
  * comprehend the need for a level between WARNING and SEVERE!
  * Since we don't want to require log4j in Classpath, we have to live
  * with these constraints.
- * <P/>
+ * <P>
  * As with all the popular logging frameworks, if you want to capture a
  * stack trace, you must use the two-parameters logging methods.
  * I.e., you must also pass a String, or only toString() from your
  * throwable will be captured.
- * <P/>
- * Usage example:<CODE><PRE>
+ * <P>
+ * Usage example:
+ *
+ * <pre><CODE>
  * private static FrameworkLogger logger =
  *        FrameworkLogger.getLog(SqlTool.class);
  * ...
  *   logger.finer("Doing something log-worthy");
- * </PRE> </CODE>
+ * </CODE></pre>
  *
- * <p/>
+ * <p>
  * The system level property <code>hsqldb.reconfig_logging=false</code> is
  * required to avoid configuration of java.util.logging. Otherwise
- * configuration takes place.<p/>
+ * configuration takes place.
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @version 2.3.3
@@ -103,12 +105,13 @@ public class FrameworkLogger {
      */
 
     /**
-     * Utility method for integrators.
-     * Returns a string representation of the active Logger instance keys.
-     * <p>
-     * Not named similar to 'toString' to avoid ambiguity with instance method
-     * toString.
-     * </p>
+     * Utility method for integrators. Returns a string representation of the
+     * active Logger instance keys.
+     *
+     * <p> Not named similar to 'toString' to avoid ambiguity with instance
+     * method toString. </p>
+     *
+     * @return String
      */
     public static synchronized String report() {
 
@@ -137,14 +140,14 @@ public class FrameworkLogger {
     /**
      * Frees Logger(s), if any, with the specified category, or that begins with
      * the specified prefix + dot.
-     * <p>
-     * Note that as of today, this depends on the underlying logging framework
-     * implementation to release the underlying Logger instances.
-     * JUL in Sun's JVM uses weak references, so that should be fine.
-     * Log4j as of today seems to use strong references (and no API hooks to
-     * free anything), so this method will probably have little benefit for
-     * Log4j.
-     * </p>
+     *
+     * <p> Note that as of today, this depends on the underlying logging
+     * framework implementation to release the underlying Logger instances. JUL
+     * in Sun's JVM uses weak references, so that should be fine. Log4j as of
+     * today seems to use strong references (and no API hooks to free anything),
+     * so this method will probably have little benefit for Log4j.
+     *
+     * @param prefixToZap String
      */
     public static synchronized void clearLoggers(String prefixToZap) {
 
@@ -388,6 +391,8 @@ public class FrameworkLogger {
 
     /**
      * User may not use the constructor.
+     *
+     * @param s String
      */
     private FrameworkLogger(String s) {
 
@@ -411,23 +416,27 @@ public class FrameworkLogger {
     }
 
     /**
-     * User's entry-point into this logging system.
-     * <P/>
-     * You normally want to work with static (class-level) pointers to
-     * logger instances, for performance efficiency.
-     * See the class-level JavaDoc for a usage example.
+     * User's entry-point into this logging system. <P> You normally want to
+     * work with static (class-level) pointers to logger instances, for
+     * performance efficiency. See the class-level JavaDoc for a usage example.
      *
      * @see FrameworkLogger
+     * @param c Class
+     * @return FrameworkLogger
      */
     public static FrameworkLogger getLog(Class c) {
         return getLog(c.getName());
     }
 
     /**
-     * This method just defers to the getLog(Class) method unless default
-     * (no local configuration) JDK logging is being used;
-     * In that case, this method assures that the returned logger has an
-     * associated FileHander using the supplied String identifier.
+     * This method just defers to the getLog(Class) method unless default (no
+     * local configuration) JDK logging is being used; In that case, this method
+     * assures that the returned logger has an associated FileHander using the
+     * supplied String identifier.
+     *
+     * @param c Class
+     * @param contextId String
+     * @return FrameworkLogger
      */
     public static FrameworkLogger getLog(Class c, String contextId) {
         return (contextId == null) ? getLog(c)
@@ -435,10 +444,14 @@ public class FrameworkLogger {
     }
 
     /**
-     * This method just defers to the getLog(String) method unless default
-     * (no local configuration) JDK logging is being used;
-     * In that case, this method assures that the returned logger has an
-     * associated FileHander using the supplied String identifier.
+     * This method just defers to the getLog(String) method unless default (no
+     * local configuration) JDK logging is being used; In that case, this method
+     * assures that the returned logger has an associated FileHander using the
+     * supplied String identifier.
+     *
+     * @param baseId String
+     * @param contextId String
+     * @return FrameworkLogger
      */
     public static FrameworkLogger getLog(String baseId, String contextId) {
         return (contextId == null) ? getLog(baseId)
@@ -446,11 +459,13 @@ public class FrameworkLogger {
     }
 
     /**
-     * Alternative entry-point into this logging system, for cases where
-     * you want to share a single logger instance among multiple classes,
-     * or you want to use multiple logger instances from a single class.
+     * Alternative entry-point into this logging system, for cases where you
+     * want to share a single logger instance among multiple classes, or you
+     * want to use multiple logger instances from a single class.
      *
      * @see #getLog(Class)
+     * @param s String
+     * @return FrameworkLogger
      */
     public static synchronized FrameworkLogger getLog(String s) {
 
@@ -477,11 +492,15 @@ public class FrameworkLogger {
     }
 
     /**
-     * The "priv" prefix is historical.
-     * This is for special usage when you need to modify the reported call
-     * stack.
-     * If you don't know that you want to do this, then you should not use
-     * this method.
+     * The "priv" prefix is historical. This is for special usage when you need
+     * to modify the reported call stack. If you don't know that you want to do
+     * this, then you should not use this method.
+     *
+     * @param level Level
+     * @param message String
+     * @param t Throwable
+     * @param revertMethods int
+     * @param skipClass Class
      */
     public void privlog(Level level, String message, Throwable t,
                         int revertMethods, Class skipClass) {
@@ -620,6 +639,7 @@ public class FrameworkLogger {
     /**
      * Just like FrameworkLogger.finer(String), but also logs a stack trace.
      *
+     * @param message String
      * @param t Throwable whose stack trace will be logged.
      * @see #finer(String)
      */
@@ -630,6 +650,7 @@ public class FrameworkLogger {
     /**
      * Just like FrameworkLogger.warning(String), but also logs a stack trace.
      *
+     * @param message String
      * @param t Throwable whose stack trace will be logged.
      * @see #warning(String)
      */
@@ -640,6 +661,7 @@ public class FrameworkLogger {
     /**
      * Just like FrameworkLogger.severe(String), but also logs a stack trace.
      *
+     * @param message String
      * @param t Throwable whose stack trace will be logged.
      * @see #severe(String)
      */
@@ -650,6 +672,7 @@ public class FrameworkLogger {
     /**
      * Just like FrameworkLogger.info(String), but also logs a stack trace.
      *
+     * @param message String
      * @param t Throwable whose stack trace will be logged.
      * @see #info(String)
      */
@@ -660,6 +683,7 @@ public class FrameworkLogger {
     /**
      * Just like FrameworkLogger.finest(String), but also logs a stack trace.
      *
+     * @param message String
      * @param t Throwable whose stack trace will be logged.
      * @see #finest(String)
      */
@@ -670,6 +694,7 @@ public class FrameworkLogger {
     /**
      * Just like FrameworkLogger.error(String), but also logs a stack trace.
      *
+     * @param message String
      * @param t Throwable whose stack trace will be logged.
      * @see #error(String)
      */
@@ -678,10 +703,11 @@ public class FrameworkLogger {
     }
 
     /**
-     * Whether this JVM is configured with java.util.logging defaults.
+     * Whether this JVM is configured with java.util.logging defaults. If the
+     * JRE-provided config file is not in the expected place, then we return
+     * false.
      *
-     * If the JRE-provided config file is not in the expected place, then
-     * we return false.
+     * @return boolean
      */
     public static boolean isDefaultJdkConfig() {
 
