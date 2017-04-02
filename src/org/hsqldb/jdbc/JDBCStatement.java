@@ -292,7 +292,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @param max the new column size limit in bytes; zero means there is no limit
      * @exception SQLException if a database access error occurs,
      * this method is called on a closed <code>Statement</code>
-     *            or the condition {@code max >= 0} is not satisfied
+     * or the condition {@code max >= 0} is not satisfied
      * @see #getMaxFieldSize
      */
     public void setMaxFieldSize(int max) throws SQLException {
@@ -339,7 +339,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @param max the new max rows limit; zero means there is no limit
      * @exception SQLException if a database access error occurs,
      * this method is called on a closed <code>Statement</code>
-     *            or the condition {@code max >= 0} is not satisfied
+     * or the condition {@code max >= 0} is not satisfied
      * @see #getMaxRows
      */
     public synchronized void setMaxRows(int max) throws SQLException {
@@ -429,7 +429,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      *        there is no limit
      * @exception SQLException if a database access error occurs,
      * this method is called on a closed <code>Statement</code>
-     *            or the condition {@code seconds >= 0} is not satisfied
+     * or the condition {@code seconds >= 0} is not satisfied
      * @see #getQueryTimeout
      */
     public void setQueryTimeout(int seconds) throws SQLException {
