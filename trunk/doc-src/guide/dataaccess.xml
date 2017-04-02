@@ -3834,7 +3834,7 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       function, or when there are BEFORE triggers on the table that may
       provide the inserted value for some of the columns.</para>
 
-      <para>In MySQL syntax compatibility mode, HyperSQL supports and INSERT
+      <para>In MySQL syntax compatibility mode, HyperSQL supports INSERT
       IGNORE, REPLACE and ON DUPLICATE KEY UPDATE variations of the INSERT
       statement.</para>
     </section>
