@@ -63,8 +63,7 @@ import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * The representation (mapping) in
- * the Java<sup><font size=-2>TM</font></sup> programming
- * language of an SQL
+ * the Java&trade; programming language of an SQL
  * <code>BLOB</code> value.  An SQL <code>BLOB</code> is a built-in type
  * that stores a Binary Large Object as a column value in a row of
  * a database table. By default drivers implement <code>Blob</code> using
@@ -125,7 +124,6 @@ import org.hsqldb.lib.java.JavaSystem;
  * @author campbell-burnet@users
  * @version 2.4.0
  * @since JDK 1.2, HSQLDB 1.7.2
- * @revised JDK 1.6, HSQLDB 2.0
  */
 public class JDBCBlob implements Blob {
 
@@ -155,10 +153,11 @@ public class JDBCBlob implements Blob {
      *
      * The official specification above is ambiguous in that it does not
      * precisely indicate the policy to be observed when
-     * pos > this.length() - length.  One policy would be to retrieve the
+     * {@code pos > this.length() - length}.  One policy would be to retrieve the
      * octets from pos to this.length().  Another would be to throw an
      * exception.  HSQLDB observes the second policy.
-     * </div> <!-- end release-specific documentation -->
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param pos the ordinal position of the first byte in the
      *        <code>BLOB</code> value to be extracted; the first byte is at
@@ -374,7 +373,6 @@ public class JDBCBlob implements Blob {
      * this method
      * @see #getBytes
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 2.0
      */
     public int setBytes(long pos, byte[] bytes) throws SQLException {
         return setBytes(pos, bytes, 0, bytes == null ? 0 : bytes.length);
@@ -452,7 +450,6 @@ public class JDBCBlob implements Blob {
      * this method
      * @see #getBytes
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 2.0
      */
     public int setBytes(long pos, byte[] bytes, int offset,
                         int len) throws SQLException {
@@ -563,7 +560,6 @@ public class JDBCBlob implements Blob {
      * this method
      * @see #getBinaryStream
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 2.0
      */
     public OutputStream setBinaryStream(final long pos) throws SQLException {
 
@@ -634,7 +630,6 @@ public class JDBCBlob implements Blob {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 2.0
      */
     public void truncate(final long len) throws SQLException {
 

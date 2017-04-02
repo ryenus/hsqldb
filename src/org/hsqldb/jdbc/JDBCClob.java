@@ -68,8 +68,7 @@ import org.hsqldb.lib.java.JavaSystem;
 // - better bounds checking
 
 /**
- * The mapping in the Java<sup><font size=-2>TM</font></sup> programming language
- * for the SQL <code>CLOB</code> type.
+ * The mapping in the Java&trade; programming language for the SQL <code>CLOB</code> type.
  * An SQL <code>CLOB</code> is a built-in type
  * that stores a Character Large Object as a column value in a row of
  * a database table.

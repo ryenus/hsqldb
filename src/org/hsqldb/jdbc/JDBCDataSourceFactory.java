@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,6 +63,10 @@ public class JDBCDataSourceFactory implements ObjectFactory {
     /**
      * Static method to create a JDBCDataSource instance using the
      * given properties for url, user, password, etc.
+     *
+     * @param props properties
+     * @return the data source instance
+     * @throws Exception on any error
      */
     public static DataSource createDataSource(Properties props)
     throws Exception {

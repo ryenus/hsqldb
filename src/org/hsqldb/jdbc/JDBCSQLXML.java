@@ -47,6 +47,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLXML;
 import java.util.ArrayList;
 import java.util.List;
@@ -281,7 +282,7 @@ import org.xml.sax.SAXException;
  *
  * Here is the current read/write availability lifecycle for JDBCSQLXML:
  *
- * <TABLE border="1" cellspacing=1" cellpadding="3">
+ * <TABLE summary="">
  *     <THEAD valign="bottom">
  *         <TR align="center">
  *             <TH>
@@ -347,7 +348,6 @@ import org.xml.sax.SAXException;
  * @see javax.xml.transform
  * @see javax.xml.xpath
  * @since JDK 1.6, HSQLDB 2.0
- * @revised Mustang Build 79
  */
 public class JDBCSQLXML implements SQLXML {
 
@@ -3108,6 +3108,8 @@ public class JDBCSQLXML implements SQLXML {
 
         /**
          * Retrieves whether this object is closed.
+         *
+         * @return boolean
          */
         public boolean isClosed() {
             return this.closed;

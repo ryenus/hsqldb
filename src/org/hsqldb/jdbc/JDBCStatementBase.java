@@ -67,7 +67,7 @@ import org.hsqldb.result.ResultConstants;
  */
 
 /**
- * @todo 1.9.0 - review the following issues:
+ * review the following issues:
  *
  * Does not always close ResultSet object directly when closed. Although RS
  * objects will eventually be closed when accessed, the change is not reflected
@@ -130,8 +130,10 @@ class JDBCStatementBase {
     /** connection generation */
     int connectionIncarnation;
 
-    /** Implementation in subclasses */
-    public synchronized void close() throws SQLException {}
+    /** Implementation in subclasses
+     * @throws SQLException on access error
+     */
+    void close() throws SQLException {}
 
     /**
      * An internal check for closed statements.

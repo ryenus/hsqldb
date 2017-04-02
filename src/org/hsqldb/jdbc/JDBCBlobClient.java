@@ -315,8 +315,6 @@ public class JDBCBlobClient implements Blob {
      *
      * @throws SQLException if an error occurs releasing
      * the Blob's resources
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized void free() throws SQLException {
@@ -335,8 +333,6 @@ public class JDBCBlobClient implements Blob {
      * in the <code>Blob</code> or if pos + length is greater than the number of bytes
      * in the <code>Blob</code>
      *
-     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
-     * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized InputStream getBinaryStream(long pos,
