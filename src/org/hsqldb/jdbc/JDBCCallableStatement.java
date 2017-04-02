@@ -5378,7 +5378,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * returned.<p>
      *
      * If the FUNCTION or PROCEDURE does not return a ResultSet, an
-     * <code>SQLException</code> if thrown.
+     * <code>SQLException</code> if thrown.<p>
      * </div>
      * <!-- end release-specific documentation -->
      *
