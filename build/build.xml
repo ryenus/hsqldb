@@ -907,6 +907,13 @@ examples:
            only listed once if jdbc package is selected). -->
       <javadoc
            sourcefiles="src/org/hsqldb/jdbc/JDBCDriver.java,
+		                src/org/hsqldb/jdbc/pool/JDBCPooledConnection.java,
+		                src/org/hsqldb/jdbc/pool/JDBCPooledDataSource.java,
+		                src/org/hsqldb/jdbc/pool/JDBCXAConnection.java,
+		                src/org/hsqldb/jdbc/pool/JDBCXAConnectionWrapper.java,
+		                src/org/hsqldb/jdbc/pool/JDBCXADataSource.java,
+		                src/org/hsqldb/jdbc/pool/JDBCXAResource.java,
+		                src/org/hsqldb/jdbc/pool/JDBCXID.java,
                         src/org/hsqldb/Trigger.java,
                         src/org/hsqldb/server/Server.java,
                         src/org/hsqldb/server/WebServer.java,
