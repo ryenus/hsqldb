@@ -395,7 +395,7 @@ public class Logger implements EventLogInterface {
             checkpoint(null, false, false);
         }
 
-        if (database.getNameString().isEmpty()) {
+        if (database.getNameString().length() == 0) {
             database.setDatabaseName(newUniqueName());
         }
 
@@ -800,7 +800,7 @@ public class Logger implements EventLogInterface {
 
         String name = database.getNameString();
 
-        if (name.isEmpty()) {
+        if (name.length() == 0) {
 
             // The database unique name is set up at different times
             // depending on upgraded / exiting / new databases.
