@@ -39,7 +39,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Savepoint;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Calendar;
@@ -47,8 +46,9 @@ import java.util.Map;
 
 //#ifdef JAVA6
 import java.sql.Array;
-import java.sql.SQLClientInfoException;
 import java.sql.NClob;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLXML;
 import java.sql.Struct;
 import java.util.Properties;
@@ -3581,7 +3581,7 @@ public class JDBCConnection implements Connection {
 
     /**
      * Constructor for use with connection pooling and XA.
-     * 
+     *
      * @param c the connection
      * @param eventListener the listener
      */
