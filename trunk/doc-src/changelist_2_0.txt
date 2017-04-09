@@ -1,7 +1,10 @@
-31 March 2017 - release candidate
+9 April 2017 - version 2.4.0
+-- version 2.4.0 jar requires JRE 8
+-- version 2.3.5 is released as a separate jar for JRE 1.6 and fully compatible except for the new JDBC features
 -- added support for new JAVA 8 JDBC methods to ResultSet and Statement classes
 -- added support for several functions SINH COSH TANH NEXT_DAY DATEPART DATENAME EOMONTH NEWID SYS_GUID
 -- added support for execution of DDL statements concurrently with other transactions
+-- added support for table spaces for CACHED tables, which helps file space reuse after dropping tables or mass deletes
 -- improved support for WITH named subqueries in routines, allowing parameters to be referenced
 -- improved support for WITH RECURSIVE named subqueries to be used in other subqueries
 -- improved support for UUID in ResultSet to return a Java UUID with getObject()
