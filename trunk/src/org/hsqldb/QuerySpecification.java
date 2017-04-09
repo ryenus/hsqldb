@@ -1346,19 +1346,14 @@ public class QuerySpecification extends QueryExpression {
             return;
         }
 
-        OrderedHashSet expressions       = new OrderedHashSet();
-        OrderedHashSet columnExpressions = new OrderedHashSet();
+        OrderedHashSet expressions = new OrderedHashSet();
 
         for (int i = indexStartAggregates; i < indexLimitExpressions; i++) {
             Expression e = exprColumns[i];
 
             e.resultTableColumnIndex = i;
 
-            Expression c = new ExpressionColumn(e, i, resultRangePosition);
-
-            if (expressions.add(e)) {
-                columnExpressions.add(c);
-            }
+            expressions.add(e);
         }
 
         for (int i = 0; i < indexStartHaving; i++) {
@@ -1370,11 +1365,7 @@ public class QuerySpecification extends QueryExpression {
 
             e.resultTableColumnIndex = i;
 
-            if (expressions.add(e)) {
-                Expression c = new ExpressionColumn(e, i, resultRangePosition);
-
-                columnExpressions.add(c);
-            }
+            expressions.add(e);
         }
 
         // order by with aggregate

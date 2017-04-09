@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,6 +80,10 @@ public class IntKeyHashMap extends BaseHashMap {
         return super.containsKey(key);
     }
 
+    public int capacity() {
+        return super.capacity();
+    }
+
     public void putAll(IntKeyHashMap other) {
 
         Iterator it = other.keySet().iterator();
@@ -90,7 +94,6 @@ public class IntKeyHashMap extends BaseHashMap {
             put(key, other.get(key));
         }
     }
-
 
     public void valuesToArray(Object[] array) {
 

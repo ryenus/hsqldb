@@ -1735,7 +1735,16 @@ public class RangeVariable {
 
     static final class RangeIteratorCheck implements RangeIterator {
 
-        Object[] currentData;
+        final int rangePosition;
+        Object[]  currentData;
+
+        RangeIteratorCheck() {
+            this.rangePosition = 0;
+        }
+
+        RangeIteratorCheck(int rangePosition) {
+            this.rangePosition = rangePosition;
+        }
 
         public Object getField(int col) {
             return currentData[col];
@@ -1784,7 +1793,7 @@ public class RangeVariable {
         public void reset() {}
 
         public int getRangePosition() {
-            return 0;
+            return rangePosition;
         }
     }
 
