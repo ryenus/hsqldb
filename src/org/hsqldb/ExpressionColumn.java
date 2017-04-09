@@ -139,9 +139,9 @@ public class ExpressionColumn extends Expression {
 
         super(OpTypes.SIMPLE_COLUMN);
 
-        dataType           = e.dataType;
-        columnIndex        = colIndex;
-        alias              = e.alias;
+        this.dataType      = e.dataType;
+        this.columnIndex   = colIndex;
+        this.alias         = e.getSimpleName();
         this.rangePosition = rangePosition;
     }
 

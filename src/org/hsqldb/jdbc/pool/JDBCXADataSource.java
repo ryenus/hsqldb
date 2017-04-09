@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,6 +86,8 @@ implements XADataSource, Serializable, Referenceable
 
     /**
      * Get new XAConnection connection, to be managed by a connection manager.
+     * 
+     * @throws SQLException on error
      */
     public XAConnection getXAConnection() throws SQLException {
 
@@ -113,6 +115,10 @@ implements XADataSource, Serializable, Referenceable
      *                  for this JDBCXADataSource.
      *
      * @see #getXAConnection()
+     * 
+     * @param user the user
+     * @param password the password
+     * @throws SQLException on error
      */
     public XAConnection getXAConnection(String user,
                                         String password) throws SQLException {

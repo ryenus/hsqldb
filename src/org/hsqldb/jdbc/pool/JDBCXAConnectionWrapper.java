@@ -74,6 +74,9 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * Interceptor method, because this method is prohibited within
      * any global transaction.
      * See section 1.2.4 of the JDBC 3.0 spec.
+     * 
+     * @param autoCommit
+     * @throws SQLException on error
      */
     public void setAutoCommit(boolean autoCommit) throws SQLException {
         validateNotWithinTransaction();
@@ -84,6 +87,8 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * Interceptor method, because this method is prohibited within
      * any global transaction.
      * See section 1.2.4 of the JDBC 3.0 spec.
+     * 
+     * @throws SQLException on error
      */
     public void commit() throws SQLException {
         validateNotWithinTransaction();
@@ -94,6 +99,8 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * Interceptor method, because this method is prohibited within
      * any global transaction.
      * See section 1.2.4 of the JDBC 3.0 spec.
+     * 
+     * @throws SQLException on error
      */
     public void rollback() throws SQLException {
         validateNotWithinTransaction();
@@ -104,6 +111,8 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * Interceptor method, because this method is prohibited within
      * any global transaction.
      * See section 1.2.4 of the JDBC 3.0 spec.
+     * 
+     * @throws SQLException on error
      */
     public void rollback(Savepoint savepoint) throws SQLException {
         validateNotWithinTransaction();
@@ -114,6 +123,8 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * Interceptor method, because this method is prohibited within
      * any global transaction.
      * See section 1.2.4 of the JDBC 3.0 spec.
+     * 
+     * @throws SQLException on error
      */
     public Savepoint setSavepoint() throws SQLException {
 
