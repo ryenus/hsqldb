@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,10 +47,10 @@ import org.hsqldb.lib.StringUtil;
 
 // peterhudson@users 20020130 - patch 478657 by peterhudson - new class
 // fredt@users 20030727 - signature altered
-// boucherb@users 20040315 - sample updated
+// campbell-burnet@users 20040315 - sample updated
 
 /**
- * <P>Sample code for use of triggers in hsqldb.
+ * Sample code for use of triggers in hsqldb.<p>
  *
  * This class org.hsqldb.sample package, but a typical implementation is in
  * users's class hierarchy.
@@ -97,15 +97,15 @@ import org.hsqldb.lib.StringUtil;
  * The mapping of row classes to database types is specified in
  * /doc/hsqlSyntax.html#Datatypes. <p>
  *
- * To be done:<p>
+ * To be done:
  *
  * <ol>
  * <li> Implement the "jdbc:default:connection: URL to provide transparent
  *      and portable access to internal connections for use in triggers and
- *      stored procedures. <p>
+ *      stored procedures.
  *
- * <li> Implement declaritive column to trigger method argument
- *      mapping, conditional execution (WHEN clause), etc. <p>
+ * <li> Implement declarative column to trigger method argument
+ *      mapping, conditional execution (WHEN clause), etc.
  *
  * <li> Investigate and refine synchronous and asynchronous trigger models. <p>
  *
@@ -121,7 +121,7 @@ import org.hsqldb.lib.StringUtil;
  * </ol>
  *
  * @author Peter Hudson
- * @author boucherb@users
+ * @author campbell-burnet@users
  * @version 1.7.2
  * @since 1.7.0
  */
