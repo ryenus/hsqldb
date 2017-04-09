@@ -29,7 +29,7 @@
    <condition property="hsqldb.version" value="2.4.0">
        <available classname="java.sql.JDBCType"/>
    </condition>
-   <property name="hsqldb.version" value="2.3.5"/>
+   <property name="hsqldb.version" value="2.4.0"/>
 
    <tstamp>
        <format property="timestamp" pattern="yyyy/MM/dd-HH:mm:ss"
