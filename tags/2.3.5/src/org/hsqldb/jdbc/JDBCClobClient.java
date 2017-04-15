@@ -47,7 +47,10 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.IllegalCharsetNameException;
 import java.sql.Clob;
 import java.sql.SQLException;
+
+//#ifdef JAVA6
 import java.sql.SQLFeatureNotSupportedException;
+//#endif JAVA6
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
