@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,9 +38,9 @@ import org.hsqldb.resources.ResourceBundleHandler;
 // fredt@users 20020215 - patch 1.7.0 by fredt
 // method re-organised to use new HsqlServerProperties class
 // unsaved@users 20021113 - patch 1.7.2 - SSL support
-// boucherb@users 20030510 - patch 1.7.2 - SSL support moved to factory interface
-// boucherb@users 20030510 - patch 1.7.2 - moved all common code to Server
-// boucherb@users 20030510 - patch 1.7.2 - general lint removal
+// campbell-burnet@users 20030510 - patch 1.7.2 - SSL support moved to factory interface
+// campbell-burnet@users 20030510 - patch 1.7.2 - moved all common code to Server
+// campbell-burnet@users 20030510 - patch 1.7.2 - general lint removal
 
 /**
  *  The HSQLDB HTTP protocol network database server. <p>
@@ -69,7 +69,7 @@ import org.hsqldb.resources.ResourceBundleHandler;
  *  addition, a list mapping different file endings to their mime types may be
  *  included in this file. (fredt@users) <p>
  *
- * From the command line, the options are as follows: <p>
+ * From the command line, the options are as follows:
  * <pre>
  * +-----------------+-------------+----------+------------------------------+
  * |    OPTION       |    TYPE     | DEFAULT  |         DESCRIPTION          |
@@ -79,7 +79,7 @@ import org.hsqldb.resources.ResourceBundleHandler;
  * | --port          | number      | 80       | port at which server listens |
  * | --database.i    | [type]spec  | 0=test   | path of database i           |
  * | --dbname.i      | alias       |          | url alias for database i     |
- * | --silent        | true|false  | true     | false => display all queries |
+ * | --silent        | true|false  | true     | false =&gt; display all queries |
  * | --trace         | true|false  | false    | display JDBC trace messages  |
  * | --no_system_exit| true|false  | false    | do not issue System.exit()   |
  * +-----------------+-------------+----------+------------------------------+
@@ -111,7 +111,7 @@ import org.hsqldb.resources.ResourceBundleHandler;
  *   <li>File extensions for mime types must be lowercase and start with '.'
  * </ul>
  *
- * @author Campbell Burnet (boucherb@users dot sourceforge.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.2
@@ -210,10 +210,6 @@ public class WebServer extends Server {
      * This attribute is relevant only when server protocol is HTTP(S).
      *
      * @return the name of the web page served when no page is specified
-     *
-     * @jmx.managed-attribute
-     *  access="read-write"
-     *  description="Used when server protocol is HTTP(S)"
      */
     public String getDefaultWebPage() {
         return serverProperties.getProperty(
@@ -237,10 +233,6 @@ public class WebServer extends Server {
      * Typically, this will be something like: "HSQLDB xxx server".
      *
      * @return the product name of this server
-     *
-     * @jmx.managed-attribute
-     *  access="read-only"
-     *  description="Of Server"
      */
     public String getProductName() {
         return "HSQLDB web server";
@@ -251,10 +243,6 @@ public class WebServer extends Server {
      * this server offers, typically one of 'HTTP', HTTPS', 'HSQL' or 'HSQLS'.
      *
      * @return string representation of this server's protocol
-     *
-     * @jmx.managed-attribute
-     *  access="read-only"
-     *  description="Used to handle connections"
      */
     public String getProtocol() {
         return isTls() ? "HTTPS"
@@ -269,10 +257,6 @@ public class WebServer extends Server {
      * be served from the contents of a jar or from the JVM class path.
      *
      * @return the root context (directory) from which web content is served
-     *
-     * @jmx.managed-attribute
-     *  access="read-write"
-     *  description="Context (directory)"
      */
     public String getWebRoot() {
         return serverProperties.getProperty(ServerProperties.sc_key_web_root);
