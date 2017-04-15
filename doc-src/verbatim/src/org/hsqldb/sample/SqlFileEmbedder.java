@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,9 +43,9 @@ import java.util.Map;
 
 /**
  * Sample class which executes SQL files, by embedding SqlFile.
- * <P/>
+ * <P>
  * Suitable for using as a template.
- * <P/>
+ * <P>
  * This class also serves as an example of using RCData to allow your
  * application users to store JDBC access information in a convenient
  * text file.
@@ -70,9 +70,10 @@ public class SqlFileEmbedder {
     }
 
     /**
-     * Run<PRE>
-     *     java SqlFileEmbedder</PRE>
-     * to see Syntax message.
+     * Run<PRE> java SqlFileEmbedder</PRE> to see Syntax message.
+     *
+     * @param sa String[]
+     * @throws Exception on any problem
      */
     public static void main(String[] sa) throws Exception {
         if (sa.length < 3) {
@@ -101,12 +102,15 @@ public class SqlFileEmbedder {
 
     /**
      * Instantiates SqlFileEmbedder object and connects to specified database.
-     * <P/>
-     * N.b., you do not need to use RCData to use SqlFile.
-     * All SqlFile needs is a live Connection.
-     * I'm using RCData because it is a convenient way for a non-contained
-     * app (i.e. one that doesn't run in a 3rd party container) to get a
-     * Connection.
+     * <P>
+     * N.b., you do not need to use RCData to use SqlFile. All SqlFile
+     * needs is a live Connection. I'm using RCData because it is a convenient
+     * way for a non-contained app (i.e. one that doesn't run in a 3rd party
+     * container) to get a Connection.
+     *
+     * @param rcFile File
+     * @param urlid String
+     * @throws Exception on any problem
      */
     public SqlFileEmbedder(File rcFile, String urlid) throws Exception {
         conn = (new RCData(rcFile, urlid)).getConnection();
@@ -114,12 +118,15 @@ public class SqlFileEmbedder {
     }
 
     /**
-     * Your own classes can use this method to execute SQL files.
-     * <P/>
+     * Your own classes can use this method to execute SQL files. <P>
      * See source code for the main(String[]) method for an example of calling
      * this method.
      *
      * @see #main(String[])
+     * @param fileStrings String[]
+     * @throws IOException on io problems
+     * @throws SqlToolError on SQL Tool problems
+     * @throws SQLException on SQL problems
      */
     public void executeFiles(String[] fileStrings)
             throws IOException, SqlToolError, SQLException {

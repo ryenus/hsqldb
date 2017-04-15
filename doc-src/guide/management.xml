@@ -800,7 +800,7 @@
     circumvent security. It is however the user's responsibility to enable the
     required level of security.</para>
 
-    <section xml:id="mtc_security_defaults">
+    <section xml:id="mtc_security_recommend">
       <title>Basic Security Recommendations</title>
 
       <para>The default setting are generally adequate for embedded use of the

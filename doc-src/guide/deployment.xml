@@ -241,7 +241,7 @@
       is not used.</para>
     </section>
 
-    <section xml:id="dec_nio_access">
+    <section xml:id="tspace_usage">
       <title>Using Table Spaces</title>
 
       <para>Data for all CACHED tables is stored in the .data file. With new
