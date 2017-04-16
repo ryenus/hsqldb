@@ -499,6 +499,8 @@ public class JDBCPool implements DataSource,
         throw (java.sql.SQLFeatureNotSupportedException) JDBCUtil.notSupported();
     }
 
+//#endif JAVA6
+
     // ------------------------ custom public methods ------------------------
 
     /**
