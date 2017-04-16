@@ -7,12 +7,14 @@ org/hsqldb/lib/tar/TarGenerator.java
 org/hsqldb/lib/tar/TarReader.java
 org/hsqldb/jdbc/JDBCBlob.java
 org/hsqldb/jdbc/JDBCClob.java
+org/hsqldb/jdbc/JDBCClobClient.java
 org/hsqldb/jdbc/JDBCCallableStatement.java
 org/hsqldb/jdbc/JDBCCommonDataSource.java
 org/hsqldb/jdbc/JDBCConnection.java
 org/hsqldb/jdbc/JDBCDatabaseMetaData.java
 org/hsqldb/jdbc/JDBCDataSource.java
 org/hsqldb/jdbc/JDBCDriver.java
+org/hsqldb/jdbc/JDBCPool.java
 org/hsqldb/jdbc/JDBCParameterMetaData.java
 org/hsqldb/jdbc/JDBCPreparedStatement.java
 org/hsqldb/jdbc/JDBCResultSet.java
