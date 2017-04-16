@@ -34,10 +34,11 @@ package org.hsqldb.jdbc;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 
 //#ifdef JAVA6
+import java.sql.SQLFeatureNotSupportedException;
+
 import javax.sql.CommonDataSource;
 
 //#endif JAVA6
@@ -329,7 +330,8 @@ public abstract class JDBCCommonDataSource implements Serializable {
         }
 
         if (loginTimeout != 0) {
-            connectionProps.setProperty("loginTimeout", Integer.toString(loginTimeout));
+            connectionProps.setProperty("loginTimeout",
+                                        Integer.toString(loginTimeout));
         }
     }
 
@@ -349,7 +351,8 @@ public abstract class JDBCCommonDataSource implements Serializable {
 //#ifdef JAVA6
     public java.util.logging.Logger getParentLogger()
     throws java.sql.SQLFeatureNotSupportedException {
-        throw (java.sql.SQLFeatureNotSupportedException) JDBCUtil.notSupported();
+        throw (java.sql
+            .SQLFeatureNotSupportedException) JDBCUtil.notSupported();
     }
 
 //#endif
