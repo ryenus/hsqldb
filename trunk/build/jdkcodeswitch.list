@@ -7,6 +7,7 @@ org/hsqldb/lib/tar/TarGenerator.java
 org/hsqldb/lib/tar/TarReader.java
 org/hsqldb/jdbc/JDBCBlob.java
 org/hsqldb/jdbc/JDBCClob.java
+org/hsqldb/jdbc/JDBCClobClient.java
 org/hsqldb/jdbc/JDBCCallableStatement.java
 org/hsqldb/jdbc/JDBCCommonDataSource.java
 org/hsqldb/jdbc/JDBCConnection.java
