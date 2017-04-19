@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.result.Result;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.3.6
  * @since 1.7.2
  */
 public class ClientConnectionHTTP extends ClientConnection {
@@ -90,13 +90,12 @@ public class ClientConnectionHTTP extends ClientConnection {
                 s = "/";
             }
 
-            s = "http://" + host + ":" + port + path + s + database;
-
             if (isTLS) {
                 url = new URL("https://" + host + ":" + port + path + s
                               + database);    // PROTECT/servlet/hsqldb
             } else {
-                url = new URL(s);             // PROTECT/servlet/hsqldb
+                url = new URL("http://" + host + ":" + port + path + s
+                              + database);    // PROTECT/servlet/hsqldb
             }
 
             httpConnection = (HttpURLConnection) url.openConnection();
