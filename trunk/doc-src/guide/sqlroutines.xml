@@ -1782,7 +1782,7 @@
           </row>
 
           <row>
-            <entry>TIMSTAMP WITH TIME ZONE</entry>
+            <entry>TIMESTAMP WITH TIME ZONE</entry>
 
             <entry>java.time.OffsetDateTime</entry>
           </row>
