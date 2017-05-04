@@ -76,7 +76,7 @@ import org.hsqldb.types.Types;
  * Some functions are translated into equivalent SQL Standard functions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.3.6
  * @since 1.9.0
  */
 public class FunctionCustom extends FunctionSQL {
@@ -1066,7 +1066,8 @@ public class FunctionCustom extends FunctionSQL {
                         long seconds = units / DTIType.limitNanoseconds;
                         int  nanos = (int) (units % DTIType.limitNanoseconds);
 
-                        t = Type.SQL_INTERVAL_SECOND_MAX_FRACTION;
+                        t = Type
+                            .SQL_INTERVAL_SECOND_MAX_FRACTION_MAX_PRECISION;
                         o = new IntervalSecondData(seconds, nanos, t);
 
                         return dataType.add(session, source, o, t);
@@ -1076,7 +1077,8 @@ public class FunctionCustom extends FunctionSQL {
                         long seconds = units / 1000000;
                         int  nanos   = (int) (units % 1000000) * 1000;
 
-                        t = Type.SQL_INTERVAL_SECOND_MAX_FRACTION;
+                        t = Type
+                            .SQL_INTERVAL_SECOND_MAX_FRACTION_MAX_PRECISION;
                         o = new IntervalSecondData(seconds, nanos, t);
 
                         return dataType.add(session, source, o, t);
@@ -1086,14 +1088,16 @@ public class FunctionCustom extends FunctionSQL {
                         long seconds = units / 1000;
                         int  nanos   = (int) (units % 1000) * 1000000;
 
-                        t = Type.SQL_INTERVAL_SECOND_MAX_FRACTION;
+                        t = Type
+                            .SQL_INTERVAL_SECOND_MAX_FRACTION_MAX_PRECISION;
                         o = new IntervalSecondData(seconds, nanos, t);
 
                         return dataType.add(session, source, o, t);
                     }
                     case Tokens.SECOND :
                     case Tokens.SQL_TSI_SECOND :
-                        t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
+                        t = Type
+                            .SQL_INTERVAL_SECOND_MAX_FRACTION_MAX_PRECISION;
                         o = IntervalSecondData.newIntervalSeconds(units, t);
 
                         return dataType.add(session, source, o, t);
@@ -1409,12 +1413,10 @@ public class FunctionCustom extends FunctionSQL {
                                                   nodes[0].dataType);
                 }
 
-                boolean fraction = funcType == FUNC_TO_TIMESTAMP;
-
-                SimpleDateFormat format = session.getSimpleDateFormatGMT();
+                boolean          fraction = funcType == FUNC_TO_TIMESTAMP;
+                SimpleDateFormat format   = session.getSimpleDateFormatGMT();
                 TimestampData value = HsqlDateTime.toDate((String) data[0],
                     (String) data[1], format, fraction);
-
 
                 return value;
             }
