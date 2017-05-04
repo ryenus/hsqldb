@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  * timezone.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.3.6
  * @since 1.7.0
  */
 public class HsqlDateTime {
@@ -674,8 +674,9 @@ public class HsqlDateTime {
 
         int          len = format.length();
         char         ch;
-        StringBuffer sb        = new StringBuffer(len);
-        Tokenizer    tokenizer = new Tokenizer();
+        StringBuffer sb               = new StringBuffer(len);
+        Tokenizer    tokenizer        = new Tokenizer();
+        int          limitQuotedToken = -1;
 
         for (int i = 0; i <= len; i++) {
             ch = (i == len) ? e
@@ -697,9 +698,21 @@ public class HsqlDateTime {
 
             if (!tokenizer.next(ch, i)) {
                 if (tokenizer.consumed) {
-                    int index = tokenizer.getLastMatch();
+                    int    index = tokenizer.getLastMatch();
+                    String s     = javaDateTokens[index];
 
-                    sb.append(javaDateTokens[index]);
+                    // consecutive quoted tokens
+                    if (s.startsWith("\'") && s.endsWith("\'")) {
+                        if (limitQuotedToken == sb.length()) {
+                            sb.setLength(sb.length() - 1);
+
+                            s = s.substring(1);
+                        }
+
+                        limitQuotedToken = sb.length() + s.length();
+                    }
+
+                    sb.append(s);
 
                     i = tokenizer.matchOffset;
                 } else {
