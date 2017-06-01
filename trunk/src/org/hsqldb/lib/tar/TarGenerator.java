@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.hsqldb.lib.StringUtil;
 /**
  * Generates a tar archive from specified Files and InputStreams.
  * Modified by fredt for hot backup
- * @version 2.2.9
+ * @version 2.3.6
  * @since 2.0.0
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
@@ -198,18 +198,18 @@ public class TarGenerator {
 
         try {
             for (int i = 0; i < entryQueue.size(); i++) {
-                System.err.print(Integer.toString(i + 1) + " / "
+                System.out.print(Integer.toString(i + 1) + " / "
                                  + entryQueue.size() + ' ');
                 entry = entryQueue.get(i);
-                System.err.print(entry.getPath() + "... ");
+                System.out.print(entry.getPath() + "... ");
                 entry.write();
                 archive.assertAtBlockBoundary();
-                System.err.println();
+                System.out.println();
             }
 
             archive.finish();
         } catch (IOException ioe) {
-            System.err.println();    // Exception should cause a report
+            System.out.println();    // Exception should cause a report
 
             try {
 
@@ -617,7 +617,7 @@ public class TarGenerator {
                 if (dataSize >= paxThreshold) {
                     paxSized = true;
                     makeXentry().write();
-                    System.err.print("x... ");
+                    System.out.print("x... ");
                 }
 
                 writeField(TarHeaderField.name, path);

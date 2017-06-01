@@ -50,7 +50,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.4.1
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -304,6 +304,11 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return true;
+
+            case Types.SQL_DATE :
+            case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                return false;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");

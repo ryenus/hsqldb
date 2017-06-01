@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for PSM and trigger assignment.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.6
  * @since 1.9.0
  */
 public class StatementSet extends StatementDMQL {
@@ -126,6 +126,10 @@ public class StatementSet extends StatementDMQL {
     }
 
     TableDerived[] getSubqueries(Session session) {
+
+        if (queryExpression != null) {
+            return super.getSubqueries(session);
+        }
 
         OrderedHashSet subQueries = null;
 
