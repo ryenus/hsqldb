@@ -3973,6 +3973,7 @@ public class FunctionCustom extends FunctionSQL {
 
             case FUNC_UNIX_MILLIS :
             case FUNC_UNIX_TIMESTAMP :
+            case FUNC_UUID :
             case FUNC_RAND : {
                 StringBuffer sb = new StringBuffer(name).append('(');
 
