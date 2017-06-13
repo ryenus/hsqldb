@@ -6978,7 +6978,8 @@ public class JDBCResultSet implements ResultSet {
             throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42561));
         }
 
-        Object source;
+        Object source = getColumnValue(columnIndex);
+
 
         if (wasNullValue) {
             return (T) null;
