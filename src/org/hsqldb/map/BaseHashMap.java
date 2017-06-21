@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.lib.ObjectComparator;
  * Special getOrAddXXX() methods are used for object maps in some subclasses.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.3.6
  * @since 1.7.2
  */
 public class BaseHashMap {
@@ -136,10 +136,9 @@ public class BaseHashMap {
     protected static final int objectKeyOrValue = 3;
 
     // purgePolicy
-    protected static final int NO_PURGE      = 0;
-    protected static final int PURGE_ALL     = 1;
-    protected static final int PURGE_HALF    = 2;
-    protected static final int PURGE_QUARTER = 3;
+    protected static final int NO_PURGE   = 0;
+    protected static final int PURGE_ALL  = 1;
+    protected static final int PURGE_HALF = 2;
 
     //
     public static final int      ACCESS_MAX = Integer.MAX_VALUE - (1 << 20);
@@ -808,6 +807,10 @@ public class BaseHashMap {
                 returnValue            = objectKeyTable[lookup];
                 objectKeyTable[lookup] = null;
 
+                if (accessTable != null) {
+                    accessTable[lookup] = 0;
+                }
+
                 hashIndex.unlinkNode(index, lastLookup, lookup);
 
                 if (isObjectValue) {
@@ -904,23 +907,24 @@ public class BaseHashMap {
             rehash(hashIndex.linkTable.length * 2);
 
             return true;
-        } else if (purgePolicy == PURGE_ALL) {
-            clear();
-
-            return true;
-        } else if (purgePolicy == PURGE_QUARTER) {
-            clear(threshold / 4, threshold >> 8);
-
-            return true;
-        } else if (purgePolicy == PURGE_HALF) {
-            clear(threshold / 2, threshold >> 8);
-
-            return true;
-        } else if (purgePolicy == NO_PURGE) {
-            return false;
         }
 
-        return false;
+        switch (purgePolicy) {
+
+            case PURGE_ALL :
+                clear();
+
+                return true;
+
+            case PURGE_HALF :
+                clearToHalf();
+
+                return true;
+
+            case NO_PURGE :
+            default :
+                return false;
+        }
     }
 
     /**
@@ -1300,12 +1304,15 @@ public class BaseHashMap {
     }
 
     /**
-     * Clear approximately count elements from the map, starting with
+     * Clear approximately half elements from the map, starting with
      * those with low accessTable ranking.
      *
-     * Only for maps with Object key table
+     * Only for value maps
      */
-    protected void clear(int count, int margin) {
+    private void clearToHalf() {
+
+        int count  = threshold >> 1;
+        int margin = threshold >> 8;
 
         if (margin < 64) {
             margin = 64;
@@ -1323,6 +1330,10 @@ public class BaseHashMap {
         }
 
         accessMin = accessBase;
+
+        if (hashIndex.elementCount > threshold - margin) {
+            clear();
+        }
     }
 
     protected void resetAccessCount() {
@@ -1331,14 +1342,10 @@ public class BaseHashMap {
             return;
         }
 
-        int    i      = accessTable.length;
-        double factor = (double) accessMin / accessCount;
+        double factor = 0.5;
 
-        if (factor < 0.5) {
-            factor = 0.5;
-        }
 
-        while (--i >= 0) {
+        for (int i = 0; i <accessTable.length; i++) {
             if (accessTable[i] < accessMin) {
                 accessTable[i] = 0;
             } else {
