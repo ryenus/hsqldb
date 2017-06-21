@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import org.hsqldb.types.TimestampData;
  * range of java.lang.* objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.6
  * @since 1.7.2
  *
  */
@@ -67,37 +67,6 @@ public class ValuePoolHashMap extends BaseHashMap {
 
         this.maxCapacity = maxCapacity;
         this.purgePolicy = purgePolicy;
-    }
-
-    /**
-     * In rare circumstances resetCapacity may not succeed, in which case
-     * capacity remains unchanged but purge policy is set to newPolicy
-     */
-    public void resetCapacity(int newCapacity,
-                              int newPolicy) throws IllegalArgumentException {
-
-        if (newCapacity != 0 && hashIndex.elementCount > newCapacity) {
-            int surplus = hashIndex.elementCount - newCapacity;
-
-            surplus += (surplus >> 5);
-
-            if (surplus > hashIndex.elementCount) {
-                surplus = hashIndex.elementCount;
-            }
-
-            clear(surplus, (surplus >> 6));
-        }
-
-        if (newCapacity != 0 && newCapacity < threshold) {
-            rehash(newCapacity);
-
-            if (newCapacity < hashIndex.elementCount) {
-                newCapacity = maxCapacity;
-            }
-        }
-
-        this.maxCapacity = newCapacity;
-        this.purgePolicy = newPolicy;
     }
 
     protected Integer getOrAddInteger(int intKey) {

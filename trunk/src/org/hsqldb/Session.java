@@ -710,6 +710,9 @@ public class Session implements SessionInterface {
             sessionContext.savepointTimestamps.remove(index);
         }
 
+        actionTimestamp =
+            database.txManager.getNextGlobalChangeTimestamp();
+
         sessionContext.savepoints.add(name,
                                       ValuePool.getInt(rowActionList.size()));
         sessionContext.savepointTimestamps.addLast(actionTimestamp);

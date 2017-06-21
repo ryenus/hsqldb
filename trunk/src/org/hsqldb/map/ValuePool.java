@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import java.math.BigDecimal;
   * full, half the contents that have been accessed less recently are purged.
   *
   * @author Fred Toussi (fredt@users dot sourceforge.net)
-  * @version 2.3.2
+  * @version 2.3.6
   * @since 1.7.2
   */
 public class ValuePool {
@@ -131,21 +131,12 @@ public class ValuePool {
         return maxStringLength;
     }
 
-    public static void resetPool(int[] sizeArray, int sizeFactor) {
+    public static void resetPool() {
 
         synchronized (ValuePool.class) {
             for (int i = 0; i < POOLS_COUNT; i++) {
                 poolList[i].clear();
-                poolList[i].resetCapacity(sizeArray[i] * sizeFactor,
-                                          BaseHashMap.PURGE_HALF);
             }
-        }
-    }
-
-    public static void resetPool() {
-
-        synchronized (ValuePool.class) {
-            resetPool(defaultPoolLookupSize, defaultSizeFactor);
         }
     }
 
