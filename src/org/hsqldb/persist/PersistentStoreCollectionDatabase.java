@@ -40,14 +40,14 @@ import org.hsqldb.lib.LongKeyHashMap;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.3.6
  * @since 1.9.0
  */
 public class PersistentStoreCollectionDatabase
 implements PersistentStoreCollection {
 
     private Database             database;
-    private AtomicLong           persistentStoreIdSequence;
+    private AtomicLong           persistentStoreIdSequence = new AtomicLong();
     private final LongKeyHashMap rowStoreMap = new LongKeyHashMap();
 
     public PersistentStoreCollectionDatabase(Database db) {
