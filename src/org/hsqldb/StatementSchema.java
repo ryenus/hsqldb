@@ -1213,7 +1213,7 @@ public class StatementSchema extends Statement {
                     table.compile(session, null);
                     schemaManager.addSchemaObject(table);
 
-                    if (tempIndexes != null) {
+                    if (tempIndexes != null && !tempIndexes.isEmpty()) {
                         TableWorks tableWorks = new TableWorks(session, table);
 
                         for (int i = 0; i < tempIndexes.size(); i++) {

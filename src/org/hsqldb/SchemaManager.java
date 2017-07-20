@@ -850,7 +850,6 @@ public class SchemaManager {
     private void dropTable(Session session, Table table, boolean cascade) {
 
         Schema schema    = (Schema) schemaMap.get(table.getSchemaName().name);
-        int    dropIndex = schema.tableList.getIndex(table.getName().name);
         OrderedHashSet externalConstraints =
             table.getDependentExternalConstraints();
         OrderedHashSet externalReferences = new OrderedHashSet();
@@ -923,7 +922,7 @@ public class SchemaManager {
         removeReferencesTo(uniqueConstraintNames);
         removeReferencesTo(table.getName());
         removeReferencesFrom(table);
-        schema.tableList.remove(dropIndex);
+        schema.tableList.remove(table.getName().name);
         schema.indexLookup.removeParent(table.getName());
         schema.constraintLookup.removeParent(table.getName());
         schema.triggerLookup.removeParent(table.getName());
