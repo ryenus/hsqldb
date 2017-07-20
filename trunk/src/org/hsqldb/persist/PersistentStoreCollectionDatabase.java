@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,8 @@
 
 package org.hsqldb.persist;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.hsqldb.Database;
 import org.hsqldb.TableBase;
 import org.hsqldb.lib.Iterator;
@@ -45,7 +47,7 @@ public class PersistentStoreCollectionDatabase
 implements PersistentStoreCollection {
 
     private Database             database;
-    private long                 persistentStoreIdSequence;
+    private AtomicLong           persistentStoreIdSequence;
     private final LongKeyHashMap rowStoreMap = new LongKeyHashMap();
 
     public PersistentStoreCollectionDatabase(Database db) {
@@ -99,7 +101,7 @@ implements PersistentStoreCollection {
     }
 
     public long getNextId() {
-        return persistentStoreIdSequence++;
+        return persistentStoreIdSequence.getAndIncrement();
     }
 
     public void setNewTableSpaces() {

@@ -61,7 +61,7 @@ import org.hsqldb.rights.Grantee;
  * than all the existing names.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.3.6
  * @since 1.7.2
  */
 public final class HsqlNameManager {
@@ -517,10 +517,10 @@ public final class HsqlNameManager {
         }
 
         /**
-         * hash code for this object is its unique serial number.
+         * hash code for this object is based on its unique serial number.
          */
         public int hashCode() {
-            return (int) hashCode;
+            return (int) (hashCode ^ (hashCode >>> 32));
         }
 
         /**
