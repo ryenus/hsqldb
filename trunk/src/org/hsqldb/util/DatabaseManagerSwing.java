@@ -152,7 +152,7 @@ import org.hsqldb.lib.java.JavaSystem;
  *
  * @author dmarshall@users
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.3.6
  * @since 1.7.0
  */
 public class DatabaseManagerSwing extends JApplet
@@ -1633,6 +1633,8 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
             sStatement.execute(sql);
 
+            lTime = System.currentTimeMillis() - lTime;
+
             int r = sStatement.getUpdateCount();
 
             if (r == -1) {
@@ -1660,8 +1662,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
                 gResult.addRow(g);
             }
-
-            lTime = System.currentTimeMillis() - lTime;
 
             if (sqlScriptBuffer == null) {
                 addToRecent(sql);
@@ -2680,7 +2680,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             }
 
             if (rowCount > 1) {
-                additionalMsg += " / " + rowCount + " rows retrieved";
+                additionalMsg += " / " + rowCount + " rows retrieved in " + lTime + " ms";
             }
 
             jStatusLine.setText("  " + READY_STATUS + additionalMsg);

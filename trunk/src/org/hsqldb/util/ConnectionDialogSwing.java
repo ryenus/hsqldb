@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,13 +37,13 @@ import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
-
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -71,7 +71,7 @@ import javax.swing.border.EmptyBorder;
  * Opens a connection to a database
  *
  * @author dmarshall@users
- * @version 1.7.2
+ * @version 2.3.6
  * @since 1.7.0
  */
 class ConnectionDialogSwing extends JDialog
@@ -266,8 +266,7 @@ implements ActionListener, ItemListener {
 
     public static Connection createConnection(JFrame owner, String title) {
 
-        ConnectionDialogSwing dialog = new ConnectionDialogSwing(owner,
-            title);
+        ConnectionDialogSwing dialog = new ConnectionDialogSwing(owner, title);
 
 //      Added: (weconsultants@users) Default LAF of Native
         try {
@@ -353,15 +352,19 @@ implements ActionListener, ItemListener {
 
             // (weconsultants@users) New code
         } else if (s.equals("Select Setting")) {
-            String            s2 = (String) mSettingName.getSelectedItem();
-            ConnectionSetting setting = (ConnectionSetting) settings.get(s2);
+            String s2 = (String) mSettingName.getSelectedItem();
 
-            if (setting != null) {
-                mName.setText(setting.getName());
-                mDriver.setText(setting.getDriver());
-                mURL.setText(setting.getUrl());
-                mUser.setText(setting.getUser());
-                mPassword.setText(setting.getPassword());
+            if (s2 != null) {
+                ConnectionSetting setting =
+                    (ConnectionSetting) settings.get(s2);
+
+                if (setting != null) {
+                    mName.setText(setting.getName());
+                    mDriver.setText(setting.getDriver());
+                    mURL.setText(setting.getUrl());
+                    mUser.setText(setting.getUser());
+                    mPassword.setText(setting.getPassword());
+                }
             }
         } else if (s.equals("ConnectCancel")) {
             dispose();
