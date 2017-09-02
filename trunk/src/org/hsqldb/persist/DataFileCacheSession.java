@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -145,16 +145,7 @@ public class DataFileCacheSession extends DataFileCache {
 
     protected void clear() {
 
-        Iterator it = cache.getIterator();
-
-        while (it.hasNext()) {
-            CachedObject row = (CachedObject) it.next();
-
-            row.setInMemory(false);
-            row.destroy();
-        }
-
-        cache.clear();
+        super.clear();
 
         fileStartFreePosition = fileFreePosition = initialFreePos;
 
