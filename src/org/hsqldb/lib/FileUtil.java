@@ -52,11 +52,13 @@ import org.hsqldb.lib.java.JavaSystem;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Ocke Janssen oj@openoffice.org
- * @version 2.3.4
+ * @version 2.3.6
  * @since 1.7.2
  */
 public class FileUtil implements FileAccess {
 
+    private static final FrameworkLogger LOG =
+        FrameworkLogger.getLog(FileUtil.class);
     private static FileUtil      fileUtil      = new FileUtil();
     private static FileAccessRes fileAccessRes = new FileAccessRes();
 
@@ -98,7 +100,51 @@ public class FileUtil implements FileAccess {
     }
 
     public void renameElement(String oldName, String newName) {
-        renameWithOverwrite(oldName, newName);
+
+        if (renameWithOverwrite(oldName, newName)) {
+            return;
+        }
+
+        InputStream  inputStream  = null;
+        OutputStream outputStream = null;
+
+        try {
+            inputStream  = openInputStreamElement(oldName);
+            outputStream = openOutputStreamElement(newName);
+
+            InOutUtil.copy(inputStream, outputStream);
+            getFileSync(outputStream).sync();
+        } catch (IOException e) {
+            String message = String.format(
+                "Platform does not allow renaming files and failed to copy file contents from %s to %s",
+                oldName, newName);
+
+            LOG.error(message, e);
+
+            return;
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                LOG.finest("Failed to dispose streams", e);
+            }
+        }
+
+        if (!delete(oldName)) {
+            LOG.warning("Failed to delete renamed file " + oldName);
+        }
+
+        String message = String.format(
+            "Platform does not allow renaming files. Copied file from %s to %s instead",
+            oldName, newName);
+
+        LOG.finer(message);
     }
 
     public OutputStream openOutputStreamElement(String streamName)

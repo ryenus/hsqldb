@@ -48,7 +48,7 @@ import org.hsqldb.types.Types;
 /**
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.3.6
  * @since 1.9.0
  */
 public class ExpressionLogical extends Expression {
@@ -857,6 +857,12 @@ public class ExpressionLogical extends Expression {
                 break;
 
             case OpTypes.UNIQUE :
+
+                // create the full index before meterialization
+                // needed for VALUES expression
+                nodes[LEFT].table.getFullIndex(session);
+                break;
+
             case OpTypes.EXISTS :
                 break;
 

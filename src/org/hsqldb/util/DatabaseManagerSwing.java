@@ -56,7 +56,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Vector;
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -74,6 +73,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
@@ -479,7 +479,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
         for (int i = 0; i < arg.length; i++) {
             currentArg = arg[i];
-            lowerArg = arg[i].toLowerCase();
+            lowerArg   = arg[i].toLowerCase();
 
             if (lowerArg.startsWith("--")) {
                 lowerArg = lowerArg.substring(1);
@@ -1631,6 +1631,14 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             sql   = ((sqlScriptBuffer == null ? txtCommand.getText()
                                               : sqlScriptBuffer));
 
+            if (sStatement == null) {
+                g[0] = "no connection";
+
+                gResult.setHead(g);
+
+                return;
+            }
+
             sStatement.execute(sql);
 
             lTime = System.currentTimeMillis() - lTime;
@@ -1684,7 +1692,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             gResult.addRow(g);
 
             //  Added: (weconsultants@users)
-            CommonSwing.errorMessage(e);
+            // CommonSwing.errorMessage(e);
 
             return;
         }
@@ -2679,8 +2687,9 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                                 + schemaFilter + "'";
             }
 
-            if (rowCount > 1) {
-                additionalMsg += " / " + rowCount + " rows retrieved in " + lTime + " ms";
+            if (rowCount >= 1) {
+                additionalMsg += " / " + rowCount + " rows retrieved in "
+                                 + lTime + " ms";
             }
 
             jStatusLine.setText("  " + READY_STATUS + additionalMsg);
@@ -2794,7 +2803,9 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     void updateAutoCommitBox() {
 
         try {
-            boxAutoCommit.setSelected(cConn.getAutoCommit());
+            if (cConn != null) {
+                boxAutoCommit.setSelected(cConn.getAutoCommit());
+            }
         } catch (SQLException se) {
             CommonSwing.errorMessage(se);
         }
