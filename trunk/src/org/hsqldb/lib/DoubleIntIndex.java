@@ -718,7 +718,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         int v;
 
         if ((r - l) > M) {
-            i = (r + l) / 2;
+            i = (r + l) >>> 1;
 
             if (lessThan(i, l)) {
                 swap(l, i);    // Tri-Median Method!

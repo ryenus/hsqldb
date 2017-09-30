@@ -1205,19 +1205,24 @@ public class Expression implements Cloneable {
                                                          nodes[i].dataType);
                 }
 
+                if (nodeDataType != null) {
+                    for (int i = 0; i < nodes.length; i++) {
+                        if (nodes[i].dataType == null) {
+                            nodes[i].valueData =
+                                nodeDataType.convertToDefaultType(
+                                    session, nodes[i].valueData);
+                        } else {
+                            nodes[i].valueData =
+                                nodeDataType.convertToType(
+                                    session, nodes[i].valueData, nodes[i].dataType);
+                        }
+                    }
+                }
+
                 for (int i = 0; i < nodes.length; i++) {
                     nodes[i].dataType = nodeDataType;
                 }
 
-                if (nodeDataType != null) {
-                    for (int i = 0; i < nodes.length; i++) {
-                        if (nodes[i].valueData != null) {
-                            nodes[i].valueData =
-                                nodeDataType.convertToDefaultType(
-                                    session, nodes[i].valueData);
-                        }
-                    }
-                }
 
                 dataType = new ArrayType(nodeDataType, nodes.length);
 
