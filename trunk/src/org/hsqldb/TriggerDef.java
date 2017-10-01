@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -618,14 +618,25 @@ public class TriggerDef implements Runnable, SchemaObject {
      * @param  row1
      * @param  row2
      */
-    synchronized void pushPair(Session session, Object[] row1, Object[] row2) {
+    synchronized void pushPair(Session session, Object[] oldData,
+                               Object[] newData) {
 
         if (maxRowsQueued == 0) {
+            if (condition != Expression.EXPR_TRUE) {
+                session.sessionContext.triggerArguments = new Object[][] {
+                    oldData, newData
+                };
+
+                if (!condition.testCondition(session)) {
+                    return;
+                }
+            }
+
             session.getInternalConnection();
 
             try {
                 trigger.fire(triggerType, name.name, table.getName().name,
-                             row1, row2);
+                             oldData, newData);
             } finally {
                 session.releaseInternalConnection();
             }
@@ -650,7 +661,7 @@ public class TriggerDef implements Runnable, SchemaObject {
             rowsQueued++;
         }
 
-        pendingQueue.add(new TriggerData(session, row1, row2));
+        pendingQueue.add(new TriggerData(session, oldData, newData));
         notify();    // notify pop's wait
     }
 
