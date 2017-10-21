@@ -61,13 +61,13 @@ public class ExpressionColumn extends Expression {
         HsqlNameManager.getSimpleName("ROWNUM", false);
 
     //
-    public final static HashMappedList diagnosticsList = new HashMappedList();
-    final static String[] diagnosticsVariableTokens    = new String[] {
+    public static final HashMappedList diagnosticsList = new HashMappedList();
+    static final String[] diagnosticsVariableTokens    = new String[] {
         Tokens.T_NUMBER, Tokens.T_MORE, Tokens.T_ROW_COUNT
     };
-    public final static int            idx_number      = 0;
-    public final static int            idx_more        = 1;
-    public final static int            idx_row_count   = 2;
+    public static final int            idx_number      = 0;
+    public static final int            idx_more        = 1;
+    public static final int            idx_row_count   = 2;
 
     static {
         for (int i = 0; i < diagnosticsVariableTokens.length; i++) {

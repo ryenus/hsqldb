@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.error.ErrorCode;
  */
 public class IntervalSecondData {
 
-    public final static IntervalSecondData oneDay = newIntervalDay(1,
+    public static final IntervalSecondData oneDay = newIntervalDay(1,
         Type.SQL_INTERVAL_DAY);
 
     //

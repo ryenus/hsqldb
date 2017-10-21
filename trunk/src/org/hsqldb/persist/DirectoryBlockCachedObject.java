@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  */
 public class DirectoryBlockCachedObject extends CachedObjectBase {
 
-    public final static int fileSizeFactor = 12;
+    public static final int fileSizeFactor = 12;
 
     //
     int[]  tableIds;

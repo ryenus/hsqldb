@@ -240,7 +240,7 @@ public class TarGenerator {
         static final byte[] HEADER_TEMPLATE =
             TarFileOutputStream.ZERO_BLOCK.clone();
         static Character              swapOutDelim = null;
-        final static byte[] ustarBytes   = {
+        static final byte[] ustarBytes   = {
             'u', 's', 't', 'a', 'r'
         };
 

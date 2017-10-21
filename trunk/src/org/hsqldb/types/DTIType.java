@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -497,9 +497,9 @@ public abstract class DTIType extends Type {
     public static final int maxFractionPrecision              = 9;
     public static final int limitNanoseconds                  = 1000000000;
 
-    abstract public int getPart(Session session, Object dateTime, int part);
+    public abstract int getPart(Session session, Object dateTime, int part);
 
-    abstract public BigDecimal getSecondPart(Object dateTime);
+    public abstract BigDecimal getSecondPart(Object dateTime);
 
     BigDecimal getSecondPart(long seconds, long nanos) {
 

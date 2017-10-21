@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import org.hsqldb.types.Type;
 public class TableDerived extends Table {
 
     //
-    public final static TableDerived[] emptyArray = new TableDerived[]{};
+    public static final TableDerived[] emptyArray = new TableDerived[]{};
 
     //
     QueryExpression queryExpression;
