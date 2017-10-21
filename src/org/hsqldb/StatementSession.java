@@ -54,16 +54,16 @@ import org.hsqldb.types.Types;
  */
 public class StatementSession extends Statement {
 
-    public final static StatementSession commitNoChainStatement =
+    public static final StatementSession commitNoChainStatement =
         new StatementSession(StatementTypes.COMMIT_WORK,
                              new Object[]{ Boolean.FALSE });
-    public final static StatementSession rollbackNoChainStatement =
+    public static final StatementSession rollbackNoChainStatement =
         new StatementSession(StatementTypes.ROLLBACK_WORK,
                              new Object[]{ Boolean.FALSE });
-    public final static StatementSession commitAndChainStatement =
+    public static final StatementSession commitAndChainStatement =
         new StatementSession(StatementTypes.COMMIT_WORK,
                              new Object[]{ Boolean.TRUE });
-    public final static StatementSession rollbackAndChainStatement =
+    public static final StatementSession rollbackAndChainStatement =
         new StatementSession(StatementTypes.ROLLBACK_WORK,
                              new Object[]{ Boolean.TRUE });
 

@@ -315,6 +315,24 @@ public final class DateTimeType extends DTIType {
         }
     }
 
+    public boolean isTimeType() {
+
+        switch (typeCode) {
+
+            case Types.SQL_TIMESTAMP :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+            case Types.SQL_DATE :
+                return false;
+
+            case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                return true;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
+        }
+    }
+
     public boolean isDateTimeTypeWithZone() {
         return withTimeZone;
     }
@@ -1000,8 +1018,8 @@ public final class DateTimeType extends DTIType {
             cal.clear();
 
             cal.set(year, month, day);
-            long milis = cal.getTimeInMillis();
-            return new TimestampData(milis, 0, zoneSeconds);
+            long seconds = cal.getTimeInMillis() / 1000;
+            return new TimestampData(seconds, 0, zoneSeconds);
         }
 
         return null;

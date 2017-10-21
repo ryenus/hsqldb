@@ -48,15 +48,15 @@ import org.hsqldb.types.Type;
  */
 public class RowDiskDataChange extends RowAVLDisk {
 
-    public final static int COL_POS_ROW_NUM     = 0;
-    public final static int COL_POS_ROW_ID      = 1;
-    public final static int COL_POS_TABLE_ID    = 2;
-    public final static int COL_POS_SCHEMA_NAME = 3;
-    public final static int COL_POS_TABLE_NAME  = 4;
-    public final static int COL_POS_IS_UPDATE   = 5;
+    public static final int COL_POS_ROW_NUM     = 0;
+    public static final int COL_POS_ROW_ID      = 1;
+    public static final int COL_POS_TABLE_ID    = 2;
+    public static final int COL_POS_SCHEMA_NAME = 3;
+    public static final int COL_POS_TABLE_NAME  = 4;
+    public static final int COL_POS_IS_UPDATE   = 5;
 
     //
-    final static Type[] arrayType = new Type[]{
+    static final Type[] arrayType = new Type[]{
         new ArrayType(Type.SQL_INTEGER, Integer.MAX_VALUE) };
     Table    targetTable;
     Object[] updateData;

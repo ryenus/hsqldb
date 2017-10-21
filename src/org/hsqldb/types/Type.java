@@ -49,7 +49,7 @@ import org.hsqldb.rights.Grantee;
  * Base class for type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.9.0
  */
 public abstract class Type implements SchemaObject, Cloneable {
@@ -418,6 +418,10 @@ public abstract class Type implements SchemaObject, Cloneable {
     }
 
     public boolean isTimestampType() {
+        return false;
+    }
+
+    public boolean isTimeType() {
         return false;
     }
 

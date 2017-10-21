@@ -53,7 +53,7 @@ public final class IntervalType extends DTIType {
 
     public final boolean defaultPrecision;
     public final boolean isYearMonth;
-    public final static NumberType factorType =
+    public static final NumberType factorType =
         NumberType.getNumberType(Types.SQL_DECIMAL, 40, maxFractionPrecision);
 
     private IntervalType(int typeGroup, int type, long precision, int scale,
