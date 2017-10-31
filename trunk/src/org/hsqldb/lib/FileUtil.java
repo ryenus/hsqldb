@@ -52,7 +52,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Ocke Janssen oj@openoffice.org
- * @version 2.3.6
+ * @version 2.4.1
  * @since 1.7.2
  */
 public class FileUtil implements FileAccess {
