@@ -50,7 +50,7 @@ import org.hsqldb.lib.StringUtil;
 /**
  * Generates a tar archive from specified Files and InputStreams.
  * Modified by fredt for hot backup
- * @version 2.3.6
+ * @version 2.4.1
  * @since 2.0.0
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)

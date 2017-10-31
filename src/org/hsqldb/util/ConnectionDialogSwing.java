@@ -71,7 +71,7 @@ import javax.swing.border.EmptyBorder;
  * Opens a connection to a database
  *
  * @author dmarshall@users
- * @version 2.3.6
+ * @version 2.4.1
  * @since 1.7.0
  */
 class ConnectionDialogSwing extends JDialog
