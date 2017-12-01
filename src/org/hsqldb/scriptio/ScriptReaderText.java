@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ import org.hsqldb.types.Type;
  * corresponds to ScriptWriterText.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- *  @version 2.3.4
+ *  @version 2.4.1
  *  @since 1.7.2
  */
 public class ScriptReaderText extends ScriptReaderBase {
@@ -98,17 +98,23 @@ public class ScriptReaderText extends ScriptReaderBase {
 
     protected void readDDL(Session session) {
 
-        for (; readLoggedStatement(session); ) {
+        for (;;) {
             Statement cs     = null;
             Result    result = null;
 
-            if (rowIn.getStatementType() == INSERT_STATEMENT) {
-                isInsert = true;
-
-                break;
-            }
-
             try {
+                boolean hasRow = readLoggedStatement(session);
+
+                if (!hasRow) {
+                    break;
+                }
+
+                if (rowIn.getStatementType() == INSERT_STATEMENT) {
+                    isInsert = true;
+
+                    break;
+                }
+
                 cs = session.compileStatement(statement);
                 result = session.executeCompiledStatement(cs,
                         ValuePool.emptyObjectArray, 0);
@@ -117,10 +123,12 @@ public class ScriptReaderText extends ScriptReaderBase {
             }
 
             if (result.isError()) {
+                if (cs == null) {
 
-                // handle grants on math and library routines in old versions
-                if (cs == null) {}
-                else if (cs.getType() == StatementTypes.GRANT) {
+                    // compile error
+                } else if (cs.getType() == StatementTypes.GRANT) {
+
+                    // handle grants on math and library routines in old versions
                     continue;
                 } else if (cs.getType() == StatementTypes.CREATE_ROUTINE) {
 
@@ -130,42 +138,36 @@ public class ScriptReaderText extends ScriptReaderBase {
                         continue;
                     }
                 }
-            }
 
-            if (result.isError()) {
                 database.logger.logWarningEvent(result.getMainString(),
                                                 result.getException());
 
-                if (cs != null
-                        && cs.getType() == StatementTypes.CREATE_ROUTINE) {
-                    continue;
-                }
+                HsqlException e = getError(result.getException(), lineCount);
 
-                HsqlException e =
-                    Error.error(result.getException(),
-                                ErrorCode.ERROR_IN_SCRIPT_FILE,
-                                ErrorCode.M_DatabaseScriptReader_read,
-                                new Object[] {
-                    Long.toString(lineCount) + " "
-                    + database.getCanonicalPath(),
-                    result.getMainString()
-                });
-
-                handleException(e);
+                handleError(e);
             }
         }
     }
 
     protected void readExistingData(Session session) {
 
-        try {
-            String tablename = null;
+        String tablename = null;
 
-            // fredt - needed for forward referencing FK constraints
-            database.setReferentialIntegrity(false);
+        for (;;) {
+            try {
+                boolean hasRow = false;
 
-            for (; isInsert || readLoggedStatement(session);
-                    isInsert = false) {
+                if (isInsert) {
+                    isInsert = false;
+                    hasRow   = true;
+                } else {
+                    hasRow = readLoggedStatement(session);
+                }
+
+                if (!hasRow) {
+                    break;
+                }
+
                 if (statementType == SET_SCHEMA_STATEMENT) {
                     session.setSchema(currentSchema);
 
@@ -186,28 +188,19 @@ public class ScriptReaderText extends ScriptReaderBase {
                                 currentTable);
                     }
 
-                    try {
-                        currentTable.insertFromScript(session, currentStore,
-                                                      rowData);
-                    } catch (HsqlException ex) {
-                        handleException(ex);
-                    }
+                    currentTable.insertFromScript(session, currentStore,
+                                                  rowData);
                 } else {
-                    throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
-                                      statement);
-                }
-            }
-        } catch (Throwable t) {
-            database.logger.logSevereEvent("readExistingData failed "
-                                           + lineCount, t);
+                    HsqlException e = Error.error(ErrorCode.GENERAL_ERROR,
+                                                  statement);
 
-            throw Error.error(t, ErrorCode.ERROR_IN_SCRIPT_FILE,
-                              ErrorCode.M_DatabaseScriptReader_read,
-                              new Object[] {
-                Long.valueOf(lineCount), t.toString()
-            });
-        } finally {
-            database.setReferentialIntegrity(true);
+                    throw e;
+                }
+            } catch (Throwable t) {
+                HsqlException e = getError(t, lineCount);
+
+                handleError(e);
+            }
         }
     }
 
@@ -323,20 +316,48 @@ public class ScriptReaderText extends ScriptReaderBase {
         } catch (Exception e) {}
     }
 
-    private void handleException(HsqlException e) {
+    HsqlException getError(Throwable t, long lineCount) {
+
+        if (t instanceof HsqlException) {
+            HsqlException e = ((HsqlException) t);
+
+            if (e.getErrorCode() == -ErrorCode.ERROR_IN_SCRIPT_FILE) {
+                return e;
+            }
+        }
+
+        return Error.error(t, ErrorCode.ERROR_IN_SCRIPT_FILE,
+                           ErrorCode.M_DatabaseScriptReader_read,
+                           new Object[] {
+            Long.valueOf(lineCount), t.toString()
+        });
+    }
+
+    private void handleError(HsqlException e) {
+
+        database.logger.logSevereEvent("bad line in script file " + lineCount,
+                                       e);
 
         if (database.recoveryMode == 0) {
             throw e;
         }
 
-        if (scrwriter == null) {
-            String name = database.getPath() + ".reject";
-
-            scrwriter = new ScriptWriterText(database, name, true, true, true);
-        }
+        openScriptWriter();
 
         try {
             scrwriter.writeLogStatement(null, rawStatement);
         } catch (Throwable t) {}
+    }
+
+    private void openScriptWriter() {
+
+        if (scrwriter == null) {
+            String timestamp =
+                database.logger.fileDateFormat.format(new java.util.Date());
+            String name = fileNamePath + "." + timestamp + ".reject";
+
+            scrwriter = new ScriptWriterText(database, name, false, false,
+                                             true);
+        }
     }
 }

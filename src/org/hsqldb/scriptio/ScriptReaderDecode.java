@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import org.hsqldb.rowio.RowInputTextLog;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class ScriptReaderDecode extends ScriptReaderText {
@@ -121,7 +121,6 @@ public class ScriptReaderDecode extends ScriptReaderText {
 
         lineCount++;
 
-//        System.out.println(lineCount);
         statement = StringConverter.unicodeStringToString(s);
 
         if (statement == null) {
@@ -163,6 +162,14 @@ public class ScriptReaderDecode extends ScriptReaderText {
             if (dataInput != null) {
                 dataInput.close();
             }
+        } catch (Exception e) {}
+
+        try {
+            if (scrwriter != null) {
+                scrwriter.close();
+            }
+
+            database.recoveryMode = 0;
         } catch (Exception e) {}
     }
 }

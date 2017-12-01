@@ -255,24 +255,6 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Clears the contents of cached system tables and resets user slots
-     * to null. <p>
-     *
-     */
-    protected final void cacheClear(Session session) {
-
-        int i = sysTables.length;
-
-        while (i-- > 0) {
-            Table t = sysTables[i];
-
-            if (t != null) {
-                t.clearAllData(session);
-            }
-        }
-    }
-
-    /**
      * Retrieves the system table corresponding to the specified
      * tableIndex value. <p>
      *

@@ -62,7 +62,7 @@ import org.hsqldb.types.Type;
  * Holds the data structures and methods for creation of a named database table.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {
@@ -3053,24 +3053,6 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         return index.firstRow(store);
-    }
-
-    public void clearAllData(Session session) {
-
-        super.clearAllData(session);
-
-        if (identitySequence != null) {
-            identitySequence.reset();
-        }
-    }
-
-    public void clearAllData(PersistentStore store) {
-
-        super.clearAllData(store);
-
-        if (identitySequence != null) {
-            identitySequence.reset();
-        }
     }
 
     /**

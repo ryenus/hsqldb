@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ import org.hsqldb.types.Type;
  * logged to the application log. If memory runs out, an exception is thrown.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 1.7.2
  */
 public class ScriptRunner {
@@ -254,7 +254,7 @@ public class ScriptRunner {
             }
 
             // stop processing on bad log line
-            String error = "statement error processing log - " + action
+            String error = "statement error processing log - " + action + " "
                            + scr.getFileNamePath() + " line: "
                            + scr.getLineNumber();
 
@@ -264,8 +264,8 @@ public class ScriptRunner {
                 throw Error.error(e, ErrorCode.ERROR_IN_LOG_FILE, error);
             }
         } catch (OutOfMemoryError e) {
-            String error = "out of memory processing log - "
-                           + databaseFile + " line: " + scr.getLineNumber();
+            String error = "out of memory processing log - " + databaseFile
+                           + " line: " + scr.getLineNumber();
 
             // catch out-of-memory errors and terminate
             database.logger.logSevereEvent(error, e);

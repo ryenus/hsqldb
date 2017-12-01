@@ -2274,7 +2274,7 @@ public class Logger implements EventLogInterface {
         }
     }
 
-    SimpleDateFormat backupFileFormat =
+    public SimpleDateFormat fileDateFormat =
         new SimpleDateFormat("yyyyMMdd'T'HHmmss");
     private static char runtimeFileDelim =
         System.getProperty("file.separator").charAt(0);
@@ -2328,7 +2328,7 @@ public class Logger implements EventLogInterface {
                 archiveFile =
                     (new File(destPath.substring(0, destPath.length() - 1),
                               instanceName + '-'
-                              + backupFileFormat.format(new java.util.Date())
+                              + fileDateFormat.format(new java.util.Date())
                               + defaultSuffix));
             } else {
                 archiveFile = new File(destPath);
