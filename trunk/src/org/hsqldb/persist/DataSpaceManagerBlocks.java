@@ -44,7 +44,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 2.3.0
  */
 public class DataSpaceManagerBlocks implements DataSpaceManager {
@@ -545,7 +545,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
             if (tableSpace != null) {
                 tableSpace.reset();
-                spaceManagerList.remove(spaceId);
+                // do not remove from spaceManagerList - can be truncate
             }
 
             IntIndex list = new IntIndex(16, false);

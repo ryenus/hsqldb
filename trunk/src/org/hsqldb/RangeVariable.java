@@ -54,7 +54,7 @@ import org.hsqldb.types.Type;
  * Metadata for range variables, including conditions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class RangeVariable {
@@ -1166,9 +1166,7 @@ public class RangeVariable {
 
         public void reset() {
 
-            if (it != null) {
-                it.release();
-            }
+            it.release();
 
             it            = emptyIterator;
             isBeforeFirst = true;
@@ -1183,10 +1181,7 @@ public class RangeVariable {
         }
 
         public void release() {
-
-            if (it != null) {
-                it.release();
-            }
+            it.release();
         }
     }
 
@@ -1257,7 +1252,10 @@ public class RangeVariable {
                     return true;
                 }
 
-                reset();
+                it.release();
+
+                it            = emptyIterator;
+                isBeforeFirst = true;
 
                 condIndex++;
             }
@@ -1271,12 +1269,11 @@ public class RangeVariable {
 
         public void reset() {
 
-            if (it != null) {
-                it.release();
-            }
+            it.release();
 
             it            = emptyIterator;
             isBeforeFirst = true;
+            condIndex     = 0;
         }
 
         public int getRangePosition() {
@@ -1671,9 +1668,7 @@ public class RangeVariable {
 
         public void release() {
 
-            if (it != null) {
-                it.release();
-            }
+            it.release();
 
             for (int i = 0; i < rangeIterators.length; i++) {
                 rangeIterators[i].reset();

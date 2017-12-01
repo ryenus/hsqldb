@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.rowio.RowInputInterface;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.1
  */
 public class TextTable extends Table {
 
@@ -94,10 +94,7 @@ public class TextTable extends Table {
             return;
         }
 
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(this);
-
-        this.store = store;
+        store = database.persistentStoreCollection.getStore(this);
 
         TextCache      cache    = null;
         TextFileReader reader   = null;
@@ -120,7 +117,6 @@ public class TextTable extends Table {
             reader = cache.getTextFileReader();
 
             // read and insert all the rows from the source file
-
             if (cache.isIgnoreFirstLine()) {
                 reader.readHeaderLine();
                 cache.setHeaderInitialise(reader.getHeaderLine());
@@ -131,7 +127,11 @@ public class TextTable extends Table {
             long linenumber = reader == null ? 0
                                              : reader.getLineNumber();
 
-            clearAllData(session);
+            store.removeAll();
+
+            if (identitySequence != null) {
+                identitySequence.reset();
+            }
 
             if (cache != null) {
                 database.logger.textTableManager.closeTextCache(this);
@@ -152,6 +152,7 @@ public class TextTable extends Table {
 
     private void readDataIntoTable(Session session, PersistentStore store,
                                    TextFileReader reader) {
+
         while (true) {
             RowInputInterface rowIn = reader.readObject();
 

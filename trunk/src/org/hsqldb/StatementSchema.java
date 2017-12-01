@@ -1234,20 +1234,19 @@ public class StatementSchema extends Statement {
                         }
 
                         table.insertIntoTable(session, result);
-                    }
 
-                    if (table.hasLobColumn) {
-                        RowIterator it = table.rowIterator(session);
+                        if (table.hasLobColumn) {
+                            RowIterator it = table.rowIterator(session);
 
-                        while (it.next()) {
-                            Row      row  = it.getCurrentRow();
-                            Object[] data = row.getData();
+                            while (it.next()) {
+                                Row row = it.getCurrentRow();
+                                Object[] data = row.getData();
 
-                            session.sessionData.adjustLobUsageCount(table,
+                                session.sessionData.adjustLobUsageCount(table,
                                     data, 1);
+                            }
                         }
                     }
-
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     schemaManager.removeExportedKeys(table);
