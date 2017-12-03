@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -389,7 +389,7 @@ public class HsqlArrayList extends BaseList implements HsqlList {
             return;
         }
 
-        ArraySort.sort(elementData, 0, elementCount, c);
+        ArraySort.sort(elementData, elementCount, c);
     }
 
     public Object[] getArray() {
