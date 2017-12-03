@@ -1030,6 +1030,10 @@ public class QuerySpecification extends QueryExpression {
         rangeResolver.processConditions();
 
         rangeVariables = rangeResolver.rangeVariables;
+
+        if (rangeVariables.length > 1) {
+            isMergeable     = false;
+        }
     }
 
     private void setDistinctConditions(Session session) {
