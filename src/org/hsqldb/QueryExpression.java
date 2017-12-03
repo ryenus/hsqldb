@@ -1026,8 +1026,8 @@ public class QueryExpression implements RangeGroup {
             for (int i = 0; i < unionColumnMap.length; i++) {
                 ColumnSchema column =
                     (ColumnSchema) columns.get(unionColumnMap[i]);
-
-                list.add(column.getName().name, column);
+                String name = (String) columns.getKey(unionColumnMap[i]);
+                list.add(name, column);
             }
 
             return list;

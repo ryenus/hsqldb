@@ -298,13 +298,16 @@ public class TableDerived extends Table {
                 throw Error.error(ErrorCode.X_42593);
             }
 
-            for (int i = 0; i < columnCount; i++) {
-                columnList.setKey(i, columns[i].name);
+            HashMappedList newColumnList = new HashMappedList();
 
+            for (int i = 0; i < columnCount; i++) {
                 ColumnSchema col = (ColumnSchema) columnList.get(i);
 
                 col.setName(columns[i]);
+                newColumnList.add(columns[i].name, col);
             }
+
+            columnList = newColumnList;
         }
     }
 
