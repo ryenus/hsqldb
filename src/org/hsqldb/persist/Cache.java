@@ -402,7 +402,7 @@ public class Cache extends BaseHashMap {
         }
 
         rowComparator.setType(CachedObjectComparator.COMPARE_POSITION);
-        ArraySort.sort(rowTable, 0, count, rowComparator);
+        ArraySort.sort(rowTable, count, rowComparator);
         dataFileCache.saveRows(rowTable, 0, count);
 
         saveRowCount += count;

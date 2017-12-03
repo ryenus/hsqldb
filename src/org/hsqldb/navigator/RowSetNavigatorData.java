@@ -133,7 +133,7 @@ implements Comparator {
 
         mainIndex = fullIndex;
 
-        ArraySort.sort(dataTable, 0, size, this);
+        ArraySort.sort(dataTable, size, this);
         reset();
     }
 
@@ -142,7 +142,7 @@ implements Comparator {
         if (orderIndex != null) {
             mainIndex = orderIndex;
 
-            ArraySort.sort(dataTable, 0, size, this);
+            ArraySort.sort(dataTable, size, this);
         }
 
         reset();
@@ -153,7 +153,7 @@ implements Comparator {
         if (sortAndSlice.index != null) {
             mainIndex = sortAndSlice.index;
 
-            ArraySort.sort(dataTable, 0, size, this);
+            ArraySort.sort(dataTable, size, this);
             reset();
         }
     }

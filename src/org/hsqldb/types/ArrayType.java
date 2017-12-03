@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -510,7 +510,7 @@ public class ArrayType extends Type {
         TypedComparator comparator = session.getComparator();
 
         comparator.setType(dataType, sort);
-        ArraySort.sort(array, 0, array.length, comparator);
+        ArraySort.sort(array, array.length, comparator);
     }
 
     public int deDuplicate(Session session, Object a, SortAndSlice sort) {
@@ -520,6 +520,6 @@ public class ArrayType extends Type {
 
         comparator.setType(dataType, sort);
 
-        return ArraySort.deDuplicate(array, 0, array.length, comparator);
+        return ArraySort.deDuplicate(array, array.length, comparator);
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import java.util.Comparator;
  *
  * @author Tony Lai (tony_lai@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class ArraySort {
@@ -78,14 +78,14 @@ public class ArraySort {
                               : found;
     }
 
-    public static int deDuplicate(Object[] array, int start, int limit,
+    public static int deDuplicate(Object[] array, int limit,
                                   Comparator comparator) {
 
-        int baseIndex    = start;
-        int currentIndex = start + 1;
+        int baseIndex    = 0;
+        int currentIndex = 1;
 
-        if (array.length == 0) {
-            return 0;
+        if (limit < 2) {
+            return limit;
         }
 
         for (; currentIndex < limit; currentIndex++) {
@@ -104,15 +104,15 @@ public class ArraySort {
         return baseIndex + 1;
     }
 
-    public static void sort(Object[] array, int start, int limit,
-                            Comparator comparator) {
+    public static void sort(Object[] array, int limit, Comparator comparator
+                            ) {
 
-        if (start + 1 >= limit) {
+        if (limit < 2) {
             return;
         }
 
-        quickSort(array, comparator, start, limit - 1);
-        insertionSort(array, comparator, start, limit - 1);
+        quickSort(array, comparator, 0, limit - 1);
+        insertionSort(array, comparator, 0, limit - 1);
     }
 
     static void quickSort(Object[] array, Comparator comparator, int l,
