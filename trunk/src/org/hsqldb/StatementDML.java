@@ -358,7 +358,7 @@ public class StatementDML extends StatementDMQL {
     public void setGeneratedColumnInfo(int generate, ResultMetaData meta) {
 
         // also supports INSERT_SELECT
-        if (type != StatementTypes.INSERT) {
+        if (type != StatementTypes.INSERT && type != StatementTypes.MERGE) {
             return;
         }
 
