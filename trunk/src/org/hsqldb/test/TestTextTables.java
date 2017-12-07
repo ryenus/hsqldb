@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,16 +31,20 @@
 
 package org.hsqldb.test;
 
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import org.hsqldb.lib.FileUtil;
+
 public class TestTextTables extends TestBase {
 
-    static String url =
-        "jdbc:hsqldb:file:/hsql/testtext/test;sql.enforce_strict_size=true";
-    static String filepath = "/hsql/testtext/";
+    static String url = TestDirectorySettings.fileBaseURL
+                        + "testtext/test;sql.enforce_strict_size=true";
+    static String filepath = TestDirectorySettings.fileBase + "testtext/";
 
     public TestTextTables(String name) {
         super(name, url, false, false);
@@ -226,6 +230,43 @@ public class TestTextTables extends TestBase {
 
         conn = newConnection();
         st   = conn.createStatement();
+
+        st.execute("SHUTDOWN");
+    }
+
+    /**
+     * test for malformed strings are reported by Damjan Jovanovic
+     */
+    public void testSectionSeven() throws Exception {
+
+        deleteDatabaseAndSources();
+
+        String path = TestDirectorySettings.fileBase
+                      + "testtext/malformed.csv";
+
+        FileUtil.getFileUtil().delete(path);
+
+        FileOutputStream fos = new FileOutputStream(path);
+        DataOutputStream dos = new DataOutputStream(fos);
+
+        dos.write(new byte[] {
+            (byte) 0xEF, (byte) 0xBB, (byte) 0xBF
+        });
+        dos.writeBytes("\"one\",tw1o\",\"three\"\r");
+        dos.writeBytes("\"one\",\"tw\n2\"o,\"three\"\r");
+        dos.writeBytes("one\",\"tw3o\",\"thre\"e\r");
+        dos.close();
+
+        Connection conn = newConnection();
+        Statement  st   = conn.createStatement();
+
+        st.execute("drop table ttriple if exists");
+        st.execute(
+            "create text table ttriple(col1 varchar(20),col2 varchar(20),col3 varchar(20))");
+        st.execute(
+            "set table ttriple source 'malformed.csv;quoted=true;encoding=UTF-8'");
+
+        ResultSet rs = st.executeQuery("select * from ttriple");
 
         st.execute("SHUTDOWN");
     }

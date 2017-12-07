@@ -99,9 +99,14 @@ public class FileUtil implements FileAccess {
         }
     }
 
-    public void renameElement(String oldName, String newName) {
+    public void renameElement(String oldName, String newName,
+                              boolean copyIfFailed) {
 
         if (renameWithOverwrite(oldName, newName)) {
+            return;
+        }
+
+        if (!copyIfFailed) {
             return;
         }
 
@@ -110,7 +115,7 @@ public class FileUtil implements FileAccess {
 
         try {
             inputStream  = openInputStreamElement(oldName);
-            outputStream = openOutputStreamElement(newName);
+            outputStream = openOutputStreamElement(newName, false);
 
             InOutUtil.copy(inputStream, outputStream);
             getFileSync(outputStream).sync();
@@ -127,7 +132,11 @@ public class FileUtil implements FileAccess {
                 if (inputStream != null) {
                     inputStream.close();
                 }
+            } catch (IOException e) {
+                LOG.finest("Failed to dispose streams", e);
+            }
 
+            try {
                 if (outputStream != null) {
                     outputStream.close();
                 }
@@ -147,9 +156,9 @@ public class FileUtil implements FileAccess {
         LOG.finer(message);
     }
 
-    public OutputStream openOutputStreamElement(String streamName)
-    throws IOException {
-        return new FileOutputStream(new File(streamName), true);
+    public OutputStream openOutputStreamElement(String streamName,
+            boolean append) throws IOException {
+        return new FileOutputStream(new File(streamName), append);
     }
 
     // end of FileAccess implementation
@@ -424,10 +433,11 @@ public class FileUtil implements FileAccess {
 
         public void removeElement(String filename) {}
 
-        public void renameElement(String oldName, String newName) {}
+        public void renameElement(String oldName, String newName,
+                                  boolean copyIfFailed) {}
 
-        public OutputStream openOutputStreamElement(String streamName)
-        throws IOException {
+        public OutputStream openOutputStreamElement(String streamName,
+                boolean append) throws IOException {
             throw new IOException();
         }
 

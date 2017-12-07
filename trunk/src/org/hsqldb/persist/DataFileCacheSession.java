@@ -113,7 +113,7 @@ public class DataFileCacheSession extends DataFileCache {
 
                 dataFile = null;
 
-                fa.removeElement(dataFileName);
+                deleteFile(database, dataFileName);
             }
         } catch (Throwable t) {
             database.logger.logWarningEvent("Failed to close Session RA file",

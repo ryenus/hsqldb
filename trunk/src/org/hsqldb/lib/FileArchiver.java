@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -101,7 +101,7 @@ public class FileArchiver {
             byte[] b = new byte[COPY_BLOCK_SIZE];
 
             in   = storage.openInputStreamElement(infilename);
-            f    = storage.openOutputStreamElement(outfilename);
+            f    = storage.openOutputStreamElement(outfilename, true);
             fOut = f;
 
             switch (compressionType) {
@@ -200,7 +200,7 @@ public class FileArchiver {
                                                + compressionType);
             }
 
-            outstream = storage.openOutputStreamElement(outfilename);
+            outstream = storage.openOutputStreamElement(outfilename, false);
 
             while (true) {
                 int l = f.read(b, 0, b.length);

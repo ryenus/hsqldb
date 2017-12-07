@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import java.io.OutputStream;
  * Interface for abstraction of file access.
  *
  * @author  Ocke Janssen oj@openoffice.org
- * @version 1.8.0
+ * @version 2.4.1
  * @since 1.8.0
  */
 public interface FileAccess {
@@ -50,10 +50,10 @@ public interface FileAccess {
     int ELEMENT_READWRITE    = 7;
     int ELEMENT_TRUNCATE     = 8;
 
-    InputStream openInputStreamElement(String streamName)
-    throws IOException;
+    InputStream openInputStreamElement(String streamName) throws IOException;
 
-    OutputStream openOutputStreamElement(String streamName) throws IOException;
+    OutputStream openOutputStreamElement(String streamName,
+                                         boolean append) throws IOException;
 
     boolean isStreamElement(String elementName);
 
@@ -61,7 +61,7 @@ public interface FileAccess {
 
     void removeElement(String filename);
 
-    void renameElement(String oldName, String newName);
+    void renameElement(String oldName, String newName, boolean copyIfFailed);
 
     interface FileSync {
         void sync() throws IOException;

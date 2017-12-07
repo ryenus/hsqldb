@@ -52,7 +52,7 @@ import org.hsqldb.map.ValuePool;
  * allow saving and loading.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.7.0
  */
 public class HsqlProperties {
@@ -256,7 +256,7 @@ public class HsqlProperties {
     }
 
     /**
-     *  Saves the properties using JDK2 method if present, otherwise JDK1.
+     *  Saves the properties
      */
     public void save(String fileString) throws Exception {
 
@@ -264,7 +264,7 @@ public class HsqlProperties {
         fa.createParentDirs(fileString);
         fa.removeElement(fileString);
 
-        OutputStream        fos = fa.openOutputStreamElement(fileString);
+        OutputStream fos = fa.openOutputStreamElement(fileString, false);
         FileAccess.FileSync outDescriptor = fa.getFileSync(fos);
         String name = HsqlDatabaseProperties.PRODUCT_NAME + " "
                       + HsqlDatabaseProperties.THIS_FULL_VERSION;
@@ -610,9 +610,10 @@ public class HsqlProperties {
 
         sb.append('{');
 
-        int         len = stringProps.size();
-        Enumeration en  = stringProps.propertyNames();
-        List list = Collections.list(en);
+        int         len  = stringProps.size();
+        Enumeration en   = stringProps.propertyNames();
+        List        list = Collections.list(en);
+
         Collections.sort(list);
 
         for (int i = 0; i < len; i++) {
@@ -623,6 +624,7 @@ public class HsqlProperties {
             sb.append('"');
             sb.append(stringProps.get(key));
             sb.append('"');
+
             if (i + 1 < len) {
                 sb.append(',');
                 sb.append(' ');
