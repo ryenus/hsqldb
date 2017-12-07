@@ -566,7 +566,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_min_reuse,
                    HsqlProperties.getMeta(hsqldb_min_reuse, SQL_PROPERTY, 0,
                                           0, 1024 * 1024));
-
     }
 
     private Database database;
@@ -687,7 +686,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             props.setProperty(hsqldb_modified, getProperty(hsqldb_modified));
             props.save(fileName + ".properties" + ".new");
             fa.renameElement(fileName + ".properties" + ".new",
-                             fileName + ".properties");
+                             fileName + ".properties", true);
         } catch (Throwable t) {
             database.logger.logSevereEvent("save failed", t);
 
