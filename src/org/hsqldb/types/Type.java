@@ -684,7 +684,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         new BinaryType(Types.SQL_VARBINARY, 32 * 1024);
     public static final BlobType SQL_BLOB =
         new BlobType(BlobType.defaultBlobSize);
-    public static final BinaryType SQL_GUID = new BinaryUUIDType();
+    public static final BinaryUUIDType SQL_GUID = new BinaryUUIDType();
 
     // other type
     public static final OtherType OTHER = OtherType.getOtherType();

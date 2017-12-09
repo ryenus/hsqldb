@@ -245,7 +245,7 @@ public class BinaryUUIDType extends BinaryType {
             return null;
         }
 
-        return ((BlobData) a).getBytes();
+        return  getJavaUUID((BinaryData) a);
     }
 
     Object castOrConvertToType(SessionInterface session, Object a,
