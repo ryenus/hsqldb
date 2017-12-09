@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.rowio.RowInputText;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.1
  * @since 2.2.7
 */
 public class TextFileReader8 implements TextFileReader {
@@ -128,7 +128,7 @@ public class TextFileReader8 implements TextFileReader {
             dataFile.seek(position);
 
             currentPos = 0;
-            fieldPos   = 0;
+            fieldPos   = -1;
 
             while (!complete) {
                 int c = readChar();
