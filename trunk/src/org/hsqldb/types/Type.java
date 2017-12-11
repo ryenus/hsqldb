@@ -890,6 +890,9 @@ public abstract class Type implements SchemaObject, Cloneable {
             case Types.SQL_VARBINARY :
                 return SQL_VARBINARY_DEFAULT;
 
+            case Types.SQL_GUID :
+                return SQL_GUID;
+
             case Types.SQL_BLOB :
                 return SQL_BLOB;
 

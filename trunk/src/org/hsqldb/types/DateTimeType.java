@@ -1026,45 +1026,46 @@ public final class DateTimeType extends DTIType {
     }
 
     TimeData convertJavaTimeObject(SessionInterface session, Object a) {
+        int secondsInDay = 24 * 3600;
         if (a instanceof java.time.OffsetTime) {
             java.time.OffsetTime odt = (java.time.OffsetTime) a;
+
             int zoneSeconds = 0;
 
             int hour = odt.getHour();
             int minute = odt.getMinute();
             int second = odt.getSecond();
-            int nanos = odt.getNano();
-            nanos = DateTimeType.normaliseFraction(nanos, scale);
+            int fraction = odt.getNano();
+            fraction = DateTimeType.normaliseFraction(fraction, scale);
 
-            if(withTimeZone) {
+            if (withTimeZone) {
                 zoneSeconds = odt.get(java.time.temporal.ChronoField.OFFSET_SECONDS);
             }
 
-            Calendar cal = session.getCalendarGMT();
-            cal.clear();
-            cal.set(1970, 1, 1, hour, minute, second);
-            int seconds = (int) cal.getTimeInMillis() / 1000;
-            return new TimeData(seconds, nanos, zoneSeconds);
+            int seconds = hour * 3600 + minute * 60 + second - zoneSeconds;
+
+            if (seconds < 0) {
+                seconds += secondsInDay;
+            } else if (seconds >=secondsInDay) {
+                seconds -= secondsInDay;
+            }
+
+            return new TimeData(seconds, fraction, zoneSeconds);
 
         } else if (a instanceof java.time.LocalTime) {
             java.time.LocalTime odt = (java.time.LocalTime) a;
+            long nanos = odt.toNanoOfDay();
+            int seconds = (int)(nanos / 1_000_000_000);
+            int fraction = (int)(nanos % 1_000_000_000);
+            fraction = DateTimeType.normaliseFraction(fraction, scale);
+
             int zoneSeconds = 0;
 
-            int hour = odt.getHour();
-            int minute = odt.getMinute();
-            int second = odt.getSecond();
-            int nanos = odt.getNano();
-            nanos = DateTimeType.normaliseFraction(nanos, scale);
-
-            if(withTimeZone) {
+            if (withTimeZone) {
                 zoneSeconds = session.getZoneSeconds();
             }
 
-            Calendar cal = session.getCalendarGMT();
-            cal.clear();
-            cal.set(1970, 1, 1, hour, minute, second);
-            int seconds = (int) cal.getTimeInMillis() / 1000;
-            return new TimeData(seconds, nanos, zoneSeconds);
+            return new TimeData(seconds, fraction, zoneSeconds);
         }
 
         return null;
