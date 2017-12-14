@@ -1078,7 +1078,7 @@ public class ParserDQL extends ParserBase {
         QueryExpression queryExpression = XreadQueryExpressionBody();
         SortAndSlice    sortAndSlice    = XreadOrderByExpression();
 
-        if (queryExpression.sortAndSlice == null) {
+        if (queryExpression.sortAndSlice == SortAndSlice.noSort) {
             queryExpression.addSortAndSlice(sortAndSlice);
         } else {
             if (queryExpression.sortAndSlice.hasLimit()) {
@@ -1092,7 +1092,9 @@ public class ParserDQL extends ParserBase {
                     queryExpression.sortAndSlice.addOrderExpression(e);
                 }
             } else {
-                queryExpression.addSortAndSlice(sortAndSlice);
+                if (sortAndSlice != SortAndSlice.noSort) {
+                    queryExpression.addSortAndSlice(sortAndSlice);
+                }
             }
         }
 
@@ -1170,7 +1172,7 @@ public class ParserDQL extends ParserBase {
 
                 readThis(Tokens.CLOSEBRACKET);
 
-                if (queryExpression.sortAndSlice == null) {
+                if (queryExpression.sortAndSlice == SortAndSlice.noSort) {
                     queryExpression.addSortAndSlice(sortAndSlice);
                 } else {
                     if (queryExpression.sortAndSlice.hasLimit()) {
@@ -1186,7 +1188,9 @@ public class ParserDQL extends ParserBase {
                             queryExpression.sortAndSlice.addOrderExpression(e);
                         }
                     } else {
-                        queryExpression.addSortAndSlice(sortAndSlice);
+                        if (sortAndSlice != SortAndSlice.noSort) {
+                            queryExpression.addSortAndSlice(sortAndSlice);
+                        }
                     }
                 }
 
