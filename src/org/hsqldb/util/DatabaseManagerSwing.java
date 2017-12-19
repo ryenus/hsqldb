@@ -1627,7 +1627,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         String   sql = null;
 
         try {
-            lTime = System.currentTimeMillis();
+            lTime = System.nanoTime();
             sql   = ((sqlScriptBuffer == null ? txtCommand.getText()
                                               : sqlScriptBuffer));
 
@@ -1641,7 +1641,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
             sStatement.execute(sql);
 
-            lTime = System.currentTimeMillis() - lTime;
+            lTime = System.nanoTime() - lTime;
 
             int r = sStatement.getUpdateCount();
 
@@ -1678,7 +1678,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                 clear();
             }
         } catch (SQLException e) {
-            lTime = System.currentTimeMillis() - lTime;
+            lTime = System.nanoTime() - lTime;
             g[0]  = "SQL Error";
 
             gResult.setHead(g);
@@ -1693,7 +1693,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
             //  Added: (weconsultants@users)
             // CommonSwing.errorMessage(e);
-
             return;
         }
 
@@ -1808,6 +1807,8 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         StringBuffer b     = new StringBuffer();
         long         total = 0;
 
+        lTime = 0;
+
         for (int i = 0; i < all.length(); i++) {
             char c = all.charAt(i);
 
@@ -1829,7 +1830,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
         int max = 1;
 
-        lTime = System.currentTimeMillis() - lTime;
+        lTime = System.nanoTime() - lTime;
 
         while (!all.equals("")) {
             int    i = all.indexOf(';');
@@ -1879,7 +1880,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
         gResult.addRow(g);
 
-        lTime = System.currentTimeMillis() - lTime;
+        lTime = System.nanoTime() - lTime;
     }
 
     private void showResultInText() {
@@ -2688,8 +2689,11 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             }
 
             if (rowCount >= 1) {
+                long millis   = lTime / 1000000;
+                long fraction = (lTime % 1000000) / 100000;
+
                 additionalMsg += " / " + rowCount + " rows retrieved in "
-                                 + lTime + " ms";
+                                 + millis + '.' + fraction + " ms";
             }
 
             jStatusLine.setText("  " + READY_STATUS + additionalMsg);
