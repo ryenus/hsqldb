@@ -99,7 +99,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * Originally in HypersonicSQL. Extended in various versions of HSQLDB.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.2.1
+ * @version 2.4.1
  * @since Hypersonic SQL
  */
 public class DatabaseManager extends Applet
@@ -843,7 +843,7 @@ implements ActionListener, WindowListener, KeyListener {
 
         String[] g = new String[1];
 
-        lTime = System.currentTimeMillis();
+        lTime = System.nanoTime();
 
         try {
             if (sStatement == null) {
@@ -852,7 +852,7 @@ implements ActionListener, WindowListener, KeyListener {
 
             sStatement.execute(sCmd);
 
-            lTime = System.currentTimeMillis() - lTime;
+            lTime = System.nanoTime() - lTime;
 
             int r = sStatement.getUpdateCount();
 
@@ -884,7 +884,7 @@ implements ActionListener, WindowListener, KeyListener {
 
             addToRecent(txtCommand.getText());
         } catch (SQLException e) {
-            lTime = System.currentTimeMillis() - lTime;
+            lTime = System.nanoTime() - lTime;
             g[0]  = "SQL Error";
 
             gResult.setHead(g);
@@ -899,7 +899,6 @@ implements ActionListener, WindowListener, KeyListener {
         }
 
         updateResult();
-        System.gc();
     }
 
     void updateResult() {
@@ -945,9 +944,11 @@ implements ActionListener, WindowListener, KeyListener {
             ResultSetMetaData m   = r.getMetaData();
             int               col = m.getColumnCount();
             String[]          h   = new String[col];
+            // int[]             p   = new int[col];
 
             for (int i = 1; i <= col; i++) {
                 h[i - 1] = m.getColumnLabel(i);
+                // p[i - 1] = m.getPrecision(i);
             }
 
             gResult.setHead(h);
@@ -978,6 +979,8 @@ implements ActionListener, WindowListener, KeyListener {
         StringBuffer b     = new StringBuffer();
         long         total = 0;
 
+        lTime = 0;
+
         for (int i = 0; i < all.length(); i++) {
             char c = all.charAt(i);
 
@@ -999,7 +1002,7 @@ implements ActionListener, WindowListener, KeyListener {
 
         int max = 1;
 
-        lTime = System.currentTimeMillis() - lTime;
+        lTime = System.nanoTime() - lTime;
 
         while (!all.equals("")) {
             int    i = all.indexOf(';');
@@ -1046,7 +1049,7 @@ implements ActionListener, WindowListener, KeyListener {
 
         gResult.addRow(g);
 
-        lTime = System.currentTimeMillis() - lTime;
+        lTime = System.nanoTime() - lTime;
 
         updateResult();
     }
@@ -1151,7 +1154,11 @@ implements ActionListener, WindowListener, KeyListener {
             b.append(NL);
         }
 
-        b.append(NL + height + " row(s) in " + lTime + " ms");
+        long millis   = lTime / 1000000;
+        long fraction = (lTime % 1000000) / 100000;
+
+        b.append(NL + height + " row(s) in " + millis + '.' + fraction
+                 + " ms");
         txtResult.setText(b.toString());
     }
 
