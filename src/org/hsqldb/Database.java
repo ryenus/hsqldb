@@ -61,7 +61,7 @@ import org.hsqldb.types.Collation;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class Database {
@@ -389,6 +389,10 @@ public class Database {
     synchronized Session connect(String username, String password,
                                  String zoneString, int timeZoneSeconds) {
 
+        if (getState() != DATABASE_ONLINE) {
+            throw Error.error(ErrorCode.X_08001);
+        }
+
         if (username.equalsIgnoreCase("SA")) {
             username = "SA";
         }
@@ -656,6 +660,8 @@ public class Database {
             if (result && closemode == CLOSEMODE_COMPACT) {
                 clearStructures();
                 reopen();
+                txManager.setGlobalChangeTimestamp(
+                    txManager.getGlobalChangeTimestamp() + 1);
                 setState(DATABASE_CLOSING);
                 sessionManager.closeAllSessions();
                 logger.close(CLOSEMODE_NORMAL);
