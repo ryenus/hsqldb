@@ -48,7 +48,7 @@ import java.util.NoSuchElementException;
  * Non-recursive implementation of fast quicksort added by Sergio Bossa sbtourist@users dot sourceforge.net)
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 1.8.0
  */
 public class DoubleIntIndex implements IntLookup, LongLookup {
@@ -654,6 +654,11 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
      * fast quicksort using a stack on the heap to reduce stack use
      */
     private synchronized void fastQuickSort() {
+
+        if (count <= 1024 * 16) {
+            fastQuickSortRecursive();
+            return;
+        }
 
         DoubleIntIndex indices   = new DoubleIntIndex(32, false);
         int            threshold = 16;

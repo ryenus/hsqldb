@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ import org.hsqldb.rowio.RowOutputTextQuoted;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 1.7.0
  */
 public class TextCache extends DataFileCache {
@@ -158,7 +158,7 @@ public class TextCache extends DataFileCache {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_opening_file_error,
                               new Object[] {
-                t.toString(), dataFileName
+                dataFileName, t.toString()
             });
         }
 
@@ -202,7 +202,7 @@ public class TextCache extends DataFileCache {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_closing_file_error,
                               new Object[] {
-                t.toString(), dataFileName
+                dataFileName, t.toString()
             });
         } finally {
             writeLock.unlock();
@@ -234,7 +234,7 @@ public class TextCache extends DataFileCache {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_purging_file_error,
                               new Object[] {
-                t.toString(), dataFileName
+                dataFileName, t.toString()
             });
         } finally {
             writeLock.unlock();

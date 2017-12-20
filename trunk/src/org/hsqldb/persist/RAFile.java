@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -143,10 +143,8 @@ final class RAFile implements RandomAccessInterface {
         if (type == DATA_FILE_JAR) {
             return new RAFileInJar(name);
         } else if (type == DATA_FILE_TEXT) {
-            RAFile ra = new RAFile(database.logger, name, readonly, false,
+            return new RAFile(database.logger, name, readonly, false,
                                    true);
-
-            return ra;
         } else if (type == DATA_FILE_RAF) {
             return new RAFile(database.logger, name, readonly, true, false);
         } else {
