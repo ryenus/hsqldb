@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,6 @@ public class RowOutputBinaryEncode extends RowOutputBinary {
      *
      * @param  row - a database row
      * @return  size of byte array
-     * @exception  HsqlException When data is inconsistent
      */
     public int getSize(Row row) {
 

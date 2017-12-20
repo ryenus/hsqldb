@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,10 +112,6 @@ public class RowOutputBinary extends RowOutputBase {
         super.writeData(row, types);
     }
 
-    public long scalePosition(long position) {
-        return (position + scale - 1) & (long) mask;
-    }
-
     public void setStorageSize(int size) {
         storageSize = size;
     }
@@ -165,7 +161,6 @@ public class RowOutputBinary extends RowOutputBase {
      *
      * @param  row - a database row
      * @return  size of byte array
-     * @exception  HsqlException When data is inconsistent
      */
     public int getSize(Row row) {
 

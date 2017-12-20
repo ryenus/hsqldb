@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -107,10 +107,6 @@ public class RowOutputTextLog extends RowOutputBase {
 
     protected void writeSmallint(Number o) {
         this.writeBytes(o.toString());
-    }
-
-    public long scalePosition(long position) {
-        return position;
     }
 
     public void setStorageSize(int size) {}
