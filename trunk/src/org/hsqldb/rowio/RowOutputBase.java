@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ import org.hsqldb.types.Types;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.7.0
  */
 abstract class RowOutputBase extends HsqlByteArrayOutputStream
@@ -66,13 +66,8 @@ implements RowOutputInterface {
     public static final int CACHED_ROW_160 = 0;
     public static final int CACHED_ROW_170 = 1;
 
-    // the last column in a table is an ID that should not be written to file
-    protected boolean skipSystemId = false;
-
     /**
      *  Constructor used for persistent storage of a Table row
-     *
-     * @exception  IOException when an IO error is encountered
      */
     public RowOutputBase() {
         super();
@@ -80,8 +75,6 @@ implements RowOutputInterface {
 
     /**
      *  Constructor used for result sets
-     *
-     * @exception  IOException when an IO error is encountered
      */
     public RowOutputBase(int initialSize) {
         super(initialSize);
@@ -89,27 +82,11 @@ implements RowOutputInterface {
 
     /**
      *  Constructor used for network transmission of result sets
-     *
-     * @exception  IOException when an IO error is encountered
      */
     public RowOutputBase(byte[] buffer) {
         super(buffer);
     }
 
-    public abstract long scalePosition(long position);
-
-    public abstract void setStorageSize(int size);
-
-// fredt@users - comment - methods for writing Result column type, name and data size
-    public abstract void writeEnd();
-
-    public abstract void writeSize(int size);
-
-    public abstract void writeType(int type);
-
-    public abstract void writeString(String s);
-
-// fredt@users - comment - methods used for writing each SQL type
     protected void writeFieldPrefix() {}
 
     protected abstract void writeFieldType(Type type);

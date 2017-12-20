@@ -358,7 +358,7 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
 
     public byte[] readByteArray16() {
 
-        byte[] b      = new byte[16];
+        byte[] b = new byte[16];
 
         readFully(b);
 
