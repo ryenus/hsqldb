@@ -66,7 +66,7 @@ import org.hsqldb.rowio.RowOutputTextLog;
  *
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 1.7.2
  */
 public class ScriptWriterText extends ScriptWriterBase {

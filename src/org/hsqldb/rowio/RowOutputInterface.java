@@ -41,7 +41,7 @@ import org.hsqldb.types.Type;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 1.7.0
  */
 public interface RowOutputInterface extends Cloneable {
