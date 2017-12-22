@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,8 @@ public interface RowOutputInterface extends Cloneable {
 
     void setStorageSize(int size);
 
+    void setMode(int mode);
+
     void writeEnd();
 
     void writeSize(int size);
@@ -65,6 +67,8 @@ public interface RowOutputInterface extends Cloneable {
     void writeInt(int i);
 
     void writeLong(long i);
+
+    void writeBytes(byte[] b);
 
     void writeData(Object object, Type type);
 

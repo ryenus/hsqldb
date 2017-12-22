@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@ import org.hsqldb.Table;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileAccess;
+import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.rowio.RowOutputTextLog;
 
 /**
@@ -70,7 +71,7 @@ import org.hsqldb.rowio.RowOutputTextLog;
  */
 public class ScriptWriterText extends ScriptWriterBase {
 
-    RowOutputTextLog           rowOut;
+    RowOutputInterface         rowOut;
     public static final String ISO_8859_1 = "ISO-8859-1";
 
     /** @todo - perhaps move this global into a lib utility class */
@@ -158,9 +159,9 @@ public class ScriptWriterText extends ScriptWriterBase {
 
         if (session != currentSession) {
             rowOut.reset();
-            rowOut.write(BYTES_C_ID_INIT);
+            rowOut.writeBytes(BYTES_C_ID_INIT);
             rowOut.writeLong(session.getId());
-            rowOut.write(BYTES_C_ID_TERM);
+            rowOut.writeBytes(BYTES_C_ID_TERM);
 
             currentSession = session;
 
@@ -179,9 +180,9 @@ public class ScriptWriterText extends ScriptWriterBase {
 
     private void writeSchemaStatement(HsqlName schema) {
 
-        rowOut.write(BYTES_SCHEMA);
+        rowOut.writeBytes(BYTES_SCHEMA);
         rowOut.writeString(schema.statementName);
-        rowOut.write(BYTES_LINE_SEP);
+        rowOut.writeBytes(BYTES_LINE_SEP);
     }
 
     public void writeLogStatement(Session session,
@@ -195,7 +196,7 @@ public class ScriptWriterText extends ScriptWriterBase {
 
         rowOut.reset();
         rowOut.writeString(s);
-        rowOut.write(BYTES_LINE_SEP);
+        rowOut.writeBytes(BYTES_LINE_SEP);
         writeRowOutToFile();
 
         needsSync = true;
@@ -209,12 +210,12 @@ public class ScriptWriterText extends ScriptWriterBase {
         writeSessionIdAndSchema(session);
         rowOut.reset();
         rowOut.setMode(RowOutputTextLog.MODE_INSERT);
-        rowOut.write(BYTES_INSERT_INTO);
+        rowOut.writeBytes(BYTES_INSERT_INTO);
         rowOut.writeString(table.getName().statementName);
-        rowOut.write(BYTES_VALUES);
+        rowOut.writeBytes(BYTES_VALUES);
         rowOut.writeData(row, table.getColumnTypes());
-        rowOut.write(BYTES_TERM);
-        rowOut.write(BYTES_LINE_SEP);
+        rowOut.writeBytes(BYTES_TERM);
+        rowOut.writeBytes(BYTES_LINE_SEP);
         writeRowOutToFile();
     }
 
@@ -261,12 +262,12 @@ public class ScriptWriterText extends ScriptWriterBase {
         writeSessionIdAndSchema(session);
         rowOut.reset();
         rowOut.setMode(RowOutputTextLog.MODE_DELETE);
-        rowOut.write(BYTES_DELETE_FROM);
+        rowOut.writeBytes(BYTES_DELETE_FROM);
         rowOut.writeString(table.getName().statementName);
-        rowOut.write(BYTES_WHERE);
+        rowOut.writeBytes(BYTES_WHERE);
         rowOut.writeData(table.getColumnCount(), table.getColumnTypes(), data,
                          table.columnList, table.getPrimaryKey());
-        rowOut.write(BYTES_LINE_SEP);
+        rowOut.writeBytes(BYTES_LINE_SEP);
         writeRowOutToFile();
     }
 
@@ -277,13 +278,13 @@ public class ScriptWriterText extends ScriptWriterBase {
 
         writeSessionIdAndSchema(session);
         rowOut.reset();
-        rowOut.write(BYTES_SEQUENCE);
+        rowOut.writeBytes(BYTES_SEQUENCE);
         rowOut.writeString(seq.getSchemaName().statementName);
-        rowOut.write('.');
+        rowOut.writeByte('.');
         rowOut.writeString(seq.getName().statementName);
-        rowOut.write(BYTES_SEQUENCE_MID);
+        rowOut.writeBytes(BYTES_SEQUENCE_MID);
         rowOut.writeLong(seq.peek());
-        rowOut.write(BYTES_LINE_SEP);
+        rowOut.writeBytes(BYTES_LINE_SEP);
         writeRowOutToFile();
 
         needsSync = true;
@@ -293,8 +294,8 @@ public class ScriptWriterText extends ScriptWriterBase {
 
         writeSessionIdAndSchema(session);
         rowOut.reset();
-        rowOut.write(BYTES_COMMIT);
-        rowOut.write(BYTES_LINE_SEP);
+        rowOut.writeBytes(BYTES_COMMIT);
+        rowOut.writeBytes(BYTES_LINE_SEP);
         writeRowOutToFile();
 
         needsSync = true;

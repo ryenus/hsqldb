@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2017, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.ColumnBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.rowio.RowInputBinary;
+import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.Type;
@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
  * Metadata for a result set.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.8.0
  */
 public final class ResultMetaData {
@@ -290,7 +290,7 @@ public final class ResultMetaData {
         return out;
     }
 
-    ResultMetaData(RowInputBinary in) throws IOException {
+    ResultMetaData(RowInputInterface in) throws IOException {
 
         type        = in.readInt();
         columnCount = in.readInt();
@@ -386,7 +386,7 @@ public final class ResultMetaData {
         }
     }
 
-    Type readDataTypeSimple(RowInputBinary in) throws IOException {
+    Type readDataTypeSimple(RowInputInterface in) throws IOException {
 
         int     typeCode = in.readType();
         boolean isArray  = typeCode == Types.SQL_ARRAY;
@@ -400,7 +400,7 @@ public final class ResultMetaData {
         return Type.getDefaultType(typeCode);
     }
 
-    Type readDataType(RowInputBinary in) throws IOException {
+    Type readDataType(RowInputInterface in) throws IOException {
 
         int     typeCode = in.readType();
         boolean isArray  = typeCode == Types.SQL_ARRAY;

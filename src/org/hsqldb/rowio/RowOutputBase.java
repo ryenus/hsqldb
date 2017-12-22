@@ -63,9 +63,6 @@ import org.hsqldb.types.Types;
 abstract class RowOutputBase extends HsqlByteArrayOutputStream
 implements RowOutputInterface {
 
-    public static final int CACHED_ROW_160 = 0;
-    public static final int CACHED_ROW_170 = 1;
-
     /**
      *  Constructor used for persistent storage of a Table row
      */

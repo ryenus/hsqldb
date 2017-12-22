@@ -252,6 +252,10 @@ public class RowOutputTextLog extends RowOutputBase {
         this.writeBytes(Long.toString(value));
     }
 
+    public void writeBytes(byte[] b) {
+        super.write(b);
+    }
+
     protected void writeTime(TimeData o, Type type) {
 
         write('\'');
@@ -303,6 +307,6 @@ public class RowOutputTextLog extends RowOutputBase {
     }
 
     public RowOutputInterface duplicate() {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputText");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputTextLog");
     }
 }
