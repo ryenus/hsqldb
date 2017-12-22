@@ -102,6 +102,8 @@ public class RowOutputText extends RowOutputBase {
 
     public void setStorageSize(int size) {}
 
+    public void setMode(int mode) {}
+
     public void writeEnd() {
 
         // terminate at the end of row
@@ -229,6 +231,10 @@ public class RowOutputText extends RowOutputBase {
     }
 
     public void writeLong(long i) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputText");
+    }
+
+    public void writeBytes(byte[] b) {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputText");
     }
 

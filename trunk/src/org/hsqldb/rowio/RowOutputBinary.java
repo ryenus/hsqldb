@@ -116,6 +116,8 @@ public class RowOutputBinary extends RowOutputBase {
         storageSize = size;
     }
 
+    public void setMode(int mode) {}
+
     public void writeEnd() {
 
         if (count > storageSize) {
@@ -305,6 +307,10 @@ public class RowOutputBinary extends RowOutputBase {
 
     public void writeByteArray16(byte[] b) {
         write(b, 0, 16);
+    }
+
+    public void writeBytes(byte[] b) {
+        super.write(b);
     }
 
     // fredt@users - comment - helper and conversion methods

@@ -51,7 +51,7 @@ import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
-import org.hsqldb.rowio.RowInputBinary;
+import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.Collation;
@@ -70,7 +70,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class Result {
@@ -245,13 +245,13 @@ public class Result {
     }
 
     public static Result newResult(DataInput dataInput,
-                                   RowInputBinary in) throws IOException {
+                                   RowInputInterface in) throws IOException {
         return newResult(null, dataInput.readByte(), dataInput, in);
     }
 
     public static Result newResult(Session session, int mode,
                                    DataInput dataInput,
-                                   RowInputBinary in) throws IOException {
+                                   RowInputInterface in) throws IOException {
 
         try {
             if (mode == ResultConstants.LARGE_OBJECT_OP) {
@@ -268,7 +268,8 @@ public class Result {
 
     public void readAdditionalResults(SessionInterface session,
                                       DataInputStream inputStream,
-                                      RowInputBinary in) throws IOException {
+                                      RowInputInterface in)
+                                      throws IOException {
 
         Result currentResult = this;
 
@@ -289,7 +290,7 @@ public class Result {
 
     public void readLobResults(SessionInterface session,
                                DataInputStream inputStream,
-                               RowInputBinary in) throws IOException {
+                               RowInputInterface in) throws IOException {
 
         Result  currentResult = this;
         boolean hasLob        = false;
@@ -325,7 +326,7 @@ public class Result {
     }
 
     private static Result newResult(Session session, DataInput dataInput,
-                                    RowInputBinary in,
+                                    RowInputInterface in,
                                     int mode) throws IOException {
 
         Result result = newResult(mode);
@@ -875,12 +876,13 @@ public class Result {
         return r;
     }
 
-    public static Result newCancelRequest(int randomId, long statementId, String sql) {
+    public static Result newCancelRequest(int randomId, long statementId,
+                                          String sql) {
 
         Result r = newResult(ResultConstants.SQLCANCEL);
 
-        r.statementID = statementId;
-        r.mainString  = sql;
+        r.statementID  = statementId;
+        r.mainString   = sql;
         r.generateKeys = randomId;
 
         return r;
@@ -1630,7 +1632,7 @@ public class Result {
         initialiseNavigator().add(sql);
     }
 
-    private static Object[] readSimple(RowInputBinary in,
+    private static Object[] readSimple(RowInputInterface in,
                                        ResultMetaData meta)
                                        throws IOException {
 
