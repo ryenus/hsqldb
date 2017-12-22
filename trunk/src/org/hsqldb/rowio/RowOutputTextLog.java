@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  */
 public class RowOutputTextLog extends RowOutputBase {
 
