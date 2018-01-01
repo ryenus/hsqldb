@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -140,7 +140,7 @@ public class ParserCommand extends ParserDDL {
         Statement cs;
 
         compileContext.reset();
-        setParsePosition(getPosition());
+        setPartPosition(getPosition());
 
         if (token.tokenType == Tokens.X_STARTPARSE) {
             read();
@@ -295,7 +295,13 @@ public class ParserCommand extends ParserDDL {
             case Tokens.EXPLAIN : {
                 int position = getPosition();
 
-                cs = compileExplainPlan();
+                read();
+
+                if (token.tokenType == Tokens.PLAN) {
+                    cs = compileExplainPlan();
+                } else {
+                    cs = compileExplainReferences();
+                }
 
                 cs.setSQL(getLastPart(position));
 
@@ -2410,7 +2416,6 @@ public class ParserCommand extends ParserDDL {
 
         Statement cs;
 
-        read();
         readThis(Tokens.PLAN);
         readThis(Tokens.FOR);
 
@@ -2420,6 +2425,62 @@ public class ParserCommand extends ParserDDL {
 
         return new StatementCommand(StatementTypes.EXPLAIN_PLAN,
                                     new Object[]{ cs });
+    }
+
+    private Statement compileExplainReferences() {
+
+        SchemaObject object;
+        boolean      referencesFrom = false;
+
+        readThis(Tokens.REFERENCES);
+
+        if (!readIfThis(Tokens.TO)) {
+            readThis(Tokens.FROM);
+
+            referencesFrom = true;
+        }
+
+        int type;
+
+        switch (token.tokenType) {
+
+            case Tokens.TABLE :
+            case Tokens.VIEW :
+                read();
+
+                type = SchemaObject.TABLE;
+                break;
+
+            case Tokens.SPECIFIC :
+                read();
+                readThis(Tokens.ROUTINE);
+
+                type = SchemaObject.SPECIFIC_ROUTINE;
+                break;
+
+            case Tokens.DOMAIN :
+            case Tokens.TYPE :
+                read();
+
+                type = SchemaObject.DOMAIN;
+                break;
+
+            default :
+                throw unexpectedToken();
+        }
+
+        object = readSchemaObjectName(type);
+
+        HsqlName name = object.getName();
+
+        if (object instanceof Routine) {
+            name = ((Routine) object).getSpecificName();
+        }
+
+        return new StatementCommand(StatementTypes.EXPLAIN_REFERENCES,
+                                    new Object[] {
+            name, Boolean.valueOf(referencesFrom)
+        });
     }
 
     private StatementCommand compileTableSource(Table t) {

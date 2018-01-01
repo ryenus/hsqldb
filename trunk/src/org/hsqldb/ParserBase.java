@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class ParserBase {
@@ -60,7 +60,7 @@ public class ParserBase {
     private final Token dummyToken = new Token();
 
     //
-    protected int           parsePosition;
+    protected int           partPosition;
     protected HsqlException lastError;
     protected HsqlName      lastSynonym;
     protected boolean       isCheckOrTriggerCondition;
@@ -85,12 +85,12 @@ public class ParserBase {
         return scanner;
     }
 
-    public int getParsePosition() {
-        return parsePosition;
+    public int getPartPosition() {
+        return partPosition;
     }
 
-    public void setParsePosition(int parsePosition) {
-        this.parsePosition = parsePosition;
+    public void setPartPosition(int parsePosition) {
+        this.partPosition = parsePosition;
     }
 
     /**
@@ -106,7 +106,7 @@ public class ParserBase {
         scanner.reset(session, sql);
 
         //
-        parsePosition             = 0;
+        partPosition             = 0;
         lastError                 = null;
         lastSynonym               = null;
         isCheckOrTriggerCondition = false;
@@ -146,7 +146,7 @@ public class ParserBase {
     }
 
     String getLastPart() {
-        return scanner.getPart(parsePosition, scanner.getTokenPosition());
+        return scanner.getPart(partPosition, scanner.getTokenPosition());
     }
 
     String getLastPart(int position) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.OrderedHashSet;
@@ -44,7 +45,7 @@ import org.hsqldb.lib.OrderedHashSet;
  *
  * @author leptipre@users
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.4.1
  * @since 1.7.0
  */
 public class View extends TableDerived {
@@ -97,7 +98,8 @@ public class View extends TableDerived {
      */
     public void compile(Session session, SchemaObject parentObject) {
 
-        ParserDQL p = new ParserDQL(session, new Scanner(session, statement), null);
+        ParserDQL p = new ParserDQL(session, new Scanner(session, statement),
+                                    null);
 
         p.isViewDefinition = true;
 
@@ -274,12 +276,14 @@ public class View extends TableDerived {
         statement = sql;
     }
 
-    public TableDerived newDerivedTable(Session session) {
+    public TableDerived newDerivedTable(Session session,
+                                        CompileContext baseContext) {
 
         TableDerived td;
-        ParserDQL p = new ParserDQL(session, new Scanner(),
-                                    session.parser.compileContext);
+        ParserDQL    p = new ParserDQL(session, new Scanner(), baseContext);
 
+        // signals the type of subquery table, if view
+        p.compileContext.setCurrentSubquery(tableName);
         p.reset(session, statement);
         p.read();
 

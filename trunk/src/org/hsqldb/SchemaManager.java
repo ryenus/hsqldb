@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -849,7 +849,7 @@ public class SchemaManager {
 
     private void dropTable(Session session, Table table, boolean cascade) {
 
-        Schema schema    = (Schema) schemaMap.get(table.getSchemaName().name);
+        Schema schema = (Schema) schemaMap.get(table.getSchemaName().name);
         OrderedHashSet externalConstraints =
             table.getDependentExternalConstraints();
         OrderedHashSet externalReferences = new OrderedHashSet();
@@ -1435,7 +1435,8 @@ public class SchemaManager {
         return reference;
     }
 
-    public SchemaObject findAnySchemaObject(String name, String schemaName) {
+    public SchemaObject findAnySchemaObjectForSynonym(String name,
+            String schemaName) {
 
         readLock.lock();
 
@@ -1446,7 +1447,7 @@ public class SchemaManager {
                 return null;
             }
 
-            return schema.findAnySchemaObject(name);
+            return schema.findAnySchemaObjectForSynonym(name);
         } finally {
             readLock.unlock();
         }
@@ -1649,16 +1650,16 @@ public class SchemaManager {
         OrderedHashSet set  = object.getReferences();
         HsqlName       name = object.getName();
 
+        if (object instanceof Routine) {
+            name = ((Routine) object).getSpecificName();
+        }
+
         if (set == null) {
             return;
         }
 
         for (int i = 0; i < set.size(); i++) {
             HsqlName referenced = (HsqlName) set.get(i);
-
-            if (object instanceof Routine) {
-                name = ((Routine) object).getSpecificName();
-            }
 
             referenceMap.put(referenced, name);
         }
@@ -1682,16 +1683,16 @@ public class SchemaManager {
         HsqlName       name = object.getName();
         OrderedHashSet set  = object.getReferences();
 
+        if (object instanceof Routine) {
+            name = ((Routine) object).getSpecificName();
+        }
+
         if (set == null) {
             return;
         }
 
         for (int i = 0; i < set.size(); i++) {
             HsqlName referenced = (HsqlName) set.get(i);
-
-            if (object instanceof Routine) {
-                name = ((Routine) object).getSpecificName();
-            }
 
             referenceMap.remove(referenced, name);
         }
@@ -2447,6 +2448,7 @@ public class SchemaManager {
 
             schemas = schemaMap.values().iterator();
 
+            // build up set of simple objects
             while (schemas.hasNext()) {
                 Schema schema = (Schema) schemas.next();
 
@@ -2462,6 +2464,7 @@ public class SchemaManager {
                 schema.addSimpleObjects(unresolved);
             }
 
+            // list all simple objects in refernece order
             while (true) {
                 Iterator it = unresolved.iterator();
 
@@ -2482,6 +2485,7 @@ public class SchemaManager {
 
             schemas = schemaMap.values().iterator();
 
+            //
             while (schemas.hasNext()) {
                 Schema schema = (Schema) schemas.next();
 
@@ -2699,7 +2703,7 @@ public class SchemaManager {
         }
     }
 
-    public String[] getCommentsArray() {
+    public String[] getCommentsSQL() {
 
         readLock.lock();
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.rights.Grantee;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.7.2
  */
 
@@ -408,6 +408,10 @@ public abstract class StatementDMQL extends Statement {
 
         for (int i = 0; i < rangeVariables.length; i++) {
             RangeVariable range = rangeVariables[i];
+
+            if (range.isViewSubquery) {
+                continue;
+            }
 
             if (range.rangeTable.getSchemaName()
                     == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {

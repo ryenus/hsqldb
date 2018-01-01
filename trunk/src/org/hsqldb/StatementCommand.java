@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -88,6 +88,7 @@ public class StatementCommand extends Statement {
                 break;
 
             case StatementTypes.EXPLAIN_PLAN :
+            case StatementTypes.EXPLAIN_REFERENCES :
                 group                  = StatementTypes.X_SQL_DIAGNOSTICS;
                 statementReturnType    = StatementTypes.RETURN_RESULT;
                 isTransactionStatement = false;
@@ -267,10 +268,47 @@ public class StatementCommand extends Statement {
             case StatementTypes.TRUNCATE : {
                 return getTruncateResult(session);
             }
+            case StatementTypes.EXPLAIN_REFERENCES : {
+                HsqlName name = (HsqlName) arguments[0];
+                boolean referenceFrom =
+                    ((Boolean) arguments[1]).booleanValue();
+                OrderedHashSet set;
+
+                if (referenceFrom) {
+                    SchemaObject object =
+                        session.database.schemaManager.getSchemaObject(name);
+
+                    set = object.getReferences();
+
+                    if (set == null) {
+                        set = new OrderedHashSet();
+                    }
+                } else {
+                    set = new OrderedHashSet();
+
+                    session.database.schemaManager.getCascadingReferencesTo(
+                        name, set);
+                }
+
+                Result result =
+                    Result.newSingleColumnResult(Tokens.T_REFERENCES);
+
+                for (int i = 0; i < set.size(); i++) {
+                    HsqlName current = (HsqlName) set.get(i);
+                    String objectName =
+                        SchemaObjectSet.getName(current.type) + ' '
+                        + current.getSchemaQualifiedStatementName();
+                    Object[] data = new Object[]{ objectName };
+
+                    result.navigator.add(data);
+                }
+
+                return result;
+            }
             case StatementTypes.EXPLAIN_PLAN : {
                 Statement statement = (Statement) arguments[0];
 
-                return Result.newSingleColumnStringResult("OPERATION",
+                return Result.newSingleColumnStringResult(Tokens.T_PLAN,
                         statement.describe(session));
             }
             case StatementTypes.DATABASE_BACKUP : {

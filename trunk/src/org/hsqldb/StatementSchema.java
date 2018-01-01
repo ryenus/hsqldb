@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for DDL statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class StatementSchema extends Statement {
@@ -652,8 +652,6 @@ public class StatementSchema extends Statement {
                 Routine routine = (Routine) arguments[0];
 
                 try {
-                    routine.resolveReferences(session);
-
                     Routine oldRoutine =
                         (Routine) schemaManager.getSchemaObject(
                             routine.getSpecificName());
@@ -1108,7 +1106,6 @@ public class StatementSchema extends Statement {
                 Routine routine = (Routine) arguments[0];
 
                 try {
-                    routine.resolve(session);
                     setOrCheckObjectName(session, null, routine.getName(),
                                          false);
                     schemaManager.addSchemaObject(routine);
@@ -1239,14 +1236,15 @@ public class StatementSchema extends Statement {
                             RowIterator it = table.rowIterator(session);
 
                             while (it.next()) {
-                                Row row = it.getCurrentRow();
+                                Row      row  = it.getCurrentRow();
                                 Object[] data = row.getData();
 
                                 session.sessionData.adjustLobUsageCount(table,
-                                    data, 1);
+                                        data, 1);
                             }
                         }
                     }
+
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     schemaManager.removeExportedKeys(table);
@@ -1388,8 +1386,9 @@ public class StatementSchema extends Statement {
 
                 // find the new target
                 SchemaObject object =
-                    session.database.schemaManager.findAnySchemaObject(
-                        targetName.name, targetName.schema.name);
+                    session.database.schemaManager
+                        .findAnySchemaObjectForSynonym(targetName.name,
+                                                       targetName.schema.name);
 
                 if (object == null) {
                     throw Error.error(ErrorCode.X_42501);
@@ -1578,6 +1577,8 @@ public class StatementSchema extends Statement {
     }
 
     private void dropObject(Session session, HsqlName name, boolean cascade) {
+
+        checkSchemaUpdateAuthorisation(session, name.schema);
 
         name = session.database.schemaManager.getSchemaObjectName(name.schema,
                 name.name, name.type, true);

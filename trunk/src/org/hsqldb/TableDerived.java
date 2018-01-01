@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
@@ -47,7 +48,7 @@ import org.hsqldb.types.Type;
  * Table with data derived from a query expression.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class TableDerived extends Table {
@@ -150,17 +151,18 @@ public class TableDerived extends Table {
         }
     }
 
-    public TableDerived newDerivedTable(Session session) {
+    public TableDerived newDerivedTable(Session session,
+                                        CompileContext baseContext) {
 
         TableDerived td = this;
 
         if (isRecompiled()) {
             ParserDQL p = new ParserDQL(session, new Scanner(),
-                                        session.parser.compileContext);
+                                        baseContext);
+            p.compileContext.setCurrentSubquery(tableName);
 
             p.reset(session, sql);
             p.read();
-            p.compileContext.setCurrentSubquery(tableName.name);
 
             td = p.XreadSubqueryTableBody(tableName, OpTypes.TABLE_SUBQUERY);
 

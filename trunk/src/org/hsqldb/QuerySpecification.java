@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -153,7 +153,7 @@ public class QuerySpecification extends QueryExpression {
 
         super(compileContext);
 
-        resultRangePosition = compileContext.getNextRangeVarIndex();
+        resultRangePosition = compileContext.getNextResultRangeVarIndex();
         rangeVariableList   = new HsqlArrayList();
         exprColumnList      = new HsqlArrayList();
         sortAndSlice        = SortAndSlice.noSort;
