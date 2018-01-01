@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.result.Result;
  *
  * @author Loic Lefevre
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.2.7
  * @since 1.9.0
  */
 public class Error {
@@ -264,7 +264,7 @@ public class Error {
         String message = getResourceString(code);
 
         if (subCode != 0) {
-            message += " " + getResourceString(subCode);
+            message += getResourceString(subCode);
         }
 
         if (add != null) {

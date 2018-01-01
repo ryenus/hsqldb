@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,10 +62,11 @@ public class RangeVariable {
     static final RangeVariable[] emptyArray = new RangeVariable[]{};
 
     //
-    public static final int TABLE_RANGE      = 1;
-    public static final int TRANSITION_RANGE = 2;
-    public static final int PARAMETER_RANGE  = 3;
-    public static final int VARIALBE_RANGE   = 4;
+    public static final int TABLE_RANGE       = 1;
+    public static final int TRANSITION_RANGE  = 2;
+    public static final int PARAMETER_RANGE   = 3;
+    public static final int VARIALBE_RANGE    = 4;
+    public static final int PLACEHOLDER_RANGE = 5;
 
     //
     private static final RowIterator emptyIterator = new RangeIteratorEmpty();
@@ -115,6 +116,9 @@ public class RangeVariable {
     //
     int rangePosition;
 
+    //
+    boolean isViewSubquery;
+
     // for variable and parameter lists
     HashMappedList variables;
 
@@ -144,6 +148,7 @@ public class RangeVariable {
                 usedColumns = new boolean[variables.size()];
             case PARAMETER_RANGE :
             case VARIALBE_RANGE :
+            case PLACEHOLDER_RANGE :
                 break;
 
             default :

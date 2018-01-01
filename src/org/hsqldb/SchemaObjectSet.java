@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.map.ValuePool;
  * Collection of SQL schema objects of a specific type in a schema
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class SchemaObjectSet {
@@ -371,6 +371,9 @@ public class SchemaObjectSet {
             case SchemaObject.FUNCTION :
                 return Tokens.T_FUNCTION;
 
+            case SchemaObject.SPECIFIC_ROUTINE :
+                return Tokens.T_SPECIFIC + ' ' + Tokens.T_ROUTINE;
+
             case SchemaObject.ASSERTION :
                 return Tokens.T_ASSERTION;
 
@@ -382,6 +385,9 @@ public class SchemaObjectSet {
 
             case SchemaObject.COLUMN :
                 return Tokens.T_COLUMN;
+
+            case SchemaObject.PARAMETER :
+                return Tokens.T_PARAMETER;
 
             case SchemaObject.CONSTRAINT :
                 return Tokens.T_CONSTRAINT;
@@ -418,7 +424,8 @@ public class SchemaObjectSet {
                     Routine routine = routineSchema.routines[i];
 
                     if (routine.dataImpact == Routine.NO_SQL
-                            || routine.dataImpact == Routine.CONTAINS_SQL) {}
+                            || routine.dataImpact == Routine.CONTAINS_SQL ||
+                            routine.language == Routine.LANGUAGE_JAVA) {}
                     else {
                         set.add(routine);
                     }

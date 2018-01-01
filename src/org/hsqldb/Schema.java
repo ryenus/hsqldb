@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.rights.Grantee;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.3.4
+ * @version 2.4.1
  * @since 1.9.0
 */
 public final class Schema implements SchemaObject {
@@ -209,7 +209,8 @@ public final class Schema implements SchemaObject {
             Routine routine = (Routine) it.next();
 
             if (routine.dataImpact == Routine.NO_SQL
-                    || routine.dataImpact == Routine.CONTAINS_SQL) {
+                    || routine.dataImpact == Routine.CONTAINS_SQL ||
+                    routine.language == Routine.LANGUAGE_JAVA) {
                 unresolved.add(routine);
             }
         }
@@ -335,7 +336,7 @@ public final class Schema implements SchemaObject {
         }
     }
 
-    SchemaObject findAnySchemaObject(String name) {
+    SchemaObject findAnySchemaObjectForSynonym(String name) {
 
         int[] types = {
             SchemaObject.SEQUENCE, SchemaObject.TABLE, SchemaObject.ROUTINE

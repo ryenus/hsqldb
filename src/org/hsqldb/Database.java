@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -782,7 +782,7 @@ public class Database {
 
         r.addRows(list);
 
-        list = getGranteeManager().getSQL();
+        list = granteeManager.getSQL();
 
         r.addRows(list);
 
@@ -792,7 +792,7 @@ public class Database {
         r.addRows(list);
 
         // optional comments on tables etc.
-        list = schemaManager.getCommentsArray();
+        list = schemaManager.getCommentsSQL();
 
         r.addRows(list);
 
@@ -813,17 +813,17 @@ public class Database {
         r.addRows(list);
 
         // password complexity
-        list = getUserManager().getAuthenticationSQL();
+        list = userManager.getAuthenticationSQL();
 
         r.addRows(list);
 
         // user session start schema names
-        list = getUserManager().getInitialSchemaSQL();
+        list = userManager.getInitialSchemaSQL();
 
         r.addRows(list);
 
         // grantee rights
-        list = getGranteeManager().getRightsSQL();
+        list = granteeManager.getRightsSQL();
 
         r.addRows(list);
 

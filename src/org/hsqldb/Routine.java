@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.3.4
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class Routine implements SchemaObject, RangeGroup, Cloneable {
@@ -192,15 +192,14 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             p.read();
             p.startRecording();
 
-            Statement statement = p.compileSQLProcedureStatementOrNull(this,
+            Statement newStatement = p.compileSQLProcedureStatementOrNull(this,
                 null);
             Token[] tokenisedStatement = p.getRecordedStatement();
             String  sql                = Token.getSQL(tokenisedStatement);
 
-            statement.setSQL(sql);
-            setProcedure(statement);
-            statement.resolve(session);
-            setReferences();
+            newStatement.setSQL(sql);
+            setProcedure(newStatement);
+            resolve(session);
         } finally {
             session.sessionContext.popRoutineTables();
         }
