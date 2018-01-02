@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.navigator.RowIterator;
  * Implementation of PersistentStore for information schema and temp tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 2.0.1
  */
 public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
@@ -121,6 +121,16 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         }
     }
 
+    public synchronized double searchCost(Session session, Index index,
+                                          int count, int opType) {
+
+        if (table.getIndexCount() != indexList.length) {
+            resetAccessorKeys(session, table.getIndexList());
+        }
+
+        return super.searchCost(session, index, count, opType);
+    }
+
     boolean resettingAccessor = false;
 
     public CachedObject getAccessor(Index key) {
@@ -136,9 +146,10 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
     public synchronized void resetAccessorKeys(Session session, Index[] keys) {
 
         resettingAccessor = true;
+
         try {
             if (indexList.length == 0 || accessorList[0] == null) {
-                indexList = keys;
+                indexList    = keys;
                 accessorList = new CachedObject[indexList.length];
 
                 return;
@@ -148,14 +159,12 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
 
             if (isCached) {
                 resetAccessorKeysCached(keys);
-            }
-            else {
+            } else {
                 super.resetAccessorKeys(session, keys);
             }
         } finally {
             resettingAccessor = false;
         }
-
     }
 
     private void resetAccessorKeysCached(Index[] keys) {
