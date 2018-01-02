@@ -1,3 +1,20 @@
+January 2018 - version 2.4.1
+-- version 2.4.1 jar requires JRE 8 or later
+-- version 2.3.6 is released as a separate jar for JRE 1.6 and fully compatible except for the new JDBC features
+-- added support for EXPLAIN REFERENCES FROM | TO object statement
+-- added support for deployment in docker containers that do not support file rename
+-- fixed issue with some temp table queries
+-- fixed issue for WITH named subqueries in routines
+-- fixed issue with some SELECT ... INTO in routines
+-- fixed issue with parsing some TEXT TABLE source files
+-- fixed issue with auto-generated identity values in MERGE statements
+-- fixed issue with some WITH recursive queries
+-- fixed issue with duplicate values in UNNEST used with IN predicates
+-- fixed issue with WHEN clause in Java TRIGGER declarations
+-- fixed several issues with implementation of JAVA 8 JDBC method
+-- fixed some issues with transaction management
+-- fixed several minor bugs
+
 9 April 2017 - version 2.4.0
 -- version 2.4.0 jar requires JRE 8
 -- version 2.3.5 is released as a separate jar for JRE 1.6 and fully compatible except for the new JDBC features
