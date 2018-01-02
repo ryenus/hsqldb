@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.lib.StringUtil;
  * Manages a .properties file for a database.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.4.1
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
@@ -153,19 +153,19 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 //#ifdef JAVA8
 /*
 
-    public static final String THIS_VERSION         = "2.4.0";
-    public static final String THIS_FULL_VERSION    = "2.4.0";
+    public static final String THIS_VERSION         = "2.4.1";
+    public static final String THIS_FULL_VERSION    = "2.4.1";
     public static final int    MAJOR                = 2,
                                MINOR                = 4,
-                               REVISION             = 0;
+                               REVISION             = 1;
 */
 
 //#else
-    public static final String THIS_VERSION      = "2.3.5";
-    public static final String THIS_FULL_VERSION = "2.3.5";
+    public static final String THIS_VERSION      = "2.3.6";
+    public static final String THIS_FULL_VERSION = "2.3.6";
     public static final int    MAJOR             = 2,
                                MINOR             = 3,
-                               REVISION          = 5;
+                               REVISION          = 6;
 
 //#endif JAVA8
 
