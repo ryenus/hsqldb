@@ -46,7 +46,7 @@ public class ValuePoolHashMapTest extends BaseTestCase {
 
         int BIGRANGE = 100000;
         int SMALLRANGE = 50000;
-        int POOLSIZE = 100000;
+        int POOLSIZE = 1000;
         Random randomgen = new java.util.Random();
         StopWatch sw = new org.hsqldb.lib.StopWatch();
         ValuePoolHashMap map = new ValuePoolHashMap(POOLSIZE, POOLSIZE,
@@ -89,6 +89,46 @@ public class ValuePoolHashMapTest extends BaseTestCase {
         } catch (Exception e) {
             printException(e);
         }
+    }
+
+    static int poolFactor = 8;
+    static int sampleFactor = 32;
+
+    @ForSubject(ValuePoolHashMap.class)
+    public void testValuePoolIntegerHashMap() {
+        ValuePoolHashMap pool   = new ValuePoolHashMap(1024 * poolFactor, 1024 * poolFactor, BaseHashMap.PURGE_HALF);
+        Random             random = new Random();
+
+        long millis = System.currentTimeMillis();
+        for (long i = 0; i < Integer.MAX_VALUE * 2L; i++) {
+            int     value   = random.nextInt(1024 * sampleFactor);
+            Integer integer = pool.getOrAddInteger(value);
+
+            if (value != integer.intValue()) {
+                System.err.println("wrong");
+            }
+
+            if (i %10000000 == 0 && i > 0) {
+                System.out.println("done: " + i);
+
+                for (int j = 0; j <pool.objectKeyTable.length; j++) {
+                    Object o = pool.objectKeyTable[j];
+
+                    if (o == null) {
+                        continue;
+                    }
+
+                    int lookup = pool.getLookup(o, o.hashCode());
+
+                    if (lookup == -1 || pool.objectKeyTable[lookup] != o) {
+                        System.err.println("wrong");
+                    }
+                }
+            }
+        }
+
+        System.out.println("hits: " + pool.hits);
+        System.out.println("time: " +  (System.currentTimeMillis() - millis));
     }
 
     public static Test suite() {

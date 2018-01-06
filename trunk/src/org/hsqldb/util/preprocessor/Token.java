@@ -36,7 +36,7 @@ package org.hsqldb.util.preprocessor;
 /**
  * Static methods and constants to decode directive tokens.
  *
- * @author boucherb@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.8.1
  * @since 1.8.1
  */
