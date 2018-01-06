@@ -16,7 +16,7 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.hsqldb.test;
+package org.hsqldb.lib;
 
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
