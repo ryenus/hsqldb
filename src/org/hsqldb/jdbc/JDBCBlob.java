@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,8 +120,8 @@ import org.hsqldb.lib.java.JavaSystem;
  * </div>
  * <!-- end Release-specific documentation -->
  *
- * @author james house jhouse@part.net
- * @author campbell-burnet@users
+ * @author james house (jhouse@part.net)
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.4.0
  * @since JDK 1.2, HSQLDB 1.7.2
  */

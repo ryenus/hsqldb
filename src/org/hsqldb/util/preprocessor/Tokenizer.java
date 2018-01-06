@@ -36,7 +36,7 @@ package org.hsqldb.util.preprocessor;
 /**
  * Simple preprocessor directive tokenizer.
  *
- * @author boucherb@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.8.1
  * @since 1.8.1
  */

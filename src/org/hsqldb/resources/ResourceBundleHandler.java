@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import org.hsqldb.lib.HsqlArrayList;
  * exceptions result in null return values when attempting to retrieve a
  * resource. <p>
  *
- * @author campbell-burnet@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.2
  */

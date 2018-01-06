@@ -44,11 +44,11 @@ import java.io.File;
  * If an implementation does process expansion directives, recognized forms
  * should at least include the ubiquitous ${...} shell expansion form.
  *
- * @author boucherb@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.8.1
  * @since 1.8.1
  */
 public interface IResolver {
-    public String resolveProperties(String expression);
-    public File   resolveFile(String path);
+    String resolveProperties(String expression);
+    File   resolveFile(String path);
 }

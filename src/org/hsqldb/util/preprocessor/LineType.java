@@ -40,7 +40,7 @@ import java.util.Locale;
 /**
  * Static methods and constants to decode preprocessor line types.
  *
- * @author boucherb@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.8.1
  * @since 1.8.1
  */

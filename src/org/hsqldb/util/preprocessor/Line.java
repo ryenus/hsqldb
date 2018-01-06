@@ -36,7 +36,7 @@ package org.hsqldb.util.preprocessor;
 /**
  * Preprocessor's view of a line in a text document.
  *
- * @author boucherb@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.8.1
  * @since 1.8.1
  */

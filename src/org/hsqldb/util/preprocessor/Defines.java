@@ -38,7 +38,7 @@ import java.util.Hashtable;
 /**
  * Simple preprocessor symbol table.
  *
- * @author boucherb@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.8.1
  * @since 1.8.1
  */
@@ -159,8 +159,6 @@ class Defines {
                     + expression
                     + "]"); // NOI18N
         }
-
-        return;
     }
 
     public void undefine(String symbol) {

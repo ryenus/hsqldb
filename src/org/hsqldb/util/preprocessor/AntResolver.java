@@ -39,7 +39,7 @@ import org.apache.tools.ant.Project;
 /**
  * Resolves properties and paths using an ANT Project.
  *
- * @author boucherb@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.8.1
  * @since 1.8.1
  */

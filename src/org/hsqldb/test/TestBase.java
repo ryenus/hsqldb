@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,13 +69,13 @@ import junit.framework.TestResult;
  *      <url-pattern>/test</url-pattern>
  *    </servlet-mapping>
  * }</code>
- * @author  campbell-burnet@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.7.2
  * @since 1.7.2
  */
 public abstract class TestBase extends TestCase {
 
-    String  dbPath = "mem:test;sql.enforce_strict_size=true;sql.restrict_exec=true";
+    String  dbPath = "mem:test;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
     String  serverProps;
     String  url;
     String  user     = "sa";

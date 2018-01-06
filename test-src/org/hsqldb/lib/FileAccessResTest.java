@@ -161,7 +161,7 @@ public class FileAccessResTest extends BaseTestCase {
         FileAccess testSubject = getTestSubject();
 
         // defined as NO-OP
-        testSubject.renameElement(oldName, newName);
+        testSubject.renameElement(oldName, newName, false);
     }
 
     /**

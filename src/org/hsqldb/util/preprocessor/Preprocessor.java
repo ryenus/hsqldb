@@ -154,7 +154,7 @@ import java.util.Stack;
  * how to make it available to non-MIDP projects from within the IDE or how to
  * isolate the correct OpenIDE jars to allow stand-alone operation. <p>
  *
- * @author boucherb@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.8.1
  * @since 1.8.1
  */
@@ -631,7 +631,7 @@ public class Preprocessor {
 
         String value = this.resolver.resolveProperties(path);
         File   file  = this.resolver.resolveFile(value);
-        
+
         try {
             return file.getCanonicalPath();
         } catch (IOException ex) {

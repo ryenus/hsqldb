@@ -36,7 +36,7 @@ package org.hsqldb.util.preprocessor;
 /**
  * Simple preprocessor directive parser. <p>
  *
- * @author boucherb@users
+ * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.8.1
  * @since 1.8.1
  */
@@ -221,7 +221,7 @@ class Parser  {
 //    }
 
     static int compare(Object o1, Object o2) {
-        // nulls are basically 'illegal' so yes: 
+        // nulls are basically 'illegal' so yes:
         // we want to throw NPE here if o1 or o2 is null
         if (o1 instanceof Comparable) {
             return (o1.getClass().isAssignableFrom(o2.getClass()))
