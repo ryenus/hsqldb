@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package org.hsqldb.test;
 
 // nbazin@users - enhancements to the original code
 // fredt@users - 20050202 - corrected getRandomID(int) to return a randomly distributed value
+// fredt@users - 20180103 - refactored static variables to instance variables - added options
 /*
  *  This is a sample implementation of the Transaction Processing Performance
  *  Council Benchmark B coded in Java and ANSI SQL2.
@@ -55,26 +56,30 @@ import java.sql.CallableStatement;
 class TestBench {
 
     /* tpc bm b scaling rules */
-    public static int tps       = 1;                     /* the tps scaling factor: here it is 1 */
-    public static int nbranches = 1;                     /* number of branches in 1 tps db       */
-    public static int ntellers  = 10;                    /* number of tellers in  1 tps db       */
-    public static int naccounts = 100000;                /* number of accounts in 1 tps db       */
-    public static int nhistory = 864000;                 /* number of history recs in 1 tps db   */
-    public static int       rounds              = 10;    /* number of rounds to run the test     */
-    public static final int TELLER              = 0;
-    public static final int BRANCH              = 1;
-    public static final int ACCOUNT             = 2;
+    public int              tps                 = 1;         /* the tps scaling factor: here it is 1 */
+    public int              nbranches           = 1;         /* number of branches in 1 tps db       */
+    public int              ntellers            = 10;        /* number of tellers in  1 tps db       */
+    public int              naccounts           = 100000;    /* number of accounts in 1 tps db       */
+    public int              nhistory            = 864000;    /* number of history recs in 1 tps db   */
+    public int              rounds              = 10;        /* number of rounds to run the test     */
+    public final static int TELLER              = 0;
+    public final static int BRANCH              = 1;
+    public final static int ACCOUNT             = 2;
     int                     failed_transactions = 0;
     int                     transaction_count   = 0;
-    static int              n_clients           = 10;
-    static int              n_txn_per_client    = 10;
-    static boolean          count_results       = false;
+    int                     n_clients           = 10;
+    int                     n_txn_per_client    = 10;
+    boolean                 check_updates       = false;
+    boolean                 count_results       = false;
+    boolean                 perform_special     = false;
     long                    start_time          = 0;
-    static String           tableExtension      = "";
-    static String           createExtension     = "";
-    static String           ShutdownCommand     = "";
-    static boolean          useStoredProcedure  = false;
-    static boolean          verbose             = true;
+    String                  tableExtension      = "";
+    String                  createExtension     = "";
+    String                  shutdownCommand     = "";
+    String                  txmode              = "mvcc";
+    boolean                 useStoredProcedure  = false;
+    boolean                 verbose             = true;
+    boolean                 selectOnly          = false;
     MemoryWatcherThread     MemoryWatcher;
 
     /* main program,    creates a 1-tps database:  i.e. 1 branch, 10 tellers,...
@@ -84,18 +89,19 @@ class TestBench {
      */
     public static void main(String[] Args) {
 
-        String  DriverName         = "";
-        String  DBUrl              = "";
-        String  DBUser             = "";
-        String  DBPassword         = "";
-        boolean initialize_dataset = true;
+        String    DriverName         = "";
+        String    DBUrl              = "";
+        String    DBUser             = "";
+        String    DBPassword         = "";
+        boolean   initialize_dataset = true;
+        TestBench bench              = new TestBench();
 
         for (int i = 0; i < Args.length; i++) {
             if (Args[i].equals("-clients")) {
                 if (i + 1 < Args.length) {
                     i++;
 
-                    n_clients = Integer.parseInt(Args[i]);
+                    bench.n_clients = Integer.parseInt(Args[i]);
                 }
             } else if (Args[i].equals("-driver")) {
                 if (i + 1 < Args.length) {
@@ -125,26 +131,28 @@ class TestBench {
                 if (i + 1 < Args.length) {
                     i++;
 
-                    n_txn_per_client = Integer.parseInt(Args[i]);
+                    bench.n_txn_per_client = Integer.parseInt(Args[i]);
                 }
             } else if (Args[i].equals("-init")) {
                 initialize_dataset = true;
+            } else if (Args[i].equals("-select")) {
+                bench.selectOnly = true;
             } else if (Args[i].equals("-tps")) {
                 if (i + 1 < Args.length) {
                     i++;
 
-                    tps = Integer.parseInt(Args[i]);
+                    bench.tps = Integer.parseInt(Args[i]);
                 }
             } else if (Args[i].equals("-rounds")) {
                 if (i + 1 < Args.length) {
                     i++;
 
-                    rounds = Integer.parseInt(Args[i]);
+                    bench.rounds = Integer.parseInt(Args[i]);
                 }
             } else if (Args[i].equals("-sp")) {
-                useStoredProcedure = true;
+                bench.useStoredProcedure = true;
             } else if (Args[i].equals("-v")) {
-                verbose = true;
+                bench.verbose = true;
             }
         }
 
@@ -169,37 +177,33 @@ class TestBench {
         System.out.println("Driver: " + DriverName);
         System.out.println("URL:" + DBUrl);
         System.out.println();
-        System.out.println("Scale factor value: " + tps);
-        System.out.println("Number of clients: " + n_clients);
+        System.out.println("Scale factor value: " + bench.tps);
+        System.out.println("Number of clients: " + bench.n_clients);
         System.out.println("Number of transactions per client: "
-                           + n_txn_per_client);
-        System.out.println("Execution rounds: " + rounds);
+                           + bench.n_txn_per_client);
+        System.out.println("Execution rounds: " + bench.rounds);
         System.out.println();
 
         if (DriverName.equals("org.hsqldb.jdbc.JDBCDriver")
                 || DriverName.equals("org.hsqldb.jdbcDriver")) {
             if (!DBUrl.contains("mem:")) {
-                ShutdownCommand = "SHUTDOWN";
+                bench.shutdownCommand = "SHUTDOWN";
             }
         }
 
         try {
             Class.forName(DriverName);
-
-            TestBench Me = new TestBench(DBUrl, DBUser, DBPassword,
-                                         initialize_dataset);
+            bench.doBench(DBUrl, DBUser, DBPassword, initialize_dataset);
         } catch (Exception E) {
             System.out.println(E.getMessage());
             E.printStackTrace();
         }
     }
 
-    public TestBench(String url, String user, String password, boolean init) {
+    public void doBench(String url, String user, String password,
+                        boolean init) {
 
-        Vector      vClient  = new Vector();
-        Thread      Client   = null;
-        Enumeration e        = null;
-        Connection  guardian = null;
+        Connection guardian = null;
 
         try {
             java.util.Date start = new java.util.Date();
@@ -223,8 +227,13 @@ class TestBench {
 
             MemoryWatcher.start();
 
-            guardian  = connect(url, user, password);
-            checkSums(guardian);
+            guardian = connect(url, user, password);
+
+            boolean checkResult = checkSumsDetails(guardian);
+
+            if (!checkResult) {
+                System.exit(0);
+            }
 
             long startTime = System.currentTimeMillis();
 
@@ -237,13 +246,12 @@ class TestBench {
             startTime = System.currentTimeMillis();
             guardian  = connect(url, user, password);
 
-            checkSums(guardian);
+            checkSumsDetails(guardian);
             connectClose(guardian);
             System.out.println("Total time: " + tempTime / 1000D + " seconds");
-            System.out.println(
-                "sum check time: "
-                + (System.currentTimeMillis() - startTime)
-                + " milliseconds");
+            System.out.println("sum check time: "
+                               + (System.currentTimeMillis() - startTime)
+                               + " milliseconds");
         } catch (Exception E) {
             System.out.println(E.getMessage());
             E.printStackTrace();
@@ -253,12 +261,12 @@ class TestBench {
             try {
                 MemoryWatcher.join();
 
-                if (ShutdownCommand.length() > 0) {
+                if (shutdownCommand.length() > 0) {
                     guardian = connect(url, user, password);
 
                     Statement Stmt = guardian.createStatement();
 
-                    Stmt.execute(ShutdownCommand);
+                    Stmt.execute(shutdownCommand);
                     Stmt.close();
                     connectClose(guardian);
                 }
@@ -311,7 +319,11 @@ class TestBench {
         guardian = connect(url, user, password);
 
         if (count_results) {
-            checkSums(guardian);
+            checkSumsDetails(guardian);
+        }
+
+        if (this.perform_special) {
+            performSpecial(guardian);
         }
 
         connectClose(guardian);
@@ -435,8 +447,7 @@ class TestBench {
             Stmt.clearWarnings();
             Conn.commit();
             Stmt.close();
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
 
         System.out.println("Creates tables");
 
@@ -444,9 +455,14 @@ class TestBench {
             Statement Stmt = Conn.createStatement();
             String    Query;
 
+            Query = "SET FILES SPACE 1";
+
+            Stmt.execute(Query);
+            Stmt.clearWarnings();
+
             Query = "CREATE TABLE branches ( "
                     + "Bid         INTEGER NOT NULL PRIMARY KEY, "
-                    + "Bbalance    INTEGER," + "filler      VARCHAR(88))";    /* pad to 100 bytes */
+                    + "Bbalance    BIGINT," + "filler      VARCHAR(88))";    /* pad to 100 bytes */
 
             Stmt.execute(Query);
             Stmt.clearWarnings();
@@ -454,7 +470,7 @@ class TestBench {
             Query = "CREATE TABLE tellers ("
                     + "Tid         INTEGER NOT NULL PRIMARY KEY,"
                     + "Bid         INTEGER," + "Tbalance    INTEGER,"
-                    + "filler      VARCHAR(84))";                             /* pad to 100 bytes */
+                    + "filler      VARCHAR(84))";                            /* pad to 100 bytes */
 
             if (createExtension.length() > 0) {
                 Query += createExtension;
@@ -466,7 +482,7 @@ class TestBench {
             Query = "CREATE TABLE accounts ("
                     + "Aid         INTEGER NOT NULL PRIMARY KEY, "
                     + "Bid         INTEGER, " + "Abalance    INTEGER, "
-                    + "filler      VARCHAR(84))";                             /* pad to 100 bytes */
+                    + "filler      VARCHAR(84))";                            /* pad to 100 bytes */
 
             if (createExtension.length() > 0) {
                 Query += createExtension;
@@ -475,10 +491,20 @@ class TestBench {
             Stmt.execute(Query);
             Stmt.clearWarnings();
 
+            Query = "SET TABLE accounts NEW SPACE";
+
+            Stmt.execute(Query);
+            Stmt.clearWarnings();
+
             Query = "CREATE TABLE history (" + "Tid         INTEGER, "
                     + "Bid         INTEGER, " + "Aid         INTEGER, "
                     + "delta       INTEGER, " + "tstime        TIMESTAMP, "
-                    + "filler      VARCHAR(22))";                             /* pad to 50 bytes  */
+                    + "filler      VARCHAR(22))";                            /* pad to 50 bytes  */
+
+            Stmt.execute(Query);
+            Stmt.clearWarnings();
+
+            Query = "SET TABLE history NEW SPACE";
 
             Stmt.execute(Query);
             Stmt.clearWarnings();
@@ -611,8 +637,8 @@ class TestBench {
                                + "\t records inserted");
 
             // for tests
-            if (ShutdownCommand.length() > 0) {
-                Stmt.execute(ShutdownCommand);
+            if (shutdownCommand.length() > 0) {
+                Stmt.execute(shutdownCommand);
                 System.out.println("database shutdown");
             }
 
@@ -638,7 +664,7 @@ class TestBench {
     /**
      * changed to generate correct own branch for each account id
      */
-    public static int getRandomID(int type) {
+    public int getRandomID(int type) {
 
         int min     = 0,
             max     = naccounts * tps - 1;
@@ -685,15 +711,20 @@ class TestBench {
         }
     }
 
-    void checkSums(Connection conn) throws SQLException {
+    boolean checkSums(Connection conn) throws SQLException {
 
         Statement st1 = null;
         ResultSet rs  = null;
         int       bbalancesum;
+        int       bbalancecount;
         int       tbalancesum;
         int       abalancesum;
         int       abalancecount;
-        int       deltasum;
+        long      deltasum;
+        long      deltacount;
+
+        //
+        boolean result = false;
 
         try {
             st1 = conn.createStatement();
@@ -744,11 +775,132 @@ class TestBench {
                 System.out.println("sums don't match!");
             } else {
                 System.out.println("sums match!");
+
+                result = true;
             }
 
             System.out.println("AC " + abalancecount + " A " + abalancesum
                                + " B " + bbalancesum + " T " + tbalancesum
                                + " H " + deltasum);
+        } finally {
+            if (st1 != null) {
+                st1.close();
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * this is used for testing RowSet where sums are different.
+     * this catches the transaction entries that are not correctly stored
+     */
+    boolean checkSumsDetails(Connection conn) throws SQLException {
+
+        Statement st1 = null;
+        ResultSet rs  = null;
+        int       bbalancesum;
+        int       bbalancecount;
+        int       tbalancesum;
+        int       abalancesum;
+        int       abalancecount;
+        long      deltasum;
+        long      deltacount;
+        boolean   result;
+
+        try {
+            st1 = conn.createStatement();
+            rs = st1.executeQuery(
+                "select sum(bbalance), count(bbalance) from branches");
+
+            rs.next();
+
+            bbalancesum   = rs.getInt(1);
+            bbalancecount = rs.getInt(2);
+
+            rs.close();
+
+            rs = st1.executeQuery("select sum(tbalance) from tellers");
+
+            rs.next();
+
+            tbalancesum = rs.getInt(1);
+
+            rs.close();
+
+            rs = st1.executeQuery(
+                "select sum(abalance), count(abalance) from accounts");
+
+            rs.next();
+
+            abalancesum   = rs.getInt(1);
+            abalancecount = rs.getInt(2);
+
+            rs.close();
+
+            rs = st1.executeQuery(
+                "select sum(delta), count(delta) from history");
+
+            rs.next();
+
+            deltasum   = rs.getLong(1);
+            deltacount = rs.getLong(2);
+
+            rs.close();
+
+            rs = null;
+
+            st1.close();
+
+            st1 = null;
+
+            conn.commit();
+
+            if (abalancesum != bbalancesum || bbalancesum != tbalancesum
+                    || tbalancesum != deltasum) {
+                result = false;
+
+                System.out.println("sums don't match!");
+            } else {
+                result = true;
+
+                System.out.println("sums match!");
+            }
+
+            System.out.println("AC " + abalancecount + " A " + abalancesum
+                               + " BC " + bbalancecount + " B " + bbalancesum
+                               + " T " + tbalancesum + " HC " + deltacount
+                               + " H " + deltasum);
+
+            return result;
+        } finally {
+            if (st1 != null) {
+                st1.close();
+            }
+        }
+    }
+
+    void performSpecial(Connection conn) throws SQLException {
+
+        Statement st1 = null;
+        ResultSet rs  = null;
+        int       bbalancesum;
+        int       tbalancesum;
+        int       abalancesum;
+        int       abalancecount;
+        int       deltasum;
+
+        try {
+            st1 = conn.createStatement();
+
+            st1.execute("set database transaction control " + txmode);
+            System.out.println("tx control " + txmode);
+
+            if (txmode.equals("mvcc")) {
+                txmode = "locks";
+            } else {
+                txmode = "mvcc";
+            }
         } finally {
             if (st1 != null) {
                 st1.close();
@@ -813,12 +965,17 @@ class TestBench {
             int count = ntrans;
 
             while (count-- > 0) {
-                int account = TestBench.getRandomID(ACCOUNT);
+                int account = getRandomID(ACCOUNT);
                 int branch  = account / naccounts;
-                int teller  = TestBench.getRandomID(TELLER);
+                int teller  = getRandomID(TELLER);
                 int delta   = TestBench.getRandomInt(-1000, 1000);
 
-                doOne(branch, teller, account, delta);
+                if (selectOnly) {
+                    doOneSelect(account);
+                } else {
+                    doOne(branch, teller, account, delta);
+                }
+
                 incrementTransactionCount();
             }
 
@@ -867,11 +1024,41 @@ class TestBench {
             Conn = null;
         }
 
+        int doOneSelect(int aid) {
+
+            int aBalance = 0;
+
+            try {
+                pstmt2.setInt(1, aid);
+
+                ResultSet RS = pstmt2.executeQuery();
+
+                if (RS.next()) {
+                    aBalance = RS.getInt(1);
+                }
+
+                RS.close();
+
+                return aBalance;
+            } catch (Exception E) {
+                if (verbose) {
+                    System.out.println("Transaction failed: "
+                                       + E.getMessage());
+                    E.printStackTrace();
+                }
+
+                incrementFailedTransactionCount();
+            }
+
+            return 0;
+        }
+
         /*
          **  doOne() - Executes a single TPC BM B transaction.
          */
         int doOne(int bid, int tid, int aid, int delta) {
 
+            int updateCount;
             int aBalance = 0;
 
             if (Conn == null) {
@@ -881,18 +1068,60 @@ class TestBench {
             }
 
             try {
+                ResultSet RS;
+
+                if (check_updates) {
+                    pstmt2.setInt(1, aid);
+
+                    RS = pstmt2.executeQuery();
+
+                    if (!RS.next()) {
+                        System.out.println("not found before " + aid);
+                    } else {
+                        aBalance = RS.getInt(1);
+
+                        if (RS.next()) {
+                            System.out.println("duplicate record - account "
+                                               + aid);
+                        }
+                    }
+
+                    RS.close();
+                }
+
                 pstmt1.setInt(1, delta);
                 pstmt1.setInt(2, aid);
                 pstmt1.executeUpdate();
                 pstmt1.clearWarnings();
                 pstmt2.setInt(1, aid);
 
-                ResultSet RS = pstmt2.executeQuery();
+                RS = pstmt2.executeQuery();
 
-                pstmt2.clearWarnings();
+                if (RS.next()) {
+                    int newBalance = RS.getInt(1);
 
-                while (RS.next()) {
-                    aBalance = RS.getInt(1);
+                    if (check_updates) {
+
+                        // needs to uncomment top block
+                        if (newBalance != aBalance + delta) {
+                            newBalance = newBalance;
+
+                            System.out.println("error - not updated " + aid);
+                        }
+
+                        if (RS.next()) {
+                            System.out.println("duplicate record - account "
+                                               + aid);
+                        }
+                    }
+                } else {
+                    System.out.println("not found after " + aid);
+
+                    if (check_updates) {
+                        RS = pstmt2.executeQuery();
+
+                        RS.next();
+                    }
                 }
 
                 RS.close();
@@ -902,7 +1131,14 @@ class TestBench {
                 pstmt3.clearWarnings();
                 pstmt4.setInt(1, delta);
                 pstmt4.setInt(2, bid);
-                pstmt4.executeUpdate();
+
+                updateCount = pstmt4.executeUpdate();
+
+                if (updateCount != 1) {
+                    System.out.println("branches row not found " + aid);
+                    pstmt4.executeUpdate();
+                }
+
                 pstmt4.clearWarnings();
                 pstmt5.setInt(1, tid);
                 pstmt5.setInt(2, bid);
@@ -911,6 +1147,10 @@ class TestBench {
                 pstmt5.executeUpdate();
                 pstmt5.clearWarnings();
                 Conn.commit();
+
+                if (updateCount != 1) {
+                    checkSumsDetails(Conn);
+                }
 
                 return aBalance;
             } catch (Exception E) {
@@ -973,9 +1213,9 @@ class TestBench {
             int count = ntrans;
 
             while (count-- > 0) {
-                int account = TestBench.getRandomID(ACCOUNT);
+                int account = getRandomID(ACCOUNT);
                 int branch  = account / naccounts;
-                int teller  = TestBench.getRandomID(TELLER);
+                int teller  = getRandomID(TELLER);
                 int delta   = TestBench.getRandomInt(-1000, 1000);
 
                 doOne(branch, teller, account, delta);
