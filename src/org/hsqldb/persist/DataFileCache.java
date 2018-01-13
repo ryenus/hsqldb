@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ import org.hsqldb.Session;
  * Rewritten for 1.8.0 and 2.x
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -569,15 +569,11 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            int flags = getFlags();
-
             if (value) {
-                flags = BitMap.set(flags, FLAG_ISSHADOWED);
+                setFlag(FLAG_ISSHADOWED);
             } else {
-                flags = BitMap.unset(flags, FLAG_ISSHADOWED);
+                unsetFlag(FLAG_ISSHADOWED);
             }
-
-            setFlags(flags);
 
             fileModified = true;
         } catch (Throwable t) {
@@ -788,11 +784,7 @@ public class DataFileCache {
             dataFile.writeInt(pos);
 
             // set saved flag;
-            int flags = getFlags();
-
-            flags = BitMap.set(flags, FLAG_ISSAVED);
-
-            setFlags(flags);
+            setFlag(DataFileCache.FLAG_ISSAVED);
             logDetailEvent("file sync end");
 
             fileModified          = false;
@@ -1600,11 +1592,7 @@ public class DataFileCache {
             if (!fileModified) {
 
                 // unset saved flag;
-                int flags = getFlags();
-
-                flags = BitMap.unset(flags, FLAG_ISSAVED);
-
-                setFlags(flags);
+                unsetFlag(FLAG_ISSAVED);
                 logDetailEvent("setFileModified flag set ");
 
                 fileModified = true;
@@ -1616,7 +1604,7 @@ public class DataFileCache {
         }
     }
 
-    public int getFlags() throws IOException {
+    int getFlags() throws IOException {
 
         dataFile.seek(FLAGS_POS);
 
@@ -1625,7 +1613,33 @@ public class DataFileCache {
         return flags;
     }
 
-    private void setFlags(int flags) throws IOException {
+    void setFlags(int flags) throws IOException {
+
+        dataFile.seek(FLAGS_POS);
+        dataFile.writeInt(flags);
+        dataFile.synch();
+    }
+
+    void setFlag(int singleFlag) throws IOException {
+
+        dataFile.seek(FLAGS_POS);
+
+        int flags = dataFile.readInt();
+
+        flags = BitMap.set(flags, singleFlag);
+
+        dataFile.seek(FLAGS_POS);
+        dataFile.writeInt(flags);
+        dataFile.synch();
+    }
+
+    void unsetFlag(int singleFlag) throws IOException {
+
+        dataFile.seek(FLAGS_POS);
+
+        int flags = dataFile.readInt();
+
+        flags = BitMap.unset(flags, singleFlag);
 
         dataFile.seek(FLAGS_POS);
         dataFile.writeInt(flags);

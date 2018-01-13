@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -483,16 +483,20 @@ public class Cache extends BaseHashMap {
         static final int COMPARE_POSITION    = 1;
         static final int COMPARE_SIZE        = 2;
         private int      compareType         = COMPARE_POSITION;
+        private long     compareCount;
 
         CachedObjectComparator() {}
 
         void setType(int type) {
-            compareType = type;
+            compareType  = type;
+            compareCount = 0;
         }
 
         public int compare(Object a, Object b) {
 
             long diff;
+
+            compareCount++;
 
             switch (compareType) {
 
