@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -505,10 +505,6 @@ public class TableBase implements Cloneable {
 
             return;
         }
-    }
-
-    final void removeIndex(int position) {
-        setBestRowIdentifiers();
     }
 
     public final void setIndexes(Index[] indexes) {

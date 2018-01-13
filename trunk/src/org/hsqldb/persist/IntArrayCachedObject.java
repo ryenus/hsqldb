@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.rowio.RowOutputInterface;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 2.3.0
  */
 public class IntArrayCachedObject extends CachedObjectBase {
@@ -88,6 +88,36 @@ public class IntArrayCachedObject extends CachedObjectBase {
         }
 
         out.writeEnd();
+    }
+
+    /**
+     * returns on first zero element
+     */
+    public int getNonZeroSize() {
+
+        int i = 0;
+
+        for (; i < values.length; i++) {
+            if (values[i] == 0) {
+                break;
+            }
+        }
+
+        return i;
+    }
+
+    public void setValue(int position, int value) {
+        values[position] = value;
+        hasChanged       = true;
+    }
+
+    public void setIntArray(int[] array) {
+        values     = array;
+        hasChanged = true;
+    }
+
+    public int getValue(int position) {
+        return values[position];
     }
 
     public int[] getIntArray() {

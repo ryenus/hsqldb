@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,22 +37,22 @@ import org.hsqldb.rowio.RowOutputInterface;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 2.3.0
  */
 public class DirectoryBlockCachedObject extends CachedObjectBase {
 
-    public static final int fileSizeFactor = 12;
+    static final int fileSizeFactor = 12;
 
     //
-    int[]  tableIds;
+    int[]  tableId;
     int[]  bitmapAddress;
     char[] freeSpace;
     char[] freeSpaceBlock;
 
     public DirectoryBlockCachedObject(int capacity) {
 
-        tableIds       = new int[capacity];
+        tableId        = new int[capacity];
         bitmapAddress  = new int[capacity];
         freeSpace      = new char[capacity];
         freeSpaceBlock = new char[capacity];
@@ -63,10 +63,10 @@ public class DirectoryBlockCachedObject extends CachedObjectBase {
 
         this.position = in.getFilePosition();
 
-        int capacity = tableIds.length;
+        int capacity = tableId.length;
 
         for (int i = 0; i < capacity; i++) {
-            tableIds[i] = in.readInt();
+            tableId[i] = in.readInt();
         }
 
         for (int i = 0; i < capacity; i++) {
@@ -85,11 +85,11 @@ public class DirectoryBlockCachedObject extends CachedObjectBase {
     }
 
     public int getDefaultCapacity() {
-        return tableIds.length;
+        return tableId.length;
     }
 
     public int getRealSize(RowOutputInterface out) {
-        return tableIds.length * (PersistentStore.INT_STORE_SIZE * 3);
+        return tableId.length * fileSizeFactor;
     }
 
     public void write(RowOutputInterface out) {
@@ -98,12 +98,12 @@ public class DirectoryBlockCachedObject extends CachedObjectBase {
 
     public void write(RowOutputInterface out, LongLookup lookup) {
 
-        int capacity = tableIds.length;
+        int capacity = tableId.length;
 
         out.setStorageSize(storageSize);
 
         for (int i = 0; i < capacity; i++) {
-            out.writeInt(tableIds[i]);
+            out.writeInt(tableId[i]);
         }
 
         for (int i = 0; i < capacity; i++) {
@@ -121,8 +121,46 @@ public class DirectoryBlockCachedObject extends CachedObjectBase {
         out.writeEnd();
     }
 
+    public void setTableId(int pos, int value) {
+        tableId[pos] = value;
+        hasChanged   = true;
+    }
+
+    public void setBitmapAddress(int pos, int value) {
+        bitmapAddress[pos] = value;
+        hasChanged         = true;
+    }
+
+    public void setFreeSpace(int pos, char value) {
+        freeSpace[pos] = value;
+        hasChanged     = true;
+    }
+
+    public void setFreeBlock(int pos, char value) {
+        freeSpaceBlock[pos] = value;
+        hasChanged          = true;
+    }
+
+    public void setLastUsed(int pos, byte value) {}
+
+    public int getTableId(int pos) {
+        return tableId[pos];
+    }
+
+    public int getBitmapAddress(int pos) {
+        return bitmapAddress[pos];
+    }
+
+    public char getFreeSpace(int pos) {
+        return freeSpace[pos];
+    }
+
+    public char getFreeBlock(int pos) {
+        return freeSpaceBlock[pos];
+    }
+
     public int[] getTableIdArray() {
-        return tableIds;
+        return tableId;
     }
 
     public int[] getBitmapAddressArray() {
