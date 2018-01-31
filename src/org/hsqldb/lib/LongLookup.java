@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,8 @@ import java.util.NoSuchElementException;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
- * @since 1.8.0
+ * @version 2.4.1
+ * @since 2.0.0
  */
 public interface LongLookup {
 
@@ -49,7 +49,17 @@ public interface LongLookup {
 
     long lookup(long key, long def);
 
+    long getLongKey(int pos);
+
+    long getLongValue(int pos);
+
+    void setLongValue(int pos, long newValue);
+
     int size();
 
+    void sort();
+
     void clear();
+
+    boolean addUnsorted(LongLookup other);
 }

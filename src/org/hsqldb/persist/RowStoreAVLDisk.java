@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,7 @@ import org.hsqldb.index.NodeAVL;
 import org.hsqldb.index.NodeAVLDisk;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DoubleIntIndex;
+import org.hsqldb.lib.LongLookup;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -58,7 +59,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of PersistentStore for CACHED tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
@@ -399,10 +400,8 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
             return;
         }
 
-        DoubleIntIndex pointerLookup = new DoubleIntIndex((int) rowCount,
-            false);
+        DoubleIntIndex pointerLookup = new DoubleIntIndex((int) rowCount);
 
-        pointerLookup.setKeysSearchTarget();
         writeLock();
 
         try {
@@ -437,13 +436,11 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
     }
 
     public void moveDataToSpace(DataFileCache targetCache,
-                                DoubleIntIndex pointerLookup) {
+                                LongLookup pointerLookup) {
 
         int spaceId = table.getSpaceID();
         TableSpaceManager targetSpace =
             targetCache.spaceManager.getTableSpace(spaceId);
-
-        pointerLookup.setKeysSearchTarget();
 
         RowIterator it = indexList[0].firstRow(this);
 
@@ -457,9 +454,9 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
         for (int i = 0; i < pointerLookup.size(); i++) {
             long newPos =
-                targetSpace.getFilePosition(pointerLookup.getValue(i), false);
+                targetSpace.getFilePosition((int) pointerLookup.getLongValue(i), false);
 
-            pointerLookup.setValue(i, (int) newPos);
+            pointerLookup.setLongValue(i, newPos);
         }
 
         it = indexList[0].firstRow(this);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,9 @@ import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DoubleIntIndex;
+import org.hsqldb.lib.DoubleLongIndex;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.LongLookup;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.StringUtil;
 
@@ -53,7 +55,7 @@ import org.hsqldb.lib.StringUtil;
  *  image after translating the old pointers to the new.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version    2.3.4
+ * @version    2.4.1
  * @since      1.7.2
  */
 final class DataFileDefrag {
@@ -64,14 +66,12 @@ final class DataFileDefrag {
     long[][]       rootsList;
     Database       database;
     DataFileCache  dataCache;
-    int            scale;
-    DoubleIntIndex pointerLookup;
+    LongLookup pointerLookup;
 
     DataFileDefrag(Database db, DataFileCache cache) {
 
         this.database     = db;
         this.dataCache    = cache;
-        this.scale        = cache.getDataFileScale();
         this.dataFileName = cache.getFileName();
     }
 
@@ -108,10 +108,14 @@ final class DataFileDefrag {
         try {
             String baseFileName = database.getCanonicalPath();
 
-            pointerLookup = new DoubleIntIndex((int) maxSize, false);
-            dataFileOut   = new DataFileCache(database, baseFileName, true);
+            dataFileOut = new DataFileCache(database, baseFileName, true);
 
-            pointerLookup.setKeysSearchTarget();
+            if (dataCache.fileFreePosition
+                    < (long) Integer.MAX_VALUE * dataCache.dataFileScale) {
+                pointerLookup = new DoubleIntIndex((int) maxSize);
+            } else {
+                pointerLookup = new DoubleLongIndex((int) maxSize);
+            }
 
             for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
                 Table t = (Table) allTables.get(i);
