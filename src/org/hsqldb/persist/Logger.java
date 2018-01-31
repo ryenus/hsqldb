@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -425,8 +425,10 @@ public class Logger implements EventLogInterface {
                 HsqlDatabaseProperties.url_crypt_type);
             String cryptProvider = database.urlProperties.getProperty(
                 HsqlDatabaseProperties.url_crypt_provider);
+            String cryptIv = database.urlProperties.getProperty(
+                HsqlDatabaseProperties.url_crypt_iv);
 
-            crypto = new Crypto(cryptKey, cryptType, cryptProvider);
+            crypto = new Crypto(cryptKey, cryptIv, cryptType, cryptProvider);
             cryptLobs = database.urlProperties.isPropertyTrue(
                 HsqlDatabaseProperties.url_crypt_lobs, true);
         }
