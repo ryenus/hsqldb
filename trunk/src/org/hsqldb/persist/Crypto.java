@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package org.hsqldb.persist;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -46,50 +47,91 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
 
+/**
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.4.1
+ * @since 1.9.0
+ */
+
+// support for IV parameters added by Shaun Murphy (shaunmurphy@users dot sourcedorge.net)
 public class Crypto {
 
-    SecretKeySpec key;
-    Cipher        outCipher;
-    Cipher        inCipher;
-    Cipher        inStreamCipher;
-    Cipher        outStreamCipher;
+    final SecretKeySpec   key;
+    final Cipher          outCipher;
+    final Cipher          inCipher;
+    final Cipher          inStreamCipher;
+    final Cipher          outStreamCipher;
+    final IvParameterSpec ivSpec;
 
-    public Crypto(String keyString, String cipherName, String provider) {
+    public Crypto(String keyString, String ivString, String cipherName,
+                  String provider) {
+
+        final String keyAlgorithm = (cipherName.contains("/"))
+                                    ? cipherName.substring(0,
+                                        cipherName.indexOf("/"))
+                                    : cipherName;
 
         try {
             byte[] encodedKey =
                 StringConverter.hexStringToByteArray(keyString);
 
-            key       = new SecretKeySpec(encodedKey, cipherName);
+            if (ivString != null && !ivString.isEmpty()) {
+                byte[] encodedIv =
+                    StringConverter.hexStringToByteArray(ivString);
+
+                ivSpec = new IvParameterSpec(encodedIv);
+            } else {
+                ivSpec = null;
+            }
+
+            key       = new SecretKeySpec(encodedKey, keyAlgorithm);
             outCipher = provider == null ? Cipher.getInstance(cipherName)
                                          : Cipher.getInstance(cipherName,
                                          provider);
 
-            outCipher.init(Cipher.ENCRYPT_MODE, key);
+            if (ivSpec == null) {
+                outCipher.init(Cipher.ENCRYPT_MODE, key);
+            } else {
+                outCipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+            }
 
             outStreamCipher = provider == null ? Cipher.getInstance(cipherName)
-                                         : Cipher.getInstance(cipherName,
-                                         provider);
+                                               : Cipher.getInstance(cipherName,
+                                               provider);
 
-            outStreamCipher.init(Cipher.ENCRYPT_MODE, key);
+            if (ivSpec == null) {
+                outStreamCipher.init(Cipher.ENCRYPT_MODE, key);
+            } else {
+                outStreamCipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+            }
 
             inCipher = provider == null ? Cipher.getInstance(cipherName)
                                         : Cipher.getInstance(cipherName,
                                         provider);
 
-            inCipher.init(Cipher.DECRYPT_MODE, key);
+            if (ivSpec == null) {
+                inCipher.init(Cipher.DECRYPT_MODE, key);
+            } else {
+                inCipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
+            }
 
             inStreamCipher = provider == null ? Cipher.getInstance(cipherName)
-                                        : Cipher.getInstance(cipherName,
-                                        provider);
+                                              : Cipher.getInstance(cipherName,
+                                              provider);
 
-            inStreamCipher.init(Cipher.DECRYPT_MODE, key);
+            if (ivSpec == null) {
+                inStreamCipher.init(Cipher.DECRYPT_MODE, key);
+            } else {
+                inStreamCipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
+            }
 
             return;
         } catch (NoSuchPaddingException e) {
@@ -102,6 +144,8 @@ public class Crypto {
             throw Error.error(ErrorCode.X_S0531, e);
         } catch (IOException e) {
             throw Error.error(ErrorCode.X_S0531, e);
+        } catch (InvalidAlgorithmParameterException e) {
+            throw Error.error(ErrorCode.X_S0531, e);
         }
     }
 
@@ -112,10 +156,16 @@ public class Crypto {
         }
 
         try {
-            inStreamCipher.init(Cipher.DECRYPT_MODE, key);
+            if (ivSpec == null) {
+                inStreamCipher.init(Cipher.DECRYPT_MODE, key);
+            } else {
+                inStreamCipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
+            }
 
             return new CipherInputStream(in, inStreamCipher);
         } catch (java.security.InvalidKeyException e) {
+            throw Error.error(ErrorCode.X_S0531, e);
+        } catch (InvalidAlgorithmParameterException e) {
             throw Error.error(ErrorCode.X_S0531, e);
         }
     }
@@ -127,10 +177,16 @@ public class Crypto {
         }
 
         try {
-            outStreamCipher.init(Cipher.ENCRYPT_MODE, key);
+            if (ivSpec == null) {
+                outStreamCipher.init(Cipher.ENCRYPT_MODE, key);
+            } else {
+                outStreamCipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+            }
 
             return new CipherOutputStream(out, outStreamCipher);
         } catch (java.security.InvalidKeyException e) {
+            throw Error.error(ErrorCode.X_S0531, e);
+        } catch (InvalidAlgorithmParameterException e) {
             throw Error.error(ErrorCode.X_S0531, e);
         }
     }
@@ -143,7 +199,11 @@ public class Crypto {
         }
 
         try {
-            inCipher.init(Cipher.DECRYPT_MODE, key);
+            if (ivSpec == null) {
+                inCipher.init(Cipher.DECRYPT_MODE, key);
+            } else {
+                inCipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
+            }
 
             return inCipher.doFinal(source, sourceOffset, length, dest,
                                     destOffset);
@@ -154,6 +214,8 @@ public class Crypto {
         } catch (IllegalBlockSizeException e) {
             throw Error.error(ErrorCode.X_S0531, e);
         } catch (ShortBufferException e) {
+            throw Error.error(ErrorCode.X_S0531, e);
+        } catch (InvalidAlgorithmParameterException e) {
             throw Error.error(ErrorCode.X_S0531, e);
         }
     }
@@ -166,7 +228,11 @@ public class Crypto {
         }
 
         try {
-            outCipher.init(Cipher.ENCRYPT_MODE, key);
+            if (ivSpec == null) {
+                outCipher.init(Cipher.ENCRYPT_MODE, key);
+            } else {
+                outCipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+            }
 
             return outCipher.doFinal(source, sourceOffset, length, dest,
                                      destOffset);
@@ -177,6 +243,8 @@ public class Crypto {
         } catch (IllegalBlockSizeException e) {
             throw Error.error(ErrorCode.X_S0531, e);
         } catch (ShortBufferException e) {
+            throw Error.error(ErrorCode.X_S0531, e);
+        } catch (InvalidAlgorithmParameterException e) {
             throw Error.error(ErrorCode.X_S0531, e);
         }
     }
@@ -205,10 +273,16 @@ public class Crypto {
             return outCipher.getOutputSize(size);
         } catch (IllegalStateException ex) {
             try {
-                outCipher.init(Cipher.ENCRYPT_MODE, key);
+                if (ivSpec == null) {
+                    outCipher.init(Cipher.ENCRYPT_MODE, key);
+                } else {
+                    outCipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+                }
 
                 return outCipher.getOutputSize(size);
             } catch (java.security.InvalidKeyException e) {
+                throw Error.error(ErrorCode.X_S0531, e);
+            } catch (InvalidAlgorithmParameterException e) {
                 throw Error.error(ErrorCode.X_S0531, e);
             }
         }
