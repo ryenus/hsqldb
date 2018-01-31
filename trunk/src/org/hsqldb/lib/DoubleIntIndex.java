@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,13 +51,12 @@ import java.util.NoSuchElementException;
  * @version 2.4.1
  * @since 1.8.0
  */
-public class DoubleIntIndex implements IntLookup, LongLookup {
+public class DoubleIntIndex implements LongLookup {
 
     private int           count = 0;
     private int           capacity;
     private boolean       sorted       = true;
     private boolean       sortOnValues = true;
-    private boolean       hasChanged;
     private final boolean fixedSize;
     private int[]         keys;
     private int[]         values;
@@ -65,16 +64,22 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
 //
     private int targetSearchValue;
 
+    public DoubleIntIndex(int capacity) {
+
+        this(capacity, false);
+
+        sortOnValues = false;
+    }
+
     public DoubleIntIndex(int capacity, boolean fixedSize) {
 
         this.capacity  = capacity;
         keys           = new int[capacity];
         values         = new int[capacity];
         this.fixedSize = fixedSize;
-        hasChanged     = true;
     }
 
-    public synchronized int getKey(int i) {
+    public int getKey(int i) {
 
         if (i < 0 || i >= count) {
             throw new IndexOutOfBoundsException();
@@ -83,7 +88,20 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         return keys[i];
     }
 
-    public synchronized int getValue(int i) {
+    public long getLongKey(int i) {
+
+        if (i < 0 || i >= count) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        return keys[i] & 0xffffffffL;
+    }
+
+    public long getLongValue(int i) {
+        return values[i];
+    }
+
+    public int getValue(int i) {
 
         if (i < 0 || i >= count) {
             throw new IndexOutOfBoundsException();
@@ -97,7 +115,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
      * @param i the index
      * @param key the key
      */
-    public synchronized void setKey(int i, int key) {
+    public void setKey(int i, int key) {
 
         if (i < 0 || i >= count) {
             throw new IndexOutOfBoundsException();
@@ -115,7 +133,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
      * @param i the index
      * @param value the value
      */
-    public synchronized void setValue(int i, int value) {
+    public void setValue(int i, int value) {
 
         if (i < 0 || i >= count) {
             throw new IndexOutOfBoundsException();
@@ -128,11 +146,29 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         values[i] = value;
     }
 
-    public synchronized int size() {
+    /**
+     * Modifies an existing pair.
+     * @param i the index
+     * @param value the value
+     */
+    public void setLongValue(int i, long value) {
+
+        if (i < 0 || i >= count) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        if (sortOnValues) {
+            sorted = false;
+        }
+
+        values[i] = (int) value;
+    }
+
+    public int size() {
         return count;
     }
 
-    public synchronized int capacity() {
+    public int capacity() {
         return capacity;
     }
 
@@ -159,7 +195,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         count = newSize;
     }
 
-    public synchronized boolean addUnsorted(long key, long value) {
+    public boolean addUnsorted(long key, long value) {
 
         if (key > Integer.MAX_VALUE || key < Integer.MIN_VALUE) {
             throw new IllegalArgumentException();
@@ -179,7 +215,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
      * @param value the value
      * @return true or false depending on success
      */
-    public synchronized boolean addUnsorted(int key, int value) {
+    public boolean addUnsorted(int key, int value) {
 
         if (count == capacity) {
             if (fixedSize) {
@@ -201,7 +237,6 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
             }
         }
 
-        hasChanged    = true;
         keys[count]   = key;
         values[count] = value;
 
@@ -210,26 +245,34 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         return true;
     }
 
-    public synchronized boolean addUnsorted(DoubleIntIndex other) {
+    public boolean addUnsorted(LongLookup other) {
 
-        if (count + other.count > capacity) {
+        if (!ensureCapacityToAdd(other.size())) {
+            return false;
+        }
+
+        sorted = false;
+
+        for (int i = 0; i < other.size(); i++) {
+            long key   = other.getLongKey(i);
+            long value = other.getLongValue(i);
+
+            this.addUnsorted(key, value);
+        }
+
+        return true;
+    }
+
+    private boolean ensureCapacityToAdd(int extra) {
+
+        if (count + extra > capacity) {
             if (fixedSize) {
                 return false;
             } else {
-                while (count + other.count > capacity) {
+                while (count + extra > capacity) {
                     doubleCapacity();
                 }
             }
-        }
-
-        sorted     = false;
-        hasChanged = true;
-
-        for (int i = 0; i < other.count; i++) {
-            keys[count]   = other.keys[i];
-            values[count] = other.values[i];
-
-            count++;
         }
 
         return true;
@@ -244,7 +287,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
      * @param value the value
      * @return true or false depending on success
      */
-    public synchronized boolean addSorted(int key, int value) {
+    public boolean addSorted(int key, int value) {
 
         if (count == capacity) {
             if (fixedSize) {
@@ -269,7 +312,6 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
             }
         }
 
-        hasChanged    = true;
         keys[count]   = key;
         values[count] = value;
 
@@ -285,7 +327,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
      * @param value the value
      * @return true or false depending on success
      */
-    public synchronized boolean addUnique(int key, int value) {
+    public boolean addUnique(int key, int value) {
 
         if (count == capacity) {
             if (fixedSize) {
@@ -307,8 +349,6 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         if (i == -1) {
             return false;
         }
-
-        hasChanged = true;
 
         if (count != i) {
             moveRows(i, i + 1, count - i);
@@ -342,7 +382,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
      * @param value the value
      * @return index of added key or -1 if full
      */
-    public synchronized int add(int key, int value) {
+    public int add(int key, int value) {
 
         if (count == capacity) {
             if (fixedSize) {
@@ -360,8 +400,6 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
                                          : key;
 
         int i = binarySlotSearch(true);
-
-        hasChanged = true;
 
         if (count != i) {
             moveRows(i, i + 1, count - i);
@@ -456,18 +494,18 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         return getValue(i);
     }
 
-    public synchronized void setValuesSearchTarget() {
+    public void setValuesSearchTarget() {
 
-        if (!sortOnValues && count > 1) {
+        if (!sortOnValues) {
             sorted = false;
         }
 
         sortOnValues = true;
     }
 
-    public synchronized void setKeysSearchTarget() {
+    public void setKeysSearchTarget() {
 
-        if (sortOnValues && count > 1) {
+        if (sortOnValues) {
             sorted = false;
         }
 
@@ -478,7 +516,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
      * @param value the value
      * @return the index
      */
-    public synchronized int findFirstGreaterEqualKeyIndex(int value) {
+    public int findFirstGreaterEqualKeyIndex(int value) {
 
         int index = findFirstGreaterEqualSlotIndex(value);
 
@@ -490,7 +528,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
      * @param value the value
      * @return the index
      */
-    public synchronized int findFirstEqualKeyIndex(int value) {
+    public int findFirstEqualKeyIndex(int value) {
 
         if (!sorted) {
             fastQuickSort();
@@ -501,7 +539,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         return binaryFirstSearch();
     }
 
-    public synchronized boolean compactLookupAsIntervals() {
+    public boolean compactLookupAsIntervals() {
 
         if (size() == 0) {
             return false;
@@ -550,7 +588,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
      * @param value the value
      * @return the index
      */
-    public synchronized int findFirstGreaterEqualSlotIndex(int value) {
+    public int findFirstGreaterEqualSlotIndex(int value) {
 
         if (!sorted) {
             fastQuickSort();
@@ -646,21 +684,36 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         return low;
     }
 
-    public synchronized void sort() {
+    public void sortOnKeys() {
+
+        sortOnValues = false;
+
+        fastQuickSort();
+    }
+
+    public void sortOnValues() {
+
+        sortOnValues = true;
+
+        fastQuickSort();
+    }
+
+    public void sort() {
         fastQuickSort();
     }
 
     /**
      * fast quicksort using a stack on the heap to reduce stack use
      */
-    private synchronized void fastQuickSort() {
+    private void fastQuickSort() {
 
         if (count <= 1024 * 16) {
             fastQuickSortRecursive();
+
             return;
         }
 
-        DoubleIntIndex indices   = new DoubleIntIndex(32, false);
+        DoubleIntIndex indices   = new DoubleIntIndex(32);
         int            threshold = 16;
 
         indices.push(0, count - 1);
@@ -707,7 +760,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
     /**
      * fast quicksort with recursive quicksort implementation
      */
-    private synchronized void fastQuickSortRecursive() {
+    private void fastQuickSortRecursive() {
 
         quickSort(0, count - 1);
         insertionSort(0, count - 1);
@@ -829,27 +882,6 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         return 0;
     }
 
-    protected int compare(int i, boolean full) {
-
-        if (sortOnValues) {
-            if (targetSearchValue > values[i]) {
-                return 1;
-            } else if (targetSearchValue < values[i]) {
-                return -1;
-            } else if (!full) {
-                return 0;
-            }
-        }
-
-        if (targetSearchValue > keys[i]) {
-            return 1;
-        } else if (targetSearchValue < keys[i]) {
-            return -1;
-        }
-
-        return 0;
-    }
-
     /**
      * Check if row indexed i is less than row indexed j
      * @param i the first index
@@ -897,8 +929,6 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
 
     public void removeAll() {
 
-        hasChanged = true;
-
         ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_INT, keys, 0, count);
         ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_INT, values, 0, count);
 
@@ -913,9 +943,7 @@ public class DoubleIntIndex implements IntLookup, LongLookup {
         other.setSize(count);
     }
 
-    public final synchronized void remove(int position) {
-
-        hasChanged = true;
+    public final void remove(int position) {
 
         moveRows(position + 1, position, count - position - 1);
 
