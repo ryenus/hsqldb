@@ -176,7 +176,7 @@
       <para>When a <classname>ResultSet</classname> is updatable, various
       setter methods can be used to modify the column values. The names of the
       setter methods begin with "update". After all the updates on a row are
-      done, the <methodname>updateRow()</methodname> method must be called to
+      done, the <methodname>updateRow()</methodname> method must be called only once to
       finalise the row update.</para>
 
       <para>An updatable <classname>ResultSet</classname> may or may not be
