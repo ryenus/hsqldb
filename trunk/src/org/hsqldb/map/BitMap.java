@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.lib.ArrayUtil;
  * Static methods to manipulate int, byte and byte[] values as bit maps.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 1.8.0
 */
 public class BitMap {
@@ -245,8 +245,17 @@ public class BitMap {
         }
 
         int windex = pos >> 5;
-        int mask   = 0x80000000 >>> (pos & 0x1F);
         int word   = map[windex];
+
+        if (word == 0) {
+            return 0;
+        }
+
+        if (word == -1) {
+            return 1;
+        }
+
+        int mask = 0x80000000 >>> (pos & 0x1F);
 
         return (word & mask) == 0 ? 0
                                   : 1;
@@ -268,11 +277,11 @@ public class BitMap {
         }
     }
 
-    public int countSet(int pos, int count) {
+    public int countSet(int from, int count) {
 
         int set = 0;
 
-        for (int i = pos; i < pos + count; i++) {
+        for (int i = from; i < from + count; i++) {
             if (isSet(i)) {
                 set++;
             }
@@ -414,7 +423,7 @@ public class BitMap {
     }
 
     /**
-     * count the set bits at the low end
+     * count the run of set bits at the low end
      */
     public static int countSetBitsEnd(int map) {
 
@@ -433,7 +442,7 @@ public class BitMap {
     }
 
     /**
-     * count the unset bits at the high end
+     * count the run of unset bits at the high end
      */
     public static int countUnsetBitsStart(int map) {
 

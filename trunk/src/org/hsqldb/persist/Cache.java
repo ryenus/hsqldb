@@ -49,7 +49,7 @@ import org.hsqldb.map.BaseHashMap;
  * to DataFileCache.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 1.8.0
  */
 public class Cache extends BaseHashMap {
@@ -101,9 +101,7 @@ public class Cache extends BaseHashMap {
     public CachedObject get(long pos) {
 
         if (accessCount > ACCESS_MAX) {
-            updateAccessCounts();
-            resetAccessCount();
-            updateObjectAccessCounts();
+            updateAndResetAccessCounts();
         }
 
         int lookup = getObjectLookup(pos);
@@ -117,6 +115,15 @@ public class Cache extends BaseHashMap {
         CachedObject object = (CachedObject) objectKeyTable[lookup];
 
         return object;
+    }
+
+    private synchronized void updateAndResetAccessCounts() {
+
+        if (accessCount > ACCESS_MAX) {
+            updateAccessCounts();
+            resetAccessCount();
+            updateObjectAccessCounts();
+        }
     }
 
     /**
@@ -395,7 +402,7 @@ public class Cache extends BaseHashMap {
         }
     }
 
-    private synchronized void saveRows(int count) {
+    private void saveRows(int count) {
 
         if (count == 0) {
             return;

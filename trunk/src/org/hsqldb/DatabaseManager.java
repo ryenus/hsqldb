@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -57,7 +58,7 @@ import org.hsqldb.persist.HsqlProperties;
  * Maintains a reference to the timer used for file locks and logging.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.1
  * @since 1.7.2
  */
 public class DatabaseManager {
@@ -65,7 +66,7 @@ public class DatabaseManager {
     // Database and Server registry
 
     /** provides unique ID's for the Databases currently in registry */
-    private static int dbIDCounter;
+    private static AtomicInteger dbIDCounter = new AtomicInteger();
 
     /** name to Database mapping for mem: databases */
     static final HashMap memDatabaseMap = new HashMap();
@@ -188,7 +189,10 @@ public class DatabaseManager {
     }
 
     public static Database getDatabase(int id) {
-        return (Database) databaseIDMap.get(id);
+
+        synchronized (databaseIDMap) {
+            return (Database) databaseIDMap.get(id);
+        }
     }
 
     public static void shutdownDatabases(Notified server, int shutdownMode) {
@@ -288,19 +292,22 @@ public class DatabaseManager {
             case DB_FILE : {
                 databaseMap = fileDatabaseMap;
                 key         = filePathToKey(path);
-                db          = (Database) databaseMap.get(key);
 
-                if (db == null) {
-                    if (databaseMap.size() > 0) {
-                        Iterator it = databaseMap.keySet().iterator();
+                synchronized (databaseMap) {
+                    db = (Database) databaseMap.get(key);
 
-                        while (it.hasNext()) {
-                            String current = (String) it.next();
+                    if (db == null) {
+                        if (databaseMap.size() > 0) {
+                            Iterator it = databaseMap.keySet().iterator();
 
-                            if (key.equalsIgnoreCase(current)) {
-                                key = current;
+                            while (it.hasNext()) {
+                                String current = (String) it.next();
 
-                                break;
+                                if (key.equalsIgnoreCase(current)) {
+                                    key = current;
+
+                                    break;
+                                }
                             }
                         }
                     }
@@ -322,19 +329,21 @@ public class DatabaseManager {
                 throw Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager");
         }
 
-        db = (Database) databaseMap.get(key);
+        synchronized (databaseMap) {
+            db = (Database) databaseMap.get(key);
+        }
 
         if (db == null) {
             db            = new Database(type, path, key, props);
-            db.databaseID = dbIDCounter;
+            db.databaseID = dbIDCounter.getAndIncrement();
 
             synchronized (databaseIDMap) {
-                databaseIDMap.put(dbIDCounter, db);
-
-                dbIDCounter++;
+                databaseIDMap.put(db.databaseID, db);
             }
 
-            databaseMap.put(key, db);
+            synchronized (databaseMap) {
+                databaseMap.put(key, db);
+            }
         }
 
         return db;
@@ -361,7 +370,9 @@ public class DatabaseManager {
             throw (Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager"));
         }
 
-        return (Database) databaseMap.get(key);
+        synchronized (databaseMap) {
+            return (Database) databaseMap.get(key);
+        }
     }
 
     /**
@@ -388,7 +399,9 @@ public class DatabaseManager {
             databaseIDMap.put(db.databaseID, db);
         }
 
-        databaseMap.put(key, db);
+        synchronized (databaseMap) {
+            databaseMap.put(key, db);
+        }
     }
 
     /**
