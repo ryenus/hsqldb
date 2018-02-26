@@ -39,7 +39,6 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
-import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
@@ -135,6 +135,10 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
     public CachedObject get(CachedObject object, boolean keep) {
 
         try {
+            if (object.isMemory()) {
+                return object;
+            }
+
             if (isCached) {
                 return cache.get(object, this, keep);
             } else {
@@ -238,6 +242,10 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void remove(CachedObject object) {
 
+        if (object.isMemory()) {
+            return;
+        }
+
         if (isCached) {
             cache.remove(object);
         }
@@ -331,7 +339,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             return null;
         }
 
-        RowAVL row = (RowAVL) get(node.getRow(this), false);
+        RowAVL oldRow = (RowAVL) node.getRow(this);
+        RowAVL row    = (RowAVL) get(oldRow, false);
 
         node                            = row.getNode(key.getPosition());
         accessorList[key.getPosition()] = node;
