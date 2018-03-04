@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2017 Fred Toussi. Permission is granted to
+      <para>Copyright 2010-2018 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -271,6 +271,18 @@
     returned for partial similarity. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>FROM_BASE64 function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">FROM_BASE64</emphasis></simpara>
+
+    <para><literal>FROM_BASE64( &lt;character value expr&gt; )</literal></para>
+
+    <para>Returns a binary string by converting from the base64 <literal>&lt;character value
+    expr&gt;</literal>. (HyperSQL)</para>
+
+
+    <indexterm significance="preferred" type="sql">
       <primary>INSERT function</primary>
     </indexterm>
 
@@ -305,6 +317,22 @@
     function but the order of the arguments is reversed. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>HEX function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">HEX</emphasis></simpara>
+
+    <para><literal>HEX( &lt;binary value expr&gt; )</literal></para>
+
+	<para><literal>HEX( &lt;numeric value expr&gt; )</literal></para>
+
+    <para>Returns a character string of hexadecimal digits
+    and letters representing the <literal>&lt;binary value expr&gt;</literal>. Exactly
+	the same as the <literal>RAWTOHEX</literal> function. With 
+	<literal>&lt;numeric value expr&gt;</literal> the hexadecimal digits represent
+    the number in base 16 (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>HEXTORAW function</primary>
     </indexterm>
 
@@ -312,7 +340,7 @@
 
     <para><literal>HEXTORAW( &lt;char value expr&gt; )</literal></para>
 
-    <para>Returns a BINARY string formed by translation of hexadecimal digits
+    <para>Returns a binary string formed by translation of hexadecimal digits
     and letters in the &lt;<literal>char value expr&gt;</literal>. Each
     character of the <literal>&lt;char value expr&gt;</literal> must be a
     digit or a letter in the A | B | C | D | E | F set. Each byte of the
@@ -696,6 +724,18 @@
     manner. (Foundation)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>TO_BASE64 function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TO_BASE64</emphasis></simpara>
+
+    <para><literal>TO_BASE64( &lt;binary value expr&gt; )</literal></para>
+
+    <para>Returns a character string as a base 64 rpresentation of the bytes 
+	in the <literal>&lt;binary value
+    expr&gt;</literal>. (HyperSQL)</para>
+	
+    <indexterm significance="preferred" type="sql">
       <primary>TRIM function</primary>
     </indexterm>
 
@@ -769,7 +809,20 @@
 
     <para>Returns a character string that is the upper case version of the
     <literal>&lt;char value expr&gt;</literal> . (Foundation)</para>
-  </section>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>UNHEX function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">UNHEX</emphasis></simpara>
+
+    <para><literal>UNHEX( &lt;char value expr&gt; )</literal></para>
+
+    <para>Returns a binary string formed by translation of hexadecimal digits
+    and letters in the &lt;<literal>char value expr&gt;</literal>. Exactly the
+    same as the <literal>HEXTORAW</literal> function(HyperSQL)</para>
+
+	</section>
 
   <section xml:id="bfc_numeric_functions">
     <title>Numeric Functions</title>
