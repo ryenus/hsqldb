@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -135,89 +136,93 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_DEGREES                  = 100;
     private static final int FUNC_DIAGNOSTICS              = 101;
     private static final int FUNC_DIFFERENCE               = 102;
-    private static final int FUNC_FROM_TZ                  = 103;
-    private static final int FUNC_HEXTORAW                 = 104;
-    private static final int FUNC_IDENTITY                 = 105;
-    private static final int FUNC_INSTR                    = 106;
-    private static final int FUNC_ISAUTOCOMMIT             = 107;
-    private static final int FUNC_ISOLATION_LEVEL          = 108;
-    private static final int FUNC_ISREADONLYDATABASE       = 109;
-    private static final int FUNC_ISREADONLYDATABASEFILES  = 110;
-    private static final int FUNC_ISREADONLYSESSION        = 111;
-    private static final int FUNC_LAST_DAY                 = 112;
-    private static final int FUNC_LEFT                     = 113;
-    private static final int FUNC_LOAD_FILE                = 114;
-    private static final int FUNC_LOB_ID                   = 115;
-    private static final int FUNC_LOCATE                   = 116;
-    private static final int FUNC_LOG10                    = 117;
-    private static final int FUNC_LPAD                     = 118;
-    private static final int FUNC_LTRIM                    = 119;
-    private static final int FUNC_MONTHS_BETWEEN           = 120;
-    private static final int FUNC_NEW_TIME                 = 121;
-    private static final int FUNC_NEXT_DAY                 = 122;
-    private static final int FUNC_NUMTODSINTERVAL          = 123;
-    private static final int FUNC_NUMTOYMINTERVAL          = 124;
-    private static final int FUNC_PI                       = 125;
-    private static final int FUNC_POSITION_ARRAY           = 126;
-    private static final int FUNC_RADIANS                  = 127;
-    private static final int FUNC_RAND                     = 128;
-    private static final int FUNC_RAWTOHEX                 = 129;
-    private static final int FUNC_REGEXP_MATCHES           = 130;
-    private static final int FUNC_REGEXP_REPLACE           = 131;
-    private static final int FUNC_REGEXP_SUBSTRING         = 132;
-    private static final int FUNC_REGEXP_SUBSTRING_ARRAY   = 133;
-    private static final int FUNC_REPEAT                   = 134;
-    private static final int FUNC_REPLACE                  = 135;
-    private static final int FUNC_REVERSE                  = 136;
-    private static final int FUNC_RIGHT                    = 137;
-    private static final int FUNC_ROUND                    = 138;
-    private static final int FUNC_ROUNDMAGIC               = 139;
-    private static final int FUNC_RPAD                     = 140;
-    private static final int FUNC_RTRIM                    = 141;
-    private static final int FUNC_SECONDS_MIDNIGHT         = 142;
-    private static final int FUNC_SEQUENCE_ARRAY           = 143;
-    private static final int FUNC_SESSION_ID               = 144;
-    private static final int FUNC_SESSION_ISOLATION_LEVEL  = 145;
-    private static final int FUNC_SESSION_TIMEZONE         = 146;
-    private static final int FUNC_SESSIONTIMEZONE          = 147;
-    private static final int FUNC_SIGN                     = 148;
-    private static final int FUNC_SIN                      = 149;
-    private static final int FUNC_SINH                     = 150;
-    private static final int FUNC_SOUNDEX                  = 151;
-    private static final int FUNC_SORT_ARRAY               = 152;
-    private static final int FUNC_SPACE                    = 153;
-    private static final int FUNC_SUBSTR                   = 154;
-    private static final int FUNC_SYS_EXTRACT_UTC          = 155;
-    private static final int FUNC_SYSDATE                  = 156;
-    private static final int FUNC_SYSTIMESTAMP             = 157;
-    private static final int FUNC_TAN                      = 158;
-    private static final int FUNC_TANH                     = 159;
-    private static final int FUNC_TIMESTAMP                = 160;
-    private static final int FUNC_TIMESTAMP_WITH_ZONE      = 161;
-    private static final int FUNC_TIMESTAMPADD             = 162;
-    private static final int FUNC_TIMESTAMPDIFF            = 163;
-    private static final int FUNC_TIMEZONE                 = 164;
-    private static final int FUNC_TO_CHAR                  = 165;
-    private static final int FUNC_TO_DATE                  = 166;
-    private static final int FUNC_TO_DSINTERVAL            = 167;
-    private static final int FUNC_TO_YMINTERVAL            = 168;
-    private static final int FUNC_TO_NUMBER                = 169;
-    private static final int FUNC_TO_TIMESTAMP             = 170;
-    private static final int FUNC_TO_TIMESTAMP_TZ          = 171;
-    private static final int FUNC_TRANSACTION_CONTROL      = 172;
-    private static final int FUNC_TRANSACTION_ID           = 173;
-    private static final int FUNC_TRANSACTION_SIZE         = 174;
-    private static final int FUNC_TRANSLATE                = 175;
-    private static final int FUNC_TRUNC                    = 176;
-    private static final int FUNC_TRUNCATE                 = 177;
-    private static final int FUNC_UUID                     = 178;
-    private static final int FUNC_UNIX_TIMESTAMP           = 179;
-    private static final int FUNC_UNIX_MILLIS              = 180;
-    private static final int FUNC_DATEPART                 = 182;
-    private static final int FUNC_DATENAME                 = 183;
-    private static final int FUNC_NANVL                    = 184;
-    private static final int FUNC_SQLCODE                  = 185;
-    private static final int FUNC_SQLERRM                  = 186;
+    private static final int FUNC_FROM_BASE64              = 103;
+    private static final int FUNC_FROM_TZ                  = 104;
+    private static final int FUNC_HEX                      = 105;
+    private static final int FUNC_HEXTORAW                 = 106;
+    private static final int FUNC_IDENTITY                 = 107;
+    private static final int FUNC_INSTR                    = 108;
+    private static final int FUNC_ISAUTOCOMMIT             = 109;
+    private static final int FUNC_ISOLATION_LEVEL          = 110;
+    private static final int FUNC_ISREADONLYDATABASE       = 111;
+    private static final int FUNC_ISREADONLYDATABASEFILES  = 112;
+    private static final int FUNC_ISREADONLYSESSION        = 113;
+    private static final int FUNC_LAST_DAY                 = 114;
+    private static final int FUNC_LEFT                     = 115;
+    private static final int FUNC_LOAD_FILE                = 116;
+    private static final int FUNC_LOB_ID                   = 117;
+    private static final int FUNC_LOCATE                   = 118;
+    private static final int FUNC_LOG10                    = 119;
+    private static final int FUNC_LPAD                     = 120;
+    private static final int FUNC_LTRIM                    = 121;
+    private static final int FUNC_MONTHS_BETWEEN           = 122;
+    private static final int FUNC_NEW_TIME                 = 123;
+    private static final int FUNC_NEXT_DAY                 = 124;
+    private static final int FUNC_NUMTODSINTERVAL          = 125;
+    private static final int FUNC_NUMTOYMINTERVAL          = 126;
+    private static final int FUNC_PI                       = 127;
+    private static final int FUNC_POSITION_ARRAY           = 128;
+    private static final int FUNC_RADIANS                  = 129;
+    private static final int FUNC_RAND                     = 130;
+    private static final int FUNC_RAWTOHEX                 = 131;
+    private static final int FUNC_REGEXP_MATCHES           = 132;
+    private static final int FUNC_REGEXP_REPLACE           = 133;
+    private static final int FUNC_REGEXP_SUBSTRING         = 134;
+    private static final int FUNC_REGEXP_SUBSTRING_ARRAY   = 135;
+    private static final int FUNC_REPEAT                   = 136;
+    private static final int FUNC_REPLACE                  = 137;
+    private static final int FUNC_REVERSE                  = 138;
+    private static final int FUNC_RIGHT                    = 139;
+    private static final int FUNC_ROUND                    = 140;
+    private static final int FUNC_ROUNDMAGIC               = 141;
+    private static final int FUNC_RPAD                     = 142;
+    private static final int FUNC_RTRIM                    = 143;
+    private static final int FUNC_SECONDS_MIDNIGHT         = 144;
+    private static final int FUNC_SEQUENCE_ARRAY           = 145;
+    private static final int FUNC_SESSION_ID               = 146;
+    private static final int FUNC_SESSION_ISOLATION_LEVEL  = 147;
+    private static final int FUNC_SESSION_TIMEZONE         = 148;
+    private static final int FUNC_SESSIONTIMEZONE          = 149;
+    private static final int FUNC_SIGN                     = 150;
+    private static final int FUNC_SIN                      = 151;
+    private static final int FUNC_SINH                     = 152;
+    private static final int FUNC_SOUNDEX                  = 153;
+    private static final int FUNC_SORT_ARRAY               = 154;
+    private static final int FUNC_SPACE                    = 155;
+    private static final int FUNC_SUBSTR                   = 156;
+    private static final int FUNC_SYS_EXTRACT_UTC          = 157;
+    private static final int FUNC_SYSDATE                  = 158;
+    private static final int FUNC_SYSTIMESTAMP             = 159;
+    private static final int FUNC_TAN                      = 160;
+    private static final int FUNC_TANH                     = 161;
+    private static final int FUNC_TIMESTAMP                = 162;
+    private static final int FUNC_TIMESTAMP_WITH_ZONE      = 163;
+    private static final int FUNC_TIMESTAMPADD             = 164;
+    private static final int FUNC_TIMESTAMPDIFF            = 165;
+    private static final int FUNC_TIMEZONE                 = 166;
+    private static final int FUNC_TO_BASE64                = 167;
+    private static final int FUNC_TO_CHAR                  = 168;
+    private static final int FUNC_TO_DATE                  = 169;
+    private static final int FUNC_TO_DSINTERVAL            = 170;
+    private static final int FUNC_TO_YMINTERVAL            = 171;
+    private static final int FUNC_TO_NUMBER                = 172;
+    private static final int FUNC_TO_TIMESTAMP             = 173;
+    private static final int FUNC_TO_TIMESTAMP_TZ          = 174;
+    private static final int FUNC_TRANSACTION_CONTROL      = 175;
+    private static final int FUNC_TRANSACTION_ID           = 176;
+    private static final int FUNC_TRANSACTION_SIZE         = 177;
+    private static final int FUNC_TRANSLATE                = 178;
+    private static final int FUNC_TRUNC                    = 179;
+    private static final int FUNC_TRUNCATE                 = 180;
+    private static final int FUNC_UNHEX                    = 181;
+    private static final int FUNC_UUID                     = 182;
+    private static final int FUNC_UNIX_TIMESTAMP           = 183;
+    private static final int FUNC_UNIX_MILLIS              = 184;
+    private static final int FUNC_DATEPART                 = 185;
+    private static final int FUNC_DATENAME                 = 186;
+    private static final int FUNC_NANVL                    = 187;
+    private static final int FUNC_SQLCODE                  = 188;
+    private static final int FUNC_SQLERRM                  = 189;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -297,7 +302,9 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.DIAGNOSTICS, FUNC_DIAGNOSTICS);
         customRegularFuncMap.put(Tokens.DIFFERENCE, FUNC_DIFFERENCE);
         customRegularFuncMap.put(Tokens.EOMONTH, FUNC_LAST_DAY);
+        customRegularFuncMap.put(Tokens.FROM_BASE64, FUNC_FROM_BASE64);
         customRegularFuncMap.put(Tokens.FROM_TZ, FUNC_FROM_TZ);
+        customRegularFuncMap.put(Tokens.HEX, FUNC_HEX);
         customRegularFuncMap.put(Tokens.HEXTORAW, FUNC_HEXTORAW);
         customRegularFuncMap.put(Tokens.HOUR, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.IDENTITY, FUNC_IDENTITY);
@@ -372,6 +379,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.TIMESTAMPADD, FUNC_TIMESTAMPADD);
         customRegularFuncMap.put(Tokens.TIMESTAMPDIFF, FUNC_TIMESTAMPDIFF);
         customRegularFuncMap.put(Tokens.TIMEZONE, FUNC_TIMEZONE);
+        customRegularFuncMap.put(Tokens.TO_BASE64, FUNC_TO_BASE64);
         customRegularFuncMap.put(Tokens.TO_CHAR, FUNC_TO_CHAR);
         customRegularFuncMap.put(Tokens.TO_DATE, FUNC_TO_DATE);
         customRegularFuncMap.put(Tokens.TO_DSINTERVAL, FUNC_TO_DSINTERVAL);
@@ -389,6 +397,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.UNIX_MILLIS, FUNC_UNIX_MILLIS);
         customRegularFuncMap.put(Tokens.UNIX_TIMESTAMP, FUNC_UNIX_TIMESTAMP);
         customRegularFuncMap.put(Tokens.SYS_GUID, FUNC_UUID);
+        customRegularFuncMap.put(Tokens.UNHEX, FUNC_UNHEX);
         customRegularFuncMap.put(Tokens.UUID, FUNC_UUID);
         customRegularFuncMap.put(Tokens.WEEK, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.YEAR, FUNC_EXTRACT);
@@ -581,6 +590,8 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_COT :
             case FUNC_DEGREES :
             case FUNC_DAYS :
+            case FUNC_FROM_BASE64 :
+            case FUNC_HEX :
             case FUNC_HEXTORAW :
             case FUNC_LAST_DAY :
             case FUNC_LOB_ID :
@@ -598,9 +609,11 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TAN :
             case FUNC_TANH :
             case FUNC_TIMESTAMP_WITH_ZONE :
+            case FUNC_TO_BASE64 :
             case FUNC_TO_DSINTERVAL :
             case FUNC_TO_YMINTERVAL :
             case FUNC_TO_NUMBER :
+            case FUNC_UNHEX :
                 parseList = singleParamList;
                 break;
 
@@ -1323,6 +1336,21 @@ public class FunctionCustom extends FunctionSQL {
                 return ValuePool.getInt((int) (diff.getSeconds()
                                                / (24 * 60 * 60) + 1));
             }
+            case FUNC_PI :
+                return new Double(Math.PI);
+
+            case FUNC_RAND : {
+                if (nodes[0] == null) {
+                    return new Double(session.random());
+                } else {
+                    data[0] = Type.SQL_BIGINT.convertToType(session, data[0],
+                            nodes[0].getDataType());
+
+                    long seed = ((Number) data[0]).longValue();
+
+                    return new Double(session.random(seed));
+                }
+            }
             case FUNC_ROUND :
             case FUNC_TRUNC : {
                 int interval = Types.SQL_INTERVAL_DAY;
@@ -1374,6 +1402,46 @@ public class FunctionCustom extends FunctionSQL {
                 return funcType == FUNC_ROUND
                        ? ((NumberType) dataType).round(data[0], offset)
                        : ((NumberType) dataType).truncate(data[0], offset);
+            }
+            case FUNC_FROM_BASE64 : {
+
+//#ifdef JAVA8
+/*
+                String val = (String) data[0];
+
+                if (val == null) {
+                    return null;
+                }
+
+                val = val.trim();
+
+                byte[] bytes = java.util.Base64.getDecoder().decode(val);
+
+                return new BinaryData(bytes, false);
+*/
+
+//#else
+                throw Error.error(ErrorCode.X_0A501);
+
+//#endif JAVA8
+            }
+            case FUNC_TO_BASE64 : {
+
+//#ifdef JAVA8
+/*
+                BinaryData val = (BinaryData) data[0];
+
+                if (val == null) {
+                    return null;
+                }
+
+                return java.util.Base64.getEncoder().encodeToString(val.getBytes());
+*/
+
+//#else
+                throw Error.error(ErrorCode.X_0A501);
+
+//#endif JAVA8
             }
             case FUNC_TO_CHAR : {
                 if (nodes[1] == null) {
@@ -1486,21 +1554,6 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 return new TimestampData(seconds, nanos, zone);
-            }
-            case FUNC_PI :
-                return new Double(Math.PI);
-
-            case FUNC_RAND : {
-                if (nodes[0] == null) {
-                    return new Double(session.random());
-                } else {
-                    data[0] = Type.SQL_BIGINT.convertToType(session, data[0],
-                            nodes[0].getDataType());
-
-                    long seed = ((Number) data[0]).longValue();
-
-                    return new Double(session.random(seed));
-                }
             }
             case FUNC_UUID : {
                 if (nodes[0] == null) {
@@ -1909,6 +1962,31 @@ public class FunctionCustom extends FunctionSQL {
 
                 return ValuePool.getInt(e);
             }
+            case FUNC_HEX : {
+                if (data[0] == null) {
+                    return null;
+                }
+
+                if (nodes[0].dataType.isBinaryType()) {
+                    return dataType.convertToType(session, data[0],
+                                                  nodes[0].dataType);
+                } else if (nodes[0].dataType.isNumberType()) {
+                    long val = ((Number) data[0]).longValue();
+
+                    return Long.toHexString(val);
+                } else {
+                    String val = ((String) data[0]);
+
+                    try {
+                        byte[] bytes = val.getBytes("ISO-8859-1");
+
+                        return StringConverter.byteArrayToHexString(bytes);
+                    } catch (UnsupportedEncodingException e) {
+                        throw Error.error(ErrorCode.X_42561);
+                    }
+                }
+            }
+            case FUNC_UNHEX :
             case FUNC_HEXTORAW : {
                 if (data[0] == null) {
                     return null;
@@ -3305,6 +3383,24 @@ public class FunctionCustom extends FunctionSQL {
 
                 break;
             }
+            case FUNC_FROM_BASE64 : {
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_VARCHAR;
+                }
+
+                if (!nodes[0].dataType.isCharacterType()) {
+                    throw Error.error(ErrorCode.X_42561);
+                }
+
+                dataType = nodes[0].dataType.precision == 0
+                           ? Type.SQL_VARBINARY_DEFAULT
+                           : BinaryType.getBinaryType(
+                               Types.SQL_VARBINARY,
+                               (nodes[0].dataType.precision * 3) / 4);
+
+                break;
+            }
+            case FUNC_UNHEX :
             case FUNC_HEXTORAW : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_VARCHAR;
@@ -3319,6 +3415,46 @@ public class FunctionCustom extends FunctionSQL {
                            : BinaryType.getBinaryType(
                                Types.SQL_VARBINARY,
                                nodes[0].dataType.precision / 2);
+
+                break;
+            }
+            case FUNC_TO_BASE64 : {
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_VARBINARY;
+                }
+
+                if (!nodes[0].dataType.isBinaryType()) {
+                    throw Error.error(ErrorCode.X_42561);
+                }
+
+                if (nodes[0].dataType.precision == 0) {
+                    dataType = Type.SQL_VARCHAR_DEFAULT;
+                } else {
+                    long precision = ((nodes[0].dataType.precision + 2) / 3)
+                                     * 4;
+
+                    dataType =
+                        CharacterType.getCharacterType(Types.SQL_VARCHAR,
+                                                       precision);
+                }
+
+                break;
+            }
+            case FUNC_HEX : {
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_VARBINARY;
+                }
+
+                if (nodes[0].dataType.isNumberType()) {
+                    dataType = Type.SQL_VARCHAR_DEFAULT;
+
+                    break;
+                }
+
+                dataType = nodes[0].dataType.precision == 0
+                           ? Type.SQL_VARCHAR_DEFAULT
+                           : CharacterType.getCharacterType(Types.SQL_VARCHAR,
+                           nodes[0].dataType.precision * 2);
 
                 break;
             }
@@ -4028,6 +4164,10 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SOUNDEX :
             case FUNC_SPACE :
             case FUNC_REVERSE :
+            case FUNC_HEX :
+            case FUNC_UNHEX :
+            case FUNC_FROM_BASE64 :
+            case FUNC_TO_BASE64 :
             case FUNC_HEXTORAW :
             case FUNC_RAWTOHEX :
             case FUNC_LOB_ID : {
