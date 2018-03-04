@@ -1,7 +1,8 @@
 # Files listed here will be code-switched
 # This eliminates the need for CodeSwitcher to scan all source files.
-# Version 2.4.0
+# Version 2.4.1
 
+org/hsqldb/FunctionCustom.java
 org/hsqldb/lib/tar/TarFileOutputStream.java
 org/hsqldb/lib/tar/TarGenerator.java
 org/hsqldb/lib/tar/TarReader.java
