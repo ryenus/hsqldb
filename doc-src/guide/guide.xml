@@ -19,7 +19,7 @@
   <info>
     <title>HyperSQL User Guide</title>
 
-    <subtitle>HyperSQL Database Engine 2.4.0</subtitle>
+    <subtitle>HyperSQL Database Engine 2.4.1</subtitle>
 
     <authorgroup>
       <editor>
@@ -62,7 +62,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2017 Blaine Simpson, Fred Toussi and The HSQL
+      <para>Copyright 2002-2018 Blaine Simpson, Fred Toussi and The HSQL
       Development Group. Permission is granted to distribute this document
       without any alteration under the terms of the HSQLDB license. You are
       not allowed to distribute or display this document on the web in an
