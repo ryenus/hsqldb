@@ -1799,8 +1799,8 @@
       <para><literal>NEXT_DAY ( &lt;datetime value expr&gt;, &lt;character
       value expr&gt;)</literal></para>
 
-      <para>This function returns a value of the same type as the first
-      argument. The return value is the next weekday named by the second
+      <para>This function returns a TIMESTAMP for compatibility reasons. The 
+	  return value is the next weekday named by the second
       argument that occurs after the first date. For example next Wednesday is
       expressed as <literal>NEXT_DAY(CURRENT_DATE, 'WEDNESDAY')</literal>.
       (HyperSQL)</para>
