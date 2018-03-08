@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.lib.ArrayUtil;
  * Type subclass for various types of INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.4.1
  * @since 1.9.0
  */
 public final class IntervalType extends DTIType {
@@ -560,9 +560,18 @@ public final class IntervalType extends DTIType {
                     case Types.SQL_INTERVAL_SECOND : {
                         int nanos = 0;
 
-                        if (scale > 0 && a instanceof BigDecimal) {
-                            nanos = (int) NumberType.scaledDecimal(
-                                a, DTIType.maxFractionPrecision);
+                        if (scale > 0) {
+                            if (a instanceof BigDecimal) {
+                                nanos = (int) NumberType.scaledDecimal(
+                                    a, DTIType.maxFractionPrecision);
+                            } else if (a instanceof Double) {
+                                double d = (Double) a;
+
+                                d -= (double) ((long) d);
+
+                                nanos = (int) (d * 1000000000d);
+
+                            }
                         }
 
                         return new IntervalSecondData(value, nanos, this);
