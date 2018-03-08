@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2017 Fred Toussi. Permission is granted to
+      <para>Copyright 2010-2018 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -331,7 +331,7 @@
           <para>In MYS syntax compatibility mode, HyperSQL supports MySQL's
           non-standard version of INTERVAL symbols such as DAY_HOUR and
           DAY_SECOND in DATEADD and DATESUB functions. The SQL Standard form
-          is DAY TO HOUER or DAY TO SECOND.</para>
+          is DAY TO HOUR or DAY TO SECOND.</para>
         </listitem>
 
         <listitem>
