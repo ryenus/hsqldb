@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -652,8 +652,8 @@ public abstract class Type implements SchemaObject, Cloneable {
     // character types
     public static final CharacterType SQL_CHAR =
         new CharacterType(Types.SQL_CHAR, 1);
-    public static final CharacterType SQL_CHAR_16 =
-        new CharacterType(Types.SQL_CHAR, 16);
+    public static final CharacterType SQL_CHAR_UUID =
+        new CharacterType(Types.SQL_CHAR, 36);
     public static final CharacterType SQL_CHAR_DEFAULT =
         new CharacterType(Types.SQL_CHAR, CharacterType.defaultCharPrecision);
     public static final CharacterType SQL_VARCHAR =

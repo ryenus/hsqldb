@@ -3181,7 +3181,7 @@ public class FunctionCustom extends FunctionSQL {
                         dataType = Type.SQL_BINARY_16;
                     } else if (nodes[0].dataType.isBinaryType()
                                && !nodes[0].dataType.isLobType()) {
-                        dataType = Type.SQL_CHAR_16;
+                        dataType = Type.SQL_CHAR_UUID;
                     } else {
                         throw Error.error(ErrorCode.X_42563);
                     }
