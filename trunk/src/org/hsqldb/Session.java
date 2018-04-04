@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ import org.hsqldb.types.Type.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -588,6 +588,8 @@ public class Session implements SessionInterface {
 
                 throw Error.error(ErrorCode.X_40001);
             }
+        } else {
+            logSequences();
         }
 
         endTransaction(true, chain);
@@ -710,8 +712,7 @@ public class Session implements SessionInterface {
             sessionContext.savepointTimestamps.remove(index);
         }
 
-        actionTimestamp =
-            database.txManager.getNextGlobalChangeTimestamp();
+        actionTimestamp = database.txManager.getNextGlobalChangeTimestamp();
 
         sessionContext.savepoints.add(name,
                                       ValuePool.getInt(rowActionList.size()));
