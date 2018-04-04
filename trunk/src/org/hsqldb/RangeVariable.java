@@ -611,7 +611,7 @@ public class RangeVariable {
         Table         table = getTable();
         HsqlArrayList list  = new HsqlArrayList();
 
-        for (int i = start; i < start + count; i++) {
+        for (int i = start; i < count; i++) {
             ColumnSchema column = table.getColumn(i);
             String columnName = columnAliases == null ? column.getName().name
                                                       : (String) columnAliases

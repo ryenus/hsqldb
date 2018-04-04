@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.map.ValuePool;
  * Metadata for range joined variables
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class RangeVariableJoined extends RangeVariable {
@@ -121,14 +121,7 @@ public class RangeVariableJoined extends RangeVariable {
     }
 
     public ExpressionColumn getColumnExpression(String name) {
-
-        ExpressionColumn col = super.getColumnExpression(name);
-
-        if (col == null) {
-            col = rangeArray[0].getColumnExpression(name);
-        }
-
-        return col;
+        return null;
     }
 
     public Table getTable() {
