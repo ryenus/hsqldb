@@ -438,8 +438,8 @@ public class StatementSchema extends Statement {
                         case StatementTypes.ADD_CONSTRAINT : {
                             Constraint c = (Constraint) arguments[2];
 
-                            session.database.schemaManager
-                                .checkSchemaObjectNotExists(c.getName());
+                            setOrCheckObjectName(session, domain.getName(),
+                                                 c.getName(), true);
                             domain.userTypeModifier.addConstraint(c);
                             session.database.schemaManager.addSchemaObject(c);
 
@@ -1260,14 +1260,13 @@ public class StatementSchema extends Statement {
                 return Result.updateZeroResult;
 
             case StatementTypes.CREATE_TRIGGER : {
-                TriggerDef trigger   = (TriggerDef) arguments[0];
-                HsqlName   otherName = (HsqlName) arguments[1];
+                TriggerDef trigger     = (TriggerDef) arguments[0];
+                HsqlName   otherName   = (HsqlName) arguments[1];
+                Boolean    ifNotExists = (Boolean) arguments[2];
 
                 try {
-                    checkSchemaUpdateAuthorisation(session,
-                                                   trigger.getSchemaName());
-                    schemaManager.checkSchemaObjectNotExists(
-                        trigger.getName());
+                    setOrCheckObjectName(session, null, trigger.getName(),
+                                         true);
 
                     if (otherName != null) {
                         if (schemaManager.getSchemaObject(otherName) == null) {
@@ -1282,7 +1281,11 @@ public class StatementSchema extends Statement {
 
                     break;
                 } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
+                    if (ifNotExists != null && ifNotExists.booleanValue()) {
+                        return Result.updateZeroResult;
+                    } else {
+                        return Result.newErrorResult(e, sql);
+                    }
                 }
             }
             case StatementTypes.CREATE_CAST :
@@ -1381,8 +1384,7 @@ public class StatementSchema extends Statement {
 
                 setSchemaName(session, null, name);
                 setSchemaName(session, null, targetName);
-                session.database.schemaManager.checkSchemaObjectNotExists(
-                    name);
+                setOrCheckObjectName(session, null, name, true);
 
                 // find the new target
                 SchemaObject object =
@@ -1637,7 +1639,9 @@ public class StatementSchema extends Statement {
             }
         }
 
-        name.parent = parent;
+        if (name.parent == null) {
+            name.parent = parent;
+        }
 
         if (!isSchemaDefinition) {
             checkSchemaUpdateAuthorisation(session, name.schema);

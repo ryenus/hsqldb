@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -151,6 +151,12 @@ public class TestTriggers extends TestBase {
         checkCalls(Trigger.UPDATE_AFTER_ROW, 1);
         clearCalls();
         st.execute("update testtrig set c2 = c2 || ' updated' where c1 < 0");
+        checkCallCount(1);
+        checkCalls(Trigger.UPDATE_AFTER, 1);
+        checkCalls(Trigger.UPDATE_BEFORE_ROW, 0);
+        checkCalls(Trigger.UPDATE_AFTER_ROW, 0);
+        clearCalls();
+        st.execute("update testtrig set c2 = null where c1 = 0");
         checkCallCount(1);
         checkCalls(Trigger.UPDATE_AFTER, 1);
         checkCalls(Trigger.UPDATE_BEFORE_ROW, 0);

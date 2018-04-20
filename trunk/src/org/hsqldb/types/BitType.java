@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import org.hsqldb.map.BitMap;
  * string<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.9.0
  */
 public final class BitType extends BinaryType {
@@ -381,10 +381,15 @@ public final class BitType extends BinaryType {
         } else if (a instanceof Long) {
             return convertToType(session, a, Type.SQL_BIGINT);
         } else if (a instanceof BitSet) {
-            BitSet bs    = (BitSet) a;
-            byte[] bytes = new byte[bs.size() / Byte.SIZE];
+            BitSet bs = (BitSet) a;
+            byte[] bytes =
+                new byte[((int) precision + Byte.SIZE - 1) / Byte.SIZE];
 
-            for (int i = 0; i < bs.size(); i++) {
+            if (bs.length() > precision) {
+                throw Error.error(ErrorCode.X_22501);
+            }
+
+            for (int i = 0; i < bs.length(); i++) {
                 boolean set = bs.get(i);
 
                 if (set) {
@@ -392,7 +397,7 @@ public final class BitType extends BinaryType {
                 }
             }
 
-            return new BinaryData(bytes, bs.size());
+            return new BinaryData(bytes, precision);
         }
 
         throw Error.error(ErrorCode.X_22501);
