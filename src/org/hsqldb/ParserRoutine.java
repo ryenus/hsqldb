@@ -2102,6 +2102,8 @@ public class ParserRoutine extends ParserTable {
 
         read();
 
+        Boolean ifNotExists = readIfNotExists();
+
         name = readNewSchemaObjectName(SchemaObject.TRIGGER, true);
 
         switch (token.tokenType) {
@@ -2471,7 +2473,7 @@ public class ParserRoutine extends ParserTable {
 
                 String     sql            = getLastPart();
                 Object[]   args           = new Object[] {
-                    td, otherName
+                    td, otherName, ifNotExists
                 };
                 HsqlName[] writeLockNames = new HsqlName[] {
                     database.getCatalogName(), table.getName()
@@ -2503,7 +2505,7 @@ public class ParserRoutine extends ParserTable {
 
         String   sql  = getLastPart();
         Object[] args = new Object[] {
-            td, otherName
+            td, otherName, ifNotExists
         };
 
         return new StatementSchema(sql, StatementTypes.CREATE_TRIGGER, args,

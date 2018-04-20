@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.error.ErrorCode;
  * Class for ROW type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.4.1
  * @since 2.0.0
  */
 public class RowType extends Type {
@@ -418,24 +418,22 @@ public class RowType extends Type {
             return true;
         }
 
-        if (other instanceof Type) {
-            if (((Type) other).typeCode != Types.SQL_ROW) {
-                return false;
-            }
+        if (other instanceof RowType) {
+            if (super.equals(other)) {
+                Type[] otherTypes = ((RowType) other).dataTypes;
 
-            Type[] otherTypes = ((RowType) other).dataTypes;
-
-            if (otherTypes.length != dataTypes.length) {
-                return false;
-            }
-
-            for (int i = 0; i < dataTypes.length; i++) {
-                if (!dataTypes[i].equals(otherTypes[i])) {
+                if (otherTypes.length != dataTypes.length) {
                     return false;
                 }
-            }
 
-            return true;
+                for (int i = 0; i < dataTypes.length; i++) {
+                    if (!dataTypes[i].equals(otherTypes[i])) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
         }
 
         return false;

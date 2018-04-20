@@ -2959,6 +2959,8 @@ public class ParserDQL extends ParserBase {
             case Tokens.CHARACTER_LENGTH :
             case Tokens.OCTET_LENGTH :
             case Tokens.CARDINALITY :
+            case Tokens.ARRAY_MAX_CARDINALITY :
+            case Tokens.MAX_CARDINALITY :
             case Tokens.ABS :
             case Tokens.MOD :
             case Tokens.LN :
