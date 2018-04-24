@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,11 +70,11 @@ public abstract class CachedObjectBase implements CachedObject {
         return storageSize;
     }
 
-    final public boolean isInvariable() {
+    public final boolean isInvariable() {
         return false;
     }
 
-    final public boolean isBlock() {
+    public final boolean isBlock() {
         return true;
     }
 
@@ -94,7 +94,7 @@ public abstract class CachedObjectBase implements CachedObject {
         return hasChanged;
     }
 
-    final public void setChanged(boolean flag) {
+    public final void setChanged(boolean flag) {
         hasChanged = flag;
     }
 
@@ -111,12 +111,12 @@ public abstract class CachedObjectBase implements CachedObject {
         if (keep) {
             keepCount++;
         } else {
-            keepCount--;
-
-            if (keepCount < 0) {
+            if (keepCount == 0) {
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "CachedObjectBase - keep count");
             }
+
+            keepCount--;
         }
 
         return true;
