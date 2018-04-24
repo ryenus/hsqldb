@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2011, The HSQL Development Group
+ * Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -305,6 +305,10 @@ public class CodeSwitcher {
             vList.addElement(f.getPath());
         } else if (f.isDirectory()) {
             File[] list = f.listFiles();
+
+            if (list == null) {
+                return;
+            }
 
             for (int i = 0; i < list.length; i++) {
                 addDir(list[i]);

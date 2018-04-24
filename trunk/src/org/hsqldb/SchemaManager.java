@@ -1127,7 +1127,7 @@ public class SchemaManager {
                                          false);
 
         if (seq == null && schemaName == null) {
-            schemaName = session.getSchemaName(schemaName);
+            schemaName = session.getSchemaName(null);
 
             ReferenceObject ref = findSynonym(name, schemaName,
                                               SchemaObject.SEQUENCE);
