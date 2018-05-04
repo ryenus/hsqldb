@@ -1722,6 +1722,12 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
+                if (d < 0) {
+                    if (session.database.sqlDoubleNaN) {
+                        throw Error.error(ErrorCode.X_2201E);
+                    }
+                }
+
                 return new Double(java.lang.Math.log10(d));
             }
             case FUNC_RADIANS : {

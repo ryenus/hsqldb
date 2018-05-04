@@ -742,7 +742,9 @@ public class FunctionSQL extends Expression {
                 double d = ((Number) data[0]).doubleValue();
 
                 if (d <= 0) {
-                    throw Error.error(ErrorCode.X_2201E);
+                    if (session.database.sqlDoubleNaN) {
+                        throw Error.error(ErrorCode.X_2201E);
+                    }
                 }
 
                 d = Math.log(d);
@@ -784,6 +786,14 @@ public class FunctionSQL extends Expression {
             case FUNC_SQRT : {
                 if (data[0] == null) {
                     return null;
+                }
+
+                double d = ((Number) data[0]).doubleValue();
+
+                if (d < 0) {
+                    if (session.database.sqlDoubleNaN) {
+                        throw Error.error(ErrorCode.X_2201E);
+                    }
                 }
 
                 double val = Math.sqrt(((Number) data[0]).doubleValue());

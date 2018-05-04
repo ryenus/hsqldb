@@ -669,7 +669,7 @@ public class ParserDQL extends ParserBase {
 
                 maxCardinality = readInteger();
 
-                if (scale < 0) {
+                if (maxCardinality < 0) {
                     throw Error.error(ErrorCode.X_42592);
                 }
 
