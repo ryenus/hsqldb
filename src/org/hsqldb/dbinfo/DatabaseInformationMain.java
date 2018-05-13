@@ -143,7 +143,7 @@ import org.hsqldb.types.Types;
  * (fredt@users) <p>
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 1.7.2
  */
 class DatabaseInformationMain extends DatabaseInformation {
@@ -1388,7 +1388,16 @@ class DatabaseInformationMain extends DatabaseInformation {
                     row[irow_cardinality]  = rowCardinality;
                     row[ifilter_condition] = filterCondition;
 
-                    t.insertSys(session, store, row);
+                    try {
+                        t.insertSys(session, store, row);
+                    } catch (HsqlException e) {
+
+                        // when set database sql sys index names true and a user
+                        // index duplicates a constraint index!
+                        row[iindex_name] = indexName + "*";
+
+                        t.insertSys(session, store, row);
+                    }
                 }
             }
         }
