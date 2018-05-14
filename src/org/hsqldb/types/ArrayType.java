@@ -48,7 +48,7 @@ import org.hsqldb.lib.ArraySort;
  * Class for ARRAY type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 2.0.0
  */
 public class ArrayType extends Type {
@@ -504,9 +504,8 @@ public class ArrayType extends Type {
         return hash;
     }
 
-    public void sort(Session session, Object a, SortAndSlice sort) {
+    public void sort(Session session, Object[] array, SortAndSlice sort) {
 
-        Object[]        array      = (Object[]) a;
         TypedComparator comparator = session.getComparator();
 
         comparator.setType(dataType, sort);
