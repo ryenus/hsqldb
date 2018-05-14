@@ -2314,7 +2314,7 @@ public class FunctionCustom extends FunctionSQL {
                 exprSort.sortNullsLast[0] = ((Number) data[2]).intValue()
                                             == Tokens.LAST;
 
-                Object array = ArrayUtil.duplicateArray(data[0]);
+                Object[] array = (Object[]) ArrayUtil.duplicateArray(data[0]);
 
                 dt.sort(session, array, exprSort);
 

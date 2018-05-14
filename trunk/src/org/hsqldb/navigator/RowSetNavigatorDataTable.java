@@ -65,7 +65,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
         super(session);
 
-        this.rangePosition = select.resultRangePosition;
+        rangePosition      = select.resultRangePosition;
         visibleColumnCount = select.indexLimitVisible;
         table              = select.resultTable.duplicate();
         store = session.sessionData.getNewResultRowStore(table,
