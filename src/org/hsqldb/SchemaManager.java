@@ -2233,7 +2233,17 @@ public class SchemaManager {
             for (int i = 0; i < set.size(); i++) {
                 HsqlName name = (HsqlName) set.get(i);
 
-                removeSchemaObject(name);
+                if (name.parent != null) {
+                    removeSchemaObject(name);
+                }
+            }
+
+            for (int i = 0; i < set.size(); i++) {
+                HsqlName name = (HsqlName) set.get(i);
+
+                if (name.parent == null) {
+                    removeSchemaObject(name);
+                }
             }
         } finally {
             writeLock.unlock();

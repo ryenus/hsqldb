@@ -378,11 +378,12 @@ public class RowType extends Type {
 
         Object[] arra   = (Object[]) a;
         Object[] arrb   = (Object[]) b;
-        int      length = sort.sortOrder.length;
+        int      length = sort.columnCount;
 
         for (int i = 0; i < length; i++) {
-            a = arra[sort.sortOrder[i]];
-            b = arrb[sort.sortOrder[i]];
+            int pos = sort.sortOrder[i];
+            a = arra[pos];
+            b = arrb[pos];
 
             if (a == b) {
                 continue;
@@ -398,7 +399,7 @@ public class RowType extends Type {
                 }
             }
 
-            int result = dataTypes[i].compare(session, a, b);
+            int result = dataTypes[pos].compare(session, a, b);
 
             if (result != 0) {
                 if (sort.sortDescending[i]) {
