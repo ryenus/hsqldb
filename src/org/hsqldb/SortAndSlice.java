@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.types.Type;
  * Implementation of ORDER BY and LIMIT properties of query expressions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.9.0
  */
 public final class SortAndSlice {
@@ -61,7 +61,7 @@ public final class SortAndSlice {
     boolean            sortUnion;
     HsqlArrayList      exprList = new HsqlArrayList();
     ExpressionOp       limitCondition;
-    int                columnCount;
+    public int         columnCount;
     boolean            hasNullsLast;
     boolean            strictLimit;
     boolean            zeroLimit;
@@ -119,6 +119,7 @@ public final class SortAndSlice {
         sortDescending = new boolean[1];
         sortNullsLast  = new boolean[1];
         sortOrder[0]   = colIndex;
+        columnCount    = 1;
     }
 
     public void prepareMultiColumn(int count) {
@@ -126,6 +127,7 @@ public final class SortAndSlice {
         sortOrder      = new int[count];
         sortDescending = new boolean[count];
         sortNullsLast  = new boolean[count];
+        columnCount    = count;
 
         for (int i = 0; i < count; i++) {
             sortOrder[i] = i;

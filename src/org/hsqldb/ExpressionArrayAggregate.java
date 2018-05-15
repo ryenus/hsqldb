@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,12 +45,13 @@ import org.hsqldb.types.Type;
  * Implementation of array aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 2.0.1
  */
 public class ExpressionArrayAggregate extends Expression {
 
     SortAndSlice sort;
+    SortAndSlice distinctSort;
     String       separator = ",";
     ArrayType    arrayDataType;
     Type         exprType;
@@ -87,6 +88,13 @@ public class ExpressionArrayAggregate extends Expression {
 
             sort.prepareExtraColumn(1);
         }
+
+        if (isDistinctAggregate) {
+            distinctSort = new SortAndSlice();
+
+            distinctSort.prepareSingleColumn(nodes.length - 1);
+        }
+
     }
 
     boolean isSelfAggregate() {
@@ -321,12 +329,10 @@ public class ExpressionArrayAggregate extends Expression {
         Object[]      array = list.toArray();
 
         if (isDistinctAggregate) {
-            SortAndSlice exprSort = new SortAndSlice();
 
-            exprSort.prepareSingleColumn(nodes.length - 1);
-            arrayDataType.sort(session, array, exprSort);
+            arrayDataType.sort(session, array, distinctSort);
 
-            int size = arrayDataType.deDuplicate(session, array, exprSort);
+            int size = arrayDataType.deDuplicate(session, array, distinctSort);
 
             array = (Object[]) ArrayUtil.resizeArrayIfDifferent(array, size);
         }
