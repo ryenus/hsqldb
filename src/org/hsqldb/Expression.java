@@ -61,7 +61,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class Expression implements Cloneable {
@@ -2123,11 +2123,13 @@ public class Expression implements Cloneable {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
 
-    public Object updateAggregatingValue(Session session, Object currValue) {
+    public SetFunction updateAggregatingValue(Session session,
+            SetFunction currValue) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
 
-    public Object getAggregatedValue(Session session, Object currValue) {
+    public Object getAggregatedValue(Session session,
+                                     SetFunction currValue) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
 

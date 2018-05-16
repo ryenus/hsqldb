@@ -31,20 +31,19 @@
 
 package org.hsqldb;
 
-/**
- * Interface for SQL set function values.
- * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
- * @since 2.4.1
- *
- */
-public interface SetFunction {
+public class SetFunctionValueUser implements SetFunction {
 
-    public void add(Session session, Object itemLeft, Object itemRight);
+    Object[] list = new Object[3];
 
-    public void add(Session session, Object item);
+    public void add(Session session, Object itemLeft, Object itemRight) {}
 
-    public Object getValue(Session session);
+    public void add(Session session, Object item) {}
 
-    public void reset();
+    public Object getValue(Session session) {
+        return list;
+    }
+
+    public void reset() {
+        java.util.Arrays.fill(list, null);
+    }
 }
