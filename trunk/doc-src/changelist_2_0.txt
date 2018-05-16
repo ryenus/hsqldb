@@ -1,9 +1,10 @@
-March 2018 - version 2.4.1
+May 2018 - version 2.4.1
 -- version 2.4.1 jar requires JRE 8 or later
 -- version 2.3.6 is released as a separate jar for JRE 1.6 and fully compatible except for the new JDBC features
 -- added support for EXPLAIN REFERENCES FROM | TO object statement
 -- added support for HEX, UNHEX, TO_BASE64 and FROM_BASE64 functions
 -- added support for deployment in docker containers that do not support file rename
+-- added support for generated keys in update and merge
 -- improved DEFRAG to allow very large data files
 -- fixed issue with some temp table queries
 -- fixed issue with some SELECT ... INTO in routines
