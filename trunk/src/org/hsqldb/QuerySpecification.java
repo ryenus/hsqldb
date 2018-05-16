@@ -1627,7 +1627,7 @@ public class QuerySpecification extends QueryExpression {
             for (int i = indexStartAggregates; i < indexLimitExpressions;
                     i++) {
                 data[i] = exprColumns[i].updateAggregatingValue(session,
-                        data[i]);
+                        (SetFunction) data[i]);
             }
 
             if (groupData == null) {
@@ -1697,7 +1697,7 @@ public class QuerySpecification extends QueryExpression {
                 for (int i = indexStartAggregates; i < indexLimitExpressions;
                         i++) {
                     data[i] = exprColumns[i].getAggregatedValue(session,
-                            data[i]);
+                            (SetFunction) data[i]);
                 }
 
                 for (int i = 0; i < indexStartAggregates; i++) {

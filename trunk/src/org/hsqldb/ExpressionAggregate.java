@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.types.RowType;
  * Implementation of aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class ExpressionAggregate extends Expression {
@@ -255,7 +255,8 @@ public class ExpressionAggregate extends Expression {
             }
         }
 
-        dataType = SetFunction.getType(session, opType, nodes[LEFT].dataType);
+        dataType = SetFunctionValueAggregate.getType(session, opType,
+                nodes[LEFT].dataType);
 
         nodes[RIGHT].resolveTypes(session, null);
     }
@@ -272,23 +273,24 @@ public class ExpressionAggregate extends Expression {
         return false;
     }
 
-    public Object updateAggregatingValue(Session session, Object currValue) {
+    public SetFunction updateAggregatingValue(Session session,
+            SetFunction currValue) {
 
         if (!nodes[RIGHT].testCondition(session)) {
             return currValue;
         }
 
         if (currValue == null) {
-            currValue = new SetFunction(session, opType, nodes[LEFT].dataType,
-                                        dataType, isDistinctAggregate,
-                                        arrayType);
+            currValue = new SetFunctionValueAggregate(session, opType,
+                    nodes[LEFT].dataType, dataType, isDistinctAggregate,
+                    arrayType);
         }
 
         Object newValue = nodes[LEFT].opType == OpTypes.ASTERISK
                           ? ValuePool.INTEGER_1
                           : nodes[LEFT].getValue(session);
 
-        ((SetFunction) currValue).add(session, newValue);
+        currValue.add(session, newValue);
 
         return currValue;
     }
@@ -300,14 +302,14 @@ public class ExpressionAggregate extends Expression {
      * @param currValue instance of set function or value
      * @return object
      */
-    public Object getAggregatedValue(Session session, Object currValue) {
+    public Object getAggregatedValue(Session session, SetFunction currValue) {
 
         if (currValue == null) {
             return opType == OpTypes.COUNT ? Long.valueOf(0)
                                            : null;
         }
 
-        return ((SetFunction) currValue).getValue(session);
+        return currValue.getValue(session);
     }
 
     public Expression getCondition() {

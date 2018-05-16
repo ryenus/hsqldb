@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.types.Type;
  * Implementation of SQL-invoked user-defined function calls - PSM and JRT
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.1
  * @since 1.9.0
  */
 public class FunctionSQLInvoked extends Expression {
@@ -273,37 +273,38 @@ public class FunctionSQLInvoked extends Expression {
         return false;
     }
 
-    public Object updateAggregatingValue(Session session, Object currValue) {
+    public SetFunction updateAggregatingValue(Session session,
+            SetFunction currValue) {
 
         if (!condition.testCondition(session)) {
             return currValue;
         }
 
-        Object[] array = (Object[]) currValue;
-
-        if (array == null) {
-            array = new Object[3];
+        if (currValue == null) {
+            currValue = new SetFunctionValueUser();
         }
+
+        Object[] array = ((SetFunctionValueUser) currValue).list;
 
         array[0] = Boolean.FALSE;
 
         getValueInternal(session, array);
 
-        return array;
+        return currValue;
     }
 
-    public Object getAggregatedValue(Session session, Object currValue) {
+    public Object getAggregatedValue(Session session,
+                                     SetFunction currValue) {
 
-        Object[] array = (Object[]) currValue;
-
-        if (array == null) {
-            array = new Object[3];
+        if (currValue == null) {
+            currValue = new SetFunctionValueUser();
         }
+
+        Object[] array = ((SetFunctionValueUser) currValue).list;
 
         array[0] = Boolean.TRUE;
 
         Result result = (Result) getValueInternal(session, array);
-        Object returnValue;
 
         if (result.isError()) {
             throw result.getException();
