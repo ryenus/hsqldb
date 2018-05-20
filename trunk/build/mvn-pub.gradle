@@ -13,8 +13,9 @@
  *****************************************************************************
  * Instructions for doing a full, public release:
  *
- * Right after doing the build of the zip distributable with JDK 6 and
- * javac.debug of false, publish the same exact jar files that are in the zip.
+ * Right after doing the build of the zip distributable with JDK 8 and
+ * javac.debug of false (according to "build-dist.gradle"), publish the same
+ * exact jar files that are in the zip.
  * Use -x switches to prevent rebuilds of the jars which have been checksummed
  * by 'build-dist' not by 'mvn-pub'.
  *
