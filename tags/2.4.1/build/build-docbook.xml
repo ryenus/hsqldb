@@ -1,0 +1,500 @@
+<?xml version="1.0"?>
+<!--
+  Copyright (c) 2010, The HSQL Development Group. All rights reserved.
+  Released under the HSQL license, available at http://hsqldb.org
+-->
+
+<project name="hsqldb-ant-docbook" default="gen-docs" basedir="..">
+  <!--
+    End-user properties of interest:
+        validation.skip:  Set to 'true' to skip XML validation
+        html.skip:  Set to 'true' to skip generation of DocBook whole-HTML docs
+        chunk.skip:  Set to 'true' to skip gen. of DocBook index.html, etc.
+        fo.skip:  Set to 'true' to skip generation of DocBook intermediate
+                  .fo files (which are a necessary step to generate PDF).
+        pdf.skip:  Set to 'true' to skip generation of DocBook PDF docs.
+        doc.name:  A few targets 'require' a doc name to be specified.
+                   If you run a target and it complains that 'doc.name' needs
+                   to be set, then set to 'guide' or 'util-guide'.
+        doc.target:  Targets which operate on all docs by default (regen-docs,
+                   gen-docs, and validate-docs) may be narrowed by
+                   setting this to 'guide' or 'util-guide' (or future docs).
+
+    USAGE
+    Purpose of this build file is to generate Whole HTML, Chunked HTML,
+    and PDF DocBook output documents from DocBook source located under a
+    doc-src subdirectory.
+
+    Must have Ivy v. 2.0 or later in Ant invocation CLASSPATH.
+    We suggest that you change-control a copy if the Ivy jar file in
+    the bootstrap-libs subdirectory, so things will work according to the
+    displayed message below (search below for "bootstrap-libs").
+
+    Normally you will "import" this file into your main Ant build file like
+        <import file="build-docbook.xml"/>
+    or, you can invoke targets in this file directly like
+        ant -f build-docbook.xml...
+
+    OVERRIDING Ant properties used in this file:
+    See inline instructions below for properties that you want to effect
+    only this build file.
+    For more general changes (say you want "javac.debug" to effect your own
+    build file as well as this one), set them however you want in your
+    parent Ant build file (perhaps by loading a "build.properties" or
+    "local-docbook.properties" file).
+
+    To eliminate the requirement for an Internet connection, download and
+    install the resources below and set properties 'nsstylebase.url',
+    'dbxirng.url', and dbcentx.url' in your .properties file.  (You could also
+    use the same method to use them from a server on your internal network).
+    Sources:
+        nsstylebase stylesheets:   Get the latest version from
+                http://sourceforge.net/projects/docbook/files/docbook-xsl-ns/
+        dbxirng schema:  http://www.docbook.org/xml/5.0/rng/docbookxi.rng
+          (Just the single file)
+        dbcentx entities:  http://www.docbook.org/xml/4.5/docbook-xml-4.5.zip
+          (Beware the zip doesn't bundle into a top-level directory, so you
+          need to extract it into a new, appropriately named subdirectory like
+          "docbook-xml-entities-4.5".)
+          IMPORTANT!  Though you must install the entire contents of the zip,
+          you set the 'dbcentx.url' value to the URL of the 'dbcentx.mod' file
+          within it.
+  -->
+  <import file="antivy-setup.xml"/>
+
+  <!-- Since the main HSQLDB build file imports this one, relative property
+       file specifications must be relative to the project root, not build/ -->
+
+  <!-- Put local env property changes in this NON-CHANGE-CONTROLLED file: -->
+  <property file="build/local-docbook.properties"/>
+  <!-- For change-controlled (by your project) ant-docbook-specific props: -->
+  <property file="build/docbook.properties"/>
+
+  <property name="oasis.stylesheet.url"
+            value="http://docbook.sourceforge.net/release/xsl-ns/current"/>
+  <!-- IMPORTANT:  DO NOT CHANGE!
+                   This value must exactly match the network href values in
+                   our *.xsl files! -->
+
+  <!-- See
+       http://xml.apache.org/commons/components/resolver/resolver-article.html#ctrlresolver
+       about these xml.catalog.* settings for the Xml Commons resolver.
+       The docs say to use values yes/no for booleans, instead of true/false.
+  -->
+  <property name="xml.catalog.verbosity" value="0"/>
+      <!-- BEWARE:  The verbosity setting seems to not work for some combination
+      of settings.  Haven't figured out what combo, but setting it to 10 has no
+      effect for our particular setup. -->
+  <property name="xml.catalog.files"
+            value="${basedir}/stylesheets/rng-catalog.xml"/>
+  <property name="xml.catalog.prefer" value="public"/>
+  <property name="xml.catalog.allowPI" value="yes"/>
+  <property name="xml.catalog.staticCatalog" value="yes"/>
+  <property name="ivy.dep.file" value="build/ivy.xml"/>
+  <property name="ivy.settings.file" value="build/ivysettings.xml"/>
+  <property name="distro.baseurl" value="http://hsqldb.org/doc/2.0"/>
+
+  <property name="docoutput.path" value="doc"/>
+  <property name="javac.debug" value="true"/>
+  <property name="xmlvalidation.threadstacksize" value="1M"/>
+  <property name="dbxirng.url"
+            value="http://www.docbook.org/xml/5.0/rng/docbookxi.rng"/>
+      <!-- The "xi" variant supports Xinclude -->
+  <property name="html.path" value="stylesheets/html.xsl"/>
+  <property name="chunk.path" value="stylesheets/chunk.xsl"/>
+  <property name="fo.path" value="stylesheets/fo.xsl"/>
+  <!-- As noted at the top of this file, there are benefits to installing the
+       sheets locally. -->
+  <property name="nsstylebase.url" value="UNSET_STYLEBASE"/>
+  <!--
+  <property name="nsstylebase.url" value="${oasis.stylesheet.url}"/>
+  -->
+  <!-- Without setting a default value, some error messages could contain the
+       misleading string "${nsstylebase.url}" in cases where user does not set a
+       value and resolution fails (not that there will be a resolution failure,
+       since this setting is optional).
+       UPDATE:  I don't know why, but PDF generation does depend on this
+       being usable.  Shouldn't since the other output formats don't.
+  -->
+  <property name="dbcentx.url" value="UNSET_DBCHARENTS"/>
+  <!-- ditto about the default value -->
+
+  <target name="regen-docs"
+          description="Clean and regen project DocBook docs.  N.b this wipes javadocs too!"
+          depends="clean-docs, gen-docs"/>
+
+  <property name="_for.automation.blurb"
+    value="If you want to automate the antcalls and you don't mind using
+Ant-contrib or Antelope, you can use one of their 'for' tasks with a DirSet."/>
+
+  <target name="gen-docs">
+    <fail>You must implement your own "gen-docs" target by editing
+"build-docbook.xml" or overriding it in your own build file which imports
+"build-docbook.xml".
+Your "gen-docs" target must depend on -gen-docs-setup, do an "antcall" of
+"docbook-transform" for each doc.name, then call -gen-docs-complete.
+
+${_for.automation.blurb}</fail>
+  </target>
+
+  <target name="validate-docs">
+    <fail>You must implement your own "validate-docs" target
+by editing "build-docbook.xml" or overriding it in your own build file which
+imports "build-docbook.xml".
+Your "validate-docs" target must do an "antcall" of "validate-doc" for each
+doc.name.
+
+${_for.automation.blurb}</fail>
+  </target>
+
+  <target name="-gen-docs-setup" depends="refresh-verbatim"/>
+
+  <target name="-gen-docs-complete">
+    <!-- This is the highest-maintenance target of this build file.
+         Must update the copy and fixcrlf filesets to copy exactly what
+         needs to go to doc output branch, and enforce EOLs in all text files.
+         The dependsets elsewhere in this file use targetfilesets, not
+         targetfilelists, so shouldn't need maintenance there.
+
+         IMPORTANT:  FOR ALL copys and fixcrlfs, DO NOT USE
+         preservelastmodified, as that will defeat our dependsets.
+
+         Don't do anything with apidocs, since those are handled by
+         javadoc-specific tasks.
+    -->
+
+    <!-- First, just binaries.  We enforce EOLs for all others -->
+    <copy todir="${docoutput.path}">
+      <!-- Fileset pretty simple, since the binaries always need to be
+           served to end users. -->
+      <fileset dir="doc-src"
+               excludes="**/.*/**, **/*.txt, **/entities/**, apidocs/**,
+                         **/*.xml, **/*.java, **/*.sql, **/*.cfg, **/*.css,
+                         **/*.ent, **/*.rc, **/*.html, **/*.properties"/>
+    </copy>
+
+    <!-- *.txt and *.xml because *.txt are speficially not copied from document
+         base dirs and *.xml not from root or document base dirs,
+         because these files are used for document authorship and management.-->
+    <fixcrlf destdir="${docoutput.path}" eol="crlf"
+             encoding="UTF-8" srcdir="doc-src"
+             includes="verbatim/**/*.txt, images/**/*.txt"
+             excludes="**/.*/**"/>
+    <fixcrlf destdir="${docoutput.path}" eol="crlf"
+             encoding="UTF-8" srcdir="doc-src"
+             excludes="**/.*/**, verbatim/**, images/**, **/entities/**,
+                       */*.txt, apidocs/**, readme-template.txt"
+             includes="**/*.txt"/>
+    <fixcrlf destdir="${docoutput.path}" eol="lf"
+             encoding="UTF-8" srcdir="doc-src"
+             includes="verbatim/**/*.xml, images/**/*.xml"
+             excludes="**/.*/**"/>
+    <fixcrlf destdir="${docoutput.path}" eol="lf"
+             encoding="UTF-8" srcdir="doc-src"
+             excludes="**/.*/**, verbatim/**, images/**, **/entities/**,
+                       *.xml, */*.xml"
+             includes="**/*.xml"/>
+
+    <!-- All remaining text files -->
+    <fixcrlf destdir="${docoutput.path}" eol="lf"
+             encoding="UTF-8" srcdir="doc-src"
+             excludes="**/.*/**, **/entities/**, apidocs/**"
+             includes="**/*.java, **/*.sql, **/*.cfg, **/*.css,
+                       **/*.rc, **/*.properties"/>
+    <!-- To allow substitution of ant-variables like ${x} in any of the text
+         files above, just move that file type from the fixcrlf above to the
+         copy below. -->
+    <copy todir="${docoutput.path}">
+      <fileset dir="doc-src" excludes="**/.*/**, **/entities/**, apidocs/**"
+               includes="**/*.html"/>
+      <filterchain>
+        <expandproperties/>
+        <fixcrlf eol="lf" encoding="UTF-8"/>
+      </filterchain>
+    </copy>
+  </target>
+
+  <target name="docbook-transform" depends="-fop-setup"
+          unless="-dbtransform-skip"
+          description="Generate DocBook output for specified source doc">
+    <fail unless="doc.name"
+  message="Ant property 'doc.name' is required by target 'docbook-transform'."/>
+    <available property="_htmlstyle.present" type="file" file="${html.path}"/>
+    <available property="_chunkstyle.present" type="file" file="${chunk.path}"/>
+    <available property="_fostyle.present" type="file" file="${fo.path}"/>
+    <fail unless="_htmlstyle.present"
+          message="DocBook 5 HTML style sheet missing: ${html.path}"/>
+    <fail unless="_chunkstyle.present"
+          message="DocBook 5 Chunk HTML style sheet missing: ${chunk.path}"/>
+    <fail unless="_fostyle.present"
+          message="DocBook 5 FO style sheet missing: ${fo.path}"/>
+
+    <dependset>
+      <srcfileset dir="doc-src"
+                  excludes="**/.*/**, *_lic.txt, readme*, index.html"
+                  includes="*.*, entities/**, images/**, verbatim/**"/>
+          <!-- Remove *_lic.txt from excludes above and below if we add any
+               reference to license files from any of our DocBook documents.
+          -->
+      <targetfileset dir="tmp/doc-work"/>
+      <targetfileset dir="${docoutput.path}"
+             excludes="apidocs/**, readme*, index.html, *_lic.txt"/>
+    </dependset>
+    <dependset>
+      <srcfileset dir="doc-src/${doc.name}" excludes="**/.*/**"/>
+      <targetfileset dir="${docoutput.path}/${doc.name}"/>
+      <targetfilelist dir="tmp/doc-work/${doc.name}" files="${doc.name}.fo"/>
+    </dependset>
+    <dependset>
+      <srcfilelist dir="tmp/doc-work/${doc.name}" files="${doc.name}.fo"/>
+      <targetfilelist dir="${docoutput.path}/${doc.name}"
+                      files="${doc.name}.pdf"/>
+    </dependset>
+    <condition property="_htmlgen.skip" value="transform.skip">
+      <istrue value="${html.skip}"/>
+    </condition>
+    <condition property="_chunkgen.skip" value="transform.skip">
+      <istrue value="${chunk.skip}"/>
+    </condition>
+    <condition property="_fogen.skip" value="transform.skip">
+      <istrue value="${fo.skip}"/>
+    </condition>
+    <condition property="_pdfgen.skip" value="pdfgen.skip">
+      <istrue value="${pdf.skip}"/>
+    </condition>
+    <available property="_htmlgen.skip" type="file" value="transform.skip"
+               file="${docoutput.path}/${doc.name}/${doc.name}.html"/>
+    <available property="_chunkgen.skip" type="file" value="transform.skip"
+               file="${docoutput.path}/${doc.name}/index.html"/>
+    <available property="_fogen.skip" type="file" value="transform.skip"
+               file="${docoutput.path}/${doc.name}/${doc.name}.fo"/>
+    <available property="_pdfgen.skip" type="file" value="pdfgen.skip"
+               file="${docoutput.path}/${doc.name}/${doc.name}.pdf"/>
+    <property name="_htmlgen.skip" value="dummy"/>
+    <property name="_chunkgen.skip" value="dummy"/>
+    <property name="_fogen.skip" value="dummy"/>
+    <property name="_pdfgen.skip" value="dummy"/>
+
+    <antcall target="-transform" inheritrefs="true">
+      <param name="style.path" value="${html.path}"/>
+      <param name="output.base"
+             value="${docoutput.path}/${doc.name}/${doc.name}.html"/>
+      <param name="html.format" value="true"/>
+      <param name="${_htmlgen.skip}" value="true"/>
+    </antcall>
+    <antcall target="-transform" inheritrefs="true">
+      <param name="style.path" value="${chunk.path}"/>
+      <param name="output.base"
+             value="${docoutput.path}/${doc.name}/dummy.html"/>
+      <param name="html.format" value="true"/>
+      <param name="${_chunkgen.skip}" value="true"/>
+    </antcall>
+    <!-- Funny place to put post-html and post-chunk processing, but Ant has
+         no post-depends attribute: -->
+    <mkdir dir="doc/${doc.name}"/>
+    <fixcrlf eol="lf" encoding="UTF-8" srcdir="doc/${doc.name}"
+             includes="*.html"/>  <!-- Make output platform-independent -->
+    <antcall target="-transform" inheritrefs="true">
+      <param name="style.path" value="${fo.path}"/>
+      <param name="output.base" value="tmp/doc-work/${doc.name}/${doc.name}.fo"/>
+      <param name="fop.format" value="true"/>
+      <param name="${_fogen.skip}" value="true"/>
+    </antcall>
+    <antcall target="-fop" inheritrefs="true">
+      <param name="${_pdfgen.skip}" value="true"/>
+    </antcall>
+  </target>
+
+  <target name="-fop" unless="pdfgen.skip">
+    <fop format="application/pdf" basedir="doc-src/${doc.name}"
+         fofile="tmp/doc-work/${doc.name}/${doc.name}.fo"
+         outfile="${docoutput.path}/${doc.name}/${doc.name}.pdf"/>
+       <!-- basedir tells base location of image files -->
+       <!-- The fop tasks goes out to http://docbook.sourceforge.net to
+            fetch stuff -->
+  </target>
+
+  <target name="-transform" depends="-ivy-setup" unless="transform.skip">
+    <fail unless="distro.baseurl"
+   message="Ant property 'distro.baseurl' is required by target '-transform'."/>
+    <fail unless="doc.name"
+       message="Ant property 'doc.name' is required by target '-transform'."/>
+    <available file="${style.path}" type="file" property="_sheet.present"/>
+    <fail unless="_sheet.present"
+          message="Missing style sheet '${style.path}'"/>
+    <available file="doc-src/${doc.name}/${doc.name}.xml" type="file"
+               property="_srcxml.present"/>
+    <fail unless="_srcxml.present"
+      message="Missing DocBook source document 'doc-src/${doc.name}/${doc.name}.xml'"/>
+
+    <mkdir dir="tmp/doc-work/${doc.name}"/>
+    <tstamp>
+      <format property="_timestamp" pattern="yyyy-MM-dd' 'HH:mm:ssZ"/>
+    </tstamp>
+    <echo file="tmp/doc-work/${doc.name}/dynamic.ent">&lt;!--Dynamically generated Entity Values loaded by a catalog for document
+'${doc.name}' at ${_timestamp} --&gt;
+
+&lt;!ENTITY doc_basename "${doc.name}"&gt;
+&lt;!ENTITY distro_baseurl "${distro.baseurl}"&gt;
+&lt;!ENTITY timestamp "${_timestamp}"&gt;
+</echo>
+
+    <xslt style="${style.path}" basedir="doc-src/${doc.name}"
+          in="doc-src/${doc.name}/${doc.name}.xml"
+          out="${output.base}" classpathref="xalan.cpref">
+      <xmlcatalog classpathref="xalan.cpref" id="cat.ref">
+        <!-- WOULD MUCH PREFER TO DEFINE CATALOG EXTERNALLY.
+        Unfortunately, Ant's xmlcatalog is not seeing Apache's XML resolver.
+          -->
+
+        <!-- IMPORTANT! ***************************************
+             You must define Catalog mappings/replacements used in all of
+             your DocBook source right here, plus those needed in the validation
+             step need a duplicate entry in stylesheets/rng-catalog.xml.
+             We use an Ant copy with filter to update rng-catalog.xml (in
+             "build.xml") accordingly, but if you add Catalog
+             mappings/replacements, you must update that system too.
+             Ant's xmlcatalog task is pretty limiting.  No support for prefixes,
+             and external XML Commons Resolver and external catalog files
+             support are broken.
+             IMPORTANT! *************************************** -->
+        <dtd publicId="-//OASIS/ENTITIES DocBook Character Entities V4.5//EN"
+             location="${dbcentx.url}"/>
+        <entity location="${nsstylebase.url}/html/docbook.xsl"
+                publicId="${oasis.stylesheet.url}/html/docbook.xsl"/>
+        <entity location="${nsstylebase.url}/html/chunk.xsl"
+                publicId="${oasis.stylesheet.url}/html/chunk.xsl"/>
+        <entity location="${nsstylebase.url}/fo/docbook.xsl"
+                publicId="${oasis.stylesheet.url}/fo/docbook.xsl"/>
+        <entity location="tmp/doc-work/${doc.name}/dynamic.ent"
+                publicId="-//HSQLDB/ENTITIES/DocSpecificDynamicEntities"/>
+      </xmlcatalog>
+      <!-- There is probably no reason to use if/unless to exclude
+           format-specific or feature-specific settings, since settings
+           that don't apply to a specific stylesheet will just be ignored. -->
+
+      <!-- N.b.:  "use.extensions" turns on all other *.extension properties.
+                  (The boolean *.extension ones, not *.*.extensions).
+                  If you want any off with "use.extensions" on, you must
+                  turn them off individually.
+                  "fop1.extensions" an exception?  See table at
+    http://www.sagehill.net/docbookxsl/InstallingAProcessor.html#SaxonExtensions
+      -->
+      <param name="use.extensions" expression="1"/>
+
+      <param name="admon.graphics" expression="1"/>
+      <param name="admon.graphics.path" expression="../images/db/"/>
+      <param name="admon.graphics.extension" expression=".png"/>
+      <param name="css.decoration" expression="1"/>
+      <param name="annotation.support" expression="1"/>
+      <param name="navig.graphics" expression="1"/>
+      <param name="navig.graphics.path" expression="../images/db/"/>
+      <param name="table.borders.with.css" expression="1"/>
+      <param name="callouts.gaphics" expression="1"/>
+      <param name="callouts.gaphics.path" expression="../images/db/callouts/"/>
+      <param name="graphic.default.extension" expression=".png"/>
+      <param name="callouts.gaphics.extension" expression=".png"/>
+      <param name="html.stylesheet" expression="../docbook.css"
+             if="html.format"/>
+      <param name="shade.verbatim" expression="1" unless="html.format"/>
+      <param name="textdata.default.encoding" expression="ISO-8859-1"/>
+      <param name="use.id.as.filename" expression="1"/>
+      <param name="variablelist.as.table" expression="1"/>
+      <param name="index.on.type" expression="1"/>
+      <param name="body.start.indent" expression="0" if="fop.format"/>
+      <param name="table.cell.border.thickness" expression="1pt"
+             if="fop.format"/>
+      <param name="html.cellspacing" expression="0" if="html.format"/>
+
+      <!-- With this on, formatting is terrible unless column content
+           lengths are symmetical -->
+      <param name="tablecolumns.extension" expression="0"/>
+
+      <!-- Docbook-supplied png nav icons suck -->
+      <param name="navig.graphics.extension" expression=".png"/>
+
+      <!-- "fop.extensions" for old FOP versions -->
+      <param name="fop1.extensions" expression="1" if="fop.format"/>
+
+      <!-- This tells sections shown in single HTML pages, not levels shown in
+           the TOC, which is governed by "toc.section.depth" -->
+      <param name="chunk.section.depth" expression="0"/>
+      <!-- Defaults to 1 -->
+
+      <!--  This has no effect, because the Docbook .xsl files specify the
+            output encoding literally.
+      <param name="chunker.output.encoding" expression="UTF-8"/>
+      -->
+
+      <outputproperty name="encoding" value="UTF-8"/>
+      <outputproperty name="indent" value="yes"/>
+    </xslt>
+  </target>
+
+  <target name="clean-docs" description="Remove all derived doc artifacts">
+    <delete dir="tmp/doc-work"/>
+    <delete dir="${docoutput.path}"/>
+  </target>
+
+  <target name="-fop-setup" depends="-ivy-setup">
+    <taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop"
+             classpathref="fop.cpref"/>
+  </target>
+
+  <target name="-ensure-ivysettings" unless="_ivysettings.present">
+    <copy file="build/ivysettings-sample.xml" tofile="build/ivysettings.xml"/>
+    <echo>Just created a local 'ivysettings.xml' file for you.
+Customize this as you wish and/or set Ivy properties (or any other
+docbook-specific local build properties) in a 'local-docbook.properties'
+file.</echo>
+  </target>
+
+  <target name="validate-doc" unless="validation.skip"
+          depends="-validation-setup, -ivy-setup"
+          description="Validate specified DocBook source document">
+    <fail unless="doc.name"
+          message="Ant property 'doc.name' is required by target 'validate'."/>
+    <pathconvert property="msvjar.file" refid="xcsde-rngval-jar.cpref"/>
+    <java fork="true" failonerror="true" dir="doc-src/${doc.name}"
+          classpath="${msvjar.file}" classpathref="xcsde-rngval-deps.cpref"
+          classname="com.admc.xml.ResolvingSchematronDriver">
+      <sysproperty key="xml.catalog.verbosity"
+                   value="${xml.catalog.verbosity}"/>
+      <sysproperty key="xml.catalog.files" value="${xml.catalog.files}"/>
+      <sysproperty key="xml.catalog.prefer" value="${xml.catalog.prefer}"/>
+      <sysproperty key="xml.catalog.allowPI" value="${xml.catalog.allowPI}"/>
+      <sysproperty key="xml.catalog.staticCatalog"
+                   value="${xml.catalog.staticCatalog}"/>
+      <jvmarg value="-Xss${xmlvalidation.threadstacksize}"/>
+      <!-- Have tried setting -Xmx* and -XX:MaxPermSize here.
+           No effect on speed. -->
+      <arg value="-v"/>
+      <arg value="${dbxirng.url}"/>
+      <arg value="${doc.name}.xml"/>
+    </java>
+  </target>
+
+  <target name="refresh-verbatim"
+          description="Update files under doc-src/verbatim">
+    <!-- It's good to apply preservelastmodified to stuff under doc-src/,
+         but be very careful if applying it to doc/..., since that could
+         break our dependsets. -->
+    <copy todir="doc-src/verbatim" preservelastmodified="true">
+      <fileset dir=".">
+        <present targetdir="doc-src/verbatim"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="-validation-setup">
+    <fail message="Something is wrong.  '-validation-setup' is abstract"/>
+  </target>
+
+  <target name="dumplibs" description="Dump FO and PDF libs"
+          depends="-gen-docs-setup, -fop-setup">
+      <pathconvert property="cp2" refid="fop.cpref"/>
+      <echo>FOP classpath (${cp2})</echo>
+      <pathconvert property="cp1" refid="xalan.cpref"/>
+      <echo>Xalan classpath (${cp1})</echo>
+  </target>
+</project>
