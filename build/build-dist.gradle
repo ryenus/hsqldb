@@ -16,7 +16,7 @@
  *   that is the purpose of several tasks/targets in the main build files.
  *
  *   PREP:  Before building a public distribution, you must:
- *      1: Run task/targets 'javadoc' and 'javadocdev', watching for JavaDoc
+ *      1: Run task/targets 'javadoc' watching for JavaDoc
  *         authoring mistakes, and fix them.
  *      2: Update HyperSQL minor or version number if required in file
  *         "../doc-src/guide/entities/versions.ent".
@@ -24,11 +24,13 @@
  *         the "Last Changed Rev"s of SqlTool.java and SqlFile.java.
  *         Update the revision values in file
  *         "../doc-src/util-guide/entities/versions.ent" accordingly.
- *      4. Update THIS_VERSION, THIS_FULL_VERSION, MAJOR, MINOR, REVISION, and
- *         perhaps THIS_CACHE_VERSION in
+ *         Except check for real code changes between the *.ent revisions and
+ *         the HEAD revisions.  If only comment changes then leave *.ent as-is.
+ *      4. Update THIS_VERSION, THIS_FULL_VERSION, MAJOR, MINOR, REVISION in
  *         "../src/org/hsqldb/persist/HsqlDatabaseProperties.java"; and
  *         DBMS VERSION in "../src/org/hsqldb/resources/information-schema.sql".
  *      5: Update property 'hsqldb.version' in file 'build.xml'.
+ *         For now it is conditional upon the build JDK.
  *      6: Execute task/target 'refresh-verbatim' to update code in our docs.
  *      7: Execute task/target 'update-readme' to substitute updated variables
  *         into some doc file(s).
