@@ -33,6 +33,13 @@ package org.hsqldb;
 
 import org.hsqldb.lib.HsqlArrayList;
 
+/**
+ * Value for array aggregate functions.
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.4.1
+ * @since 2.4.1
+ *
+ */
 public class SetFunctionValueArray implements SetFunction {
 
     final HsqlArrayList list = new HsqlArrayList();;

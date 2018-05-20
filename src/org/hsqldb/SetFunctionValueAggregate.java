@@ -51,7 +51,7 @@ import org.hsqldb.types.Type.TypedComparator;
 import org.hsqldb.types.Types;
 
 /**
- * Implementation of SQL set functions (currently only aggregate functions).
+ * Implementation of SQL set function values (only for aggregate functions).
  * This reduces temporary Object creation by SUM and AVG functions for
  * INTEGER and narrower types.
  *
