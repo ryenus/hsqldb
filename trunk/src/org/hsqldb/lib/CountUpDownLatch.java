@@ -296,7 +296,7 @@ public class CountUpDownLatch {
     /**
      * Synchronization control For {@link CountUpDownLatch}.
      * <p>
-     * Uses {@link AstractQueuedSynchronizer} {@code state} property to
+     * Uses {@link AbstractQueuedSynchronizer} {@code state} property to
      * represent count.
      */
     private static class Sync extends AbstractQueuedSynchronizer {
