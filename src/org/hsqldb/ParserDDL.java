@@ -1786,12 +1786,13 @@ public class ParserDDL extends ParserRoutine {
             session.database.nameManager.newConstraintIndexName(
                 table.getName(), name, session.database.sqlSysIndexNames);
         Index index = table.createIndexStructure(indexName, cols, null, null,
-            true, true, false);
-        Constraint c = new Constraint(name, table, index,
-                                      SchemaObject.ConstraintTypes.UNIQUE);
+            false, true, true, false);
+        Constraint constraint =
+            new Constraint(name, table, index,
+                           SchemaObject.ConstraintTypes.UNIQUE);
         String   sql  = getLastPart();
         Object[] args = new Object[] {
-            StatementTypes.ADD_CONSTRAINT, table, c, ifNotExists
+            StatementTypes.ADD_CONSTRAINT, table, constraint, ifNotExists
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(

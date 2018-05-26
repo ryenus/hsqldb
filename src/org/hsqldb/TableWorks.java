@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -208,7 +208,7 @@ public class TableWorks {
                 table.getName(), c.getName(),
                 session.database.sqlSysIndexNames);
         Index refIndex = table.createIndexStructure(indexName, c.core.refCols,
-            null, null, false, true, isForward);
+            null, null, false, false, true, isForward);
 
         c.core.uniqueName = uniqueConstraint.getName();
         c.core.mainName   = mainName;
@@ -604,7 +604,7 @@ public class TableWorks {
                                          unique, false, false);
         } else {
             newIndex = table.createIndexStructure(name, col, null, null,
-                                                  unique, false, false);
+                                                  false, unique, false, false);
 
             Table tn = table.moveDefinition(session, table.tableType, null,
                                             null, newIndex, -1, 0, emptySet,
@@ -674,7 +674,7 @@ public class TableWorks {
             name.name, table.getSchemaName(), table.getName(),
             SchemaObject.INDEX);
         Index index = table.createIndexStructure(indexname, cols, null, null,
-            true, true, false);
+            false, true, true, false);
         Constraint constraint =
             new Constraint(name, table, index,
                            SchemaObject.ConstraintTypes.UNIQUE);

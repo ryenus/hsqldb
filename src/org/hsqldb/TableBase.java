@@ -399,8 +399,8 @@ public class TableBase implements Cloneable {
             boolean forward) {
 
         Index newindex = createIndexStructure(name, columns, descending,
-                                              nullsLast, unique, constraint,
-                                              forward);
+                                              nullsLast, false, unique,
+                                              constraint, forward);
 
         addIndex(session, newindex);
 
@@ -408,9 +408,8 @@ public class TableBase implements Cloneable {
     }
 
     public final Index createIndexStructure(HsqlName name, int[] columns,
-                                     boolean[] descending,
-                                     boolean[] nullsLast, boolean unique,
-                                     boolean constraint, boolean forward) {
+            boolean[] descending, boolean[] nullsLast, boolean primaryKey,
+            boolean unique, boolean constraint, boolean forward) {
 
         int    s     = columns.length;
         int[]  cols  = new int[s];
@@ -423,7 +422,8 @@ public class TableBase implements Cloneable {
 
         long id = database.persistentStoreCollection.getNextId();
         Index newIndex = database.logger.newIndex(name, id, this, cols,
-            descending, nullsLast, types, false, unique, constraint, forward);
+            descending, nullsLast, types, primaryKey, unique, constraint,
+            forward);
 
         return newIndex;
     }

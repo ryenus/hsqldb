@@ -844,6 +844,7 @@ public class SchemaManager {
         Schema schema = (Schema) schemaMap.get(table.getSchemaName().name);
 
         removeSchemaObject(table.getName(), cascade);
+        removeTableDependentReferences(table);
         schema.triggerLookup.removeParent(table.getName());
     }
 
