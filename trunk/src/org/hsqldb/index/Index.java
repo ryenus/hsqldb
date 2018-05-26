@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,6 +74,11 @@ public interface Index extends SchemaObject {
      * Returns the count of visible columns used
      */
     int getColumnCount();
+
+    /**
+     * Is this a PRIMARY_KEY index?
+     */
+    boolean isPrimaryKey();
 
     /**
      * Is this a UNIQUE index?

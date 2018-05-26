@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2016, The HSQL Development Group
+ * Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -276,6 +276,13 @@ public class IndexAVL implements Index {
      */
     public int getColumnCount() {
         return colIndex.length;
+    }
+
+    /**
+     * Is this a PRIMARY_KEY index?
+     */
+    public boolean isPrimaryKey() {
+        return isPK;
     }
 
     /**

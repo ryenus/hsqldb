@@ -1295,7 +1295,7 @@ public class Table extends TableBase implements SchemaObject {
                 colIndex, adjust);
             Index newIdx = tn.createIndexStructure(idx.getName(), colarr,
                                                    idx.getColumnDesc(), null,
-                                                   idx.isUnique(),
+                                                   false, idx.isUnique(),
                                                    idx.isConstraint(),
                                                    idx.isForward());
 
