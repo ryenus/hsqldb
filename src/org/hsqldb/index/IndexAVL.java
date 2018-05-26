@@ -108,7 +108,7 @@ import org.hsqldb.types.Type;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.2
  * @since Hypersonic SQL
  */
 public class IndexAVL implements Index {
