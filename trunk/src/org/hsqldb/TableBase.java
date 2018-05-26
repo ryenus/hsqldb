@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * The  base of all HSQLDB table implementations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.2
  * @since 1.7.2
  */
 public class TableBase implements Cloneable {
@@ -470,7 +470,14 @@ public class TableBase implements Cloneable {
             }
         }
 
-        list = (Index[]) ArrayUtil.toAdjustedArray(list, index, i, 1);
+        boolean replacePK =
+            index.isPrimaryKey() && list.length > 0 && list[0].isPrimaryKey();
+        if (replacePK) {
+            list = (Index[]) ArrayUtil.duplicateArray(list);
+            list[0] = index;
+        } else {
+            list = (Index[]) ArrayUtil.toAdjustedArray(list, index, i, 1);
+        }
 
         for (i = 0; i < list.length; i++) {
             list[i].setPosition(i);
@@ -527,17 +534,6 @@ public class TableBase implements Cloneable {
             descending, nullsLast, unique, constraint, forward);
 
         return newIndex;
-    }
-
-    public void clearAllData(Session session) {
-
-        PersistentStore store = getRowStore(session);
-
-        store.removeAll();
-    }
-
-    public void clearAllData(PersistentStore store) {
-        store.removeAll();
     }
 
     /**

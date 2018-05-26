@@ -42,7 +42,7 @@ import org.hsqldb.types.Type;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.4.2
  * @since 1.9.0
  */
 public interface Index extends SchemaObject {
