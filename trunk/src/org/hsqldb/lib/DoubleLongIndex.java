@@ -45,7 +45,7 @@ import java.util.NoSuchElementException;
  * Based on org.hsqldb.lib.DoubleIntIndex
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.8.0
  */
 public final class DoubleLongIndex implements LongLookup {
@@ -72,7 +72,7 @@ public final class DoubleLongIndex implements LongLookup {
             throw new IndexOutOfBoundsException();
         }
 
-        return keys[i] & 0xffffffffL;
+        return keys[i];
     }
 
     public long getLongValue(int i) {
@@ -283,7 +283,12 @@ public final class DoubleLongIndex implements LongLookup {
     }
 
     public void sort() {
-        fastQuickSort();
+
+        if (count <= 1024 * 16) {
+            fastQuickSortRecursive();
+        } else {
+            fastQuickSort();
+        }
     }
 
     /**
@@ -291,13 +296,7 @@ public final class DoubleLongIndex implements LongLookup {
      */
     private void fastQuickSort() {
 
-        if (count <= 1024 * 16) {
-            fastQuickSortRecursive();
-
-            return;
-        }
-
-        DoubleIntIndex indices   = new DoubleIntIndex(32);
+        DoubleIntIndex indices   = new DoubleIntIndex(32768);
         int            threshold = 16;
 
         indices.push(0, count - 1);
