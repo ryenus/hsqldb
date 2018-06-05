@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -211,6 +211,13 @@ public class UserTypeModifier {
             sb.append(name.getSchemaQualifiedStatementName());
             sb.append(' ').append(Tokens.T_AS).append(' ');
             sb.append(dataType.getDefinition());
+
+            if (dataType.isCharacterType() ) {
+                Collation collation = dataType.getCollation();
+                if (collation.isObjectCollation()) {
+                    sb.append(' ').append(collation.getCollateSQL());
+                }
+            }
 
             if (defaultExpression != null) {
                 sb.append(' ').append(Tokens.T_DEFAULT).append(' ');
