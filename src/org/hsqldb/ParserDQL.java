@@ -65,7 +65,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -186,9 +186,27 @@ public class ParserDQL extends ParserBase {
                                                 ClobType.defaultClobSize, 0);
                         }
                     case Tokens.NUMBER :
-                        typeNumber = Types.SQL_DECIMAL;
-                        break;
+                        read();
 
+                        if (token.tokenType == Tokens.OPENBRACKET) {
+                            read();
+
+                            int precision = readInteger();
+                            int scale     = 0;
+
+                            if (token.tokenType == Tokens.COMMA) {
+                                read();
+
+                                scale = readInteger();
+                            }
+
+                            readThis(Tokens.CLOSEBRACKET);
+
+                            return Type.getType(Types.SQL_DECIMAL, null, null,
+                                                precision, scale);
+                        } else {
+                            return Type.SQL_DECIMAL_DEFAULT;
+                        }
                     case Tokens.RAW :
                         typeNumber = Types.SQL_VARBINARY;
                         break;
