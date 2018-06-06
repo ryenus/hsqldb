@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -236,7 +236,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.4.2
  * @since 1.9.0
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
@@ -1422,7 +1422,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         Object[] data = null;
 
         if (x instanceof JDBCArray) {
-            data = ((JDBCArray) x).getArrayInternal();
+            Type     baseType = type.collectionBaseType();
+            Object[] array    = ((JDBCArray) x).getArrayInternal();
+
+            data = new Object[array.length];
+
+            for (int i = 0; i < data.length; i++) {
+                data[i] = baseType.convertJavaToSQL(session, array[i]);
+            }
         } else {
             Object object = x.getArray();
 
