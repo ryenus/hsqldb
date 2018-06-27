@@ -41,7 +41,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2017 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2018 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -80,7 +80,7 @@
     name. You should avoid using such names as future versions of HyperSQL are
     likely to support the reserved words and may reject your table definitions
     or queries. The full list of SQL reserved words is in the appendix <link
-    endterm="lists-title" xlink:href="#lists-app"></link> .</para>
+    endterm="lists-title" xlink:href="#lists-app"/> .</para>
 
     <para>There are several user-defined properties to control the strict
     application of the SQL Standard in different areas.</para>
@@ -186,8 +186,8 @@
       usage as they cache only part of the text data and all of the indexes.
       The Text table data source can always be reassigned to a different file
       if necessary. The commands are needed to set up a TEXT table as detailed
-      in the <link endterm="texttables-title"
-      xlink:href="#texttables-chapt"></link> chapter.</para>
+      in the <link endterm="texttables-title" xlink:href="#texttables-chapt"/>
+      chapter.</para>
 
       <para>With all-in-memory databases, both MEMORY table and CACHED table
       declarations are treated as declarations for non-persistent memory
@@ -636,7 +636,7 @@
       <para>Each character type has a collation. This is either a default
       collation or stated explicitly with the COLLATE clause. Collations are
       discussed in the <link endterm="databaseobjects-title" xlink:arcrole=""
-      xlink:href="#databaseobjects-chapt"></link> chapter.</para>
+      xlink:href="#databaseobjects-chapt"/> chapter.</para>
 
       <programlisting> CHAR(10)
  CHARACTER(10)
@@ -689,7 +689,7 @@
 
       <para>The UUID type represents a UUID string. The type is similar to
       BINARY(16) but with the extra enforcement that disallows assigning,
-      casting or compareing with shorter or longer strings. Strings such as
+      casting or comparing with shorter or longer strings. Strings such as
       '24ff1824-01e8-4dac-8eb3-3fee32ad2b9c' or
       '24ff182401e84dac8eb33fee32ad2b9c' are allowed. When a value of the UUID
       type is converted to a CHARACTER type, the hyphens are inserted in the
@@ -1189,7 +1189,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <para>HyperSQL supports a very extensive range of functions for
     conversion, extraction and manipulation of DATE and TIMESTAMP values. See
     the <link endterm="builtinfunctions-title"
-    xlink:href="#builtinfunctions-chapt"></link> chapter.</para>
+    xlink:href="#builtinfunctions-chapt"/> chapter.</para>
 
     <simpara><emphasis role="bold">Session Time Zone
     Displacement</emphasis></simpara>
@@ -1268,7 +1268,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
       <listitem>
         <para>The <methodname>getObject(int columnIndex)</methodname> method
         on a column of TIMESTAMP WITH TIME ZONE returns an
-        <classname>java.time.OffsetDateTime</classname> object. </para>
+        <classname>java.time.OffsetDateTime</classname> object.</para>
       </listitem>
 
       <listitem>
@@ -1298,7 +1298,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
       <listitem>
         <para>The <methodname>getObject</methodname> and
         <methodname>setObject</methodname> methods with column name parameters
-        bahave just like their counterparts with columnIndexe
+        behave just like their counterparts with columnIndexe
         parameters.</para>
       </listitem>
     </itemizedlist>
@@ -1582,7 +1582,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
       <listitem>
         <para>The <methodname>getObject</methodname> and
         <methodname>setObject</methodname> methods with column name parameters
-        bahave just like their counterparts with columnIndexe
+        behave just like their counterparts with columnIndexe
         parameters.</para>
       </listitem>
     </itemizedlist>
@@ -1764,7 +1764,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 </programlisting>
         </informalexample></para>
 
-      <para></para>
+      <para/>
     </section>
 
     <section xml:id="sgc_array_ops">
@@ -1789,12 +1789,12 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
       <para>Seven functions operate on arrays. Details are described in the
       <link endterm="builtinfunctions-title"
-      xlink:href="#builtinfunctions-chapt"></link> chapter.</para>
+      xlink:href="#builtinfunctions-chapt"/> chapter.</para>
 
       <para><literal>ARRAY_AGG</literal> is an aggregate function and produces
-      an array containing values from differnt rows of a SELECT statement.
+      an array containing values from different rows of a SELECT statement.
       Details are described in the <link endterm="dataaccess-title"
-      xlink:href="#dataaccess-chapt"></link> chapter.</para>
+      xlink:href="#dataaccess-chapt"/> chapter.</para>
 
       <para><literal>SEQUENCE_ARRAY</literal> creates an array with sequential
       elements.</para>
@@ -1859,7 +1859,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
       keyword, which means the array that is converted to table can belong to
       any table that precedes the UNNEST in the FROM clause. This is explained
       in the <link endterm="dataaccess-title" xlink:arcrole=""
-      xlink:href="#dataaccess-chapt"></link> chapter.</para>
+      xlink:href="#dataaccess-chapt"/> chapter.</para>
 
       <para><emphasis>INLINE CONSTRUCTOR</emphasis></para>
 
@@ -1917,7 +1917,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     should not create duplicate user-defined indexes on the same column sets
     covered by constraints. This would result in unnecessary memory and speed
     overheads. See the discussion in the <link endterm="deployment-title"
-    xlink:arcrole="" xlink:href="#deployment-chapt"></link> chapter for more
+    xlink:arcrole="" xlink:href="#deployment-chapt"/> chapter for more
     information.</para>
 
     <para>Indexes are crucial for adequate query speed. When range or equality
@@ -2145,7 +2145,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 </programlisting>
       </informalexample>
 
-      <para></para>
+      <para/>
     </section>
   </section>
 </chapter>

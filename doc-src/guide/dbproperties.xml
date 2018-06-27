@@ -41,7 +41,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2017 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2018 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -55,7 +55,7 @@
     <para>The normal method of accessing a HyperSQL catalog is via the JDBC
     Connection interface. An introduction to different methods of providing
     database services and accessing them can be found in the <link
-    endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link> chapter.
+    endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"/> chapter.
     Details and examples of how to connect via JDBC are provided in our
     JavaDoc for <classname xlink:href="#JDBCConnection.html-link">
     JDBCConnection</classname>.</para>
@@ -72,11 +72,11 @@
       <title>Memory Database URL</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" />
+        <colspec colname="c1"/>
 
-        <colspec colname="c2" />
+        <colspec colname="c2"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
@@ -118,11 +118,11 @@
       <title>File Database URL</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" />
+        <colspec colname="c1"/>
 
-        <colspec colname="c2" />
+        <colspec colname="c2"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
@@ -170,11 +170,11 @@
       <title>Resource Database URL</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" />
+        <colspec colname="c1"/>
 
-        <colspec colname="c2" />
+        <colspec colname="c2"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
@@ -214,11 +214,11 @@
       <title>Server Database URL</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" />
+        <colspec colname="c1"/>
 
-        <colspec colname="c2" />
+        <colspec colname="c2"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
@@ -337,11 +337,11 @@
       <title>User and Password</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" colwidth="6.5cm" />
+        <colspec colname="c1" colwidth="6.5cm"/>
 
-        <colspec colname="c2" colwidth="1.5cm" />
+        <colspec colname="c2" colwidth="1.5cm"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
@@ -392,11 +392,11 @@
       <title>Closing old ResultSet when Statement is reused</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" colwidth="7cm" />
+        <colspec colname="c1" colwidth="7cm"/>
 
-        <colspec colname="c2" colwidth="1.5cm" />
+        <colspec colname="c2" colwidth="1.5cm"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
@@ -446,11 +446,11 @@
       <title>Column Names in JDBC ResultSet</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" colwidth="7cm" />
+        <colspec colname="c1" colwidth="7cm"/>
 
-        <colspec colname="c2" colwidth="1.5cm" />
+        <colspec colname="c2" colwidth="1.5cm"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
@@ -493,11 +493,11 @@
       <title>Empty batch in JDBC PreparedStatement</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" colwidth="7cm" />
+        <colspec colname="c1" colwidth="7cm"/>
 
-        <colspec colname="c2" colwidth="1.5cm" />
+        <colspec colname="c2" colwidth="1.5cm"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
@@ -540,11 +540,11 @@
       <title>Creating New Database</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" colwidth="6.5cm" />
+        <colspec colname="c1" colwidth="6.5cm"/>
 
-        <colspec colname="c2" colwidth="1.5cm" />
+        <colspec colname="c2" colwidth="1.5cm"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
@@ -606,11 +606,11 @@
       <title>Automatic Shutdown</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" colwidth="6.5cm" />
+        <colspec colname="c1" colwidth="6.5cm"/>
 
-        <colspec colname="c2" colwidth="1.5cm" />
+        <colspec colname="c2" colwidth="1.5cm"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
@@ -664,8 +664,8 @@
 
     <para>Each database has several default settings (properties) that are
     listed in the <link endterm="management-title"
-    xlink:href="#management-chapt"></link> chapter. These properties can be
-    changed via SQL commands after a connection is made to the database. It is
+    xlink:href="#management-chapt"/> chapter. These properties can be changed
+    via SQL commands after a connection is made to the database. It is
     possible to specify most of these properties in the connection properties
     or as part of the URL string when the first connection is made to a new
     <literal>file:</literal> or <literal>mem:</literal> database. This allows
@@ -674,7 +674,7 @@
     be appended to the database path URL in server.properties or the server
     command line.</para>
 
-    <para>Note the prefered method of setting database properties is by using
+    <para>Note the preferred method of setting database properties is by using
     a set of SQL statements. These statements can be used both for a new
     database or an existing database, unlike URL properties that are generally
     effective for new databases only.</para>
@@ -706,18 +706,18 @@
     the URL or in connection properties are listed. For each property that can
     also be set with an SQL statement, the statement is also given. These
     statements are described more extensively in the <link
-    endterm="management-title" xlink:href="#management-chapt"></link>
+    endterm="management-title" xlink:href="#management-chapt"/>
     chapter.</para>
 
     <table frame="all" pgwide="1" tocentry="1">
       <title>Validity Check Property</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" colwidth="6.5cm" />
+        <colspec colname="c1" colwidth="6.5cm"/>
 
-        <colspec colname="c2" colwidth="1.5cm" />
+        <colspec colname="c2" colwidth="1.5cm"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
@@ -755,11 +755,11 @@
         <title>Execution of Multiple SQL Statements etc.</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -805,11 +805,11 @@
         <title>SQL Keyword Use as Identifier</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -844,11 +844,11 @@
         Characters</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -883,11 +883,11 @@
         <title>Reference to Columns Names</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -924,11 +924,11 @@
         <title>String Size Declaration</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -966,11 +966,11 @@
         <title>Type Enforcement in Comparison and Assignment</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1009,11 +1009,11 @@
         <title>Foreign Key Triggered Data Change</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1048,7 +1048,7 @@
             </row>
 
             <row>
-              <entry nameend="c3" namest="c1"></entry>
+              <entry nameend="c3" namest="c1"/>
             </row>
 
             <row>
@@ -1079,11 +1079,11 @@
         <title>Use of LOB for LONGVAR Types</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1119,11 +1119,11 @@
         <title>Type of string literals in CASE WHEN</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1160,11 +1160,11 @@
         <title>Concatenation with NULL</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1199,11 +1199,11 @@
         <title>NULL in Multi-Column UNIQUE Constraints</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1239,11 +1239,11 @@
         <title>Truncation or Rounding in Type Conversion</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1279,11 +1279,11 @@
         <title>Decimal Scale of Division and AVG Values</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1323,11 +1323,11 @@
         <title>Support for NaN values</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1362,11 +1362,11 @@
         <title>Sort order of NULL values</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1402,11 +1402,11 @@
         <title>Sort order of NULL values with DESC</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1444,11 +1444,11 @@
         <title>String comparison with padding</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1487,11 +1487,11 @@
         <title>Case Insensitive Varchar columns</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1515,7 +1515,7 @@
             <row>
               <entry nameend="c3" namest="c1"><para>When this propery is set
               true, all VARCHAR declarations in CREATE TABLE and other
-              statemenst are assigned an Upper Case Comparison collation,
+              statements are assigned an Upper Case Comparison collation,
               SQL_TEXT_UCC. This is designed for compatibility with some
               databases that use case-insensitive comparison. It is better to
               specify the collation selectively for specific columns that
@@ -1529,11 +1529,11 @@
         <title>Storage of Live Java Objects</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1570,11 +1570,11 @@
         <title>Names of System Indexes Used for Constraints</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1596,10 +1596,12 @@
             </row>
 
             <row>
-              <entry nameend="c3" namest="c1"><para>HSQLDB automatically creates a system index for each PRIMARY KEY,
-			  UNIQUE and FOREIGN KEY constraint. By default the names of those indexes are generated the system
-			  as a string beginning with SYS_. When the setting is changed to true, the names will be the same
-			  as the constraint names.</para><para><programlisting>SET DATABASE SQL SYS TABLE NAMES { TRUE | FALSE }</programlisting></para></entry>
+              <entry nameend="c3" namest="c1"><para>HSQLDB automatically
+              creates a system index for each PRIMARY KEY, UNIQUE and FOREIGN
+              KEY constraint. By default the names of those indexes are
+              generated the system as a string beginning with SYS_. When the
+              setting is changed to true, the names will be the same as the
+              constraint names.</para><para><programlisting>SET DATABASE SQL SYS INDEX NAMES { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -1609,11 +1611,11 @@
         <title>DB2 Style Syntax</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1647,11 +1649,11 @@
         <title>MSSQL Style Syntax</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1686,11 +1688,11 @@
         <title>MySQL Style Syntax</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1725,11 +1727,11 @@
         <title>Oracle Style Syntax</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1765,11 +1767,11 @@
         <title>PostgreSQL Style Syntax</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1808,11 +1810,11 @@
         <title>Default Table Type</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1850,11 +1852,11 @@
         <title>Transaction Control Mode</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1890,11 +1892,11 @@
         <title>Default Isolation Level for Sessions</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1929,11 +1931,11 @@
         <title>Transaction Rollback in Deadlock</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -1976,11 +1978,11 @@
         <title>Time Zone and Interval Types</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2023,11 +2025,11 @@
         <title>Opening Database as Read Only</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2065,11 +2067,11 @@
         <title>Opening Database Without Modifying the Files</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2106,11 +2108,11 @@
         <title>Huge database files and tables</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2134,9 +2136,9 @@
 
             <row>
               <entry nameend="c3" namest="c1"><para>By default, up to 2
-              billion rows can be stored in all disk-based CACHED tables. Setting
-              this property to true increases the limit to 256 billion rows.
-              This property is used as a connection
+              billion rows can be stored in all disk-based CACHED tables.
+              Setting this property to true increases the limit to 256 billion
+              rows. This property is used as a connection
               property.</para><para><programlisting>this property cannot be set with an SQL statement - it can be used as a connection property for the connection that opens the database</programlisting></para></entry>
             </row>
           </tbody>
@@ -2147,11 +2149,11 @@
         <title>Event Logging</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2189,11 +2191,11 @@
         <title>SQL Logging</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2233,11 +2235,11 @@
         <title>Temporary Result Rows in Memory</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2275,11 +2277,11 @@
         <title>Unused Space Recovery</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2319,11 +2321,11 @@
         <title>Rows Cached In Memory</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2360,11 +2362,11 @@
         <title>Size of Rows Cached in Memory</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2408,11 +2410,11 @@
         <title>Size Scale of Disk Table Storage</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2448,11 +2450,11 @@
         <title>Size Scale of LOB Storage</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2488,11 +2490,11 @@
         <title>Compression of BLOB and CLOB data</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2527,11 +2529,11 @@
         <title>Internal Backup of Database Files</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2570,11 +2572,11 @@
         <title>Use of Lock File</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2613,11 +2615,11 @@
         <title>Logging Data Change Statements</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2657,11 +2659,11 @@
         <title>Automatic Checkpoint Frequency</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2697,11 +2699,11 @@
         <title>Automatic Defrag at Checkpoint</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2740,11 +2742,11 @@
         <title>Compression of the .script file</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2781,11 +2783,11 @@
         <title>Logging Data Change Statements Frequency</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2824,11 +2826,11 @@
         <title>Logging Data Change Statements Frequency</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2866,11 +2868,11 @@
         <title>Use of NIO for Disk Table Storage</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2910,11 +2912,11 @@
         <title>Use of NIO for Disk Table Storage</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2951,11 +2953,11 @@
         <title>Recovery Log Processing</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -2995,11 +2997,11 @@
         <title>Default Properties for TEXT Tables</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -3027,8 +3029,8 @@
               &lt;source string&gt; </literal>command override both the engine
               defaults and the database properties defaults. Individual
               <property>textdb.*</property> properties are listed in the <link
-              endterm="texttables-title"
-              xlink:href="#texttables-chapt"></link> chapter.</para></entry>
+              endterm="texttables-title" xlink:href="#texttables-chapt"/>
+              chapter.</para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -3038,11 +3040,11 @@
         <title>Forcing Garbage Collection</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -3082,11 +3084,11 @@
         <title>Crypt Property For LOBs</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -3120,11 +3122,11 @@
         <title>Cipher Key for Encrypted Database</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -3157,11 +3159,11 @@
         <title>Crypt Provider Encrypted Database</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -3195,11 +3197,11 @@
         <title>Cipher Specification for Encrypted Database</title>
 
         <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+          <colspec colname="c1" colwidth="6.5cm"/>
 
-          <colspec colname="c2" colwidth="1.5cm" />
+          <colspec colname="c2" colwidth="1.5cm"/>
 
-          <colspec colname="c3" />
+          <colspec colname="c3"/>
 
           <thead>
             <row>
@@ -3252,11 +3254,11 @@
       <title>Logging Framework</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" colwidth="6.5cm" />
+        <colspec colname="c1" colwidth="6.5cm"/>
 
-        <colspec colname="c2" colwidth="1.5cm" />
+        <colspec colname="c2" colwidth="1.5cm"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
@@ -3291,11 +3293,11 @@
       <title>Text Tables</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" colwidth="6.5cm" />
+        <colspec colname="c1" colwidth="6.5cm"/>
 
-        <colspec colname="c2" colwidth="1.5cm" />
+        <colspec colname="c2" colwidth="1.5cm"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
@@ -3332,11 +3334,11 @@
       <title>Java Functions</title>
 
       <tgroup align="left" cols="3">
-        <colspec colname="c1" colwidth="6.5cm" />
+        <colspec colname="c1" colwidth="6.5cm"/>
 
-        <colspec colname="c2" colwidth="1.5cm" />
+        <colspec colname="c2" colwidth="1.5cm"/>
 
-        <colspec colname="c3" />
+        <colspec colname="c3"/>
 
         <thead>
           <row>
