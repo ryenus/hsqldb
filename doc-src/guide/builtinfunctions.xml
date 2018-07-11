@@ -1391,7 +1391,7 @@
 
       <para><literal>DBTIMEZONE()</literal></para>
 
-      <para>Same as DATABASE_TIMEZONE. (HyperSQL)</para>
+      <para>Similar to DATABASE_TIMEZONE. Returns a string. Works in ORA compatibility mode only.(HyperSQL)</para>
     </section>
 
     <section xml:id="bfc_current_datetime">
