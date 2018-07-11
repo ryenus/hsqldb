@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ import org.hsqldb.types.Type;
  * Class for reading the data for a database row from the script file.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.2
  * @since 1.7.3
  */
 public class RowInputTextLog extends RowInputBase
@@ -278,9 +278,9 @@ implements RowInputInterface {
 
             if (i == 0) {
                 if (((Number) value).doubleValue() == 1E0) {
-                    i = Double.NEGATIVE_INFINITY;
-                } else if (((Number) value).doubleValue() == -1E0) {
                     i = Double.POSITIVE_INFINITY;
+                } else if (((Number) value).doubleValue() == -1E0) {
+                    i = Double.NEGATIVE_INFINITY;
                 } else if (((Number) value).doubleValue() == 0E0) {
                     i = Double.NaN;
                 } else {

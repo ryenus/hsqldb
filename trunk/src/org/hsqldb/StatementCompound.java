@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for PSM compound statements.
 
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class StatementCompound extends Statement implements RangeGroup {
@@ -263,7 +263,11 @@ public class StatementCompound extends Statement implements RangeGroup {
         cursorCount  = 0;
 
         for (int i = 0; i < declarations.length; i++) {
-            if (declarations[i] instanceof ColumnSchema) {
+            if (declarations[i] instanceof StatementCursor) {
+                StatementCursor cursor = (StatementCursor) declarations[i];
+
+                cursors[cursorCount++] = cursor;
+            } else if (declarations[i] instanceof ColumnSchema) {
                 variables[varCount++] = (ColumnSchema) declarations[i];
             } else if (declarations[i] instanceof StatementHandler) {
                 StatementHandler handler = (StatementHandler) declarations[i];
@@ -279,10 +283,6 @@ public class StatementCompound extends Statement implements RangeGroup {
                 Table table = (Table) declarations[i];
 
                 tables[tableCount++] = table;
-            } else {
-                StatementCursor cursor = (StatementCursor) declarations[i];
-
-                cursors[cursorCount++] = cursor;
             }
         }
 
@@ -847,7 +847,10 @@ public class StatementCompound extends Statement implements RangeGroup {
         }
 
         rangeVariables[parameterRangeVariables.length] = range;
-        root.variableCount                             = list.size();
+
+        if (list.size() > root.variableCount) {
+            root.variableCount = list.size();
+        }
     }
 
     private void setHandlers() {
@@ -960,9 +963,7 @@ public class StatementCompound extends Statement implements RangeGroup {
         Object[] vars = session.sessionContext.routineVariables;
 
         for (int i = 0; i < count; i++) {
-            try {
-                vars[variablesOffset + i] = data[i];
-            } catch (HsqlException e) {}
+            vars[variablesOffset + i] = data[i];
         }
     }
 

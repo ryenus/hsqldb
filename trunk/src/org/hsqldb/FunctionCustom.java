@@ -77,7 +77,7 @@ import org.hsqldb.types.Types;
  * Some functions are translated into equivalent SQL Standard functions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class FunctionCustom extends FunctionSQL {
@@ -235,6 +235,7 @@ public class FunctionCustom extends FunctionSQL {
         nonDeterministicFuncSet.add(FUNC_DATABASE);
         nonDeterministicFuncSet.add(FUNC_DATABASE_ISOLATION_LEVEL);
         nonDeterministicFuncSet.add(FUNC_DATABASE_TIMEZONE);
+        nonDeterministicFuncSet.add(FUNC_DBTIMEZONE);
         nonDeterministicFuncSet.add(FUNC_IDENTITY);
         nonDeterministicFuncSet.add(FUNC_ISAUTOCOMMIT);
         nonDeterministicFuncSet.add(FUNC_ISREADONLYSESSION);
