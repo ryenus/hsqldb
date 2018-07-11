@@ -306,7 +306,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class JDBCResultSet implements ResultSet {
@@ -7344,8 +7344,16 @@ public class JDBCResultSet implements ResultSet {
             return null;
         }
 
+        long s = (v.getSeconds() + v.getZone());
+
+        if (s < 0) {
+            s += 3600 * 24;
+        }
+
+        s %= 3600 * 24;
+
         ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
-        LocalTime lt = LocalTime.ofNanoOfDay((v.getSeconds() + v.getZone()) * 1000_000_000L + v.getNanos());
+        LocalTime lt = LocalTime.ofNanoOfDay(s * 1000_000_000L + v.getNanos());
         return OffsetTime.of(lt, z);
     }
 */
