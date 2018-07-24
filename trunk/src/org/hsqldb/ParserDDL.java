@@ -1202,9 +1202,7 @@ public class ParserDDL extends ParserRoutine {
             readThis(Tokens.DEFAULT);
         }
 
-        Charset charset = new Charset(name);
-
-        charset.base = source.getName();
+        Charset charset = new Charset(name, source.getName());
 
         String     sql            = getLastPart();
         Object[]   args           = new Object[]{ charset };

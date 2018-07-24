@@ -45,7 +45,7 @@ import org.hsqldb.map.ValuePool;
  * Collection of SQL schema objects of a specific type in a schema
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class SchemaObjectSet {
@@ -506,6 +506,7 @@ public class SchemaObjectSet {
                     // fall through
                     case SchemaObject.TYPE :
                     case SchemaObject.DOMAIN :
+                    case SchemaObject.COLLATION :
                     case SchemaObject.FUNCTION :
                     case SchemaObject.PROCEDURE :
                     case SchemaObject.SPECIFIC_ROUTINE :
