@@ -1471,13 +1471,13 @@
 
             <row>
               <entry nameend="c3" namest="c1"><para>By default, when two
-              strings are compared, he shorter string is padded with spaces
+              strings are compared, the shorter string is padded with spaces
               before comparison. When this property is set false, no padding
               takes place before comparison. Without padding, the shorter
               string is never equal to the longer one.</para><para>Before
               version 2.0, HSQLDB used NO PAD comparison. If you need the old
               behaviour, use this property when opening an older
-              database.</para><para><programlisting>SET DEFAULT COLLATION &lt;collation name&gt; [ NO PAD | PAD SPACE ]</programlisting></para></entry>
+              database.</para><para><programlisting>SET DATABASE OLLATION &lt;collation name&gt; [ NO PAD | PAD SPACE ]</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -1716,7 +1716,7 @@
             <row>
               <entry nameend="c3" namest="c1"><para>This property, when set
               true, enables support for TEXT and AUTO_INCREMENT types and also
-              allow compatibility with some other aspects of this
+              allow compatibility with many other aspects of this
               dialect.</para><para><programlisting>SET DATABASE SQL SYNTAX MYS { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
