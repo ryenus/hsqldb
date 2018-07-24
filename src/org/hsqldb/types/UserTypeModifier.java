@@ -45,7 +45,7 @@ import org.hsqldb.rights.Grantee;
  * Class for DOMAIN and DISTINCT objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class UserTypeModifier {
@@ -165,6 +165,12 @@ public class UserTypeModifier {
             }
         }
 
+        Collation collation = dataType.getCollation();
+
+        if (collation != null && collation.isObjectCollation()) {
+            set.add(collation.getName());
+        }
+
         return set;
     }
 
@@ -199,8 +205,9 @@ public class UserTypeModifier {
             sb.append(' ').append(Tokens.T_AS).append(' ');
             sb.append(dataType.getDefinition());
 
-            if (dataType.isCharacterType() ) {
+            if (dataType.isCharacterType()) {
                 Collation collation = dataType.getCollation();
+
                 if (collation.isObjectCollation()) {
                     sb.append(' ').append(collation.getCollateSQL());
                 }
@@ -212,8 +219,9 @@ public class UserTypeModifier {
             sb.append(' ').append(Tokens.T_AS).append(' ');
             sb.append(dataType.getDefinition());
 
-            if (dataType.isCharacterType() ) {
+            if (dataType.isCharacterType()) {
                 Collation collation = dataType.getCollation();
+
                 if (collation.isObjectCollation()) {
                     sb.append(' ').append(collation.getCollateSQL());
                 }

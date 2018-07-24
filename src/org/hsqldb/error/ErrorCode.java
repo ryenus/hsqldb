@@ -35,7 +35,7 @@ package org.hsqldb.error;
  * SQL error codes.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public interface ErrorCode {
@@ -44,6 +44,7 @@ public interface ErrorCode {
     int TOKEN_REQUIRED    = 1;                     // $$ required: $$
     int CONSTRAINT        = 2;                     // $$ table: $$
     int COLUMN_CONSTRAINT = 3;                     // $$ table: $$ column: $$
+    int FK_CONSTRAINT     = 4;                     // $$ table: $$ value: $$
 
     //
     int M_ERROR_IN_BINARY_SCRIPT_1 = 21;           // \u0020table $$ row count error : $$ read, needed $$

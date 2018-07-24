@@ -659,7 +659,7 @@ public class ParserDQL extends ParserBase {
 
             if (token.tokenType == Tokens.COLLATE) {
                 read();
-                checkIsSimpleName();
+                checkIsSchemaObjectName();
 
                 collation = database.schemaManager.getCollation(session,
                         token.tokenString, token.namePrefix);

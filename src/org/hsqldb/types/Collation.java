@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import org.hsqldb.rights.Grantee;
  *
  * @author Frand Schoenheit (frank.schoenheit@sun dot com)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.4.2
  * @since 1.8.0
  */
 public class Collation implements SchemaObject {
@@ -462,7 +462,7 @@ public class Collation implements SchemaObject {
      * the SQL_TEXT collation
      */
     public boolean isDefaultCollation() {
-        return collator == null && isUnicodeSimple & padSpace;
+        return collator == null && isUnicodeSimple && padSpace;
     }
 
     /**
@@ -493,7 +493,12 @@ public class Collation implements SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
-        return new OrderedHashSet();
+
+        if (charset == null) {
+            return new OrderedHashSet();
+        } else {
+            return charset.getReferences();
+        }
     }
 
     public OrderedHashSet getComponents() {
@@ -544,7 +549,12 @@ public class Collation implements SchemaObject {
         StringBuffer sb = new StringBuffer();
 
         sb.append(Tokens.T_COLLATE).append(' ');
-        sb.append(getName().statementName);
+
+        if (isObjectCollation()) {
+            sb.append(getName().getSchemaQualifiedStatementName());
+        } else {
+            sb.append(getName().statementName);
+        }
 
         return sb.toString();
     }
