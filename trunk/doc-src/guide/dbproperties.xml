@@ -1477,7 +1477,7 @@
               string is never equal to the longer one.</para><para>Before
               version 2.0, HSQLDB used NO PAD comparison. If you need the old
               behaviour, use this property when opening an older
-              database.</para><para><programlisting>SET DATABASE OLLATION &lt;collation name&gt; [ NO PAD | PAD SPACE ]</programlisting></para></entry>
+              database.</para><para><programlisting>SET DATABASE COLLATION &lt;collation name&gt; [ NO PAD | PAD SPACE ]</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
