@@ -50,7 +50,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -131,7 +131,6 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP :
                 return java.sql.Timestamp.class;
 
-
 //#ifdef JAVA8
 /*
             case Types.SQL_TIME_WITH_TIME_ZONE :
@@ -140,14 +139,15 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return java.time.OffsetDateTime.class;
 */
+
 //#else
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 return java.sql.Time.class;
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return java.sql.Timestamp.class;
-//#endif JAVA8
 
+//#endif JAVA8
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
         }
@@ -174,14 +174,15 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return "java.time.OffsetDateTime";
 */
+
 //#else
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 return "java.sql.Time";
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return "java.sql.Timestamp";
-//#endif JAVA8
 
+//#endif JAVA8
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
         }
@@ -2624,34 +2625,44 @@ public final class DateTimeType extends DTIType {
 
     public static int getDayOfWeek(String name) {
 
-        int c = Character.toUpperCase(name.charAt(0));
+        if (name.length() > 0) {
+            int c = Character.toUpperCase(name.charAt(0));
 
-        switch (c) {
+            switch (c) {
 
-            case 'M' :
-                return 2;
+                case 'M' :
+                    return 2;
 
-            case 'T' :
-                if (Character.toUpperCase(name.charAt(1)) == 'U') {
-                    return 3;
-                } else if (Character.toUpperCase(name.charAt(1)) == 'H') {
-                    return 5;
-                }
-                break;
+                case 'T' :
+                    if (name.length() < 2) {
+                        break;
+                    }
 
-            case 'W' :
-                return 4;
+                    if (Character.toUpperCase(name.charAt(1)) == 'U') {
+                        return 3;
+                    } else if (Character.toUpperCase(name.charAt(1)) == 'H') {
+                        return 5;
+                    }
+                    break;
 
-            case 'F' :
-                return 6;
+                case 'W' :
+                    return 4;
 
-            case 'S' :
-                if (Character.toUpperCase(name.charAt(1)) == 'A') {
-                    return 7;
-                } else if (Character.toUpperCase(name.charAt(1)) == 'U') {
-                    return 1;
-                }
-                break;
+                case 'F' :
+                    return 6;
+
+                case 'S' :
+                    if (name.length() < 2) {
+                        break;
+                    }
+
+                    if (Character.toUpperCase(name.charAt(1)) == 'A') {
+                        return 7;
+                    } else if (Character.toUpperCase(name.charAt(1)) == 'U') {
+                        return 1;
+                    }
+                    break;
+            }
         }
 
         throw Error.error(ErrorCode.X_22007);
