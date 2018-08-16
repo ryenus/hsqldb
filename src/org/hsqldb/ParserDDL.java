@@ -703,8 +703,11 @@ public class ParserDDL extends ParserRoutine {
                 read();
 
                 if (database.sqlSyntaxPgs) {
-                    if (token.tokenType == Tokens.COLUMN) {
-                        read();
+                    if (token.tokenType != Tokens.TO) {
+                        if (token.tokenType == Tokens.COLUMN) {
+                            read();
+                        }
+
                         checkIsIdentifier();
 
                         int columnIndex = t.getColumnIndex(token.tokenString);
