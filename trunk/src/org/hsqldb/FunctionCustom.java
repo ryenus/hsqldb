@@ -989,7 +989,7 @@ public class FunctionCustom extends FunctionSQL {
                 return Long.valueOf(session.transactionTimestamp);
             }
             case FUNC_TRANSACTION_SIZE : {
-                return Long.valueOf(session.actionIndex);
+                return Long.valueOf(session.getTransactionSize());
             }
             case FUNC_LOB_ID : {
                 LobData lob = (LobData) data[0];

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,12 +44,14 @@ import java.util.TimeZone;
 import junit.framework.TestCase;
 
 import java.util.Calendar;
+import java.text.DateFormat;
 
 /**
  * Date Test Case.
  */
 public class TestDatetimeSimple extends TestCase {
 
+    private Calendar calendar = Calendar.getInstance();
     static String connectionURL =
         "jdbc:hsqldb:file:/hsql/tests/testdatetimesimple";
 
@@ -132,7 +134,6 @@ public class TestDatetimeSimple extends TestCase {
     public void testSimple() throws SQLException {
 
         System.out.println("testSimple " + TimeZone.getDefault());
-
         TestUtil.deleteDatabase("/hsql/tests/testdatetimesimple");
 
         Connection conn = DriverManager.getConnection(connectionURL, "SA", "");
@@ -229,7 +230,6 @@ public class TestDatetimeSimple extends TestCase {
         // these failed execute in original version
         st.executeUpdate("INSERT INTO t2 VALUES(1, '2008-11-27')");
         st.executeUpdate("INSERT INTO t2 VALUES(1, timestamp '2008-11-27')");
-
         st.executeUpdate("SHUTDOWN");
         conn.close();
     }
@@ -237,7 +237,6 @@ public class TestDatetimeSimple extends TestCase {
     public void testValues() throws SQLException {
 
         System.out.println("testValues " + TimeZone.getDefault());
-
         TestUtil.deleteDatabase("/hsql/tests/testdatetimesimple");
 
         Connection conn = DriverManager.getConnection(connectionURL, "SA", "");
@@ -330,26 +329,27 @@ public class TestDatetimeSimple extends TestCase {
             c.prepareStatement("insert into testdate values ?");
 
         try {
-            pstmt.setDate(1, new Date(25000, 1, 1));
+            calendar.set(2500, 1, 1);
+            pstmt.setDate(1, new Date(calendar.getTimeInMillis()));
             pstmt.executeUpdate();
             fail("invalid date beyond 9999CE accepted");
         } catch (SQLException e) {}
     }
 
     public static String dump(java.sql.Timestamp t) {
-        return "String (" + t.toString() + "), GMTString (" + t.toGMTString()
-               + "), LocalString (" + t.toLocaleString() + ')';
+        return "String (" + t.toString() + ')';
     }
 
     public static String dump(java.sql.Date d) {
-        return "String (" + d.toString() + "), GMTString (" + d.toGMTString()
-               + "), LocalString (" + d.toLocaleString() + ')';
+        return "String (" + d.toString() + ')';
     }
 
     public static void main(String[] argv) {
 
         TestDatetimeSimple testA = new TestDatetimeSimple();
-        String[]           zones = { "GMT+05:00", "GMT", "GMT-05:00" };
+        String[]           zones = {
+            "GMT+05:00", "GMT", "GMT-05:00"
+        };
 
         try {
             for (int i = 0; i < zones.length; i++) {

@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * by the constraint.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.2
  * @since 1.6.0
  */
 public final class Constraint implements SchemaObject {
@@ -854,9 +854,12 @@ public final class Constraint implements SchemaObject {
                 for (int i = 0; i < core.refCols.length; i++) {
                     Object o = data[core.refCols[i]];
 
+                    if (i > 0) {
+                        sb.append(',');
+                    }
+
                     sb.append(core.refTable.getColumnTypes()[core.refCols[i]]
                         .convertToString(o));
-                    sb.append(',');
                 }
 
                 String[] info = new String[] {
@@ -874,9 +877,12 @@ public final class Constraint implements SchemaObject {
                 for (int i = 0; i < core.mainCols.length; i++) {
                     Object o = data[core.mainCols[i]];
 
+                    if (i > 0) {
+                        sb.append(',');
+                    }
+
                     sb.append(core.mainTable.colTypes[core.mainCols[i]]
                         .convertToString(o));
-                    sb.append(',');
                 }
 
                 return Error.error(null, ErrorCode.X_23505,

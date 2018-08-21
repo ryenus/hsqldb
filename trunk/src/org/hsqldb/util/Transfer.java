@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2011, The HSQL Development Group
+ * Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -117,7 +117,7 @@ import java.awt.image.MemoryImageSource;
  *  databases via JDBC. Understands HSQLDB database particularly well.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
-  * @version 1.7.2
+  * @version 2.4.2
   * @since Hypersonic SQL
  */
 public class Transfer extends Applet
@@ -440,7 +440,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
                 FileDialog f = new FileDialog(fMain, "Restore FileName",
                                               FileDialog.LOAD);
 
-                f.show();
+                f.setVisible(true);
 
                 String sFileName = f.getFile();
                 String Path      = f.getDirectory();
@@ -469,7 +469,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
                 FileDialog f = new FileDialog(fMain, "Dump FileName",
                                               FileDialog.SAVE);
 
-                f.show();
+                f.setVisible(true);
 
                 String sFileName = f.getFile();
                 String Path      = f.getDirectory();
@@ -499,7 +499,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         }
 
         ProcessNextStep();
-        fMain.show();
+        fMain.setVisible(true);
 
         return;
     }
@@ -534,7 +534,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             e.printStackTrace();
         }
 
-        fMain.show();
+        fMain.setVisible(true);
     }
 
     /**
@@ -732,7 +732,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             case SELECT_SOURCE_CATALOG :
             case SELECT_DEST_CATALOG :
                 if (CatalogToSelect()) {
-                    fMain.show();
+                    fMain.setVisible(true);
 
                     return;
                 }
@@ -741,7 +741,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             case SELECT_DEST_SCHEMA :
             case SELECT_SOURCE_SCHEMA :
                 if (SchemaToSelect()) {
-                    fMain.show();
+                    fMain.setVisible(true);
 
                     return;
                 }
@@ -865,7 +865,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             FileDialog f = new FileDialog(fMain, "Load Settings",
                                           FileDialog.LOAD);
 
-            f.show();
+            f.setVisible(true);
 
             String file = f.getDirectory() + f.getFile();
 
@@ -877,7 +877,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             FileDialog f = new FileDialog(fMain, "Save Settings",
                                           FileDialog.SAVE);
 
-            f.show();
+            f.setVisible(true);
 
             String file = f.getDirectory() + f.getFile();
 
