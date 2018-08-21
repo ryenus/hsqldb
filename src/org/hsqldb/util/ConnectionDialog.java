@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ import java.awt.event.ItemListener;
  * Opens a connection to a database
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.7.2
+ * @version 2.4.2
  * @since Hypersonic SQL
  */
 class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
@@ -262,7 +262,7 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
             setSize(d);
         }
 
-        show();
+        setVisible(true);
     }
 
     public static Connection createConnection(Frame owner, String title) {

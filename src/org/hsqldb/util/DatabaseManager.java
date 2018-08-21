@@ -99,7 +99,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * Originally in HypersonicSQL. Extended in various versions of HSQLDB.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.4.1
+ * @version 2.4.2
  * @since Hypersonic SQL
  */
 public class DatabaseManager extends Applet
@@ -488,7 +488,7 @@ implements ActionListener, WindowListener, KeyListener {
             fMain.setSize(d);
         }
 
-        fMain.show();
+        fMain.setVisible(true);
 
         // (ulrivo): load query from command line
         if (defScript != null) {
@@ -608,7 +608,7 @@ implements ActionListener, WindowListener, KeyListener {
                 f.setDirectory(defDirectory);
             }
 
-            f.show();
+            f.setVisible(true);
 
             String file = f.getFile();
 
@@ -635,7 +635,7 @@ implements ActionListener, WindowListener, KeyListener {
                 f.setDirectory(defDirectory);
             }
 
-            f.show();
+            f.setVisible(true);
 
             String file = f.getFile();
 
@@ -652,7 +652,7 @@ implements ActionListener, WindowListener, KeyListener {
                 f.setDirectory(defDirectory);
             }
 
-            f.show();
+            f.setVisible(true);
 
             String dir  = f.getDirectory();
             String file = f.getFile();
@@ -674,7 +674,7 @@ implements ActionListener, WindowListener, KeyListener {
                 f.setDirectory(defDirectory);
             }
 
-            f.show();
+            f.setVisible(true);
 
             String file = f.getFile();
 

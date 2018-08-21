@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -132,10 +132,6 @@ public class HsqlException extends RuntimeException {
     public void setStatementType(int group, int code) {
         statementGroup = group;
         statementCode  = code;
-    }
-
-    public static class HsqlRuntimeMemoryError extends OutOfMemoryError {
-        HsqlRuntimeMemoryError() {}
     }
 
     public int hashCode() {

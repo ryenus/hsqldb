@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -279,8 +279,8 @@ implements RowSetNavigatorDataChange {
         return getCurrentRow().getData();
     }
 
-    public Object getField(int i) {
-        return getCurrentRow().getData()[i];
+    public Object getField(int coord) {
+        return getCurrentRow().getData()[coord];
     }
 
     public void setCurrent(Object[] data) {}
