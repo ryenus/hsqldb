@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -267,6 +267,52 @@ public class TestTextTables extends TestBase {
             "set table ttriple source 'malformed.csv;quoted=true;encoding=UTF-8'");
 
         ResultSet rs = st.executeQuery("select * from ttriple");
+
+        st.execute("SHUTDOWN");
+    }
+
+    /**
+     * test for malformed strings are reported by Damjan Jovanovic
+     */
+    public void testSectionEight() throws Exception {
+
+        deleteDatabaseAndSources();
+
+        String path = TestDirectorySettings.fileBase
+                      + "testtext/commafield.csv";
+
+        FileUtil.getFileUtil().delete(path);
+
+        FileOutputStream fos = new FileOutputStream(path);
+        DataOutputStream dos = new DataOutputStream(fos);
+
+        dos.write(new byte[] {
+            (byte) 0xEF, (byte) 0xBB, (byte) 0xBF
+        });
+        dos.writeBytes("\",\",\"col 2 line 1\"\r");
+        dos.writeBytes("\"col 1 line 2\",\"col 2 line 2\"\r");
+        dos.close();
+
+        Connection conn = newConnection();
+        Statement  st   = conn.createStatement();
+
+        st.execute("drop table tcomma if exists");
+        st.execute(
+            "create text table tcomma(col1 varchar(20),col2 varchar(20))");
+        st.execute(
+            "set table tcomma source 'commafield.csv;quoted=true;encoding=UTF-8'");
+
+        ResultSet rs = st.executeQuery("select * from tcomma");
+
+        rs.next();
+
+        String c1 = rs.getString(1);
+        String c2 = rs.getString(2);
+
+        rs.next();
+
+        String c21 = rs.getString(1);
+        String c22 = rs.getString(2);
 
         st.execute("SHUTDOWN");
     }
