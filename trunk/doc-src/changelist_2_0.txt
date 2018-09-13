@@ -1,4 +1,13 @@
-May 2018 - version 2.4.1
+-- 
+-- fixed issue with IN (UNNEST(NUMERIC ARRAY))
+-- fixed issue with transaction size repoted in INFORMATION_SCHEMA.SYSTEM_SESSIONS 
+-- fixed issue with storing plus or minus infinity DOUBLE values
+-- fixed issue with CREATE DOMAIN ... COLLATE not persisting
+-- fixed issue with CREATE TYPE with custom COLLATION
+-- fixed an issue with multiple FOR loops in SQL routines
+-- fixed minor memory release issue with ROLLBACK and CACHED tables
+-- changed calls to Java methods deprecated in JDK 9 - 11
+--May 2018 - version 2.4.1
 -- version 2.4.1 jar requires JRE 8 or later
 -- version 2.3.6 is released as a separate jar for JRE 1.6 and fully compatible except for the new JDBC features
 -- added support for EXPLAIN REFERENCES FROM | TO object statement
