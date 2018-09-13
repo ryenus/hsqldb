@@ -723,6 +723,7 @@ public class JDBCResultSet implements ResultSet {
      */
 
 //#ifdef DEPRECATEDJDBC
+    @Deprecated
     public BigDecimal getBigDecimal(int columnIndex,
                                     int scale) throws SQLException {
 
@@ -985,6 +986,7 @@ public class JDBCResultSet implements ResultSet {
      */
 
 //#ifdef DEPRECATEDJDBC
+    @Deprecated
     public java.io.InputStream getUnicodeStream(
             int columnIndex) throws SQLException {
 
@@ -1224,6 +1226,7 @@ public class JDBCResultSet implements ResultSet {
      */
 
 //#ifdef DEPRECATEDJDBC
+    @Deprecated
     public BigDecimal getBigDecimal(String columnLabel,
                                     int scale) throws SQLException {
         return getBigDecimal(findColumn(columnLabel), scale);
@@ -1367,6 +1370,7 @@ public class JDBCResultSet implements ResultSet {
      */
 
 //#ifdef DEPRECATEDJDBC
+    @Deprecated
     public java.io.InputStream getUnicodeStream(
             String columnLabel) throws SQLException {
         return getUnicodeStream(findColumn(columnLabel));
@@ -2968,7 +2972,7 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateFloat(int columnIndex, float x) throws SQLException {
 
-        Double value = new Double(x);
+        Double value = Double.valueOf(x);
 
         startUpdate(columnIndex);
         preparedStatement.setParameter(columnIndex, value);
@@ -3002,7 +3006,7 @@ public class JDBCResultSet implements ResultSet {
      */
     public void updateDouble(int columnIndex, double x) throws SQLException {
 
-        Double value = new Double(x);
+        Double value = Double.valueOf(x);
 
         startUpdate(columnIndex);
         preparedStatement.setParameter(columnIndex, value);

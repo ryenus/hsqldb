@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -118,7 +118,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.2
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -1188,7 +1188,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             row[it_statement]   = st == null ? ""
                                              : st.getSQL();
-            row[it_latch_count] = new Long(s.latch.getCount());
+            row[it_latch_count] = Long.valueOf(s.latch.getCount());
 
             t.insertSys(session, store, row);
         }
@@ -1477,8 +1477,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         DataSpaceManager spaceManager = null;
         DirectoryBlockCachedObject[] directoryList =
             new DirectoryBlockCachedObject[0];
-        int     cacheScale    = database.logger.getDataFileScale();
-        int     fileBlockSize = 1024 * 1024 * cacheScale / 16;
+        int     cacheScale    = 0;
+        int     fileBlockSize = 0;
         boolean hasCache      = database.logger.hasCache();
 
         if (hasCache) {
@@ -1663,6 +1663,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);    // NOT NULL
             addColumn(t, "TABLE_TYPE", SQL_IDENTIFIER);    // NOT NULL
             addColumn(t, "INDEX_NAME", SQL_IDENTIFIER);
+            addColumn(t, "ORDINAL_POSITION", CARDINAL_NUMBER);
             addColumn(t, "CARDINALITY", CARDINAL_NUMBER);
             addColumn(t, "ALLOCATED_ROWS", CARDINAL_NUMBER);
             addColumn(t, "USED_SPACE", CARDINAL_NUMBER);
@@ -1703,6 +1704,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int itable_name  = 2;
         final int itable_type  = 3;
         final int iindex_name  = 4;
+        final int iordinal_pos = 5;
 
         // Initialization
         tables =
@@ -1733,6 +1735,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[itable_name]  = tableName;
                 row[itable_type]  = tableType;
                 row[iindex_name]  = indexName;
+                row[iordinal_pos] = Long.valueOf(index.getPosition() + 1);
 
                 t.insertSys(session, store, row);
             }
@@ -1759,12 +1762,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *     INDEX_NAME         INFORMATION_SCHEMA.SQL_IDENTIFIER
      * )</pre>
      */
-    final Table SYSTEM_KEY_INDEX_USAGE(Session session, PersistentStore store) {
+    final Table SYSTEM_KEY_INDEX_USAGE(Session session,
+                                       PersistentStore store) {
+
         Table t = sysTables[SYSTEM_KEY_INDEX_USAGE];
 
         if (t == null) {
             t = createBlankTable(sysTableHsqlNames[SYSTEM_KEY_INDEX_USAGE]);
-
 
             addColumn(t, "CONSTRAINT_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "CONSTRAINT_SCHEMA", SQL_IDENTIFIER);
@@ -1786,56 +1790,57 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             }, true);
 
             return t;
-        };
+        }
 
         // column number mappings
-        final int constraint_catalog            = 0;
-        final int constraint_schema             = 1;
-        final int constraint_name               = 2;
-        final int index_catalog                 = 3;
-        final int index_schema                  = 4;
-        final int index_name                    = 5;
+        final int constraint_catalog = 0;
+        final int constraint_schema  = 1;
+        final int constraint_name    = 2;
+        final int index_catalog      = 3;
+        final int index_schema       = 4;
+        final int index_name         = 5;
 
         // Initialization
-        Iterator tables
-                = database.schemaManager.databaseObjectIterator(
-                        SchemaObject.TABLE);
+        Iterator tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
 
         while (tables.hasNext()) {
             Table table = (Table) tables.next();
+
             if (table.isView()) {
                 continue;
             }
+
             if (!session.getGrantee().isAccessible(table.getName())) {
                 continue;
             }
 
-            String catalogName = table.getCatalogName().name;
-            String schemaName = table.getName().schema.name;
-
-            Constraint[] constraints  = table.getConstraints();
+            String       catalogName = table.getCatalogName().name;
+            String       schemaName  = table.getName().schema.name;
+            Constraint[] constraints = table.getConstraints();
 
             for (int i = 0; i < constraints.length; i++) {
-                Constraint constraint = constraints[i];
+                Constraint constraint        = constraints[i];
+                boolean    includeConstraint = false;
+                int        contraintType     = constraint.getConstraintType();
+                int[]      cols              = null;
+                Index      backingIndex      = null;
 
-                boolean includeConstraint = false;
-                int contraintType = constraint.getConstraintType();
-                int[] cols = null;
-                Index backingIndex = null;
+                switch (contraintType) {
 
-                switch(contraintType) {
-                    case SchemaObject.ConstraintTypes.PRIMARY_KEY:
-                    case SchemaObject.ConstraintTypes.UNIQUE: {
-                         cols = constraint.getMainColumns();
-                         backingIndex = constraint.getMainIndex();
-                         includeConstraint = true;
-                         break;
-                    }
-                    case SchemaObject.ConstraintTypes.FOREIGN_KEY:
-                    {
-                        cols = constraint.getRefColumns();
-                        backingIndex = constraint.getRefIndex();
+                    case SchemaObject.ConstraintTypes.PRIMARY_KEY :
+                    case SchemaObject.ConstraintTypes.UNIQUE : {
+                        cols              = constraint.getMainColumns();
+                        backingIndex      = constraint.getMainIndex();
                         includeConstraint = true;
+
+                        break;
+                    }
+                    case SchemaObject.ConstraintTypes.FOREIGN_KEY : {
+                        cols              = constraint.getRefColumns();
+                        backingIndex      = constraint.getRefIndex();
+                        includeConstraint = true;
+
                         break;
                     }
                 }
@@ -1849,15 +1854,15 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 }
 
                 Object[] row = t.getEmptyRowData();
+
                 row[constraint_catalog] = catalogName;
-                row[constraint_schema] = schemaName;
-                row[constraint_name] =  constraint.getName().name;
-                row[index_catalog] = catalogName;
-                row[index_schema] = backingIndex.getName().schema.name;
-                row[index_name] = backingIndex.getName().name;
+                row[constraint_schema]  = schemaName;
+                row[constraint_name]    = constraint.getName().name;
+                row[index_catalog]      = catalogName;
+                row[index_schema]       = backingIndex.getName().schema.name;
+                row[index_name]         = backingIndex.getName().name;
 
                 t.insertSys(session, store, row);
-
             }
         }
 

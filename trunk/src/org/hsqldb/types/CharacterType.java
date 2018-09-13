@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * Type subclass for CHARACTER, VARCHAR, etc.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class CharacterType extends Type {
@@ -359,8 +359,10 @@ public class CharacterType extends Type {
         }
 
         if (b instanceof ClobData) {
-            return -session.database.lobManager.compare(collation,
-                    (ClobData) b, (String) a);
+            long lobId = ((ClobData) a).getId();
+
+            return -session.database.lobManager.compare(collation, lobId,
+                    (String) a);
         }
 
         String as = (String) a;
@@ -670,14 +672,14 @@ public class CharacterType extends Type {
         return null;
     }
 */
+
 //#else
     String convertJavaTimeObject(SessionInterface session, Object a) {
         return null;
     }
+
 //#endif JAVA8
-
-
-public Object convertJavaToSQL(SessionInterface session, Object a) {
+    public Object convertJavaToSQL(SessionInterface session, Object a) {
         return convertToDefaultType(session, a);
     }
 

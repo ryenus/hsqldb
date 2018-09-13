@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,7 +130,7 @@ class TransferHelper {
                 ResultSet result = db.meta.getTypeInfo();
 
                 while (result.next()) {
-                    Integer intobj = new Integer(result.getShort(2));
+                    Integer intobj = Integer.valueOf(result.getShort(2));
 
                     if (hTypes.get(intobj) == null) {
                         try {

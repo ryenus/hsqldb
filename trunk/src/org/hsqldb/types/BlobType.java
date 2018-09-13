@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import org.hsqldb.jdbc.JDBCBlobClient;
  * Type object for BLOB.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.4.2
  * @since 1.9.0
  */
 public final class BlobType extends BinaryType {
@@ -146,7 +146,9 @@ public final class BlobType extends BinaryType {
         }
 
         if (b instanceof BinaryData) {
-            return session.database.lobManager.compare((BlobData) a,
+            long lobId = ((BlobData) a).getId();
+
+            return session.database.lobManager.compare(lobId,
                     ((BlobData) b).getBytes());
         }
 

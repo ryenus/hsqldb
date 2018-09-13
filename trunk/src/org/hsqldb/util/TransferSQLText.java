@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -176,7 +176,7 @@ class TransferSQLText extends DataAccessPoint {
             int t = r.getColumnType(i + 1);
 
             sLast = "column=" + r.getColumnName(i + 1) + " datatype="
-                    + (String) helper.getSupportedTypes().get(new Integer(t));
+                    + (String) helper.getSupportedTypes().get(Integer.valueOf(t));
 
             Object o = r.getObject(i + 1);
 
@@ -342,7 +342,7 @@ class TransferSQLText extends DataAccessPoint {
             columnName = Dest.helper.formatIdentifier(columnName) + " ";
 
             try {
-                Integer inttype = new Integer(
+                Integer inttype = Integer.valueOf(
                     Dest.helper.convertToType(JDBCT.toInt(columnType)));
 
                 columnType = (String) TTable.hTypes.get(inttype);
@@ -828,7 +828,7 @@ class TransferSQLText extends DataAccessPoint {
                                     "Unknown type: " + Token);
                             }
 
-                            vColumnTypes.addElement(new Integer(iType));
+                            vColumnTypes.addElement(Integer.valueOf(iType));
                         }
 
                         Token = Tokenizer.nextToken(" =");

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package org.hsqldb.types;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
@@ -47,7 +48,7 @@ import org.hsqldb.map.ValuePool;
  * Type subclass for all NUMBER types.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.2
  * @since 1.9.0
  */
 public final class NumberType extends Type {
@@ -751,16 +752,7 @@ public final class NumberType extends Type {
                 double ad = ((Number) a).doubleValue();
                 double bd = ((Number) b).doubleValue();
 
-                if (Double.isNaN(ad)) {
-                    return Double.isNaN(bd) ? 0
-                                            : -1;
-                }
-
-                if (Double.isNaN(bd)) {
-                    return 1;
-                }
-
-                return Double.compare(ad, bd);
+                return compareDouble(ad, bd);
             }
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL : {
@@ -798,7 +790,7 @@ public final class NumberType extends Type {
                 BigDecimal dec = (BigDecimal) a;
 
                 if (scale != dec.scale()) {
-                    dec = dec.setScale(scale, BigDecimal.ROUND_HALF_DOWN);
+                    dec = dec.setScale(scale, RoundingMode.HALF_DOWN);
                 }
 
                 int p = JavaSystem.precision(dec);
@@ -829,7 +821,7 @@ public final class NumberType extends Type {
                     BigDecimal dec = (BigDecimal) a;
 
                     if (scale != dec.scale()) {
-                        dec = dec.setScale(scale, BigDecimal.ROUND_HALF_DOWN);
+                        dec = dec.setScale(scale, RoundingMode.HALF_DOWN);
                     }
 
                     if (JavaSystem.precision(dec) > precision) {
@@ -989,7 +981,7 @@ public final class NumberType extends Type {
             if (a instanceof BigInteger) {
                 a = new BigDecimal((BigInteger) a);
             } else if (a instanceof Float) {
-                a = new Double(((Float) a).doubleValue());
+                a = Double.valueOf(((Float) a).doubleValue());
             } else if (a instanceof Byte) {
                 a = ValuePool.getInt(((Byte) a).intValue());
             } else if (a instanceof Short) {
@@ -1030,7 +1022,7 @@ public final class NumberType extends Type {
                     BigDecimal dec = (BigDecimal) a;
 
                     if (scale != dec.scale()) {
-                        dec = dec.setScale(scale, BigDecimal.ROUND_HALF_DOWN);
+                        dec = dec.setScale(scale, RoundingMode.HALF_DOWN);
                     }
 
                     return dec;
@@ -1418,11 +1410,13 @@ public final class NumberType extends Type {
 
                 case Types.SQL_DECIMAL :
                 case Types.SQL_NUMERIC : {
-                    if (precision - scale > 18) {
+                    if (precision - scale >= NumberType.bigintPrecision
+                            && o instanceof Long) {
                         return 0;
                     }
 
-                    if (precision - scale > 9 && o instanceof Integer) {
+                    if (precision - scale >= NumberType.integerPrecision
+                            && o instanceof Integer) {
                         return 0;
                     }
 
@@ -1472,7 +1466,7 @@ public final class NumberType extends Type {
 
                 return ValuePool.getDouble(Double.doubleToLongBits(ad + bd));
 
-//                return new Double(ad + bd);
+//                return Double.valueOf(ad + bd);
             }
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL : {
@@ -1644,7 +1638,7 @@ public final class NumberType extends Type {
                     throw Error.error(ErrorCode.X_22012);
                 }
 
-                BigDecimal bd = abd.divide(bbd, scale, BigDecimal.ROUND_DOWN);
+                BigDecimal bd = abd.divide(bbd, scale, RoundingMode.DOWN);
 
                 return convertToTypeLimits(null, bd);
             }
@@ -1889,7 +1883,7 @@ public final class NumberType extends Type {
             return 0;
         }
 
-        value = value.setScale(0, BigDecimal.ROUND_FLOOR);
+        value = value.setScale(0, RoundingMode.FLOOR);
         value = ((BigDecimal) a).subtract(value);
 
         return value.movePointRight(scale).longValue();
@@ -1950,7 +1944,7 @@ public final class NumberType extends Type {
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL : {
                 BigDecimal value = ((BigDecimal) a).setScale(0,
-                    BigDecimal.ROUND_CEILING);
+                    RoundingMode.CEILING);
 
                 return value;
             }
@@ -1981,7 +1975,7 @@ public final class NumberType extends Type {
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL : {
                 BigDecimal value = ((BigDecimal) a).setScale(0,
-                    BigDecimal.ROUND_FLOOR);
+                    RoundingMode.FLOOR);
 
                 return value;
             }
@@ -2000,10 +1994,10 @@ public final class NumberType extends Type {
 
         BigDecimal dec = convertToDecimal(a);
 
-        dec = dec.setScale(s, BigDecimal.ROUND_DOWN);
+        dec = dec.setScale(s, RoundingMode.DOWN);
 
         if (typeCode == Types.SQL_DECIMAL || typeCode == Types.SQL_NUMERIC) {
-            dec = dec.setScale(scale, BigDecimal.ROUND_DOWN);
+            dec = dec.setScale(scale, RoundingMode.DOWN);
         }
 
         a = convertToDefaultType(null, dec);
@@ -2022,15 +2016,15 @@ public final class NumberType extends Type {
         switch (typeCode) {
 
             case Types.SQL_DOUBLE : {
-                dec = dec.setScale(s, BigDecimal.ROUND_HALF_EVEN);
+                dec = dec.setScale(s, RoundingMode.HALF_EVEN);
 
                 break;
             }
             case Types.SQL_DECIMAL :
             case Types.SQL_NUMERIC :
             default : {
-                dec = dec.setScale(s, BigDecimal.ROUND_HALF_UP);
-                dec = dec.setScale(scale, BigDecimal.ROUND_DOWN);
+                dec = dec.setScale(s, RoundingMode.HALF_UP);
+                dec = dec.setScale(scale, RoundingMode.DOWN);
 
                 break;
             }
@@ -2039,6 +2033,20 @@ public final class NumberType extends Type {
         a = convertToDefaultType(null, dec);
 
         return convertToTypeLimits(null, a);
+    }
+
+    public static int compareDouble(double value1, double value2) {
+
+        if (Double.isNaN(value1)) {
+            return Double.isNaN(value2) ? 0
+                                        : -1;
+        }
+
+        if (Double.isNaN(value2)) {
+            return 1;
+        }
+
+        return Double.compare(value1, value2);
     }
 
     public static NumberType getNumberType(int type, long precision,

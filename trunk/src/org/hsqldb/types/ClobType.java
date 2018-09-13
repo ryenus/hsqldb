@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.jdbc.JDBCClobClient;
  * Type object for CLOB.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.4.2
  * @since 1.9.0
  */
 public final class ClobType extends CharacterType {
@@ -138,8 +138,10 @@ public final class ClobType extends CharacterType {
         }
 
         if (b instanceof String) {
+            long lobId = ((ClobData) a).getId();
+
             return session.database.lobManager.compare(collation,
-                    (ClobData) a, (String) b);
+                    lobId, (String) b);
         }
 
         return session.database.lobManager.compare(collation, (ClobData) a,
