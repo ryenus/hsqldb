@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -296,25 +296,25 @@ public class RowAction extends RowActionBase {
 
 //        memoryRow       = null;
         session         = null;
+        type            = ACTION_NONE;
         actionTimestamp = 0;
         commitTimestamp = 0;
         rolledback      = false;
         deleteComplete  = false;
-        changeColumnMap = null;
         prepared        = false;
-        type            = ACTION_NONE;
+        changeColumnMap = null;
         next            = null;
     }
 
     private void setAsDeleteFinal(long timestamp) {
 
+        type            = ACTION_DELETE_FINAL;
         actionTimestamp = 0;
         commitTimestamp = timestamp;
         rolledback      = false;
         deleteComplete  = false;
         prepared        = false;
         changeColumnMap = null;
-        type            = ACTION_DELETE_FINAL;
         next            = null;
     }
 

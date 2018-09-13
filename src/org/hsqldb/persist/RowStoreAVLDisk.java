@@ -59,7 +59,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of PersistentStore for CACHED tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
@@ -288,6 +288,12 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
                     ((RowAVL) row).setNewNodes(this);
                     row.keepInMemory(false);
                     indexRow(session, row);
+                } else {
+                    RowAction ra = row.getAction();
+
+                    if (ra.getType() == RowAction.ACTION_NONE) {
+                        database.txManager.removeTransactionInfo(row);
+                    }
                 }
                 break;
 
@@ -441,7 +447,6 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         int spaceId = table.getSpaceID();
         TableSpaceManager targetSpace =
             targetCache.spaceManager.getTableSpace(spaceId);
-
         RowIterator it = indexList[0].firstRow(this);
 
         while (it.next()) {
@@ -453,8 +458,8 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         pointerLookup.sort();
 
         for (int i = 0; i < pointerLookup.size(); i++) {
-            long newPos =
-                targetSpace.getFilePosition((int) pointerLookup.getLongValue(i), false);
+            long newPos = targetSpace.getFilePosition(
+                (int) pointerLookup.getLongValue(i), false);
 
             pointerLookup.setLongValue(i, newPos);
         }
