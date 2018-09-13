@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Scans for SQL tokens.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class Scanner {
@@ -1132,20 +1132,21 @@ public class Scanner {
 
                 // fredt -  -Integer.MIN_VALUE or -Long.MIN_VALUE are promoted
                 // to a wider type.
-                if (token.tokenString.length() < 11) {
+                if (token.tokenString.length() < 20) {
                     try {
-                        token.tokenValue = ValuePool.getInt(
-                            Integer.parseInt(token.tokenString));
+                        long longVal = Long.parseLong(token.tokenString);
 
-                        return;
-                    } catch (Exception e1) {}
-                }
+                        if (token.tokenString.length() < 11) {
+                            if (longVal <= Integer.MAX_VALUE) {
+                                token.tokenValue =
+                                    ValuePool.getInt((int) longVal);
 
-                if (this.token.tokenString.length() < 20) {
-                    try {
-                        token.dataType = Type.SQL_BIGINT;
-                        token.tokenValue = ValuePool.getLong(
-                            Long.parseLong(token.tokenString));
+                                return;
+                            }
+                        }
+
+                        token.dataType   = Type.SQL_BIGINT;
+                        token.tokenValue = ValuePool.getLong(longVal);
 
                         return;
                     } catch (Exception e2) {}

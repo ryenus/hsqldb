@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class LobManager {
@@ -606,7 +606,7 @@ public class LobManager {
             ResultMetaData meta   = deleteUnusedLobs.getParametersMetaData();
             Object[]       params = new Object[meta.getColumnCount()];
 
-            params[0] = new Long(firstLobID);
+            params[0] = Long.valueOf(firstLobID);
 
             Result result =
                 sysLobSession.executeCompiledStatement(deleteUnusedLobs,
@@ -700,14 +700,14 @@ public class LobManager {
         }
     }
 
-    public int compare(BlobData a, byte[] b) {
+    public int compare(long lobId, byte[] b) {
 
         writeLock.lock();
 
         try {
-            Object[] data    = getLobHeader(a.getId());
+            Object[] data    = getLobHeader(lobId);
             long     aLength = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
-            int[][] aAddresses = getBlockAddresses(a.getId(), 0,
+            int[][] aAddresses = getBlockAddresses(lobId, 0,
                                                    Integer.MAX_VALUE);
             int aIndex  = 0;
             int bOffset = 0;
@@ -795,14 +795,14 @@ public class LobManager {
     }
 
     /** @todo - implement as compareText() */
-    public int compare(Collation collation, ClobData a, String b) {
+    public int compare(Collation collation, long lobId, String b) {
 
         writeLock.lock();
 
         try {
-            Object[] data    = getLobHeader(a.getId());
+            Object[] data    = getLobHeader(lobId);
             long     aLength = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
-            int[][] aAddresses = getBlockAddresses(a.getId(), 0,
+            int[][] aAddresses = getBlockAddresses(lobId, 0,
                                                    Integer.MAX_VALUE);
             int aIndex  = 0;
             int bOffset = 0;

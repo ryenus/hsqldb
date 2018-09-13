@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL standard function calls
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class FunctionSQL extends Expression {
@@ -162,7 +162,8 @@ public class FunctionSQL extends Expression {
         regularFuncMap.put(Tokens.T_CHARACTER_LENGTH, FUNC_CHAR_LENGTH);
         regularFuncMap.put(Tokens.T_OCTET_LENGTH, FUNC_OCTET_LENGTH);
         regularFuncMap.put(Tokens.T_CARDINALITY, FUNC_CARDINALITY);
-        regularFuncMap.put(Tokens.T_ARRAY_MAX_CARDINALITY, FUNC_MAX_CARDINALITY);
+        regularFuncMap.put(Tokens.T_ARRAY_MAX_CARDINALITY,
+                           FUNC_MAX_CARDINALITY);
         regularFuncMap.put(Tokens.T_MAX_CARDINALITY, FUNC_MAX_CARDINALITY);
         regularFuncMap.put(Tokens.T_TRIM_ARRAY, FUNC_TRIM_ARRAY);
         regularFuncMap.put(Tokens.T_ABS, FUNC_ABS);
@@ -264,7 +265,6 @@ public class FunctionSQL extends Expression {
     }
 
     protected FunctionSQL() {
-
         super(OpTypes.SQL_FUNCTION);
     }
 

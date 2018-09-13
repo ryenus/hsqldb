@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.2
  * @since 2.0.0
  */
 class TransactionManagerCommon {
@@ -545,10 +545,10 @@ class TransactionManagerCommon {
         final int waitingCount = session.waitingSessions.size();
 
         for (int i = 0; i < waitingCount; i++) {
-            Session current  = (Session) session.waitingSessions.get(i);
-            boolean testCode = false;
+            Session current     = (Session) session.waitingSessions.get(i);
+            boolean monitorCode = false;
 
-            if (testCode) {
+            if (monitorCode) {
                 if (!current.abortTransaction && current.tempSet.isEmpty()) {
 
                     // test code valid only for top level statements
@@ -582,10 +582,10 @@ class TransactionManagerCommon {
         final int waitingCount = session.tempSet.size();
 
         for (int i = 0; i < waitingCount; i++) {
-            Session current  = (Session) session.tempSet.get(i);
-            boolean testCode = false;
+            Session current     = (Session) session.tempSet.get(i);
+            boolean monitorCode = false;
 
-            if (testCode) {
+            if (monitorCode) {
                 if (!current.abortTransaction && current.tempSet.isEmpty()) {
 
                     // test code valid for top level statements

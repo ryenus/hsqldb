@@ -515,7 +515,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized void setDouble(int parameterIndex,
                                        double x) throws SQLException {
 
-        Double d = new Double(x);
+        Double d = Double.valueOf(x);
 
         setParameter(parameterIndex, d);
     }
@@ -776,6 +776,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
 
 //#ifdef DEPRECATEDJDBC
+    @Deprecated
     public synchronized void setUnicodeStream(int parameterIndex,
             java.io.InputStream x, int length) throws SQLException {
 

@@ -1204,7 +1204,7 @@ public class FunctionCustom extends FunctionSQL {
                             (IntervalSecondData) t.subtract(session, a, b,
                                                             null);
 
-                        return new Long(
+                        return Long.valueOf(
                             DTIType.limitNanoseconds * interval.getSeconds()
                             + interval.getNanos());
                     }
@@ -1215,8 +1215,8 @@ public class FunctionCustom extends FunctionSQL {
                             (IntervalSecondData) t.subtract(session, a, b,
                                                             null);
 
-                        return new Long(1000000 * interval.getSeconds()
-                                        + interval.getNanos() / 1000);
+                        return Long.valueOf(1000000 * interval.getSeconds()
+                                            + interval.getNanos() / 1000);
                     }
                     case Tokens.MILLISECOND :
                     case Tokens.SQL_TSI_MILLI_SECOND : {
@@ -1226,14 +1226,14 @@ public class FunctionCustom extends FunctionSQL {
                             (IntervalSecondData) t.subtract(session, a, b,
                                                             null);
 
-                        return new Long(1000 * interval.getSeconds()
-                                        + interval.getNanos() / 1000000);
+                        return Long.valueOf(1000 * interval.getSeconds()
+                                            + interval.getNanos() / 1000000);
                     }
                     case Tokens.SECOND :
                     case Tokens.SQL_TSI_SECOND :
                         t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
 
-                        return new Long(
+                        return Long.valueOf(
                             t.convertToLongEndUnits(
                                 t.subtract(session, a, b, null)));
 
@@ -1241,7 +1241,7 @@ public class FunctionCustom extends FunctionSQL {
                     case Tokens.SQL_TSI_MINUTE :
                         t = Type.SQL_INTERVAL_MINUTE_MAX_PRECISION;
 
-                        return new Long(
+                        return Long.valueOf(
                             t.convertToLongEndUnits(
                                 t.subtract(session, a, b, null)));
 
@@ -1249,7 +1249,7 @@ public class FunctionCustom extends FunctionSQL {
                     case Tokens.SQL_TSI_HOUR :
                         t = Type.SQL_INTERVAL_HOUR_MAX_PRECISION;
 
-                        return new Long(
+                        return Long.valueOf(
                             t.convertToLongEndUnits(
                                 t.subtract(session, a, b, null)));
 
@@ -1257,7 +1257,7 @@ public class FunctionCustom extends FunctionSQL {
                     case Tokens.SQL_TSI_DAY :
                         t = Type.SQL_INTERVAL_DAY_MAX_PRECISION;
 
-                        return new Long(
+                        return Long.valueOf(
                             t.convertToLongEndUnits(
                                 t.subtract(session, a, b, null)));
 
@@ -1269,13 +1269,13 @@ public class FunctionCustom extends FunctionSQL {
                         ret = ret < 0 ? (ret - 6) / 7
                                       : (ret + 6) / 7;
 
-                        return new Long(ret);
+                        return Long.valueOf(ret);
 
                     case Tokens.MONTH :
                     case Tokens.SQL_TSI_MONTH :
                         t = Type.SQL_INTERVAL_MONTH_MAX_PRECISION;
 
-                        return new Long(
+                        return Long.valueOf(
                             t.convertToLongEndUnits(
                                 t.subtract(session, a, b, null)));
 
@@ -1287,13 +1287,13 @@ public class FunctionCustom extends FunctionSQL {
                         ret = ret < 0 ? (ret - 2) / 3
                                       : (ret + 2) / 3;
 
-                        return new Long(ret);
+                        return Long.valueOf(ret);
 
                     case Tokens.YEAR :
                     case Tokens.SQL_TSI_YEAR :
                         t = Type.SQL_INTERVAL_YEAR_MAX_PRECISION;
 
-                        return new Long(
+                        return Long.valueOf(
                             t.convertToLongEndUnits(
                                 t.subtract(session, a, b, null)));
 
@@ -1338,18 +1338,18 @@ public class FunctionCustom extends FunctionSQL {
                                                / (24 * 60 * 60) + 1));
             }
             case FUNC_PI :
-                return new Double(Math.PI);
+                return Double.valueOf(Math.PI);
 
             case FUNC_RAND : {
                 if (nodes[0] == null) {
-                    return new Double(session.random());
+                    return Double.valueOf(session.random());
                 } else {
                     data[0] = Type.SQL_BIGINT.convertToType(session, data[0],
                             nodes[0].getDataType());
 
                     long seed = ((Number) data[0]).longValue();
 
-                    return new Double(session.random(seed));
+                    return Double.valueOf(session.random(seed));
                 }
             }
             case FUNC_ROUND :
@@ -1623,7 +1623,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return new Double(java.lang.Math.acos(d));
+                return Double.valueOf(java.lang.Math.acos(d));
             }
             case FUNC_ASIN : {
                 if (data[0] == null) {
@@ -1632,7 +1632,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return new Double(java.lang.Math.asin(d));
+                return Double.valueOf(java.lang.Math.asin(d));
             }
             case FUNC_ATAN : {
                 if (data[0] == null) {
@@ -1641,7 +1641,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return new Double(java.lang.Math.atan(d));
+                return Double.valueOf(java.lang.Math.atan(d));
             }
             case FUNC_COS : {
                 if (data[0] == null) {
@@ -1650,7 +1650,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return new Double(java.lang.Math.cos(d));
+                return Double.valueOf(java.lang.Math.cos(d));
             }
             case FUNC_COSH : {
                 if (data[0] == null) {
@@ -1659,7 +1659,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return new Double(java.lang.Math.cosh(d));
+                return Double.valueOf(java.lang.Math.cosh(d));
             }
             case FUNC_COT : {
                 if (data[0] == null) {
@@ -1669,7 +1669,7 @@ public class FunctionCustom extends FunctionSQL {
                 double d = NumberType.toDouble(data[0]);
                 double c = 1.0 / java.lang.Math.tan(d);
 
-                return new Double(c);
+                return Double.valueOf(c);
             }
             case FUNC_DEGREES : {
                 if (data[0] == null) {
@@ -1678,7 +1678,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return new Double(java.lang.Math.toDegrees(d));
+                return Double.valueOf(java.lang.Math.toDegrees(d));
             }
             case FUNC_SIN : {
                 if (data[0] == null) {
@@ -1687,7 +1687,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return new Double(java.lang.Math.sin(d));
+                return Double.valueOf(java.lang.Math.sin(d));
             }
             case FUNC_SINH : {
                 if (data[0] == null) {
@@ -1696,7 +1696,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return new Double(java.lang.Math.sinh(d));
+                return Double.valueOf(java.lang.Math.sinh(d));
             }
             case FUNC_TAN : {
                 if (data[0] == null) {
@@ -1705,7 +1705,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return new Double(java.lang.Math.tan(d));
+                return Double.valueOf(java.lang.Math.tan(d));
             }
             case FUNC_TANH : {
                 if (data[0] == null) {
@@ -1714,7 +1714,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return new Double(java.lang.Math.tanh(d));
+                return Double.valueOf(java.lang.Math.tanh(d));
             }
             case FUNC_LOG10 : {
                 if (data[0] == null) {
@@ -1729,7 +1729,7 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                return new Double(java.lang.Math.log10(d));
+                return Double.valueOf(java.lang.Math.log10(d));
             }
             case FUNC_RADIANS : {
                 if (data[0] == null) {
@@ -1738,7 +1738,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return new Double(java.lang.Math.toRadians(d));
+                return Double.valueOf(java.lang.Math.toRadians(d));
             }
 
             //
@@ -1768,7 +1768,7 @@ public class FunctionCustom extends FunctionSQL {
                 double a = NumberType.toDouble(data[0]);
                 double b = NumberType.toDouble(data[1]);
 
-                return new Double(java.lang.Math.atan2(a, b));
+                return Double.valueOf(java.lang.Math.atan2(a, b));
             }
             case FUNC_ASCII : {
                 String arg;

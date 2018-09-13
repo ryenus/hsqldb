@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -57,7 +58,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.7.2
  *
  */
@@ -351,13 +352,13 @@ public class SetFunctionValueAggregate implements SetFunction {
                     case Types.SQL_REAL :
                     case Types.SQL_FLOAT :
                     case Types.SQL_DOUBLE :
-                        return new Double(currentDouble / count);
+                        return Double.valueOf(currentDouble / count);
 
                     case Types.SQL_NUMERIC :
                     case Types.SQL_DECIMAL :
                         if (returnType.scale == type.scale) {
                             return currentBigDecimal.divide(
-                                new BigDecimal(count), BigDecimal.ROUND_DOWN);
+                                new BigDecimal(count), RoundingMode.DOWN);
                         } else {
                             return returnType.divide(session,
                                                      currentBigDecimal,
@@ -419,7 +420,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                     case Types.SQL_REAL :
                     case Types.SQL_FLOAT :
                     case Types.SQL_DOUBLE :
-                        return new Double(currentDouble);
+                        return Double.valueOf(currentDouble);
 
                     case Types.SQL_NUMERIC :
                     case Types.SQL_DECIMAL :
@@ -690,8 +691,8 @@ public class SetFunctionValueAggregate implements SetFunction {
         }
 
         return sample ? (n == 1) ? null    // NULL (not NaN) is correct in this case
-                                 : new Double(vk / (double) (n - 1))
-                      : new Double(vk / (double) (n));
+                                 : Double.valueOf(vk / (double) (n - 1))
+                      : Double.valueOf(vk / (double) (n));
     }
 
     private Double getStdDev() {
@@ -701,8 +702,9 @@ public class SetFunctionValueAggregate implements SetFunction {
         }
 
         return sample ? (n == 1) ? null    // NULL (not NaN) is correct in this case
-                                 : new Double(Math.sqrt(vk / (double) (n - 1)))
-                      : new Double(Math.sqrt(vk / (double) (n)));
+                                 : Double.valueOf(Math.sqrt(vk
+                                 / (double) (n - 1)))
+                      : Double.valueOf(Math.sqrt(vk / (double) (n)));
     }
 
     // end statistics support

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -114,7 +114,7 @@ class SqlServerTransferHelper extends TransferHelper {
                              + " Integer to Short");
             }
 
-            value = new Short((short) ((Integer) value).intValue());
+            value = Short.valueOf((short) ((Integer) value).intValue());
         } else if ((type == Types.TINYINT) && (value instanceof Integer)) {
             if (firstTinyintRow) {
                 firstTinyintRow = false;
@@ -123,7 +123,7 @@ class SqlServerTransferHelper extends TransferHelper {
                              + " Integer to Byte");
             }
 
-            value = new Byte((byte) ((Integer) value).intValue());
+            value = Byte.valueOf((byte) ((Integer) value).intValue());
         }
 
         return (value);

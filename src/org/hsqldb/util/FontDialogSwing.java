@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -260,7 +260,7 @@ public class FontDialogSwing extends JDialog {
 
         // weconsultants@users 20050215 - Changed for Compatbilty fix for JDK 1.3
         // Convert Strng to float for deriveFont() call
-        Float stageFloat = new Float(inFontSize);
+        Float stageFloat = Float.valueOf(inFontSize);
         float fontSize   = stageFloat.floatValue();
         Font  fonttTree  = fOwner.tTree.getFont().deriveFont(fontSize);
 

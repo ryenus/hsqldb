@@ -340,7 +340,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         }
 
         lookup                 = hashIndex.linkNode(index, lastLookup);
-        testValue              = new Double(Double.longBitsToDouble(longKey));
+        testValue              = Double.valueOf(Double.longBitsToDouble(longKey));
         objectKeyTable[lookup] = testValue;
 
         if (accessCount > ACCESS_MAX) {

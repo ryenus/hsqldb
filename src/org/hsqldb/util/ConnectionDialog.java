@@ -80,7 +80,7 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
     public static Connection createConnection(String driver, String url,
             String user, String password) throws Exception {
 
-        Class.forName(driver).newInstance();
+        Class.forName(driver);
 
         return DriverManager.getConnection(url, user, password);
     }

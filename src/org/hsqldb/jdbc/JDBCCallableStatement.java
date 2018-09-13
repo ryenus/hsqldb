@@ -218,7 +218,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  * @see JDBCConnection#prepareCall
  * @see JDBCResultSet
@@ -697,6 +697,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
 
 //#ifdef DEPRECATEDJDBC
+    @Deprecated
     public synchronized BigDecimal getBigDecimal(int parameterIndex,
             int scale) throws SQLException {
 

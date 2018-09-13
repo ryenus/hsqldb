@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -262,7 +262,7 @@ class TransferDb extends DataAccessPoint {
             int t = r.getColumnType(i + 1);
 
             sLast = "column=" + r.getColumnName(i + 1) + " datatype="
-                    + (String) helper.getSupportedTypes().get(new Integer(t));
+                    + (String) helper.getSupportedTypes().get(Integer.valueOf(t));
 
             Object o = r.getObject(i + 1);
 
@@ -786,7 +786,7 @@ class TransferDb extends DataAccessPoint {
                 type = helper.convertFromType(type);
                 type = Dest.helper.convertToType(type);
 
-                Integer inttype  = new Integer(type);
+                Integer inttype  = Integer.valueOf(type);
                 String  datatype = (String) TTable.hTypes.get(inttype);
 
                 if (datatype == null) {
