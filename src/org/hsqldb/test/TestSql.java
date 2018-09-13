@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -407,8 +407,8 @@ public class TestSql extends TestBase {
             // test conversion
             // ps.setObject(5, Boolean.TRUE); // no longer converts boolean to int
             // ps.setBoolean(5, true);
-            ps.setObject(5, new Short((short) 2), Types.SMALLINT);
-            ps.setObject(6, new Integer(2), Types.TINYINT);
+            ps.setObject(5, Short.valueOf((short) 2), Types.SMALLINT);
+            ps.setObject(6, Integer.valueOf(2), Types.TINYINT);
 
             // allowed conversions
             ps.setObject(7, new java.sql.Date(System.currentTimeMillis() + 2));
@@ -416,8 +416,8 @@ public class TestSql extends TestBase {
             ps.setObject(9, new java.sql.Timestamp(System.currentTimeMillis()
                                                    + 2));
             ps.execute();
-            ps.setObject(1, new Float(0), Types.INTEGER);
-            ps.setObject(4, new Float(1), Types.INTEGER);
+            ps.setObject(1, Float.valueOf(0), Types.INTEGER);
+            ps.setObject(4, Float.valueOf(1), Types.INTEGER);
             ps.setDouble(2, java.lang.Double.NEGATIVE_INFINITY);
             ps.execute();
 

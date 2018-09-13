@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -361,7 +361,7 @@ public class TestDataStructures extends TestCase {
      * Integer.MAX_VALUE
      */
     private Integer getRandomInteger() {
-        return new Integer(getRandomInt(0, (int) (Integer.MAX_VALUE / 100.0)));
+        return Integer.valueOf(getRandomInt(0, (int) (Integer.MAX_VALUE / 100.0)));
     }
 
     /** Tells whether the given list contains the same data as the vector */
@@ -393,7 +393,7 @@ public class TestDataStructures extends TestCase {
         HsqlArrayList d = new HsqlArrayList();
 
         for (int i = 0; i < 12; i++) {
-            d.add(new Integer(i));
+            d.add(Integer.valueOf(i));
         }
 
         for (int i = 0; i < d.size(); i++) {
@@ -403,10 +403,10 @@ public class TestDataStructures extends TestCase {
         d = new HsqlArrayList();
 
         for (int i = 0; i < 12; i++) {
-            d.add(new Integer(i));
+            d.add(Integer.valueOf(i));
         }
 
-        d.set(11, new Integer(11));
+        d.set(11, Integer.valueOf(11));
 
         for (int i = 0; i < d.size(); i++) {
             System.out.println(d.get(i));
@@ -434,8 +434,8 @@ public class TestDataStructures extends TestCase {
         HsqlArrayList arrayList     = new HsqlArrayList(TEST_RUNS);
         ArrayList     utilArrayList = new ArrayList(TEST_RUNS);
         Vector        vector        = new Vector(TEST_RUNS);
-        Integer       value         = new Integer(randomGenerator.nextInt());
-        Integer       INT_0         = new Integer(0);
+        Integer       value         = Integer.valueOf(randomGenerator.nextInt());
+        Integer       INT_0         = Integer.valueOf(0);
         StopWatch     sw            = new StopWatch();
 
         System.out.println(sw.currentElapsedTimeToMessage("time"));

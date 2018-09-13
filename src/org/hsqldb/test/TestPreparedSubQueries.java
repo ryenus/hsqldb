@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,8 +83,8 @@ public class TestPreparedSubQueries extends TestCase {
             true, true)
     };
     private Object[][] stmtArgs = {
-        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, { new Integer(2) },
-        { new Integer(2) }
+        {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, { Integer.valueOf(2) },
+        { Integer.valueOf(2) }
     };
 
     public TestPreparedSubQueries(String name) {

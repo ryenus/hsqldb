@@ -165,9 +165,9 @@ public class TestTextTable extends TestBase {
         "ID INTEGER PRIMARY KEY, \"name\" VARCHAR(20)", "\t", "\\t",
         new Object[][] {
         new Object[] {
-            new Integer(1), "Apples"
+            Integer.valueOf(1), "Apples"
         }, new Object[] {
-            new Integer(2), "Oranges"
+            Integer.valueOf(2), "Oranges"
         }
     });
     TextTableDescriptor m_customers = new TextTableDescriptor("customers",
@@ -175,12 +175,12 @@ public class TestTextTable extends TestBase {
         + "\"address\" VARCHAR(50)," + "\"city\" VARCHAR(50),"
         + "\"postal\" VARCHAR(50)", ";", "\\semi", new Object[][] {
         new Object[] {
-            new Integer(1), "Food, Inc.", "Down Under", "Melbourne", "509"
+            Integer.valueOf(1), "Food, Inc.", "Down Under", "Melbourne", "509"
         }, new Object[] {
-            new Integer(2), "Simply Delicious", "Down Under", "Melbourne",
+            Integer.valueOf(2), "Simply Delicious", "Down Under", "Melbourne",
             "518"
         }, new Object[] {
-            new Integer(3), "Pure Health", "10 Fish St.", "San Francisco",
+            Integer.valueOf(3), "Pure Health", "10 Fish St.", "San Francisco",
             "94107"
         }
     });
@@ -415,7 +415,7 @@ public class TestTextTable extends TestBase {
                          + "\" VALUES ( 3, 'Pears' )");
         verifyTableContent(m_products.getName(),
                            m_products.appendRowData(new Object[] {
-            new Integer(3), "Pears"
+            Integer.valueOf(3), "Pears"
         }));
 
         // check whether the PK constraint works

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,8 +98,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.overlaps(session, a, ta, b, tb));
-        Assert.assertTrue(DateTimeType.overlaps(session, b, tb, a, ta));
+        assertTrue(DateTimeType.overlaps(session, a, ta, b, tb));
+        assertTrue(DateTimeType.overlaps(session, b, tb, a, ta));
     }
 
     /**
@@ -127,8 +127,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.overlapsRelaxed(session, a, ta, b, tb));
-        Assert.assertTrue(DateTimeType.overlapsRelaxed(session, b, tb, a, ta));
+        assertTrue(DateTimeType.overlapsRelaxed(session, a, ta, b, tb));
+        assertTrue(DateTimeType.overlapsRelaxed(session, b, tb, a, ta));
     }
 
     /**
@@ -156,8 +156,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.overlaps(session, a, ta, b, tb));
-        Assert.assertFalse(DateTimeType.overlaps(session, b, tb, a, ta));
+        assertFalse(DateTimeType.overlaps(session, a, ta, b, tb));
+        assertFalse(DateTimeType.overlaps(session, b, tb, a, ta));
     }
 
     /**
@@ -185,8 +185,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.overlaps(session, a, ta, b, tb));
-        Assert.assertFalse(DateTimeType.overlaps(session, b, tb, a, ta));
+        assertFalse(DateTimeType.overlaps(session, a, ta, b, tb));
+        assertFalse(DateTimeType.overlaps(session, b, tb, a, ta));
     }
 
     /**
@@ -214,8 +214,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.overlaps(session, a, ta, b, tb));
-        Assert.assertTrue(DateTimeType.overlaps(session, b, tb, a, ta));
+        assertTrue(DateTimeType.overlaps(session, a, ta, b, tb));
+        assertTrue(DateTimeType.overlaps(session, b, tb, a, ta));
     }
 
     /**
@@ -245,7 +245,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.overlaps(session, a, ta, b, tb));
+        assertTrue(DateTimeType.overlaps(session, a, ta, b, tb));
     }
 
     /**
@@ -275,7 +275,7 @@ public class TestPeriodPredicates extends TestBase {
             IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
         };
 
-        Assert.assertTrue(DateTimeType.overlaps(session, b2, tb, a2, ta));
+        assertTrue(DateTimeType.overlaps(session, b2, tb, a2, ta));
     }
 
     /**
@@ -305,7 +305,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.overlaps(session, a, ta, b, tb));
+        assertFalse(DateTimeType.overlaps(session, a, ta, b, tb));
     }
 
     /**
@@ -337,7 +337,7 @@ public class TestPeriodPredicates extends TestBase {
 
         try {
             DateTimeType.overlaps(null, a, ta, b, tb);
-            Assert.fail("It is illegal to start a period with an interval");
+            fail("It is illegal to start a period with an interval");
         } catch (Exception e) {}
     }
 
@@ -370,7 +370,7 @@ public class TestPeriodPredicates extends TestBase {
             IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
         };
 
-        Assert.assertTrue(DateTimeType.precedes(session, a, ta, b, tb));
+        assertTrue(DateTimeType.precedes(session, a, ta, b, tb));
     }
 
     /**
@@ -398,7 +398,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.precedes(session, a, ta, b, tb));
+        assertTrue(DateTimeType.precedes(session, a, ta, b, tb));
     }
 
     /**
@@ -426,7 +426,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.precedes(session, a, ta, b, tb));
+        assertFalse(DateTimeType.precedes(session, a, ta, b, tb));
     }
 
     /**
@@ -454,7 +454,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.precedes(session, a, ta, b, tb));
+        assertFalse(DateTimeType.precedes(session, a, ta, b, tb));
     }
 
     /**
@@ -486,7 +486,7 @@ public class TestPeriodPredicates extends TestBase {
             IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
         };
 
-        Assert.assertFalse(DateTimeType.precedes(session, a, ta, b, tb));
+        assertFalse(DateTimeType.precedes(session, a, ta, b, tb));
     }
 
     /**
@@ -514,7 +514,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.succeeds(session, a, ta, b, tb));
+        assertTrue(DateTimeType.succeeds(session, a, ta, b, tb));
     }
 
     /**
@@ -542,7 +542,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.succeeds(session, a, ta, b, tb));
+        assertFalse(DateTimeType.succeeds(session, a, ta, b, tb));
     }
 
     /**
@@ -570,7 +570,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.succeeds(session, a, ta, b, tb));
+        assertFalse(DateTimeType.succeeds(session, a, ta, b, tb));
     }
 
     /**
@@ -602,7 +602,7 @@ public class TestPeriodPredicates extends TestBase {
             IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
         };
 
-        Assert.assertTrue(DateTimeType.succeeds(session, a, ta, b, tb));
+        assertTrue(DateTimeType.succeeds(session, a, ta, b, tb));
     }
 
     /**
@@ -634,7 +634,7 @@ public class TestPeriodPredicates extends TestBase {
             IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
         };
 
-        Assert.assertFalse(DateTimeType.succeeds(session, a, ta, b, tb));
+        assertFalse(DateTimeType.succeeds(session, a, ta, b, tb));
     }
 
     /**
@@ -662,8 +662,8 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.equals(session, a, ta, b, tb));
-        Assert.assertTrue(DateTimeType.equals(session, b, tb, a, ta));
+        assertTrue(DateTimeType.equals(session, a, ta, b, tb));
+        assertTrue(DateTimeType.equals(session, b, tb, a, ta));
     }
 
     /**
@@ -693,7 +693,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.equals(session, a, ta, b, tb));
+        assertTrue(DateTimeType.equals(session, a, ta, b, tb));
     }
 
     /**
@@ -725,7 +725,7 @@ public class TestPeriodPredicates extends TestBase {
             IntervalType.newIntervalType(Types.SQL_INTERVAL_DAY, 2, 0)
         };
 
-        Assert.assertTrue(DateTimeType.equals(session, a, ta, b, tb));
+        assertTrue(DateTimeType.equals(session, a, ta, b, tb));
     }
 
     /**
@@ -753,7 +753,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.contains(session, a, ta, b, tb,
+        assertFalse(DateTimeType.contains(session, a, ta, b, tb,
                 true));
     }
 
@@ -782,7 +782,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.contains(session, a, ta, b, tb, true));
+        assertTrue(DateTimeType.contains(session, a, ta, b, tb, true));
     }
 
     /**
@@ -810,7 +810,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.contains(session, a, ta, b, tb,
+        assertFalse(DateTimeType.contains(session, a, ta, b, tb,
                 true));
     }
 
@@ -839,7 +839,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.contains(session, a, ta, b, tb, false));
+        assertTrue(DateTimeType.contains(session, a, ta, b, tb, false));
     }
 
     /**
@@ -867,7 +867,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.contains(session, a, ta, b, tb, false));
+        assertTrue(DateTimeType.contains(session, a, ta, b, tb, false));
     }
 
     /**
@@ -895,7 +895,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.contains(session, a, ta, b, tb, false));
+        assertTrue(DateTimeType.contains(session, a, ta, b, tb, false));
     }
 
     /**
@@ -923,7 +923,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.contains(session, a, ta, b, tb,
+        assertFalse(DateTimeType.contains(session, a, ta, b, tb,
                 false));
     }
 
@@ -952,7 +952,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.immediatelyPrecedes(session, a, ta, b,
+        assertTrue(DateTimeType.immediatelyPrecedes(session, a, ta, b,
                 tb));
     }
 
@@ -981,7 +981,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertFalse(DateTimeType.immediatelyPrecedes(session, a, ta, b,
+        assertFalse(DateTimeType.immediatelyPrecedes(session, a, ta, b,
                 tb));
     }
 
@@ -1010,7 +1010,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.immediatelySucceeds(session, a, ta, b,
+        assertTrue(DateTimeType.immediatelySucceeds(session, a, ta, b,
                 tb));
     }
 
@@ -1039,7 +1039,6 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        Assert.assertTrue(DateTimeType.immediatelySucceeds(session, a, ta, b,
-                tb));
+        assertTrue(DateTimeType.immediatelySucceeds(session, a, ta, b, tb));
     }
 }

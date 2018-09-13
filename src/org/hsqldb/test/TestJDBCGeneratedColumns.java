@@ -114,7 +114,9 @@ public class TestJDBCGeneratedColumns extends TestBase {
 
             ps.close();
 
-            ps = c.prepareStatement(s, new String[]{ "I", "C" });
+            ps = c.prepareStatement(s, new String[] {
+                "I", "C"
+            });
 
             ps.execute();
 
@@ -125,13 +127,14 @@ public class TestJDBCGeneratedColumns extends TestBase {
 
                 successPrepared &= rs.getInt(1) == 37;
                 successPrepared &= rs.getBigDecimal(1).intValue() == 37;
-
                 successPrepared &= rs.getString(2).startsWith("TEST");
             }
 
             ps.close();
 
-            ps = c.prepareStatement(s, new String[]{ "C", "I" });
+            ps = c.prepareStatement(s, new String[] {
+                "C", "I"
+            });
 
             ps.execute();
 
@@ -142,12 +145,10 @@ public class TestJDBCGeneratedColumns extends TestBase {
 
                 successPrepared &= rs.getInt(2) == 38;
                 successPrepared &= rs.getBigDecimal(2).intValue() == 38;
-
                 successPrepared &= rs.getString(1).startsWith("TEST");
             }
 
             ps.close();
-
         } catch (Exception e) {
             System.out.print(e);
         }
@@ -181,14 +182,15 @@ public class TestJDBCGeneratedColumns extends TestBase {
             ps.addBatch();
             ps.executeBatch();
 
-            ResultSet rs = ps.getGeneratedKeys();
+            ResultSet rs  = ps.getGeneratedKeys();
+            int       val = 33;
 
-            int val = 33;
             while (rs.next()) {
                 System.out.println("" + rs.getInt(1));
 
                 successPrepared = rs.getInt(1) == val;
-                val ++;
+
+                val++;
             }
 
             ps.close();
@@ -205,7 +207,8 @@ public class TestJDBCGeneratedColumns extends TestBase {
                 System.out.println("" + rs.getInt(1));
 
                 successPrepared &= rs.getInt(1) == val;
-                val ++;
+
+                val++;
             }
 
             ps.close();
@@ -223,12 +226,15 @@ public class TestJDBCGeneratedColumns extends TestBase {
 
                 successPrepared &= rs.getInt(1) == val;
                 successPrepared &= rs.getBigDecimal(1).intValue() == val;
-                val ++;
+
+                val++;
             }
 
             ps.close();
 
-            ps = c.prepareStatement(s, new String[]{ "I", "C" });
+            ps = c.prepareStatement(s, new String[] {
+                "I", "C"
+            });
 
             ps.addBatch();
             ps.addBatch();
@@ -241,19 +247,20 @@ public class TestJDBCGeneratedColumns extends TestBase {
 
                 successPrepared &= rs.getInt("I") == val;
                 successPrepared &= rs.getBigDecimal(1).intValue() == val;
-
                 successPrepared &= rs.getString("C").startsWith("TEST");
-                val ++;
+
+                val++;
             }
 
             ps.close();
 
-            ps = c.prepareStatement(s, new String[]{ "C", "I" });
+            ps = c.prepareStatement(s, new String[] {
+                "C", "I"
+            });
 
             ps.addBatch();
             ps.addBatch();
             ps.executeBatch();
-
 
             rs = ps.getGeneratedKeys();
 
@@ -262,18 +269,16 @@ public class TestJDBCGeneratedColumns extends TestBase {
 
                 successPrepared &= rs.getInt(2) == val;
                 successPrepared &= rs.getBigDecimal(2).intValue() == val;
-
                 successPrepared &= rs.getString(1).startsWith("TEST");
-                val ++;
+
+                val++;
             }
 
             ps.close();
-
         } catch (Exception e) {
             System.out.print(e);
         }
 
         assertTrue(successPrepared);
     }
-
 }
