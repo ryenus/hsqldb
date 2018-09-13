@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -125,11 +125,11 @@ public class TestSqlPersistent extends TestCase {
 
             // initialise
             stringValue  = "String Value for Preference 1";
-            integerValue = new Integer(1000);
+            integerValue = Integer.valueOf(1000);
             arrayValue   = new Double[] {
-                new Double(1), new Double(Double.NaN),
-                new Double(Double.NEGATIVE_INFINITY),
-                new Double(Double.POSITIVE_INFINITY)
+                Double.valueOf(1), Double.valueOf(Double.NaN),
+                Double.valueOf(Double.NEGATIVE_INFINITY),
+                Double.valueOf(Double.POSITIVE_INFINITY)
             };
             bytearrayValue = new byte[] {
                 1, 2, 3, 4, 5, 6,
@@ -302,11 +302,11 @@ public class TestSqlPersistent extends TestCase {
 
             // initialise
             stringValue  = "Test String Value";
-            integerValue = new Integer(1000);
+            integerValue = Integer.valueOf(1000);
             arrayValue   = new Double[] {
-                new Double(1), new Double(Double.NaN),
-                new Double(Double.NEGATIVE_INFINITY),
-                new Double(Double.POSITIVE_INFINITY)
+                Double.valueOf(1), Double.valueOf(Double.NaN),
+                Double.valueOf(Double.NEGATIVE_INFINITY),
+                Double.valueOf(Double.POSITIVE_INFINITY)
             };
             byteArrayValue = new byte[] {
                 1, 2, 3
@@ -368,7 +368,7 @@ public class TestSqlPersistent extends TestCase {
             sqlString = "SELECT * FROM TESTOBJECT WHERE STOREDOBJECT = ?";
             ps        = connection.prepareStatement(sqlString);
 
-            ps.setObject(1, new Integer(1000));
+            ps.setObject(1, Integer.valueOf(1000));
 
             rs = ps.executeQuery();
 
@@ -480,8 +480,8 @@ public class TestSqlPersistent extends TestCase {
             // test conversion
             // ps.setObject(5, Boolean.TRUE); // no longer converts boolean to int
             // ps.setBoolean(5, true);
-            ps.setObject(5, new Short((short) 2), Types.SMALLINT);
-            ps.setObject(6, new Integer(2), Types.TINYINT);
+            ps.setObject(5, Short.valueOf((short) 2), Types.SMALLINT);
+            ps.setObject(6, Integer.valueOf(2), Types.TINYINT);
 
             // allowed conversions
             ps.setObject(7, new java.sql.Date(System.currentTimeMillis() + 2));
@@ -489,8 +489,8 @@ public class TestSqlPersistent extends TestCase {
             ps.setObject(9, new java.sql.Timestamp(System.currentTimeMillis()
                                                    + 2));
             ps.execute();
-            ps.setObject(1, new Float(0), Types.INTEGER);
-            ps.setObject(4, new Float(1), Types.INTEGER);
+            ps.setObject(1, Float.valueOf(0), Types.INTEGER);
+            ps.setObject(4, Float.valueOf(1), Types.INTEGER);
             ps.setDouble(2, java.lang.Double.NEGATIVE_INFINITY);
             ps.execute();
 

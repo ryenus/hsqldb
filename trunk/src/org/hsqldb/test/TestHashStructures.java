@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -259,8 +259,8 @@ public class TestHashStructures extends TestCase {
         for (int i = 0; i < testSize; i++) {
             int intValue = randomgen.nextInt();
 
-            uMap.put(new Integer(i), new Integer(intValue));
-            hMap.put(new Integer(i), new Integer(intValue));
+            uMap.put(Integer.valueOf(i), Integer.valueOf(intValue));
+            hMap.put(Integer.valueOf(i), Integer.valueOf(intValue));
 
             if (uMap.size() != hMap.size()) {
                 throw new Exception("HashMap size mismatch");
@@ -275,8 +275,8 @@ public class TestHashStructures extends TestCase {
         for (int i = 0; i < testSize; i++) {
             int intValue = randomgen.nextInt();
 
-            uMap.put(new Integer(i), new Integer(intValue));
-            hMap.put(i, new Integer(intValue));
+            uMap.put(Integer.valueOf(i), Integer.valueOf(intValue));
+            hMap.put(i, Integer.valueOf(intValue));
 
             if (uMap.size() != hMap.size()) {
                 throw new Exception("HashMap size mismatch");
@@ -292,7 +292,7 @@ public class TestHashStructures extends TestCase {
             int intValue = randomgen.nextInt();
 
             intLookup.addUnique(i, intValue);
-            hMap.put(i, new Integer(intValue));
+            hMap.put(i, Integer.valueOf(intValue));
 
             if (intLookup.size() != hMap.size()) {
                 throw new Exception("HashMap size mismatch");
@@ -308,7 +308,7 @@ public class TestHashStructures extends TestCase {
             int intValue = randomgen.nextInt();
 
             intLookup.addUnique(intValue, i);
-            hMap.put(intValue, new Integer(i));
+            hMap.put(intValue, Integer.valueOf(i));
 
             // actually this can happen as duplicates are allowed in DoubleIntTable
             if (intLookup.size() != hMap.size()) {
@@ -324,8 +324,8 @@ public class TestHashStructures extends TestCase {
         for (int i = 0; i < testSize; i++) {
             int intValue = randomgen.nextInt();
 
-            uMap.put(new Integer(intValue), new Integer(i));
-            hMap.put(new Integer(intValue), new Integer(i));
+            uMap.put(Integer.valueOf(intValue), Integer.valueOf(i));
+            hMap.put(Integer.valueOf(intValue), Integer.valueOf(i));
 
             if (uMap.size() != hMap.size()) {
                 throw new Exception("HashMap size mismatch");
@@ -340,8 +340,8 @@ public class TestHashStructures extends TestCase {
         for (int i = 0; i < testSize; i++) {
             int intValue = randomgen.nextInt();
 
-            uMap.put(new Integer(intValue), new Integer(i));
-            hMap.put(intValue, new Integer(i));
+            uMap.put(Integer.valueOf(intValue), Integer.valueOf(i));
+            hMap.put(intValue, Integer.valueOf(i));
 
             if (uMap.size() != hMap.size()) {
                 throw new Exception("HashMap size mismatch");
@@ -415,7 +415,7 @@ public class TestHashStructures extends TestCase {
         System.out.println(uMap.size());
 
         for (int i = 0; hIt.hasNext(); i++) {
-            Object key   = new Integer(hIt.nextInt());
+            Object key   = Integer.valueOf(hIt.nextInt());
             int    check = randomgen.nextInt(2);
 
             if (check == i % 2) {
@@ -440,7 +440,7 @@ public class TestHashStructures extends TestCase {
         System.out.println(uMap.size());
 
         for (int i = 0; hIt.hasNext(); i++) {
-            Object key = new Integer(hIt.nextInt());
+            Object key = Integer.valueOf(hIt.nextInt());
 
             hIt.remove();
             uMap.remove(key);
@@ -509,7 +509,7 @@ public class TestHashStructures extends TestCase {
         org.hsqldb.lib.Iterator hIt = hMap.keySet().iterator();
 
         for (int i = 0; hIt.hasNext(); i++) {
-            Object hKey = new Integer(hIt.nextInt());
+            Object hKey = Integer.valueOf(hIt.nextInt());
             Object oU   = uMap.get(hKey);
             Object hU   = hMap.get(((Integer) hKey).intValue());
 

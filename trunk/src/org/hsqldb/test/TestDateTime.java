@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ public class TestDateTime extends TestBase {
         iUpdateCount = insertStatement.executeUpdate();
 
         insertStatement.close();
-        Assert.assertEquals(
+        assertEquals(
             "Exactly one record with date data shoud have been inserted.",
             iUpdateCount, 1);
 
@@ -126,7 +126,7 @@ public class TestDateTime extends TestBase {
         results = selectStatement.executeQuery();
 
         // Get the date from the database
-        Assert.assertTrue("The inserted date is not in the database.",
+        assertTrue("The inserted date is not in the database.",
                           results.next());
 
         retrievedDate   = results.getDate(1);
@@ -137,14 +137,14 @@ public class TestDateTime extends TestBase {
         iDeletedCount = deleteStatement.executeUpdate();
 
         deleteStatement.close();
-        Assert.assertEquals(
+        assertEquals(
             "Exactly one record with date data shoud have been deleted.",
             iDeletedCount, 1);
 
         boolean result = retrievedDate.toString().startsWith(
             insertDate.toString().substring(0, 10));
 
-        Assert.assertTrue(
+        assertTrue(
             "The date retrieved from database "
             + DateFormat.getDateTimeInstance().format(retrievedDate)
             + " is not the same as the inserted one "
@@ -173,7 +173,7 @@ public class TestDateTime extends TestBase {
         iUpdateCount = insertStatement.executeUpdate();
 
         insertStatement.close();
-        Assert.assertEquals(
+        assertEquals(
             "Exactly one record with time data shoud have been inserted.",
             iUpdateCount, 1);
 
@@ -193,7 +193,7 @@ public class TestDateTime extends TestBase {
         results = selectStatement.executeQuery();
 
         // Get the date from the database
-        Assert.assertTrue("The inserted time is not in the database.",
+        assertTrue("The inserted time is not in the database.",
                           results.next());
 
         retrievedTime = results.getTime(1);
@@ -205,12 +205,12 @@ public class TestDateTime extends TestBase {
 
         iDeletedCount = deleteStatement.executeUpdate();
 
-        Assert.assertEquals(
+        assertEquals(
             "Exactly one record with time data shoud have been deleted.",
             iDeletedCount, 1);
 
         // And now test the date
-        Assert.assertNotNull(
+        assertNotNull(
             "The inserted time shouldn't be retrieved as null from the database",
             retrievedTime);
 
@@ -219,7 +219,7 @@ public class TestDateTime extends TestBase {
         String  retrievedString = retrievedTime.toString();
         boolean result          = retrievedString.equals(selectString);
 
-        Assert.assertTrue(
+        assertTrue(
             "The time retrieved from database "
             + DateFormat.getDateTimeInstance().format(retrievedTime)
             + " is not the same as the inserted one "
@@ -264,7 +264,7 @@ public class TestDateTime extends TestBase {
         iUpdateCount = insertStatement.executeUpdate();
 
         insertStatement.close();
-        Assert.assertEquals(
+        assertEquals(
             "Exactly one record with time data shoud have been inserted.",
             iUpdateCount, 1);
 
@@ -290,7 +290,7 @@ public class TestDateTime extends TestBase {
         results = selectStatement.executeQuery();
 
         // Get the date from the database
-        Assert.assertTrue("The inserted time is not in the database.",
+        assertTrue("The inserted time is not in the database.",
                           results.next());
 
         retrievedTime = results.getTime(1, calGenerate);
@@ -302,12 +302,12 @@ public class TestDateTime extends TestBase {
 
         iDeletedCount = deleteStatement.executeUpdate();
 
-        Assert.assertEquals(
+        assertEquals(
             "Exactly one record with time data shoud have been deleted.",
             iDeletedCount, 1);
 
         // And now test the date
-        Assert.assertNotNull(
+        assertNotNull(
             "The inserted time shouldn't be retrieved as null from the database",
             retrievedTime);
 
@@ -316,7 +316,7 @@ public class TestDateTime extends TestBase {
         String  retrievedString = retrievedTime.toString();
         boolean result          = retrievedString.equals(selectString);
 
-        Assert.assertTrue(
+        assertTrue(
             "The time retrieved from database "
             + DateFormat.getDateTimeInstance().format(retrievedTime)
             + " is not the same as the inserted one "

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -394,9 +394,9 @@ public class TestViewAsterisks extends TestBase {
             "SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C AS \"a2\" FROM PUBLIC.ABC",
             new Object[][] {
             new Object[] {
-                new Integer(1), "a", "b", "c"
+                Integer.valueOf(1), "a", "b", "c"
             }, new Object[] {
-                new Integer(2), "d", "e", "f"
+                Integer.valueOf(2), "d", "e", "f"
             }
         });
 
@@ -406,9 +406,9 @@ public class TestViewAsterisks extends TestBase {
             "SELECT B AS \"b2\", PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C  FROM PUBLIC.ABC",
             new Object[][] {
             new Object[] {
-                "b", new Integer(1), "a", "b", "c"
+                "b", Integer.valueOf(1), "a", "b", "c"
             }, new Object[] {
-                "e", new Integer(2), "d", "e", "f"
+                "e", Integer.valueOf(2), "d", "e", "f"
             }
         });
     }
@@ -424,13 +424,13 @@ public class TestViewAsterisks extends TestBase {
             "SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A,PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B FROM PUBLIC.TABLE_A,PUBLIC.TABLE_B",
             new Object[][] {
             new Object[] {
-                new Integer(1), "first A", new Integer(1), "first B"
+                Integer.valueOf(1), "first A", Integer.valueOf(1), "first B"
             }, new Object[] {
-                new Integer(1), "first A", new Integer(2), "second B"
+                Integer.valueOf(1), "first A", Integer.valueOf(2), "second B"
             }, new Object[] {
-                new Integer(2), "second A", new Integer(1), "first B"
+                Integer.valueOf(2), "second A", Integer.valueOf(1), "first B"
             }, new Object[] {
-                new Integer(2), "second A", new Integer(2), "second B"
+                Integer.valueOf(2), "second A", Integer.valueOf(2), "second B"
             }
         });
 
@@ -440,13 +440,13 @@ public class TestViewAsterisks extends TestBase {
             "SELECT  PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B , PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A  FROM PUBLIC.TABLE_A,PUBLIC.TABLE_B",
             new Object[][] {
             new Object[] {
-                new Integer(1), "first B", new Integer(1), "first A"
+                Integer.valueOf(1), "first B", Integer.valueOf(1), "first A"
             }, new Object[] {
-                new Integer(2), "second B", new Integer(1), "first A"
+                Integer.valueOf(2), "second B", Integer.valueOf(1), "first A"
             }, new Object[] {
-                new Integer(1), "first B", new Integer(2), "second A"
+                Integer.valueOf(1), "first B", Integer.valueOf(2), "second A"
             }, new Object[] {
-                new Integer(2), "second B", new Integer(2), "second A"
+                Integer.valueOf(2), "second B", Integer.valueOf(2), "second A"
             }
         });
 
@@ -456,13 +456,13 @@ public class TestViewAsterisks extends TestBase {
             "SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM PUBLIC.TABLE_A,PUBLIC.TABLE_B",
             new Object[][] {
             new Object[] {
-                new Integer(1), "first A"
+                Integer.valueOf(1), "first A"
             }, new Object[] {
-                new Integer(1), "first A"
+                Integer.valueOf(1), "first A"
             }, new Object[] {
-                new Integer(2), "second A"
+                Integer.valueOf(2), "second A"
             }, new Object[] {
-                new Integer(2), "second A"
+                Integer.valueOf(2), "second A"
             }
         });
     }
@@ -538,13 +538,13 @@ public class TestViewAsterisks extends TestBase {
             "SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM PUBLIC.TABLE_A UNION SELECT PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B FROM PUBLIC.TABLE_B",
             new Object[][] {
             new Object[] {
-                new Integer(1), "first A"
+                Integer.valueOf(1), "first A"
             }, new Object[] {
-                new Integer(1), "first B"
+                Integer.valueOf(1), "first B"
             }, new Object[] {
-                new Integer(2), "second A"
+                Integer.valueOf(2), "second A"
             }, new Object[] {
-                new Integer(2), "second B"
+                Integer.valueOf(2), "second B"
             }
         });
         checkViewTranslationAndContent(
@@ -553,13 +553,13 @@ public class TestViewAsterisks extends TestBase {
             "SELECT ID_A,NAME_A FROM(SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM PUBLIC.TABLE_A UNION SELECT PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B FROM PUBLIC.TABLE_B)",
             new Object[][] {
             new Object[] {
-                new Integer(1), "first A"
+                Integer.valueOf(1), "first A"
             }, new Object[] {
-                new Integer(1), "first B"
+                Integer.valueOf(1), "first B"
             }, new Object[] {
-                new Integer(2), "second A"
+                Integer.valueOf(2), "second A"
             }, new Object[] {
-                new Integer(2), "second B"
+                Integer.valueOf(2), "second B"
             }
         });
     }

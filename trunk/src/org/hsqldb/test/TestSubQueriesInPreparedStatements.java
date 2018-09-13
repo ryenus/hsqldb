@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,10 +60,7 @@ public class TestSubQueriesInPreparedStatements {
         PreparedStatement pstmnt;
         Driver            driver;
 
-        driver =
-            (Driver) Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
-
-        DriverManager.registerDriver(driver);
+        Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
         conn = DriverManager.getConnection("jdbc:hsqldb:mem:test", "sa", "");
         stmnt  = conn.createStatement();

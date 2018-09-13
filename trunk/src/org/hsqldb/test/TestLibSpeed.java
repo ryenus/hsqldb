@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -119,7 +119,7 @@ public class TestLibSpeed {
             hashSet.add(sNumeric[i][0]);
             intKeyIntValueHashLookup.put(randomgen.nextInt(sNumeric.length),
                                          i);
-            intKeyHashLookup.put(i, new Integer(i));
+            intKeyHashLookup.put(i, Integer.valueOf(i));
             doubleIntLookup.add(randomgen.nextInt(sNumeric.length), i);
             intValueHashLookup.put(sNumeric[i][0],
                                    randomgen.nextInt(sNumeric.length));

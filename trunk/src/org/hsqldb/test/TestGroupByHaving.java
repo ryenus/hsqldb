@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -171,11 +171,11 @@ public class TestGroupByHaving extends TestCase {
                      + "group by superior_id " + "order by superior_id " + "";
         Object[][] expected = new Object[][] {
             {
-                new Double(150000), new Integer(2)
+                Double.valueOf(150000), Integer.valueOf(2)
             }, {
-                new Double(42500), new Integer(13)
+                Double.valueOf(42500), Integer.valueOf(13)
             }, {
-                new Double(45000), new Integer(23)
+                Double.valueOf(45000), Integer.valueOf(23)
             },
         };
 
@@ -199,9 +199,9 @@ public class TestGroupByHaving extends TestCase {
                      + "order by superior_id " + "";
         Object[][] expected = new Object[][] {
             {
-                new Double(42500), new Integer(13)
+                Double.valueOf(42500), Integer.valueOf(13)
             }, {
-                new Double(45000), new Integer(23)
+                Double.valueOf(45000), Integer.valueOf(23)
             },
         };
 
@@ -226,9 +226,9 @@ public class TestGroupByHaving extends TestCase {
                      + "order by superior_id " + "";
         Object[][] expected = new Object[][] {
             {
-                new Double(42500), new Integer(13)
+                Double.valueOf(42500), Integer.valueOf(13)
             }, {
-                new Double(45000), new Integer(23)
+                Double.valueOf(45000), Integer.valueOf(23)
             },
         };
 
@@ -250,7 +250,7 @@ public class TestGroupByHaving extends TestCase {
                      + "having avg(salary) > 1000 " + "";
         Object[][] expected = new Object[][] {
             {
-                new Double(65000), new Integer(23)
+                Double.valueOf(65000), Integer.valueOf(23)
             },
         };
 
@@ -335,9 +335,9 @@ public class TestGroupByHaving extends TestCase {
                 } else if (expected instanceof String) {
                     result = rs.getString(col);
                 } else if (expected instanceof Double) {
-                    result = new Double(rs.getString(col));
+                    result = Double.valueOf(rs.getString(col));
                 } else if (expected instanceof Integer) {
-                    result = new Integer(rs.getInt(col));
+                    result = Integer.valueOf(rs.getInt(col));
                 }
 
                 assertEquals("Statement <" + sql
