@@ -1180,7 +1180,7 @@ public final class DateTimeType extends DTIType {
             seconds += 24 * 60 * 60;
         }
 
-        if (seconds > 24 * 60 * 60) {
+        if (seconds >= 24 * 60 * 60) {
             seconds %= 24 * 60 * 60;
         }
 
