@@ -295,6 +295,30 @@ public class ExpressionLogical extends Expression {
     }
 
     // logical ops
+    static boolean isNullOrTrue(Session session, Expression[] conditions) {
+
+        if (conditions == null) {
+            return true;
+        }
+
+        for (int i = 0; i < conditions.length; i++) {
+            if (!conditions[i].testCondition(session)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static boolean isNullOrTrue(Session session, Expression conditions) {
+
+        if (conditions == null) {
+            return true;
+        }
+
+        return conditions.testCondition(session);
+    }
+
     static Expression andExpressions(Expression e1, Expression e2) {
 
         if (e1 == null) {

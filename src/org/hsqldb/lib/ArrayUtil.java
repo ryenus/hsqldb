@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import java.lang.reflect.Array;
  * Collection of static methods for operations on arrays
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.2
  * @since 1.7.2
  */
 public class ArrayUtil {
@@ -1635,11 +1635,11 @@ public class ArrayUtil {
      * all the elements are equal to the other's elements, -1 is returned.
      */
     public static int compare(byte[] a, byte[] b) {
-        return compare(a, 0, a.length, b, b.length);
+        return compare(a, 0, a.length, b, 0, b.length);
     }
 
     public static int compare(byte[] a, int aOffset, int aLength, byte[] b,
-                              int bLength) {
+                              int bOffset, int bLength) {
 
         int length = aLength;
 
@@ -1648,12 +1648,13 @@ public class ArrayUtil {
         }
 
         for (int i = 0; i < length; i++) {
-            if (a[aOffset + i] == b[i]) {
+            if (a[aOffset + i] == b[bOffset + i]) {
                 continue;
             }
 
-            return (((int) a[aOffset + i]) & 0xff) > (((int) b[i]) & 0xff) ? 1
-                                                                           : -1;
+            return (((int) a[aOffset + i]) & 0xff)
+                   > (((int) b[bOffset + i]) & 0xff) ? 1
+                                                     : -1;
         }
 
         if (aLength == bLength) {

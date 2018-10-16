@@ -61,7 +61,7 @@ public class TestMerge extends TestBase {
         super.setUp();
 
         try {
-            connection = super.newConnection();
+            connection = newConnection();
             stmnt      = connection.createStatement();
         } catch (Exception e) {}
     }

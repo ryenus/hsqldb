@@ -1442,6 +1442,8 @@ public class RangeVariable {
 
                 if (it.next()) {}
                 else {
+                    it.release();
+
                     it = emptyIterator;
 
                     break;
@@ -1465,22 +1467,20 @@ public class RangeVariable {
                     }
                 }
 
-                if (joinConditions[condIndex].nonIndexCondition != null) {
-                    if (!joinConditions[condIndex].nonIndexCondition
-                            .testCondition(session)) {
-                        continue;
-                    }
+                if (!ExpressionLogical.isNullOrTrue(
+                        session,
+                        joinConditions[condIndex].nonIndexCondition)) {
+                    continue;
                 }
 
-                if (whereConditions[condIndex].nonIndexCondition != null) {
-                    if (!whereConditions[condIndex].nonIndexCondition
-                            .testCondition(session)) {
-                        hasLeftOuterRow = false;
+                if (!ExpressionLogical.isNullOrTrue(
+                        session,
+                        whereConditions[condIndex].nonIndexCondition)) {
+                    hasLeftOuterRow = false;
 
-                        addFoundRow();
+                    addFoundRow();
 
-                        continue;
-                    }
+                    continue;
                 }
 
                 Expression e = conditions[condIndex].excludeConditions;
@@ -1501,10 +1501,8 @@ public class RangeVariable {
             it = emptyIterator;
 
             if (hasLeftOuterRow && condIndex == conditions.length - 1) {
-                result =
-                    (whereConditions[condIndex].nonIndexCondition == null
-                     || whereConditions[condIndex].nonIndexCondition
-                         .testCondition(session));
+                result = ExpressionLogical.isNullOrTrue(session,
+                        whereConditions[condIndex].nonIndexCondition);
                 hasLeftOuterRow = false;
             }
 
@@ -1603,13 +1601,9 @@ public class RangeVariable {
             long    position = it.getRowId();
             boolean result   = !lookup.contains(position);
 
-            if (result) {
-                if (conditions[condIndex].nonIndexCondition != null
-                        && !conditions[condIndex].nonIndexCondition
-                            .testCondition(session)) {
-                    result = false;
-                }
-            }
+            result = result
+                     && ExpressionLogical.isNullOrTrue(session,
+                         conditions[condIndex].nonIndexCondition);
 
             return result;
         }

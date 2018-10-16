@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,11 +97,11 @@ public class Row implements CachedObject {
         return 0;
     }
 
-    final public boolean isInvariable() {
+    public final boolean isInvariable() {
         return false;
     }
 
-    final public boolean isBlock() {
+    public final boolean isBlock() {
         return false;
     }
 
