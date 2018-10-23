@@ -772,6 +772,23 @@ public class ParserDDL extends ParserRoutine {
                         return compileAlterTableAddPrimaryKey(t, cname,
                                                               ifNotExists);
 
+                    case Tokens.PERIOD :
+                        if (cname != null) {
+                            throw unexpectedToken();
+                        }
+
+                        return compileAlterTableAddPeriod(t);
+
+                    case Tokens.SYSTEM :
+                        if (cname != null) {
+                            throw unexpectedToken();
+                        }
+
+                        read();
+                        readThis(Tokens.VERSIONING);
+
+                        return compileAlterTableAddVersioning(t);
+
                     case Tokens.COLUMN :
                         if (cname != null) {
                             throw unexpectedToken();
@@ -808,28 +825,25 @@ public class ParserDDL extends ParserRoutine {
 
                         return compileAlterTableDropConstraint(t);
                     }
+                    case Tokens.PERIOD :
+                        read();
+                        readThis(Tokens.FOR);
+
+                        return compileAlterTableDropPeriod(t);
+
+                    case Tokens.SYSTEM :
+                        read();
+                        readThis(Tokens.VERSIONING);
+
+                        return compileAlterTableDropVersioning(t);
+
                     case Tokens.COLUMN :
                         read();
 
-                    // fall through
-                    default : {
-                        checkIsSimpleName();
+                        return compileAlterTableDropColumn(t);
 
-                        String  name    = token.tokenString;
-                        boolean cascade = false;
-
-                        read();
-
-                        if (token.tokenType == Tokens.RESTRICT) {
-                            read();
-                        } else if (token.tokenType == Tokens.CASCADE) {
-                            read();
-
-                            cascade = true;
-                        }
-
-                        return compileAlterTableDropColumn(t, name, cascade);
-                    }
+                    default : 
+                        return compileAlterTableDropColumn(t);
                 }
             }
             case Tokens.ALTER : {
@@ -1943,8 +1957,23 @@ public class ParserDDL extends ParserRoutine {
                                    null, writeLockNames);
     }
 
-    Statement compileAlterTableDropColumn(Table table, String colName,
-                                          boolean cascade) {
+    Statement compileAlterTableDropColumn(Table table) {
+
+        boolean cascade = false;
+
+        checkIsSimpleName();
+
+        String colName = token.tokenString;
+
+        read();
+
+        if (token.tokenType == Tokens.RESTRICT) {
+            read();
+        } else if (token.tokenType == Tokens.CASCADE) {
+            read();
+
+            cascade = true;
+        }
 
         int colindex = table.getColumnIndex(colName);
 

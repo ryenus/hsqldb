@@ -39,7 +39,7 @@ import org.hsqldb.rights.Grantee;
  * SQL schema object interface
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public interface SchemaObject {
@@ -74,6 +74,7 @@ public interface SchemaObject {
     int SUBQUERY         = 27;
     int SEARCH           = 28;
     int REFERENCE        = 29;
+    int PERIOD           = 30;
 
     //
     SchemaObject[] emptyArray = new SchemaObject[]{};
@@ -153,5 +154,19 @@ public interface SchemaObject {
         byte NO_NULLS         = 0;    // java.sql.ResultSetMetaData.columnNoNulls
         byte NULLABLE         = 1;    // java.sql.ResultSetMetaData.columnNullable
         byte NULLABLE_UNKNOWN = 2;    // java.sql.ResultSetMetaData.columnNullableUnknown
+    }
+
+    interface PeriodType {
+
+        int PERIOD_NONE        = 0;
+        int PERIOD_SYSTEM      = 1;
+        int PERIOD_APPLICATION = 2;
+    }
+
+    interface PeriodSystemColumnType {
+
+        int PERIOD_ROW_NONE  = 0;
+        int PERIOD_ROW_START = 1;
+        int PERIOD_ROW_END   = 2;
     }
 }

@@ -143,7 +143,7 @@ import org.hsqldb.types.Types;
  * (fredt@users) <p>
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.7.2
  */
 class DatabaseInformationMain extends DatabaseInformation {
@@ -3510,7 +3510,12 @@ class DatabaseInformationMain extends DatabaseInformation {
                     break;
 
                 default :
-                    row[table_type] = "BASE TABLE";
+                    if (table.isSystemVersioned()) {
+                        row[table_type] = "SYSTEM_VERSIONED";
+                    } else {
+                        row[table_type] = "BASE TABLE";
+                    }
+
                     row[is_insertable_into] = table.isInsertable()
                                               ? Tokens.T_YES
                                               : Tokens.T_NO;
