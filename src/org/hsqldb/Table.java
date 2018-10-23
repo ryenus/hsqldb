@@ -102,6 +102,11 @@ public class Table extends TableBase implements SchemaObject {
     RangeVariable[] defaultRanges;
 
     //
+    boolean          systemVersioning;
+    PeriodDefinition systemPeriod;
+    PeriodDefinition applicationPeriod;
+
+    //
     public Table(Database database, HsqlName name, int type) {
 
         this.database      = database;
@@ -418,6 +423,16 @@ public class Table extends TableBase implements SchemaObject {
                 sb.append(Tokens.T_CLOSEBRACKET);
             }
 
+            if (column.getSystemPeriodType()
+                    == SchemaObject.PeriodSystemColumnType.PERIOD_ROW_START) {
+                sb.append(' ').append(Tokens.T_AS).append(' ');
+                sb.append(Tokens.T_ROW).append(' ').append(Tokens.T_START);
+            } else if (column.getSystemPeriodType()
+                       == SchemaObject.PeriodSystemColumnType.PERIOD_ROW_END) {
+                sb.append(' ').append(Tokens.T_AS).append(' ');
+                sb.append(Tokens.T_ROW).append(' ').append(Tokens.T_END);
+            }
+
             if (!column.isNullable()) {
                 Constraint c = getNotNullConstraintForColumn(j);
 
@@ -435,6 +450,29 @@ public class Table extends TableBase implements SchemaObject {
                 sb.append(' ').append(Tokens.T_PRIMARY).append(' ').append(
                     Tokens.T_KEY);
             }
+        }
+
+        if (systemPeriod != null) {
+            sb.append(',');
+            sb.append(Tokens.T_PERIOD).append(' ');
+            sb.append(Tokens.T_FOR).append(' ').append(Tokens.T_SYSTEM_TIME);
+            sb.append('(');
+            sb.append(systemPeriod.getStartColumn().getName().statementName);
+            sb.append(',');
+            sb.append(systemPeriod.getEndColumn().getName().statementName);
+            sb.append('}');
+        }
+
+        if (applicationPeriod != null) {
+            sb.append(',');
+            sb.append(Tokens.T_PERIOD).append(' ');
+            sb.append(Tokens.T_FOR).append(' ');
+            sb.append(applicationPeriod.getName().statementName);
+            sb.append('(');
+            sb.append(systemPeriod.getStartColumn().getName().statementName);
+            sb.append(',');
+            sb.append(systemPeriod.getEndColumn().getName().statementName);
+            sb.append('}');
         }
 
         Constraint[] constraintList = getConstraints();
@@ -458,6 +496,11 @@ public class Table extends TableBase implements SchemaObject {
             sb.append(' ').append(Tokens.T_ON).append(' ');
             sb.append(Tokens.T_COMMIT).append(' ').append(Tokens.T_PRESERVE);
             sb.append(' ').append(Tokens.T_ROWS);
+        }
+
+        if (systemVersioning) {
+            sb.append(' ').append(Tokens.T_WITH).append(' ');
+            sb.append(Tokens.T_SYSTEM).append(' ').append(Tokens.T_VERSIONING);
         }
 
         return sb.toString();
@@ -1188,6 +1231,18 @@ public class Table extends TableBase implements SchemaObject {
 
     public boolean hasIdentityColumn() {
         return identityColumn != -1;
+    }
+
+    public boolean isSystemVersioned() {
+        return systemVersioning;
+    }
+
+    public PeriodDefinition getSystemPeriod() {
+        return systemPeriod;
+    }
+
+    public PeriodDefinition getApplicationPeriod() {
+        return applicationPeriod;
     }
 
     /**

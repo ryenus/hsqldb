@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for DDL statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class StatementSchema extends Statement {
@@ -648,6 +648,67 @@ public class StatementSchema extends Statement {
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
+
+            case StatementTypes.ADD_TABLE_PERIOD : {
+                Table            table  = (Table) arguments[0];
+                PeriodDefinition period = (PeriodDefinition) arguments[1];
+                TablePeriodWorks works  = new TablePeriodWorks(session, table);
+
+                try {
+                    if (period.periodType
+                            == SchemaObject.PeriodType.PERIOD_SYSTEM) {
+                        works.addSystemPeriod(period);
+                    } else {
+                        works.addApplicationPeriod(period);
+                    }
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.DROP_TABLE_PERIOD : {
+                Table            table  = (Table) arguments[0];
+                PeriodDefinition period = (PeriodDefinition) arguments[1];
+                TablePeriodWorks works  = new TablePeriodWorks(session, table);
+
+                try {
+                    if (period.periodType
+                            == SchemaObject.PeriodType.PERIOD_SYSTEM) {
+                        works.dropSystemPeriod();
+                    } else {
+                        works.dropApplicationPeriod();
+                    }
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.ADD_TABLE_SYSTEM_VERSIONING : {
+                Table            table = (Table) arguments[0];
+                TablePeriodWorks works = new TablePeriodWorks(session, table);
+
+                try {
+                    works.addSystemVersioning();
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.DROP_TABLE_SYSTEM_VERSIONING : {
+                Table            table = (Table) arguments[0];
+                TablePeriodWorks works = new TablePeriodWorks(session, table);
+
+                try {
+                    works.dropSystemVersioning();
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
             case StatementTypes.ALTER_ROUTINE : {
                 Routine routine = (Routine) arguments[0];
 

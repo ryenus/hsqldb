@@ -35,7 +35,7 @@ package org.hsqldb;
  * Codes based on SQL Standards for different types of statement.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public interface StatementTypes {
@@ -151,6 +151,12 @@ public interface StatementTypes {
     int CREATE_MODULE                    = 109;
     int WHILE                            = 110;
     int NULL                             = 111;
+
+    // periods
+    int ADD_TABLE_PERIOD             = 115;
+    int DROP_TABLE_PERIOD            = 116;
+    int ADD_TABLE_SYSTEM_VERSIONING  = 117;
+    int DROP_TABLE_SYSTEM_VERSIONING = 118;
 
     //
     int ALTER_FOREIGN_TABLE         = 121;

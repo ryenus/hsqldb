@@ -522,6 +522,9 @@ public interface ErrorCode {
     int X_42512 = 5512;                            // invalid expression in CHECK or GENERATED clause
     int X_42513 = 5513;                            // assignment to generated column
 
+    // period columns
+    int X_42516 = 5516;                            // invalid period column name or type
+
     // constraint definition issues
     int X_42520 = 5520;                            // SET NULL requires nullable column
     int X_42521 = 5521;                            // SET DEFAULT requires column default expression for

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL table column metadata.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class ColumnSchema extends ColumnBase implements SchemaObject {
@@ -62,6 +62,7 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
     private OrderedHashSet references;
     private OrderedHashSet generatedColumnReferences;
     private Expression     accessor;
+    private int            systemPeriodType;
 
     ColumnSchema(HsqlName name, Type type) {
         this.columnName = name;
@@ -356,6 +357,23 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
         generatingExpression = expr;
 
         setWriteable(generatingExpression == null);
+    }
+
+    /**
+     *  Returns system period type of the column.
+     */
+    public int getSystemPeriodType() {
+        return systemPeriodType;
+    }
+
+    void setSystemPeriodType(int type) {
+
+        systemPeriodType = type;
+
+        boolean writable =
+            type == SchemaObject.PeriodSystemColumnType.PERIOD_ROW_NONE;
+
+        setWriteable(writable);
     }
 
     public ColumnSchema duplicate() {
