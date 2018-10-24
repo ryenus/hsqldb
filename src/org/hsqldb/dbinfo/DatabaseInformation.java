@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -163,7 +163,6 @@ public class DatabaseInformation {
     protected static final int VIEW_TABLE_USAGE                  = 96;
     protected static final int VIEWS                             = 97;
 
-
     /** system table names strictly in order of their ids */
     protected static final String[] sysTableNames = {
         "SYSTEM_BESTROWIDENTIFIER",                              //
@@ -307,8 +306,7 @@ public class DatabaseInformation {
      * @return the fullest system table producer
      *      implementation available
      */
-    public static DatabaseInformation newDatabaseInformation(
-            Database db) {
+    public static DatabaseInformation newDatabaseInformation(Database db) {
 
         Class c = null;
 
@@ -374,7 +372,7 @@ public class DatabaseInformation {
      * Sets the store for the given session, populates the store if necessary.
      */
     public void setStore(Session session, Table table,
-                                      PersistentStore store) {}
+                         PersistentStore store) {}
 
     /**
      * Switches this table producer between producing empty (surrogate)

@@ -1878,18 +1878,26 @@ public class ParserDQL extends ParserBase {
         SimpleName alias = null;
 
         if (operation != StatementTypes.TRUNCATE) {
-            if (token.tokenType == Tokens.AS) {
-                read();
-                checkIsNonCoreReservedIdentifier();
-            }
+            switch (token.tokenType) {
 
-            if (isNonCoreReservedIdentifier()
-                    && (!database.sqlSyntaxMys
-                        || operation != StatementTypes.INSERT)) {
-                alias = HsqlNameManager.getSimpleName(token.tokenString,
-                                                      isDelimitedIdentifier());
+                case Tokens.OVERRIDING :
+                    break;
 
-                read();
+                case Tokens.AS :
+                    read();
+                    checkIsNonCoreReservedIdentifier();
+
+                // fall through
+                default :
+                    if (isNonCoreReservedIdentifier()) {
+                        if (!database.sqlSyntaxMys
+                                || operation != StatementTypes.INSERT) {
+                            alias = HsqlNameManager.getSimpleName(
+                                token.tokenString, isDelimitedIdentifier());
+
+                            read();
+                        }
+                    }
             }
 
             if (alias == null && lastSynonym != null) {
