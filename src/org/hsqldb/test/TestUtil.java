@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -142,7 +142,7 @@ public class TestUtil {
 
             filelist = new File(absolute).list();
 
-            ArraySort.sort((Object[]) filelist, 0, filelist.length,
+            ArraySort.sort((Object[]) filelist, filelist.length,
                            new StringComparator());
 
             for (int i = 0; i < filelist.length; i++) {
