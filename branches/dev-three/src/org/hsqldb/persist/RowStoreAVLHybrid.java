@@ -54,16 +54,16 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
-public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
+public class RowStoreAVLHybrid extends RowStoreAVL {
 
     DataFileCache   cache;
     private int     maxMemoryRowCount;
     private boolean useDisk;
     boolean         isCached;
-    int             rowIdSequence = 0;
+    long            rowIdSequence = 0;
 
     public RowStoreAVLHybrid(Session session, TableBase table,
                              boolean diskBased) {
@@ -203,7 +203,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         if (isCached) {
             row = new RowAVLDisk(table, (Object[]) object, this);
         } else {
-            int id = rowIdSequence++;
+            long id = rowIdSequence++;
 
             row = new RowAVL(table, (Object[]) object, id, this);
         }
@@ -213,12 +213,12 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         return row;
     }
 
-    public void indexRow(Session session, Row row) {
+    public void indexRow(Session session, Row row, boolean enforceUnique) {
 
         try {
             row = (Row) get(row, true);
 
-            super.indexRow(session, row);
+            super.indexRow(session, row, true);
         } catch (HsqlException e) {
             throw e;
         } finally {
@@ -253,7 +253,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void commitPersistence(CachedObject row) {}
 
-    public void postCommitAction(Session session, RowAction action) {}
+    public void postCommitAction(Session session, RowAction rowAction) {}
 
     public void commitRow(Session session, Row row, int changeAction,
                           int txModel) {
@@ -288,7 +288,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
                 ((RowAVL) row).setNewNodes(this);
                 row.keepInMemory(false);
-                indexRow(session, row);
+                indexRow(session, row, true);
                 break;
 
             case RowAction.ACTION_INSERT :
@@ -373,7 +373,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         cache =
             session.sessionData.persistentStoreCollection
                 .getSessionDataCache();
-        maxMemoryRowCount = Integer.MAX_VALUE;
 
         if (cache == null) {
             return;
@@ -402,7 +401,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             Row newRow = (Row) getNewCachedObject(session, row.getData(),
                                                   false);
 
-            indexRow(session, newRow);
+            indexRow(session, newRow, true);
         }
 
         idx.unlinkNodes(this, root);

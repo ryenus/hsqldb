@@ -123,15 +123,17 @@ public class IndexAVLMemory extends IndexAVL {
     /**
      * Insert a node into the index
      */
-    public void insert(Session session, PersistentStore store, Row row) {
+    public void insert(Session session, PersistentStore store, Row row,
+                       boolean enforceUnique) {
 
         NodeAVL        n;
         NodeAVL        x;
-        boolean        isleft        = true;
-        int            compare       = -1;
-        final Object[] rowData       = row.getData();
-        boolean        compareRowId  = !isUnique || hasNulls(session, rowData);
-        boolean        compareSimple = isSimple;
+        boolean        isleft  = true;
+        int            compare = -1;
+        final Object[] rowData = row.getData();
+        boolean compareRowId = !enforceUnique || !isUnique
+                               || hasNulls(session, rowData);
+        boolean compareSimple = isSimple;
 
         n = getAccessor(store);
         x = n;

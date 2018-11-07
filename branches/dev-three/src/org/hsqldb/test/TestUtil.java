@@ -142,7 +142,7 @@ public class TestUtil {
 
             filelist = new File(absolute).list();
 
-            ArraySort.sort((Object[]) filelist, 0, filelist.length,
+            ArraySort.sort((Object[]) filelist, filelist.length,
                            new StringComparator());
 
             for (int i = 0; i < filelist.length; i++) {

@@ -736,6 +736,10 @@ public abstract class Type implements SchemaObject, Cloneable {
                          DTIType.defaultTimestampFractionPrecision);
     public static final DateTimeType SQL_TIMESTAMP_NO_FRACTION =
         new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0);
+    public static final DateTimeType SQL_TIMESTAMP_WITH_TIME_ZONE_MAX =
+        new DateTimeType(Types.SQL_TIMESTAMP,
+                         Types.SQL_TIMESTAMP_WITH_TIME_ZONE,
+                         DTIType.maxFractionPrecision);
 
     // interval
     public static final IntervalType SQL_INTERVAL_YEAR =

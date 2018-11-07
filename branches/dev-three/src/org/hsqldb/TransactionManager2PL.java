@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.4.2
  * @since 2.0.0
  */
 public class TransactionManager2PL extends TransactionManagerCommon
@@ -247,7 +247,7 @@ implements TransactionManager {
                                      "null insert action ");
         }
 
-        store.indexRow(session, row);
+        store.indexRow(session, row, true);
 
         if (table.persistenceScope == Table.SCOPE_ROUTINE) {
             row.rowAction = null;
@@ -260,37 +260,27 @@ implements TransactionManager {
         row.rowAction = null;
     }
 
-// functional unit - accessibility of rows
-    public boolean canRead(Session session, PersistentStore store, Row row,
-                           int mode, int[] colMap) {
-        return true;
+    public void addInsertAction(Session session, Table table,
+                                PersistentStore store, Row row) {
+
+        RowAction action = row.rowAction;
+
+        if (action == null) {
+            throw Error.runtimeError(ErrorCode.GENERAL_ERROR,
+                                     "null insert action ");
+        }
+
+        store.indexRow(session, row, false);
+
+        session.rowActionList.add(action);
+
+        row.rowAction = null;
     }
-
-    public boolean canRead(Session session, PersistentStore store, long id,
-                           int mode) {
-        return true;
-    }
-
-    public void addTransactionInfo(CachedObject object) {}
-
-    /**
-     * add transaction info to a row just loaded from the cache. called only
-     * for CACHED tables
-     */
-    public void setTransactionInfo(PersistentStore store,
-                                   CachedObject object) {}
-
-    public void removeTransactionInfo(CachedObject object) {}
 
     public void beginTransaction(Session session) {
 
         if (!session.isTransaction) {
-            session.actionTimestamp      = getNextGlobalChangeTimestamp();
-            session.transactionTimestamp = session.actionTimestamp;
-            session.isPreTransaction     = false;
-            session.isTransaction        = true;
-
-            transactionCount++;
+            beginTransactionCommon(session);
         }
     }
 
@@ -328,6 +318,10 @@ implements TransactionManager {
                 } else {
                     setWaitingSessionTPL(session);
                 }
+            } else {
+
+                // this is redundant as it has been set when canProceed == false
+                session.abortTransaction = true;
             }
         } finally {
             writeLock.unlock();
@@ -336,15 +330,11 @@ implements TransactionManager {
 
     public void beginActionResume(Session session) {
 
-        session.actionTimestamp      = getNextGlobalChangeTimestamp();
-        session.actionStartTimestamp = session.actionTimestamp;
-
-        if (!session.isTransaction) {
-            session.transactionTimestamp = session.actionTimestamp;
-            session.isPreTransaction     = false;
-            session.isTransaction        = true;
-
-            transactionCount++;
+        if (session.isTransaction) {
+            session.actionTimestamp      = getNextGlobalChangeTimestamp();
+            session.actionStartTimestamp = session.actionTimestamp;
+        } else {
+            beginTransactionCommon(session);
         }
     }
 
@@ -358,7 +348,7 @@ implements TransactionManager {
     private void endTransaction(Session session) {
 
         if (session.isTransaction) {
-            transactionCount--;
+            transactionCount.decrementAndGet();
         }
     }
 }

@@ -61,7 +61,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class Expression implements Cloneable {
@@ -160,6 +160,8 @@ public class Expression implements Cloneable {
 
     // VALUE
     protected Object       valueData;
+
+    //
     protected Expression[] nodes;
     Type[]                 nodeDataTypes;
     TableDerived           table;
@@ -870,7 +872,7 @@ public class Expression implements Cloneable {
     }
 
     /**
-     * Returns the range variable for a COLUMN expression
+     * Returns the range variable for a COLUMN or PERIOD expression
      */
     RangeVariable getRangeVariable() {
         return null;
@@ -1223,7 +1225,6 @@ public class Expression implements Cloneable {
                     nodes[i].dataType = nodeDataType;
                 }
 
-
                 dataType = new ArrayType(nodeDataType, nodes.length);
 
                 return;
@@ -1403,7 +1404,7 @@ public class Expression implements Cloneable {
             Row row = (Row) store.getNewCachedObject(session, data, false);
 
             try {
-                store.indexRow(session, row);
+                store.indexRow(session, row, true);
             } catch (HsqlException e) {}
         }
     }

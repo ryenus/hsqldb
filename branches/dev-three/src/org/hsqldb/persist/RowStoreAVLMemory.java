@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,16 +52,12 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for MEMORY tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.2
  * @since 1.9.0
  */
-public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
+public class RowStoreAVLMemory extends RowStoreAVL {
 
-    Database      database;
     AtomicInteger rowIdSequence = new AtomicInteger();
-    ReadWriteLock lock;
-    Lock          readLock;
-    Lock          writeLock;
 
     public RowStoreAVLMemory(Table table) {
 
@@ -105,7 +101,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     public CachedObject getNewCachedObject(Session session, Object object,
                                            boolean tx) {
 
-        int id  = rowIdSequence.getAndIncrement();
+        long id  = rowIdSequence.getAndIncrement();
         Row row = new RowAVL(table, (Object[]) object, id, this);
 
         if (tx) {
@@ -144,6 +140,10 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     public void commitRow(Session session, Row row, int changeAction,
                           int txModel) {
 
+        if (!database.logger.isCurrentlyLogged()) {
+            return;
+        }
+
         Object[] data = row.getData();
 
         switch (changeAction) {
@@ -176,7 +176,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
             case RowAction.ACTION_DELETE :
                 if (txModel == TransactionManager.LOCKS) {
                     ((RowAVL) row).setNewNodes(this);
-                    indexRow(session, row);
+                    indexRow(session, row, true);
                 }
                 break;
 

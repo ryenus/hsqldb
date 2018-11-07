@@ -54,7 +54,7 @@ import org.hsqldb.types.Type;
  * Metadata for range variables, including conditions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class RangeVariable {
@@ -92,6 +92,9 @@ public class RangeVariable {
 
     // non-index conditions
     Expression joinCondition;
+
+    // system period condition
+    ExpressionPeriodOp periodCondition;
 
     //
     boolean isLateral;
@@ -214,6 +217,10 @@ public class RangeVariable {
         if (isRightJoin) {
             whereConditions[0].rangeIndex = rangeTable.getPrimaryIndex();
         }
+    }
+
+    public void setSystemPeriodCondition(ExpressionPeriodOp condition) {
+        periodCondition = condition;
     }
 
     public void addNamedJoinColumns(OrderedHashSet columns) {
@@ -425,7 +432,7 @@ public class RangeVariable {
      * @param columnName name of column
      * @return int index or -1 if not found
      */
-    private int findColumn(String columnName) {
+    public int findColumn(String columnName) {
 
         if (variables != null) {
             return variables.getIndex(columnName);
@@ -525,6 +532,26 @@ public class RangeVariable {
         }
 
         return name.equals(rangeTable.getSchemaName().name);
+    }
+
+    public PeriodDefinition findPeriod(String schemaName, String tableName,
+                                       String periodName) {
+
+        if (resolvesSchemaAndTableName(schemaName, tableName)) {
+            PeriodDefinition period = rangeTable.getApplicationPeriod();
+
+            if (period != null && period.getName().name.equals(periodName)) {
+                return period;
+            }
+
+            period = rangeTable.getSystemPeriod();
+
+            if (period != null && period.getName().name.equals(periodName)) {
+                return period;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -1197,6 +1224,7 @@ public class RangeVariable {
         RangeVariableConditions[] conditions;
         RangeVariableConditions[] whereConditions;
         RangeVariableConditions[] joinConditions;
+        ExpressionPeriodOp        periodCondition;
         int                       condIndex = 0;
 
         //
@@ -1218,6 +1246,7 @@ public class RangeVariable {
             isBeforeFirst      = true;
             whereConditions    = rangeVar.whereConditions;
             joinConditions     = rangeVar.joinConditions;
+            periodCondition    = rangeVar.periodCondition;
 
             if (rangeVar.isRightJoin) {
                 lookup = new OrderedLongHashSet();
@@ -1307,7 +1336,7 @@ public class RangeVariable {
                             store, rangeVar.indexDistinctCount, null);
                 } else {
                     it = conditions[condIndex].rangeIndex.firstRow(session,
-                            store, rangeVar.indexDistinctCount, null);
+                            store, null, rangeVar.indexDistinctCount, null);
                 }
             } else {
                 getFirstRow();
@@ -1449,6 +1478,12 @@ public class RangeVariable {
                     break;
                 }
 
+                if (periodCondition != null) {
+                    if (!periodCondition.testCondition(session)) {
+                        continue;
+                    }
+                }
+
                 if (conditions[condIndex].terminalCondition != null) {
                     if (!conditions[condIndex].terminalCondition.testCondition(
                             session)) {
@@ -1467,20 +1502,22 @@ public class RangeVariable {
                     }
                 }
 
-                if (!ExpressionLogical.isNullOrTrue(
-                        session,
-                        joinConditions[condIndex].nonIndexCondition)) {
-                    continue;
+                if (joinConditions[condIndex].nonIndexCondition != null) {
+                    if (!joinConditions[condIndex].nonIndexCondition
+                            .testCondition(session)) {
+                        continue;
+                    }
                 }
 
-                if (!ExpressionLogical.isNullOrTrue(
-                        session,
-                        whereConditions[condIndex].nonIndexCondition)) {
-                    hasLeftOuterRow = false;
+                if (whereConditions[condIndex].nonIndexCondition != null) {
+                    if (!whereConditions[condIndex].nonIndexCondition
+                            .testCondition(session)) {
+                        hasLeftOuterRow = false;
 
-                    addFoundRow();
+                        addFoundRow();
 
-                    continue;
+                        continue;
+                    }
                 }
 
                 Expression e = conditions[condIndex].excludeConditions;
@@ -1501,8 +1538,10 @@ public class RangeVariable {
             it = emptyIterator;
 
             if (hasLeftOuterRow && condIndex == conditions.length - 1) {
-                result = ExpressionLogical.isNullOrTrue(session,
-                        whereConditions[condIndex].nonIndexCondition);
+                result =
+                    (whereConditions[condIndex].nonIndexCondition == null
+                     || whereConditions[condIndex].nonIndexCondition
+                         .testCondition(session));
                 hasLeftOuterRow = false;
             }
 
@@ -1601,9 +1640,13 @@ public class RangeVariable {
             long    position = it.getRowId();
             boolean result   = !lookup.contains(position);
 
-            result = result
-                     && ExpressionLogical.isNullOrTrue(session,
-                         conditions[condIndex].nonIndexCondition);
+            if (result) {
+                if (conditions[condIndex].nonIndexCondition != null) {
+                    result =
+                        conditions[condIndex].nonIndexCondition.testCondition(
+                            session);
+                }
+            }
 
             return result;
         }
@@ -1845,10 +1888,7 @@ public class RangeVariable {
 
             nonIndexCondition =
                 ExpressionLogical.andExpressions(nonIndexCondition, e);
-
-            if (Expression.EXPR_FALSE.equals(nonIndexCondition)) {
-                isFalse = true;
-            }
+            isFalse = Expression.EXPR_FALSE.equals(nonIndexCondition);
 
             if (rangeIndex == null || rangeIndex.getColumnCount() == 0) {
                 return;

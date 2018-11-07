@@ -170,7 +170,7 @@ public class TableBase implements Cloneable {
 
         PersistentStore store = getRowStore(session);
 
-        return getPrimaryIndex().firstRow(session, store, 0, null);
+        return getPrimaryIndex().firstRow(session, store, null, 0, null);
     }
 
     public final RowIterator rowIterator(PersistentStore store) {
@@ -470,10 +470,11 @@ public class TableBase implements Cloneable {
             }
         }
 
-        boolean replacePK =
-            index.isPrimaryKey() && list.length > 0 && list[0].isPrimaryKey();
+        boolean replacePK = index.isPrimaryKey() && list.length > 0
+                            && list[0].isPrimaryKey();
+
         if (replacePK) {
-            list = (Index[]) ArrayUtil.duplicateArray(list);
+            list    = (Index[]) ArrayUtil.duplicateArray(list);
             list[0] = index;
         } else {
             list = (Index[]) ArrayUtil.toAdjustedArray(list, index, i, 1);

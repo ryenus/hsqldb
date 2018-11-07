@@ -524,6 +524,7 @@ public interface ErrorCode {
 
     // period columns
     int X_42516 = 5516;                            // invalid period column name or type
+    int X_42517 = 5517;                            // operation not allowed - generated or period column
 
     // constraint definition issues
     int X_42520 = 5520;                            // SET NULL requires nullable column

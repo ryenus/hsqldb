@@ -106,6 +106,10 @@ public class StatementSchema extends Statement {
             case StatementTypes.ALTER_TABLE :
             case StatementTypes.ALTER_TRANSFORM :
             case StatementTypes.ALTER_VIEW :
+            case StatementTypes.ADD_TABLE_PERIOD : 
+            case StatementTypes.DROP_TABLE_PERIOD : 
+            case StatementTypes.ADD_TABLE_SYSTEM_VERSIONING : 
+            case StatementTypes.DROP_TABLE_SYSTEM_VERSIONING : 
                 group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
                 break;
 
@@ -648,14 +652,13 @@ public class StatementSchema extends Statement {
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
-
             case StatementTypes.ADD_TABLE_PERIOD : {
                 Table            table  = (Table) arguments[0];
                 PeriodDefinition period = (PeriodDefinition) arguments[1];
                 TablePeriodWorks works  = new TablePeriodWorks(session, table);
 
                 try {
-                    if (period.periodType
+                    if (period.getPeriodType()
                             == SchemaObject.PeriodType.PERIOD_SYSTEM) {
                         works.addSystemPeriod(period);
                     } else {
@@ -673,7 +676,7 @@ public class StatementSchema extends Statement {
                 TablePeriodWorks works  = new TablePeriodWorks(session, table);
 
                 try {
-                    if (period.periodType
+                    if (period.getPeriodType()
                             == SchemaObject.PeriodType.PERIOD_SYSTEM) {
                         works.dropSystemPeriod();
                     } else {

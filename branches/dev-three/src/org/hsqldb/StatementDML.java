@@ -1167,6 +1167,13 @@ public class StatementDML extends StatementDMQL {
             int[] changedColumns = navigator.getCurrentChangedColumns();
             PersistentStore store        = currentTable.getRowStore(session);
 
+            if (table.isSystemVersioned()) {
+                Object[] history = row.getData();
+                Row newRow =
+                    currentTable.insertSystemVersionHistoryRow(session,
+                        store, history);
+            }
+
             if (data == null) {
                 continue;
             }
@@ -1405,6 +1412,7 @@ public class StatementDML extends StatementDMQL {
         navigator.beforeFirst();
 
         boolean hasUpdate = false;
+        boolean hasPeriod = false;
 
         while (navigator.next()) {
             Row             row          = navigator.getCurrentRow();
@@ -1417,17 +1425,28 @@ public class StatementDML extends StatementDMQL {
             if (data != null) {
                 hasUpdate = true;
             }
+
+            if (table.isSystemVersioned()) {
+                hasPeriod = true;
+            }
         }
 
         navigator.beforeFirst();
 
-        if (hasUpdate) {
+        if (hasUpdate || hasPeriod) {
             while (navigator.next()) {
                 Row             row          = navigator.getCurrentRow();
                 Object[]        data = navigator.getCurrentChangedData();
                 Table           currentTable = ((Table) row.getTable());
                 int[] changedColumns = navigator.getCurrentChangedColumns();
                 PersistentStore store = currentTable.getRowStore(session);
+
+                if (table.isSystemVersioned()) {
+                    Object[] history = row.getData();
+                    Row newRow =
+                        currentTable.insertSystemVersionHistoryRow(session,
+                            store, history);
+                }
 
                 if (data == null) {
                     continue;

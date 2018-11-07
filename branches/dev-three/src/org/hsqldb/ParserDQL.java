@@ -1874,22 +1874,36 @@ public class ParserDQL extends ParserBase {
 
     protected RangeVariable readRangeVariableForDataChange(int operation) {
 
-        Table      table = readTableName(true);
+        Table table = readTableName(true);
+        ExpressionPeriodOp appPeriodSpec =
+            XreadQueryApplicationPeriodSpecOrNull(table);
         SimpleName alias = null;
 
+        if (appPeriodSpec != null) {
+            throw Error.error(ErrorCode.X_0A501);
+        }
+
         if (operation != StatementTypes.TRUNCATE) {
-            if (token.tokenType == Tokens.AS) {
-                read();
-                checkIsNonCoreReservedIdentifier();
-            }
+            switch (token.tokenType) {
 
-            if (isNonCoreReservedIdentifier()
-                    && (!database.sqlSyntaxMys
-                        || operation != StatementTypes.INSERT)) {
-                alias = HsqlNameManager.getSimpleName(token.tokenString,
-                                                      isDelimitedIdentifier());
+                case Tokens.OVERRIDING :
+                    break;
 
-                read();
+                case Tokens.AS :
+                    read();
+                    checkIsNonCoreReservedIdentifier();
+
+                // fall through
+                default :
+                    if (isNonCoreReservedIdentifier()) {
+                        if (!database.sqlSyntaxMys
+                                || operation != StatementTypes.INSERT) {
+                            alias = HsqlNameManager.getSimpleName(
+                                token.tokenString, isDelimitedIdentifier());
+
+                            read();
+                        }
+                    }
             }
 
             if (alias == null && lastSynonym != null) {
@@ -1961,6 +1975,13 @@ public class ParserDQL extends ParserBase {
         RangeVariable range = new RangeVariable(table, alias, null, null,
             compileContext);
 
+        if (table.isSystemVersioned()) {
+            ExpressionPeriodOp sysPeriodSpec = new ExpressionPeriodOp();
+
+            sysPeriodSpec.setSystemRangeVariable(session, range);
+            range.setSystemPeriodCondition(sysPeriodSpec);
+        }
+
         return range;
     }
 
@@ -1990,13 +2011,14 @@ public class ParserDQL extends ParserBase {
      */
     protected RangeVariable readTableOrSubquery() {
 
-        Table          table          = null;
-        SimpleName     alias          = null;
-        SimpleName[]   columnNameList = null;
-        OrderedHashSet columnList     = null;
-        boolean        joinedTable    = false;
-        boolean        isLateral      = false;
-        boolean        isTableName    = false;
+        Table              table          = null;
+        SimpleName         alias          = null;
+        SimpleName[]       columnNameList = null;
+        OrderedHashSet     columnList     = null;
+        ExpressionPeriodOp sysPeriodSpec  = null;
+        boolean            joinedTable    = false;
+        boolean            isLateral      = false;
+        boolean            isTableName    = false;
 
         switch (token.tokenType) {
 
@@ -2052,6 +2074,9 @@ public class ParserDQL extends ParserBase {
                 if (table == null) {
                     table       = readTableName(true);
                     isTableName = true;
+
+                    // attach to range variable below
+                    sysPeriodSpec = XreadQuerySystemPeriodSpecOrNull(table);
                 }
 
                 if (table.isView()) {
@@ -2117,6 +2142,11 @@ public class ParserDQL extends ParserBase {
         } else {
             range = new RangeVariable(table, alias, columnList,
                                       columnNameList, compileContext);
+
+            if (sysPeriodSpec != null) {
+                sysPeriodSpec.setSystemRangeVariable(session, range);
+                range.setSystemPeriodCondition(sysPeriodSpec);
+            }
         }
 
         if (isLateral) {
@@ -2457,8 +2487,6 @@ public class ParserDQL extends ParserBase {
     Expression XreadAllTypesValueExpressionPrimary(boolean isBoolean) {
 
         Expression e        = null;
-        boolean    isRow    = false;
-        boolean    isPeriod = false;
         int        position = getPosition();
 
         switch (token.tokenType) {
@@ -2480,8 +2508,13 @@ public class ParserDQL extends ParserBase {
                 if (readIfThis(Tokens.OPENBRACKET)) {
                     e = XreadRowElementList(true);
 
+                    if (e.nodes.length != 2) {
+                        throw Error.error(ErrorCode.X_42564);
+                    }
+
+                    e = new ExpressionPeriod(e);
+
                     readThis(Tokens.CLOSEBRACKET);
-                    e.setSubType(OpTypes.RANGE_EQUALS);
                 } else {
                     rewind(position);
 
@@ -2518,26 +2551,27 @@ public class ParserDQL extends ParserBase {
             if (token.tokenType == Tokens.ROW) {
                 read();
                 checkIsThis(Tokens.OPENBRACKET);
-
-                isRow = true;
             } else if (token.tokenType == Tokens.PERIOD) {
                 read();
-                checkIsThis(Tokens.OPENBRACKET);
+                readThis(Tokens.OPENBRACKET);
 
-                isPeriod = true;
+                e = XreadRowElementList(true);
+
+                if (e.nodes.length != 2) {
+                    throw Error.error(ErrorCode.X_42564);
+                }
+
+                e = new ExpressionPeriod(e);
+
+                readThis(Tokens.CLOSEBRACKET);
             }
 
             if (token.tokenType == Tokens.OPENBRACKET) {
                 read();
 
-                // ignore isRow
                 e = XreadRowElementList(true);
 
                 readThis(Tokens.CLOSEBRACKET);
-
-                if (isPeriod) {
-                    e.setSubType(OpTypes.RANGE_EQUALS);
-                }
             }
         }
 
@@ -3013,6 +3047,8 @@ public class ParserDQL extends ParserBase {
 
     Expression XreadModifier(Expression e) {
 
+        int position = getPosition();
+
         switch (token.tokenType) {
 
             case Tokens.AT : {
@@ -3022,7 +3058,7 @@ public class ParserDQL extends ParserBase {
 
                 if (token.tokenType == Tokens.LOCAL) {
                     read();
-                } else {
+                } else if (token.tokenType == Tokens.TIME) {
                     readThis(Tokens.TIME);
                     readThis(Tokens.ZONE);
 
@@ -3049,6 +3085,10 @@ public class ParserDQL extends ParserBase {
                         }
                         default :
                     }
+                } else {
+                    rewind(position);
+
+                    return e;
                 }
 
                 e = new ExpressionOp(OpTypes.ZONE_MODIFIER, e, e1);
@@ -4358,20 +4398,29 @@ public class ParserDQL extends ParserBase {
      * CONTAINS can have single value right side
      */
     private ExpressionLogical XreadPeriodPredicateRightPart(int opType,
-            Expression l) {
+            Expression left) {
 
-        if (l.getType() != OpTypes.ROW) {
-            throw Error.error(ErrorCode.X_42564);
-        }
+        boolean isLeftRow = false;
 
-        if (l.nodes.length != 2) {
-            throw Error.error(ErrorCode.X_42564);
-        }
+        switch (left.getType()) {
 
-        if (opType != OpTypes.RANGE_OVERLAPS) {
-            if (l.getSubType() != OpTypes.RANGE_EQUALS) {
-                throw unexpectedTokenRequire(Tokens.T_PERIOD);
-            }
+            case OpTypes.COLUMN :
+                left = new ExpressionPeriod((ExpressionColumn) left);
+                break;
+
+            case OpTypes.PERIOD :
+                break;
+
+            case OpTypes.ROW :
+                if (left.nodes.length != 2) {
+                    throw Error.error(ErrorCode.X_42564);
+                }
+
+                isLeftRow = true;
+                break;
+
+            default :
+                throw Error.error(ErrorCode.X_42564);
         }
 
         read();
@@ -4379,6 +4428,10 @@ public class ParserDQL extends ParserBase {
         boolean period = false;
 
         if (token.tokenType == Tokens.PERIOD) {
+            if (isLeftRow) {
+                throw unexpectedToken();
+            }
+
             read();
 
             period = true;
@@ -4388,37 +4441,47 @@ public class ParserDQL extends ParserBase {
             }
         }
 
-        Expression r = XreadRowValuePredicand();
+        Expression right = XreadRowValuePredicand();
 
-        if (period) {
-            if (r.nodes.length == 2) {
-                r.setSubType(OpTypes.RANGE_EQUALS);
-            } else {
-                throw Error.error(ErrorCode.X_42564);
-            }
-        }
+        switch (right.getType()) {
 
-        if (r.nodes.length == 2) {
-            if (opType == OpTypes.RANGE_OVERLAPS) {
+            case OpTypes.COLUMN :
                 if (period) {
-                    if (l.getSubType() != OpTypes.RANGE_EQUALS) {
-                        throw unexpectedTokenRequire(Tokens.T_PERIOD);
+                    throw Error.error(ErrorCode.X_42564);
+                }
+
+                right = new ExpressionPeriod((ExpressionColumn) right);
+                break;
+
+            case OpTypes.ROW :
+                if (right.nodes.length == 2) {
+                    if (period) {
+                        right = new ExpressionPeriod(right);
+                    } else {
+                        if (opType != OpTypes.RANGE_OVERLAPS) {
+                            throw Error.error(ErrorCode.X_42564);
+                        }
+
+                        return new ExpressionLogical(OpTypes.OVERLAPS, left,
+                                                     right);
                     }
+
+                    break;
                 }
-            } else {
-                if (!period) {
-                    throw unexpectedTokenRequire(Tokens.T_PERIOD);
-                }
-            }
-        } else if (r.nodes.length < 2) {
-            if (opType != OpTypes.RANGE_CONTAINS) {
+
                 throw Error.error(ErrorCode.X_42564);
-            }
-        } else {
-            throw Error.error(ErrorCode.X_42564);
+            default :
+                if (opType != OpTypes.RANGE_CONTAINS) {
+                    throw Error.error(ErrorCode.X_42564);
+                }
+
+                if (period) {
+                    throw Error.error(ErrorCode.X_42564);
+                }
+                break;
         }
 
-        return new ExpressionLogical(opType, l, r);
+        return new ExpressionPeriodOp(opType, left, right);
     }
 
     Expression XreadRowValueExpression() {
@@ -4817,6 +4880,10 @@ public class ParserDQL extends ParserBase {
 
         QueryExpression queryExpression = XreadQueryExpression();
         TableDerived    td              = null;
+
+        if (type == OpTypes.EXISTS) {
+            queryExpression.setAsExists();
+        }
 
         if (queryExpression.isValueList) {
             td = ((QuerySpecification) queryExpression).getValueListTable();
@@ -6472,6 +6539,108 @@ public class ParserDQL extends ParserBase {
         return table;
     }
 
+    /**
+     * Returns a period condition (including a default) for all tables with a
+     * system period. Otherwise null;
+     */
+    ExpressionPeriodOp XreadQuerySystemPeriodSpecOrNull(Table table) {
+
+        int position = getPosition();
+
+        if (!table.isSystemVersioned()) {
+            return null;
+        }
+
+        if (token.tokenType == Tokens.FOR) {
+            read();
+        } else {
+            ExpressionPeriodOp periodExpression = new ExpressionPeriodOp();
+
+            return periodExpression;
+        }
+
+        if (token.tokenType == Tokens.SYSTEM_TIME) {
+            read();
+        } else {
+            rewind(position);
+
+            return null;
+        }
+
+        switch (token.tokenType) {
+
+            case Tokens.AS : {
+                read();
+                readThis(Tokens.OF);
+
+                Expression point = XreadValueExpression();
+
+                return new ExpressionPeriodOp(point);
+            }
+            case Tokens.BETWEEN : {
+                read();
+                readIfThis(Tokens.ASYMMETRIC);
+
+                Expression pointStart = XreadDatetimeValueExpression();
+
+                readThis(Tokens.AND);
+
+                Expression pointEnd = XreadValueExpression();
+
+                return new ExpressionPeriodOp(pointStart, pointEnd);
+            }
+            case Tokens.FROM : {
+                read();
+
+                Expression pointStart = XreadValueExpression();
+
+                readThis(Tokens.TO);
+
+                Expression pointEnd = XreadValueExpression();
+
+                return new ExpressionPeriodOp(pointStart, pointEnd);
+            }
+            default :
+                throw unexpectedToken();
+        }
+    }
+
+    ExpressionPeriodOp XreadQueryApplicationPeriodSpecOrNull(Table table) {
+
+        PeriodDefinition period = table.getApplicationPeriod();
+
+        if (period == null) {
+            return null;
+        }
+
+        if (token.tokenType == Tokens.FOR) {
+            read();
+        } else {
+            return null;
+        }
+
+        readThis(Tokens.PORTION);
+        readThis(Tokens.OF);
+        checkIsSimpleName();
+
+        if (!token.tokenString.equals(period.periodName.getNameString())) {
+            throw Error.error(ErrorCode.X_42501, token.tokenString);
+        }
+
+        read();
+        readThis(Tokens.FROM);
+
+        Expression pointStart = XreadValueExpression();
+
+        readThis(Tokens.TO);
+
+        Expression       pointEnd = XreadValueExpression();
+        ExpressionPeriod left     = new ExpressionPeriod(period);
+        ExpressionPeriod right    = new ExpressionPeriod(pointStart, pointEnd);
+
+        return new ExpressionPeriodOp(OpTypes.RANGE_OVERLAPS, left, right);
+    }
+
     ColumnSchema readSimpleColumnName(RangeVariable rangeVar,
                                       boolean withPrefix) {
 
@@ -6924,7 +7093,6 @@ public class ParserDQL extends ParserBase {
         }
 
         public void setCurrentSubquery(HsqlName name) {
-
             isViewTable = name.type == SchemaObject.VIEW;
         }
 
