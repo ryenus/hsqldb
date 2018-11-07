@@ -258,6 +258,7 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
     public Expression getUpdateExpression() {
         return updateExpression;
     }
+
     /**
      * Is column writeable or always generated
      *
@@ -359,6 +360,11 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
         setWriteable(generatingExpression == null);
     }
 
+    public boolean isSystemPeriod() {
+        return systemPeriodType
+               != SchemaObject.PeriodSystemColumnType.PERIOD_ROW_NONE;
+    }
+
     /**
      *  Returns system period type of the column.
      */
@@ -384,6 +390,7 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
         copy.setNullability(this.nullability);
         copy.setGeneratingExpression(generatingExpression);
         copy.setIdentity(sequence);
+        copy.setSystemPeriodType(systemPeriodType);
 
         return copy;
     }

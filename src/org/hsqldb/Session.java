@@ -52,7 +52,6 @@ import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.SimpleLog;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
@@ -76,7 +75,7 @@ import org.hsqldb.types.Type.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -456,11 +455,14 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_40502);
         }
 
+        getTransactionSystemTimestamp();
         database.txManager.addDeleteAction(this, table, store, row, colMap);
     }
 
     void addInsertAction(Table table, PersistentStore store, Row row,
                          int[] changedColumns) {
+
+        getTransactionSystemTimestamp();
 
 //        tempActionHistory.add("add insert to transaction " + actionTimestamp);
         database.txManager.addInsertAction(this, table, store, row,
@@ -632,6 +634,7 @@ public class Session implements SessionInterface {
 
         abortTransaction = false;
 
+        systemTimestampSet = false;
         sessionContext.resetStack();
         sessionContext.savepoints.clear();
         sessionContext.savepointTimestamps.clear();
@@ -971,8 +974,6 @@ public class Session implements SessionInterface {
 
         sessionContext.currentMaxRows = 0;
         isBatch                       = false;
-
-        JavaSystem.gc();
 
         switch (cmd.mode) {
 
@@ -1638,8 +1639,11 @@ public class Session implements SessionInterface {
     private TimestampData currentDate;
     private TimestampData currentTimestamp;
     private TimestampData localTimestamp;
-    private TimeData      currentTime;
-    private TimeData      localTime;
+    private TimestampData transactionSystemTimestamp =
+        getSystemTimestamp(false);
+    boolean systemTimestampSet = false;
+    private TimeData currentTime;
+    private TimeData localTime;
 
     /**
      * Returns the current date, unchanged for the duration of the current
@@ -1734,18 +1738,28 @@ public class Session implements SessionInterface {
 
     synchronized TimestampData getSystemTimestamp(boolean withZone) {
 
-        long     millis  = System.currentTimeMillis();
-        long     seconds = millis / 1000;
-        int      nanos   = (int) (millis % 1000) * 1000000;
-        TimeZone zone    = TimeZone.getDefault();
-        int      offset  = zone.getOffset(millis) / 1000;
+        long millis  = System.currentTimeMillis();
+        long seconds = millis / 1000;
+        int  nanos   = (int) (millis % 1000) * 1000000;
+        int  offset  = 0;
 
         if (!withZone) {
+            TimeZone zone = TimeZone.getDefault();
+
+            offset  = zone.getOffset(millis) / 1000;
             seconds += offset;
             offset  = 0;
         }
 
         return new TimestampData(seconds, nanos, offset);
+    }
+
+    TimestampData getTransactionSystemTimestamp() {
+        if (!systemTimestampSet) {
+            transactionSystemTimestamp = getSystemTimestamp(false);
+            systemTimestampSet = true;
+        }
+        return transactionSystemTimestamp;
     }
 
     private void resetCurrentTimestamp() {

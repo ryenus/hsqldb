@@ -73,6 +73,7 @@ package org.hsqldb.index;
 import org.hsqldb.Constraint;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.OpTypes;
+import org.hsqldb.RangeVariable.RangeVariableConditions;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.SchemaObject;
@@ -378,7 +379,7 @@ public class IndexAVL implements Index {
      * Returns the node count.
      */
     public long size(Session session, PersistentStore store) {
-        return store.elementCount(session);
+        return getNodeCount(session, store);
     }
 
     public long sizeUnique(PersistentStore store) {
@@ -507,7 +508,7 @@ public class IndexAVL implements Index {
     public long getNodeCount(Session session, PersistentStore store) {
 
         long        count = 0;
-        RowIterator it    = firstRow(session, store, 0, null);
+        RowIterator it    = firstRow(session, store, null, 0, null);
 
         while (it.next()) {
             count++;
@@ -865,13 +866,15 @@ public class IndexAVL implements Index {
     /**
      * Insert a node into the index
      */
-    public void insert(Session session, PersistentStore store, Row row) {
+    public void insert(Session session, PersistentStore store, Row row,
+                       boolean enforceUnique) {
 
         NodeAVL n;
         NodeAVL x;
-        boolean isleft       = true;
-        int     compare      = -1;
-        boolean compareRowId = !isUnique || hasNulls(session, row.getData());
+        boolean isleft  = true;
+        int     compare = -1;
+        boolean compareRowId = !enforceUnique || !isUnique
+                               || hasNulls(session, row.getData());
 
         n = getAccessor(store);
         x = n;
@@ -1214,6 +1217,7 @@ public class IndexAVL implements Index {
      * @return Iterator for first row
      */
     public RowIterator firstRow(Session session, PersistentStore store,
+                                RangeVariableConditions[] conditions,
                                 int distinctCount, boolean[] map) {
 
         store.readLock();
@@ -1230,9 +1234,8 @@ public class IndexAVL implements Index {
             while (session != null && x != null) {
                 Row row = x.getRow(store);
 
-                if (session.database.txManager.canRead(
-                        session, store, row, TransactionManager.ACTION_READ,
-                        null)) {
+                if (store.canRead(session, row,
+                                  TransactionManager.ACTION_READ, null)) {
                     break;
                 }
 
@@ -1295,9 +1298,8 @@ public class IndexAVL implements Index {
             while (session != null && x != null) {
                 Row row = x.getRow(store);
 
-                if (session.database.txManager.canRead(
-                        session, store, row, TransactionManager.ACTION_READ,
-                        null)) {
+                if (store.canRead(session, row,
+                                  TransactionManager.ACTION_READ, null)) {
                     break;
                 }
 
@@ -1342,9 +1344,8 @@ public class IndexAVL implements Index {
 
             Row row = x.getRow(store);
 
-            if (session.database.txManager.canRead(
-                    session, store, row, TransactionManager.ACTION_READ,
-                    null)) {
+            if (store.canRead(session, row, TransactionManager.ACTION_READ,
+                              null)) {
                 return x;
             }
         }
@@ -1374,9 +1375,8 @@ public class IndexAVL implements Index {
 
             Row row = x.getRow(store);
 
-            if (session.database.txManager.canRead(
-                    session, store, row, TransactionManager.ACTION_READ,
-                    null)) {
+            if (store.canRead(session, row, TransactionManager.ACTION_READ,
+                              null)) {
                 return x;
             }
         }
@@ -1509,11 +1509,7 @@ public class IndexAVL implements Index {
 
         row = node.getRow(store);
 
-        session.database.txManager.setTransactionInfo(store, row);
-
-        if (session.database.txManager.canRead(session, store, row,
-                                               TransactionManager.ACTION_DUP,
-                                               null)) {
+        if (store.canRead(session, row, TransactionManager.ACTION_DUP, null)) {
             return true;
         }
 
@@ -1531,11 +1527,8 @@ public class IndexAVL implements Index {
             if (compareRow(session, data, nodeData) == 0) {
                 row = c.getRow(store);
 
-                session.database.txManager.setTransactionInfo(store, row);
-
-                if (session.database.txManager.canRead(
-                        session, store, row, TransactionManager.ACTION_DUP,
-                        null)) {
+                if (store.canRead(session, row, TransactionManager.ACTION_DUP,
+                                  null)) {
                     return true;
                 }
 
@@ -1557,11 +1550,8 @@ public class IndexAVL implements Index {
             if (compareRow(session, data, nodeData) == 0) {
                 row = c.getRow(store);
 
-                session.database.txManager.setTransactionInfo(store, row);
-
-                if (session.database.txManager.canRead(
-                        session, store, row, TransactionManager.ACTION_DUP,
-                        null)) {
+                if (store.canRead(session, row, TransactionManager.ACTION_DUP,
+                                  null)) {
                     return true;
                 }
 
@@ -1719,9 +1709,7 @@ public class IndexAVL implements Index {
             while (result != null) {
                 currentRow = result.getRow(store);
 
-                if (session.database.txManager.canRead(session, store,
-                                                       currentRow, readMode,
-                                                       colIndex)) {
+                if (store.canRead(session, currentRow, readMode, colIndex)) {
                     break;
                 }
 
@@ -1801,9 +1789,8 @@ public class IndexAVL implements Index {
             while (result != null) {
                 currentRow = result.getRow(store);
 
-                if (session.database.txManager.canRead(
-                        session, store, currentRow,
-                        TransactionManager.ACTION_READ, colIndex)) {
+                if (store.canRead(session, currentRow,
+                                  TransactionManager.ACTION_READ, colIndex)) {
                     break;
                 }
 

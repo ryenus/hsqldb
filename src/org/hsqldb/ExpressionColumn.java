@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Implementation of column, variable, parameter, etc. access operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class ExpressionColumn extends Expression {
@@ -118,16 +118,31 @@ public class ExpressionColumn extends Expression {
 
         super(OpTypes.COLUMN);
 
-        this.column   = column;
-        this.dataType = column.getDataType();
-        columnName    = column.getName().name;
+        this.column     = column;
+        this.dataType   = column.getDataType();
+        this.columnName = column.getName().name;
+    }
+
+    ExpressionColumn(RangeVariable rangeVar, ColumnSchema column) {
+
+        super(OpTypes.COLUMN);
+
+        this.columnIndex = rangeVar.findColumn(column.getNameString());
+        this.column        = column;
+        this.dataType      = column.getDataType();
+        this.rangeVariable = rangeVar;
+
+        this.columnName    = column.getName().name;
+        this.tableName     = rangeVar.getTableAlias().name;
+
+        rangeVariable.addColumn(columnIndex);
     }
 
     ExpressionColumn(RangeVariable rangeVar, int index) {
 
         super(OpTypes.COLUMN);
 
-        columnIndex = index;
+        this.columnIndex = index;
 
         setAutoAttributesAsColumn(rangeVar, columnIndex);
     }
@@ -188,8 +203,8 @@ public class ExpressionColumn extends Expression {
 
         super(OpTypes.MULTICOLUMN);
 
-        this.schema = schema;
-        tableName   = table;
+        this.schema    = schema;
+        this.tableName = table;
     }
 
     /**
@@ -200,7 +215,7 @@ public class ExpressionColumn extends Expression {
         super(opType);
 
         this.sequence = sequence;
-        dataType      = sequence.getDataType();
+        this.dataType = sequence.getDataType();
     }
 
     void setAutoAttributesAsColumn(RangeVariable range, int i) {

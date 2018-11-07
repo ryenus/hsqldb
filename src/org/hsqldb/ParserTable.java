@@ -151,9 +151,11 @@ public class ParserTable extends ParserDML {
 
         tempConstraints.add(c);
 
-        boolean start     = true;
-        boolean startPart = true;
-        boolean end       = false;
+        boolean start       = true;
+        boolean startPart   = true;
+        boolean end         = false;
+        boolean hasRowStart = false;
+        boolean hasRowEnd   = false;
 
         while (!end) {
             switch (token.tokenType) {
@@ -256,11 +258,37 @@ public class ParserTable extends ParserDML {
 
                     start     = false;
                     startPart = false;
+
+                    if (newcolumn.getSystemPeriodType()
+                            == SchemaObject.PeriodSystemColumnType
+                                .PERIOD_ROW_START) {
+                        if (hasRowStart) {
+                            throw Error.error(ErrorCode.X_42591);
+                        }
+
+                        hasRowStart = true;
+                    } else if (newcolumn.getSystemPeriodType()
+                               == SchemaObject.PeriodSystemColumnType
+                                   .PERIOD_ROW_END) {
+                        if (hasRowEnd) {
+                            throw Error.error(ErrorCode.X_42591);
+                        }
+
+                        hasRowEnd = true;
+                    }
             }
         }
 
         if (table.getColumnCount() == 0) {
             throw Error.error(ErrorCode.X_42591);
+        }
+
+        if (hasRowStart ^ hasRowEnd) {
+            throw Error.error(ErrorCode.X_42516);
+        }
+
+        if (hasRowStart && table.systemPeriod == null) {
+            throw Error.error(ErrorCode.X_42516);
         }
 
         setPeriodColumns(table, table.systemPeriod);
@@ -1148,7 +1176,7 @@ public class ParserTable extends ParserDML {
                             break;
                         }
                         case Tokens.ROW : {
-                            if (!typeObject.isDateOrTimestampType()) {
+                            if (!typeObject.isTimestampType()) {
                                 throw unexpectedToken();
                             }
 
@@ -1164,6 +1192,11 @@ public class ParserTable extends ParserDML {
                                 sysPeriodType =
                                     SchemaObject.PeriodSystemColumnType
                                         .PERIOD_ROW_END;
+                            }
+
+                            // always with TIME_ZONE and microsecond precision
+                            if (typeObject.typeCode == Types.SQL_TIMESTAMP) {
+                                typeObject = Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
                             }
 
                             break;
@@ -1306,7 +1339,7 @@ public class ParserTable extends ParserDML {
     }
 
     /**
-     * Reads and adds a table period definition to the list
+     * Reads and adds a table period definition to the table
      *
      * @param table a table
      */
@@ -1314,7 +1347,7 @@ public class ParserTable extends ParserDML {
 
         PeriodDefinition period = readPeriod(table);
 
-        if (period.periodType == SchemaObject.PeriodType.PERIOD_SYSTEM) {
+        if (period.getPeriodType() == SchemaObject.PeriodType.PERIOD_SYSTEM) {
             table.systemPeriod = period;
         } else {
             table.applicationPeriod = period;
@@ -1360,7 +1393,7 @@ public class ParserTable extends ParserDML {
         PeriodDefinition period = new PeriodDefinition(periodName, periodType,
             set);
 
-        if (period.periodType == SchemaObject.PeriodType.PERIOD_SYSTEM) {
+        if (period.getPeriodType() == SchemaObject.PeriodType.PERIOD_SYSTEM) {
             if (table.systemPeriod != null) {
                 throw Error.error(ErrorCode.X_42581);    // unexpected token (for now)
             }
@@ -2235,7 +2268,7 @@ public class ParserTable extends ParserDML {
 
         PeriodDefinition period = readPeriod(table);
 
-        if (period.periodType == SchemaObject.PeriodType.PERIOD_SYSTEM) {
+        if (period.getPeriodType() == SchemaObject.PeriodType.PERIOD_SYSTEM) {
             checkPeriodColumnsAdd(table, period);
         } else {
 

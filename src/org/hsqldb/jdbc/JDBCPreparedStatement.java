@@ -1722,7 +1722,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_TIMESTAMP :
                 seconds    = millis / 1000;
                 if (seconds < DateTimeType.epochSeconds
-                    || seconds > DateTimeType.limitSeconds) {
+                    || seconds > DateTimeType.epochLimitSeconds) {
                     throw Error.error(ErrorCode.X_22008);
                 }
                 parameterValues[i] = new TimestampData(seconds,
@@ -1750,7 +1750,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 seconds = millis / 1000;
 
                 if (seconds < DateTimeType.epochSeconds
-                    || seconds > DateTimeType.limitSeconds) {
+                    || seconds > DateTimeType.epochLimitSeconds) {
                     throw Error.error(ErrorCode.X_22008);
                 }
 

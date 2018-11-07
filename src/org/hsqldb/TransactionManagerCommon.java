@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -73,7 +74,7 @@ class TransactionManagerCommon {
     AtomicLong globalChangeTimestamp = new AtomicLong(1);
 
     //
-    long transactionCount = 0;
+    AtomicInteger transactionCount = new AtomicInteger();
 
     //
     HashMap           tableWriteLocks = new HashMap();
@@ -179,6 +180,17 @@ class TransactionManagerCommon {
         } finally {
             writeLock.unlock();
         }
+    }
+
+    void beginTransactionCommon(Session session) {
+
+        session.actionTimestamp      = getNextGlobalChangeTimestamp();
+        session.actionStartTimestamp = session.actionTimestamp;
+        session.transactionTimestamp = session.actionTimestamp;
+        session.isPreTransaction     = false;
+        session.isTransaction        = true;
+
+        transactionCount.incrementAndGet();
     }
 
     void adjustLobUsage(Session session) {

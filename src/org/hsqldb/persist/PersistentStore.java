@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * Interface for a store for CachedObject objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.4.2
  * @since 1.9.0
  */
 public interface PersistentStore {
@@ -107,7 +107,7 @@ public interface PersistentStore {
     //
     void delete(Session session, Row row);
 
-    void indexRow(Session session, Row row);
+    void indexRow(Session session, Row row, boolean enforceUnique);
 
     void commitRow(Session session, Row row, int changeAction, int txModel);
 
@@ -157,7 +157,7 @@ public interface PersistentStore {
 
     void moveDataToSpace(Session session);
 
-    void moveData(Session session, PersistentStore other, int colindex,
+    void moveData(Session session, PersistentStore other, int[] colIndex,
                   int adjust);
 
     void reindex(Session session, Index index);

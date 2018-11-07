@@ -61,8 +61,10 @@ public final class DateTimeType extends DTIType {
         HsqlDateTime.getDateSeconds("1-01-01");
     public static final TimestampData epochTimestamp =
         new TimestampData(epochSeconds);
-    public static final long limitSeconds =
+    public static final long epochLimitSeconds =
         HsqlDateTime.getDateSeconds("10000-01-01");
+    public static final TimestampData epochLimitSecondsValue =
+        new TimestampData(epochLimitSeconds);
 
     public DateTimeType(int typeGroup, int type, int scale) {
 
@@ -887,7 +889,8 @@ public final class DateTimeType extends DTIType {
                         session.getCalendarGMT(), millis);
                     seconds = millis / 1000;
 
-                    if (seconds < epochSeconds || seconds > limitSeconds) {
+                    if (seconds < epochSeconds
+                            || seconds > epochLimitSeconds) {
                         throw Error.error(ErrorCode.X_22008);
                     }
 
@@ -933,7 +936,8 @@ public final class DateTimeType extends DTIType {
 
                     seconds = millis / 1000;
 
-                    if (seconds < epochSeconds || seconds > limitSeconds) {
+                    if (seconds < epochSeconds
+                            || seconds > epochLimitSeconds) {
                         throw Error.error(ErrorCode.X_22008);
                     }
 

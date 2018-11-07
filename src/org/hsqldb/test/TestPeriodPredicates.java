@@ -32,6 +32,9 @@
 package org.hsqldb.test;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.hsqldb.Scanner;
 import org.hsqldb.Session;
@@ -49,7 +52,7 @@ import junit.framework.Assert;
  * TODO: Add tests with intervals, other date types/time and time zone.
  *
  * @author Pascal-Eric Servais (peservais@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.2
  * @since 2.3.4
  */
 public class TestPeriodPredicates extends TestBase {
@@ -57,10 +60,11 @@ public class TestPeriodPredicates extends TestBase {
     private Scanner    scanner;
     private Connection conn;
     private Session    session;
+    private Statement  statement;
 
     public TestPeriodPredicates(String name) {
 
-        super(name,  "jdbc:hsqldb:mem:test", false, false);
+        super(name, "jdbc:hsqldb:mem:test", false, false);
 
         scanner = new Scanner();
     }
@@ -69,8 +73,9 @@ public class TestPeriodPredicates extends TestBase {
 
         super.setUp();
 
-        conn    = super.newConnection();
-        session = (Session) ((JDBCConnection) conn).getSession();
+        conn      = super.newConnection();
+        session   = (Session) ((JDBCConnection) conn).getSession();
+        statement = conn.createStatement();
     }
 
     /**
@@ -100,6 +105,22 @@ public class TestPeriodPredicates extends TestBase {
 
         assertTrue(DateTimeType.overlaps(session, a, ta, b, tb));
         assertTrue(DateTimeType.overlaps(session, b, tb, a, ta));
+    }
+
+    public void testSQLFirstPeriodOverlapsSecondPeriod() throws SQLException {
+
+        String sql =
+            "CALL"
+            + "(TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '2000-01-12 01:02:03')"
+            + "OVERLAPS"
+            + "(TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:03')";
+        ResultSet r = statement.executeQuery(sql);
+
+        r.next();
+        Boolean v = r.getBoolean(1);
+        boolean value = v.booleanValue();
+        assertTrue(value);
+        r.close();
     }
 
     /**
@@ -137,7 +158,7 @@ public class TestPeriodPredicates extends TestBase {
      * (TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:03')
      * is false
      */
-    public void testFirstPeriodDoesNotOverlapsSecondPeriod() {
+    public void testFirstPeriodDoesNotOverlapSecondPeriod() {
 
         Object[] a = {
             scanner.newTimestamp("1999-12-01 01:02:03"),
@@ -160,13 +181,29 @@ public class TestPeriodPredicates extends TestBase {
         assertFalse(DateTimeType.overlaps(session, b, tb, a, ta));
     }
 
+    public void testSQLFirstPeriodDoesNotOverlapSecondPeriod() throws SQLException {
+
+        String sql =
+            "CALL "
+            + "PERIOD(TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '1999-12-31 01:02:03')"
+            + "OVERLAPS "
+            + "PERIOD(TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:03')";
+        ResultSet r = statement.executeQuery(sql);
+
+        r.next();
+        Boolean v = r.getBoolean(1);
+        boolean value = v.booleanValue();
+        assertFalse(value);
+        r.close();
+    }
+
     /**
      * (TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '2000-01-01 01:02:03')
      * OVERLAPS
      * (TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:03')
      * is false
      */
-    public void testFirstPeriodDoesNotOverlapsSecondPeriod2() {
+    public void testFirstPeriodDoesNotOverlapSecondPeriod2() {
 
         Object[] a = {
             scanner.newTimestamp("1999-12-01 01:02:03"),
@@ -187,6 +224,22 @@ public class TestPeriodPredicates extends TestBase {
 
         assertFalse(DateTimeType.overlaps(session, a, ta, b, tb));
         assertFalse(DateTimeType.overlaps(session, b, tb, a, ta));
+    }
+
+    public void testSQLFirstPeriodDoesNotOverlapSecondPeriod2() throws SQLException {
+
+        String sql =
+            "CALL "
+            + "PERIOD(TIMESTAMP '1999-12-01 01:02:03', TIMESTAMP '2000-01-01 01:02:03')"
+            + "OVERLAPS "
+            + "PERIOD(TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:03')";
+        ResultSet r = statement.executeQuery(sql);
+
+        r.next();
+        Boolean v = r.getBoolean(1);
+        boolean value = v.booleanValue();
+        assertFalse(value);
+        r.close();
     }
 
     /**
@@ -284,7 +337,7 @@ public class TestPeriodPredicates extends TestBase {
      * (TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:03')
      * is false
      */
-    public void testFirstPeriodDoesNotOverlapsSecondPeriodWithInterval() {
+    public void testFirstPeriodDoesNotOverlapSecondPeriodWithInterval() {
 
         Object[] a = {
             scanner.newTimestamp("1999-12-01 01:02:03"),
@@ -573,6 +626,22 @@ public class TestPeriodPredicates extends TestBase {
         assertFalse(DateTimeType.succeeds(session, a, ta, b, tb));
     }
 
+    public void testSQLFirstPeriodDoesNotSucceedsSecondPeriod2() throws SQLException {
+
+        String sql =
+            "CALL "
+            + "PERIOD(TIMESTAMP '2000-02-01 01:02:03', TIMESTAMP '2000-03-01 01:02:03')"
+            + "SUCCEEDS "
+            + "PERIOD(TIMESTAMP '2000-01-01 01:02:03', TIMESTAMP '2000-02-01 01:02:04')";
+        ResultSet r = statement.executeQuery(sql);
+
+        r.next();
+        Boolean v = r.getBoolean(1);
+        boolean value = v.booleanValue();
+        assertFalse(value);
+        r.close();
+    }
+
     /**
      * (TIMESTAMP '2000-02-01 01:02:03', INTERVAL '31' DAY)
      * SUCCEEDS
@@ -740,11 +809,10 @@ public class TestPeriodPredicates extends TestBase {
             scanner.newTimestamp("1999-12-01 01:02:01"),
             scanner.newTimestamp("1999-12-01 01:02:03")
         };
-        Object[] b = {
-            scanner.newTimestamp("1999-12-01 01:02:03"),
-            null
+        Object[] b  = {
+            scanner.newTimestamp("1999-12-01 01:02:03"), null
         };
-        Type[] ta = {
+        Type[]   ta = {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
@@ -753,8 +821,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        assertFalse(DateTimeType.contains(session, a, ta, b, tb,
-                true));
+        assertFalse(DateTimeType.contains(session, a, ta, b, tb, true));
     }
 
     /**
@@ -769,11 +836,10 @@ public class TestPeriodPredicates extends TestBase {
             scanner.newTimestamp("1999-12-01 01:02:03"),
             scanner.newTimestamp("1999-12-31 01:02:03")
         };
-        Object[] b = {
-            scanner.newTimestamp("1999-12-01 01:02:03"),
-            null
+        Object[] b  = {
+            scanner.newTimestamp("1999-12-01 01:02:03"), null
         };
-        Type[] ta = {
+        Type[]   ta = {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
@@ -797,11 +863,10 @@ public class TestPeriodPredicates extends TestBase {
             scanner.newTimestamp("1999-12-01 01:02:03"),
             scanner.newTimestamp("1999-12-31 01:02:03")
         };
-        Object[] b = {
-            scanner.newTimestamp("1999-12-31 01:02:03"),
-            null
+        Object[] b  = {
+            scanner.newTimestamp("1999-12-31 01:02:03"), null
         };
-        Type[] ta = {
+        Type[]   ta = {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0),
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
@@ -810,8 +875,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        assertFalse(DateTimeType.contains(session, a, ta, b, tb,
-                true));
+        assertFalse(DateTimeType.contains(session, a, ta, b, tb, true));
     }
 
     /**
@@ -923,8 +987,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        assertFalse(DateTimeType.contains(session, a, ta, b, tb,
-                false));
+        assertFalse(DateTimeType.contains(session, a, ta, b, tb, false));
     }
 
     /**
@@ -952,8 +1015,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        assertTrue(DateTimeType.immediatelyPrecedes(session, a, ta, b,
-                tb));
+        assertTrue(DateTimeType.immediatelyPrecedes(session, a, ta, b, tb));
     }
 
     /**
@@ -981,8 +1043,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        assertFalse(DateTimeType.immediatelyPrecedes(session, a, ta, b,
-                tb));
+        assertFalse(DateTimeType.immediatelyPrecedes(session, a, ta, b, tb));
     }
 
     /**
@@ -1010,8 +1071,7 @@ public class TestPeriodPredicates extends TestBase {
             new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0)
         };
 
-        assertTrue(DateTimeType.immediatelySucceeds(session, a, ta, b,
-                tb));
+        assertTrue(DateTimeType.immediatelySucceeds(session, a, ta, b, tb));
     }
 
     /**

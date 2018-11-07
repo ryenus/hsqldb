@@ -31,6 +31,7 @@
 
 package org.hsqldb.index;
 
+import org.hsqldb.RangeVariable.RangeVariableConditions;
 import org.hsqldb.Row;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
@@ -158,7 +159,8 @@ public interface Index extends SchemaObject {
     /**
      * Insert a node into the index
      */
-    void insert(Session session, PersistentStore store, Row row);
+    void insert(Session session, PersistentStore store, Row row,
+                boolean enforceUnique);
 
     void delete(Session session, PersistentStore store, Row row);
 
@@ -218,6 +220,7 @@ public interface Index extends SchemaObject {
      * @return Iterator for first row
      */
     RowIterator firstRow(Session session, PersistentStore store,
+                         RangeVariableConditions[] conditions,
                          int distinctCount, boolean[] map);
 
     /**

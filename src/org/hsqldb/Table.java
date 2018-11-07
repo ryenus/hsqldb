@@ -56,6 +56,8 @@ import org.hsqldb.rights.Grantee;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Collation;
+import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 /**
@@ -105,6 +107,8 @@ public class Table extends TableBase implements SchemaObject {
     boolean          systemVersioning;
     PeriodDefinition systemPeriod;
     PeriodDefinition applicationPeriod;
+    int              systemPeriodStartColumn;
+    int              systemPeriodEndColumn;
 
     //
     public Table(Database database, HsqlName name, int type) {
@@ -425,11 +429,15 @@ public class Table extends TableBase implements SchemaObject {
 
             if (column.getSystemPeriodType()
                     == SchemaObject.PeriodSystemColumnType.PERIOD_ROW_START) {
-                sb.append(' ').append(Tokens.T_AS).append(' ');
+                sb.append(' ').append(Tokens.T_GENERATED).append(' ');
+                sb.append(Tokens.T_ALWAYS).append(' ');
+                sb.append(Tokens.T_AS).append(' ');
                 sb.append(Tokens.T_ROW).append(' ').append(Tokens.T_START);
             } else if (column.getSystemPeriodType()
                        == SchemaObject.PeriodSystemColumnType.PERIOD_ROW_END) {
-                sb.append(' ').append(Tokens.T_AS).append(' ');
+                sb.append(' ').append(Tokens.T_GENERATED).append(' ');
+                sb.append(Tokens.T_ALWAYS).append(' ');
+                sb.append(Tokens.T_AS).append(' ');
                 sb.append(Tokens.T_ROW).append(' ').append(Tokens.T_END);
             }
 
@@ -460,7 +468,7 @@ public class Table extends TableBase implements SchemaObject {
             sb.append(systemPeriod.getStartColumn().getName().statementName);
             sb.append(',');
             sb.append(systemPeriod.getEndColumn().getName().statementName);
-            sb.append('}');
+            sb.append(')');
         }
 
         if (applicationPeriod != null) {
@@ -469,10 +477,10 @@ public class Table extends TableBase implements SchemaObject {
             sb.append(Tokens.T_FOR).append(' ');
             sb.append(applicationPeriod.getName().statementName);
             sb.append('(');
-            sb.append(systemPeriod.getStartColumn().getName().statementName);
+            sb.append(applicationPeriod.getStartColumn().getName().statementName);
             sb.append(',');
-            sb.append(systemPeriod.getEndColumn().getName().statementName);
-            sb.append('}');
+            sb.append(applicationPeriod.getEndColumn().getName().statementName);
+            sb.append(')');
         }
 
         Constraint[] constraintList = getConstraints();
@@ -1297,6 +1305,10 @@ public class Table extends TableBase implements SchemaObject {
             tn = new Table(database, tableName, newType);
         }
 
+        tn.systemPeriod      = systemPeriod;
+        tn.applicationPeriod = applicationPeriod;
+        tn.systemVersioning  = systemVersioning;
+
         if (tableType == TEMP_TABLE) {
             tn.persistenceScope = persistenceScope;
         }
@@ -1820,6 +1832,17 @@ public class Table extends TableBase implements SchemaObject {
         colDefaults[i]  = column.getDefaultExpression();
         colGenerated[i] = column.isGenerated();
         colUpdated[i]   = column.isAutoUpdate();
+
+        if (column.isSystemPeriod()) {
+            int type = column.getSystemPeriodType();
+
+            if (type == SchemaObject.PeriodSystemColumnType.PERIOD_ROW_START) {
+                systemPeriodStartColumn = i;
+            } else if (type
+                       == SchemaObject.PeriodSystemColumnType.PERIOD_ROW_END) {
+                systemPeriodEndColumn = i;
+            }
+        }
     }
 
     /**
@@ -2550,7 +2573,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      *  Finds an existing index for an unordered full column group
      */
-    Index getIndexForColumns(int[] cols) {
+    Index getIndexForAllColumns(int[] cols) {
 
         for (int i = 0; i < indexList.length; i++) {
             if (ArrayUtil.haveEqualSets(indexList[i].getColumns(), cols,
@@ -2768,7 +2791,7 @@ public class Table extends TableBase implements SchemaObject {
 
     void generateAndCheckData(Session session, Object[] data) {
 
-        if (hasGeneratedValues) {
+        if (hasGeneratedValues || systemPeriod != null) {
             setGeneratedColumns(session, data);
         }
 
@@ -2802,6 +2825,29 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
+     * Method for inserting system version history row
+     */
+    Row insertSystemVersionHistoryRow(Session session, PersistentStore store,
+                                      Object[] data) {
+
+        TimestampData txTimestamp = session.getTransactionSystemTimestamp();
+
+        if (txTimestamp.equals(data[systemPeriodStartColumn])) {
+            return null;
+        }
+
+        Object[] newData = (Object[]) ArrayUtil.duplicateArray(data);
+
+        newData[systemPeriodEndColumn] = txTimestamp;
+
+        Row row = (Row) store.getNewCachedObject(session, newData, true);
+
+        session.database.txManager.addInsertAction(session, this, store, row);
+
+        return row;
+    }
+
+    /**
      * Multi-row insert method. Used for CREATE TABLE AS ... queries.
      */
     void insertIntoTable(Session session, Result result) {
@@ -2814,7 +2860,7 @@ public class Table extends TableBase implements SchemaObject {
             Object[] newData =
                 (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
 
-            insertData(session, store, newData);
+            insertData(session, store, newData, true);
         }
     }
 
@@ -2827,8 +2873,19 @@ public class Table extends TableBase implements SchemaObject {
 
         PersistentStore store = getRowStore(session);
         Row row = (Row) store.getNewCachedObject(session, data, true);
+        boolean         enforceUnique = true;
 
-        session.addInsertAction(this, store, row, null);
+        if (systemVersioning) {
+            enforceUnique = data[systemPeriodEndColumn].equals(
+                DateTimeType.epochLimitSecondsValue);
+        }
+
+        if (enforceUnique) {
+            database.txManager.addInsertAction(session, this, store, row,
+                                               null);
+        } else {
+            database.txManager.addInsertAction(session, this, store, row);
+        }
     }
 
     /**
@@ -2862,7 +2919,7 @@ public class Table extends TableBase implements SchemaObject {
             Object[] newData =
                 (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
 
-            insertData(session, store, newData);
+            insertData(session, store, newData, true);
         }
     }
 
@@ -2873,6 +2930,7 @@ public class Table extends TableBase implements SchemaObject {
      */
     public void insertFromScript(Session session, PersistentStore store,
                                  Object[] data) {
+        boolean enforceUnique = true;
 
         systemUpdateIdentityValue(data);
 
@@ -2910,18 +2968,23 @@ public class Table extends TableBase implements SchemaObject {
             }
         }
 
-        insertData(session, store, data);
+        if (systemVersioning) {
+            enforceUnique = data[systemPeriodEndColumn].equals(
+                DateTimeType.epochLimitSecondsValue);
+        }
+
+        insertData(session, store, data, enforceUnique);
     }
 
     /**
      * For system operations outside transaction control
      */
     public void insertData(Session session, PersistentStore store,
-                           Object[] data) {
+                           Object[] data, boolean enforceUnique) {
 
         Row row = (Row) store.getNewCachedObject(session, data, false);
 
-        store.indexRow(session, row);
+        store.indexRow(session, row, enforceUnique);
     }
 
     /**
@@ -2932,7 +2995,7 @@ public class Table extends TableBase implements SchemaObject {
 
         Row row = (Row) store.getNewCachedObject(session, data, false);
 
-        store.indexRow(session, row);
+        store.indexRow(session, row, true);
     }
 
     /**
@@ -2965,12 +3028,18 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
+    // todo - needs revision
+    public void setAddedGeneratedColumns(Session session, Object[] data) {
+        setGeneratedColumns(session, data);
+    }
+
     public void setGeneratedColumns(Session session, Object[] data) {
 
         if (hasGeneratedValues) {
             for (int i = 0; i < colGenerated.length; i++) {
                 if (colGenerated[i]) {
-                    Expression e = getColumn(i).getGeneratingExpression();
+                    ColumnSchema column = getColumn(i);
+                    Expression   e      = column.getGeneratingExpression();
                     RangeIterator range =
                         session.sessionContext.getCheckIterator(
                             getDefaultRanges()[0]);
@@ -2980,6 +3049,12 @@ public class Table extends TableBase implements SchemaObject {
                     data[i] = e.getValue(session, colTypes[i]);
                 }
             }
+        }
+
+        if (systemPeriod != null) {
+            data[systemPeriodStartColumn] =
+                session.getTransactionSystemTimestamp();
+            data[systemPeriodEndColumn] = DateTimeType.epochLimitSecondsValue;
         }
     }
 
@@ -3096,10 +3171,10 @@ public class Table extends TableBase implements SchemaObject {
             index = getPrimaryIndex();
         }
 
-        return index.firstRow(session, store, 0, null);
+        return index.firstRow(session, store, null, 0, null);
     }
 
-    public RowIterator rowIteratorClustered(PersistentStore store) {
+    public RowIterator rowIteratorForScript(PersistentStore store) {
 
         Index index = getClusteredIndex();
 

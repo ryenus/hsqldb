@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.types.Type;
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -68,9 +68,9 @@ public class ParserDML extends ParserDQL {
         int           colCount;
         Table         table;
         RangeVariable range;
-        boolean       overridingUser    = false;
-        boolean       overridingSystem  = false;
-        boolean       assignsToIdentity = false;
+        boolean       overridingUser               = false;
+        boolean       overridingSystem             = false;
+        boolean       assignsToIdentityOrGenerated = false;
         Token         tableToken;
         boolean       hasColumnList = false;
         int           isSpecial     = StatementInsert.isNone;
@@ -241,26 +241,32 @@ public class ParserDML extends ParserDQL {
                             baseTable.getColumn(insertColumnMap[i]);
 
                         if (column.isIdentity()) {
-                            assignsToIdentity = true;
+                            assignsToIdentityOrGenerated = true;
 
                             if (e.getType() != OpTypes.DEFAULT) {
                                 if (baseTable.identitySequence.isAlways()) {
-                                    if (!overridingUser && !overridingSystem) {
+                                    if (overridingUser) {
+                                        rowArgs[i] = new ExpressionColumn(
+                                            OpTypes.DEFAULT);
+                                    } else {
                                         throw Error.error(ErrorCode.X_42543);
                                     }
-                                }
-
-                                if (overridingUser) {
-                                    rowArgs[i] =
-                                        new ExpressionColumn(OpTypes.DEFAULT);
                                 }
                             }
                         } else if (column.hasDefault()) {
 
                             //
-                        } else if (column.isGenerated()) {
+                        } else if (column.isGenerated()
+                                   || column.isSystemPeriod()) {
+                            assignsToIdentityOrGenerated = true;
+
                             if (e.getType() != OpTypes.DEFAULT) {
-                                throw Error.error(ErrorCode.X_42541);
+                                if (overridingUser) {
+                                    rowArgs[i] =
+                                        new ExpressionColumn(OpTypes.DEFAULT);
+                                } else {
+                                    throw Error.error(ErrorCode.X_42541);
+                                }
                             }
                         } else {
 
@@ -273,8 +279,7 @@ public class ParserDML extends ParserDQL {
                     }
                 }
 
-                if (!assignsToIdentity
-                        && (overridingUser || overridingSystem)) {
+                if (!assignsToIdentityOrGenerated && overridingUser) {
                     throw unexpectedTokenRequire(Tokens.T_OVERRIDING);
                 }
 

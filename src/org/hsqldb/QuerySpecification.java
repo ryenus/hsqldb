@@ -1110,7 +1110,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         if (!range.hasAnyIndexCondition()) {
-            Index index = range.rangeTable.getIndexForColumns(colMap);
+            Index index = range.rangeTable.getIndexForAllColumns(colMap);
 
             if (index != null) {
                 range.setSortIndex(index, false);

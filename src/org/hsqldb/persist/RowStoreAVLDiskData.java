@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -157,8 +157,8 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         return row;
     }
 
-    public void indexRow(Session session, Row row) {
-        super.indexRow(session, row);
+    public void indexRow(Session session, Row row, boolean enforceUnique) {
+        super.indexRow(session, row, true);
     }
 
     public boolean isMemory() {
@@ -257,7 +257,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
             case RowAction.ACTION_DELETE :
                 if (txModel == TransactionManager.LOCKS) {
                     ((RowAVL) row).setNewNodes(this);
-                    indexRow(session, row);
+                    indexRow(session, row, true);
                 }
                 break;
 

@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2016, The HSQL Development Group
+ * Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ import org.hsqldb.persist.PersistentStore;
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.0.1
+ * @version 2.4.2
  * @since Hypersonic SQL
  */
 public class RowAVL extends Row {
@@ -105,7 +105,7 @@ public class RowAVL extends Row {
      *  Constructor for MEMORY table Row. The result is a Row with Nodes that
      *  are not yet linked with other Nodes in the AVL indexes.
      */
-    public RowAVL(TableBase table, Object[] data, int position,
+    public RowAVL(TableBase table, Object[] data, long position,
                   PersistentStore store) {
 
         super(table, data);

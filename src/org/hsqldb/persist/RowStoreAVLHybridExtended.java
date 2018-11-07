@@ -45,7 +45,7 @@ import org.hsqldb.navigator.RowIterator;
  * Implementation of PersistentStore for information schema and temp tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 2.0.1
  */
 public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
@@ -80,7 +80,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         }
     }
 
-    public void indexRow(Session session, Row row) {
+    public void indexRow(Session session, Row row, boolean enforceUnique) {
 
         NodeAVL node  = ((RowAVL) row).getNode(0);
         int     count = 0;
@@ -95,7 +95,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
             row = (Row) getNewCachedObject(session, row.getData(), true);
         }
 
-        super.indexRow(session, row);
+        super.indexRow(session, row, true);
     }
 
     /**
@@ -112,7 +112,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
             node = node.nNext;
         }
 
-        if (isCached && row.isMemory() || count != indexList.length) {
+        if ((isCached && row.isMemory()) || count != indexList.length) {
             row = ((Table) table).getDeleteRowFromLog(session, row.getData());
         }
 
@@ -192,7 +192,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
             Row newRow = (Row) getNewCachedObject(session, row.getData(),
                                                   false);
 
-            indexRow(session, newRow);
+            indexRow(session, newRow, true);
         }
     }
 }

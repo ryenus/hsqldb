@@ -225,7 +225,7 @@ public class ExpressionTable extends Expression {
             Row row = (Row) store.getNewCachedObject(session, newdata, false);
 
             try {
-                store.indexRow(session, row);
+                store.indexRow(session, row, true);
             } catch (HsqlException e) {}
         }
     }
@@ -266,7 +266,7 @@ public class ExpressionTable extends Expression {
             Row row = (Row) store.getNewCachedObject(session, data, false);
 
             try {
-                store.indexRow(session, row);
+                store.indexRow(session, row, true);
             } catch (HsqlException e) {}
         }
     }
