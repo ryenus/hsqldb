@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.Set;
 
 /**
  * Nodes represent PERIOD start and end.<p>
@@ -178,6 +179,13 @@ public class ExpressionPeriod extends Expression {
             if (nodes[i] != null) {
                 nodes[i].resolveTypes(session, this);
             }
+        }
+    }
+
+    void collectObjectNames(Set set) {
+
+        if (period != null) {
+            set.add(period.getName());
         }
     }
 }

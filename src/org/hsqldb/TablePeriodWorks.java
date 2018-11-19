@@ -31,56 +31,113 @@
 
 package org.hsqldb;
 
-import org.hsqldb.error.ErrorCode;
 import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
+import org.hsqldb.index.Index;
+import org.hsqldb.navigator.RowIterator;
+import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.TimestampData;
 
+/**
+ * The methods in this class perform alterations to the structure of an
+ * existing table which may result in a new Table object.
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.4.2
+ * @since 2.4.2
+ */
+class TablePeriodWorks {
 
-    /**
-     * The methods in this class perform alterations to the structure of an
-     * existing table which may result in a new Table object.
-     *
-     * @author Fred Toussi (fredt@users dot sourceforge.net)
-     * @version 2.4.2
-     * @since 2.4.2
-     */
-    class TablePeriodWorks {
+    private Database database;
+    private Table    table;
+    private Session  session;
 
-        private Database database;
-        private Table    table;
-        private Session  session;
+    public TablePeriodWorks(Session session, Table table) {
 
-        public TablePeriodWorks(Session session, Table table) {
-
-            this.database = table.database;
-            this.table    = table;
-            this.session  = session;
-        }
-
+        this.database = table.database;
+        this.table    = table;
+        this.session  = session;
+    }
 
     void addSystemPeriod(PeriodDefinition period) {
 
+        if (table.systemPeriod != null) {
+            throw Error.error(ErrorCode.X_42517);
+        }
+
+        TableWorks tw = new TableWorks(session, table);
+
+        tw.addSystemPeriod(period);
     }
 
     void addApplicationPeriod(PeriodDefinition period) {
         throw Error.error(ErrorCode.X_0A501);
-
     }
 
     void addSystemVersioning() {
 
-    }
-
-    void dropSystemPeriod() {
-        if(table.isSystemVersioned()) {
-
+        if (table.isSystemVersioned) {
+            throw Error.error(ErrorCode.X_42518);
         }
+
+        if (table.systemPeriod == null) {
+            throw Error.error(ErrorCode.X_42518);
+        }
+
+        table.isSystemVersioned = true;
     }
 
-    void dropApplicationPeriod() {
+    void dropSystemPeriod(boolean cascade) {
+
+        if (table.isSystemVersioned) {
+            throw Error.error(ErrorCode.X_42518);
+        }
+
+        if (table.systemPeriod == null) {
+            throw Error.error(ErrorCode.X_42517);
+        }
+
+        TableWorks tw = new TableWorks(session, table);
+
+        tw.dropSystemPeriod(cascade);
+    }
+
+    void dropApplicationPeriod(boolean cascade) {
         throw Error.error(ErrorCode.X_0A501);
     }
 
-    void dropSystemVersioning() {
+    void dropSystemVersioning(boolean cascade) {
 
+        if (!table.isSystemVersioned()) {
+            throw Error.error(ErrorCode.X_42518);
+        }
+
+        TableWorks tw = new TableWorks(session, table);
+
+        tw.dropSystemVersioning(cascade);
+
+        long timestampLimit = DateTimeType.epochLimitTimestamp.getSeconds();
+
+        removeOldRows(timestampLimit);
+
+        table.isSystemVersioned = false;
+    }
+
+    long removeOldRows(long timestampLimit) {
+
+        int         colIndex = table.systemPeriodEndColumn;
+        long        count    = 0;
+        RowIterator it       = table.rowIterator(session);
+
+        while (it.next()) {
+            TimestampData value = (TimestampData) it.getField(colIndex);
+
+            if (value.getSeconds() < timestampLimit) {
+                it.removeCurrent();
+            }
+        }
+
+        return count;
     }
 }

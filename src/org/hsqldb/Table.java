@@ -104,7 +104,7 @@ public class Table extends TableBase implements SchemaObject {
     RangeVariable[] defaultRanges;
 
     //
-    boolean          systemVersioning;
+    boolean          isSystemVersioned;
     PeriodDefinition systemPeriod;
     PeriodDefinition applicationPeriod;
     int              systemPeriodStartColumn;
@@ -477,9 +477,11 @@ public class Table extends TableBase implements SchemaObject {
             sb.append(Tokens.T_FOR).append(' ');
             sb.append(applicationPeriod.getName().statementName);
             sb.append('(');
-            sb.append(applicationPeriod.getStartColumn().getName().statementName);
+            sb.append(
+                applicationPeriod.getStartColumn().getName().statementName);
             sb.append(',');
-            sb.append(applicationPeriod.getEndColumn().getName().statementName);
+            sb.append(
+                applicationPeriod.getEndColumn().getName().statementName);
             sb.append(')');
         }
 
@@ -506,7 +508,7 @@ public class Table extends TableBase implements SchemaObject {
             sb.append(' ').append(Tokens.T_ROWS);
         }
 
-        if (systemVersioning) {
+        if (isSystemVersioned) {
             sb.append(' ').append(Tokens.T_WITH).append(' ');
             sb.append(Tokens.T_SYSTEM).append(' ').append(Tokens.T_VERSIONING);
         }
@@ -1242,7 +1244,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     public boolean isSystemVersioned() {
-        return systemVersioning;
+        return isSystemVersioned;
     }
 
     public PeriodDefinition getSystemPeriod() {
@@ -1281,8 +1283,8 @@ public class Table extends TableBase implements SchemaObject {
      * Does not work in this form for FK's as Constraint.ConstraintCore
      * is not transferred to a referencing or referenced table
      */
-    Table moveDefinition(Session session, int newType, ColumnSchema column,
-                         Constraint constraint, Index index, int colIndex,
+    Table moveDefinition(Session session, int newType, ColumnSchema[] columns,
+                         Constraint constraint, Index index, int[] colIndex,
                          int adjust, OrderedHashSet dropConstraints,
                          OrderedHashSet dropIndexes) {
 
@@ -1307,7 +1309,7 @@ public class Table extends TableBase implements SchemaObject {
 
         tn.systemPeriod      = systemPeriod;
         tn.applicationPeriod = applicationPeriod;
-        tn.systemVersioning  = systemVersioning;
+        tn.isSystemVersioned = isSystemVersioned;
 
         if (tableType == TEMP_TABLE) {
             tn.persistenceScope = persistenceScope;
@@ -1316,17 +1318,25 @@ public class Table extends TableBase implements SchemaObject {
         tn.tableSpace = tableSpace;
 
         for (int i = 0; i < columnCount; i++) {
-            ColumnSchema col = (ColumnSchema) columnList.get(i);
+            int pos = ArrayUtil.find(colIndex, i);
 
-            if (i == colIndex) {
-                if (column != null) {
-                    tn.addColumn(column);
-                }
-
-                if (adjust <= 0) {
+            if (pos >= 0) {
+                if (adjust < 0) {
                     continue;
+                } else if (adjust == 0) {
+                    if (columns.length != 0) {
+                        tn.addColumn(columns[pos]);
+
+                        continue;
+                    }
+                } else {
+                    if (columns.length != 0) {
+                        tn.addColumn(columns[pos]);
+                    }
                 }
             }
+
+            ColumnSchema col = (ColumnSchema) columnList.get(i);
 
             col = col.duplicate();
 
@@ -1334,8 +1344,11 @@ public class Table extends TableBase implements SchemaObject {
             tn.addColumn(col);
         }
 
-        if (columnCount == colIndex) {
-            tn.addColumn(column);
+        // single column added anywhere or two or more columns addded at the end
+        int count = ArrayUtil.countSmallerElements(colIndex, columnCount);
+
+        for (int i = count; i < colIndex.length; i++) {
+            tn.addColumn(columns[i]);
         }
 
         int[] pkCols = null;
@@ -1399,7 +1412,7 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         if (!newPK && constraint != null) {
-            constraint.updateTable(session, this, tn, -1, 0);
+            constraint.updateTable(session, this, tn, new int[]{}, 0);
             newList.add(constraint);
         }
 
@@ -1793,12 +1806,14 @@ public class Table extends TableBase implements SchemaObject {
             colTypes = new Type[columnCount];
         }
 
-        colDefaults          = new Expression[columnCount];
-        colNotNull           = new boolean[columnCount];
-        emptyColumnCheckList = new boolean[columnCount];
-        colGenerated         = new boolean[columnCount];
-        colUpdated           = new boolean[columnCount];
-        defaultColumnMap     = new int[columnCount];
+        colDefaults             = new Expression[columnCount];
+        colNotNull              = new boolean[columnCount];
+        emptyColumnCheckList    = new boolean[columnCount];
+        colGenerated            = new boolean[columnCount];
+        colUpdated              = new boolean[columnCount];
+        defaultColumnMap        = new int[columnCount];
+        systemPeriodStartColumn = 0;
+        systemPeriodEndColumn   = 0;
 
         for (int i = 0; i < columnCount; i++) {
             setSingleColumnTypeVars(i);
@@ -2660,9 +2675,9 @@ public class Table extends TableBase implements SchemaObject {
                     && matchCount == currentIndex.getColumnCount()) {
                 indexUse = currentIndex.asArray();
             } else {
-                IndexUse[] newList = new IndexUse[indexUse.length + 1];
-
-                ArrayUtil.copyArray(indexUse, newList, indexUse.length);
+                IndexUse[] newList =
+                    (IndexUse[]) ArrayUtil.resizeArray(indexUse,
+                                                       indexUse.length + 1);
 
                 newList[newList.length - 1] = new IndexUse(currentIndex,
                         matchCount);
@@ -2842,7 +2857,7 @@ public class Table extends TableBase implements SchemaObject {
 
         Row row = (Row) store.getNewCachedObject(session, newData, true);
 
-        session.database.txManager.addInsertAction(session, this, store, row);
+        session.database.txManager.addInsertAction(session, store, row);
 
         return row;
     }
@@ -2871,20 +2886,20 @@ public class Table extends TableBase implements SchemaObject {
 
         systemUpdateIdentityValue(data);
 
-        PersistentStore store = getRowStore(session);
+        PersistentStore store         = getRowStore(session);
         Row row = (Row) store.getNewCachedObject(session, data, true);
         boolean         enforceUnique = true;
 
-        if (systemVersioning) {
+        if (isSystemVersioned) {
             enforceUnique = data[systemPeriodEndColumn].equals(
-                DateTimeType.epochLimitSecondsValue);
+                DateTimeType.epochLimitTimestamp);
         }
 
         if (enforceUnique) {
             database.txManager.addInsertAction(session, this, store, row,
                                                null);
         } else {
-            database.txManager.addInsertAction(session, this, store, row);
+            database.txManager.addInsertAction(session, store, row);
         }
     }
 
@@ -2930,6 +2945,7 @@ public class Table extends TableBase implements SchemaObject {
      */
     public void insertFromScript(Session session, PersistentStore store,
                                  Object[] data) {
+
         boolean enforceUnique = true;
 
         systemUpdateIdentityValue(data);
@@ -2968,9 +2984,9 @@ public class Table extends TableBase implements SchemaObject {
             }
         }
 
-        if (systemVersioning) {
+        if (isSystemVersioned) {
             enforceUnique = data[systemPeriodEndColumn].equals(
-                DateTimeType.epochLimitSecondsValue);
+                DateTimeType.epochLimitTimestamp);
         }
 
         insertData(session, store, data, enforceUnique);
@@ -2984,7 +3000,7 @@ public class Table extends TableBase implements SchemaObject {
 
         Row row = (Row) store.getNewCachedObject(session, data, false);
 
-        store.indexRow(session, row, enforceUnique);
+        store.indexRow(session, row);
     }
 
     /**
@@ -2995,7 +3011,7 @@ public class Table extends TableBase implements SchemaObject {
 
         Row row = (Row) store.getNewCachedObject(session, data, false);
 
-        store.indexRow(session, row, true);
+        store.indexRow(session, row);
     }
 
     /**
@@ -3028,9 +3044,35 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    // todo - needs revision
-    public void setAddedGeneratedColumns(Session session, Object[] data) {
-        setGeneratedColumns(session, data);
+    public Object getColumnDefaultOrGeneratedValue(Session session,
+            ColumnSchema column, Object[] data) {
+
+        Object value = null;
+
+        if (column.isGenerated()) {
+            Expression e = column.getGeneratingExpression();
+            RangeIterator range =
+                session.sessionContext.getCheckIterator(getDefaultRanges()[0]);
+
+            range.setCurrent(data);
+
+            value = e.getValue(session, column.getDataType());
+        } else if (column.isSystemPeriod()) {
+            switch (column.getSystemPeriodType()) {
+
+                case SchemaObject.PeriodSystemColumnType.PERIOD_ROW_START :
+                    value = session.getTransactionSystemTimestamp();
+                    break;
+
+                case SchemaObject.PeriodSystemColumnType.PERIOD_ROW_END :
+                    value = DateTimeType.epochLimitTimestamp;
+                    break;
+            }
+        } else {
+            value = column.getDefaultValue(session);
+        }
+
+        return value;
     }
 
     public void setGeneratedColumns(Session session, Object[] data) {
@@ -3054,7 +3096,7 @@ public class Table extends TableBase implements SchemaObject {
         if (systemPeriod != null) {
             data[systemPeriodStartColumn] =
                 session.getTransactionSystemTimestamp();
-            data[systemPeriodEndColumn] = DateTimeType.epochLimitSecondsValue;
+            data[systemPeriodEndColumn] = DateTimeType.epochLimitTimestamp;
         }
     }
 

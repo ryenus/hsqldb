@@ -1404,7 +1404,7 @@ public class Expression implements Cloneable {
             Row row = (Row) store.getNewCachedObject(session, data, false);
 
             try {
-                store.indexRow(session, row, true);
+                store.indexRow(session, row);
             } catch (HsqlException e) {}
         }
     }

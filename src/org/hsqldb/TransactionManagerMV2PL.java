@@ -57,8 +57,8 @@ implements TransactionManager {
 
         super(db);
 
-        lobSession      = database.sessionManager.getSysLobSession();
-        txModel         = MVLOCKS;
+        lobSession = database.sessionManager.getSysLobSession();
+        txModel    = MVLOCKS;
     }
 
     public long getGlobalChangeTimestamp() {
@@ -278,7 +278,7 @@ implements TransactionManager {
                                      PersistentStore store, Row row,
                                      int[] colMap) {
 
-        RowAction    action   = null;
+        RowAction   action   = null;
         RowStoreAVL rowstore = (RowStoreAVL) store;
 
         action = rowstore.addDeleteActionToRow(session, row, colMap, true);
@@ -309,7 +309,7 @@ implements TransactionManager {
                                      "null insert action ");
         }
 
-        store.indexRow(session, row, true);
+        store.indexRow(session, row);
 
         if (table.persistenceScope == Table.SCOPE_ROUTINE) {
             row.rowAction = null;
@@ -320,8 +320,8 @@ implements TransactionManager {
         session.rowActionList.add(action);
     }
 
-    public void addInsertAction(Session session, Table table,
-                                PersistentStore store, Row row) {
+    public void addInsertAction(Session session, PersistentStore store,
+                                Row row) {
 
         RowAction action = row.rowAction;
 
@@ -330,14 +330,11 @@ implements TransactionManager {
                                      "null insert action ");
         }
 
-        store.indexRow(session, row, false);
-
+        store.indexRow(session, row);
         session.rowActionList.add(action);
 
         row.rowAction = null;
     }
-
-
 
 // functional unit - accessibility of rows
     public boolean canRead(Session session, PersistentStore store, Row row,

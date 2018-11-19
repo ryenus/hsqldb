@@ -36,12 +36,14 @@ import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.TimestampData;
 
 /**
  * Base class for a database row object.
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.3.3
+ * @version 2.4.2
  */
 public class Row implements CachedObject {
 
@@ -73,6 +75,16 @@ public class Row implements CachedObject {
         return rowData;
     }
 
+    public Object[] getDataCopy() {
+
+        Object[] newData = new Object[rowData.length];
+        Object[] data    = getData();
+
+        System.arraycopy(data, 0, newData, 0, data.length);
+
+        return newData;
+    }
+
     boolean isDeleted(Session session, PersistentStore store) {
 
         RowAction action;
@@ -89,6 +101,18 @@ public class Row implements CachedObject {
         }
 
         return !action.canRead(session, TransactionManager.ACTION_READ);
+    }
+
+    public long getSystemVersion() {
+
+        if (((Table) table).isSystemVersioned) {
+            TimestampData ts = (TimestampData) getField(
+                ((Table) table).systemPeriodEndColumn);
+
+            return ts.getSeconds();
+        }
+
+        return DateTimeType.epochLimitSeconds;
     }
 
     public void setStorageSize(int size) {}

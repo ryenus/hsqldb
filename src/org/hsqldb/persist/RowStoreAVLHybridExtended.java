@@ -80,7 +80,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         }
     }
 
-    public void indexRow(Session session, Row row, boolean enforceUnique) {
+    public void indexRow(Session session, Row row) {
 
         NodeAVL node  = ((RowAVL) row).getNode(0);
         int     count = 0;
@@ -95,7 +95,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
             row = (Row) getNewCachedObject(session, row.getData(), true);
         }
 
-        super.indexRow(session, row, true);
+        super.indexRow(session, row);
     }
 
     /**
@@ -192,7 +192,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
             Row newRow = (Row) getNewCachedObject(session, row.getData(),
                                                   false);
 
-            indexRow(session, newRow, true);
+            indexRow(session, newRow);
         }
     }
 }

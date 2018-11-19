@@ -415,7 +415,7 @@ public class ParserTable extends ParserDML {
                 readThis(Tokens.SYSTEM);
                 readThis(Tokens.VERSIONING);
 
-                table.systemVersioning = true;
+                table.isSystemVersioned = true;
             }
         }
     }
@@ -1364,8 +1364,10 @@ public class ParserTable extends ParserDML {
 
         if (token.tokenType == Tokens.SYSTEM_TIME) {
             periodType = SchemaObject.PeriodType.PERIOD_SYSTEM;
-            periodName = database.nameManager.newHsqlName(token.tokenString,
-                    false, SchemaObject.COLUMN);
+            periodName =
+                database.nameManager.newHsqlName(table.getName().schema,
+                                                 token.tokenString, false,
+                                                 SchemaObject.PERIOD);
 
             read();
         } else {
@@ -1376,8 +1378,11 @@ public class ParserTable extends ParserDML {
             checkIsIrregularCharInIdentifier();
             checkIsSimpleName();
 
-            periodName = database.nameManager.newHsqlName(token.tokenString,
-                    isDelimitedIdentifier(), SchemaObject.COLUMN);
+            periodName =
+                database.nameManager.newHsqlName(table.getName().schema,
+                                                 token.tokenString,
+                                                 isDelimitedIdentifier(),
+                                                 SchemaObject.PERIOD);
 
             read();
         }
@@ -2333,6 +2338,9 @@ public class ParserTable extends ParserDML {
             throw Error.error(ErrorCode.X_42516, columnEnd.getNameString());
         }
 
+        period.startColumn = columnStart;
+        period.endColumn   = columnEnd;
+
         String   sql  = getLastPart();
         Object[] args = new Object[] {
             table, period
@@ -2359,11 +2367,11 @@ public class ParserTable extends ParserDML {
         PeriodDefinition period = table.systemPeriod;
 
         if (period == null) {
-            throw Error.error(ErrorCode.X_42501, Tokens.T_SYSTEM_TIME);
+            throw Error.error(ErrorCode.X_42517);
         }
 
-        if (table.systemVersioning) {
-            throw Error.error(ErrorCode.X_42501, Tokens.T_VERSIONING);
+        if (table.isSystemVersioned) {
+            throw Error.error(ErrorCode.X_42518);
         }
 
         Boolean  cascade = readIfThis(Tokens.CASCADE);
@@ -2384,7 +2392,7 @@ public class ParserTable extends ParserDML {
         PeriodDefinition period = table.systemPeriod;
 
         if (period == null) {
-            throw Error.error(ErrorCode.X_42501, Tokens.T_SYSTEM_TIME);
+            throw Error.error(ErrorCode.X_42518);
         }
 
         String   sql  = getLastPart();
@@ -2400,8 +2408,8 @@ public class ParserTable extends ParserDML {
 
     StatementSchema compileAlterTableDropVersioning(Table table) {
 
-        if (!table.systemVersioning) {
-            throw Error.error(ErrorCode.X_42501, Tokens.T_VERSIONING);
+        if (!table.isSystemVersioned) {
+            throw Error.error(ErrorCode.X_42518);
         }
 
         Boolean  cascade = readIfThis(Tokens.CASCADE);

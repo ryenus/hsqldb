@@ -6581,7 +6581,7 @@ public class ParserDQL extends ParserBase {
                 read();
                 readIfThis(Tokens.ASYMMETRIC);
 
-                Expression pointStart = XreadDatetimeValueExpression();
+                Expression pointStart = XreadValueExpression();
 
                 readThis(Tokens.AND);
 
@@ -7410,6 +7410,12 @@ public class ParserDQL extends ParserBase {
                 if (name.schema != SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                     set.add(name);
                     set.addAll(range.getColumnNames());
+
+                    if (range.periodCondition != null) {
+                        if (range.periodCondition.isSystemVersionCondition()) {
+                            set.add(range.rangeTable.systemPeriod.getName());
+                        }
+                    }
                 } else if (name.type == SchemaObject.TRANSITION) {
                     set.addAll(range.getColumnNames());
                 }

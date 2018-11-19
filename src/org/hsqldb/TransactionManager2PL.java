@@ -247,7 +247,7 @@ implements TransactionManager {
                                      "null insert action ");
         }
 
-        store.indexRow(session, row, true);
+        store.indexRow(session, row);
 
         if (table.persistenceScope == Table.SCOPE_ROUTINE) {
             row.rowAction = null;
@@ -260,8 +260,8 @@ implements TransactionManager {
         row.rowAction = null;
     }
 
-    public void addInsertAction(Session session, Table table,
-                                PersistentStore store, Row row) {
+    public void addInsertAction(Session session, PersistentStore store,
+                                Row row) {
 
         RowAction action = row.rowAction;
 
@@ -270,8 +270,7 @@ implements TransactionManager {
                                      "null insert action ");
         }
 
-        store.indexRow(session, row, false);
-
+        store.indexRow(session, row);
         session.rowActionList.add(action);
 
         row.rowAction = null;

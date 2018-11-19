@@ -107,7 +107,7 @@ public interface PersistentStore {
     //
     void delete(Session session, Row row);
 
-    void indexRow(Session session, Row row, boolean enforceUnique);
+    void indexRow(Session session, Row row);
 
     void commitRow(Session session, Row row, int changeAction, int txModel);
 

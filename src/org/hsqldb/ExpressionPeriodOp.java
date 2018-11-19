@@ -31,9 +31,10 @@
 
 package org.hsqldb;
 
-import org.hsqldb.error.ErrorCode;
 import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.Set;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.Type;
 
@@ -46,6 +47,14 @@ import org.hsqldb.types.Type;
  */
 public class ExpressionPeriodOp extends ExpressionLogical {
 
+    // for object reference collection
+    PeriodDefinition leftPeriod;
+    PeriodDefinition rightPeriod;
+
+    // for SYSTEM_TIME
+    final boolean isSystemVersionCondition;
+
+    //
     boolean transformed;
 
     /**
@@ -55,18 +64,22 @@ public class ExpressionPeriodOp extends ExpressionLogical {
 
         super(OpTypes.SMALLER);
 
-        this.nodes = nodes;
+        this.nodes                    = nodes;
+        this.isSystemVersionCondition = false;
     }
 
     /**
      * general constructor
      */
     ExpressionPeriodOp(int type, Expression left, Expression right) {
+
         super(type, left, right);
+
+        this.isSystemVersionCondition = false;
     }
 
     /**
-     * FOR SYSTEM_TIME AT CURRENT_TIMESTAMP (as default condition)
+     * FOR SYSTEM_TIME AS OF CURRENT_TIMESTAMP (as default condition)
      */
     ExpressionPeriodOp() {
 
@@ -78,10 +91,13 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         nodes = new Expression[] {
             left, right
         };
+
+        // default condition does not count
+        this.isSystemVersionCondition = false;
     }
 
     /**
-     * FOR SYSTEM_TIME AT
+     * FOR SYSTEM_TIME AS OF
      */
     ExpressionPeriodOp(Expression pointOfTime) {
 
@@ -89,9 +105,10 @@ public class ExpressionPeriodOp extends ExpressionLogical {
 
         Expression left = new ExpressionPeriod();
 
-        nodes = new Expression[] {
+        nodes                         = new Expression[] {
             left, pointOfTime
         };
+        this.isSystemVersionCondition = true;
     }
 
     /**
@@ -104,9 +121,14 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         Expression left  = new ExpressionPeriod();
         Expression right = new ExpressionPeriod(start, end);
 
-        nodes = new Expression[] {
+        nodes                         = new Expression[] {
             left, right
         };
+        this.isSystemVersionCondition = true;
+    }
+
+    boolean isSystemVersionCondition() {
+        return isSystemVersionCondition;
     }
 
     void setSystemRangeVariable(Session session, RangeVariable range) {
@@ -132,6 +154,14 @@ public class ExpressionPeriodOp extends ExpressionLogical {
             unresolvedSet = nodes[i].resolveColumnReferences(session,
                     rangeGroup, rangeCount, rangeGroups, unresolvedSet,
                     acceptsSequences);
+        }
+
+        if (nodes[LEFT] instanceof ExpressionPeriod) {
+            leftPeriod = ((ExpressionPeriod) nodes[LEFT]).period;
+        }
+
+        if (nodes[RIGHT] instanceof ExpressionPeriod) {
+            rightPeriod = ((ExpressionPeriod) nodes[LEFT]).period;
         }
 
         if (!transformed) {
@@ -231,8 +261,19 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         return Boolean.TRUE;
     }
 
+    void collectObjectNames(Set set) {
+
+        if (leftPeriod != null) {
+            set.add(leftPeriod.getName());
+        }
+
+        if (rightPeriod != null) {
+            set.add(rightPeriod.getName());
+        }
+    }
+
     static Expression getEpochLimitExpression() {
-        return new ExpressionValue(DateTimeType.epochLimitSecondsValue,
+        return new ExpressionValue(DateTimeType.epochLimitTimestamp,
                                    Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
     }
 

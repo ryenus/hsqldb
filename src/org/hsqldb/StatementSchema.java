@@ -106,10 +106,10 @@ public class StatementSchema extends Statement {
             case StatementTypes.ALTER_TABLE :
             case StatementTypes.ALTER_TRANSFORM :
             case StatementTypes.ALTER_VIEW :
-            case StatementTypes.ADD_TABLE_PERIOD : 
-            case StatementTypes.DROP_TABLE_PERIOD : 
-            case StatementTypes.ADD_TABLE_SYSTEM_VERSIONING : 
-            case StatementTypes.DROP_TABLE_SYSTEM_VERSIONING : 
+            case StatementTypes.ADD_TABLE_PERIOD :
+            case StatementTypes.DROP_TABLE_PERIOD :
+            case StatementTypes.ADD_TABLE_SYSTEM_VERSIONING :
+            case StatementTypes.DROP_TABLE_SYSTEM_VERSIONING :
                 group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
                 break;
 
@@ -673,14 +673,15 @@ public class StatementSchema extends Statement {
             case StatementTypes.DROP_TABLE_PERIOD : {
                 Table            table  = (Table) arguments[0];
                 PeriodDefinition period = (PeriodDefinition) arguments[1];
+                Boolean cascade = (Boolean) arguments[2];
                 TablePeriodWorks works  = new TablePeriodWorks(session, table);
 
                 try {
                     if (period.getPeriodType()
                             == SchemaObject.PeriodType.PERIOD_SYSTEM) {
-                        works.dropSystemPeriod();
+                        works.dropSystemPeriod(cascade.booleanValue());
                     } else {
-                        works.dropApplicationPeriod();
+                        works.dropApplicationPeriod(cascade.booleanValue());
                     }
 
                     break;
@@ -702,10 +703,11 @@ public class StatementSchema extends Statement {
             }
             case StatementTypes.DROP_TABLE_SYSTEM_VERSIONING : {
                 Table            table = (Table) arguments[0];
+                Boolean cascade = (Boolean) arguments[1];
                 TablePeriodWorks works = new TablePeriodWorks(session, table);
 
                 try {
-                    works.dropSystemVersioning();
+                    works.dropSystemVersioning(cascade);
 
                     break;
                 } catch (HsqlException e) {
