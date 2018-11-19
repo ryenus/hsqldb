@@ -213,12 +213,12 @@ public class RowStoreAVLHybrid extends RowStoreAVL {
         return row;
     }
 
-    public void indexRow(Session session, Row row, boolean enforceUnique) {
+    public void indexRow(Session session, Row row) {
 
         try {
             row = (Row) get(row, true);
 
-            super.indexRow(session, row, true);
+            super.indexRow(session, row);
         } catch (HsqlException e) {
             throw e;
         } finally {
@@ -288,7 +288,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL {
 
                 ((RowAVL) row).setNewNodes(this);
                 row.keepInMemory(false);
-                indexRow(session, row, true);
+                indexRow(session, row);
                 break;
 
             case RowAction.ACTION_INSERT :
@@ -401,7 +401,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL {
             Row newRow = (Row) getNewCachedObject(session, row.getData(),
                                                   false);
 
-            indexRow(session, newRow, true);
+            indexRow(session, newRow);
         }
 
         idx.unlinkNodes(this, root);

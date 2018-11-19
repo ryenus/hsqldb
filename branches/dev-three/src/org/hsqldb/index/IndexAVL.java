@@ -89,6 +89,7 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.Type;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users - corrections
@@ -823,6 +824,22 @@ public class IndexAVL implements Index {
             }
         }
 
+        // versioned rows are ordered by timestamp and row id
+        if (start == 0 && ((Table) table).isSystemVersioned()) {
+            long newVersion      = newRow.getSystemVersion();
+            long existingVersion = existingRow.getSystemVersion();
+
+            if (newVersion < existingVersion) {
+                return -1;
+            } else if (newVersion > existingVersion) {
+                return 1;
+            }
+
+            if (newVersion < DateTimeType.epochLimitSeconds) {
+                useRowId = true;
+            }
+        }
+
         if (useRowId) {
             long diff = newRow.getPos() - existingRow.getPos();
 
@@ -866,15 +883,13 @@ public class IndexAVL implements Index {
     /**
      * Insert a node into the index
      */
-    public void insert(Session session, PersistentStore store, Row row,
-                       boolean enforceUnique) {
+    public void insert(Session session, PersistentStore store, Row row) {
 
         NodeAVL n;
         NodeAVL x;
-        boolean isleft  = true;
-        int     compare = -1;
-        boolean compareRowId = !enforceUnique || !isUnique
-                               || hasNulls(session, row.getData());
+        boolean isleft       = true;
+        int     compare      = -1;
+        boolean compareRowId = !isUnique || hasNulls(session, row.getData());
 
         n = getAccessor(store);
         x = n;
@@ -1510,7 +1525,9 @@ public class IndexAVL implements Index {
         row = node.getRow(store);
 
         if (store.canRead(session, row, TransactionManager.ACTION_DUP, null)) {
-            return true;
+            if (row.getSystemVersion() == DateTimeType.epochLimitSeconds) {
+                return true;
+            }
         }
 
         data = node.getData(store);
@@ -1529,7 +1546,10 @@ public class IndexAVL implements Index {
 
                 if (store.canRead(session, row, TransactionManager.ACTION_DUP,
                                   null)) {
-                    return true;
+                    if (row.getSystemVersion()
+                            == DateTimeType.epochLimitSeconds) {
+                        return true;
+                    }
                 }
 
                 continue;
@@ -1552,7 +1572,10 @@ public class IndexAVL implements Index {
 
                 if (store.canRead(session, row, TransactionManager.ACTION_DUP,
                                   null)) {
-                    return true;
+                    if (row.getSystemVersion()
+                            == DateTimeType.epochLimitSeconds) {
+                        return true;
+                    }
                 }
 
                 continue;
@@ -1574,7 +1597,7 @@ public class IndexAVL implements Index {
      * @param fieldCount int
      * @param compareType int
      * @param readMode int
-     * @param reversed
+     * @param reversed boolean
      * @return matching node or null
      */
     NodeAVL findNode(Session session, PersistentStore store, Object[] rowdata,

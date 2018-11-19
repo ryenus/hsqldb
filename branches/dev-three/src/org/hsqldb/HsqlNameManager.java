@@ -422,7 +422,8 @@ public final class HsqlNameManager {
                 case SchemaObject.VARIABLE : {
                     return statementName;
                 }
-                case SchemaObject.COLUMN : {
+                case SchemaObject.COLUMN :
+                case SchemaObject.PERIOD : {
                     if (parent == null
                             || SqlInvariants.SYSTEM_SUBQUERY.equals(
                                 parent.name)) {

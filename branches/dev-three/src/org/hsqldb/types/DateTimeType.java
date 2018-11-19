@@ -63,7 +63,7 @@ public final class DateTimeType extends DTIType {
         new TimestampData(epochSeconds);
     public static final long epochLimitSeconds =
         HsqlDateTime.getDateSeconds("10000-01-01");
-    public static final TimestampData epochLimitSecondsValue =
+    public static final TimestampData epochLimitTimestamp =
         new TimestampData(epochLimitSeconds);
 
     public DateTimeType(int typeGroup, int type, int scale) {

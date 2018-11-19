@@ -395,6 +395,9 @@ public class SchemaObjectSet {
             case SchemaObject.INDEX :
                 return Tokens.T_INDEX;
 
+            case SchemaObject.PERIOD :
+                return Tokens.T_PERIOD;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "SchemaObjectSet");
         }

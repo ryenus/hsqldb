@@ -210,14 +210,14 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         return row;
     }
 
-    public void indexRow(Session session, Row row, boolean enforceUnique) {
+    public void indexRow(Session session, Row row) {
 
         writeLock();
 
         try {
             row = (Row) get(row, true);
 
-            super.indexRow(session, row, enforceUnique);
+            super.indexRow(session, row);
         } catch (HsqlException e) {
             throw e;
         } finally {
@@ -328,7 +328,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
                     ((RowAVL) row).setNewNodes(this);
                     row.keepInMemory(false);
-                    indexRow(session, row, false);
+                    indexRow(session, row);
                 } else {
                     RowAction ra = row.getAction();
 

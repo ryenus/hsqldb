@@ -234,7 +234,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         }
     }
 
-    public void indexRow(Session session, Row row, boolean enforceUnique) {
+    public void indexRow(Session session, Row row) {
 
         int i = 0;
 
@@ -242,14 +242,14 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         try {
             for (; i < indexList.length; i++) {
-                indexList[i].insert(session, this, row, enforceUnique);
+                indexList[i].insert(session, this, row);
             }
 
             int j = 0;
 
             try {
                 for (j = 0; j < subStores.length; j++) {
-                    subStores[j].indexRow(session, row, enforceUnique);
+                    subStores[j].indexRow(session, row);
                 }
             } catch (HsqlException e) {
 
@@ -335,7 +335,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                 ((RowAVL) row).clearNonPrimaryNodes();
 
                 for (int i = 1; i < indexList.length; i++) {
-                    indexList[i].insert(session, this, row, true);
+                    indexList[i].insert(session, this, row);
                 }
             }
         } finally {
@@ -533,89 +533,99 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     /**
      * Moves the data from an old store to new after changes to table
-     * The colindex argument is the index of the column that was
+     * The colIndex argument is the indexes of the columns that were
      * removed, type modified or added. The adjust argument is {-1 | 0 | +1}.
      */
     public final void moveData(Session session, PersistentStore other,
                                int[] colIndex, int adjust) {
-
-        Type   oldtype  = null;
-        Type   newtype  = null;
-        Object colvalue = null;
-        int    colindex = colIndex[0];
-
-        if (adjust >= 0 && colindex != -1) {
-            ColumnSchema column = ((Table) table).getColumn(colindex);
-
-            colvalue = column.getDefaultValue(session);
-            newtype  = table.getColumnTypes()[colindex];
-        }
-
-        if (adjust <= 0 && colindex != -1) {
-            oldtype = other.getTable().getColumnTypes()[colindex];
-        }
 
         try {
             Table       table = (Table) this.table;
             RowIterator it    = other.rowIterator();
 
             while (it.next()) {
-                Row      row      = it.getCurrentRow();
-                Object[] olddata  = row.getData();
-                Object[] data     = table.getEmptyRowData();
-                Object   oldvalue = null;
+                Row      row     = it.getCurrentRow();
+                Object[] olddata = row.getData();
+                Object[] data    = table.getEmptyRowData();
 
-                if (adjust == 0 && colindex != -1) {
-                    oldvalue = olddata[colindex];
-                    colvalue = newtype.convertToType(session, oldvalue,
-                                                     oldtype);
+                ArrayUtil.copyAdjustArray(olddata, data, colIndex, adjust);
+
+                for (int i = 0; i < colIndex.length; i++) {
+                    if (adjust == 0) {
+                        Type oldtype =
+                            other.getTable().getColumnTypes()[colIndex[i]];
+                        Type newtype =
+                            this.table.getColumnTypes()[colIndex[i]];
+                        Object oldvalue = olddata[colIndex[i]];
+                        Object value = newtype.convertToType(session,
+                                                             oldvalue,
+                                                             oldtype);
+
+                        data[colIndex[i]] = value;
+
+                        table.systemSetIdentityColumn(session, data);
+                    } else if (adjust > 0) {
+                        ColumnSchema column =
+                            ((Table) table).getColumn(colIndex[i]);
+                        Object value =
+                            table.getColumnDefaultOrGeneratedValue(session,
+                                column, data);
+
+                        data[colIndex[i]] = value;
+
+                        table.systemSetIdentityColumn(session, data);
+                    } else {}
                 }
 
-                ArrayUtil.copyAdjustArray(olddata, data, colvalue, colindex,
-                                          adjust);
-                table.systemSetIdentityColumn(session, data);
-
-                // todo - this can be problematic for any existing GENERATED
-                // columns that use CURRENT_TIMESTAMP or similar
-                // this must also generate the SYSTEM_TIME column values
-                ((Table) table).setAddedGeneratedColumns(session, data);
-                table.enforceTypeLimits(session, data);
                 table.enforceRowConstraints(session, data);
 
                 // get object without RowAction
                 Row newrow = (Row) getNewCachedObject(session, data, false);
 
-                indexRow(session, newrow, true);
+                indexRow(session, newrow);
             }
 
             if (table.isTemp()) {
                 return;
             }
 
-            if (oldtype != null && oldtype.isLobType()) {
-                it = other.rowIterator();
+            if (colIndex.length == 0) {
+                return;
+            }
 
-                while (it.next()) {
-                    Row      row      = it.getCurrentRow();
-                    Object[] olddata  = row.getData();
-                    LobData  oldvalue = (LobData) olddata[colindex];
+            if (adjust <= 0) {
+                Type type = other.getTable().getColumnTypes()[colIndex[0]];
 
-                    if (oldvalue != null) {
-                        session.sessionData.adjustLobUsageCount(oldvalue, -1);
+                if (type != null && type.isLobType()) {
+                    it = other.rowIterator();
+
+                    while (it.next()) {
+                        Row      row      = it.getCurrentRow();
+                        Object[] olddata  = row.getData();
+                        LobData  oldvalue = (LobData) olddata[colIndex[0]];
+
+                        if (oldvalue != null) {
+                            session.sessionData.adjustLobUsageCount(oldvalue,
+                                    -1);
+                        }
                     }
                 }
             }
 
-            if (newtype != null && newtype.isLobType()) {
-                it = rowIterator();
+            if (adjust >= 0) {
+                Type type = this.table.getColumnTypes()[colIndex[0]];
 
-                while (it.next()) {
-                    Row      row   = it.getCurrentRow();
-                    Object[] data  = row.getData();
-                    LobData  value = (LobData) data[colindex];
+                if (type != null && type.isLobType()) {
+                    it = rowIterator();
 
-                    if (value != null) {
-                        session.sessionData.adjustLobUsageCount(value, +1);
+                    while (it.next()) {
+                        Row      row   = it.getCurrentRow();
+                        Object[] data  = row.getData();
+                        LobData  value = (LobData) data[colIndex[0]];
+
+                        if (value != null) {
+                            session.sessionData.adjustLobUsageCount(value, +1);
+                        }
                     }
                 }
             }
@@ -637,7 +647,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                 RowAVL row = (RowAVL) it.getCurrentRow();
 
                 row.getNode(index.getPosition()).delete();
-                index.insert(session, this, row, true);
+                index.insert(session, this, row);
             }
         } finally {
             writeUnlock();
@@ -694,7 +704,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                     // count before inserting
                     rowCount++;
 
-                    newIndex.insert(session, this, row, true);
+                    newIndex.insert(session, this, row);
                 }
 
                 it.release();

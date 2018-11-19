@@ -157,8 +157,8 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         return row;
     }
 
-    public void indexRow(Session session, Row row, boolean enforceUnique) {
-        super.indexRow(session, row, true);
+    public void indexRow(Session session, Row row) {
+        super.indexRow(session, row);
     }
 
     public boolean isMemory() {
@@ -257,7 +257,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
             case RowAction.ACTION_DELETE :
                 if (txModel == TransactionManager.LOCKS) {
                     ((RowAVL) row).setNewNodes(this);
-                    indexRow(session, row, true);
+                    indexRow(session, row);
                 }
                 break;
 

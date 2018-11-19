@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for INSERT statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class StatementInsert extends StatementDML {
@@ -225,14 +225,11 @@ public class StatementInsert extends StatementDML {
             while (changeNavigator.next()) {
                 session.sessionData.startRowProcessing();
 
-                Row      row  = changeNavigator.getCurrentRow();
-                Object[] data = row.getData();
-                Object[] newData;
+                Row      row     = changeNavigator.getCurrentRow();
+                Object[] newData = row.getDataCopy();
 
-                newData = getUpdatedData(session, targets, baseTable,
-                                         updateColumnMap, updateExpressions,
-                                         colTypes, data);
-
+                getUpdatedData(session, targets, baseTable, updateColumnMap,
+                               updateExpressions, colTypes, newData);
                 changeNavigator.addUpdate(row, newData, updateColumnMap);
 
                 session.sessionContext.rownum++;

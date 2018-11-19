@@ -165,7 +165,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             Row row = (Row) store.getNewCachedObject((Session) session, data,
                 false);
 
-            store.indexRow((Session) session, row, true);
+            store.indexRow((Session) session, row);
 
             size++;
         } catch (HsqlException e) {}

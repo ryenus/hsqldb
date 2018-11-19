@@ -170,7 +170,7 @@ public class TextTable extends Table {
 
             systemUpdateIdentityValue(data);
             enforceRowConstraints(session, data);
-            store.indexRow(session, row, true);
+            store.indexRow(session, row);
         }
     }
 
@@ -338,7 +338,7 @@ public class TextTable extends Table {
 
         Row row = (Row) store.getNewCachedObject(session, data, false);
 
-        store.indexRow(session, row, enforceUnique);
+        store.indexRow(session, row);
         store.commitPersistence(row);
     }
 

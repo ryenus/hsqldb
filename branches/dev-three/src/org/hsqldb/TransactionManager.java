@@ -73,8 +73,8 @@ public interface TransactionManager {
     void addInsertAction(Session session, Table table, PersistentStore store,
                          Row row, int[] changedColumns);
 
-    void addInsertAction(Session session, Table table, PersistentStore store,
-                         Row row);
+    void addInsertAction(Session session, PersistentStore store, Row row);
+
     /**
      * add session to the end of queue when a transaction starts
      * (depending on isolation mode)

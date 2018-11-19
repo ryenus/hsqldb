@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.2
  * @since 1.9.0
  */
 
@@ -544,13 +544,11 @@ public class StatementDML extends StatementDMQL {
         while (it.next()) {
             session.sessionData.startRowProcessing();
 
-            Row      row  = it.getCurrentRow();
-            Object[] data = row.getData();
-            Object[] newData = getUpdatedData(session, targets, baseTable,
-                                              updateColumnMap,
-                                              updateExpressions, colTypes,
-                                              data);
+            Row      row     = it.getCurrentRow();
+            Object[] newData = row.getDataCopy();
 
+            getUpdatedData(session, targets, baseTable, updateColumnMap,
+                           updateExpressions, colTypes, newData);
             rowset.addRow(session, row, newData, colTypes, updateColumnMap);
 
             session.sessionContext.rownum++;
@@ -598,14 +596,10 @@ public class StatementDML extends StatementDMQL {
         }
     }
 
-    static Object[] getUpdatedData(Session session, Expression[] targets,
-                                   Table targetTable, int[] columnMap,
-                                   Expression[] colExpressions,
-                                   Type[] colTypes, Object[] oldData) {
-
-        Object[] data = targetTable.getEmptyRowData();
-
-        System.arraycopy(oldData, 0, data, 0, data.length);
+    static void getUpdatedData(Session session, Expression[] targets,
+                               Table targetTable, int[] columnMap,
+                               Expression[] colExpressions, Type[] colTypes,
+                               final Object[] data) {
 
         for (int i = 0, ix = 0; i < columnMap.length; ) {
             Expression expr = colExpressions[ix++];
@@ -693,8 +687,6 @@ public class StatementDML extends StatementDMQL {
                 i++;
             }
         }
-
-        return data;
     }
 
     /**
@@ -788,13 +780,11 @@ public class StatementDML extends StatementDMQL {
                         test = mergeUpdateCondition.testCondition(session);
 
                         if (test) {
-                            Object[] data = getUpdatedData(session, targets,
-                                                           baseTable,
-                                                           updateColumnMap,
-                                                           updateExpressions,
-                                                           colTypes,
-                                                           row.getData());
+                            Object[] data = row.getDataCopy();
 
+                            getUpdatedData(session, targets, baseTable,
+                                           updateColumnMap, updateExpressions,
+                                           colTypes, data);
                             updateRowSet.addRow(session, row, data, colTypes,
                                                 updateColumnMap);
                         }
@@ -1167,11 +1157,11 @@ public class StatementDML extends StatementDMQL {
             int[] changedColumns = navigator.getCurrentChangedColumns();
             PersistentStore store        = currentTable.getRowStore(session);
 
-            if (table.isSystemVersioned()) {
+            if (currentTable.isSystemVersioned()) {
                 Object[] history = row.getData();
                 Row newRow =
-                    currentTable.insertSystemVersionHistoryRow(session,
-                        store, history);
+                    currentTable.insertSystemVersionHistoryRow(session, store,
+                        history);
             }
 
             if (data == null) {
@@ -1426,7 +1416,7 @@ public class StatementDML extends StatementDMQL {
                 hasUpdate = true;
             }
 
-            if (table.isSystemVersioned()) {
+            if (currentTable.isSystemVersioned()) {
                 hasPeriod = true;
             }
         }
@@ -1441,7 +1431,7 @@ public class StatementDML extends StatementDMQL {
                 int[] changedColumns = navigator.getCurrentChangedColumns();
                 PersistentStore store = currentTable.getRowStore(session);
 
-                if (table.isSystemVersioned()) {
+                if (currentTable.isSystemVersioned()) {
                     Object[] history = row.getData();
                     Row newRow =
                         currentTable.insertSystemVersionHistoryRow(session,

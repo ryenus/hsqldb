@@ -48,7 +48,7 @@ import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class ParserBase {
@@ -106,7 +106,7 @@ public class ParserBase {
         scanner.reset(session, sql);
 
         //
-        partPosition             = 0;
+        partPosition              = 0;
         lastError                 = null;
         lastSynonym               = null;
         isCheckOrTriggerCondition = false;
@@ -681,6 +681,9 @@ public class ParserBase {
         startToken       = endToken = token.tokenType;
         startTokenString = token.tokenString;
 
+        startIndex = ArrayUtil.find(Tokens.SQL_INTERVAL_FIELD_CODES,
+                                    startToken);
+
         read();
 
         if (token.tokenType == Tokens.OPENBRACKET) {
@@ -710,11 +713,20 @@ public class ParserBase {
         }
 
         if (token.tokenType == Tokens.TO) {
-            read();
-
-            endToken = token.tokenType;
+            int position = getPosition();
 
             read();
+
+            int end = ArrayUtil.find(Tokens.SQL_INTERVAL_FIELD_CODES,
+                                     token.tokenType);
+
+            if (end > startIndex) {
+                endToken = token.tokenType;
+
+                read();
+            } else {
+                rewind(position);
+            }
         }
 
         if (token.tokenType == Tokens.OPENBRACKET) {
@@ -733,8 +745,6 @@ public class ParserBase {
             readThis(Tokens.CLOSEBRACKET);
         }
 
-        startIndex = ArrayUtil.find(Tokens.SQL_INTERVAL_FIELD_CODES,
-                                    startToken);
         endIndex = ArrayUtil.find(Tokens.SQL_INTERVAL_FIELD_CODES, endToken);
 
         if (precision == -1 && maxPrecisionDefault) {

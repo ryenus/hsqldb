@@ -169,7 +169,7 @@ public abstract class SimpleStore implements PersistentStore {
         return object;
     }
 
-    public void indexRow(Session session, Row row, boolean enforceUnique) {}
+    public void indexRow(Session session, Row row) {}
 
     public void indexRows(Session session) {}
 

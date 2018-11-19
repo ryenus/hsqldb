@@ -422,7 +422,7 @@ implements TransactionManager {
         }
 
         try {
-            store.indexRow(session, row, true);
+            store.indexRow(session, row);
         } catch (HsqlException e) {
             if (session.actionSet.isEmpty()) {
                 throw e;
@@ -492,8 +492,8 @@ implements TransactionManager {
         }
     }
 
-    public void addInsertAction(Session session, Table table,
-                                PersistentStore store, Row row) {
+    public void addInsertAction(Session session, PersistentStore store,
+                                Row row) {
 
         RowAction action = row.rowAction;
 
@@ -502,8 +502,7 @@ implements TransactionManager {
                                      "null insert action ");
         }
 
-        store.indexRow(session, row, false);
-
+        store.indexRow(session, row);
         session.rowActionList.add(action);
     }
 
@@ -720,7 +719,7 @@ implements TransactionManager {
                                    PersistentStore store, Row row,
                                    int[] colMap) {
 
-        RowAction    action   = null;
+        RowAction   action   = null;
         RowStoreAVL rowstore = (RowStoreAVL) store;
 
         action = rowstore.addDeleteActionToRow(session, row, colMap, true);

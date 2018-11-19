@@ -102,7 +102,7 @@ public class RowStoreAVLMemory extends RowStoreAVL {
                                            boolean tx) {
 
         long id  = rowIdSequence.getAndIncrement();
-        Row row = new RowAVL(table, (Object[]) object, id, this);
+        Row  row = new RowAVL(table, (Object[]) object, id, this);
 
         if (tx) {
             RowAction.addInsertAction(session, table, row);
@@ -176,7 +176,7 @@ public class RowStoreAVLMemory extends RowStoreAVL {
             case RowAction.ACTION_DELETE :
                 if (txModel == TransactionManager.LOCKS) {
                     ((RowAVL) row).setNewNodes(this);
-                    indexRow(session, row, true);
+                    indexRow(session, row);
                 }
                 break;
 
