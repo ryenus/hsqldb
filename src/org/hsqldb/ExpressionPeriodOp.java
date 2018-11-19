@@ -150,6 +150,27 @@ public class ExpressionPeriodOp extends ExpressionLogical {
             RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
             HsqlList unresolvedSet, boolean acceptsSequences) {
 
+        // special treatment of column or period for CONTAINS
+        if (opType == OpTypes.RANGE_CONTAINS) {
+            if (nodes[RIGHT] instanceof ExpressionPeriod) {
+                Expression columnExpr =
+                    ((ExpressionPeriod) nodes[RIGHT]).columnExpr;
+
+                if (columnExpr != null) {
+                    try {
+                        nodes[RIGHT].resolveColumnReferences(session,
+                                                             rangeGroup,
+                                                             rangeCount,
+                                                             rangeGroups,
+                                                             unresolvedSet,
+                                                             acceptsSequences);
+                    } catch (HsqlException e) {
+                        nodes[RIGHT] = columnExpr;
+                    }
+                }
+            }
+        }
+
         for (int i = 0; i < nodes.length; i++) {
             unresolvedSet = nodes[i].resolveColumnReferences(session,
                     rangeGroup, rangeCount, rangeGroups, unresolvedSet,
@@ -161,7 +182,7 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         }
 
         if (nodes[RIGHT] instanceof ExpressionPeriod) {
-            rightPeriod = ((ExpressionPeriod) nodes[LEFT]).period;
+            rightPeriod = ((ExpressionPeriod) nodes[RIGHT]).period;
         }
 
         if (!transformed) {
