@@ -988,6 +988,26 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         t.insertSys(session, store, row);
 
         row    = t.getEmptyRowData();
+        row[0] = "ROLE";
+
+        Grantee r = session.getRole();
+        String  s = r == null ? ""
+                              : r.getName().getNameString();
+
+        row[1] = s;
+
+        t.insertSys(session, store, row);
+
+        row    = t.getEmptyRowData();
+        row[0] = "RESULT MEMORY ROWS";
+
+        int mr = session.getResultMemoryRowCount();
+
+        row[1] = String.valueOf(mr);
+
+        t.insertSys(session, store, row);
+
+        row    = t.getEmptyRowData();
         row[0] = "SESSION READONLY";
         row[1] = session.isReadOnlyDefault() ? Tokens.T_TRUE
                                              : Tokens.T_FALSE;

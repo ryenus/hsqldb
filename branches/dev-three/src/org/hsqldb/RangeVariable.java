@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -95,6 +96,9 @@ public class RangeVariable {
 
     // system period condition
     ExpressionPeriodOp periodCondition;
+
+    // role based condition
+    ExpressionLogical filterCondition;
 
     //
     boolean isLateral;
@@ -221,6 +225,20 @@ public class RangeVariable {
 
     public void setSystemPeriodCondition(ExpressionPeriodOp condition) {
         periodCondition = condition;
+    }
+
+    public void setFilterExpression(Session session, ExpressionLogical expr) {
+
+        if (expr != null) {
+            expr = (ExpressionLogical) expr.duplicate();
+
+            expr.resolveCheckOrGenExpression(
+                session,
+                new RangeGroupSimple(new RangeVariable[]{ this }, false),
+                false);
+
+            filterCondition = expr;
+        }
     }
 
     public void addNamedJoinColumns(OrderedHashSet columns) {
@@ -1225,6 +1243,7 @@ public class RangeVariable {
         RangeVariableConditions[] whereConditions;
         RangeVariableConditions[] joinConditions;
         ExpressionPeriodOp        periodCondition;
+        ExpressionLogical         filterCondition;
         int                       condIndex = 0;
 
         //
@@ -1247,6 +1266,7 @@ public class RangeVariable {
             whereConditions    = rangeVar.whereConditions;
             joinConditions     = rangeVar.joinConditions;
             periodCondition    = rangeVar.periodCondition;
+            filterCondition    = rangeVar.filterCondition;
 
             if (rangeVar.isRightJoin) {
                 lookup = new OrderedLongHashSet();
@@ -1480,6 +1500,12 @@ public class RangeVariable {
 
                 if (periodCondition != null) {
                     if (!periodCondition.testCondition(session)) {
+                        continue;
+                    }
+                }
+
+                if (filterCondition != null) {
+                    if (!filterCondition.testCondition(session)) {
                         continue;
                     }
                 }

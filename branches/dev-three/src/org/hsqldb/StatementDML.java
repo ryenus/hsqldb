@@ -1054,7 +1054,6 @@ public class StatementDML extends StatementDMQL {
                RowSetNavigator generatedNavigator) {
 
         int           rowCount      = navigator.getSize();
-        boolean autoUpdatedColumn   = table.hasUpdatedColumn(updateColumnMap);
         RangeIterator checkIterator = null;
 
         if (updatableTableCheck != null) {
@@ -1079,9 +1078,7 @@ public class StatementDML extends StatementDMQL {
             table.setIdentityColumn(session, data);
             table.setGeneratedColumns(session, data);
 
-            if (autoUpdatedColumn) {
-                table.setUpdatedColumns(session, data);
-            }
+            table.setUpdatedColumns(session, data, updateColumnMap);
         }
 
         navigator.beforeFirst();

@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -671,10 +672,10 @@ public class StatementSchema extends Statement {
                 }
             }
             case StatementTypes.DROP_TABLE_PERIOD : {
-                Table            table  = (Table) arguments[0];
-                PeriodDefinition period = (PeriodDefinition) arguments[1];
-                Boolean cascade = (Boolean) arguments[2];
-                TablePeriodWorks works  = new TablePeriodWorks(session, table);
+                Table            table   = (Table) arguments[0];
+                PeriodDefinition period  = (PeriodDefinition) arguments[1];
+                Boolean          cascade = (Boolean) arguments[2];
+                TablePeriodWorks works = new TablePeriodWorks(session, table);
 
                 try {
                     if (period.getPeriodType()
@@ -702,8 +703,8 @@ public class StatementSchema extends Statement {
                 }
             }
             case StatementTypes.DROP_TABLE_SYSTEM_VERSIONING : {
-                Table            table = (Table) arguments[0];
-                Boolean cascade = (Boolean) arguments[1];
+                Table            table   = (Table) arguments[0];
+                Boolean          cascade = (Boolean) arguments[1];
                 TablePeriodWorks works = new TablePeriodWorks(session, table);
 
                 try {
@@ -1001,6 +1002,18 @@ public class StatementSchema extends Statement {
                                     && !right.isFull()) {
                                 return Result.newErrorResult(
                                     Error.error(ErrorCode.X_42595), sql);
+                            }
+
+                            Expression filterExpr =
+                                right.getFilterExpression();
+
+                            if (filterExpr != null) {
+                                filterExpr = filterExpr.duplicate();
+
+                                filterExpr.resolveCheckOrGenExpression(
+                                    session,
+                                    new RangeGroupSimple(
+                                        t.getDefaultRanges(), false), false);
                             }
                         }
                     }
@@ -1454,6 +1467,15 @@ public class StatementSchema extends Statement {
 
                 // find the new target
                 SchemaObject object =
+                    session.database.schemaManager
+                        .findAnySchemaObjectForSynonym(name.name,
+                                                       name.schema.name);
+
+                if (object != null) {
+                    throw Error.error(ErrorCode.X_42504);
+                }
+
+                object =
                     session.database.schemaManager
                         .findAnySchemaObjectForSynonym(targetName.name,
                                                        targetName.schema.name);

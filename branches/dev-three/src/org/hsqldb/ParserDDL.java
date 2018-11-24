@@ -842,7 +842,7 @@ public class ParserDDL extends ParserRoutine {
 
                         return compileAlterTableDropColumn(t);
 
-                    default : 
+                    default :
                         return compileAlterTableDropColumn(t);
                 }
             }
@@ -1219,8 +1219,7 @@ public class ParserDDL extends ParserRoutine {
             readThis(Tokens.DEFAULT);
         }
 
-        Charset charset = new Charset(name, source.getName());
-
+        Charset    charset        = new Charset(name, source.getName());
         String     sql            = getLastPart();
         Object[]   args           = new Object[]{ charset };
         HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
@@ -2867,13 +2866,21 @@ public class ParserDDL extends ParserRoutine {
                             columnSet = readColumnNames(false);
                         }
 
-                    // fall through
-                    case Tokens.TRIGGER :
                         if (right == null) {
                             right = new Right();
                         }
 
                         right.set(rightType, columnSet);
+
+                        isTable = true;
+                        break;
+
+                    case Tokens.TRIGGER :
+                        if (right == null) {
+                            right = new Right();
+                        }
+
+                        right.set(rightType, null);
 
                         isTable = true;
                         break;
@@ -3103,12 +3110,19 @@ public class ParserDDL extends ParserRoutine {
             }
         }
 
+        ExpressionLogical filter = null;
+
+        if (grant && objectType == SchemaObject.TABLE) {
+            filter = readFilterExpression();
+            right.setFilterExpression(filter);
+        }
+
         String   sql  = getLastPart();
         int      type = grant ? StatementTypes.GRANT
                               : StatementTypes.REVOKE;
         Object[] args = new Object[] {
             granteeList, objectName, right, grantor, Boolean.valueOf(cascade),
-            Boolean.valueOf(isGrantOption)
+            Boolean.valueOf(isGrantOption), filter
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogNameArray();
@@ -3116,6 +3130,23 @@ public class ParserDDL extends ParserRoutine {
             writeLockNames);
 
         return cs;
+    }
+
+    ExpressionLogical readFilterExpression() {
+
+        ExpressionLogical condition = null;
+
+        if (token.tokenType == Tokens.FILTER) {
+            read();
+            readThis(Tokens.OPENBRACKET);
+            readThis(Tokens.WHERE);
+
+            condition = (ExpressionLogical) XreadBooleanValueExpression();
+
+            readThis(Tokens.CLOSEBRACKET);
+        }
+
+        return condition;
     }
 
     private StatementSchema compileRoleGrantOrRevoke(boolean grant) {

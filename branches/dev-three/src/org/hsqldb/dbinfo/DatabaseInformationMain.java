@@ -2757,8 +2757,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * </UL>
      * </OL> <p>
      *
-     * <B>Note:</B> Currently, the HSQLDB engine does not support version
-     * columns, so an empty table is returned. <p>
+     * <B>Note:</B> Columns defined with GENERATED ALWAYS expressions and
+     * columns defined with ON UPDATE default values are listed. <p>
      *
      * @return a <code>Table</code> object describing the columns
      *        that are automatically updated when any value
@@ -2798,6 +2798,67 @@ class DatabaseInformationMain extends DatabaseInformation {
             t.createPrimaryKeyConstraint(name, null, false);
 
             return t;
+        }
+
+        // column number mappings
+        final int scope          = 0;
+        final int column_name    = 1;
+        final int data_type      = 2;
+        final int type_name      = 3;
+        final int column_size    = 4;
+        final int buffer_length  = 5;
+        final int decimal_digits = 6;
+        final int pseudo_column  = 7;
+        final int table_catalog  = 8;
+        final int table_schema   = 9;
+        final int table_name     = 10;
+
+        //
+        Iterator tables;
+        Table    table;
+        Object[] row;
+
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+
+        while (tables.hasNext()) {
+            table = (Table) tables.next();
+
+            if (table.isView()
+                    || !session.getGrantee().isFullyAccessibleByRole(
+                        table.getName())) {
+                continue;
+            }
+
+            if (!table.hasGeneratedColumn() && !table.hasUpdatedColumn()) {
+                continue;
+            }
+
+            HsqlName name = table.getName();
+
+            for (int i = 0; i < table.getColumnCount(); i++) {
+                ColumnSchema column = table.getColumn(i);
+
+                if (!column.isGenerated() && !column.isAutoUpdate()) {
+                    continue;
+                }
+
+                row              = t.getEmptyRowData();
+                row[scope]       = Integer.valueOf(0);
+                row[column_name] = column.getNameString();
+                row[data_type] =
+                    Integer.valueOf(column.getDataType().getJDBCTypeCode());
+                row[type_name]      = column.getDataType().getNameString();
+                row[column_size]    = column.getDataType().precision;
+                row[buffer_length]  = Integer.valueOf(0);
+                row[decimal_digits] = column.getDataType().scale;
+                row[pseudo_column]  = Integer.valueOf(1);
+                row[table_catalog]  = database.getCatalogName().name;
+                row[table_schema]   = name.schema.name;
+                row[table_name]     = name.name;
+
+                t.insertSys(session, store, row);
+            }
         }
 
         return t;

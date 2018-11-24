@@ -161,7 +161,7 @@ public class Tokens {
     static final String        T_EXTRACT           = "EXTRACT";
     public static final String T_FALSE             = "FALSE";
     static final String        T_FETCH             = "FETCH";
-    static final String        T_FILTER            = "FILTER";
+    public static final String T_FILTER            = "FILTER";
     static final String        T_FIRST_VALUE       = "FIRST_VALUE";
     public static final String T_FLOAT             = "FLOAT";
     static final String        T_FLOOR             = "FLOOR";
@@ -177,6 +177,7 @@ public class Tokens {
     static final String        T_GLOBAL            = "GLOBAL";
     public static final String T_GRANT             = "GRANT";
     static final String        T_GROUP             = "GROUP";
+    static final String        T_GROUPS            = "GROUPS";
     static final String        T_GROUPING          = "GROUPING";
     static final String        T_HANDLER           = "HANDLER";
     static final String        T_HAVING            = "HAVING";
@@ -378,7 +379,7 @@ public class Tokens {
     static final String        T_VERSIONING        = "VERSIONING";
     static final String        T_WHEN              = "WHEN";
     static final String        T_WHENEVER          = "WHENEVER";
-    static final String        T_WHERE             = "WHERE";
+    public static final String T_WHERE             = "WHERE";
     public static final String T_WHILE             = "WHILE";
     static final String        T_WIDTH_BUCKET      = "WIDTH_BUCKET";
     static final String        T_WINDOW            = "WINDOW";
@@ -1303,23 +1304,24 @@ public class Tokens {
     public static final int USER                             = 321;
     public static final int USING                            = 322;
     public static final int VALUE                            = 323;
-    public static final int VALUES                           = 324;
-    public static final int VAR_POP                          = 325;
-    public static final int VAR_SAMP                         = 326;
-    public static final int VARBINARY                        = 327;
-    public static final int VARCHAR                          = 328;
-    public static final int VARYING                          = 329;
-    public static final int VERSIONING                       = 330;
-    public static final int WHEN                             = 331;
-    public static final int WHENEVER                         = 332;
-    public static final int WHERE                            = 333;
-    public static final int WIDTH_BUCKET                     = 334;
-    public static final int WINDOW                           = 335;
-    public static final int WITH                             = 336;
-    public static final int WITHIN                           = 337;
-    public static final int WITHOUT                          = 338;
-    public static final int WHILE                            = 339;
-    public static final int YEAR                             = 340;
+    public static final int VALUE_OF                         = 324;
+    public static final int VALUES                           = 325;
+    public static final int VAR_POP                          = 326;
+    public static final int VAR_SAMP                         = 327;
+    public static final int VARBINARY                        = 328;
+    public static final int VARCHAR                          = 329;
+    public static final int VARYING                          = 330;
+    public static final int VERSIONING                       = 331;
+    public static final int WHEN                             = 332;
+    public static final int WHENEVER                         = 333;
+    public static final int WHERE                            = 334;
+    public static final int WIDTH_BUCKET                     = 335;
+    public static final int WINDOW                           = 336;
+    public static final int WITH                             = 337;
+    public static final int WITHIN                           = 338;
+    public static final int WITHOUT                          = 339;
+    public static final int WHILE                            = 340;
+    public static final int YEAR                             = 341;
 
     //
     //SQL 200n Standard non-reserved keywords - full set
@@ -2720,9 +2722,9 @@ public class Tokens {
         short[] keyword = {
             ALL, AND, ANY, AS, AT, BY, BETWEEN, BOTH, CALL, CASE, CAST,
             CORRESPONDING, CONVERT, COALESCE, CREATE, CROSS, DEFAULT, DISTINCT,
-            DO, DROP, ELSE, EVERY, EXISTS, EXCEPT, FOR, FROM, FULL, GRANT,
-            GROUP, HAVING, INTO, IS, IN, INTERSECT, JOIN, INNER, LEFT, LEADING,
-            LIKE, NATURAL, NULLIF, NOT, ON, ORDER, OR, OUTER, PRIMARY,
+            DO, DROP, ELSE, EVERY, EXISTS, EXCEPT, FETCH, FOR, FROM, FULL,
+            GRANT, GROUP, HAVING, INTO, IS, IN, INTERSECT, JOIN, INNER, LEFT,
+            LEADING, LIKE, NATURAL, NULLIF, NOT, ON, ORDER, OR, OUTER, PRIMARY,
             REFERENCES, RIGHT, SELECT, SET, SOME, SUM, TABLE, THEN, TO,
             TRAILING, TRIGGER, UNION, UNIQUE, USING, VALUES, WHEN, WHERE,
             WINDOW, WITH,
