@@ -42,6 +42,7 @@ import org.hsqldb.map.ValuePool;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.rights.Right;
 
 /**
  * Statement implementation for DML and base DQL statements.
@@ -418,8 +419,11 @@ public abstract class StatementDMQL extends Statement {
                 continue;
             }
 
-            session.getGrantee().checkSelect(range.rangeTable,
-                                             range.usedColumns);
+            Right right = session.getGrantee().checkSelect(range.rangeTable,
+                range.usedColumns);
+            ExpressionLogical expr = right.getFilterExpression();
+
+            range.setFilterExpression(session, expr);
         }
 
         switch (type) {

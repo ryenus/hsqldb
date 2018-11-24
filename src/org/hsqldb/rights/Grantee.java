@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb.rights;
 
+import org.hsqldb.Expression;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Routine;
@@ -558,19 +559,19 @@ public class Grantee implements SchemaObject {
      * This is done by checking that a mapping exists in the rights map
      * from the dbobject argument. Otherwise, it throws.
      */
-    public void checkSelect(SchemaObject object, boolean[] checkList) {
+    public Right checkSelect(SchemaObject object, boolean[] checkList) {
 
         if (object instanceof Table) {
             Table table = (Table) object;
 
             if (isFullyAccessibleByRole(table.getName())) {
-                return;
+                return Right.fullRights;
             }
 
             Right right = (Right) fullRightsMap.get(table.getName());
 
             if (right != null && right.canSelect(table, checkList)) {
-                return;
+                return right;
             }
         }
 
@@ -1156,6 +1157,16 @@ public class Grantee implements SchemaObject {
                             sb.append(Tokens.T_TABLE).append(' ');
                             sb.append(
                                 hsqlname.getSchemaQualifiedStatementName());
+
+                            Expression expr = right.getFilterExpression();
+
+                            if ( expr != null) {
+                                sb.append(' ').append(Tokens.T_FILTER);
+                                sb.append(Tokens.T_OPENBRACKET);
+                                sb.append(Tokens.T_WHERE).append(' ');
+                                sb.append(expr.getSQL());
+                                sb.append(Tokens.T_CLOSEBRACKET);
+                            }
                         }
                         break;
 

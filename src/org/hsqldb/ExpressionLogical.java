@@ -138,8 +138,8 @@ public class ExpressionLogical extends Expression {
             case OpTypes.SMALLER :
             case OpTypes.SMALLER_EQUAL :
                 setEqualityMode();
+                break;
 
-            // fall through
             case OpTypes.NOT_EQUAL :
             case OpTypes.OVERLAPS :
             case OpTypes.RANGE_CONTAINS :
@@ -159,13 +159,14 @@ public class ExpressionLogical extends Expression {
             case OpTypes.MATCH_UNIQUE_FULL :
             case OpTypes.AND :
             case OpTypes.OR :
-                dataType = Type.SQL_BOOLEAN;
                 break;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "ExpressionLogical");
         }
+
+        dataType = Type.SQL_BOOLEAN;
     }
 
     /**
@@ -614,7 +615,6 @@ public class ExpressionLogical extends Expression {
             case OpTypes.OVERLAPS :
                 sb.append(Tokens.T_OVERLAPS);
                 break;
-
 
             case OpTypes.RANGE_CONTAINS :
                 sb.append(Tokens.T_CONTAINS);
@@ -1895,8 +1895,7 @@ public class ExpressionLogical extends Expression {
                 if (opType == OpTypes.EQUAL) {
                     if (it.next()) {
                         return store.elementCount() == 1 ? Boolean.TRUE
-                                                                : Boolean
-                                                                .FALSE;
+                                                         : Boolean.FALSE;
                     } else {
                         return Boolean.FALSE;
                     }

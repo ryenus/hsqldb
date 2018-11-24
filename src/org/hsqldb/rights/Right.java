@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb.rights;
 
+import org.hsqldb.ExpressionLogical;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Table;
@@ -46,23 +47,24 @@ import org.hsqldb.lib.OrderedHashSet;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.3.3
+ * @version 2.4.2
  * @since 1.9.0
  */
 public final class Right {
 
-    boolean        isFull;
-    boolean        isFullSelect;
-    boolean        isFullInsert;
-    boolean        isFullUpdate;
-    boolean        isFullReferences;
-    boolean        isFullTrigger;
-    boolean        isFullDelete;
-    OrderedHashSet selectColumnSet;
-    OrderedHashSet insertColumnSet;
-    OrderedHashSet updateColumnSet;
-    OrderedHashSet referencesColumnSet;
-    OrderedHashSet triggerColumnSet;
+    boolean           isFull;
+    boolean           isFullSelect;
+    boolean           isFullInsert;
+    boolean           isFullUpdate;
+    boolean           isFullReferences;
+    boolean           isFullTrigger;
+    boolean           isFullDelete;
+    OrderedHashSet    selectColumnSet;
+    OrderedHashSet    insertColumnSet;
+    OrderedHashSet    updateColumnSet;
+    OrderedHashSet    referencesColumnSet;
+    OrderedHashSet    triggerColumnSet;
+    ExpressionLogical filterExpression;
 
     //
     Right   grantableRights;
@@ -70,16 +72,12 @@ public final class Right {
     Grantee grantee;
 
     //
-    public static final OrderedHashSet emptySet      = new OrderedHashSet();
-    public static final Right          fullRights    = new Right();
-    public static final Right          noRights      = new Right();
-    static final OrderedHashSet        fullRightsSet = new OrderedHashSet();
+    public static final OrderedHashSet emptySet   = new OrderedHashSet();
+    public static final Right          fullRights = new Right(true);
+    public static final Right          noRights   = new Right();
 
     static {
         fullRights.grantor = GranteeManager.systemAuthorisation;
-        fullRights.isFull  = true;
-
-        fullRightsSet.add(fullRights);
     }
 
     public static final String[] privilegeNames = {
@@ -96,15 +94,8 @@ public final class Right {
         this.isFull = false;
     }
 
-    Right(Table table) {
-
-        isFull              = false;
-        isFullDelete        = true;
-        selectColumnSet     = table.getColumnNameSet();
-        insertColumnSet     = table.getColumnNameSet();
-        updateColumnSet     = table.getColumnNameSet();
-        referencesColumnSet = table.getColumnNameSet();
-        triggerColumnSet    = table.getColumnNameSet();
+    public Right(boolean full) {
+        isFull = full;
     }
 
     public boolean isFull() {
@@ -130,7 +121,20 @@ public final class Right {
 
         right.add(this);
 
+        if (filterExpression != null) {
+            right.filterExpression = filterExpression;
+        }
+
         return right;
+    }
+
+    public void setFilterExpression(ExpressionLogical filter) {
+
+        if (filter != null) {
+
+            //this.isFullSelect     = false;
+            this.filterExpression = filter;
+        }
     }
 
     /**
@@ -754,6 +758,10 @@ public final class Right {
         return result;
     }
 
+    public ExpressionLogical getFilterExpression() {
+        return filterExpression;
+    }
+
     /**
      * supports column level GRANT
      */
@@ -983,7 +991,7 @@ public final class Right {
                 triggerColumnSet = set;
                 break;
 
-            default:
+            default :
         }
     }
 

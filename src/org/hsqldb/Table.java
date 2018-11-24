@@ -1230,9 +1230,8 @@ public class Table extends TableBase implements SchemaObject {
         return hasGeneratedValues;
     }
 
-    public boolean hasUpdatedColumn(int[] colMap) {
-        return hasUpdatedValues
-               && !ArrayUtil.isAnyIntIndexInBooleanArray(colMap, colUpdated);
+    public boolean hasUpdatedColumn() {
+        return hasUpdatedValues;
     }
 
     public boolean hasLobColumn() {
@@ -3100,14 +3099,17 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    public void setUpdatedColumns(Session session, Object[] data) {
+    public void setUpdatedColumns(Session session, Object[] data,
+                                  int[] colMap) {
 
         if (hasUpdatedValues) {
             for (int i = 0; i < colUpdated.length; i++) {
                 if (colUpdated[i]) {
-                    Expression e = getColumn(i).getUpdateExpression();
+                    if (ArrayUtil.find(colMap, i) < 0) {
+                        Expression e = getColumn(i).getUpdateExpression();
 
-                    data[i] = e.getValue(session, colTypes[i]);
+                        data[i] = e.getValue(session, colTypes[i]);
+                    }
                 }
             }
         }

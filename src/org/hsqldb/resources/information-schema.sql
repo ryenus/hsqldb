@@ -1,4 +1,4 @@
--- author Fred Toussi (fredt@users dot sourceforge.net) version 2.4.1
+-- author Fred Toussi (fredt@users dot sourceforge.net) version 2.4.2
 /*system_procedures*/
 SELECT ROUTINE_CATALOG AS PROCEDURE_CAT, ROUTINE_SCHEMA AS PROCEDURE_SCHEM,
 ROUTINE_NAME AS PROCEDURE_NAME, 0, 0, 0,
@@ -447,7 +447,7 @@ VALUES
 ('T176', 'Sequence generator support', '', '', 'YES', NULL, ''),
 ('T177', 'Sequence generator support: simple restart option', '', '', 'YES', NULL, ''),
 ('T178', 'Identity columns: simple restart option', '', '', 'YES', NULL, ''),
-('T180', 'System-versioned tables', '', '', 'NO', NULL, ''),
+('T180', 'System-versioned tables', '', '', 'YES', NULL, ''),
 ('T181', 'Application-time period tables', '', '', 'NO', NULL, ''),
 ('T191', 'Referential action RESTRICT', '', '', 'YES', NULL, ''),
 ('T201', 'Comparable data types for referential constraints', '', '', 'YES', NULL, ''),
@@ -502,6 +502,7 @@ VALUES
 ('T491', 'LATERAL derived table', '', '', 'YES', NULL, ''),
 ('T495', 'Combined data change and retrieval', '', '', 'NO', NULL, ''),
 ('T501', 'Enhanced EXISTS predicate', '', '', 'YES', NULL, ''),
+('T502', 'Period predicate', '', '', 'YES', NULL, ''),
 ('T511', 'Transaction counts', '', '', 'NO', NULL, ''),
 ('T521', 'Named arguments in CALL statement', '', '', 'NO', NULL, ''),
 ('T522', 'Default values for IN parameters of SQL-invoked procedures', '', '', 'NO', NULL, ''),
