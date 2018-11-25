@@ -113,7 +113,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         }
     }
 
-    ScriptWriterText(Database db, OutputStream outputStream,
+    public ScriptWriterText(Database db, OutputStream outputStream,
                             FileAccess.FileSync descriptor,
                             boolean includeCachedData) {
         super(db, outputStream, descriptor, includeCachedData);
