@@ -2050,15 +2050,15 @@ public class Scanner {
 
         if (intervalPosition == 10) {
             seconds = HsqlDateTime.getDateSeconds(s.substring(0,
-                intervalPosition));
-
+                    intervalPosition));
             dateTimeType = Type.SQL_TIMESTAMP_NO_FRACTION;
 
             return new TimestampData(seconds, fraction, (int) zoneSeconds);
         } else {
             seconds = HsqlDateTime.getTimestampSeconds(s.substring(0,
-                intervalPosition));
+                    intervalPosition));
         }
+
         int position;
 
         fraction = scanIntervalFraction(DTIType.maxFractionPrecision);
@@ -2590,8 +2590,8 @@ public class Scanner {
                 if (token.tokenType != Tokens.X_ENDPARSE) {
                     throw Error.error(errorCode);
                 }
+                break;
 
-            // fall through
             default :
         }
 

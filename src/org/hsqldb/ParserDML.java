@@ -41,6 +41,8 @@ import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.map.ValuePool;
+import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 /**
@@ -480,6 +482,7 @@ public class ParserDML extends ParserDQL {
         Table           table           = null;
         HsqlName[]      writeTableNames = null;
         RangeVariable   targetRange     = null;
+        TimestampData   timestamp       = null;
 
         readThis(Tokens.TRUNCATE);
 
@@ -514,6 +517,32 @@ public class ParserDML extends ParserDQL {
 
                 break;
             }
+            case Tokens.VERSIONING : {
+                if (!isTable) {
+                    throw unexpectedToken();
+                }
+
+                if (!table.isSystemVersioned()) {
+                    throw unexpectedToken();
+                }
+
+                read();
+                readThis(Tokens.TO);
+
+                if (readIfThis(Tokens.TIMESTAMP)) {
+                    String s = readQuotedString();
+
+                    timestamp =
+                        (TimestampData) Type.SQL_TIMESTAMP.convertToType(
+                            session, s, Type.SQL_VARCHAR_DEFAULT);
+                } else {
+                    readThis(Tokens.CURRENT_TIMESTAMP);
+
+                    timestamp = DateTimeType.epochTimestamp;
+                }
+
+                break;
+            }
             default :
         }
 
@@ -540,10 +569,10 @@ public class ParserDML extends ParserDQL {
                 session.database.schemaManager.getCatalogAndBaseTableNames();
         }
 
-        if (withCommit) {
+        if (withCommit || timestamp != null) {
             Object[] args = new Object[] {
                 objectName, Boolean.valueOf(restartIdentity),
-                Boolean.valueOf(noCheck)
+                Boolean.valueOf(noCheck), timestamp
             };
 
             return new StatementCommand(StatementTypes.TRUNCATE, args, null,

@@ -49,6 +49,7 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rights.User;
 import org.hsqldb.scriptio.ScriptWriterText;
+import org.hsqldb.types.TimestampData;
 
 /**
  * Implementation of Statement for SQL commands.<p>
@@ -1366,10 +1367,11 @@ public class StatementCommand extends Statement {
     Result getTruncateResult(Session session) {
 
         try {
-            HsqlName name            = (HsqlName) arguments[0];
-            boolean  restartIdentity = (Boolean) arguments[1];
-            boolean  noCheck         = (Boolean) arguments[2];
-            Table[]  tables;
+            HsqlName      name            = (HsqlName) arguments[0];
+            boolean       restartIdentity = (Boolean) arguments[1];
+            boolean       noCheck         = (Boolean) arguments[2];
+            TimestampData timestamp       = (TimestampData) arguments[3];
+            Table[]       tables;
 
             if (name.type == SchemaObject.TABLE) {
                 Table table =
@@ -1378,6 +1380,15 @@ public class StatementCommand extends Statement {
                 tables = new Table[]{ table };
 
                 session.getGrantee().checkDelete(table);
+
+                if (timestamp != null) {
+                    TablePeriodWorks works = new TablePeriodWorks(session,
+                        table);
+
+                    long count = works.removeOldRows(timestamp.getSeconds());
+
+                    return Result.newUpdateCountResult(0);
+                }
 
                 if (!noCheck) {
                     for (int i = 0; i < table.fkMainConstraints.length; i++) {

@@ -2757,8 +2757,11 @@ class DatabaseInformationMain extends DatabaseInformation {
      * </UL>
      * </OL> <p>
      *
-     * <B>Note:</B> Columns defined with GENERATED ALWAYS expressions and
-     * columns defined with ON UPDATE default values are listed. <p>
+     * <B>Note:</B>
+     * Lists TIMESTAMP columns defined with ON UPDATE CURRENT_TIMESTAMP and the
+     * columns of SYSTEM_TIME periods. Columns defined as GENERATED AS IDENTITY,
+     * SEQUENCE, or an expression are not returned as they are not always
+     * automatically updated when other columns in a row are updated.
      *
      * @return a <code>Table</code> object describing the columns
      *        that are automatically updated when any value
@@ -2830,7 +2833,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 continue;
             }
 
-            if (!table.hasGeneratedColumn() && !table.hasUpdatedColumn()) {
+            if (table.getSystemPeriod() == null && !table.hasUpdatedColumn()) {
                 continue;
             }
 
@@ -2839,7 +2842,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             for (int i = 0; i < table.getColumnCount(); i++) {
                 ColumnSchema column = table.getColumn(i);
 
-                if (!column.isGenerated() && !column.isAutoUpdate()) {
+                if (!column.isSystemPeriod() && !column.isAutoUpdate()) {
                     continue;
                 }
 
@@ -2848,14 +2851,16 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[column_name] = column.getNameString();
                 row[data_type] =
                     Integer.valueOf(column.getDataType().getJDBCTypeCode());
-                row[type_name]      = column.getDataType().getNameString();
-                row[column_size]    = column.getDataType().precision;
-                row[buffer_length]  = Integer.valueOf(0);
-                row[decimal_digits] = column.getDataType().scale;
-                row[pseudo_column]  = Integer.valueOf(1);
-                row[table_catalog]  = database.getCatalogName().name;
-                row[table_schema]   = name.schema.name;
-                row[table_name]     = name.name;
+                row[type_name] = column.getDataType().getNameString();
+                row[column_size] =
+                    Integer.valueOf(column.getDataType().displaySize());
+                row[buffer_length] = Integer.valueOf(0);
+                row[decimal_digits] =
+                    Integer.valueOf(column.getDataType().scale);
+                row[pseudo_column] = Integer.valueOf(1);
+                row[table_catalog] = database.getCatalogName().name;
+                row[table_schema]  = name.schema.name;
+                row[table_name]    = name.name;
 
                 t.insertSys(session, store, row);
             }

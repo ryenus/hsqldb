@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -3707,7 +3707,12 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not support version columns. This returns an empty result set.
+     * HSQLDB 2.4.2 and later returns information on auto-updated
+     * TIMESTAMP columns defined with ON UPDATE CURRENT_TIMESTAMP, and the
+     * columns of SYSTEM_TIME periods. Columns defined as GENERATED AS IDENTITY,
+     * SEQUENCE, or an expression are not returned as they are not always
+     * automatically updated when other columns in a row are updated.
+     *
      * </div>
      * <!-- end release-specific documentation -->
      *
