@@ -2726,8 +2726,7 @@ public class Tokens {
             GRANT, GROUP, HAVING, INTO, IS, IN, INTERSECT, JOIN, INNER, LEFT,
             LEADING, LIKE, NATURAL, NULLIF, NOT, ON, ORDER, OR, OUTER, PRIMARY,
             REFERENCES, RIGHT, SELECT, SET, SOME, SUM, TABLE, THEN, TO,
-            TRAILING, TRIGGER, UNION, UNIQUE, USING, VALUES, WHEN, WHERE,
-            WINDOW, WITH,
+            TRAILING, TRIGGER, UNION, UNIQUE, USING, VALUES, WHEN, WHERE, WITH
         };
 
         for (int i = 0; i < keyword.length; i++) {
