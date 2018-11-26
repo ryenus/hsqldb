@@ -128,7 +128,7 @@ public class TableWorks {
             for (int i = 0; i < c.core.refCols.length; i++) {
                 ColumnSchema col = table.getColumn(c.core.refCols[i]);
 
-                if (!col.isNullable()) {
+                if (!col.isNullable() || col.isPrimaryKey()) {
                     String columnName = col.getName().statementName;
 
                     throw Error.error(ErrorCode.X_42520, columnName);
