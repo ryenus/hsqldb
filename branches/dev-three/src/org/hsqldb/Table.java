@@ -1350,18 +1350,21 @@ public class Table extends TableBase implements SchemaObject {
             tn.addColumn(columns[i]);
         }
 
-        int[] pkCols = null;
+        int[]    pkCols    = getPrimaryKey();
+        HsqlName indexName = getIndex(0).getName();
 
         if (hasPrimaryKey()
                 && !dropConstraints.contains(
                     getPrimaryConstraint().getName())) {
-            pkCols = getPrimaryKey();
             pkCols = ArrayUtil.toAdjustedColumnArray(pkCols, colIndex, adjust);
         } else if (newPK) {
             pkCols = constraint.getMainColumns();
+            indexName =
+                session.database.nameManager.newConstraintIndexName(tableName,
+                    constraint.getName(), session.database.sqlSysIndexNames);
         }
 
-        tn.createPrimaryKey(getIndex(0).getName(), pkCols, false);
+        tn.createPrimaryKey(indexName, pkCols, false);
 
         for (int i = 1; i < indexList.length; i++) {
             Index idx = indexList[i];
