@@ -1350,12 +1350,13 @@ public class Table extends TableBase implements SchemaObject {
             tn.addColumn(columns[i]);
         }
 
-        int[]    pkCols    = getPrimaryKey();
+        int[]    pkCols    = null;
         HsqlName indexName = getIndex(0).getName();
 
         if (hasPrimaryKey()
                 && !dropConstraints.contains(
                     getPrimaryConstraint().getName())) {
+            pkCols = getPrimaryKey();
             pkCols = ArrayUtil.toAdjustedColumnArray(pkCols, colIndex, adjust);
         } else if (newPK) {
             pkCols = constraint.getMainColumns();
