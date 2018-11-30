@@ -772,44 +772,34 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TIMESTAMPADD :
                 name      = Tokens.T_TIMESTAMPADD;
                 parseList = new short[] {
-                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 10,
-                    Tokens.SQL_TSI_FRAC_SECOND, Tokens.SQL_TSI_MILLI_SECOND,
-                    Tokens.SQL_TSI_SECOND, Tokens.SQL_TSI_MINUTE,
-                    Tokens.SQL_TSI_HOUR, Tokens.SQL_TSI_DAY,
-                    Tokens.SQL_TSI_WEEK, Tokens.SQL_TSI_MONTH,
-                    Tokens.SQL_TSI_QUARTER, Tokens.SQL_TSI_YEAR, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.COMMA, Tokens.QUESTION,
-                    Tokens.CLOSEBRACKET
-                };
-                parseListAlt = new short[] {
-                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 10,
-                    Tokens.MICROSECOND, Tokens.MILLISECOND, Tokens.SECOND,
-                    Tokens.MINUTE, Tokens.HOUR, Tokens.DAY, Tokens.WEEK,
-                    Tokens.MONTH, Tokens.QUARTER, Tokens.YEAR, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.COMMA, Tokens.QUESTION,
-                    Tokens.CLOSEBRACKET
+                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 22,
+                    Tokens.SQL_TSI_FRAC_SECOND, Tokens.SQL_TSI_MICRO_SECOND,
+                    Tokens.SQL_TSI_MILLI_SECOND, Tokens.SQL_TSI_SECOND,
+                    Tokens.SQL_TSI_MINUTE, Tokens.SQL_TSI_HOUR,
+                    Tokens.SQL_TSI_DAY, Tokens.SQL_TSI_WEEK,
+                    Tokens.SQL_TSI_MONTH, Tokens.SQL_TSI_QUARTER,
+                    Tokens.SQL_TSI_YEAR, Tokens.NANOSECOND, Tokens.MICROSECOND,
+                    Tokens.MILLISECOND, Tokens.SECOND, Tokens.MINUTE,
+                    Tokens.HOUR, Tokens.DAY, Tokens.WEEK, Tokens.MONTH,
+                    Tokens.QUARTER, Tokens.YEAR, Tokens.COMMA, Tokens.QUESTION,
+                    Tokens.COMMA, Tokens.QUESTION, Tokens.CLOSEBRACKET
                 };
                 break;
 
             case FUNC_TIMESTAMPDIFF :
                 name      = Tokens.T_TIMESTAMPDIFF;
                 parseList = new short[] {
-                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 10,
-                    Tokens.SQL_TSI_FRAC_SECOND, Tokens.SQL_TSI_MILLI_SECOND,
-                    Tokens.SQL_TSI_SECOND, Tokens.SQL_TSI_MINUTE,
-                    Tokens.SQL_TSI_HOUR, Tokens.SQL_TSI_DAY,
-                    Tokens.SQL_TSI_WEEK, Tokens.SQL_TSI_MONTH,
-                    Tokens.SQL_TSI_QUARTER, Tokens.SQL_TSI_YEAR, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.COMMA, Tokens.QUESTION,
-                    Tokens.CLOSEBRACKET
-                };
-                parseListAlt = new short[] {
-                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 10,
-                    Tokens.MICROSECOND, Tokens.MILLISECOND, Tokens.SECOND,
-                    Tokens.MINUTE, Tokens.HOUR, Tokens.DAY, Tokens.WEEK,
-                    Tokens.MONTH, Tokens.QUARTER, Tokens.YEAR, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.COMMA, Tokens.QUESTION,
-                    Tokens.CLOSEBRACKET
+                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 22,
+                    Tokens.SQL_TSI_FRAC_SECOND, Tokens.SQL_TSI_MICRO_SECOND,
+                    Tokens.SQL_TSI_MILLI_SECOND, Tokens.SQL_TSI_SECOND,
+                    Tokens.SQL_TSI_MINUTE, Tokens.SQL_TSI_HOUR,
+                    Tokens.SQL_TSI_DAY, Tokens.SQL_TSI_WEEK,
+                    Tokens.SQL_TSI_MONTH, Tokens.SQL_TSI_QUARTER,
+                    Tokens.SQL_TSI_YEAR, Tokens.NANOSECOND, Tokens.MICROSECOND,
+                    Tokens.MILLISECOND, Tokens.SECOND, Tokens.MINUTE,
+                    Tokens.HOUR, Tokens.DAY, Tokens.WEEK, Tokens.MONTH,
+                    Tokens.QUARTER, Tokens.YEAR, Tokens.COMMA, Tokens.QUESTION,
+                    Tokens.COMMA, Tokens.QUESTION, Tokens.CLOSEBRACKET
                 };
                 break;
 

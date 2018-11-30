@@ -674,14 +674,16 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
                 if (routine.dataImpact == Routine.READS_SQL) {
                     if (dataImpact == Routine.CONTAINS_SQL) {
                         throw Error.error(ErrorCode.X_42608,
-                                          Tokens.T_READS + ' ' + Tokens.T_SQL);
+                                          Tokens.T_READS + ' ' + Tokens.T_SQL
+                                          + ' ' + Tokens.T_DATA);
                     }
                 } else if (routine.dataImpact == Routine.MODIFIES_SQL) {
                     if (dataImpact == Routine.CONTAINS_SQL
                             || dataImpact == Routine.READS_SQL) {
                         throw Error.error(ErrorCode.X_42608,
                                           Tokens.T_MODIFIES + ' '
-                                          + Tokens.T_SQL);
+                                          + Tokens.T_SQL + ' '
+                                          + Tokens.T_DATA);
                     }
                 }
             }
@@ -694,7 +696,8 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             for (int i = 0; i < names.length; i++) {
                 if (names[i].schema != SqlInvariants.MODULE_HSQLNAME) {
                     throw Error.error(ErrorCode.X_42608,
-                                      Tokens.T_MODIFIES + ' ' + Tokens.T_SQL);
+                                      Tokens.T_MODIFIES + ' ' + Tokens.T_SQL
+                                      + ' ' + Tokens.T_DATA);
                 }
             }
         }
@@ -705,7 +708,8 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             for (int i = 0; i < names.length; i++) {
                 if (names[i].schema != SqlInvariants.MODULE_HSQLNAME) {
                     throw Error.error(ErrorCode.X_42608,
-                                      Tokens.T_READS + ' ' + Tokens.T_SQL);
+                                      Tokens.T_READS + ' ' + Tokens.T_SQL
+                                      + ' ' + Tokens.T_DATA);
                 }
             }
         }
