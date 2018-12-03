@@ -736,7 +736,7 @@ public class ParserTable extends ParserDML {
 
         TableWorks tableWorks = new TableWorks(session, table);
 
-        tableWorks.checkCreateForeignKey(c);
+        tableWorks.checkCreateForeignKey(table, c);
 
         Constraint uniqueConstraint =
             c.core.mainTable.getUniqueConstraintForColumns(c.core.mainCols);
