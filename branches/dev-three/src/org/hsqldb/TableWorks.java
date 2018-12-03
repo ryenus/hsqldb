@@ -71,12 +71,12 @@ public class TableWorks {
         return table;
     }
 
-    void checkCreateForeignKey(Constraint c) {
+    void checkCreateForeignKey(Table fkTable, Constraint c) {
 
         int[] cols = c.getRefColumns();
 
         for (int i = 0; i < cols.length; i++) {
-            ColumnSchema column = table.getColumn(cols[i]);
+            ColumnSchema column = fkTable.getColumn(cols[i]);
 
             if (column.isSystemPeriod()) {
                 throw Error.error(ErrorCode.X_42517);
@@ -87,7 +87,7 @@ public class TableWorks {
 
         if (check) {
             for (int i = 0; i < c.core.refCols.length; i++) {
-                ColumnSchema col = table.getColumn(c.core.refCols[i]);
+                ColumnSchema col = fkTable.getColumn(c.core.refCols[i]);
 
                 if (col.isGenerated()) {
                     throw Error.error(ErrorCode.X_42524, col.getNameString());
@@ -95,7 +95,7 @@ public class TableWorks {
             }
         }
 
-        if (c.core.mainName == table.getName()) {
+        if (c.core.mainName == fkTable.getName()) {
             if (ArrayUtil.haveCommonElement(c.core.refCols, c.core.mainCols)) {
                 throw Error.error(ErrorCode.X_42527);
             }
@@ -109,7 +109,7 @@ public class TableWorks {
 
         if (check) {
             for (int i = 0; i < c.core.refCols.length; i++) {
-                ColumnSchema col     = table.getColumn(c.core.refCols[i]);
+                ColumnSchema col     = fkTable.getColumn(c.core.refCols[i]);
                 Expression   defExpr = col.getDefaultExpression();
 
                 if (defExpr == null) {
@@ -126,7 +126,7 @@ public class TableWorks {
 
         if (check && !session.isProcessingScript()) {
             for (int i = 0; i < c.core.refCols.length; i++) {
-                ColumnSchema col = table.getColumn(c.core.refCols[i]);
+                ColumnSchema col = fkTable.getColumn(c.core.refCols[i]);
 
                 if (!col.isNullable() || col.isPrimaryKey()) {
                     String columnName = col.getName().statementName;
@@ -138,18 +138,18 @@ public class TableWorks {
 
         database.schemaManager.checkSchemaObjectNotExists(c.getName());
 
-        // duplicate name check for a new table
-        if (table.getConstraint(c.getName().name) != null) {
+        // duplicate name check for a new fkTable
+        if (fkTable.getConstraint(c.getName().name) != null) {
             throw Error.error(ErrorCode.X_42504, c.getName().statementName);
         }
 
         // existing FK check
-        if (table.getFKConstraintForColumns(
+        if (fkTable.getFKConstraintForColumns(
                 c.core.mainTable, c.core.mainCols, c.core.refCols) != null) {
             throw Error.error(ErrorCode.X_42528, c.getName().statementName);
         }
 
-        if (c.core.mainTable.isTemp() != table.isTemp()) {
+        if (c.core.mainTable.isTemp() != fkTable.isTemp()) {
             throw Error.error(ErrorCode.X_42524, c.getName().statementName);
         }
 
@@ -162,7 +162,7 @@ public class TableWorks {
         }
 
         // check after UNIQUE check
-        c.core.mainTable.checkReferentialColumnsMatch(c.core.mainCols, table,
+        c.core.mainTable.checkReferentialColumnsMatch(c.core.mainCols, fkTable,
                 c.core.refCols);
         ArrayUtil.reorderMaps(unique.getMainColumns(), c.getMainColumns(),
                               c.getRefColumns());
@@ -190,7 +190,7 @@ public class TableWorks {
     void addForeignKey(Constraint c) {
 
         checkModifyTable(false);
-        checkCreateForeignKey(c);
+        checkCreateForeignKey(table, c);
 
         Constraint uniqueConstraint =
             c.core.mainTable.getUniqueConstraintForColumns(c.core.mainCols);
@@ -383,7 +383,7 @@ public class TableWorks {
                     }
 
                     c.setColumnsIndexes(tn);
-                    checkCreateForeignKey(c);
+                    checkCreateForeignKey(tn, c);
 
                     Constraint uniqueConstraint =
                         c.core.mainTable.getUniqueConstraintForColumns(

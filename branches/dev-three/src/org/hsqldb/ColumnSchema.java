@@ -390,6 +390,7 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
         copy.setNullability(this.nullability);
         copy.setGeneratingExpression(generatingExpression);
         copy.setIdentity(sequence);
+        copy.setUpdateExpression(updateExpression);
         copy.setSystemPeriodType(systemPeriodType);
 
         return copy;

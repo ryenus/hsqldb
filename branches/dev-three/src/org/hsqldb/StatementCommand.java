@@ -1478,7 +1478,11 @@ public class StatementCommand extends Statement {
         switch (type) {
 
             case StatementTypes.EXPLAIN_PLAN :
-                return ResultMetaData.newSingleColumnMetaData("OPERATION");
+                return ResultMetaData.newSingleColumnMetaData(Tokens.T_PLAN);
+
+            case StatementTypes.EXPLAIN_REFERENCES :
+                return ResultMetaData.newSingleColumnMetaData(
+                    Tokens.T_REFERENCES);
 
             case StatementTypes.DATABASE_SCRIPT :
                 if (statementReturnType == StatementTypes.RETURN_RESULT) {
