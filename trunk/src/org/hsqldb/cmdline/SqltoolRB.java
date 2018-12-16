@@ -44,15 +44,6 @@ import org.hsqldb.lib.RefCapableRBInterface;
  *  this class is clinitted.
  * The reason for this is to allow us developers to detect all such errors
  *  before end-users ever use this class.
- * * IMPORTANT:  To add a new ResourceBundle element, add two new lines, one
- * like <PRE>
- *    public static final int NEWKEYID = keyCounter++;
- * </PRE> and one line <PRE>
- *      new Integer(KEY2), "key2",
- * </PRE>
- * Both should be inserted right after all of the other lines of the same type.
- * NEWKEYID is obviously a new constant which you will use in calling code
- * like SqltoolRB.NEWKEYID.
  */
 public enum SqltoolRB implements RefCapableRBInterface {
     SqlTool_syntax,
@@ -275,7 +266,8 @@ public enum SqltoolRB implements RefCapableRBInterface {
     bad_time_format,
     no_timestamp_format,
     else_without_if,
-    import_col_dup
+    import_col_dup,
+    desturl_nowrite
     ;
 
     private static ValidatingResourceBundle vrb =
