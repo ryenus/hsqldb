@@ -37,6 +37,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PipedReader;
 import java.io.PipedWriter;
+import java.net.URL;
+import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -295,7 +297,7 @@ public class SqlTool {
         String  driver           = null;
         String  targetDb         = null;
         boolean debug            = false;
-        File[]  scriptFiles      = null;
+        URL[]   scriptFiles      = null;
         int     i                = -1;
         boolean listMode         = false;
         boolean interactive      = false;
@@ -550,7 +552,7 @@ public class SqlTool {
             } else if (arg.length > i + 1) {
 
                 // I.e., if there are any SQL files specified.
-                scriptFiles = new File[arg.length - i - 1
+                scriptFiles = new URL[arg.length - i - 1
                         + ((stdinputOverride == null
                                 || !stdinputOverride.booleanValue()) ? 0 : 1)];
 
@@ -559,8 +561,15 @@ public class SqlTool {
                                        + scriptFiles.length + " elements");
                 }
 
-                while (i + 1 < arg.length) {
-                    scriptFiles[scriptIndex++] = new File(arg[++i]);
+                while (i + 1 < arg.length) try {
+                    scriptFiles[scriptIndex] = 
+                      SqlFile.URL_WITH_PROTO_RE.matcher(arg[++i]).matches() ?
+                        new URL(arg[i]) :
+                        new URL("file", null, arg[i]);
+                } catch (MalformedURLException mue) {
+                    // TODO: Define a new ResourceBundle message!
+                    throw new RuntimeException(
+                      "Invalid SQL file URL " + arg[i]);
                 }
 
                 if (stdinputOverride != null
@@ -676,8 +685,8 @@ public class SqlTool {
                     reportUser, e.getMessage()));
         }
 
-        File[] emptyFileArray      = {};
-        File[] singleNullFileArray = { null };
+        URL[] emptyUrlArray      = {};
+        URL[] singleNullUrlArray = { null };
         File   autoFile            = null;
 
         if (interactive && !noautoFile) {
@@ -693,8 +702,8 @@ public class SqlTool {
 
             // I.e., if no SQL files given on command-line.
             // Input file list is either nothing or {null} to read stdin.
-            scriptFiles = (noinput ? emptyFileArray
-                                   : singleNullFileArray);
+            scriptFiles = (noinput ? emptyUrlArray
+                                   : singleNullUrlArray);
         }
 
         int numFiles = scriptFiles.length;
@@ -717,15 +726,16 @@ public class SqlTool {
             int fileIndex = 0;
 
             if (autoFile != null) {
-                sqlFiles[fileIndex++] = new SqlFile(autoFile, encoding);
+                sqlFiles[fileIndex++] = new SqlFile(
+                  new URL("file", null, autoFile.getPath()), encoding);
             }
 
             if (tmpReader != null) {
-                sqlFiles[fileIndex++] = new SqlFile(
-                        tmpReader, "--sql", System.out, null, false, null);
+                sqlFiles[fileIndex++] = new SqlFile(tmpReader,
+                  "--sql", System.out, null, false, (URL) null);
             }
 
-            for (File scriptFile : scriptFiles) {
+            for (URL scriptFile : scriptFiles) {
                 if (interactiveFileIndex < 0 && interactive) {
                     interactiveFileIndex = fileIndex;
                 }
