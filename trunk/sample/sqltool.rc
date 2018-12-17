@@ -121,6 +121,8 @@ password
 # OR
 #url jdbc:sqlserver://hostname;instanceName=instname;databaseName=dbname
 #driver com.microsoft.jdbc.sqlserver.SQLServerDriver
+# See, for example,
+# https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017
 # url/deriver for OLDER JDBC Driver:
 #url jdbc:microsoft:sqlserver://hostname;DatabaseName=DbName;SelectMethod=Cursor
 # The SelectMethod setting is required to do more than one thing on a JDBC

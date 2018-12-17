@@ -46,6 +46,8 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DatabaseMetaData;
@@ -175,7 +177,7 @@ public class SqlFile {
     // Reader serves the auxiliary purpose of null meaning execute()
     // has finished.
     private String           inputStreamLabel;
-    private File             atBase;
+    private URL              atBase;
     private boolean          dsvTrimAll;
     private boolean          ignoreBangStatus;
     private boolean          allQuoted;
@@ -268,6 +270,7 @@ public class SqlFile {
     private static Pattern   arrayPattern =
             Pattern.compile("ARRAY\\s*\\[\\s*(.*\\S)?\\s*\\]");
     private static Pattern fnParamPat = Pattern.compile("\\*\\{(:)?(\\d+)\\}");
+    static final Pattern URL_WITH_PROTO_RE = Pattern.compile("[a-z]{2,}:.+");
 
     private static Map<String, Pattern> nestingPLCommands =
             new HashMap<String, Pattern>();
@@ -464,7 +467,11 @@ public class SqlFile {
      * @see #SqlFile(File, String)
      */
     public SqlFile(final File inputFile) throws IOException {
-        this(inputFile, null);
+        this(new URL("file", null, inputFile.getPath()), null);
+    }
+
+    public SqlFile(final URL inputUrl) throws IOException {
+        this(inputUrl, null);
     }
 
     /**
@@ -478,7 +485,11 @@ public class SqlFile {
      */
     public SqlFile(final File inputFile, final String encoding)
     throws IOException {
-        this(inputFile, encoding, false);
+        this(new URL("file", null, inputFile.getPath()), encoding, false);
+    }
+    public SqlFile(final URL inputUrl, final String encoding)
+    throws IOException {
+        this(inputUrl, encoding, false);
     }
 
     /**
@@ -496,10 +507,15 @@ public class SqlFile {
      */
     public SqlFile(final File inputFile, final String encoding,
     final boolean interactive) throws IOException {
-        this(new InputStreamReader(new FileInputStream(inputFile),
+        this(new URL("file", null, inputFile.getPath()), encoding, interactive);
+    }
+
+    public SqlFile(final URL inputUrl, final String encoding,
+    final boolean interactive) throws IOException {
+        this(new InputStreamReader(inputUrl.openStream(),
                 (encoding == null) ? DEFAULT_FILE_ENCODING : encoding),
-                inputFile.toString(), System.out, encoding, interactive,
-                inputFile.getParentFile());
+                inputUrl.toString(), System.out, encoding, interactive,
+                inputUrl);
     }
 
     /**
@@ -519,7 +535,19 @@ public class SqlFile {
         this((encoding == null)
                 ? new InputStreamReader(System.in)
                 : new InputStreamReader(System.in, encoding),
-                "<stdin>", System.out, encoding, interactive, null);
+                "<stdin>", System.out, encoding, interactive, (URL) null);
+    }
+
+    /**
+     * Legacy constructor.  See following constructor for documentation.
+     * */
+    public SqlFile(final Reader reader, final String inputStreamLabel,
+    final PrintStream psStd, final String encoding,
+    final boolean interactive, final File atBaseFile)
+    throws IOException {
+        this(reader, inputStreamLabel, psStd, encoding, interactive,
+          atBaseFile == null ? ((URL) null) :
+          new URL("file", null, atBaseFile.getPath()));
     }
 
     /**
@@ -556,7 +584,7 @@ public class SqlFile {
      */
     public SqlFile(final Reader reader, final String inputStreamLabel,
             final PrintStream psStd, final String encoding,
-            final boolean interactive, final File atBase) throws IOException {
+            final boolean interactive, final URL atBase) throws IOException {
         this(reader, inputStreamLabel, atBase);
         try {
             shared = new SharedFields(psStd);
@@ -589,20 +617,21 @@ public class SqlFile {
      *
      * @see #SqlFile(SqlFile, Reader, String)
      */
-    private SqlFile(final SqlFile parentSqlFile, final File inputFile)
+    private SqlFile(final SqlFile parentSqlFile, final URL inputUrl)
     throws IOException {
         this(parentSqlFile,
-                new InputStreamReader(new FileInputStream(inputFile),
+                new InputStreamReader(inputUrl.openStream(),
                 (parentSqlFile.shared.encoding == null)
                 ? DEFAULT_FILE_ENCODING : parentSqlFile.shared.encoding),
-                inputFile.toString(), inputFile.getParentFile());
+                inputUrl.toString(), inputUrl);
     }
 
     /**
      * Constructor for recursion
      */
     private SqlFile(final SqlFile parentSqlFile, final Reader reader,
-            final String inputStreamLabel, final File atBase) {
+    final String inputStreamLabel, final URL atBase)
+    throws MalformedURLException {
         this(reader, inputStreamLabel, atBase);
         try {
             recursed = Recursion.FILE;
@@ -624,7 +653,7 @@ public class SqlFile {
      * Base Constructor which every other Constructor starts with
      */
     private SqlFile(final Reader reader, final String inputStreamLabel,
-    final File atBase) {
+    final URL atBase) throws MalformedURLException {
         logger.privlog(Level.FINER, "<init>ting SqlFile instance",
                 null, 2, FrameworkLogger.class);
         if (reader == null)
@@ -638,7 +667,7 @@ public class SqlFile {
         // execute() to block.
         this.reader = reader;
         this.inputStreamLabel = inputStreamLabel;
-        this.atBase = (atBase == null) ? new File(".") : atBase;
+        this.atBase = (atBase == null) ? new URL("file", null, ".") : atBase;
     }
 
     public void setConnection(final Connection jdbcConn) {
@@ -1413,8 +1442,8 @@ public class SqlFile {
                         SqltoolRB.nobuffer_yet.getString());
                 if (other == null)
                     throw new BadSpecial(SqltoolRB.destfile_demand.getString());
-                String targetFile =
-                        dereferenceAt(dereference(other.trim(), false));
+                File targetFile =
+                        dereferenceAtToFile(dereference(other.trim(), false));
                 // Dereference and trim the target file name
                 // This is the only case where we dereference a : command.
 
@@ -1432,7 +1461,7 @@ public class SqlFile {
                     pw.flush();
                 } catch (Exception e) {
                     throw new BadSpecial(SqltoolRB.file_appendfail.getString(
-                            targetFile), e);
+                            targetFile.getAbsolutePath()), e);
                 } finally {
                     if (pw != null) try {
                         pw.close();
@@ -1591,7 +1620,7 @@ public class SqlFile {
 
                 csvStyleQuoting = arg1.equals("mq");
                 try {
-                    importDsv(dereferenceAt(other), skipPrefix);
+                    importDsv(dereferenceAtToUrl(other), skipPrefix);
                 } finally {
                     csvStyleQuoting = false;
                 }
@@ -1640,10 +1669,10 @@ public class SqlFile {
                     File dsvFile = null;
                     csvStyleQuoting = arg1.equals("xq");
                     try {
-                        dsvFile = new File((dsvTargetFile == null)
-                                ? (tableName
+                        dsvFile = dsvTargetFile == null
+                                ? new File(tableName
                                         + (csvStyleQuoting ? ".csv" : ".dsv"))
-                                : dereferenceAt(dsvTargetFile));
+                                : dereferenceAtToFile(dsvTargetFile);
 
                         pwDsv = new PrintWriter(new OutputStreamWriter(
                                 new FileOutputStream(dsvFile),
@@ -1777,22 +1806,23 @@ public class SqlFile {
                     closeQueryOutputStream();
                 }
 
-                String filePath = dereferenceAt(other);
-                boolean preExists = new File(filePath).exists();
+                File file = dereferenceAtToFile(other);
+                boolean preExists = file.exists();
                 try {
                     pwQuery = new PrintWriter(new OutputStreamWriter(
-                            new FileOutputStream(filePath, true),
+                            new FileOutputStream(file, true),
                             (shared.encoding == null)
                             ? DEFAULT_FILE_ENCODING : shared.encoding));
                 } catch (Exception e) {
                     throw new BadSpecial(SqltoolRB.file_writefail.getString(
-                            filePath), e);
+                            file.getAbsolutePath()), e);
                 }
 
                 /* Opening in append mode, so it's possible that we will
                  * be adding superfluous <HTML> and <BODY> tags.
                  * I think that browsers can handle that */
-                if (htmlMode && !preExists) writeHeader(pwQuery, filePath);
+                if (htmlMode && !preExists)
+                    writeHeader(pwQuery, file.getPath());
                 pwQuery.flush();
 
                 return;
@@ -1806,7 +1836,7 @@ public class SqlFile {
 
                 sqlExpandMode = null;
                 try {
-                    new SqlFile(this, new File(dereferenceAt(other))).execute();
+                    new SqlFile(this, dereferenceAtToUrl(other)).execute();
                 } catch (ContinueException ce) {
                     throw ce;
                 } catch (BreakException be) {
@@ -2011,13 +2041,12 @@ public class SqlFile {
                             SqltoolRB.special_b_malformat.getString());
                 other = other.trim();
 
-                File otherFile = new File(dereferenceAt(other));
-
                 try {
                     if (arg1.charAt(1) == 'd') {
-                        dump(otherFile);
+                        dump(dereferenceAtToFile(other));
                     } else {
-                        binBuffer = SqlFile.loadBinary(otherFile);
+                        binBuffer =
+                          SqlFile.loadBinary(dereferenceAtToUrl(other));
                         stdprintln(SqltoolRB.binary_loadedbytesinto.getString(
                                 binBuffer.length));
                     }
@@ -2883,17 +2912,23 @@ public class SqlFile {
 
             if (varName.indexOf(':') > -1)
                 throw new BadSpecial(SqltoolRB.plvar_nocolon.getString());
-            File   dlFile    = new File(dereferenceAt(tokens[2]));
 
-            try {
-                if (tokens[0].equals("dump")) {
+            if (tokens[0].equals("dump")) {
+                File   dlFile    = dereferenceAtToFile(tokens[2]);
+                try {
                     dump(varName, dlFile);
-                } else {
-                    load(varName, dlFile, shared.encoding);
+                } catch (IOException ioe) {
+                    throw new BadSpecial(SqltoolRB.dumpload_fail.getString(
+                            varName, dlFile.toString()), ioe);
                 }
-            } catch (IOException ioe) {
-                throw new BadSpecial(SqltoolRB.dumpload_fail.getString(
-                        varName, dlFile.toString()), ioe);
+            } else {
+                URL url = dereferenceAtToUrl(tokens[2]);
+                try {
+                    load(varName, url, shared.encoding);
+                } catch (IOException ioe) {
+                    throw new BadSpecial(SqltoolRB.dumpload_fail.getString(
+                            varName, url.toString()), ioe);
+                }
             }
 
             return;
@@ -4831,9 +4866,9 @@ public class SqlFile {
     /**
      * Ascii file load.
      */
-    private void load(final String varName, final File asciiFile,
+    private void load(final String varName, final URL asciiUrl,
     final String cs) throws IOException {
-        String string = streamToString(new FileInputStream(asciiFile), cs);
+        String string = streamToString(asciiUrl.openStream(), cs);
         // The streamToString() method ensures that the Stream gets closed
         shared.userVars.put(varName, string);
         if (!varPattern.matcher(varName).matches())
@@ -4866,18 +4901,26 @@ public class SqlFile {
     }
 
     /**
+     * Legacy function..
+     * See following function for documentatin.
+     */
+    public static byte[] loadBinary(final File binFile) throws IOException {
+        return loadBinary(new URL("file", null, binFile.getPath()));
+    }
+
+    /**
      * Binary file load
      *
      * @return The bytes which are the content of the file
      * @throws IOException on read errors
      * @param binFile File
      */
-    public static byte[] loadBinary(final File binFile) throws IOException {
+    public static byte[] loadBinary(final URL binUrl) throws IOException {
         byte[]                xferBuffer = new byte[10240];
         byte[]                outBytes = null;
         ByteArrayOutputStream baos;
         int                   i;
-        FileInputStream       fis        = new FileInputStream(binFile);
+        InputStream           fis        = binUrl.openStream();
 
         try {
             baos = new ByteArrayOutputStream();
@@ -5243,7 +5286,7 @@ public class SqlFile {
      *                       but we want this method to have external
      *                       visibility.
      */
-    public void importDsv(final String filePath, final String skipPrefix)
+    public void importDsv(final URL fileUrl, final String skipPrefix)
     throws SqlToolError {
         /*
          * If there is user demand, open file in random access mode so don't
@@ -5289,13 +5332,14 @@ public class SqlFile {
 
         FileRecordReader dsvReader = null;
         try {
-            dsvReader = new FileRecordReader(filePath, dsvRowSplitter,
+            dsvReader = new FileRecordReader(fileUrl, dsvRowSplitter,
                     (shared.encoding == null)
                     ? DEFAULT_FILE_ENCODING : shared.encoding);
         } catch (UnsupportedEncodingException uee) {
             throw new SqlToolError(uee);
         } catch (IOException ioe) {
-            throw new SqlToolError(SqltoolRB.file_readfail.getString(filePath));
+            throw new SqlToolError(SqltoolRB.file_readfail.getString(
+              fileUrl.toString()));
         } catch (PatternSyntaxException pse) {
             throw new SqlToolError(
                     SqltoolRB.regex_malformat.getString(dsvRowSplitter));
@@ -5452,13 +5496,16 @@ public class SqlFile {
             + " FROM " + tableName + " WHERE 1 = 2");
 
         try {
+// THIS THROWING!!!!:
             ResultSetMetaData rsmd =
                     shared.jdbcConn.createStatement().executeQuery(
                     typeQuerySb.toString()).getMetaData();
 
             if (rsmd.getColumnCount() != autonulls.length)
+{ System.err.println("C23");
                 throw new SqlToolError(
                         SqltoolRB.dsv_metadata_mismatch.getString());
+}
                 // Don't know if it's possible to get here.
                 // If so, it's probably a SqlTool problem, not a user or
                 // data problem.
@@ -5527,7 +5574,7 @@ public class SqlFile {
         PrintWriter rejectReportWriter = null;
         try {
         if (dsvRejectFile != null) try {
-            rejectFile = new File(dereferenceAt(dsvRejectFile));
+            rejectFile = dereferenceAtToFile(dsvRejectFile);
             rejectWriter = new PrintWriter(
                     new OutputStreamWriter(new FileOutputStream(rejectFile),
                     (shared.encoding == null)
@@ -5541,7 +5588,7 @@ public class SqlFile {
                     dsvRejectFile), ioe);
         }
         if (dsvRejectReport != null) try {
-            rejectReportFile = new File(dereferenceAt(dsvRejectReport));
+            rejectReportFile = dereferenceAtToFile(dsvRejectReport);
             rejectReportWriter = new PrintWriter(new OutputStreamWriter(
                     new FileOutputStream(rejectReportFile),
                     (shared.encoding == null)
@@ -5557,7 +5604,7 @@ public class SqlFile {
                 if (setTitle) shared.userVars.remove("REPORT_TITLE");
             }
             rejectReportWriter.println(SqltoolRB.rejectreport_top.getString(
-                    dsvReader.getPath(),
+                    dsvReader.toString(),
                     ((rejectFile == null) ? SqltoolRB.none.getString()
                                     : rejectFile.getPath()),
                     ((rejectFile == null) ? null : rejectFile.getPath())));
@@ -6285,11 +6332,39 @@ public class SqlFile {
                   : msg);
     }
 
-    private String dereferenceAt(final String s) throws BadSpecial {
-        if (s.indexOf('@') != 0) return s;
+    private URL dereferenceAtToUrl(final String s) throws BadSpecial {
+        try {
+            if (s.indexOf('@') != 0)
+                return SqlFile.URL_WITH_PROTO_RE.matcher(s).matches() ?
+                  new URL(s) : new URL("file", null, s);
+            if (atBase == null)
+                throw new BadSpecial(SqltoolRB.illegal_at.getString());
+            return (s.length() > 2 &&
+              (s.charAt(1) == '/' || s.charAt(1) == '\\'))
+              ? new URL(atBase, s.substring(2))
+              : new URL(atBase.getProtocol(), atBase.getHost(),
+                atBase.getFile() + s.substring(1));
+        } catch (MalformedURLException mue) {
+            throw new BadSpecial(mue.getMessage());
+        }
+    }
+
+    private File dereferenceAtToFile(final String s) throws BadSpecial {
+        if (s.indexOf('@') != 0) return new File(s);
         if (atBase == null)
             throw new BadSpecial(SqltoolRB.illegal_at.getString());
-        return atBase.getPath() + s.substring(1);
+        if (atBase.getProtocol() != "file")
+            throw new BadSpecial(SqltoolRB.desturl_nowrite.getString(
+              atBase.toString()));
+        try {
+            return new File(((s.length() > 2 &&
+              (s.charAt(1) == '/' || s.charAt(1) == '\\'))
+              ? new URL(atBase, s.substring(2))
+              : new URL(atBase.getProtocol(), atBase.getHost(),
+                atBase.getFile() + s.substring(1))).getPath());
+        } catch (MalformedURLException mue) {
+            throw new BadSpecial(mue.getMessage());
+        }
     }
 
     /**
