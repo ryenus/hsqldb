@@ -90,6 +90,7 @@ import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users - corrections
@@ -741,14 +742,16 @@ public class IndexAVL implements Index {
     public void compareRowForChange(Session session, Object[] a, Object[] b,
                                     double[] changes) {
 
-        for (int j = 0; j < colIndex.length; j++) {
-            int i = colTypes[j].compare(session, a[colIndex[j]],
-                                        b[colIndex[j]]);
+        int c = 0;
 
-            if (i != 0) {
-                for (; j < colIndex.length; j++) {
-                    changes[j]++;
-                }
+        for (int j = 0; j < colIndex.length; j++) {
+            if (c == 0) {
+                c = colTypes[j].compare(session, a[colIndex[j]],
+                                        b[colIndex[j]]);
+            }
+
+            if (c != 0) {
+                changes[j]++;
             }
         }
     }
@@ -826,17 +829,18 @@ public class IndexAVL implements Index {
 
         // versioned rows are ordered by timestamp and row id
         if (start == 0 && ((Table) table).isSystemVersioned()) {
-            long newVersion      = newRow.getSystemVersion();
-            long existingVersion = existingRow.getSystemVersion();
+            TimestampData newVersion      = newRow.getSystemEndVersion();
+            TimestampData existingVersion = existingRow.getSystemEndVersion();
+            int compare = Type.SQL_TIMESTAMP_WITH_TIME_ZONE.compare(session,
+                newVersion, existingVersion);
 
-            if (newVersion < existingVersion) {
-                return -1;
-            } else if (newVersion > existingVersion) {
-                return 1;
-            }
-
-            if (newVersion < DateTimeType.epochLimitSeconds) {
-                useRowId = true;
+            if (compare == 0) {
+                if (newVersion.getSeconds()
+                        != DateTimeType.epochLimitSeconds) {
+                    useRowId = true;
+                }
+            } else {
+                return compare;
             }
         }
 
@@ -1525,7 +1529,8 @@ public class IndexAVL implements Index {
         row = node.getRow(store);
 
         if (store.canRead(session, row, TransactionManager.ACTION_DUP, null)) {
-            if (row.getSystemVersion() == DateTimeType.epochLimitSeconds) {
+            if (row.getSystemEndVersion().getSeconds()
+                    == DateTimeType.epochLimitSeconds) {
                 return true;
             }
         }
@@ -1546,7 +1551,7 @@ public class IndexAVL implements Index {
 
                 if (store.canRead(session, row, TransactionManager.ACTION_DUP,
                                   null)) {
-                    if (row.getSystemVersion()
+                    if (row.getSystemEndVersion().getSeconds()
                             == DateTimeType.epochLimitSeconds) {
                         return true;
                     }
@@ -1572,7 +1577,7 @@ public class IndexAVL implements Index {
 
                 if (store.canRead(session, row, TransactionManager.ACTION_DUP,
                                   null)) {
-                    if (row.getSystemVersion()
+                    if (row.getSystemEndVersion().getSeconds()
                             == DateTimeType.epochLimitSeconds) {
                         return true;
                     }

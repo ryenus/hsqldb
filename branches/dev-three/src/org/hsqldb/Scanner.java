@@ -2093,6 +2093,10 @@ public class Scanner {
             seconds -= zoneSeconds;
         }
 
+        if (seconds > DateTimeType.epochLimitSeconds) {
+            throw Error.error(ErrorCode.X_22008);
+        }
+
         return new TimestampData(seconds, fraction, (int) zoneSeconds);
     }
 
@@ -2138,7 +2142,7 @@ public class Scanner {
 
             if (endOfPart) {
                 if (currentPart == firstPart) {
-                    if (currentDigits != 4) {
+                    if (currentDigits < 4) {
                         throw Error.error(ErrorCode.X_22007);
                     }
                 } else {

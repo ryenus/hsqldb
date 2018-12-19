@@ -47,6 +47,8 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.LineReader;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.map.ValuePool;
+import org.hsqldb.persist.RowInsertInterface;
+import org.hsqldb.persist.RowInsertSimple;
 import org.hsqldb.result.Result;
 import org.hsqldb.rowio.RowInputTextLog;
 import org.hsqldb.types.Type;
@@ -57,7 +59,7 @@ import org.hsqldb.types.Type;
  * corresponds to ScriptWriterText.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- *  @version 2.4.1
+ *  @version 2.4.2
  *  @since 1.7.2
  */
 public class ScriptReaderText extends ScriptReaderBase {
@@ -94,6 +96,26 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         dataStreamIn = new LineReader(tempStream, ScriptWriterText.ISO_8859_1);
         rowIn = new RowInputTextLog(db.databaseProperties.isVersion18());
+    }
+
+    public void readAll(Session session) {
+
+        int insertErrorMode;
+
+        if (database.recoveryMode == 0) {
+            errorLogger     = new RowInsertSimple.DefaultErrorHandler();
+            insertErrorMode = RowInsertInterface.modes.discardOnError;
+        } else {
+            errorLogger = new RowInsertSimple.InsertErrorHandler(database,
+                    fileNamePath);
+            insertErrorMode = RowInsertInterface.modes.continueOnError;
+        }
+
+        readDDL(session);
+
+        inserter = new RowInsertSimple(session, errorLogger, insertErrorMode);
+
+        readExistingData(session);
     }
 
     protected void readDDL(Session session) {
@@ -139,9 +161,6 @@ public class ScriptReaderText extends ScriptReaderBase {
                     }
                 }
 
-                database.logger.logWarningEvent(result.getMainString(),
-                                                result.getException());
-
                 HsqlException e = getError(result.getException(), lineCount);
 
                 handleError(e);
@@ -149,58 +168,66 @@ public class ScriptReaderText extends ScriptReaderBase {
         }
     }
 
-    protected void readExistingData(Session session) {
+    public void readExistingData(Session session) {
 
         String tablename = null;
 
-        for (;;) {
-            try {
-                boolean hasRow = false;
+        try {
+            for (;;) {
+                try {
+                    boolean hasRow = false;
 
-                if (isInsert) {
-                    isInsert = false;
-                    hasRow   = true;
-                } else {
-                    hasRow = readLoggedStatement(session);
-                }
-
-                if (!hasRow) {
-                    break;
-                }
-
-                if (statementType == SET_SCHEMA_STATEMENT) {
-                    session.setSchema(currentSchema);
-
-                    tablename = null;
-
-                    continue;
-                } else if (statementType == INSERT_STATEMENT) {
-                    if (!rowIn.getTableName().equals(tablename)) {
-                        tablename = rowIn.getTableName();
-
-                        String schema = session.getSchemaName(currentSchema);
-
-                        currentTable =
-                            database.schemaManager.getUserTable(tablename,
-                                schema);
-                        currentStore =
-                            database.persistentStoreCollection.getStore(
-                                currentTable);
+                    if (isInsert) {
+                        isInsert = false;
+                        hasRow   = true;
+                    } else {
+                        hasRow = readLoggedStatement(session);
                     }
 
-                    currentTable.insertFromScript(session, currentStore,
-                                                  rowData);
-                } else {
-                    HsqlException e = Error.error(ErrorCode.GENERAL_ERROR,
-                                                  statement);
+                    if (!hasRow) {
+                        inserter.finishTable();
 
-                    throw e;
+                        break;
+                    }
+
+                    if (statementType == SET_SCHEMA_STATEMENT) {
+                        session.setSchema(currentSchema);
+
+                        tablename = null;
+
+                        continue;
+                    } else if (statementType == INSERT_STATEMENT) {
+                        if (!rowIn.getTableName().equals(tablename)) {
+                            inserter.finishTable();
+
+                            tablename = rowIn.getTableName();
+
+                            String schema =
+                                session.getSchemaName(currentSchema);
+
+                            currentTable =
+                                database.schemaManager.getUserTable(tablename,
+                                    schema);
+                            currentStore =
+                                database.persistentStoreCollection.getStore(
+                                    currentTable);
+                        }
+
+                        inserter.insert(currentTable, currentStore, rowData);
+                    } else {
+                        HsqlException e = Error.error(ErrorCode.GENERAL_ERROR,
+                                                      statement);
+
+                        throw e;
+                    }
+                } catch (Throwable t) {
+                    HsqlException e = getError(t, lineCount);
+
+                    handleError(e);
                 }
-            } catch (Throwable t) {
-                HsqlException e = getError(t, lineCount);
-
-                handleError(e);
             }
+        } finally {
+            inserter.close();
         }
     }
 
@@ -308,8 +335,8 @@ public class ScriptReaderText extends ScriptReaderBase {
         } catch (Exception e) {}
 
         try {
-            if (scrwriter != null) {
-                scrwriter.close();
+            if (errorLogger != null) {
+                errorLogger.close();
             }
 
             database.recoveryMode = 0;
@@ -335,29 +362,13 @@ public class ScriptReaderText extends ScriptReaderBase {
 
     private void handleError(HsqlException e) {
 
-        database.logger.logSevereEvent("bad line in script file " + lineCount,
-                                       e);
+        database.logger.logSevereEvent(e.getMessage(), e);
 
         if (database.recoveryMode == 0) {
             throw e;
         }
 
-        openScriptWriter();
-
-        try {
-            scrwriter.writeLogStatement(null, rawStatement);
-        } catch (Throwable t) {}
-    }
-
-    private void openScriptWriter() {
-
-        if (scrwriter == null) {
-            String timestamp =
-                database.logger.fileDateFormat.format(new java.util.Date());
-            String name = fileNamePath + "." + timestamp + ".reject";
-
-            scrwriter = new ScriptWriterText(database, name, false, false,
-                                             true);
-        }
+        // todo - write line number etc
+        errorLogger.writeLogStatement(lineCount, rawStatement);
     }
 }

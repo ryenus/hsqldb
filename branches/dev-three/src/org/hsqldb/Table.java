@@ -1250,6 +1250,14 @@ public class Table extends TableBase implements SchemaObject {
         return systemPeriod;
     }
 
+    public int getSystemPeriodStartIndex() {
+        return systemPeriodStartColumn;
+    }
+
+    public int getSystemPeriodEndIndex() {
+        return systemPeriodEndColumn;
+    }
+
     public PeriodDefinition getApplicationPeriod() {
         return applicationPeriod;
     }
@@ -2807,7 +2815,7 @@ public class Table extends TableBase implements SchemaObject {
         setIndexRoots(roots, uniqueSize, cardinality);
     }
 
-    void generateAndCheckData(Session session, Object[] data) {
+    public void generateAndCheckData(Session session, Object[] data) {
 
         if (hasGeneratedValues || systemPeriod != null) {
             setGeneratedColumns(session, data);

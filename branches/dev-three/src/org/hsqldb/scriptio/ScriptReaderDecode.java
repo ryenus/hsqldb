@@ -51,7 +51,7 @@ import org.hsqldb.rowio.RowInputTextLog;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class ScriptReaderDecode extends ScriptReaderText {
@@ -165,8 +165,8 @@ public class ScriptReaderDecode extends ScriptReaderText {
         } catch (Exception e) {}
 
         try {
-            if (scrwriter != null) {
-                scrwriter.close();
+            if (errorLogger != null) {
+                errorLogger.close();
             }
 
             database.recoveryMode = 0;

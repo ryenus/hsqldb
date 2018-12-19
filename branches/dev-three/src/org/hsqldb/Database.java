@@ -96,7 +96,7 @@ public class Database {
      *  databaseProperties or URL properties for new databases.
      */
     public int                    sqlAvgScale            = 0;
-    public boolean                sqlRestrictExec          = false;
+    public boolean                sqlRestrictExec        = false;
     public boolean                sqlCharLiteral         = true;
     public boolean                sqlConcatNulls         = true;
     public boolean                sqlConvertTruncate     = true;
@@ -738,7 +738,7 @@ public class Database {
             sb.setLength(0);
         }
 
-        if (!collation.isDefaultCollation()) {
+        if (!collation.isDefaultCollation() || !collation.isPadSpace()) {
             list.add(collation.getDatabaseCollationSQL());
         }
 

@@ -506,7 +506,7 @@ public class Logger implements EventLogInterface {
         String tableType = database.databaseProperties.getStringProperty(
             HsqlDatabaseProperties.hsqldb_default_table_type);
 
-        if ("CACHED".equalsIgnoreCase(tableType)) {
+        if (Tokens.T_CACHED.equalsIgnoreCase(tableType)) {
             database.schemaManager.setDefaultTableType(TableBase.CACHED_TABLE);
         }
 
@@ -1903,8 +1903,8 @@ public class Logger implements EventLogInterface {
             HsqlDatabaseProperties.hsqldb_digest);
 
         if (!temp.equals(database.granteeManager.getDigestAlgo())) {
-            sb.append("SET DATABASE ").append(' ').append(Tokens.T_PASSWORD);
-            sb.append(' ').append(Tokens.T_DIGEST).append(' ').append('\'');
+            sb.append("SET DATABASE ").append(Tokens.T_PASSWORD).append(' ');
+            sb.append(Tokens.T_DIGEST).append(' ').append('\'');
             sb.append(database.granteeManager.getDigestAlgo()).append('\'');
             list.add(sb.toString());
             sb.setLength(0);

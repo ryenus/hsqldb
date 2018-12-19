@@ -537,10 +537,6 @@ public final class DateTimeType extends DTIType {
             return null;
         }
 
-        if (scale == maxFractionPrecision) {
-            return a;
-        }
-
         switch (typeCode) {
 
             case Types.SQL_DATE :
@@ -563,6 +559,10 @@ public final class DateTimeType extends DTIType {
                 TimestampData ts       = (TimestampData) a;
                 int           nanos    = ts.getNanos();
                 int           newNanos = scaleNanos(nanos);
+
+                if (ts.getSeconds() > epochLimitSeconds) {
+                    throw Error.error(ErrorCode.X_22008);
+                }
 
                 if (newNanos == nanos) {
                     return ts;

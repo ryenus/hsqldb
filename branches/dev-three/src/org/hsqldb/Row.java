@@ -103,16 +103,28 @@ public class Row implements CachedObject {
         return !action.canRead(session, TransactionManager.ACTION_READ);
     }
 
-    public long getSystemVersion() {
+    public TimestampData getSystemStartVersion() {
+
+        if (((Table) table).isSystemVersioned) {
+            TimestampData ts = (TimestampData) getField(
+                ((Table) table).systemPeriodStartColumn);
+
+            return ts;
+        }
+
+        return DateTimeType.epochTimestamp;
+    }
+
+    public TimestampData getSystemEndVersion() {
 
         if (((Table) table).isSystemVersioned) {
             TimestampData ts = (TimestampData) getField(
                 ((Table) table).systemPeriodEndColumn);
 
-            return ts.getSeconds();
+            return ts;
         }
 
-        return DateTimeType.epochLimitSeconds;
+        return DateTimeType.epochLimitTimestamp;
     }
 
     public void setStorageSize(int size) {}
