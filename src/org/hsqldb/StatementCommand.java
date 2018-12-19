@@ -44,6 +44,7 @@ import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.persist.ScriptLoader;
 import org.hsqldb.persist.TableSpaceManager;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
@@ -113,6 +114,11 @@ public class StatementCommand extends Statement {
 
                 break;
             }
+            case StatementTypes.LOAD_SCRIPT :
+                group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
+                isLogged = false;
+
+                break;
             case StatementTypes.CHECK_INDEX : {
                 statementReturnType = StatementTypes.RETURN_RESULT;
                 group = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
@@ -936,8 +942,12 @@ public class StatementCommand extends Statement {
                 }
             }
             case StatementTypes.DATABASE_SCRIPT : {
-                ScriptWriterText dsw  = null;
-                String           name = (String) arguments[0];
+                ScriptWriterText dsw       = null;
+                String           name      = (String) arguments[0];
+                Integer          scope     = (Integer) arguments[1];
+                Integer          type      = (Integer) arguments[2];
+                HsqlName         tableName = (HsqlName) arguments[3];
+                TimestampData    timestamp = (TimestampData) arguments[4];
 
                 try {
                     session.checkAdmin();
@@ -948,7 +958,34 @@ public class StatementCommand extends Statement {
                         dsw = new ScriptWriterText(session.database, name,
                                                    true, true, true);
 
-                        dsw.writeAll();
+                        switch (type.intValue()) {
+
+                            case Tokens.ALL :
+                                dsw.writeAll();
+                                break;
+
+                            case Tokens.STRUCTURE :
+                                dsw.writeDDL();
+                                break;
+
+                            case Tokens.DATA :
+                                if (tableName == null) {
+                                    dsw.writeExistingData(false);
+                                } else {
+                                    Table table =
+                                        session.database.schemaManager
+                                            .getUserTable(tableName);
+
+                                    dsw.setIncludeTableInit(true);
+                                    dsw.writeTableData(table);
+                                }
+                                break;
+
+                            case Tokens.VERSIONING :
+                                dsw.writeVersioningData(timestamp);
+                                break;
+                        }
+
                         dsw.close();
 
                         return Result.updateZeroResult;
@@ -965,6 +1002,18 @@ public class StatementCommand extends Statement {
                     session.database.close(mode);
 
                     return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.LOAD_SCRIPT : {
+                try {
+                    String  pathName     = (String) arguments[0];
+                    int     mode         = ((Integer) arguments[1]).intValue();
+                    Boolean isVersioning = (Boolean) arguments[2];
+
+                    return ScriptLoader.loadScriptData(session,
+                            pathName, mode, isVersioning.booleanValue());
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }

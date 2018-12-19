@@ -39,10 +39,13 @@ import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlDatabaseProperties;
+import org.hsqldb.persist.RowInsertInterface;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.rights.User;
 import org.hsqldb.types.Charset;
+import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -277,7 +280,7 @@ public class ParserCommand extends ParserDDL {
 
             // HSQL COMMAND
             case Tokens.SCRIPT :
-                cs = compileScript();
+                cs = compileScript(false);
                 break;
 
             case Tokens.SHUTDOWN :
@@ -371,19 +374,100 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileScript() {
+    private Statement compileScript(boolean extended) {
 
-        String name = null;
+        String        name      = null;
+        int           scope     = 0;
+        int           type      = 0;
+        HsqlName      tableName = null;
+        TimestampData timestamp = null;
 
-        read();
+        readThis(Tokens.SCRIPT);
+
+        if (extended) {
+            readThis(Tokens.FOR);
+
+            if (readIfThis(Tokens.DATABASE)) {
+                switch (token.tokenType) {
+
+                    case Tokens.STRUCTURE :
+                        read();
+
+                        type = Tokens.STRUCTURE;
+                        break;
+
+                    case Tokens.VERSIONING :
+                        read();
+                        readThis(Tokens.DATA);
+
+                        if (readIfThis(Tokens.FROM)) {
+                            readThis(Tokens.TIMESTAMP);
+
+                            String s = readQuotedString();
+
+                            timestamp =
+                                (TimestampData) Type.SQL_TIMESTAMP
+                                    .convertToType(session, s,
+                                                   Type.SQL_VARCHAR_DEFAULT);
+                        } else {
+                            timestamp = DateTimeType.epochTimestamp;
+                        }
+
+                        type = Tokens.VERSIONING;
+                        break;
+
+                    case Tokens.DATA :
+                        read();
+
+                        type = Tokens.DATA;
+                        break;
+
+                    default :
+                        type = Tokens.ALL;
+                }
+
+                readThis(Tokens.TO);
+
+                scope = Tokens.DATABASE;
+            } else if (readIfThis(Tokens.TABLE)) {
+                Table table = readTableName();
+
+                if (table.isView() || table.isTemp()) {
+                    throw Error.error(ErrorCode.X_42501);
+                }
+
+                tableName = table.getName();
+
+                readThis(Tokens.DATA);
+                readThis(Tokens.TO);
+
+                scope = Tokens.TABLE;
+                type  = Tokens.DATA;
+            } else {
+                throw unexpectedToken();
+            }
+        }
 
         if (token.tokenType == Tokens.X_VALUE) {
+            if (scope == 0) {
+                scope = Tokens.DATABASE;
+                type  = Tokens.ALL;
+            }
+
             name = readQuotedString();
+        } else if (scope == 0) {
+            scope = Tokens.DATABASE;
+            type  = Tokens.STRUCTURE;
+        } else {
+            throw unexpectedTokenRequire(Tokens.T_PATH);
         }
 
         HsqlName[] names =
             database.schemaManager.getCatalogAndBaseTableNames();
-        Object[] args = new Object[]{ name };
+        Object[] args = new Object[] {
+            name, Integer.valueOf(scope), Integer.valueOf(type), tableName,
+            timestamp
+        };
 
         return new StatementCommand(StatementTypes.DATABASE_SCRIPT, args,
                                     null, names);
@@ -2353,9 +2437,86 @@ public class ParserCommand extends ParserDDL {
                 return new StatementCommand(StatementTypes.CHECK_INDEX, args,
                                             null, names);
             }
+            case Tokens.IMPORT : {
+                read();
+
+                return compileImportScript();
+            }
+            case Tokens.EXPORT :
+                read();
+
+                return compileScript(true);
+
             default :
                 throw unexpectedToken();
         }
+    }
+
+    private Statement compileImportScript() {
+
+        String  fileName;
+        int     mode         = RowInsertInterface.modes.continueOnError;
+        Boolean isVersioning = Boolean.FALSE;
+
+        readThis(Tokens.SCRIPT);
+
+        if (token.tokenType == Tokens.FOR) {
+            read();
+            readThis(Tokens.VERSIONING);
+
+            isVersioning = Boolean.TRUE;
+        }
+
+        readThis(Tokens.FROM);
+
+        fileName = readQuotedString();
+
+        if (!isVersioning) {
+            mode = readLoadMode();
+        }
+
+        HsqlName[] names =
+            database.schemaManager.getCatalogAndBaseTableNames();
+        Object[] args = new Object[] {
+            fileName, Integer.valueOf(mode), isVersioning
+        };
+
+        return new StatementCommand(StatementTypes.LOAD_SCRIPT, args, null,
+                                    names);
+    }
+
+    private int readLoadMode() {
+
+        int mode = -1;
+
+        switch (token.tokenType) {
+
+            case Tokens.CONTINUE :
+                mode = RowInsertInterface.modes.continueOnError;
+
+                read();
+                break;
+
+            case Tokens.STOP :
+                mode = RowInsertInterface.modes.stopOnError;
+
+                read();
+                break;
+
+            case Tokens.CHECK :
+                mode = RowInsertInterface.modes.checkUntillError;
+
+                read();
+                break;
+
+            default :
+                throw unexpectedToken();
+        }
+
+        readThis(Tokens.ON);
+        readThis(Tokens.ERROR);
+
+        return mode;
     }
 
     private Statement compileCheckpoint() {

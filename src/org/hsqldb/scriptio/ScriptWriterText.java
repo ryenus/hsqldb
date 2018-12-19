@@ -66,7 +66,7 @@ import org.hsqldb.rowio.RowOutputTextLog;
  *
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.7.2
  */
 public class ScriptWriterText extends ScriptWriterBase {
@@ -148,10 +148,9 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut = new RowOutputTextLog();
     }
 
-    protected void writeDataTerm() throws IOException {}
+    protected void writeDataTerm() {}
 
-    protected void writeSessionIdAndSchema(Session session)
-    throws IOException {
+    protected void writeSessionIdAndSchema(Session session) {
 
         if (session == null) {
             return;
@@ -185,8 +184,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.writeBytes(BYTES_LINE_SEP);
     }
 
-    public void writeLogStatement(Session session,
-                                  String s) throws IOException {
+    public void writeLogStatement(Session session, String s) {
 
         if (session != null) {
             schemaToLog = session.currentSchema;
@@ -202,8 +200,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         needsSync = true;
     }
 
-    public void writeRow(Session session, Row row,
-                         Table table) throws IOException {
+    public void writeRow(Session session, Row row, Table table) {
 
         schemaToLog = table.getName().schema;
 
@@ -219,7 +216,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         writeRowOutToFile();
     }
 
-    public void writeTableInit(Table t) throws IOException {
+    public void writeTableInit(Table t) {
 
         if (t.isEmpty(currentSession)) {
             return;
@@ -236,8 +233,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         currentSession.loggedSchema = schemaToLog;
     }
 
-    public void writeOtherStatement(Session session,
-                                    String s) throws IOException {
+    public void writeOtherStatement(Session session, String s) {
 
         writeLogStatement(session, s);
 
@@ -246,8 +242,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         }
     }
 
-    public void writeInsertStatement(Session session, Row row,
-                                     Table table) throws IOException {
+    public void writeInsertStatement(Session session, Row row, Table table) {
 
         schemaToLog = table.getName().schema;
 
@@ -255,7 +250,7 @@ public class ScriptWriterText extends ScriptWriterBase {
     }
 
     public void writeDeleteStatement(Session session, Table table,
-                                     Object[] data) throws IOException {
+                                     Object[] data) {
 
         schemaToLog = table.getName().schema;
 
@@ -271,8 +266,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         writeRowOutToFile();
     }
 
-    public void writeSequenceStatement(Session session,
-                                       NumberSequence seq) throws IOException {
+    public void writeSequenceStatement(Session session, NumberSequence seq) {
 
         schemaToLog = seq.getName().schema;
 
@@ -290,7 +284,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         needsSync = true;
     }
 
-    public void writeCommitStatement(Session session) throws IOException {
+    public void writeCommitStatement(Session session) {
 
         writeSessionIdAndSchema(session);
         rowOut.reset();
@@ -305,25 +299,33 @@ public class ScriptWriterText extends ScriptWriterBase {
         }
     }
 
-    protected void finishStream() throws IOException {
+    protected void finishStream() {
 
-        if (isCompressed) {
-            ((GZIPOutputStream) fileStreamOut).finish();
+        try {
+            if (isCompressed) {
+                ((GZIPOutputStream) fileStreamOut).finish();
+            }
+        } catch (IOException io) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR, outFile);
         }
     }
 
-    void writeRowOutToFile() throws IOException {
+    void writeRowOutToFile() {
 
         if (fileStreamOut == null) {
             return;
         }
 
         synchronized (fileStreamOut) {
-            fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
+            try {
+                fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
 
-            byteCount += rowOut.size();
+                byteCount += rowOut.size();
 
-            lineCount++;
+                lineCount++;
+            } catch (IOException io) {
+                throw Error.error(ErrorCode.FILE_IO_ERROR, outFile);
+            }
         }
     }
 }

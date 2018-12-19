@@ -533,12 +533,13 @@ public class ParserDML extends ParserDQL {
                     String s = readQuotedString();
 
                     timestamp =
-                        (TimestampData) Type.SQL_TIMESTAMP.convertToType(
-                            session, s, Type.SQL_VARCHAR_DEFAULT);
+                        (TimestampData) Type.SQL_TIMESTAMP_WITH_TIME_ZONE
+                            .convertToType(session, s,
+                                           Type.SQL_VARCHAR_DEFAULT);
                 } else {
                     readThis(Tokens.CURRENT_TIMESTAMP);
 
-                    timestamp = DateTimeType.epochTimestamp;
+                    timestamp = session.getTransactionSystemTimestamp();
                 }
 
                 break;
@@ -600,7 +601,12 @@ public class ParserDML extends ParserDQL {
         Table           table;
 
         readThis(Tokens.DELETE);
-        readThis(Tokens.FROM);
+
+        if (database.sqlSyntaxOra) {
+            readIfThis(Tokens.FROM);
+        } else {
+            readThis(Tokens.FROM);
+        }
 
         targetRange =
             readRangeVariableForDataChange(StatementTypes.DELETE_WHERE);
