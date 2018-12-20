@@ -82,6 +82,22 @@ public class RCData {
     }
      */
 
+    public String toString() {
+        return "id: " + angleBracketNull(id)
+          + ", url: " + angleBracketNull(url)
+          + ", username: " + angleBracketNull(username)
+          + ", password: <" + (password == null ? "NULL" : "PRESENT") + ">"
+          + ", ti: " + angleBracketNull(ti)
+          + ", driver: " + angleBracketNull(driver)
+          + ", truststore: " + angleBracketNull(truststore)
+          + ", libpath: " + angleBracketNull(libpath);
+    }
+
+    private static String angleBracketNull(final String s) {
+        return s == null ? "<NULL>" : s;
+    }
+
+
     /**
      * Creates a RCDataObject by looking up the given key in the
      * given authentication file.
