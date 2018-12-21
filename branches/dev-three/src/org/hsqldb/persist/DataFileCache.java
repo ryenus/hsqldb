@@ -63,7 +63,7 @@ import org.hsqldb.Session;
  * Rewritten for 1.8.0 and 2.x
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -159,14 +159,7 @@ public class DataFileCache {
         cache = new Cache(this);
 
         try {
-            if (database.logger.isStoredFileAccess()) {
-                dataFile = RAFile.newScaledRAFile(database, dataFileName,
-                                                  false,
-                                                  RAFile.DATA_FILE_STORED);
-            } else {
-                dataFile = new RAFileSimple(database.logger, dataFileName,
-                                            "rw");
-            }
+            dataFile = new RAFileSimple(database.logger, dataFileName, "rw");
         } catch (Throwable t) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, t);
         }
@@ -223,12 +216,6 @@ public class DataFileCache {
      * allow access to the particular database version of the *.data file.
      */
     public void open(boolean readonly) {
-
-        if (database.logger.isStoredFileAccess()) {
-            openStoredFileAccess(readonly);
-
-            return;
-        }
 
         fileFreePosition = initialFreePos;
 
@@ -559,8 +546,9 @@ public class DataFileCache {
 
         if (database.logger.propIncrementBackup
                 && fileFreePosition != initialFreePos) {
-            shadowFile = new RAShadowFile(database, dataFile, backupFileName,
-                                          fileFreePosition, 1 << 14);
+            shadowFile = new RAShadowFile(database.logger, dataFile,
+                                          backupFileName, fileFreePosition,
+                                          1 << 14);
         }
     }
 
@@ -1483,10 +1471,6 @@ public class DataFileCache {
 
         // first attempt to delete
         fileAccess.removeElement(fileName);
-
-        if (database.logger.isStoredFileAccess()) {
-            return;
-        }
 
         if (fileAccess.isStreamElement(fileName)) {
             fileAccess.removeElement(fileName);

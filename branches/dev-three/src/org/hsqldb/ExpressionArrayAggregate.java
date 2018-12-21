@@ -413,7 +413,7 @@ public class ExpressionArrayAggregate extends Expression {
         return condition != null && !condition.isTrue();
     }
 
-    public void setCondition(Expression e) {
+    public void setCondition(ExpressionLogical e) {
         condition = e;
     }
 

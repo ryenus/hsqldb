@@ -320,7 +320,7 @@ public class ExpressionAggregate extends Expression {
         return !nodes[RIGHT].isTrue();
     }
 
-    public void setCondition(Expression e) {
+    public void setCondition(ExpressionLogical e) {
         nodes[RIGHT] = e;
     }
 }

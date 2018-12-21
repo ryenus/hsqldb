@@ -34,7 +34,6 @@ package org.hsqldb.persist;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -88,7 +87,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.2
  * @since 1.7.0
  */
 public class Logger implements EventLogInterface {
@@ -140,8 +139,6 @@ public class Logger implements EventLogInterface {
     private Crypto    crypto;
     boolean           cryptLobs;
     public FileAccess fileAccess;
-    public boolean    isStoredFileAccess;
-    public boolean    isNewStoredFileAccess;
     String            tempDirectoryPath;
 
     //
@@ -200,62 +197,10 @@ public class Logger implements EventLogInterface {
      */
     public void open() {
 
-        // oj@openoffice.org - changed to file access api
-        String fileaccess_class_name =
-            (String) database.getURLProperties().getProperty(
-                HsqlDatabaseProperties.url_fileaccess_class_name);
-        String storage_class_name =
-            (String) database.getURLProperties().getProperty(
-                HsqlDatabaseProperties.url_storage_class_name);
         boolean hasFileProps = false;
         boolean hasScript    = false;
 
-        if (fileaccess_class_name != null) {
-            String storagekey = database.getURLProperties().getProperty(
-                HsqlDatabaseProperties.url_storage_key);
-
-            try {
-                Class fileAccessClass = null;
-                Class storageClass    = null;
-
-                try {
-                    ClassLoader classLoader =
-                        Thread.currentThread().getContextClassLoader();
-
-                    fileAccessClass =
-                        classLoader.loadClass(fileaccess_class_name);
-                    storageClass = classLoader.loadClass(storage_class_name);
-                } catch (ClassNotFoundException e) {
-                    fileAccessClass = Class.forName(fileaccess_class_name);
-                    storageClass    = Class.forName(storage_class_name);
-                }
-
-                if (storageClass.isAssignableFrom(
-                        RandomAccessInterface.class)) {
-                    isNewStoredFileAccess = true;
-                }
-
-                Constructor constructor =
-                    fileAccessClass.getConstructor(new Class[]{
-                        Object.class });
-
-                fileAccess =
-                    (FileAccess) constructor.newInstance(new Object[]{
-                        storagekey });
-                isStoredFileAccess = true;
-            } catch (ClassNotFoundException e) {
-                System.out.println("ClassNotFoundException");
-            } catch (InstantiationException e) {
-                System.out.println("InstantiationException");
-            } catch (IllegalAccessException e) {
-                System.out.println("IllegalAccessException");
-            } catch (Exception e) {
-                System.out.println("Exception");
-            }
-        } else {
-            fileAccess = FileUtil.getFileAccess(database.isFilesInJar());
-        }
-
+        fileAccess = FileUtil.getFileAccess(database.isFilesInJar());
         propIsFileDatabase          = database.getType().isFileBased();
         database.databaseProperties = new HsqlDatabaseProperties(database);
         propTextAllowFullPath = database.databaseProperties.isPropertyTrue(
@@ -445,8 +390,7 @@ public class Logger implements EventLogInterface {
 
         // handle invalid paths as well as access issues
         if (!database.isFilesReadOnly()) {
-            if (database.getType() == DatabaseType.DB_MEM
-                    || isStoredFileAccess) {
+            if (database.getType() == DatabaseType.DB_MEM) {
                 tempDirectoryPath = database.getProperties().getStringProperty(
                     HsqlDatabaseProperties.hsqldb_temp_directory);
             } else {
@@ -475,10 +419,6 @@ public class Logger implements EventLogInterface {
 
         if (!database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_pad_space, true)) {
-            database.collation.setPadding(false);
-        }
-
-        if (version18 && isStoredFileAccess) {
             database.collation.setPadding(false);
         }
 
@@ -1374,14 +1314,6 @@ public class Logger implements EventLogInterface {
 
     public FileAccess getFileAccess() {
         return fileAccess;
-    }
-
-    public boolean isStoredFileAccess() {
-        return isStoredFileAccess;
-    }
-
-    public boolean isNewStoredFileAccess() {
-        return isNewStoredFileAccess;
     }
 
     public boolean isFileDatabase() {

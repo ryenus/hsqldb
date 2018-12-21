@@ -232,10 +232,11 @@ public class RangeVariable {
         if (expr != null) {
             expr = (ExpressionLogical) expr.duplicate();
 
-            expr.resolveCheckOrGenExpression(
-                session,
-                new RangeGroupSimple(new RangeVariable[]{ this }, false),
-                false);
+            RangeGroup ranges =
+                new RangeGroupSimple(new RangeVariable[] {this}, false);
+
+            expr.resolveColumnReferences(session, ranges,
+                                         RangeGroup.emptyArray, null);
 
             filterCondition = expr;
         }

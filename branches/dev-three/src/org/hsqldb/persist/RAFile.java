@@ -95,51 +95,6 @@ final class RAFile implements RandomAccessInterface {
             String name, boolean readonly,
             int type) throws FileNotFoundException, IOException {
 
-        if (type == DATA_FILE_STORED) {
-            try {
-                String cname = database.getURLProperties().getProperty(
-                    HsqlDatabaseProperties.url_storage_class_name);
-                String skey = database.getURLProperties().getProperty(
-                    HsqlDatabaseProperties.url_storage_key);
-                Class storageClass;
-
-                try {
-                    ClassLoader classLoader =
-                        Thread.currentThread().getContextClassLoader();
-
-                    storageClass = classLoader.loadClass(cname);
-                } catch (ClassNotFoundException e) {
-                    storageClass = Class.forName(cname);
-                }
-
-                Constructor constructor =
-                    storageClass.getConstructor(new Class[] {
-                    String.class, Boolean.class, Object.class
-                });
-                Object accessor = constructor.newInstance(new Object[] {
-                    name, Boolean.valueOf(readonly), skey
-                });
-
-                if (accessor instanceof RandomAccessInterface) {
-                    return (RandomAccessInterface) accessor;
-                } else if (accessor instanceof org.hsqldb.lib.Storage) {
-                    return new RAStorageWrapper((Storage) accessor);
-                } else {
-                    throw new IOException();
-                }
-            } catch (ClassNotFoundException e) {
-                throw new IOException();
-            } catch (NoSuchMethodException e) {
-                throw new IOException();
-            } catch (InstantiationException e) {
-                throw new IOException();
-            } catch (IllegalAccessException e) {
-                throw new IOException();
-            } catch (java.lang.reflect.InvocationTargetException e) {
-                throw new IOException();
-            }
-        }
-
         if (type == DATA_FILE_JAR) {
             return new RAFileInJar(name);
         } else if (type == DATA_FILE_TEXT) {

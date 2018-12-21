@@ -3054,7 +3054,15 @@ public class ParserDDL extends ParserRoutine {
 
         objectName = readNewSchemaObjectName(objectType, false);
 
+        ExpressionLogical filter = null;
+
         if (grant) {
+            if (objectType == SchemaObject.TABLE) {
+                filter = XreadFilterExpressionOrNull();
+
+                right.setFilterExpression(filter);
+            }
+
             readThis(Tokens.TO);
         } else {
             readThis(Tokens.FROM);
@@ -3110,13 +3118,6 @@ public class ParserDDL extends ParserRoutine {
             }
         }
 
-        ExpressionLogical filter = null;
-
-        if (grant && objectType == SchemaObject.TABLE) {
-            filter = readFilterExpression();
-            right.setFilterExpression(filter);
-        }
-
         String   sql  = getLastPart();
         int      type = grant ? StatementTypes.GRANT
                               : StatementTypes.REVOKE;
@@ -3130,23 +3131,6 @@ public class ParserDDL extends ParserRoutine {
             writeLockNames);
 
         return cs;
-    }
-
-    ExpressionLogical readFilterExpression() {
-
-        ExpressionLogical condition = null;
-
-        if (token.tokenType == Tokens.FILTER) {
-            read();
-            readThis(Tokens.OPENBRACKET);
-            readThis(Tokens.WHERE);
-
-            condition = (ExpressionLogical) XreadBooleanValueExpression();
-
-            readThis(Tokens.CLOSEBRACKET);
-        }
-
-        return condition;
     }
 
     private StatementSchema compileRoleGrantOrRevoke(boolean grant) {
