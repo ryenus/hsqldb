@@ -131,8 +131,6 @@ public final class Right {
     public void setFilterExpression(ExpressionLogical filter) {
 
         if (filter != null) {
-
-            //this.isFullSelect     = false;
             this.filterExpression = filter;
         }
     }

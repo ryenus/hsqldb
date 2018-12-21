@@ -194,7 +194,7 @@ public class TestSqlPeriodPredicates extends TestBase {
                             "TIMESTAMP '2000-03-01 01:02:03'", 2);
         stmt.close();
 
-        query = "SELECT emp_id FROM PUBLIC.EMP WHERE PERIOD (BUS_START, BUS_END) EQUALS PERIOD (TIMESTAMP '2000-03-01 01:02:03', INTERVAL '31' DAY);";
+        query = "SELECT emp_id FROM PUBLIC.EMP WHERE PERIOD (BUS_START, BUS_END) EQUALS PERIOD (TIMESTAMP '2000-03-01 01:02:03', TIMESTAMP '2000-04-01 01:02:03');";
         stmt = conn.prepareStatement(query);
         rs = stmt.executeQuery();
         assertAllIdsPresent(rs, 3);

@@ -2142,7 +2142,7 @@ public class Expression implements Cloneable {
         return false;
     }
 
-    public void setCondition(Expression e) {
+    public void setCondition(ExpressionLogical e) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
 

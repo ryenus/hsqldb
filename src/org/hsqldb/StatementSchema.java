@@ -1010,10 +1010,13 @@ public class StatementSchema extends Statement {
                             if (filterExpr != null) {
                                 filterExpr = filterExpr.duplicate();
 
-                                filterExpr.resolveCheckOrGenExpression(
-                                    session,
-                                    new RangeGroupSimple(
-                                        t.getDefaultRanges(), false), false);
+                                RangeGroup ranges =
+                                    new RangeGroupSimple(t.getDefaultRanges(),
+                                                         false);
+
+                                filterExpr.resolveColumnReferences(
+                                    session, ranges, RangeGroup.emptyArray,
+                                    null);
                             }
                         }
                     }

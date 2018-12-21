@@ -76,32 +76,32 @@ public class Table extends TableBase implements SchemaObject {
     protected long     changeTimestamp;
 
     //
-    public HashMappedList columnList;          // columns in table
-    int                   identityColumn;      // -1 means no such column
-    NumberSequence        identitySequence;    // next value of identity column
+    public HashMappedList columnList;              // columns in table
+    int                   identityColumn;          // -1 means no such column
+    NumberSequence        identitySequence;        // next value of identity column
 
 // -----------------------------------------------------------------------
-    Constraint[]    constraintList;            // constraint for the table
-    Constraint[]    fkConstraints;             //
-    Constraint[]    fkMainConstraints;
-    Constraint[]    checkConstraints;
-    TriggerDef[]    triggerList;
-    TriggerDef[][]  triggerLists;              // array of trigger lists
-    Expression[]    colDefaults;               // expressions of DEFAULT values
-    private boolean hasDefaultValues;          // shortcut for above
-    boolean[]       colGenerated;              // generated columns
-    private boolean hasGeneratedValues;        // shortcut for above
-    boolean[]       colUpdated;                // auto update columns
-    private boolean hasUpdatedValues;          // shortcut for above
-    boolean[]       colRefFK;                  // foreign key columns
-    boolean[]       colMainFK;                 // columns referenced by foreign key
-    int             referentialActions;        // has set null, set default or cascade
-    int             cascadingDeletes;          // has on delete cascade
-    boolean         isDropped;                 // has been dropped
-    private boolean hasDomainColumns;          // shortcut
-    private boolean hasNotNullColumns;         // shortcut
-    protected int[] defaultColumnMap;          // holding 0,1,2,3,...
-    RangeVariable[] defaultRanges;
+    Constraint[]            constraintList;        // constraint for the table
+    Constraint[]            fkConstraints;         //
+    Constraint[]            fkMainConstraints;
+    Constraint[]            checkConstraints;
+    TriggerDef[]            triggerList;
+    TriggerDef[][]          triggerLists;          // array of trigger lists
+    Expression[]            colDefaults;           // expressions of DEFAULT values
+    private boolean         hasDefaultValues;      // shortcut for above
+    boolean[]               colGenerated;          // generated columns
+    private boolean         hasGeneratedValues;    // shortcut for above
+    boolean[]               colUpdated;            // auto update columns
+    private boolean         hasUpdatedValues;      // shortcut for above
+    boolean[]               colRefFK;              // foreign key columns
+    boolean[]               colMainFK;             // columns referenced by foreign key
+    int                     referentialActions;    // has set null, set default or cascade
+    int                     cascadingDeletes;      // has on delete cascade
+    boolean                 isDropped;             // has been dropped
+    private boolean         hasDomainColumns;      // shortcut
+    private boolean         hasNotNullColumns;     // shortcut
+    protected int[]         defaultColumnMap;      // holding 0,1,2,3,...
+    private RangeVariable[] defaultRanges;
 
     //
     boolean          isSystemVersioned;

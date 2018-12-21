@@ -773,10 +773,6 @@ public class Log {
 
     void deleteOldDataFiles() {
 
-        if (database.logger.isStoredFileAccess()) {
-            return;
-        }
-
         try {
             File   file = new File(database.getCanonicalPath());
             File[] list = file.getParentFile().listFiles();

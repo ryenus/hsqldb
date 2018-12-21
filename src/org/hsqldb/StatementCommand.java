@@ -117,8 +117,8 @@ public class StatementCommand extends Statement {
             case StatementTypes.LOAD_SCRIPT :
                 group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
                 isLogged = false;
-
                 break;
+
             case StatementTypes.CHECK_INDEX : {
                 statementReturnType = StatementTypes.RETURN_RESULT;
                 group = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
@@ -334,10 +334,6 @@ public class StatementCommand extends Statement {
 
                     if (session.database.isFilesReadOnly()) {
                         throw Error.error(ErrorCode.DATABASE_IS_READONLY);
-                    }
-
-                    if (session.database.logger.isStoredFileAccess()) {
-                        throw Error.error(ErrorCode.ACCESS_IS_DENIED);
                     }
 
                     session.database.logger.backup(path, script, blocking,
@@ -1012,8 +1008,8 @@ public class StatementCommand extends Statement {
                     int     mode         = ((Integer) arguments[1]).intValue();
                     Boolean isVersioning = (Boolean) arguments[2];
 
-                    return ScriptLoader.loadScriptData(session,
-                            pathName, mode, isVersioning.booleanValue());
+                    return ScriptLoader.loadScriptData(
+                        session, pathName, mode, isVersioning.booleanValue());
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -1433,7 +1429,6 @@ public class StatementCommand extends Statement {
                 if (timestamp != null) {
                     TablePeriodWorks works = new TablePeriodWorks(session,
                         table);
-
                     long count = works.removeOldRows(timestamp.getSeconds());
 
                     return Result.newUpdateCountResult(0);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,14 +70,8 @@ public class LobStoreRAFile implements LobStore {
         try {
             boolean readonly = database.isFilesReadOnly();
 
-            if (database.logger.isStoredFileAccess()) {
-                file = RAFile.newScaledRAFile(database, fileName, readonly,
-                                              RAFile.DATA_FILE_STORED);
-            } else {
-                file = new RAFileSimple(database.logger, fileName,
-                                        readonly ? "r"
-                                                 : "rws");
-            }
+            file = new RAFileSimple(database.logger, fileName, readonly ? "r"
+                                                                        : "rws");
         } catch (Throwable t) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }

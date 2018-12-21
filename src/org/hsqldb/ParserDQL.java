@@ -2182,7 +2182,18 @@ public class ParserDQL extends ParserBase {
 
     private void readFilterClause(Expression e) {
 
+        ExpressionLogical condition = XreadFilterExpressionOrNull();
+
+        if (condition != null) {
+            e.setCondition(condition);
+        }
+    }
+
+    ExpressionLogical XreadFilterExpressionOrNull() {
+
         int position = getPosition();
+
+        ExpressionLogical condition = null;
 
         if (token.tokenType == Tokens.FILTER) {
             read();
@@ -2190,17 +2201,18 @@ public class ParserDQL extends ParserBase {
             if (token.tokenType != Tokens.OPENBRACKET) {
                 rewind(position);
 
-                return;
+                return null;
             }
 
             readThis(Tokens.OPENBRACKET);
             readThis(Tokens.WHERE);
 
-            Expression condition = XreadBooleanValueExpression();
+            condition = (ExpressionLogical) XreadBooleanValueExpression();
 
-            e.setCondition(condition);
             readThis(Tokens.CLOSEBRACKET);
         }
+
+        return condition;
     }
 
     private Expression readAggregateExpression(int tokenT) {

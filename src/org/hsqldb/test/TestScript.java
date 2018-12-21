@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2018, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,20 +48,24 @@ public class TestScript extends TestBase {
 //    String path = "TestSelf01Indexes.txt";
 //    String path = "TestSelf01IndexUse.txt";
 //    String path = "TestSelf01LimitOpt.txt";
+//    String path = "TestSelf01MysInsert.txt";
 //    String path = "TestSelf01Procedure.txt";
 //    String path = "TestSelf01Problems.txt";
 //    String path = "TestSelf01RecursiveQueries.txt";
 //    String path = "TestSelf01RoutineHandlers.txt";
 //    String path = "TestSelf01Subquery.txt";
+//      String path = "TestSelf01RightJoin.txt";
 //    String path = "TestSelf01TempTables.txt";
 //    String path = "TestSelf01Triggers.txt";
 //    String path = "TestSelf01UDAggregates.txt";
 //    String path = "TestSelf01WithSubquery.txt";
 //    String path = "TestSelf02Function.txt";
-//    String path = "TestSelf02UpdatableViews.txt";
+//    String path = "TestSelf02Merge.txt";
 //    String path = "TestSelf02Sequence.txt";
-    String path = "TestSelf02Merge.txt";
+      String path = "TestSelf02PeriodPredicates.txt";
 //    String path = "TestSelf02UpdatableViews.txt";
+//    String path = "TestSelf02UpdatableViews.txt";
+//      String path = "TestSelf03Procedure.txt";
 //    String path = "TestSelf04UnionCorresponding.txt";
 //    String path = "TestSelf07OrderLimitNulls.txt";
 //    String path = "TestSelf06Generated.txt";
