@@ -250,240 +250,35 @@
               of SQL scripts.
               For this revision of this document, this list consists of
               script-impacting changes made to SqlTool
-              <emphasis>after</emphasis> the final 2.0.0 HyperSQL release.
+              <emphasis>after</emphasis> the final 2.3.3 HyperSQL release.
             </simpara>
             <itemizedlist>
                 <listitem><simpara>
-                  SqlTool always has treated unset PL variables equal to
-                  null-valued variables, and this is not changing.
-                  There is no distinction between <emphasis>unset</emphasis>
-                  and <emphasis>null-valued</emphasis>.
-                  But before revision 4423 (i.e. pre-HyperSQL 2.2.6),
-                  SqlTool almost always treated variable value of empty
-                  String (i.e. what is between these two quotes: "") as
-                  equivalent to null/unset.
-                  The most common case where a user would see this was in the
-                  command to <emphasis>unset</emphasis> a PL variable:
-                  <literal>* VARNAME =</literal>.
-                  Though your command says to assign the value of the empty
-                  string to <varname>VARNAME</varname>, varname would unset it
-                  instead (which latter is equivalent to assigning null to it).
-                </simpara> <simpara>
-                  SqlTool achieves several new benefits by purposefully
-                  assigning the empty string for some purposes, and
-                  distinctly unsetting for other purposes.
-                  One example of this is the consistent and robust handling
-                  of the PL variable <varname>?</varname>.
-                  When <varname>?</varname> is unset (aka
-                  <emphasis>null</emphasis>), it always means that the last
-                  SQL command failed.
-                  If this variable has the value of the empty string, it means
-                  that the last cell returned had value of the empty string,
-                  or the <literal>?</literal> was reset (for example due to
-                  SqlTool startup).
-                </simpara> <simpara>
-                  For now on (in accordance with years of warnings) by default,
-                  setting a PL variable to nothing, like
-                  <literal>* name =</literal> assigns an empty-string
-                  value instead of unsetting/removing the variable.
-                  To unset/remove a variable you should use the dedicated PL
-                  command "<literal>* - VARNAME</literal>".
-                  You can set Java system property
-                  '<literal>sqltool.REMOVE_EMPTY_VARS</literal>' to keep the
-                  inferior, legacy behavior where
-                  <literal>* name =</literal> will unset the variable
-                  (even with this setting you can still intermix this with
-                  the <literal>* - VARNAME</literal> command) .
-                  You should only use
-                  '<literal>sqltool.REMOVE_EMPTY_VARS</literal>' in conjunction
-                  with old scripts that you can't update.
-                </simpara> <simpara>
-                  You can use command line parameters
-                  <literal>-P</literal> or <literal>--setVar</literal> to
-                  assign PL variables to the empty String.
-                  (For example
-                  "<literal>java -jar .../sqltool.jar -Pvarname= urlid script.sql</literal>").
-                </simpara></listitem><listitem><simpara>
-                  DSV input now accepts JDBC Timestamp format with date and
-                  optionally time of day.
-                </simpara></listitem><listitem><simpara>
-                    The <literal>*</literal> command (just plain
-                    "<literal>*</literal>") has
-                    been removed because it is no longer necessary.
-                    (See item on it in the previous section of this manual).
-                </simpara></listitem><listitem><simpara>
-                    Bugs in variable scoping have been fixed.
-                    All variables are global and shared among
-                    <filename>auto.sql</filename>, all
-                    command-line and nested SQL scripts, and interactive shells.
-                </simpara></listitem><listitem><simpara>
-                    A bug has been fixed so that SqlTool
-                    system PL variables (with names starting with "*") are now
-                    honored no matter how or where the variable value was set.
-                </simpara></listitem><listitem><simpara>
-                    Variables with non-alpha-numerical characters, and those
-                    beginning with digits have been deprecated but are still
-                    supported for now.
-                </simpara></listitem><listitem><simpara>
-                    The data (and just the data) of HTML reports has remained
-                    the same, but the whole system has been drastically
-                    modernized and enhanced.
-                    You may notice new special command <literal>\pr</literal>.
-                    This is a <literal>\p</literal> variant applicable only
-                    to HTML mode, telling SqlTool to treat the expression as
-                    Raw, so the author can type in HTML, JavaScript or other
-                    text not to be formatted.
-                    HTML model also gets its own
-                    <varname>*NULL_REP_HTML</varname> setting distinct from
-                    <varname>*NULL_REP_TOKEN</varname>.
-                </simpara></listitem><listitem><simpara>
-                    For consistency, the \H toggle switch has been superseded
-                    with <literal>\h true|false</literal>>
-                    The old variants are still supported.
-                </simpara></listitem><listitem><simpara>
-                    Command <literal>/= name :...</literal> has been
-                    superseded by the more consistent (with our other commands)
-                    <literal>/: name...</literal>.
-                    The old variant is still supported.
-                </simpara></listitem><listitem><simpara>
-                    Removed support for SqlTool system PL variable names
-                    deprecated years ago.
-                </simpara></listitem><listitem><simpara>
-                    Idiosyncratic <literal>*</literal> option to
-                    <literal>\m</literal> is no longer necessary (though
-                    still supported).
-                    SqlTool system variable
-                    <varname>*DSV_SKIP_PREFIX</varname> may now be
-                    set to the empty string to indicate no skipping.
-                </simpara></listitem><listitem><simpara>
-                    Import reject report files were being retained on Windows,
-                    even when there were not rejected records.
-                    This bug has been fixed.
-                </simpara></listitem><listitem><simpara>
-                    PL variables <varname>*NULL</varname> and
-                    <literal>NULL</literal> are reserved and may be referenced
-                    but not assigned to.
-                </simpara></listitem><listitem><simpara>
-                    The special PL variable <literal>?</literal> is now
-                    updated rigorously.  It will be null only if the last
-                    SQL command that was run failed.
-                </simpara></listitem><listitem><simpara>
-                    The special PL variable <literal>?</literal> is now
-                    listed in the output of <literal>* list</literal>
-                    and <literal>* listvalues</literal> commands.
-                    (Unless at the time it is unset/null, of course, and in
-                    this case the absence of <literal>?</literal> indicates
-                    that it is unset.
-                </simpara></listitem><listitem><simpara>
-                    The look of DSV import reject reports has changed, and the
-                    name of user-supplied (optional) CSS file has been changed.
-                    (See following section about why).
-                </simpara></listitem><listitem><simpara>
-                    The <literal>\d tableLikeObject</literal> command output
-                    now has 2 more columns, to report precision and scale.
+                  None
                 </simpara></listitem>
             </itemizedlist>
         </section>
         <section><title>New Features</title>
-          <subtitle>Since 2.0.0 final</subtitle>
+          <subtitle>Since HyperSQL 2.3.3 final</subtitle>
             <simpara>To reduce duplication, new features are listed in the
               <link xlink:href="#sqltool_functional_changes-sect"
               endterm="functional_changes-title"/> section are not repeated
               here, so check that list too.
             </simpara>
             <itemizedlist>
-                <listitem><simpara>
-                    Automatic variable # added.
-                </simpara></listitem><listitem><simpara>
-                    You can (and if you use nested scripts, you probably
-                    <emphasis>should</emphasis>) prefix relative paths given
-                    inside of SqlTool with <literal>@/</literal>.
-                    This makes them relative to the parent script directory
-                    instead of to the invocation current directory.
-                </simpara></listitem><listitem><simpara>
-                    More accepting of dates and times in DSV imports.
-                </simpara></listitem><listitem><simpara>
-                    CSV exporting and importing with double-quote
-                    delimiting and escaping.
-                    Fixed a bug that caused SqlTool to abort if it attempted to
-                    load a doube-quoted CSV field
-                    containing just one character of data.
-                </simpara></listitem><listitem><simpara>
-                    New "<literal>* - VARNAME</literal>" PL command added to
-                    explicitly unset/remove a variable.
-                    Definitely read the first item in the
-                    <link xlink:href="#sqltool_functional_changes-sect"
-                    endterm="functional_changes-title"/> section.
-                </simpara></listitem><listitem><simpara>
-                    Added integer math feature very similar to that of
-                    Bash and Korn shells.
-                </simpara></listitem><listitem><simpara>
-                    Added some new logical operators
-                </simpara></listitem><listitem><simpara>
-                    Added new : variant for exporting (\x and \xq), which
-                    uses a query from the edit buffer.
-                    This provides direct support for exports using long,
-                    multi-line queries.
-                </simpara></listitem><listitem><simpara>
-                    SqlTool functions have been implemented.
-                    These are just / macros which take positional parameters.
-                    They can be distinguished from regular macros by having
-                    name like <literal>this()</literal>, and being invoked
-                    like <literal>this(with, parameters)</literal>.
-                </simpara></listitem><listitem><simpara>
-                    We have provided multiple ways to accommodate command-line
-                    <emphasis>inlineRc</emphasis>s and variable assignments
-                    where the values contain commas, and generally added
-                    flexibility to the latter.
-                    In both cases, commas may be escaped with the backslash
-                    character.
-                    New switch -p (also usable as -P) is provided as an easier
-                    way to eliminate the delimiter issue.
-                </simpara></listitem><listitem><simpara>
-                    Multiple --sql, -p, and -P arguments to SqlTool are now
-                    honored, and they are evaluated in specified order.
-                </simpara></listitem><listitem><simpara>
-                    Added automatically-assigned SqlTool system PL variables
-                    <varname>*START_TIME</varname>
-                    and <varname>*REVISION</varname>.
-                </simpara></listitem><listitem><simpara>
-                    Added optional SqlTool system PL variable
-                    <varname>*TIMESTAMP_FORMAT</varname>, which, when set
-                    causes new SqlTool system PL variable
-                    <varname>*TIMESTAMP</varname> to be automatically set to
-                    the time when this (latter) variable is referenced.
-                    Unlike <varname>*START_TIME</varname>, the
-                    <varname>*TIMESTAMP_FORMAT</varname> +
-                    <varname>*TIMESTAMP</varname> combination allows the user
-                    to specify exactly how to display the time and/or date.
-                </simpara></listitem><listitem><simpara>
-                    The DSV import reject report has been refactored to use the
-                    same templating and substitution used by the new HTML
-                    reports.
-                </simpara></listitem><listitem><simpara>
-                    The SqlTool unit test system has been ported from Bash to
-                    Groovy wrapped by Gradle.
-                    The system requirements have thereby been reduced from
-                    requiring a Bash shell to just requiring a Java 6 JRE.
-                </simpara></listitem><listitem><simpara>
-                    Added an inline/shortcut <literal>*if</literal> syntax
-                    like this:
-                    <literal>* if (*x == *b) \p Any 1-lne statement</literal>.
-                    People who value conciseness, like myself, will appreciate
-                    this.
-                </simpara></listitem><listitem><simpara>
-                  Added <literal>* else</literal> statement to accompany
-                  <literal>* if</literal> statement.
-                </simpara></listitem><listitem><simpara>
-                  Added traditional mathematical <literal>* if</literal>
-                  statement.  Run <literal>*?</literal> to see syntax.
-                </simpara></listitem><listitem><simpara>
-                  Added iteration over query result set rows with loop
-                  statement <literal>* forrows</literal>.
-                </simpara></listitem><listitem><simpara>
-                  Added statement <literal>* return</literal> as a more
-                  intuitive alias for <literal>* break file</literal>.
-                </simpara></listitem>
+              <listitem><simpara>
+                RC Data file 'urlid' field values are now comma-delimited
+                list matched against candidate urlids.
+                This is downward-compatible since a single entry without
+                metacharacters will still require an exact match of the
+                candidate string.  This allows for specifying defaults with
+                precedence and eliminates redundancy for maximum conciseness.
+              </simpara></listitem><listitem><simpara>
+                Input files may now be specified by URL.
+                This applies to specification of SQL script files on the
+                command-line, as well as data imports (DSV, XML, and binary),
+                and @ construct relative paths from them correctly.
+              </simpara></listitem>
             </itemizedlist>
         </section>
     </section>
@@ -637,8 +432,8 @@
                     where <literal>mem</literal> is an
                     <emphasis>urlid</emphasis>,
                     and the following arguments are paths to text SQL files.
-                    For the filepaths, you can use whatever wildcards your
-                    operating system shell supports.
+                    Filepath may be a local file path that can use whatever
+                    wildcards your operating system shell supports; or a URL.
                     </para><simpara>
                     The <emphasis>urlid</emphasis> <literal>mem
                     </literal>in these commands is a key
@@ -1093,6 +888,11 @@
             <filename xlink:href="#sqltool.rc-link">sample/sqltool.rc</filename>
             in your HSQLDB distribution
             <footnoteref linkend='samplelocFn'/>.
+            The file consists of comments and blank lines,
+            <literal>urlid</literal> patterns that are matched against,
+            and assignments (all other lines).
+            A stanza is a block of lines from one urlid line until before the
+            next urlid line (or end of file).
         </simpara>
         <example>
             <title>Sample RC File</title>
@@ -1131,32 +931,55 @@
               <screen>    java -jar $HSQLDB_HOME/lib/sqltool.jar --rcFile=path/to/rc/file.name urlid</screen>
             </informalexample>
             If SqlTool can't open the specified RC file or there is a syntax
-            error in it, you'll get a useful error message.</para>
+            error in it, you'll get a useful error message.
+            You'll also get an error message if there is no match for the
+            urlid value that you look up.</para>
             <para>
-            The config file consists of stanza(s) like this:
-        <informalexample><programlisting>    urlid web
+            The config file consists of <emphasis>stanza(s)</emphasis> beginning
+            with <literal>urlid</literal>
+        <informalexample><programlisting>    urlid web.+, app.+
     url jdbc:hsqldb:hsql://localhost
     username web
     password webspassword</programlisting>
         </informalexample></para><para>
-            These four settings are required for every urlid.
-            (There are optional settings also, which are described a couple
-            paragraphs down).
-            The URL may contain JDBC connection properties.
-            You can have as many blank lines and comments like
+          Only the <literal>urlid</literal> field is required, and the
+          value of it must be a comma-delimited (with optional white-space
+          on either side) list of regular expression patterns which are
+          matched against candidate urlid lookups.
+          One urlid pattern may only appear in the file once, but a candidate
+          urlid may match multiple patterns, and that allows you to set
+          defaults and apply overrides, etc. (see paragraph below about that).
+          Be aware that after all of the matching for a lookup is done, the
+          results won't be usable to establish a connection unless you have
+          assigned at least a <literal>url</literal> value (more often than
+          not a username and password will also be required).
+          The URL may contain JDBC connection properties.
+          You can have as many blank lines and comments like
         <informalexample><programlisting>    # This comment</programlisting>
         </informalexample>
         </para><simpara>
             in the file as you like.
             The whole point is that the <emphasis>urlid</emphasis> that you
-            give in your SqlTool/DatabaseManager command must match a
-            <emphasis>urlid </emphasis> in your configuration file.
+            give in your SqlTool/DatabaseManager command must match at least
+            one <emphasis>urlid </emphasis> in your configuration file so that
+            values like url and username can be assigned to use for connection
+            attempts.
         </simpara><warning><simpara>
-            Use whatever facilities are at  your disposal to protect your
+            Use whatever facilities are at your disposal to protect your
             configuration file.
         </simpara></warning><simpara>
-            It should be readable, both locally and remotely, only to users
-            who run programs that need it.
+          The specified urlid patterns must match then entire lookup
+          candidate urlid values.  For example, a pattern of . would match
+          lookup candidate "A" but not "AB".  Pattern of .+ will always match.
+        </simpara><simpara>
+          Assignments are applied in the order they occur in the file, with
+          lower assignments overriding earlier assignments.
+          Therefore, you will generally want to use more general urlid patterns
+          toward the top to specify default values, and more specific urlid
+          patterns toward the bottom to specify overrides.
+        </simpara><simpara>
+            The file should be readable, both locally and remotely, only to
+            users who run programs that need it.
             On UNIX, this is easily accomplished by using <literal>chmod/chown
             </literal> commands and making sure that it is protected from
             anonymous remote access (like via NFS, FTP or Samba).
