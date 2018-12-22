@@ -40,7 +40,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 /* $Id$ */
 
@@ -109,6 +112,8 @@ public class RCData {
      * @throws Exception any exception
      */
     public RCData(File file, String dbKey) throws Exception {
+        // This set is so we can catch duplicates.
+        Set<String> idPatterns = new HashSet<String>();
 
         if (file == null) {
             throw new IllegalArgumentException("RC file name not specified");
@@ -121,8 +126,9 @@ public class RCData {
 
         // System.err.println("Using RC file '" + file + "'");
         StringTokenizer tokenizer = null;
-        boolean         thisone   = false;
+        boolean         loadingStanza   = false;
         String          s;
+        String[]        tokens;
         String          keyword, value;
         int             linenum = 0;
         BufferedReader  br      = new BufferedReader(new FileReader(file));
@@ -150,48 +156,32 @@ public class RCData {
                 keyword = tokenizer.nextToken();
                 value   = tokenizer.nextToken("").trim();
             } else {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    // Can only report on so many errors at one time
-                }
-
                 throw new Exception("Corrupt line " + linenum + " in '" + file
                                     + "':  " + s);
             }
 
-            if (dbKey == null) {
-                if (keyword.equals("urlid")) {
-                    System.out.println(value);
-                }
-
-                continue;
-            }
-
             if (keyword.equals("urlid")) {
-                if (value.equals(dbKey)) {
-                    if (id == null) {
-                        id      = dbKey;
-                        thisone = true;
-                    } else {
-                        try {
-                            br.close();
-                        } catch (IOException e) {
-                            // Can only report on so many errors at one time
-                        }
-
-                        throw new Exception("Key '" + dbKey + " redefined at"
-                                            + " line " + linenum + " in '"
-                                            + file);
+                tokens = value.split("\\s*,\\s*", -1);
+                for (int i = 0; i < tokens.length; i++) {
+                    if (idPatterns.contains(tokens[i]))
+                        throw new Exception("ID Pattern '" + tokens[i]
+                          + "' repeated at line " + linenum + " in '"
+                          + file + "'");
+                    idPatterns.add(tokens[i]);
+                    if (dbKey == null) {
+                        System.out.println(tokens[i]);
+                        continue;
                     }
-                } else {
-                    thisone = false;
+                    loadingStanza =
+                      Pattern.compile(tokens[i]).matcher(dbKey).matches();
+                    if (id == null && loadingStanza) id = dbKey;
                 }
 
                 continue;
             }
+            if (dbKey == null) continue;
 
-            if (thisone) {
+            if (loadingStanza) {
                 if (keyword.equals("url")) {
                     url = value;
                 } else if (keyword.equals("username")) {
@@ -209,12 +199,6 @@ public class RCData {
                 } else if (keyword.equals("libpath")) {
                     libpath = value;
                 } else {
-                    try {
-                        br.close();
-                    } catch (IOException e) {
-                        // Can only report on so many errors at one time
-                    }
-
                     throw new Exception("Bad line " + linenum + " in '" + file
                                         + "':  " + s);
                 }
@@ -230,19 +214,19 @@ public class RCData {
         }
 
 
+        //System.err.println(idPatterns.size() + " patterns: " + idPatterns);
         if (dbKey == null) {
             return;
-        }
-
-        if (url == null) {
-            throw new Exception("url not set " + "for '" + dbKey
-                                + "' in file '" + file + "'");
         }
 
         if (libpath != null) {
             throw new IllegalArgumentException(
                 "Sorry, 'libpath' not supported yet");
         }
+
+        if (id == null)
+            throw new IllegalArgumentException(
+                "No match for '" + dbKey + "' in file '" + file + "'");
     }
 
     /**
@@ -380,6 +364,11 @@ public class RCData {
         }
 
         String urlString = null;
+        if (url == null) {
+            throw new MalformedURLException(
+              "url string is required to establish a connection, but is null"
+              );
+        }
 
         try {
             urlString = expandSysPropVars(url);
