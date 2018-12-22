@@ -1660,6 +1660,10 @@ public class Logger implements EventLogInterface {
             return String.valueOf(database.sqlNullsOrder);
         }
 
+        if (HsqlDatabaseProperties.sql_pad_space.equals(name)) {
+            return String.valueOf(database.collation.isPadSpace());
+        }
+
         if (HsqlDatabaseProperties.sql_syntax_db2.equals(name)) {
             return String.valueOf(database.sqlSyntaxDb2);
         }
