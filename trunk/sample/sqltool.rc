@@ -19,24 +19,41 @@
 
 # You can use Java system property values in this file like this:  ${user.home}
 
-# The only feature added recently is the optional "transiso" setting,
-# which may be set to an all-caps transaction isolation level as listed
-# in the Java API Spec for java.sql.Connection.
-# Windows users are advised to use forward slashes instead of reverse slashes,
+# Windows users are advised to use forward slashes instead of back-slashes,
 # and to avoid paths containing spaces or other funny characters.  (This
 # recommendation applies to any Java app, not just SqlTool).
 
-# A personal Memory-Only (non-persistent) database.
-urlid mem
-url jdbc:hsqldb:mem:memdbid
+# It is a runtime error to do a urlid lookup using RCData class and to not
+# match any stanza (via urlid pattern) in this file.
+
+# Three features added recently.  All are downward-compatible.
+# 1. urlid field values in this file are now comma-separated (with optional
+#    whitespace before or after the commas) regular expressions.
+# 2. Each individual urlid token value (per previous bullet) is a now a regular
+#    expression pattern that urlid lookups are compared to.  N.b. patterns must
+#    match the entire lookup string, not just match "within" it.  E.g. pattern
+#    of . would match lookup candidate "A" but not "AB".  .+ will always match.
+# 3. Though it is still an error to define the same exact urlid value more
+#    than once in this file, it is allowed (and useful) to have a url lookup
+#    match more than one urlid pattern and stanza.  Assignments are applied
+#    sequentially, so you should generally add default settings with more
+#    liberal patterns, and override settings later in the file with more
+#    specific (or exact) patterns.
+
+# Global default.  .+ matches all lookups:
+urlid .+ 
 username SA
 password
 
+# A personal Memory-Only (non-persistent) database.
+# Inherits username and password from default setting above.
+urlid mem
+url jdbc:hsqldb:mem:memdbid
+
 # A personal, local, persistent database.
+# Inherits username and password from default setting above.
 urlid personal
 url jdbc:hsqldb:file:${user.home}/db/personal;shutdown=true
-username SA
-password
 transiso TRANSACTION_READ_COMMITTED
 # When connecting directly to a file database like this, you should 
 # use the shutdown connection property like this to shut down the DB
@@ -44,10 +61,9 @@ transiso TRANSACTION_READ_COMMITTED
 
 # This is for a hsqldb Server running with default settings on your local
 # computer (and for which you have not changed the password for "SA").
+# Inherits username and password from default setting above.
 urlid localhost-sa
 url jdbc:hsqldb:hsql://localhost
-username SA
-password
 
 
 
@@ -169,5 +185,6 @@ password
 # not to implement the SQL standard statement "commit"!!
 # Note that SqlTool can not shut down an embedded Derby database properly,
 # since that requires an additional SQL connection just for that purpose.
-# However, I've never lost data by not shutting it down properly.
-# Other than not supporting this quirk of Derby, SqlTool is miles ahead of ij.
+# However, I've never lost data by shutting it down improperly.
+# Other than not supporting this quirk of Derby, SqlTool is miles ahead of
+# Derby's ij.
