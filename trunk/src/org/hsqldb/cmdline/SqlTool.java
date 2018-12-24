@@ -156,7 +156,7 @@ public class SqlTool {
      * @param username The user the password is for
      * @return The password the user entered
      */
-    private static String promptForPassword(String username)
+    private static String promptForPassword(final String username)
     throws PrivateException {
 
         BufferedReader console;
@@ -197,9 +197,9 @@ public class SqlTool {
      * @param lowerCaseKeys Set to <code>true</code> if the map keys should be
      *        converted to lower case
      */
-    private static void varParser(String inVarString,
-                                  Map<String, String> varMap,
-                                  boolean lowerCaseKeys)
+    private static void varParser(final String inVarString,
+                                  final Map<String, String> varMap,
+                                  final boolean lowerCaseKeys)
                                   throws PrivateException {
 
         int       equals;
@@ -260,7 +260,7 @@ public class SqlTool {
      * @param args arguments
      * @see #objectMain(String[])
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         try {
             SqlTool.objectMain(args);
         } catch (SqlToolException fr) {
@@ -283,7 +283,7 @@ public class SqlTool {
      * @throws SqlToolException  Upon any fatal error, with useful
      *                          reason as the exception's message.
      */
-    public static void objectMain(String[] arg) throws SqlToolException {
+    public static void objectMain(final String[] arg) throws SqlToolException {
         logger.finer("Invoking SqlTool");
 
         /*
