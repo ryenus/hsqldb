@@ -304,11 +304,11 @@
       different tables and triggers using the supplied arguments and take
       appropriate action.</para>
 
-      <programlisting> fire (int triggerType, String name, String table, Object row1[], Object row2[])
+      <programlisting> fire (int type, String tabName, String table, Object oldRow[], Object newRow[])
 </programlisting>
 
       <para>The Java method for a synchronous trigger (see below) can modify
-      the values in newRow2 in a BEFORE trigger. Such modifications are
+      the values in newRow in a BEFORE trigger. Such modifications are
       reflected in the row that is being inserted or updated. Any other
       modifications are ignored by the engine.</para>
 
