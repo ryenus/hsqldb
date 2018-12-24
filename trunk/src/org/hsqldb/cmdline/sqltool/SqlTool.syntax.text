@@ -11,8 +11,7 @@ Options:
     --continueOnErr=true|false  Continue (if true) or Abort (false) upon errors
     --debug                  Print Debug info to stderr
     --driver=a.b.c.Driver    JDBC driver class [%{2}]
-    --inlineRc=url=val1,user=val2[,asetting=val3...][,password=]
-                             Inline RC variables (use --driver for driver)
+    --inlineRc=url=val1[,asetting=val2...][,password=]
     --list                   List urlids in the rc file
     --noAutoFile             Do not execute auto.sql from home dir
     --noInput                Do not read stdin (default if sql file given
