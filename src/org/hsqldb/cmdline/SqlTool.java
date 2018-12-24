@@ -304,11 +304,13 @@ public class SqlTool {
         boolean noinput          = false;
         boolean noautoFile       = false;
         boolean autoCommit       = false;
+        boolean rcParamsOverride = false;
         Boolean coeOverride      = null;
         Boolean stdinputOverride = null;
         String  rcParams         = null;
         String  rcUrl            = null;
         String  rcUsername       = null;
+        String  rcUser           = null;
         String  rcPassword       = null;
         String  rcCharset        = null;
         String  rcTruststore     = null;
@@ -483,6 +485,24 @@ public class SqlTool {
                                 SqltoolRB.SqlTool_params_redundant.getString());
                     }
                     rcParams = arg[i].substring("--inlinerc=".length());
+                } else if (parameter.equals("overriderc")) {
+                    if (++i == arg.length) {
+                        throw bcl;
+                    }
+                    if (rcParams != null) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
+
+                    rcParamsOverride = true;
+                    rcParams = arg[i];
+                } else if (parameter.startsWith("overriderc=")) {
+                    if (rcParams != null) {
+                        throw new SqlToolException(SYNTAXERR_EXITVAL,
+                                SqltoolRB.SqlTool_params_redundant.getString());
+                    }
+                    rcParamsOverride = true;
+                    rcParams = arg[i].substring("--overriderc=".length());
                 } else {
                     throw bcl;
                 }
@@ -507,7 +527,8 @@ public class SqlTool {
                 break;
             }
 
-            if (!listMode && rcParams == null && ++i != arg.length) {
+            if (!listMode && (rcParams == null || rcParamsOverride)
+              && ++i != arg.length) {
                 // If an inline RC file was specified, don't look for targetDb
                 targetDb = arg[i];
                 if (targetDb.equals("-")) targetDb = null;
@@ -587,60 +608,7 @@ public class SqlTool {
 
         RCData conData = null;
 
-        // Use the inline RC file if it was specified
-        if (rcParams != null) {
-            rcFields = new HashMap<String, String>();
-
-            try {
-                varParser(rcParams, rcFields, true);
-            } catch (PrivateException e) {
-                throw new SqlToolException(SYNTAXERR_EXITVAL, e.getMessage());
-            }
-
-            rcUrl        = rcFields.remove("url");
-            rcUsername   = rcFields.remove("user");
-            rcCharset    = rcFields.remove("charset");
-            rcTruststore = rcFields.remove("truststore");
-            rcPassword   = rcFields.remove("password");
-            rcTransIso   = rcFields.remove("transiso");
-            rcDriver     = rcFields.remove("driver");
-
-            if (rcDriver != null && driver != null)
-                throw new SqlToolException(RCERR_EXITVAL,
-                        SqltoolRB.rcdata_driver_conflict.getString());
-
-            // Don't ask for password if what we have already is invalid!
-            if (rcUrl == null || rcUrl.length() < 1)
-                throw new SqlToolException(RCERR_EXITVAL,
-                        SqltoolRB.rcdata_inlineurl_missing.getString());
-            // We now allow both null and "" user name, but we require password
-            // if the user name != null.
-            if (rcPassword != null && rcPassword.length() > 0)
-                throw new SqlToolException(RCERR_EXITVAL,
-                        SqltoolRB.rcdata_password_visible.getString());
-            if (rcFields.size() > 0) {
-                throw new SqlToolException(INPUTERR_EXITVAL,
-                        SqltoolRB.rcdata_inline_extravars.getString(
-                        rcFields.keySet().toString()));
-            }
-
-            if (rcUsername != null && rcPassword == null) try {
-                rcPassword   = promptForPassword(rcUsername);
-            } catch (PrivateException e) {
-                throw new SqlToolException(INPUTERR_EXITVAL,
-                        SqltoolRB.password_readfail.getString(e.getMessage()));
-            }
-            try {
-                conData = new RCData(CMDLINE_ID, rcUrl, rcUsername, rcPassword,
-                  (rcDriver == null ? driver : rcDriver), rcCharset,
-                  rcTruststore, null, rcTransIso);
-            } catch (RuntimeException re) {
-                throw re;  // Unrecoverable
-            } catch (Exception e) {
-                throw new SqlToolException(RCERR_EXITVAL,
-                        SqltoolRB.rcdata_genfromvalues_fail.getString());
-            }
-        } else if (listMode || targetDb != null) {
+        if (listMode || targetDb != null) {
             try {
                 conData = new RCData(new File((rcFile == null)
                                               ? DEFAULT_RCFILE
@@ -651,6 +619,84 @@ public class SqlTool {
                 throw new SqlToolException(RCERR_EXITVAL,
                         SqltoolRB.conndata_retrieval_fail.getString(
                         targetDb, e.getMessage()));
+            }
+        }
+        // Use the inline RC file if it was specified
+        if (rcParams != null) {
+            if (rcParamsOverride && conData == null)
+                throw new RuntimeException(
+                  "rcParams override but no urlid specified");
+            if (!rcParamsOverride && conData != null)
+                throw new RuntimeException(
+                  "inlineRc override but urlid was specified");
+            rcFields = new HashMap<String, String>();
+
+            try {
+                varParser(rcParams, rcFields, true);
+            } catch (PrivateException e) {
+                throw new SqlToolException(SYNTAXERR_EXITVAL, e.getMessage());
+            }
+
+            rcUrl        = rcFields.remove("url");
+            rcUser       = rcFields.remove("user");  // Legacy
+            rcUsername   = rcFields.remove("username");
+            rcCharset    = rcFields.remove("charset");
+            rcTruststore = rcFields.remove("truststore");
+            rcPassword   = rcFields.remove("password");
+            rcTransIso   = rcFields.remove("transiso");
+            rcDriver     = rcFields.remove("driver");
+            if (rcFields.size() > 0) {
+                throw new SqlToolException(INPUTERR_EXITVAL,
+                        SqltoolRB.rcdata_inline_extravars.getString(
+                        rcFields.keySet().toString()));
+            }
+            if (rcUser != null) {
+                if (rcUsername != null)
+                    throw new RuntimeException("RC params 'user' and "
+                     + "'username' both set.  Set only 'username'");
+                rcUsername = rcUser;
+                rcUser = null;
+            }
+
+            if (rcDriver != null && driver != null)
+                throw new SqlToolException(RCERR_EXITVAL,
+                        SqltoolRB.rcdata_driver_conflict.getString());
+            if (rcPassword != null && rcPassword.length() > 0)
+                throw new SqlToolException(RCERR_EXITVAL,
+                        SqltoolRB.rcdata_password_visible.getString());
+            if (conData == null) try {
+                conData = new RCData(CMDLINE_ID, rcUrl, rcUsername, rcPassword,
+                  (rcDriver == null ? driver : rcDriver), rcCharset,
+                  rcTruststore, null, rcTransIso);
+            } catch (RuntimeException re) {
+                throw re;  // Unrecoverable
+            } catch (Exception e) {
+                throw new SqlToolException(RCERR_EXITVAL,
+                        SqltoolRB.rcdata_genfromvalues_fail.getString(
+                        e.getMessage()));
+            } else {
+                // Override conData field values
+                if (rcUrl != null) conData.url = rcUrl;
+                if (rcUsername != null) conData.username = rcUsername;
+                if (rcCharset != null) conData.charset = rcCharset;
+                if (rcTruststore != null) conData.truststore = rcTruststore;
+                if (rcPassword != null) conData.password = rcPassword;
+                if (rcTransIso != null) conData.ti = rcTransIso;
+                if (rcDriver != null) conData.driver = rcDriver;
+            }
+
+            // Don't ask for password if what we have already is invalid!
+            if (conData.url == null || conData.url.length() < 1)
+                throw new SqlToolException(RCERR_EXITVAL,
+                        SqltoolRB.rcdata_inlineurl_missing.getString());
+
+            // We now allow both null and "" user name, but we require password
+            // if the user name != null.
+            if (conData.username != null && conData.password == null) try {
+                conData.password   = promptForPassword(conData.username);
+            } catch (PrivateException e) {
+                throw new SqlToolException(INPUTERR_EXITVAL,
+                        SqltoolRB.password_readfail.getString(e.getMessage()));
             }
         }
 
@@ -670,7 +716,7 @@ public class SqlTool {
 
         if (conData != null) try {
             conn = conData.getConnection(
-                driver, System.getProperty("javax.net.ssl.trustStore"));
+                null, System.getProperty("javax.net.ssl.trustStore"));
 
             conn.setAutoCommit(autoCommit);
 

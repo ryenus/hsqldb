@@ -288,8 +288,12 @@ public class RCData {
                 "Sorry, 'libpath' not supported yet");
         }
 
-        if (id == null || url == null) {
-            throw new Exception("id or url was not set");
+        // We now require only id to be set by this constructor.
+        // This allows using programs to add settings to an RC object partially
+        // populated by RC file.
+        // Will not find out about missing 'url' until try to actually connect.
+        if (id == null) {
+            throw new Exception("id was not set");
         }
     }
 
