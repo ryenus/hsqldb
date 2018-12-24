@@ -313,6 +313,7 @@ public class SqlTool {
         String  rcCharset        = null;
         String  rcTruststore     = null;
         String  rcTransIso       = null;
+        String  rcDriver         = null;
         Map<String, String> rcFields = null;
         String  parameter;
         SqlFile[] sqlFiles       = null;
@@ -602,6 +603,11 @@ public class SqlTool {
             rcTruststore = rcFields.remove("truststore");
             rcPassword   = rcFields.remove("password");
             rcTransIso   = rcFields.remove("transiso");
+            rcDriver     = rcFields.remove("driver");
+
+            if (rcDriver != null && driver != null)
+                throw new SqlToolException(RCERR_EXITVAL,
+                        SqltoolRB.rcdata_driver_conflict.getString());
 
             // Don't ask for password if what we have already is invalid!
             if (rcUrl == null || rcUrl.length() < 1)
@@ -625,9 +631,9 @@ public class SqlTool {
                         SqltoolRB.password_readfail.getString(e.getMessage()));
             }
             try {
-                conData = new RCData(CMDLINE_ID, rcUrl, rcUsername,
-                                     rcPassword, driver, rcCharset,
-                                     rcTruststore, null, rcTransIso);
+                conData = new RCData(CMDLINE_ID, rcUrl, rcUsername, rcPassword,
+                  (rcDriver == null ? driver : rcDriver), rcCharset,
+                  rcTruststore, null, rcTransIso);
             } catch (RuntimeException re) {
                 throw re;  // Unrecoverable
             } catch (Exception e) {

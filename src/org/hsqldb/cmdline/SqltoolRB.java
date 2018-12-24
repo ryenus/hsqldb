@@ -54,7 +54,7 @@ public enum SqltoolRB implements RefCapableRBInterface {
     sqltempfile_fail,
     rcdata_inlineurl_missing,
     rcdata_inline_extravars,
-    rcdata_inlineusername_missing,
+    rcdata_driver_conflict,
     rcdata_password_visible,
     password_readfail,
     connection_fail,
