@@ -29,7 +29,7 @@
     <pubdate>&timestamp;</pubdate>
 
     <keywordset>
-      <keyword>Hsqldb</keyword>
+      <keyword>HSQLDB</keyword>
 
       <keyword>HyperSQL</keyword>
 
@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2018 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2019 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -428,6 +428,61 @@
     </section>
   </section>
 
+  <section>
+    <title>Temporal System-Versioned Tables</title>
+
+    <para>HSQLDB 2.5.0 allows you to store data in temporal system-versioned
+    tables. The additional syntax elements for CREATE TABLE and ALTER TABLE
+    allow creating sytem-versioned tables and adding system versioning to
+    existing tables. These are covered in the <link
+    endterm="databaseobjects-title" xlink:href="#databaseobjects-chapt"/>
+    chapter. Only CACHED or MEMORY tables can be used.</para>
+
+    <para>System versioning has three main uses.</para>
+
+    <orderedlist>
+      <listitem>
+        <para>During development and testing of applications,
+        system-versioning keeps all the changes made by a set of integration
+        tests. Correctness of the data change statements can be
+        verified.</para>
+      </listitem>
+
+      <listitem>
+        <para>Retention of data for regulatory requirements can be safely
+        managed by the database engine, without the need for additional
+        complexity in the application.</para>
+      </listitem>
+
+      <listitem>
+        <para>Replicated distributed databases with system versioning on all
+        tables allow changes to data to be synchronized between the
+        replicas.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>All SQL statements that access the table see the current rows of the
+    table only. SELECT statements can include a FOR SYSTEM_TIME clause to
+    access historic data in a given timestamp range. This is discussed in
+    <link endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/>
+    chapter.</para>
+
+    <para>Old historic rows can be removed up to a chosen point of time with a
+    special form of the TRUNCATE statement. This is covered in the <link
+    endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/>
+    chapter.</para>
+
+    <para>For replicated databases, data changes after a point of time can be
+    written to a script and applied to a replica. See the PERFORM SCRIPT
+    statement in this chapter. The timestamp used for export is the timestamp
+    at the point of last synchronization. For example, if the first EXPORT
+    occurs at TIMESTAMP '2019-01-01 10-10-10' and the script is later imported
+    into the replica, the second EXPORT should use that timestamp. This
+    ensures old histories that have already been exported are not exported
+    again. The import will skip duplicates and there is no harm in exporting
+    from an earlier timestamp, except it will take longer to import.</para>
+  </section>
+
   <section xml:id="mtc_backup">
     <title>Backing Up and Restoring Database Catalogs</title>
 
@@ -448,7 +503,7 @@
     <literal>*.script</literal>, etc., as detailed in previous
     chapters.</para>
 
-    <simpara>HyperSQL 2 includes commands to backup the database files into a
+    <simpara>HyperSQL features commands to backup the database files into a
     single <literal>.tar</literal> or <literal>.tar.gz</literal> file archive,
     or alternatively as copies of the database files. The backup can be
     performed by a command given in a JDBC session if the target database
@@ -570,52 +625,52 @@
     JRE. HyperSQL itself does not contain any cryptography code.</para>
 
     <para>Four elements are involved in specifying the cryptography mode of
-    operation.
-    <itemizedlist>
-          <listitem>
-            <para>A cipher is identified by a transformation string of the form
-            "algorithm/mode/padding" or simply "algorithm". Note The latter 
-            form uses the provider default mode and padding.
-            </para>
-          </listitem>
-          <listitem> 
-            <para>A key is represented as a hexadecimal string.</para>
-          </listitem>
-          <listitem>
-            <para>An optional initialization vector, for modes of operation that
-            use an IV, is represented as a hexidecimal string.</para>
-          </listitem>
-          <listitem>
-            <para>An optional provider is the fully qualified class name of the
-            cipher provider.</para>
-          </listitem>
-    </itemizedlist></para>
+    operation. <itemizedlist>
+        <listitem>
+          <para>A cipher is identified by a transformation string of the form
+          "algorithm/mode/padding" or simply "algorithm". Note The latter form
+          uses the provider default mode and padding.</para>
+        </listitem>
+
+        <listitem>
+          <para>A key is represented as a hexadecimal string.</para>
+        </listitem>
+
+        <listitem>
+          <para>An optional initialization vector, for modes of operation that
+          use an IV, is represented as a hexidecimal string.</para>
+        </listitem>
+
+        <listitem>
+          <para>An optional provider is the fully qualified class name of the
+          cipher provider.</para>
+        </listitem>
+      </itemizedlist></para>
 
     <section xml:id="mtc_encrypted_create">
       <title>Creating and Accessing an Encrypted Database</title>
 
       <para>First, a key must be created for the desired cipher and
-      configuration using an external tool, such as openssl, or by 
-      calling the HyperSQL function CRYPT_KEY(&lt;cipher
-      spec&gt;, &lt;provider&gt;). If the default provider (the built-in JVM
-      ciphers) is used, then NULL should be specified as the provider. The
-      CRYPT_KEY function returns a hexadecimal key. The function call can be
-      made in any HyperSQL database, so long as the provider class is on the
-      classpath. This key can be used to create a new encrypted database.
-      Calls to this function always return different keys, based on generated
-      random values.</para>
+      configuration using an external tool, such as openssl, or by calling the
+      HyperSQL function CRYPT_KEY(&lt;cipher spec&gt;, &lt;provider&gt;). If
+      the default provider (the built-in JVM ciphers) is used, then NULL
+      should be specified as the provider. The CRYPT_KEY function returns a
+      hexadecimal key. The function call can be made in any HyperSQL database,
+      so long as the provider class is on the classpath. This key can be used
+      to create a new encrypted database. Calls to this function always return
+      different keys, based on generated random values.</para>
 
       <para>As an example, a call to CRYPT_KEY('Blowfish', null) returned the
-      string, '604a6105889da65326bf35790a923932'. To create a new 
-      database with this key, the URL below is used:</para>
+      string, '604a6105889da65326bf35790a923932'. To create a new database
+      with this key, the URL below is used:</para>
 
       <para><literal>jdbc:hsqldb:file:&lt;database
       path&gt;;crypt_key=604a6105889da65326bf35790a923932;crypt_type=blowfish</literal></para>
 
-      <para>HyperSQL works with any symmetric cipher and transformation that 
+      <para>HyperSQL works with any symmetric cipher and transformation that
       may be available from the JVM. Some modes of operations require an
-      initialization vector (IV) to be passed in as a hex string. This hex 
-      string can be generated using an external tool, such as openssl, or 
+      initialization vector (IV) to be passed in as a hex string. This hex
+      string can be generated using an external tool, such as openssl, or
       randomly generated by the user.</para>
 
       <para><literal>jdbc:hsqldb:file:&lt;database
@@ -624,22 +679,22 @@
       <para>The fourth property name is crypt_provider. This is specified only
       when the provider is not the default provider.</para>
 
-      <para> Note: Do not use these example crypt_key or crypt_iv
-      values in production. Create your own random values.</para>
-	  
+      <para>Note: Do not use these example crypt_key or crypt_iv values in
+      production. Create your own random values.</para>
+
       <para>The files that are encrypted include the .script, .data, .backup
       and .log files. The .lobs file is not encrypted by default. The property
       crypt_lobs=true must be specified to encrypt the .lobs file. When this
       property is used, the blobs and clobs are both compressed and
       encrypted.</para>
 
-      <para>Although the details of external tools are outside the scope of 
-      this document, openssl may be used to generate sufficiently random keys 
-      and initialization vectors for a given crypt_type using the following 
+      <para>Although the details of external tools are outside the scope of
+      this document, openssl may be used to generate sufficiently random keys
+      and initialization vectors for a given crypt_type using the following
       syntax:</para>
 
-     <para><literal>openssl enc -aes-128-cbc -k RANDOM_PASSPHRASE -P -md sha256</literal></para>
-
+      <para><literal>openssl enc -aes-128-cbc -k RANDOM_PASSPHRASE -P -md
+      sha256</literal></para>
     </section>
 
     <section xml:id="mtc_encrypted_speed">
@@ -778,8 +833,8 @@
     <orderedlist>
       <listitem>
         <para>The server can use SSL and IP address access control lists. See
-        the <link endterm="listeners-title"
-        xlink:href="#listeners-chapt"></link> chapter.</para>
+        the <link endterm="listeners-title" xlink:href="#listeners-chapt"/>
+        chapter.</para>
       </listitem>
 
       <listitem>
@@ -787,7 +842,7 @@
         accessing the Java static functions that are on the classpath, apart
         from a limited set that you allow. See Securing Access to Classes in
         the <link endterm="sqlroutines-title"
-        xlink:href="#sqlroutines-chapt"></link> chapter.</para>
+        xlink:href="#sqlroutines-chapt"/> chapter.</para>
       </listitem>
 
       <listitem>
@@ -795,7 +850,7 @@
         file system outside the database directory and its children. This
         access is only necessary if you use TEXT tables or want to load and
         save files directly to the file system as BLOB or CLOB. See the <link
-        endterm="texttables-title" xlink:href="#texttables-chapt"></link>
+        endterm="texttables-title" xlink:href="#texttables-chapt"/>
         chapter.</para>
       </listitem>
 
@@ -814,7 +869,7 @@
         different database objects. Each user has a password and is granted a
         set of privileges. HSQLDB supports table level and column level
         privileges. See the <link endterm="accesscontrol-title"
-        xlink:href="#accesscontrol-chapt"></link> chapter.</para>
+        xlink:href="#accesscontrol-chapt"/> chapter.</para>
       </listitem>
 
       <listitem>
@@ -900,7 +955,7 @@
       realm of users and passwords.</para>
 
       <para>The first user for a new database has the DBA role. This user name
-      was always SA in older versions of HSQLDB, but not in the latest
+      was always SA in older versions of HyperSQL, but not in the latest
       versions. The name of the first DBA user and its password can be
       specified when the database is created by the first connection to the
       database. These settings are then stored in the database. You can also
@@ -957,7 +1012,7 @@
 
       <para>You can override external authentication for a user with the ALTER
       USER statement. See the <link endterm="accesscontrol-title"
-      xlink:href="#accesscontrol-chapt"></link> chapter</para>
+      xlink:href="#accesscontrol-chapt"/> chapter</para>
     </section>
   </section>
 
@@ -1168,6 +1223,96 @@
       statement.</simpara>
     </section>
 
+    <section>
+      <title>Data Management Statements</title>
+
+      <para>These statements allow data to be transferred in bulk from one
+      database to another using files formatted in the same manner as the
+      <literal>.script</literal> files.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>PERFORM EXPORT SCRIPT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">EXPORT SCRIPT</emphasis></simpara>
+
+      <simpara><emphasis>export script statement</emphasis></simpara>
+
+      <simpara><literal>&lt;export script statement&gt; ::= PERFORM EXPORT
+      SCRIPT FOR DATABASE [ { STRUCTURE | DATA } ] TO &lt;file
+      name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;export script table statement&gt; ::= PERFORM
+      EXPORT SCRIPT FOR TABLE &lt;table name&gt; DATA TO &lt;file
+      name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;export script for versioning statement&gt; ::=
+      PERFORM EXPORT SCRIPT FOR VERSIONING DATA FROM TIMESTAMP &lt;single
+      quoted timestamp string&gt; TO &lt;file name&gt;</literal></simpara>
+
+      <simpara>Writes a script containing SQL statements for the
+      database.</simpara>
+
+      <simpara>The first form writes the whole database, its structure only,
+      or its data only to the file. When only DATABASE is specified,
+      everything is written out. When STRUCTURE is specified, only the
+      database settings and the definition of schema objects are written. When
+      DATA is specified, only the data in the tables is written.</simpara>
+
+      <simpara>The second form writes the data for one table only. </simpara>
+
+      <simpara>The third form writes the data in all system-versioned tables
+      from a given timestamp. This form is used for database replica
+      synchronization, to be imported into another replica. For the export to
+      succeed, all system-versioned tables must have a primary key. </simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>PERFORM IMPORT SCRIPT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">IMPORT SCRIPT</emphasis></simpara>
+
+      <simpara><emphasis>import script statement</emphasis></simpara>
+
+      <simpara><literal>&lt;import script statement&gt; ::= PERFORM IMPORT
+      SCRIPT DATA FROM &lt;file name&gt; { CONTINUE | STOP | CHECK } ON
+      ERROR</literal></simpara>
+
+      <simpara><literal>&lt;import script for versioning statement&gt; ::=
+      PERFORM IMPORT SCRIPT VERSIONING DATA FROM &lt;file
+      name&gt;</literal></simpara>
+
+      <simpara>Imports data for database tables. The file to be imported must
+      be a file exported with the EXPORT SCRIPT statements listed above with
+      DATA qualifier, or strictly in the same format. </simpara>
+
+      <simpara>The first form is for importing data for ordinary tables. The {
+      CONTINUE | STOP | CHECK } ON ERROR clause determines the action when an
+      error occurs due to constraint violation. The CHECK option does not
+      insert the data, but checks each INSERT statement in the script for type
+      constraints such as string size limit or row constraints such as NOT
+      NULL. It cannot check for UNIQUE constraints. The STOP option stops the
+      import at the first error. The CONTINUE option writes the rows that
+      cannot be imported, to a file in the same location as the imported
+      script, with the file suffix <literal>.reject</literal> and the
+      timestamp of the import, then continues the import.</simpara>
+
+      <simpara>The second form is for importing data for system-versioned
+      tables. This form of import always uses the CONTINUE option mentioned
+      above. When two replicas of a database exist, an EXPORT is made from one
+      replica and the script file is used for an IMPORT into the other
+      replica. The import can avoid any duplication of data. Errors can arise
+      when the same row has been inserted, updated or deleted in both
+      databases. In this case, the changes for the row are not applied and are
+      written to the <literal>.reject</literal> file. </simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+    </section>
+
     <section xml:id="mtc_database_settings">
       <title>Database Settings</title>
 
@@ -1207,8 +1352,8 @@
 
       <simpara>Collations are discussed in the <link
       endterm="databaseobjects-title" xlink:arcrole=""
-      xlink:href="#databaseobjects-chapt"></link> chapter. Some examples of
-      setting the database collation follow:</simpara>
+      xlink:href="#databaseobjects-chapt"/> chapter. Some examples of setting
+      the database collation follow:</simpara>
 
       <programlisting> -- this collation is an ascii collation with Upper Case Comparison (coverts strings to uppercase for comparison)
  SET DATABASE COLLATION SQL_TEXT_UCC
@@ -1375,7 +1520,7 @@
       <simpara>An optional property to override default text table settings.
       The string literal has the same format as the string used for setting
       the data source of a text table, but without the file name. See the
-      <link endterm="texttables-title" xlink:href="#texttables-chapt"></link>
+      <link endterm="texttables-title" xlink:href="#texttables-chapt"/>
       chapter.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
@@ -1398,7 +1543,7 @@
       <simpara>Set the concurrency control system for the database. It can be
       issued only when all sessions have been committed or rolled back. This
       command and its modes is discussed in the <link endterm="sessions-title"
-      xlink:href="#sessions-chapt"></link> chapter.</simpara>
+      xlink:href="#sessions-chapt"/> chapter.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -1429,7 +1574,7 @@
       the transaction. It is provided for compatibility with other database
       engines which do not roll back the transaction upon deadlock. This
       command is also discussed in the <link endterm="sessions-title"
-      xlink:href="#sessions-chapt"></link> chapter.</simpara>
+      xlink:href="#sessions-chapt"/> chapter.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2756,7 +2901,7 @@
 
       <simpara>The <literal>&lt;routine body&gt;</literal> can be an SQL block
       or an external Java function reference. This is covered in the <link
-      endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"></link>
+      endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"/>
       chapter</simpara>
 
       <simpara>To disable this mechanism, the token <literal>NONE</literal>

@@ -29,7 +29,7 @@
     <pubdate>&timestamp;</pubdate>
 
     <keywordset>
-      <keyword>Hsqldb</keyword>
+      <keyword>HSQLDB</keyword>
 
       <keyword>HyperSQL</keyword>
 
@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2016 Fred Toussi. Permission is granted to
+      <para>Copyright 2010-2019 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -49,7 +49,7 @@
     <title>Overview</title>
 
     <para>HyperSQL data access and data change statements are fully compatible
-    with the latest SQL:2011 Standard. There are a few extensions and some
+    with the latest SQL:2016 Standard. There are a few extensions and some
     relaxation of rules, but these do not affect statements that are written
     to the Standard syntax. There is full support for classic SQL, as
     specified by SQL-92, and many enhancements added in later versions of the
@@ -70,7 +70,7 @@
     <para>In SQL, when a query expression (SELECT or similar SQL statement) is
     executed, an ephemeral table is created. When this table is returned to
     the application program, it is returned as a result set, which is accessed
-    row-by-row by a cursor. A JDBC <classname>ResultSet</classname> represents
+    row by row by a cursor. A JDBC <classname>ResultSet</classname> represents
     an SQL result set and its cursor.</para>
 
     <para>The minimal definition of a cursor is a list of rows with a position
@@ -176,8 +176,8 @@
       <para>When a <classname>ResultSet</classname> is updatable, various
       setter methods can be used to modify the column values. The names of the
       setter methods begin with "update". After all the updates on a row are
-      done, the <methodname>updateRow()</methodname> method must be called only once to
-      finalise the row update.</para>
+      done, the <methodname>updateRow()</methodname> method must be called
+      only once to finalise the row update.</para>
 
       <para>An updatable <classname>ResultSet</classname> may or may not be
       insertable-into. In an insertable <classname>ResultSet</classname>, all
@@ -859,7 +859,7 @@
       <simpara>The type of a datetime or interval type is specified in the
       literal. The fractional second precision is the number of digits in the
       fractional part of the literal. Details are described in the <link
-      endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link>
+      endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"/>
       chapter</simpara>
 
       <programlisting> DATE '2008-08-08'
@@ -1350,8 +1350,8 @@
 
       <simpara>Specify a function yielding a value of type numeric. The
       supported numeric value functions are listed and described in the <link
-      endterm="builtinfunctions-title"
-      xlink:href="#builtinfunctions-chapt"></link> chapter.</simpara>
+      endterm="builtinfunctions-title" xlink:href="#builtinfunctions-chapt"/>
+      chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>string value expression</primary>
@@ -1397,7 +1397,7 @@
       <simpara>Specify a function that returns a character string or binary
       string. The supported character value functions are listed and described
       in the <link endterm="builtinfunctions-title"
-      xlink:href="#builtinfunctions-chapt"></link> chapter.</simpara>
+      xlink:href="#builtinfunctions-chapt"/> chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>datetime value expression</primary>
@@ -1430,7 +1430,7 @@
       &lt;interval primary&gt;</literal></simpara>
 
       <simpara>Specify a datetime value. Details are described in the <link
-      endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link>
+      endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"/>
       chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -1448,7 +1448,7 @@
       <simpara>Specify a function that returns a datetime value. The supported
       datetime value functions are listed and described in the <link
       endterm="builtinfunctions-title" xlink:arcrole=""
-      xlink:href="#builtinfunctions-chapt"></link> chapter.</simpara>
+      xlink:href="#builtinfunctions-chapt"/> chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>interval term</primary>
@@ -1487,7 +1487,7 @@
       term&gt;</literal></simpara>
 
       <simpara>Specify an interval value. Details are described in the <link
-      endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link>
+      endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"/>
       chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -1947,8 +1947,8 @@
 
       <simpara>Note that MATCH can also used be used in FOREIGN KEY constraint
       definitions. The exact meaning is described in the <link
-      endterm="databaseobjects-title"
-      xlink:href="#databaseobjects-chapt"></link> chapter.</simpara>
+      endterm="databaseobjects-title" xlink:href="#databaseobjects-chapt"/>
+      chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CONTAINS predicate</primary>
@@ -1965,14 +1965,9 @@
       <simpara>Specify a test for two datetime periods. Each <literal>&lt;row
       value predicand&gt;</literal> must have two fields and the fields
       together represent a datetime period. So the predicates is always in the
-      form <literal>PERIOD (X1, X2) CONTAINS PERIOD (Y1, Y2)</literal>. The
-      first field in each period is always a datetime value, while the second
-      field is either a datetime value or a positive interval value.</simpara>
-
-      <simpara>If the second field in a period is an interval value, it is
-      replaced with the sum of the datetime value and itself, for example
-      <literal>PERIOD(X1, X1 + X2) OVERLAPS PERIOD (Y1, Y1 + Y
-      2)</literal>.</simpara>
+      form <literal>PERIOD (X1, X2) CONTAINS PERIOD (Y1, Y2)</literal>. Fields
+      in each period are always a datetime value of the same type (DATE or
+      TIMESTAMP).</simpara>
 
       <simpara>All datetime values are converted to TIMESTAMP WITH TIME ZONE.
       The second datetime value must be after the first, otherwise a data
@@ -2003,6 +1998,35 @@
 
       <simpara>If any of the values is NULL, the result is
       UNDEFINED.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>IS DISTINCT predicate</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">IS DISTINCT</emphasis></simpara>
+
+      <simpara><emphasis>is distinct predicate</emphasis></simpara>
+
+      <simpara><literal>&lt;distinct predicate&gt; ::= &lt;row value
+      predicand&gt; IS [ NOT ] DISTINCT FROM &lt;row value
+      predicand&gt;</literal></simpara>
+
+      <simpara>Specify a test of whether two row values are distinct. The
+      result of the test is either TRUE or FALSE (never UNKNOWN). The
+      <glossterm>degree</glossterm> the two <literal>&lt;row value
+      predicand&gt;</literal> must be the same. Each field of the first
+      <literal>&lt;row value predicand&gt;</literal> is compared to the field
+      of the second <literal>&lt;row value predicand&gt;</literal> at the same
+      position. If one field is NULL and the other is not NULL, or if the
+      elements are NOT equal, then the result of the expression is TRUE. If no
+      comparison result is TRUE, then the result of the predicate is FALSE.
+      The expression <literal>X IS NOT DISTINCT FROM Y</literal> is equivalent
+      to <literal>NOT (X IS DISTINCT FORM Y)</literal>. The following check
+      returns true if startdate is not equal to enddate. It also returns true
+      if either startdate or enddate is NULL. It returns false in other
+      cases.</simpara>
+
+      <programlisting> startdate IS DISTINCT FROM enddate</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>OVERLAPS predicate</primary>
@@ -2084,35 +2108,6 @@
       TRUE.</simpara>
 
       <programlisting>PERIOD (CURRENT_DATE - 7 DAY, CURRENT_DATE) IMMEDIATELY PRECEDES (CURRENT_DATE, CURRENT_DATE + 7 DAY)</programlisting>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>IS DISTINCT predicate</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">IS DISTINCT</emphasis></simpara>
-
-      <simpara><emphasis>is distinct predicate</emphasis></simpara>
-
-      <simpara><literal>&lt;distinct predicate&gt; ::= &lt;row value
-      predicand&gt; IS [ NOT ] DISTINCT FROM &lt;row value
-      predicand&gt;</literal></simpara>
-
-      <simpara>Specify a test of whether two row values are distinct. The
-      result of the test is either TRUE or FALSE (never UNKNOWN). The
-      <glossterm>degree</glossterm> the two <literal>&lt;row value
-      predicand&gt;</literal> must be the same. Each field of the first
-      <literal>&lt;row value predicand&gt;</literal> is compared to the field
-      of the second <literal>&lt;row value predicand&gt;</literal> at the same
-      position. If one field is NULL and the other is not NULL, or if the
-      elements are NOT equal, then the result of the expression is TRUE. If no
-      comparison result is TRUE, then the result of the predicate is FALSE.
-      The expression <literal>X IS NOT DISTINCT FROM Y</literal> is equivalent
-      to <literal>NOT (X IS DISTINCT FORM Y)</literal>. The following check
-      returns true if startdate is not equal to enddate. It also returns true
-      if either startdate or enddate is NULL. It returns false in other
-      cases.</simpara>
-
-      <programlisting> startdate IS DISTINCT FROM enddate</programlisting>
     </section>
 
     <section xml:id="dac_aggregate_funcs">
@@ -2222,7 +2217,7 @@
       <simpara>User-defined aggregate functions can be defined and used
       instead of the built-in aggregate functions. Syntax and examples are
       given in the <link endterm="sqlroutines-title"
-      xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
+      xlink:href="#sqlroutines-chapt"/> chapter.</simpara>
 
       <simpara>The <code>&lt;filter clause&gt;</code> allows you to add a
       search condition. When the search condition evaluates to TRUE for a row,
@@ -2335,7 +2330,7 @@
       &lt;target specification&gt;</literal></simpara>
 
       <simpara>Invoke an SQL-invoked routine. Examples are given in the <link
-      endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"></link>
+      endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"/>
       chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -2386,8 +2381,8 @@
     <para>HyperSQL fully supports all of SQL-92 data access statements, plus
     some additions from SQL:2011. Due to time constraints, the current version
     of this Guide does not cover the subject fully. You are advised to consult
-    an SQL book such as the recent O'Reilly title "SQL and Relational Theory"
-    by C. J. Date.</para>
+    an SQL book such as the O'Reilly title, "SQL and Relational Theory" by C.
+    J. Date.</para>
 
     <para>Database queries are data access statements. The most commonly used
     data access statement is the SELECT statement, but there are other
@@ -2631,8 +2626,9 @@
       &lt;joined table&gt; </literal></simpara>
 
       <simpara><literal>&lt;table primary&gt; ::= &lt;table or query name&gt;
-      [ [ AS ] &lt;correlation name&gt; [ &lt;left paren&gt; &lt;derived
-      column list&gt; &lt;right paren&gt; ] ] </literal></simpara>
+      [ &lt;query system time period specification&gt; ] [ [ AS ]
+      &lt;correlation name&gt; [ &lt;left paren&gt; &lt;derived column
+      list&gt; &lt;right paren&gt; ] ] </literal></simpara>
 
       <simpara><literal>| &lt;derived table&gt; [ AS ] &lt;correlation
       name&gt; [ &lt;left paren&gt; &lt;derived column list&gt; &lt;right
@@ -2664,6 +2660,15 @@
       <simpara><literal>&lt;having clause&gt; ::= HAVING &lt;boolean value
       expression&gt;</literal></simpara>
 
+      <simpara><literal>&lt;query system time period specification&gt; ::= FOR
+      SYSTEM_TIME AS OF &lt;point in time 1&gt;</literal></simpara>
+
+      <simpara><literal>| FOR SYSTEM_TIME BETWEEN [ SYMMETRIC ] &lt;point in
+      time 1&gt; AND &lt;point in time 2&gt; </literal></simpara>
+
+      <simpara><literal>| FOR SYSTEM_TIME FROM &lt;point in time 1&gt; TO
+      &lt;point in time 2&gt;</literal></simpara>
+
       <para>The <literal>&lt;from clause&gt;</literal> contains one or more
       <literal>&lt;table reference&gt;</literal> separated by commas. A table
       reference is often a table or view name or a joined table.</para>
@@ -2685,6 +2690,16 @@
 
         <para><literal>&lt;table or query name&gt; ::= &lt;table name&gt; |
         &lt;transition table name&gt; | &lt;query name&gt;</literal></para>
+      </section>
+
+      <section>
+        <title>System Time Period</title>
+
+        <para>The <literal>&lt;query system time period
+        specification&gt;</literal> can be used after the name of a
+        system-versioned table to query historic data in the table. Without
+        this clause, only the current rows of the table are returned and
+        historic rows are ignored.</para>
       </section>
 
       <section xml:id="dac_derived_table">
@@ -2716,9 +2731,9 @@
 
         <simpara><emphasis role="bold">LATERAL</emphasis></simpara>
 
-        <para>When the word LATERAL is used before a &lt;table subquery&gt;,
-        it means the query expression can reference the columns of other table
-        references that go before it.</para>
+        <para>When the word LATERAL is used before a <literal>&lt;table
+        subquery&gt;</literal>, it means the query expression can reference
+        the columns of other table references that go before it.</para>
 
         <para><literal>&lt;lateral derived table&gt; ::= LATERAL &lt;table
         subquery&gt;</literal></para>
@@ -2824,12 +2839,13 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
         <simpara><emphasis role="bold">Table Function Derived
         Table</emphasis></simpara>
 
-        <para>When TABLE is used in this context, the &lt;collection value
-        expression&gt; must be the result of a function call to a built-in
-        function or user-defined function that returns an array or a table.
-        When the function returns an array, this array is converted into a
-        table, similar to the way UNNEST operates. When the function returns a
-        table, the result is a MULTISET and is used as is.</para>
+        <para>When TABLE is used in this context, the <literal>&lt;collection
+        value expression&gt;</literal> must be the result of a function call
+        to a built-in function or user-defined function that returns an array
+        or a table. When the function returns an array, this array is
+        converted into a table, similar to the way UNNEST operates. When the
+        function returns a table, the result is a MULTISET and is used as
+        is.</para>
 
         <para><literal>&lt;table function derived table&gt; ::= TABLE &lt;left
         paren&gt; &lt;collection value expression&gt; &lt;right
@@ -3674,6 +3690,10 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       <simpara><literal>&lt;truncate options&gt; ::= AND COMMIT [ NO CHECK
       ]</literal></simpara>
 
+      <simpara><literal>&lt;truncate table versioning statement&gt; ::=
+      TRUNCATE TABLE &lt;target table&gt; VERSIONING TO { TIMESTAMP'YYYY-MM-DD
+      HH:MM:SS' | CURRENT_TIMESTAMP }</literal></simpara>
+
       <simpara>Delete all rows of a table without firing its triggers. This
       statement can only be used on base tables (not views). If the table is
       referenced in a FOREIGN KEY constraint defined on another table, the
@@ -3697,6 +3717,11 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       FOREIGN KEY constraint defined on another, non-empty table. This form of
       TRUNCATE is faster than the default form and does not use much
       memory.</simpara>
+
+      <simpara>The <literal>&lt;truncate table versioning
+      statement&gt;</literal> is for removing old history rows from a
+      system-versioned table. All history rows that expired before the given
+      timestamp are removed. No current row is removed.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>TRUNCATE SCHEMA</primary>
