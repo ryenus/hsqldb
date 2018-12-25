@@ -1259,12 +1259,13 @@
       database settings and the definition of schema objects are written. When
       DATA is specified, only the data in the tables is written.</simpara>
 
-      <simpara>The second form writes the data for one table only. </simpara>
+      <simpara>The second form writes the data for one table only.</simpara>
 
       <simpara>The third form writes the data in all system-versioned tables
       from a given timestamp. This form is used for database replica
-      synchronization, to be imported into another replica. For the export to
-      succeed, all system-versioned tables must have a primary key. </simpara>
+      synchronization, to be imported into another replica. For
+      synchronization purposes, all system-versioned tables must have a
+      primary key as those without are not exported.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -1287,7 +1288,7 @@
 
       <simpara>Imports data for database tables. The file to be imported must
       be a file exported with the EXPORT SCRIPT statements listed above with
-      DATA qualifier, or strictly in the same format. </simpara>
+      DATA qualifier, or strictly in the same format.</simpara>
 
       <simpara>The first form is for importing data for ordinary tables. The {
       CONTINUE | STOP | CHECK } ON ERROR clause determines the action when an
@@ -1307,7 +1308,7 @@
       replica. The import can avoid any duplication of data. Errors can arise
       when the same row has been inserted, updated or deleted in both
       databases. In this case, the changes for the row are not applied and are
-      written to the <literal>.reject</literal> file. </simpara>
+      written to the <literal>.reject</literal> file.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
