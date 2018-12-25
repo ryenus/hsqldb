@@ -367,7 +367,7 @@ public abstract class ScriptWriterBase implements Runnable {
             while (tables.hasNext()) {
                 Table t = (Table) tables.next();
 
-                if (t.isSystemVersioned()) {
+                if (t.isSystemVersioned() && t.hasPrimaryKey()) {
                     writeTableVersionData(t, from);
                 }
             }
