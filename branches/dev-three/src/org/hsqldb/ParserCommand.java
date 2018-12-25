@@ -53,7 +53,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -2442,14 +2442,19 @@ public class ParserCommand extends ParserDDL {
 
                 return compileImportScript();
             }
-            case Tokens.EXPORT :
-                read();
-
-                return compileScript(true);
-
+            case Tokens.EXPORT : {
+                return compileExport();
+            }
             default :
                 throw unexpectedToken();
         }
+    }
+
+    private Statement compileExport() {
+
+        read();
+
+        return compileScript(true);
     }
 
     private Statement compileImportScript() {
@@ -2460,13 +2465,13 @@ public class ParserCommand extends ParserDDL {
 
         readThis(Tokens.SCRIPT);
 
-        if (token.tokenType == Tokens.FOR) {
-            read();
+        if (token.tokenType == Tokens.VERSIONING) {
             readThis(Tokens.VERSIONING);
 
             isVersioning = Boolean.TRUE;
         }
 
+        readThis(Tokens.DATA);
         readThis(Tokens.FROM);
 
         fileName = readQuotedString();
