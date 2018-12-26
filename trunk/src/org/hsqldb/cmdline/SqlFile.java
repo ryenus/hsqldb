@@ -219,7 +219,7 @@ public class SqlFile {
     private static Pattern   varPattern = Pattern.compile("\\*?[a-zA-Z]\\w*");
     private static Pattern   wordAndDotPattern = Pattern.compile("[\\w.]+");
     private static Pattern   specialPattern =
-            Pattern.compile("(\\S+)(?:\\s(.*\\S.*))?\\s*");
+            Pattern.compile("(\\S+)(?:\\s(.*))?");
     private static Pattern  plPattern = Pattern.compile("(.*\\S)?\\s*");
     private static Pattern  mathAsgnPattern = Pattern.compile(
         "\\(\\(\\s*([a-zA-Z]\\w*)\\s*([-+*/%][-+=])\\s*(.+?)?\\s*\\)\\)\\s*");
