@@ -254,7 +254,27 @@
             </simpara>
             <itemizedlist>
                 <listitem><simpara>
-                  None
+                  Leading and trailing white-space of special command arguments
+                  are no longer generally ignored.
+                  If you don't want to give a parameter to a special command,
+                  then don't include any extra whitespace.
+                  This was changed so that \p commands can output whitespace or
+                  strings beginning or ending with whitespace, without having
+                  \p parse parameters differently from every other special
+                  command.
+                  Whenever you give a parameter to a special command, a single
+                  white-space character is used just to separate command from
+                  argument(s) and then the remainder is the argument(s).
+                  Some specific special commands will then trim the
+                  arguments captured this way, but \p commands will not.
+                  For example, a single space or tab is required after \p or
+                  \pr, and then
+                  the rest of the string is precisely what will be output.
+                  For example, command "<literal>\p one</literal>" would output
+                  "<literal>one</literal>"; and
+                  "<literal>\p&#160;&#160;two&#160;&#160;</literal>" would output
+                  "<literal>&#160;two&#160;&#160;</literal>"; and
+                  "<literal>\p&#160;&#160;</literal>" would output "<literal> </literal>".
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -278,6 +298,10 @@
                 This applies to specification of SQL script files on the
                 command-line, as well as data imports (DSV, XML, and binary),
                 and @ construct relative paths from them correctly.
+              </simpara></listitem><listitem><simpara>
+                Special command \p now has a 'n' option that doesn't output
+                a line delimiter.
+                This is similar to UNIX echo's -n switch or \c escape.
               </simpara></listitem>
             </itemizedlist>
         </section>
