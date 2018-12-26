@@ -31,7 +31,8 @@ Verwenden Sie "SCHEMANAME.", um auf ein Schema zu begrenzen.
     \mq pfad/datei.csv     Ditto, aber mit traditionellen CSV doppelt zitiert.
     \o [datei/pfad.html]   Leitet (oder stoppt dies) die Ausgabe der Abfrage in
                            die angegebene Datei um.
-    \p [Eine Nachricht]    Gibt Nachricht auf stdout aus
+    \p[nr] [Eine Nachricht] Gibt Nachricht auf stdout aus.
+                           n==Kein Leitungsabschluss; r=Rohes HTML im \h Modus.
     \q [Abbruchmeldung]    Beendet das Programm (oder beenden Sie es mit
                            STRG-Z oder STRG-D).
     \t [true|false]        Gibt die Ausführungszeiten für alle SQL-Befehle aus.

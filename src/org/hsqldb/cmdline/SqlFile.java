@@ -219,7 +219,7 @@ public class SqlFile {
     private static Pattern   varPattern = Pattern.compile("\\*?[a-zA-Z]\\w*");
     private static Pattern   wordAndDotPattern = Pattern.compile("[\\w.]+");
     private static Pattern   specialPattern =
-            Pattern.compile("(\\S+)(?:(\\s+.*\\S))?\\s*");
+            Pattern.compile("(\\S+)(?:\\s(.*\\S.*))?\\s*");
     private static Pattern  plPattern = Pattern.compile("(.*\\S)?\\s*");
     private static Pattern  mathAsgnPattern = Pattern.compile(
         "\\(\\(\\s*([a-zA-Z]\\w*)\\s*([-+*/%][-+=])\\s*(.+?)?\\s*\\)\\)\\s*");
@@ -1872,11 +1872,16 @@ public class SqlFile {
                     }
                     return;
                 }
+                if (arg1.equals("pn")) {
+                    // No-op if other == null
+                    if (other != null) stdprint(other, true);
+                    return;
+                }
                 enforce1charSpecial(arg1, 'p');
                 if (other == null) {
                     stdprintln(true);
                 } else {
-                    stdprintln(other.trim(), true);
+                    stdprintln(other, true);
                 }
 
                 return;
