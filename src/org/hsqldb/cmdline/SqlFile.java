@@ -2304,6 +2304,13 @@ public class SqlFile {
                         throw new SqlToolError(
                                 SqltoolRB.no_timestamp_format.getString());
                     varValue = timestampFormat.format(new java.util.Date());
+                } else if (varName.equals("*SCRIPT")) {
+                    varValue = inputStreamLabel;
+                } else if (varName.equals("*SCRIPTFILE")) {
+                    varValue = inputStreamLabel.replaceFirst("^.*[/\\\\]", "");
+                } else if (varName.equals("*SCRIPTBASE")) {
+                    varValue = inputStreamLabel.replaceFirst("^.*[/\\\\]", "")
+                      .replaceFirst("[.][^.]*$", "");
                 } else {
                     if (!permitUnset)
                         throw new SqlToolError(
