@@ -3143,19 +3143,8 @@ public class ParserDQL extends ParserBase {
         Expression e;
 
         compileContext.contextuallyTypedExpression = true;
-        e = XreadValueExpressionOrNull();
+        e = XreadValueExpression();
         compileContext.contextuallyTypedExpression = false;
-
-        return e;
-    }
-
-    Expression XreadValueExpressionOrNull() {
-
-        Expression e = XreadAllTypesCommonValueExpression(true);
-
-        if (e == null) {
-            return null;
-        }
 
         return e;
     }
@@ -5461,12 +5450,11 @@ public class ParserDQL extends ParserBase {
 
         Expression e;
         Type       typeObject;
-        int        position = getPosition();
 
         read();
         readThis(Tokens.OPENBRACKET);
 
-        e = XreadValueExpressionOrNull();
+        e = XreadValueExpression();
 
         readThis(Tokens.AS);
 
@@ -5503,13 +5491,13 @@ public class ParserDQL extends ParserBase {
 
             readThis(Tokens.COMMA);
 
-            e = XreadValueExpressionOrNull();
+            e = XreadValueExpression();
 
             if (readIfThis(Tokens.COMMA)) {
                 mode = this.XreadSimpleValueSpecificationOrNull();
             }
         } else {
-            e = XreadValueExpressionOrNull();
+            e = XreadValueExpression();
 
             readThis(Tokens.COMMA);
 
@@ -5707,7 +5695,7 @@ public class ParserDQL extends ParserBase {
                     readThis(Tokens.COMMA);
                 }
 
-                Expression e = XreadValueExpressionOrNull();
+                Expression e = XreadValueExpression();
 
                 list.add(e);
             }
