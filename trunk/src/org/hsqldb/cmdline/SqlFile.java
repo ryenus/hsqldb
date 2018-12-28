@@ -2306,9 +2306,9 @@ public class SqlFile {
                     varValue = timestampFormat.format(new java.util.Date());
                 } else if (varName.equals("*SCRIPT")) {
                     varValue = inputStreamLabel;
-                } else if (varName.equals("*SCRIPTFILE")) {
+                } else if (varName.equals("*SCRIPT_FILE")) {
                     varValue = inputStreamLabel.replaceFirst("^.*[/\\\\]", "");
-                } else if (varName.equals("*SCRIPTBASE")) {
+                } else if (varName.equals("*SCRIPT_BASE")) {
                     varValue = inputStreamLabel.replaceFirst("^.*[/\\\\]", "")
                       .replaceFirst("[.][^.]*$", "");
                 } else {
