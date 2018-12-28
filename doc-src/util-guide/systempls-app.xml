@@ -152,6 +152,17 @@
         <varname>*ROW</varname> will be the <varname>*NULL_REP_TOKEN</varname>
         value.
     </simpara></listitem></varlistentry>
+    <varlistentry><term>*SCRIPT</term><listitem><simpara>
+      Full name of current script, which is usually an URL or the string
+      <literal>&lt;stdin&gt;</literal>.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*START_BASE</term><listitem><simpara>
+          Base name of the current script.
+          Same as *SCRIPT_NAME but with final filename suffix also removed.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*SCRIPT_NAME</term><listitem><simpara>
+      Short name of the current script.  Protocols and directories stripped off.
+    </simpara></listitem></varlistentry>
     <varlistentry><term>*START_TIME</term><listitem><simpara>
         Read only.  Literal string.
         Automatically set to a localized string presenting the date and time.
