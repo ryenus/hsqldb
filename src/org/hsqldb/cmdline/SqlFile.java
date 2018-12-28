@@ -48,6 +48,8 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.UnknownHostException;
+import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DatabaseMetaData;
@@ -588,6 +590,15 @@ public class SqlFile {
         this(reader, inputStreamLabel, atBase);
         try {
             shared = new SharedFields(psStd);
+            try {
+                String hostName = InetAddress.getLocalHost().getHostName();
+                shared.userVars.put("*HOSTNAME", hostName);
+                shared.userVars.put(
+                  "*HOST", hostName.replaceFirst("^.*[.]", ""));
+            } catch (UnknownHostException uhe) {
+                // Purposefully empty.
+                // We made a best effort but can't populate the *HOST variables.
+            }
             shared.userVars.put(
                     "*START_TIME", (new java.util.Date()).toString());
             shared.userVars.put("*REVISION", revnum);
