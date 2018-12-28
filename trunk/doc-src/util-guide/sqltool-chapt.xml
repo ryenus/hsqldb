@@ -302,6 +302,8 @@
                 Special command \p now has a 'n' option that doesn't output
                 a line delimiter.
                 This is similar to UNIX echo's -n switch or \c escape.
+              </simpara></listitem><listitem><simpara>
+                Added System PL Variables SCRIPT, SCRIPTFILE, SCRIPTBASE.
               </simpara></listitem>
             </itemizedlist>
         </section>
