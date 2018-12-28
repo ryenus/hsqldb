@@ -594,7 +594,7 @@ public class SqlFile {
                 String hostName = InetAddress.getLocalHost().getHostName();
                 shared.userVars.put("*HOSTNAME", hostName);
                 shared.userVars.put(
-                  "*HOST", hostName.replaceFirst("^.*[.]", ""));
+                  "*HOST", hostName.replaceFirst("[.].*$", ""));
             } catch (UnknownHostException uhe) {
                 // Purposefully empty.
                 // We made a best effort but can't populate the *HOST variables.
