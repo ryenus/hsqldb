@@ -1518,7 +1518,7 @@ public class ParserRoutine extends ParserTable {
 
         compileContext.setOuterRanges(rangeGroups);
 
-        Expression e = XreadValueExpressionOrNull();
+        Expression e = XreadValueExpression();
 
         if (e == null) {
             throw unexpectedToken();
