@@ -153,19 +153,19 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 //#ifdef JAVA8
 /*
 
-    public static final String THIS_VERSION         = "2.4.1";
-    public static final String THIS_FULL_VERSION    = "2.4.1";
+    public static final String THIS_VERSION         = "2.5.0";
+    public static final String THIS_FULL_VERSION    = "2.5.0";
     public static final int    MAJOR                = 2,
-                               MINOR                = 4,
-                               REVISION             = 1;
+                               MINOR                = 5,
+                               REVISION             = 0;
 */
 
 //#else
-    public static final String THIS_VERSION      = "2.3.6";
-    public static final String THIS_FULL_VERSION = "2.3.6";
+    public static final String THIS_VERSION      = "2.3.7";
+    public static final String THIS_FULL_VERSION = "2.3.7";
     public static final int    MAJOR             = 2,
                                MINOR             = 3,
-                               REVISION          = 6;
+                               REVISION          = 7;
 
 //#endif JAVA8
 
