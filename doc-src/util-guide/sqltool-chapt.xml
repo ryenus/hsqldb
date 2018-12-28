@@ -303,7 +303,11 @@
                 a line delimiter.
                 This is similar to UNIX echo's -n switch or \c escape.
               </simpara></listitem><listitem><simpara>
-                Added System PL Variables SCRIPT, SCRIPTFILE, SCRIPTBASE.
+                Added System PL Variables *SCRIPT, *SCRIPT_FILE, *SCRIPT_BASE,
+                *HOST, *HOSTNAME.
+                See <link
+                  xlink:href='#systempls-app' endterm='systempls-title'/>
+                    appendix.
               </simpara></listitem>
             </itemizedlist>
         </section>
@@ -2885,6 +2889,18 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             <link xlink:href='#sqltool_interactive_pl_commands-sect' endterm='interactive_pl_commands-title'/>
             section above.
         </simpara>
+
+          <important><title>Accidental Comment Gotcha</title><para>
+            Since "/*" marks the beginning of a comment, and "*" is used to
+            dereference PL variables, it's possible to accidentally code "/*".
+            (The same issue exists generally in Java and many other languages).
+            If your PL variable code would result in "/*" that you would not
+            want to result in a comment, a work-around is to use another PL
+            variable just for the slash, like
+              <example><title>Example to avoid accidental Comment</title>
+                <screen>    * SLASH = /
+    \i @*{SLASH}*{SubScript}</screen></example>
+          </para></important>
 
         <section xml:id='sqltool_nullempty-sect'>
             <title xml:id='nullempty-title'>Nulls and Empty Strings</title>
