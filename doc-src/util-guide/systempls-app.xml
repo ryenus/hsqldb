@@ -119,6 +119,13 @@
           Table where to import CSV or DSV to.
           Run \x? to see default value and details.
     </simpara></listitem></varlistentry>
+    <varlistentry><term>*HOST</term><listitem><simpara>
+      Unqualified (short) hostname.  I.e. host name without domain.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*HOSTNAME</term><listitem><simpara>
+      Will be as reported by command 'hostname', which may be qualified or
+      unqualified (by domain).
+    </simpara></listitem></varlistentry>
     <varlistentry><term>*IGNORE_BANG_STATUS</term><listitem><simpara>
           Boolean.
           If true, then if an external command executed by <literal>\!</literal>
