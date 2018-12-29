@@ -3371,7 +3371,8 @@ public class SqlFile {
 
                 case 'S' :
                     if (dbProductName.indexOf("Oracle") > -1) {
-                        errprintln(SqltoolRB.vendor_oracle_dS.getString());
+                        if (interactive)
+                            errprintln(SqltoolRB.vendor_oracle_dS.getString());
 
                         types[0]          = "TABLE";
                         schema            = "SYS";
@@ -3847,13 +3848,14 @@ public class SqlFile {
             throw new SqlToolError(SqltoolRB.regex_malformat.getString(pse));
         }
 
-        if (excludeSysSchemas)
+        if (excludeSysSchemas && interactive)
             stdprintln(SqltoolRB.vendor_nosup_sysschemas.getString());
 
         switch (updateCount) {
             case -1 :
                 if (r == null) {
-                    stdprintln(SqltoolRB.noresult.getString(), true);
+                    if (interactive)
+                        stdprintln(SqltoolRB.noresult.getString(), true);
 
                     break;
                 }
