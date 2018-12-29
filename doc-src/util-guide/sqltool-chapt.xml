@@ -276,6 +276,17 @@
                   "<literal>&#160;two&#160;&#160;</literal>"; and
                   "<literal>\p&#160;&#160;</literal>" would output "<literal> </literal>".
                 </simpara></listitem>
+                <listitem><simpara>
+                  Warnings are only displayed in interactive mode if the
+                  message is reporting about intended behavior.
+                  For example, warnings that a work-around is being used to
+                  distinguish system objects, or that the database object
+                  isn't returning a meaningful value.
+                  Script designers will learn these things when designing
+                  their scripts and running the commands interactively.
+                  For automated usage, these scripts clutter output and would
+                  have to be filtered out.
+                </simpara></listitem>
             </itemizedlist>
         </section>
         <section><title>New Features</title>
@@ -2934,15 +2945,14 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             You can assign a PL variable the empty string value by using a
             command switch <literal>-P</literal> or <literal>--setVar</literal>.
             For example
-                  <screen>java -jar .../sqltool.jar -Pvarname= urlid script.sql</screen>
+                  <screen>java -jar .../sqltool.jar -P varname=urlid script.sql</screen>
             You can see it's an empty string by echoing the value:
-              <screen>\p One*{varname}Two
-OneTwo</screen>
-            With the next minor release of SqlTool, or now if you set Java
-            system property <literal>sqltool.REMOVE_EMPTY_VARS</literal> to
-            <literal>false</literal>, that you can use the vanilla PL
-            assignment command to assign empty values like this:
-            <screen>* MYVAR =</screen>
+              <screen>\p (*{varname})
+()</screen>
+            You can use the regular PL assignment command to assign empty value
+            and the PL unset command to assign null:
+            <screen>    * MYVAR =
+    * - MYVAR</screen>
           </para>
 
           <section><title>Distinguishing Nulls from Empty Strings</title>
@@ -2960,7 +2970,7 @@ OneTwo</screen>
               Therefore, say you want to know if variable
               <varname>MYVAR</varname> is set or not (stated differently,
               whether it is non-null or null).  Run <informalexample><screen>
-    * list MYVAR</screen></informalexample>.
+    * list MYVAR</screen></informalexample>
               If it lists the variable then it is set and is not null.
             </para> <para>
               You can use the <literal>* if</literal> command to compare your
@@ -2970,6 +2980,10 @@ OneTwo</screen>
               <literal>*NULL</literal>).
               The second test here compares <varname>MYVAR</varname> to a
               variable that you assigned the empty string to earlier.
+              You have to use the logical-expression PL variable deferencing
+              without curly braces.  Curly braces like
+              <literal>*{this}</literal> would trigger
+              unset variable runtime error if the variable is null.
               <example><title>Explicit null and empty-string Tests</title>
                 <screen>    java -jar .../sqltool.jar -pEMPTYSTRING=
     ....
