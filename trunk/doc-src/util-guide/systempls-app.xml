@@ -41,6 +41,13 @@
     <literal>*NULL</literal>, which is explained below.
     See the <link xlink:href='#sqltool-chapt' endterm='sqltool-title'/>
     chapter about <literal>?</literal>.
+  </simpara> <simpara>
+    Where the table below reports that a variable is
+    <emphasis>read only</emphasis>, for now that usually means only that you
+    <emphasis>should</emphasis> treat is as read-only.
+    Behavior will be unpredictable if you write to these.
+    At some point in future I may add enforcement of this.
+    (Contact me if this is important for you).
   </simpara>
 
   <variablelist>
@@ -158,6 +165,19 @@
         cell of the current row, unless that value is null, in which case
         <varname>*ROW</varname> will be the <varname>*NULL_REP_TOKEN</varname>
         value.
+        Otherwise it is these values for the columns joined together with the
+        <literal>DSV_COL_DELIM</literal>.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>*ROWS</term><listitem><simpara>
+     Read only literal string for use with forrows, but inversely to
+     <literal>*ROW</literal> availability, 
+     <literal>*ROWS</literal> is never available inside of a forrows, only
+     after a forrows.
+     (To use a previous ROWS value inside a forrows loop, you would have to
+     assign it to a user PL variable).
+     The value is just the contatenation of <literal>*ROW</literal> for each
+     row joined with <literal>*DSV_ROW_DELIM</literal> delimiter.
+     It is basically a simple DSV export for the query.
     </simpara></listitem></varlistentry>
     <varlistentry><term>*SCRIPT</term><listitem><simpara>
       Full name of current script, which is usually an URL or the string

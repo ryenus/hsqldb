@@ -315,7 +315,7 @@
                 This is similar to UNIX echo's -n switch or \c escape.
               </simpara></listitem><listitem><simpara>
                 Added System PL Variables *SCRIPT, *SCRIPT_FILE, *SCRIPT_BASE,
-                *HOST, *HOSTNAME.
+                *HOST, *HOSTNAME, *ROWS.
                 See <link
                   xlink:href='#systempls-app' endterm='systempls-title'/>
                     appendix.
