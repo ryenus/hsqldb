@@ -609,7 +609,9 @@
       <para>A CONSTRAINT is a child schema object and can belong to a DOMAIN
       or a TABLE. CONSTRAINT objects can be defined without specifying a name.
       In this case the system generates a name for the new object beginning
-      with "SYS_".</para>
+      with "SYS_". This default naming can be changed with the <literal>SET
+      DATABASE SQL SYS INDEX NAMES TRUE</literal> statement, to use the
+      constraint name as the name of the index.</para>
 
       <!-- For some reason, without the quotes, the _ and . do not appear in
       the HTML output.  Can remove the quotes if this issue is taken care of
@@ -1667,8 +1669,8 @@
 
       <para>The basic component is the SYSTEM_TIME period. For each row
       currently in the table, the start timestamp column, designated as ROW
-      START, contains the timestamp of the transaction of the INSERT or UPDATE
-      statement that last modified the row. The end timestamp column,
+      START, contains the UTC timestamp of the transaction of the INSERT or
+      UPDATE statement that last modified the row. The end timestamp column,
       designated as ROW END, contains a timestamp in the distant future (end
       of epoch) that indicates the expiration date of the row. HSQLDB uses
       DATE '10000-01-01' as the expiration timestamp.</para>
@@ -1676,9 +1678,9 @@
       <para>When the WITH SYSTEM VERSIONING clause is used, any DELETE or
       UPDATE is performed as usual. But the deleted rows, or the old versions
       of the updated rows are kept in the table with the expiration timestamp
-      changed to the CURRENT_TIMESTAMP at the start of the transaction that
-      contains the UPDATE or DELETE. For example, a row that is updated twice
-      has two old versions kept in the table as well as the current
+      changed to the UTC CURRENT_TIMESTAMP at the start of the transaction
+      that contains the UPDATE or DELETE. For example, a row that is updated
+      twice has two old versions kept in the table as well as the current
       version.</para>
 
       <para>The history rows cannot be modified. Any DELETE or UPDATE
@@ -1707,7 +1709,9 @@
       &lt;comma&gt; &lt;period end column name&gt; &lt;right
       paren&gt;</literal></simpara>
 
-      <para>An existing table can be converted to a system-versioned table.
+      <para>The timestamp type actually used by the system is always
+      TIMESTAMP(6) WITH TIME ZONE, regardless of the type specified by the
+      user. An existing table can be converted to a system-versioned table.
       Two statement executions are needed. First, the ALTER TABLE statement to
       create the SYSTEM_TIME period and its columns must be executed, followed
       by the ALTER TABLE statement to add SYSTEM VERSIONING.</para>

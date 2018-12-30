@@ -431,12 +431,16 @@
   <section>
     <title>Temporal System-Versioned Tables</title>
 
+    <indexterm significance="preferred" type="sql">
+      <primary>system-versioned tables usage</primary>
+    </indexterm>
+
     <para>HSQLDB 2.5.0 allows you to store data in temporal system-versioned
     tables. The additional syntax elements for CREATE TABLE and ALTER TABLE
     allow creating sytem-versioned tables and adding system versioning to
     existing tables. These are covered in the <link
     endterm="databaseobjects-title" xlink:href="#databaseobjects-chapt"/>
-    chapter. Only CACHED or MEMORY tables can be used.</para>
+    chapter. Only CACHED or MEMORY tables can be system-versioned.</para>
 
     <para>System versioning has three main uses.</para>
 
@@ -481,6 +485,24 @@
     ensures old histories that have already been exported are not exported
     again. The import will skip duplicates and there is no harm in exporting
     from an earlier timestamp, except it will take longer to import.</para>
+
+    <para>An example follows:</para>
+
+    <example>
+      <title>Creating a system-versioned table</title>
+
+      <screen> CREATE TABLE codedata (
+  code CHAR(10) not null,
+  id SMALLINT not null ,
+  primary key (ID),
+  PS TIMESTAMP GENERATED ALWAYS AS ROW START,
+  PE TIMESTAMP GENERATED ALWAYS AS ROW END,
+  PERIOD FOR SYSTEM_TIME(PS,PE)
+  ) WITH SYSTEM VERSIONING
+</screen>
+    </example>
+
+    <para/>
   </section>
 
   <section xml:id="mtc_backup">
@@ -1239,16 +1261,17 @@
       <simpara><emphasis>export script statement</emphasis></simpara>
 
       <simpara><literal>&lt;export script statement&gt; ::= PERFORM EXPORT
-      SCRIPT FOR DATABASE [ { STRUCTURE | DATA } ] TO &lt;file
-      name&gt;</literal></simpara>
+      SCRIPT FOR DATABASE [ { STRUCTURE | DATA } ] TO &lt;single-quoted file
+      path&gt;</literal></simpara>
 
       <simpara><literal>&lt;export script table statement&gt; ::= PERFORM
-      EXPORT SCRIPT FOR TABLE &lt;table name&gt; DATA TO &lt;file
-      name&gt;</literal></simpara>
+      EXPORT SCRIPT FOR TABLE &lt;table name&gt; DATA TO &lt;single-quouted
+      file path&gt;</literal></simpara>
 
       <simpara><literal>&lt;export script for versioning statement&gt; ::=
-      PERFORM EXPORT SCRIPT FOR VERSIONING DATA FROM TIMESTAMP &lt;single
-      quoted timestamp string&gt; TO &lt;file name&gt;</literal></simpara>
+      PERFORM EXPORT SCRIPT FOR VERSIONING DATA FROM TIMESTAMP
+      &lt;single-quoted UTC timestamp string&gt; TO &lt;file
+      name&gt;</literal></simpara>
 
       <simpara>Writes a script containing SQL statements for the
       database.</simpara>
@@ -1262,10 +1285,11 @@
       <simpara>The second form writes the data for one table only.</simpara>
 
       <simpara>The third form writes the data in all system-versioned tables
-      from a given timestamp. This form is used for database replica
+      from a given UTC timestamp. This form is used for database replica
       synchronization, to be imported into another replica. For
       synchronization purposes, all system-versioned tables must have a
-      primary key as those without are not exported.</simpara>
+      primary key as those without are not exported. UTC timestamps are used
+      to allow synchronization across time zones.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -1279,12 +1303,12 @@
       <simpara><emphasis>import script statement</emphasis></simpara>
 
       <simpara><literal>&lt;import script statement&gt; ::= PERFORM IMPORT
-      SCRIPT DATA FROM &lt;file name&gt; { CONTINUE | STOP | CHECK } ON
-      ERROR</literal></simpara>
+      SCRIPT DATA FROM &lt;single-quoted file path&gt; { CONTINUE | STOP |
+      CHECK } ON ERROR</literal></simpara>
 
       <simpara><literal>&lt;import script for versioning statement&gt; ::=
-      PERFORM IMPORT SCRIPT VERSIONING DATA FROM &lt;file
-      name&gt;</literal></simpara>
+      PERFORM IMPORT SCRIPT VERSIONING DATA FROM &lt;single-quoted file
+      path&gt;</literal></simpara>
 
       <simpara>Imports data for database tables. The file to be imported must
       be a file exported with the EXPORT SCRIPT statements listed above with
@@ -1305,10 +1329,11 @@
       tables. This form of import always uses the CONTINUE option mentioned
       above. When two replicas of a database exist, an EXPORT is made from one
       replica and the script file is used for an IMPORT into the other
-      replica. The import can avoid any duplication of data. Errors can arise
-      when the same row has been inserted, updated or deleted in both
-      databases. In this case, the changes for the row are not applied and are
-      written to the <literal>.reject</literal> file.</simpara>
+      replica. The import automatically ignores any history that is already in
+      the table and avoid any duplication of data. Errors can arise when the
+      same row has been inserted, updated or deleted in both databases. In
+      this case, the changes for the row are not applied and are written to
+      the <literal>.reject</literal> file.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
