@@ -2486,8 +2486,9 @@ public class SqlFile {
             if (origVals != null) for (int i = 0; i < vars.length; i++)
                 origVals[i] = shared.userVars.get(vars[i]);
             TokenList dupNesteds = token.nestedBlock.dup();
-            if (dupNesteds.size() < 2)
-                // TODO: Define message
+            if (dupNesteds.size() < 1)
+                // TODO: Define message.  Used to test for <2.  Don't know if
+                // it's possible for it to be < 1.
                 throw new BadSpecial("Empty forrows loop");
             Token queryToken = dupNesteds.remove(0);
             if (queryToken.type != Token.SQL_TYPE)
