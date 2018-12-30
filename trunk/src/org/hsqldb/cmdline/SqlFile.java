@@ -2503,6 +2503,8 @@ public class SqlFile {
                 // TODO: Define message
                 throw new BadSpecial("Failed to prepare SQL for loop");
             shared.userVars.put("#", "0");
+            shared.userVars.remove("*ROWS");
+            List<String> dsvRows = new ArrayList<String>();
             try {
                 rs = statement.getResultSet();
                 shared.userVars.put("#", Integer.toString(rowData.size()));
@@ -2575,6 +2577,7 @@ public class SqlFile {
                         rowVal = rowBuilder.toString();
                     }
                     shared.userVars.put("*ROW", rowVal);
+                    dsvRows.add(shared.userVars.get("*ROW"));
 
                     if (vars != null) for (int i = 0; i < vars.length; i++)
                         if (cells[i] == null)
@@ -2614,6 +2617,15 @@ public class SqlFile {
                         shared.userVars.remove(vars[i]);
                     else
                         shared.userVars.put(vars[i], origVals[i]);
+                // Simply want to do String.join(delim, strings), but that's
+                // not in Java until v8.
+                StringBuilder sb = new StringBuilder();
+                for (String dsvRow : dsvRows) {
+                    if (sb.length() > 0) sb.append(dsvRowDelim);
+                    sb.append(dsvRow);
+                }
+                shared.userVars.put("*ROWS", sb.toString());
+
                 updateUserSettings();
                 sqlExpandMode = null;
             }
