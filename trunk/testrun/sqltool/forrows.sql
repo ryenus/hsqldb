@@ -24,7 +24,7 @@ SELECT * FROM t;
 * if (*RES != *EXPECTED) \q [*{RES}] != [*{EXPECTED}]
 
 * if (**ROWS == **NULL) \q **ROWS was not populated by first forrows
-* EXPECTED=1|one@2|two@[null]|three@4|[null
+* EXPECTED=1|one@2|two@[null]|three@4|[null]
 * if (**ROWS != *EXPECTED) \q *ROWS: [*{*ROWS}] != [*{EXPECTED}]
 
 * RES={
