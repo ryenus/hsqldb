@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -104,7 +104,6 @@ public class Table extends TableBase implements SchemaObject {
     private RangeVariable[] defaultRanges;
 
     //
-    boolean          isSystemVersioned;
     PeriodDefinition systemPeriod;
     PeriodDefinition applicationPeriod;
     int              systemPeriodStartColumn;

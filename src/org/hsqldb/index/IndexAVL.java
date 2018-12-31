@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2018, The HSQL Development Group
+ * Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1529,8 +1529,7 @@ public class IndexAVL implements Index {
         row = node.getRow(store);
 
         if (store.canRead(session, row, TransactionManager.ACTION_DUP, null)) {
-            if (row.getSystemEndVersion().getSeconds()
-                    == DateTimeType.epochLimitSeconds) {
+            if (row.isCurrentSystemVersion()) {
                 return true;
             }
         }
@@ -1551,8 +1550,7 @@ public class IndexAVL implements Index {
 
                 if (store.canRead(session, row, TransactionManager.ACTION_DUP,
                                   null)) {
-                    if (row.getSystemEndVersion().getSeconds()
-                            == DateTimeType.epochLimitSeconds) {
+                    if (row.isCurrentSystemVersion()) {
                         return true;
                     }
                 }
@@ -1577,8 +1575,7 @@ public class IndexAVL implements Index {
 
                 if (store.canRead(session, row, TransactionManager.ACTION_DUP,
                                   null)) {
-                    if (row.getSystemEndVersion().getSeconds()
-                            == DateTimeType.epochLimitSeconds) {
+                    if (row.isCurrentSystemVersion()) {
                         return true;
                     }
                 }
