@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -104,7 +104,7 @@ public class TableBase implements Cloneable {
     public boolean    isSessionBased;
     protected boolean isSchemaBased;
     protected boolean isLogged;
-    private boolean   isTransactional = true;
+    public boolean    isSystemVersioned;
     boolean           hasLobColumn;
 
     //
@@ -227,12 +227,8 @@ public class TableBase implements Cloneable {
         return colTypes.length;
     }
 
-    public boolean isTransactional() {
-        return isTransactional;
-    }
-
-    public void setTransactional(boolean value) {
-        isTransactional = value;
+    public boolean isSystemVersioned() {
+        return isSystemVersioned;
     }
 
     /**

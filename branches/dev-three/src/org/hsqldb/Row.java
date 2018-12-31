@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -105,7 +105,7 @@ public class Row implements CachedObject {
 
     public TimestampData getSystemStartVersion() {
 
-        if (((Table) table).isSystemVersioned) {
+        if (table.isSystemVersioned) {
             TimestampData ts = (TimestampData) getField(
                 ((Table) table).systemPeriodStartColumn);
 
@@ -117,7 +117,7 @@ public class Row implements CachedObject {
 
     public TimestampData getSystemEndVersion() {
 
-        if (((Table) table).isSystemVersioned) {
+        if (table.isSystemVersioned) {
             TimestampData ts = (TimestampData) getField(
                 ((Table) table).systemPeriodEndColumn);
 
@@ -125,6 +125,18 @@ public class Row implements CachedObject {
         }
 
         return DateTimeType.epochLimitTimestamp;
+    }
+
+    public boolean isCurrentSystemVersion() {
+
+        if (table.isSystemVersioned) {
+            TimestampData ts = (TimestampData) getField(
+                ((Table) table).systemPeriodEndColumn);
+
+            return DateTimeType.epochLimitSeconds == ts.getSeconds();
+        }
+
+        return true;
     }
 
     public void setStorageSize(int size) {}
