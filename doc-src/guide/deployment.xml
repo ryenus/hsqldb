@@ -29,7 +29,7 @@
     <pubdate>&timestamp;</pubdate>
 
     <keywordset>
-      <keyword>Hsqldb</keyword>
+      <keyword>HSQLDB</keyword>
 
       <keyword>HyperSQL</keyword>
 
@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2017 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2019 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -64,8 +64,8 @@
     large memory tables are used, or when the average size of rows in cached
     tables is larger than a few hundred bytes. The maximum amount of allocated
     memory can be set on the Java command line that is used for running
-    HyperSQL. For example, with Sun JVM, parameter -Xmx256m increases the
-    amount to 256 MB.</para>
+    HyperSQL. For example, the JVM parameter <literal>-Xmx256m</literal>
+    increases the amount to 256 MB.</para>
 
     <section xml:id="dec_table_mem_use">
       <title>Table Memory Allocation</title>
@@ -96,7 +96,7 @@
       result sets, as it converts the full result set into an array of bytes
       which is then transmitted to the client.</para>
 
-      <para>HyperSQL 2.0 supports disk-based result sets. The commands,
+      <para>HyperSQL 2 supports disk-based result sets. The commands,
       <literal>SET SESSION RESULT MEMORY ROWS &lt;integer&gt;</literal> and
       <literal>SET DATABASE DEFAULT RESULT MEMORY ROWS
       &lt;integer&gt;</literal> specify a threshold for the number of rows.
@@ -109,9 +109,9 @@
       that are larger than tens of thousands of rows.</para>
 
       <para>In a server mode database, when the setFetchSize() method of the
-      Statement interface is used to limit the number rows fetched, the whole
-      result is held by the engine and is returned to the JDBC ResultSet in
-      blocks of rows of the specified fetch size.</para>
+      Statement interface is used to limit the number of rows fetched, the
+      whole result is held by the engine and is returned to the JDBC ResultSet
+      in blocks of rows of the specified fetch size.</para>
     </section>
 
     <section xml:id="dec_temp_mem_use">
@@ -159,16 +159,16 @@
       <para>An additional property, <property>hsqldb.cache_size</property> is
       used in conjunction with the <property>hsqldb.cache_rows</property>
       property. This puts a limit in bytes on the total size of rows that are
-      cached. The default values is 10,000KB. (This is the size of binary
+      cached. The default values is 10,000KB. This is the size of binary
       images of the rows and indexes. It translates to more actual memory,
       typically 2-4 times, used for the cache because the data is represented
-      by Java objects.)</para>
+      by Java objects.</para>
 
       <para>If memory is limited, the <property>hsqldb.cache_rows</property>
       or <property>hsqldb.cache_size</property> database properties can be
       reduced. In the example above, if the
       <property>hsqldb.cache_size</property> is reduced from 10,000 to 5,000,
-      it will allow the number of cached rows to reach 50,000 small rows, but
+      it may allow the number of cached rows to reach 50,000 small rows, but
       only 5,000 of the larger rows.</para>
 
       <para>Data for CLOB and BLOB columns is not cached and does not affect
@@ -176,7 +176,7 @@
 
       <para>The use of Java NIO file access method also increases memory
       usage. Access with NIO improves database update speed and is used by
-      default for data files up to 256 MB. For minimal memory use, nio access
+      default for data files up to 256 MB. For minimal memory use, NIO access
       should be disabled.</para>
 
       <para>The operating system usually allocates a large amount of buffer
@@ -191,7 +191,7 @@
       <para>HyperSQL uses a set of fast pools for immutable objects such as
       Integer, Long and short String objects that are stored in the database.
       In most circumstances, this reduces the memory footprint still further
-      as fewer copies of the most frequently-used objects are kept in memory.
+      as fewer copies of the most frequently used objects are kept in memory.
       The object pools are shared among all databases in the JVM. The size of
       each pool can be modified only by altering and recompiling the
       <literal>org.hsqldb.store.ValuePool</literal> class.</para>
@@ -231,28 +231,28 @@
       memory-mapped file buffer for the <literal>.data</literal> file. For
       larger databases with CACHED tables, use of nio improves database access
       speed significantly. Performance improvements can be tenfold or even
-      higher. By default, NIO is used for .data files from 16 MB up to 256 MB.
-      You can increase the limit with the <literal>SET FILES NIO SIZE
-      &lt;value&gt;</literal> statement. There should be enough RAM available
-      to accommodate the memory mapped buffers. For vary large nio usage, a 64
-      bit JVM must be used. The memory is not taken from the JVM memory
-      allocation, therefore there is no need to increase the -Xmx parameter of
-      the JVM. If not enough memory is available for the specified value, nio
-      is not used.</para>
+      higher. By default, NIO is used for <literal>.data</literal> files from
+      16 MB up to 256 MB. You can increase the limit with the <literal>SET
+      FILES NIO SIZE &lt;value&gt;</literal> statement. There should be enough
+      RAM available to accommodate the memory mapped buffers. For vary large
+      nio usage, a 64 bit JVM must be used. The memory is not taken from the
+      JVM memory allocation, therefore there is no need to increase the -Xmx
+      parameter of the JVM. If not enough memory is available for the
+      specified value, nio is not used.</para>
     </section>
 
     <section xml:id="tspace_usage">
       <title>Using Table Spaces</title>
 
-      <para>Data for all CACHED tables is stored in the .data file. With new
-      optional setting, HSQLDB 2.4.0 allocates separate blocks of the data
-      file to different CACHED tables. This method has the following
-      advantages:</para>
+      <para>Data for all CACHED tables is stored in the
+      <literal>.data</literal> file. With new optional setting, HSQLDB 2.5
+      allocates separate blocks of the data file to different CACHED tables.
+      This method has the following advantages:</para>
 
       <itemizedlist>
         <listitem>
           <para>When a table is dropped, all its data allocation blocks are
-          freed and become available for reuse. </para>
+          freed and become available for reuse.</para>
         </listitem>
 
         <listitem>
@@ -262,7 +262,7 @@
       </itemizedlist>
 
       <para>The following statement should be executed once to start the table
-      spaces for the whole database: </para>
+      spaces for the whole database:</para>
 
       <para><literal>SET FILES SPACE TRUE </literal></para>
 
@@ -303,31 +303,33 @@
     <section xml:id="dec_disk_space">
       <title>Disk Space</title>
 
-      <para>With file: database, the engine uses the disk for storage of data
-      and any change. For safely, the engine backs up the data internally
-      during operation. Spare space, at least equal to the size of the .data
-      and .script file is needed. The .lobs file is not backed up during
+      <para>With <glossterm>file:</glossterm> database, the engine uses the
+      disk for storage of data and any change. For safely, the engine backs up
+      the data internally during operation. Spare space, at least equal to the
+      size of the <literal>.data</literal> and <literal>.script</literal> file
+      is needed. The <literal>.lobs</literal> file is not backed up during
       operation as it is not necessary for safety.</para>
     </section>
 
     <section xml:id="dec_no_logging">
       <title>Using HyperSQL Without Logging Data Change</title>
 
-      <para>All file database that are not readonly, write changes to the .log
-      file. There are scenarios where writing to the .log file can be turned
-      off to improve performance, especially with larger databases. For these
-      applications you can set the property
-      <literal>hsqldb.log_data=false</literal> to disable the recovery log and
-      speed up data change performance. The equivalent SQL command is SET
-      FILES LOG FALSE.</para>
+      <para>All file database that are not readonly, write changes to the
+      <literal>.log</literal> file. There are scenarios where writing to the
+      <literal>.log</literal> file can be turned off to improve performance,
+      especially with larger databases. For these applications you can set the
+      property <literal>hsqldb.log_data=false</literal> to disable the
+      recovery log and speed up data change performance. The equivalent SQL
+      command is SET FILES LOG FALSE.</para>
 
       <para>With this setting, no data is logged, but all the changes to
-      cached tables are written to the .data file. To persist all the data
-      changes up to date, you can use the CHECKPOINT command. If you perform
-      SHUTDOWN, the data is also persisted correctly. If you do not use
-      CHECKPOINT or SHUTDOWN when you terminate the application, all the
-      changes are lost and the database reverts to its original state when it
-      is opened without losing any of the original data.</para>
+      cached tables are written to the <literal>.data</literal> file. To
+      persist all the data changes up to date, you can use the CHECKPOINT
+      command. If you perform SHUTDOWN, the data is also persisted correctly.
+      If you do not use CHECKPOINT or SHUTDOWN when you terminate the
+      application, all the changes are lost and the database reverts to its
+      original state when it is opened without losing any of the original
+      data.</para>
 
       <para>Your server applications can use a database as a temporary disk
       data cache which is not persisted past the lifetime of the application.
@@ -506,7 +508,7 @@
     automatically after the connections are closed. The automatic sync and
     shutdown are mainly for test environment. In production environments you
     should execute the SHUTDOWN statement before your application is closed.
-    This ensurs a quick start next time you connect to the database.</para>
+    This ensures a quick start next time you connect to the database.</para>
 
     <para>An alternative option is to use
     <literal>hsqldb.write_delay=false</literal> connection property, but this
@@ -522,26 +524,28 @@
     <para>You may actually want to use a <glossterm>file:</glossterm>
     database, or a server instance that serves a <glossterm>file:</glossterm>
     database in preference to a <glossterm>mem:</glossterm> database. As
-    HyperSQL logs the DDL and DML statements in the .log file, this file can
-    be used to check what is being sent to the database. Note that UPDATE
-    statements are represented by a DELETE followed by an INSERT statement.
-    Statements are written out when the connection commits. The write delay
-    also has an effect on how soon the statements are written out. By default,
-    the write delay is 0.5 second.</para>
+    HyperSQL logs the DDL and DML statements in the <literal>.log</literal>
+    file, this file can be used to check what is being sent to the database.
+    Note that UPDATE statements are represented by a DELETE followed by an
+    INSERT statement. Statements are written out when the connection commits.
+    The write delay also has an effect on how soon the statements are written
+    out. By default, the write delay is 0.5 second.</para>
 
-    <para>The new SQL logging feature in version 2.2.x and later records all
+    <para>The SQL logging feature in version 2.2 and later records all
     executed statements and can be used for debugging your application.</para>
 
     <para>Some types of tests start with a database that already contains the
     tables and data, and perform various operations on it during the tests.
     You can create and populate the initial database then set the property
-    "files_readonly=true" in the .properties file of the database. The tests
-    can then modify the database, but these modifications are not persisted
-    after the tests have completed.</para>
+    "<literal>files_readonly=true</literal>" in the
+    <literal>.properties</literal> file of the database. The tests can then
+    modify the database, but these modifications are not persisted after the
+    tests have completed.</para>
 
-    <para>Databases with "files_readonly=true" can be placed within the
-    classpath and in a jar file. In this case, the connection URL must use the
-    res: protocol, which treats the database as a resource.</para>
+    <para>Databases with "<literal>files_readonly=true</literal>" can be
+    placed within the classpath and in a jar file. In this case, the
+    connection URL must use the <glossterm>res:</glossterm> protocol, which
+    treats the database as a resource.</para>
   </section>
 
   <section xml:id="dec_tweaking">
@@ -578,8 +582,8 @@
       ms) without impacting the update speed. If you reduce WRITE DELAY to
       zero, performance drops to the speed of disk file sync operation.</para>
 
-      <para>Alternatively, a server application can use an all-in-mem database
-      instance for fast access, while sending the data changes to a
+      <para>Alternatively, a server application can use an all-in-memory
+      database instance for fast access, while sending the data changes to a
       persistent, disk based instance either periodically or in real
       time.</para>
     </section>
@@ -660,16 +664,17 @@
       </step>
     </procedure>
 
-    <para>The first step is to guarantee there is no .log file for the
-    database. When upgrading an application that has been deployed on a large
-    scale, it is sometimes not practical to perform the first step of this
-    procedure (with the old jar). You can ignore the first step but you may
-    lose part of the database statements that are stored in the .log file.
-    Therefore you need to test with databases created with your application to
-    make sure typical statements that are logged in the .log file are
-    compatible with the new version. Examples of known incompatible statements
-    are some DDL statements used for changing the data type or default values
-    of column.</para>
+    <para>The first step is to guarantee there is no <literal>.log</literal>
+    file for the database. When upgrading an application that has been
+    deployed on a large scale, it is sometimes not practical to perform the
+    first step of this procedure (with the old jar). You can ignore the first
+    step but you may lose part of the database statements that are stored in
+    the <literal>.log</literal> file. Therefore you need to test with
+    databases created with your application to make sure typical statements
+    that are logged in the <literal>.log</literal> file are compatible with
+    the new version. Examples of known incompatible statements are some DDL
+    statements used for changing the data type or default values of
+    column.</para>
 
     <para>A note about SHUTDOWN modes. SHUTDOWN COMPACT is equivalent to
     SHUTDOWN SCRIPT plus opening the database and then performing a simple
@@ -867,10 +872,10 @@
       </listitem>
 
       <listitem>
-        <para>User names and passwords are case-sensitive. Check the .script
-        file of a database for the correct case of user name and password and
-        use this form in the connection properties or on connection
-        URL.</para>
+        <para>User names and passwords are case-sensitive. Check the
+        <literal>.script</literal> file of a database for the correct case of
+        user name and password and use this form in the connection properties
+        or on connection URL.</para>
       </listitem>
 
       <listitem>
@@ -931,16 +936,17 @@
       <listitem>
         <para>Table definitions containing <literal>GENERATED BY DEFAULT AS
         IDENTITY</literal> but with no <literal>PRIMARY KEY</literal> do not
-        automatically create a primary key. Database .script files made with
-        1.8 are fine, as the <literal>PRIMARY KEY</literal> clause is always
-        included. But the <literal>CREATE TABLE</literal> statements in your
-        application program may assume an automatic primary key is created.
-        The old shortcut, IDENTITY, is retained with the same meaning. So
-        <literal>CREATE TABLE T (ID IDENTITY, DAT VARCHAR(20))</literal> is
-        translated into <literal>CREATE TABLE T(ID INTEGER GENERATED BY
-        DEFAULT AS IDENTITY PRIMARY KEY, DAT VARCHAR(20))</literal>. This last
-        form is the correct way of defining both autoincrement and primary key
-        in versions 1.8 and 2.0.</para>
+        automatically create a primary key. Database
+        <literal>.script</literal> files made with 1.8 are fine, as the
+        <literal>PRIMARY KEY</literal> clause is always included. But the
+        <literal>CREATE TABLE</literal> statements in your application program
+        may assume an automatic primary key is created. The old shortcut,
+        IDENTITY, is retained with the same meaning. So <literal>CREATE TABLE
+        T (ID IDENTITY, DAT VARCHAR(20))</literal> is translated into
+        <literal>CREATE TABLE T(ID INTEGER GENERATED BY DEFAULT AS IDENTITY
+        PRIMARY KEY, DAT VARCHAR(20))</literal>. This last form is the correct
+        way of defining both autoincrement and primary key in versions 1.8 and
+        2.0.</para>
       </listitem>
 
       <listitem>
@@ -1041,7 +1047,7 @@
       for the next release version. You can use the snapshot jars where you
       would normally include a dependency to a release jar as a Maven
       artifact. The HyperSQL Snapshot repository resides at <link
-      xlink:href="http://hsqldb.org/repos/"></link></simpara>
+      xlink:href="http://hsqldb.org/repos/"/></simpara>
 
       <note xml:id="dec_classifier_limit">
         <title>Limitation of Classifiers</title>

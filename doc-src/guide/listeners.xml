@@ -37,7 +37,7 @@
     <pubdate>&timestamp;</pubdate>
 
     <keywordset>
-      <keyword>Hsqldb</keyword>
+      <keyword>HSQLDB</keyword>
 
       <keyword>HyperSQL</keyword>
 
@@ -47,7 +47,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2016 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2019 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -59,10 +59,9 @@
     <title>Listeners</title>
 
     <simpara>As described in the <link endterm="running-title"
-    xlink:href="#running-chapt"></link> chapter, network listeners (servers)
-    provide connectivity to catalogs from different JVM processes. The
-    HyperSQL listeners support both ipv4 and ipv6 network
-    addressing.</simpara>
+    xlink:href="#running-chapt"/> chapter, network listeners (servers) provide
+    connectivity to catalogs from different JVM processes. The HyperSQL
+    listeners support both ipv4 and ipv6 network addressing.</simpara>
 
     <section xml:id="lsc_hsql_server">
       <title>HyperSQL Server</title>
@@ -79,15 +78,16 @@
         <screen> java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb;hsqldb.tx=mvcc --dbname.0 xdb</screen>
       </informalexample>
 
-      <para>Alternatively, a server.properties file can be used for passing
-      the arguments to the server. This file must be located in the directory
-      where the command is issued.</para>
+      <para>Alternatively, a <literal>server.properties</literal> file can be
+      used for passing the arguments to the server. This file must be located
+      in the directory where the command is issued.</para>
 
       <screen> java -cp ../lib/hsqldb.jar org.hsqldb.server.Server</screen>
 
-      <para>Alternatively, you can specify the path of the server.properties
-      file on the command line. In this case, the properties file can have any
-      name or extension, but it should be a valid properties file.</para>
+      <para>Alternatively, you can specify the path of the
+      <literal>server.properties</literal> file on the command line. In this
+      case, the properties file can have any name or extension, but it should
+      be a valid properties file.</para>
 
       <screen> java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --props myserver.props</screen>
 
@@ -96,8 +96,8 @@
 
       <screen> java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --help</screen>
 
-      <para>The contents of the server.properties file is described in the
-      next section.</para>
+      <para>The contents of the <literal>server.properties</literal> file is
+      described in the next section.</para>
     </section>
 
     <section xml:id="lsc_http_server">
@@ -118,8 +118,8 @@
         <screen> java -cp ../lib/hsqldb.jar org.hsqldb.server.WebServer</screen>
       </informalexample>
 
-      <para>The contents of the server.properties file is described in the
-      next section.</para>
+      <para>The contents of the <literal>server.properties</literal> file is
+      described in the next section.</para>
     </section>
 
     <section xml:id="lsc_servlet">
@@ -169,11 +169,11 @@
       <title>common server and webserver properties</title>
 
       <tgroup align="left" cols="3">
-        <colspec colwidth="4cm" />
+        <colspec colwidth="4cm"/>
 
-        <colspec colwidth="4cm" />
+        <colspec colwidth="4cm"/>
 
-        <colspec />
+        <colspec/>
 
         <thead>
           <row>
@@ -299,11 +299,11 @@
       <title>server properties</title>
 
       <tgroup align="left" cols="3">
-        <colspec colwidth="4cm" />
+        <colspec colwidth="4cm"/>
 
-        <colspec colwidth="4cm" />
+        <colspec colwidth="4cm"/>
 
-        <colspec />
+        <colspec/>
 
         <thead>
           <row>
@@ -345,11 +345,11 @@
       <title>webserver properties</title>
 
       <tgroup align="left" cols="3">
-        <colspec colwidth="4cm" />
+        <colspec colwidth="4cm"/>
 
-        <colspec colwidth="4cm" />
+        <colspec colwidth="4cm"/>
 
-        <colspec />
+        <colspec/>
 
         <thead>
           <row>
@@ -417,7 +417,7 @@
 
     <para>In the above example, the <filename>server.properties</filename>
     file indicates that the server provides access to 3 different databases.
-    Two of the databases are file-based, while the third is all-in-memory. The
+    Two of the databases are file based, while the third is all in memory. The
     aliases for the databases that the users connect to are
     <literal>accounts</literal>, <literal>enrolments</literal> and
     <literal>quickdb</literal>.</para>
@@ -446,7 +446,7 @@
     An working example of this can be found in the <classname
     xlink:href="#TestBase.java-link"> org.hsqldb.test.TestBase</classname>
     source. The example below sets the same properties as in the
-    server.properties file example.</para>
+    <literal>server.properties</literal> file example.</para>
 
     <programlisting> HsqlProperties p = new HsqlProperties();
  p.setProperty("server.database.0","file:/opt/db/accounts");
@@ -467,7 +467,7 @@
 
     <para>To shut down the server, you can execute the SQL "SHUTDOWN"
     statement on the server databases. When you start the server from your
-    application and keep a reference to the java Server object, you can also
+    application and keep a reference to the Java Server object, you can also
     shut it down programatically. Calling the <literal>shutdownCatalogs(int
     shutdownMode)</literal> method of
     <classname>org.hsqldb.server.Server</classname> closes all the open
@@ -507,8 +507,8 @@
     database. Any database path on the URL is ignored if the alias is serving
     a database.</para>
 
-    <para>The database path can point to a <literal>file:</literal> or
-    <literal>mem:</literal> database.</para>
+    <para>The database path can point to a <glossterm>file:</glossterm> or
+    <glossterm>mem:</glossterm> database.</para>
 
     <para>If you use database properties on the URL, these properties are used
     when the new database is created. If no database properties are used on
@@ -541,7 +541,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
     <para>The specified properties apply only to a new database. They have no
     effect on an existing database apart from a few properties such as
     <literal>readonly</literal> listed in the <link
-    endterm="dbproperties-title" xlink:href="#dbproperties-chapt"></link>
+    endterm="dbproperties-title" xlink:href="#dbproperties-chapt"/>
     chapter.</para>
   </section>
 
@@ -832,8 +832,8 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
       <varname>system.javax.net.ssl.keyStore</varname> and
       <varname>system.javax.net.ssl.keyStorePassword</varname> properties as
       instructed above, and follow the instructions in the <link
-      endterm="unix-title" xlink:href="#unix-chapt"></link> chapter, paying
-      close attention to the TLS-related comments in the template config
+      endterm="unix-title" xlink:href="#unix-chapt"/> chapter, paying close
+      attention to the TLS-related comments in the template config
       file.</para>
 
       <para>If you are using a private server certificate, make sure to also
@@ -879,7 +879,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
     <para>The sample file <filename
     xlink:href="#acl.txt-link">sample/acl.txt</filename> in your HyperSQL
     distribution explains how to write an ACL file. <programlisting><xi:include
-          href="../verbatim/sample/acl.txt" parse="text" /></programlisting>
+          href="../verbatim/sample/acl.txt" parse="text"/></programlisting>
     You put your file wherever it is convenient for you, and specify that path
     with the property <varname>server.acl</varname> or
     <varname>webserver.acl</varname> in your
