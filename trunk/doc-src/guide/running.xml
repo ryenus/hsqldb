@@ -33,7 +33,7 @@
     <pubdate>&timestamp;</pubdate>
 
     <keywordset>
-      <keyword>Hsqldb</keyword>
+      <keyword>HSQLDB</keyword>
 
       <keyword>HyperSQL</keyword>
 
@@ -53,14 +53,14 @@
     <title>Introduction</title>
 
     <para>HyperSQL Database (HSQLDB ) is a modern relational database system.
-    Version 2.4.1 is the latest release of the all-new version 2 code. Written
-    from ground up to follow the international ISO SQL:2011 standard, it
+    Version 2.5.0 is the latest release of the all-new version 2 code. Written
+    from ground up to follow the international ISO SQL:2016 standard, it
     supports the complete set of the classic features, together with optional
     features such as stored procedures and triggers.</para>
 
-    <para>HyperSQL version 2.4.1 is compatible with Java 8 or later. Versions
-    of the HSQLDB jar that are compiled with JDK 6 or JDK 5 are also
-    available. Those versions are numbered 2.3.6 to distinguish the capability
+    <para>HyperSQL version 2.5.0 is compatible with Java 8 or later. Versions
+    of the HSQLDB jar that are compiled with JDK 6 are also available. Those
+    versions are numbered 2.3.7 to distinguish the capability
     differences.</para>
 
     <para>HyperSQL is used for development, testing and deployment of database
@@ -274,7 +274,7 @@
     <classname>java.sql.Connection</classname> object that is returned to
     access the data. Access to an <glossterm>in-process</glossterm> database
     is started from JDBC, with the database path specified in the connection
-    URL. For example, if the <glossterm>file: </glossterm>database name is
+    URL. For example, if the <glossterm>file:</glossterm> database name is
     "testdb" and its files are located in the same directory as where the
     command to run your application was issued, the following code is used for
     the connection:</para>
@@ -371,8 +371,8 @@
     <para>There are three server modes, based on the protocol used for
     communications between the client and server. They are briefly discussed
     below. More details on servers is provided in the <link
-    endterm="listeners-title" xlink:arcrole=""
-    xlink:href="#listeners-chapt"></link> chapter.</para>
+    endterm="listeners-title" xlink:arcrole="" xlink:href="#listeners-chapt"/>
+    chapter.</para>
 
     <section xml:id="rgc_hsql_server">
       <title>HyperSQL HSQL Server</title>
@@ -477,8 +477,8 @@
       <para>Note in the above connection URL, there is no mention of the
       database file, as this was specified when running the server. Instead,
       the public name defined for dbname.0 is used. Also, see the <link
-      endterm="listeners-title" xlink:href="#listeners-chapt"></link> chapter
-      for the connection URL when there is more than one database per server
+      endterm="listeners-title" xlink:href="#listeners-chapt"/> chapter for
+      the connection URL when there is more than one database per server
       instance.</para>
     </section>
 
@@ -515,7 +515,7 @@
  Connection c = DriverManager.getConnection("jdbc:hsqldb:https://localhost/xdb", "SA", "");
 </programlisting>
         </example>The security features are discussed in detail in the <link
-      endterm="listeners-title" xlink:href="#listeners-chapt"></link>
+      endterm="listeners-title" xlink:href="#listeners-chapt"/>
       chapter.</para>
     </section>
 
@@ -527,7 +527,7 @@
       the command line. It is also possible to specify all the databases in a
       <literal>.properties</literal> file, instead of the command line. These
       capabilities are covered in the <link endterm="listeners-title"
-      xlink:href="#listeners-chapt"></link> chapter</para>
+      xlink:href="#listeners-chapt"/> chapter</para>
     </section>
   </section>
 
@@ -652,10 +652,10 @@
     an <glossterm>in-process</glossterm> database, a new, empty database is
     created if no database exists at the given path.</para>
 
-    <para>With HyperSQL 2.0 the username and password that are specified for
-    the connection are used for the new database. Both the username and
+    <para>With HyperSQL 2.0 the user name and password that are specified for
+    the connection are used for the new database. Both the user name and
     password are case-sensitive. (The exception is the default SA user, which
-    is not case-sensitive). If no username or password is specified, the
+    is not case-sensitive). If no user name or password is specified, the
     default SA user and an empty password are used.</para>
 
     <para>This feature has a side effect that can confuse new users. If a
@@ -678,10 +678,10 @@
 
     <para>A database has many optional properties, described in the <link
     endterm="management-title" xlink:arcrole=""
-    xlink:href="#management-chapt"></link> chapter. You can specify most of
-    these properties on the URL or in the connection properties for the first
+    xlink:href="#management-chapt"/> chapter. You can specify most of these
+    properties on the URL or in the connection properties for the first
     connection that creates the database. See the <link
     endterm="dbproperties-title" xlink:arcrole=""
-    xlink:href="#dbproperties-chapt"></link> chapter.</para>
+    xlink:href="#dbproperties-chapt"/> chapter.</para>
   </section>
 </chapter>

@@ -33,7 +33,7 @@
     <pubdate>&timestamp;</pubdate>
 
     <keywordset>
-      <keyword>Hsqldb</keyword>
+      <keyword>HSQLDB</keyword>
 
       <keyword>HyperSQL</keyword>
 
@@ -840,7 +840,7 @@
       column of type OTHER using any variation of
       <methodname>PreparedStatement.setObject()</methodname> methods.</para>
 
-      <para>The alternative Live Object option is for <literal>mem:</literal>
+      <para>The alternative Live Object option is for <glossterm>mem:</glossterm>
       databases only and is enabled when the database property
       sql.live_object=true is appended to the connection property that creates
       the mem database. For example

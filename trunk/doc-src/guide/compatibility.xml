@@ -29,7 +29,7 @@
     <pubdate>&timestamp;</pubdate>
 
     <keywordset>
-      <keyword>Hsqldb</keyword>
+      <keyword>HSQLDB</keyword>
 
       <keyword>HyperSQL</keyword>
 
@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2018 Fred Toussi. Permission is granted to
+      <para>Copyright 2010-2019 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -58,7 +58,7 @@
     <para>HyperSQL 2.x has been written to the SQL Standard and avoids the
     traps caused by superficial imitation of the Standard by some other RDBMS.
     The SQL Standard has existed since 1989 and has been expanded over the
-    years in several revisions. HyperSQL follows SQL:2011, which still stays
+    years in several revisions. HyperSQL follows SQL:2016, which still stays
     almost fully compatible with SQL-92. The X-Open specification has also
     defined a number of SQL functions which are implemented by most
     RDBMS.</para>

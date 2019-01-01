@@ -29,7 +29,7 @@
     <pubdate>&timestamp;</pubdate>
 
     <keywordset>
-      <keyword>Hsqldb</keyword>
+      <keyword>HSQLDB</keyword>
 
       <keyword>HyperSQL</keyword>
 
@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2017 Fred Toussi. Permission is granted to
+      <para>Copyright 2010-2019 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -46,7 +46,7 @@
   </info>
 
   <para>SQL-invoked routines are functions and procedures called from SQL.
-  HyperSQL 2.4 supports routines conforming to two parts of the SQL Standard.
+  HyperSQL 2.5 supports routines conforming to two parts of the SQL Standard.
   Routines written in the SQL language are supported in conformance to SQL/PSM
   (Persistent Stored Modules) specification. Routines written in Java are
   supported in broad conformance to SQL/JRT specification. In addition,

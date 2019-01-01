@@ -105,16 +105,16 @@
     <section>
       <title>Database Types</title>
 
-      <para>There are three types of database, <literal>mem:</literal>,
-      <literal>file:</literal> and <literal>res:</literal>. The mem: type is
+      <para>There are three types of database, <glossterm>mem:</glossterm>,
+      <glossterm>file:</glossterm> and <glossterm>res:</glossterm>. The <glossterm>mem:</glossterm> type is
       stored all in memory and not persisted to file. The
-      <literal>file:</literal> type is persisted to file. The
-      <literal>res:</literal> type is also based on files, but the files are
+      <glossterm>file:</glossterm> type is persisted to file. The
+      <glossterm>res:</glossterm> type is also based on files, but the files are
       loaded from the classpath, similar to resource and class files. Changes
-      to the data in <literal>file:</literal> databases are persisted, unless
+      to the data in <glossterm>file:</glossterm> databases are persisted, unless
       the database is <literal>readonly</literal>, or
       <literal>files_readonly</literal> (using optional property settings).
-      Changes to <literal>res:</literal> databases are not persisted.</para>
+      Changes to <glossterm>res:</glossterm> databases are not persisted.</para>
 
       <section xml:id="mtc_readonly_database">
         <title>Readonly Databases</title>
@@ -2243,7 +2243,7 @@
       SQL LIVE OBJECT { TRUE | FALSE }</literal></simpara>
 
       <simpara>This property is <literal>FALSE</literal> by default and can
-      only be used in <literal>mem:</literal> databases.</simpara>
+      only be used in <glossterm>mem:</glossterm> databases.</simpara>
 
       <simpara>When the property is <literal>FALSE</literal>, all java objects
       stored in a column of type <literal>OTHER</literal> are serialized. When
