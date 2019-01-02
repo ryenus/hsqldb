@@ -1259,7 +1259,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <simpara><emphasis role="bold">Java 8 Extensions</emphasis></simpara>
 
     <para>JAVA 8 introduced new type codes for TIMESTAMP WITH TIME ZONE and
-    TIME WITH TIME ZONE. HSQLDB 2.4.0 and later when compiled with JDK8
+    TIME WITH TIME ZONE. HSQLDB 2.4.0 and later, when compiled with JDK8,
     supports this in <classname>ResultSet</classname>,
     <classname>PreparedStatement</classname> and
     <classname>CallableStatement</classname>.</para>
