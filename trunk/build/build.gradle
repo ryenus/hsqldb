@@ -557,7 +557,7 @@ should also set property 'install.dbstyles.entire' to true.
 If running Gradle on the command line, rerun the 'installDbImages' task with
 -P switches like:
 
-    gradlew -Pinstall.parent.dir=c:\\data -Pinstall.dbstyles.entire=true
+    gradlew -Pinstall.parent.dir=c:\\data -Pinstall.dbstyles.entire=true installDbImages
 
 (Skip the second -P if you want to install only the required images).
 If running graphically, add settings like the following to file
