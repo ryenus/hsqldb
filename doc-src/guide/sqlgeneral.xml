@@ -53,15 +53,15 @@
     <title>Standards Support</title>
 
     <para>HyperSQL 2.x supports the dialect of SQL defined by SQL standards
-    92, 1999, 2003, 2008, 2011 and 2016. This means where a feature of the standard
-    is supported, e.g. left outer join, the syntax is that specified by the
-    standard text. Almost all syntactic features of SQL-92 up to Advanced
-    Level are supported, as well as SQL:2016 core and many optional features
-    of this standard. Work is in progress for a formal declaration of
+    92, 1999, 2003, 2008, 2011 and 2016. This means where a feature of the
+    standard is supported, e.g. left outer join, the syntax is that specified
+    by the standard text. Almost all syntactic features of SQL-92 up to
+    Advanced Level are supported, as well as SQL:2016 core and many optional
+    features of this standard. Work is in progress for a formal declaration of
     conformance.</para>
 
     <para>At the time of this release, HyperSQL supports the widest range of
-    SQL standard features among all open source RDBMS.</para>
+    SQL Standard features among all open source RDBMS.</para>
 
     <para>Various chapters of this guide list the supported syntax. When
     writing or converting existing SQL DDL (Data Definition Language), DML
@@ -112,6 +112,10 @@
     defining the tables and their columns. The SQL standard supports temporary
     tables, which are for temporary data, and permanent base tables, which are
     for persistent data.</para>
+
+    <para>A HyperSQL database can be an all-in-memory
+    <glossterm>mem:</glossterm> database with no automatic persistence, or a
+    file-based, persistent <glossterm>file:</glossterm> database. </para>
 
     <section xml:id="sgc_temp_tables">
       <title>Temporary Tables</title>
@@ -189,10 +193,11 @@
       in the <link endterm="texttables-title" xlink:href="#texttables-chapt"/>
       chapter.</para>
 
-      <para>With all-in-memory databases, both MEMORY table and CACHED table
-      declarations are treated as declarations for non-persistent memory
-      tables. In the latest versions of HyperSQL, TEXT table declarations are
-      allowed in all-in-memory databases.</para>
+      <para>With all-in-memory <glossterm>mem:</glossterm> databases, both
+      MEMORY table and CACHED table declarations are treated as declarations
+      for MEMORY tables which last only for the duration of the Java process.
+      In the latest versions of HyperSQL, TEXT table declarations are allowed
+      in all-in-memory databases.</para>
 
       <para>The default type of tables resulting from future CREATE TABLE
       statements can be specified with the SQL command:</para>
@@ -201,8 +206,9 @@
       type of an existing table can be changed with the SQL command:</para>
 
       <para><programlisting> SET TABLE &lt;table name&gt; TYPE { CACHED | MEMORY };</programlisting>SQL
-      statements access different types of tables uniformly. No change to
-      statements is needed to access different types of table.</para>
+      statements such as INSERT or SELECT access different types of tables
+      uniformly. No change to statements is needed to access different types
+      of table.</para>
     </section>
   </section>
 
@@ -210,8 +216,9 @@
     <title>Short Guide to Data Types</title>
 
     <para>Most other RDBMS do not conform to the SQL Standard in all areas,
-    but they are gradually moving towards Standard conformance. When switching
-    from another SQL dialect, the following should be considered:</para>
+    including data types, but they are gradually moving towards Standard
+    conformance. When switching from another SQL dialect, the following should
+    be considered:</para>
 
     <itemizedlist>
       <listitem>
@@ -232,13 +239,14 @@
       </listitem>
 
       <listitem>
-        <para>Character string types are CHAR(L), VARCHAR(L) and CLOB. CHAR is
-        for fixed width strings and any string that is assigned to this type
-        is padded with spaces at the end. Do not use this type for general
-        storage of strings. If you use CHAR without the length L, then it is
-        interpreted as a single character string. Use VARCHAR(L) for general
-        strings. There are only memory limits and performance implications for
-        the maximum length of VARCHAR(L). If the strings are larger than a few
+        <para>Character string types are CHAR(L), VARCHAR(L) and CLOB (here, L
+        stands for length parameter, an integer). CHAR is for fixed width
+        strings and any string that is assigned to this type is padded with
+        spaces at the end. Do not use this type for general storage of
+        strings. If you use CHAR without the length L, then it is interpreted
+        as a single character string. Use VARCHAR(L) for general strings.
+        There are only memory limits and performance implications for the
+        maximum length of VARCHAR(L). If the strings are larger than a few
         kilobytes, consider using CLOB. The CLOB types is for very large
         strings. Do not use this type for short strings as there are
         performance implications. The CLOB type is a better choice for the
@@ -693,7 +701,10 @@
       '24ff1824-01e8-4dac-8eb3-3fee32ad2b9c' or
       '24ff182401e84dac8eb33fee32ad2b9c' are allowed. When a value of the UUID
       type is converted to a CHARACTER type, the hyphens are inserted in the
-      required positions.</para>
+      required positions. Java UUID objects can be used with
+      <literal>java.sql.PreparedStatement</literal> to insert values of this
+      type. The getObject() method of ResultSet returns the Java object for
+      UUID column data. </para>
 
       <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
       paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
@@ -840,10 +851,10 @@
       column of type OTHER using any variation of
       <methodname>PreparedStatement.setObject()</methodname> methods.</para>
 
-      <para>The alternative Live Object option is for <glossterm>mem:</glossterm>
-      databases only and is enabled when the database property
-      sql.live_object=true is appended to the connection property that creates
-      the mem database. For example
+      <para>The alternative Live Object option is for
+      <glossterm>mem:</glossterm> databases only and is enabled when the
+      database property sql.live_object=true is appended to the connection
+      property that creates the mem database. For example
       <literal>'jdbc:hsqldb:mem:mydb;sql.live_object=true'</literal>. With
       this option, any Java object can be stored as it is not serialized. The
       SQL statement <literal>SET DATABASE SQL LIVE OBJECT TRUE</literal> can
@@ -905,12 +916,12 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
       <para>In HyperSQL 2, length, precision and scale qualifiers are always
       enforced. For backward compatibility, when older databases which had the
-      property hsqldb.enforce_strict_size=false are converted to version 2,
-      this property is retained. However, this is a temporary measure. You
-      should test your application to ensure the length, precision and scale
-      that is used for column definitions is appropriate for the application
-      data. You can test with the default database setting, which enforces the
-      sizes.</para>
+      property <literal>hsqldb.enforce_strict_size=false</literal> are
+      converted to version 2, this property is retained. However, this is a
+      temporary measure. You should test your application to ensure the
+      length, precision and scale that is used for column definitions is
+      appropriate for the application data. You can test with the default
+      database setting, which enforces the sizes.</para>
 
       <para>String types, including all BIT, BINARY and CHAR string types plus
       CLOB and BLOB, are generally defined with a length. If no length is
@@ -1259,7 +1270,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <simpara><emphasis role="bold">Java 8 Extensions</emphasis></simpara>
 
     <para>JAVA 8 introduced new type codes for TIMESTAMP WITH TIME ZONE and
-    TIME WITH TIME ZONE. HSQLDB 2.4.0 and later, when compiled with JDK8,
+    TIME WITH TIME ZONE. HSQLDB 2.4.0 and later when compiled with JDK8
     supports this in <classname>ResultSet</classname>,
     <classname>PreparedStatement</classname> and
     <classname>CallableStatement</classname>.</para>
@@ -1763,8 +1774,6 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
  UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 </programlisting>
         </informalexample></para>
-
-      <para/>
     </section>
 
     <section xml:id="sgc_array_ops">
@@ -2144,8 +2153,6 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
  SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL1 = 'SENT' AND TB.COL3 &gt; 40000 ORDER BY TB.COL3 LIMIT 1000 USING INDEX;
 </programlisting>
       </informalexample>
-
-      <para/>
     </section>
   </section>
 </chapter>

@@ -573,7 +573,7 @@
       escape character&gt;&lt;Unicode escape character&gt;</literal></simpara>
 
       <simpara><literal>&lt;Unicode escape character&gt; ::= a single
-      character than a &lt;hexit&gt; (a-f, A-F, 0-9), &lt;plus sign&gt;,
+      character other than a &lt;hexit&gt; (a-f, A-F, 0-9), &lt;plus sign&gt;,
       &lt;quote&gt;, &lt;double quote&gt;, or &lt;white
       space&gt;</literal></simpara>
 
@@ -627,13 +627,16 @@
       <simpara>Unicode literals start with U&amp; and can contain ordinary
       characters and unicode escapes. A unicode escape begins with the
       backslash ( \ ) character and is followed by four hexadecimal characters
-      which specify the character code.</simpara>
+      which specify the character code. The unicode escape character can be
+      custom defined for a literal string by adding UESPACE as in one of the
+      examples below.</simpara>
 
       <simpara>Example of character literals are given below:</simpara>
 
       <programlisting> 'a literal'  ' string seperated'  ' into parts'
  'a string''s literal form with quote character'
  U&amp;'Unicode string with Greek delta \0394 and phi \03a6 letters'
+ U&amp;'Unicode string with forward slash // as custom escape character'UESCAPE'/'
 </programlisting>
 
       <indexterm significance="preferred" type="sql">
@@ -906,9 +909,9 @@
 
       <simpara>Examples of identifier chain are given below:</simpara>
 
-      <programlisting> SELECT MYCAT.MYSCHEMA.MYTABLE.MYCOL FROM MYCAT.MYSCHEMA.MYTABLE
- DROP TABLE MYCAT.MYSCHEMA.MYTABLE CASCADE
- ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
+      <programlisting> SELECT MYCATALOG.MYSCHEMA.MYTABLE.MYCOL FROM MYCATALOG.MYSCHEMA.MYTABLE
+ DROP TABLE MYCATALOG.MYSCHEMA.MYTABLE CASCADE
+ ALTER SEQUENCE MYCATALOG.MYSCHEMA.MYSEQUENCE RESTART WITH 100
 </programlisting>
 
       <indexterm significance="preferred" type="sql">
@@ -1185,16 +1188,21 @@
 
       <simpara>Specify a conditional value. The result of a case expression is
       always a value. All the values introduced with THEN must be of the same
-      type or convertible to the same type.</simpara>
+      type or convertible to the same type. The WHEN clause of CASE can be
+      used in two different forms. The first form starts with a variable and
+      the WHEN clauses follow, either as possible values for the variable, or
+      as conditions. The second form does not start with a variable and each
+      WHEN is followed by a self-contained conditional expressions which can
+      use any variables. </simpara>
 
       <simpara>Some simple examples of the CASE expression are given below.
       The first two examples return 'Britain', 'Germany', or 'Other country'
-      depending on the value of dialcode. The third example uses IN and
+      depending on the value of dial code. The third example uses IN and
       smaller-than predicates.</simpara>
 
       <programlisting> CASE dialcode WHEN 44 THEN 'Britain' WHEN 49 THEN 'Germany' ELSE 'Other country' END
  CASE WHEN dialcode=44 THEN 'Britain' WHEN dialcode=49 THEN 'Germany' WHEN dialcode &lt; 0 THEN 'bad dial code' ELSE 'Other country' END
- CASE dialcode WHEN IN (44, 49,30) THEN 'Europe' WHEN IN (86,91,91) THEN 'Asia' WHEN &lt; 0 THEN 'bad dial code' ELSE 'Other continent' END
+ CASE dialcode WHEN IN (44,49,30) THEN 'Europe' WHEN IN (86,91,92) THEN 'Asia' WHEN &lt; 0 THEN 'bad dial code' ELSE 'Other continent' END
 </programlisting>
 
       <simpara>The case statement can be far more complex and involve several
@@ -2699,7 +2707,14 @@
         specification&gt;</literal> can be used after the name of a
         system-versioned table to query historic data in the table. Without
         this clause, only the current rows of the table are returned and
-        historic rows are ignored.</para>
+        historic rows are ignored. The first examples below shows a list of
+        customers as of a year ago. The second example also shows any changes
+        made to the email column over the previous year.</para>
+
+        <programlisting>SELECT firstname, lastname, email FROM customer FOR SYSTEM_TIME AS OF CURRENT_TIMESTAMP - 1 YEAR
+
+SELECT DISTINCT firstname, lastname, email FROM customer FOR SYSTEM_TIME FROM CURRENT_TIMESTAMP - 2 YEAR TO CURRENT_TIMESTAMP - 1 YEAR
+</programlisting>
       </section>
 
       <section xml:id="dac_derived_table">
@@ -3001,15 +3016,15 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
 
       <simpara><emphasis role="bold">NATURAL JOIN</emphasis></simpara>
 
-      <para>Joins with USING or NATURAL keywords joins are similar to an
-      equijoin but they cannot be replaced simply with an equijoin. The new
-      table is formed with the specified or implied shared columns of the two
-      tables, followed by the rest of the columns from each table. In NATURAL
-      JOIN, the shared columns are all the column pairs that have the same
-      name in the first and second table. In JOIN USING, only columns names
-      that are specified by the USING clause are shared. The joins are
-      expressed as <literal>A NATURAL JOIN B</literal>, and <literal>A JOIN B
-      USING (&lt;comma separated column name list&gt;)</literal>.</para>
+      <para>Joins with USING or NATURAL keywords are similar to an equijoin
+      but they cannot be replaced simply with an equijoin. The new table is
+      formed with the specified or implied shared columns of the two tables,
+      followed by the rest of the columns from each table. In NATURAL JOIN,
+      the shared columns are all the column pairs that have the same name in
+      the first and second table. In JOIN USING, only columns names that are
+      specified by the USING clause are shared. The joins are expressed as
+      <literal>A NATURAL JOIN B</literal>, and <literal>A JOIN B USING
+      (&lt;comma separated column name list&gt;)</literal>.</para>
 
       <para>The columns of the joined table are formed by the following
       procedures: In JOIN ... USING the shared columns are added to the joined
@@ -3806,17 +3821,19 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       <literal>&lt;contextually typed table value constructor&gt;</literal> is
       used to insert one or more rows into the table. This list is
       contextually typed, because the keywords NULL and DEFAULT can be used
-      for the values that are assigned to each column of the table. The
-      keyword DEFAULT means the default value of the column and can be used
-      only if the target column has a default value or is an IDENTITY or
-      GENERATED column of the table.</simpara>
+      for the values that are assigned to each column of the table. In this
+      form, the keyword DEFAULT means the default value of the column and can
+      be used only if the target column has a default value or is an IDENTITY
+      or GENERATED column of the table.</simpara>
 
       <simpara>The <literal>&lt;override clause&gt;</literal> must be used
       when a value is explicitly assigned to a column that has been defined as
-      GENERATED ALWAYS AS IDENTITY. The clause, OVERRIDE SYSTEM VALUE means
-      the provided values are used for the insert, while OVERRIDING USER VALUE
-      means the provided values are simply ignored and the values generated by
-      the system are used instead.</simpara>
+      GENERATED ALWAYS AS IDENTITY. The clause, OVERRIDING USER VALUE is used
+      in this context and means the values provided by the user are simply
+      ignored and the values generated by the system are used instead. For
+      columns defined as GENERATED BY DEFAULT AS IDENTITY, the OVERRIDE SYSTEM
+      VALUE clause is optional when the user provides values to be used for
+      the insert. </simpara>
 
       <simpara>An array can be inserted into a column of the array type by
       using literals, by specifying a parameter in a prepared statement or an
@@ -3841,11 +3858,13 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       call to the IDENTITY() function. This call returns the last value
       inserted by the calling session. When the insert statement is executed
       with a JDBC Statement or PreparedStatement method, the
-      getGeneratedKeys() method of Statement can be used to retrieve not only
-      the IDENTITY column, but also any GENERATED computed column, or any
-      other column. The getGeneratedKeys() returns a ResultSet with one or
-      more columns. This contains one row per inserted row, and can therefore
-      return all the generated columns for a multi-row insert.</para>
+      <methodname>getGeneratedKeys()</methodname> method of Statement can be
+      used to retrieve not only the IDENTITY column, but also any GENERATED
+      computed column, or any other column. The
+      <methodname>getGeneratedKeys()</methodname> returns a ResultSet with one
+      or more columns. This contains one row per inserted row, and can
+      therefore return all the generated columns for a multi-row
+      insert.</para>
 
       <para>There are three methods of specifying which generated keys should
       be returned. The first method does not specify the columns of the table.
