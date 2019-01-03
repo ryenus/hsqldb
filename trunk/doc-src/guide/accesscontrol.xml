@@ -335,13 +335,17 @@
     <section xml:id="acc_fine_grained_access">
       <title>Fine-Grained Data Access Control</title>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>Fine Grained Data Access Control</primary>
+      </indexterm>
+
       <para>As mentioned above, a USER or ROLE that does not own a schema can
       be granted access to individual columns of the tables in the schema.
       HyperSQL adds a feature that is not part of the SQL Standard to allow
       this access to be granted only for certain rows of the table, based on a
       filter condition.</para>
 
-      <para>When the GRANT statement contains a filter condition, the
+      <para>When the GRANT statement contains a FILTER condition, the
       condition is applied to each row of the table that a SELECT, INSERT,
       UPDATE, DELETE or MERGE statement tries to access. Only the rows that
       satisfy the condition are accessed and all other rows are
@@ -358,9 +362,9 @@
       <para><informalexample>
           <programlisting>CREATE TABLE info(id INT PRIMARY KEY, info VARCHAR(100), region VARCHAR(32) NOT NULL, expires DATE NOT NULL)
 -- there is also a foreign key constraint on the REGION column to reference a list of valid region names.
-INSERT INTO INFO VALUES 2, 'inserted data for EU current', 'European Union', CURRENT_DATE + 1 DAY
-INSERT INTO INFO VALUES 3, 'inserted data for SA current', 'South America', CURRENT_DATE + 1 DAY
-INSERT INTO INFO VALUES 4, 'inserted data for EU expired', 'European Union', CURRENT_DATE - 1 DAY
+INSERT INTO info VALUES 2, 'inserted data for EU current', 'European Union', CURRENT_DATE + 1 DAY
+INSERT INTO info VALUES 3, 'inserted data for SA current', 'South America', CURRENT_DATE + 1 DAY
+INSERT INTO info VALUES 4, 'inserted data for EU expired', 'European Union', CURRENT_DATE - 1 DAY
 CREATE ROLE eu_admin
 CREATE ROLE eu_user
 GRANT SELECT ON TABLE info FILTER (WHERE region = 'European Union') TO eu_admin
@@ -390,9 +394,10 @@ GRANT SELECT ON TABLE info FILTER (WHERE EXTRACT(HOUR FROM CURRENT_TIMESTAMP) BE
       multi-tenancy database solutions.</para>
 
       <para>The <literal>&lt;filter clause&gt;</literal> on SELECT also
-      applies to any other INSERT and UPDATE rights on the table and cannot be
-      revoked on its own. Therefore all rights granted on a table to a USER or
-      ROLE must be revoked before a GRANT with FILTER is made.</para>
+      applies to any INSERT and UPDATE rights on the table and cannot be
+      revoked on its own. To change any existing fine-grained rights, all
+      rights granted on a table to a USER or ROLE must be revoked before a
+      GRANT with FILTER is made.</para>
     </section>
   </section>
 
