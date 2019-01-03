@@ -39,8 +39,6 @@
     <literal>?</literal> and <literal>NULL</literal>.
     <literal>NULL</literal> is completely equivalent to
     <literal>*NULL</literal>, which is explained below.
-    See the <link xlink:href='#sqltool-chapt' endterm='sqltool-title'/>
-    chapter about <literal>?</literal>.
   </simpara> <simpara>
     Where the table below reports that a variable is
     <emphasis>read only</emphasis>, for now that usually means only that you
@@ -51,6 +49,16 @@
   </simpara>
 
   <variablelist>
+    <varlistentry><term>?</term><listitem><simpara>
+      Last retrieved table cell result value.
+      See the <link xlink:href='#sqltool-chapt' endterm='sqltool-title'/>
+      chapter about <literal>?</literal>.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>#</term><listitem><simpara>
+      Row count from last retrieved result set.
+      See the <link xlink:href='#sqltool-chapt' endterm='sqltool-title'/>
+      chapter about <literal>#</literal>.
+    </simpara></listitem></varlistentry>
     <varlistentry><term>*ALL_QUOTED</term><listitem><simpara>
           Boolean.  Whether to quote all values (excluding null values)
           in a \xq export.  No effect on any command other than \xq.
@@ -169,15 +177,21 @@
         <literal>DSV_COL_DELIM</literal>.
     </simpara></listitem></varlistentry>
     <varlistentry><term>*ROWS</term><listitem><simpara>
-     Read only literal string for use with forrows, but inversely to
-     <literal>*ROW</literal> availability, 
-     <literal>*ROWS</literal> is never available inside of a forrows, only
-     after a forrows.
-     (To use a previous ROWS value inside a forrows loop, you would have to
-     assign it to a user PL variable).
-     The value is just the contatenation of <literal>*ROW</literal> for each
-     row joined with <literal>*DSV_ROW_DELIM</literal> delimiter.
-     It is basically a simple DSV export for the query.
+      Read only literal string for use with forrows, but inversely to
+      <literal>*ROW</literal> availability, 
+      <literal>*ROWS</literal> is never available inside of a forrows, only
+      after a forrows.
+      (To use a previous ROWS value inside a forrows loop, you would have to
+      assign it to a user PL variable).
+      The value is just the contatenation of <literal>*ROW</literal> for each
+      row joined with <literal>*DSV_ROW_DELIM</literal> delimiter.
+      It is basically a simple DSV export for the query.
+    </simpara><simpara>
+      Be aware that the \p command can't take an argument with line delimiters,
+      so though you can use <literal>*ROWS</literal> with the default
+      <literal>*DSV_ROW_DELIM</literal> value for exporting, comparing, and
+      other purposes, to print it with \p you will need to change
+      <literal>*DSV_ROW_DELIM</literal> so that it doesn't include a line break.
     </simpara></listitem></varlistentry>
     <varlistentry><term>*SCRIPT</term><listitem><simpara>
       Full name of current script, which is usually an URL or the string
