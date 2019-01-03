@@ -25,8 +25,10 @@ import org.ccil.cowan.tagsoup.Parser
  * @return newly created directory name, relative to pDir.
  */
 public static String installStyleSheets(File pDir, boolean allSheets) {
-    String siteUrlString = 'http://sourceforge.net'
-    String indexPathString = '/projects/docbook/files/docbook-xsl-ns'
+    /* Shortcutting all of this to get latest version.
+     * They have stopped updating these.  Just get version 
+    String siteUrlString = 'https://sourceforge.net'
+    String indexPathString = '/projects/docbook/files/docbook-xsl-ns/'
     String latestVersionPath = null
 
     (siteUrlString + indexPathString).toURL().withReader('UTF-8') {
@@ -49,6 +51,12 @@ public static String installStyleSheets(File pDir, boolean allSheets) {
     String zipFileName = 'docbook-xsl-ns-' + latestVer + '.zip'
     //println "($zipFileName)"
     String zipUrl = "http://sourceforge.net/projects/docbook/files/docbook-xsl-ns/$latestVer/$zipFileName/download"
+    //println "($zipUrl)"
+    */
+    String latestVer = '1.79.1'
+    String zipFileName = 'docbook-xsl-ns-' + latestVer + '.zip'
+    //println "($zipFileName)"
+    String zipUrl = "https://pilotfiber.dl.sourceforge.net/project/docbook/docbook-xsl-ns/$latestVer/$zipFileName"
     //println "($zipUrl)"
 
     File localZip = new File(System.properties['java.io.tmpdir'], zipFileName)
