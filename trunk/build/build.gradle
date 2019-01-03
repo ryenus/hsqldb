@@ -547,7 +547,7 @@ Only the image resources are required, but having all of the style sheets on
 your local file system would decrease future DocBook build times and reduce
 dependency on network and Internet connection.
 
-So, now you must select an existng local directory into which the
+So, now you must select an existing local directory into which the
 'installDbImages' task will create a new directory to install the new resources
 underneath.
 
