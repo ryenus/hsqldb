@@ -818,8 +818,8 @@
       statement is called to move to the next ResultSet, before
       <methodname>getResultSet()</methodname> is called to return the next
       ResultSet. See the <link endterm="dataaccess-title"
-      ns6:href="#dataaccess-chapt"></link> chapter on the syntax for declaring
-      the cursor.</para>
+      ns6:href="#dataaccess-chapt"/> chapter on the syntax for declaring the
+      cursor.</para>
 
       <programlisting> BEGIN ATOMIC
    DECLARE temp_zero DATE;
@@ -952,7 +952,7 @@
       single update statement that modifies several rows will not change any
       row if an exception occurs during the update of one of the rows. The
       handler action affects the changes made by statements that were executed
-      successfully before the exception occured.</para>
+      successfully before the exception occurred.</para>
 
       <para>Actions performed by different types of handler are listed
       below:</para>
