@@ -1656,7 +1656,7 @@
       contains it.</para>
     </section>
 
-    <section>
+    <section xml:id="dbc_sys_versioned_tables">
       <title>Temporal System-Versioned Tables and SYSTEM_TIME Period</title>
 
       <indexterm significance="preferred" type="sql">

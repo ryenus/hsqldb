@@ -332,7 +332,7 @@
       them.</simpara>
     </section>
 
-    <section>
+    <section xml:id="acc_fine_grained_access">
       <title>Fine-Grained Data Access Control</title>
 
       <para>As mentioned above, a USER or ROLE that does not own a schema can
