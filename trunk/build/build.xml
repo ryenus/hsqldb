@@ -1219,13 +1219,24 @@ optimizations) manually.
     </antcall>
   </target>
 
+  <target name="-rm-rngcat" unless="_no-centx-url-change">
+    <delete file="stylesheets/rng-catalog.xml" quiet="true"/>
+  </target>
+
   <target name="-validation-setup">
+    <loadfile srcFile="build/local.centx_url"
+              failonerror="false" property="_lasturl"/>
+    <condition property="_no-centx-url-change">
+      <equals arg1="${_lasturl}" arg2="${dbcentx.url}"/>
+    </condition>
+    <antcall target="-rm-rngcat"/>
     <copy file="build/rng-catalog-template.xml"
           tofile="stylesheets/rng-catalog.xml">
       <filterset>
         <filter token="DBCENTX_URL" value="${dbcentx.url}"/>
       </filterset>
     </copy>
+    <echo file="build/local.centx_url" message="${dbcentx.url}"/>
   </target>
 
   <target name="-prep-license-files">
