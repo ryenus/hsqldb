@@ -75,11 +75,12 @@
         <term>test.backup</term>
 
         <listitem>
-          <para>Depending on the backup mode, this file contains either the
-          complete compressed backup of the <filename>test.data</filename>
-          file at the time of last checkpoint, or a backup of the parts of the
+          <para>Depending on the backup mode ( SET FILES BACKUP INCREMENT {TRUE
+          | FALSE} ), this file contains either a backup of the parts of the
           <filename>test.data</filename> that have been modified since the
-          last checkpoint .</para>
+          last checkpoint (the default setting, TRUE) or the complete
+          compressed backup of the <filename>test.data</filename> file at the
+          time of last checkpoint (when FALSE).</para>
         </listitem>
       </varlistentry>
 
@@ -98,14 +99,18 @@
 
         <listitem>
           <para>This file contains the lobs. If a database has no BLOB or CLOB
-          object, this file will not be present.</para>
+          object, this file will not be present. This file contains all the
+          lobs that are currently in the database, as well as those that
+          belong to rows that have been deleted since the last checkpoint. The
+          space for deleted lobs is always reused after a CHECKPOINT.</para>
         </listitem>
       </varlistentry>
     </variablelist>
 
-    <para>A CHECKPOINT is an operations that saves all the changed data an
-    removes the <filename>test.log</filename>. A SHUTDOWN is equivalent to a
-    CHECKPOINT followed by closing the database.</para>
+    <para>A CHECKPOINT is an operations that saves all the changed data and
+    removes the <filename>test.log</filename> followed by the creation of an
+    empty log. A SHUTDOWN is equivalent to a CHECKPOINT followed by closing
+    the database.</para>
   </section>
 
   <section xml:id="dfa_file_states">
@@ -122,10 +127,10 @@
       </listitem>
 
       <listitem>
-        <para>Depending on the backup mode, the
+        <para>When BACKUP INCREMENT TRUE is used, there is no
+        <filename>test.backup</filename> at all. Otherwise the
         <filename>test.backup</filename> contains the full compressed
-        <filename>test.data</filename> file, or there is no
-        <filename>test.backup</filename> at all.</para>
+        <filename>test.data</filename> file.</para>
       </listitem>
 
       <listitem>
@@ -185,7 +190,7 @@
       <title>Aborted database state</title>
 
       <listitem>
-        <para>The <filename>test.properties</filename> containes
+        <para>The <filename>test.properties</filename> contains
         'modified=yes'.</para>
       </listitem>
 
@@ -200,11 +205,11 @@
       </listitem>
 
       <listitem>
-        <para>The <filename>test.backup</filename> file contains a snapshot of
-        <filename>test.data</filename> that corresponds to
-        <filename>test.script</filename> at the time of the last checkpoint,
-        or just sections of the original
-        <filename>test.data</filename>.</para>
+        <para>The <filename>test.backup</filename> file contains just sections
+        of the original <filename>test.data</filename> file, or a full
+        snapshot of <filename>test.data</filename> that corresponds to
+        <filename>test.script</filename> at the time of the last
+        checkpoint.</para>
       </listitem>
 
       <listitem>
@@ -225,16 +230,16 @@
       <title>Clean Shutdown</title>
 
       <procedure>
-        <title>Clean Hsqldb database shutdown</title>
+        <title>Clean HyperSQL database shutdown</title>
 
         <step>
           <para>The <filename>test.data</filename> file is written completely
-          (all the modified cached table rows are witten out) and
+          (all the modified cached table rows are written out) and
           closed.</para>
         </step>
 
         <step>
-          <para>Depending on the backup mode the
+          <para>If backup mode is not INCREMENT, the
           <filename>test.backup.new</filename> is created which contains the
           compressed <filename>test.data</filename> file.</para>
         </step>
@@ -246,7 +251,10 @@
 
         <step>
           <para>The entry 'modified' in the properties file is set to
-          'yes-new-files'</para>
+          'yes-new-files' (Note: after this step, the
+          <filename>test.data.new</filename> and
+          <filename>test.script.new</filename> files constitute the
+          database)</para>
         </step>
 
         <step>
@@ -353,8 +361,10 @@
           <para>Execute all statements in the <filename>test.log</filename>
           file. If due to incomplete statements in this file an exception is
           thrown, the rest of the lines in the <filename>test.log</filename>
-          file are ignored. This can be overridden with a database
-          property.</para>
+          file are ignored. This can be overridden with the database
+          connection property <literal>hsqldb.full_log_replay=true</literal>
+          which results in the startup process to fail and allows the user to
+          examine and edit the <filename>test.log</filename> file.</para>
         </step>
 
         <step>

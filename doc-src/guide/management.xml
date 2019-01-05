@@ -106,15 +106,16 @@
       <title>Database Types</title>
 
       <para>There are three types of database, <glossterm>mem:</glossterm>,
-      <glossterm>file:</glossterm> and <glossterm>res:</glossterm>. The <glossterm>mem:</glossterm> type is
-      stored all in memory and not persisted to file. The
-      <glossterm>file:</glossterm> type is persisted to file. The
-      <glossterm>res:</glossterm> type is also based on files, but the files are
-      loaded from the classpath, similar to resource and class files. Changes
-      to the data in <glossterm>file:</glossterm> databases are persisted, unless
-      the database is <literal>readonly</literal>, or
+      <glossterm>file:</glossterm> and <glossterm>res:</glossterm>. The
+      <glossterm>mem:</glossterm> type is stored all in memory and not
+      persisted to file. The <glossterm>file:</glossterm> type is persisted to
+      file. The <glossterm>res:</glossterm> type is also based on files, but
+      the files are loaded from the classpath, similar to resource and class
+      files. Changes to the data in <glossterm>file:</glossterm> databases are
+      persisted, unless the database is <literal>readonly</literal>, or
       <literal>files_readonly</literal> (using optional property settings).
-      Changes to <glossterm>res:</glossterm> databases are not persisted.</para>
+      Changes to <glossterm>res:</glossterm> databases are not
+      persisted.</para>
 
       <section xml:id="mtc_readonly_database">
         <title>Readonly Databases</title>
@@ -1654,6 +1655,23 @@
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE TYPE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE TYPE</emphasis></simpara>
+
+      <simpara><emphasis>set table type</emphasis></simpara>
+
+      <simpara><literal>&lt;set table type statement&gt; ::= SET TABLE
+      &lt;table name&gt; TYPE { MEMORY | CACHED }</literal></simpara>
+
+      <simpara>Changes the storage type of an existing table between CACHED
+      and MEMORY types.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
     </section>
 
     <section xml:id="mtc_sql_settings">
@@ -2876,23 +2894,6 @@
       <simpara>Sets the named table to use it's own space blocks within the
       .data file. Use of table spaces should be enabled with the SET FILES
       SPACE statement above, before this statement is executed.</simpara>
-
-      <simpara>Only a user with the DBA role can execute this
-      statement.</simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>SET TABLE TYPE</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">SET TABLE TYPE</emphasis></simpara>
-
-      <simpara><emphasis>set table type</emphasis></simpara>
-
-      <simpara><literal>&lt;set table type statement&gt; ::= SET TABLE
-      &lt;table name&gt; TYPE { MEMORY | CACHED }</literal></simpara>
-
-      <simpara>Changes the storage type of an existing table between CACHED
-      and MEMORY types.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
