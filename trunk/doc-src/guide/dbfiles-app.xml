@@ -13,7 +13,7 @@
           xmlns:ns3="http://www.w3.org/1999/xhtml"
           xmlns:ns="http://docbook.org/ns/docbook">
   <info>
-    <title xml:id="db-title">Hsqldb Database Files and Recovery</title>
+    <title xml:id="db-title">HyperSQL Database Files and Recovery</title>
 
     <releaseinfo>$Revision$</releaseinfo>
 

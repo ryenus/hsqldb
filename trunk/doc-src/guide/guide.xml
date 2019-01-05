@@ -90,7 +90,7 @@
     with the procedures themselves, please use the HSQLDB support facilities
     which are listed at http://hsqldb.org/support</para>
 
-    <xi:include href="../altformats-sect.xml" />
+  <xi:include href="../altformats-sect.xml" />
   </preface>
 
   <xi:include href="running.xml" />
@@ -127,6 +127,8 @@
 
   <xi:include href="lists-app.xml" />
 
+  <xi:include href="dbfiles-app.xml" />
+  
   <xi:include href="building-app.xml" />
 
   <xi:include href="openoffice-app.xml" />
