@@ -828,7 +828,7 @@ public class IndexAVL implements Index {
         }
 
         // versioned rows are ordered by timestamp and row id
-        if (start == 0 && ((Table) table).isSystemVersioned()) {
+        if (start == 0 && table.isSystemVersioned) {
             TimestampData newVersion      = newRow.getSystemEndVersion();
             TimestampData existingVersion = existingRow.getSystemEndVersion();
             int compare = Type.SQL_TIMESTAMP_WITH_TIME_ZONE.compare(session,

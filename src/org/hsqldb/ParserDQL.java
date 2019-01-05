@@ -2191,8 +2191,7 @@ public class ParserDQL extends ParserBase {
 
     ExpressionLogical XreadFilterExpressionOrNull() {
 
-        int position = getPosition();
-
+        int               position  = getPosition();
         ExpressionLogical condition = null;
 
         if (token.tokenType == Tokens.FILTER) {
@@ -2744,6 +2743,7 @@ public class ParserDQL extends ParserBase {
 
                 break;
             }
+            case Tokens.IF :
             case Tokens.CASEWHEN : {
                 e = readCaseWhenExpressionOrNull();
 
@@ -2782,7 +2782,7 @@ public class ParserDQL extends ParserBase {
                 break;
             }
             case Tokens.CAST :
-                e = readCastExpressionOrNull();
+                e = readCastExpression();
 
                 if (e != null) {
                     return e;
@@ -3143,7 +3143,7 @@ public class ParserDQL extends ParserBase {
         Expression e;
 
         compileContext.contextuallyTypedExpression = true;
-        e = XreadValueExpression();
+        e                                          = XreadValueExpression();
         compileContext.contextuallyTypedExpression = false;
 
         return e;
@@ -5417,6 +5417,13 @@ public class ParserDQL extends ParserBase {
         Expression l        = null;
         int        position = getPosition();
 
+        if (token.tokenType == Tokens.IF) {
+            if (database.sqlSyntaxMys || database.sqlSyntaxMss) {}
+            else {
+                return null;
+            }
+        }
+
         read();
 
         if (!readIfThis(Tokens.OPENBRACKET)) {
@@ -5444,9 +5451,9 @@ public class ParserDQL extends ParserBase {
     }
 
     /**
-     * Reads a CAST or CONVERT expression
+     * Reads a CAST expression
      */
-    private Expression readCastExpressionOrNull() {
+    private Expression readCastExpression() {
 
         Expression e;
         Type       typeObject;
