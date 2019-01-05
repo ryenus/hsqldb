@@ -1673,24 +1673,25 @@
       UPDATE statement that last modified the row. The end timestamp column,
       designated as ROW END, contains a timestamp in the distant future (end
       of epoch) that indicates the expiration date of the row. HSQLDB uses
-      DATE '10000-01-01' as the expiration timestamp.</para>
+      DATE '10000-01-01' as the expiration timestamp. A table can have the
+      SYSTEM_TIME period without system versioning.</para>
 
-      <para>When the WITH SYSTEM VERSIONING clause is used, any DELETE or
-      UPDATE is performed as usual. But the deleted rows, or the old versions
-      of the updated rows are kept in the table with the expiration timestamp
-      changed to the UTC CURRENT_TIMESTAMP at the start of the transaction
-      that contains the UPDATE or DELETE. For example, a row that is updated
-      twice has two old versions kept in the table as well as the current
-      version.</para>
+      <para>When WITH SYSTEM VERSIONING is used in table definition, any
+      DELETE or UPDATE is performed as usual. But the deleted rows, or the old
+      versions of the updated rows are kept in the table with the expiration
+      timestamp changed to the UTC CURRENT_TIMESTAMP at the start of the
+      transaction that contains the UPDATE or DELETE. For example, a row that
+      is updated twice has two old versions kept in the table as well as the
+      current version.</para>
 
       <para>The history rows cannot be modified. Any DELETE or UPDATE
       statement only sees the current version of each row of the table and
       modifies them. SELECT statements also see the current version of the
-      rows, unless the table reference is followed by <literal>FOR SYSTEM_TIME
-      AS OF &lt;timestamp&gt;</literal> or <literal>FOR SYSTEM_TIME FROM
-      &lt;start timestamp&gt; TO &lt;end timestamp&gt;</literal> or
-      <literal>FOR SYSTEM_TIME BETWEEN &lt;start timestamp&gt; AND &lt;end
-      timestamp&gt;</literal>.</para>
+      rows, unless the table reference in the SELECT statement is followed by
+      <literal>FOR SYSTEM_TIME AS OF &lt;timestamp&gt;</literal> or
+      <literal>FOR SYSTEM_TIME FROM &lt;start timestamp&gt; TO &lt;end
+      timestamp&gt;</literal> or <literal>FOR SYSTEM_TIME BETWEEN &lt;start
+      timestamp&gt; AND &lt;end timestamp&gt;</literal>.</para>
 
       <para>In a CREATE TABLE statement The two period columns must be defined
       as follows:</para>
@@ -1717,8 +1718,10 @@
       by the ALTER TABLE statement to add SYSTEM VERSIONING.</para>
 
       <para>Conversely, system versioning can be removed from a table. The
-      system period and its columns can be dropped after dropping system
-      versioning.</para>
+      system period can be dropped after dropping system versioning.</para>
+
+      <para>It is not allowed to change the structure of a system-versioned
+      table by adding or removing columns.</para>
 
       <para>See the ALTER TABLE statements in this chapter.</para>
     </section>
@@ -2170,6 +2173,11 @@
       are marked as created at the current timestamp with end-of-epoch
       expiration timestamp.</simpara>
 
+      <informalexample>
+        <programlisting> ALTER TABLE t ADD PERIOD FOR SYSTEM_TIME(rs, re) ADD COLUMN rs TIMESTAMP GENERATED ALWAYS AS ROW START ADD COLUMN re TIMESTAMP GENERATED ALWAYS AS ROW END
+</programlisting>
+      </informalexample>
+
       <indexterm significance="preferred" type="sql">
         <primary>DROP SYSTEM PERIOD</primary>
       </indexterm>
@@ -2203,8 +2211,13 @@
       <simpara><literal>&lt;add system versioning clause&gt; ::= ADD SYSTEM
       VERSIONING</literal></simpara>
 
-      <simpara>Add system versioning to a table that already has a system
+      <simpara>Add system versioning to a table that already has a SYSTEM_TIME
       period definition and columns.</simpara>
+
+      <informalexample>
+        <programlisting> ALTER TABLE t ADD SYSTEM VERSIONING
+</programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP SYSTEM VERSIONING</primary>

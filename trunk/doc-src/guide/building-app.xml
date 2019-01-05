@@ -16,7 +16,7 @@
        the root element, so we can use them anywhere in this file. -->
 
   <info>
-    <title xml:id="building-title">Building HyperSQL Jars</title>
+    <title xml:id="building-title">Building HSQLDB Jars</title>
 
     <subtitle>How to build customized or specialized jar files</subtitle>
 
@@ -49,11 +49,13 @@
   <section xml:id="bga_overview">
     <title>Purpose</title>
 
-    <simpara>From version 2.0, the supplied <filename>hsqldb.jar</filename>
-    file is built with Java 1.6. If you want to run with a 1.5 JVM,
-    or if you want to use an alternative jar
-    (<filename>hsqldb-min.jar</filename>, etc.) you must build the desired jar
-    with a Java SDK.</simpara>
+    <simpara>From version 2.4.0, the supplied <filename>hsqldb.jar</filename>
+    file is built with Java 8. The code is also tested extensively with Java
+    6. If you want to run with a Java 6 JVM, or if you want to use an
+    alternative jar (<filename>hsqldb-min.jar</filename>, etc.) you must build
+    the desired jar with a Java SDK. You can also find official jars built
+    with Java 6 in the maven repository at hsqldb.org and major maven
+    repositories.</simpara>
 
     <simpara>The Gradle task / Ant target <literal>explainjars</literal>
     reports the versions of Java and Ant actually used.</simpara>
@@ -207,7 +209,7 @@
           <mediaobject>
               <imageobject>
                 <imagedata align="center" fileref="eclipse-gradle-cfg.png"
-                           format="PNG"></imagedata>
+                           format="PNG"/>
 
                 <!-- Instead of specifying width="6.5in" here, I've scaled the
                   image file itself.  This causes HTML representation to
@@ -239,7 +241,7 @@
       the Gradle Gui. <mediaobject>
           <imageobject>
             <imagedata align="center" fileref="eclipse-gradle-invoke.png"
-                       format="PNG"></imagedata>
+                       format="PNG"/>
 
             <!-- Instead of specifying width="6.5in" here, I've scaled the
                 image file itself.  This causes HTML representation to
@@ -326,7 +328,7 @@
 
         <mediaobject>
           <imageobject>
-            <imagedata align="center" fileref="gradle-gui.png" format="PNG"></imagedata>
+            <imagedata align="center" fileref="gradle-gui.png" format="PNG"/>
 
             <!-- Instead of specifying width="6.5in" here, I've scaled the
                 image file itself.  This causes HTML representation to
@@ -543,8 +545,9 @@
       Environment) versions and many jar file sizes.</simpara>
 
       <simpara>A jar built with an older JRE is compatible for use with a
-      newer JRE (you can compile with Java 1.5 and run with 1.6). But the
-      newer JDBC capabilities of the JRE will be not be available.</simpara>
+      newer JRE (you can compile with Java 6 and run with 8). But the newer
+      JDBC capabilities of HyperSQL and the JRE will be not be
+      available.</simpara>
 
       <simpara>The client jar (<filename>hsqljdbc.jar</filename>) contains
       only the HSQLDB JDBC Driver client. The smallest engine jar
@@ -554,7 +557,7 @@
       (<filename>hsqldbtest.jar</filename>)includes some test classes as well.
       Before building the <filename>hsqldbtest.jar</filename> package, you
       should download the junit jar from <link
-      xlink:href="http://www.junit.org"></link> and put it in the
+      xlink:href="http://www.junit.org"/> and put it in the
       <filename>/lib</filename> directory, alongside
       <filename>servlet.jar</filename>, which is included in the .zip
       package.</simpara>
@@ -581,7 +584,7 @@
       different sizes of the HSQLDB Jar. The default is built using:</simpara>
 
       <example>
-        <title>Buiding the standard Hsqldb jar file with Ant</title>
+        <title>Buiding the standard HSQLDB jar file with Ant</title>
 
         <screen>ant hsqldb</screen>
       </example>
@@ -593,14 +596,14 @@
     <section xml:id="bga_old_jdk">
       <title>Building for Older JDKs</title>
 
-      <para>HyperSQL version 2.0 cannot be directly compiled or used with JDK
-      1.4. It may be possible to use the RetroTranslator tool to achieve this.
-      The suggested procedure is as follows: First use Gradle or Ant with JDK
-      1.5 and build the jar. Then translate the jar using RetroTranslator with
-      backport (which bundles replacement classes for concurrency control).
-      This translation should cover the concurrency features that are specific
-      to version 1.5 and later.<informalexample>
-          <screen>ant switchtojdk14
+      <para>HyperSQL version 2.0 cannot be directly used with JDK 1.4. Users
+      have reported that it may be possible to use the RetroTranslator tool to
+      achieve this. The suggested procedure is as follows: First use Gradle or
+      Ant with JDK 1.5 and build the jar. Then translate the jar using
+      RetroTranslator with backport (which bundles replacement classes for
+      concurrency control). This translation should cover the concurrency
+      features that are specific to version 1.5 and later.<informalexample>
+          <screen>ant switchtojdk15
 ant hsqldb
 -- translate the jar
 </screen>
@@ -642,7 +645,7 @@ ant hsqldb
       <programlisting>
  ...
 
- //#ifdef JAVA2
+ //#ifdef JAVA8
 
      properties.store(out,"hsqldb database");
 
@@ -665,12 +668,12 @@ ant hsqldb
       <title>CodeSwitcher command line invocation</title>
 
       <screen>
- java org.hsqldb.util.CodeSwitcher . -JAVA2</screen>
+ java org.hsqldb.util.CodeSwitcher . -JAVA8</screen>
     </example>
 
     <simpara>The '.' means the program works on the current directory (all
-    subdirectories are processed recursively). <literal>-JAVA2</literal> means
-    the code labelled with JAVA2 must be switched off.</simpara>
+    subdirectories are processed recursively). <literal>-JAVA8</literal> means
+    the code labelled with JAVA8 must be switched off.</simpara>
 
     <example>
       <title>Source code after CodeSwitcher processing</title>
@@ -678,7 +681,7 @@ ant hsqldb
       <programlisting>
      ...
 
- //#ifdef JAVA2
+ //#ifdef JAVA8
 
  /*
 
