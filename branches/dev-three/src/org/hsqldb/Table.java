@@ -1241,10 +1241,6 @@ public class Table extends TableBase implements SchemaObject {
         return identityColumn != -1;
     }
 
-    public boolean isSystemVersioned() {
-        return isSystemVersioned;
-    }
-
     public PeriodDefinition getSystemPeriod() {
         return systemPeriod;
     }

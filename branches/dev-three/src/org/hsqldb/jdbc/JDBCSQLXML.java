@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,8 +58,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import javax.xml.bind.util.JAXBResult;
-import javax.xml.bind.util.JAXBSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -1462,15 +1460,7 @@ public class JDBCSQLXML implements SQLXML {
     protected <T extends Source>T getSourceImpl(
             Class<T> sourceClass) throws SQLException {
 
-        if (JAXBSource.class.isAssignableFrom(sourceClass)) {
-
-            // Must go first presently, since JAXBSource extends SAXSource
-            // (purely as an implementation detail) and it's not possible
-            // to instantiate a valid JAXBSource with a Zero-Args
-            // constructor(or any subclass thereof, due to the finality of
-            // its private marshaller and context object attributes)
-            // FALL THROUGH... will throw an exception
-        } else if (StreamSource.class.isAssignableFrom(sourceClass)) {
+        if (StreamSource.class.isAssignableFrom(sourceClass)) {
             return createStreamSource(sourceClass);
         } else if ((sourceClass == null)
                    || DOMSource.class.isAssignableFrom(sourceClass)) {
@@ -1683,15 +1673,7 @@ public class JDBCSQLXML implements SQLXML {
         setWritable(false);
         setReadable(true);
 
-        if (JAXBResult.class.isAssignableFrom(resultClass)) {
-
-            // Must go first presently, since JAXBResult extends SAXResult
-            // (purely as an implementation detail) and it's not possible
-            // to instantiate a valid JAXBResult with a Zero-Args
-            // constructor(or any subclass thereof, due to the finality of
-            // its private UnmarshallerHandler)
-            // FALL THROUGH... will throw an exception
-        } else if ((resultClass == null)
+        if ((resultClass == null)
                    || StreamResult.class.isAssignableFrom(resultClass)) {
             return createStreamResult(resultClass);
         } else if (DOMResult.class.isAssignableFrom(resultClass)) {
