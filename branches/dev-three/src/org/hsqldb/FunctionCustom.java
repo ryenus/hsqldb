@@ -1170,25 +1170,15 @@ public class FunctionCustom extends FunctionSQL {
                 int           part = ((Number) nodes[0].valueData).intValue();
                 TimestampData a    = (TimestampData) data[2];
                 TimestampData b    = (TimestampData) data[1];
-
-                if (nodes[2].dataType.isDateTimeTypeWithZone()) {
-                    a = (TimestampData) Type.SQL_TIMESTAMP.convertToType(
-                        session, a, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
-                }
-
-                if (nodes[1].dataType.isDateTimeTypeWithZone()) {
-                    b = (TimestampData) Type.SQL_TIMESTAMP.convertToType(
-                        session, b, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
-                }
-
-                IntervalType t;
-                long         ret;
+                IntervalType  t;
+                long          ret;
 
                 switch (part) {
 
                     case Tokens.NANOSECOND :
                     case Tokens.SQL_TSI_FRAC_SECOND : {
-                        t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
+                        t = Type
+                            .SQL_INTERVAL_SECOND_MAX_FRACTION_MAX_PRECISION;
 
                         IntervalSecondData interval =
                             (IntervalSecondData) t.subtract(session, a, b,
@@ -2748,24 +2738,26 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 if (nodes[1].dataType.isCharacterType()) {
-                    nodes[1] =
-                        new ExpressionOp(nodes[1],
-                                         Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
+                    nodes[1] = new ExpressionOp(
+                        nodes[1], Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX);
                 }
 
                 if (nodes[2].dataType.isCharacterType()) {
-                    nodes[2] =
-                        new ExpressionOp(nodes[2],
-                                         Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
+                    nodes[2] = new ExpressionOp(
+                        nodes[2], Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX);
                 }
 
                 switch (nodes[1].dataType.typeCode) {
 
                     case Types.SQL_DATE :
-                        if (nodes[2].dataType.typeCode == Types.SQL_TIME
-                                || nodes[2].dataType.typeCode
-                                   == Types.SQL_TIME_WITH_TIME_ZONE) {
+                        if (!nodes[2].dataType.isDateOrTimestampType()) {
                             throw Error.error(ErrorCode.X_42563);
+                        }
+
+                        if (nodes[2].dataType.isDateTimeTypeWithZone()) {
+                            nodes[1] = new ExpressionOp(
+                                nodes[1],
+                                Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX);
                         }
 
                         switch (((Integer) nodes[0].valueData).intValue()) {
@@ -2783,11 +2775,24 @@ public class FunctionCustom extends FunctionSQL {
                         break;
 
                     case Types.SQL_TIMESTAMP :
-                    case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                        if (nodes[2].dataType.typeCode == Types.SQL_TIME
-                                || nodes[2].dataType.typeCode
-                                   == Types.SQL_TIME_WITH_TIME_ZONE) {
+                        if (!nodes[2].dataType.isDateOrTimestampType()) {
                             throw Error.error(ErrorCode.X_42563);
+                        }
+
+                        if (nodes[2].dataType.isDateTimeTypeWithZone()) {
+                            nodes[1] = new ExpressionOp(
+                                nodes[1],
+                                Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX);
+                        }
+                    case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                        if (!nodes[2].dataType.isDateOrTimestampType()) {
+                            throw Error.error(ErrorCode.X_42563);
+                        }
+
+                        if (!nodes[2].dataType.isDateTimeTypeWithZone()) {
+                            nodes[2] = new ExpressionOp(
+                                nodes[2],
+                                Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX);
                         }
                         break;
 
