@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -245,8 +245,9 @@ public class ExpressionArrayAggregate extends Expression {
                 arrayDataType =
                     new ArrayType(nodeDataTypes[0],
                                   ArrayType.defaultArrayCardinality);
-                dataType = SetFunctionValueAggregate.getType(session, OpTypes.MEDIAN,
-                                               exprType);
+                dataType = ExpressionAggregate.getType(session,
+                                                       OpTypes.MEDIAN,
+                                                       exprType);
 
                 if (!exprType.isNumberType()) {
                     throw Error.error(ErrorCode.X_42563);
@@ -326,8 +327,7 @@ public class ExpressionArrayAggregate extends Expression {
         return currValue;
     }
 
-    public Object getAggregatedValue(Session session,
-                                     SetFunction currValue) {
+    public Object getAggregatedValue(Session session, SetFunction currValue) {
 
         if (currValue == null) {
             return null;
@@ -336,7 +336,6 @@ public class ExpressionArrayAggregate extends Expression {
         Object[] array = (Object[]) currValue.getValue(session);
 
         if (isDistinctAggregate) {
-
             arrayDataType.sort(session, array, distinctSort);
 
             int size = arrayDataType.deDuplicate(session, array, distinctSort);

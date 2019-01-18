@@ -2502,7 +2502,7 @@ public class JDBCSQLXML implements SQLXML {
 
         /**
          * Retrieves whether this DOMBuilder is closed.
-         * 
+         *
          * @return boolean
          */
         public boolean isClosed() {
@@ -2523,7 +2523,7 @@ public class JDBCSQLXML implements SQLXML {
 
         /**
          * Retrieves the document.
-         * 
+         *
          * @return Document
          */
         public Document getDocument() {

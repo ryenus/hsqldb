@@ -31,6 +31,8 @@
 
 package org.hsqldb;
 
+import org.hsqldb.lib.OrderedIntHashSet;
+
 /**
  * Enumerate expression operation types<p>
  *
@@ -137,4 +139,53 @@ public interface OpTypes {
         ARRAY_ACCESS               = 99,
         ARRAY_SUBQUERY             = 100,
         GROUPING                   = 101;    // grouping function
+    //J-
+    int[] aggOpTypes = new int[] {
+
+        OpTypes.COUNT,
+        OpTypes.AVG,
+        OpTypes.MAX,
+        OpTypes.MIN,
+        OpTypes.SUM,
+        OpTypes.EVERY,
+        OpTypes.SOME,
+        OpTypes.STDDEV_POP,
+        OpTypes.STDDEV_SAMP,
+        OpTypes.VAR_POP,
+        OpTypes.VAR_SAMP,
+        OpTypes.ARRAY_AGG,
+        OpTypes.USER_AGGREGATE,
+        OpTypes.GROUP_CONCAT,
+        OpTypes.MEDIAN,
+    };
+
+    int[] columnOpTypes = new int[]{ OpTypes.COLUMN };
+    int[] subqueryOpTypes = new int[] {
+        OpTypes.ROW_SUBQUERY,
+        OpTypes.TABLE_SUBQUERY
+    };
+
+    int[] functionOpTypes = new int[] {
+        OpTypes.SQL_FUNCTION,
+        OpTypes.FUNCTION
+    };
+
+     int[] sequenceOpTypes =  new int[] {
+                OpTypes.ROWNUM, OpTypes.SEQUENCE
+    };
+    //J+
+    static final OrderedIntHashSet emptyExpressionSet =
+        new OrderedIntHashSet();
+    static final OrderedIntHashSet aggregateFunctionSet =
+        new OrderedIntHashSet(aggOpTypes);
+    static final OrderedIntHashSet columnExpressionSet =
+        new OrderedIntHashSet(columnOpTypes);
+    static final OrderedIntHashSet subqueryExpressionSet =
+        new OrderedIntHashSet(subqueryOpTypes);
+    static final OrderedIntHashSet subqueryAggregateExpressionSet =
+        new OrderedIntHashSet(subqueryOpTypes, aggOpTypes);
+    static final OrderedIntHashSet functionExpressionSet =
+        new OrderedIntHashSet(functionOpTypes);
+    static final OrderedIntHashSet sequenceExpressionSet =
+        new OrderedIntHashSet(sequenceOpTypes);
 }

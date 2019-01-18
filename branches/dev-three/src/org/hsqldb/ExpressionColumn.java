@@ -94,6 +94,9 @@ public class ExpressionColumn extends Expression {
     RangeVariable rangeVariable;
 
     //
+    int rangePosition = -1;
+
+    //
     NumberSequence sequence;
     boolean        isWritable;    // = false; true if column of writable table
 
@@ -127,11 +130,10 @@ public class ExpressionColumn extends Expression {
 
         super(OpTypes.COLUMN);
 
-        this.columnIndex = rangeVar.findColumn(column.getNameString());
+        this.columnIndex   = rangeVar.findColumn(column.getNameString());
         this.column        = column;
         this.dataType      = column.getDataType();
         this.rangeVariable = rangeVar;
-
         this.columnName    = column.getName().name;
         this.tableName     = rangeVar.getTableAlias().name;
 
@@ -935,9 +937,8 @@ public class ExpressionColumn extends Expression {
             } else {
                 OrderedHashSet newSet = new OrderedHashSet();
 
-                e.collectAllExpressions(newSet,
-                                        Expression.columnExpressionSet,
-                                        Expression.emptyExpressionSet);
+                e.collectAllExpressions(newSet, OpTypes.columnExpressionSet,
+                                        OpTypes.emptyExpressionSet);
 
                 // throw with column name
                 checkColumnsResolved(newSet);
@@ -1096,11 +1097,21 @@ public class ExpressionColumn extends Expression {
         return this;
     }
 
-    Expression replaceColumnReferences(RangeVariable range,
+    Expression replaceColumnReferences(Session session, RangeVariable range,
                                        Expression[] list) {
 
         if (opType == OpTypes.COLUMN && rangeVariable == range) {
-            return list[columnIndex];
+            Expression e = list[columnIndex];
+
+            if (dataType == null || dataType.equals(e.dataType)) {
+                return e;
+            }
+
+            e = e.duplicate();
+
+            e.setDataType(session, dataType);
+
+            return e;
         }
 
         for (int i = 0; i < nodes.length; i++) {
@@ -1108,7 +1119,7 @@ public class ExpressionColumn extends Expression {
                 continue;
             }
 
-            nodes[i] = nodes[i].replaceColumnReferences(range, list);
+            nodes[i] = nodes[i].replaceColumnReferences(session, range, list);
         }
 
         return this;

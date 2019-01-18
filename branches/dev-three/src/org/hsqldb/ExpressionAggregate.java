@@ -37,13 +37,18 @@ import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.types.ArrayType;
+import org.hsqldb.types.DTIType;
+import org.hsqldb.types.IntervalType;
+import org.hsqldb.types.NumberType;
 import org.hsqldb.types.RowType;
+import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * Implementation of aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class ExpressionAggregate extends Expression {
@@ -255,19 +260,144 @@ public class ExpressionAggregate extends Expression {
             }
         }
 
-        dataType = SetFunctionValueAggregate.getType(session, opType,
-                nodes[LEFT].dataType);
+        dataType = getType(session, opType, nodes[LEFT].dataType);
 
         nodes[RIGHT].resolveTypes(session, null);
+    }
+
+    /**
+     * During parsing and before an instance of SetFunction is created,
+     * getType is called with type parameter set to correct type when main
+     * SELECT statements contain aggregates.
+     *
+     */
+    static Type getType(Session session, int setType, Type dataType) {
+
+        if (setType == OpTypes.COUNT) {
+            return Type.SQL_BIGINT;
+        }
+
+        int typeCode = dataType.typeCode;
+
+        if (dataType.isIntervalYearMonthType()) {
+            typeCode = Types.SQL_INTERVAL_MONTH;
+        } else if (dataType.isIntervalDaySecondType()) {
+            typeCode = Types.SQL_INTERVAL_SECOND;
+        }
+
+        switch (setType) {
+
+            case OpTypes.AVG :
+            case OpTypes.MEDIAN : {
+                switch (typeCode) {
+
+                    case Types.TINYINT :
+                    case Types.SQL_SMALLINT :
+                    case Types.SQL_INTEGER :
+                    case Types.SQL_BIGINT :
+                    case Types.SQL_NUMERIC :
+                    case Types.SQL_DECIMAL :
+                        int scale = session.database.sqlAvgScale;
+
+                        if (scale <= dataType.scale) {
+                            return dataType;
+                        }
+
+                        int digits =
+                            ((NumberType) dataType).getDecimalPrecision();
+
+                        return NumberType.getNumberType(Types.SQL_DECIMAL,
+                                                        digits + scale, scale);
+
+                    case Types.SQL_REAL :
+                    case Types.SQL_FLOAT :
+                    case Types.SQL_DOUBLE :
+                    case Types.SQL_INTERVAL_MONTH :
+                    case Types.SQL_INTERVAL_SECOND :
+                    case Types.SQL_DATE :
+                    case Types.SQL_TIMESTAMP :
+                    case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                        return dataType;
+
+                    default :
+                        throw Error.error(ErrorCode.X_42563);
+                }
+            }
+            case OpTypes.SUM : {
+                switch (typeCode) {
+
+                    case Types.TINYINT :
+                    case Types.SQL_SMALLINT :
+                    case Types.SQL_INTEGER :
+                        return Type.SQL_BIGINT;
+
+                    case Types.SQL_BIGINT :
+                        return Type.SQL_DECIMAL_BIGINT_SQR;
+
+                    case Types.SQL_REAL :
+                    case Types.SQL_FLOAT :
+                    case Types.SQL_DOUBLE :
+                        return Type.SQL_DOUBLE;
+
+                    case Types.SQL_NUMERIC :
+                    case Types.SQL_DECIMAL :
+                        return Type.getType(dataType.typeCode, null, null,
+                                            dataType.precision * 2,
+                                            dataType.scale);
+
+                    case Types.SQL_INTERVAL_MONTH :
+                    case Types.SQL_INTERVAL_SECOND :
+                        return IntervalType.newIntervalType(
+                            dataType.typeCode, DTIType.maxIntervalPrecision,
+                            dataType.scale);
+
+                    default :
+                        throw Error.error(ErrorCode.X_42563);
+                }
+            }
+            case OpTypes.MIN :
+            case OpTypes.MAX :
+                if (dataType.isArrayType() || dataType.isLobType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                return dataType;
+
+            case OpTypes.EVERY :
+            case OpTypes.SOME :
+                if (dataType.isBooleanType()) {
+                    return Type.SQL_BOOLEAN;
+                }
+                break;
+
+            case OpTypes.STDDEV_POP :
+            case OpTypes.STDDEV_SAMP :
+            case OpTypes.VAR_POP :
+            case OpTypes.VAR_SAMP :
+                if (dataType.isNumberType()) {
+                    return Type.SQL_DOUBLE;
+                }
+                break;
+
+            case OpTypes.USER_AGGREGATE :
+                return dataType;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionAggregate");
+        }
+
+        throw Error.error(ErrorCode.X_42563);
     }
 
     public boolean equals(Expression other) {
 
         if (other instanceof ExpressionAggregate) {
             ExpressionAggregate o = (ExpressionAggregate) other;
+            boolean result = super.equals(other)
+                             && isDistinctAggregate == o.isDistinctAggregate;
 
-            return super.equals(other)
-                   && isDistinctAggregate == o.isDistinctAggregate;
+            return result;
         }
 
         return false;

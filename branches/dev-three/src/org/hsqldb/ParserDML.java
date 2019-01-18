@@ -637,9 +637,8 @@ public class ParserDML extends ParserDQL {
                 table.getQueryExpression().getMainSelect();
 
             if (condition != null) {
-                condition =
-                    condition.replaceColumnReferences(rangeVariables[0],
-                                                      baseSelect.exprColumns);
+                condition = condition.replaceColumnReferences(session,
+                        rangeVariables[0], baseSelect.exprColumns);
             }
 
             condition =
@@ -745,14 +744,13 @@ public class ParserDML extends ParserDQL {
                 ((TableDerived) table).getQueryExpression().getMainSelect();
 
             if (condition != null) {
-                condition =
-                    condition.replaceColumnReferences(rangeVariables[0],
-                                                      baseSelect.exprColumns);
+                condition = condition.replaceColumnReferences(session,
+                        rangeVariables[0], baseSelect.exprColumns);
             }
 
             for (int i = 0; i < updateExpressions.length; i++) {
                 updateExpressions[i] =
-                    updateExpressions[i].replaceColumnReferences(
+                    updateExpressions[i].replaceColumnReferences(session,
                         rangeVariables[0], baseSelect.exprColumns);
             }
 
