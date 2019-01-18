@@ -233,7 +233,7 @@ public class RangeVariable {
             expr = (ExpressionLogical) expr.duplicate();
 
             RangeGroup ranges =
-                new RangeGroupSimple(new RangeVariable[] {this}, false);
+                new RangeGroupSimple(new RangeVariable[]{ this }, false);
 
             expr.resolveColumnReferences(session, ranges,
                                          RangeGroup.emptyArray, null);
@@ -774,31 +774,32 @@ public class RangeVariable {
         return set;
     }
 
-    public void replaceColumnReferences(RangeVariable range,
+    public void replaceColumnReferences(Session session, RangeVariable range,
                                         Expression[] list) {
 
         QueryExpression queryExpression = rangeTable.getQueryExpression();
         Expression      dataExpression  = rangeTable.getDataExpression();
 
         if (dataExpression != null) {
-            dataExpression = dataExpression.replaceColumnReferences(range,
-                    list);
+            dataExpression = dataExpression.replaceColumnReferences(session,
+                    range, list);
         }
 
         if (queryExpression != null) {
-            queryExpression.replaceColumnReferences(range, list);
+            queryExpression.replaceColumnReferences(session, range, list);
         }
 
         if (joinCondition != null) {
-            joinCondition = joinCondition.replaceColumnReferences(range, list);
+            joinCondition = joinCondition.replaceColumnReferences(session,
+                    range, list);
         }
 
         for (int i = 0; i < joinConditions.length; i++) {
-            joinConditions[i].replaceColumnReferences(range, list);
+            joinConditions[i].replaceColumnReferences(session, range, list);
         }
 
         for (int i = 0; i < whereConditions.length; i++) {
-            whereConditions[i].replaceColumnReferences(range, list);
+            whereConditions[i].replaceColumnReferences(session, range, list);
         }
     }
 
@@ -982,7 +983,7 @@ public class RangeVariable {
             Expression e = (Expression) conditionsList.get(i);
 
             e = e.duplicate();
-            e = e.replaceColumnReferences(this, colExpr);
+            e = e.replaceColumnReferences(session, this, colExpr);
 
             OrderedHashSet set = e.collectRangeVariables(null);
 
@@ -2217,14 +2218,16 @@ public class RangeVariable {
             return sb.toString();
         }
 
-        private void replaceColumnReferences(RangeVariable range,
+        private void replaceColumnReferences(Session session,
+                                             RangeVariable range,
                                              Expression[] list) {
 
             if (indexCond != null) {
                 for (int i = 0; i < indexCond.length; i++) {
                     if (indexCond[i] != null) {
                         indexCond[i] =
-                            indexCond[i].replaceColumnReferences(range, list);
+                            indexCond[i].replaceColumnReferences(session,
+                                range, list);
                     }
                 }
             }
@@ -2233,30 +2236,34 @@ public class RangeVariable {
                 for (int i = 0; i < indexEndCond.length; i++) {
                     if (indexEndCond[i] != null) {
                         indexEndCond[i] =
-                            indexEndCond[i].replaceColumnReferences(range,
-                                list);
+                            indexEndCond[i].replaceColumnReferences(session,
+                                range, list);
                     }
                 }
             }
 
             if (indexEndCondition != null) {
                 indexEndCondition =
-                    indexEndCondition.replaceColumnReferences(range, list);
+                    indexEndCondition.replaceColumnReferences(session, range,
+                        list);
             }
 
             if (excludeConditions != null) {
                 excludeConditions =
-                    excludeConditions.replaceColumnReferences(range, list);
+                    excludeConditions.replaceColumnReferences(session, range,
+                        list);
             }
 
             if (nonIndexCondition != null) {
                 nonIndexCondition =
-                    nonIndexCondition.replaceColumnReferences(range, list);
+                    nonIndexCondition.replaceColumnReferences(session, range,
+                        list);
             }
 
             if (terminalCondition != null) {
                 terminalCondition =
-                    terminalCondition.replaceColumnReferences(range, list);
+                    terminalCondition.replaceColumnReferences(session, range,
+                        list);
             }
         }
 

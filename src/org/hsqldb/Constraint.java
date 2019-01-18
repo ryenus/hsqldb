@@ -959,8 +959,8 @@ public final class Constraint implements SchemaObject {
 
         OrderedHashSet set = new OrderedHashSet();
 
-        check.collectAllExpressions(set, Expression.columnExpressionSet,
-                                    Expression.emptyExpressionSet);
+        check.collectAllExpressions(set, OpTypes.columnExpressionSet,
+                                    OpTypes.emptyExpressionSet);
 
         return set;
     }

@@ -81,70 +81,6 @@ public class Expression implements Cloneable {
     static final Expression EXPR_TRUE  = new ExpressionLogical(true);
     static final Expression EXPR_FALSE = new ExpressionLogical(false);
 
-    //
-    static final OrderedIntHashSet aggregateFunctionSet =
-        new OrderedIntHashSet();
-
-    static {
-        aggregateFunctionSet.add(OpTypes.COUNT);
-        aggregateFunctionSet.add(OpTypes.AVG);
-        aggregateFunctionSet.add(OpTypes.MAX);
-        aggregateFunctionSet.add(OpTypes.MIN);
-        aggregateFunctionSet.add(OpTypes.SUM);
-        aggregateFunctionSet.add(OpTypes.EVERY);
-        aggregateFunctionSet.add(OpTypes.SOME);
-        aggregateFunctionSet.add(OpTypes.STDDEV_POP);
-        aggregateFunctionSet.add(OpTypes.STDDEV_SAMP);
-        aggregateFunctionSet.add(OpTypes.VAR_POP);
-        aggregateFunctionSet.add(OpTypes.VAR_SAMP);
-        aggregateFunctionSet.add(OpTypes.ARRAY_AGG);
-        aggregateFunctionSet.add(OpTypes.USER_AGGREGATE);
-        aggregateFunctionSet.add(OpTypes.GROUP_CONCAT);
-        aggregateFunctionSet.add(OpTypes.MEDIAN);
-    }
-
-    static final OrderedIntHashSet columnExpressionSet =
-        new OrderedIntHashSet();
-
-    static {
-        columnExpressionSet.add(OpTypes.COLUMN);
-    }
-
-    static final OrderedIntHashSet subqueryExpressionSet =
-        new OrderedIntHashSet();
-
-    static {
-        subqueryExpressionSet.add(OpTypes.ROW_SUBQUERY);
-        subqueryExpressionSet.add(OpTypes.TABLE_SUBQUERY);
-    }
-
-    static final OrderedIntHashSet subqueryAggregateExpressionSet =
-        new OrderedIntHashSet();
-
-    static {
-        subqueryAggregateExpressionSet.addAll(aggregateFunctionSet);
-        subqueryAggregateExpressionSet.addAll(subqueryExpressionSet);
-    }
-
-    static final OrderedIntHashSet functionExpressionSet =
-        new OrderedIntHashSet();
-
-    static {
-        functionExpressionSet.add(OpTypes.SQL_FUNCTION);
-        functionExpressionSet.add(OpTypes.FUNCTION);
-    }
-
-    static final OrderedIntHashSet sequenceExpressionSet =
-        new OrderedIntHashSet();
-
-    static {
-        sequenceExpressionSet.add(OpTypes.ROWNUM);
-        sequenceExpressionSet.add(OpTypes.SEQUENCE);
-    }
-
-    static final OrderedIntHashSet emptyExpressionSet =
-        new OrderedIntHashSet();
-
     // type
     protected int opType;
 
@@ -159,7 +95,7 @@ public class Expression implements Cloneable {
     boolean         isDistinctAggregate;
 
     // VALUE
-    protected Object       valueData;
+    protected Object valueData;
 
     //
     protected Expression[] nodes;
@@ -183,9 +119,6 @@ public class Expression implements Cloneable {
 
     // index of a session-dependent field
     int parameterIndex = -1;
-
-    //
-    int rangePosition = -1;
 
     //
     boolean isColumnCondition;
@@ -607,7 +540,7 @@ public class Expression implements Cloneable {
             }
         }
 
-        if (aggregateFunctionSet.contains(opType)) {
+        if (OpTypes.aggregateFunctionSet.contains(opType)) {
             return false;
         }
 
@@ -689,7 +622,7 @@ public class Expression implements Cloneable {
         case OpCodes.TABLE_SUBQUERY :
         case OpCodes.ROW_SUBQUERY :
 */
-        if (aggregateFunctionSet.contains(opType)) {
+        if (OpTypes.aggregateFunctionSet.contains(opType)) {
             return false;
         }
 
@@ -708,7 +641,7 @@ public class Expression implements Cloneable {
         return result;
     }
 
-    Expression replaceColumnReferences(RangeVariable range,
+    Expression replaceColumnReferences(Session session, RangeVariable range,
                                        Expression[] list) {
 
         for (int i = 0; i < nodes.length; i++) {
@@ -716,11 +649,12 @@ public class Expression implements Cloneable {
                 continue;
             }
 
-            nodes[i] = nodes[i].replaceColumnReferences(range, list);
+            nodes[i] = nodes[i].replaceColumnReferences(session, range, list);
         }
 
         if (table != null && table.queryExpression != null) {
-            table.queryExpression.replaceColumnReferences(range, list);
+            table.queryExpression.replaceColumnReferences(session, range,
+                    list);
         }
 
         return this;
@@ -1215,8 +1149,9 @@ public class Expression implements Cloneable {
                                     session, nodes[i].valueData);
                         } else {
                             nodes[i].valueData =
-                                nodeDataType.convertToType(
-                                    session, nodes[i].valueData, nodes[i].dataType);
+                                nodeDataType.convertToType(session,
+                                                           nodes[i].valueData,
+                                                           nodes[i].dataType);
                         }
                     }
                 }
@@ -1726,15 +1661,15 @@ public class Expression implements Cloneable {
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         resolveTypes(session, null);
-        collectAllExpressions(set, Expression.subqueryAggregateExpressionSet,
-                              Expression.emptyExpressionSet);
+        collectAllExpressions(set, OpTypes.subqueryAggregateExpressionSet,
+                              OpTypes.emptyExpressionSet);
 
         if (!set.isEmpty()) {
             throw Error.error(ErrorCode.X_42512);
         }
 
-        collectAllExpressions(set, Expression.functionExpressionSet,
-                              Expression.emptyExpressionSet);
+        collectAllExpressions(set, OpTypes.functionExpressionSet,
+                              OpTypes.emptyExpressionSet);
 
         for (int i = 0; i < set.size(); i++) {
             Expression current = (Expression) set.get(i);
@@ -1902,8 +1837,8 @@ public class Expression implements Cloneable {
 
         OrderedHashSet list = null;
 
-        list = collectAllExpressions(list, Expression.functionExpressionSet,
-                                     Expression.emptyExpressionSet);
+        list = collectAllExpressions(list, OpTypes.functionExpressionSet,
+                                     OpTypes.emptyExpressionSet);
 
         if (list == null) {
             return false;
@@ -2037,8 +1972,8 @@ public class Expression implements Cloneable {
         OrderedHashSet set = null;
 
         set = collectAllExpressions(set,
-                                    Expression.subqueryAggregateExpressionSet,
-                                    Expression.emptyExpressionSet);
+                                    OpTypes.subqueryAggregateExpressionSet,
+                                    OpTypes.emptyExpressionSet);
 
         if (set != null && !set.isEmpty()) {
             throw Error.error(ErrorCode.X_0A000,
@@ -2129,8 +2064,7 @@ public class Expression implements Cloneable {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
 
-    public Object getAggregatedValue(Session session,
-                                     SetFunction currValue) {
+    public Object getAggregatedValue(Session session, SetFunction currValue) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
 
