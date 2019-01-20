@@ -170,8 +170,9 @@ public interface OpTypes {
         OpTypes.FUNCTION
     };
 
-     int[] sequenceOpTypes =  new int[] {
-                OpTypes.ROWNUM, OpTypes.SEQUENCE
+    int[] sequenceOpTypes =  new int[] {
+        OpTypes.ROWNUM,
+        OpTypes.SEQUENCE
     };
     //J+
     static final OrderedIntHashSet emptyExpressionSet =

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,29 +34,24 @@ package org.hsqldb.lib.java;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.DriverManager;
 
 /**
- * Handles the differences between JDK 5 and above
+ * Handles runtime and methods
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.4.2
  */
 public class JavaSystem {
 
-    // variables to track rough count on object creation, to use in gc
-    public static int gcFrequency;
-    public static int memoryRecords;
+    // Memory
+    public static long availableMemory() {
+        return Runtime.getRuntime().freeMemory();
+    }
 
-    // Garbage Collection
-    public static void gc() {
-
-        if ((gcFrequency > 0) && (memoryRecords > gcFrequency)) {
-            memoryRecords = 0;
-
-            System.gc();
-        }
+    public static long usedMemory() {
+        return Runtime.getRuntime().totalMemory()
+               - Runtime.getRuntime().freeMemory();
     }
 
     public static IOException toIOException(Throwable t) {
@@ -65,21 +60,7 @@ public class JavaSystem {
             return (IOException) t;
         }
 
-//#ifdef JAVA6
         return new IOException(t);
-
-//#else
-/*
-        IOException e = new IOException(t.toString());
-        try {
-            e.initCause(t);
-        } catch (Throwable e1) {}
-
-        return e;
-
-*/
-
-//#endif JAVA6
     }
 
     static final BigDecimal BD_1  = BigDecimal.valueOf(1L);
@@ -91,7 +72,6 @@ public class JavaSystem {
             return 0;
         }
 
-//#ifdef JAVA6
         int precision;
 
         if (o.compareTo(BD_1) < 0 && o.compareTo(MBD_1) > 0) {
@@ -101,38 +81,6 @@ public class JavaSystem {
         }
 
         return precision;
-
-//#else
-/*
-        if (o.compareTo(BD_1) < 0 && o.compareTo(MBD_1) > 0) {
-            return o.scale();
-        }
-
-        BigInteger big  = o.unscaledValue();
-        int        sign = big.signum() == -1 ? 1
-                                             : 0;
-
-        return big.toString().length() - sign;
-*/
-
-//#endif JAVA6
-    }
-
-    public static String toString(BigDecimal o) {
-
-        if (o == null) {
-            return null;
-        }
-
-//#ifdef JAVA6
-        return o.toPlainString();
-
-//#else
-/*
-        return o.toString();
-*/
-
-//#endif JAVA6
     }
 
     public static void setLogToSystem(boolean value) {
