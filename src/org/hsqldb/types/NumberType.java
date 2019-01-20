@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1253,7 +1253,7 @@ public final class NumberType extends Type {
 
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
-                return JavaSystem.toString((BigDecimal) a);
+                return ((BigDecimal) a).toPlainString();
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
