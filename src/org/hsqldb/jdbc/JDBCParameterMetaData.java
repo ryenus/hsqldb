@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,17 +71,8 @@ import org.hsqldb.types.Type;
  * @since JDK 1.4, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0
  */
-//#ifdef JAVA6
 public class JDBCParameterMetaData implements ParameterMetaData,
         java.sql.Wrapper {
-
-//#else
-/*
-public class JDBCParameterMetaData
-    implements ParameterMetaData {
-*/
-
-//#endif JAVA6
 
     /**
      * Retrieves the number of parameters in the <code>PreparedStatement</code>
@@ -280,7 +271,6 @@ public class JDBCParameterMetaData
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     @SuppressWarnings("unchecked")
     public <T>T unwrap(Class<T> iface) throws java.sql.SQLException {
 
@@ -290,8 +280,6 @@ public class JDBCParameterMetaData
 
         throw JDBCUtil.invalidArgument("iface: " + iface);
     }
-
-//#endif JAVA6
 
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
@@ -308,13 +296,11 @@ public class JDBCParameterMetaData
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public boolean isWrapperFor(
             Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
-//#endif JAVA6
     // -------------------------- Internal Implementation ----------------------
 
     /** The metadata object with which this object is constructed */

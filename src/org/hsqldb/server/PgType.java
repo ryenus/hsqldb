@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -481,18 +481,8 @@ public class PgType {
     /* Following stuff is to support code copied from
      * JDBCPreparedStatement.java. */
     static void throwError(HsqlException e) throws SQLException {
-
-//#ifdef JAVA6
         throw JDBCUtil.sqlException(e.getMessage(), e.getSQLState(),
             e.getErrorCode(), e);
-
-//#else
-/*
-        throw new SQLException(e.getMessage(), e.getSQLState(),
-                               e.getErrorCode());
-*/
-
-//#endif JAVA6
     }
 
     static protected final PgType tinyIntSingleton =

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,13 +35,9 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Properties;
-
-//#ifdef JAVA6
 import java.sql.SQLFeatureNotSupportedException;
 
 import javax.sql.CommonDataSource;
-
-//#endif JAVA6
 
 /**
  * Common base for DataSource implementations.
@@ -65,16 +61,8 @@ import javax.sql.CommonDataSource;
  * @version 2.3.3
  * @since JDK 1.2, HSQLDB 2.0
  */
-//#ifdef JAVA6
 public abstract class JDBCCommonDataSource
 implements CommonDataSource, Serializable {
-
-//#else
-/*
-public abstract class JDBCCommonDataSource implements Serializable {
-*/
-
-//#endif JAVA6
 
     /**
      * <p>Retrieves the log writer for this <code>DataSource</code>
@@ -348,14 +336,12 @@ public abstract class JDBCCommonDataSource implements Serializable {
      * @throws SQLFeatureNotSupportedException if the data source does not use <code>java.util.logging</code>.
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-//#ifdef JAVA6
     public java.util.logging.Logger getParentLogger()
     throws java.sql.SQLFeatureNotSupportedException {
         throw (java.sql
             .SQLFeatureNotSupportedException) JDBCUtil.notSupported();
     }
 
-//#endif
     // ------------------------ internal implementation ------------------------
     protected Properties connectionProps = new Properties();
 

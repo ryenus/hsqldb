@@ -200,8 +200,6 @@ public class RowAVL extends Row {
      */
     public void destroy() {
 
-        JavaSystem.memoryRecords++;
-
         clearNonPrimaryNodes();
 
         NodeAVL n = nPrimaryNode;

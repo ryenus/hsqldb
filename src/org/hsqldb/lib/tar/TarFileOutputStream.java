@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -175,7 +175,6 @@ public class TarFileOutputStream {
                     RB.compression_unknown.getString(compressionType));
         }
 
-//#ifdef JAVA6
         writeFile.setExecutable(false, true);
         writeFile.setExecutable(false, false);
         writeFile.setReadable(false, false);
@@ -183,7 +182,6 @@ public class TarFileOutputStream {
         writeFile.setWritable(false, false);
         writeFile.setWritable(true, true);
 
-//#endif
         // We restrict permissions to the file owner before writing
         // anything, in case we will be writing anything private into this
         // file.

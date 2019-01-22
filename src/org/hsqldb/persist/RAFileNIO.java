@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -334,7 +334,7 @@ final class RAFileNIO implements RandomAccessInterface {
             channel = null;
 
             for (int i = 0; i < buffers.length; i++) {
-                unmap(buffers[i]);
+                JavaSystem.unmap(buffers[i]);
 
                 buffers[i] = null;
             }
@@ -538,31 +538,5 @@ final class RAFileNIO implements RandomAccessInterface {
         } else if (buffer != buffers[bufferIndex]) {
             buffer = buffers[bufferIndex];
         }
-    }
-
-    /**
-     * Non-essential unmap method - see http://bugs.sun.com/view_bug.do?bug_id=4724038
-     * reported by joel_turkel at users.sourceforge.net
-     */
-    private void unmap(MappedByteBuffer buffer) throws IOException {
-
-        if (buffer == null) {
-            return;
-        }
-
-        try {
-            Method cleanerMethod = buffer.getClass().getMethod("cleaner");
-
-            cleanerMethod.setAccessible(true);
-
-            Object cleaner     = cleanerMethod.invoke(buffer);
-            Method clearMethod = cleaner.getClass().getMethod("clean");
-
-            clearMethod.invoke(cleaner);
-        } catch (InvocationTargetException e) {}
-        catch (NoSuchMethodException e) {
-
-            // Means we're not dealing with a Sun JVM?
-        } catch (Throwable e) {}
     }
 }

@@ -59,14 +59,9 @@ import java.util.BitSet;
 import java.util.Calendar;
 import java.util.UUID;
 
-//#ifdef JAVA6
 import java.sql.NClob;
 import java.sql.RowId;
 import java.sql.SQLXML;
-import java.sql.SQLFeatureNotSupportedException;
-import java.sql.SQLTimeoutException;
-
-//#endif JAVA6
 
 //#ifdef JAVA8
 /*
@@ -818,7 +813,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setParameter(parameterIndex, writer.toString());
     }
 
-//#endif
+//#endif DEPRECATEDJDBC
 
     /** @todo 1.9.0 - implement streaming */
 
@@ -2343,12 +2338,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since JDK 1.6, HSQLDB 2.0
      */
 
-//#ifdef JAVA6
     public void setRowId(int parameterIndex, RowId x) throws SQLException {
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>String</code> object.
@@ -2405,13 +2397,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since JDK 1.6, HSQLDB 2.0
      */
 
-//#ifdef JAVA6
     public synchronized void setNClob(int parameterIndex,
                                       NClob value) throws SQLException {
         setClob(parameterIndex, value);
     }
-
-//#endif JAVA6
 
     /** @todo 1.9.0 - implement streaming and remove length limits */
 
@@ -2526,13 +2515,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since JDK 1.6, HSQLDB 2.0
      */
 
-//#ifdef JAVA6
     public void setSQLXML(int parameterIndex,
                           SQLXML xmlObject) throws SQLException {
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA6
 // --------------------------- Added: Mustang Build 86 -------------------------
 
     /** @todo 1.9.0 - implement streaming and remove length limits */
@@ -3776,7 +3762,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     @SuppressWarnings("unchecked")
     public <T>T unwrap(Class<T> iface) throws java.sql.SQLException {
 
@@ -3786,8 +3771,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         throw JDBCUtil.invalidArgument("iface: " + iface);
     }
-
-//#endif JAVA6
 
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
@@ -3804,13 +3787,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public boolean isWrapperFor(
             java.lang.Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
-
-//#endif JAVA6
 
     //------------------------- JDBC 4.2 -----------------------------------
 

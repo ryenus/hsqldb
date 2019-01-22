@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,19 +33,16 @@ package org.hsqldb.jdbc.pool;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.HashSet;
-import java.util.HashMap;
+
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
-
-//#ifdef JAVA6
 import javax.sql.CommonDataSource;
-
-//#endif JAVA6
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
 import javax.transaction.xa.Xid;
@@ -76,17 +73,11 @@ import org.hsqldb.jdbc.JDBCUtil;
  * @see org.hsqldb.jdbc.pool.JDBCXAConnection
  */
 public class JDBCXADataSource extends JDBCCommonDataSource
-implements XADataSource, Serializable, Referenceable
-
-//#ifdef JAVA6
-, CommonDataSource
-
-//#endif JAVA6
-{
+implements XADataSource, Serializable, Referenceable, CommonDataSource {
 
     /**
      * Get new XAConnection connection, to be managed by a connection manager.
-     * 
+     *
      * @throws SQLException on error
      */
     public XAConnection getXAConnection() throws SQLException {
@@ -115,7 +106,7 @@ implements XADataSource, Serializable, Referenceable
      *                  for this JDBCXADataSource.
      *
      * @see #getXAConnection()
-     * 
+     *
      * @param user the user
      * @param password the password
      * @throws SQLException on error
@@ -156,10 +147,11 @@ implements XADataSource, Serializable, Referenceable
     }
 
     // ------------------------ internal implementation ------------------------
-    private HashMap resources = new HashMap();
+    private HashMap                resources = new HashMap();
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     public void addResource(Xid xid, JDBCXAResource xaResource) {
+
         lock.writeLock().lock();
 
         try {
@@ -175,11 +167,12 @@ implements XADataSource, Serializable, Referenceable
     }
 
     public JDBCXAResource removeResource(Xid xid) {
+
         lock.writeLock().lock();
 
-        try{
+        try {
             return (JDBCXAResource) resources.remove(xid);
-        } finally{
+        } finally {
             lock.writeLock().unlock();
         }
     }
@@ -197,16 +190,15 @@ implements XADataSource, Serializable, Referenceable
         lock.writeLock().lock();
 
         try {
-
             Iterator it = resources.keySet().iterator();
-            Xid curXid;
-            HashSet preparedSet = new HashSet();
+            Xid      curXid;
+            HashSet  preparedSet = new HashSet();
 
             while (it.hasNext()) {
                 curXid = (Xid) it.next();
 
-                if ( ( (JDBCXAResource) resources.get(curXid)).state
-                    == JDBCXAResource.XA_STATE_PREPARED) {
+                if (((JDBCXAResource) resources.get(curXid)).state
+                        == JDBCXAResource.XA_STATE_PREPARED) {
                     preparedSet.add(curXid);
                 }
             }
@@ -231,6 +223,7 @@ implements XADataSource, Serializable, Referenceable
      * @see javax.transaction.xa.XAResource#rollback(Xid)
      */
     JDBCXAResource getResource(Xid xid) {
+
         lock.readLock().lock();
 
         try {

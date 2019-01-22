@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -199,6 +199,10 @@ class ConnectionDialogCommon {
                     (ConnectionSetting) objStream.readObject();
 
                 if (!emptySettingName.equals(setting.getName())) {
+/*
+                    if (setting.getName().contains("reject"))
+                        continue;
+*/
                     list.put(setting.getName(), setting);
                 }
             }
@@ -312,21 +316,7 @@ class ConnectionDialogCommon {
     public static void setHomeDir() {
 
         if (homedir == null) {
-            try {
-                Class c =
-                    Class.forName("sun.security.action.GetPropertyAction");
-                Constructor constructor = c.getConstructor(new Class[]{
-                    String.class });
-                java.security.PrivilegedAction a =
-                    (java.security.PrivilegedAction) constructor.newInstance(
-                        new Object[]{ "user.home" });
-
-                homedir =
-                    (String) java.security.AccessController.doPrivileged(a);
-            } catch (Exception e) {
-                System.err.println(
-                    "No access to home directory.  Continuing without...");
-            }
+            homedir = System.getProperty("user.home");
         }
     }
 }

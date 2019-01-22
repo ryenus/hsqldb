@@ -36,10 +36,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-//#ifdef JAVA6
 import java.sql.RowIdLifetime;
-
-//#endif JAVA6
 
 import org.hsqldb.FunctionCustom;
 import org.hsqldb.dbinfo.DatabaseInformation;
@@ -234,16 +231,9 @@ import org.hsqldb.types.Type;
  * @since HSQLDB 1.9.0
  * @see org.hsqldb.dbinfo.DatabaseInformation
  */
-//#ifdef JAVA6
 public class JDBCDatabaseMetaData implements DatabaseMetaData,
         java.sql.Wrapper {
 
-//#else
-/*
-public class JDBCDatabaseMetaData implements DatabaseMetaData {
-*/
-
-//#endif
     //----------------------------------------------------------------------
     // First, a variety of minor information about the target database.
 
@@ -5345,12 +5335,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @throws SQLException if a database access error occurs
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public RowIdLifetime getRowIdLifetime() throws SQLException {
         return RowIdLifetime.ROWID_UNSUPPORTED;
     }
-
-//#endif JAVA6
 
     /**
      * Retrieves the schema names available in this database.  The results
@@ -5376,7 +5363,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @see #getSearchStringEscape
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public ResultSet getSchemas(String catalog,
                                 String schemaPattern) throws SQLException {
 
@@ -5388,8 +5374,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         return execute(select.toString());
     }
 
-//#endif JAVA6
-
     /**
      * Retrieves whether this database supports invoking user-defined or vendor functions
      * using the stored procedure escape syntax.
@@ -5398,12 +5382,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public boolean supportsStoredFunctionsUsingCallSyntax() throws SQLException {
         return true;
     }
-
-//#endif JAVA6
 
     /** @todo */
 
@@ -5418,12 +5399,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public boolean autoCommitFailureClosesAllResultSets() throws SQLException {
         return false;
     }
-
-//#endif JAVA6
 
     /**
      * Retrieves a list of the client info properties
@@ -5446,7 +5424,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <p>
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public ResultSet getClientInfoProperties() throws SQLException {
 
         String s =
@@ -5454,8 +5431,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         return execute(s);
     }
-
-//#endif JAVA6
 
     /**
      * Retrieves a description of the JDBC 4.1[ system and ]user functions available
@@ -5505,7 +5480,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @see #getSearchStringEscape
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public ResultSet getFunctions(
             String catalog, String schemaPattern,
             String functionNamePattern) throws SQLException {
@@ -5535,8 +5509,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         // FUNCTION_SCHEM, FUNCTION_NAME...
         return execute(sb.toString());
     }
-
-//#endif JAVA6
 
     /**
      * Retrieves a description of the given catalog's system or user
@@ -5632,7 +5604,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @see #getSearchStringEscape
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public ResultSet getFunctionColumns(
             String catalog, String schemaPattern, String functionNamePattern,
             String columnNamePattern) throws SQLException {
@@ -5682,8 +5653,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         return execute(sb.toString());
     }
 
-//#endif JAVA6
-
     /**
      * Returns an object that implements the given interface to allow access to non-standard methods,
      * or standard methods not exposed by the proxy.
@@ -5698,7 +5667,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     @SuppressWarnings("unchecked")
     public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
 
@@ -5708,8 +5676,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         throw JDBCUtil.invalidArgument("iface: " + iface);
     }
-
-//#endif JAVA6
 
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
@@ -5726,13 +5692,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public boolean isWrapperFor(
             java.lang.Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
-//#endif JAVA6
     //--------------------------JDBC 4.1 -----------------------------
 
     /**
@@ -5935,15 +5899,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      */
     private static final String whereTrue = " WHERE TRUE";
 
-//#ifdef JAVA6
     public static final int JDBC_MAJOR = 4;
-
-//#else
-/*
-    public static final int JDBC_MAJOR = 3;
-*/
-
-//#endif JAVA6
 
 //#ifdef JAVA8
 /*
