@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,12 +38,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
-
-//#ifdef JAVA6
-import java.sql.SQLFeatureNotSupportedException;
-import java.sql.SQLTimeoutException;
-
-//#endif JAVA6
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.StatementTypes;
@@ -112,16 +106,8 @@ import org.hsqldb.result.ResultProperties;
  * @see JDBCConnection#createStatement
  * @see JDBCResultSet
  */
-//#ifdef JAVA6
 public class JDBCStatement extends JDBCStatementBase implements Statement,
         java.sql.Wrapper {
-
-//#else
-/*
-public class JDBCStatement extends JDBCStatementBase implements Statement {
-*/
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -1621,7 +1607,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @since JDK 1.6 Build 81, HSQLDB 2.0
      */
 
-//#ifdef JAVA6
     public synchronized void setPoolable(
             boolean poolable) throws SQLException {
 
@@ -1629,8 +1614,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
 
         this.poolable = poolable;
     }
-
-//#endif JAVA6
 
     /**
      * Returns a  value indicating whether the <code>Statement</code>
@@ -1645,7 +1628,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <p>
      * @see #setPoolable(boolean) setPoolable(boolean)
      */
-//#ifdef JAVA6
     public synchronized boolean isPoolable() throws SQLException {
 
         checkClosed();
@@ -1653,7 +1635,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
         return this.poolable;
     }
 
-//#endif JAVA6
     // ------------------- java.sql.Wrapper implementation ---------------------
 
     /**
@@ -1673,7 +1654,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     @SuppressWarnings("unchecked")
     public <T>T unwrap(Class<T> iface) throws java.sql.SQLException {
 
@@ -1683,8 +1663,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
 
         throw JDBCUtil.invalidArgument("iface: " + iface);
     }
-
-//#endif JAVA6
 
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
@@ -1701,13 +1679,10 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public boolean isWrapperFor(
             java.lang.Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
-
-//#endif JAVA6
 
     //--------------------------JDBC 4.2 -----------------------------
 

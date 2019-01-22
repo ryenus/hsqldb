@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,11 +37,8 @@ import java.sql.SQLException;
 import javax.sql.ConnectionEvent;
 import javax.sql.ConnectionEventListener;
 import javax.sql.PooledConnection;
-
-//#ifdef JAVA6
 import javax.sql.StatementEventListener;
 
-//#endif JAVA6
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCConnectionEventListener;
 import org.hsqldb.lib.OrderedHashSet;
@@ -74,8 +71,7 @@ implements PooledConnection, JDBCConnectionEventListener {
             throw new SQLException("Connection in use");
         }
 
-        isInUse = true;
-
+        isInUse        = true;
         userConnection = new JDBCConnection(connection, this);
 
         return userConnection;
@@ -99,13 +95,11 @@ implements PooledConnection, JDBCConnectionEventListener {
         listeners.remove(listener);
     }
 
-//#ifdef JAVA6
     public void addStatementEventListener(StatementEventListener listener) {}
 
     public void removeStatementEventListener(
             StatementEventListener listener) {}
 
-//#endif JAVA6
     // ------------------------ internal implementation ------------------------
     synchronized public void connectionClosed() {
 

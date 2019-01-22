@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1754,7 +1754,7 @@ public final class IntervalType extends DTIType {
         if (this.isIntervalYearMonthType()) {
             return new IntervalMonthData(units);
         } else {
-            int nanos = (int) ((value - units) * nanoScaleFactors[0]);
+            int nanos = (int) ((value - units) * limitNanoseconds);
 
             return new IntervalSecondData(units, nanos);
         }

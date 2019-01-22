@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -493,13 +493,10 @@ public class JDBCPool implements DataSource,
      * @throws SQLFeatureNotSupportedException if the data source does not use <code>java.util.logging</code>.
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.2.9
      */
-//#ifdef JAVA6
     public java.util.logging.Logger getParentLogger()
     throws java.sql.SQLFeatureNotSupportedException {
         throw (java.sql.SQLFeatureNotSupportedException) JDBCUtil.notSupported();
     }
-
-//#endif JAVA6
 
     // ------------------------ custom public methods ------------------------
 

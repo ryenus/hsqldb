@@ -35,6 +35,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.sql.DriverManager;
+import java.nio.MappedByteBuffer;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+
+import sun.misc.Unsafe;
 
 /**
  * Handles runtime and methods
@@ -43,6 +48,27 @@ import java.sql.DriverManager;
  * @version 2.4.2
  */
 public class JavaSystem {
+
+    private static int javaVersion;
+
+    static {
+        try {
+            String version = System.getProperty("java.specification.version",
+                                                "6");
+            if( version.startsWith("1.") ) {
+                version = version.substring(2);
+            }
+
+            javaVersion = Integer.parseInt(version);
+        } catch (Throwable t) {
+            // unknow future version - default to last known
+            javaVersion = 12;
+        }
+
+    }
+    public static int javaVersion() {
+        return javaVersion;
+    }
 
     // Memory
     public static long availableMemory() {
@@ -54,6 +80,48 @@ public class JavaSystem {
                - Runtime.getRuntime().freeMemory();
     }
 
+//#ifdef JAVA9
+/*
+
+        public static void unmap(MappedByteBuffer buffer) {
+
+            if (buffer == null) {
+                return;
+            }
+
+
+            try {
+                Unsafe unsafe = Unsafe.getUnsafe();
+
+                unsafe.invokeCleaner(buffer);
+            } catch (Throwable t) {}
+        }
+*/
+
+//#else
+    public static void unmap(MappedByteBuffer buffer) {
+
+        if (buffer == null) {
+            return;
+        }
+
+        try {
+            Method cleanerMethod = buffer.getClass().getMethod("cleaner");
+
+            cleanerMethod.setAccessible(true);
+
+            Object cleaner     = cleanerMethod.invoke(buffer);
+            Method clearMethod = cleaner.getClass().getMethod("clean");
+
+            clearMethod.invoke(cleaner);
+        } catch (InvocationTargetException e) {}
+        catch (NoSuchMethodException e) {
+
+            // Means we're not dealing with a Sun JVM?
+        } catch (Throwable e) {}
+    }
+
+//#endif JAVA9
     public static IOException toIOException(Throwable t) {
 
         if (t instanceof IOException) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,35 +31,34 @@
 
 package org.hsqldb.jdbc;
 
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.NClob;
 import java.sql.PreparedStatement;
-import java.sql.Savepoint;
+import java.sql.SQLClientInfoException;
+//import java.sql.SQLData;
+//import java.sql.SQLOutput;
+//import java.sql.SQLInput;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.sql.SQLXML;
+import java.sql.Savepoint;
 import java.sql.Statement;
+import java.sql.Struct;
 import java.util.Calendar;
 import java.util.Map;
-
-//#ifdef JAVA6
-import java.sql.Array;
-import java.sql.NClob;
-import java.sql.SQLClientInfoException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.sql.SQLXML;
-import java.sql.Struct;
 import java.util.Properties;
-
-//#endif JAVA6
-//import java.util.logging.Level;
+// import java.util.logging.Level;
 // import java.util.logging.Logger;
-import org.hsqldb.DatabaseManager;
-import org.hsqldb.DatabaseURL;
+
 import org.hsqldb.ClientConnection;
 import org.hsqldb.ClientConnectionHTTP;
+import org.hsqldb.DatabaseManager;
+import org.hsqldb.DatabaseURL;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
@@ -67,16 +66,13 @@ import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringUtil;
-import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.HsqlDatabaseProperties;
+import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.Type;
 
-//import java.sql.SQLData;
-//import java.sql.SQLOutput;
-//import java.sql.SQLInput;
 
 /* $Id$ */
 
@@ -1725,8 +1721,6 @@ public class JDBCConnection implements Connection {
      * @since JDK 1.2
      * @see #setTypeMap
      */
-
-//#ifdef JAVA6
     public synchronized java.util
             .Map<java.lang.String,
                  java.lang.Class<?>> getTypeMap() throws SQLException {
@@ -1735,18 +1729,6 @@ public class JDBCConnection implements Connection {
 
         return new java.util.HashMap<java.lang.String, java.lang.Class<?>>();
     }
-
-//#else
-/*
-    public synchronized Map getTypeMap() throws SQLException {
-
-        checkClosed();
-
-        return new java.util.HashMap();
-    }
-*/
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -1789,7 +1771,6 @@ public class JDBCConnection implements Connection {
      * @since JDK 1.2
      * @see #getTypeMap
      */
-//#ifdef JAVA6
     public synchronized void setTypeMap(Map<String,
             Class<?>> map) throws SQLException {
 
@@ -1798,17 +1779,6 @@ public class JDBCConnection implements Connection {
         throw JDBCUtil.notSupported();
     }
 
-//#else
-/*
-    public synchronized void setTypeMap(Map map) throws SQLException {
-
-        checkClosed();
-
-        throw JDBCUtil.notSupported();
-    }
-*/
-
-//#endif JAVA6
     //--------------------------JDBC 3.0-----------------------------
 
     /**
@@ -2699,15 +2669,12 @@ public class JDBCConnection implements Connection {
      * @since JDK 1.6, HSQLDB 2.0
      */
 
-//#ifdef JAVA6
     public NClob createNClob() throws SQLException {
 
         checkClosed();
 
         return new JDBCNClob();
     }
-
-//#endif JAVA6
 
     /**
      * Constructs an object that implements the <code>SQLXML</code> interface. The object
@@ -2722,15 +2689,12 @@ public class JDBCConnection implements Connection {
      * this data type
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public SQLXML createSQLXML() throws SQLException {
 
         checkClosed();
 
         return new JDBCSQLXML();
     }
-
-//#endif JAVA6
 
     /** @todo:  ThreadPool? HsqlTimer with callback? */
 
@@ -2769,7 +2733,6 @@ public class JDBCConnection implements Connection {
      *
      * @see JDBCDatabaseMetaData#getClientInfoProperties
      */
-//#ifdef JAVA6
     public boolean isValid(int timeout) throws SQLException {
 
         if (timeout < 0) {
@@ -2825,8 +2788,6 @@ public class JDBCConnection implements Connection {
             return false;
         }
     }
-
-//#endif JAVA6
 
     /** @todo 20051207 */
 
@@ -2892,7 +2853,6 @@ public class JDBCConnection implements Connection {
      * <p>
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public void setClientInfo(String name,
                               String value) throws SQLClientInfoException {
 
@@ -2902,8 +2862,6 @@ public class JDBCConnection implements Connection {
 
         throw ex;
     }
-
-//#endif JAVA6
 
     /** @todo 20051207 */
 
@@ -2937,7 +2895,6 @@ public class JDBCConnection implements Connection {
      * is called on a closed connection
      *
      */
-//#ifdef JAVA6
     public void setClientInfo(
             Properties properties) throws SQLClientInfoException {
 
@@ -2955,8 +2912,6 @@ public class JDBCConnection implements Connection {
 
         throw ex;
     }
-
-//#endif JAVA6
 
     /** @todo 1.9.0 */
 
@@ -2982,15 +2937,12 @@ public class JDBCConnection implements Connection {
      *
      * @see java.sql.DatabaseMetaData#getClientInfoProperties
      */
-//#ifdef JAVA6
     public String getClientInfo(String name) throws SQLException {
 
         checkClosed();
 
         return null;
     }
-
-//#endif JAVA6
 
     /** @todo - 1.9 */
 
@@ -3009,7 +2961,6 @@ public class JDBCConnection implements Connection {
      * <p>
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public Properties getClientInfo() throws SQLException {
 
         checkClosed();
@@ -3017,7 +2968,6 @@ public class JDBCConnection implements Connection {
         return null;
     }
 
-//#endif JAVA6
 // --------------------------- Added: Mustang Build 80 -------------------------
 
     /**
@@ -3046,7 +2996,6 @@ public class JDBCConnection implements Connection {
      *  @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
      *  @since 1.6
      */
-//#ifdef JAVA6
     public Array createArrayOf(String typeName,
                                Object[] elements) throws SQLException {
 
@@ -3084,8 +3033,6 @@ public class JDBCConnection implements Connection {
         return new JDBCArray(newData, type, this);
     }
 
-//#endif JAVA6
-
     /**
      * Factory method for creating Struct objects.
      * @param typeName the SQL type name of the SQL structured type that this <code>Struct</code>
@@ -3098,7 +3045,6 @@ public class JDBCConnection implements Connection {
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this data type
      * @since JDK 1.6_b80, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public Struct createStruct(String typeName,
                                Object[] attributes) throws SQLException {
 
@@ -3107,7 +3053,6 @@ public class JDBCConnection implements Connection {
         throw JDBCUtil.notSupported();
     }
 
-//#endif JAVA6
 // ------------------- java.sql.Wrapper implementation ---------------------
 
     /**
@@ -3128,7 +3073,6 @@ public class JDBCConnection implements Connection {
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     @SuppressWarnings("unchecked")
     public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
 
@@ -3140,8 +3084,6 @@ public class JDBCConnection implements Connection {
 
         throw JDBCUtil.invalidArgument("iface: " + iface);
     }
-
-//#endif JAVA6
 
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
@@ -3158,7 +3100,6 @@ public class JDBCConnection implements Connection {
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public boolean isWrapperFor(
             java.lang.Class<?> iface) throws java.sql.SQLException {
 
@@ -3167,7 +3108,6 @@ public class JDBCConnection implements Connection {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
-//#endif JAVA6
     //--------------------------JDBC 4.1 -----------------------------
 
     /**

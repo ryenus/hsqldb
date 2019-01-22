@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,8 @@
 
 package org.hsqldb.jdbc;
 
-import java.sql.SQLException;
-import java.sql.SQLWarning;
-
-//#ifdef JAVA6
 import java.sql.SQLDataException;
+import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.SQLInvalidAuthorizationSpecException;
@@ -43,8 +40,8 @@ import java.sql.SQLNonTransientConnectionException;
 import java.sql.SQLSyntaxErrorException;
 import java.sql.SQLTransactionRollbackException;
 import java.sql.SQLTransientConnectionException;
+import java.sql.SQLWarning;
 
-//#endif JAVA6
 import org.hsqldb.HsqlException;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -68,84 +65,23 @@ import org.hsqldb.result.Result;
 public final class JDBCUtil {
 
     static void throwError(HsqlException e) throws SQLException {
-
-//#ifdef JAVA6
         throw sqlException(e.getMessage(), e.getSQLState(), e.getErrorCode(),
                            e);
-
-//#else
-/*
-        SQLException se = new SQLException(e.getMessage(), e.getSQLState(),
-                                           e.getErrorCode());
-
-        se.initCause(e);
-
-        throw se;
-*/
-
-//#endif JAVA6
     }
 
     static void throwError(Result r) throws SQLException {
-
-//#ifdef JAVA6
         throw sqlException(r.getMainString(), r.getSubString(),
                            r.getErrorCode(), r.getException());
-
-//#else
-/*
-        SQLException se = new SQLException(r.getMainString(),
-                                           r.getSubString(), r.getErrorCode());
-
-        if (r.getException() != null) {
-            se.initCause(r.getException());
-        }
-
-        throw se;
-*/
-
-//#endif JAVA6
     }
 
     public static SQLException sqlException(HsqlException e) {
-
-//#ifdef JAVA6
         return sqlException(e.getMessage(), e.getSQLState(), e.getErrorCode(),
                             e);
-
-//#else
-/*
-        SQLException se = new SQLException(e.getMessage(), e.getSQLState(),
-                                           e.getErrorCode());
-
-        se.initCause(e);
-
-        return se;
-*/
-
-//#endif JAVA6
     }
 
-    public static SQLException sqlException(HsqlException e,
-            Throwable cause) {
-
-//#ifdef JAVA6
+    public static SQLException sqlException(HsqlException e, Throwable cause) {
         return sqlException(e.getMessage(), e.getSQLState(), e.getErrorCode(),
                             cause);
-
-//#else
-/*
-        SQLException se = new SQLException(e.getMessage(), e.getSQLState(),
-                                           e.getErrorCode());
-
-        if (cause != null) {
-            se.initCause(cause);
-        }
-
-        return se;
-*/
-
-//#endif JAVA6
     }
 
     public static SQLException sqlException(int id) {
@@ -175,18 +111,10 @@ public final class JDBCUtil {
 
     static SQLException notSupported() {
 
-//#ifdef JAVA6
         HsqlException e = Error.error(ErrorCode.X_0A000);
 
         return new SQLFeatureNotSupportedException(e.getMessage(),
                 e.getSQLState(), -ErrorCode.X_0A000);
-
-//#else
-/*
-        return sqlException(Error.error(ErrorCode.X_0A000));
-*/
-
-//#endif JAVA6
     }
 
     static SQLException notUpdatableColumn() {
@@ -227,39 +155,12 @@ public final class JDBCUtil {
     }
 
     public static SQLException sqlException(Throwable t) {
-
-//#ifdef JAVA6
         return new SQLNonTransientConnectionException(t);
-
-//#else
-/*
-        return new SQLException(t.getMessage(),
-                                Error.getStateString(ErrorCode.GENERAL_ERROR),
-                                ErrorCode.GENERAL_ERROR);
-*/
-
-//#endif JAVA6
     }
 
     public static SQLException sqlException(Result r) {
-
-//#ifdef JAVA6
         return sqlException(r.getMainString(), r.getSubString(),
                             r.getErrorCode(), r.getException());
-
-//#else
-/*
-        SQLException se = new SQLException(r.getMainString(),
-                                           r.getSubString(), r.getErrorCode());
-
-        if (r.getException() != null) {
-            se.initCause(r.getException());
-        }
-
-        return se;
-*/
-
-//#endif JAVA6
     }
 
 // TODO: Needs review.
@@ -297,7 +198,6 @@ public final class JDBCUtil {
 // 004=08003 The database is shutdown
 // 094=08003 Database does not exists                          - better 08001 ?
 //
-//#ifdef JAVA6
     public static SQLException sqlException(String msg, String sqlstate,
             int code, Throwable cause) {
 
@@ -419,7 +319,6 @@ public final class JDBCUtil {
         }
     }
 
-//#endif JAVA6
 // -----------------------------------------------------------------------------
 // TODO:
 // This is just reminder stuff to borrow from as error reporting is refined,

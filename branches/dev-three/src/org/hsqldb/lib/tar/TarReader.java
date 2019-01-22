@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -382,7 +382,6 @@ public class TarReader {
 
         try {
 
-//#ifdef JAVA6
             // Don't know exactly why I am still able to write to the file
             // after removing read and write privs from myself, but it does
             // work.
@@ -393,7 +392,6 @@ public class TarReader {
             newFile.setReadable((fileMode & 0400) != 0, true);
             newFile.setWritable((fileMode & 0200) != 0, true);
 
-//#endif
             while (readBlocks > 0) {
                 readNow = (readBlocks > archive.getReadBufferBlocks())
                           ? archive.getReadBufferBlocks()

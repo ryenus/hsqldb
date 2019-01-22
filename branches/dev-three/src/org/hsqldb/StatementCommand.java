@@ -871,7 +871,7 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
 
-                    JavaSystem.gcFrequency = count;
+                    // a no-op from version 2.5.0
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
