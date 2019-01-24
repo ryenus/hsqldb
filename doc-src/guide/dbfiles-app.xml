@@ -31,9 +31,9 @@
   <section xml:id="dfa_db_files">
     <title>Database Files</title>
 
-    <para>Database catalogs opened with the file: protocol are stored as a set
-    of files. This document describes the contents of these files and how they
-    are stored.</para>
+    <para>Database catalogs opened with the <glossterm>file:</glossterm>
+    protocol are stored as a set of files. This document describes the
+    contents of these files and how they are stored.</para>
 
     <para>A database named 'test' is used in this description. The database
     files will be as follows.</para>
@@ -75,9 +75,9 @@
         <term>test.backup</term>
 
         <listitem>
-          <para>Depending on the backup mode ( SET FILES BACKUP INCREMENT {TRUE
-          | FALSE} ), this file contains either a backup of the parts of the
-          <filename>test.data</filename> that have been modified since the
+          <para>Depending on the backup mode ( SET FILES BACKUP INCREMENT
+          {TRUE | FALSE} ), this file contains either a backup of the parts of
+          the <filename>test.data</filename> that have been modified since the
           last checkpoint (the default setting, TRUE) or the complete
           compressed backup of the <filename>test.data</filename> file at the
           time of last checkpoint (when FALSE).</para>
