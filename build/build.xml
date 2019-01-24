@@ -199,7 +199,7 @@ examples:
     <!-- If this should not be called externally, rename to -switches
          and remove the description attribute -->
     <target name="switches" depends="codeswitcher, -autoswitch"
-            description="Execute code switchers for JVM version">
+            description="execute code switchers for current JVM version">
 
 
     </target>
