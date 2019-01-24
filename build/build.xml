@@ -118,9 +118,6 @@ examples:
       <available classname="java.net.IDN" property="ant.java.iscjava16"/>
       <available classname="java.sql.JDBCType" property="ant.java.iscjava18"/>
       <available classname="java.sql.ShardingKey" property="ant.java.iscjava19"/>
-      <fail message="JDK 1.6 or greater is required"
-             unless="ant.java.isjava16"/>
-
    </target>
 
    <target name="-prepare" depends="init,-set-jvmvars">
