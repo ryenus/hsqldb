@@ -26,9 +26,11 @@
   -->
 
    <property file='build/build.properties'/>
+
    <condition property="hsqldb.version" value="2.5.0">
        <available classname="java.sql.JDBCType"/>
    </condition>
+   <!-- hsqldb.version is set only once - if it is set above, the next line is a no-op -->
    <property name="hsqldb.version" value="2.3.7"/>
 
    <tstamp>
@@ -196,60 +198,82 @@ examples:
 
     <!-- If this should not be called externally, rename to -switches
          and remove the description attribute -->
-    <target name="switches" depends="codeswitcher"
-            description="Execute code switchers, other than for JVM version">
+    <target name="switches" depends="codeswitcher, autoswitch"
+            description="Execute code switchers for JVM version">
+
+
     </target>
 
-    <target name="switchtojdk16" depends="switches"
-            description="self explanatory" if="ant.java.iscjava16">
+    <!-- the args for default code switching are set and used -->
+    <condition property="switchargone" value="+JAVA8" else="-JAVA8">
+        <available classname="java.sql.JDBCType"/>
+    </condition>
+
+    <condition property="switchargtwo" value="+JAVA9" else="-JAVA9">
+        <available classname="java.sql.ShardingKey"/>
+    </condition>
+
+    <target name="-autoswitch" description="switch code to current JVM">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-          <arg value="-JAVA8"/>
-          <arg value="-JAVA9"/>
-          <arg value="--pathlist=${basedir}/build/jdkcodeswitch.list"/>
-          <arg value="--basedir=${swsrc}"/>
-          <!-- Since these paths are interpreted by the JVM, not ant,
-               the path must be relative to run dir (build), not the
-               Ant basedir -->
+        <arg value="${switchargone}"/>
+        <arg value="${switchargtwo}"/>
+        <arg value="--pathlist=${basedir}/build/jdkcodeswitch.list"/>
+        <arg value="--basedir=${swsrc}"/>
+        <!-- Since these paths are interpreted by the JVM, not ant,
+             the path must be relative to run dir (build), not the
+             Ant basedir -->
        </java>
     </target>
 
-    <target name="switchtojdk18" depends="switches"
+    <!-- these are used for checking the correctness of switched code blocks -->
+    <target name="switchtojdk16" description="self explanatory">
+      <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
+        <arg value="-JAVA8"/>
+        <arg value="-JAVA9"/>
+        <arg value="--pathlist=${basedir}/build/jdkcodeswitch.list"/>
+        <arg value="--basedir=${swsrc}"/>
+        <!-- Since these paths are interpreted by the JVM, not ant,
+             the path must be relative to run dir (build), not the
+             Ant basedir -->
+      </java>
+    </target>
+
+    <target name="switchtojdk18"
             description="self explanatory" if="ant.java.iscjava18">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-          <arg value="+JAVA8"/>
-          <arg value="-JAVA9"/>
-          <arg value="--pathlist=jdkcodeswitch.list"/>
-          <arg value="--basedir=${swsrc}"/>
-          <!-- Since these paths are interpreted by the JVM, not ant,
-               the path must be relative to run dir (build), not the
-               Ant basedir -->
-       </java>
+        <arg value="+JAVA8"/>
+        <arg value="-JAVA9"/>
+        <arg value="--pathlist=jdkcodeswitch.list"/>
+        <arg value="--basedir=${swsrc}"/>
+        <!-- Since these paths are interpreted by the JVM, not ant,
+             the path must be relative to run dir (build), not the
+             Ant basedir -->
+      </java>
     </target>
 
-    <target name="switchtojdk19" depends="switches"
+    <target name="switchtojdk19"
             description="self explanatory" if="ant.java.iscjava19">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-          <arg value="+JAVA8"/>
-          <arg value="+JAVA9"/>
-          <arg value="--pathlist=jdkcodeswitch.list"/>
-          <arg value="--basedir=${swsrc}"/>
-          <!-- Since these paths are interpreted by the JVM, not ant,
-               the path must be relative to run dir (build), not the
-               Ant basedir -->
-       </java>
+        <arg value="+JAVA8"/>
+        <arg value="+JAVA9"/>
+        <arg value="--pathlist=jdkcodeswitch.list"/>
+        <arg value="--basedir=${swsrc}"/>
+        <!-- Since these paths are interpreted by the JVM, not ant,
+             the path must be relative to run dir (build), not the
+             Ant basedir -->
+      </java>
     </target>
 
+
     <target name="map" description="compiles the /map folder"
-            depends="switchtojdk16,
-                     switchtojdk18,
-                     switchtojdk19">
+            depends="switches">
       <javac srcdir="${swsrc}" includeantruntime="false"
              encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
-             optimize="${build.optimize}"
-      >
+             optimize="${build.optimize}">
          <include name="org/hsqldb/map/**"/>
+         <compilerarg value="-Xlint:unchecked"/>
       </javac>
     </target>
 
@@ -348,7 +372,7 @@ examples:
     </target>
 
     <!-- compiles the cmdline classes -->
-    <target name="-cmdline" if="ant.java.iscjava15"
+    <target name="-cmdline"
             depends="-prepare, -update-switch-branch,
                      -conditionalize-sqlfile-scanner, -sqlfile-scanner">
       <javac srcdir="${swsrc}"
@@ -363,7 +387,7 @@ examples:
     </target>
 
     <!-- compiles the auth classes -->
-    <target name="-auth" if="ant.java.iscjava15"
+    <target name="-auth"
             depends="lib, classes">
       <javac srcdir="${swsrc}"
              includeantruntime="false"
@@ -398,7 +422,7 @@ examples:
             message="Place Jar file for v. 3.8.x of Junit at '${junit38.lib}', or set property 'junit38.lib'"/>
    </target>
 
-   <target name="scanner-driver" depends="util"
+   <target name="scanner-driver"
        description="Build Scanner Driver.  For SqlTool scanner developers.">
       <javac srcdir="${swsrc}"
              includeantruntime="false"
@@ -431,8 +455,7 @@ examples:
 
     <!--jar with (jdkversion-switched) sources, useful for reading/debugging the code from other projects, can be specified via maven too-->
     <target name="hsqldbsources" description="builds jar file containing source code"
-            depends="switchtojdk16,
-                     switchtojdk18">
+            depends="switches">
         <jar jarfile="lib/hsqldb-sources.jar"
              basedir="tmp/switchedsrc">
         </jar>
@@ -511,7 +534,7 @@ examples:
       </jar>
     </target>
 
-    <target name="hsqldbmin" depends="classes16, -auth, -prep-license-files"
+    <target name="hsqldbmin" depends="classes, -prep-license-files"
             description="Build the hsqldbmin.jar (no servers)">
         <jar jarfile="lib/hsqldbmin.jar"
              basedir="classes"
@@ -692,10 +715,8 @@ examples:
                   org/hsqldb/cmdline/sqltool/**/*.html
                   '/>
 
-    <target name="sqltool" depends="classes15, -cmdline, -prep-license-files"
+    <target name="sqltool" depends="classes, -cmdline, -prep-license-files"
             description="Build 'sqltool.jar' file">
-      <fail unless="ant.java.iscjava15"
-            message="Can't build sqltool with JVM less than v. 1.5"/>
        <jar jarfile="lib/sqltool.jar" compress="true" filesonly="true">
          <metainf dir="doc" includes="*_lic.txt"/>
          <manifest>
@@ -735,7 +756,7 @@ examples:
 <!-- classes referenced by the org.hsqldb.jdbc package classes -->
 <!-- or the org.hsqldb.jdbcDriver class are included here with some -->
 <!-- ommissions where the calling methods are not actually used -->
-    <target name="hsqljdbc" depends="classes16, -prep-license-files"
+    <target name="hsqljdbc" depends="classes, -prep-license-files"
              description="Build the hsqljdbc.jar for network clients">
         <jar jarfile="lib/hsqljdbc.jar" compress="true">
          <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
@@ -801,13 +822,13 @@ examples:
            only listed once if jdbc package is selected). -->
       <javadoc
            sourcefiles="src/org/hsqldb/jdbc/JDBCDriver.java,
-		                src/org/hsqldb/jdbc/pool/JDBCPooledConnection.java,
-		                src/org/hsqldb/jdbc/pool/JDBCPooledDataSource.java,
-		                src/org/hsqldb/jdbc/pool/JDBCXAConnection.java,
-		                src/org/hsqldb/jdbc/pool/JDBCXAConnectionWrapper.java,
-		                src/org/hsqldb/jdbc/pool/JDBCXADataSource.java,
-		                src/org/hsqldb/jdbc/pool/JDBCXAResource.java,
-		                src/org/hsqldb/jdbc/pool/JDBCXID.java,
+                        src/org/hsqldb/jdbc/pool/JDBCPooledConnection.java,
+                        src/org/hsqldb/jdbc/pool/JDBCPooledDataSource.java,
+                        src/org/hsqldb/jdbc/pool/JDBCXAConnection.java,
+                        src/org/hsqldb/jdbc/pool/JDBCXAConnectionWrapper.java,
+                        src/org/hsqldb/jdbc/pool/JDBCXADataSource.java,
+                        src/org/hsqldb/jdbc/pool/JDBCXAResource.java,
+                        src/org/hsqldb/jdbc/pool/JDBCXID.java,
                         src/org/hsqldb/Trigger.java,
                         src/org/hsqldb/server/Server.java,
                         src/org/hsqldb/server/WebServer.java,
@@ -915,7 +936,7 @@ examples:
       <delete file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
     </target>
 
-     <!-- If you don't want this to run unless ant.java.iscjava15 is set,
+     <!-- If you don't want this to run unless ant.java.iscjava16 is set,
           then call -conditionalize-sqlfile-scanner before this target. -->
     <target name="-sqlfile-scanner" depends="-conditionalize-jflex, jflex"
             unless="-sqlfile-scanner.skip">
@@ -959,17 +980,17 @@ examples:
 
     <target name="-conditionalize-jflex" depends="-set-jvmvars">
       <!-- JFlex will only run if SqlFileScanner.java does not exist
-           and ant.java.iscjava15 -->
+           and ant.java.iscjava16 -->
       <available property="jflex.skip" type="file"
                  file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
       <condition property="jflex.skip"> <not>
-        <isset property="ant.java.iscjava15"/>
+        <isset property="ant.java.iscjava16"/>
       </not> </condition>
     </target>
 
     <target name="-conditionalize-sqlfile-scanner" depends="-set-jvmvars">
       <condition property="-sqlfile-scanner.skip"> <not>
-        <isset property="ant.java.iscjava15"/>
+        <isset property="ant.java.iscjava16"/>
       </not> </condition>
     </target>
 
