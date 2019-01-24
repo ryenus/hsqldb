@@ -106,6 +106,7 @@ examples:
       <echo message="ant.java.hasjsse=${ant.java.hasjsse}" />
    </target>
 
+   <!-- set up java compatibility level or fail -->
    <target name="-set-jvmvars">
    <!-- Besides this one target taking the place of 4 targets (-javaversionX),
         this target eliminates the redundancy in those methods by making a
@@ -117,6 +118,9 @@ examples:
       <available classname="java.net.IDN" property="ant.java.iscjava16"/>
       <available classname="java.sql.JDBCType" property="ant.java.iscjava18"/>
       <available classname="java.sql.ShardingKey" property="ant.java.iscjava19"/>
+      <fail message="JDK 1.6 or greater is required"
+             unless="ant.java.isjava16"/>
+
    </target>
 
    <target name="-prepare" depends="init,-set-jvmvars">
