@@ -1387,7 +1387,6 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_FROM_BASE64 : {
 
 //#ifdef JAVA8
-/*
                 String val = (String) data[0];
 
                 if (val == null) {
@@ -1399,17 +1398,17 @@ public class FunctionCustom extends FunctionSQL {
                 byte[] bytes = java.util.Base64.getDecoder().decode(val);
 
                 return new BinaryData(bytes, false);
-*/
 
 //#else
+/*
                 throw Error.error(ErrorCode.X_0A501);
+*/
 
 //#endif JAVA8
             }
             case FUNC_TO_BASE64 : {
 
 //#ifdef JAVA8
-/*
                 BinaryData val = (BinaryData) data[0];
 
                 if (val == null) {
@@ -1417,10 +1416,11 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 return java.util.Base64.getEncoder().encodeToString(val.getBytes());
-*/
 
 //#else
+/*
                 throw Error.error(ErrorCode.X_0A501);
+*/
 
 //#endif JAVA8
             }

@@ -663,7 +663,6 @@ public final class IntervalType extends DTIType {
     }
 
 //#ifdef JAVA8
-/*
     Object convertJavaTimeObject(SessionInterface session, Object a) {
 
         if (this.isIntervalYearMonthType()) {
@@ -685,12 +684,13 @@ public final class IntervalType extends DTIType {
 
         return null;
     }
-*/
 
 //#else
+/*
     TimestampData convertJavaTimeObject(SessionInterface session, Object a) {
         return null;
     }
+*/
 
 //#endif JAVA8
     public String convertToString(Object a) {

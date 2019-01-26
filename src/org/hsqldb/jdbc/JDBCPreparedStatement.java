@@ -43,6 +43,7 @@ import java.sql.BatchUpdateException;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.Date;
 import java.sql.NClob;
 import java.sql.ParameterMetaData;
@@ -97,10 +98,8 @@ import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
 //#ifdef JAVA8
-/*
 import java.sql.JDBCType;
 import java.sql.SQLType;
-*/
 
 //#endif JAVA8
 
@@ -3813,11 +3812,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public long getLargeUpdateCount() throws SQLException {
         return super.getUpdateCount();
     }
-*/
 
 //#endif JAVA8
 
@@ -3841,14 +3838,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void setLargeMaxRows(long max) throws SQLException {
 
         int maxRows = max > Integer.MAX_VALUE ? Integer.MAX_VALUE :
                                                 (int) max;
         setMaxRows(maxRows);
     }
-*/
 
 //#endif JAVA8
 
@@ -3872,11 +3867,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public long getLargeMaxRows() throws SQLException {
         return maxRows;
     }
-*/
 
 //#endif JAVA8
 
@@ -3936,7 +3929,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public long[] executeLargeBatch() throws SQLException {
         int[] updateCounts = executeBatch();
 
@@ -3948,7 +3940,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         return longCounts;
     }
-*/
 
 //#endif JAVA8
 
@@ -4004,13 +3995,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType,
                            int scaleOrLength) throws SQLException {
         int typeNo = targetSqlType.getVendorTypeNumber().intValue();
         setObject(parameterIndex, x, typeNo, scaleOrLength);
     }
-*/
 
 //#endif JAVA8
 
@@ -4036,13 +4025,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType)
             throws SQLException {
         int typeNo = targetSqlType.getVendorTypeNumber().intValue();
         setObject(parameterIndex, x, typeNo);
     }
-*/
 //#endif JAVA8
 
     /**

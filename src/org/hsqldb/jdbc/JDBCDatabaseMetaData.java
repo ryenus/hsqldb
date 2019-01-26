@@ -5793,11 +5793,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public long getMaxLogicalLobSize() throws SQLException {
         return Type.SQL_BLOB.maxBlobPrecision;
     }
-*/
 
 //#endif JAVA8
 
@@ -5810,11 +5808,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public boolean supportsRefCursors() throws SQLException {
         return false;
     }
-*/
 
 //#endif JAVA8
 
@@ -5901,12 +5897,12 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
     public static final int JDBC_MAJOR = 4;
 
 //#ifdef JAVA8
-/*
     public static final int JDBC_MINOR = 2;
-*/
 
 //#else
+/*
     public static final int JDBC_MINOR = 0;
+*/
 
 //#endif JAVA8
 

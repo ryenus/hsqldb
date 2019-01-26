@@ -41,9 +41,7 @@ import java.util.Properties;
 import java.sql.SQLFeatureNotSupportedException;
 
 //#ifdef JAVA8
-/*
 import java.sql.DriverAction;
-*/
 
 //#endif JAVA8
 
@@ -513,11 +511,11 @@ public class JDBCDriver implements Driver {
         try {
 
 //#ifdef JAVA8
-/*
             DriverManager.registerDriver(driverInstance, new EmptyDiverAction());
-*/
 //#else
+/*
             DriverManager.registerDriver(driverInstance);
+*/
 
 //#endif JAVA8
 
@@ -539,13 +537,11 @@ public class JDBCDriver implements Driver {
     //------------------------- JDBC 4.2 -----------------------------------
 
 //#ifdef JAVA8
-/*
 
     private static class EmptyDiverAction implements java.sql.DriverAction {
         public void deregister() {}
 
     }
-*/
 //#endif JAVA8
 
 }

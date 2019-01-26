@@ -656,7 +656,6 @@ public class CharacterType extends Type {
     }
 
 //#ifdef JAVA8
-/*
     String convertJavaTimeObject(SessionInterface session, Object a) {
 
         switch(a.getClass().getName()){
@@ -671,12 +670,13 @@ public class CharacterType extends Type {
 
         return null;
     }
-*/
 
 //#else
+/*
     String convertJavaTimeObject(SessionInterface session, Object a) {
         return null;
     }
+*/
 
 //#endif JAVA8
     public Object convertJavaToSQL(SessionInterface session, Object a) {

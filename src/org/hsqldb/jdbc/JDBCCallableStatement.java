@@ -73,7 +73,6 @@ import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
 //#ifdef JAVA8
-/*
 import java.sql.JDBCType;
 import java.sql.SQLType;
 import java.time.Duration;
@@ -84,7 +83,6 @@ import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.Period;
 import java.time.ZoneOffset;
-*/
 
 //#endif JAVA8
 
@@ -4456,7 +4454,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
 //#ifdef JAVA8
-/*
     public <T>T getObject(int parameterIndex, Class<T> type) throws SQLException {
 
         if (type == null) {
@@ -4604,11 +4601,12 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         return (T) o;
     }
-*/
 //#else
+/*
     public <T>T getObject(int parameterIndex, Class<T> type) throws SQLException {
         throw JDBCUtil.notSupported();
     }
+*/
 
 //#endif JAVA8
 
@@ -4698,12 +4696,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void setObject(String parameterName, Object x, SQLType targetSqlType,
                            int scaleOrLength) throws SQLException {
         setObject(parameterName, x, targetSqlType.getVendorTypeNumber(), scaleOrLength);
     }
-*/
 //#endif JAVA8
     /**
      * Sets the value of the designated parameter with the given object.
@@ -4727,12 +4723,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void setObject(String parameterName, Object x, SQLType targetSqlType)
             throws SQLException {
         setObject(parameterName, x, targetSqlType.getVendorTypeNumber());
     }
-*/
 //#endif JAVA8
 
     /**
@@ -4772,12 +4766,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void registerOutParameter(int parameterIndex, SQLType sqlType)
             throws SQLException {
         registerOutParameter(parameterIndex,sqlType.getVendorTypeNumber());
     }
-*/
 //#endif JAVA8
 
     /**
@@ -4812,12 +4804,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void registerOutParameter(int parameterIndex, SQLType sqlType,
                                       int scale) throws SQLException {
         registerOutParameter(parameterIndex,sqlType.getVendorTypeNumber(), scale);
     }
-*/
 //#endif JAVA8
 
     /**
@@ -4864,12 +4854,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void registerOutParameter (int parameterIndex, SQLType sqlType,
                                        String typeName) throws SQLException {
         registerOutParameter(parameterIndex,sqlType.getVendorTypeNumber(), typeName);
     }
-*/
 //#endif JAVA8
 
     /**
@@ -4909,12 +4897,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see SQLType
      */
 //#ifdef JAVA8
-/*
     public void registerOutParameter(String parameterName, SQLType sqlType)
             throws SQLException {
         registerOutParameter(parameterName,sqlType.getVendorTypeNumber());
     }
-*/
 //#endif JAVA8
 
     /**
@@ -4950,12 +4936,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see SQLType
      */
 //#ifdef JAVA8
-/*
     public void registerOutParameter(String parameterName, SQLType sqlType,
                                       int scale) throws SQLException {
         registerOutParameter(parameterName,sqlType.getVendorTypeNumber(), scale);
     }
-*/
 //#endif JAVA8
 
     /**
@@ -5002,12 +4986,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void registerOutParameter (String parameterName, SQLType sqlType,
                                        String typeName) throws SQLException {
         registerOutParameter(parameterName,sqlType.getVendorTypeNumber(), typeName);
     }
-*/
 //#endif JAVA8
 
 // --------------------------- Internal Implementation -------------------------
@@ -5209,7 +5191,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     }
 
 //#ifdef JAVA8
-/*
     private Object getTimestampWithZone(int columnIndex) throws SQLException {
         TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
 
@@ -5233,9 +5214,9 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         LocalTime lt = LocalTime.ofNanoOfDay((v.getSeconds() + v.getZone()) * 1000_000_000L + v.getNanos());
         return OffsetTime.of(lt, z);
     }
-*/
 
 //#else
+/*
     private Object getTimestampWithZone(int columnIndex) throws SQLException {
         TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
 
@@ -5253,6 +5234,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
         return Type.SQL_TIME.convertSQLToJava(session, v);
     }
+*/
 //#endif JAVA8
 
     private boolean trackNull(Object o) {
