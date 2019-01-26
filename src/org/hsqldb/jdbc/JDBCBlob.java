@@ -721,8 +721,8 @@ public class JDBCBlob implements Blob {
     }
 
     // ---------------------- internal implementation --------------------------
-    public static final long    MIN_POS  = 1L;
-    public static final long    MAX_POS  = MIN_POS + (long) Integer.MAX_VALUE;
+    private static final long   MIN_POS  = 1L;
+    private static final long   MAX_POS  = MIN_POS + (long) Integer.MAX_VALUE;
     private static final byte[] NO_BYTES = new byte[0];
     private boolean             m_closed;
     private byte[]              m_data;
