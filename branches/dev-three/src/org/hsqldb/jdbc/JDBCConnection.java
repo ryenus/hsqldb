@@ -40,6 +40,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.NClob;
 import java.sql.PreparedStatement;
 import java.sql.SQLClientInfoException;
+import java.sql.SQLFeatureNotSupportedException;
 //import java.sql.SQLData;
 //import java.sql.SQLOutput;
 //import java.sql.SQLInput;

@@ -86,7 +86,6 @@ import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
 //#ifdef JAVA8
-/*
 import java.sql.JDBCType;
 import java.sql.SQLType;
 import java.time.Duration;
@@ -97,7 +96,6 @@ import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.Period;
 import java.time.ZoneOffset;
-*/
 //#endif JAVA8
 
 
@@ -6817,7 +6815,6 @@ public class JDBCResultSet implements ResultSet {
      */
 
 //#ifdef JAVA8
-/*
     public <T>T getObject(int columnIndex, Class<T> type) throws SQLException {
 
         if (type == null) {
@@ -6970,11 +6967,12 @@ public class JDBCResultSet implements ResultSet {
 
         return (T) o;
     }
-*/
 //#else
+/*
     public <T>T getObject(int columnIndex, Class<T> type) throws SQLException {
         throw JDBCUtil.notSupported();
     }
+*/
 
 //#endif JAVA8
 
@@ -7048,13 +7046,11 @@ public class JDBCResultSet implements ResultSet {
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void updateObject(int columnIndex, Object x,
                               SQLType targetSqlType, int scaleOrLength)  throws SQLException {
         startUpdate(columnIndex);
         preparedStatement.setObject(columnIndex, x, targetSqlType, scaleOrLength);
     }
-*/
 
 //#endif JAVA8
 
@@ -7097,12 +7093,10 @@ public class JDBCResultSet implements ResultSet {
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public  void updateObject(String columnLabel, Object x,
                               SQLType targetSqlType, int scaleOrLength) throws SQLException {
         updateObject(findColumn(columnLabel), x, targetSqlType, scaleOrLength);
     }
-*/
 
 //#endif JAVA8
 
@@ -7130,12 +7124,10 @@ public class JDBCResultSet implements ResultSet {
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void updateObject(int columnIndex, Object x, SQLType targetSqlType)
             throws SQLException {
         preparedStatement.setObject(columnIndex, x, targetSqlType);
     }
-*/
 
 //#endif JAVA8
 
@@ -7165,18 +7157,15 @@ public class JDBCResultSet implements ResultSet {
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void updateObject(String columnLabel, Object x,
                               SQLType targetSqlType) throws SQLException {
         updateObject(findColumn(columnLabel), x, targetSqlType);
     }
-*/
 
 //#endif JAVA8
 
 
 //#ifdef JAVA8
-/*
     private Object getTimestampWithZone(int columnIndex) throws SQLException {
         TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
 
@@ -7208,9 +7197,9 @@ public class JDBCResultSet implements ResultSet {
         LocalTime lt = LocalTime.ofNanoOfDay(s * 1000_000_000L + v.getNanos());
         return OffsetTime.of(lt, z);
     }
-*/
 
 //#else
+/*
     private Object getTimestampWithZone(int columnIndex) throws SQLException {
         TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
 
@@ -7228,6 +7217,7 @@ public class JDBCResultSet implements ResultSet {
         }
         return Type.SQL_TIME.convertSQLToJava(session, v);
     }
+*/
 //#endif JAVA8
 
 

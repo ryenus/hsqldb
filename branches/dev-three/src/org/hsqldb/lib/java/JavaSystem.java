@@ -81,7 +81,6 @@ public class JavaSystem {
     }
 
 //#ifdef JAVA9
-/*
 
         public static void unmap(MappedByteBuffer buffer) {
 
@@ -96,9 +95,9 @@ public class JavaSystem {
                 unsafe.invokeCleaner(buffer);
             } catch (Throwable t) {}
         }
-*/
 
 //#else
+/*
     public static void unmap(MappedByteBuffer buffer) {
 
         if (buffer == null) {
@@ -120,6 +119,7 @@ public class JavaSystem {
             // Means we're not dealing with a Sun JVM?
         } catch (Throwable e) {}
     }
+*/
 
 //#endif JAVA9
     public static IOException toIOException(Throwable t) {

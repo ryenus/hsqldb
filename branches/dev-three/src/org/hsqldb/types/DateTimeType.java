@@ -134,20 +134,20 @@ public final class DateTimeType extends DTIType {
                 return java.sql.Timestamp.class;
 
 //#ifdef JAVA8
-/*
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 return java.time.OffsetTime.class;
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return java.time.OffsetDateTime.class;
-*/
 
 //#else
+/*
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 return java.sql.Time.class;
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return java.sql.Timestamp.class;
+*/
 
 //#endif JAVA8
             default :
@@ -169,20 +169,20 @@ public final class DateTimeType extends DTIType {
                 return "java.sql.Timestamp";
 
 //#ifdef JAVA8
-/*
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 return "java.time.OffsetTime";
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return "java.time.OffsetDateTime";
-*/
 
 //#else
+/*
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 return "java.sql.Time";
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return "java.sql.Timestamp";
+*/
 
 //#endif JAVA8
             default :
@@ -959,7 +959,6 @@ public final class DateTimeType extends DTIType {
     }
 
 //#ifdef JAVA8
-/*
     TimestampData convertJavaTimeObject(SessionInterface session, Object a, boolean timestamp) {
         if (a instanceof java.time.OffsetDateTime) {
             java.time.OffsetDateTime odt = (java.time.OffsetDateTime) a;
@@ -1075,9 +1074,9 @@ public final class DateTimeType extends DTIType {
 
         return null;
     }
-*/
 
 //#else
+/*
     TimestampData convertJavaTimeObject(SessionInterface session, Object a,
                                         boolean timestamp) {
         return null;
@@ -1086,6 +1085,7 @@ public final class DateTimeType extends DTIType {
     TimeData convertJavaTimeObject(SessionInterface session, Object a) {
         return null;
     }
+*/
 
 //#endif JAVA8
     public Object convertSQLToJavaGMT(SessionInterface session, Object a) {

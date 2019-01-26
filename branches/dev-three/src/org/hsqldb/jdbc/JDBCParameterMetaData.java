@@ -42,7 +42,7 @@ import org.hsqldb.types.Type;
 
 /* $Id$ */
 
-/** @todo 1.9.0 - implement internal support for INOUT, OUT return parameter */
+/* @todo 1.9.0 - implement internal support for INOUT, OUT return parameter */
 
 // fredt@users 20040412 - removed DITypeInfo dependencies
 // fredt@users 1.9.0 - utilise the new type support
