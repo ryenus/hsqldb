@@ -807,9 +807,7 @@ examples:
     </target>
 
     <target name="-doclink-16"
-                depends="-doclink-18"
-                    if="ant.java.iscjava16"
-            unless="ant.java.iscjava18">
+                depends="-doclink-18" unless="ant.java.iscjava18">
         <property name="jse.doc.link"
                   value="http://docs.oracle.com/javase/6/docs/api/"/>
         <property name="jee.doc.link"

@@ -34,12 +34,11 @@ package org.hsqldb.jdbc;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.RowIdLifetime;
+import java.sql.PseudoColumnUsage;
 import java.sql.SQLException;
 
-import java.sql.RowIdLifetime;
-
 import org.hsqldb.FunctionCustom;
-import org.hsqldb.dbinfo.DatabaseInformation;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -5725,7 +5724,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * DECIMAL_DIGITS is not applicable.
      *  <LI><B>NUM_PREC_RADIX</B> int {@code =>} Radix (typically either 10 or 2)
      *  <LI><B>COLUMN_USAGE</B> String {@code =>} The allowed usage for the column.  The
-     *  value returned will correspond to the enum name returned by {@link java.sql.PseudoColumnUsage#name PseudoColumnUsage.name()}
+     *  value returned will correspond to the enum name returned by {@link java.sql.PseudoColumnUsage PseudoColumnUsage.name()}
      *  <LI><B>REMARKS</B> String {@code =>} comment describing column (may be <code>null</code>)
      *  <LI><B>CHAR_OCTET_LENGTH</B> int {@code =>} for char types the
      *       maximum number of bytes in the column

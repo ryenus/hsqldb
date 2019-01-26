@@ -38,48 +38,25 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.sql.Array;
-import java.sql.BatchUpdateException;
 import java.sql.Blob;
 import java.sql.Clob;
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.ParameterMetaData;
-import java.sql.PreparedStatement;
+import java.sql.NClob;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.RowId;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLWarning;
+import java.sql.SQLXML;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Map;
-import java.util.UUID;
-import java.sql.NClob;
-import java.sql.RowId;
-import java.sql.SQLXML;
-import java.sql.SQLFeatureNotSupportedException;
-import java.sql.SQLTimeoutException;
-
-//#ifdef JAVA8
-/*
-import java.sql.JDBCType;
-import java.sql.SQLType;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.OffsetTime;
-import java.time.Period;
-import java.time.ZoneOffset;
-*/
-//#endif JAVA8
 
 import org.hsqldb.ColumnBase;
-import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
@@ -89,6 +66,7 @@ import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringInputStream;
 import org.hsqldb.map.BitMap;
 import org.hsqldb.navigator.RowSetNavigator;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
@@ -106,6 +84,22 @@ import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
+
+//#ifdef JAVA8
+/*
+import java.sql.JDBCType;
+import java.sql.SQLType;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.ZoneOffset;
+*/
+//#endif JAVA8
+
 
 /* $Id$ */
 
@@ -2565,7 +2559,7 @@ public class JDBCResultSet implements ResultSet {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB may not build and return a result set as a
-     * whole. The acutal fetch size for this result set is returned.
+     * whole. The actual fetch size for this result set is returned.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -7306,7 +7300,7 @@ public class JDBCResultSet implements ResultSet {
      * Fetches the current row of the result set.
      *
      * @throws SQLException when result set is closed; result set is empty;
-     *   result set is before first; result set is alfter last; no row data is
+     *   result set is before first; result set is after last; no row data is
      *   available.
      * @return Object[]
      */
@@ -7396,7 +7390,7 @@ public class JDBCResultSet implements ResultSet {
      * Internal value converter. <p>
      *
      * All trivially successful getXXX methods eventually go through this
-     * method, converting if neccessary from the source type to the
+     * method, converting if necessary from the source type to the
      * requested type.  <p>
      *
      * Conversion to the JDBC representation, if different, is handled by the
@@ -7605,7 +7599,7 @@ public class JDBCResultSet implements ResultSet {
         this.navigator = navigator;
     }
 
-    //------------------------------ Contructors -------------------------------
+    //------------------------------ Constructors -------------------------------
 
     /**
      * Constructs a new <code>JDBCResultSet</code> object using the specified

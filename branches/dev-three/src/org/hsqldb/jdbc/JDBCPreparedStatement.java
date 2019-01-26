@@ -44,32 +44,24 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.DatabaseMetaData;
+import java.sql.NClob;
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.RowId;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.SQLTimeoutException;
 import java.sql.SQLWarning;
+import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Calendar;
 import java.util.UUID;
-
-import java.sql.NClob;
-import java.sql.RowId;
-import java.sql.SQLXML;
-
-//#ifdef JAVA8
-/*
-import java.sql.JDBCType;
-import java.sql.SQLType;
-*/
-
-//#endif JAVA8
 
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
@@ -103,6 +95,15 @@ import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
+
+//#ifdef JAVA8
+/*
+import java.sql.JDBCType;
+import java.sql.SQLType;
+*/
+
+//#endif JAVA8
+
 
 /* $Id$ */
 
@@ -184,7 +185,7 @@ import org.hsqldb.types.Types;
  * is required for this behaviour.
  * <p>
  * JDBCPreparedStatement objects are backed by
- * a true compiled parameteric representation. Hence, there are now significant
+ * a true compiled parametric representation. Hence, there are now significant
  * performance gains to be had by using a JDBCPreparedStatement object in
  * preference to a JDBCStatement object when a short-running SQL statement is
  * to be executed more than once. <p>
@@ -673,7 +674,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setParameter(parameterIndex, x);
     }
 
-    /** @todo 1.9.0 - implement streaming */
+    /* @todo 1.9.0 - implement streaming */
 
     /**
      * <!-- start generic documentation -->
@@ -1122,7 +1123,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         resultOut.addBatchedPreparedExecuteRequest(batchParamValues);
     }
 
-    /** @todo 1.9.0 - implement streaming */
+    /* @todo 1.9.0 - implement streaming */
 
     /**
      * <!-- start generic documentation -->
@@ -1809,7 +1810,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setParameter(parameterIndex, null);
     }
 
-    //------------------------- JDBC 2.0 - overriden methods -------------------
+    //------------------------- JDBC 2.0 - overridden methods -------------------
 
     /**
      * <!-- start generic documentation -->
@@ -1847,7 +1848,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * A driver is not required to implement this method.
      * The possible implementations and return values have been modified in
      * the Java 2 SDK, Standard Edition, version 1.3 to
-     * accommodate the option of continuing to proccess commands in a batch
+     * accommodate the option of continuing to process commands in a batch
      * update after a <code>BatchUpdateException</code> object has been thrown.
      * <!-- end generic documentation -->
      *
@@ -2402,7 +2403,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setClob(parameterIndex, value);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.  The reader must contain  the number
@@ -2428,7 +2429,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setCharacterStream(parameterIndex, reader, length);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to a <code>InputStream</code> object.  The input stream must contain  the number
@@ -2521,7 +2522,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     }
 // --------------------------- Added: Mustang Build 86 -------------------------
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to the given input stream, which will have
@@ -2564,7 +2565,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "length: " + length);
         }
-        setAscStream(parameterIndex, x, (long) length);
+        setAscStream(parameterIndex, x, length);
     }
 
     void setAscStream(int parameterIndex, java.io.InputStream x,
@@ -2774,7 +2775,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setAscStream(parameterIndex, x, -1);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to the given input stream.
@@ -2816,7 +2817,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setBinStream(parameterIndex, x, -1);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to the given <code>Reader</code>
@@ -2860,7 +2861,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setCharStream(parameterIndex, reader, -1);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      *   Sets the designated parameter to a <code>Reader</code> object. The
@@ -2890,7 +2891,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setCharStream(parameterIndex, value, -1);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.
@@ -2919,7 +2920,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setCharStream(parameterIndex, reader, -1);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to a <code>InputStream</code> object.
@@ -2951,7 +2952,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setBinStream(parameterIndex, inputStream, -1);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.
@@ -3296,7 +3297,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         rootWarning = null;
     }
 
-    /** @todo 1.9.0 - implement */
+    /* @todo 1.9.0 - implement */
 
     /**
      * <!-- start generic documentation -->

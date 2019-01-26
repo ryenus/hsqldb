@@ -36,9 +36,7 @@ import java.lang.reflect.Modifier;
 import java.sql.ParameterMetaData;
 import java.sql.SQLException;
 
-import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 
