@@ -63,7 +63,7 @@
     <para>A uniform method is used to distinguish between different types of
     connection. The common driver identifier is
     <literal>jdbc:hsqldb:</literal> followed by a protocol identifier
-    (<literal>mem: file: res: hsql: http: hsqls: https:</literal>) then
+    (<glossterm>mem:</glossterm> <glossterm>file:</glossterm> <glossterm>res:</glossterm> <glossterm>hsql:</glossterm> <glossterm>http:</glossterm> <glossterm>hsqls:</glossterm> <glossterm>https:</glossterm>) then
     followed by host and port identifiers in the case of servers, then
     followed by database identifier. Additional property / value pairs can be
     appended to the end of the URL, separated with semicolons.</para>
@@ -653,8 +653,8 @@
     </table>
 
     <para>In addition, when the first connection to an
-    <glossterm>in-process</glossterm> <literal>file:</literal> or
-    <literal>mem:</literal> database creates a new database all the
+    <glossterm>in-process</glossterm> <glossterm>file:</glossterm> or
+    <glossterm>mem:</glossterm> database creates a new database all the
     user-defined database properties can be specified as URL properties. See
     the next section for details.</para>
   </section>
@@ -668,7 +668,7 @@
     via SQL commands after a connection is made to the database. It is
     possible to specify most of these properties in the connection properties
     or as part of the URL string when the first connection is made to a new
-    <literal>file:</literal> or <literal>mem:</literal> database. This allows
+    <glossterm>file:</glossterm> or <glossterm>mem:</glossterm> database. This allows
     the properties to be set without using any SQL commands. The corresponding
     SQL command is given for each property. For a server, these properties can
     be appended to the database path URL in server.properties or the server
@@ -2087,7 +2087,7 @@
               <entry><literal>false</literal></entry>
 
               <entry>readonly database - is used to open an existing
-              <literal>file:</literal> database</entry>
+              <glossterm>file:</glossterm> database</entry>
             </row>
 
             <row>
@@ -2129,7 +2129,7 @@
               <entry><literal>false</literal></entry>
 
               <entry>readonly files database - is used to open an existing
-              <literal>file:</literal> database</entry>
+              <glossterm>file:</glossterm> database</entry>
             </row>
 
             <row>
@@ -2170,7 +2170,7 @@
               <entry><literal>false</literal></entry>
 
               <entry>enable huge database files - can also be used to open an
-              existing <literal>file:</literal> database</entry>
+              existing <glossterm>file:</glossterm> database</entry>
             </row>
 
             <row>
@@ -2211,7 +2211,7 @@
               <entry><literal>0</literal></entry>
 
               <entry>application logging level - can also be used when opening
-              an existing <literal>file:</literal> database</entry>
+              an existing <glossterm>file:</glossterm> database</entry>
             </row>
 
             <row>
@@ -2253,7 +2253,7 @@
               <entry><literal>0</literal></entry>
 
               <entry>sql logging level - can also be used when opening an
-              existing <literal>file:</literal> database</entry>
+              existing <glossterm>file:</glossterm> database</entry>
             </row>
 
             <row>
@@ -2339,7 +2339,7 @@
               <entry><literal>512</literal></entry>
 
               <entry>maximum number of unused space recovery - can also be
-              used when opening an existing <literal>file:</literal>
+              used when opening an existing <glossterm>file:</glossterm>
               database</entry>
             </row>
 
@@ -2634,7 +2634,7 @@
               <entry><literal>true</literal></entry>
 
               <entry>use of lock file - can also be used with an existing
-              <literal>file:</literal> database</entry>
+              <glossterm>file:</glossterm> database</entry>
             </row>
 
             <row>
@@ -3105,11 +3105,10 @@
             </row>
 
             <row>
-              <entry nameend="c3" namest="c1"><para>This setting forces
-              garbage collection each time a set number of result set row or
-              cache row objects are created. The default, "0" means no garbage
-              collection is forced by the
-              program.</para><para><programlisting>SET DATABASE GC &lt;numeric value&gt;</programlisting></para></entry>
+              <entry nameend="c3" namest="c1"><para>No-op setting previously
+              used to forces garbage collection each time a set number of
+              result set row or cache row objects are created. This setting
+              has no effect in version 2.5.x,</para><para><programlisting>SET DATABASE GC &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -3360,9 +3359,9 @@
           <row>
             <entry nameend="c3" namest="c1"><para>Setting this system property
             true allows text table sources and files to be opened on all
-            available paths. It also allows pure mem: databases to open such
-            files. By default, only the database directory and its
-            subdirectories are allowed. See the Text Tables
+            available paths. It also allows pure <glossterm>mem:</glossterm>
+            databases to open such files. By default, only the database
+            directory and its subdirectories are allowed. See the Text Tables
             chapter.</para></entry>
           </row>
         </tbody>

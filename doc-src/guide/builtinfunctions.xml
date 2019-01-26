@@ -51,14 +51,14 @@
     <para>HyperSQL supports a wide range of built-in functions and allows
     user-defined functions written in SQL and Java languages. User-defined
     functions are covered in the <link endterm="sqlroutines-title"
-    xlink:href="#sqlroutines-chapt"></link> chapter. If a built-in function is
-    not available, you can write your own using procedural SQL or Java.</para>
+    xlink:href="#sqlroutines-chapt"/> chapter. If a built-in function is not
+    available, you can write your own using procedural SQL or Java.</para>
 
     <para>Built-in aggregate functions such as <literal>SUM,</literal>
     <literal>MAX</literal>, <literal>ARRAY_AGG</literal>,
     <literal>GROUP_CONCAT</literal> are covered in the <link
-    endterm="dataaccess-title" xlink:href="#dataaccess-chapt"></link> chapter,
-    which covers SQL in general. SQL expressions such as
+    endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/> chapter, which
+    covers SQL in general. SQL expressions such as
     <literal>COALESCE</literal>, <literal>NULLIF</literal> and
     <literal>CAST</literal> are also discussed there.</para>
 
@@ -77,7 +77,7 @@
           some functions is dependent upon the type of one of the parameters.
           The usage of SQL Standard Functions (where they can be used) is
           covered more extensively in the <link endterm="dataaccess-title"
-          xlink:href="#dataaccess-chapt"></link> chapter</para>
+          xlink:href="#dataaccess-chapt"/> chapter</para>
         </listitem>
 
         <listitem>
@@ -276,11 +276,11 @@
 
     <simpara><emphasis role="bold">FROM_BASE64</emphasis></simpara>
 
-    <para><literal>FROM_BASE64( &lt;character value expr&gt; )</literal></para>
+    <para><literal>FROM_BASE64( &lt;character value expr&gt;
+    )</literal></para>
 
-    <para>Returns a binary string by converting from the base64 <literal>&lt;character value
-    expr&gt;</literal>. (HyperSQL)</para>
-
+    <para>Returns a binary string by converting from the base64
+    <literal>&lt;character value expr&gt;</literal>. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>INSERT function</primary>
@@ -324,13 +324,13 @@
 
     <para><literal>HEX( &lt;binary value expr&gt; )</literal></para>
 
-	<para><literal>HEX( &lt;numeric value expr&gt; )</literal></para>
+    <para><literal>HEX( &lt;numeric value expr&gt; )</literal></para>
 
-    <para>Returns a character string of hexadecimal digits
-    and letters representing the <literal>&lt;binary value expr&gt;</literal>. Exactly
-	the same as the <literal>RAWTOHEX</literal> function. With 
-	<literal>&lt;numeric value expr&gt;</literal> the hexadecimal digits represent
-    the number in base 16 (HyperSQL)</para>
+    <para>Returns a character string of hexadecimal digits and letters
+    representing the <literal>&lt;binary value expr&gt;</literal>. Exactly the
+    same as the <literal>RAWTOHEX</literal> function. With
+    <literal>&lt;numeric value expr&gt;</literal> the hexadecimal digits
+    represent the number in base 16 (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>HEXTORAW function</primary>
@@ -731,10 +731,9 @@
 
     <para><literal>TO_BASE64( &lt;binary value expr&gt; )</literal></para>
 
-    <para>Returns a character string as a base 64 rpresentation of the bytes 
-	in the <literal>&lt;binary value
-    expr&gt;</literal>. (HyperSQL)</para>
-	
+    <para>Returns a character string as a base 64 representation of the bytes
+    in the <literal>&lt;binary value expr&gt;</literal>. (HyperSQL)</para>
+
     <indexterm significance="preferred" type="sql">
       <primary>TRIM function</primary>
     </indexterm>
@@ -821,8 +820,7 @@
     <para>Returns a binary string formed by translation of hexadecimal digits
     and letters in the &lt;<literal>char value expr&gt;</literal>. Exactly the
     same as the <literal>HEXTORAW</literal> function(HyperSQL)</para>
-
-	</section>
+  </section>
 
   <section xml:id="bfc_numeric_functions">
     <title>Numeric Functions</title>
@@ -1391,7 +1389,8 @@
 
       <para><literal>DBTIMEZONE()</literal></para>
 
-      <para>Similar to DATABASE_TIMEZONE. Returns a string. Works in ORA compatibility mode only.(HyperSQL)</para>
+      <para>Similar to DATABASE_TIMEZONE. Returns a string. Works in ORA
+      compatibility mode only.(HyperSQL)</para>
     </section>
 
     <section xml:id="bfc_current_datetime">
@@ -1799,10 +1798,10 @@
       <para><literal>NEXT_DAY ( &lt;datetime value expr&gt;, &lt;character
       value expr&gt;)</literal></para>
 
-      <para>This function returns a TIMESTAMP for compatibility reasons. The 
-	  return value is the next weekday named by the second
-      argument that occurs after the first date. For example next Wednesday is
-      expressed as <literal>NEXT_DAY(CURRENT_DATE, 'WEDNESDAY')</literal>.
+      <para>This function returns a TIMESTAMP for compatibility reasons. The
+      return value is the next weekday named by the second argument that
+      occurs after the first date. For example next Wednesday is expressed as
+      <literal>NEXT_DAY(CURRENT_DATE, 'WEDNESDAY')</literal>.
       (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
@@ -1844,7 +1843,7 @@
 
       <para>Returns the last day of the month for the given
       <literal>&lt;datetime value expr&gt;</literal>. The returned value
-      preserves the year, month, hour, minute and secend fields of the
+      preserves the year, month, hour, minute and second fields of the
       timestamp. The type of the result is always TIMESTAMP(0).
       (HyperSQL)</para>
 
@@ -2217,9 +2216,9 @@
         <title>TO_CHAR, TO_DATE and TO_TIMESTAMP format elements</title>
 
         <tgroup cols="2">
-          <colspec colwidth="5cm" />
+          <colspec colwidth="5cm"/>
 
-          <colspec />
+          <colspec/>
 
           <tbody>
             <row>
@@ -2374,7 +2373,7 @@
 
     <para>Array functions are specialised functions with ARRAY parameters or
     return values. For the ARRAY_AGG aggregate function, see the <link
-    endterm="dataaccess-title" xlink:href="#dataaccess-chapt"></link>
+    endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/>
     chapter.</para>
 
     <indexterm significance="preferred" type="sql">
@@ -2454,7 +2453,7 @@
     <literal>&lt;value expr 1&gt;</literal> is the lower bound of the range.
     The <literal>&lt;value expr 2&gt;</literal> is the upper bound of the
     range. The <literal>&lt;value expr 3&gt;</literal> is the increment. The
-    elments of the array are within the inclusive range. The first element is
+    elements of the array are within the inclusive range. The first element is
     <literal>&lt;value expr 1&gt;</literal> and each subsequent element is the
     sum of the previous element and the increment. If the increment is zero,
     only the first element is returned. When the increment is negative, the
@@ -2500,8 +2499,8 @@
     General Functions accept a variable number of arguments.</para>
 
     <para>Also see the <link endterm="dataaccess-title" os=""
-    xlink:href="#dataaccess-chapt"></link> chapter for SQL expressions that
-    are similar to functions, for example CAST and NULLIF.</para>
+    xlink:href="#dataaccess-chapt"/> chapter for SQL expressions that are
+    similar to functions, for example CAST and NULLIF.</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>CASEWHEN function</primary>
@@ -2517,7 +2516,7 @@
     <literal>&lt;value expr 3&gt;. Use a CASE WHEN expression instead for more
     extensive capabilities and options.</literal> CASE WHEN is documented in
     the <link endterm="dataaccess-title" os=""
-    xlink:href="#dataaccess-chapt"></link> chapter. (HyperSQL)</para>
+    xlink:href="#dataaccess-chapt"/> chapter. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>COALESCE function</primary>
@@ -2914,7 +2913,8 @@
 
     <para><literal>IS_AUTOCOMMIT()</literal></para>
 
-    <para>Returns TRUE if the session is in autocommit mode. (HyperSQL)</para>
+    <para>Returns TRUE if the session is in auto-commit mode.
+    (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>IS_READONLY_SESSION function</primary>

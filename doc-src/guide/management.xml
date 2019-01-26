@@ -90,8 +90,8 @@
 
           <listitem>
             <para>During development, it is better to use a Server with
-            server.silent=false, which displays the statements sent to the
-            server on the console window.</para>
+            <literal>server.silent=false</literal>, which displays the
+            statements sent to the server on the console window.</para>
           </listitem>
 
           <listitem>
@@ -175,12 +175,12 @@
 
       <para><itemizedlist>
           <listitem>
-            <para>The data for all MEMORY tables is read from the *.script
-            file when the database is started and stored in memory. In
-            contrast the data for cached tables is not read into memory until
-            the table is accessed. Furthermore, only part of the data for each
-            CACHED table is held in memory, allowing tables with more data
-            than can be held in memory.</para>
+            <para>The data for all MEMORY tables is read from the
+            <literal>*.script</literal> file when the database is started and
+            stored in memory. In contrast the data for cached tables is not
+            read into memory until the table is accessed. Furthermore, only
+            part of the data for each CACHED table is held in memory, allowing
+            tables with more data than can be held in memory.</para>
           </listitem>
 
           <listitem>
@@ -223,10 +223,10 @@
       of large LOB data to the database. In <glossterm>mem:</glossterm>
       catalogs, CLOB and BLOB data is stored in memory. In
       <glossterm>file:</glossterm> catalogs, this data is stored in a single
-      separate file which has the extension *.lobs. The size of this file can
-      grow to huge, terabyte figures. By default, a minimum 32 KB is allocated
-      to each LOB. You can reduced this if your LOBs are generally
-      smaller.</para>
+      separate file which has the extension <literal>*.lobs</literal>. The
+      size of this file can grow to huge, terabyte figures. By default, a
+      minimum 32 KB is allocated to each LOB. You can reduced this if your
+      LOBs are generally smaller.</para>
 
       <para>LOB data should be stored in the database using a JDBC
       PreparedStatement object. The streaming methods send the LOB to the
@@ -284,11 +284,14 @@
         <listitem>
           <para>The file system must have enough spare room both for the
           'permanent' and 'temporary' files. The default maximum size of the
-          *.log file is 50MB. The *.data file can grow to up to 64GB (more if
-          the default has been increased). The .backup file can be up to the
-          size of the *.data file. The *.lobs file can grow to several
-          terabytes. The temporary files created at the time of a SHUTDOWN can
-          be equal in size to the *.script file and the .data file.</para>
+          <literal>*.log</literal> file is 50MB. The <literal>*.data</literal>
+          file can grow to up to 64GB (more if the default has been
+          increased). The <literal>*.backup</literal> file can be up to the
+          size of the <literal>*.data</literal> file. The
+          <literal>*.lobs</literal> file can grow to several terabytes. The
+          temporary files created at the time of a SHUTDOWN can be equal in
+          size to the <literal>*.script</literal> file and the
+          <literal>*.data</literal> file.</para>
         </listitem>
 
         <listitem>
@@ -481,7 +484,7 @@
     written to a script and applied to a replica. See the PERFORM SCRIPT
     statement in this chapter. The timestamp used for export is the timestamp
     at the point of last synchronization. For example, if the first EXPORT
-    occurs at TIMESTAMP '2019-01-01 10-10-10' and the script is later imported
+    occurs at TIMESTAMP '2019-01-01 10:10:10' and the script is later imported
     into the replica, the second EXPORT should use that timestamp. This
     ensures old histories that have already been exported are not exported
     again. The import will skip duplicates and there is no harm in exporting
@@ -517,7 +520,7 @@
     file catalog when a shutdown takes place. It automatically recovers from
     an abnormal termination and preserves the data when the catalog is opened
     next time. In an ideal operating environment, where there is no OS crash,
-    disk failure, bugs in code, etc. there would be no need to backup a
+    disk failure, bugs in code, etc., there would be no need to backup a
     database. Backing up catalogs is an insurance policy against all sorts of
     misadventure that are not under the control of the database engine.</para>
 
@@ -705,11 +708,13 @@
       <para>Note: Do not use these example crypt_key or crypt_iv values in
       production. Create your own random values.</para>
 
-      <para>The files that are encrypted include the .script, .data, .backup
-      and .log files. The .lobs file is not encrypted by default. The property
-      crypt_lobs=true must be specified to encrypt the .lobs file. When this
-      property is used, the blobs and clobs are both compressed and
-      encrypted.</para>
+      <para>The files that are encrypted include the
+      <literal>.script</literal>, <literal>.data</literal>,
+      <literal>.backup</literal> and <literal>.log</literal> files. The
+      <literal>.lobs</literal> file is not encrypted by default. The property
+      <literal>crypt_lobs=true</literal> must be specified to encrypt the
+      <literal>.lobs</literal> file. When this property is used, the blobs and
+      clobs are both compressed and encrypted.</para>
 
       <para>Although the details of external tools are outside the scope of
       this document, openssl may be used to generate sufficiently random keys
@@ -841,9 +846,9 @@
       <title>Server Operation Monitoring</title>
 
       <para>A Server or WebServer instance can be started with the property
-      server.silent=false. This causes all the connections and their executed
-      statements to be printed to stdout as the statements are submitted to
-      the server.</para>
+      <literal>server.silent=false</literal>. This causes all the connections
+      and their executed statements to be printed to stdout as the statements
+      are submitted to the server.</para>
     </section>
   </section>
 
@@ -1074,9 +1079,10 @@
 
           <listitem>
             <para>Normal shutdown saves all the database files, then deletes
-            the .log file (and the .backup file in the default mode). This
-            does the same thing as CHECKPOINT, but closes the database when it
-            completes. The database opens without delay on next used.</para>
+            the <literal>.log</literal> file (and the .backup file in the
+            default mode). This does the same thing as CHECKPOINT, but closes
+            the database when it completes. The database opens without delay
+            on next used.</para>
           </listitem>
         </varlistentry>
 
@@ -1096,9 +1102,10 @@
           <term>SHUTDOWN COMPACT</term>
 
           <listitem>
-            <para>This is similar to normal SHUTDOWN, but reduces the *.data
-            file to its minimum size. It can take much longer than normal
-            SHUTDOWN. This shouldn't be used as routine.</para>
+            <para>This is similar to normal SHUTDOWN, but reduces the
+            <literal>*.data</literal> file to its minimum size. It can take
+            much longer than normal SHUTDOWN. This shouldn't be used as
+            routine.</para>
           </listitem>
         </varlistentry>
 
@@ -1520,12 +1527,9 @@
       <simpara><literal>&lt;set database gc statement&gt; ::= SET DATABASE GC
       &lt;unsigned integer literal&gt;</literal></simpara>
 
-      <simpara>An optional property which forces calls to <literal>System.gc()
-      </literal>after the specified number of row operations. The default
-      value for this property is 0, which means no System.gc() calls. Usual
-      values for this property range from 10000 depending on the system and
-      the memory allocation. This property may be useful in some in-process
-      deployments, especially with older JVM implementations.</simpara>
+      <simpara>In previous versions an optional property which forced calls to
+      <literal>System.gc() </literal>after the specified number of row
+      operations. This has no effect in version 2.5.x.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2290,7 +2294,7 @@
       constraint names.</simpara>
 
       <simpara>Changing the property does not affect the names of indexes for
-      tha constraints that have already been defined. After a restart of the
+      the constraints that have already been defined. After a restart of the
       database all system-generated indexes are named according to the setting
       for this property.</simpara>
 
@@ -2520,17 +2524,17 @@
       <simpara><literal>&lt;set files backup increment statement&gt; ::= SET
       FILES BACKUP INCREMENT { TRUE | FALSE }</literal></simpara>
 
-      <simpara>Older versions of HSQLDB perform a backup of the .data file
-      before its contents are modified and the whole .data file is saved in a
-      compressed form when a CHECKPOINT or SHUTDOWN is performed. This takes a
-      long time when the size of the database exceeds 100 MB or so (on an
-      average 2010 computer, you can expect a backup speed of 20MB per second
-      or more).</simpara>
+      <simpara>Older versions of HSQLDB perform a backup of the
+      <literal>.data</literal> file before its contents are modified and the
+      whole <literal>.data</literal> file is saved in a compressed form when a
+      CHECKPOINT or SHUTDOWN is performed. This takes a long time when the
+      size of the database exceeds 100 MB or so (on an average 2010 computer,
+      you can expect a backup speed of 20MB per second or more).</simpara>
 
       <simpara>The alternative is backup in increments, just before some part
-      of the .data file is modified. In this mode, no backup is performed at
-      CHECKPOINT or SHUTDOWN. This mode is preferred for large databases which
-      are opened and closed frequently.</simpara>
+      of the <literal>.data</literal> file is modified. In this mode, no
+      backup is performed at CHECKPOINT or SHUTDOWN. This mode is preferred
+      for large databases which are opened and closed frequently.</simpara>
 
       <simpara>The default mode is <literal>TRUE</literal>. If the old method
       of backup is preferred, the mode can be set
@@ -2680,9 +2684,9 @@
       <simpara><literal>&lt;set files nio statement&gt; ::= SET FILES NIO {
       TRUE | FALSE }</literal></simpara>
 
-      <simpara>Sets the access method of the .data file. The default is TRUE
-      and uses the Java nio classes to access the file via memory-mapped
-      buffers.</simpara>
+      <simpara>Sets the access method of the <literal>.data</literal> file.
+      The default is TRUE and uses the Java nio classes to access the file via
+      memory-mapped buffers.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2763,11 +2767,11 @@
       <simpara><literal>&lt;set files scale statement&gt; ::= SET FILES SCALE
       &lt;scale value&gt;</literal></simpara>
 
-      <simpara>Changes the scale factor for the .data file. The default scale
-      is 32 and allows 64GB of data storage capacity. The scale can be
-      increased in order to increase the maximum data storage capacity. The
-      scale values 8, 16, 32, 64, 128, 256, 512, 1024 are allowed. Scale value
-      1024 allows a maximum capacity of 2 TB.</simpara>
+      <simpara>Changes the scale factor for the <literal>.data</literal> file.
+      The default scale is 32 and allows 64GB of data storage capacity. The
+      scale can be increased in order to increase the maximum data storage
+      capacity. The scale values 8, 16, 32, 64, 128, 256, 512, 1024 are
+      allowed. Scale value 1024 allows a maximum capacity of 2 TB.</simpara>
 
       <simpara>This command can be used only when there is no data in CACHED
       tables. This is equivalent to the connection property
@@ -2795,15 +2799,15 @@
       <simpara><literal>&lt;set files lob scale statement&gt; ::= SET FILES
       LOB SCALE &lt;scale value&gt;</literal></simpara>
 
-      <simpara>Changes the scale factor for the .lobs file. The scale is
-      interpreted in kilobytes. The default scale is 32 and allows 64TB of lob
-      data storage capacity. The scale can be reduced in order to improve
-      storage efficiency. If the lobs are a lot smaller than 32 kilobytes,
-      reducing the scale will reduce wasted space. The scale values 1, 2, 4,
-      8, 16, 32 are allowed. For example if the average size of lobs is 4
-      kilobytes, the default scale of 32 will result in 28KB wasted space for
-      each lob. Reducing the lob scale to 2 will result in average 1KB wasted
-      space for each lob.</simpara>
+      <simpara>Changes the scale factor for the <literal>.lobs</literal> file.
+      The scale is interpreted in kilobytes. The default scale is 32 and
+      allows 64TB of lob data storage capacity. The scale can be reduced in
+      order to improve storage efficiency. If the lobs are a lot smaller than
+      32 kilobytes, reducing the scale will reduce wasted space. The scale
+      values 1, 2, 4, 8, 16, 32 are allowed. For example if the average size
+      of lobs is 4 kilobytes, the default scale of 32 will result in 28KB
+      wasted space for each lob. Reducing the lob scale to 2 will result in
+      average 1KB wasted space for each lob.</simpara>
 
       <simpara>This command can be used only when there is no lob in the
       database.</simpara>
@@ -2853,9 +2857,9 @@
       FILES SCRIPT FORMAT { TEXT | COMPRESSED }</literal></simpara>
 
       <simpara>Changes the compression setting for database scripts. The
-      default is text. Using COMPRESSED results in the storage of the .script
-      file in gzip compressed form. Using this command causes a
-      CHECKPOINT.</simpara>
+      default is text. Using COMPRESSED results in the storage of the
+      <literal>.scrip</literal>t file in gzip compressed form. Using this
+      command causes a CHECKPOINT.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2872,7 +2876,7 @@
       TRUE</literal></simpara>
 
       <simpara>Enables use of table spaces for CACHED tables. Each table is
-      allocated space in blocks. The size of each block in mega bytes is equal
+      allocated space in blocks. The size of each block in megabytes is equal
       to the data file scale divided by 16. The default data file scale is 32
       so the default size of each block is 2 MB. See the SET TABLE NEW SPACE
       statement below.</simpara>
@@ -2892,8 +2896,9 @@
       &lt;table name&gt; NEW SPACE</literal></simpara>
 
       <simpara>Sets the named table to use it's own space blocks within the
-      .data file. Use of table spaces should be enabled with the SET FILES
-      SPACE statement above, before this statement is executed.</simpara>
+      <literal>.data</literal> file. Use of table spaces should be enabled
+      with the SET FILES SPACE statement above, before this statement is
+      executed.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
