@@ -227,7 +227,8 @@ examples:
     </target>
 
     <!-- these are used for checking the correctness of switched code blocks -->
-    <target name="switchtojdk16" description="self explanatory">
+    <target name="switchtojdk16" depends="codeswitcher"
+            description="self explanatory">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
         <arg value="-JAVA8"/>
         <arg value="-JAVA9"/>
@@ -239,7 +240,7 @@ examples:
       </java>
     </target>
 
-    <target name="switchtojdk18"
+    <target name="switchtojdk18" depends="codeswitcher"
             description="self explanatory" if="ant.java.iscjava18">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
         <arg value="+JAVA8"/>
@@ -252,7 +253,7 @@ examples:
       </java>
     </target>
 
-    <target name="switchtojdk19"
+    <target name="switchtojdk19" depends="codeswitcher"
             description="self explanatory" if="ant.java.iscjava19">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
         <arg value="+JAVA8"/>
