@@ -1600,7 +1600,7 @@
       <methodname>Statement.getMoreResults()</methodname> method should be
       called before retrieving the ResultSet.</para>
 
-      <para>An SQL/JRT or SQL/PSM funtion (as opposed to procedure) returns
+      <para>An SQL/JRT or SQL/PSM function (as opposed to procedure) returns
       either a value or a table in a ResultSet. Functions are called from JDBC
       similar to procedures, but with functions, the
       <methodname>getMoreResuls()</methodname> method should not be called at
