@@ -227,7 +227,7 @@ examples:
     </target>
 
     <!-- these are used for checking the correctness of switched code blocks -->
-    <target name="switchtojdk16" depends="codeswitcher"
+    <target name="switchtojdk6" depends="codeswitcher"
             description="self explanatory">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
         <arg value="-JAVA8"/>
@@ -240,7 +240,7 @@ examples:
       </java>
     </target>
 
-    <target name="switchtojdk18" depends="codeswitcher"
+    <target name="switchtojdk8" depends="codeswitcher"
             description="self explanatory" if="ant.java.iscjava18">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
         <arg value="+JAVA8"/>
@@ -253,7 +253,7 @@ examples:
       </java>
     </target>
 
-    <target name="switchtojdk19" depends="codeswitcher"
+    <target name="switchtojdk9" depends="codeswitcher"
             description="self explanatory" if="ant.java.iscjava19">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
         <arg value="+JAVA8"/>
@@ -662,6 +662,7 @@ examples:
                   org/hsqldb/Token*,
                   org/hsqldb/lib/CharArrayWriter*,
                   org/hsqldb/resources/sql-state-messages.properties,
+                  org/hsqldb/resources/ResourceBundleHandler*,
                   org/hsqldb/jdbc/JDBC*,
                   org/hsqldb/jdbc/pool/*,
                   org/hsqldb/rights/Grantee.class,
