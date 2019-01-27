@@ -21,6 +21,15 @@
     <subtitle>How to build customized or specialized jar files</subtitle>
 
     <author>
+      <personname><firstname>Blaine</firstname>
+      <surname>Simpson</surname></personname>
+
+      <affiliation>
+        <orgname>The HSQL Development Group</orgname>
+      </affiliation>
+    </author>
+
+    <author>
       <personname><firstname>Fred</firstname>
       <surname>Toussi</surname></personname>
 
@@ -606,12 +615,12 @@
   <section xml:id="bga_build_ide">
     <title>Building with IDE Compilers</title>
 
-    <simpara>All HyperSQL source files are supplied ready to compile. There is
-    no complex pre-compile stage. It is therefore possible to compile the
-    sources with an IDE, without using Gradle or Ant. Only if compilation with
-    Java 1.5 is required, you should first run the Gradle task (or Ant target)
-    before compiling and remove from the source directories a few source files
-    that are specific to Java 6 (these are listed in the build.xml
+    <simpara>The Ant build.xml can be used with most IDE's to build the Jar
+    targets. All HyperSQL source files are supplied ready to compile. It is
+    therefore possible to compile the sources without using Ant. If
+    compilation with Java 1.6 is required, you should run the Ant switchtojdk6
+    target before compiling to modify the files that have code blocks specific
+    to Java 8 or above (these are listed in the jdkcodeswitch.list
     file).</simpara>
   </section>
 
