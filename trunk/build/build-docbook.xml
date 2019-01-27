@@ -48,7 +48,7 @@
     'dbxirng.url', and dbcentx.url' in your .properties file.  (You could also
     use the same method to use them from a server on your internal network).
     Sources:
-        nsstylebase stylesheets:   Get the latest version from
+        nsstylebase stylesheets:   Get the required version from
                 http://sourceforge.net/projects/docbook/files/docbook-xsl-ns/
         dbxirng schema:  https://docbook.org/xml/5.0/rng/docbookxi.rng
           (Just the single file)
@@ -71,7 +71,7 @@
   <property file="build/docbook.properties"/>
 
   <property name="oasis.stylesheet.url"
-            value="http://docbook.sourceforge.net/release/xsl-ns/current"/>
+            value="http://docbook.sourceforge.net/release/xsl-ns/1.78.1"/>
   <!-- IMPORTANT:  DO NOT CHANGE!
                    This value must exactly match the network href values in
                    our *.xsl files! -->

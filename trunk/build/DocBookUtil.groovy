@@ -53,10 +53,13 @@ public static String installStyleSheets(File pDir, boolean allSheets) {
     String zipUrl = "http://sourceforge.net/projects/docbook/files/docbook-xsl-ns/$latestVer/$zipFileName/download"
     //println "($zipUrl)"
     */
-    String latestVer = '1.79.1'
-    String zipFileName = 'docbook-xsl-ns-' + latestVer + '.zip'
+    String requiredVer = '1.78.1'
+    String zipFileName = 'docbook-xsl-ns-' + requiredVer + '.zip'
     //println "($zipFileName)"
-    String zipUrl = "https://pilotfiber.dl.sourceforge.net/project/docbook/docbook-xsl-ns/$latestVer/$zipFileName"
+    // TODO:  Get URL.witInputStream usage to follow HTTP references so can
+    // pull from sourceforge and not have dependency on this one mirror.
+    // This is just one mirror.
+    String zipUrl = "https://pilotfiber.dl.sourceforge.net/project/docbook/docbook-xsl-ns/$requiredVer/$zipFileName"
     //println "($zipUrl)"
 
     File localZip = new File(System.properties['java.io.tmpdir'], zipFileName)
@@ -68,7 +71,7 @@ public static String installStyleSheets(File pDir, boolean allSheets) {
     AntBuilder ant = new AntBuilder()
 
     if (allSheets) {
-        File newDir = new File(pDir, "docbook-xsl-ns-$latestVer")
+        File newDir = new File(pDir, "docbook-xsl-ns-$requiredVer")
         assert !newDir.exists() :
             "New target directory already exists: $newDir.absolutePath"
         ant.unzip(src:localZip.absolutePath,
@@ -76,17 +79,17 @@ public static String installStyleSheets(File pDir, boolean allSheets) {
         if (!new File(newDir, 'images').isDirectory())
             throw new IOException(
                     "Extraction into '$newDir.absolutePath' failed")
-        return "docbook-xsl-ns-$latestVer"
+        return "docbook-xsl-ns-$requiredVer"
     }
-    File destDir = new File(pDir, "xsl-ns-images-$latestVer")
+    File destDir = new File(pDir, "xsl-ns-images-$requiredVer")
     assert !destDir.exists() :
         "New target directory already exists: $destDir.absolutePath"
     ant.unzip(src:localZip.absolutePath,
             dest:destDir.absolutePath, overwrite:'false') {
-        patternset { include(name: "docbook-xsl-ns-$latestVer/images/**") }
+        patternset { include(name: "docbook-xsl-ns-$requiredVer/images/**") }
         regexpmapper(from:'^[^/]+/images/(.+)$', to:/\1/)
     }
     if (!destDir.isDirectory())
         throw new IOException("Extraction to '$destDir' failed")
-    return "xsl-ns-images-$latestVer"
+    return "xsl-ns-images-$requiredVer"
 }

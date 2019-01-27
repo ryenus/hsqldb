@@ -7,7 +7,7 @@
      xmlns:d="http://docbook.org/ns/docbook" exclude-result-prefixes="d">
 
   <xsl:import
-      href="http://docbook.sourceforge.net/release/xsl-ns/current/html/chunk.xsl"/>
+      href="http://docbook.sourceforge.net/release/xsl-ns/1.78.1/html/chunk.xsl"/>
   <xsl:import href="html-common.xsl"/>
 
 <xsl:template name="user.header.content">

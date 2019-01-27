@@ -8,7 +8,7 @@
      xmlns:d="http://docbook.org/ns/docbook" exclude-result-prefixes="d">
 
   <xsl:import
-    href="http://docbook.sourceforge.net/release/xsl-ns/current/fo/docbook.xsl"/>
+    href="http://docbook.sourceforge.net/release/xsl-ns/1.78.1/fo/docbook.xsl"/>
   <xsl:import href="pagesetup.xsl"/>
 
   <!-- See http://www.sagehill.net/docbookxsl/BordersAndShading.html -->
@@ -25,7 +25,7 @@
     -->
   </xsl:attribute-set>
 
-  <!-- See http://docbook.sourceforge.net/release/xsl-ns/current/doc/html/shade.verbatim.style.html -->
+  <!-- See http://docbook.sourceforge.net/release/xsl-ns/1.78.1/doc/html/shade.verbatim.style.html -->
   <xsl:attribute-set name="shade.verbatim.style">
     <xsl:attribute name="border">0.5pt solid gray</xsl:attribute>
     <xsl:attribute name="padding">1pt</xsl:attribute>
