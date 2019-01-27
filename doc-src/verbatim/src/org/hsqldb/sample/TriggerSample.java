@@ -203,7 +203,7 @@ public class TriggerSample implements Trigger {
                         // The engine does not check the class of substituted
                         // values; it's up to you to use the correct class.
                         // For example, this will cause database curruption:
-                        //  nr[1] = new Integer(5);
+                        //  nr[1] = Integer.valueOf(5);
                         break;
                     }
                 }
@@ -369,7 +369,7 @@ public class TriggerSample implements Trigger {
     private static Connection getConnection() throws SQLException {
 
         try {
-            Class.forName(drv).newInstance();
+            Class.forName(drv);
 
             return DriverManager.getConnection(url, usr, pwd);
         } catch (SQLException se) {

@@ -9,7 +9,7 @@
      xmlns:d="http://docbook.org/ns/docbook" exclude-result-prefixes="d">
 
   <xsl:import
- href="http://docbook.sourceforge.net/release/xsl-ns/current/html/docbook.xsl"/>
+ href="http://docbook.sourceforge.net/release/xsl-ns/1.78.1/html/docbook.xsl"/>
 
   <xsl:import href="html-common.xsl"/>
 </xsl:stylesheet> 
