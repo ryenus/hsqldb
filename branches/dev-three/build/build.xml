@@ -341,7 +341,7 @@ examples:
                                                - blaine
 
    -->
-    <target name="util" depends="lib"
+    <target name="util" depends="lib, -cmdline, -auth"
             description="compiles the util, cmdline, and auth folders">
       <javac srcdir="${swsrc}"
              includeantruntime="false"
@@ -424,7 +424,7 @@ examples:
             message="Place Jar file for v. 3.8.x of Junit at '${junit38.lib}', or set property 'junit38.lib'"/>
    </target>
 
-   <target name="scanner-driver"
+   <target name="scanner-driver" depends="util"
        description="Build Scanner Driver.  For SqlTool scanner developers.">
       <javac srcdir="${swsrc}"
              includeantruntime="false"
@@ -588,7 +588,7 @@ examples:
        </jar>
     </target>
 
-    <target name="hsqldb" depends="classes, -prep-license-files"
+    <target name="hsqldb" depends="classes, util, swing, -prep-license-files"
             description="Build the default hsqldb.jar">
         <jar jarfile="lib/hsqldb.jar"
              basedir="classes"
