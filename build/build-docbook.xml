@@ -334,12 +334,16 @@ ${_for.automation.blurb}</fail>
     <tstamp>
       <format property="_timestamp" pattern="yyyy-MM-dd' 'HH:mm:ssZ"/>
     </tstamp>
+    <condition property="_buildstamp"
+               value="${doc.pubtime}" else="Private build @ ${_timestamp}">
+      <isset property="doc.pubtime"/>
+    </condition>
     <echo file="tmp/doc-work/${doc.name}/dynamic.ent">&lt;!--Dynamically generated Entity Values loaded by a catalog for document
 '${doc.name}' at ${_timestamp} --&gt;
 
 &lt;!ENTITY doc_basename "${doc.name}"&gt;
 &lt;!ENTITY distro_baseurl "${distro.baseurl}"&gt;
-&lt;!ENTITY timestamp "${_timestamp}"&gt;
+&lt;!ENTITY timestamp "${_buildstamp}"&gt;
 </echo>
 
     <xslt style="${style.path}" basedir="doc-src/${doc.name}"

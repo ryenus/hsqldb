@@ -50,9 +50,15 @@
  *          in this directory.  (If on a good operating system, just sym-link).
  *          This file must set Ant properties "build.label", "build.vendor",
  *          "dbimage.path".  (See following section about optional properties).
+ *          Set property "doc.pubtime" to the current date/time in
+ *          format like 2019-01-27 18:55:44.
  *       4: Run
  *              gradlew -i -b build-dist.gradle  # Gradle users
  *          from the build directory.
+ *       5: If you used a propreties file shared with other environments,
+ *          then comment out distribution-specific build properties, including
+ *          "doc.pubtime" (otherwise future document builds will label
+ *          incorrectly).
  *
  *   OPTIONAL ANT PROPERTIES
  *       I suggest setting properties nsstylebase.url, dbxirng.url,
