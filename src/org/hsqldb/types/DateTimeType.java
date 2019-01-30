@@ -685,8 +685,8 @@ public final class DateTimeType extends DTIType {
 
                         seconds =
                             HsqlDateTime.convertToNormalisedTime(
-                                seconds * 1000,
-                                session.getCalendarGMT()) / 1000;
+                                session.getCalendarGMT(),
+                                seconds * 1000) / 1000;
 
                         return new TimeData((int) (seconds),
                                             scaleNanos(ts.getNanos()),
@@ -713,8 +713,8 @@ public final class DateTimeType extends DTIType {
 
                         seconds =
                             HsqlDateTime.convertToNormalisedTime(
-                                seconds * 1000,
-                                session.getCalendarGMT()) / 1000;
+                                session.getCalendarGMT(),
+                                seconds * 1000) / 1000;
 
                         return new TimeData((int) (seconds),
                                             scaleNanos(ts.getNanos()), 0);
@@ -723,8 +723,8 @@ public final class DateTimeType extends DTIType {
                         TimestampData ts = (TimestampData) a;
                         long seconds =
                             HsqlDateTime.convertToNormalisedTime(
-                                ts.getSeconds() * 1000,
-                                session.getCalendarGMT()) / 1000;
+                                session.getCalendarGMT(),
+                                ts.getSeconds() * 1000) / 1000;
 
                         return new TimeData((int) (seconds),
                                             scaleNanos(ts.getNanos()));
@@ -1419,7 +1419,7 @@ public final class DateTimeType extends DTIType {
         throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
     }
 
-    public Object truncate(Object a, int part) {
+    public Object truncate(Session session, Object a, int part) {
 
         if (a == null) {
             return null;
@@ -1427,7 +1427,8 @@ public final class DateTimeType extends DTIType {
 
         long millis = getMillis(a);
 
-        millis = HsqlDateTime.getTruncatedPart(millis, part);
+        millis = HsqlDateTime.getTruncatedPart(session.getCalendarGMT(),
+                                               millis, part);
         millis -= getZoneMillis(a);
 
         switch (typeCode) {
@@ -1452,7 +1453,7 @@ public final class DateTimeType extends DTIType {
         throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
     }
 
-    public Object round(Object a, int part) {
+    public Object round(Session session, Object a, int part) {
 
         if (a == null) {
             return null;
@@ -1460,7 +1461,8 @@ public final class DateTimeType extends DTIType {
 
         long millis = getMillis(a);
 
-        millis = HsqlDateTime.getRoundedPart(millis, part);
+        millis = HsqlDateTime.getRoundedPart(session.getCalendarGMT(), millis,
+                                             part);
         millis -= getZoneMillis(a);
 
         switch (typeCode) {
@@ -1602,8 +1604,8 @@ public final class DateTimeType extends DTIType {
 
         long millis = getMillis(dateTime);
 
-        return HsqlDateTime.getDateTimePart(millis, calendarPart) / divisor
-               + increment;
+        return HsqlDateTime.getDateTimePart(session.getCalendarGMT(), millis, calendarPart)
+               / divisor + increment;
     }
 
     public Object addMonthsSpecial(Session session, Object dateTime,
@@ -1725,20 +1727,23 @@ public final class DateTimeType extends DTIType {
         return format.format(date);
     }
 
-    public Object getValue(long seconds, int nanos, int zoneSeconds) {
+    public Object getValue(Session session, long seconds, int nanos,
+                           int zoneSeconds) {
 
         switch (typeCode) {
 
             case Types.SQL_DATE :
                 seconds =
                     HsqlDateTime.getNormalisedDate(
+                        session.getCalendarGMT(),
                         (seconds + zoneSeconds) * 1000) / 1000;
 
                 return new TimestampData(seconds);
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
-                seconds = HsqlDateTime.getNormalisedDate(seconds * 1000)
-                          / 1000;
+                seconds =
+                    HsqlDateTime.getNormalisedDate(
+                        session.getCalendarGMT(), seconds * 1000) / 1000;
 
                 return new TimeData((int) seconds, nanos, zoneSeconds);
 

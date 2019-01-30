@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.error.ErrorCode;
  * Enumerates supported database types.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.4.2
  * @since 2.3.4
  */
 
@@ -64,6 +64,15 @@ public enum DatabaseType {
             default:
                 return false;
         }
+    }
+
+    public static boolean isInProcessDatabaseType(String type) {
+
+        if (DB_FILE.value.equals(type) || DB_RES.value.equals(type) || DB_MEM.value.equals(type)) {
+            return true;
+        }
+
+        return false;
     }
 
 

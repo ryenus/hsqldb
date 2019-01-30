@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.hsqldb.server.ServerConstants;
  * Parses a connection URL into parts.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.4.2
  * @since 1.8.0
  */
 
@@ -62,27 +62,13 @@ public class DatabaseURL {
     public static final String url_database        = "database";
 
     /**
-     * Returns true if type represents an in-process connection to a file backed
-     * database.
-     */
-    public static boolean isFileBasedDatabaseType(String type) {
-
-        if (type == S_FILE || type == S_RES) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Returns true if type represents an in-process connection to database.
      */
     public static boolean isInProcessDatabaseType(String type) {
 
-        if (type == S_FILE || type == S_RES || type == S_MEM) {
+        if (S_FILE.equals(type) || S_RES.equals(type) || S_MEM.equals(type)) {
             return true;
         }
-
         return false;
     }
 

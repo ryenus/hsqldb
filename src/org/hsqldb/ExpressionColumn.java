@@ -1148,7 +1148,7 @@ public class ExpressionColumn extends Expression {
     /**
      * SIMPLE_COLUMN expressions are now (2.3.5) always ExpressionColumn
      */
-    public boolean equals(Expression other) {
+    boolean equals(Expression other) {
 
         if (other == this) {
             return true;

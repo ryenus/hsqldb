@@ -153,6 +153,8 @@ public class RangeVariable {
 
             case TRANSITION_RANGE :
                 usedColumns = new boolean[variables.size()];
+
+            // fall through
             case PARAMETER_RANGE :
             case VARIALBE_RANGE :
             case PLACEHOLDER_RANGE :
@@ -781,7 +783,7 @@ public class RangeVariable {
         Expression      dataExpression  = rangeTable.getDataExpression();
 
         if (dataExpression != null) {
-            dataExpression = dataExpression.replaceColumnReferences(session,
+            dataExpression.replaceColumnReferences(session,
                     range, list);
         }
 
@@ -818,7 +820,7 @@ public class RangeVariable {
         Expression      dataExpression  = rangeTable.getDataExpression();
 
         if (dataExpression != null) {
-            dataExpression = dataExpression.replaceExpressions(expressions,
+            dataExpression.replaceExpressions(expressions,
                     resultRangePosition);
         }
 

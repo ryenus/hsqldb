@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -223,24 +223,23 @@ public class ExpressionOp extends Expression {
             case OpTypes.LIKE_ARG :
                 sb.append(' ').append(Tokens.T_LIKE).append(' ');
                 sb.append(left).append(' ').append(right).append(' ');
+                break;
+
             case OpTypes.CAST :
                 sb.append(' ').append(Tokens.T_CAST).append('(');
                 sb.append(left).append(' ').append(Tokens.T_AS).append(' ');
                 sb.append(dataType.getTypeDefinition());
                 sb.append(')');
-
-                return sb.toString();
+                break;
 
             case OpTypes.CASEWHEN :
                 sb.append(' ').append(Tokens.T_CASEWHEN).append('(');
                 sb.append(left).append(',').append(right).append(')');
-
-                return sb.toString();
+                break;
 
             case OpTypes.ALTERNATIVE :
                 sb.append(left).append(',').append(right);
-
-                return sb.toString();
+                break;
 
             case OpTypes.LIMIT :
                 if (left != null) {

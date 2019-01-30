@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ public class JDBCDataSourceFactory implements ObjectFactory {
     throws Exception {
 
         JDBCDataSource ds =
-            (JDBCDataSource) Class.forName(bdsClassName).newInstance();
+            (JDBCDataSource) Class.forName(bdsClassName).getDeclaredConstructor().newInstance();
         String value = props.getProperty(databaseName);
 
         if (value == null) {
@@ -147,8 +147,7 @@ public class JDBCDataSourceFactory implements ObjectFactory {
             RefAddr refAddr;
             Object  value;
             JDBCCommonDataSource ds =
-                (JDBCCommonDataSource) Class.forName(className).newInstance();
-
+                (JDBCCommonDataSource) Class.forName(className).getDeclaredConstructor().newInstance();
             refAddr = ref.get("database");
 
             if (refAddr == null) {

@@ -1631,8 +1631,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         millis = HsqlDateTime.convertMillisFromCalendar(
                 session.getCalendarGMT(), calendar, millis);
-        millis = HsqlDateTime.convertToNormalisedTime(millis,
-                session.getCalendarGMT());
+        millis = HsqlDateTime.convertToNormalisedTime(session.getCalendarGMT(),
+                millis);
 
         switch (outType.typeCode) {
 

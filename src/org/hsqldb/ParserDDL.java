@@ -2111,11 +2111,19 @@ public class ParserDDL extends ParserRoutine {
 
                 break;
             }
+            case Tokens.TYPE : {
+                if (database.sqlSyntaxPgs) {
+                    read();
+
+                    return compileAlterColumnDataType(table, column);
+                }
+
+                break;
+            }
             case Tokens.GENERATED :
                 return compileAlterColumnAddSequence(table, column,
                                                      columnIndex);
 
-            // fall through
             default :
         }
 

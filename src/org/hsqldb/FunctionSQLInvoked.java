@@ -252,7 +252,7 @@ public class FunctionSQLInvoked extends Expression {
         return super.describe(session, blanks);
     }
 
-    boolean isSelfAggregate() {
+    public boolean isSelfAggregate() {
         return routineSchema.isAggregate();
     }
 
@@ -260,7 +260,7 @@ public class FunctionSQLInvoked extends Expression {
         return routine.isDeterministic();
     }
 
-    public boolean equals(Expression other) {
+    boolean equals(Expression other) {
 
         if (other instanceof FunctionSQLInvoked) {
             FunctionSQLInvoked o = (FunctionSQLInvoked) other;

@@ -361,7 +361,6 @@ public class ParserRoutine extends ParserTable {
         Routine routine = readProcedureOrFunctionDeclaration();
 
         readRoutineBody(routine);
-
         routine.resolve(session);
 
         return routine;
@@ -1814,7 +1813,7 @@ public class ParserRoutine extends ParserTable {
 
     Statement compileCase(Routine routine, StatementCompound context) {
 
-        HsqlArrayList list      = new HsqlArrayList();
+        HsqlArrayList list;
         Expression    condition = null;
         Statement     statement;
         Statement[]   statements;

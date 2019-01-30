@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -127,7 +127,7 @@ public class TriggerDef implements Runnable, SchemaObject {
      *      (true) or statement (false)
      * @param  table the Table object upon which the indicated operation
      *      fires the trigger
-     * @param  triggerClassName the fully qualified named of the class implementing
+     * @param  triggerClassName the fully qualified name of the class implementing
      *      the org.hsqldb.Trigger (trigger body) interface
      * @param  noWait do not wait for available space on the pending queue; if
      *      the pending queue does not have fewer than nQueueSize queued items,
@@ -169,7 +169,7 @@ public class TriggerDef implements Runnable, SchemaObject {
             try {
 
                 // dynamically instantiate it
-                trigger = (Trigger) cl.newInstance();
+                trigger = (Trigger) cl.getDeclaredConstructor().newInstance();
             } catch (Throwable t1) {
                 valid   = false;
                 trigger = new DefaultTrigger();
