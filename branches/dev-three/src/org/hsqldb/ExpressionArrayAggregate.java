@@ -96,7 +96,7 @@ public class ExpressionArrayAggregate extends Expression {
         }
     }
 
-    boolean isSelfAggregate() {
+    public boolean isSelfAggregate() {
         return true;
     }
 
@@ -258,7 +258,7 @@ public class ExpressionArrayAggregate extends Expression {
         condition.resolveTypes(session, null);
     }
 
-    public boolean equals(Expression other) {
+    boolean equals(Expression other) {
 
         if (other instanceof ExpressionArrayAggregate) {
             ExpressionArrayAggregate o = (ExpressionArrayAggregate) other;

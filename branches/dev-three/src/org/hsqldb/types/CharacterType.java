@@ -57,9 +57,9 @@ public class CharacterType extends Type {
     static final int         defaultCharPrecision    = 256;
     static final int         defaultVarcharPrecision = 32 * 1024;
     public static final long maxCharPrecision        = Integer.MAX_VALUE;
-    Collation                collation;
-    Charset                  charset;
-    String                   nameString;
+    final Collation          collation;
+    final Charset            charset;
+    final String             nameString;
 
     public CharacterType(Collation collation, int type, long precision) {
 
@@ -69,9 +69,9 @@ public class CharacterType extends Type {
             collation = Collation.getDefaultInstance();
         }
 
-        this.collation = collation;
-        this.charset   = Charset.getDefaultInstance();
-        nameString     = getNameStringPrivate();
+        this.collation  = collation;
+        this.charset    = Charset.getDefaultInstance();
+        this.nameString = getNameStringPrivate();
     }
 
     /**
@@ -81,9 +81,18 @@ public class CharacterType extends Type {
 
         super(Types.SQL_VARCHAR, type, precision, 0);
 
-        this.collation = Collation.getDefaultInstance();
-        this.charset   = Charset.getDefaultInstance();
-        nameString     = getNameStringPrivate();
+        this.collation  = Collation.getDefaultInstance();
+        this.charset    = Charset.getDefaultInstance();
+        this.nameString = getNameStringPrivate();
+    }
+
+    public CharacterType(String name, long precision) {
+
+        super(Types.SQL_VARCHAR, Types.SQL_VARCHAR, precision, 0);
+
+        this.collation  = Collation.getDefaultInstance();
+        this.charset    = Charset.getDefaultInstance();
+        this.nameString = name;
     }
 
     public int displaySize() {
@@ -786,7 +795,18 @@ public class CharacterType extends Type {
      * can add collation and charset equality
      */
     public boolean equals(Object other) {
-        return super.equals(other);
+
+        if (other == this) {
+            return true;
+        }
+
+        if (other instanceof CharacterType) {
+            return super.equals(other)
+                   && ((CharacterType) other).getCollation().equals(
+                       getCollation());
+        }
+
+        return false;
     }
 
     public long position(SessionInterface session, Object data,
@@ -1180,11 +1200,7 @@ public class CharacterType extends Type {
                 return new CharacterType(collation, type, (int) length);
 
             case Types.SQL_CLOB :
-                CharacterType typeObject = new ClobType(length);
-
-                typeObject.collation = collation;
-
-                return typeObject;
+                return new ClobType(collation, length);
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");

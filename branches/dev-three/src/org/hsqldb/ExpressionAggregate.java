@@ -65,7 +65,7 @@ public class ExpressionAggregate extends Expression {
         nodes[RIGHT]        = Expression.EXPR_TRUE;
     }
 
-    boolean isSelfAggregate() {
+    public boolean isSelfAggregate() {
         return true;
     }
 
@@ -261,8 +261,6 @@ public class ExpressionAggregate extends Expression {
         }
 
         dataType = getType(session, opType, nodes[LEFT].dataType);
-
-        nodes[RIGHT].resolveTypes(session, null);
     }
 
     /**
@@ -390,7 +388,7 @@ public class ExpressionAggregate extends Expression {
         throw Error.error(ErrorCode.X_42563);
     }
 
-    public boolean equals(Expression other) {
+    boolean equals(Expression other) {
 
         if (other instanceof ExpressionAggregate) {
             ExpressionAggregate o = (ExpressionAggregate) other;

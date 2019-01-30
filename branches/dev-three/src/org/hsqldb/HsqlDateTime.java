@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  * timezone.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.7.0
  */
 public class HsqlDateTime {
@@ -236,10 +236,10 @@ public class HsqlDateTime {
     }
 
     public static long convertToNormalisedTime(long t) {
-        return convertToNormalisedTime(t, tempCalGMT);
+        return convertToNormalisedTime(tempCalGMT, t);
     }
 
-    public static long convertToNormalisedTime(long t, Calendar cal) {
+    public static long convertToNormalisedTime(Calendar cal, long t) {
 
         synchronized (cal) {
             setTimeInMillis(cal, t);
@@ -252,15 +252,7 @@ public class HsqlDateTime {
     }
 
     public static long getNormalisedTime(long t) {
-
-        Calendar cal = tempCalGMT;
-
-        synchronized (cal) {
-            setTimeInMillis(cal, t);
-            resetToTime(cal);
-
-            return cal.getTimeInMillis();
-        }
+        return getNormalisedTime(tempCalGMT, t);
     }
 
     public static long getNormalisedTime(Calendar cal, long t) {
@@ -274,13 +266,7 @@ public class HsqlDateTime {
     }
 
     public static long getNormalisedDate(long d) {
-
-        synchronized (tempCalGMT) {
-            setTimeInMillis(tempCalGMT, d);
-            resetToDate(tempCalGMT);
-
-            return tempCalGMT.getTimeInMillis();
-        }
+        return getNormalisedDate(tempCalGMT, d);
     }
 
     public static long getNormalisedDate(Calendar cal, long t) {
@@ -308,124 +294,124 @@ public class HsqlDateTime {
      * @param part an integer code corresponding to the desired date part
      * @return the indicated part of the given <code>java.util.Date</code> object
      */
-    public static int getDateTimePart(long m, int part) {
+    public static int getDateTimePart(Calendar calendar, long m, int part) {
 
-        synchronized (tempCalGMT) {
-            tempCalGMT.setTimeInMillis(m);
+        synchronized (calendar) {
+            calendar.setTimeInMillis(m);
 
-            return tempCalGMT.get(part);
+            return calendar.get(part);
         }
     }
 
     /**
      * truncates millisecond date object
      */
-    public static long getTruncatedPart(long m, int part) {
+    public static long getTruncatedPart(Calendar calendar, long m, int part) {
 
-        synchronized (tempCalGMT) {
-            tempCalGMT.setTimeInMillis(m);
+        synchronized (calendar) {
+            calendar.setTimeInMillis(m);
 
             switch (part) {
 
                 case DTIType.WEEK_OF_YEAR : {
-                    int dayWeek = tempCalGMT.get(Calendar.DAY_OF_WEEK);
+                    int dayWeek = calendar.get(Calendar.DAY_OF_WEEK);
 
-                    tempCalGMT.add(Calendar.DAY_OF_YEAR, 1 - dayWeek);
-                    resetToDate(tempCalGMT);
+                    calendar.add(Calendar.DAY_OF_YEAR, 1 - dayWeek);
+                    resetToDate(calendar);
 
                     break;
                 }
                 default : {
-                    zeroFromPart(tempCalGMT, part);
+                    zeroFromPart(calendar, part);
 
                     break;
                 }
             }
 
-            return tempCalGMT.getTimeInMillis();
+            return calendar.getTimeInMillis();
         }
     }
 
     /**
      * rounded millisecond date object
      */
-    public static long getRoundedPart(long m, int part) {
+    public static long getRoundedPart(Calendar calendar, long m, int part) {
 
-        synchronized (tempCalGMT) {
-            tempCalGMT.setTimeInMillis(m);
+        synchronized (calendar) {
+            calendar.setTimeInMillis(m);
 
             switch (part) {
 
                 case Types.SQL_INTERVAL_YEAR :
-                    if (tempCalGMT.get(Calendar.MONTH) > 6) {
-                        tempCalGMT.add(Calendar.YEAR, 1);
+                    if (calendar.get(Calendar.MONTH) > 6) {
+                        calendar.add(Calendar.YEAR, 1);
                     }
                     break;
 
                 case Types.SQL_INTERVAL_MONTH :
-                    if (tempCalGMT.get(Calendar.DAY_OF_MONTH) > 15) {
-                        tempCalGMT.add(Calendar.MONTH, 1);
+                    if (calendar.get(Calendar.DAY_OF_MONTH) > 15) {
+                        calendar.add(Calendar.MONTH, 1);
                     }
                     break;
 
                 case Types.SQL_INTERVAL_DAY :
-                    if (tempCalGMT.get(Calendar.HOUR_OF_DAY) > 11) {
-                        tempCalGMT.add(Calendar.DAY_OF_MONTH, 1);
+                    if (calendar.get(Calendar.HOUR_OF_DAY) > 11) {
+                        calendar.add(Calendar.DAY_OF_MONTH, 1);
                     }
                     break;
 
                 case Types.SQL_INTERVAL_HOUR :
-                    if (tempCalGMT.get(Calendar.MINUTE) > 29) {
-                        tempCalGMT.add(Calendar.HOUR_OF_DAY, 1);
+                    if (calendar.get(Calendar.MINUTE) > 29) {
+                        calendar.add(Calendar.HOUR_OF_DAY, 1);
                     }
                     break;
 
                 case Types.SQL_INTERVAL_MINUTE :
-                    if (tempCalGMT.get(Calendar.SECOND) > 29) {
-                        tempCalGMT.add(Calendar.MINUTE, 1);
+                    if (calendar.get(Calendar.SECOND) > 29) {
+                        calendar.add(Calendar.MINUTE, 1);
                     }
                     break;
 
                 case Types.SQL_INTERVAL_SECOND :
-                    if (tempCalGMT.get(Calendar.MILLISECOND) > 499) {
-                        tempCalGMT.add(Calendar.SECOND, 1);
+                    if (calendar.get(Calendar.MILLISECOND) > 499) {
+                        calendar.add(Calendar.SECOND, 1);
                     }
                     break;
 
                 case DTIType.WEEK_OF_YEAR : {
-                    int dayYear = tempCalGMT.get(Calendar.DAY_OF_YEAR);
-                    int year    = tempCalGMT.get(Calendar.YEAR);
-                    int week    = tempCalGMT.get(Calendar.WEEK_OF_YEAR);
-                    int day     = tempCalGMT.get(Calendar.DAY_OF_WEEK);
+                    int dayYear = calendar.get(Calendar.DAY_OF_YEAR);
+                    int year    = calendar.get(Calendar.YEAR);
+                    int week    = calendar.get(Calendar.WEEK_OF_YEAR);
+                    int day     = calendar.get(Calendar.DAY_OF_WEEK);
 
-                    tempCalGMT.clear();
-                    tempCalGMT.set(Calendar.YEAR, year);
+                    calendar.clear();
+                    calendar.set(Calendar.YEAR, year);
 
                     if (day > 3) {
                         week++;
                     }
 
                     if (week == 1 && (dayYear > 356 || dayYear < 7)) {
-                        tempCalGMT.set(Calendar.DAY_OF_YEAR, dayYear);
+                        calendar.set(Calendar.DAY_OF_YEAR, dayYear);
 
                         while (true) {
-                            if (tempCalGMT.get(Calendar.DAY_OF_WEEK) == 1) {
-                                return tempCalGMT.getTimeInMillis();
+                            if (calendar.get(Calendar.DAY_OF_WEEK) == 1) {
+                                return calendar.getTimeInMillis();
                             }
 
-                            tempCalGMT.add(Calendar.DAY_OF_YEAR, -1);
+                            calendar.add(Calendar.DAY_OF_YEAR, -1);
                         }
                     }
 
-                    tempCalGMT.set(Calendar.WEEK_OF_YEAR, week);
+                    calendar.set(Calendar.WEEK_OF_YEAR, week);
 
-                    return tempCalGMT.getTimeInMillis();
+                    return calendar.getTimeInMillis();
                 }
             }
 
-            zeroFromPart(tempCalGMT, part);
+            zeroFromPart(calendar, part);
 
-            return tempCalGMT.getTimeInMillis();
+            return calendar.getTimeInMillis();
         }
     }
 
@@ -637,7 +623,7 @@ public class HsqlDateTime {
         if (matchIndex >= 0) {
             Calendar cal         = format.getCalendar();
             int      matchLength = 3;
-            int weekOfYear = getDateTimePart(date.getTime(),
+            int weekOfYear = getDateTimePart(cal, date.getTime(),
                                              Calendar.WEEK_OF_YEAR);
             StringBuilder sb = new StringBuilder(result);
 

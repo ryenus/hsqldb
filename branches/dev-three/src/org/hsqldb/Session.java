@@ -38,6 +38,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
@@ -632,9 +633,9 @@ public class Session implements SessionInterface {
 
     private void endTransaction(boolean commit, boolean chain) {
 
-        abortTransaction = false;
-
+        abortTransaction   = false;
         systemTimestampSet = false;
+
         sessionContext.resetStack();
         sessionContext.savepoints.clear();
         sessionContext.savepointTimestamps.clear();
@@ -1641,7 +1642,7 @@ public class Session implements SessionInterface {
     private TimestampData localTimestamp;
     private TimestampData transactionSystemTimestamp =
         getSystemTimestamp(false);
-    boolean systemTimestampSet = false;
+    boolean          systemTimestampSet = false;
     private TimeData currentTime;
     private TimeData localTime;
 
@@ -1665,8 +1666,8 @@ public class Session implements SessionInterface {
         resetCurrentTimestamp();
 
         if (currentDate == null) {
-            currentDate = (TimestampData) Type.SQL_DATE.getValue(currentMillis
-                    / 1000, 0, getZoneSeconds());
+            currentDate = (TimestampData) Type.SQL_DATE.getValue(this,
+                    currentMillis / 1000, 0, getZoneSeconds());
         }
 
         return currentDate;
@@ -1755,10 +1756,12 @@ public class Session implements SessionInterface {
     }
 
     TimestampData getTransactionSystemTimestamp() {
+
         if (!systemTimestampSet) {
             transactionSystemTimestamp = getSystemTimestamp(false);
-            systemTimestampSet = true;
+            systemTimestampSet         = true;
         }
+
         return transactionSystemTimestamp;
     }
 
@@ -2326,7 +2329,7 @@ public class Session implements SessionInterface {
     class TimeoutManager {
 
         volatile long    actionTimestamp;
-        volatile int     currentTimeout;
+        AtomicInteger    currentTimeout;
         volatile boolean aborted;
 
         void startTimeout(int timeout) {
@@ -2337,7 +2340,8 @@ public class Session implements SessionInterface {
                 return;
             }
 
-            currentTimeout  = timeout;
+            currentTimeout.set(timeout);
+
             actionTimestamp = Session.this.actionTimestamp;
 
             database.timeoutRunner.addSession(Session.this);
@@ -2351,31 +2355,35 @@ public class Session implements SessionInterface {
 
             boolean aborted = this.aborted;
 
-            currentTimeout = 0;
-            this.aborted   = false;
+            currentTimeout.set(0);
+
+            this.aborted = false;
 
             return aborted;
         }
 
         public boolean checkTimeout() {
 
-            if (currentTimeout == 0) {
+            if (currentTimeout.get() == 0) {
                 return true;
             }
 
             if (aborted || actionTimestamp != Session.this.actionTimestamp) {
                 actionTimestamp = 0;
-                currentTimeout  = 0;
-                aborted         = false;
+
+                currentTimeout.set(0);
+
+                aborted = false;
 
                 return true;
             }
 
-            --currentTimeout;
+            int result = currentTimeout.decrementAndGet();
 
-            if (currentTimeout <= 0) {
-                currentTimeout = 0;
-                aborted        = true;
+            if (result <= 0) {
+                currentTimeout.set(0);
+
+                aborted = true;
 
                 database.txManager.resetSession(
                     null, Session.this, TransactionManager.resetSessionAbort);

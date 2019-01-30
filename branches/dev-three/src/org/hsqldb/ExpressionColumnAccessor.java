@@ -132,7 +132,7 @@ public class ExpressionColumnAccessor extends Expression {
     /**
      * SIMPLE_COLUMN expressions can be of different Expression subclass types
      */
-    public boolean equals(Expression other) {
+    boolean equals(Expression other) {
 
         if (other == this) {
             return true;

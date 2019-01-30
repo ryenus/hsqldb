@@ -1357,8 +1357,8 @@ public class FunctionCustom extends FunctionSQL {
                     }
 
                     return funcType == FUNC_ROUND
-                           ? type.round(data[0], interval)
-                           : type.truncate(data[0], interval);
+                           ? type.round(session, data[0], interval)
+                           : type.truncate(session, data[0], interval);
                 }
             }
 

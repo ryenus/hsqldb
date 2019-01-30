@@ -375,7 +375,7 @@ public class Expression implements Cloneable {
     /**
      * SIMPLE_COLUMN expressions can be of different Expression subclass types
      */
-    public boolean equals(Expression other) {
+    boolean equals(Expression other) {
 
         if (other == this) {
             return true;
@@ -409,7 +409,7 @@ public class Expression implements Cloneable {
         }
     }
 
-    public boolean equals(Object other) {
+    public final boolean equals(Object other) {
 
         if (other == this) {
             return true;
@@ -739,7 +739,7 @@ public class Expression implements Cloneable {
         hasAggregate = true;
     }
 
-    boolean isSelfAggregate() {
+    public boolean isSelfAggregate() {
         return false;
     }
 

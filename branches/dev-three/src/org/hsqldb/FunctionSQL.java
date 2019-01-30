@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2120,7 +2120,7 @@ public class FunctionSQL extends Expression {
         return sb.toString();
     }
 
-    public boolean equals(Expression other) {
+    boolean equals(Expression other) {
 
         if (other instanceof FunctionSQL) {
             FunctionSQL o = (FunctionSQL) other;

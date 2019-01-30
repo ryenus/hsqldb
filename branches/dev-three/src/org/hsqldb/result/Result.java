@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.4.2
  * @since 1.9.0
  */
 public class Result {
@@ -1077,11 +1077,6 @@ public class Result {
             System.gc();
 
             result.exception  = Error.error(ErrorCode.OUT_OF_MEMORY, t);
-            result.mainString = result.exception.getMessage();
-            result.subString  = result.exception.getSQLState();
-            result.errorCode  = result.exception.getErrorCode();
-        } else if (t instanceof Throwable) {
-            result.exception  = Error.error(ErrorCode.GENERAL_ERROR, t);
             result.mainString = result.exception.getMessage();
             result.subString  = result.exception.getSQLState();
             result.errorCode  = result.exception.getErrorCode();

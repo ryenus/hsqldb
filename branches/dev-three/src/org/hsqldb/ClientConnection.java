@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ import org.hsqldb.types.TimestampData;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.2
  * @since 1.7.2
  */
 public class ClientConnection implements SessionInterface, Cloneable {
@@ -710,5 +710,9 @@ public class ClientConnection implements SessionInterface, Cloneable {
     protected void handshake() throws IOException {
         dataOutput.writeInt(NETWORK_COMPATIBILITY_VERSION_INT);
         dataOutput.flush();
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

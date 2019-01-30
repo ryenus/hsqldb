@@ -1760,8 +1760,6 @@ public class ParserTable extends ParserDML {
 
         isCheckOrTriggerCondition = false;
 
-        Token[] tokens = getRecordedStatement();
-
         readThis(Tokens.CLOSEBRACKET);
 
         c.check = condition;

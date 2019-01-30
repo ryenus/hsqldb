@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -543,7 +543,7 @@ public class LockFile {
 
         if (NIO_FILELOCK_AVAILABLE && NIO_LOCKFILE_CLASS != null) {
             try {
-                return (LockFile) NIO_LOCKFILE_CLASS.newInstance();
+                return (LockFile) NIO_LOCKFILE_CLASS.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
 
                 // e.printStackTrace()

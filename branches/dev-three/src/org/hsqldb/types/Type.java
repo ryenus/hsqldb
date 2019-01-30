@@ -1047,8 +1047,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         }
 
         if (type.isCharacterType()) {
-            type                             = type.duplicate();
-            ((CharacterType) type).collation = collation;
+            type = new CharacterType(collation, type.typeCode, type.precision);
         }
 
         return type;
