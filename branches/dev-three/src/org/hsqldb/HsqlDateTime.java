@@ -73,15 +73,16 @@ public class HsqlDateTime {
     public static final Calendar tempCalDefault = new GregorianCalendar();
     public static final Calendar tempCalGMT =
         new GregorianCalendar(TimeZone.getTimeZone("GMT"), defaultLocale);
-    private static final Date   tempDate        = new Date(0);
-    private static final String sdfdPattern     = "yyyy-MM-dd";
-    static SimpleDateFormat     sdfd = new SimpleDateFormat(sdfdPattern);
-    private static final String sdftPattern     = "HH:mm:ss";
-    static SimpleDateFormat     sdft = new SimpleDateFormat(sdftPattern);
-    private static final String sdftsPattern    = "yyyy-MM-dd HH:mm:ss";
-    static SimpleDateFormat     sdfts = new SimpleDateFormat(sdftsPattern);
-    private static final String sdftsSysPattern = "yyyy-MM-dd HH:mm:ss.SSS";
+    private static final Date     tempDate        = new Date(0);
+    private static final String   sdfdPattern     = "yyyy-MM-dd";
+    static SimpleDateFormat       sdfd = new SimpleDateFormat(sdfdPattern);
+    private static final String   sdftPattern     = "HH:mm:ss";
+    static SimpleDateFormat       sdft = new SimpleDateFormat(sdftPattern);
+    private static final String   sdftsPattern    = "yyyy-MM-dd HH:mm:ss";
+    static SimpleDateFormat       sdfts = new SimpleDateFormat(sdftsPattern);
+    private static final String   sdftsSysPattern = "yyyy-MM-dd HH:mm:ss.SSS";
     static SimpleDateFormat sdftsSys = new SimpleDateFormat(sdftsSysPattern);
+    private static java.util.Date sysDate         = new java.util.Date();
 
     static {
         tempCalGMT.setLenient(false);
@@ -151,17 +152,6 @@ public class HsqlDateTime {
             sysDate.setTime(millis);
 
             return sdfts.format(sysDate);
-        }
-    }
-
-    private static java.util.Date sysDate = new java.util.Date();
-
-    public static String getSystemTimeString() {
-
-        synchronized (sdftsSys) {
-            sysDate.setTime(System.currentTimeMillis());
-
-            return sdftsSys.format(sysDate);
         }
     }
 
@@ -255,13 +245,13 @@ public class HsqlDateTime {
         return getNormalisedTime(tempCalGMT, t);
     }
 
-    public static long getNormalisedTime(Calendar cal, long t) {
+    public static long getNormalisedTime(Calendar calendar, long t) {
 
-        synchronized (cal) {
-            setTimeInMillis(cal, t);
-            resetToTime(cal);
+        synchronized (calendar) {
+            setTimeInMillis(calendar, t);
+            resetToTime(calendar);
 
-            return cal.getTimeInMillis();
+            return calendar.getTimeInMillis();
         }
     }
 
@@ -269,23 +259,23 @@ public class HsqlDateTime {
         return getNormalisedDate(tempCalGMT, d);
     }
 
-    public static long getNormalisedDate(Calendar cal, long t) {
+    public static long getNormalisedDate(Calendar calendar, long t) {
 
-        synchronized (cal) {
-            setTimeInMillis(cal, t);
-            resetToDate(cal);
+        synchronized (calendar) {
+            setTimeInMillis(calendar, t);
+            resetToDate(calendar);
 
-            return cal.getTimeInMillis();
+            return calendar.getTimeInMillis();
         }
     }
 
-    public static int getZoneSeconds(Calendar cal) {
-        return (cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET))
+    public static int getZoneSeconds(Calendar calendar) {
+        return (calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET))
                / 1000;
     }
 
-    public static int getZoneMillis(Calendar cal, long millis) {
-        return cal.getTimeZone().getOffset(millis);
+    public static int getZoneMillis(Calendar calendar, long millis) {
+        return calendar.getTimeZone().getOffset(millis);
     }
 
     /**
@@ -752,6 +742,33 @@ public class HsqlDateTime {
         }
 
         return -1;
+    }
+
+    /**
+     * Timestamp String generator
+     */
+    public static class SystemTimeString {
+
+        private java.util.Date date = new java.util.Date();
+        private SimpleDateFormat dateFormat =
+            new SimpleDateFormat(sdftsSysPattern);
+
+        public SystemTimeString() {
+
+            dateFormat.setCalendar(
+                new GregorianCalendar(
+                    TimeZone.getTimeZone("GMT"), defaultLocale));
+            dateFormat.setLenient(false);
+        }
+
+        public String getTimestampString() {
+
+            synchronized (dateFormat) {
+                date.setTime(System.currentTimeMillis());
+
+                return dateFormat.format(date);
+            }
+        }
     }
 
     /**

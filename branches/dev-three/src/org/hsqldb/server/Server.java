@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import java.util.StringTokenizer;
 
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.HsqlDateTime;
+import org.hsqldb.HsqlDateTime.SystemTimeString;
 import org.hsqldb.HsqlException;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -232,7 +232,7 @@ import org.hsqldb.result.ResultConstants;
  * is started as part of a larger framework. <p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.4.2
  * @since 1.7.2
  */
 public class Server implements HsqlSocketRequestHandler, Notified {
@@ -282,8 +282,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     private PrintWriter        errWriter;
     private ServerAcl          acl = null;    // null means no access tests
     private volatile boolean   isShuttingDown;
-
-//
+    private SystemTimeString   sysTime = new SystemTimeString();
 
     /**
      * A specialized Thread inner class in which the run() method of this
@@ -1352,7 +1351,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      * @param msg the message to print
      */
     final void printWithTimestamp(String msg) {
-        print(HsqlDateTime.getSystemTimeString() + " " + msg);
+        print(sysTime.getTimestampString() + " " + msg);
     }
 
     /**
@@ -1438,6 +1437,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
             case ResultConstants.EXECUTE : {
                 sb.append("SQLCLI:SQLEXECUTE:");
                 sb.append(r.getStatementID());
+
                 break;
             }
             case ResultConstants.BATCHEXECUTE :
