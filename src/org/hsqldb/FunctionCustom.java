@@ -1528,11 +1528,9 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42566, (String) data[1]);
                 }
 
-                synchronized (calendar) {
-                    calendar.setTimeInMillis(seconds * 1000);
+                calendar.setTimeInMillis(seconds * 1000);
 
-                    zone = HsqlDateTime.getZoneSeconds(calendar);
-                }
+                zone = HsqlDateTime.getZoneSeconds(calendar);
 
                 return new TimestampData(seconds, nanos, zone);
             }

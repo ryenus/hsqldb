@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -349,7 +349,7 @@ public class TestUtil {
 
     /**
      * Factory method to create appropriate parsed section class for the section
-     * @param aSection Vector containing the section of script
+     * @param sectionLines Vector containing the section of script
      * @return a ParesedSection object
      */
     private static ParsedSection parsedSectionFactory(
