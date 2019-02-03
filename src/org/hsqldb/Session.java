@@ -70,7 +70,7 @@ import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.Type.TypedComparator;
+import org.hsqldb.types.TypedComparator;
 
 /**
  * Implementation of SQL sessions.
@@ -633,6 +633,7 @@ public class Session implements SessionInterface {
 
     private void endTransaction(boolean commit, boolean chain) {
 
+        abortAction        = false;
         abortTransaction   = false;
         systemTimestampSet = false;
 
@@ -2180,7 +2181,7 @@ public class Session implements SessionInterface {
     }
 
     // services
-    TypedComparator  typedComparator = Type.newComparator(this);
+    TypedComparator  typedComparator = new TypedComparator(this);
     Scanner          secondaryScanner;
     SimpleDateFormat simpleDateFormat;
     SimpleDateFormat simpleDateFormatGMT;

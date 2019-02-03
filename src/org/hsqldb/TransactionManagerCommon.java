@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -955,12 +955,12 @@ class TransactionManagerCommon {
                     if (targetSession.isInMidTransaction()) {
                         prepareReset(targetSession);
 
-                        if (targetSession.latch.getCount() > 0) {
-                            targetSession.abortTransaction = true;
+                        targetSession.abortTransaction = true;
 
+                        if (targetSession.latch.getCount() > 0) {
                             targetSession.latch.setCount(0);
                         } else {
-                            targetSession.abortTransaction = true;
+                            targetSession.rollbackNoCheck(true);
                         }
                     }
                     break;
@@ -973,12 +973,10 @@ class TransactionManagerCommon {
                     if (targetSession.isInMidTransaction()) {
                         prepareReset(targetSession);
 
-                        if (targetSession.latch.getCount() > 0) {
-                            targetSession.abortAction = true;
+                        targetSession.abortAction = true;
 
+                        if (targetSession.latch.getCount() > 0) {
                             targetSession.latch.setCount(0);
-                        } else {
-                            targetSession.abortAction = true;
                         }
                     }
                     break;
