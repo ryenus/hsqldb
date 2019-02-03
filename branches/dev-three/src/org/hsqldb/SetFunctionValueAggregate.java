@@ -48,7 +48,7 @@ import org.hsqldb.types.NumberType;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.Type.TypedComparator;
+import org.hsqldb.types.TypedComparator;
 import org.hsqldb.types.Types;
 
 /**
@@ -100,7 +100,7 @@ public class SetFunctionValueAggregate implements SetFunction {
             distinctValues = new HashSet();
 
             if (type.isRowType() || type.isArrayType()) {
-                TypedComparator comparator = Type.newComparator(session);
+                TypedComparator comparator = new TypedComparator(session);
                 SortAndSlice    sort       = new SortAndSlice();
                 int length = type.isRowType()
                              ? ((RowType) type).getTypesArray().length
@@ -490,7 +490,7 @@ public class SetFunctionValueAggregate implements SetFunction {
     long hi;
     long lo;
 
-    void addLong(long value) {
+    private void addLong(long value) {
 
         if (value == 0) {}
         else if (value > 0) {

@@ -41,7 +41,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.IntValueHashMap;
-import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
 
@@ -610,38 +609,6 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public int hashCode() {
         return typeCode + ((int) precision << 8) + (scale << 16);
-    }
-
-    public static TypedComparator newComparator(Session session) {
-        return new TypedComparator(session);
-    }
-
-    public static class TypedComparator implements ObjectComparator {
-
-        Session      session;
-        Type         type;
-        SortAndSlice sort;
-
-        TypedComparator(Session session) {
-            this.session = session;
-        }
-
-        public int compare(Object a, Object b) {
-            return type.compare(session, a, b, sort);
-        }
-
-        public int hashCode(Object a) {
-            return type.hashCode(a);
-        }
-
-        public long longKey(Object a) {
-            return 0;
-        }
-
-        public void setType(Type type, SortAndSlice sort) {
-            this.type = type;
-            this.sort = sort;
-        }
     }
 
     /** @todo 1.9.0 - review all - need max implementation defined lengths, used for parameters */
