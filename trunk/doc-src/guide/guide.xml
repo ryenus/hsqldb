@@ -3,8 +3,6 @@
 <!DOCTYPE book [
 <!ENTITY % dummy22 SYSTEM "../entities/global.ent">
 %dummy22;
-<!ENTITY % dummy26 SYSTEM "entities/versions.ent">
-%dummy26;
 ]>
 <book version="5.0" xml:id="guide" xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
