@@ -455,7 +455,7 @@ public class HsqlDateTime {
         "HH", "KK", "KK",
         "mm", "ss",
         "aaa", "aaa", "aaa", "aaa",
-        "S"
+        "SSS"
     };
 
     private static final int[] sqlIntervalCodes = {
@@ -505,12 +505,12 @@ public class HsqlDateTime {
             throw Error.error(ErrorCode.X_22511);
         }
 
-        matchIndex = javaPattern.indexOf("S");
+        matchIndex = javaPattern.indexOf("SSS");
 
         if (matchIndex >= 0) {
             tempPattern = javaPattern;
             javaPattern = javaPattern.substring(0, matchIndex)
-                          + javaPattern.substring(matchIndex + 1);
+                          + javaPattern.substring(matchIndex + 3);
         }
 
         try {
@@ -761,13 +761,11 @@ public class HsqlDateTime {
             dateFormat.setLenient(false);
         }
 
-        public String getTimestampString() {
+        public synchronized String getTimestampString() {
 
-            synchronized (dateFormat) {
-                date.setTime(System.currentTimeMillis());
+            date.setTime(System.currentTimeMillis());
 
-                return dateFormat.format(date);
-            }
+            return dateFormat.format(date);
         }
     }
 
@@ -836,7 +834,7 @@ public class HsqlDateTime {
         }
 
         /**
-         * Indicates whether the last character has been consumed by the matcher.
+         * Indicates whether the last character has been matched by the matcher.
          */
         public boolean wasMatched() {
             return matched;
