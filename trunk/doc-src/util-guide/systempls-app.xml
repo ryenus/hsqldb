@@ -197,12 +197,12 @@
       Full name of current script, which is usually an URL or the string
       <literal>&lt;stdin&gt;</literal>.
     </simpara></listitem></varlistentry>
-    <varlistentry><term>*START_BASE</term><listitem><simpara>
+    <varlistentry><term>*SCRIPT_BASE</term><listitem><simpara>
           Base name of the current script.
-          Same as *SCRIPT_NAME but with final filename suffix also removed.
+          Same as *SCRIPT_FILE but with final filename suffix also removed.
     </simpara></listitem></varlistentry>
-    <varlistentry><term>*SCRIPT_NAME</term><listitem><simpara>
-      Short name of the current script.  Protocols and directories stripped off.
+    <varlistentry><term>*SCRIPT_FILE</term><listitem><simpara>
+      Current script file name without directory or any protocol prefix.
     </simpara></listitem></varlistentry>
     <varlistentry><term>*START_TIME</term><listitem><simpara>
         Read only.  Literal string.
