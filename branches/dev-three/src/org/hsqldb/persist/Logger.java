@@ -103,7 +103,6 @@ public class Logger implements EventLogInterface {
     private Database database;
     private boolean  logsStatements;    // false indicates Log is being opened
     private boolean  loggingEnabled;
-    private boolean  syncFile = false;
 
     //
     private boolean propIsFileDatabase;
@@ -158,12 +157,12 @@ public class Logger implements EventLogInterface {
     //
     static final int largeDataFactor = 128;
 
-    //
+    // backupState cycle normal, backup, normal or normal, checkpoint, normal
     static final int stateNormal     = 0;
     static final int stateBackup     = 1;
     static final int stateCheckpoint = 2;
 
-    //
+    // checkpointState cycle normal, required, due, normal
     static final int stateCheckpointNormal   = 0;
     static final int stateCheckpointRequired = 1;
     static final int stateCheckpointDue      = 2;
@@ -1079,8 +1078,6 @@ public class Logger implements EventLogInterface {
         propWriteDelay = delay;
 
         if (log != null) {
-            syncFile = (delay == 0);
-
             log.setWriteDelay(delay);
         }
     }

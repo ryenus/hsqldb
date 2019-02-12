@@ -691,6 +691,9 @@ public abstract class Type implements SchemaObject, Cloneable {
     public static final DateTimeType SQL_TIME =
         new DateTimeType(Types.SQL_TIME, Types.SQL_TIME,
                          DTIType.defaultTimeFractionPrecision);
+    public static final DateTimeType SQL_TIME_MAX =
+        new DateTimeType(Types.SQL_TIME, Types.SQL_TIME,
+                         DTIType.maxFractionPrecision);
     public static final DateTimeType SQL_TIME_WITH_TIME_ZONE =
         new DateTimeType(Types.SQL_TIME, Types.SQL_TIME_WITH_TIME_ZONE,
                          DTIType.defaultTimeFractionPrecision);
