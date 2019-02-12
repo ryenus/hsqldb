@@ -191,38 +191,39 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_SPACE                    = 155;
     private static final int FUNC_SUBSTR                   = 156;
     private static final int FUNC_SYS_EXTRACT_UTC          = 157;
-    private static final int FUNC_SYSDATE                  = 158;
-    private static final int FUNC_SYSTIMESTAMP             = 159;
-    private static final int FUNC_TAN                      = 160;
-    private static final int FUNC_TANH                     = 161;
-    private static final int FUNC_TIMESTAMP                = 162;
-    private static final int FUNC_TIMESTAMP_WITH_ZONE      = 163;
-    private static final int FUNC_TIMESTAMPADD             = 164;
-    private static final int FUNC_TIMESTAMPDIFF            = 165;
-    private static final int FUNC_TIMEZONE                 = 166;
-    private static final int FUNC_TO_BASE64                = 167;
-    private static final int FUNC_TO_CHAR                  = 168;
-    private static final int FUNC_TO_DATE                  = 169;
-    private static final int FUNC_TO_DSINTERVAL            = 170;
-    private static final int FUNC_TO_YMINTERVAL            = 171;
-    private static final int FUNC_TO_NUMBER                = 172;
-    private static final int FUNC_TO_TIMESTAMP             = 173;
-    private static final int FUNC_TO_TIMESTAMP_TZ          = 174;
-    private static final int FUNC_TRANSACTION_CONTROL      = 175;
-    private static final int FUNC_TRANSACTION_ID           = 176;
-    private static final int FUNC_TRANSACTION_SIZE         = 177;
-    private static final int FUNC_TRANSLATE                = 178;
-    private static final int FUNC_TRUNC                    = 179;
-    private static final int FUNC_TRUNCATE                 = 180;
-    private static final int FUNC_UNHEX                    = 181;
-    private static final int FUNC_UUID                     = 182;
-    private static final int FUNC_UNIX_TIMESTAMP           = 183;
-    private static final int FUNC_UNIX_MILLIS              = 184;
-    private static final int FUNC_DATEPART                 = 185;
-    private static final int FUNC_DATENAME                 = 186;
-    private static final int FUNC_NANVL                    = 187;
-    private static final int FUNC_SQLCODE                  = 188;
-    private static final int FUNC_SQLERRM                  = 189;
+    private static final int FUNC_SYS_GUID                 = 158;
+    private static final int FUNC_SYSDATE                  = 159;
+    private static final int FUNC_SYSTIMESTAMP             = 160;
+    private static final int FUNC_TAN                      = 161;
+    private static final int FUNC_TANH                     = 162;
+    private static final int FUNC_TIMESTAMP                = 163;
+    private static final int FUNC_TIMESTAMP_WITH_ZONE      = 164;
+    private static final int FUNC_TIMESTAMPADD             = 165;
+    private static final int FUNC_TIMESTAMPDIFF            = 166;
+    private static final int FUNC_TIMEZONE                 = 167;
+    private static final int FUNC_TO_BASE64                = 168;
+    private static final int FUNC_TO_CHAR                  = 169;
+    private static final int FUNC_TO_DATE                  = 170;
+    private static final int FUNC_TO_DSINTERVAL            = 171;
+    private static final int FUNC_TO_YMINTERVAL            = 172;
+    private static final int FUNC_TO_NUMBER                = 173;
+    private static final int FUNC_TO_TIMESTAMP             = 174;
+    private static final int FUNC_TO_TIMESTAMP_TZ          = 175;
+    private static final int FUNC_TRANSACTION_CONTROL      = 176;
+    private static final int FUNC_TRANSACTION_ID           = 177;
+    private static final int FUNC_TRANSACTION_SIZE         = 178;
+    private static final int FUNC_TRANSLATE                = 179;
+    private static final int FUNC_TRUNC                    = 180;
+    private static final int FUNC_TRUNCATE                 = 181;
+    private static final int FUNC_UNHEX                    = 182;
+    private static final int FUNC_UUID                     = 183;
+    private static final int FUNC_UNIX_TIMESTAMP           = 184;
+    private static final int FUNC_UNIX_MILLIS              = 185;
+    private static final int FUNC_DATEPART                 = 186;
+    private static final int FUNC_DATENAME                 = 187;
+    private static final int FUNC_NANVL                    = 188;
+    private static final int FUNC_SQLCODE                  = 189;
+    private static final int FUNC_SQLERRM                  = 190;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -246,6 +247,7 @@ public class FunctionCustom extends FunctionSQL {
         nonDeterministicFuncSet.add(FUNC_SESSION_ISOLATION_LEVEL);
         nonDeterministicFuncSet.add(FUNC_SESSION_TIMEZONE);
         nonDeterministicFuncSet.add(FUNC_SESSIONTIMEZONE);
+        nonDeterministicFuncSet.add(FUNC_SYS_GUID);
         nonDeterministicFuncSet.add(FUNC_SYSDATE);
         nonDeterministicFuncSet.add(FUNC_SYSTIMESTAMP);
         nonDeterministicFuncSet.add(FUNC_TIMESTAMP);
@@ -397,7 +399,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.UCASE, FUNC_FOLD_UPPER);
         customRegularFuncMap.put(Tokens.UNIX_MILLIS, FUNC_UNIX_MILLIS);
         customRegularFuncMap.put(Tokens.UNIX_TIMESTAMP, FUNC_UNIX_TIMESTAMP);
-        customRegularFuncMap.put(Tokens.SYS_GUID, FUNC_UUID);
+        customRegularFuncMap.put(Tokens.SYS_GUID, FUNC_SYS_GUID);
         customRegularFuncMap.put(Tokens.UNHEX, FUNC_UNHEX);
         customRegularFuncMap.put(Tokens.UUID, FUNC_UUID);
         customRegularFuncMap.put(Tokens.WEEK, FUNC_EXTRACT);
@@ -573,6 +575,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SESSION_ID :
             case FUNC_SESSION_ISOLATION_LEVEL :
             case FUNC_SESSION_TIMEZONE :
+            case FUNC_SYS_GUID :
             case FUNC_TIMEZONE :
             case FUNC_TRANSACTION_CONTROL :
             case FUNC_TRANSACTION_ID :
@@ -1498,8 +1501,9 @@ public class FunctionCustom extends FunctionSQL {
                 TimestampData date =
                     (TimestampData) Type.SQL_DATE.convertToType(session,
                         data[0], nodes[0].dataType);
-                TimeData time = (TimeData) Type.SQL_TIME.convertToType(session,
-                    data[1], nodes[1].dataType);
+                TimeData time =
+                    (TimeData) Type.SQL_TIME_MAX.convertToType(session,
+                        data[1], nodes[1].dataType);
 
                 return new TimestampData(date.getSeconds()
                                          + time.getSeconds(), time.getNanos());
@@ -1533,6 +1537,13 @@ public class FunctionCustom extends FunctionSQL {
                 zone = HsqlDateTime.getZoneSeconds(calendar);
 
                 return new TimestampData(seconds, nanos, zone);
+            }
+            case FUNC_SYS_GUID : {
+                UUID uuid = java.util.UUID.randomUUID();
+                long hi   = uuid.getMostSignificantBits();
+                long lo   = uuid.getLeastSignificantBits();
+
+                return new BinaryData(ArrayUtil.toByteArray(hi, lo), false);
             }
             case FUNC_UUID : {
                 if (nodes[0] == null) {
@@ -3130,7 +3141,7 @@ public class FunctionCustom extends FunctionSQL {
                         if (argType.isCharacterType()) {
                             nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
                         } else if (argType.typeCode == Types.SQL_DATE) {
-                            nodes[1].dataType = Type.SQL_TIME;
+                            nodes[1].dataType = Type.SQL_TIME_MAX;
                         }
                     }
 
@@ -3170,15 +3181,20 @@ public class FunctionCustom extends FunctionSQL {
                 dataType = Type.SQL_DOUBLE;
                 break;
 
+            case FUNC_SYS_GUID : {
+                dataType = Type.SQL_BINARY_16;
+
+                break;
+            }
             case FUNC_UUID : {
                 if (nodes[0] == null) {
-                    dataType = Type.SQL_BINARY_16;
+                    dataType = Type.SQL_GUID;
                 } else {
                     if (nodes[0].dataType == null) {
                         nodes[0].dataType = Type.SQL_VARCHAR;
-                        dataType          = Type.SQL_BINARY_16;
+                        dataType          = Type.SQL_GUID;
                     } else if (nodes[0].dataType.isCharacterType()) {
-                        dataType = Type.SQL_BINARY_16;
+                        dataType = Type.SQL_GUID;
                     } else if (nodes[0].dataType.isBinaryType()
                                && !nodes[0].dataType.isLobType()) {
                         dataType = Type.SQL_CHAR_UUID;
@@ -4073,6 +4089,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_IDENTITY :
             case FUNC_SESSION_ID :
             case FUNC_ACTION_ID :
+            case FUNC_SYS_GUID :
             case FUNC_TRANSACTION_ID :
             case FUNC_TRANSACTION_SIZE :
                 return new StringBuffer(name).append(

@@ -557,11 +557,7 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            if (value) {
-                setFlag(FLAG_ISSHADOWED);
-            } else {
-                unsetFlag(FLAG_ISSHADOWED);
-            }
+            setFlag(FLAG_ISSHADOWED, value);
 
             fileModified = true;
         } catch (Throwable t) {
@@ -772,7 +768,7 @@ public class DataFileCache {
             dataFile.writeInt(pos);
 
             // set saved flag;
-            setFlag(DataFileCache.FLAG_ISSAVED);
+            setFlag(DataFileCache.FLAG_ISSAVED, true);
             logDetailEvent("file sync end");
 
             fileModified          = false;
@@ -1604,26 +1600,14 @@ public class DataFileCache {
         dataFile.synch();
     }
 
-    void setFlag(int singleFlag) throws IOException {
+    void setFlag(int singleFlag, boolean val) throws IOException {
 
         dataFile.seek(FLAGS_POS);
 
         int flags = dataFile.readInt();
 
-        flags = BitMap.set(flags, singleFlag);
-
-        dataFile.seek(FLAGS_POS);
-        dataFile.writeInt(flags);
-        dataFile.synch();
-    }
-
-    void unsetFlag(int singleFlag) throws IOException {
-
-        dataFile.seek(FLAGS_POS);
-
-        int flags = dataFile.readInt();
-
-        flags = BitMap.unset(flags, singleFlag);
+        flags = val ? BitMap.set(flags, singleFlag)
+                    : BitMap.unset(flags, singleFlag);;
 
         dataFile.seek(FLAGS_POS);
         dataFile.writeInt(flags);
