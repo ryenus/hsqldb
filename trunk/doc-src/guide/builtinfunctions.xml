@@ -2360,7 +2360,8 @@
             <row>
               <entry><literal>FF</literal></entry>
 
-              <entry><para>Fractional seconds.</para></entry>
+              <entry><para>Fractional seconds. Use without
+              repetition.</para></entry>
             </row>
           </tbody>
         </tgroup>
