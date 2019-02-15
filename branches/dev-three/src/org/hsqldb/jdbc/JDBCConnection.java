@@ -463,7 +463,7 @@ import org.hsqldb.types.Type;
  * </div> <!-- end release-specific documentation -->
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.5.0
  * @since HSQLDB 1.9.0
  * @see JDBCDriver
  * @see JDBCStatement
@@ -3007,13 +3007,13 @@ public class JDBCConnection implements Connection {
         }
         typeName = typeName.toUpperCase();
 
-        int typeCode = Type.getTypeNr(typeName);
+        int typeNumber = Type.getTypeNr(typeName);
 
-        if (typeCode < 0) {
+        if (typeNumber == Integer.MIN_VALUE) {
             throw JDBCUtil.invalidArgument(typeName);
         }
 
-        Type type = Type.getDefaultType(typeCode);
+        Type type = Type.getDefaultType(typeNumber);
 
         if (type.isArrayType() || type.isLobType() || type.isRowType()) {
             throw JDBCUtil.invalidArgument(typeName);

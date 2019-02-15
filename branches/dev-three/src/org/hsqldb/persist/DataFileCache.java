@@ -38,13 +38,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
+import org.hsqldb.Session;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.IntIndex;
-import org.hsqldb.lib.Iterator;
 import org.hsqldb.map.BitMap;
 import org.hsqldb.rowio.RowInputBinary180;
 import org.hsqldb.rowio.RowInputBinaryDecode;
@@ -52,15 +52,12 @@ import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputBinary180;
 import org.hsqldb.rowio.RowOutputBinaryEncode;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.Session;
 
 /**
  * Acts as a manager for CACHED table persistence.<p>
  *
  * This contains the top level functionality. Provides file management services
  * and access.<p>
- *
- * Rewritten for 1.8.0 and 2.x
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.4.2
@@ -80,7 +77,7 @@ public class DataFileCache {
     // file format fields
     static final int LONG_EMPTY_SIZE      = 4;        // empty space size
     static final int LONG_FREE_POS_POS    = 12;       // where iFreePos is saved
-    static final int INT_SPACE_PROPS_POS  = 20;       // space properties
+    static final int INT_SPACE_PROPS_POS  = 20;       // space size << 16 + scale
     static final int INT_SPACE_LIST_POS   = 24;       // space list
     static final int FLAGS_POS            = 28;
     static final int MIN_INITIAL_FREE_POS = 32;
@@ -452,7 +449,6 @@ public class DataFileCache {
                 return;
             }
 
-            long    freesize      = 0;
             boolean preexists     = fa.isStreamElement(dataFileName);
             boolean isIncremental = database.logger.propIncrementBackup;
             boolean restore = database.getProperties().getDBModified()
@@ -472,7 +468,7 @@ public class DataFileCache {
             if (preexists) {
                 dataFile.seek(LONG_EMPTY_SIZE);
 
-                freesize = dataFile.readLong();
+                lostSpaceSize = dataFile.readLong();
 
                 dataFile.seek(LONG_FREE_POS_POS);
 
@@ -1572,7 +1568,7 @@ public class DataFileCache {
             if (!fileModified) {
 
                 // unset saved flag;
-                unsetFlag(FLAG_ISSAVED);
+                setFlag(FLAG_ISSAVED, false);
                 logDetailEvent("setFileModified flag set ");
 
                 fileModified = true;
