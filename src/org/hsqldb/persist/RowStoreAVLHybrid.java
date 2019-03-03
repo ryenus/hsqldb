@@ -54,16 +54,16 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class RowStoreAVLHybrid extends RowStoreAVL {
 
-    DataFileCache   cache;
-    private int     maxMemoryRowCount;
-    private boolean useDisk;
-    boolean         isCached;
-    long            rowIdSequence = 0;
+    DataFileCache     cache;
+    private final int maxMemoryRowCount;
+    private boolean   useDisk;
+    boolean           isCached;
+    long              rowIdSequence = 0;
 
     public RowStoreAVLHybrid(Session session, TableBase table,
                              boolean diskBased) {
@@ -315,15 +315,13 @@ public class RowStoreAVLHybrid extends RowStoreAVL {
 
     public void release() {
 
-        if (!isCached) {
-            destroy();
-        }
-
         if (isCached) {
             cache.adjustStoreCount(-1);
 
             cache    = null;
             isCached = false;
+        } else {
+            destroy();
         }
 
         elementCount.set(0);
@@ -375,6 +373,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL {
                 .getSessionDataCache();
 
         if (cache == null) {
+            useDisk = false;
+
             return;
         }
 
