@@ -76,7 +76,7 @@ import org.hsqldb.types.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -1337,6 +1337,9 @@ public class Session implements SessionInterface {
 
             r                               = cs.execute(this);
             sessionContext.currentStatement = null;
+            abortAction                     = false;
+
+            sessionData.persistentStoreCollection.clearStatementTables();
 
             return r;
         }
