@@ -278,12 +278,12 @@
       first time, it does not change any settings.</para>
 
       <para>It is better to set any table that is known to grow larger than
-      several hundred rows its own space before any data is stored. If the
-      above commands are executed when there are already some rows in the
-      table, the existing data remains in the common space. Only the new rows
-      are stored in the table’s own space. When CHCKPOINT DEFRAG, SHUTDOWN
-      COMPACT or SHUTDOWN SCRIPT is executed, all the data is stored in the
-      table's own space.</para>
+      several hundred rows its own space before any data is stored.</para>
+
+      <para>If the above commands are executed when there are already some
+      rows in any CACHED table, the change does not happen immediately. In
+      this case, the table spaces are created only when CHCKPOINT DEFRAG,
+      SHUTDOWN COMPACT or SHUTDOWN SCRIPT is executed.</para>
 
       <para>The size of the file block is 2MB when the hsqldb.cache_file_scale
       is the default 32 (the size doubles as the scale doubles). It is
@@ -296,19 +296,26 @@
       table. These blocks are allocated from the freed file blocks if there is
       any available. The INFORMATION_SCHEMA.SYSTEM_TABLESTATS provides
       information on the space usage of table spaces. In this table, the
-      SPACE_ID column contains the space id for the table. This value is 7 for
+      SPACE_ID column contains the space id for the table. The value 1 is used
+      for the space allocated to directory structures. The value 7 is for
       tables that use the common space.</para>
     </section>
 
     <section xml:id="dec_disk_space">
-      <title>Disk Space</title>
+      <title>Extra Disk Space Use</title>
 
       <para>With <glossterm>file:</glossterm> database, the engine uses the
-      disk for storage of data and any change. For safely, the engine backs up
-      the data internally during operation. Spare space, at least equal to the
-      size of the <literal>.data</literal> and <literal>.script</literal> file
-      is needed. The <literal>.lobs</literal> file is not backed up during
-      operation as it is not necessary for safety.</para>
+      disk for storage of data and any change. For safely, the engine makes
+      copies of the data internally during operation. Spare space, at least
+      equal to the total size of the <literal>.data</literal> and
+      <literal>.script</literal> files, is needed. The
+      <literal>.lobs</literal> file is not copied during database updates as
+      it is not necessary for safety. When the RESULT MEMORY ROWS setting is
+      used to limit the memory rows in result sets and temporary tables, each
+      session uses additional disk space for large results and temporary
+      tables. These results are stored in files in the temp directory
+      alongside the database files, which are deleted at database
+      shutdown.</para>
     </section>
 
     <section xml:id="dec_no_logging">
@@ -595,7 +602,7 @@
       <glossterm>in-process</glossterm> database instances from other
       processes, you will often want to run a Listener in your applications
       that use embedded databases. You can do this by starting up a Server or
-      WebServer instance programmatically, but you could also use the class
+      WebServer instance programatically, but you could also use the class
       <classname>org.hsqldb.util.MainInvoker</classname> to start up your
       application and a HyperSQL Server or WebServer without any programming.
       MainInvoker is a general-purpose utility class to invoke the main

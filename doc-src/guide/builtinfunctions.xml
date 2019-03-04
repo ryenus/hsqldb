@@ -2724,20 +2724,26 @@
     expr&gt; ] } ) </literal></para>
 
     <para>With no parameter, this function returns a new UUID value as a 16
-    byte binary value. With a UUID hexadecimal string argument, it returns the
-    16 byte binary value of the UUID. With a 16 byte binary argument, it
-    returns the formatted UUID character representation. (HyperSQL)</para>
-
-    <simpara><emphasis role="bold">SYS_GUID</emphasis></simpara>
-
-    <para><literal>SYS_GUID () </literal></para>
+    byte binary value in the UUID type. With a UUID hexadecimal string
+    argument, it returns the 16 byte binary value in UUID. With a 16 byte
+    binary or UUID argument, it returns the formatted UUID character
+    representation. Note UUID is a type derived from BINARY(16) that in
+    represented as a hexadecimal character string with the required hyphens.
+    (HyperSQL)</para>
 
     <simpara><emphasis role="bold">NEWID</emphasis></simpara>
 
     <para><literal>NEWID () </literal></para>
 
-    <para>These are synonyms for the UUID function in ORA and MSS
-    compatibility modes. (HyperSQL)</para>
+    <para>ThIs is a synonyms for the no-arg UUID function in MSS compatibility
+    mode. (HyperSQL)</para>
+
+    <simpara><emphasis role="bold">SYS_GUID</emphasis></simpara>
+
+    <para><literal>SYS_GUID () </literal></para>
+
+    <para>Returns a UUID value as a 16 byte binary value in ORA compatibility
+    mode. (HyperSQL)</para>
   </section>
 
   <section xml:id="bfc_system_functions">
