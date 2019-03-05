@@ -1799,7 +1799,7 @@ public class ArrayUtil {
     }
 
     /**
-     * uses 2**scale form and returns a multiple of this that is larger or equal to value
+     * uses 2**scale form and returns a multiple of unit that is larger or equal to value
      */
     public static long getBinaryMultipleCeiling(long value, long unit) {
 
@@ -1893,6 +1893,10 @@ public class ArrayUtil {
         return shift;
     }
 
+    /**
+     * a and b must be both positive
+     * returns (a / b) or (a / b) + 1 if remainder is larger than zero
+     */
     public static int cdiv(int a, int b) {
 
         int c = a / b;

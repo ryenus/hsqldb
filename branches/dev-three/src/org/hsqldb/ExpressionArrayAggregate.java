@@ -322,7 +322,7 @@ public class ExpressionArrayAggregate extends Expression {
             currValue = new SetFunctionValueArray();
         }
 
-        currValue.add(session, value);
+        currValue.add(value);
 
         return currValue;
     }
