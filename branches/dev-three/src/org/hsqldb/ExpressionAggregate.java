@@ -48,7 +48,7 @@ import org.hsqldb.types.Types;
  * Implementation of aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class ExpressionAggregate extends Expression {
@@ -418,7 +418,7 @@ public class ExpressionAggregate extends Expression {
                           ? ValuePool.INTEGER_1
                           : nodes[LEFT].getValue(session);
 
-        currValue.add(session, newValue);
+        currValue.add(newValue);
 
         return currValue;
     }
@@ -437,7 +437,7 @@ public class ExpressionAggregate extends Expression {
                                            : null;
         }
 
-        return currValue.getValue(session);
+        return currValue.getValue();
     }
 
     public Expression getCondition() {
