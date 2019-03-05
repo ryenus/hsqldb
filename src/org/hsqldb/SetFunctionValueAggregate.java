@@ -58,7 +58,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.7.2
  *
  */
@@ -68,6 +68,7 @@ public class SetFunctionValueAggregate implements SetFunction {
     private final boolean isDistinct;
 
     //
+    private final Session   session;
     private final int       setType;
     private final int       typeCode;
     private final Type      type;
@@ -90,6 +91,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                               Type returnType, boolean isDistinct,
                               ArrayType arrayType) {
 
+        this.session    = session;
         this.setType    = setType;
         this.type       = type;
         this.returnType = returnType;
@@ -134,9 +136,9 @@ public class SetFunctionValueAggregate implements SetFunction {
 
     public void reset() {}
 
-    public void add(Session session, Object itemLeft, Object itemRight) {}
+    public void add(Object itemLeft, Object itemRight) {}
 
-    public void add(Session session, Object item) {
+    public void add(Object item) {
 
         if (item == null) {
             hasNull = true;
@@ -298,7 +300,7 @@ public class SetFunctionValueAggregate implements SetFunction {
         }
     }
 
-    public Object getValue(Session session) {
+    public Object getValue() {
 
         if (hasNull) {
             session.addWarning(Error.error(ErrorCode.W_01003));

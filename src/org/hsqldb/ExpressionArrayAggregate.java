@@ -45,7 +45,7 @@ import org.hsqldb.types.Type;
  * Implementation of array aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 2.0.1
  */
 public class ExpressionArrayAggregate extends Expression {
@@ -333,7 +333,7 @@ public class ExpressionArrayAggregate extends Expression {
             return null;
         }
 
-        Object[] array = (Object[]) currValue.getValue(session);
+        Object[] array = (Object[]) currValue.getValue();
 
         if (isDistinctAggregate) {
             arrayDataType.sort(session, array, distinctSort);

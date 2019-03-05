@@ -37,7 +37,7 @@ import java.lang.reflect.Array;
  * Collection of static methods for operations on arrays
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.7.2
  */
 public class ArrayUtil {
