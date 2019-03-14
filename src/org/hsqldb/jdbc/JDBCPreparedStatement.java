@@ -231,7 +231,7 @@ import java.sql.SQLType;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet

@@ -70,7 +70,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Bob Preston (sqlbob@users dot sourceforge.net) - text table support
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.8.0
  */
 public class Log {

@@ -40,7 +40,7 @@ import org.hsqldb.server.ServerConstants;
  * Parses a connection URL into parts.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.8.0
  */
 

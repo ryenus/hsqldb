@@ -39,7 +39,7 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  * as down.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  */
 public class CountUpDownLatch {
 

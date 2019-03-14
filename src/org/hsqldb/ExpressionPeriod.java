@@ -40,8 +40,8 @@ import org.hsqldb.lib.Set;
  * Nodes represent PERIOD start and end.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
- * @since 2.4.2
+ * @version 2.5.0
+ * @since 2.5.0
  */
 public class ExpressionPeriod extends Expression {
 

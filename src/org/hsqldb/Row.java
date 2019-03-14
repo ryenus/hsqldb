@@ -43,7 +43,7 @@ import org.hsqldb.types.TimestampData;
  * Base class for a database row object.
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.4.2
+ * @version 2.5.0
  */
 public class Row implements CachedObject {
 

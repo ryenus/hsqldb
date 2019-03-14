@@ -61,7 +61,7 @@ import org.hsqldb.lib.LongKeyHashMap;
  * Base implementation of PersistentStore for different table types.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public abstract class RowStoreAVL implements PersistentStore {
