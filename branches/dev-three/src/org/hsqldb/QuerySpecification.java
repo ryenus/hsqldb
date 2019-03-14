@@ -64,7 +64,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -2139,7 +2139,8 @@ public class QuerySpecification extends QueryExpression {
         }
 
         if (isGrouped || isDistinctSelect) {
-            isMergeable = false;
+            isBaseMergeable = false;
+            isMergeable     = false;
         }
 
         if (rangeVariables.length != 1) {

@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * Metadata for range variables, including conditions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class RangeVariable {
@@ -783,8 +783,7 @@ public class RangeVariable {
         Expression      dataExpression  = rangeTable.getDataExpression();
 
         if (dataExpression != null) {
-            dataExpression.replaceColumnReferences(session,
-                    range, list);
+            dataExpression.replaceColumnReferences(session, range, list);
         }
 
         if (queryExpression != null) {
@@ -821,7 +820,7 @@ public class RangeVariable {
 
         if (dataExpression != null) {
             dataExpression.replaceExpressions(expressions,
-                    resultRangePosition);
+                                              resultRangePosition);
         }
 
         if (queryExpression != null) {
