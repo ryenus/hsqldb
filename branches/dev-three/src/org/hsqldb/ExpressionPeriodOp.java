@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,8 +42,8 @@ import org.hsqldb.types.Type;
  * Represents a PERIOD condition.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
- * @since 2.4.2
+ * @version 2.5.0
+ * @since 2.5.0
  */
 public class ExpressionPeriodOp extends ExpressionLogical {
 

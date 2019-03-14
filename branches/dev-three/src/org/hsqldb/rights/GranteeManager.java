@@ -65,7 +65,7 @@ import org.hsqldb.lib.StringConverter;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.8.0
  * @see Grantee
  */

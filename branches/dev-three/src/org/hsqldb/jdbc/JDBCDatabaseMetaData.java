@@ -225,7 +225,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since HSQLDB 1.9.0
  * @see org.hsqldb.dbinfo.DatabaseInformation
  */
@@ -3695,7 +3695,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 2.4.2 and later returns information on auto-updated
+     * HSQLDB 2.5.0 and later returns information on auto-updated
      * TIMESTAMP columns defined with ON UPDATE CURRENT_TIMESTAMP, and the
      * columns of SYSTEM_TIME periods. Columns defined as GENERATED AS IDENTITY,
      * SEQUENCE, or an expression are not returned as they are not always

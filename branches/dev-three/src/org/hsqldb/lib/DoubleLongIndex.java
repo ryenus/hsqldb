@@ -45,7 +45,7 @@ import java.util.NoSuchElementException;
  * Based on org.hsqldb.lib.DoubleIntIndex
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.8.0
  */
 public final class DoubleLongIndex implements LongLookup {

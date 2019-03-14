@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import junit.framework.Assert;
  * TODO: Add tests with intervals, other date types/time and time zone.
  *
  * @author Pascal-Eric Servais (peservais@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 2.3.4
  */
 public class TestPeriodPredicates extends TestBase {
