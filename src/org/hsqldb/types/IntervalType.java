@@ -46,7 +46,7 @@ import org.hsqldb.lib.ArrayUtil;
  * Type subclass for various types of INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public final class IntervalType extends DTIType {
@@ -491,9 +491,6 @@ public final class IntervalType extends DTIType {
             if (is.units > getIntervalValueLimit()) {
                 throw Error.error(ErrorCode.X_22015);
             }
-
-//            int divisor = nanoScaleFactors[scale];
-//            is.nanos = (is.nanos / divisor) * divisor;
         }
 
         return a;
@@ -1726,17 +1723,16 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public double convertToDouble(Object interval) {
+    public static double convertToDouble(Object interval) {
 
-        if (this.isIntervalYearMonthType()) {
+        if (interval instanceof IntervalMonthData) {
             double months = ((IntervalMonthData) interval).units;
 
             return months;
         } else {
-            double seconds = ((IntervalSecondData) interval).units;
-
-            seconds += ((double) ((IntervalSecondData) interval).nanos)
-                       / nanoScaleFactors[0];
+            IntervalSecondData value = (IntervalSecondData) interval;
+            double seconds = value.units
+                             + (double) value.nanos / nanoScaleFactors[0];
 
             return seconds;
         }

@@ -487,8 +487,6 @@ public class SetFunctionValueAggregate implements SetFunction {
      */
     static final BigInteger multiplier =
         BigInteger.valueOf(0x0000000100000000L);
-
-//        BigInteger bigint = BigInteger.ZERO;
     long hi;
     long lo;
 
@@ -508,8 +506,6 @@ public class SetFunctionValueAggregate implements SetFunction {
                 lo -= temp & 0x00000000ffffffffL;
             }
         }
-
-//            bigint = bigint.add(BigInteger.valueOf(value));
     }
 
     private BigInteger getLongSum() {

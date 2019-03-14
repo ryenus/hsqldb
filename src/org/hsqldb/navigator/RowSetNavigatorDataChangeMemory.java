@@ -328,9 +328,9 @@ implements RowSetNavigatorDataChange {
                 .getCurrentChangedData();
         }
 
-        public Object getField(int i) {
+        public Object getField(int col) {
             return RowSetNavigatorDataChangeMemory.this
-                .getCurrentChangedData()[i];
+                .getCurrentChangedData()[col];
         }
 
         public void setCurrent(Object[] data) {}
