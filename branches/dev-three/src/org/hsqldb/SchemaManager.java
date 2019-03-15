@@ -217,19 +217,18 @@ public class SchemaManager {
             schemaMap.remove(name);
 
             if (defaultSchemaHsqlName.name.equals(name)) {
-                HsqlName hsqlName = database.nameManager.newHsqlName(name,
-                    false, SchemaObject.SCHEMA);
-
-                schema = new Schema(hsqlName,
+                schema = new Schema(defaultSchemaHsqlName,
                                     database.getGranteeManager().getDBARole());
                 defaultSchemaHsqlName = schema.getName();
 
                 schemaMap.put(schema.getName().name, schema);
-            }
+            } else {
+                HsqlName schemaName = schema.getName();
 
-            // these are called last and in this particular order
-            database.getUserManager().removeSchemaReference(name);
-            database.getSessionManager().removeSchemaReference(schema);
+                // these are called last and in this particular order
+                database.getUserManager().removeSchemaReference(schemaName);
+                database.getSessionManager().removeSchemaReference(schemaName);
+            }
         } finally {
             writeLock.unlock();
         }
