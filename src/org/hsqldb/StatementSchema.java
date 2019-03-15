@@ -96,6 +96,7 @@ public class StatementSchema extends Statement {
         switch (type) {
 
             case StatementTypes.RENAME_OBJECT :
+            case StatementTypes.RENAME_SCHEMA :
                 group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
                 break;
 
@@ -289,12 +290,23 @@ public class StatementSchema extends Statement {
 
         session.database.schemaManager.setSchemaChangeTimestamp();
 
+        HsqlName sessionSchema = session.currentSchema;
+
         try {
+            if (type == StatementTypes.RENAME_SCHEMA) {
+                session.currentSchema =
+                    SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
+            }
+
             if (isLogged) {
                 session.database.logger.writeOtherStatement(session, sql);
             }
         } catch (Throwable e) {
             return Result.newErrorResult(e, sql);
+        } finally {
+            if (type == StatementTypes.RENAME_SCHEMA) {
+                session.currentSchema = sessionSchema;
+            }
         }
 
         return result;
@@ -311,7 +323,8 @@ public class StatementSchema extends Statement {
 
         switch (type) {
 
-            case StatementTypes.RENAME_OBJECT : {
+            case StatementTypes.RENAME_OBJECT :
+            case StatementTypes.RENAME_SCHEMA : {
                 HsqlName     name    = (HsqlName) arguments[0];
                 HsqlName     newName = (HsqlName) arguments[1];
                 SchemaObject object;
@@ -327,11 +340,6 @@ public class StatementSchema extends Statement {
                         return Result.newErrorResult(e, sql);
                     }
                 } else if (name.type == SchemaObject.SCHEMA) {
-
-                    /**
-                     * @todo 1.9.0 - review for schemas referenced in
-                     *  external view or trigger definitions
-                     */
                     checkSchemaUpdateAuthorisation(session, name);
                     schemaManager.checkSchemaNameCanChange(name);
                     schemaManager.renameSchema(name, newName);

@@ -291,7 +291,7 @@ public class ParserDDL extends ParserRoutine {
                 readThis(Tokens.RENAME);
                 readThis(Tokens.TO);
 
-                return compileRenameObject(name, SchemaObject.SCHEMA);
+                return compileRenameSchema(name, SchemaObject.SCHEMA);
             }
             case Tokens.CATALOG : {
                 read();
@@ -2524,23 +2524,20 @@ public class ParserDDL extends ParserRoutine {
                                    null, writeLockNames);
     }
 
-    Statement compileAlterSchemaRename() {
+    Statement compileRenameSchema(HsqlName name, int type) {
 
-        HsqlName name = readSchemaName();
-
-        checkSchemaUpdateAuthorisation(name);
-        readThis(Tokens.RENAME);
-        readThis(Tokens.TO);
-
-        HsqlName newName = readNewSchemaName();
+        HsqlName newName = readNewSchemaObjectName(type, true);
         String   sql     = getLastPart();
-        Object[] args    = new Object[] {
+
+        checkSchemaUpdateAuthorisation(session, name);
+
+        Object[] args = new Object[] {
             name, newName
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogNameArray();
 
-        return new StatementSchema(sql, StatementTypes.RENAME_OBJECT, args,
+        return new StatementSchema(sql, StatementTypes.RENAME_SCHEMA, args,
                                    null, writeLockNames);
     }
 

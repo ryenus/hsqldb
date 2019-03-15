@@ -57,7 +57,7 @@ import org.hsqldb.result.Result;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.3.0
+ * @version 2.5.0
  * @since 1.7.2
  * @see  User
  */
@@ -402,7 +402,7 @@ public final class UserManager {
         return GranteeManager.systemAuthorisation;
     }
 
-    public synchronized void removeSchemaReference(String schemaName) {
+    public synchronized void removeSchemaReference(HsqlName schemaName) {
 
         for (int i = 0; i < userList.size(); i++) {
             User     user   = (User) userList.get(i);
@@ -412,7 +412,7 @@ public final class UserManager {
                 continue;
             }
 
-            if (schemaName.equals(schema.name)) {
+            if (schemaName.equals(schema)) {
                 user.setInitialSchema(null);
             }
         }

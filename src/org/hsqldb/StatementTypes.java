@@ -272,15 +272,16 @@ public interface StatementTypes {
     int EXPLAIN_REFERENCES       = 1150;
     int EXPLAIN_PLAN             = 1151;
     int RENAME_OBJECT            = 1152;
-    int SET_TABLE_INDEX          = 1153;
-    int SET_TABLE_READONLY       = 1154;
-    int SET_TABLE_SOURCE         = 1155;
-    int SET_TABLE_SOURCE_HEADER  = 1156;
-    int SET_TABLE_TYPE           = 1157;
-    int SET_TABLE_CLUSTERED      = 1158;
-    int SET_TABLE_NEW_TABLESPACE = 1159;
-    int SET_TABLE_SET_TABLESPACE = 1160;
-    int LOG_SCHEMA_STATEMENT     = 1161;
+    int RENAME_SCHEMA            = 1153;
+    int SET_TABLE_INDEX          = 1154;
+    int SET_TABLE_READONLY       = 1155;
+    int SET_TABLE_SOURCE         = 1156;
+    int SET_TABLE_SOURCE_HEADER  = 1157;
+    int SET_TABLE_TYPE           = 1158;
+    int SET_TABLE_CLUSTERED      = 1159;
+    int SET_TABLE_NEW_TABLESPACE = 1160;
+    int SET_TABLE_SET_TABLESPACE = 1161;
+    int LOG_SCHEMA_STATEMENT     = 1162;
 
     // hsqldb sql implementation
     int CONDITION = 1211;                         // element of IF
