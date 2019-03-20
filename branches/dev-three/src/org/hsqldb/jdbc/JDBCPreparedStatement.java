@@ -4389,7 +4389,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 }
                 JDBCUtil.throwError(Error.error(ErrorCode.X_42563));
 
-            // fall through
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.SQL_GUID :

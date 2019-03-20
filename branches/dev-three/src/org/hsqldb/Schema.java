@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -342,8 +342,8 @@ public final class Schema implements SchemaObject {
             SchemaObject.SEQUENCE, SchemaObject.TABLE, SchemaObject.ROUTINE
         };
 
-        for (int type : types) {
-            SchemaObject object = findSchemaObject(name, type);
+        for (int i = 0; i < types.length; i++) {
+            SchemaObject object = findSchemaObject(name, types[i]);
 
             if (object != null) {
                 return object;
@@ -360,24 +360,29 @@ public final class Schema implements SchemaObject {
     ReferenceObject findReference(String name, int type) {
 
         ReferenceObject ref = (ReferenceObject) referenceList.get(name);
+        int targetType;
 
         if (ref == null) {
             return null;
         }
 
-        if (ref.getTarget().type == type) {
+        targetType = ref.getTarget().type;
+
+        if (targetType == type) {
             return ref;
         }
 
         switch (type) {
 
             case SchemaObject.TABLE :
-                if (ref.getTarget().type == SchemaObject.VIEW) {
+                if (targetType == SchemaObject.VIEW) {
                     return ref;
                 }
+
+                break;
             case SchemaObject.ROUTINE :
-                if (ref.getTarget().type == SchemaObject.FUNCTION
-                        || ref.getTarget().type == SchemaObject.PROCEDURE) {
+                if (targetType == SchemaObject.FUNCTION
+                        || targetType == SchemaObject.PROCEDURE) {
                     return ref;
                 }
         }

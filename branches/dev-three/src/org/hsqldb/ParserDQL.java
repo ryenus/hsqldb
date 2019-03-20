@@ -438,6 +438,8 @@ public class ParserDQL extends ParserBase {
 
                             break;
                         }
+
+                        throw unexpectedToken();
                     default :
                         throw unexpectedToken();
                 }
@@ -577,6 +579,10 @@ public class ParserDQL extends ParserBase {
                         break;
                     }
                 }
+
+                isCharacter = true;
+                break;
+
             case Types.SQL_CLOB :
                 isCharacter = true;
                 break;
@@ -2684,6 +2690,8 @@ public class ParserDQL extends ParserBase {
                         if (e != null) {
                             return e;
                         }
+
+                    // fall through
                     default :
                         rewind(position);
 
@@ -3048,6 +3056,8 @@ public class ParserDQL extends ParserBase {
                 if (e != null) {
                     break;
                 }
+
+            // fall through
             default :
                 e = XreadAllTypesValueExpressionPrimary(boole);
         }
@@ -3404,7 +3414,6 @@ public class ParserDQL extends ParserBase {
                 if (e != null) {
                     return e;
                 }
-            default :
         }
 
         return XreadValueExpressionPrimary();
@@ -3446,7 +3455,6 @@ public class ParserDQL extends ParserBase {
                 if (e != null) {
                     return e;
                 }
-            default :
         }
 
         return XreadValueExpressionPrimary();

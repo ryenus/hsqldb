@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@ import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.ClobData;
@@ -51,29 +52,16 @@ import org.hsqldb.types.Type;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  */
 public class RowOutputTextLog extends RowOutputBase {
 
-    static byte[] BYTES_NULL;
-    static byte[] BYTES_TRUE;
-    static byte[] BYTES_FALSE;
-    static byte[] BYTES_AND;
-    static byte[] BYTES_IS;
-    static byte[] BYTES_ARRAY;
-
-    static {
-        try {
-            BYTES_NULL  = Tokens.T_NULL.getBytes("ISO-8859-1");
-            BYTES_TRUE  = Tokens.T_TRUE.getBytes("ISO-8859-1");
-            BYTES_FALSE = Tokens.T_FALSE.getBytes("ISO-8859-1");
-            BYTES_AND   = " AND ".getBytes("ISO-8859-1");
-            BYTES_IS    = " IS ".getBytes("ISO-8859-1");
-            BYTES_ARRAY = " ARRAY[".getBytes("ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputTextLog");
-        }
-    }
+    private static byte[] BYTES_NULL  = Tokens.T_NULL.getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_TRUE  = Tokens.T_TRUE.getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_FALSE = Tokens.T_FALSE.getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_AND   = " AND ".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_IS    = " IS ".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_ARRAY = " ARRAY[".getBytes(JavaSystem.ISO_8859_1);
 
     public static final int MODE_DELETE = 1;
     public static final int MODE_INSERT = 0;

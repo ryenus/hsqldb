@@ -46,6 +46,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.LineReader;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.RowInsertInterface;
 import org.hsqldb.persist.RowInsertSimple;
@@ -94,7 +95,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             tempStream = bufferedStream;
         }
 
-        dataStreamIn = new LineReader(tempStream, ScriptWriterText.ISO_8859_1);
+        dataStreamIn = new LineReader(tempStream, JavaSystem.ISO_8859_1);
         rowIn = new RowInputTextLog(db.databaseProperties.isVersion18());
     }
 

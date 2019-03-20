@@ -31,7 +31,6 @@
 
 package org.hsqldb.rights;
 
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -54,6 +53,7 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * Contains a set of Grantee objects, and supports operations for creating,
@@ -916,12 +916,7 @@ public class GranteeManager {
 
         byte[] data;
 
-        try {
-            data = string.getBytes("ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
-            throw Error.error(ErrorCode.GENERAL_ERROR, e);
-        }
-
+        data = string.getBytes(JavaSystem.ISO_8859_1);
         data = getDigester().digest(data);
 
         return StringConverter.byteArrayToHexString(data);

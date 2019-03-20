@@ -1020,7 +1020,6 @@ public class DataFileCache {
                 } catch (Throwable t) {
                     if (t instanceof OutOfMemoryError) {
                         cache.clearUnchanged();
-                        System.gc();
 
                         if (j > 0) {
                             logInfoEvent(dataFileName
@@ -1046,6 +1045,10 @@ public class DataFileCache {
                         throw ex;
                     }
                 }
+            }
+
+            if (object == null) {
+                throw Error.error(ErrorCode.DATA_FILE_ERROR);
             }
 
             // for text tables with empty rows at the beginning,
@@ -1105,6 +1108,10 @@ public class DataFileCache {
                         throw err;
                     }
                 }
+            }
+
+            if (object == null) {
+                throw Error.error(ErrorCode.DATA_FILE_ERROR);
             }
 
             cache.putUsingReserve(object);

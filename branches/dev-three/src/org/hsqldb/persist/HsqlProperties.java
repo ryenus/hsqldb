@@ -65,7 +65,6 @@ public class HsqlProperties {
     protected Properties    stringProps;
     protected int[]         errorCodes = ValuePool.emptyIntArray;
     protected String[]      errorKeys  = ValuePool.emptyStringArray;
-    protected boolean       resource   = false;
     protected FileAccess    fa;
     protected HashMap       metaData;
 

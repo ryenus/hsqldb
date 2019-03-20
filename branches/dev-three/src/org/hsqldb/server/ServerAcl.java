@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,6 +81,10 @@ import org.hsqldb.map.BitMap;
  *
  * @see #ServerAcl(File)
  * @see #permitAccess
+ *
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @version 2.3.0
+ * @since 2.0.0
  **/
 public final class ServerAcl {
 

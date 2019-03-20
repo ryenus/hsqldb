@@ -1184,6 +1184,8 @@ public class QuerySpecification extends QueryExpression {
                             }
                         }
                     }
+
+                    break;
                 }
                 default :
             }

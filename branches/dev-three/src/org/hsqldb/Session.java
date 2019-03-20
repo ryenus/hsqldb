@@ -2333,7 +2333,7 @@ public class Session implements SessionInterface {
     class TimeoutManager {
 
         volatile long    actionTimestamp;
-        AtomicInteger    currentTimeout;
+        AtomicInteger    currentTimeout = new AtomicInteger();
         volatile boolean aborted;
 
         void startTimeout(int timeout) {

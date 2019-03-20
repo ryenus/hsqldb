@@ -65,26 +65,24 @@ import org.hsqldb.types.Types;
  */
 public class HsqlDateTime {
 
-    /**
-     * A reusable static value for today's date. Should only be accessed
-     * by getToday()
-     */
-    public static Locale         defaultLocale  = Locale.UK;
-    public static final Calendar tempCalDefault = new GregorianCalendar();
-    public static final Calendar tempCalGMT =
+    public static final Locale   defaultLocale  = Locale.UK;
+    private static final Calendar tempCalDefault = new GregorianCalendar();
+    private static final Calendar tempCalGMT =
         new GregorianCalendar(TimeZone.getTimeZone("GMT"), defaultLocale);
-    private static final Date     tempDate        = new Date(0);
-    private static final String   sdfdPattern     = "yyyy-MM-dd";
-    static SimpleDateFormat       sdfd = new SimpleDateFormat(sdfdPattern);
-    private static final String   sdftPattern     = "HH:mm:ss";
-    static SimpleDateFormat       sdft = new SimpleDateFormat(sdftPattern);
-    private static final String   sdftsPattern    = "yyyy-MM-dd HH:mm:ss";
-    static SimpleDateFormat       sdfts = new SimpleDateFormat(sdftsPattern);
-    private static final String   sdftsSysPattern = "yyyy-MM-dd HH:mm:ss.SSS";
-    static SimpleDateFormat sdftsSys = new SimpleDateFormat(sdftsSysPattern);
-    private static java.util.Date sysDate         = new java.util.Date();
+    private static final Date   tempDate        = new Date(0);
+    private static final String sdfdPattern     = "yyyy-MM-dd";
+    private static SimpleDateFormat     sdfd = new SimpleDateFormat(sdfdPattern);
+    private static final String sdftPattern     = "HH:mm:ss";
+    private static SimpleDateFormat     sdft = new SimpleDateFormat(sdftPattern);
+    private static final String sdftsPattern    = "yyyy-MM-dd HH:mm:ss";
+    private static SimpleDateFormat     sdfts = new SimpleDateFormat(sdftsPattern);
+    private static final String sdftsSysPattern = "yyyy-MM-dd HH:mm:ss.SSS";
+    private static final SimpleDateFormat sdftsSys =
+        new SimpleDateFormat(sdftsSysPattern);
+    private static final Date sysDate = new java.util.Date();
 
     static {
+        TimeZone.getDefault();
         tempCalGMT.setLenient(false);
         sdfd.setCalendar(new GregorianCalendar(TimeZone.getTimeZone("GMT"),
                                                defaultLocale));
@@ -269,6 +267,9 @@ public class HsqlDateTime {
         }
     }
 
+    public static int getZoneSeconds()  {
+        return getZoneSeconds(tempCalDefault);
+    }
     public static int getZoneSeconds(Calendar calendar) {
         return (calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET))
                / 1000;

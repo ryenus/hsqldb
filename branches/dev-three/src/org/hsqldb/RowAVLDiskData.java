@@ -98,10 +98,8 @@ public class RowAVLDiskData extends RowAVL {
         Object[] data = rowData;
 
         if (data == null) {
-            data = store.getData(this);
-            data = rowData;
-
-            this.keepInMemory(false);
+            rowData = store.getData(this);
+            data    = rowData;
         } else {
             accessCount++;
         }

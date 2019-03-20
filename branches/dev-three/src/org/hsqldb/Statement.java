@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -218,6 +218,9 @@ public abstract class Statement {
                 if (writeTableNames.length == 0) {
                     return false;
                 }
+
+                return model == TransactionManager.MVCC;
+
             case StatementTypes.X_SQL_SCHEMA_DEFINITION :
                 return model == TransactionManager.MVCC;
 

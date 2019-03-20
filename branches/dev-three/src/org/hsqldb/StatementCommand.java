@@ -114,11 +114,12 @@ public class StatementCommand extends Statement {
 
                 break;
             }
-            case StatementTypes.LOAD_SCRIPT :
+            case StatementTypes.LOAD_SCRIPT : {
                 group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
                 isLogged = false;
-                break;
 
+                break;
+            }
             case StatementTypes.CHECK_INDEX : {
                 statementReturnType = StatementTypes.RETURN_RESULT;
                 group = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
@@ -872,7 +873,6 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
 
                     // a no-op from version 2.5.0
-
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
@@ -1534,7 +1534,8 @@ public class StatementCommand extends Statement {
                         "STATEMENTS");
                 }
 
-            // fall through
+                return super.getResultMetaData();
+
             default :
                 return super.getResultMetaData();
         }

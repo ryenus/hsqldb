@@ -57,7 +57,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * @since 1.9.0
  */
 public class RowSetNavigatorData extends RowSetNavigator
-implements Comparator {
+implements Comparator<Object[]> {
 
     public static final Object[][] emptyTable = new Object[0][];
 
@@ -81,7 +81,7 @@ implements Comparator {
     Index idIndex;
 
     //
-    TreeMap        rowMap;
+    TreeMap<Object[], Object[]>        rowMap;
     LongKeyHashMap idMap;
 
     RowSetNavigatorData(Session session) {
@@ -100,7 +100,7 @@ implements Comparator {
 
         if (select.isGrouped) {
             mainIndex = select.groupIndex;
-            rowMap    = new TreeMap(this);
+            rowMap    = new TreeMap<Object[], Object[]>(this);
         }
 
         if (select.idIndex != null) {
@@ -708,7 +708,7 @@ implements Comparator {
         }
     }
 
-    public int compare(Object a, Object b) {
+    public int compare(Object[] a, Object[] b) {
         return mainIndex.compareRow((Session) session, (Object[]) a,
                                     (Object[]) b);
     }
