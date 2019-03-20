@@ -512,6 +512,8 @@ public final class HsqlNameManager {
 
             if (other instanceof HsqlName) {
                 return hashCode == ((HsqlName) other).hashCode;
+            } else if (other instanceof SimpleName) {
+                return super.equals(other);
             }
 
             return false;

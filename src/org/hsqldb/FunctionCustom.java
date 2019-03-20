@@ -48,6 +48,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.StringUtil;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.BitMap;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.Crypto;
@@ -389,7 +390,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.TO_YMINTERVAL, FUNC_TO_YMINTERVAL);
         customRegularFuncMap.put(Tokens.TO_NUMBER, FUNC_TO_NUMBER);
         customRegularFuncMap.put(Tokens.TO_TIMESTAMP, FUNC_TO_TIMESTAMP);
-//      customRegularFuncMap.put(Tokens.TO_TIMESTAMP_TZ, FUNC_TO_TIMESTAMP_TZ);
+        customRegularFuncMap.put(Tokens.TO_TIMESTAMP_TZ, FUNC_TO_TIMESTAMP_TZ);
         customRegularFuncMap.put(Tokens.TRANSACTION_CONTROL, FUNC_TRANSACTION_CONTROL);
         customRegularFuncMap.put(Tokens.TRANSACTION_ID, FUNC_TRANSACTION_ID);
         customRegularFuncMap.put(Tokens.TRANSACTION_SIZE, FUNC_TRANSACTION_SIZE);
@@ -964,8 +965,7 @@ public class FunctionCustom extends FunctionSQL {
                 return Type.SQL_INTERVAL_HOUR_TO_MINUTE.convertToString(zone);
             }
             case FUNC_DATABASE_TIMEZONE :
-                int sec =
-                    HsqlDateTime.getZoneSeconds(HsqlDateTime.tempCalDefault);
+                int sec = HsqlDateTime.getZoneSeconds();
 
                 return new IntervalSecondData(sec, 0);
 
@@ -1971,15 +1971,10 @@ public class FunctionCustom extends FunctionSQL {
 
                     return Long.toHexString(val);
                 } else {
-                    String val = ((String) data[0]);
+                    String val   = ((String) data[0]);
+                    byte[] bytes = val.getBytes(JavaSystem.ISO_8859_1);
 
-                    try {
-                        byte[] bytes = val.getBytes("ISO-8859-1");
-
-                        return StringConverter.byteArrayToHexString(bytes);
-                    } catch (UnsupportedEncodingException e) {
-                        throw Error.error(ErrorCode.X_42561);
-                    }
+                    return StringConverter.byteArrayToHexString(bytes);
                 }
             }
             case FUNC_UNHEX :
@@ -2381,8 +2376,8 @@ public class FunctionCustom extends FunctionSQL {
                     (IntervalSecondData) Type.SQL_INTERVAL_HOUR_TO_MINUTE
                         .convertToDefaultType(session, data[1]);
                 Object val =
-                    Type.SQL_TIMESTAMP_WITH_TIME_ZONE.changeZone(data[0],
-                        Type.SQL_TIMESTAMP, (int) zone2.getSeconds(),
+                    Type.SQL_TIMESTAMP_WITH_TIME_ZONE.changeZone(session,
+                        data[0], Type.SQL_TIMESTAMP, (int) zone2.getSeconds(),
                         (int) zone1.getSeconds());
 
                 return Type.SQL_TIMESTAMP.convertToType(session, val,
@@ -2469,8 +2464,8 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
-                return Type.SQL_TIMESTAMP_WITH_TIME_ZONE.changeZone(data[0],
-                        Type.SQL_TIMESTAMP_WITH_TIME_ZONE, 0, 0);
+                return Type.SQL_TIMESTAMP_WITH_TIME_ZONE.changeZone(session,
+                        data[0], Type.SQL_TIMESTAMP_WITH_TIME_ZONE, 0, 0);
             }
             case FUNC_SYSDATE : {
                 TimestampData timestamp = session.getSystemTimestamp(false);
@@ -2793,6 +2788,8 @@ public class FunctionCustom extends FunctionSQL {
                                 nodes[1],
                                 Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX);
                         }
+                        break;
+
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                         if (!nodes[2].dataType.isDateOrTimestampType()) {
                             throw Error.error(ErrorCode.X_42563);
@@ -3582,6 +3579,8 @@ public class FunctionCustom extends FunctionSQL {
                 if (nodes[2] == null) {
                     nodes[2] = new ExpressionValue("", Type.SQL_VARCHAR);
                 }
+
+            // fall through
             case FUNC_REGEXP_MATCHES :
             case FUNC_REGEXP_SUBSTRING :
             case FUNC_REGEXP_SUBSTRING_ARRAY : {
@@ -3841,6 +3840,8 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 dataType = nodes[0].dataType;
+                break;
+
             case FUNC_NEW_TIME :
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_TIMESTAMP_NO_FRACTION;

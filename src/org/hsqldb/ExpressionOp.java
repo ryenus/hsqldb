@@ -929,7 +929,7 @@ public class ExpressionOp extends Expression {
                                    : ((IntervalType) nodes[RIGHT].dataType)
                                        .getSeconds(rightValue);
 
-                return ((DateTimeType) dataType).changeZone(leftValue,
+                return ((DateTimeType) dataType).changeZone(session, leftValue,
                         nodes[LEFT].dataType, (int) zoneSeconds,
                         session.getZoneSeconds());
             }

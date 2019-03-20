@@ -121,7 +121,7 @@ implements TransactionManager {
             for (int i = 0; i < limit; i++) {
                 RowAction action = (RowAction) session.rowActionList.get(i);
 
-                if (!action.canCommit(session, session.actionSet)) {
+                if (!action.canCommit(session)) {
 
 //                System.out.println("commit conflicts " + session + " " + session.actionTimestamp);
                     return false;
@@ -164,7 +164,7 @@ implements TransactionManager {
             for (int i = 0; i < limit; i++) {
                 RowAction action = (RowAction) session.rowActionList.get(i);
 
-                if (!action.canCommit(session, session.actionSet)) {
+                if (!action.canCommit(session)) {
 
 //                  System.out.println("commit conflicts " + session + " " + session.actionTimestamp);
                     return false;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -420,7 +420,7 @@ public class RowAction extends RowActionBase {
     /**
      * returns false if another committed session has altered the same row
      */
-    synchronized boolean canCommit(Session session, OrderedHashSet set) {
+    synchronized boolean canCommit(Session session) {
 
         RowActionBase action;
         long          timestamp       = session.transactionTimestamp;
@@ -465,7 +465,7 @@ public class RowAction extends RowActionBase {
                 }
 
                 if (action.commitTimestamp == 0) {
-                    set.add(action);
+                    session.actionSet.add(action);
                 } else if (action.commitTimestamp > commitTimestamp) {
                     commitTimestamp = action.commitTimestamp;
                 }
@@ -479,23 +479,6 @@ public class RowAction extends RowActionBase {
         }
 
         return commitTimestamp < timestamp;
-    }
-
-    synchronized void complete(Session session) {
-
-        RowActionBase action;
-
-        action = this;
-
-        do {
-            if (action.session == session) {
-                if (action.actionTimestamp == 0) {
-                    action.actionTimestamp = session.actionTimestamp;
-                }
-            }
-
-            action = action.next;
-        } while (action != null);
     }
 
     /**

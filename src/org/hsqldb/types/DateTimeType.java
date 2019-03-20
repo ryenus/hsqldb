@@ -1425,16 +1425,16 @@ public final class DateTimeType extends DTIType {
             return null;
         }
 
-        long millis = getMillis(a);
+        long     millis   = getMillis(a);
+        Calendar calendar = session.getCalendarGMT();
 
-        millis = HsqlDateTime.getTruncatedPart(session.getCalendarGMT(),
-                                               millis, part);
+        millis = HsqlDateTime.getTruncatedPart(calendar, millis, part);
         millis -= getZoneMillis(a);
 
         switch (typeCode) {
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
-                millis = HsqlDateTime.getNormalisedTime(millis);
+                millis = HsqlDateTime.getNormalisedTime(calendar, millis);
 
             //fall through
             case Types.SQL_TIME : {
@@ -1459,10 +1459,10 @@ public final class DateTimeType extends DTIType {
             return null;
         }
 
-        long millis = getMillis(a);
+        long     millis   = getMillis(a);
+        Calendar calendar = session.getCalendarGMT();
 
-        millis = HsqlDateTime.getRoundedPart(session.getCalendarGMT(), millis,
-                                             part);
+        millis = HsqlDateTime.getRoundedPart(calendar, millis, part);
         millis -= getZoneMillis(a);
 
         switch (typeCode) {
@@ -1730,27 +1730,28 @@ public final class DateTimeType extends DTIType {
     public Object getValue(Session session, long seconds, int nanos,
                            int zoneSeconds) {
 
+        Calendar calendar = session.getCalendarGMT();
+
         switch (typeCode) {
 
             case Types.SQL_DATE :
                 seconds =
                     HsqlDateTime.getNormalisedDate(
-                        session.getCalendarGMT(),
-                        (seconds + zoneSeconds) * 1000) / 1000;
+                        calendar, (seconds + zoneSeconds) * 1000) / 1000;
 
                 return new TimestampData(seconds);
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 seconds =
-                    HsqlDateTime.getNormalisedDate(
-                        session.getCalendarGMT(), seconds * 1000) / 1000;
+                    HsqlDateTime.getNormalisedDate(calendar, seconds * 1000)
+                    / 1000;
 
                 return new TimeData((int) seconds, nanos, zoneSeconds);
 
             case Types.SQL_TIME :
                 seconds =
                     HsqlDateTime.getNormalisedTime(
-                        (seconds + zoneSeconds) * 1000) / 1000;
+                        calendar, (seconds + zoneSeconds) * 1000) / 1000;
 
                 return new TimeData((int) seconds, nanos);
 
@@ -1843,8 +1844,10 @@ public final class DateTimeType extends DTIType {
         }
     }
 
-    public Object changeZone(Object a, Type otherType, int targetZone,
-                             int localZone) {
+    public Object changeZone(Session session, Object a, Type otherType,
+                             int targetZone, int localZone) {
+
+        Calendar calendar = session.getCalendarGMT();
 
         if (a == null) {
             return null;
@@ -1869,7 +1872,7 @@ public final class DateTimeType extends DTIType {
                     int seconds = value.getSeconds() - localZone;
 
                     seconds =
-                        (int) (HsqlDateTime.getNormalisedTime(seconds * 1000L)
+                        (int) (HsqlDateTime.getNormalisedTime(calendar, seconds * 1000L)
                                / 1000);
 
                     return new TimeData(seconds, value.getNanos(), targetZone);

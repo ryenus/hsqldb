@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import org.hsqldb.map.BaseHashMap;
  * to DataFileCache.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.8.0
  */
 public class Cache extends BaseHashMap {

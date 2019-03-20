@@ -42,9 +42,9 @@ import org.hsqldb.Database;
 import org.hsqldb.Session;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.lib.LineReader;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.Crypto;
 import org.hsqldb.rowio.RowInputTextLog;
 
@@ -80,7 +80,7 @@ public class ScriptReaderDecode extends ScriptReaderText {
                 cryptoStream = crypto.getInputStream(bufferedStream);
                 gzipStream   = new GZIPInputStream(cryptoStream);
                 dataStreamIn = new LineReader(gzipStream,
-                                              ScriptWriterText.ISO_8859_1);
+                                              JavaSystem.ISO_8859_1);
             }
         } catch (Throwable t) {
             close();
@@ -111,13 +111,7 @@ public class ScriptReaderDecode extends ScriptReaderText {
 
         count = crypto.decode(buffer, 0, count, buffer, 0);
 
-        String s;
-
-        try {
-            s = new String(buffer, 0, count, "ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
-            throw Error.error(e, ErrorCode.FILE_IO_ERROR, fileNamePath);
-        }
+        String s = new String(buffer, 0, count, JavaSystem.ISO_8859_1);
 
         lineCount++;
 

@@ -699,7 +699,7 @@ public class ParserCommand extends ParserDDL {
                             break;
                         }
 
-                    // fall through
+                        throw Error.error(ErrorCode.X_0P000);
                     default :
                         throw Error.error(ErrorCode.X_0P000);
                 }

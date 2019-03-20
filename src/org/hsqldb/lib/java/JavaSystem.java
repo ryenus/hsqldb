@@ -35,37 +35,39 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.sql.DriverManager;
+import java.nio.charset.Charset;
 import java.nio.MappedByteBuffer;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
-import sun.misc.Unsafe;
-
 /**
- * Handles runtime and methods
+ * Handles invariants, runtime and methods
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.5.0
  */
 public class JavaSystem {
 
-    private static int javaVersion;
+    public static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
+    private static int          javaVersion;
 
     static {
         try {
             String version = System.getProperty("java.specification.version",
                                                 "6");
-            if( version.startsWith("1.") ) {
+
+            if (version.startsWith("1.")) {
                 version = version.substring(2);
             }
 
             javaVersion = Integer.parseInt(version);
         } catch (Throwable t) {
+
             // unknow future version - default to last known
             javaVersion = 12;
         }
-
     }
+
     public static int javaVersion() {
         return javaVersion;
     }
@@ -90,7 +92,7 @@ public class JavaSystem {
 
 
             try {
-                Unsafe unsafe = Unsafe.getUnsafe();
+                sun.misc.Unsafe unsafe = sun.misc.Unsafe.getUnsafe();
 
                 unsafe.invokeCleaner(buffer);
             } catch (Throwable t) {}
@@ -113,8 +115,10 @@ public class JavaSystem {
             Method clearMethod = cleaner.getClass().getMethod("clean");
 
             clearMethod.invoke(cleaner);
-        } catch (InvocationTargetException e) {}
-        catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException e) {
+
+            // no cleaner
+        } catch (InvocationTargetException e) {
 
             // Means we're not dealing with a Sun JVM?
         } catch (Throwable e) {}

@@ -34,6 +34,7 @@ package org.hsqldb.scriptio;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.zip.GZIPOutputStream;
 
 import org.hsqldb.Database;
@@ -45,6 +46,7 @@ import org.hsqldb.Table;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileAccess;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.rowio.RowOutputTextLog;
 
@@ -71,47 +73,29 @@ import org.hsqldb.rowio.RowOutputTextLog;
  */
 public class ScriptWriterText extends ScriptWriterBase {
 
-    RowOutputInterface         rowOut;
-    public static final String ISO_8859_1 = "ISO-8859-1";
+    private static byte[] BYTES_COMMIT       = "COMMIT".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_INSERT_INTO  = "INSERT INTO ".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_VALUES       = " VALUES(".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_TERM         = ")".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_DELETE_FROM  = "DELETE FROM ".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_WHERE        = " WHERE ".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_SEQUENCE     = "ALTER SEQUENCE ".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_SEQUENCE_MID = " RESTART WITH ".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_C_ID_INIT    = "/*C".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_C_ID_TERM    = "*/".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_SCHEMA       = "SET SCHEMA ".getBytes(JavaSystem.ISO_8859_1);
 
     /** @todo - perhaps move this global into a lib utility class */
-    public static byte[] BYTES_LINE_SEP;
-    static byte[]        BYTES_COMMIT;
-    static byte[]        BYTES_INSERT_INTO;
-    static byte[]        BYTES_VALUES;
-    static byte[]        BYTES_TERM;
-    static byte[]        BYTES_DELETE_FROM;
-    static byte[]        BYTES_WHERE;
-    static byte[]        BYTES_SEQUENCE;
-    static byte[]        BYTES_SEQUENCE_MID;
-    static byte[]        BYTES_C_ID_INIT;
-    static byte[]        BYTES_C_ID_TERM;
-    static byte[]        BYTES_SCHEMA;
+    private static byte[] BYTES_LINE_SEP = System.getProperty("line.separator",
+        "\n").getBytes(JavaSystem.ISO_8859_1);
 
     static {
-        String sLineSep = System.getProperty("line.separator", "\n");
-
-        try {
-            BYTES_LINE_SEP     = sLineSep.getBytes();
-            BYTES_COMMIT       = "COMMIT".getBytes(ISO_8859_1);
-            BYTES_INSERT_INTO  = "INSERT INTO ".getBytes(ISO_8859_1);
-            BYTES_VALUES       = " VALUES(".getBytes(ISO_8859_1);
-            BYTES_TERM         = ")".getBytes(ISO_8859_1);
-            BYTES_DELETE_FROM  = "DELETE FROM ".getBytes(ISO_8859_1);
-            BYTES_WHERE        = " WHERE ".getBytes(ISO_8859_1);
-            BYTES_SEQUENCE     = "ALTER SEQUENCE ".getBytes(ISO_8859_1);
-            BYTES_SEQUENCE_MID = " RESTART WITH ".getBytes(ISO_8859_1);
-            BYTES_C_ID_INIT    = "/*C".getBytes(ISO_8859_1);
-            BYTES_C_ID_TERM    = "*/".getBytes(ISO_8859_1);
-            BYTES_SCHEMA       = "SET SCHEMA ".getBytes(ISO_8859_1);
-        } catch (UnsupportedEncodingException e) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "ScriptWriterText");
-        }
-
         if (BYTES_LINE_SEP[0] != 0x0A && BYTES_LINE_SEP[0] != 0x0D) {
             BYTES_LINE_SEP = new byte[]{ 0x0A };
         }
     }
+
+    RowOutputInterface rowOut;
 
     public ScriptWriterText(Database db, OutputStream outputStream,
                             FileAccess.FileSync descriptor,

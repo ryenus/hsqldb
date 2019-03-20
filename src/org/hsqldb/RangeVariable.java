@@ -153,8 +153,8 @@ public class RangeVariable {
 
             case TRANSITION_RANGE :
                 usedColumns = new boolean[variables.size()];
+                break;
 
-            // fall through
             case PARAMETER_RANGE :
             case VARIALBE_RANGE :
             case PLACEHOLDER_RANGE :
@@ -1203,8 +1203,8 @@ public class RangeVariable {
             return it.getCurrent();
         }
 
-        public Object getField(int i) {
-            return it.getField(i);
+        public Object getField(int col) {
+            return it.getField(col);
         }
 
         public void setCurrent(Object[] data) {
@@ -1456,6 +1456,8 @@ public class RangeVariable {
 
                                     break;
                                 }
+
+                            // fall through
                             default :
                                 it = conditions[condIndex].rangeIndex
                                     .emptyIterator();

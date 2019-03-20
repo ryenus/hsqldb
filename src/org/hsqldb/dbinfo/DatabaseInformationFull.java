@@ -34,7 +34,6 @@ package org.hsqldb.dbinfo;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.io.UnsupportedEncodingException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -73,6 +72,7 @@ import org.hsqldb.lib.LineGroupReader;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.lib.WrapperIterator;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.DataFileCache;
 import org.hsqldb.persist.DataSpaceManager;
@@ -131,23 +131,16 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         synchronized (DatabaseInformationFull.class) {
             final String path = "/org/hsqldb/resources/information-schema.sql";
             final String[] starters = new String[]{ "/*" };
-            InputStream fis = (InputStream) AccessController.doPrivileged(
-                new PrivilegedAction() {
+            InputStream fis = AccessController.doPrivileged(
+                new PrivilegedAction<InputStream>() {
 
                 public InputStream run() {
                     return getClass().getResourceAsStream(path);
                 }
             });
-            InputStreamReader reader = null;
-
-            try {
-                reader = new InputStreamReader(fis, "ISO-8859-1");
-            } catch (UnsupportedEncodingException e) {
-                reader = new InputStreamReader(fis);
-            }
-
-            LineNumberReader lineReader = new LineNumberReader(reader);
-            LineGroupReader  lg = new LineGroupReader(lineReader, starters);
+            InputStreamReader reader     = new InputStreamReader(fis, JavaSystem.ISO_8859_1);
+            LineNumberReader  lineReader = new LineNumberReader(reader);
+            LineGroupReader   lg = new LineGroupReader(lineReader, starters);
 
             statementMap = lg.getAsMap();
 
@@ -2353,14 +2346,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             switch (constraintName.parent.type) {
 
                 case SchemaObject.TABLE : {
-                    Table table;
-
-                    try {
-                        table = (Table) database.schemaManager.getSchemaObject(
+                    Table table =
+                        (Table) database.schemaManager.findSchemaObject(
                             constraintName.parent.name,
                             constraintName.parent.schema.name,
                             SchemaObject.TABLE);
-                    } catch (Exception e) {
+
+                    if (table == null) {
                         continue;
                     }
 
@@ -2374,19 +2366,20 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     break;
                 }
                 case SchemaObject.DOMAIN : {
-                    Type domain;
-
-                    try {
-                        domain = (Type) database.schemaManager.getSchemaObject(
+                    Type domain =
+                        (Type) database.schemaManager.findSchemaObject(
                             constraintName.parent.name,
                             constraintName.parent.schema.name,
                             SchemaObject.DOMAIN);
-                    } catch (Exception e) {
+
+                    if (domain == null) {
                         continue;
                     }
 
                     constraint = domain.userTypeModifier.getConstraint(
                         constraintName.name);
+
+                    break;
                 }
                 default :
                     continue;

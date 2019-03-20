@@ -170,9 +170,9 @@ implements TransactionManager {
             endTransactionTPL(session);
         } finally {
             writeLock.unlock();
+            session.actionSet.clear();
         }
 
-        session.actionSet.clear();
 
         return true;
     }

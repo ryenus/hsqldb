@@ -118,7 +118,7 @@ public final class NumberSequence implements SchemaObject {
                     break;
                 }
 
-            // fall through
+                throw Error.error(ErrorCode.X_42563);
             default :
                 throw Error.error(ErrorCode.X_42563);
         }

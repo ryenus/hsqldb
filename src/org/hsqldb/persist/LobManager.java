@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.io.UnsupportedEncodingException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.concurrent.locks.Lock;
@@ -60,6 +59,7 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.LineGroupReader;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
@@ -259,23 +259,16 @@ public class LobManager {
         sysLobSession = database.sessionManager.getSysLobSession();
 
         InputStream fis = (InputStream) AccessController.doPrivileged(
-            new PrivilegedAction() {
+            new PrivilegedAction<InputStream>() {
 
             public InputStream run() {
                 return getClass().getResourceAsStream(resourceFileName);
             }
         });
-        InputStreamReader reader = null;
-
-        try {
-            reader = new InputStreamReader(fis, "ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
-            reader = new InputStreamReader(fis);
-        }
-
-        LineNumberReader lineReader = new LineNumberReader(reader);
-        LineGroupReader  lg = new LineGroupReader(lineReader, starters);
-        HashMappedList   map        = lg.getAsMap();
+        InputStreamReader reader = new InputStreamReader(fis, JavaSystem.ISO_8859_1);
+        LineNumberReader  lineReader = new LineNumberReader(reader);
+        LineGroupReader   lg = new LineGroupReader(lineReader, starters);
+        HashMappedList    map = lg.getAsMap();
 
         lg.close();
 

@@ -175,18 +175,16 @@ public interface OpTypes {
         OpTypes.SEQUENCE
     };
     //J+
-    static final OrderedIntHashSet emptyExpressionSet =
-        new OrderedIntHashSet();
-    static final OrderedIntHashSet aggregateFunctionSet =
-        new OrderedIntHashSet(aggOpTypes);
-    static final OrderedIntHashSet columnExpressionSet =
+    OrderedIntHashSet emptyExpressionSet   = new OrderedIntHashSet();
+    OrderedIntHashSet aggregateFunctionSet = new OrderedIntHashSet(aggOpTypes);
+    OrderedIntHashSet columnExpressionSet =
         new OrderedIntHashSet(columnOpTypes);
-    static final OrderedIntHashSet subqueryExpressionSet =
+    OrderedIntHashSet subqueryExpressionSet =
         new OrderedIntHashSet(subqueryOpTypes);
-    static final OrderedIntHashSet subqueryAggregateExpressionSet =
+    OrderedIntHashSet subqueryAggregateExpressionSet =
         new OrderedIntHashSet(subqueryOpTypes, aggOpTypes);
-    static final OrderedIntHashSet functionExpressionSet =
+    OrderedIntHashSet functionExpressionSet =
         new OrderedIntHashSet(functionOpTypes);
-    static final OrderedIntHashSet sequenceExpressionSet =
+    OrderedIntHashSet sequenceExpressionSet =
         new OrderedIntHashSet(sequenceOpTypes);
 }

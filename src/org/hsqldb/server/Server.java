@@ -2152,13 +2152,11 @@ public class Server implements HsqlSocketRequestHandler, Notified {
             return;
         }
 
-        StopWatch sw;
-
         printWithThread("shutdown() entered");
-
-        sw = new StopWatch();
-
         print("Initiating shutdown sequence...");
+
+        StopWatch sw = new StopWatch();
+
         releaseServerSocket();
         DatabaseManager.deRegisterServer(this);
 
@@ -2170,39 +2168,32 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
         // Be nice and let applications exit if there are no
         // running connection threads - wait at most 100 ms per active thread
-        if (serverConnectionThreadGroup != null) {
-            if (!serverConnectionThreadGroup.isDestroyed()) {
-                int count = serverConnectionThreadGroup.activeCount();
+        for (int count = serverConnectionThreadGroup.activeCount();
+                count > 0 && serverConnectionThreadGroup.activeCount() > 0;
+                count--) {
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {
 
-                for (int i = 0;
-                        serverConnectionThreadGroup.activeCount() > 0
-                        && i < count;
-                        i++) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (Exception e) {
-
-                        // e.getMessage();
-                    }
-                }
-
-                try {
-                    serverConnectionThreadGroup.destroy();
-                    printWithThread(serverConnectionThreadGroup.getName()
-                                    + " destroyed");
-                } catch (Throwable t) {
-                    printWithThread(serverConnectionThreadGroup.getName()
-                                    + " not destroyed");
-                    printWithThread(t.toString());
-                }
+                // e.getMessage();
             }
-
-            serverConnectionThreadGroup = null;
         }
 
-        serverThread = null;
+        try {
+            serverConnectionThreadGroup.destroy();
+            printWithThread(serverConnectionThreadGroup.getName()
+                            + " destroyed");
+        } catch (Throwable t) {
+            printWithThread(serverConnectionThreadGroup.getName()
+                            + " not destroyed");
+            printWithThread(t.toString());
+        }
 
         setState(ServerConstants.SERVER_STATE_SHUTDOWN);
+
+        serverConnectionThreadGroup = null;
+        serverThread                = null;
+
         print(sw.elapsedTimeToMessage("Shutdown sequence completed"));
 
         if (isNoSystemExit()) {
