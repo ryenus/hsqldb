@@ -70,7 +70,7 @@ public class StatementSchema extends Statement {
     }
 
     StatementSchema(String sql, int type) {
-        this(sql, type, null, (HsqlName[]) null, null);
+        this(sql, type, null, null, null);
     }
 
     StatementSchema(String sql, int type, Object[] args, HsqlName[] readName,

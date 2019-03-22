@@ -59,20 +59,10 @@ import org.hsqldb.result.Result;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.5.0
  * @since 1.7.2
  */
 public final class JDBCUtil {
-
-    static void throwError(HsqlException e) throws SQLException {
-        throw sqlException(e.getMessage(), e.getSQLState(), e.getErrorCode(),
-                           e);
-    }
-
-    static void throwError(Result r) throws SQLException {
-        throw sqlException(r.getMainString(), r.getSubString(),
-                           r.getErrorCode(), r.getException());
-    }
 
     public static SQLException sqlException(HsqlException e) {
         return sqlException(e.getMessage(), e.getSQLState(), e.getErrorCode(),
@@ -155,7 +145,7 @@ public final class JDBCUtil {
     }
 
     public static SQLException sqlException(Throwable t) {
-        return new SQLNonTransientConnectionException(t);
+        return new SQLException(t);
     }
 
     public static SQLException sqlException(Result r) {

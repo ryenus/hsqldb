@@ -4469,7 +4469,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         Object source;
 
         if (wasNullValue) {
-            return (T) null;
+            return null;
         }
 
         Object o = null;

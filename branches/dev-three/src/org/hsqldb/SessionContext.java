@@ -32,7 +32,6 @@
 package org.hsqldb;
 
 import org.hsqldb.RangeGroup.RangeGroupSimple;
-import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;

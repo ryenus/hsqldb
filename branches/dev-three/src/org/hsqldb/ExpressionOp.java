@@ -553,7 +553,7 @@ public class ExpressionOp extends Expression {
         if (exprSubType == OpTypes.CAST) {
             if (nodes[RIGHT].dataType == null) {
                 nodes[RIGHT].dataType = nodes[LEFT].dataType =
-                    Type.SQL_VARCHAR_DEFAULT;;
+                    Type.SQL_VARCHAR_DEFAULT;
             }
 
             dataType = nodes[RIGHT].dataType;
@@ -888,7 +888,7 @@ public class ExpressionOp extends Expression {
                     return null;
                 }
 
-                StringBuffer sb       = new StringBuffer("");
+                StringBuffer sb       = new StringBuffer();
                 boolean      hasValue = false;
 
                 for (int i = 1; i < nodes.length; i++) {

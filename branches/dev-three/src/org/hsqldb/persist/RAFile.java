@@ -36,7 +36,6 @@ import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.Constructor;
 
 import org.hsqldb.Database;
 import org.hsqldb.error.Error;
@@ -44,7 +43,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
-import org.hsqldb.lib.Storage;
 
 /**
  * This class is a wrapper for a random access file such as that used for

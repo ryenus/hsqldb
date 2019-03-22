@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ public class RowOutputTextQuoted extends RowOutputText {
 
         if (textFileSettings.isAllQuoted || s.length() == 0
                 || s.indexOf(textFileSettings.quoteChar) != -1
-                || (sep.length() > 0 && s.indexOf(sep) != -1)
+                || (sep.length() > 0 && s.contains(sep))
                 || hasUnprintable(s)) {
             s = StringConverter.toQuotedString(s, textFileSettings.quoteChar,
                                                true);

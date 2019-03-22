@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ import org.hsqldb.lib.KMPSearchAlgorithm;
  * </div>
  * <!-- end release-specific documentation -->
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.5.0
  * @since HSQLDB 2.1
  */
 public class JDBCBlobFile implements java.sql.Blob {
@@ -818,7 +818,7 @@ public class JDBCBlobFile implements java.sql.Blob {
                 target.close();
             } catch (IOException ignoredIoe) {
                 LOG.info(ignoredIoe.getMessage(), ignoredIoe);
-            } catch (RuntimeException ignoredRex) {
+            } catch (Throwable ignoredRex) {
                 LOG.info(ignoredRex.getMessage(), ignoredRex);
             }
         }
@@ -830,7 +830,7 @@ public class JDBCBlobFile implements java.sql.Blob {
                 target.close();
             } catch (IOException ignoredIoe) {
                 LOG.info(ignoredIoe.getMessage(), ignoredIoe);
-            } catch (RuntimeException ignoredRex) {
+            } catch (Throwable ignoredRex) {
                 LOG.info(ignoredRex.getMessage(), ignoredRex);
             }
         }
@@ -842,7 +842,7 @@ public class JDBCBlobFile implements java.sql.Blob {
                 target.close();
             } catch (IOException ignoredIoe) {
                 LOG.info(ignoredIoe.getMessage(), ignoredIoe);
-            } catch (RuntimeException ignoredRex) {
+            } catch (Throwable ignoredRex) {
                 LOG.info(ignoredRex.getMessage(), ignoredRex);
             }
         }
@@ -854,7 +854,7 @@ public class JDBCBlobFile implements java.sql.Blob {
                 target.close();
             } catch (IOException ignoredIoe) {
                 LOG.info(ignoredIoe.getMessage(), ignoredIoe);
-            } catch (RuntimeException ignoredRex) {
+            } catch (Throwable ignoredRex) {
                 LOG.info(ignoredRex.getMessage(), ignoredRex);
             }
         }
@@ -866,7 +866,7 @@ public class JDBCBlobFile implements java.sql.Blob {
                 target.close();
             } catch (IOException ignoredIoe) {
                 LOG.info(ignoredIoe.getMessage(), ignoredIoe);
-            } catch (RuntimeException ignoredRex) {
+            } catch (Throwable ignoredRex) {
                 LOG.info(ignoredRex.getMessage(), ignoredRex);
             }
         }

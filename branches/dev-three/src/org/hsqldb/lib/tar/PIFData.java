@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,8 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.hsqldb.lib.java.JavaSystem;
+
 /**
  * Pax Interchange Format object constituted from an Input Stream.
  * <P>
@@ -67,7 +69,7 @@ public class PIFData extends HashMap<String, String> {
 
         BufferedReader br = null;
         try {
-            br = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+            br = new BufferedReader(new InputStreamReader(stream, JavaSystem.CS_UTF8));
             String  s, k, v;
             Matcher m;
             int     lineNum = 0;

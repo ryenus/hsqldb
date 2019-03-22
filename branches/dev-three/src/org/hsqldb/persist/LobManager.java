@@ -258,17 +258,17 @@ public class LobManager {
 
         sysLobSession = database.sessionManager.getSysLobSession();
 
-        InputStream fis = (InputStream) AccessController.doPrivileged(
-            new PrivilegedAction<InputStream>() {
+        InputStream fis = AccessController.doPrivileged(
+                new PrivilegedAction<InputStream>() {
 
-            public InputStream run() {
-                return getClass().getResourceAsStream(resourceFileName);
-            }
-        });
-        InputStreamReader reader = new InputStreamReader(fis, JavaSystem.ISO_8859_1);
-        LineNumberReader  lineReader = new LineNumberReader(reader);
-        LineGroupReader   lg = new LineGroupReader(lineReader, starters);
-        HashMappedList    map = lg.getAsMap();
+                    public InputStream run() {
+                        return getClass().getResourceAsStream(resourceFileName);
+                    }
+                });
+        InputStreamReader reader = new InputStreamReader(fis, JavaSystem.CS_ISO_8859_1);
+        LineNumberReader lineReader = new LineNumberReader(reader);
+        LineGroupReader lg = new LineGroupReader(lineReader, starters);
+        HashMappedList map = lg.getAsMap();
 
         lg.close();
 

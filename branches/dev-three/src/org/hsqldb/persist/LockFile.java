@@ -1885,16 +1885,6 @@ public class LockFile {
     }
 
     /**
-     * Attempts to release this object's cooperative lock condition. <p>
-     *
-     * @throws Throwable if this object encounters an unhandled exception
-     *        while trying to release the cooperative lock condition
-     */
-    protected final void finalize() throws Throwable {
-        this.tryRelease();
-    }
-
-    /**
      * For internal use only. <p>
      *
      * This Runnable class provides the implementation for the timed task
@@ -2384,7 +2374,7 @@ public class LockFile {
          */
         public byte[] getMagic() {
             return (magic == null) ? null
-                                   : (byte[]) this.magic.clone();
+                                   : this.magic.clone();
         }
     }
 }

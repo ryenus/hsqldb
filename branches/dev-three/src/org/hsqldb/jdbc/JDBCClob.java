@@ -35,7 +35,6 @@ import java.io.ByteArrayInputStream;
 import java.io.CharArrayReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.sql.Clob;
 import java.sql.SQLException;
 
@@ -120,7 +119,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * <!-- end release-specific documentation -->
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.5.0
  * @since JDK 1.2, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0
  */
@@ -254,11 +253,10 @@ public class JDBCClob implements Clob {
     public java.io.InputStream getAsciiStream() throws SQLException {
 
         try {
-            return new ByteArrayInputStream(getData().getBytes("US-ASCII"));
-        } catch (UnsupportedEncodingException e) {
-            LOG.warning(e.getMessage(), e);
-
-            return null;
+            return new ByteArrayInputStream(
+                getData().getBytes(JavaSystem.CS_US_ASCII));
+        } catch (Throwable e) {
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -670,11 +668,11 @@ public class JDBCClob implements Clob {
 
                 try {
                     final String str = new String(bytes, 0, length,
-                                                  "US-ASCII");
+                                                  JavaSystem.CS_US_ASCII);
 
                     JDBCClob.this.setString(pos, str);
-                } catch (SQLException se) {
-                    throw JavaSystem.toIOException(se);
+                } catch (Throwable e) {
+                    throw JavaSystem.toIOException(e);
                 }
             }
         };

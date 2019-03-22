@@ -916,7 +916,7 @@ public class GranteeManager {
 
         byte[] data;
 
-        data = string.getBytes(JavaSystem.ISO_8859_1);
+        data = string.getBytes(JavaSystem.CS_ISO_8859_1);
         data = getDigester().digest(data);
 
         return StringConverter.byteArrayToHexString(data);

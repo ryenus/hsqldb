@@ -822,7 +822,7 @@ public class FunctionSQL extends Expression {
                             nodes[i].dataType);
                 }
 
-                if (((NumberType) nodeDataTypes[3]).isNegative(data[3])) {
+                if (nodeDataTypes[3].isNegative(data[3])) {
                     throw Error.error(ErrorCode.X_2201G);
                 }
 

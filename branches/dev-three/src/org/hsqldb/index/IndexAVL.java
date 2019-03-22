@@ -117,8 +117,7 @@ import org.hsqldb.types.Type;
 public class IndexAVL implements Index {
 
     private static final IndexRowIterator emptyIterator =
-        new IndexRowIterator(null, (PersistentStore) null, null, null, 0,
-                             false, false);
+        new IndexRowIterator(null, null, null, null, 0, false, false);
 
     // fields
     private final long       persistenceId;

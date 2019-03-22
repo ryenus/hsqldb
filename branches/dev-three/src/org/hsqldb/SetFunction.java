@@ -40,11 +40,11 @@ package org.hsqldb;
  */
 public interface SetFunction {
 
-    public void add(Object itemLeft, Object itemRight);
+    void add(Object itemLeft, Object itemRight);
 
-    public void add(Object item);
+    void add(Object item);
 
-    public Object getValue();
+    Object getValue();
 
-    public void reset();
+    void reset();
 }

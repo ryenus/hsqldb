@@ -3643,12 +3643,12 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         Integer Nullable = (nullable) ? null
                                       : INT_COLUMNS_NO_NULLS;
         StringBuffer select =
-            toQueryPrefix("SYSTEM_BESTROWIDENTIFIER").append(and("TABLE_CAT",
-                "=", catalog)).append(and("TABLE_SCHEM", "=",
-                    schema)).append(and("TABLE_NAME", "=",
-                                        table)).append(and("NULLABLE", "=",
-                                            Nullable)).append(" AND SCOPE IN "
-                                                + scopeIn);
+                toQueryPrefix("SYSTEM_BESTROWIDENTIFIER").append(and("TABLE_CAT",
+                        "=", catalog)).append(and("TABLE_SCHEM", "=",
+                        schema)).append(and("TABLE_NAME", "=",
+                        table)).append(and("NULLABLE", "=",
+                        Nullable)).append(" AND SCOPE IN ").append(
+                        scopeIn);
 
         // By default, query already returns rows in contract order.
         // However, the way things are set up, there should never be
@@ -6016,7 +6016,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             } else {
                 sb.append("LIKE").append(' ').append(v);
 
-                if ((v.indexOf("\\_") >= 0) || (v.indexOf("\\%") >= 0)) {
+                if (v.contains("\\_") || v.contains("\\%")) {
 
                     // then client has requested at least one escape.
                     sb.append(" ESCAPE '\\'");

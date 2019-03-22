@@ -1961,7 +1961,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @since 1.8
      */
 //#ifdef JAVA8
-    public long executeLargeUpdate(String sql, int columnIndexes[]) throws SQLException {
+    public long executeLargeUpdate(String sql, int[] columnIndexes) throws SQLException {
         return executeUpdate(sql, columnIndexes);
     }
 //#endif JAVA8
@@ -2006,7 +2006,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @since 1.8
      */
 //#ifdef JAVA8
-    public long executeLargeUpdate(String sql, String columnNames[])
+    public long executeLargeUpdate(String sql, String[] columnNames)
             throws SQLException {
         return executeUpdate(sql, columnNames);
     }

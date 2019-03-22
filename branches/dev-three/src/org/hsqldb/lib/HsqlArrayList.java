@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -136,8 +136,8 @@ public class HsqlArrayList extends BaseList implements HsqlList {
             increaseCapacity();
         }
 
-        for (int i = elementCount; i > index; i--) {
-            elementData[i] = elementData[i - 1];
+        if (index < elementCount) {
+            System.arraycopy(elementData, index, elementData, index + 1, elementCount - index);
         }
 
         elementData[index] = element;
@@ -215,8 +215,8 @@ public class HsqlArrayList extends BaseList implements HsqlList {
 
         Object removedObj = elementData[index];
 
-        for (int i = index; i < elementCount - 1; i++) {
-            elementData[i] = elementData[i + 1];
+        if (index < elementCount - 1) {
+            System.arraycopy(elementData, index + 1, elementData, index, elementCount - 1 - index);
         }
 
         elementCount--;

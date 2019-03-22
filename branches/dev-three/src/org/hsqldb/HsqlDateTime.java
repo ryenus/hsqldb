@@ -71,11 +71,11 @@ public class HsqlDateTime {
         new GregorianCalendar(TimeZone.getTimeZone("GMT"), defaultLocale);
     private static final Date   tempDate        = new Date(0);
     private static final String sdfdPattern     = "yyyy-MM-dd";
-    private static SimpleDateFormat     sdfd = new SimpleDateFormat(sdfdPattern);
+    private static final SimpleDateFormat     sdfd = new SimpleDateFormat(sdfdPattern);
     private static final String sdftPattern     = "HH:mm:ss";
-    private static SimpleDateFormat     sdft = new SimpleDateFormat(sdftPattern);
+    private static final SimpleDateFormat     sdft = new SimpleDateFormat(sdftPattern);
     private static final String sdftsPattern    = "yyyy-MM-dd HH:mm:ss";
-    private static SimpleDateFormat     sdfts = new SimpleDateFormat(sdftsPattern);
+    private static final SimpleDateFormat     sdfts = new SimpleDateFormat(sdftsPattern);
     private static final String sdftsSysPattern = "yyyy-MM-dd HH:mm:ss.SSS";
     private static final SimpleDateFormat sdftsSys =
         new SimpleDateFormat(sdftsSysPattern);

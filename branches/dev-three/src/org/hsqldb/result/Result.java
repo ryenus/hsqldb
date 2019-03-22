@@ -303,8 +303,7 @@ public class Result {
                 ResultLob resultLob = ResultLob.newLob(inputStream, false);
 
                 if (session instanceof Session) {
-                    ((Session) session).allocateResultLob(resultLob,
-                                                          inputStream);
+                    session.allocateResultLob(resultLob, inputStream);
                 } else {
                     currentResult.addLobResult(resultLob);
                 }

@@ -826,8 +826,6 @@ public class RowAction extends RowActionBase {
             }
 
             action = action.next;
-
-            continue;
         } while (action != null);
 
         if (actionType == ACTION_NONE || actionType == ACTION_INSERT) {

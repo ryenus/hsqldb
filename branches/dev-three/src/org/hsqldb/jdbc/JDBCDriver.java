@@ -216,7 +216,7 @@ public class JDBCDriver implements Driver {
 
         if (url.regionMatches(true, 0, DatabaseURL.S_URL_INTERNAL, 0,
                               DatabaseURL.S_URL_INTERNAL.length())) {
-            JDBCConnection conn = (JDBCConnection) threadConnection.get();
+            JDBCConnection conn = threadConnection.get();
 
             if (conn == null) {
                 return null;

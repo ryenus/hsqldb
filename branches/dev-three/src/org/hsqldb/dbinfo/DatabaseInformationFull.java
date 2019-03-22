@@ -138,7 +138,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     return getClass().getResourceAsStream(path);
                 }
             });
-            InputStreamReader reader     = new InputStreamReader(fis, JavaSystem.ISO_8859_1);
+            InputStreamReader reader     = new InputStreamReader(fis, JavaSystem.CS_ISO_8859_1);
             LineNumberReader  lineReader = new LineNumberReader(reader);
             LineGroupReader   lg = new LineGroupReader(lineReader, starters);
 

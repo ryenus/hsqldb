@@ -43,7 +43,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.StringUtil;
-import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * Type subclass for CHARACTER, VARCHAR, etc.<p>
@@ -872,7 +871,7 @@ public class CharacterType extends Type {
             throw Error.error(ErrorCode.X_22011);
         }
 
-        if (offset > end || end < 0) {
+        if (end < 0) {
 
             // return zero length data
             offset = 0;

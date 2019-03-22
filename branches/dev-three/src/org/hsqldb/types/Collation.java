@@ -41,7 +41,6 @@ import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.SqlInvariants;
 import org.hsqldb.Tokens;
-import org.hsqldb.TypeInvariants;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMap;

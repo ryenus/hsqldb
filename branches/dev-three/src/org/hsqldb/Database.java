@@ -582,22 +582,6 @@ public class Database {
         sqlSyntaxPgs = mode;
     }
 
-    /**
-     *  Called by the garbage collector on this Databases object when garbage
-     *  collection determines that there are no more references to it.
-     */
-    protected void finalize() {
-
-        if (getState() != DATABASE_ONLINE) {
-            return;
-        }
-
-        try {
-            close(CLOSEMODE_IMMEDIATELY);
-        } catch (HsqlException e) {    // it's too late now
-        }
-    }
-
     void closeIfLast() {
 
         if (sessionManager.isEmpty() && dbState == DATABASE_ONLINE) {

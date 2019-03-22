@@ -565,8 +565,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
                         table.systemSetIdentityColumn(session, data);
                     } else if (adjust > 0) {
-                        ColumnSchema column =
-                            ((Table) table).getColumn(colIndex[i]);
+                        ColumnSchema column = table.getColumn(colIndex[i]);
                         Object value =
                             table.getColumnDefaultOrGeneratedValue(session,
                                 column, data);

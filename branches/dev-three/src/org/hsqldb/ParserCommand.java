@@ -1971,7 +1971,6 @@ public class ParserCommand extends ParserDDL {
         OrderedHashSet readSet  = new OrderedHashSet();
         OrderedHashSet writeSet = new OrderedHashSet();
 
-        outerloop:
         while (true) {
             Table table = readTableName(true);
 
@@ -1997,7 +1996,7 @@ public class ParserCommand extends ParserDDL {
                 continue;
             }
 
-            break outerloop;
+            break;
         }
 
         HsqlName[] writeTableNames = new HsqlName[writeSet.size()];
@@ -2572,8 +2571,7 @@ public class ParserCommand extends ParserDDL {
         read();
 
         String sql = Tokens.T_DISCONNECT;
-        Statement cs = new StatementSession(StatementTypes.DISCONNECT,
-                                            (Object[]) null);
+        Statement cs = new StatementSession(StatementTypes.DISCONNECT, null);
 
         return cs;
     }

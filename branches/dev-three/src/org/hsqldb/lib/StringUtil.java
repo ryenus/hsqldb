@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -126,7 +126,7 @@ public class StringUtil {
 
         if (trailing) {
             sb.append(source);
-            sb.append(pad.substring(pad.length() - partLength, pad.length()));
+            sb.append(pad.substring(pad.length() - partLength));
         }
 
         for (; padLength + pad.length() <= length; padLength += pad.length()) {
@@ -134,7 +134,7 @@ public class StringUtil {
         }
 
         if (!trailing) {
-            sb.append(pad.substring(0, partLength));
+            sb.append(pad, 0, partLength);
             sb.append(source);
         }
 

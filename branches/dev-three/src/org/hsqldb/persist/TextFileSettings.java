@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ public class TextFileSettings {
     String   dataFileName;
     int      maxCacheRows;
     int      maxCacheBytes;
-    char     singleSeparator = 0;;
+    char     singleSeparator = 0;
     byte[]   bytesForLineEnd = BYTES_NL;
     byte[]   bytesForSpace   = SP;
 
@@ -229,9 +229,9 @@ public class TextFileSettings {
         }
 
         maxCacheBytes = dbProps.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_size, (int) maxCacheBytes);
+            HsqlDatabaseProperties.textdb_cache_size, maxCacheBytes);
         maxCacheBytes = tableprops.getIntegerProperty(
-            HsqlDatabaseProperties.textdb_cache_size, (int) maxCacheBytes);
+            HsqlDatabaseProperties.textdb_cache_size, maxCacheBytes);
         maxCacheBytes *= 1024;
     }
 

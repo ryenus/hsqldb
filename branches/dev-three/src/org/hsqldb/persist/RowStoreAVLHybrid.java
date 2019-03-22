@@ -219,8 +219,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL {
             row = (Row) get(row, true);
 
             super.indexRow(session, row);
-        } catch (HsqlException e) {
-            throw e;
         } finally {
             row.keepInMemory(false);
         }
@@ -337,7 +335,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL {
             return null;
         }
 
-        RowAVL oldRow = (RowAVL) node.getRow(this);
+        RowAVL oldRow = node.getRow(this);
         RowAVL row    = (RowAVL) get(oldRow, false);
 
         node                            = row.getNode(key.getPosition());

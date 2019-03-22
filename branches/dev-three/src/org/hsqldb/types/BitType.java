@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -472,7 +472,7 @@ public final class BitType extends BinaryType {
             throw Error.error(ErrorCode.X_22011);
         }
 
-        if (offset > end || end < 0) {
+        if (end < 0) {
 
             // return zero length data
             offset = 0;

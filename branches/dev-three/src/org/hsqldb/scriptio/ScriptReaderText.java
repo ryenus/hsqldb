@@ -95,7 +95,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             tempStream = bufferedStream;
         }
 
-        dataStreamIn = new LineReader(tempStream, JavaSystem.ISO_8859_1);
+        dataStreamIn = new LineReader(tempStream, JavaSystem.CS_ISO_8859_1);
         rowIn = new RowInputTextLog(db.databaseProperties.isVersion18());
     }
 
@@ -156,8 +156,7 @@ public class ScriptReaderText extends ScriptReaderBase {
                 } else if (cs.getType() == StatementTypes.CREATE_ROUTINE) {
 
                     // ignore legacy references
-                    if (result.getMainString().indexOf("org.hsqldb.Library")
-                            > -1) {
+                    if (result.getMainString().contains("org.hsqldb.Library")) {
                         continue;
                     }
                 }
@@ -195,8 +194,6 @@ public class ScriptReaderText extends ScriptReaderBase {
                         session.setSchema(currentSchema);
 
                         tablename = null;
-
-                        continue;
                     } else if (statementType == INSERT_STATEMENT) {
                         if (!rowIn.getTableName().equals(tablename)) {
                             inserter.finishTable();

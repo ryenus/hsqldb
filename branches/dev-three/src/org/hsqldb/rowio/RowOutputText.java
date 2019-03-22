@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -180,7 +180,7 @@ public class RowOutputText extends RowOutputBase {
         if (s.indexOf('\n') != -1 || s.indexOf('\r') != -1) {
             throw new IllegalArgumentException(
                 Error.getMessage(ErrorCode.TEXT_STRING_HAS_NEWLINE));
-        } else if (s.indexOf(sep) != -1) {
+        } else if (s.contains(sep)) {
             return null;
         }
 

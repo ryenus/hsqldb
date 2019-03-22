@@ -38,7 +38,6 @@ import org.hsqldb.index.Index;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.DataFileCache;
 import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.HsqlDatabaseProperties;

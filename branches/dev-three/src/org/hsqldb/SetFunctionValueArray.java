@@ -42,7 +42,7 @@ import org.hsqldb.lib.HsqlArrayList;
  */
 public class SetFunctionValueArray implements SetFunction {
 
-    private final HsqlArrayList list = new HsqlArrayList();;
+    private final HsqlArrayList list = new HsqlArrayList();
 
     public void add(Object itemLeft, Object itemRight) {}
 

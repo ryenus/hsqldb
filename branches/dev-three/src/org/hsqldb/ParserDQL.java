@@ -2254,17 +2254,15 @@ public class ParserDQL extends ParserBase {
                     }
 
                     e.opType = OpTypes.ASTERISK;
-
-                    break;
                 } else {
                     if (token.tokenType == Tokens.COMMA) {
                         rewind(position);
 
                         e = XreadRowElementList(false);
                     }
-
-                    break;
                 }
+
+                break;
             case OpTypes.STDDEV_POP :
             case OpTypes.STDDEV_SAMP :
             case OpTypes.VAR_POP :
@@ -3236,7 +3234,7 @@ public class ParserDQL extends ParserBase {
             Expression a = e;
 
             e = XreadAllTypesTerm(boole);
-            e = boole ? (Expression) new ExpressionLogical(type, a, e)
+            e = boole ? new ExpressionLogical(type, a, e)
                       : new ExpressionArithmetic(type, a, e);
         }
 
@@ -3289,7 +3287,7 @@ public class ParserDQL extends ParserBase {
                 throw unexpectedToken();
             }
 
-            e = boole ? (Expression) new ExpressionLogical(type, a, e)
+            e = boole ? new ExpressionLogical(type, a, e)
                       : new ExpressionArithmetic(type, a, e);
         }
 
@@ -6272,8 +6270,6 @@ public class ParserDQL extends ParserBase {
                     }
 
                     read();
-
-                    continue;
             }
         }
     }
@@ -6980,7 +6976,7 @@ public class ParserDQL extends ParserBase {
 
         //
         private final int initialRangeVarIndex;
-        private int       rangeVarIndex;;
+        private int       rangeVarIndex;
 
         public CompileContext(Session session) {
             this(session, null, null);

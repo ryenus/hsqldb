@@ -1610,7 +1610,7 @@ public class DataFileCache {
         int flags = dataFile.readInt();
 
         flags = val ? BitMap.set(flags, singleFlag)
-                    : BitMap.unset(flags, singleFlag);;
+                    : BitMap.unset(flags, singleFlag);
 
         dataFile.seek(FLAGS_POS);
         dataFile.writeInt(flags);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,12 @@
 
 package org.hsqldb.lib.tar;
 
+import org.hsqldb.lib.java.JavaSystem;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 /**
@@ -54,12 +55,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
 
     protected PIFGenerator() {
 
-        try {
-            writer = new OutputStreamWriter(this, "UTF-8");
-        } catch (UnsupportedEncodingException uee) {
-            throw new RuntimeException(
-                "Serious problem.  JVM can't encode UTF-8", uee);
-        }
+        writer = new OutputStreamWriter(this, JavaSystem.CS_UTF8);
 
         fakePid = (int) (new Date().getTime() % 100000L);
 

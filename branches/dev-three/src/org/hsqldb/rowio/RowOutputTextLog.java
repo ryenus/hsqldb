@@ -31,7 +31,6 @@
 
 package org.hsqldb.rowio;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 
 import org.hsqldb.Row;
@@ -56,12 +55,12 @@ import org.hsqldb.types.Type;
  */
 public class RowOutputTextLog extends RowOutputBase {
 
-    private static byte[] BYTES_NULL  = Tokens.T_NULL.getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_TRUE  = Tokens.T_TRUE.getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_FALSE = Tokens.T_FALSE.getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_AND   = " AND ".getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_IS    = " IS ".getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_ARRAY = " ARRAY[".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_NULL  = Tokens.T_NULL.getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_TRUE  = Tokens.T_TRUE.getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_FALSE = Tokens.T_FALSE.getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_AND   = " AND ".getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_IS    = " IS ".getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_ARRAY = " ARRAY[".getBytes(JavaSystem.CS_ISO_8859_1);
 
     public static final int MODE_DELETE = 1;
     public static final int MODE_INSERT = 0;
