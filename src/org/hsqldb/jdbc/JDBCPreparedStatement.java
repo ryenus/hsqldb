@@ -4349,9 +4349,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         break;
                     }
                 } catch (HsqlException e) {
-                    JDBCUtil.throwError(e);
+                    throw JDBCUtil.sqlException(e);
                 }
-                JDBCUtil.throwError(Error.error(ErrorCode.X_42563));
+
+                throw JDBCUtil.sqlException(ErrorCode.X_42563);
+
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
                 try {
@@ -4385,9 +4387,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         break;
                     }
                 } catch (HsqlException e) {
-                    JDBCUtil.throwError(e);
+                    throw JDBCUtil.sqlException(e);
                 }
-                JDBCUtil.throwError(Error.error(ErrorCode.X_42563));
+
+                throw JDBCUtil.sqlException(ErrorCode.X_42563);
 
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
@@ -4410,11 +4413,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         break;
                     }
                 } catch (HsqlException e) {
-                    JDBCUtil.throwError(e);
+                    throw JDBCUtil.sqlException(e);
                 }
-                JDBCUtil.throwError(Error.error(ErrorCode.X_42563));
 
-                break;
+                throw JDBCUtil.sqlException(ErrorCode.X_42563);
+
             case Types.SQL_ARRAY :
                 if (o instanceof Array) {
                     setArray(i + 1, (Array) o);
@@ -4438,7 +4441,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     break;
                 }
-                JDBCUtil.throwError(Error.error(ErrorCode.X_42563));
+
+                throw JDBCUtil.sqlException(ErrorCode.X_42563);
+
             case Types.SQL_BLOB :
                 setBlobParameter(i + 1, o);
 
@@ -4463,7 +4468,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     break;
                 } catch (HsqlException e) {
-                    JDBCUtil.throwError(e);
+                    throw JDBCUtil.sqlException(e);
                 }
             }
             case Types.TINYINT :
@@ -4491,7 +4496,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     break;
                 } catch (HsqlException e) {
-                    JDBCUtil.throwError(e);
+                    throw JDBCUtil.sqlException(e);
                 }
             case Types.SQL_VARCHAR : {
                 if (o instanceof String) {
@@ -4502,7 +4507,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                         break;
                     } catch (HsqlException e) {
-                        JDBCUtil.throwError(e);
+                        throw JDBCUtil.sqlException(e);
                     }
                 }
             }
@@ -4528,7 +4533,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     break;
                 } catch (HsqlException e) {
-                    JDBCUtil.throwError(e);
+                    throw JDBCUtil.sqlException(e);
                 }
         }
         parameterValues[i] = o;

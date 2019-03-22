@@ -35,7 +35,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.LongDeque;
-import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.RowStoreAVL;
 
@@ -172,7 +171,6 @@ implements TransactionManager {
             writeLock.unlock();
             session.actionSet.clear();
         }
-
 
         return true;
     }

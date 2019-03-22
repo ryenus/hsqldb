@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2016, The HSQL Development Group
+ * Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -127,7 +127,7 @@ class Like implements Cloneable {
     private Object getStartsWith() {
 
         if (iLen == 0) {
-            return isBinary ? (Object) BinaryData.zeroLengthBinary
+            return isBinary ? BinaryData.zeroLengthBinary
                             : "";
         }
 
@@ -154,7 +154,7 @@ class Like implements Cloneable {
             return null;
         }
 
-        return isBinary ? (Object) new BinaryData(os.toByteArray(), false)
+        return isBinary ? new BinaryData(os.toByteArray(), false)
                         : sb.toString();
     }
 
@@ -294,7 +294,7 @@ class Like implements Cloneable {
         }
 
         if (isIgnoreCase) {
-            pattern = (String) ((CharacterType) dataType).upper(null, pattern);
+            pattern = ((CharacterType) dataType).upper(null, pattern);
         }
 
         iLen           = 0;

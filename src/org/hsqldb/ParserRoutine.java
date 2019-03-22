@@ -45,7 +45,6 @@ import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.Types;
 
 /**
  * Parser for SQL stored procedures and functions - PSM

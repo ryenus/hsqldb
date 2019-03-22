@@ -47,7 +47,7 @@ public interface RangeGroup {
 
     boolean isVariable();
 
-    public class RangeGroupSimple implements RangeGroup {
+    class RangeGroupSimple implements RangeGroup {
 
         final RangeVariable[] ranges;
         final RangeGroup      baseGroup;
@@ -98,7 +98,7 @@ public interface RangeGroup {
         }
     }
 
-    public class RangeGroupEmpty implements RangeGroup {
+    class RangeGroupEmpty implements RangeGroup {
 
         RangeGroupEmpty() {
 

@@ -41,7 +41,6 @@ import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.DateTimeType;
-import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -1252,7 +1251,7 @@ public class ExpressionLogical extends Expression {
                 return valueData;
 
             case OpTypes.NEGATE :
-                return ((NumberType) dataType).negate(
+                return dataType.negate(
                     nodes[LEFT].getValue(session, nodes[LEFT].dataType));
 
             case OpTypes.IS_NOT_NULL :

@@ -416,13 +416,6 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         printWithThread("signalCloseAllServerConnections() exited");
     }
 
-    protected void finalize() {
-
-        if (serverThread != null) {
-            releaseServerSocket();
-        }
-    }
-
     /**
      * Retrieves, in string form, this server's host address.
      *

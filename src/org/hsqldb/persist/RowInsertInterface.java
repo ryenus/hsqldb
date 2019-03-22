@@ -41,20 +41,20 @@ import org.hsqldb.Table;
  */
 public interface RowInsertInterface {
 
-    public void insert(Table table, PersistentStore store, Object[] rowData);
+    void insert(Table table, PersistentStore store, Object[] rowData);
 
-    public void finishTable();
+    void finishTable();
 
-    public void close();
+    void close();
 
     /**
      * returns the position of the error that caused an exception
      */
-    public long getErrorLineNumber();
+    long getErrorLineNumber();
 
-    public void setStartLineNumber(long number);
+    void setStartLineNumber(long number);
 
-    public interface modes {
+    interface modes {
 
         int rollbackOnError  = 0;    // not used
         int stopOnError      = 1;
@@ -63,7 +63,7 @@ public interface RowInsertInterface {
         int checkUntillError = 4;
     }
 
-    public interface ErrorLogger {
+    interface ErrorLogger {
 
         void writeLogStatement(long lineNumber, String s);
 

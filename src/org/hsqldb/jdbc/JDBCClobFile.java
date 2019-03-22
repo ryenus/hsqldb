@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,7 +88,7 @@ import org.hsqldb.lib.InOutUtil;
  * </div>
  * <!-- end release-specific documentation -->
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.5.0
  * @since HSQLDB 2.1
  */
 public class JDBCClobFile implements java.sql.Clob {
@@ -445,7 +445,7 @@ public class JDBCClobFile implements java.sql.Clob {
                 InOutUtil.copy(reader, writer, patternLength);
             } catch (IOException ex) {
                 throw JDBCUtil.sqlException(ex);
-            } catch (RuntimeException ex) {
+            } catch (Throwable ex) {
                 throw JDBCUtil.sqlException(ex);
             } finally {
                 closeSafely(reader);
@@ -562,7 +562,7 @@ public class JDBCClobFile implements java.sql.Clob {
             throw ex;
         } catch (IOException ex) {
             throw JDBCUtil.sqlException(ex);
-        } catch (RuntimeException ex) {
+        } catch (Throwable ex) {
             throw JDBCUtil.sqlException(ex);
         } finally {
             closeSafely(writer);
@@ -590,7 +590,7 @@ public class JDBCClobFile implements java.sql.Clob {
             }
         } catch (IOException ex) {
             throw JDBCUtil.sqlException(ex);
-        } catch (RuntimeException ex) {
+        } catch (Throwable ex) {
             throw JDBCUtil.sqlException(ex);
         } finally {
             closeSafely(writer);
@@ -739,7 +739,7 @@ public class JDBCClobFile implements java.sql.Clob {
             writer = new BufferedWriter(adapter);
         } catch (IOException ex) {
             throw JDBCUtil.sqlException(ex);
-        } catch (RuntimeException ex) {
+        } catch (Throwable ex) {
             throw JDBCUtil.sqlException(ex);
         }
 
@@ -791,7 +791,7 @@ public class JDBCClobFile implements java.sql.Clob {
             randomAccessFile.setLength(filePointer);
         } catch (IOException ex) {
             throw JDBCUtil.sqlException(ex);
-        } catch (RuntimeException ex) {
+        } catch (Throwable ex) {
             throw JDBCUtil.sqlException(ex);
         } finally {
             closeSafely(adapter);
@@ -885,7 +885,7 @@ public class JDBCClobFile implements java.sql.Clob {
             };
         } catch (IOException ex) {
             throw JDBCUtil.sqlException(ex);
-        } catch (RuntimeException ex) {
+        } catch (Throwable ex) {
             throw JDBCUtil.sqlException(ex);
         }
 
@@ -1141,7 +1141,7 @@ public class JDBCClobFile implements java.sql.Clob {
             }
         } catch (IOException ex) {
             throw JDBCUtil.sqlException(ex);
-        } catch (RuntimeException ex) {
+        } catch (Throwable ex) {
             throw JDBCUtil.sqlException(ex);
         }
 
@@ -1156,7 +1156,7 @@ public class JDBCClobFile implements java.sql.Clob {
                 target.close();
             } catch (IOException ignoredIoe) {
                 LOG.info(ignoredIoe.getMessage(), ignoredIoe);
-            } catch (RuntimeException ignoredRex) {
+            } catch (Throwable ignoredRex) {
                 LOG.info(ignoredRex.getMessage(), ignoredRex);
             }
         }
@@ -1169,7 +1169,7 @@ public class JDBCClobFile implements java.sql.Clob {
                 target.close();
             } catch (IOException ignoredIoe) {
                 LOG.info(ignoredIoe.getMessage(), ignoredIoe);
-            } catch (RuntimeException ignoredRex) {
+            } catch (Throwable ignoredRex) {
                 LOG.info(ignoredRex.getMessage(), ignoredRex);
             }
         }
@@ -1182,7 +1182,7 @@ public class JDBCClobFile implements java.sql.Clob {
                 target.close();
             } catch (IOException ignoredIoe) {
                 LOG.info(ignoredIoe.getMessage(), ignoredIoe);
-            } catch (RuntimeException ignoredRex) {
+            } catch (Throwable ignoredRex) {
                 LOG.info(ignoredRex.getMessage(), ignoredRex);
             }
         }
@@ -1195,7 +1195,7 @@ public class JDBCClobFile implements java.sql.Clob {
                 target.close();
             } catch (IOException ignoredIoe) {
                 LOG.info(ignoredIoe.getMessage(), ignoredIoe);
-            } catch (RuntimeException ignoredRex) {
+            } catch (Throwable ignoredRex) {
                 LOG.info(ignoredRex.getMessage(), ignoredRex);
             }
         }
@@ -1208,7 +1208,7 @@ public class JDBCClobFile implements java.sql.Clob {
                 target.close();
             } catch (IOException ignoredIoe) {
                 LOG.info(ignoredIoe.getMessage(), ignoredIoe);
-            } catch (RuntimeException ignoredRex) {
+            } catch (Throwable ignoredRex) {
                 LOG.info(ignoredRex.getMessage(), ignoredRex);
             }
         }
@@ -1219,7 +1219,7 @@ public class JDBCClobFile implements java.sql.Clob {
         if (target != null) {
             try {
                 target.close();
-            } catch (RuntimeException ignoredRex) {
+            } catch (Throwable ignoredRex) {
                 LOG.info(ignoredRex.getMessage(), ignoredRex);
             }
         }

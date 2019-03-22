@@ -375,7 +375,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                             throw Error.error(ErrorCode.X_22015);
                         }
 
-                        if (((IntervalType) type).isIntervalDaySecondType()) {
+                        if (type.isIntervalDaySecondType()) {
                             long nanos =
                                 (bi[1].longValue() * DTIType
                                     .limitNanoseconds + currentLong) / count;
@@ -436,7 +436,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                             throw Error.error(ErrorCode.X_22015);
                         }
 
-                        if (((IntervalType) type).isIntervalDaySecondType()) {
+                        if (type.isIntervalDaySecondType()) {
                             return new IntervalSecondData(bi.longValue(),
                                                           currentLong,
                                                           (IntervalType) type,

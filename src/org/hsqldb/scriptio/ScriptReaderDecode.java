@@ -35,13 +35,10 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.zip.GZIPInputStream;
 
 import org.hsqldb.Database;
 import org.hsqldb.Session;
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.LineReader;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.java.JavaSystem;
@@ -80,7 +77,7 @@ public class ScriptReaderDecode extends ScriptReaderText {
                 cryptoStream = crypto.getInputStream(bufferedStream);
                 gzipStream   = new GZIPInputStream(cryptoStream);
                 dataStreamIn = new LineReader(gzipStream,
-                                              JavaSystem.ISO_8859_1);
+                                              JavaSystem.CS_ISO_8859_1);
             }
         } catch (Throwable t) {
             close();
@@ -111,7 +108,7 @@ public class ScriptReaderDecode extends ScriptReaderText {
 
         count = crypto.decode(buffer, 0, count, buffer, 0);
 
-        String s = new String(buffer, 0, count, JavaSystem.ISO_8859_1);
+        String s = new String(buffer, 0, count, JavaSystem.CS_ISO_8859_1);
 
         lineCount++;
 

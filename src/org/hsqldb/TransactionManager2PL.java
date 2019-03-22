@@ -33,7 +33,6 @@ package org.hsqldb;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 
 /**

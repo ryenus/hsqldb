@@ -76,7 +76,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         super.add(session, object, tx);
 
         if (tx) {
-            RowAction.addInsertAction(session, (Table) table, (Row) object);
+            RowAction.addInsertAction(session, table, (Row) object);
         }
     }
 

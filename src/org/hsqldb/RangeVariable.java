@@ -727,12 +727,10 @@ public class RangeVariable {
         }
 
         if (rangeTable instanceof TableDerived) {
-            QueryExpression queryExpression =
-                ((TableDerived) rangeTable).getQueryExpression();
+            QueryExpression queryExpression = rangeTable.getQueryExpression();
 
             if (queryExpression == null) {
-                Expression dataExpression =
-                    ((TableDerived) rangeTable).getDataExpression();
+                Expression dataExpression = rangeTable.getDataExpression();
 
                 if (dataExpression != null) {
                     if (set == null) {
@@ -1723,8 +1721,6 @@ public class RangeVariable {
                     currentRange.reset();
 
                     currentIndex--;
-
-                    continue;
                 }
             }
 

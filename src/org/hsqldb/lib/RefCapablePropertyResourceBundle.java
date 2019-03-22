@@ -33,7 +33,6 @@ package org.hsqldb.lib;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Enumeration;
@@ -46,6 +45,7 @@ import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.hsqldb.lib.java.JavaSystem;
 
 /* $Id$ */
 
@@ -421,17 +421,18 @@ public class RefCapablePropertyResourceBundle {
         try {
             try {
                 ba = new byte[inputStream.available()];
-            } catch (RuntimeException re) {
+            } catch (IOException ioe) {
+                throw new MissingResourceException(
+                    "Failed to read in value for key '" + key + "': " + ioe,
+                    RefCapablePropertyResourceBundle.class.getName(), key);
+            } catch (Throwable re) {
                 throw new MissingResourceException(
                     "Resource is too big to read in '" + key + "' value in one "
                     + "gulp.\nPlease run the program with more RAM "
                     + "(try Java -Xm* switches).: " + re,
                     RefCapablePropertyResourceBundle.class.getName(), key);
-            } catch (IOException ioe) {
-                throw new MissingResourceException(
-                    "Failed to read in value for key '" + key + "': " + ioe,
-                    RefCapablePropertyResourceBundle.class.getName(), key);
             }
+
             try {
                 while (bytesread < ba.length &&
                         (retval = inputStream.read(
@@ -457,11 +458,10 @@ public class RefCapablePropertyResourceBundle {
                       + " bytes for key '" + key + "'",
                     RefCapablePropertyResourceBundle.class.getName(), key);
         }
+
         try {
-            return new String(ba, "ISO-8859-1");
-        } catch (UnsupportedEncodingException uee) {
-            throw new RuntimeException(uee);
-        } catch (RuntimeException re) {
+            return new String(ba, JavaSystem.CS_ISO_8859_1);
+        } catch (Throwable re) {
             throw new MissingResourceException(
                 "Value for key '" + key + "' too big to convert to String.  "
                 + "Please run the program with more RAM "

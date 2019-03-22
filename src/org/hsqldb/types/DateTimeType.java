@@ -1419,6 +1419,30 @@ public final class DateTimeType extends DTIType {
         throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
     }
 
+    public static double convertToDouble(Object a) {
+
+        double seconds;
+        double fraction;
+
+        if (a instanceof TimeData) {
+            seconds  = ((TimeData) a).getSeconds();
+            fraction = ((TimeData) a).getNanos() / 1000000000d;
+        } else {
+            seconds  = ((TimestampData) a).getSeconds();
+            fraction = ((TimestampData) a).getNanos() / 1000000000d;
+        }
+
+        return seconds + fraction;
+    }
+
+    public Object convertFromDouble(Session session, double value) {
+
+        long units = (long) value;
+        int  nanos = (int) ((value - units) * limitNanoseconds);
+
+        return getValue(session, units, nanos, 0);
+    }
+
     public Object truncate(Session session, Object a, int part) {
 
         if (a == null) {
@@ -2596,8 +2620,6 @@ public final class DateTimeType extends DTIType {
 
             // fall through
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-
-            //
             case Types.SQL_DATE :
             case Types.SQL_TIME :
             case Types.SQL_TIME_WITH_TIME_ZONE :

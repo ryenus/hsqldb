@@ -602,7 +602,7 @@ implements Comparator<Object[]> {
             return simpleAggregateData;
         }
 
-        return (Object[]) rowMap.get(data);
+        return rowMap.get(data);
     }
 
     boolean containsRow(Object[] data) {
@@ -709,7 +709,6 @@ implements Comparator<Object[]> {
     }
 
     public int compare(Object[] a, Object[] b) {
-        return mainIndex.compareRow((Session) session, (Object[]) a,
-                                    (Object[]) b);
+        return mainIndex.compareRow((Session) session, a, b);
     }
 }

@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2016, The HSQL Development Group
+ * Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,7 +84,7 @@ import org.hsqldb.map.BitMap;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 1.7.2
  */
 public class StringConverter {
@@ -437,7 +437,7 @@ public class StringConverter {
      */
     public static String unicodeStringToString(String s) {
 
-        if ((s == null) || (s.indexOf("\\u") == -1)) {
+        if (s == null || !s.contains("\\u")) {
             return s;
         }
 
@@ -546,7 +546,7 @@ public class StringConverter {
 
                     buf[bcount++] = (char) (((c & 0x0F) << 12)
                                             | ((char2 & 0x3F) << 6)
-                                            | ((char3 & 0x3F) << 0));
+                                            | ((char3 & 0x3F)));
                     break;
 
                 default :
@@ -591,11 +591,11 @@ public class StringConverter {
             } else if (c > 0x07FF) {
                 out.buffer[out.count++] = (byte) (0xE0 | ((c >> 12) & 0x0F));
                 out.buffer[out.count++] = (byte) (0x80 | ((c >> 6) & 0x3F));
-                out.buffer[out.count++] = (byte) (0x80 | ((c >> 0) & 0x3F));
+                out.buffer[out.count++] = (byte) (0x80 | ((c) & 0x3F));
                 count                   += 3;
             } else {
                 out.buffer[out.count++] = (byte) (0xC0 | ((c >> 6) & 0x1F));
-                out.buffer[out.count++] = (byte) (0x80 | ((c >> 0) & 0x3F));
+                out.buffer[out.count++] = (byte) (0x80 | ((c) & 0x3F));
                 count                   += 2;
             }
 

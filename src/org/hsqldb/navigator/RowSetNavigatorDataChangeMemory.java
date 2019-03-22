@@ -35,7 +35,6 @@ import java.io.IOException;
 
 import org.hsqldb.Row;
 import org.hsqldb.Session;
-import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;

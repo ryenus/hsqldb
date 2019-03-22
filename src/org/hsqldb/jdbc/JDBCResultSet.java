@@ -32,7 +32,6 @@
 package org.hsqldb.jdbc;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
@@ -64,9 +63,9 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringInputStream;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.BitMap;
 import org.hsqldb.navigator.RowSetNavigator;
-import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
@@ -445,7 +444,7 @@ public class JDBCResultSet implements ResultSet {
             long length = x.length(session);
 
             if (length > Integer.MAX_VALUE) {
-                JDBCUtil.throwError(Error.error(ErrorCode.X_42561));
+                throw JDBCUtil.sqlException(ErrorCode.X_42561);
             }
 
             return x.getSubString(session, 0, (int) length);
@@ -770,7 +769,7 @@ public class JDBCResultSet implements ResultSet {
             long length = x.length(session);
 
             if (length > Integer.MAX_VALUE) {
-                JDBCUtil.throwError(Error.error(ErrorCode.X_42561));
+                throw JDBCUtil.sqlException(ErrorCode.X_42561);
             }
 
             return x.getBytes(session, 0, (int) length);
@@ -916,9 +915,9 @@ public class JDBCResultSet implements ResultSet {
         }
 
         try {
-            return new ByteArrayInputStream(s.getBytes("US-ASCII"));
-        } catch (IOException e) {
-            return null;
+            return new ByteArrayInputStream(s.getBytes(JavaSystem.CS_US_ASCII));
+        } catch (Throwable e) {
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -6831,7 +6830,7 @@ public class JDBCResultSet implements ResultSet {
 
 
         if (wasNullValue) {
-            return (T) null;
+            return null;
         }
 
         Object o = null;
@@ -7424,7 +7423,7 @@ public class JDBCResultSet implements ResultSet {
                              + " to " + targetType.getJDBCClassName()
                              + ", value: " + stringValue;
 
-                JDBCUtil.throwError(Error.error(ErrorCode.X_42561, msg));
+                throw JDBCUtil.sqlException(ErrorCode.X_42561, msg);
             }
         }
 
@@ -7696,7 +7695,7 @@ public class JDBCResultSet implements ResultSet {
             }
 
             if (sourceType.typeCode != targetType.typeCode) {
-                JDBCUtil.throwError(Error.error(ErrorCode.X_42561));
+                throw JDBCUtil.sqlException(ErrorCode.X_42561);
             }
 
             return value;

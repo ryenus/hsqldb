@@ -33,8 +33,6 @@ package org.hsqldb.scriptio;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.zip.GZIPOutputStream;
 
 import org.hsqldb.Database;
@@ -73,21 +71,21 @@ import org.hsqldb.rowio.RowOutputTextLog;
  */
 public class ScriptWriterText extends ScriptWriterBase {
 
-    private static byte[] BYTES_COMMIT       = "COMMIT".getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_INSERT_INTO  = "INSERT INTO ".getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_VALUES       = " VALUES(".getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_TERM         = ")".getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_DELETE_FROM  = "DELETE FROM ".getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_WHERE        = " WHERE ".getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_SEQUENCE     = "ALTER SEQUENCE ".getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_SEQUENCE_MID = " RESTART WITH ".getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_C_ID_INIT    = "/*C".getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_C_ID_TERM    = "*/".getBytes(JavaSystem.ISO_8859_1);
-    private static byte[] BYTES_SCHEMA       = "SET SCHEMA ".getBytes(JavaSystem.ISO_8859_1);
+    private static byte[] BYTES_COMMIT       = "COMMIT".getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_INSERT_INTO  = "INSERT INTO ".getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_VALUES       = " VALUES(".getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_TERM         = ")".getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_DELETE_FROM  = "DELETE FROM ".getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_WHERE        = " WHERE ".getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_SEQUENCE     = "ALTER SEQUENCE ".getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_SEQUENCE_MID = " RESTART WITH ".getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_C_ID_INIT    = "/*C".getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_C_ID_TERM    = "*/".getBytes(JavaSystem.CS_ISO_8859_1);
+    private static byte[] BYTES_SCHEMA       = "SET SCHEMA ".getBytes(JavaSystem.CS_ISO_8859_1);
 
     /** @todo - perhaps move this global into a lib utility class */
     private static byte[] BYTES_LINE_SEP = System.getProperty("line.separator",
-        "\n").getBytes(JavaSystem.ISO_8859_1);
+        "\n").getBytes(JavaSystem.CS_ISO_8859_1);
 
     static {
         if (BYTES_LINE_SEP[0] != 0x0A && BYTES_LINE_SEP[0] != 0x0D) {

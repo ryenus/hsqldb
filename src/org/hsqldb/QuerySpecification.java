@@ -2045,7 +2045,7 @@ public class QuerySpecification extends QueryExpression {
 
             temp = exprColumns[index].describe(session, 2);
 
-            sb.append(temp.substring(0, temp.length() - 1));
+            sb.append(temp, 0, temp.length() - 1);
 
             if (resultMetaData.columns[i].getNullability()
                     == SchemaObject.Nullability.NO_NULLS) {

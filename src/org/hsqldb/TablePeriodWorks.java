@@ -33,9 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.index.Index;
 import org.hsqldb.navigator.RowIterator;
-import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.TimestampData;
 
@@ -49,13 +47,11 @@ import org.hsqldb.types.TimestampData;
  */
 class TablePeriodWorks {
 
-    private Database database;
     private Table    table;
     private Session  session;
 
     public TablePeriodWorks(Session session, Table table) {
 
-        this.database = table.database;
         this.table    = table;
         this.session  = session;
     }

@@ -32,11 +32,8 @@
 package org.hsqldb.persist;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.hsqldb.Database;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.RowAction;

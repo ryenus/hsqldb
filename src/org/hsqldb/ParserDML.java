@@ -41,7 +41,6 @@ import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.map.ValuePool;
-import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
@@ -741,7 +740,7 @@ public class ParserDML extends ParserDQL {
 
         if (table != baseTable) {
             QuerySpecification baseSelect =
-                ((TableDerived) table).getQueryExpression().getMainSelect();
+                table.getQueryExpression().getMainSelect();
 
             if (condition != null) {
                 condition = condition.replaceColumnReferences(session,

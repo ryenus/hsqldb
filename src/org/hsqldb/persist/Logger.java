@@ -40,7 +40,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseType;
-import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Row;
@@ -1538,10 +1537,6 @@ public class Logger implements EventLogInterface {
             return String.valueOf(propLargeData);
         }
 
-        if (HsqlDatabaseProperties.hsqldb_large_data.equals(name)) {
-            return String.valueOf(propLargeData);
-        }
-
         if (HsqlDatabaseProperties.hsqldb_lock_file.equals(name)) {
             return database.databaseProperties.getPropertyString(
                 HsqlDatabaseProperties.hsqldb_lock_file);
@@ -2424,7 +2419,7 @@ public class Logger implements EventLogInterface {
 
         // absolute paths
         if (path.startsWith("/") || path.startsWith("\\")
-                || path.indexOf(":") > -1) {
+                || path.contains(":")) {
             if (allowFull || propTextAllowFullPath) {
                 return path;
             } else {
@@ -2432,7 +2427,7 @@ public class Logger implements EventLogInterface {
             }
         }
 
-        if (path.indexOf("..") > -1) {
+        if (path.contains("..")) {
             if (allowFull || propTextAllowFullPath) {
 
                 // allow

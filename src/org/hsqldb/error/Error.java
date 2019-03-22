@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,7 @@ public class Error {
 
         if (lineNumber > 1) {
             add = getMessage(ErrorCode.M_parse_line);
-            s   = s + " :" + add + String.valueOf(lineNumber);
+            s   = s + " :" + add + lineNumber;
         }
 
         return new HsqlException(null, s.substring(SQL_STATE_DIGITS + 1),
@@ -148,7 +148,7 @@ public class Error {
         if (lineNumber > 1) {
             String sub = getMessage(ErrorCode.M_parse_line);
 
-            message = message + " :" + sub + String.valueOf(lineNumber);
+            message = message + " :" + sub + lineNumber;
         }
 
         int sqlCode = subCode < ERROR_CODE_BASE ? code
@@ -212,7 +212,7 @@ public class Error {
                 break;
             }
 
-            sb.append(message.substring(lastIndex, escIndex));
+            sb.append(message, lastIndex, escIndex);
             sb.append(add[i] == null ? "null exception message"
                                      : add[i].toString());
 
@@ -221,7 +221,7 @@ public class Error {
 
         escIndex = message.length();
 
-        sb.append(message.substring(lastIndex, escIndex));
+        sb.append(message, lastIndex, escIndex);
 
         return sb.toString();
     }

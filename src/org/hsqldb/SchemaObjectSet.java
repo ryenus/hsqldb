@@ -39,7 +39,6 @@ import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.map.ValuePool;
 
 /**
  * Collection of SQL schema objects of a specific type in a schema

@@ -31,7 +31,6 @@
 
 package org.hsqldb;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -1972,7 +1971,7 @@ public class FunctionCustom extends FunctionSQL {
                     return Long.toHexString(val);
                 } else {
                     String val   = ((String) data[0]);
-                    byte[] bytes = val.getBytes(JavaSystem.ISO_8859_1);
+                    byte[] bytes = val.getBytes(JavaSystem.CS_ISO_8859_1);
 
                     return StringConverter.byteArrayToHexString(bytes);
                 }
@@ -2043,7 +2042,7 @@ public class FunctionCustom extends FunctionSQL {
                         break;
                     }
 
-                    sb.append(string.substring(start, i));
+                    sb.append(string, start, i);
                     sb.append(replace);
 
                     start = i + find.length();
@@ -2101,7 +2100,7 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                int     flags          = this.regexpParams((String) data[5]);
+                int     flags          = FunctionCustom.regexpParams((String) data[5]);
                 Pattern currentPattern = null;
                 String  source         = (String) data[0];
                 String  matchPattern   = (String) data[1];

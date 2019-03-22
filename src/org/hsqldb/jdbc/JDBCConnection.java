@@ -786,7 +786,7 @@ public class JDBCConnection implements Connection {
                         if (sb == null) {
                             sb = new StringBuffer(sql.length());
                         }
-                        sb.append(sql.substring(tail, i));
+                        sb.append(sql, tail, i);
 
                         i       = onStartEscapeSequence(sql, sb, i);
                         tail    = i;
@@ -818,7 +818,7 @@ public class JDBCConnection implements Connection {
                     } else if (c == '"') {
                         state = inside_escape_inside_double_quotes;
                     } else if (c == '}') {
-                        sb.append(sql.substring(tail, i));
+                        sb.append(sql, tail, i);
                         sb.append(' ');
 
                         i++;
@@ -831,7 +831,7 @@ public class JDBCConnection implements Connection {
                         state = (nest == 0) ? outside_all
                                 : inside_escape;
                     } else if (c == '{') {
-                        sb.append(sql.substring(tail, i));
+                        sb.append(sql, tail, i);
 
                         i       = onStartEscapeSequence(sql, sb, i);
                         tail    = i;
@@ -1912,7 +1912,7 @@ public class JDBCConnection implements Connection {
         try {
             sessionProxy.savepoint(savepoint.name);
         } catch (HsqlException e) {
-            JDBCUtil.throwError(e);
+            throw JDBCUtil.sqlException(e);
         }
 
         return savepoint;
@@ -1974,7 +1974,7 @@ public class JDBCConnection implements Connection {
         try {
             sessionProxy.savepoint(name);
         } catch (HsqlException e) {
-            JDBCUtil.throwError(e);
+            throw JDBCUtil.sqlException(e);
         }
 
         return new JDBCSavepoint(name, this);
@@ -3560,17 +3560,6 @@ public class JDBCConnection implements Connection {
             isStoreLiveObject = false;
         }
 
-    }
-    /**
-     *  The default implementation simply attempts to silently {@link
-     *  #close() close()} this <code>Connection</code>
-     */
-    protected void finalize() {
-
-        try {
-            close();
-        } catch (SQLException e) {
-        }
     }
 
     synchronized int getSavepointID() {

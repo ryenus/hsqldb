@@ -196,8 +196,7 @@ public class StatementDML extends StatementDMQL {
 
         if (targetTable != baseTable) {
             QuerySpecification select =
-                ((TableDerived) targetTable).getQueryExpression()
-                    .getMainSelect();
+                targetTable.getQueryExpression().getMainSelect();
 
             this.updatableTableCheck = select.checkQueryCondition;
             this.checkRangeVariable =
@@ -1077,7 +1076,6 @@ public class StatementDML extends StatementDMQL {
              */
             table.setIdentityColumn(session, data);
             table.setGeneratedColumns(session, data);
-
             table.setUpdatedColumns(session, data, updateColumnMap);
         }
 

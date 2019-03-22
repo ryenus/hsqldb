@@ -54,7 +54,6 @@ import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.types.BinaryData;
-import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Collation;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.TimestampData;
@@ -391,8 +390,7 @@ public class Table extends TableBase implements SchemaObject {
 
             if (!type.isDistinctType() && !type.isDomainType()) {
                 if (type.isCharacterType()) {
-                    Collation collation =
-                        ((CharacterType) type).getCollation();
+                    Collation collation = type.getCollation();
 
                     if (collation.isObjectCollation()) {
                         sb.append(' ').append(collation.getCollateSQL());

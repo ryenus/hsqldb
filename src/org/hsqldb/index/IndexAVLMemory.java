@@ -70,7 +70,6 @@
 
 package org.hsqldb.index;
 
-import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.TableBase;
 import org.hsqldb.persist.PersistentStore;

@@ -338,8 +338,6 @@ public class ExpressionColumn extends Expression {
                 if (column.getName().parent != null) {
                     set.add(column.getName().parent);
                 }
-
-                return;
         }
     }
 
@@ -924,11 +922,11 @@ public class ExpressionColumn extends Expression {
                 ExpressionColumn c  = (ExpressionColumn) e;
 
                 if (c.schema != null) {
-                    sb.append(c.schema + '.');
+                    sb.append(c.schema).append('.');
                 }
 
                 if (c.tableName != null) {
-                    sb.append(c.tableName + '.');
+                    sb.append(c.tableName).append('.');
                 }
 
                 sb.append(c.getColumnName());

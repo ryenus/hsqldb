@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -223,8 +223,8 @@ public class HashMappedList extends HashMap {
             a = new Object[size];
         }
 
-        for (int i = 0; i < size; i++) {
-            a[i] = super.objectKeyTable[i];
+        if (size > 0) {
+            System.arraycopy(objectKeyTable, 0, a, 0, size);
         }
 
         return a;
