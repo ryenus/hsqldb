@@ -101,34 +101,55 @@ implements RowInputInterface {
 
         scanner.scanNext();
 
-        String s = scanner.getString();
+        int tokenType = scanner.getTokenType();
 
-        if (s.equals(Tokens.T_INSERT)) {
-            statementType = ScriptReaderBase.INSERT_STATEMENT;
+        switch (tokenType) {
 
-            scanner.scanNext();
-            scanner.scanNext();
+            case Tokens.INSERT : {
+                statementType = ScriptReaderBase.INSERT_STATEMENT;
 
-            tableName = scanner.getString();
-
-            scanner.scanNext();
-        } else if (s.equals(Tokens.T_DELETE)) {
-            statementType = ScriptReaderBase.DELETE_STATEMENT;
-
-            scanner.scanNext();
-            scanner.scanNext();
-
-            tableName = scanner.getString();
-        } else if (s.equals(Tokens.T_COMMIT)) {
-            statementType = ScriptReaderBase.COMMIT_STATEMENT;
-        } else if (s.equals(Tokens.T_SET)) {
-            scanner.scanNext();
-
-            if (Tokens.T_SCHEMA.equals(scanner.getString())) {
                 scanner.scanNext();
 
-                schemaName    = scanner.getString();
-                statementType = ScriptReaderBase.SET_SCHEMA_STATEMENT;
+                // scanner.getTokenType() == Tokens.INTO;
+                scanner.scanNext();
+
+                tableName = scanner.getString();
+
+                scanner.scanNext();
+
+                break;
+            }
+            case Tokens.DELETE : {
+                statementType = ScriptReaderBase.DELETE_STATEMENT;
+
+                scanner.scanNext();
+
+                // scanner.getTokenType() == Tokens.FROM;
+                scanner.scanNext();
+
+                tableName = scanner.getString();
+
+                break;
+            }
+            case Tokens.COMMIT : {
+                statementType = ScriptReaderBase.COMMIT_STATEMENT;
+
+                break;
+            }
+            case Tokens.SET : {
+                scanner.scanNext();
+
+                tokenType = scanner.getTokenType();
+
+                switch (tokenType) {
+
+                    case Tokens.SCHEMA : {
+                        scanner.scanNext();
+
+                        schemaName    = scanner.getString();
+                        statementType = ScriptReaderBase.SET_SCHEMA_STATEMENT;
+                    }
+                }
             }
         }
     }
