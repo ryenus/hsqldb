@@ -232,6 +232,27 @@ import org.hsqldb.types.Type;
 public class JDBCDatabaseMetaData implements DatabaseMetaData,
         java.sql.Wrapper {
 
+    private static final String[] openGroupNumericFunctions = {
+            "ABS", "ACOS", "ASIN", "ATAN", "ATAN2", "BITAND", "BITOR", "BITXOR",
+            "CEILING", "COS", "COT", "DEGREES", "EXP", "FLOOR", "LOG", "LOG10",
+            "MOD", "PI", "POWER", "RADIANS", "RAND", "ROUND", "ROUNDMAGIC", "SIGN",
+            "SIN", "SQRT", "TAN", "TRUNCATE"
+    };
+    private static final String[] openGroupStringFunctions = {
+            "ASCII", "CHAR", "CONCAT", "DIFFERENCE", "HEXTORAW", "INSERT", "LCASE",
+            "LEFT", "LENGTH", "LOCATE", "LTRIM", "RAWTOHEX", "REPEAT", "REPLACE",
+            "RIGHT", "RTRIM", "SOUNDEX", "SPACE", "SUBSTR", "UCASE",
+    };
+    private static final String[] openGroupDateTimeFunctions = {
+            "CURDATE", "CURTIME", "DATEDIFF", "DAYNAME", "DAYOFMONTH", "DAYOFWEEK",
+            "DAYOFYEAR", "HOUR", "MINUTE", "MONTH", "MONTHNAME", "NOW", "QUARTER",
+            "SECOND", "SECONDS_SINCE_MIDNIGHT", "TIMESTAMPADD", "TIMESTAMPDIFF",
+            "TO_CHAR", "WEEK", "YEAR"
+    };
+    private static final String[] openGroupSystemFunctions = {
+            "DATABASE", "IFNULL", "USER"
+    };
+
     //----------------------------------------------------------------------
     // First, a variety of minor information about the target database.
 
@@ -781,8 +802,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @exception SQLException if a database access error occurs
      */
     public String getNumericFunctions() throws SQLException {
-        return StringUtil.getList(FunctionCustom.openGroupNumericFunctions,
-                                  ",", "");
+        return StringUtil.getList(openGroupNumericFunctions, ",", "");
     }
 
     /**
@@ -794,8 +814,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @exception SQLException if a database access error occurs
      */
     public String getStringFunctions() throws SQLException {
-        return StringUtil.getList(FunctionCustom.openGroupStringFunctions,
-                                  ",", "");
+        return StringUtil.getList(openGroupStringFunctions, ",", "");
     }
 
     /**
@@ -807,8 +826,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @exception SQLException if a database access error occurs
      */
     public String getSystemFunctions() throws SQLException {
-        return StringUtil.getList(FunctionCustom.openGroupSystemFunctions,
-                                  ",", "");
+        return StringUtil.getList(openGroupSystemFunctions, ",", "");
     }
 
     /**
@@ -819,8 +837,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @exception SQLException if a database access error occurs
      */
     public String getTimeDateFunctions() throws SQLException {
-        return StringUtil.getList(FunctionCustom.openGroupDateTimeFunctions,
-                                  ",", "");
+        return StringUtil.getList(openGroupDateTimeFunctions, ",", "");
     }
 
     /**

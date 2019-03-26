@@ -76,7 +76,6 @@ import org.hsqldb.lib.CharArrayWriter;
 import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.StringConverter;
-import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
@@ -1718,7 +1717,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 seconds    = millis / 1000;
                 if (seconds < DateTimeType.epochSeconds
                     || seconds > DateTimeType.epochLimitSeconds) {
-                    throw Error.error(ErrorCode.X_22008);
+                    throw JDBCUtil.sqlException(ErrorCode.X_22008);
                 }
                 parameterValues[i] = new TimestampData(seconds,
                         x.getNanos(), zoneOffset / 1000);
@@ -1746,7 +1745,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 if (seconds < DateTimeType.epochSeconds
                     || seconds > DateTimeType.epochLimitSeconds) {
-                    throw Error.error(ErrorCode.X_22008);
+                    throw JDBCUtil.sqlException(ErrorCode.X_22008);
                 }
 
                 parameterValues[i] = new TimestampData(seconds);
@@ -1887,7 +1886,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (!isBatch) {
             if (connection.isEmptyBatchAllowed) {
-                return ValuePool.emptyIntArray;
+                return new int[]{};
             }
 
             throw JDBCUtil.sqlExceptionSQL(ErrorCode.X_07506);
@@ -4716,7 +4715,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.OTHER :
-                throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42563));
+                throw JDBCUtil.sqlException(ErrorCode.X_42563);
             default :
                 setParameter(i, Integer.valueOf(value));
         }
@@ -4748,7 +4747,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.OTHER :
-                throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42563));
+                throw JDBCUtil.sqlException(ErrorCode.X_42563);
             default :
                 setParameter(i, Long.valueOf(value));
         }

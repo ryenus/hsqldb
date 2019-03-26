@@ -396,7 +396,7 @@ public final class ServerAcl {
         boolean         allow;
         int             bits;
         BufferedReader  br      = new BufferedReader(new FileReader(aclFile));
-        List            newAcls = new ArrayList();
+        List<AclEntry>  newAcls = new ArrayList<AclEntry>();
 
         try {
             while ((line = br.readLine()) != null) {

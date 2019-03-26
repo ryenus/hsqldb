@@ -175,12 +175,10 @@ public class SetFunctionValueAggregate implements SetFunction {
                             currentLong +=
                                 ((IntervalSecondData) item).getNanos();
 
-                            if (Math.abs(currentLong)
-                                    >= DTIType.nanoScaleFactors[0]) {
-                                addLong(currentLong
-                                        / DTIType.nanoScaleFactors[0]);
+                            if (currentLong > 1000000000) {
+                                addLong(currentLong / 1000000000);
 
-                                currentLong %= DTIType.nanoScaleFactors[0];
+                                currentLong %= 1000000000;
                             }
                         }
 
@@ -200,11 +198,10 @@ public class SetFunctionValueAggregate implements SetFunction {
 
                         currentLong += ((TimestampData) item).getNanos();
 
-                        if (Math.abs(currentLong)
-                                >= DTIType.nanoScaleFactors[0]) {
-                            addLong(currentLong / DTIType.nanoScaleFactors[0]);
+                        if (currentLong > 1000000000) {
+                            addLong(currentLong / 1000000000);
 
-                            currentLong %= DTIType.nanoScaleFactors[0];
+                            currentLong %= 1000000000;
                         }
 
                         currentDouble = ((TimestampData) item).getZone();

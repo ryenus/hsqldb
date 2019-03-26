@@ -2436,8 +2436,7 @@ public class Scanner {
         }
 
         fractionPrecision = currentDigits;
-        currentValue      *= DTIType.nanoScaleFactors[currentDigits];
-        currentValue = DTIType.normaliseFraction(currentValue,
+        currentValue = DTIType.normaliseFraction(currentValue, currentDigits,
                 decimalPrecision);
 
         return currentValue;

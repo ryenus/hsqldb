@@ -33,7 +33,6 @@ package org.hsqldb.persist;
 
 import java.io.UnsupportedEncodingException;
 
-import org.hsqldb.Database;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 
@@ -42,7 +41,7 @@ import org.hsqldb.error.ErrorCode;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 2.2.6
  */
 public class TextFileSettings {
@@ -69,12 +68,12 @@ public class TextFileSettings {
     private static final byte[] SP       = new byte[]{ ' ' };
 
     //
-    String   dataFileName;
-    int      maxCacheRows;
-    int      maxCacheBytes;
-    char     singleSeparator = 0;
-    byte[]   bytesForLineEnd = BYTES_NL;
-    byte[]   bytesForSpace   = SP;
+    String dataFileName;
+    int    maxCacheRows;
+    int    maxCacheBytes;
+    char   singleSeparator = 0;
+    byte[] bytesForLineEnd = BYTES_NL;
+    byte[] bytesForSpace   = SP;
 
     //
     static final char        DOUBLE_QUOTE_CHAR = '\"';
@@ -90,12 +89,11 @@ public class TextFileSettings {
      *  source string for the table (2) global database settings
      *  (3) program defaults
      */
-    TextFileSettings(Database database, String fileSettingsString) {
+    TextFileSettings(HsqlDatabaseProperties dbProps, String settingsString) {
 
         HsqlProperties tableprops =
-            HsqlProperties.delimitedArgPairsToProps(fileSettingsString, "=",
-                ";", "textdb");
-        HsqlDatabaseProperties dbProps = database.getProperties();
+            HsqlProperties.delimitedArgPairsToProps(settingsString, "=", ";",
+                "textdb");
 
         switch (tableprops.errorCodes.length) {
 

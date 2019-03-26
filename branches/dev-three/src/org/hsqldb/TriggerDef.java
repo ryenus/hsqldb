@@ -151,7 +151,7 @@ public class TriggerDef implements Runnable, SchemaObject {
         rowsQueued            = 0;
         pendingQueue          = new HsqlDeque();
 
-        Class cl = null;
+        Class<?> cl = null;
 
         try {
             cl = Class.forName(triggerClassName, true,

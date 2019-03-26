@@ -63,8 +63,6 @@ import org.hsqldb.DatabaseURL;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
-import org.hsqldb.Tokens;
-import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -2032,22 +2030,16 @@ public class JDBCConnection implements Connection {
         }
 
         if (!(savepoint instanceof JDBCSavepoint)) {
-            String msg = Error.getMessage(ErrorCode.X_3B001);
-
-            throw JDBCUtil.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(ErrorCode.X_3B001);
         }
         sp = (JDBCSavepoint) savepoint;
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && sp.name == null) {
-            String msg = Error.getMessage(ErrorCode.X_3B001);
-
-            throw JDBCUtil.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(ErrorCode.X_3B001);
         }
 
         if (this != sp.connection) {
-            String msg = Error.getMessage(ErrorCode.X_3B001);
-
-            throw JDBCUtil.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(ErrorCode.X_3B001);
         }
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && getAutoCommit()) {
@@ -2118,29 +2110,23 @@ public class JDBCConnection implements Connection {
         }
 
         if (!(savepoint instanceof JDBCSavepoint)) {
-            String msg = Error.getMessage(ErrorCode.X_3B001);
-
-            throw JDBCUtil.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(ErrorCode.X_3B001);
         }
         sp = (JDBCSavepoint) savepoint;
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && sp.name == null) {
-            String msg = Error.getMessage(ErrorCode.X_3B001);
-
-            throw JDBCUtil.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(ErrorCode.X_3B001);
         }
 
         if (this != sp.connection) {
-            String msg = Error.getMessage(ErrorCode.X_3B001);
-
-            throw JDBCUtil.invalidArgument(msg);
+            throw JDBCUtil.invalidArgument(ErrorCode.X_3B001);
         }
 
         if (JDBCDatabaseMetaData.JDBC_MAJOR >= 4 && getAutoCommit()) {
             sp.name       = null;
             sp.connection = null;
 
-            throw JDBCUtil.sqlException(ErrorCode.X_3B001);
+            throw JDBCUtil.invalidArgument(ErrorCode.X_3B001);
         }
 
         try {
@@ -3688,27 +3674,27 @@ public class JDBCConnection implements Connection {
                 || sql.regionMatches(true, i, "oj ", 0, 3)) {
             i += 2;
         } else if (sql.regionMatches(true, i, "ts ", 0, 3)) {
-            sb.append(Tokens.T_TIMESTAMP);
+            sb.append("TIMESTAMP");
 
             i += 2;
         } else if (sql.regionMatches(true, i, "d ", 0, 2)) {
-            sb.append(Tokens.T_DATE);
+            sb.append("DATE");
 
             i++;
         } else if (sql.regionMatches(true, i, "t ", 0, 2)) {
-            sb.append(Tokens.T_TIME);
+            sb.append("TIME");
 
             i++;
         } else if (sql.regionMatches(true, i, "call ", 0, 5)) {
-            sb.append(Tokens.T_CALL);
+            sb.append("CALL");
 
             i += 4;
         } else if (sql.regionMatches(true, i, "?= call ", 0, 8)) {
-            sb.append(Tokens.T_CALL);
+            sb.append("CALL");
 
             i += 7;
         } else if (sql.regionMatches(true, i, "? = call ", 0, 8)) {
-            sb.append(Tokens.T_CALL);
+            sb.append("CALL");
 
             i += 8;
         } else if (sql.regionMatches(true, i, "escape ", 0, 7)) {
@@ -3716,9 +3702,8 @@ public class JDBCConnection implements Connection {
         } else {
             i--;
 
-            throw JDBCUtil.sqlException(
-                Error.error(
-                    ErrorCode.JDBC_CONNECTION_NATIVE_SQL, sql.substring(i)));
+            throw JDBCUtil.sqlException(ErrorCode.JDBC_CONNECTION_NATIVE_SQL,
+                                        sql.substring(i));
         }
 
         return i;
