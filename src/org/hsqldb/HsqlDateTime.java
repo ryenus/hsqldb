@@ -65,17 +65,20 @@ import org.hsqldb.types.Types;
  */
 public class HsqlDateTime {
 
-    public static final Locale   defaultLocale  = Locale.UK;
+    public static final Locale    defaultLocale  = Locale.UK;
     private static final Calendar tempCalDefault = new GregorianCalendar();
     private static final Calendar tempCalGMT =
         new GregorianCalendar(TimeZone.getTimeZone("GMT"), defaultLocale);
-    private static final Date   tempDate        = new Date(0);
-    private static final String sdfdPattern     = "yyyy-MM-dd";
-    private static final SimpleDateFormat     sdfd = new SimpleDateFormat(sdfdPattern);
-    private static final String sdftPattern     = "HH:mm:ss";
-    private static final SimpleDateFormat     sdft = new SimpleDateFormat(sdftPattern);
-    private static final String sdftsPattern    = "yyyy-MM-dd HH:mm:ss";
-    private static final SimpleDateFormat     sdfts = new SimpleDateFormat(sdftsPattern);
+    private static final Date   tempDate    = new Date(0);
+    private static final String sdfdPattern = "yyyy-MM-dd";
+    private static final SimpleDateFormat sdfd =
+        new SimpleDateFormat(sdfdPattern);
+    private static final String sdftPattern = "HH:mm:ss";
+    private static final SimpleDateFormat sdft =
+        new SimpleDateFormat(sdftPattern);
+    private static final String sdftsPattern = "yyyy-MM-dd HH:mm:ss";
+    private static final SimpleDateFormat sdfts =
+        new SimpleDateFormat(sdftsPattern);
     private static final String sdftsSysPattern = "yyyy-MM-dd HH:mm:ss.SSS";
     private static final SimpleDateFormat sdftsSys =
         new SimpleDateFormat(sdftsSysPattern);
@@ -267,9 +270,10 @@ public class HsqlDateTime {
         }
     }
 
-    public static int getZoneSeconds()  {
+    public static int getZoneSeconds() {
         return getZoneSeconds(tempCalDefault);
     }
+
     public static int getZoneSeconds(Calendar calendar) {
         return (calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET))
                / 1000;
@@ -304,7 +308,7 @@ public class HsqlDateTime {
 
             switch (part) {
 
-                case DTIType.WEEK_OF_YEAR : {
+                case Types.DTI_WEEK_OF_YEAR : {
                     int dayWeek = calendar.get(Calendar.DAY_OF_WEEK);
 
                     calendar.add(Calendar.DAY_OF_YEAR, 1 - dayWeek);
@@ -369,7 +373,7 @@ public class HsqlDateTime {
                     }
                     break;
 
-                case DTIType.WEEK_OF_YEAR : {
+                case Types.DTI_WEEK_OF_YEAR : {
                     int dayYear = calendar.get(Calendar.DAY_OF_YEAR);
                     int year    = calendar.get(Calendar.YEAR);
                     int week    = calendar.get(Calendar.WEEK_OF_YEAR);
@@ -466,7 +470,7 @@ public class HsqlDateTime {
         Types.SQL_INTERVAL_MONTH, Types.SQL_INTERVAL_MONTH,
         Types.SQL_INTERVAL_MONTH,
         -1, -1,
-        DTIType.WEEK_OF_YEAR, -1, Types.SQL_INTERVAL_DAY, Types.SQL_INTERVAL_DAY,
+        Types.DTI_WEEK_OF_YEAR, -1, Types.SQL_INTERVAL_DAY, Types.SQL_INTERVAL_DAY,
         -1,
         Types.SQL_INTERVAL_HOUR, -1, Types.SQL_INTERVAL_HOUR,
         Types.SQL_INTERVAL_MINUTE,

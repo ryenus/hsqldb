@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * has been added to differentiate HSQLDB-specific type specializations.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.5.0
  * @since 1.7.2
  */
 public class Types {
@@ -112,6 +112,23 @@ public class Types {
     public static final int SQL_INTERVAL_HOUR_TO_MINUTE   = 111;
     public static final int SQL_INTERVAL_HOUR_TO_SECOND   = 112;
     public static final int SQL_INTERVAL_MINUTE_TO_SECOND = 113;
+
+    // units or components not in SQL or JDBC lists, used with TRUNCATE, ROUND and other functions
+    public static final int DTI_TIMEZONE_HOUR    = 121;
+    public static final int DTI_TIMEZONE_MINUTE  = 122;
+    public static final int DTI_DAY_OF_WEEK      = 123;
+    public static final int DTI_DAY_OF_MONTH     = 124;
+    public static final int DTI_DAY_OF_YEAR      = 125;
+    public static final int DTI_WEEK_OF_YEAR     = 126;
+    public static final int DTI_QUARTER          = 127;
+    public static final int DTI_DAY_NAME         = 128;
+    public static final int DTI_MONTH_NAME       = 129;
+    public static final int DTI_SECONDS_MIDNIGHT = 130;
+    public static final int DTI_ISO_YEAR         = 131;
+    public static final int DTI_MILLISECOND      = 132;
+    public static final int DTI_MICROSECOND      = 133;
+    public static final int DTI_NANOSECOND       = 134;
+    public static final int DTI_TIMEZONE         = 135;
 
     // used where local defines are used in the same range as SQL type numbers
     public static final int SQL_TYPE_NUMBER_LIMIT = 256;
@@ -600,8 +617,10 @@ public class Types {
         javaTypeNumbers.put("java.time.LocalDate", Types.SQL_DATE);
         javaTypeNumbers.put("java.time.LocalTime", Types.SQL_TIME);
         javaTypeNumbers.put("java.time.LocalDateTime", Types.SQL_TIMESTAMP);
-        javaTypeNumbers.put("java.time.OffsetDateTime", Types.SQL_TIMESTAMP_WITH_TIME_ZONE);
-        javaTypeNumbers.put("java.time.OffsetTime", Types.SQL_TIME_WITH_TIME_ZONE);
+        javaTypeNumbers.put("java.time.OffsetDateTime",
+                            Types.SQL_TIMESTAMP_WITH_TIME_ZONE);
+        javaTypeNumbers.put("java.time.OffsetTime",
+                            Types.SQL_TIME_WITH_TIME_ZONE);
         javaTypeNumbers.put("java.time.Duration", Types.SQL_INTERVAL_SECOND);
         javaTypeNumbers.put("java.time.Period", Types.SQL_INTERVAL_MONTH);
 

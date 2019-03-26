@@ -82,28 +82,6 @@ import org.hsqldb.types.Types;
  */
 public class FunctionCustom extends FunctionSQL {
 
-    public static final String[] openGroupNumericFunctions = {
-        "ABS", "ACOS", "ASIN", "ATAN", "ATAN2", "BITAND", "BITOR", "BITXOR",
-        "CEILING", "COS", "COT", "DEGREES", "EXP", "FLOOR", "LOG", "LOG10",
-        "MOD", "PI", "POWER", "RADIANS", "RAND", "ROUND", "ROUNDMAGIC", "SIGN",
-        "SIN", "SQRT", "TAN", "TRUNCATE"
-    };
-    public static final String[] openGroupStringFunctions = {
-        "ASCII", "CHAR", "CONCAT", "DIFFERENCE", "HEXTORAW", "INSERT", "LCASE",
-        "LEFT", "LENGTH", "LOCATE", "LTRIM", "RAWTOHEX", "REPEAT", "REPLACE",
-        "RIGHT", "RTRIM", "SOUNDEX", "SPACE", "SUBSTR", "UCASE",
-    };
-    public static final String[] openGroupDateTimeFunctions = {
-        "CURDATE", "CURTIME", "DATEDIFF", "DAYNAME", "DAYOFMONTH", "DAYOFWEEK",
-        "DAYOFYEAR", "HOUR", "MINUTE", "MONTH", "MONTHNAME", "NOW", "QUARTER",
-        "SECOND", "SECONDS_SINCE_MIDNIGHT", "TIMESTAMPADD", "TIMESTAMPDIFF",
-        "TO_CHAR", "WEEK", "YEAR"
-    };
-    public static final String[] openGroupSystemFunctions = {
-        "DATABASE", "IFNULL", "USER"
-    };
-
-    //
     private static final int FUNC_ACOS                     = 71;
     private static final int FUNC_ACTION_ID                = 72;
     private static final int FUNC_ADD_MONTHS               = 73;

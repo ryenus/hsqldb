@@ -127,6 +127,11 @@ public final class JDBCUtil {
         return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, name);
     }
 
+    public static SQLException invalidArgument(int id) {
+        String message = Error.getMessage(id);
+        return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT, message);
+    }
+
     public static SQLException outOfRangeArgument() {
         return sqlException(ErrorCode.JDBC_INVALID_ARGUMENT);
     }

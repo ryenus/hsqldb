@@ -4463,7 +4463,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         Type hsqlType = Types.getParameterSQLType(type);
 
         if(hsqlType == null) {
-            throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42561));
+            throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
         Object source;
@@ -4596,7 +4596,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
 
         if (o == null) {
-            throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42561));
+            throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
         return (T) o;
@@ -5181,9 +5181,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
                 String msg = "from SQL type " + sourceType.getNameString()
                              + " to " + targetType.getJDBCClassName()
                              + ", value: " + stringValue;
-                HsqlException err = Error.error(ErrorCode.X_42561, msg);
 
-                throw JDBCUtil.sqlException(err, e);
+                throw JDBCUtil.sqlException(ErrorCode.X_42561, msg);
             }
         }
 

@@ -1812,8 +1812,8 @@ public class FunctionSQL extends Expression {
             case Types.SQL_INTERVAL_SECOND : {
                 return ((DTIType) nodes[1].dataType).getSecondPart(data[1]);
             }
-            case DTIType.MONTH_NAME :
-            case DTIType.DAY_NAME : {
+            case Types.DTI_MONTH_NAME :
+            case Types.DTI_DAY_NAME : {
                 return ((DateTimeType) nodes[1].dataType).getPartString(
                     session, data[1], part);
             }

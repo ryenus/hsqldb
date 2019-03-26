@@ -1646,13 +1646,13 @@ public final class IntervalType extends DTIType {
                 return part == startIntervalType ? (int) units
                                                  : (int) (units % 60);
             }
-            case MILLISECOND :
+            case Types.DTI_MILLISECOND :
                 return ((IntervalSecondData) interval).nanos / 1000000;
 
-            case MICROSECOND :
+            case Types.DTI_MICROSECOND :
                 return ((IntervalSecondData) interval).nanos / 1000;
 
-            case NANOSECOND :
+            case Types.DTI_NANOSECOND :
                 return ((IntervalSecondData) interval).nanos;
 
             default :

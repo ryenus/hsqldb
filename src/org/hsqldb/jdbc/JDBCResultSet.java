@@ -59,12 +59,10 @@ import org.hsqldb.ColumnBase;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
-import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringInputStream;
 import org.hsqldb.lib.java.JavaSystem;
-import org.hsqldb.map.BitMap;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
@@ -1657,8 +1655,13 @@ public class JDBCResultSet implements ResultSet {
                     return null;
                 }
 
-                boolean b = BitMap.isSet(bd.getBytes(), 0);
-                return b ? Boolean.TRUE
+                byte[] bytes = bd.getBytes();
+
+                if (bytes.length == 0) {
+                    return false;
+                }
+
+                return bytes[0] == 0 ? Boolean.TRUE
                          : Boolean.FALSE;
             }
             case Types.SQL_CLOB :
@@ -6823,7 +6826,7 @@ public class JDBCResultSet implements ResultSet {
         Type hsqlType = Types.getParameterSQLType(type);
 
         if(hsqlType == null) {
-            throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42561));
+            throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
         Object source = getColumnValue(columnIndex);
@@ -6909,7 +6912,7 @@ public class JDBCResultSet implements ResultSet {
             case "java.time.LocalTime": {
                 source = getColumnInType(columnIndex, hsqlType);
                 TimeData v = (TimeData) source;
-                o = LocalTime.ofNanoOfDay(v.getSeconds() * 1000_000_000L + v.getNanos());
+                o = LocalTime.ofNanoOfDay(v.getSeconds() * 1000000000L + v.getNanos());
                 break;
             }
             case "java.time.LocalDateTime": {
@@ -6961,7 +6964,7 @@ public class JDBCResultSet implements ResultSet {
         }
 
         if (o == null) {
-            throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42561));
+            throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
         return (T) o;
@@ -7193,7 +7196,7 @@ public class JDBCResultSet implements ResultSet {
         s %= 3600 * 24;
 
         ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
-        LocalTime lt = LocalTime.ofNanoOfDay(s * 1000_000_000L + v.getNanos());
+        LocalTime lt = LocalTime.ofNanoOfDay(s * 1000000000L + v.getNanos());
         return OffsetTime.of(lt, z);
     }
 

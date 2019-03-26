@@ -66,7 +66,7 @@ import org.hsqldb.rowio.RowOutputTextQuoted;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.7.0
  */
 public class TextCache extends DataFileCache {
@@ -98,13 +98,14 @@ public class TextCache extends DataFileCache {
         uncommittedCache = new LongKeyHashMap();
     }
 
-    protected void initParams(Database database, String fileSettingsString,
+    protected void initParams(Database database, String settingsString,
                               boolean defrag) {
 
-        this.database    = database;
-        fa               = FileUtil.getFileUtil();
-        textFileSettings = new TextFileSettings(database, fileSettingsString);
-        dataFileName     = textFileSettings.getFileName();
+        this.database = database;
+        fa            = FileUtil.getFileUtil();
+        textFileSettings = new TextFileSettings(database.getProperties(),
+                settingsString);
+        dataFileName = textFileSettings.getFileName();
 
         if (dataFileName == null) {
             throw Error.error(ErrorCode.X_S0501);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -334,7 +334,7 @@ public class FrameworkLogger {
         }
 
         InputStream istream = null;
-
+        Logger cmdlineLogger;
         try {
             LogManager lm = LogManager.getLogManager();
             String path =
@@ -353,7 +353,7 @@ public class FrameworkLogger {
 
                 lm.readConfiguration(istream);
 
-                Logger cmdlineLogger = Logger.getLogger("org.hsqldb.cmdline");
+                cmdlineLogger = Logger.getLogger("org.hsqldb.cmdline");
 
                 cmdlineLogger.addHandler(consoleHandler);
                 cmdlineLogger.setUseParentHandlers(false);

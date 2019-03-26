@@ -1542,7 +1542,7 @@ public final class DateTimeType extends DTIType {
                 break;
 
             case Types.SQL_INTERVAL_DAY :
-            case DAY_OF_MONTH :
+            case Types.DTI_DAY_OF_MONTH :
                 calendarPart = Calendar.DAY_OF_MONTH;
                 break;
 
@@ -1558,15 +1558,15 @@ public final class DateTimeType extends DTIType {
                 calendarPart = Calendar.SECOND;
                 break;
 
-            case DAY_OF_WEEK :
+            case Types.DTI_DAY_OF_WEEK :
                 calendarPart = Calendar.DAY_OF_WEEK;
                 break;
 
-            case WEEK_OF_YEAR :
+            case Types.DTI_WEEK_OF_YEAR :
                 calendarPart = Calendar.WEEK_OF_YEAR;
                 break;
 
-            case SECONDS_MIDNIGHT : {
+            case Types.DTI_SECONDS_MIDNIGHT : {
                 if (typeCode == Types.SQL_TIME
                         || typeCode == Types.SQL_TIME_WITH_TIME_ZONE) {}
                 else {
@@ -1581,41 +1581,41 @@ public final class DateTimeType extends DTIType {
 
                 return ((TimeData) dateTime).getSeconds();
             }
-            case TIMEZONE_HOUR :
+            case Types.DTI_TIMEZONE_HOUR :
                 if (typeCode == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
                     return ((TimestampData) dateTime).getZone() / 3600;
                 } else {
                     return ((TimeData) dateTime).getZone() / 3600;
                 }
-            case TIMEZONE_MINUTE :
+            case Types.DTI_TIMEZONE_MINUTE :
                 if (typeCode == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
                     return ((TimestampData) dateTime).getZone() / 60 % 60;
                 } else {
                     return ((TimeData) dateTime).getZone() / 60 % 60;
                 }
-            case TIMEZONE :
+            case Types.DTI_TIMEZONE :
                 if (typeCode == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
                     return ((TimestampData) dateTime).getZone() / 60;
                 } else {
                     return ((TimeData) dateTime).getZone() / 60;
                 }
-            case QUARTER :
+            case Types.DTI_QUARTER :
                 increment    = 1;
                 divisor      = 3;
                 calendarPart = Calendar.MONTH;
                 break;
 
-            case DAY_OF_YEAR :
+            case Types.DTI_DAY_OF_YEAR :
                 calendarPart = Calendar.DAY_OF_YEAR;
                 break;
 
-            case MILLISECOND :
+            case Types.DTI_MILLISECOND :
                 if (this.isDateOrTimestampType()) {
                     return ((TimestampData) dateTime).getNanos() / 1000000;
                 } else {
                     return ((TimeData) dateTime).getNanos() / 1000000;
                 }
-            case NANOSECOND :
+            case Types.DTI_NANOSECOND :
                 if (this.isDateOrTimestampType()) {
                     return ((TimestampData) dateTime).getNanos();
                 } else {
@@ -1731,11 +1731,11 @@ public final class DateTimeType extends DTIType {
 
         switch (part) {
 
-            case DAY_NAME :
+            case Types.DTI_DAY_NAME :
                 javaPattern = "EEEE";
                 break;
 
-            case MONTH_NAME :
+            case Types.DTI_MONTH_NAME :
                 javaPattern = "MMMM";
                 break;
         }
