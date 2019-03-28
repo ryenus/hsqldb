@@ -147,6 +147,8 @@ implements RowInputInterface {
                     schemaName    = scanner.getString();
                     statementType = StatementLineTypes.SET_SCHEMA_STATEMENT;
                 }
+
+                break;
             }
         }
     }

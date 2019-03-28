@@ -192,35 +192,44 @@ public class ScriptReaderText extends ScriptReaderBase {
                         break;
                     }
 
-                    if (statementType
-                            == StatementLineTypes.SET_SCHEMA_STATEMENT) {
-                        session.setSchema(currentSchema);
+                    switch (statementType) {
 
-                        tablename = null;
-                    } else if (statementType
-                               == StatementLineTypes.INSERT_STATEMENT) {
-                        if (!rowIn.getTableName().equals(tablename)) {
-                            inserter.finishTable();
+                        case StatementLineTypes.SET_SCHEMA_STATEMENT : {
+                            session.setSchema(currentSchema);
 
-                            tablename = rowIn.getTableName();
+                            tablename = null;
 
-                            String schema =
-                                session.getSchemaName(currentSchema);
-
-                            currentTable =
-                                database.schemaManager.getUserTable(tablename,
-                                    schema);
-                            currentStore =
-                                database.persistentStoreCollection.getStore(
-                                    currentTable);
+                            break;
                         }
+                        case StatementLineTypes.INSERT_STATEMENT : {
+                            if (!rowIn.getTableName().equals(tablename)) {
+                                inserter.finishTable();
 
-                        inserter.insert(currentTable, currentStore, rowData);
-                    } else {
-                        HsqlException e = Error.error(ErrorCode.GENERAL_ERROR,
-                                                      statement);
+                                tablename = rowIn.getTableName();
 
-                        throw e;
+                                String schema =
+                                    session.getSchemaName(currentSchema);
+
+                                currentTable =
+                                    database.schemaManager.getUserTable(
+                                        tablename, schema);
+                                currentStore =
+                                    database.persistentStoreCollection
+                                        .getStore(currentTable);
+                            }
+
+                            inserter.insert(currentTable, currentStore,
+                                            rowData);
+
+                            break;
+                        }
+                        default : {
+                            HsqlException e =
+                                Error.error(ErrorCode.GENERAL_ERROR,
+                                            statement);
+
+                            throw e;
+                        }
                     }
                 } catch (Throwable t) {
                     HsqlException e = getError(t, lineCount);
@@ -278,22 +287,22 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         statementType = rowIn.getStatementType();
 
-        if (statementType == StatementLineTypes.ANY_STATEMENT) {
-            rowData      = null;
-            currentTable = null;
+        switch (statementType) {
 
-            return;
-        } else if (statementType == StatementLineTypes.COMMIT_STATEMENT) {
-            rowData      = null;
-            currentTable = null;
+            case StatementLineTypes.ANY_STATEMENT :
+            case StatementLineTypes.COMMIT_STATEMENT : {
+                rowData      = null;
+                currentTable = null;
 
-            return;
-        } else if (statementType == StatementLineTypes.SET_SCHEMA_STATEMENT) {
-            rowData       = null;
-            currentTable  = null;
-            currentSchema = rowIn.getSchemaName();
+                return;
+            }
+            case StatementLineTypes.SET_SCHEMA_STATEMENT : {
+                rowData       = null;
+                currentTable  = null;
+                currentSchema = rowIn.getSchemaName();
 
-            return;
+                return;
+            }
         }
 
         String name   = rowIn.getTableName();
