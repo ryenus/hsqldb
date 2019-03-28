@@ -132,7 +132,8 @@ public class ScriptReaderText extends ScriptReaderBase {
                     break;
                 }
 
-                if (rowIn.getStatementType() == INSERT_STATEMENT) {
+                if (rowIn.getStatementType()
+                        == StatementLineTypes.INSERT_STATEMENT) {
                     isInsert = true;
 
                     break;
@@ -156,7 +157,8 @@ public class ScriptReaderText extends ScriptReaderBase {
                 } else if (cs.getType() == StatementTypes.CREATE_ROUTINE) {
 
                     // ignore legacy references
-                    if (result.getMainString().contains("org.hsqldb.Library")) {
+                    if (result.getMainString().contains(
+                            "org.hsqldb.Library")) {
                         continue;
                     }
                 }
@@ -190,11 +192,13 @@ public class ScriptReaderText extends ScriptReaderBase {
                         break;
                     }
 
-                    if (statementType == SET_SCHEMA_STATEMENT) {
+                    if (statementType
+                            == StatementLineTypes.SET_SCHEMA_STATEMENT) {
                         session.setSchema(currentSchema);
 
                         tablename = null;
-                    } else if (statementType == INSERT_STATEMENT) {
+                    } else if (statementType
+                               == StatementLineTypes.INSERT_STATEMENT) {
                         if (!rowIn.getTableName().equals(tablename)) {
                             inserter.finishTable();
 
@@ -263,7 +267,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             sessionNumber  = Integer.parseInt(statement.substring(3, endid));
             statement      = statement.substring(endid + 2);
             sessionChanged = true;
-            statementType  = SESSION_ID;
+            statementType  = StatementLineTypes.SESSION_ID;
 
             return;
         }
@@ -274,17 +278,17 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         statementType = rowIn.getStatementType();
 
-        if (statementType == ANY_STATEMENT) {
+        if (statementType == StatementLineTypes.ANY_STATEMENT) {
             rowData      = null;
             currentTable = null;
 
             return;
-        } else if (statementType == COMMIT_STATEMENT) {
+        } else if (statementType == StatementLineTypes.COMMIT_STATEMENT) {
             rowData      = null;
             currentTable = null;
 
             return;
-        } else if (statementType == SET_SCHEMA_STATEMENT) {
+        } else if (statementType == StatementLineTypes.SET_SCHEMA_STATEMENT) {
             rowData       = null;
             currentTable  = null;
             currentSchema = rowIn.getSchemaName();
@@ -301,7 +305,7 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         Type[] colTypes;
 
-        if (statementType == INSERT_STATEMENT) {
+        if (statementType == StatementLineTypes.INSERT_STATEMENT) {
             colTypes = currentTable.getColumnTypes();
         } else if (currentTable.hasPrimaryKey()) {
             colTypes = currentTable.getPrimaryKeyTypes();

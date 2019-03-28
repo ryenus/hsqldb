@@ -47,17 +47,10 @@ import org.hsqldb.persist.RowInsertInterface;
  */
 public abstract class ScriptReaderBase {
 
-    public static final int ANY_STATEMENT             = 1;
-    public static final int DELETE_STATEMENT          = 2;
-    public static final int INSERT_STATEMENT          = 3;
-    public static final int COMMIT_STATEMENT          = 4;
-    public static final int SESSION_ID                = 5;
-    public static final int SET_SCHEMA_STATEMENT      = 6;
-    public static final int SET_FILES_CHECK_STATEMENT = 7;
-    Database                database;
-    String                  fileNamePath;
-    long                    lineCount;
-    RowInsertInterface      inserter;
+    Database           database;
+    String             fileNamePath;
+    long               lineCount;
+    RowInsertInterface inserter;
 
     ScriptReaderBase(Database db, String fileName) {
         this.database     = db;

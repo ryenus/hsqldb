@@ -47,6 +47,7 @@ import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.trigger.Trigger;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 

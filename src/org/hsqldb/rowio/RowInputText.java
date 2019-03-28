@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -476,7 +476,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return s.equalsIgnoreCase(Tokens.T_TRUE) ? Boolean.TRUE
+        return s.equalsIgnoreCase("TRUE") ? Boolean.TRUE
                                                  : Boolean.FALSE;
     }
 

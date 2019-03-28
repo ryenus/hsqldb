@@ -285,17 +285,17 @@ public class RowOutputText extends RowOutputBase {
             case Types.SQL_CHAR :
                 writeString(s);
 
-                return;
+                break;
 
             case Types.SQL_VARCHAR :
                 writeVarString(s);
 
-                return;
+                break;
 
             default :
                 writeLongVarString(s);
 
-                return;
+                break;
         }
     }
 
