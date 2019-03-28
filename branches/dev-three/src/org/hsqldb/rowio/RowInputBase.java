@@ -145,7 +145,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
     /**
      *  reads row data from a stream using the JDBC types in colTypes
      *
-     * @param  colTypes
+     * @param  colTypes data types
      */
     public Object[] readData(Type[] colTypes) {
 

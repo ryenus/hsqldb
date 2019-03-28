@@ -44,7 +44,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.map.ValuePool;
-import org.hsqldb.scriptio.ScriptReaderBase;
+import org.hsqldb.scriptio.StatementLineTypes;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
@@ -97,7 +97,7 @@ implements RowInputInterface {
 
         scanner.reset(session, text);
 
-        statementType = ScriptReaderBase.ANY_STATEMENT;
+        statementType = StatementLineTypes.ANY_STATEMENT;
 
         scanner.scanNext();
 
@@ -106,7 +106,7 @@ implements RowInputInterface {
         switch (tokenType) {
 
             case Tokens.INSERT : {
-                statementType = ScriptReaderBase.INSERT_STATEMENT;
+                statementType = StatementLineTypes.INSERT_STATEMENT;
 
                 scanner.scanNext();
 
@@ -120,7 +120,7 @@ implements RowInputInterface {
                 break;
             }
             case Tokens.DELETE : {
-                statementType = ScriptReaderBase.DELETE_STATEMENT;
+                statementType = StatementLineTypes.DELETE_STATEMENT;
 
                 scanner.scanNext();
 
@@ -132,7 +132,7 @@ implements RowInputInterface {
                 break;
             }
             case Tokens.COMMIT : {
-                statementType = ScriptReaderBase.COMMIT_STATEMENT;
+                statementType = StatementLineTypes.COMMIT_STATEMENT;
 
                 break;
             }
@@ -141,14 +141,11 @@ implements RowInputInterface {
 
                 tokenType = scanner.getTokenType();
 
-                switch (tokenType) {
+                if (tokenType == Tokens.SCHEMA) {
+                    scanner.scanNext();
 
-                    case Tokens.SCHEMA : {
-                        scanner.scanNext();
-
-                        schemaName    = scanner.getString();
-                        statementType = ScriptReaderBase.SET_SCHEMA_STATEMENT;
-                    }
+                    schemaName    = scanner.getString();
+                    statementType = StatementLineTypes.SET_SCHEMA_STATEMENT;
                 }
             }
         }
@@ -199,7 +196,7 @@ implements RowInputInterface {
         if (!noSeparators) {
             scanner.scanNext();
 
-            if (statementType == ScriptReaderBase.DELETE_STATEMENT) {
+            if (statementType == StatementLineTypes.DELETE_STATEMENT) {
                 scanner.scanNext();
                 scanner.scanNext();
             }

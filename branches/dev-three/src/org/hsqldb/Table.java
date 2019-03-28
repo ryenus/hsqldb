@@ -53,6 +53,7 @@ import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.trigger.Trigger;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.Collation;
 import org.hsqldb.types.DateTimeType;

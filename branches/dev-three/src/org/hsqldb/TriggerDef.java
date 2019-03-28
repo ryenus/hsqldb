@@ -38,6 +38,7 @@ import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.trigger.Trigger;
 
 // peterhudson@users 20020130 - patch 478657 by peterhudson - triggers support
 // fredt@users 20020130 - patch 1.7.0 by fredt

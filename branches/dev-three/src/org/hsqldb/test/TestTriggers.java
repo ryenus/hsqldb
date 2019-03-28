@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.hsqldb.Trigger;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.trigger.Trigger;
 
 /**
  *
@@ -105,6 +105,10 @@ public class TestTriggers extends TestBase {
             e.printStackTrace();
             assertTrue(false);
         }
+    }
+
+    public void testTriggerCondition() {
+
     }
 
     private void openConnection() throws SQLException {

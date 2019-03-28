@@ -40,6 +40,7 @@ import org.hsqldb.navigator.RowSetNavigatorDataChangeMemory;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
+import org.hsqldb.trigger.Trigger;
 import org.hsqldb.types.Type;
 
 /**
