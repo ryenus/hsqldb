@@ -107,6 +107,9 @@ public interface PersistentStore {
     //
     void delete(Session session, Row row);
 
+    RowAction addDeleteActionToRow(Session session, Row row, int[] colMap,
+                                   boolean isMV);
+
     void indexRow(Session session, Row row);
 
     void commitRow(Session session, Row row, int changeAction, int txModel);

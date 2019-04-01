@@ -112,6 +112,10 @@ public class RowOutputBinary extends RowOutputBase {
         super.writeData(row, types);
     }
 
+    public long scaleFilePosition(long position) {
+        return (position + scale - 1) & (long) mask;
+    }
+
     public void setStorageSize(int size) {
         storageSize = size;
     }

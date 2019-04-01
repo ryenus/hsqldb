@@ -165,6 +165,11 @@ public abstract class SimpleStore implements PersistentStore {
 
     public void delete(Session session, Row row) {}
 
+    public RowAction addDeleteActionToRow(Session session, Row row,
+                                          int[] colMap, boolean isMV) {
+        return null;
+    }
+
     public CachedObject get(CachedObject object, RowInputInterface in) {
         return object;
     }

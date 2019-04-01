@@ -96,6 +96,10 @@ public class RowOutputTextLog extends RowOutputBase {
         this.writeBytes(o.toString());
     }
 
+    public long scaleFilePosition(long position) {
+        return position;
+    }
+
     public void setStorageSize(int size) {}
 
     public void writeEnd() {}
