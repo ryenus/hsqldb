@@ -37,8 +37,8 @@ import org.hsqldb.types.Type;
 
 public class TriggerClass implements Trigger {
 
-    static int   callCount;
-    static int[] callCounts = new int[12];
+    public static int   callCount;
+    public static int[] callCounts = new int[12];
 
     public void fire(int type, String trigName, String tabName,
                      Object[] oldRow, Object[] newRow) {

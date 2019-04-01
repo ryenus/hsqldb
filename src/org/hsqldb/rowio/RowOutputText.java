@@ -100,6 +100,10 @@ public class RowOutputText extends RowOutputBase {
         }
     }
 
+    public long scaleFilePosition(long pos) {
+        return pos;
+    }
+
     public void setStorageSize(int size) {}
 
     public void setMode(int mode) {}

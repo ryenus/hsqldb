@@ -49,8 +49,8 @@ import java.lang.reflect.InvocationTargetException;
 public class JavaSystem {
 
     public static final Charset CS_ISO_8859_1 = Charset.forName("ISO-8859-1");
-    public static final Charset CS_US_ASCII = Charset.forName("US-ASCII");
-    public static final Charset CS_UTF8 = Charset.forName("UTF-8");
+    public static final Charset CS_US_ASCII   = Charset.forName("US-ASCII");
+    public static final Charset CS_UTF8       = Charset.forName("UTF-8");
     private static int          javaVersion;
 
     static {
@@ -85,20 +85,23 @@ public class JavaSystem {
     }
 
 //#ifdef JAVA9
+    public static void unmap(MappedByteBuffer buffer) {
 
-        public static void unmap(MappedByteBuffer buffer) {
-
-            if (buffer == null) {
-                return;
-            }
-
-
-            try {
-                sun.misc.Unsafe unsafe = sun.misc.Unsafe.getUnsafe();
-
-                unsafe.invokeCleaner(buffer);
-            } catch (Throwable t) {}
+        if (buffer == null) {
+            return;
         }
+
+        try {
+
+            // sun.misc.Unsafe unsafe = sun.misc.Unsafe.getUnsafe();
+            // unsafe.invokeCleaner(buffer);
+            Class  cl     = Class.forName("sun.misc.Unsafe");
+            Method method = cl.getMethod("invokeCleaner");
+
+            method.setAccessible(true);
+            method.invoke(null, buffer);
+        } catch (Throwable t) {}
+    }
 
 //#else
 /*
@@ -114,9 +117,9 @@ public class JavaSystem {
             cleanerMethod.setAccessible(true);
 
             Object cleaner     = cleanerMethod.invoke(buffer);
-            Method clearMethod = cleaner.getClass().getMethod("clean");
+            Method cleanMethod = cleaner.getClass().getMethod("clean");
 
-            clearMethod.invoke(cleaner);
+            cleanMethod.invoke(cleaner);
         } catch (NoSuchMethodException e) {
 
             // no cleaner

@@ -36,7 +36,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.persist.PersistentStore;
-import org.hsqldb.persist.RowStoreAVL;
 
 /**
  * Manages rows involved in transactions
@@ -718,10 +717,8 @@ implements TransactionManager {
                                    PersistentStore store, Row row,
                                    int[] colMap) {
 
-        RowAction   action   = null;
-        RowStoreAVL rowstore = (RowStoreAVL) store;
-
-        action = rowstore.addDeleteActionToRow(session, row, colMap, true);
+        RowAction action = store.addDeleteActionToRow(session, row, colMap,
+            true);
 
         if (table.tableType == TableBase.TEMP_TABLE) {
             store.delete(session, row);
