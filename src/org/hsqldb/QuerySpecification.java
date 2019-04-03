@@ -1932,8 +1932,8 @@ public class QuerySpecification extends QueryExpression {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
-        int          limit;
+        StringBuilder sb = new StringBuilder();
+        int           limit;
 
         sb.append(Tokens.T_SELECT).append(' ');
 
@@ -2017,15 +2017,15 @@ public class QuerySpecification extends QueryExpression {
 
     public String describe(Session session, int blanks) {
 
-        StringBuffer sb;
-        String       temp;
-        StringBuffer b = new StringBuffer(blanks);
+        StringBuilder sb;
+        String        temp;
+        StringBuilder b = new StringBuilder(blanks);
 
         for (int i = 0; i < blanks; i++) {
             b.append(' ');
         }
 
-        sb = new StringBuffer();
+        sb = new StringBuilder();
 
         sb.append(b).append("isDistinctSelect=[").append(
             isDistinctSelect).append("]\n");

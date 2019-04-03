@@ -89,7 +89,7 @@ public class ExpressionArithmetic extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         switch (opType) {
 
@@ -152,7 +152,7 @@ public class ExpressionArithmetic extends Expression {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append('\n');
 

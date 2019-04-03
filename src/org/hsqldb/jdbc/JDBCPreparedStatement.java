@@ -2063,9 +2063,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public String toString() {
 
-        StringBuffer sb = new StringBuffer();
-        String       sql;
-        Object[]     pv;
+        StringBuilder sb = new StringBuilder();
+        String        sql;
+        Object[]      pv;
 
         sb.append(super.toString());
 

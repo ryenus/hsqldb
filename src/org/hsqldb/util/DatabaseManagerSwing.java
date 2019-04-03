@@ -1764,9 +1764,9 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
     private void testPerformance() {
 
-        String       all   = txtCommand.getText();
-        StringBuffer b     = new StringBuffer();
-        long         total = 0;
+        String        all   = txtCommand.getText();
+        StringBuilder b     = new StringBuilder();
+        long          total = 0;
 
         lTime = 0;
 
@@ -1871,7 +1871,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             }
         }
 
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
 
         for (int i = 0; i < width; i++) {
             b.append(col[i]);

@@ -353,7 +353,7 @@ import org.hsqldb.lib.StringConverter;
  * present. <p>
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 1.8.1.2
+ * @version 2.5.0
  * @since 1.7.2
  */
 public class LockFile {
@@ -1447,7 +1447,7 @@ public class LockFile {
      */
     public String toString() {
 
-        return new StringBuffer(super.toString()).append("[file =").append(
+        return new StringBuilder(super.toString()).append("[file =").append(
             cpath).append(", exists=").append(file.exists()).append(
             ", locked=").append(isLocked()).append(", valid=").append(
             isValid()).append(", ").append(toStringImpl()).append(

@@ -858,7 +858,7 @@ public class Logger implements EventLogInterface {
             }
 
             if (propSqlLogLevel == SimpleLog.LOG_RESULT) {
-                StringBuffer sb = new StringBuffer(values);
+                StringBuilder sb = new StringBuilder(values);
 
                 sb.append(' ').append('[');
 
@@ -1466,7 +1466,8 @@ public class Logger implements EventLogInterface {
             switch (database.defaultIsolationLevel) {
 
                 case SessionInterface.TX_READ_COMMITTED :
-                    value = new StringBuffer(Tokens.T_READ).append(' ').append(
+                    value = new StringBuilder(Tokens.T_READ).append(
+                        ' ').append(
                         Tokens.T_COMMITTED).toString().toLowerCase();
                     break;
 
@@ -1743,7 +1744,7 @@ public class Logger implements EventLogInterface {
     public String[] getPropertiesSQL(boolean indexRoots) {
 
         HsqlArrayList list = new HsqlArrayList();
-        StringBuffer  sb   = new StringBuffer();
+        StringBuilder sb   = new StringBuilder();
 
         sb.append("SET DATABASE ").append(Tokens.T_UNIQUE).append(' ');
         sb.append(Tokens.T_NAME).append(' ').append(database.getNameString());

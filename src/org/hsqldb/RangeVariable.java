@@ -1033,14 +1033,14 @@ public class RangeVariable {
      */
     public String describe(Session session, int blanks) {
 
-        StringBuffer sb;
-        StringBuffer b = new StringBuffer(blanks);
+        StringBuilder sb;
+        StringBuilder b = new StringBuilder(blanks);
 
         for (int i = 0; i < blanks; i++) {
             b.append(' ');
         }
 
-        sb = new StringBuffer();
+        sb = new StringBuilder();
 
         String temp = "INNER";
 
@@ -2176,8 +2176,8 @@ public class RangeVariable {
 
         String describe(Session session, int blanks) {
 
-            StringBuffer sb = new StringBuffer();
-            StringBuffer b  = new StringBuffer(blanks);
+            StringBuilder sb = new StringBuilder();
+            StringBuilder b  = new StringBuilder(blanks);
 
             for (int i = 0; i < blanks; i++) {
                 b.append(' ');

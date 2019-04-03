@@ -263,7 +263,7 @@ public final class DateTimeType extends DTIType {
                 throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
         }
 
-        StringBuffer sb = new StringBuffer(16);
+        StringBuilder sb = new StringBuilder(16);
 
         sb.append(token);
         sb.append('(');
@@ -1193,9 +1193,9 @@ public final class DateTimeType extends DTIType {
 
     public String convertToString(Object a) {
 
-        boolean      zone = false;
-        String       s;
-        StringBuffer sb;
+        boolean       zone = false;
+        String        s;
+        StringBuilder sb;
 
         if (a == null) {
             return null;
@@ -1218,7 +1218,7 @@ public final class DateTimeType extends DTIType {
                     return s;
                 }
 
-                sb = new StringBuffer(s);
+                sb = new StringBuilder(s);
                 s = Type.SQL_INTERVAL_HOUR_TO_MINUTE.intervalSecondToString(
                     ((TimeData) a).getZone(), 0, true);
 
@@ -1230,7 +1230,7 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP : {
                 TimestampData ts = (TimestampData) a;
 
-                sb = new StringBuffer();
+                sb = new StringBuilder();
 
                 HsqlDateTime.getTimestampString(sb,
                                                 ts.getSeconds()
@@ -1259,7 +1259,7 @@ public final class DateTimeType extends DTIType {
             return Tokens.T_NULL;
         }
 
-        StringBuffer sb = new StringBuffer(32);
+        StringBuilder sb = new StringBuilder(32);
 
         switch (typeCode) {
 

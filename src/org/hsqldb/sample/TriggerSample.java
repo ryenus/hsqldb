@@ -326,7 +326,7 @@ public class TriggerSample implements Trigger {
                                        int qs,
                                        String impl) throws SQLException {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append("CREATE TRIGGER ");
         sb.append(trn);
@@ -350,7 +350,7 @@ public class TriggerSample implements Trigger {
     public static String getTriggerDescriptor(String trn, int typ,
             String tab) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append("TRIGGER : ");
         sb.append(trn);

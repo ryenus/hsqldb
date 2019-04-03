@@ -758,15 +758,15 @@ public class QueryExpression implements RangeGroup {
     /** @todo 1.9.0 review */
     public String describe(Session session, int blanks) {
 
-        StringBuffer sb;
-        String       temp;
-        StringBuffer b = new StringBuffer(blanks);
+        StringBuilder sb;
+        String        temp;
+        StringBuilder b = new StringBuilder(blanks);
 
         for (int i = 0; i < blanks; i++) {
             b.append(' ');
         }
 
-        sb = new StringBuffer();
+        sb = new StringBuilder();
 
         switch (unionType) {
 

@@ -158,7 +158,7 @@ public final class ServerAcl {
 
         public String toString() {
 
-            StringBuffer sb = new StringBuffer("Addrs ");
+            StringBuilder sb = new StringBuilder("Addrs ");
 
             sb.append((value.length == 16)
                       ? ("[" + ServerAcl.colonNotation(value) + ']')
@@ -198,7 +198,7 @@ public final class ServerAcl {
      */
     public static String dottedNotation(byte[] uba) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < uba.length; i++) {
             if (i > 0) {
@@ -224,7 +224,7 @@ public final class ServerAcl {
                 "At this time .colonNotation only handles even byte quantities");
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < uba.length; i += 2) {
             if (i > 0) {
@@ -246,7 +246,7 @@ public final class ServerAcl {
 
     public String toString() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < aclEntries.size(); i++) {
             if (i > 0) {

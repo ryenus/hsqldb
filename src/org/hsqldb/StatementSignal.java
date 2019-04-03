@@ -60,7 +60,7 @@ public class StatementSignal extends Statement {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         switch (type) {
 
@@ -82,7 +82,7 @@ public class StatementSignal extends Statement {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append('\n');
 

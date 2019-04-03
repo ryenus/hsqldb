@@ -231,7 +231,7 @@ public class IndexAVL implements Index {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer(128);
+        StringBuilder sb = new StringBuilder(128);
 
         sb.append(Tokens.T_CREATE).append(' ');
 
@@ -467,7 +467,7 @@ public class IndexAVL implements Index {
             }
 
 /*
-            StringBuffer s = new StringBuffer();
+            StringBuilder s = new StringBuilder();
 
             s.append("count " + rowCount + " columns " + colIndex.length
                      + " selectivity " + changes[0]);

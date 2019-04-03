@@ -206,7 +206,7 @@ public class Charset implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_CREATE).append(' ').append(
             Tokens.T_CHARACTER).append(' ').append(Tokens.T_SET).append(' ');

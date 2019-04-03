@@ -196,7 +196,7 @@ public class UserTypeModifier {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         if (schemaObjectType == SchemaObject.TYPE) {
             sb.append(Tokens.T_CREATE).append(' ').append(

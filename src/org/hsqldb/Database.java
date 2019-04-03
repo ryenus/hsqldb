@@ -711,7 +711,7 @@ public class Database {
     public String[] getSettingsSQL() {
 
         HsqlArrayList list = new HsqlArrayList();
-        StringBuffer  sb   = new StringBuffer();
+        StringBuilder sb   = new StringBuilder();
 
         if (!getCatalogName().name.equals(
                 SqlInvariants.DEFAULT_CATALOG_NAME)) {

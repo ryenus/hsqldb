@@ -315,14 +315,16 @@ class ServerConnection implements Runnable {
             // Expected failures will have been handled (by sending feedback
             // to user-- with an output Result for normal protocols), then
             // continuing.
-            StringBuffer sb = new StringBuffer(mThread
-                                               + ":Failed to connect client.");
+            StringBuilder sb = new StringBuilder(mThread);
+
+            sb.append(":Failed to connect client.");
 
             if (user != null) {
                 sb.append("  User '").append(user).append("'.");
             }
 
-            server.printWithThread(sb.toString() + "  Stack trace follows.");
+            sb.append("  Stack trace follows.");
+            server.printWithThread(sb.toString());
             server.printStackTrace(e);
         }
     }

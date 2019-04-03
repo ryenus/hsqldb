@@ -161,7 +161,7 @@ public abstract class DTIType extends Type {
 
     String intervalSecondToString(long seconds, int nanos, boolean signed) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         if (seconds < 0) {
             seconds = -seconds;

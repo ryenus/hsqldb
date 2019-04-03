@@ -71,9 +71,9 @@ public class ExpressionAggregate extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb   = new StringBuffer(64);
-        String       left = getContextSQL(nodes.length > 0 ? nodes[LEFT]
-                                                           : null);
+        StringBuilder sb   = new StringBuilder(64);
+        String        left = getContextSQL(nodes.length > 0 ? nodes[LEFT]
+                                                            : null);
 
         switch (opType) {
 
@@ -142,7 +142,7 @@ public class ExpressionAggregate extends Expression {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append('\n');
 

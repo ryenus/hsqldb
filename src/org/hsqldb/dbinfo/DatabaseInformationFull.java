@@ -1183,8 +1183,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[it_waited]  = "";
 
             if (s.waitingSessions.size() > 0) {
-                StringBuffer sb    = new StringBuffer();
-                Session[]    array = new Session[s.waitingSessions.size()];
+                StringBuilder sb    = new StringBuilder();
+                Session[]     array = new Session[s.waitingSessions.size()];
 
                 s.waitingSessions.toArray(array);
 
@@ -1200,8 +1200,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             }
 
             if (s.waitedSessions.size() > 0) {
-                StringBuffer sb    = new StringBuffer();
-                Session[]    array = new Session[s.waitedSessions.size()];
+                StringBuilder sb    = new StringBuilder();
+                Session[]     array = new Session[s.waitedSessions.size()];
 
                 s.waitedSessions.toArray(array);
 

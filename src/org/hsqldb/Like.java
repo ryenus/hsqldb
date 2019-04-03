@@ -131,13 +131,13 @@ class Like implements Cloneable {
                             : "";
         }
 
-        StringBuffer              sb = null;
+        StringBuilder             sb = null;
         HsqlByteArrayOutputStream os = null;
 
         if (isBinary) {
             os = new HsqlByteArrayOutputStream();
         } else {
-            sb = new StringBuffer();
+            sb = new StringBuilder();
         }
 
         int i = 0;
@@ -194,7 +194,7 @@ class Like implements Cloneable {
             if (o instanceof char[]) {
                 c = ((char[]) o)[i];
             } else if (o instanceof ClobData) {
-                c = ((ClobData)o).getChars(session,i,1)[0];
+                c = ((ClobData) o).getChars(session, i, 1)[0];
             } else {
                 c = ((String) o).charAt(i);
             }
@@ -409,7 +409,7 @@ class Like implements Cloneable {
 
     public String describe(Session session) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(super.toString()).append("[\n");
         sb.append("escapeChar=").append(escapeChar).append('\n');

@@ -99,7 +99,7 @@ public final class ClobType extends CharacterType {
             }
         }
 
-        StringBuffer sb = new StringBuffer(16);
+        StringBuilder sb = new StringBuilder(16);
 
         sb.append(getNameString());
         sb.append('(');

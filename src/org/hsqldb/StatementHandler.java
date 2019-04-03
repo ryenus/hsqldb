@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -176,8 +176,8 @@ public class StatementHandler extends Statement {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer(64);
-        String       s;
+        StringBuilder sb = new StringBuilder(64);
+        String        s;
 
         s = handlerType == CONTINUE ? Tokens.T_CONTINUE
                                     : handlerType == EXIT ? Tokens.T_EXIT

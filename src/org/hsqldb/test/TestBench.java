@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1104,7 +1104,7 @@ class TestBench {
 
                         // needs to uncomment top block
                         if (newBalance != aBalance + delta) {
-                            newBalance = newBalance;
+                            long temp = newBalance;
 
                             System.out.println("error - not updated " + aid);
                         }

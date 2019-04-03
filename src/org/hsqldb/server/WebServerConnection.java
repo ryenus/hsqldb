@@ -490,7 +490,7 @@ class WebServerConnection implements Runnable {
     String getHead(String responseCodeString, boolean addInfo,
                    String mimeType, int length) {
 
-        StringBuffer sb = new StringBuffer(128);
+        StringBuilder sb = new StringBuilder(128);
 
         sb.append(responseCodeString).append("\r\n");
 

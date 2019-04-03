@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ abstract class BaseList {
 
     public boolean contains(Object o) {
         return indexOf(o) == -1 ? false
-                             : true;
+                                : true;
     }
 
     public boolean remove(Object o) {
@@ -103,7 +103,8 @@ abstract class BaseList {
 
     public boolean addAll(Object[] array) {
 
-        boolean  result = false;
+        boolean result = false;
+
         for (int i = 0; i < array.length; i++) {
             result = true;
 
@@ -120,7 +121,7 @@ abstract class BaseList {
     /** Returns a string representation */
     public String toString() {
 
-        StringBuffer sb = new StringBuffer(32 + elementCount * 3);
+        StringBuilder sb = new StringBuilder(32 + elementCount * 3);
 
         sb.append("List : size=");
         sb.append(elementCount);

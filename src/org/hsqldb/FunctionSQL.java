@@ -1828,7 +1828,7 @@ public class FunctionSQL extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         switch (funcType) {
 
@@ -2140,7 +2140,7 @@ public class FunctionSQL extends Expression {
      */
     public String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append('\n');
 

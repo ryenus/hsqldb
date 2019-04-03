@@ -1081,8 +1081,6 @@ class JDBCBench {
 
         public void reset() {
 
-            System.gc();
-
             long currentFree  = Runtime.getRuntime().freeMemory();
             long currentAlloc = Runtime.getRuntime().totalMemory();
 

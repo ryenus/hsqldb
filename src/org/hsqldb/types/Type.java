@@ -149,10 +149,9 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     /**
      *  Retrieves the SQL character sequence required to (re)create the
-     *  trigger, as a StringBuffer
+     *  type, as a String
      *
-     * @return the SQL character sequence required to (re)create the
-     *  trigger
+     * @return the SQL character sequence required to (re)create the type
      */
     public String getSQL() {
 

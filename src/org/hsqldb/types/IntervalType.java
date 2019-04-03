@@ -255,7 +255,7 @@ public final class IntervalType extends DTIType {
             return getNameString();
         }
 
-        StringBuffer sb = new StringBuffer(32);
+        StringBuilder sb = new StringBuilder(32);
 
         sb.append(Tokens.T_INTERVAL).append(' ');
         sb.append(getQualifier(startIntervalType));
@@ -719,7 +719,7 @@ public final class IntervalType extends DTIType {
             return Tokens.T_NULL;
         }
 
-        StringBuffer sb = new StringBuffer(32);
+        StringBuilder sb = new StringBuilder(32);
 
         sb.append(Tokens.T_INTERVAL).append(' ');
         sb.append('\'').append(convertToString(a)).append('\'').append(' ');
@@ -1083,8 +1083,8 @@ public final class IntervalType extends DTIType {
 
     String intervalMonthToString(Object a) {
 
-        StringBuffer sb     = new StringBuffer(8);
-        long         months = ((IntervalMonthData) a).units;
+        StringBuilder sb     = new StringBuilder(8);
+        long          months = ((IntervalMonthData) a).units;
 
         if (months < 0) {
             months = -months;

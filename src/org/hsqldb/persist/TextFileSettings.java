@@ -292,11 +292,11 @@ public class TextFileSettings {
         int next = sep.indexOf(BACKSLASH_CHAR);
 
         if (next != -1) {
-            int          start    = 0;
-            char[]       sepArray = sep.toCharArray();
-            char         ch       = 0;
-            int          len      = sep.length();
-            StringBuffer sb       = new StringBuffer(len);
+            int           start    = 0;
+            char[]        sepArray = sep.toCharArray();
+            char          ch       = 0;
+            int           len      = sep.length();
+            StringBuilder sb       = new StringBuilder(len);
 
             do {
                 sb.append(sepArray, start, next - start);

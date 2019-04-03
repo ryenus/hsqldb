@@ -197,9 +197,9 @@ public class Error {
      */
     private static String insertStrings(String message, Object[] add) {
 
-        StringBuffer sb        = new StringBuffer(message.length() + 32);
-        int          lastIndex = 0;
-        int          escIndex  = message.length();
+        StringBuilder sb        = new StringBuilder(message.length() + 32);
+        int           lastIndex = 0;
+        int           escIndex  = message.length();
 
         // removed test: i < add.length
         // because if mainErrorMessage is equal to "blabla $$"

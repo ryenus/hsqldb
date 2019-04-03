@@ -213,7 +213,7 @@ public class RoutineSchema implements SchemaObject {
         Routine routine = findSpecificRoutine(types);
 
         if (routine == null) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             sb.append(name.getSchemaQualifiedStatementName());
             sb.append(Tokens.T_OPENBRACKET);

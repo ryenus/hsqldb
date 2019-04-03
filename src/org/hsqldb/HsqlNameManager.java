@@ -211,8 +211,7 @@ public final class HsqlNameManager {
     public HsqlName newAutoName(String prefix, HsqlName schema,
                                 HsqlName parent, int type) {
 
-        HsqlName name = newAutoName(prefix, (String) null, schema, parent,
-                                    type);
+        HsqlName name = newAutoName(prefix, null, schema, parent, type);
 
         return name;
     }
@@ -244,7 +243,7 @@ public final class HsqlNameManager {
 
     public HsqlName newSpecificRoutineName(HsqlName name) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(name.name).append('_').append(sysNumber.incrementAndGet());
 
@@ -282,7 +281,7 @@ public final class HsqlNameManager {
 
     public static String getAutoSavepointNameString(long i, int j) {
 
-        StringBuffer sb = new StringBuffer("S");
+        StringBuilder sb = new StringBuilder("S");
 
         sb.append(i).append('_').append(j);
 
@@ -295,7 +294,7 @@ public final class HsqlNameManager {
     public HsqlName newAutoName(String prefix, String namepart,
                                 HsqlName schema, HsqlName parent, int type) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         if (prefix != null) {
             if (prefix.length() != 0) {
@@ -430,7 +429,7 @@ public final class HsqlNameManager {
                         return statementName;
                     }
 
-                    StringBuffer sb = new StringBuffer();
+                    StringBuilder sb = new StringBuilder();
 
                     if (schema != null) {
                         sb.append(schema.getStatementName());
@@ -450,7 +449,7 @@ public final class HsqlNameManager {
                 return statementName;
             }
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             sb.append(schema.getStatementName());
             sb.append('.');
@@ -494,7 +493,7 @@ public final class HsqlNameManager {
 
         void rename(String prefix, String name, boolean isquoted) {
 
-            StringBuffer sbname = new StringBuffer(prefix);
+            StringBuilder sbname = new StringBuilder(prefix);
 
             sbname.append('_');
             sbname.append(name);

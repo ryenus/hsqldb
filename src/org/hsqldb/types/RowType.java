@@ -96,7 +96,7 @@ public class RowType extends Type {
 
     public String getNameString() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_ROW);
         sb.append('(');
@@ -225,8 +225,8 @@ public class RowType extends Type {
             return Tokens.T_NULL;
         }
 
-        Object[]     array = (Object[]) a;
-        StringBuffer sb    = new StringBuffer();
+        Object[]      array = (Object[]) a;
+        StringBuilder sb    = new StringBuilder();
 
         sb.append(Tokens.T_ROW);
         sb.append('(');
@@ -382,6 +382,7 @@ public class RowType extends Type {
 
         for (int i = 0; i < length; i++) {
             int pos = sort.sortOrder[i];
+
             a = arra[pos];
             b = arrb[pos];
 
@@ -478,7 +479,7 @@ public class RowType extends Type {
             return Tokens.T_NULL;
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append('(');
 

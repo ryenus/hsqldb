@@ -200,11 +200,11 @@ public class ExpressionOp extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb    = new StringBuffer(64);
-        String       left  = getContextSQL(nodes.length > 0 ? nodes[LEFT]
-                                                            : null);
-        String       right = getContextSQL(nodes.length > 1 ? nodes[RIGHT]
-                                                            : null);
+        StringBuilder sb    = new StringBuilder(64);
+        String        left  = getContextSQL(nodes.length > 0 ? nodes[LEFT]
+                                                             : null);
+        String        right = getContextSQL(nodes.length > 1 ? nodes[RIGHT]
+                                                             : null);
 
         switch (opType) {
 
@@ -290,7 +290,7 @@ public class ExpressionOp extends Expression {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append('\n');
 
@@ -888,8 +888,8 @@ public class ExpressionOp extends Expression {
                     return null;
                 }
 
-                StringBuffer sb       = new StringBuffer();
-                boolean      hasValue = false;
+                StringBuilder sb       = new StringBuilder();
+                boolean       hasValue = false;
 
                 for (int i = 1; i < nodes.length; i++) {
                     String value = (String) nodes[i].getValue(session);
@@ -929,8 +929,8 @@ public class ExpressionOp extends Expression {
                                    : ((IntervalType) nodes[RIGHT].dataType)
                                        .getSeconds(rightValue);
 
-                return ((DateTimeType) dataType).changeZone(session, leftValue,
-                        nodes[LEFT].dataType, (int) zoneSeconds,
+                return ((DateTimeType) dataType).changeZone(session,
+                        leftValue, nodes[LEFT].dataType, (int) zoneSeconds,
                         session.getZoneSeconds());
             }
             case OpTypes.LIMIT :

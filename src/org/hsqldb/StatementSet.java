@@ -227,7 +227,7 @@ public class StatementSet extends StatementDMQL {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         switch (operationType) {
 
@@ -251,7 +251,7 @@ public class StatementSet extends StatementDMQL {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append('\n');
 
