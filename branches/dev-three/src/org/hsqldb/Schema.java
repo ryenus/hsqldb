@@ -129,7 +129,7 @@ public final class Schema implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer(128);
+        StringBuilder sb = new StringBuilder(128);
 
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_SCHEMA).append(' ');
@@ -142,7 +142,7 @@ public final class Schema implements SchemaObject {
 
     static String getSetSchemaSQL(HsqlName schemaName) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_SCHEMA).append(' ');
@@ -209,8 +209,8 @@ public final class Schema implements SchemaObject {
             Routine routine = (Routine) it.next();
 
             if (routine.dataImpact == Routine.NO_SQL
-                    || routine.dataImpact == Routine.CONTAINS_SQL ||
-                    routine.language == Routine.LANGUAGE_JAVA) {
+                    || routine.dataImpact == Routine.CONTAINS_SQL
+                    || routine.language == Routine.LANGUAGE_JAVA) {
                 unresolved.add(routine);
             }
         }
@@ -360,7 +360,7 @@ public final class Schema implements SchemaObject {
     ReferenceObject findReference(String name, int type) {
 
         ReferenceObject ref = (ReferenceObject) referenceList.get(name);
-        int targetType;
+        int             targetType;
 
         if (ref == null) {
             return null;
@@ -378,8 +378,8 @@ public final class Schema implements SchemaObject {
                 if (targetType == SchemaObject.VIEW) {
                     return ref;
                 }
-
                 break;
+
             case SchemaObject.ROUTINE :
                 if (targetType == SchemaObject.FUNCTION
                         || targetType == SchemaObject.PROCEDURE) {

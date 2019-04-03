@@ -1628,7 +1628,7 @@ public class DataFileCache {
     private void logSevereEvent(String message, Throwable t, long position) {
 
         if (logEvents) {
-            StringBuffer sb = new StringBuffer(message);
+            StringBuilder sb = new StringBuilder(message);
 
             sb.append(' ').append(position);
 

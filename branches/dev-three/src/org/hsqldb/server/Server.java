@@ -1408,7 +1408,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
             return;
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(cid);
         sb.append(':');
@@ -1878,7 +1878,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
                 if (candidateAddrs.length > 0) {
                     messageID = ErrorCode.M_SERVER_OPEN_SERVER_SOCKET_1;
 
-                    StringBuffer sb = new StringBuffer();
+                    StringBuilder sb = new StringBuilder();
 
                     for (int i = 0; i < candidateAddrs.length; i++) {
                         if (sb.length() > 0) {

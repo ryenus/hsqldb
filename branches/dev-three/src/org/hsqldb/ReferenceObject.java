@@ -89,7 +89,7 @@ public class ReferenceObject implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_CREATE).append(' ').append(Tokens.T_SYNONYM);
         sb.append(' ').append(name.getSchemaQualifiedStatementName());

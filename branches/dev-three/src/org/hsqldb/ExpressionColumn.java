@@ -424,8 +424,8 @@ public class ExpressionColumn extends Expression {
                                 String message = getColumnName();
 
                                 if (alias != null) {
-                                    StringBuffer sb =
-                                        new StringBuffer(message);
+                                    StringBuilder sb =
+                                        new StringBuilder(message);
 
                                     sb.append(' ').append(Tokens.T_AS).append(
                                         ' ').append(alias.getStatementName());
@@ -760,7 +760,7 @@ public class ExpressionColumn extends Expression {
                 return column.getName().statementName;
 
             case OpTypes.ROWNUM : {
-                StringBuffer sb = new StringBuffer(Tokens.T_ROWNUM);
+                StringBuilder sb = new StringBuilder(Tokens.T_ROWNUM);
 
                 sb.append('(').append(')');
 
@@ -775,7 +775,7 @@ public class ExpressionColumn extends Expression {
                             return columnName;
                         }
 
-                        StringBuffer sb = new StringBuffer();
+                        StringBuilder sb = new StringBuilder();
 
                         sb.append(tableName);
                         sb.append('.');
@@ -788,7 +788,7 @@ public class ExpressionColumn extends Expression {
                 if (rangeVariable.tableAlias == null) {
                     return column.getName().getSchemaQualifiedStatementName();
                 } else {
-                    StringBuffer sb = new StringBuffer();
+                    StringBuilder sb = new StringBuilder();
 
                     sb.append(rangeVariable.tableAlias.getStatementName());
                     sb.append('.');
@@ -802,7 +802,7 @@ public class ExpressionColumn extends Expression {
                     return "*";
                 }
 
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 for (int i = 0; i < nodes.length; i++) {
                     Expression e = nodes[i];
@@ -826,7 +826,7 @@ public class ExpressionColumn extends Expression {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         for (int i = 0; i < blanks; i++) {
             sb.append(' ');
@@ -918,7 +918,7 @@ public class ExpressionColumn extends Expression {
             Expression e = (Expression) set.get(0);
 
             if (e instanceof ExpressionColumn) {
-                StringBuffer     sb = new StringBuffer();
+                StringBuilder    sb = new StringBuilder();
                 ExpressionColumn c  = (ExpressionColumn) e;
 
                 if (c.schema != null) {

@@ -350,7 +350,7 @@ public final class NumberType extends Type {
 
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
-                StringBuffer sb = new StringBuffer(16);
+                StringBuilder sb = new StringBuilder(16);
 
                 sb.append(getNameString());
                 sb.append('(');

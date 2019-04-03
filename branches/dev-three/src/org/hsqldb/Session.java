@@ -2190,7 +2190,7 @@ public class Session implements SessionInterface {
     SimpleDateFormat simpleDateFormatGMT;
     Random           randomGenerator = new Random();
     long             seed            = -1;
-    public final int randomId        = randomGenerator.nextInt();
+    public final int randomId = randomGenerator.nextInt(Integer.MAX_VALUE);
 
     //
     public TypedComparator getComparator() {
@@ -2262,7 +2262,7 @@ public class Session implements SessionInterface {
 
     String getStartTransactionSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_START).append(' ').append(Tokens.T_TRANSACTION);
 
@@ -2276,7 +2276,7 @@ public class Session implements SessionInterface {
 
     String getTransactionIsolationSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TRANSACTION);
         sb.append(' ');
@@ -2287,7 +2287,7 @@ public class Session implements SessionInterface {
 
     String getSessionIsolationSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_SESSION);
         sb.append(' ').append(Tokens.T_CHARACTERISTICS).append(' ');
@@ -2298,7 +2298,7 @@ public class Session implements SessionInterface {
         return sb.toString();
     }
 
-    static void appendIsolationSQL(StringBuffer sb, int isolationLevel) {
+    static void appendIsolationSQL(StringBuilder sb, int isolationLevel) {
 
         sb.append(Tokens.T_ISOLATION).append(' ');
         sb.append(Tokens.T_LEVEL).append(' ');
@@ -2311,7 +2311,7 @@ public class Session implements SessionInterface {
 
             case SessionInterface.TX_READ_UNCOMMITTED :
             case SessionInterface.TX_READ_COMMITTED :
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 sb.append(Tokens.T_READ).append(' ');
                 sb.append(Tokens.T_COMMITTED);

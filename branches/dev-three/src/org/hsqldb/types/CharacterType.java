@@ -176,7 +176,7 @@ public class CharacterType extends Type {
             return getNameString();
         }
 
-        StringBuffer sb = new StringBuffer(16);
+        StringBuilder sb = new StringBuilder(16);
 
         sb.append(getNameString());
         sb.append('(');

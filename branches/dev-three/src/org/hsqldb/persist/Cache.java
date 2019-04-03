@@ -445,8 +445,8 @@ public class Cache extends BaseHashMap {
 
     void logSaveRowsEvent(int saveCount, long storageSize, long startTime) {
 
-        long         time = saveAllTimer.elapsedTime();
-        StringBuffer sb   = new StringBuffer();
+        long          time = saveAllTimer.elapsedTime();
+        StringBuilder sb   = new StringBuilder();
 
         sb.append("cache save rows total [count,time] ");
         sb.append(saveRowCount + saveCount);

@@ -765,7 +765,7 @@ public final class Right {
      */
     String getTableRightsSQL(Table table) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         if (isFull) {
             return Tokens.T_ALL;
@@ -823,7 +823,7 @@ public final class Right {
     }
 
     private static void getColumnList(Table t, OrderedHashSet set,
-                                      StringBuffer buf) {
+                                      StringBuilder buf) {
 
         int       count        = 0;
         boolean[] colCheckList = t.getNewColumnCheckList();

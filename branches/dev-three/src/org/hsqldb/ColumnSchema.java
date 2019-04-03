@@ -158,7 +158,7 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         switch (parameterMode) {
 

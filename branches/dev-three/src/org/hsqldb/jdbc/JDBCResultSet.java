@@ -1661,8 +1661,8 @@ public class JDBCResultSet implements ResultSet {
                     return false;
                 }
 
-                return bytes[0] == 0 ? Boolean.TRUE
-                         : Boolean.FALSE;
+                return bytes[0] == 0 ? Boolean.FALSE
+                                     : Boolean.TRUE;
             }
             case Types.SQL_CLOB :
                 return getClob(columnIndex);
@@ -1849,7 +1849,7 @@ public class JDBCResultSet implements ResultSet {
                     continue;
                 }
 
-                String match = new StringBuffer(schemName).append('.').append(
+                String match = new StringBuilder(schemName).append('.').append(
                     tabName).append('.').append(colName).toString();
 
                 if (columnLabel.equalsIgnoreCase(match)) {

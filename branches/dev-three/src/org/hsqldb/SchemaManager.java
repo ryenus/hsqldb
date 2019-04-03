@@ -2590,7 +2590,7 @@ public class SchemaManager {
             }
 
             if (defaultSchemaHsqlName != null) {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 sb.append(Tokens.T_SET).append(' ').append(Tokens.T_DATABASE);
                 sb.append(' ').append(Tokens.T_DEFAULT).append(' ');
@@ -2720,7 +2720,7 @@ public class SchemaManager {
         try {
             HsqlArrayList tableList = getAllTables(false);
             HsqlArrayList list      = new HsqlArrayList();
-            StringBuffer  sb        = new StringBuffer();
+            StringBuilder sb        = new StringBuilder();
 
             for (int i = 0; i < tableList.size(); i++) {
                 Table table = (Table) tableList.get(i);

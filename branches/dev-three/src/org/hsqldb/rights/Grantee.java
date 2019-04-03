@@ -165,7 +165,7 @@ public class Grantee implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_CREATE).append(' ').append(Tokens.T_ROLE);
         sb.append(' ').append(granteeName.statementName);
@@ -1100,7 +1100,7 @@ public class Grantee implements SchemaObject {
 
     private String roleMapToString(OrderedHashSet roles) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < roles.size(); i++) {
             if (sb.length() > 0) {
@@ -1121,7 +1121,7 @@ public class Grantee implements SchemaObject {
         String        roleString = roleMapToString(roles);
 
         if (roleString.length() != 0) {
-            StringBuffer sb = new StringBuffer(128);
+            StringBuilder sb = new StringBuilder(128);
 
             sb.append(Tokens.T_GRANT).append(' ').append(roleString);
             sb.append(' ').append(Tokens.T_TO).append(' ');
@@ -1137,9 +1137,9 @@ public class Grantee implements SchemaObject {
             Iterator rights     = rightsMap.get(nameObject);
 
             while (rights.hasNext()) {
-                Right        right    = (Right) rights.next();
-                StringBuffer sb       = new StringBuffer(128);
-                HsqlName     hsqlname = (HsqlName) nameObject;
+                Right         right    = (Right) rights.next();
+                StringBuilder sb       = new StringBuilder(128);
+                HsqlName      hsqlname = (HsqlName) nameObject;
 
                 switch (hsqlname.type) {
 
@@ -1160,7 +1160,7 @@ public class Grantee implements SchemaObject {
 
                             Expression expr = right.getFilterExpression();
 
-                            if ( expr != null) {
+                            if (expr != null) {
                                 sb.append(' ').append(Tokens.T_FILTER);
                                 sb.append(Tokens.T_OPENBRACKET);
                                 sb.append(Tokens.T_WHERE).append(' ');

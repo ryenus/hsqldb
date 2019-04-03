@@ -377,12 +377,12 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      */
     private String toStringImpl() throws Exception {
 
-        StringBuffer sb;
-        Method[]     methods;
-        Method       method;
-        int          count;
+        StringBuilder sb;
+        Method[]      methods;
+        Method        method;
+        int           count;
 
-        sb = new StringBuffer();
+        sb = new StringBuilder();
 
         sb.append(super.toString());
 

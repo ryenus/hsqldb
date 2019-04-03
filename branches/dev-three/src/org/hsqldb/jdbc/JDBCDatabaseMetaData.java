@@ -2827,7 +2827,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_PROCEDURES").append(and("PROCEDURE_CAT",
                 "=", catalog)).append(and("PROCEDURE_SCHEM", "LIKE",
                     schemaPattern)).append(and("PROCEDURE_NAME", "LIKE",
@@ -3003,7 +3003,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuffer select = toQueryPrefix("SYSTEM_PROCEDURECOLUMNS").append(
+        StringBuilder select = toQueryPrefix("SYSTEM_PROCEDURECOLUMNS").append(
             and("PROCEDURE_CAT", "=", catalog)).append(
             and("PROCEDURE_SCHEM", "LIKE", schemaPattern)).append(
             and("PROCEDURE_NAME", "LIKE", procedureNamePattern)).append(
@@ -3096,7 +3096,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_TABLES").append(and("TABLE_CAT", "=",
                 catalog)).append(and("TABLE_SCHEM", "LIKE",
                                      schemaPattern)).append(and("TABLE_NAME",
@@ -3372,7 +3372,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuffer select = toQueryPrefix("SYSTEM_COLUMNS").append(
+        StringBuilder select = toQueryPrefix("SYSTEM_COLUMNS").append(
             and("TABLE_CAT", "=", catalog)).append(
             and("TABLE_SCHEM", "LIKE", schemaPattern)).append(
             and("TABLE_NAME", "LIKE", tableNamePattern)).append(
@@ -3659,7 +3659,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
 
         Integer Nullable = (nullable) ? null
                                       : INT_COLUMNS_NO_NULLS;
-        StringBuffer select =
+        StringBuilder select =
                 toQueryPrefix("SYSTEM_BESTROWIDENTIFIER").append(and("TABLE_CAT",
                         "=", catalog)).append(and("TABLE_SCHEM", "=",
                         schema)).append(and("TABLE_NAME", "=",
@@ -3744,7 +3744,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_VERSIONCOLUMNS").append(and("TABLE_CAT",
                 "=", catalog)).append(and("TABLE_SCHEM", "=",
                     schema)).append(and("TABLE_NAME", "=", table));
@@ -3813,7 +3813,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_PRIMARYKEYS").append(and("TABLE_CAT", "=",
                 catalog)).append(and("TABLE_SCHEM", "=",
                                      schema)).append(and("TABLE_NAME", "=",
@@ -3929,7 +3929,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        StringBuffer select = toQueryPrefix("SYSTEM_CROSSREFERENCE").append(
+        StringBuilder select = toQueryPrefix("SYSTEM_CROSSREFERENCE").append(
             and("FKTABLE_CAT", "=", catalog)).append(
             and("FKTABLE_SCHEM", "=", schema)).append(
             and("FKTABLE_NAME", "=", table)).append(
@@ -4045,7 +4045,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_CROSSREFERENCE").append(and("PKTABLE_CAT",
                 "=", catalog)).append(and("PKTABLE_SCHEM", "=",
                     schema)).append(and("PKTABLE_NAME", "=", table));
@@ -4178,7 +4178,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         parentSchema   = translateSchema(parentSchema);
         foreignSchema  = translateSchema(foreignSchema);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_CROSSREFERENCE").append(and("PKTABLE_CAT",
                 "=", parentCatalog)).append(and("PKTABLE_SCHEM", "=",
                     parentSchema)).append(and("PKTABLE_NAME", "=",
@@ -4365,7 +4365,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
 
         Boolean nu = (unique) ? Boolean.FALSE
                               : null;
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_INDEXINFO").append(and("TABLE_CAT", "=",
                 catalog)).append(and("TABLE_SCHEM", "=",
                                      schema)).append(and("TABLE_NAME", "=",
@@ -4736,7 +4736,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_UDTS").append(and("TYPE_CAT", "=",
                 catalog)).append(and("TYPE_SCHEM", "LIKE",
                                      schemaPattern)).append(and("TYPE_NAME",
@@ -4935,7 +4935,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuffer select = toQueryPrefixNoSelect(
+        StringBuilder select = toQueryPrefixNoSelect(
             "SELECT * FROM (SELECT USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME,"
             + "CAST (NULL AS INFORMATION_SCHEMA.SQL_IDENTIFIER), CAST (NULL AS INFORMATION_SCHEMA.SQL_IDENTIFIER), DATA_TYPE "
             + "FROM INFORMATION_SCHEMA.USER_DEFINED_TYPES "
@@ -4998,7 +4998,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             String tableNamePattern) throws SQLException {
 
         // query with no result
-        StringBuffer select = toQueryPrefixNoSelect(
+        StringBuilder select = toQueryPrefixNoSelect(
             "SELECT TABLE_NAME AS TABLE_CAT, TABLE_NAME AS TABLE_SCHEM, TABLE_NAME, TABLE_NAME AS SUPERTABLE_NAME "
             + "FROM INFORMATION_SCHEMA.TABLES ").append(
                 and("TABLE_NAME", "=", ""));
@@ -5098,7 +5098,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             String catalog, String schemaPattern, String typeNamePattern,
             String attributeNamePattern) throws SQLException {
 
-        StringBuffer select = toQueryPrefixNoSelect(
+        StringBuilder select = toQueryPrefixNoSelect(
             "SELECT TABLE_NAME AS TYPE_CAT, TABLE_NAME AS TYPE_SCHME, TABLE_NAME AS TYPE_NAME, "
             + "TABLE_NAME AS ATTR_NAME, CAST(0 AS INTEGER) AS DATA_TYPE, TABLE_NAME AS ATTR_TYPE_NAME, "
             + "CAST(0 AS INTEGER) AS ATTR_SIZE, CAST(0 AS INTEGER) AS DECIMAL_DIGITS, "
@@ -5381,7 +5381,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
     public ResultSet getSchemas(String catalog,
                                 String schemaPattern) throws SQLException {
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_SCHEMAS").append(and("TABLE_CATALOG", "=",
                 catalog)).append(and("TABLE_SCHEM", "LIKE", schemaPattern));
 
@@ -5499,7 +5499,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             String catalog, String schemaPattern,
             String functionNamePattern) throws SQLException {
 
-        StringBuffer sb = new StringBuffer(256);
+        StringBuilder sb = new StringBuilder(256);
 
         sb.append("select ").append(
             "sp.procedure_cat as FUNCTION_CAT,").append(
@@ -5623,7 +5623,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             String catalog, String schemaPattern, String functionNamePattern,
             String columnNamePattern) throws SQLException {
 
-        StringBuffer sb = new StringBuffer(256);
+        StringBuilder sb = new StringBuilder(256);
 
         sb.append("select pc.procedure_cat as FUNCTION_CAT,").append(
             "pc.procedure_schem as FUNCTION_SCHEM,").append(
@@ -6012,8 +6012,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             return "";
         }
 
-        StringBuffer sb    = new StringBuffer();
-        boolean      isStr = (val instanceof String);
+        StringBuilder sb    = new StringBuilder();
+        boolean       isStr = (val instanceof String);
 
         if (isStr && ((String) val).length() == 0) {
             return sb.append(" AND ").append(id).append(" IS NULL").toString();
@@ -6118,13 +6118,13 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * <code>DatabaseMetaData</code> queries, this is the most suitable
      * thing upon which to start building. <p>
      *
-     * @return an StringBuffer whose content is:
+     * @return an StringBuilder whose content is:
      *      "SELECT * FROM &lt;table&gt; WHERE 1=1"
      * @param t the name of the table
      */
-    private StringBuffer toQueryPrefix(String t) {
+    private StringBuilder toQueryPrefix(String t) {
 
-        StringBuffer sb = new StringBuffer(255);
+        StringBuilder sb = new StringBuilder(255);
 
         return sb.append(selstar).append(t).append(whereTrue);
     }
@@ -6132,9 +6132,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
     /**
      * Retrieves "&lt;expression&gt; WHERE 1=1" in string
      */
-    private StringBuffer toQueryPrefixNoSelect(String t) {
+    private StringBuilder toQueryPrefixNoSelect(String t) {
 
-        StringBuffer sb = new StringBuffer(255);
+        StringBuilder sb = new StringBuilder(255);
 
         return sb.append(t).append(whereTrue);
     }

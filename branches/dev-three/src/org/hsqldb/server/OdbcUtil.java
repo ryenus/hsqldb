@@ -74,7 +74,7 @@ public class OdbcUtil {
             }
         }
         String keyword = uc.substring(0, firstWhiteSpace);
-        StringBuffer replyString = new StringBuffer(keyword);
+        StringBuilder replyString = new StringBuilder(keyword);
         if (keyword.equals("UPDATE") || keyword.equals("DELETE")) {
             replyString.append(' ').append(retval);
         } else if (keyword.equals("CREATE") || keyword.equals("DROP")) {
@@ -247,7 +247,7 @@ public class OdbcUtil {
             throw new IllegalArgumentException("Hex character lists contains "
                 + "an odd number of characters: " + chars);
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         char c;
         int octet;
         for (int i = 0; i < chars; i++) {

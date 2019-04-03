@@ -238,14 +238,14 @@ public class TriggerDef implements Runnable, SchemaObject {
 
     /**
      *  Retrieves the SQL character sequence required to (re)create the
-     *  trigger, as a StringBuffer
+     *  trigger, as a String
      *
      * @return the SQL character sequence required to (re)create the
      *  trigger
      */
     public String getSQL() {
 
-        StringBuffer sb = getSQLMain();
+        StringBuilder sb = getSQLMain();
 
         if (maxRowsQueued != 0) {
             sb.append(Tokens.T_QUEUE).append(' ');
@@ -267,9 +267,9 @@ public class TriggerDef implements Runnable, SchemaObject {
         return changeTimestamp;
     }
 
-    public StringBuffer getSQLMain() {
+    public StringBuilder getSQLMain() {
 
-        StringBuffer sb = new StringBuffer(256);
+        StringBuilder sb = new StringBuilder(256);
 
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_TRIGGER).append(' ');

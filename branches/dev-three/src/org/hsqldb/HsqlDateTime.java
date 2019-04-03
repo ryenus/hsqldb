@@ -133,7 +133,7 @@ public class HsqlDateTime {
         }
     }
 
-    public static void getTimestampString(StringBuffer sb, long seconds,
+    public static void getTimestampString(StringBuilder sb, long seconds,
                                           int nanos, int scale) {
 
         synchronized (sdfts) {
@@ -653,11 +653,11 @@ public class HsqlDateTime {
      */
     public static String toJavaDatePattern(String format) {
 
-        int          len = format.length();
-        char         ch;
-        StringBuffer sb               = new StringBuffer(len);
-        Tokenizer    tokenizer        = new Tokenizer();
-        int          limitQuotedToken = -1;
+        int           len = format.length();
+        char          ch;
+        StringBuilder sb               = new StringBuilder(len);
+        Tokenizer     tokenizer        = new Tokenizer();
+        int           limitQuotedToken = -1;
 
         for (int i = 0; i <= len; i++) {
             ch = (i == len) ? e

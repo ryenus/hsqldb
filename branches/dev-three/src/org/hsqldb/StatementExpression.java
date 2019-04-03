@@ -76,7 +76,7 @@ public class StatementExpression extends StatementDMQL {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         switch (type) {
 
@@ -116,7 +116,7 @@ public class StatementExpression extends StatementDMQL {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append('\n');
 

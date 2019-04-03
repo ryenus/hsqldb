@@ -204,7 +204,7 @@ public class Expression implements Cloneable {
                 return ddl;
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         ddl = sb.append('(').append(ddl).append(')').toString();
 
@@ -230,7 +230,7 @@ public class Expression implements Cloneable {
      */
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         switch (opType) {
 
@@ -303,7 +303,7 @@ public class Expression implements Cloneable {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append('\n');
 

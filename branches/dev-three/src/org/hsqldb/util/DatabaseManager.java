@@ -41,7 +41,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
-
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
@@ -613,7 +612,7 @@ implements ActionListener, WindowListener, KeyListener {
             String file = f.getFile();
 
             if (file != null) {
-                StringBuffer buf = new StringBuffer();
+                StringBuilder buf = new StringBuilder();
 
                 ifHuge = DatabaseManagerCommon.readFile(f.getDirectory()
                         + file);
@@ -944,10 +943,11 @@ implements ActionListener, WindowListener, KeyListener {
             ResultSetMetaData m   = r.getMetaData();
             int               col = m.getColumnCount();
             String[]          h   = new String[col];
-            // int[]             p   = new int[col];
 
+            // int[]             p   = new int[col];
             for (int i = 1; i <= col; i++) {
                 h[i - 1] = m.getColumnLabel(i);
+
                 // p[i - 1] = m.getPrecision(i);
             }
 
@@ -975,9 +975,9 @@ implements ActionListener, WindowListener, KeyListener {
 
     void testPerformance() {
 
-        String       all   = txtCommand.getText();
-        StringBuffer b     = new StringBuffer();
-        long         total = 0;
+        String        all   = txtCommand.getText();
+        StringBuilder b     = new StringBuilder();
+        long          total = 0;
 
         lTime = 0;
 
@@ -1118,7 +1118,7 @@ implements ActionListener, WindowListener, KeyListener {
             }
         }
 
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
 
         for (int i = 0; i < width; i++) {
             b.append(col[i]);

@@ -339,10 +339,8 @@ public class RangeVariableJoined extends RangeVariable {
     public String describe(Session session, int blanks) {
 
         RangeVariableConditions[] conditionsArray = joinConditions;
-        StringBuffer              sb;
+        StringBuilder             sb = new StringBuilder();
         String b = ValuePool.spaceString.substring(0, blanks);
-
-        sb = new StringBuffer();
 
         String temp = "INNER";
 

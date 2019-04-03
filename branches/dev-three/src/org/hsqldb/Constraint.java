@@ -322,7 +322,7 @@ public final class Constraint implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         switch (getConstraintType()) {
 
@@ -400,7 +400,7 @@ public final class Constraint implements SchemaObject {
     /**
      * Generates the foreign key declaration for a given Constraint object.
      */
-    private void getFKStatement(StringBuffer sb) {
+    private void getFKStatement(StringBuilder sb) {
 
         if (!getName().isReservedName()) {
             sb.append(Tokens.T_CONSTRAINT).append(' ');
@@ -849,7 +849,7 @@ public final class Constraint implements SchemaObject {
                                    ErrorCode.CONSTRAINT, info);
             }
             case SchemaObject.ConstraintTypes.FOREIGN_KEY : {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 for (int i = 0; i < core.refCols.length; i++) {
                     Object o = data[core.refCols[i]];
@@ -872,7 +872,7 @@ public final class Constraint implements SchemaObject {
             }
             case SchemaObject.ConstraintTypes.PRIMARY_KEY :
             case SchemaObject.ConstraintTypes.UNIQUE : {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 for (int i = 0; i < core.mainCols.length; i++) {
                     Object o = data[core.mainCols[i]];

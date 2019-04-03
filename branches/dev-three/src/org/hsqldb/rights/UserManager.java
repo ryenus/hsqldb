@@ -459,7 +459,7 @@ public final class UserManager {
         String[]      array;
 
         if (pwCheckFunction != null) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             sb.append(Tokens.T_SET).append(' ').append(Tokens.T_DATABASE);
             sb.append(' ').append(Tokens.T_PASSWORD).append(' ');
@@ -470,7 +470,7 @@ public final class UserManager {
         }
 
         if (extAuthenticationFunction != null) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             sb.append(Tokens.T_SET).append(' ').append(Tokens.T_DATABASE);
             sb.append(' ').append(Tokens.T_AUTHENTICATION).append(' ');

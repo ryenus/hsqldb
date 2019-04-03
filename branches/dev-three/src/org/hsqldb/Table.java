@@ -354,7 +354,7 @@ public class Table extends TableBase implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_CREATE).append(' ');
 
@@ -562,7 +562,7 @@ public class Table extends TableBase implements SchemaObject {
     public String getSQLForReadOnly() {
 
         if (isReadOnly) {
-            StringBuffer sb = new StringBuffer(64);
+            StringBuilder sb = new StringBuilder(64);
 
             sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(
                 ' ');
@@ -624,7 +624,7 @@ public class Table extends TableBase implements SchemaObject {
 
         String colList = getColumnListSQL(index.getColumns(),
                                           index.getColumnCount());
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
         sb.append(getName().getSchemaQualifiedStatementName());
@@ -640,7 +640,7 @@ public class Table extends TableBase implements SchemaObject {
             return null;
         }
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
         sb.append(getName().getSchemaQualifiedStatementName());
@@ -668,7 +668,7 @@ public class Table extends TableBase implements SchemaObject {
 
     public String getIndexRootsSQL(long[] roots) {
 
-        StringBuffer sb = new StringBuffer(128);
+        StringBuilder sb = new StringBuilder(128);
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
         sb.append(getName().getSchemaQualifiedStatementName());
@@ -684,7 +684,7 @@ public class Table extends TableBase implements SchemaObject {
 
     public String getColumnListSQL(int[] col, int len) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append('(');
 
@@ -703,7 +703,7 @@ public class Table extends TableBase implements SchemaObject {
 
     public String getColumnListWithTypeSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append('(');
 

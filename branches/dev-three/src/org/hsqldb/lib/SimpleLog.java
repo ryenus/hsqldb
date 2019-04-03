@@ -67,14 +67,14 @@ public class SimpleLog {
     };
 
     //
-    private PrintWriter  writer;
-    private int          level;
-    private boolean      isSystem;
-    private boolean      isSQL;
-    String[]             logTypeNames;
-    private String       filePath;
-    private StringBuffer sb;
-    SystemTimeString     sysTime = new SystemTimeString();
+    private PrintWriter   writer;
+    private int           level;
+    private boolean       isSystem;
+    private boolean       isSQL;
+    String[]              logTypeNames;
+    private String        filePath;
+    private StringBuilder sb;
+    SystemTimeString      sysTime = new SystemTimeString();
 
     public SimpleLog(String path, int level, boolean isSQL) {
 
@@ -83,7 +83,7 @@ public class SimpleLog {
         this.isSQL    = isSQL;
         logTypeNames  = isSQL ? sqlLogTypeNames
                               : appLogTypeNames;
-        sb            = new StringBuffer(256);
+        sb            = new StringBuilder(256);
 
         setLevel(level);
     }

@@ -38,7 +38,7 @@ import java.lang.reflect.Array;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.6
+ * @version 2.5.0
  * @since 1.7.0
  */
 public class StringUtil {
@@ -52,7 +52,7 @@ public class StringUtil {
     public static String toZeroPaddedString(long value, int precision,
             int maxSize) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         if (value < 0) {
             value = -value;
@@ -86,7 +86,7 @@ public class StringUtil {
             return source;
         }
 
-        StringBuffer sb = new StringBuffer(length);
+        StringBuilder sb = new StringBuilder(length);
 
         if (trailing) {
             sb.append(source);
@@ -120,9 +120,9 @@ public class StringUtil {
             }
         }
 
-        StringBuffer sb         = new StringBuffer(length);
-        int          padLength  = source.length();
-        int          partLength = (length - padLength) % pad.length();
+        StringBuilder sb         = new StringBuilder(length);
+        int           padLength  = source.length();
+        int           partLength = (length - padLength) % pad.length();
 
         if (trailing) {
             sb.append(source);
@@ -151,9 +151,9 @@ public class StringUtil {
      */
     public static String toLowerSubset(String source, char substitute) {
 
-        int          len = source.length();
-        StringBuffer sb  = new StringBuffer(len);
-        char         ch;
+        int           len = source.length();
+        StringBuilder sb  = new StringBuilder(len);
+        char          ch;
 
         for (int i = 0; i < len; i++) {
             ch = source.charAt(i);
@@ -177,9 +177,9 @@ public class StringUtil {
      */
     public static String arrayToString(Object array) {
 
-        int          len  = Array.getLength(array);
-        int          last = len - 1;
-        StringBuffer sb   = new StringBuffer(2 * (len + 1));
+        int           len  = Array.getLength(array);
+        int           last = len - 1;
+        StringBuilder sb   = new StringBuilder(2 * (len + 1));
 
         sb.append('{');
 
@@ -216,8 +216,8 @@ public class StringUtil {
      */
     public static String getList(String[] s, String separator, String quote) {
 
-        int          len = s.length;
-        StringBuffer sb  = new StringBuffer(len * 16);
+        int           len = s.length;
+        StringBuilder sb  = new StringBuilder(len * 16);
 
         for (int i = 0; i < len; i++) {
             sb.append(quote);
@@ -250,8 +250,8 @@ public class StringUtil {
      */
     public static String getList(int[] s, String separator, String quote) {
 
-        int          len = s.length;
-        StringBuffer sb  = new StringBuffer(len * 8);
+        int           len = s.length;
+        StringBuilder sb  = new StringBuilder(len * 8);
 
         for (int i = 0; i < len; i++) {
             sb.append(quote);
@@ -268,8 +268,8 @@ public class StringUtil {
 
     public static String getList(long[] s, String separator, String quote) {
 
-        int          len = s.length;
-        StringBuffer sb  = new StringBuffer(len * 8);
+        int           len = s.length;
+        StringBuilder sb  = new StringBuilder(len * 8);
 
         for (int i = 0; i < len; i++) {
             sb.append(quote);
@@ -306,8 +306,8 @@ public class StringUtil {
     public static String getList(String[][] s, String separator,
                                  String quote) {
 
-        int          len = s.length;
-        StringBuffer sb  = new StringBuffer(len * 16);
+        int           len = s.length;
+        StringBuilder sb  = new StringBuilder(len * 16);
 
         for (int i = 0; i < len; i++) {
             sb.append(quote);

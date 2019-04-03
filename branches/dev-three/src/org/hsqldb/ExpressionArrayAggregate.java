@@ -102,9 +102,9 @@ public class ExpressionArrayAggregate extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb   = new StringBuffer(64);
-        String       left = getContextSQL(nodes.length > 0 ? nodes[LEFT]
-                                                           : null);
+        StringBuilder sb   = new StringBuilder(64);
+        String        left = getContextSQL(nodes.length > 0 ? nodes[LEFT]
+                                                            : null);
 
         switch (opType) {
 
@@ -133,7 +133,7 @@ public class ExpressionArrayAggregate extends Expression {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append('\n');
 
@@ -361,7 +361,7 @@ public class ExpressionArrayAggregate extends Expression {
                 return resultArray;
             }
             case OpTypes.GROUP_CONCAT : {
-                StringBuffer sb = new StringBuffer(16 * array.length);
+                StringBuilder sb = new StringBuilder(16 * array.length);
 
                 for (int i = 0; i < array.length; i++) {
                     if (i > 0) {

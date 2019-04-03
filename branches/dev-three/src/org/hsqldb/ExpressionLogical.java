@@ -368,7 +368,7 @@ public class ExpressionLogical extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         if (opType == OpTypes.VALUE) {
             return super.getSQL();
@@ -526,7 +526,7 @@ public class ExpressionLogical extends Expression {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append('\n');
 

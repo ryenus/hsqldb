@@ -107,7 +107,7 @@ public class StatementCompound extends Statement implements RangeGroup {
     public String getSQL() {
 
 /*
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         if (label != null) {
             sb.append(label.getStatementName()).append(':').append(' ');
@@ -205,7 +205,7 @@ public class StatementCompound extends Statement implements RangeGroup {
 
     String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append('\n');
 

@@ -224,7 +224,7 @@ public class FunctionSQLInvoked extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(routineSchema.getName().getSchemaQualifiedStatementName());
         sb.append('(');

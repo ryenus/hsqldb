@@ -744,12 +744,12 @@ public class JDBCConnection implements Connection {
             return sql;
         }
 
-        boolean      changed = false;
-        int          state   = 0;
-        int          len     = sql.length();
-        int          nest    = 0;
-        StringBuffer sb      = null;
-        String       msg;
+        boolean       changed = false;
+        int           state   = 0;
+        int           len     = sql.length();
+        int           nest    = 0;
+        StringBuilder sb      = null;
+        String        msg;
 
         //--
         final int outside_all                         = 0;
@@ -782,7 +782,7 @@ public class JDBCConnection implements Connection {
                         state = outside_escape_inside_double_quotes;
                     } else if (c == '{') {
                         if (sb == null) {
-                            sb = new StringBuffer(sql.length());
+                            sb = new StringBuilder(sql.length());
                         }
                         sb.append(sql, tail, i);
 
@@ -3661,7 +3661,7 @@ public class JDBCConnection implements Connection {
     /**
      * is called from within nativeSQL when the start of an JDBC escape sequence is encountered
      */
-    private int onStartEscapeSequence(String sql, StringBuffer sb,
+    private int onStartEscapeSequence(String sql, StringBuilder sb,
                                       int i) throws SQLException {
 
         sb.append(' ');

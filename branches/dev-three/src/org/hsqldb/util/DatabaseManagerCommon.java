@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2011, The HSQL Development Group
+ * Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -106,7 +106,7 @@ class DatabaseManagerCommon {
         + "[INTO [CACHED|TEMP|TEXT] newTable] \n" + "FROM tableList \n"
         + "[WHERE Expression] \n"
         + "[ORDER BY selectExpression [{ASC | DESC}] [, ...] ] \n"
-        + "[GROUP BY Expression [, ...] ] \n"                             //
+        + "[GROUP BY Expression [, ...] ] \n"                            //
         + "[UNION [ALL] selectStatement]"
     };
     static String[] insertHelp = {
@@ -155,16 +155,14 @@ class DatabaseManagerCommon {
         "SET AUTOCOMMIT { TRUE | FALSE }\n"
         + "SET DATABASE COLLATION \"<collationname>\"\n"
         + "SET FILES CHECKPOINT DEFRAG <size>\n"
-        + "SET DATABASE INITIAL SCHEMA <schemaname>\n"                             //
-        + "SET FILES LOG SIZE <size>\n"                                          //
-        + "SET MAXROWS maxrows\n"                                         //
-        + "SET PASSWORD <password>\n"                                     //
-        + "SET FILES READ { ONLY | WRITE }\n"
-        + "SET SCHEMA <schemaname>\n"
+        + "SET DATABASE INITIAL SCHEMA <schemaname>\n"                   //
+        + "SET FILES LOG SIZE <size>\n"                                  //
+        + "SET MAXROWS maxrows\n"                                        //
+        + "SET PASSWORD <password>\n"                                    //
+        + "SET FILES READ { ONLY | WRITE }\n" + "SET SCHEMA <schemaname>\n"
         + "SET TABLE <tablename> READ { ONLY | WRITE }\n"
         + "SET TABLE <tablename> SOURCE { ON | OFF }\n"
-        + "SET TABLE <tablename> SOURCE \"<file>\" [DESC]\n"
-        + "\n\n"                                                          //
+        + "SET TABLE <tablename> SOURCE \"<file>\" [DESC]\n" + "\n\n"    //
         + "(HSQLDB SQL only)"
     };
     static String[] testHelp = {
@@ -184,8 +182,8 @@ class DatabaseManagerCommon {
         + "- lines starting with --#<count> means set new count\n"
     };
     static String[] testDataSql = {
-        "SELECT * FROM Product",                                          //
-        "SELECT * FROM Invoice",                                          //
+        "SELECT * FROM Product",                                         //
+        "SELECT * FROM Invoice",                                         //
         "SELECT * FROM Item",
         "SELECT * FROM Customer a INNER JOIN Invoice i ON a.ID=i.CustomerID",
         "SELECT * FROM Customer a LEFT OUTER JOIN Invoice i ON a.ID=i.CustomerID",
@@ -201,11 +199,7 @@ class DatabaseManagerCommon {
     }
 
     static int random(int i) {
-
-        i = rRandom.nextInt() % i;
-
-        return i < 0 ? -i
-                     : i;
+        return rRandom.nextInt(i);
     }
 
     static void createTestTables(Statement sStatement) {
@@ -307,7 +301,7 @@ class DatabaseManagerCommon {
         try {
             FileReader     reader = new FileReader(file);
             BufferedReader read   = new BufferedReader(reader);
-            StringBuffer   b      = new StringBuffer();
+            StringBuilder  b      = new StringBuilder();
             String         s      = null;
             int            count  = 0;
 

@@ -199,7 +199,7 @@ public class RefCapablePropertyResourceBundle {
         String s = getString(key);
         Matcher matcher = sysPropVarPattern.matcher(s);
         int previousEnd = 0;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         String varName, varValue;
         String condlVal;  // Conditional : value
         while (matcher.find()) {
@@ -243,9 +243,9 @@ public class RefCapablePropertyResourceBundle {
      * Note that %{\d} numbers are 1-based, so we lok for subs[x-1].
      */
     public String posSubst(String s, String[] subs, int behavior) {
-        Matcher matcher = posPattern.matcher(s);
-        int previousEnd = 0;
-        StringBuffer sb = new StringBuffer();
+        Matcher matcher  = posPattern.matcher(s);
+        int previousEnd  = 0;
+        StringBuilder sb = new StringBuilder();
         String varValue;
         int varIndex;
         String condlVal;  // Conditional : value

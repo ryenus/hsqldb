@@ -105,7 +105,7 @@ public class TestUtil {
     /**
      * Expand occurrences of "${timestamp}" in input to time stamps.
      */
-    static protected void expandStamps(StringBuffer sb) {
+    static protected void expandStamps(StringBuilder sb) {
 
         int i = sb.indexOf(TIMESTAMP_VAR_STR);
 
@@ -502,11 +502,11 @@ abstract class ParsedSection {
     protected ParsedSection(HsqlArrayList linesArray) {
 
         //read the lines array backwards to get out the SQL String
-        //using a StringBuffer for efficency until we've got the whole String
-        StringBuffer sqlBuff  = new StringBuffer();
-        int          endIndex = 0;
-        int          k;
-        String       s = (String) linesArray.get(0);
+        //using a StringBuilder for efficency until we've got the whole String
+        StringBuilder sqlBuff  = new StringBuilder();
+        int           endIndex = 0;
+        int           k;
+        String        s = (String) linesArray.get(0);
 
         if (s.startsWith("/*")) {
 
@@ -565,7 +565,7 @@ abstract class ParsedSection {
      */
     protected String getTestResultString() {
 
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
 
         b.append(LS + "******" + LS);
         b.append("Type: ");
@@ -715,8 +715,8 @@ class ResultSetParsedSection extends ParsedSection {
 
     protected String getResultString() {
 
-        StringBuffer printVal     = new StringBuffer();
-        String[]     expectedRows = getExpectedRows();
+        StringBuilder printVal     = new StringBuilder();
+        String[]      expectedRows = getExpectedRows();
 
         for (int i = 0; i < expectedRows.length; i++) {
             printVal.append(expectedRows[i]).append(LS);
@@ -727,8 +727,8 @@ class ResultSetParsedSection extends ParsedSection {
 
     protected String getActualResultString() {
 
-        StringBuffer printVal   = new StringBuffer();
-        String[]     actualRows = getActualRows();
+        StringBuilder printVal   = new StringBuilder();
+        String[]      actualRows = getActualRows();
 
         if (actualRows == null) {
             return "no result";
@@ -780,8 +780,8 @@ class ResultSetParsedSection extends ParsedSection {
             actualRows = new String[list.size()];
 
             for (int i = 0; i < list.size(); i++) {
-                String[]     row = (String[]) list.get(i);
-                StringBuffer sb  = new StringBuffer();
+                String[]      row = (String[]) list.get(i);
+                StringBuilder sb  = new StringBuilder();
 
                 for (int j = 0; j < row.length; j++) {
                     if (j > 0) {
@@ -955,8 +955,8 @@ class ResultSetOutputParsedSection extends ParsedSection {
             }
 
             //iterate over the ResultSet
-            ResultSet    results  = aStatement.getResultSet();
-            StringBuffer printVal = new StringBuffer();
+            ResultSet     results  = aStatement.getResultSet();
+            StringBuilder printVal = new StringBuilder();
 
             while (results.next()) {
                 for (int j = 0; j < results.getMetaData().getColumnCount();
@@ -1096,7 +1096,7 @@ class WaitSection extends ParsedSection {
 
     protected String getResultString() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         if (lines.length == 1 && lines[0].trim().length() < 1) {
             return null;
@@ -1182,7 +1182,7 @@ class ProceedSection extends ParsedSection {
 
     protected String getResultString() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         if (lines.length == 1 && lines[0].trim().length() < 1) {
             return "";
@@ -1404,7 +1404,7 @@ class DisplaySection extends ParsedSection {
 
     protected String getResultString() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         if (lines.length == 1 && lines[0].trim().length() < 1) {
             return null;

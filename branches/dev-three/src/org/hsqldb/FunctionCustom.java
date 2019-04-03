@@ -1984,9 +1984,9 @@ public class FunctionCustom extends FunctionSQL {
                 data[1] = Type.SQL_INTEGER.convertToType(session, data[1],
                         nodes[1].getDataType());
 
-                String       string = (String) data[0];
-                int          i      = ((Number) data[1]).intValue();
-                StringBuffer sb     = new StringBuffer(string.length() * i);
+                String        string = (String) data[0];
+                int           i      = ((Number) data[1]).intValue();
+                StringBuilder sb     = new StringBuilder(string.length() * i);
 
                 while (i-- > 0) {
                     sb.append(string);
@@ -2001,11 +2001,11 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                String       string  = (String) data[0];
-                String       find    = (String) data[1];
-                String       replace = (String) data[2];
-                StringBuffer sb      = new StringBuffer();
-                int          start   = 0;
+                String        string  = (String) data[0];
+                String        find    = (String) data[1];
+                String        replace = (String) data[2];
+                StringBuilder sb      = new StringBuilder();
+                int           start   = 0;
 
                 if (find.length() == 0) {
                     return string;
@@ -2061,7 +2061,7 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
-                StringBuffer sb = new StringBuffer((String) data[0]);
+                StringBuilder sb = new StringBuilder((String) data[0]);
 
                 sb = sb.reverse();
 
@@ -2078,7 +2078,7 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                int     flags          = FunctionCustom.regexpParams((String) data[5]);
+                int     flags = FunctionCustom.regexpParams((String) data[5]);
                 Pattern currentPattern = null;
                 String  source         = (String) data[0];
                 String  matchPattern   = (String) data[1];
@@ -3980,7 +3980,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_POSITION_CHAR : {
 
                 // LOCATE
-                StringBuffer sb = new StringBuffer(Tokens.T_LOCATE).append(
+                StringBuilder sb = new StringBuilder(Tokens.T_LOCATE).append(
                     Tokens.T_OPENBRACKET).append(nodes[0].getSQL()).append(
                     Tokens.T_COMMA).append(nodes[1].getSQL());
 
@@ -3994,7 +3994,7 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_LPAD :
             case FUNC_RPAD : {
-                StringBuffer sb = new StringBuffer(name);
+                StringBuilder sb = new StringBuilder(name);
 
                 sb.append(Tokens.T_OPENBRACKET).append(nodes[0].getSQL());
                 sb.append(Tokens.T_COMMA).append(nodes[1].getSQL());
@@ -4013,7 +4013,7 @@ public class FunctionCustom extends FunctionSQL {
                 return super.getSQL();
 
             case FUNC_POSITION_ARRAY : {
-                StringBuffer sb = new StringBuffer(name).append('(');
+                StringBuilder sb = new StringBuilder(name).append('(');
 
                 sb.append(nodes[0].getSQL()).append(' ').append(Tokens.T_IN);
                 sb.append(' ').append(nodes[1].getSQL());
@@ -4028,7 +4028,7 @@ public class FunctionCustom extends FunctionSQL {
                 return sb.toString();
             }
             case FUNC_SORT_ARRAY : {
-                StringBuffer sb = new StringBuffer(name).append('(');
+                StringBuilder sb = new StringBuilder(name).append('(');
 
                 sb.append(nodes[0].getSQL());
 
@@ -4070,7 +4070,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SYS_GUID :
             case FUNC_TRANSACTION_ID :
             case FUNC_TRANSACTION_SIZE :
-                return new StringBuffer(name).append(
+                return new StringBuilder(name).append(
                     Tokens.T_OPENBRACKET).append(
                     Tokens.T_CLOSEBRACKET).toString();
 
@@ -4078,7 +4078,7 @@ public class FunctionCustom extends FunctionSQL {
                 String token = Tokens.getSQLTSIString(
                     ((Number) nodes[0].getValue(null)).intValue());
 
-                return new StringBuffer(Tokens.T_TIMESTAMPADD).append(
+                return new StringBuilder(Tokens.T_TIMESTAMPADD).append(
                     Tokens.T_OPENBRACKET).append(token).append(
                     Tokens.T_COMMA).append(nodes[1].getSQL()).append(
                     Tokens.T_COMMA).append(nodes[2].getSQL()).append(
@@ -4088,25 +4088,25 @@ public class FunctionCustom extends FunctionSQL {
                 String token = Tokens.getSQLTSIString(
                     ((Number) nodes[0].getValue(null)).intValue());
 
-                return new StringBuffer(Tokens.T_TIMESTAMPDIFF).append(
+                return new StringBuilder(Tokens.T_TIMESTAMPDIFF).append(
                     Tokens.T_OPENBRACKET).append(token).append(
                     Tokens.T_COMMA).append(nodes[1].getSQL()).append(
                     Tokens.T_COMMA).append(nodes[2].getSQL()).append(
                     Tokens.T_CLOSEBRACKET).toString();
             }
             case FUNC_DATE_ADD :
-                return new StringBuffer(nodes[0].getSQL()).append(' ').append(
+                return new StringBuilder(nodes[0].getSQL()).append(' ').append(
                     '+').append(nodes[1].getSQL()).toString();
 
             case FUNC_DATE_SUB :
-                return new StringBuffer(nodes[0].getSQL()).append(' ').append(
+                return new StringBuilder(nodes[0].getSQL()).append(' ').append(
                     '-').append(nodes[1].getSQL()).toString();
 
             case FUNC_UNIX_MILLIS :
             case FUNC_UNIX_TIMESTAMP :
             case FUNC_UUID :
             case FUNC_RAND : {
-                StringBuffer sb = new StringBuffer(name).append('(');
+                StringBuilder sb = new StringBuilder(name).append('(');
 
                 if (nodes[0] != null) {
                     sb.append(nodes[0].getSQL());
@@ -4126,7 +4126,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TRUNC :
             case FUNC_TRUNCATE :
             case FUNC_TO_CHAR : {
-                StringBuffer sb = new StringBuffer(name).append('(');
+                StringBuilder sb = new StringBuilder(name).append('(');
 
                 sb.append(nodes[0].getSQL());
 
@@ -4166,7 +4166,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_HEXTORAW :
             case FUNC_RAWTOHEX :
             case FUNC_LOB_ID : {
-                return new StringBuffer(name).append('(').append(
+                return new StringBuilder(name).append('(').append(
                     nodes[0].getSQL()).append(')').toString();
             }
             case FUNC_ATAN2 :
@@ -4183,12 +4183,12 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_REGEXP_SUBSTRING :
             case FUNC_REGEXP_SUBSTRING_ARRAY :
             case FUNC_REPEAT : {
-                return new StringBuffer(name).append('(').append(
+                return new StringBuilder(name).append('(').append(
                     nodes[0].getSQL()).append(Tokens.T_COMMA).append(
                     nodes[1].getSQL()).append(')').toString();
             }
             case FUNC_DIAGNOSTICS : {
-                StringBuffer sb = new StringBuffer(name).append('(');
+                StringBuilder sb = new StringBuilder(name).append('(');
 
                 //exprSubType == ExpressionColumn.idx_row_count
                 sb.append(Tokens.T_ROW_COUNT);
@@ -4199,7 +4199,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SEQUENCE_ARRAY :
             case FUNC_REGEXP_REPLACE :
             case FUNC_REPLACE : {
-                return new StringBuffer(name).append('(').append(
+                return new StringBuilder(name).append('(').append(
                     nodes[0].getSQL()).append(Tokens.T_COMMA).append(
                     nodes[1].getSQL()).append(Tokens.T_COMMA).append(
                     nodes[2].getSQL()).append(')').toString();
@@ -4230,7 +4230,7 @@ public class FunctionCustom extends FunctionSQL {
 
     private String getSQLSimple() {
 
-        StringBuffer sb = new StringBuffer(name).append('(');
+        StringBuilder sb = new StringBuilder(name).append('(');
 
         for (int i = 0; i < nodes.length; i++) {
             if (i > 0) {
@@ -4469,7 +4469,7 @@ public class FunctionCustom extends FunctionSQL {
     private static String translateWithMap(String source,
                                            IntKeyIntValueHashMap map) {
 
-        StringBuffer sb = new StringBuffer(source.length());
+        StringBuilder sb = new StringBuilder(source.length());
 
         for (int i = 0; i < source.length(); i++) {
             int character = source.charAt(i);

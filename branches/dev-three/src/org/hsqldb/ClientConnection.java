@@ -683,7 +683,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
      */
     public static String toNetCompVersionString(int i) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         i *= -1;
 

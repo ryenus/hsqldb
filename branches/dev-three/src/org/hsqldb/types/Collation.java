@@ -508,7 +508,7 @@ public class Collation implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_COLLATION).append(' ');
@@ -545,7 +545,7 @@ public class Collation implements SchemaObject {
 
     public String getCollateSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_COLLATE).append(' ');
 
@@ -560,7 +560,7 @@ public class Collation implements SchemaObject {
 
     public String getDatabaseCollationSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_DATABASE).append(' ');

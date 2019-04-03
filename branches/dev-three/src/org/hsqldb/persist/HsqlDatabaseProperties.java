@@ -1002,7 +1002,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public String getClientPropertiesAsString() {
 
         if (isPropertyTrue(jdbc_translate_tti_types)) {
-            StringBuffer sb = new StringBuffer(jdbc_translate_tti_types);
+            StringBuilder sb = new StringBuilder(jdbc_translate_tti_types);
 
             sb.append('=').append(true);
 

@@ -96,7 +96,7 @@ public final class BlobType extends BinaryType {
             multiplier = Tokens.T_K_FACTOR;
         }
 
-        StringBuffer sb = new StringBuffer(16);
+        StringBuilder sb = new StringBuilder(16);
 
         sb.append(getNameString());
         sb.append('(');
