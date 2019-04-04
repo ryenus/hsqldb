@@ -52,7 +52,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * ScaledRAFile is used for data access.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.3.3
+ * @version  2.5.0
  * @since 1.8.0.5
  */
 final class RAFileNIO implements RandomAccessInterface {
@@ -325,6 +325,8 @@ final class RAFileNIO implements RandomAccessInterface {
 
     public void close() throws IOException {
 
+        Throwable thrown = null;
+
         try {
             logger.logDetailEvent("NIO file close, size: " + fileLength);
 
@@ -332,20 +334,20 @@ final class RAFileNIO implements RandomAccessInterface {
             channel = null;
 
             for (int i = 0; i < buffers.length; i++) {
-                JavaSystem.unmap(buffers[i]);
-
-                buffers[i] = null;
+                thrown = JavaSystem.unmap(buffers[i]);
             }
 
             file.close();
-
-            // System.gc();
         } catch (Throwable t) {
             logger.logWarningEvent("NIO buffer close error", t);
 
             IOException io = JavaSystem.toIOException(t);
 
             throw io;
+        } finally {
+            if (thrown != null) {
+                logger.logWarningEvent("NIO buffer unmap exception", thrown);
+            }
         }
     }
 
@@ -497,7 +499,7 @@ final class RAFileNIO implements RandomAccessInterface {
 
     private void setCurrentBuffer(long offset) {
 
-        if(readOnly) {
+        if (readOnly) {
             return;
         }
 
@@ -523,9 +525,10 @@ final class RAFileNIO implements RandomAccessInterface {
      */
     private void checkBuffer() {
 
-        if(readOnly) {
+        if (readOnly) {
             return;
         }
+
         int bufferIndex = (int) (currentPosition >> largeBufferScale);
 
         if (currentPosition != bufferPosition + buffer.position()) {
