@@ -545,7 +545,7 @@ public class SqlFileScanner implements TokenSource {
     return true;
   }
 
-    
+
   /**
    * Closes the input stream.
    */

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ import org.hsqldb.lib.FrameworkLogger;
  * @see NameCallback
  * @see PasswordCallback
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
- * @since 2.0.1
+ * @since 2.5.0
  */
 public class JaasAuthBean implements AuthFunctionBean {
     private static FrameworkLogger logger =
@@ -268,13 +268,11 @@ public class JaasAuthBean implements AuthFunctionBean {
                 List<String> rsList = new ArrayList<String>();
                 Subject s = lc.getSubject();
                 if (roleSchemaViaCredential) {
-                    for (Object cred :
-                                new ArrayList(s.getPublicCredentials())) {
+                    for (Object cred : s.getPublicCredentials()) {
                         rsCandidates.add(cred.toString());
                     }
                 } else {
-                    for (Principal p :
-                            new ArrayList<Principal>(s.getPrincipals())) {
+                    for (Principal p : s.getPrincipals()) {
                         rsCandidates.add(p.getName());
                     }
                 }

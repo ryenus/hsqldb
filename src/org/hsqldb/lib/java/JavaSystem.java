@@ -37,8 +37,9 @@ import java.math.BigDecimal;
 import java.sql.DriverManager;
 import java.nio.charset.Charset;
 import java.nio.MappedByteBuffer;
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Handles invariants, runtime and methods
@@ -84,53 +85,51 @@ public class JavaSystem {
                - Runtime.getRuntime().freeMemory();
     }
 
-//#ifdef JAVA9
-    public static void unmap(MappedByteBuffer buffer) {
+    public static Throwable unmap(MappedByteBuffer buffer) {
 
         if (buffer == null) {
-            return;
+            return null;
         }
 
-        try {
+        if (javaVersion > 8) {
+            try {
+                Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+                Field unsafeField = unsafeClass.getDeclaredField("theUnsafe");
 
-            // sun.misc.Unsafe unsafe = sun.misc.Unsafe.getUnsafe();
-            // unsafe.invokeCleaner(buffer);
-            Class  cl     = Class.forName("sun.misc.Unsafe");
-            Method method = cl.getMethod("invokeCleaner");
+                unsafeField.setAccessible(true);
 
-            method.setAccessible(true);
-            method.invoke(null, buffer);
-        } catch (Throwable t) {}
-    }
+                Object unsafe = unsafeField.get(null);
+                Method invokeCleaner = unsafeClass.getMethod("invokeCleaner",
+                    java.nio.ByteBuffer.class);
 
-//#else
-/*
-    public static void unmap(MappedByteBuffer buffer) {
+                invokeCleaner.invoke(unsafe, buffer);
+            } catch (Throwable t) {
+                return t;
+            }
+        } else {
+            try {
+                Method cleanerMethod = buffer.getClass().getMethod("cleaner");
 
-        if (buffer == null) {
-            return;
+                cleanerMethod.setAccessible(true);
+
+                Object cleaner     = cleanerMethod.invoke(buffer);
+                Method cleanMethod = cleaner.getClass().getMethod("clean");
+
+                cleanMethod.invoke(cleaner);
+            } catch (NoSuchMethodException e) {
+                // no cleaner
+                return e;
+            } catch (InvocationTargetException e) {
+                // means we're not dealing with a Sun JVM?
+                return e;
+            } catch (Throwable t) {
+                return t;
+            }
         }
 
-        try {
-            Method cleanerMethod = buffer.getClass().getMethod("cleaner");
-
-            cleanerMethod.setAccessible(true);
-
-            Object cleaner     = cleanerMethod.invoke(buffer);
-            Method cleanMethod = cleaner.getClass().getMethod("clean");
-
-            cleanMethod.invoke(cleaner);
-        } catch (NoSuchMethodException e) {
-
-            // no cleaner
-        } catch (InvocationTargetException e) {
-
-            // Means we're not dealing with a Sun JVM?
-        } catch (Throwable e) {}
+        return null;
     }
-*/
 
-//#endif JAVA9
     public static IOException toIOException(Throwable t) {
 
         if (t instanceof IOException) {
