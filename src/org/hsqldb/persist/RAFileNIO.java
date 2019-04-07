@@ -335,6 +335,8 @@ final class RAFileNIO implements RandomAccessInterface {
 
             for (int i = 0; i < buffers.length; i++) {
                 thrown = JavaSystem.unmap(buffers[i]);
+
+                buffers[i] = null;
             }
 
             file.close();
