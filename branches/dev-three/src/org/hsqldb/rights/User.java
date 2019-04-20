@@ -104,7 +104,7 @@ public class User extends Grantee {
         String digest = granteeManager.digest(value);
 
         if (!digest.equals(password)) {
-            throw Error.error(ErrorCode.X_28000);
+            throw Error.error(ErrorCode.X_28000, granteeName.statementName);
         }
     }
 

@@ -387,6 +387,15 @@ public class ParserDQL extends ParserBase {
             }
         }
 
+        if (database.sqlSyntaxMss) {
+            switch (typeNumber) {
+
+                case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                    acceptsPrecision = true;
+                    break;
+            }
+        }
+
         if (acceptsPrecision) {
             if (token.tokenType == Tokens.OPENBRACKET) {
                 int multiplier = 1;
@@ -511,30 +520,37 @@ public class ParserDQL extends ParserBase {
                 }
             }
 
-            if (typeNumber == Types.SQL_TIMESTAMP
-                    || typeNumber == Types.SQL_TIME) {
-                if (length > DTIType.maxFractionPrecision) {
-                    throw Error.error(ErrorCode.X_42592);
-                }
+            switch (typeNumber) {
 
-                scale  = (int) length;
-                length = 0;
-
-                if (token.tokenType == Tokens.WITH) {
-                    read();
-                    readThis(Tokens.TIME);
-                    readThis(Tokens.ZONE);
-
-                    if (typeNumber == Types.SQL_TIMESTAMP) {
-                        typeNumber = Types.SQL_TIMESTAMP_WITH_TIME_ZONE;
-                    } else {
-                        typeNumber = Types.SQL_TIME_WITH_TIME_ZONE;
+                case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                case Types.SQL_TIMESTAMP :
+                case Types.SQL_TIME :
+                    if (length > DTIType.maxFractionPrecision) {
+                        throw Error.error(ErrorCode.X_42592);
                     }
-                } else if (token.tokenType == Tokens.WITHOUT) {
-                    read();
-                    readThis(Tokens.TIME);
-                    readThis(Tokens.ZONE);
-                }
+
+                    scale  = (int) length;
+                    length = 0;
+
+                    if (typeNumber == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
+                        break;
+                    }
+
+                    if (token.tokenType == Tokens.WITH) {
+                        read();
+                        readThis(Tokens.TIME);
+                        readThis(Tokens.ZONE);
+
+                        if (typeNumber == Types.SQL_TIMESTAMP) {
+                            typeNumber = Types.SQL_TIMESTAMP_WITH_TIME_ZONE;
+                        } else {
+                            typeNumber = Types.SQL_TIME_WITH_TIME_ZONE;
+                        }
+                    } else if (token.tokenType == Tokens.WITHOUT) {
+                        read();
+                        readThis(Tokens.TIME);
+                        readThis(Tokens.ZONE);
+                    }
             }
         }
 
@@ -2261,8 +2277,8 @@ public class ParserDQL extends ParserBase {
                         e = XreadRowElementList(false);
                     }
                 }
-
                 break;
+
             case OpTypes.STDDEV_POP :
             case OpTypes.STDDEV_SAMP :
             case OpTypes.VAR_POP :
