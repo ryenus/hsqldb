@@ -97,13 +97,13 @@
     privileges to them, then grant the roles to USER objects.</para>
 
     <para>The Standard effectively defines a special ROLE, named PUBLIC. All
-    authorization have the PUBLIC role, which cannot be removed from them.
-    Therefore any access right assigned to the PUBLIC role applies to all
+    authorizations have the PUBLIC role, which cannot be removed from them.
+    Therefore, any access right assigned to the PUBLIC role applies to all
     authorizations in the database. For many simple databases, it is adequate
     to create a single, non-admin user, then assign access rights to the
     pre-existing PUBLIC role. Access to INFORMATION_SCHEMA views is granted to
     PUBLIC, therefore these views are accessible to all. However, the contents
-    of each view depends on the ROLE or USER (AUTHORIZATION) that is in force
+    of each view depend on the ROLE or USER (AUTHORIZATION) that is in force
     while accessing the view.</para>
 
     <para>Each schema has a single AUTHORIZATION. This is commonly known as

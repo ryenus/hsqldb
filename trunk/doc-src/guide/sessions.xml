@@ -119,8 +119,8 @@
       are SQL Standard functions. Other attributes of the session, such as
       auto-commit or read-only modes can be read using other built-in
       functions. All these functions are listed in the <link
-      endterm="builtinfunctions-title"
-      ns6:href="#builtinfunctions-chapt"></link> chapter.</para>
+      endterm="builtinfunctions-title" ns6:href="#builtinfunctions-chapt"/>
+      chapter.</para>
     </section>
 
     <section xml:id="snc_session_vars">
@@ -132,8 +132,8 @@
       to IN, INOUT and OUT parameters of stored procedures. This allows
       calling stored procedures which have INOUT or OUT arguments and is
       useful for development and debugging. See the example in the <link
-      endterm="sqlroutines-title" ns6:href="#sqlroutines-chapt"></link>
-      chapter, under Formal Parameters.</para>
+      endterm="sqlroutines-title" ns6:href="#sqlroutines-chapt"/> chapter,
+      under Formal Parameters.</para>
 
       <example>
         <title>User-defined Session Variables</title>
@@ -217,7 +217,7 @@
     implementation, all isolation levels avoid the "dirty read" phenomenon and
     do not read uncommitted changes made to rows by other transactions.</para>
 
-    <para>HyperSQL is fully multi threaded in all transaction models. Sessions
+    <para>HyperSQL is fully multi-threaded in all transaction models. Sessions
     continue to work simultaneously and can fully utilise multi-core
     processors.</para>
 
@@ -466,7 +466,7 @@
       database when they start.</para>
 
       <para>Some schema manipulation statements put an exclusive lock on one
-      or more tables. For example changing the columns of a table locks the
+      or more tables. For example, changing the columns of a table locks the
       table exclusively.</para>
 
       <para>In the MVCC model, all statements that need an exclusive lock on
@@ -486,11 +486,11 @@
       <title>Simultaneous Access to Tables</title>
 
       <para>It was mentioned that there is no limit on the number of sessions
-      that can access the tables and all sessions work simultaneously in multi
-      threaded execution. However there are internal resources that are
+      that can access the tables and all sessions work simultaneously in
+      multi-threaded execution. However, there are internal resources that are
       shared. Simultaneous access to these resources can reduce the overall
       efficiency of the system. MEMORY and TEXT tables do not share resources
-      and do not block multi threaded access. With CACHED tables, each row
+      and do not block multi-threaded access. With CACHED tables, each row
       change operation blocks the file and its cache momentarily until the
       operation is finished. This is done separately for each row, therefore a
       multi-row INSERT, UPDATE, or DELETE statement will allow other sessions
@@ -544,9 +544,9 @@
     in another session. This statement is different from the other statements
     discussed in this chapter as it is not used for changing the settings of
     the current session. When END STATEMENT is used, the current statement
-    that is waiting to run or is being executed is aborted. When RELEASE is used,
-    the current transaction is terminated with a rollback. The session remains
-    open. CLOSE may be used after RELEASE has completed.</simpara>
+    that is waiting to run or is being executed is aborted. When RELEASE is
+    used, the current transaction is terminated with a rollback. The session
+    remains open. CLOSE may be used after RELEASE has completed.</simpara>
 
     <simpara>The session ID is used as a <literal>&lt;numeric
     literal&gt;</literal> in this statement. The administrator can use the
@@ -696,10 +696,10 @@
     several statements is completed, without being terminated due to possible
     deadlock. When this statement is executed, it waits until it can obtain
     all the listed locks, then returns. If obtaining the locks would result in
-    a deadlock an error is raised. The SQL statements following this
-    statements use the locks already obtained (and obtain new locks if
-    necessary) and can proceed without waiting. All the locks are released
-    when a COMMIT or ROLLBACK statement is issued.</simpara>
+    a deadlock an error is raised. The SQL statements following this statement
+    use the locks already obtained (and obtain new locks if necessary) and can
+    proceed without waiting. All the locks are released when a COMMIT or
+    ROLLBACK statement is issued.</simpara>
 
     <simpara>When the isolation level of a session is READ COMMITTED, read
     locks are released immediately after the execution of the statement,
@@ -1035,7 +1035,7 @@
 
     <simpara>It is possible to limit the number of rows returned from SELECT
     statements with the FETCH &lt;n&gt; ROWS ONLY, or its alternative, LIMIT
-    &lt;n&gt;. Therefore this command is not recommended for general use. The
+    &lt;n&gt;. Therefore, this command is not recommended for general use. The
     only legitimate use of this command is for checking and testing queries
     that may return very large numbers of rows.</simpara>
 
@@ -1089,7 +1089,7 @@
     not, even in the same table. The collation's strength is used to force
     case-insensitive comparison. Collations are discussed in the <link
     endterm="databaseobjects-title" ns6:arcrole=""
-    ns6:href="#databaseobjects-chapt"></link> chapter.</simpara>
+    ns6:href="#databaseobjects-chapt"/> chapter.</simpara>
 
     <simpara>This statement must be switched before creating tables. Existing
     tables and their data are not affected.</simpara>

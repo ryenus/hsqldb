@@ -242,7 +242,7 @@
       is sorted using the French collation. In the second SELECT, the
       <literal>"English 0"</literal> collation is used in the GROUP BY clause.
       This collation is case insensitive, so the same name with different uses
-      of upper and lower case letters is considered the same and counted
+      of upper and lower-case letters is considered the same and counted
       together.</para>
 
       <para>The supported collations are named according to the language. You
@@ -253,7 +253,7 @@
       differences. At this strength the collation is case-insensitive and
       ignores differences between accented letters. At strength 1, differences
       between accented letters are taken into account. At strength 2, both
-      case and accent are significant. Finally 3 indicates additional
+      case and accent are significant. Finally, 3 indicates additional
       sensitivity to different punctuation. A second parameter can also be
       used with values 0 or 1, to indicate how decomposition of accented
       characters for comparison is handled for languages that support such
@@ -568,7 +568,7 @@
         </listitem>
 
         <listitem>
-          <para>Allow access to specific columns. For example allow access to
+          <para>Allow access to specific columns. For example, allow access to
           columns that contain non-confidential information. Note that this
           can also be achieved with the GRANT SELECT statement, using
           column-level privileges</para>
@@ -594,11 +594,11 @@
       be made updatable or insertable-into by adding INSTEAD OF triggers to
       the view. These triggers contain statements to use the submitted data to
       modify the contents of the underlying tables of the view separately. For
-      example, a view that represents a SELECT statements that joins two
-      tables can have an INSTEAD OF DELETE trigger with two DELETE statements,
-      one for each table. Views that have an INSTEAD OF trigger are called
-      TRIGGER INSERTABLE, TRIGGER UPDATABLE, etc. according to the triggers
-      that have been defined.</para>
+      example, a view that represents a SELECT statement that joins two tables
+      can have an INSTEAD OF DELETE trigger with two DELETE statements, one
+      for each table. Views that have an INSTEAD OF trigger are called TRIGGER
+      INSERTABLE, TRIGGER UPDATABLE, etc. according to the triggers that have
+      been defined.</para>
 
       <para>Views share a name-space with tables.</para>
     </section>
@@ -646,7 +646,7 @@
       true (can be false or unknown). If a row of the table has NULL in any of
       the columns of the constraint, it conforms to the constraint. A unique
       constraint on multiple columns (c1, c2, c3, ..) means that in no two
-      rows, the sets of values for the columns can be equal unless at lease
+      rows, the sets of values for the columns can be equal unless at least
       one of them is NULL. Each single column taken by itself can have repeat
       values in different rows. The following example satisfies a UNIQUE
       constraint on the two columns</para>
@@ -718,7 +718,7 @@
     <section xml:id="dbc_assertions">
       <title>Assertions</title>
 
-      <para>An ASSERTION is a top-level schema objects. It consists of a
+      <para>An ASSERTION is a top-level schema object. It consists of a
       <literal>&lt;search condition&gt;</literal> that must not be false (can
       be unknown). HyperSQL does not yet support assertions.</para>
 
@@ -761,9 +761,9 @@
       <glossterm>specific name</glossterm>. This allows the user to drop one
       of the signatures while keeping the other.</para>
 
-      <para>Routines are discussed in detail in chapter <link
+      <para>Routines are discussed in detail in the <link
       endterm="sqlroutines-title" os="" xlink:href="#sqlroutines-chapt"/>
-      .</para>
+      chapter.</para>
     </section>
 
     <section xml:id="dbc_indexes">
@@ -854,15 +854,15 @@
 
       <para>If the character sequence of a delimited identifier is the same as
       an undelimited identifier, it represents the same identifier. For
-      example "JOHN" is the same identifier as JOHN. In a <literal>&lt;regular
-      identifier&gt;</literal> the case-normal form is considered for
-      comparison. This form consists of the upper-case equivalent of all the
-      letters. When a database object is created with one of the CREATE
-      statements or renamed with the ALTER statement, if the name is enclosed
-      in double quotes, the exact name is used as the case-normal form. But if
-      it is not enclosed in double quotes, the name is converted to uppercase
-      and this uppercase version is stored in the database as the case-normal
-      form.</para>
+      example, "JOHN" is the same identifier as JOHN. In a
+      <literal>&lt;regular identifier&gt;</literal> the case-normal form is
+      considered for comparison. This form consists of the upper-case
+      equivalent of all the letters. When a database object is created with
+      one of the CREATE statements or renamed with the ALTER statement, if the
+      name is enclosed in double quotes, the exact name is used as the
+      case-normal form. But if it is not enclosed in double quotes, the name
+      is converted to uppercase and this uppercase version is stored in the
+      database as the case-normal form.</para>
 
       <para>The character sequence length of all identifiers must be between 1
       and 128 characters.</para>
@@ -1443,7 +1443,7 @@
       INITIALLY IMMEDIATE</literal></simpara>
 
       <para>Specify the name of a constraint and its characteristics. By
-      default the constraint is <literal>NOT DEFERRABLE</literal> and
+      default, the constraint is <literal>NOT DEFERRABLE</literal> and
       <literal>INITIALLY IMMEDIATE</literal>. This means the constraint is
       enforced as soon as a data change statement is executed. If
       <literal>INITIALLY DEFERRED</literal> is specified, then the constraint
@@ -1620,14 +1620,15 @@
 
       <para>The search condition of a CHECK constraint cannot contain any
       function that is not deterministic. A check constraint is a data
-      integrity constraint, therefore it must hold with respect to the rest of
+      integrity constraint; therefore it must hold with respect to the rest of
       the data in the database. It cannot use values that are temporal or
-      ephemeral. For example CURRENT_USER is a function that returns different
-      values depending on who is using the database, or CURRENT_DATE changes
-      day-to-day. Some temporal expressions are retrospectively deterministic
-      and are allowed in check constraints. For example, (CHECK VALUE &lt;
-      CURRENT_DATE) is valid, because CURRENT_DATE will not move backwards in
-      time, but (CHECK VALUE &gt; CURRENT_DATE) is not acceptable.</para>
+      ephemeral. For example, CURRENT_USER is a function that returns
+      different values depending on who is using the database, or CURRENT_DATE
+      changes day-to-day. Some temporal expressions are retrospectively
+      deterministic and are allowed in check constraints. For example, (CHECK
+      VALUE &lt; CURRENT_DATE) is valid, because CURRENT_DATE will not move
+      backwards in time, but (CHECK VALUE &gt; CURRENT_DATE) is not
+      acceptable.</para>
 
       <para>If you want to enforce the condition that a date value that is
       inserted into the database belongs to the future (at the time of
@@ -1693,8 +1694,8 @@
       timestamp&gt;</literal> or <literal>FOR SYSTEM_TIME BETWEEN &lt;start
       timestamp&gt; AND &lt;end timestamp&gt;</literal>.</para>
 
-      <para>In a CREATE TABLE statement The two period columns must be defined
-      as follows:</para>
+      <para>In a CREATE TABLE statement, the two period columns must be
+      defined as follows:</para>
 
       <simpara><literal>&lt;period begin column name&gt; &lt;timestamp data
       type&gt; GENERATED ALWAYS AS ROW START </literal></simpara>
@@ -2987,7 +2988,7 @@
       <para>Define a named sequence generator. A SEQUENCE object generates a
       sequence of integers according to the specified rules. The simple
       definition without the options defines a sequence of numbers in INTEGER
-      type starting at 1 and incrementing by 1. By default the
+      type starting at 1 and incrementing by 1. By default, the
       <literal>CYCLE</literal> property is set and the minimum and maximum
       limits are the minimum and maximum limits of the type of returned
       values. There are self-explanatory options for changing various
@@ -3245,7 +3246,7 @@
       type&gt;</literal></simpara>
 
       <simpara>Define a user-defined cast. This feature may be supported in a
-      future versions of HyperSQL.</simpara>
+      future version of HyperSQL.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP CAST</primary>
@@ -3260,7 +3261,7 @@
       &lt;right paren&gt; &lt;drop behavior&gt;</literal></simpara>
 
       <simpara>Destroy a user-defined cast. This feature may be supported in a
-      future versions of HyperSQL.</simpara>
+      future version of HyperSQL.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE CHARACTER SET</primary>
@@ -3321,11 +3322,12 @@
       SPACE</literal></simpara>
 
       <para>Define a collation. A new collation is based on an existing
-      COLLATION and applies to an existing CHARACTER SET. The &lt;character
-      set specification&gt; is always SQL_TEXT. The &lt;existing collation
-      name&gt; is either SQL_TEXT or one of the language collations supported
-      by HSQLDB. The <literal>&lt;pad characteristic&gt;</literal> specifies
-      whether strings are padded with spaces for comparison.</para>
+      COLLATION and applies to an existing CHARACTER SET. The
+      <literal>&lt;character set specification&gt;</literal> is always
+      SQL_TEXT. The <literal>&lt;existing collation name&gt;</literal> is
+      either SQL_TEXT or one of the language collations supported by HSQLDB.
+      The <literal>&lt;pad characteristic&gt;</literal> specifies whether
+      strings are padded with spaces for comparison.</para>
 
       <para>This statement is typically used when a collation is required that
       does not pad spaces before comparing two strings. For example,
@@ -3380,7 +3382,7 @@
       routine designator&gt;</literal></simpara>
 
       <para>Define a character transliteration. This feature may be supported
-      in a future versions of HyperSQL.</para>
+      in a future version of HyperSQL.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP TRANSLATION</primary>
@@ -3394,7 +3396,7 @@
       TRANSLATION &lt;transliteration name&gt;</literal></simpara>
 
       <simpara>Destroy a character transliteration. This feature may be
-      supported in a future versions of HyperSQL.</simpara>
+      supported in a future version of HyperSQL.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE ASSERTION</primary>
@@ -3410,7 +3412,7 @@
       ]</literal></simpara>
 
       <simpara>Specify an integrity constraint. This feature may be supported
-      in a future versions of HyperSQL.</simpara>
+      in a future version of HyperSQL.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP ASSERTION</primary>
@@ -3424,7 +3426,7 @@
       &lt;constraint name&gt; [ &lt;drop behavior&gt; ]</literal></simpara>
 
       <para>Destroy an assertion. This feature may be supported in a future
-      versions of HyperSQL.</para>
+      version of HyperSQL.</para>
     </section>
   </section>
 

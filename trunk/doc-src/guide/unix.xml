@@ -73,25 +73,24 @@
   <section xml:id="uxc_install">
     <title>Installation</title>
 
-    <simpara>Go to <link
-    xlink:href="http://sourceforge.net/projects/hsqldb"></link> and click on
-    the "files" link. You want the current version. I can't be more specific
-    because SourceForge/Geeknet are likely to continue changing their
-    interface. See if there's a distribution for the current HSQLDB version in
-    the format that you want.</simpara>
+    <simpara>Go to <link xlink:href="http://sourceforge.net/projects/hsqldb"/>
+    and click on the "files" link. You want the current version. I can't be
+    more specific because SourceForge/Geeknet are likely to continue changing
+    their interface. See if there's a distribution for the current HSQLDB
+    version in the format that you want.</simpara>
 
     <simpara>If you want a binary package and we either don't provide it, or
     you prefer somebody else's build, you should still find out the current
     version of HyperSQL available at SourceForge. It's very likely that you
     can find a binary package for your UNIX variant with your OS distributor,
-    <link xlink:href="http://www.jpackage.org/"></link>, <link
-    xlink:href="http://sunfreeware.com/"></link>, etc. Nowadays, most UNIXes
-    have software package management systems which check Internet
-    repositories. Just search the repositories for "hsqldb" and "hypersql".
-    The challenge is to find an <emphasis>up-to-date</emphasis> package. You
-    will get better features and support if you work with the current stable
-    release of HyperSQL. (In particular, HyperSQL version 2.0.0 added tons of
-    new features). Pay attention to what JVM versions your binary package
+    <link xlink:href="http://www.jpackage.org/"/>, <link
+    xlink:href="http://sunfreeware.com/"/>, etc. Nowadays, most UNIXes have
+    software package management systems which check Internet repositories.
+    Just search the repositories for "hsqldb" and "hypersql". The challenge is
+    to find an <emphasis>up-to-date</emphasis> package. You will get better
+    features and support if you work with the current stable release of
+    HyperSQL. (In particular, HyperSQL version 2.0.0 added tons of new
+    features). Pay attention to what JVM versions your binary package
     supports. Our builds (version 2.0 and later) document the Java version it
     was built with in the file <filename>doc/index.html</filename>, but you
     can't depend on this if somebody else assembled your distribution. Java
@@ -230,8 +229,8 @@
 
       <step>
         <para>If you don't already have Ant, download the latest stable binary
-        version from <link xlink:href="http://ant.apache.org"></link>. cd to
-        where you want Ant to live, and extract from the archive with
+        version from <link xlink:href="http://ant.apache.org"/>. cd to where
+        you want Ant to live, and extract from the archive with
         <informalexample>
             <screen> unzip /path/to/file.zip</screen>
           </informalexample>or<informalexample>
@@ -273,9 +272,8 @@
     </procedure>
 
     <simpara>See the <link endterm="building-title"
-    xlink:href="#building-app"></link> appendix if you want to build anything
-    other than <filename>hsqldb.jar</filename> with all default
-    settings.</simpara>
+    xlink:href="#building-app"/> appendix if you want to build anything other
+    than <filename>hsqldb.jar</filename> with all default settings.</simpara>
   </section>
 
   <section xml:id="uxc_cat_setup">
@@ -319,7 +317,7 @@
         be relative to your <varname>HSQLDB_HOME</varname>).</simpara>
 
         <programlisting><xi:include encoding="ISO-8859-1"
-            href="../verbatim/sample/server.properties" parse="text" /></programlisting>
+            href="../verbatim/sample/server.properties" parse="text"/></programlisting>
 
         <simpara>Since the value of the first database
         (<property>server.database.0</property>) begins with
@@ -376,7 +374,7 @@
     <varname>HSQLDB_OWNER</varname>.</simpara>
 
     <programlisting><xi:include href="../verbatim/sample/sqltool.rc"
-        parse="text" /></programlisting>
+        parse="text"/></programlisting>
 
     <simpara>We will be using the "localhost-sa" sample urlid definition from
     the config file. The JDBC URL for this urlid is
@@ -540,7 +538,7 @@
       intended job great on the UNIX varieties I have tested, and can easily
       be modified to accommodate other UNIXes. While you don't have tight
       integration with OS-specific daemon administration guis, etc., you do
-      have a well tested and well behaved script that gives good, utilitarian
+      have a well-tested and well-behaved script that gives good, utilitarian
       feedback.</simpara>
     </section>
 
@@ -627,7 +625,7 @@
           <filename>sqltool.rc</filename> file.</simpara>
 
           <programlisting><xi:include href="../verbatim/sample/hsqldb.cfg"
-              parse="text" /></programlisting>
+              parse="text"/></programlisting>
 
           <simpara><emphasis role="bold">Verify that the init script
           works.</emphasis></simpara>
@@ -644,7 +642,7 @@
           <simpara>Re-run the script with each of the possible arguments to
           really test it good. If anything doesn't work right, then see the
           <link endterm="uxc_inittrouble-title"
-          xlink:href="#uxc_inittrouble"></link> section.</simpara>
+          xlink:href="#uxc_inittrouble"/> section.</simpara>
         </step>
 
         <step>
