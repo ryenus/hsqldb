@@ -62,7 +62,7 @@
     <para>An SQL statement can be executed in two ways. One way is to use the
     <classname>java.sql.Statement</classname> interface. The Statement object
     can be reused to execute completely different SQL statements.
-    Alternatively a <classname>PreparedStatment</classname> can be used to
+    Alternatively, a <classname>PreparedStatment</classname> can be used to
     execute an SQL statement repeatedly, and the statements can use
     parameters. Using either form, if the SQL statement is a query expression,
     a <classname>ResultSet</classname> is returned.</para>
@@ -121,7 +121,7 @@
 
       <para>When a JDBC <classname>ResultSet</classname> is opened, it is
       positioned before the first row. Using the
-      <methodname>next()</methodname> method the position is moved to the
+      <methodname>next()</methodname> method, the position is moved to the
       first row. While the <classname>ResultSet</classname> is positioned on a
       row, various getter methods can be used to access the columns of the
       row.</para>
@@ -489,7 +489,7 @@
 
       <para>The DECLARE CURSOR statement is used within an SQL PROCEDURE body.
       In the current version HyperSQL 2.4, the cursor is used only to return a
-      result set from the procedure. Therefore the cursor must be declared
+      result set from the procedure. Therefore, the cursor must be declared
       WITH RETURN and can only be READ ONLY.</para>
 
       <indexterm significance="preferred" type="sql">
@@ -1192,8 +1192,8 @@
       used in two different forms. The first form starts with a variable and
       the WHEN clauses follow, either as possible values for the variable, or
       as conditions. The second form does not start with a variable and each
-      WHEN is followed by a self-contained conditional expressions which can
-      use any variables. </simpara>
+      WHEN is followed by a self-contained conditional expression which can
+      use any variables.</simpara>
 
       <simpara>Some simple examples of the CASE expression are given below.
       The first two examples return 'Britain', 'Germany', or 'Other country'
@@ -1227,7 +1227,7 @@
       type&gt;</literal></simpara>
 
       <simpara>Specify a data conversion. Data conversion takes place
-      automatically among variants of a general type. For example numeric
+      automatically among variants of a general type. For example, numeric
       values are freely converted from one type to another in
       expressions.</simpara>
 
@@ -1677,8 +1677,8 @@
 
       <simpara>Specify a range comparison. The default is ASYMMETRIC. The
       expression <literal>X BETWEEN Y AND Z</literal> is equivalent to
-      <literal>(X &gt;= Y AND X &lt;= Z)</literal>. Therefore if Y &gt; Z, the
-      BETWEEN expression is never true. The expression <literal>X BETWEEN
+      <literal>(X &gt;= Y AND X &lt;= Z)</literal>. Therefore, if Y &gt; Z,
+      the BETWEEN expression is never true. The expression <literal>X BETWEEN
       SYMMETRIC Y AND Z</literal> is equivalent to <literal>(X &gt;= Y AND X
       &lt;= Z) OR (X &gt;= Z AND X &lt;= Y)</literal>. The expression
       <literal>Z NOT BETWEEN ...</literal> is equivalent to <literal>NOT (Z
@@ -2354,7 +2354,7 @@
 
       <simpara>Specify a collation for a column or for an ORDER BY expression.
       This collation is used for comparing the values of the column in
-      different rows. Comparison can happens during the execution of SELECT,
+      different rows. Comparison can happen during the execution of SELECT,
       UPDATE or DELETE statements, when a UNIQUE constraint or index is
       defined on the column, or when the the rows are sorted by an ORDER BY
       clause.</simpara>
@@ -2601,7 +2601,7 @@
       expression&gt;</literal>. An asterisk qualified by a table name means
       all the columns of the qualifier table name are included. If an
       unqualified asterisk is used, then no other items are allowed in the
-      <literal>&lt;select list&gt;</literal>. When the the <literal>&lt;table
+      <literal>&lt;select list&gt;</literal>. When the <literal>&lt;table
       expression&gt;</literal> is the direct result of NATURAL or USING joins,
       the use of <literal>&lt;asterisk&gt;</literal> includes the columns used
       for the join before the other columns. A qualified asterisk does not
@@ -3431,7 +3431,7 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
  3   3      7     
  4   4      5</programlisting>
 
-      <para>if recursive queries become complex they also become very
+      <para>if recursive queries become complex, they also become very
       difficult to develop and debug. HyperSQL provides an alternative to this
       with user-defined SQL functions which return tables. Functions can
       perform any complex, repetitive task with better control, using loops,
@@ -3833,7 +3833,7 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       ignored and the values generated by the system are used instead. For
       columns defined as GENERATED BY DEFAULT AS IDENTITY, the OVERRIDE SYSTEM
       VALUE clause is optional when the user provides values to be used for
-      the insert. </simpara>
+      the insert.</simpara>
 
       <simpara>An array can be inserted into a column of the array type by
       using literals, by specifying a parameter in a prepared statement or an

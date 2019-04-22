@@ -127,7 +127,7 @@
   Java.</para>
 
   <para>Access to routines can be granted to users with GRANT EXECUTE or GRANT
-  ALL. For example <literal>GRANT EXECUTE ON myroutine TO
+  ALL. For example, <literal>GRANT EXECUTE ON myroutine TO
   PUBLIC</literal>.</para>
 
   <section xml:id="src_routine_definition">
@@ -312,8 +312,8 @@
     <simpara><emphasis>external body reference</emphasis></simpara>
 
     <para>External name specifies the qualified name of the Java method
-    associated with this routine. HyperSQL 2.3 only supports Java methods
-    within the classpath. The <literal>&lt;external Java reference
+    associated with this routine. HyperSQL only supports Java methods within
+    the classpath. The <literal>&lt;external Java reference
     string&gt;</literal> is a quoted string which starts with CLASSPATH: and
     is followed by the Java package, class and method names separated with
     dots. HyperSQL does not currently support the optional <literal>&lt;Java
@@ -409,7 +409,7 @@
       indicates that a routine is deterministic or not. Deterministic means
       the routine does not reference random values, external variables, or
       time of invocation. The default is <literal>NOT DETERMINISTIC</literal>.
-      It is essential to declare this characteristics correctly for an SQL/JRT
+      It is essential to declare this characteristic correctly for an SQL/JRT
       routine, as the engine does not know the contents of the Java code,
       which could include calls to methods returning random or time sensitive
       values.</para>
@@ -435,8 +435,8 @@
 
       <para><literal>CONTAINS SQL</literal> means some SQL commands are used,
       but they do not read or modify the SQL data. <literal>READS SQL
-      DATA</literal> and <literal>MODIFIES SQL DATA</literal> are self
-      explanatory.</para>
+      DATA</literal> and <literal>MODIFIES SQL DATA</literal> are
+      self-explanatory.</para>
 
       <para>A <literal>CREATE PROCEDURE</literal> definition can use
       <literal>MODIFIES SQL DATA</literal>. This is not allowed in
@@ -587,7 +587,7 @@
           engine, the execution of an SQL routine locks all the database
           objects it needs to access before the actual execution. With Java
           routines, locks are obtained during execution and this may cause
-          additional delays in multi threaded access to the database.</para>
+          additional delays in multi-threaded access to the database.</para>
         </listitem>
 
         <listitem>
@@ -791,7 +791,7 @@
 
       <para>A <literal>&lt;declare cursor&gt;</literal> statement is used to
       declare a SELECT statement. The current usage of this statement in
-      HyperSQL 2.3 is exclusively to return a result set from a procedure. The
+      HyperSQL is exclusively to return a result set from a procedure. The
       result set is returned to the JDBC
       <classname>CallableStatement</classname> object that calls the
       procedure. The <methodname>getResultSet()</methodname> method of
@@ -1542,7 +1542,7 @@
 
       <para>In the example below, the procedure inserts a row into the
       customer table. It then performs the SELECT statement to return the
-      latest inserted row as a result set. Therefore the definition includes
+      latest inserted row as a result set. Therefore, the definition includes
       the <code>DYNAMIC RESULT SETS 1</code> clause. You must specify
       correctly the maximum number of result sets that the procedure may
       return.</para>
@@ -2181,7 +2181,7 @@
       <para>Once the routine has been defined, the normal database access
       control applies to its user. The routine can be executed only by those
       users who have been granted EXECUTE privileges on it. Access to routines
-      can be granted to users with GRANT EXECUTE or GRANT ALL. For example
+      can be granted to users with GRANT EXECUTE or GRANT ALL. For example,
       <literal>GRANT EXECUTE ON myroutine TO PUBLIC</literal>.</para>
     </section>
 

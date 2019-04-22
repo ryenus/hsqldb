@@ -63,10 +63,13 @@
     <para>A uniform method is used to distinguish between different types of
     connection. The common driver identifier is
     <literal>jdbc:hsqldb:</literal> followed by a protocol identifier
-    (<glossterm>mem:</glossterm> <glossterm>file:</glossterm> <glossterm>res:</glossterm> <glossterm>hsql:</glossterm> <glossterm>http:</glossterm> <glossterm>hsqls:</glossterm> <glossterm>https:</glossterm>) then
-    followed by host and port identifiers in the case of servers, then
-    followed by database identifier. Additional property / value pairs can be
-    appended to the end of the URL, separated with semicolons.</para>
+    (<glossterm>mem:</glossterm> <glossterm>file:</glossterm>
+    <glossterm>res:</glossterm> <glossterm>hsql:</glossterm>
+    <glossterm>http:</glossterm> <glossterm>hsqls:</glossterm>
+    <glossterm>https:</glossterm>) then followed by host and port identifiers
+    in the case of servers, then followed by database identifier. Additional
+    property / value pairs can be appended to the end of the URL, separated
+    with semicolons.</para>
 
     <table frame="all" pgwide="1" tocentry="1">
       <title>Memory Database URL</title>
@@ -306,9 +309,9 @@
 
     <para>If the database URL contains a string in the form of
     <literal>${propname}</literal> then the sequence of characters is replaced
-    with the system property with the given name. For example you can use this
-    in the URL of a database that is used in a web application and define the
-    system property, "propname" in the web application properties. In the
+    with the system property with the given name. For example, you can use
+    this in the URL of a database that is used in a web application and define
+    the system property, "propname" in the web application properties. In the
     example below, the string <literal>${mydbpath}</literal> is replaced with
     the value of the property, <literal>mydbpath</literal></para>
 
@@ -668,11 +671,11 @@
     via SQL commands after a connection is made to the database. It is
     possible to specify most of these properties in the connection properties
     or as part of the URL string when the first connection is made to a new
-    <glossterm>file:</glossterm> or <glossterm>mem:</glossterm> database. This allows
-    the properties to be set without using any SQL commands. The corresponding
-    SQL command is given for each property. For a server, these properties can
-    be appended to the database path URL in server.properties or the server
-    command line.</para>
+    <glossterm>file:</glossterm> or <glossterm>mem:</glossterm> database. This
+    allows the properties to be set without using any SQL commands. The
+    corresponding SQL command is given for each property. For a server, these
+    properties can be appended to the database path URL in server.properties
+    or the server command line.</para>
 
     <para>Note the preferred method of setting database properties is by using
     a set of SQL statements. These statements can be used both for a new

@@ -108,9 +108,9 @@
     </itemizedlist>
 
     <para>Support for compatibility with other RDBMS has been extended with
-    each version of HyperSQL. This chapter lists the non-standard features or
-    each database, their SQL Standard equivalents, and the support provided by
-    HyperSQL for each non-standard feature.</para>
+    each version of HyperSQL. This chapter lists some of the non-standard
+    features of database servers, their SQL Standard equivalents or the
+    support provided by HyperSQL for those features.</para>
 
     <section xml:id="coc_compatibility_postgres">
       <title>PostgreSQL Compatibility</title>
@@ -272,7 +272,7 @@
         <listitem>
           <para>In MySQL, a database is the same as a schema. In HyperSQL
           several schemas can exist in the same database and accessed
-          transparently. In addition a HyperSQL server supports multiple
+          transparently. In addition, a HyperSQL server supports multiple
           separate databases.</para>
         </listitem>
 
@@ -470,8 +470,7 @@
         <listitem>
           <para>Non-standard data type definitions such as NUMBER, VARCHAR2,
           NVARCHAR2, BINARY_DOUBLE, BINARY_FLOAT, LONG, RAW are translated
-          into the closest HyperSQL / SQL Standard equivalent in ORA
-          mode.</para>
+          into the closest SQL Standard equivalent in ORA mode.</para>
         </listitem>
 
         <listitem>
@@ -608,6 +607,12 @@
           Test String'</literal> to return a single row table. The standard
           form is <literal>VALUES('A Test String')</literal>. In MSS syntax
           mode, this type of SELECT is supported.</para>
+        </listitem>
+
+        <listitem>
+          <para>SQLServer's non-standard data types, MONEY, UNIQUEIDENTIFIER,
+          DATETIME2, DATETIMEOFFSET, IMAGE, TEXT, NTEXT, are translated to
+          their SQL Standard equivalents.</para>
         </listitem>
 
         <listitem>

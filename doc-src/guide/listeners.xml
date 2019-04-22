@@ -715,7 +715,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
         <para>Note: The hostname in your database URL must match the
         <emphasis>Common Name</emphasis> of the server's certificate exactly.
         That means that if a site certificate is <literal>admc.com</literal>,
-        you can not use <literal>jdbc:hsqldb:hsqls://localhost</literal> or
+        you cannot use <literal>jdbc:hsqldb:hsqls://localhost</literal> or
         <literal>jdbc:hsqldb:hsqls://www.admc.com:1100</literal> to connect to
         it.</para>
 

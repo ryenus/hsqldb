@@ -115,7 +115,7 @@
 
     <para>A HyperSQL database can be an all-in-memory
     <glossterm>mem:</glossterm> database with no automatic persistence, or a
-    file-based, persistent <glossterm>file:</glossterm> database. </para>
+    file-based, persistent <glossterm>file:</glossterm> database.</para>
 
     <section xml:id="sgc_temp_tables">
       <title>Temporary Tables</title>
@@ -142,8 +142,8 @@
       or <literal>SESSION</literal> can be used.</para>
 
       <para>When the session commits, the contents of all temporary tables are
-      cleared by default. If the table definition statements includes ON
-      COMMIT PRESERVE ROWS, then the contents are kept when a commit takes
+      cleared by default. If the table definition statement includes ON COMMIT
+      PRESERVE ROWS, then the contents are kept when a commit takes
       place.</para>
 
       <para>The rows in temporary tables are stored in memory by default. If
@@ -263,7 +263,7 @@
         short binary strings with zero bytes. BINARY without the length L
         means a single byte. Use VARBINARY(L) for general binary strings, and
         BLOB for large binary objects. You should apply the same
-        considerations as with the character string types. By default
+        considerations as with the character string types. By default,
         LONGVARBINARY is a synonym for a long VARCHAR and can be used without
         specifying the size. You can set LONGVARBINARY to map to BLOB, with
         the <literal>sql.longvar_is_lob</literal> connection property or the
@@ -310,7 +310,7 @@
         <para>The ARRAY type supports all base types except LOB and OTHER
         types. ARRAY data objects are held in memory while being processed. It
         is therefore not recommended to store more than about a thousand
-        objects in an ARRAY in normal operations with disk based databases.
+        objects in an ARRAY in normal operations with disk-based databases.
         For specialised applications, use ARRAY with as many elements as your
         memory allocation can support.</para>
       </listitem>
@@ -318,7 +318,7 @@
 
     <para>HyperSQL 2.5 has several compatibility modes which allow the type
     names that are used by other RDBMS to be accepted and translated into the
-    closest SQL Standard type. For example the type TEXT, supported by MySQL
+    closest SQL Standard type. For example, the type TEXT, supported by MySQL
     and PostgreSQL is translated in these compatibility modes.</para>
   </section>
 
@@ -336,7 +336,7 @@
     precision and scale for the column. It also conforms to any additional
     integrity constraints that are defined as CHECK constraints in domains or
     tables. Types can be explicitly converted using the CAST expression, but
-    in most expressions they are converted automatically.</para>
+    in most expressions, they are converted automatically.</para>
 
     <para>Data is returned to the user (or the application program) as a
     result of executing SQL statements such as query expressions or function
@@ -443,7 +443,7 @@
 
       <para>When the result of an expression is stored in a column of a
       database table, it has to fit in the target column, otherwise an error
-      is returned. For example when <literal>1234567890123456789012 /
+      is returned. For example, when <literal>1234567890123456789012 /
       12345687901234567890</literal> is evaluated, the result can be stored in
       any integral type column, even a TINYINT column, as it is a small
       value.</para>
@@ -594,7 +594,7 @@
       CHARACTER type altogether. With the rest of the types, the strings are
       not padded when assigned to columns or variables of the given type. The
       trailing spaces are still considered discardable for all character
-      types. Therefore if a string with trailing spaces is too long to assign
+      types. Therefore, if a string with trailing spaces is too long to assign
       to a column or variable of a given length, the spaces beyond the type
       length are discarded and the assignment succeeds (provided all the
       characters beyond the type length are spaces).</para>
@@ -704,7 +704,7 @@
       required positions. Java UUID objects can be used with
       <literal>java.sql.PreparedStatement</literal> to insert values of this
       type. The getObject() method of ResultSet returns the Java object for
-      UUID column data. </para>
+      UUID column data.</para>
 
       <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
       paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
@@ -1032,7 +1032,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <simpara><emphasis role="bold">Time Zone</emphasis></simpara>
 
-    <para>DATE values do not take time zones. For example United Nations
+    <para>DATE values do not take time zones. For example, United Nations
     designates 5 June as World Environment Day, which was observed on DATE
     '2008-06-05' in different time zones.</para>
 
@@ -1100,7 +1100,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 </programlisting>
 
     <para>Because the operand has a time zone, the result is independent of
-    the session  time zone displacement. Step 1 results in TIME
+    the session time zone displacement. Step 1 results in TIME
     '17:00:00+0:00', and step 2 results in TIME '18:00:00+1:00'</para>
 
     <para>Note that the operand is not limited to datetime literals used in
@@ -1115,12 +1115,12 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
  CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
 
     <para>In the first example, if <literal>&lt;value&gt;</literal> has a time
-    zone component, it is simply dropped. For example TIME '12:00:00-5:00' is
+    zone component, it is simply dropped. For example, TIME '12:00:00-5:00' is
     converted to TIME '12:00:00'</para>
 
     <para>In the second example, if <literal>&lt;value&gt;</literal> has no
     time zone component, the current time zone displacement of the session is
-    added. For example TIME '12:00:00' is converted to TIME '12:00:00-8:00'
+    added. For example, TIME '12:00:00' is converted to TIME '12:00:00-8:00'
     when the session time zone displacement is '-8:00'.</para>
 
     <para>Conversion between DATE and TIMESTAMP is performed by removing the
@@ -1210,7 +1210,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     as daylight saving time) is used as the session time zone displacement.
     Note that the SQL session time displacement is not changed when a seasonal
     time adjustment takes place while the session is open. To change the SQL
-    session time zone displacement use the following commands:</para>
+    session time zone displacement, use the following commands:</para>
 
     <simpara><literal>SET TIME ZONE &lt;time
     displacement&gt;</literal></simpara>
@@ -1238,7 +1238,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     of the value in the SQL type as it is stored in the database. This
     includes the correct number of digits for the fractional second field, and
     for values with time zone displacement, the time zone displacement.
-    Therefore if TIME '12:00:00' is stored in the database, all users in
+    Therefore, if TIME '12:00:00' is stored in the database, all users in
     different time zones will get '12:00:00' when they retrieve the value as a
     string. The <methodname>getTime(…)</methodname> and
     <methodname>getTimestamp(…)</methodname> methods of the
@@ -1432,7 +1432,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 </programlisting>
 
     <para>Interval values of the types that are based on seconds can be cast
-    into one another. Similarly those that are based on months can be cast
+    into one another. Similarly, those that are based on months can be cast
     into one another. It is not possible to cast or convert a value based on
     seconds to one based on months, or vice versa.</para>
 
@@ -1456,7 +1456,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <para>An interval value can be cast to a numeric type. In this case the
     interval value is first converted to a single-field INTERVAL type with the
     same field as the least significant filed of the interval value. The value
-    is then converted to the target type. For example CAST (INTERVAL '1-11'
+    is then converted to the target type. For example, CAST (INTERVAL '1-11'
     YEAR TO MONTH AS INT) evaluates to INTERVAL '23' MONTH, and then
     23.</para>
 
@@ -1517,7 +1517,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     '23:70:10', '24:10:10' and finally TIME '00:10:10'. Subtracting 20 minutes
     from the result is performed as follows: '00:-10:10', '-1:50:10', finally
     TIME '23:50:10'. Note that if DATE or TIMESTAMP normalisation results in
-    the YEAR field value out of the range (1,1000), then an exception
+    the YEAR field value out of the range (1,10000), then an exception
     condition is raised.</para>
 
     <para>If an interval value based on MONTH is added to, or subtracted from
@@ -1569,7 +1569,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <simpara><emphasis role="bold">Java 8 Extensions</emphasis></simpara>
 
     <para>JAVA 8 does not have a type codes for INTERVAL types. HSQLDB 2.4.0
-    and later when compiled with JDK8 supports
+    and later, when compiled with JDK8 or later, supports
     <classname>java.time</classname> types for INTERVAL types in
     <classname>ResultSet</classname>, <classname>PreparedStatement</classname>
     and <classname>CallableStatement</classname>.</para>
@@ -2022,10 +2022,9 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
   <section xml:id="sgc_query_opt">
     <title>Query Processing and Optimisation</title>
 
-    <para>HyperSQL 2.3.x changes the order of tables in a query in order to
-    optimise processing. This happens only when one of the tables has a
-    narrowing condition and reordering does not change the result of the
-    query.</para>
+    <para>HyperSQL changes the order of tables in a query in order to optimise
+    processing. This happens only when one of the tables has a narrowing
+    condition and reordering does not change the result of the query.</para>
 
     <section xml:id="sgc_indexes_cond">
       <title>Indexes and Conditions</title>
@@ -2037,11 +2036,11 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
       <para>In addition, HyperSQL will use an index (if one exists) for IN
       conditions, whether constants, variable, or subqueries are used on the
-      right hand side of the IN predicate. Multicolumn IN conditions can also
+      right-hand side of the IN predicate. Multicolumn IN conditions can also
       use an index.</para>
 
       <para>HyperSQL can always use indexes when several conditions are
-      combined with the AND operator, choosing a conditions which can use an
+      combined with the AND operator, choosing a condition which can use an
       index. This now extended to all equality conditions on multiple columns
       that are part of an index.</para>
 

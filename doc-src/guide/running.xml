@@ -73,11 +73,11 @@
     entirely in memory using dedicated fast memory structures as opposed to
     ram disk. HyperSQL can use disk persistence in a flexible way, with
     reliable crash-recovery. HyperSQL is the only open-source relational
-    database management system with a high performance dedicated lob storage
+    database management system with a high-performance dedicated lob storage
     system, suitable for gigabytes of lob data. It is also the only relational
     database that can create and access large comma delimited files as SQL
     tables. HyperSQL supports three live switchable transaction control
-    models, including fully multi threaded MVCC, and is suitable for high
+    models, including fully multi-threaded MVCC, and is suitable for high
     performance transaction processing applications. HyperSQL is also suitable
     for business intelligence, ETL and other applications that process large
     data sets. HyperSQL has a wide range of enterprise deployment options,
@@ -107,7 +107,7 @@
     of the ZIP package and contains several components and programs.</para>
 
     <itemizedlist>
-      <title>Components of the Hsqldb jar package</title>
+      <title>Components of the HSQLDB jar package</title>
 
       <listitem>
         <para>HyperSQL RDBMS Engine (HSQLDB)</para>
@@ -129,7 +129,7 @@
 
     <para>An additional jar, sqltool.jar, contains Sql Tool, command line
     database access tool. This is a general purpose command line database
-    access tool that can be ued with other database engines as well.</para>
+    access tool that can be used with other database engines as well.</para>
   </section>
 
   <section xml:id="rgc_access_tools">
@@ -150,7 +150,7 @@
     <screen> java -cp hsqldb.jar org.hsqldb.util.DatabaseManagerSwing</screen>
 
     <itemizedlist>
-      <title>Main classes for the Hsqldb tools</title>
+      <title>Main classes for the HSQLDB tools</title>
 
       <listitem>
         <para><classname>org.hsqldb.util.DatabaseManager</classname></para>

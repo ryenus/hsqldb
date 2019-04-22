@@ -216,17 +216,16 @@
     <section xml:id="mtc_large_objects">
       <title>Large Objects</title>
 
-      <para>HyperSQL 2.0 supports dedicated storage and access to BLOB and
-      CLOB objects. These objects can have huge sizes. BLOB or CLOB is
-      specified as the type of a column of the table. Afterwards, rows can be
-      inserted into the table using a PreparedStatement for efficient transfer
-      of large LOB data to the database. In <glossterm>mem:</glossterm>
-      catalogs, CLOB and BLOB data is stored in memory. In
-      <glossterm>file:</glossterm> catalogs, this data is stored in a single
-      separate file which has the extension <literal>*.lobs</literal>. The
-      size of this file can grow to huge, terabyte figures. By default, a
-      minimum 32 KB is allocated to each LOB. You can reduced this if your
-      LOBs are generally smaller.</para>
+      <para>HyperSQL supports dedicated storage and access to BLOB and CLOB
+      objects. These objects can have huge sizes. BLOB or CLOB is specified as
+      the type of a column of the table. Afterwards, rows can be inserted into
+      the table using a PreparedStatement for efficient transfer of large LOB
+      data to the database. In <glossterm>mem:</glossterm> catalogs, CLOB and
+      BLOB data is stored in memory. In <glossterm>file:</glossterm> catalogs,
+      this data is stored in a single separate file which has the extension
+      <literal>*.lobs</literal>. The size of this file can grow to huge,
+      terabyte figures. By default, a minimum 32 KB is allocated to each LOB.
+      You can reduce this if your LOBs are generally smaller.</para>
 
       <para>LOB data should be stored in the database using a JDBC
       PreparedStatement object. The streaming methods send the LOB to the
@@ -250,7 +249,7 @@
       <para>There is an internal LOBS schema in the database to store the
       id's, sizes and addresses of the LOBs (but not the actual LOBS) in a few
       system tables. This schema is stored in the database as MEMORY tables.
-      Therefore the amount of JVM memory should be increased when more than
+      Therefore, the amount of JVM memory should be increased when more than
       tens of thousands of LOBs are stored in the database. If your database
       contains more than a few hundreds of thousands of LOBs and memory use
       becomes an issue, you can change one or all LOB schema tables to CACHED
@@ -340,9 +339,9 @@
     <para>Persistence relies on the JVM, the operating system, and the
     computer hardware. A database system like HSQLDB can perform millions of
     read and write operations in an hour. As system hardware and software can
-    go wrong, it is impossible to achieve zero failure rate. Therefore regular
-    backups are recommended. HyperSQL 2.3 has built-in database backup and
-    restore features, discussed elsewhere in this chapter.</para>
+    go wrong, it is impossible to achieve zero failure rate. Therefore,
+    regular backups are recommended. HyperSQL 2.3 has built-in database backup
+    and restore features, discussed elsewhere in this chapter.</para>
 
     <para>A note regarding the NIO file access implementation: This
     implementation applies only to CACHED table data in the
@@ -795,11 +794,11 @@
     <section xml:id="mtc_internal_monitoring">
       <title>Internal Statement Level Monitoring</title>
 
-      <para>The internally-generated, individual sql log for the database can
+      <para>The internally generated, individual SQL log for the database can
       be enabled with the <literal>SET DATABASE EVENT LOG SQL LEVEL</literal>
       statement, described in this chapter. As all the executed statements are
-      logged, there is an impact on speed. So you should only use this for
-      debugging. Two levels of sql logging are supported.</para>
+      logged, there is a small impact on speed. So you should only use this
+      for debugging. Two levels of SQL logging are supported.</para>
     </section>
 
     <section xml:id="mtc_internal_event_monitoring">
@@ -1651,7 +1650,7 @@
       DATABASE UNIQUE NAME &lt;identifier&gt;</literal></simpara>
 
       <simpara>Each HyperSQL catalog (database) has an engine-generated
-      internal name. This name is a 16 character long string, beginning with
+      internal name. This name is a 16-character long string, beginning with
       HSQLDB and based on the time of creation of the database. The name is
       used for the log events that are sent to external logging frameworks.
       The new name must be exactly 16 characters long with no
@@ -1891,7 +1890,7 @@
 
       <simpara>The property is <literal>TRUE</literal> by default.</simpara>
 
-      <simpara>SQL Standard requires enforcement, therefore this property
+      <simpara>SQL Standard requires enforcement; therefore this property
       shouldn't be changed unless an application written for a non-conforming
       RDBMS needs it.</simpara>
 
@@ -1924,7 +1923,7 @@
 
       <simpara>The property is <literal>TRUE</literal> by default.</simpara>
 
-      <simpara>SQL Standard requires enforcement, therefore this property
+      <simpara>SQL Standard requires enforcement; therefore this property
       shouldn't be changed unless an application written for a non-conforming
       RDBMS needs it.</simpara>
 
@@ -2148,7 +2147,7 @@
       SQL DOUBLE NAN { TRUE | FALSE }</literal></simpara>
 
       <simpara>When the property is <literal>TRUE</literal>, division of a
-      floating point value (a DOUBLE value) by zero raises an exception. When
+      floating-point value (a DOUBLE value) by zero raises an exception. When
       the property is <literal>FALSE</literal>, a Java
       <literal>Double.NaN</literal>, <literal>POSITIVE_INFINITY</literal> or
       <literal>NEGATIVE_INFINITY</literal> value is returned.</simpara>

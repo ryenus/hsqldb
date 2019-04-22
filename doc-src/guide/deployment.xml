@@ -75,7 +75,7 @@
       reference variables. It contains an array of objects for the fields in
       the row. Each field is an object such as <classname>Integer</classname>,
       <classname>Long</classname>, <classname>String</classname>, etc. In
-      addition each index on the table adds a node object to the row. Each
+      addition, each index on the table adds a node object to the row. Each
       node object has 6 int or reference variables. As a result, a table with
       just one column of type INTEGER will have four objects per row, with a
       total of 10 variables of 4 bytes each - currently taking up 80 bytes per
@@ -87,7 +87,7 @@
       <title>Result Set Memory Allocation</title>
 
       <para>By default, all the rows in the result set are built in memory, so
-      very large result sets may not be possible to build. A server mode
+      very large result sets may not be possible to build. A server-mode
       databases releases the result set from the server memory once the
       database server has returned the result set. An
       <glossterm>in-process</glossterm> database releases the memory when the
@@ -129,7 +129,7 @@
       lists of all insert, delete or update operations are stored in memory so
       that they can be undone when ROLLBACK is issued. For CACHED tables, only
       the transaction information is held in memory, not the actual rows that
-      have changed. Transactions that span thousands of modification to data
+      have changed. Transactions that span thousands of modifications to data
       will take up a lot of memory until the next COMMIT or ROLLBACK clears
       the list. Each row modification uses less than 100 bytes until
       COMMIT.</para>
@@ -180,9 +180,9 @@
       should be disabled.</para>
 
       <para>The operating system usually allocates a large amount of buffer
-      memory for speed up file read operations. Therefore when a lot of memory
-      is available to the operating system, all database operations perform
-      faster.</para>
+      memory for speed up file read operations. Therefore, when a lot of
+      memory is available to the operating system, all database operations
+      perform faster.</para>
     </section>
 
     <section xml:id="dec_pool_mem_use">
@@ -207,7 +207,7 @@
       performance.</para>
 
       <para>By default, HyperSQL 2 uses memory-based tables for the lob schema
-      (not the actual lob data). Therefore it is practical to store about
+      (not the actual lob data). Therefore, it is practical to store about
       100,000 individual lobs in the database with the default JVM memory
       allocation. More lobs can be stored with larger JVM memory allocations.
       In order to store more than a few hundreds of thousands of lobs, you can
@@ -470,11 +470,11 @@
     <title>Application Development and Testing</title>
 
     <para>First thing to be aware of is the SQL conformance settings of
-    HyperSQL. By default version 2 applies stricter conformance rules than
-    version 1.8 and catches long strings or decimal values that do not fit
-    within the specified length or precision settings. However, there are
-    several conformance settings that are turned off by default. This is to
-    enable easier migration from earlier versions, and also greater
+    HyperSQL. By default, HyperSQL version 2 applies stricter conformance
+    rules than version 1.8 and catches long strings or decimal values that do
+    not fit within the specified length or precision settings. However, there
+    are several conformance settings that are turned off by default. This is
+    to enable easier migration from earlier versions, and also greater
     compatibility with databases such as MySQL that are sometimes very liberal
     with type conversions. The conformance settings are listed in the System
     Management chapter and their connection property equivalents are listed in
@@ -489,7 +489,7 @@
 
     <para>If the tests are all run in one process, then the contents of a
     <glossterm>mem:</glossterm> database survives between tests. To release
-    the contents you can use the SHUTDOWN command (an SQL command). You can
+    the contents, you can use the SHUTDOWN command (an SQL command). You can
     even use multiple <glossterm>mem:</glossterm> databases in your tests and
     SHUTDOWN each one separately.</para>
 
@@ -651,8 +651,8 @@
       <primary>upgrading</primary>
     </indexterm>
 
-    <para>Any database that is not produced with the release version of
-    HyperSQL 2.0 must be upgraded to this version.</para>
+    <para>Any database that is not produced with a release version of HyperSQL
+    2.x must be upgraded to this version.</para>
 
     <procedure>
       <title>Upgrading Databases Created with Version 1.8.x</title>
@@ -676,7 +676,7 @@
     deployed on a large scale, it is sometimes not practical to perform the
     first step of this procedure (with the old jar). You can ignore the first
     step but you may lose part of the database statements that are stored in
-    the <literal>.log</literal> file. Therefore you need to test with
+    the <literal>.log</literal> file. Therefore, you need to test with
     databases created with your application to make sure typical statements
     that are logged in the <literal>.log</literal> file are compatible with
     the new version. Examples of known incompatible statements are some DDL
@@ -766,6 +766,18 @@
     <section xml:id="dec_script_manual_change">
       <title>Manual Changes to the *.script File</title>
 
+      <para>The <literal>*.script</literal> file contains SQL statements for
+      the database settings and creation of objects such as tables, sequences
+      and user-defined function. It also contains INSERT statements to
+      populate MEMORY tables. A new copy of the <literal>*.script</literal>
+      file is created by the database engine at each checkpoint or shutdown.
+      This file is read when the database is opened. Only some types of SQL
+      statements are used in this file; for example no UPDATE or DELETE
+      statements are used, and the statements in the file follow a certain
+      sequence. Therefore, the <literal>*.script</literal> file cannot be
+      edited freely by the user and any edits must respect the acceptable
+      format.</para>
+
       <para>In HyperSQL 2.0 the full range of ALTER TABLE commands is
       available to change the data structures and their names. However, if an
       old database cannot be opened due to data inconsistencies, or it uses
@@ -848,6 +860,20 @@
 
           <para>Some changes to column types are possible. For example an
           INTEGER column can be changed to BIGINT.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>INSERT Statements</literal></para>
+
+          <para>INSERT statements may be added to the file in the same format
+          as written by the engine.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>Character Escapes</literal></para>
+
+          <para>All non-ASCII characters are escaped as Java Unicode escape
+          sequences.</para>
         </listitem>
       </itemizedlist>
 
@@ -1062,7 +1088,7 @@
         <simpara><emphasis>Classifiers</emphasis> are incompatible with real
         repository <emphasis>snapshots</emphasis>. Builders can only publish
         one jar variant per product, and at this time our snapshot jars are
-        always built debug-enabled with Java 6.</simpara>
+        always built debug-enabled with Java 8.</simpara>
       </note>
 
       <simpara>Where you insert the &lt;repository&gt; element depends on

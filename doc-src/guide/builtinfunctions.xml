@@ -68,7 +68,7 @@
         <listitem>
           <para>SQL Standard Functions</para>
 
-          <para>A wide rang of functions defined by SQL/Foundation are
+          <para>A wide range of functions defined by SQL/Foundation are
           supported. SQL/Foundation functions that have no parameter are
           called without empty parentheses. Functions with multiple parameters
           often use keywords instead of commas to separate the parameters.
@@ -355,7 +355,7 @@
 
     <para><literal>LCASE ( &lt;char value expr&gt; ) </literal></para>
 
-    <para>Returns a character string that is the lower case version of the
+    <para>Returns a character string that is the lower-case version of the
     <literal>&lt;char value expr&gt;</literal>. Equivalent to SQL/Foundation
     <literal>LOWER (&lt;char value expr&gt;)</literal>. (JDBC)</para>
 
@@ -413,7 +413,7 @@
 
     <para><literal>LOWER ( &lt;char value expr&gt; ) </literal></para>
 
-    <para>Returns a character string that is the lower case version of the
+    <para>Returns a character string that is the lower-case version of the
     <literal>&lt;char value expr&gt;</literal>. (Foundation)</para>
 
     <indexterm significance="preferred" type="sql">
@@ -572,7 +572,7 @@
     <para><literal>REGEXP_SUBSTRING_ARRAY ( &lt;char value expr&gt;,
     &lt;regular expression&gt; ) </literal></para>
 
-    <para>Returns all the regions in the the <literal>&lt;char value
+    <para>Returns all the regions in the <literal>&lt;char value
     expr&gt;</literal> that match the <literal>&lt;regular
     expression&gt;</literal>. The <literal>&lt;regular
     expression&gt;</literal> is defined according to Java language regular
@@ -671,9 +671,10 @@
 
     <para><literal>SOUNDEX ( &lt;char value expr&gt; ) </literal></para>
 
-    <para>Returns a four character code representing the sound of
+    <para>Returns a four-character code representing the sound of
     <literal>&lt;char value expr&gt;</literal>. The US census algorithm is
-    used. For example the soundex value for Washington is W252. (JDBC)</para>
+    used. For example, the soundex value for "Washington" is W252.
+    (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SPACE function</primary>
@@ -957,8 +958,8 @@
     <para><literal>BITXOR ( &lt;bit value expr 1&gt;, &lt;bit value expr 2&gt;
     )</literal></para>
 
-    <para>These functions bit operations on two values, or in the case of
-    BITNOT on a single values. The values are either integer values, or bit
+    <para>These functions perform bit operations on two values, or in the case
+    of BITNOT on a single value. The values are either integer values, or bit
     strings. The result is an integer value of the same type as the arguments,
     or a bit string of the same length as the argument. Each bit of the result
     is formed by performing the operation on corresponding bits of the
@@ -2031,7 +2032,7 @@
       SECOND as listed in the table for TO_CHAR and TO_DATE format elements
       (see below). The datetime value is rounded up or down after the
       specified field and the rest of the fields to the right are set to one
-      for MONTH and DAY, or zero, for the rest of the fields. For example
+      for MONTH and DAY, or zero, for the rest of the fields. For example,
       rounding a timestamp value on the DAY field results in midnight the same
       date or midnight the next day if the time is at or after 12 noon. If the
       second argument is omitted, the datetime value is rounded to the nearest
@@ -2053,7 +2054,7 @@
       table for TO_CHAR and TO_DATE format elements (see below). The datetime
       value is truncated after the specified field and the rest of the fields
       to the right are set to one for MONTH and DAY, or zero, for the rest of
-      the fields. For example applying TRUNC to a timestamp value on the DAY
+      the fields. For example, applying TRUNC to a timestamp value on the DAY
       field results in midnight the same date. Examples of ROUND and TRUNC
       functions are given below. If the second argument is omitted, the
       datetime value is truncated to midnight the same date. (HyperSQL)</para>
@@ -2723,9 +2724,9 @@
     <para><literal>UUID ( [ { &lt;char value expr&gt; | &lt;binary value
     expr&gt; ] } ) </literal></para>
 
-    <para>With no parameter, this function returns a new UUID value as a 16
-    byte binary value in the UUID type. With a UUID hexadecimal string
-    argument, it returns the 16 byte binary value in UUID. With a 16 byte
+    <para>With no parameter, this function returns a new UUID value as a
+    16-byte binary value in the UUID type. With a UUID hexadecimal string
+    argument, it returns the 16-byte binary value in UUID. With a 16-byte
     binary or UUID argument, it returns the formatted UUID character
     representation. Note UUID is a type derived from BINARY(16) that in
     represented as a hexadecimal character string with the required hyphens.
@@ -2818,7 +2819,7 @@
 
     <para><literal>DATABASE_NAME ()</literal></para>
 
-    <para>Returns the database name. This name is a 16 character, uppercase
+    <para>Returns the database name. This name is a 16-character, uppercase
     string. It is generated as a string based on the timestamp of the creation
     of the database, for example HSQLDB32438AEAFB. The name can be redefined
     by an admin user but the new name must be all uppercase and 16 characters
