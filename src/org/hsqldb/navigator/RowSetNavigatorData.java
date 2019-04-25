@@ -177,6 +177,15 @@ implements Comparator<Object[]> {
         }
     }
 
+    public void setPosition(Object[] data){
+        for (int i=size-1;i>=0; i--){
+            if (data == dataTable[i]){
+                currentPos = i;
+                return;
+            }
+        }
+    }
+
     public boolean addRow(Row row) {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorData");
     }
@@ -228,6 +237,10 @@ implements Comparator<Object[]> {
         size++;
     }
 
+    public Object[][] getDataTable(){
+        return dataTable;
+    }
+
     public void release() {
 
         this.dataTable = emptyTable;
@@ -244,6 +257,10 @@ implements Comparator<Object[]> {
         this.size      = 0;
 
         reset();
+    }
+
+    public void resetRowMap(){
+        rowMap = new TreeMap(this);
     }
 
     public boolean absolute(int position) {

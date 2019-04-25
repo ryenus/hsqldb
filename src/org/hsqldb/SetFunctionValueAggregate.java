@@ -297,6 +297,97 @@ public class SetFunctionValueAggregate implements SetFunction {
         }
     }
 
+    public void addGroup(SetFunction group) {
+        switch (setType) {
+            case OpTypes.COUNT:
+                count += (long) group.getValue();
+                return;
+
+            case OpTypes.STDDEV_POP:
+            case OpTypes.STDDEV_SAMP:
+            case OpTypes.VAR_POP:
+            case OpTypes.VAR_SAMP:
+                if (group instanceof SetFunctionValueAggregate) {
+                    count += ((SetFunctionValueAggregate) group).count;
+                    addDataGroup((SetFunctionValueAggregate) group);
+                }
+                return;
+
+            case OpTypes.AVG:
+                if (!(group instanceof SetFunctionValueAggregate)) {
+                    return;
+                }
+                SetFunctionValueAggregate item = (SetFunctionValueAggregate) group;
+                count += item.count;
+
+                switch (typeCode) {
+
+                    case Types.TINYINT:
+                    case Types.SQL_SMALLINT:
+                    case Types.SQL_INTEGER:
+                        currentLong += Long.valueOf(item.currentLong).intValue();
+                        return;
+
+                    case Types.SQL_INTERVAL_SECOND:
+                        addLong(item.getLongSum().longValue());
+
+                        if (currentLong > 1000000000) {
+                            addLong(currentLong / 1000000000);
+
+                            currentLong %= 1000000000;
+                        }
+                        return;
+
+                    case Types.SQL_INTERVAL_MONTH: {
+                        addLong(item.getLongSum().longValue());
+                        return;
+                    }
+                    case Types.SQL_DATE:
+                    case Types.SQL_TIMESTAMP:
+                    case Types.SQL_TIMESTAMP_WITH_TIME_ZONE: {
+                        addLong(item.getLongSum().longValue());
+
+                        currentLong += item.currentLong;
+
+                        if (currentLong > 1000000000) {
+                            addLong(currentLong / 1000000000);
+
+                            currentLong %= 1000000000;
+                        }
+
+                        currentDouble = item.currentDouble;
+                        return;
+                    }
+                    case Types.SQL_BIGINT:
+                        addLong(item.getLongSum().longValue());
+                        return;
+
+                    case Types.SQL_REAL:
+                    case Types.SQL_FLOAT:
+                    case Types.SQL_DOUBLE:
+                        currentDouble += item.currentDouble;
+                        return;
+
+                    case Types.SQL_NUMERIC:
+                    case Types.SQL_DECIMAL:
+                        if (currentBigDecimal == null) {
+                            currentBigDecimal = item.currentBigDecimal;
+                        } else {
+                            currentBigDecimal =
+                                    currentBigDecimal.add(item.currentBigDecimal);
+                        }
+
+                        return;
+
+                    default:
+                        throw Error.error(ErrorCode.X_42563);
+                }
+            default:
+                add(group.getValue());
+                return;
+        }
+    }
+
     public Object getValue() {
 
         if (hasNull) {
@@ -555,6 +646,30 @@ public class SetFunctionValueAggregate implements SetFunction {
         xsi = (sk - (xi * nm1));
         vk  += ((xsi * xsi) / n) / nm1;
         sk  += xi;
+    }
+
+    private void addDataGroup(SetFunctionValueAggregate value){
+        double cm;
+
+        if (value == null || value.count == 0) {
+            return;
+        }
+
+        if (!initialized) {
+            n           = value.n;
+            sk          = value.sk;
+            vk          = value.vk;
+            initialized = true;
+
+            return;
+        }
+        cm = (sk + value.sk)/(n + value.n);
+        vk = vk + value.vk + n*(sk/n - cm)*(sk/n - cm)
+                + value.n*(value.sk/value.n - cm)*(value.sk/value.n - cm);
+
+        sk += value.sk;
+        n += value.n;
+
     }
 
     private Double getVariance() {

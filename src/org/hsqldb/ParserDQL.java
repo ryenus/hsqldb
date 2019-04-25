@@ -1606,10 +1606,10 @@ public class ParserDQL extends ParserBase {
             read();
             readThis(Tokens.BY);
 
+            HsqlArrayList expressions = new HsqlArrayList();
             while (true) {
-                Expression e = XreadValueExpression();
-
-                select.addGroupByColumnExpression(e);
+                Expression e = XreadGroupByExpressionPrimary();
+                expressions.add(e);
 
                 if (token.tokenType == Tokens.COMMA) {
                     read();
@@ -1619,6 +1619,9 @@ public class ParserDQL extends ParserBase {
 
                 break;
             }
+            Expression[] es = new Expression[expressions.size()];
+            expressions.toArray(es);
+            select.addGroupSet(new GroupSet(es, select.exprColumnList.toArray(), select.indexLimitVisible));
         }
 
         // having
@@ -2600,7 +2603,11 @@ public class ParserDQL extends ParserBase {
             if (token.tokenType == Tokens.OPENBRACKET) {
                 read();
 
-                e = XreadRowElementList(true);
+                if (token.tokenType == Tokens.CLOSEBRACKET){
+                    e = new ExpressionColumn(OpTypes.NONE);
+                } else {
+                    e = XreadRowElementList(true);
+                }
 
                 readThis(Tokens.CLOSEBRACKET);
             }
@@ -2982,6 +2989,29 @@ public class ParserDQL extends ParserBase {
 
                 return new Expression(OpTypes.TABLE_SUBQUERY, td);
             }
+            case Tokens.GROUPING : {
+                read();
+
+                ExpressionColumn ec = new ExpressionColumn(OpTypes.GROUPING);
+                ec.dataType = new NumberType(Types.INTEGER, 1, 1);
+
+                if (token.tokenType == Tokens.SETS){
+                    throw unexpectedToken();
+                }
+                readThis(Tokens.OPENBRACKET);
+
+                Expression groupingElements = XreadRowElementList(true);
+                if (groupingElements.nodes.length == 0){
+                    Expression[] exprs = new Expression[1];
+                    ec.nodes = exprs;
+                    exprs[0] = groupingElements;
+                } else {
+                    ec.nodes = groupingElements.nodes;
+                }
+                readThis(Tokens.CLOSEBRACKET);
+
+                return ec;
+            }
             default :
                 if (isCoreReservedKey()) {
                     throw unexpectedToken();
@@ -3172,7 +3202,78 @@ public class ParserDQL extends ParserBase {
 
         return e;
     }
+    Expression XreadGroupByExpressionPrimary() {
+        if (token.tokenType == Tokens.GROUPING) {
+            read();
+            if (token.tokenType != Tokens.SETS){
+                throw unsupportedFeature("Grouping functions are not allowed in GROUP BY");
+            }
+            readThis(Tokens.SETS);
 
+            readThis(Tokens.OPENBRACKET);
+
+            HsqlArrayList list = new HsqlArrayList();
+            while (true) {
+                Expression e = XreadGroupByExpressionPrimary();
+
+                list.add(e);
+
+                if (token.tokenType == Tokens.COMMA) {
+                    read();
+
+                    continue;
+                }
+                break;
+            }
+            readThis(Tokens.CLOSEBRACKET);
+
+            Expression[] array = new Expression[list.size()];
+            list.toArray(array);
+            Expression e = new Expression(OpTypes.VALUELIST, array);
+            e.groupingType = Tokens.SETS;
+
+            return e;
+        }
+        Expression e = XreadGroupByExpression();
+        return e;
+    }
+
+    Expression XreadGroupByExpression() {
+        int groupingType = 0;
+        Expression e;
+        switch (token.tokenType){
+            case Tokens.CUBE:
+            case Tokens.ROLLUP:
+                groupingType = token.tokenType;
+                read();
+
+                readThis(Tokens.OPENBRACKET);
+
+                e = XreadRowElementList(true);
+
+                readThis(Tokens.CLOSEBRACKET);
+
+                checkIfGroupingOrAggregate(e);
+                e.groupingType = groupingType;
+                return e;
+            default:
+                e = XreadValueExpression();
+                checkIfGroupingOrAggregate(e);
+                return e;
+        }
+    }
+
+    private void checkIfGroupingOrAggregate(Expression e){
+        if (e.opType == OpTypes.GROUPING){
+            throw unsupportedFeature("Grouping functions are not allowed in GROUP BY");
+        }
+        if (71 <= e.opType && e.opType <= 86){
+            throw unsupportedFeature("Aggregate functions are not allowed in GROUP BY");
+        }
+        for (int i =0; i<e.nodes.length; i++){
+            checkIfGroupingOrAggregate(e.nodes[i]);
+        }
+    }
     /**
      *     <value expression> ::=
      *   <common value expression>
