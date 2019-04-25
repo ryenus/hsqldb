@@ -44,6 +44,8 @@ public interface SetFunction {
 
     void add(Object item);
 
+    void addGroup(SetFunction item);
+
     Object getValue();
 
     void reset();

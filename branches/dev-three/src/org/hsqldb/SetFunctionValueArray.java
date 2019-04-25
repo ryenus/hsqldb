@@ -50,6 +50,8 @@ public class SetFunctionValueArray implements SetFunction {
         list.add(item);
     }
 
+    public void addGroup(SetFunction item){}
+
     public Object getValue() {
         return list.toArray();
     }

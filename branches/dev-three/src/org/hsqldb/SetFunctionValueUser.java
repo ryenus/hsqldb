@@ -46,6 +46,8 @@ public class SetFunctionValueUser implements SetFunction {
 
     public void add(Object item) {}
 
+    public void addGroup(SetFunction item){}
+
     public Object getValue() {
         return list;
     }

@@ -423,6 +423,24 @@ public class ExpressionAggregate extends Expression {
         return currValue;
     }
 
+    public SetFunction updateAggregatingValue(Session session,
+                                              SetFunction currValue, SetFunction value) {
+
+        if (!nodes[RIGHT].testCondition(session)) {
+            return currValue;
+        }
+
+        if (currValue == null) {
+            currValue = new SetFunctionValueAggregate(session, opType,
+                    nodes[LEFT].dataType, dataType, isDistinctAggregate,
+                    arrayType);
+        }
+
+        currValue.addGroup(value);
+
+        return currValue;
+    }
+
     /**
      * Get the result of a SetFunction or an ordinary value
      *

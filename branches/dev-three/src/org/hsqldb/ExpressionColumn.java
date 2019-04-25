@@ -393,6 +393,7 @@ public class ExpressionColumn extends Expression {
             case OpTypes.DIAGNOSTICS_VARIABLE :
                 break;
 
+            case OpTypes.GROUPING :
             case OpTypes.COALESCE :
                 for (int i = 0; i < nodes.length; i++) {
                     nodes[i].resolveColumnReferences(session, rangeGroup,
@@ -662,6 +663,12 @@ public class ExpressionColumn extends Expression {
 
         switch (opType) {
 
+            case OpTypes.GROUPING :
+                if (session.sessionContext.groupSet == null){
+                    return 0;
+                }
+                return session.sessionContext.groupSet.isGrouped(this);
+
             case OpTypes.DEFAULT :
                 return null;
 
@@ -816,6 +823,23 @@ public class ExpressionColumn extends Expression {
                     sb.append(s);
                 }
 
+                return sb.toString();
+            }
+            case OpTypes.GROUPING: {
+                StringBuffer sb = new StringBuffer();
+                sb.append("GROUPING(");
+
+                for (int i = 0; i < nodes.length; i++) {
+                    Expression e = nodes[i];
+
+                    if (i > 0) {
+                        sb.append(',');
+                    }
+
+                    String s = e.getSQL();
+                    sb.append(s);
+                }
+                sb.append(")");
                 return sb.toString();
             }
             default :
