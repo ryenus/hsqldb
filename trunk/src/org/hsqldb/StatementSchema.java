@@ -1359,6 +1359,8 @@ public class StatementSchema extends Statement {
                                          true);
 
                     if (otherName != null) {
+                        setOrCheckObjectName(session, null, otherName, false);
+
                         if (schemaManager.getSchemaObject(otherName) == null) {
                             throw Error.error(ErrorCode.X_42501,
                                               otherName.name);
@@ -1720,7 +1722,7 @@ public class StatementSchema extends Statement {
     }
 
     void setOrCheckObjectName(Session session, HsqlName parent, HsqlName name,
-                              boolean check) {
+                              boolean checkNotExists) {
 
         if (name.schema == null) {
             name.schema = schemaName == null
@@ -1746,7 +1748,7 @@ public class StatementSchema extends Statement {
             checkSchemaUpdateAuthorisation(session, name.schema);
         }
 
-        if (check) {
+        if (checkNotExists) {
             session.database.schemaManager.checkSchemaObjectNotExists(name);
         }
     }
