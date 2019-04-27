@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.types.Types;
  * Parser for SQL table definition
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class ParserTable extends ParserDML {
@@ -95,6 +95,7 @@ public class ParserTable extends ParserDML {
             return compileCreateTableAsSubqueryDefinition(table);
         }
 
+        readTableVersioningClause(table);
         readTableOnCommitClause(table);
 
         if (database.sqlSyntaxMys) {
@@ -150,9 +151,11 @@ public class ParserTable extends ParserDML {
 
         tempConstraints.add(c);
 
-        boolean start     = true;
-        boolean startPart = true;
-        boolean end       = false;
+        boolean start       = true;
+        boolean startPart   = true;
+        boolean end         = false;
+        boolean hasRowStart = false;
+        boolean hasRowEnd   = false;
 
         while (!end) {
             switch (token.tokenType) {
@@ -179,6 +182,21 @@ public class ParserTable extends ParserDML {
                     }
 
                     readConstraint(table, tempConstraints);
+
+                    start     = false;
+                    startPart = false;
+                    break;
+
+                case Tokens.PERIOD :
+                    if (!startPart) {
+                        throw unexpectedToken();
+                    }
+
+                    if (table.isTemp() || table.isText()) {
+                        throw unexpectedToken();
+                    }
+
+                    readAndAddPeriod(table);
 
                     start     = false;
                     startPart = false;
@@ -240,6 +258,24 @@ public class ParserTable extends ParserDML {
 
                     start     = false;
                     startPart = false;
+
+                    if (newcolumn.getSystemPeriodType()
+                            == SchemaObject.PeriodSystemColumnType
+                                .PERIOD_ROW_START) {
+                        if (hasRowStart) {
+                            throw Error.error(ErrorCode.X_42591);
+                        }
+
+                        hasRowStart = true;
+                    } else if (newcolumn.getSystemPeriodType()
+                               == SchemaObject.PeriodSystemColumnType
+                                   .PERIOD_ROW_END) {
+                        if (hasRowEnd) {
+                            throw Error.error(ErrorCode.X_42591);
+                        }
+
+                        hasRowEnd = true;
+                    }
             }
         }
 
@@ -247,7 +283,141 @@ public class ParserTable extends ParserDML {
             throw Error.error(ErrorCode.X_42591);
         }
 
+        if (hasRowStart ^ hasRowEnd) {
+            throw Error.error(ErrorCode.X_42516);
+        }
+
+        if (hasRowStart && table.systemPeriod == null) {
+            throw Error.error(ErrorCode.X_42516);
+        }
+
+        setPeriodColumns(table, table.systemPeriod);
+        setPeriodColumns(table, table.applicationPeriod);
+
+        // not supported
+        if (table.applicationPeriod != null) {
+            throw Error.error(ErrorCode.X_0A501,
+                              table.applicationPeriod.getName().name);
+        }
+
         return true;
+    }
+
+    /**
+     * check period columns have already been defined in table and have the
+     * supported data types
+     */
+    void setPeriodColumns(Table table, PeriodDefinition period) {
+
+        if (period == null) {
+            return;
+        }
+
+        OrderedHashSet set         = period.columnNames;
+        ColumnSchema   startColumn = null;
+        ColumnSchema   endColumn   = null;
+        HsqlName       name        = period.getName();
+        int            index       = table.findColumn(name.name);
+
+        if (index >= 0) {
+            throw Error.error(ErrorCode.X_42516, name.name);
+        }
+
+        for (int i = 0; i < 2; i++) {
+            String columnName = (String) set.get(i);
+
+            index = table.findColumn(columnName);
+
+            if (index < 0) {
+                throw Error.error(ErrorCode.X_42501, columnName);
+            }
+
+            ColumnSchema column = table.getColumn(index);
+            Type         type   = column.getDataType();
+
+            switch (period.periodType) {
+
+                case SchemaObject.PeriodType.PERIOD_SYSTEM :
+                    if (!type.isTimestampType()) {
+                        throw Error.error(ErrorCode.X_42516, columnName);
+                    }
+
+                    if (i == 0) {
+                        if (column.getSystemPeriodType()
+                                != SchemaObject.PeriodSystemColumnType
+                                    .PERIOD_ROW_START) {
+                            throw Error.error(ErrorCode.X_42516, columnName);
+                        }
+                    } else {
+                        if (column.getSystemPeriodType()
+                                != SchemaObject.PeriodSystemColumnType
+                                    .PERIOD_ROW_END) {
+                            throw Error.error(ErrorCode.X_42516, columnName);
+                        }
+                    }
+                    break;
+
+                case SchemaObject.PeriodType.PERIOD_APPLICATION :
+                    if (!type.isDateOrTimestampType()) {
+                        throw Error.error(ErrorCode.X_42516, columnName);
+                    }
+                    break;
+            }
+
+            if (i == 0) {
+                startColumn = column;
+            } else {
+                endColumn = column;
+
+                if (!startColumn.getDataType().equals(
+                        endColumn.getDataType())) {
+                    throw Error.error(ErrorCode.X_42516, columnName);
+                }
+            }
+        }
+
+        period.startColumn = startColumn;
+        period.endColumn   = endColumn;
+    }
+
+    /**
+     * check the system period name and column names do not exist
+     */
+    void checkPeriodColumnsAdd(Table table, PeriodDefinition period) {
+
+        if (period == null) {
+            return;
+        }
+
+        OrderedHashSet set   = period.columnNames;
+        HsqlName       name  = period.getName();
+        int            index = table.findColumn(name.name);
+
+        if (index >= 0) {
+            throw Error.error(ErrorCode.X_42516, name.name);
+        }
+
+        for (int i = 0; i < 2; i++) {
+            String columnName = (String) set.get(i);
+
+            index = table.findColumn(columnName);
+
+            if (index >= 0) {
+                throw Error.error(ErrorCode.X_42504, columnName);
+            }
+        }
+    }
+
+    void readTableVersioningClause(Table table) {
+
+        if (table.systemPeriod != null) {
+            if (readIfThis(Tokens.WITH)) {
+                readThis(Tokens.SYSTEM);
+                readThis(Tokens.VERSIONING);
+
+                table.isSystemVersioned = true;
+            }
+        }
     }
 
     void readTableOnCommitClause(Table table) {
@@ -566,7 +736,7 @@ public class ParserTable extends ParserDML {
 
         TableWorks tableWorks = new TableWorks(session, table);
 
-        tableWorks.checkCreateForeignKey(c);
+        tableWorks.checkCreateForeignKey(table, c);
 
         Constraint uniqueConstraint =
             c.core.mainTable.getUniqueConstraintForColumns(c.core.mainCols);
@@ -805,15 +975,17 @@ public class ParserTable extends ParserDML {
     ColumnSchema readColumnDefinitionOrNull(Table table, HsqlName hsqlName,
             HsqlArrayList constraintList) {
 
-        boolean        isGenerated     = false;
-        boolean        isIdentity      = false;
-        boolean        isPKIdentity    = false;
-        boolean        generatedAlways = false;
-        Expression     generateExpr    = null;
-        boolean        isNullable      = true;
-        Expression     defaultExpr     = null;
-        Type           typeObject      = null;
-        NumberSequence sequence        = null;
+        boolean    isGenerated     = false;
+        boolean    isIdentity      = false;
+        boolean    isPKIdentity    = false;
+        boolean    generatedAlways = false;
+        Expression generateExpr    = null;
+        int sysPeriodType =
+            SchemaObject.PeriodSystemColumnType.PERIOD_ROW_NONE;
+        boolean        isNullable  = true;
+        Expression     defaultExpr = null;
+        Type           typeObject  = null;
+        NumberSequence sequence    = null;
 
         switch (token.tokenType) {
 
@@ -824,7 +996,7 @@ public class ParserTable extends ParserDML {
                 isGenerated     = true;
                 generatedAlways = true;
 
-                // not yet
+                // not yet supported - type determination required
                 throw unexpectedToken(Tokens.T_GENERATED);
             }
             case Tokens.IDENTITY : {
@@ -945,46 +1117,90 @@ public class ParserTable extends ParserDML {
 
                     readThis(Tokens.AS);
 
-                    if (token.tokenType == Tokens.IDENTITY) {
-                        read();
+                    switch (token.tokenType) {
 
-                        sequence = new NumberSequence(null, typeObject);
-
-                        sequence.setAlways(generatedAlways);
-
-                        if (token.tokenType == Tokens.OPENBRACKET) {
+                        case Tokens.IDENTITY : {
                             read();
-                            readSequenceOptions(sequence, false, false, true);
-                            readThis(Tokens.CLOSEBRACKET);
-                        }
 
-                        isIdentity = true;
-                    } else if (token.tokenType == Tokens.OPENBRACKET) {
-                        if (!generatedAlways) {
-                            throw unexpectedTokenRequire(Tokens.T_IDENTITY);
-                        }
+                            sequence = new NumberSequence(null, typeObject);
 
-                        isGenerated = true;
-                    } else if (token.tokenType == Tokens.SEQUENCE) {
-                        if (generatedAlways) {
-                            throw unexpectedToken();
-                        }
+                            sequence.setAlways(generatedAlways);
 
-                        read();
-
-                        if (token.namePrefix != null) {
-                            if (!token.namePrefix.equals(
-                                    table.getSchemaName().name)) {
-                                throw unexpectedToken(token.namePrefix);
+                            if (token.tokenType == Tokens.OPENBRACKET) {
+                                read();
+                                readSequenceOptions(sequence, false, false,
+                                                    true);
+                                readThis(Tokens.CLOSEBRACKET);
                             }
+
+                            isIdentity = true;
+
+                            break;
                         }
+                        case Tokens.OPENBRACKET : {
+                            if (!generatedAlways) {
+                                throw unexpectedToken(Tokens.GENERATED);
+                            }
 
-                        sequence = database.schemaManager.getSequence(
-                            token.tokenString, table.getSchemaName().name,
-                            true);
-                        isIdentity = true;
+                            isGenerated = true;
 
-                        read();
+                            read();
+
+                            generateExpr = XreadValueExpression();
+
+                            readThis(Tokens.CLOSEBRACKET);
+
+                            break;
+                        }
+                        case Tokens.SEQUENCE : {
+                            if (generatedAlways) {
+                                throw unexpectedToken();
+                            }
+
+                            read();
+
+                            if (token.namePrefix != null) {
+                                if (!token.namePrefix.equals(
+                                        table.getSchemaName().name)) {
+                                    throw unexpectedToken(token.namePrefix);
+                                }
+                            }
+
+                            sequence = database.schemaManager.getSequence(
+                                token.tokenString, table.getSchemaName().name,
+                                true);
+                            isIdentity = true;
+
+                            read();
+
+                            break;
+                        }
+                        case Tokens.ROW : {
+                            if (!typeObject.isTimestampType()) {
+                                throw unexpectedToken();
+                            }
+
+                            read();
+
+                            if (readIfThis(Tokens.START)) {
+                                sysPeriodType =
+                                    SchemaObject.PeriodSystemColumnType
+                                        .PERIOD_ROW_START;
+                            } else {
+                                readThis(Tokens.END);
+
+                                sysPeriodType =
+                                    SchemaObject.PeriodSystemColumnType
+                                        .PERIOD_ROW_END;
+                            }
+
+                            // always with TIME_ZONE and microsecond precision
+                            if (typeObject.typeCode == Types.SQL_TIMESTAMP) {
+                                typeObject = Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
+                            }
+
+                            break;
+                        }
                     }
 
                     break;
@@ -998,14 +1214,6 @@ public class ParserTable extends ParserDML {
                 }
                 break;
             }
-        }
-
-        if (isGenerated) {
-            readThis(Tokens.OPENBRACKET);
-
-            generateExpr = XreadValueExpression();
-
-            readThis(Tokens.CLOSEBRACKET);
         }
 
         if (!isGenerated && !isIdentity) {
@@ -1049,6 +1257,7 @@ public class ParserTable extends ParserDML {
         }
 
         column.setGeneratingExpression(generateExpr);
+        column.setSystemPeriodType(sysPeriodType);
         readColumnConstraints(table, column, constraintList);
 
         if (token.tokenType == Tokens.IDENTITY && !isIdentity) {
@@ -1127,6 +1336,79 @@ public class ParserTable extends ParserDML {
         }
 
         return column;
+    }
+
+    /**
+     * Reads and adds a table period definition to the table
+     *
+     * @param table a table
+     */
+    void readAndAddPeriod(Table table) {
+
+        PeriodDefinition period = readPeriod(table);
+
+        if (period.getPeriodType() == SchemaObject.PeriodType.PERIOD_SYSTEM) {
+            table.systemPeriod = period;
+        } else {
+            table.applicationPeriod = period;
+        }
+    }
+
+    PeriodDefinition readPeriod(Table table) {
+
+        int      periodType = SchemaObject.PeriodType.PERIOD_NONE;
+        HsqlName periodName = null;
+
+        readThis(Tokens.PERIOD);
+        readThis(Tokens.FOR);
+
+        if (token.tokenType == Tokens.SYSTEM_TIME) {
+            periodType = SchemaObject.PeriodType.PERIOD_SYSTEM;
+            periodName =
+                database.nameManager.newHsqlName(table.getName().schema,
+                                                 token.tokenString, false,
+                                                 SchemaObject.PERIOD);
+
+            read();
+        } else {
+            periodType = SchemaObject.PeriodType.PERIOD_APPLICATION;
+
+            // always use strict naming
+            checkIsNonReservedIdentifier();
+            checkIsIrregularCharInIdentifier();
+            checkIsSimpleName();
+
+            periodName =
+                database.nameManager.newHsqlName(table.getName().schema,
+                                                 token.tokenString,
+                                                 isDelimitedIdentifier(),
+                                                 SchemaObject.PERIOD);
+
+            read();
+        }
+
+        periodName.parent = table.getName();
+
+        OrderedHashSet set = readColumnNames(false);
+
+        if (set.size() != 2) {
+            throw Error.error(ErrorCode.X_42593);
+        }
+
+        PeriodDefinition period = new PeriodDefinition(periodName, periodType,
+            set);
+
+        if (period.getPeriodType() == SchemaObject.PeriodType.PERIOD_SYSTEM) {
+            if (table.systemPeriod != null) {
+                throw Error.error(ErrorCode.X_42581);    // unexpected token (for now)
+            }
+        } else {
+            if (table.applicationPeriod != null) {
+                throw Error.error(ErrorCode.X_42581);    // unexpected token (for now)
+            }
+        }
+
+        return period;
     }
 
     /**
@@ -1477,8 +1759,6 @@ public class ParserTable extends ParserDML {
         Expression condition = XreadBooleanValueExpression();
 
         isCheckOrTriggerCondition = false;
-
-        Token[] tokens = getRecordedStatement();
 
         readThis(Tokens.CLOSEBRACKET);
 
@@ -1985,5 +2265,162 @@ public class ParserTable extends ParserDML {
         }
 
         return ifNot;
+    }
+
+    StatementSchema compileAlterTableAddPeriod(Table table) {
+
+        PeriodDefinition period = readPeriod(table);
+
+        if (period.getPeriodType() == SchemaObject.PeriodType.PERIOD_SYSTEM) {
+            checkPeriodColumnsAdd(table, period);
+        } else {
+
+            // application period not supported
+            setPeriodColumns(table, period);
+
+            throw Error.error(ErrorCode.X_0A501);
+        }
+
+        readThis(Tokens.ADD);
+        readIfThis(Tokens.COLUMN);
+
+        String nameString = (String) period.columnNames.get(0);
+
+        if (!token.tokenString.equals(nameString)) {
+            throw unexpectedToken();
+        }
+
+        HsqlArrayList list = new HsqlArrayList();
+        HsqlName hsqlName =
+            database.nameManager.newColumnHsqlName(table.getName(),
+                token.tokenString, isDelimitedIdentifier());
+
+        read();
+
+        ColumnSchema columnStart = readColumnDefinitionOrNull(table, hsqlName,
+            list);
+
+        if (columnStart == null) {
+            throw Error.error(ErrorCode.X_42000);
+        }
+
+        if (columnStart.getSystemPeriodType()
+                != SchemaObject.PeriodSystemColumnType.PERIOD_ROW_START) {
+            throw Error.error(ErrorCode.X_42516, columnStart.getNameString());
+        }
+
+        readThis(Tokens.ADD);
+        readIfThis(Tokens.COLUMN);
+        checkIsSimpleName();
+
+        nameString = (String) period.columnNames.get(1);
+
+        if (!token.tokenString.equals(nameString)) {
+            throw unexpectedToken();
+        }
+
+        hsqlName = database.nameManager.newColumnHsqlName(table.getName(),
+                token.tokenString, isDelimitedIdentifier());
+
+        read();
+
+        ColumnSchema columnEnd = readColumnDefinitionOrNull(table, hsqlName,
+            list);
+
+        if (columnEnd == null) {
+            throw Error.error(ErrorCode.X_42000);
+        }
+
+        if (columnEnd.getSystemPeriodType()
+                != SchemaObject.PeriodSystemColumnType.PERIOD_ROW_END) {
+            throw Error.error(ErrorCode.X_42516, columnEnd.getNameString());
+        }
+
+        period.startColumn = columnStart;
+        period.endColumn   = columnEnd;
+
+        String   sql  = getLastPart();
+        Object[] args = new Object[] {
+            table, period
+        };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
+
+        return new StatementSchema(sql, StatementTypes.ADD_TABLE_PERIOD, args,
+                                   null, writeLockNames);
+    }
+
+    StatementSchema compileAlterTableDropPeriod(Table table) {
+
+        if (readIfThis(Tokens.SYSTEM_TIME)) {
+
+            //
+        } else {
+
+            // application period not supported
+            throw Error.error(ErrorCode.X_0A501);
+        }
+
+        PeriodDefinition period = table.systemPeriod;
+
+        if (period == null) {
+            throw Error.error(ErrorCode.X_42517);
+        }
+
+        if (table.isSystemVersioned) {
+            throw Error.error(ErrorCode.X_42518);
+        }
+
+        Boolean  cascade = readIfThis(Tokens.CASCADE);
+        String   sql     = getLastPart();
+        Object[] args    = new Object[] {
+            table, period, cascade
+        };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
+
+        return new StatementSchema(sql, StatementTypes.DROP_TABLE_PERIOD,
+                                   args, null, writeLockNames);
+    }
+
+    StatementSchema compileAlterTableAddVersioning(Table table) {
+
+        PeriodDefinition period = table.systemPeriod;
+
+        if (period == null) {
+            throw Error.error(ErrorCode.X_42518);
+        }
+
+        String   sql  = getLastPart();
+        Object[] args = new Object[]{ table };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
+
+        return new StatementSchema(sql,
+                                   StatementTypes.ADD_TABLE_SYSTEM_VERSIONING,
+                                   args, null, writeLockNames);
+    }
+
+    StatementSchema compileAlterTableDropVersioning(Table table) {
+
+        if (!table.isSystemVersioned) {
+            throw Error.error(ErrorCode.X_42518);
+        }
+
+        Boolean  cascade = readIfThis(Tokens.CASCADE);
+        String   sql     = getLastPart();
+        Object[] args    = new Object[] {
+            table, cascade
+        };
+        HsqlName[] writeLockNames =
+            database.schemaManager.getCatalogAndBaseTableNames(
+                table.getName());
+
+        return new StatementSchema(sql,
+                                   StatementTypes.DROP_TABLE_SYSTEM_VERSIONING,
+                                   args, null, writeLockNames);
     }
 }

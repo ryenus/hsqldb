@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.IntValueHashMap;
-import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
 
@@ -150,10 +149,9 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     /**
      *  Retrieves the SQL character sequence required to (re)create the
-     *  trigger, as a StringBuffer
+     *  type, as a String
      *
-     * @return the SQL character sequence required to (re)create the
-     *  trigger
+     * @return the SQL character sequence required to (re)create the type
      */
     public String getSQL() {
 
@@ -612,38 +610,6 @@ public abstract class Type implements SchemaObject, Cloneable {
         return typeCode + ((int) precision << 8) + (scale << 16);
     }
 
-    public static TypedComparator newComparator(Session session) {
-        return new TypedComparator(session);
-    }
-
-    public static class TypedComparator implements ObjectComparator {
-
-        Session      session;
-        Type         type;
-        SortAndSlice sort;
-
-        TypedComparator(Session session) {
-            this.session = session;
-        }
-
-        public int compare(Object a, Object b) {
-            return type.compare(session, a, b, sort);
-        }
-
-        public int hashCode(Object a) {
-            return type.hashCode(a);
-        }
-
-        public long longKey(Object a) {
-            return 0;
-        }
-
-        public void setType(Type type, SortAndSlice sort) {
-            this.type = type;
-            this.sort = sort;
-        }
-    }
-
     /** @todo 1.9.0 - review all - need max implementation defined lengths, used for parameters */
 
     // null type
@@ -724,6 +690,9 @@ public abstract class Type implements SchemaObject, Cloneable {
     public static final DateTimeType SQL_TIME =
         new DateTimeType(Types.SQL_TIME, Types.SQL_TIME,
                          DTIType.defaultTimeFractionPrecision);
+    public static final DateTimeType SQL_TIME_MAX =
+        new DateTimeType(Types.SQL_TIME, Types.SQL_TIME,
+                         DTIType.maxFractionPrecision);
     public static final DateTimeType SQL_TIME_WITH_TIME_ZONE =
         new DateTimeType(Types.SQL_TIME, Types.SQL_TIME_WITH_TIME_ZONE,
                          DTIType.defaultTimeFractionPrecision);
@@ -736,6 +705,10 @@ public abstract class Type implements SchemaObject, Cloneable {
                          DTIType.defaultTimestampFractionPrecision);
     public static final DateTimeType SQL_TIMESTAMP_NO_FRACTION =
         new DateTimeType(Types.SQL_TIMESTAMP, Types.SQL_TIMESTAMP, 0);
+    public static final DateTimeType SQL_TIMESTAMP_WITH_TIME_ZONE_MAX =
+        new DateTimeType(Types.SQL_TIMESTAMP,
+                         Types.SQL_TIMESTAMP_WITH_TIME_ZONE,
+                         DTIType.maxFractionPrecision);
 
     // interval
     public static final IntervalType SQL_INTERVAL_YEAR =
@@ -1043,8 +1016,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         }
 
         if (type.isCharacterType()) {
-            type                             = type.duplicate();
-            ((CharacterType) type).collation = collation;
+            type = new CharacterType(collation, type.typeCode, type.precision);
         }
 
         return type;

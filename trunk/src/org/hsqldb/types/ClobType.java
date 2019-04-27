@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.jdbc.JDBCClobClient;
  * Type object for CLOB.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public final class ClobType extends CharacterType {
@@ -54,6 +54,10 @@ public final class ClobType extends CharacterType {
 
     public ClobType(long precision) {
         super(Types.SQL_CLOB, precision);
+    }
+
+    public ClobType(Collation collation, long precision) {
+        super(collation, Types.SQL_CLOB, precision);
     }
 
     public int displaySize() {
@@ -95,7 +99,7 @@ public final class ClobType extends CharacterType {
             }
         }
 
-        StringBuffer sb = new StringBuffer(16);
+        StringBuilder sb = new StringBuilder(16);
 
         sb.append(getNameString());
         sb.append('(');

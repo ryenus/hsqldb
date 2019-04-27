@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,7 @@ import org.hsqldb.result.Result;
 import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptReaderText;
+import org.hsqldb.scriptio.StatementLineTypes;
 import org.hsqldb.types.Type;
 
 /**
@@ -61,7 +62,7 @@ import org.hsqldb.types.Type;
  * logged to the application log. If memory runs out, an exception is thrown.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.7.2
  */
 public class ScriptRunner {
@@ -145,9 +146,11 @@ public class ScriptRunner {
 
                 switch (statementType) {
 
-                    case ScriptReaderBase.SET_FILES_CHECK_STATEMENT :
+                    case StatementLineTypes.SET_FILES_CHECK_STATEMENT :
                         result = null;
-                    case ScriptReaderBase.ANY_STATEMENT :
+
+                    // fall through
+                    case StatementLineTypes.ANY_STATEMENT :
                         statement = scr.getLoggedStatement();
 
                         Statement cs;
@@ -191,11 +194,11 @@ public class ScriptRunner {
                         }
                         break;
 
-                    case ScriptReaderBase.COMMIT_STATEMENT :
+                    case StatementLineTypes.COMMIT_STATEMENT :
                         current.commit(false);
                         break;
 
-                    case ScriptReaderBase.INSERT_STATEMENT : {
+                    case StatementLineTypes.INSERT_STATEMENT : {
                         current.sessionContext.currentStatement = dummy;
 
                         current.beginAction(dummy);
@@ -208,7 +211,7 @@ public class ScriptRunner {
 
                         break;
                     }
-                    case ScriptReaderBase.DELETE_STATEMENT : {
+                    case StatementLineTypes.DELETE_STATEMENT : {
                         current.sessionContext.currentStatement = dummy;
 
                         current.beginAction(dummy);
@@ -226,7 +229,7 @@ public class ScriptRunner {
 
                         break;
                     }
-                    case ScriptReaderBase.SET_SCHEMA_STATEMENT : {
+                    case StatementLineTypes.SET_SCHEMA_STATEMENT : {
                         HsqlName name =
                             database.schemaManager.findSchemaHsqlName(
                                 scr.getCurrentSchema());
@@ -235,7 +238,7 @@ public class ScriptRunner {
 
                         break;
                     }
-                    case ScriptReaderBase.SESSION_ID : {
+                    case StatementLineTypes.SESSION_ID : {
                         break;
                     }
                     default :

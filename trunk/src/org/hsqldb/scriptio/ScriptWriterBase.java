@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,11 +37,13 @@ import java.io.OutputStream;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseManager;
+import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Row;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
+import org.hsqldb.SqlInvariants;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.Tokens;
@@ -54,8 +56,8 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
-
-//import org.hsqldb.lib.StopWatch;
+import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.TimestampData;
 
 /**
  * @todo - can lock the database engine as readonly in a wrapper for this when
@@ -85,7 +87,7 @@ import org.hsqldb.result.Result;
  * DatabaseScriptReader and its subclasses read back the data at startup time.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.5.0
  * @since 1.7.2
  */
 public abstract class ScriptWriterBase implements Runnable {
@@ -155,7 +157,8 @@ public abstract class ScriptWriterBase implements Runnable {
         }
 
         if (exists && isNewFile) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, file);
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                              file + " already exists");
         }
 
         this.database          = db;
@@ -256,13 +259,8 @@ public abstract class ScriptWriterBase implements Runnable {
     }
 
     public void writeAll() {
-
-        try {
-            writeDDL();
-            writeExistingData();
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR);
-        }
+        writeDDL();
+        writeExistingData(true);
     }
 
     /**
@@ -287,16 +285,22 @@ public abstract class ScriptWriterBase implements Runnable {
         }
     }
 
-    protected void finishStream() throws IOException {}
+    protected void finishStream() {}
 
-    public void writeDDL() throws IOException {
+    public void writeDDL() {
 
-        Result ddlPart = database.getScript(includeIndexRoots);
+        try {
+            Result ddlPart = database.getScript(includeIndexRoots);
 
-        writeSingleColumnResult(ddlPart);
+            writeSingleColumnResult(ddlPart);
+        } catch (HsqlException e) {
+            close();
+
+            throw e;
+        }
     }
 
-    public void writeExistingData() throws IOException {
+    public void writeExistingData(boolean lobSchema) {
 
         // start with blank schema - SET SCHEMA to log
         currentSession.loggedSchema = null;
@@ -305,6 +309,11 @@ public abstract class ScriptWriterBase implements Runnable {
 
         for (int i = 0; i < schemas.length; i++) {
             String schema = schemas[i];
+
+            if (!lobSchema && SqlInvariants.LOBS_SCHEMA.equals(schema)) {
+                continue;
+            }
+
             Iterator tables =
                 database.schemaManager.databaseObjectIterator(schema,
                     SchemaObject.TABLE);
@@ -333,25 +342,8 @@ public abstract class ScriptWriterBase implements Runnable {
                         break;
                 }
 
-                try {
-                    if (script) {
-                        schemaToLog = t.getName().schema;
-
-                        writeTableInit(t);
-
-                        RowIterator it =
-                            t.rowIteratorClustered(currentSession);
-
-                        while (it.next()) {
-                            Row row = it.getCurrentRow();
-
-                            writeRow(currentSession, row, t);
-                        }
-
-                        writeTableTerm(t);
-                    }
-                } catch (Exception e) {
-                    throw Error.error(ErrorCode.FILE_IO_ERROR, e.toString());
+                if (script) {
+                    writeTableData(t);
                 }
             }
         }
@@ -359,11 +351,95 @@ public abstract class ScriptWriterBase implements Runnable {
         writeDataTerm();
     }
 
-    public void writeTableInit(Table t) throws IOException {}
+    public void writeVersioningData(TimestampData from) {
 
-    public void writeTableTerm(Table t) throws IOException {}
+        // start with blank schema - SET SCHEMA to log
+        currentSession.loggedSchema = null;
 
-    protected void writeSingleColumnResult(Result r) throws IOException {
+        String[] schemas = database.schemaManager.getSchemaNamesArray();
+
+        for (int i = 0; i < schemas.length; i++) {
+            String schema = schemas[i];
+            Iterator tables =
+                database.schemaManager.databaseObjectIterator(schema,
+                    SchemaObject.TABLE);
+
+            while (tables.hasNext()) {
+                Table t = (Table) tables.next();
+
+                if (t.isSystemVersioned() && t.hasPrimaryKey()) {
+                    writeTableVersionData(t, from);
+                }
+            }
+        }
+
+        writeDataTerm();
+    }
+
+    public void writeTableData(Table t) {
+
+        schemaToLog = t.getName().schema;
+
+        try {
+            writeTableInit(t);
+
+            RowIterator it =
+                t.rowIteratorForScript(t.getRowStore(currentSession));
+
+            while (it.next()) {
+                Row row = it.getCurrentRow();
+
+                writeRow(currentSession, row, t);
+            }
+
+            writeTableTerm(t);
+        } catch (HsqlException e) {
+            close();
+
+            throw e;
+        }
+    }
+
+    public void writeTableVersionData(Table t, TimestampData from) {
+
+        int startCol = t.getSystemPeriodStartIndex();
+        int endCol   = t.getSystemPeriodEndIndex();
+
+        schemaToLog = t.getName().schema;
+
+        try {
+            writeTableInit(t);
+
+            RowIterator it =
+                t.rowIteratorForScript(t.getRowStore(currentSession));
+
+            while (it.next()) {
+                Row           row   = it.getCurrentRow();
+                TimestampData start = (TimestampData) row.getField(startCol);
+                TimestampData end   = (TimestampData) row.getField(endCol);
+
+                // period started or ended at or after point of time
+                if (start.getSeconds() >= from.getSeconds()
+                        || (end.getSeconds() >= from.getSeconds()
+                            && end.getSeconds()
+                               < DateTimeType.epochLimitSeconds)) {
+                    writeRow(currentSession, row, t);
+                }
+            }
+
+            writeTableTerm(t);
+        } catch (HsqlException e) {
+            close();
+
+            throw e;
+        }
+    }
+
+    public void writeTableInit(Table t) {}
+
+    public void writeTableTerm(Table t) {}
+
+    protected void writeSingleColumnResult(Result r) {
 
         RowSetNavigator nav = r.initialiseNavigator();
 
@@ -374,31 +450,26 @@ public abstract class ScriptWriterBase implements Runnable {
         }
     }
 
-    public abstract void writeRow(Session session, Row row,
-                                  Table table) throws IOException;
+    public abstract void writeRow(Session session, Row row, Table table);
 
-    protected abstract void writeDataTerm() throws IOException;
+    protected abstract void writeDataTerm();
 
-    protected abstract void writeSessionIdAndSchema(Session session)
-    throws IOException;
+    protected abstract void writeSessionIdAndSchema(Session session);
 
-    public abstract void writeLogStatement(Session session,
-                                           String s) throws IOException;
+    public abstract void writeLogStatement(Session session, String s);
 
-    public abstract void writeOtherStatement(Session session,
-            String s) throws IOException;
+    public abstract void writeOtherStatement(Session session, String s);
 
     public abstract void writeInsertStatement(Session session, Row row,
-            Table table) throws IOException;
+            Table table);
 
     public abstract void writeDeleteStatement(Session session, Table table,
-            Object[] data) throws IOException;
+            Object[] data);
 
     public abstract void writeSequenceStatement(Session session,
-            NumberSequence seq) throws IOException;
+            NumberSequence seq);
 
-    public abstract void writeCommitStatement(Session session)
-    throws IOException;
+    public abstract void writeCommitStatement(Session session);
 
     //
     private Object timerTask;

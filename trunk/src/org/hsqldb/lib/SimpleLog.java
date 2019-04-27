@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
-import org.hsqldb.HsqlDateTime;
+import org.hsqldb.HsqlDateTime.SystemTimeString;
 
 /**
  * Simple log for recording abnormal events in persistence<p>
@@ -46,7 +46,7 @@ import org.hsqldb.HsqlDateTime;
  * and minor errors.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.5.0
  * @since 1.8.0
  */
 public class SimpleLog {
@@ -58,22 +58,23 @@ public class SimpleLog {
     public static final int LOG_RESULT = 4;
 
     //
-    public static final String   logTypeNameEngine = "ENGINE";
-    static final String[] appLogTypeNames   = {
+    public static final String logTypeNameEngine = "ENGINE";
+    static final String[]      appLogTypeNames   = {
         "", "ERROR ", "NORMAL", "DETAIL"
     };
-    static final String[] sqlLogTypeNames   = {
+    static final String[]      sqlLogTypeNames   = {
         "", "BASIC ", "NORMAL", "DETAIL", "RESULT"
     };
 
     //
-    private PrintWriter  writer;
-    private int          level;
-    private boolean      isSystem;
-    private boolean      isSQL;
-    String[]             logTypeNames;
-    private String       filePath;
-    private StringBuffer sb;
+    private PrintWriter   writer;
+    private int           level;
+    private boolean       isSystem;
+    private boolean       isSQL;
+    String[]              logTypeNames;
+    private String        filePath;
+    private StringBuilder sb;
+    SystemTimeString      sysTime = new SystemTimeString();
 
     public SimpleLog(String path, int level, boolean isSQL) {
 
@@ -82,7 +83,7 @@ public class SimpleLog {
         this.isSQL    = isSQL;
         logTypeNames  = isSQL ? sqlLogTypeNames
                               : appLogTypeNames;
-        sb            = new StringBuffer(256);
+        sb            = new StringBuilder(256);
 
         setLevel(level);
     }
@@ -143,7 +144,7 @@ public class SimpleLog {
             return;
         }
 
-        sb.append(HsqlDateTime.getSystemTimeString()).append(' ');
+        sb.append(sysTime.getTimestampString()).append(' ');
 
         if (!isSQL) {
             sb.append(logTypeNames[atLevel]).append(' ');
@@ -166,7 +167,7 @@ public class SimpleLog {
             return;
         }
 
-        sb.append(HsqlDateTime.getSystemTimeString()).append(' ');
+        sb.append(sysTime.getTimestampString()).append(' ');
 
         if (!isSQL) {
             sb.append(logTypeNames[atLevel]).append(' ');
@@ -190,7 +191,7 @@ public class SimpleLog {
             return;
         }
 
-        sb.append(HsqlDateTime.getSystemTimeString()).append(' ');
+        sb.append(sysTime.getTimestampString()).append(' ');
 
         if (!isSQL) {
             sb.append(logTypeNames[atLevel]).append(' ');

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for PSM and trigger assignment.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class StatementSet extends StatementDMQL {
@@ -227,7 +227,7 @@ public class StatementSet extends StatementDMQL {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         switch (operationType) {
 
@@ -251,7 +251,7 @@ public class StatementSet extends StatementDMQL {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append('\n');
 
@@ -297,9 +297,10 @@ public class StatementSet extends StatementDMQL {
         Type[]       colTypes       = table.getColumnTypes();
         int index = targetRangeVariables[TriggerDef.NEW_ROW].rangePosition;
         Object[]     oldData = session.sessionContext.triggerArguments[index];
-        Object[] data = StatementDML.getUpdatedData(session, targets, table,
-            colMap, colExpressions, colTypes, oldData);
+        Object[]     data = (Object[]) ArrayUtil.duplicateArray(oldData);
 
+        StatementDML.getUpdatedData(session, targets, table, colMap,
+                                    colExpressions, colTypes, data);
         ArrayUtil.copyArray(data, oldData, data.length);
 
         return Result.updateOneResult;

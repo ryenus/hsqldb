@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ import org.hsqldb.result.Result;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.3.0
+ * @version 2.5.0
  * @since 1.7.2
  * @see  User
  */
@@ -402,7 +402,7 @@ public final class UserManager {
         return GranteeManager.systemAuthorisation;
     }
 
-    public synchronized void removeSchemaReference(String schemaName) {
+    public synchronized void removeSchemaReference(HsqlName schemaName) {
 
         for (int i = 0; i < userList.size(); i++) {
             User     user   = (User) userList.get(i);
@@ -412,7 +412,7 @@ public final class UserManager {
                 continue;
             }
 
-            if (schemaName.equals(schema.name)) {
+            if (schemaName.equals(schema)) {
                 user.setInitialSchema(null);
             }
         }
@@ -459,7 +459,7 @@ public final class UserManager {
         String[]      array;
 
         if (pwCheckFunction != null) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             sb.append(Tokens.T_SET).append(' ').append(Tokens.T_DATABASE);
             sb.append(' ').append(Tokens.T_PASSWORD).append(' ');
@@ -470,7 +470,7 @@ public final class UserManager {
         }
 
         if (extAuthenticationFunction != null) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             sb.append(Tokens.T_SET).append(' ').append(Tokens.T_DATABASE);
             sb.append(' ').append(Tokens.T_AUTHENTICATION).append(' ');

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.navigator.RowIterator;
  * Implementation of PersistentStore for information schema and temp tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 2.0.1
  */
 public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
@@ -76,7 +76,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
         super.add(session, object, tx);
 
         if (tx) {
-            RowAction.addInsertAction(session, (Table) table, (Row) object);
+            RowAction.addInsertAction(session, table, (Row) object);
         }
     }
 
@@ -112,7 +112,7 @@ public class RowStoreAVLHybridExtended extends RowStoreAVLHybrid {
             node = node.nNext;
         }
 
-        if (isCached && row.isMemory() || count != indexList.length) {
+        if ((isCached && row.isMemory()) || count != indexList.length) {
             row = ((Table) table).getDeleteRowFromLog(session, row.getData());
         }
 

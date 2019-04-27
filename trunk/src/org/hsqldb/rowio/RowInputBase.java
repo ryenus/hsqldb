@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -145,8 +145,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
     /**
      *  reads row data from a stream using the JDBC types in colTypes
      *
-     * @param  colTypes
-     * @throws  IOException
+     * @param  colTypes data types
      */
     public Object[] readData(Type[] colTypes) {
 
@@ -301,7 +300,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
         buffer[0] = (byte) ((rowsize >>> 24) & 0xFF);
         buffer[1] = (byte) ((rowsize >>> 16) & 0xFF);
         buffer[2] = (byte) ((rowsize >>> 8) & 0xFF);
-        buffer[3] = (byte) ((rowsize >>> 0) & 0xFF);
+        buffer[3] = (byte) ((rowsize) & 0xFF);
     }
 
     /**

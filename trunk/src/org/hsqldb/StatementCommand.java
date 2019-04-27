@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,23 +38,24 @@ import org.hsqldb.index.Index;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.DataFileCache;
 import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.persist.ScriptLoader;
 import org.hsqldb.persist.TableSpaceManager;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rights.User;
 import org.hsqldb.scriptio.ScriptWriterText;
+import org.hsqldb.types.TimestampData;
 
 /**
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -107,6 +108,12 @@ public class StatementCommand extends Statement {
                     statementReturnType = StatementTypes.RETURN_RESULT;
                 }
 
+                group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
+                isLogged = false;
+
+                break;
+            }
+            case StatementTypes.LOAD_SCRIPT : {
                 group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
                 isLogged = false;
 
@@ -327,10 +334,6 @@ public class StatementCommand extends Statement {
 
                     if (session.database.isFilesReadOnly()) {
                         throw Error.error(ErrorCode.DATABASE_IS_READONLY);
-                    }
-
-                    if (session.database.logger.isStoredFileAccess()) {
-                        throw Error.error(ErrorCode.ACCESS_IS_DENIED);
                     }
 
                     session.database.logger.backup(path, script, blocking,
@@ -868,8 +871,7 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
 
-                    JavaSystem.gcFrequency = count;
-
+                    // a no-op from version 2.5.0
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
@@ -935,8 +937,12 @@ public class StatementCommand extends Statement {
                 }
             }
             case StatementTypes.DATABASE_SCRIPT : {
-                ScriptWriterText dsw  = null;
-                String           name = (String) arguments[0];
+                ScriptWriterText dsw       = null;
+                String           name      = (String) arguments[0];
+                Integer          scope     = (Integer) arguments[1];
+                Integer          type      = (Integer) arguments[2];
+                HsqlName         tableName = (HsqlName) arguments[3];
+                TimestampData    timestamp = (TimestampData) arguments[4];
 
                 try {
                     session.checkAdmin();
@@ -947,7 +953,34 @@ public class StatementCommand extends Statement {
                         dsw = new ScriptWriterText(session.database, name,
                                                    true, true, true);
 
-                        dsw.writeAll();
+                        switch (type.intValue()) {
+
+                            case Tokens.ALL :
+                                dsw.writeAll();
+                                break;
+
+                            case Tokens.STRUCTURE :
+                                dsw.writeDDL();
+                                break;
+
+                            case Tokens.DATA :
+                                if (tableName == null) {
+                                    dsw.writeExistingData(false);
+                                } else {
+                                    Table table =
+                                        session.database.schemaManager
+                                            .getUserTable(tableName);
+
+                                    dsw.setIncludeTableInit(true);
+                                    dsw.writeTableData(table);
+                                }
+                                break;
+
+                            case Tokens.VERSIONING :
+                                dsw.writeVersioningData(timestamp);
+                                break;
+                        }
+
                         dsw.close();
 
                         return Result.updateZeroResult;
@@ -964,6 +997,18 @@ public class StatementCommand extends Statement {
                     session.database.close(mode);
 
                     return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.LOAD_SCRIPT : {
+                try {
+                    String  pathName     = (String) arguments[0];
+                    int     mode         = ((Integer) arguments[1]).intValue();
+                    Boolean isVersioning = (Boolean) arguments[2];
+
+                    return ScriptLoader.loadScriptData(
+                        session, pathName, mode, isVersioning.booleanValue());
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -1366,10 +1411,11 @@ public class StatementCommand extends Statement {
     Result getTruncateResult(Session session) {
 
         try {
-            HsqlName name            = (HsqlName) arguments[0];
-            boolean  restartIdentity = (Boolean) arguments[1];
-            boolean  noCheck         = (Boolean) arguments[2];
-            Table[]  tables;
+            HsqlName      name            = (HsqlName) arguments[0];
+            boolean       restartIdentity = (Boolean) arguments[1];
+            boolean       noCheck         = (Boolean) arguments[2];
+            TimestampData timestamp       = (TimestampData) arguments[3];
+            Table[]       tables;
 
             if (name.type == SchemaObject.TABLE) {
                 Table table =
@@ -1378,6 +1424,14 @@ public class StatementCommand extends Statement {
                 tables = new Table[]{ table };
 
                 session.getGrantee().checkDelete(table);
+
+                if (timestamp != null) {
+                    TablePeriodWorks works = new TablePeriodWorks(session,
+                        table);
+                    long count = works.removeOldRows(timestamp.getSeconds());
+
+                    return Result.newUpdateCountResult(0);
+                }
 
                 if (!noCheck) {
                     for (int i = 0; i < table.fkMainConstraints.length; i++) {
@@ -1467,7 +1521,11 @@ public class StatementCommand extends Statement {
         switch (type) {
 
             case StatementTypes.EXPLAIN_PLAN :
-                return ResultMetaData.newSingleColumnMetaData("OPERATION");
+                return ResultMetaData.newSingleColumnMetaData(Tokens.T_PLAN);
+
+            case StatementTypes.EXPLAIN_REFERENCES :
+                return ResultMetaData.newSingleColumnMetaData(
+                    Tokens.T_REFERENCES);
 
             case StatementTypes.DATABASE_SCRIPT :
                 if (statementReturnType == StatementTypes.RETURN_RESULT) {
@@ -1475,7 +1533,8 @@ public class StatementCommand extends Statement {
                         "STATEMENTS");
                 }
 
-            // fall through
+                return super.getResultMetaData();
+
             default :
                 return super.getResultMetaData();
         }

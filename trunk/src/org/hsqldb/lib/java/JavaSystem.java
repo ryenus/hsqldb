@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,29 +34,100 @@ package org.hsqldb.lib.java;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.DriverManager;
+import java.nio.charset.Charset;
+import java.nio.MappedByteBuffer;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
- * Handles the differences between JDK 5 and above
+ * Handles invariants, runtime and methods
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.5.0
  */
 public class JavaSystem {
 
-    // variables to track rough count on object creation, to use in gc
-    public static int gcFrequency;
-    public static int memoryRecords;
+    public static final Charset CS_ISO_8859_1 = Charset.forName("ISO-8859-1");
+    public static final Charset CS_US_ASCII   = Charset.forName("US-ASCII");
+    public static final Charset CS_UTF8       = Charset.forName("UTF-8");
+    private static int          javaVersion;
 
-    // Garbage Collection
-    public static void gc() {
+    static {
+        try {
+            String version = System.getProperty("java.specification.version",
+                                                "6");
 
-        if ((gcFrequency > 0) && (memoryRecords > gcFrequency)) {
-            memoryRecords = 0;
+            if (version.startsWith("1.")) {
+                version = version.substring(2);
+            }
 
-            System.gc();
+            javaVersion = Integer.parseInt(version);
+        } catch (Throwable t) {
+
+            // unknow future version - default to last known
+            javaVersion = 12;
         }
+    }
+
+    public static int javaVersion() {
+        return javaVersion;
+    }
+
+    // Memory
+    public static long availableMemory() {
+        return Runtime.getRuntime().freeMemory();
+    }
+
+    public static long usedMemory() {
+        return Runtime.getRuntime().totalMemory()
+               - Runtime.getRuntime().freeMemory();
+    }
+
+    public static Throwable unmap(MappedByteBuffer buffer) {
+
+        if (buffer == null) {
+            return null;
+        }
+
+        if (javaVersion > 8) {
+            try {
+                Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+                Field unsafeField = unsafeClass.getDeclaredField("theUnsafe");
+
+                unsafeField.setAccessible(true);
+
+                Object unsafe = unsafeField.get(null);
+                Method invokeCleaner = unsafeClass.getMethod("invokeCleaner",
+                    java.nio.ByteBuffer.class);
+
+                invokeCleaner.invoke(unsafe, buffer);
+            } catch (Throwable t) {
+                return t;
+            }
+        } else {
+            try {
+                Method cleanerMethod = buffer.getClass().getMethod("cleaner");
+
+                cleanerMethod.setAccessible(true);
+
+                Object cleaner     = cleanerMethod.invoke(buffer);
+                Method cleanMethod = cleaner.getClass().getMethod("clean");
+
+                cleanMethod.invoke(cleaner);
+            } catch (NoSuchMethodException e) {
+                // no cleaner
+                return e;
+            } catch (InvocationTargetException e) {
+                // means we're not dealing with a Sun JVM?
+                return e;
+            } catch (Throwable t) {
+                return t;
+            }
+        }
+
+        return null;
     }
 
     public static IOException toIOException(Throwable t) {
@@ -65,21 +136,7 @@ public class JavaSystem {
             return (IOException) t;
         }
 
-//#ifdef JAVA6
         return new IOException(t);
-
-//#else
-/*
-        IOException e = new IOException(t.toString());
-        try {
-            e.initCause(t);
-        } catch (Throwable e1) {}
-
-        return e;
-
-*/
-
-//#endif JAVA6
     }
 
     static final BigDecimal BD_1  = BigDecimal.valueOf(1L);
@@ -91,7 +148,6 @@ public class JavaSystem {
             return 0;
         }
 
-//#ifdef JAVA6
         int precision;
 
         if (o.compareTo(BD_1) < 0 && o.compareTo(MBD_1) > 0) {
@@ -101,38 +157,6 @@ public class JavaSystem {
         }
 
         return precision;
-
-//#else
-/*
-        if (o.compareTo(BD_1) < 0 && o.compareTo(MBD_1) > 0) {
-            return o.scale();
-        }
-
-        BigInteger big  = o.unscaledValue();
-        int        sign = big.signum() == -1 ? 1
-                                             : 0;
-
-        return big.toString().length() - sign;
-*/
-
-//#endif JAVA6
-    }
-
-    public static String toString(BigDecimal o) {
-
-        if (o == null) {
-            return null;
-        }
-
-//#ifdef JAVA6
-        return o.toPlainString();
-
-//#else
-/*
-        return o.toString();
-*/
-
-//#endif JAVA6
     }
 
     public static void setLogToSystem(boolean value) {

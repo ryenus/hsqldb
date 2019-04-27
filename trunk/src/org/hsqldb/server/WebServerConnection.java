@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -54,6 +53,7 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.InOutUtil;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.resources.ResourceBundleHandler;
 import org.hsqldb.result.Result;
@@ -80,23 +80,21 @@ import org.hsqldb.rowio.RowOutputBinary;
  *  (fredt@users)
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.5.0
  * @since 1.6.2
  */
 class WebServerConnection implements Runnable {
 
-    static final String         ENCODING           = "ISO-8859-1";
-    private Charset             iso                = Charset.forName(ENCODING);
-    private CharsetDecoder      iso_8859_1_decoder = iso.newDecoder();
-    private Socket              socket;
-    private WebServer           server;
-    private static final int    REQUEST_TYPE_BAD  = 0;
-    private static final int    REQUEST_TYPE_GET  = 1;
-    private static final int    REQUEST_TYPE_HEAD = 2;
-    private static final int    REQUEST_TYPE_POST = 3;
-    private static final String HEADER_OK         = "HTTP/1.0 200 OK";
-    private static final String HEADER_BAD_REQUEST =
-        "HTTP/1.0 400 Bad Request";
+    private static final Charset ENCODING           = JavaSystem.CS_ISO_8859_1;
+    private CharsetDecoder       iso_8859_1_decoder = ENCODING.newDecoder();
+    private Socket               socket;
+    private WebServer            server;
+    private static final int     REQUEST_TYPE_BAD  = 0;
+    private static final int     REQUEST_TYPE_GET  = 1;
+    private static final int     REQUEST_TYPE_HEAD = 2;
+    private static final int     REQUEST_TYPE_POST = 3;
+    private static final String  HEADER_OK         = "HTTP/1.0 200 OK";
+    private static final String HEADER_BAD_REQUEST = "HTTP/1.0 400 Bad Request";
     private static final String HEADER_NOT_FOUND = "HTTP/1.0 404 Not Found";
     private static final String HEADER_FORBIDDEN = "HTTP/1.0 403 Forbidden";
     static final int            BUFFER_SIZE      = 256;
@@ -105,22 +103,10 @@ class WebServerConnection implements Runnable {
     private RowInputBinary      rowIn            = new RowInputBinary(rowOut);
 
     //
-    static byte[] BYTES_GET;
-    static byte[] BYTES_HEAD;
-    static byte[] BYTES_POST;
-    static byte[] BYTES_CONTENT;
-
-    static {
-        try {
-            BYTES_GET     = "GET".getBytes("ISO-8859-1");
-            BYTES_HEAD    = "HEAD".getBytes("ISO-8859-1");
-            BYTES_POST    = "POST".getBytes("ISO-8859-1");
-            BYTES_CONTENT = "Content-Length: ".getBytes("ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputTextLog");
-        }
-    }
-
+    static byte[]       BYTES_GET        = "GET".getBytes(ENCODING);
+    static byte[]       BYTES_HEAD       = "HEAD".getBytes(ENCODING);
+    static byte[]       BYTES_POST       = "POST".getBytes(ENCODING);
+    static byte[]       BYTES_CONTENT = "Content-Length: ".getBytes(ENCODING);
     static final byte[] BYTES_WHITESPACE = new byte[] {
         (byte) ' ', (byte) '\t'
     };
@@ -299,8 +285,8 @@ class WebServerConnection implements Runnable {
 // System.out.println(requestHeader); //For debugging
             // Throw an error if the Content-Type is something other than an what
             // ClientConnectionHTTP is supposed to send
-            if (requestHeader.indexOf("Content-Type: application/octet-stream")
-                    < 0) {
+            if (!requestHeader.contains(
+                    "Content-Type: application/octet-stream")) {
                 throw new Exception();
             }
 
@@ -357,7 +343,7 @@ class WebServerConnection implements Runnable {
                         Result.newConnectionAcknowledgeResponse(session);
                 } catch (HsqlException e) {
                     resultOut = Result.newErrorResult(e);
-                } catch (RuntimeException e) {
+                } catch (Throwable e) {
                     resultOut = Result.newErrorResult(e);
                 }
             } else {
@@ -441,7 +427,7 @@ class WebServerConnection implements Runnable {
             }
 
             // traversing up the directory structure is forbidden.
-            if (name.indexOf("..") != -1) {
+            if (name.contains("..")) {
                 processError(HttpURLConnection.HTTP_FORBIDDEN);
 
                 return;
@@ -504,7 +490,7 @@ class WebServerConnection implements Runnable {
     String getHead(String responseCodeString, boolean addInfo,
                    String mimeType, int length) {
 
-        StringBuffer sb = new StringBuffer(128);
+        StringBuilder sb = new StringBuilder(128);
 
         sb.append(responseCodeString).append("\r\n");
 

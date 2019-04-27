@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import javax.sql.DataSource;
  *
  * @author Darin DeForest (deforest@users dot sourceforge.net) original version
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.5.0
  * @version 2.0.0
  */
 public class JDBCDataSourceFactory implements ObjectFactory {
@@ -71,8 +71,9 @@ public class JDBCDataSourceFactory implements ObjectFactory {
     public static DataSource createDataSource(Properties props)
     throws Exception {
 
+        Class cl = Class.forName(bdsClassName);
         JDBCDataSource ds =
-            (JDBCDataSource) Class.forName(bdsClassName).newInstance();
+            (JDBCDataSource) cl.getDeclaredConstructor().newInstance();
         String value = props.getProperty(databaseName);
 
         if (value == null) {
@@ -146,8 +147,9 @@ public class JDBCDataSourceFactory implements ObjectFactory {
                 || xdsClassName.equals(className)) {
             RefAddr refAddr;
             Object  value;
+            Class   cl = Class.forName(bdsClassName);
             JDBCCommonDataSource ds =
-                (JDBCCommonDataSource) Class.forName(className).newInstance();
+                (JDBCDataSource) cl.getDeclaredConstructor().newInstance();
 
             refAddr = ref.get("database");
 
@@ -228,10 +230,10 @@ public class JDBCDataSourceFactory implements ObjectFactory {
     /**
      * class names
      */
-    private static final String bdsClassName = "org.hsqldb.jdbc.JDBCDataSource";
+    private static final String bdsClassName  = "org.hsqldb.jdbc.JDBCDataSource";
     private static final String poolClassName = "org.hsqldb.jdbc.JDBCPool";
-    private static final String pdsClassName = "org.hsqldb.jdbc.pool.JDBCPooledDataSource";
-    private static final String xdsClassName = "org.hsqldb.jdbc.pool.JDBCXADataSource";
+    private static final String pdsClassName  = "org.hsqldb.jdbc.pool.JDBCPooledDataSource";
+    private static final String xdsClassName  = "org.hsqldb.jdbc.pool.JDBCXADataSource";
 
     public JDBCDataSourceFactory() {}
 }

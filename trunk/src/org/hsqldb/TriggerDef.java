@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.trigger.Trigger;
 
 // peterhudson@users 20020130 - patch 478657 by peterhudson - triggers support
 // fredt@users 20020130 - patch 1.7.0 by fredt
@@ -127,7 +128,7 @@ public class TriggerDef implements Runnable, SchemaObject {
      *      (true) or statement (false)
      * @param  table the Table object upon which the indicated operation
      *      fires the trigger
-     * @param  triggerClassName the fully qualified named of the class implementing
+     * @param  triggerClassName the fully qualified name of the class implementing
      *      the org.hsqldb.Trigger (trigger body) interface
      * @param  noWait do not wait for available space on the pending queue; if
      *      the pending queue does not have fewer than nQueueSize queued items,
@@ -151,7 +152,7 @@ public class TriggerDef implements Runnable, SchemaObject {
         rowsQueued            = 0;
         pendingQueue          = new HsqlDeque();
 
-        Class cl = null;
+        Class<?> cl = null;
 
         try {
             cl = Class.forName(triggerClassName, true,
@@ -169,7 +170,7 @@ public class TriggerDef implements Runnable, SchemaObject {
             try {
 
                 // dynamically instantiate it
-                trigger = (Trigger) cl.newInstance();
+                trigger = (Trigger) cl.getDeclaredConstructor().newInstance();
             } catch (Throwable t1) {
                 valid   = false;
                 trigger = new DefaultTrigger();
@@ -237,14 +238,14 @@ public class TriggerDef implements Runnable, SchemaObject {
 
     /**
      *  Retrieves the SQL character sequence required to (re)create the
-     *  trigger, as a StringBuffer
+     *  trigger, as a String
      *
      * @return the SQL character sequence required to (re)create the
      *  trigger
      */
     public String getSQL() {
 
-        StringBuffer sb = getSQLMain();
+        StringBuilder sb = getSQLMain();
 
         if (maxRowsQueued != 0) {
             sb.append(Tokens.T_QUEUE).append(' ');
@@ -266,9 +267,9 @@ public class TriggerDef implements Runnable, SchemaObject {
         return changeTimestamp;
     }
 
-    public StringBuffer getSQLMain() {
+    public StringBuilder getSQLMain() {
 
-        StringBuffer sb = new StringBuffer(256);
+        StringBuilder sb = new StringBuilder(256);
 
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_TRIGGER).append(' ');

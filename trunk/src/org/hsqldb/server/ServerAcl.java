@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,6 +81,10 @@ import org.hsqldb.map.BitMap;
  *
  * @see #ServerAcl(File)
  * @see #permitAccess
+ *
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @version 2.3.0
+ * @since 2.0.0
  **/
 public final class ServerAcl {
 
@@ -154,7 +158,7 @@ public final class ServerAcl {
 
         public String toString() {
 
-            StringBuffer sb = new StringBuffer("Addrs ");
+            StringBuilder sb = new StringBuilder("Addrs ");
 
             sb.append((value.length == 16)
                       ? ("[" + ServerAcl.colonNotation(value) + ']')
@@ -194,7 +198,7 @@ public final class ServerAcl {
      */
     public static String dottedNotation(byte[] uba) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < uba.length; i++) {
             if (i > 0) {
@@ -220,7 +224,7 @@ public final class ServerAcl {
                 "At this time .colonNotation only handles even byte quantities");
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < uba.length; i += 2) {
             if (i > 0) {
@@ -242,7 +246,7 @@ public final class ServerAcl {
 
     public String toString() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < aclEntries.size(); i++) {
             if (i > 0) {
@@ -392,7 +396,7 @@ public final class ServerAcl {
         boolean         allow;
         int             bits;
         BufferedReader  br      = new BufferedReader(new FileReader(aclFile));
-        List            newAcls = new ArrayList();
+        List<AclEntry>  newAcls = new ArrayList<AclEntry>();
 
         try {
             while ((line = br.readLine()) != null) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@ package org.hsqldb.dbinfo;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.io.UnsupportedEncodingException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -47,6 +46,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
+import org.hsqldb.PeriodDefinition;
 import org.hsqldb.ReferenceObject;
 import org.hsqldb.Routine;
 import org.hsqldb.RoutineSchema;
@@ -72,6 +72,7 @@ import org.hsqldb.lib.LineGroupReader;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.lib.WrapperIterator;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.DataFileCache;
 import org.hsqldb.persist.DataSpaceManager;
@@ -118,7 +119,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -130,23 +131,16 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         synchronized (DatabaseInformationFull.class) {
             final String path = "/org/hsqldb/resources/information-schema.sql";
             final String[] starters = new String[]{ "/*" };
-            InputStream fis = (InputStream) AccessController.doPrivileged(
-                new PrivilegedAction() {
+            InputStream fis = AccessController.doPrivileged(
+                new PrivilegedAction<InputStream>() {
 
                 public InputStream run() {
                     return getClass().getResourceAsStream(path);
                 }
             });
-            InputStreamReader reader = null;
-
-            try {
-                reader = new InputStreamReader(fis, "ISO-8859-1");
-            } catch (UnsupportedEncodingException e) {
-                reader = new InputStreamReader(fis);
-            }
-
-            LineNumberReader lineReader = new LineNumberReader(reader);
-            LineGroupReader  lg = new LineGroupReader(lineReader, starters);
+            InputStreamReader reader     = new InputStreamReader(fis, JavaSystem.CS_ISO_8859_1);
+            LineNumberReader  lineReader = new LineNumberReader(reader);
+            LineGroupReader   lg = new LineGroupReader(lineReader, starters);
 
             statementMap = lg.getAsMap();
 
@@ -245,6 +239,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             case CONSTRAINT_COLUMN_USAGE :
                 return CONSTRAINT_COLUMN_USAGE(session, store);
 
+            case CONSTRAINT_PERIOD_USAGE :
+                return CONSTRAINT_PERIOD_USAGE(session, store);
+
             case CONSTRAINT_TABLE_USAGE :
                 return CONSTRAINT_TABLE_USAGE(session, store);
 
@@ -275,6 +272,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             case KEY_COLUMN_USAGE :
                 return KEY_COLUMN_USAGE(session, store);
 
+            case KEY_PERIOD_USAGE :
+                return KEY_PERIOD_USAGE(session, store);
+
             case METHOD_SPECIFICATIONS :
                 return METHOD_SPECIFICATIONS(session, store);
 
@@ -292,6 +292,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             case PARAMETERS :
                 return PARAMETERS(session, store);
+
+            case PERIODS :
+                return PERIODS(session, store);
 
             case REFERENTIAL_CONSTRAINTS :
                 return REFERENTIAL_CONSTRAINTS(session, store);
@@ -319,6 +322,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             case ROUTINE_JAR_USAGE :
                 return ROUTINE_JAR_USAGE(session, store);
+
+            case ROUTINE_PERIOD_USAGE :
+                return ROUTINE_PERIOD_USAGE(session, store);
 
             case ROUTINE_PRIVILEGES :
                 return ROUTINE_PRIVILEGES(session, store);
@@ -374,6 +380,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             case TRIGGER_COLUMN_USAGE :
                 return TRIGGER_COLUMN_USAGE(session, store);
 
+            case TRIGGER_PERIOD_USAGE :
+                return TRIGGER_PERIOD_USAGE(session, store);
+
             case TRIGGER_ROUTINE_USAGE :
                 return TRIGGER_ROUTINE_USAGE(session, store);
 
@@ -397,6 +406,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             case VIEW_COLUMN_USAGE :
                 return VIEW_COLUMN_USAGE(session, store);
+
+            case VIEW_PERIOD_USAGE :
+                return VIEW_PERIOD_USAGE(session, store);
 
             case VIEW_ROUTINE_USAGE :
                 return VIEW_ROUTINE_USAGE(session, store);
@@ -969,6 +981,26 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         t.insertSys(session, store, row);
 
         row    = t.getEmptyRowData();
+        row[0] = "ROLE";
+
+        Grantee r = session.getRole();
+        String  s = r == null ? ""
+                              : r.getName().getNameString();
+
+        row[1] = s;
+
+        t.insertSys(session, store, row);
+
+        row    = t.getEmptyRowData();
+        row[0] = "RESULT MEMORY ROWS";
+
+        int mr = session.getResultMemoryRowCount();
+
+        row[1] = String.valueOf(mr);
+
+        t.insertSys(session, store, row);
+
+        row    = t.getEmptyRowData();
         row[0] = "SESSION READONLY";
         row[1] = session.isReadOnlyDefault() ? Tokens.T_TRUE
                                              : Tokens.T_FALSE;
@@ -1151,8 +1183,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[it_waited]  = "";
 
             if (s.waitingSessions.size() > 0) {
-                StringBuffer sb    = new StringBuffer();
-                Session[]    array = new Session[s.waitingSessions.size()];
+                StringBuilder sb    = new StringBuilder();
+                Session[]     array = new Session[s.waitingSessions.size()];
 
                 s.waitingSessions.toArray(array);
 
@@ -1168,8 +1200,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             }
 
             if (s.waitedSessions.size() > 0) {
-                StringBuffer sb    = new StringBuffer();
-                Session[]    array = new Session[s.waitedSessions.size()];
+                StringBuilder sb    = new StringBuilder();
+                Session[]     array = new Session[s.waitedSessions.size()];
 
                 s.waitedSessions.toArray(array);
 
@@ -2314,14 +2346,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             switch (constraintName.parent.type) {
 
                 case SchemaObject.TABLE : {
-                    Table table;
-
-                    try {
-                        table = (Table) database.schemaManager.getSchemaObject(
+                    Table table =
+                        (Table) database.schemaManager.findSchemaObject(
                             constraintName.parent.name,
                             constraintName.parent.schema.name,
                             SchemaObject.TABLE);
-                    } catch (Exception e) {
+
+                    if (table == null) {
                         continue;
                     }
 
@@ -2335,19 +2366,20 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     break;
                 }
                 case SchemaObject.DOMAIN : {
-                    Type domain;
-
-                    try {
-                        domain = (Type) database.schemaManager.getSchemaObject(
+                    Type domain =
+                        (Type) database.schemaManager.findSchemaObject(
                             constraintName.parent.name,
                             constraintName.parent.schema.name,
                             SchemaObject.DOMAIN);
-                    } catch (Exception e) {
+
+                    if (domain == null) {
                         continue;
                     }
 
                     constraint = domain.userTypeModifier.getConstraint(
                         constraintName.name);
+
+                    break;
                 }
                 default :
                     continue;
@@ -3064,6 +3096,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "IDENTITY_CYCLE", YES_OR_NO);               //40
             addColumn(t, "IS_GENERATED", CHARACTER_DATA);            // ALWAYS / NEVER
             addColumn(t, "GENERATION_EXPRESSION", CHARACTER_DATA);
+            addColumn(t, "IS_SYSTEM_TIME_PERIOD_START", YES_OR_NO);
+            addColumn(t, "IS_SYSTEM_TIME_PERIOD_END", YES_OR_NO);
+            addColumn(t, "SYSTEM_TIME_PERIOD_TIMESTAMP_GENERATION",
+                      CHARACTER_DATA);
             addColumn(t, "IS_UPDATABLE", YES_OR_NO);
             addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
             addColumn(t, "DECLARED_NUMERIC_PRECISION", CARDINAL_NUMBER);
@@ -3126,10 +3162,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int identity_cycle             = 40;
         final int is_generated               = 41;
         final int generation_expression      = 42;
-        final int is_updatable               = 43;
-        final int declared_data_type         = 44;
-        final int declared_numeric_precision = 45;
-        final int declared_numeric_scale     = 46;
+        final int is_system_period_start     = 43;
+        final int is_system_period_end       = 44;
+        final int system_time_generation     = 45;
+        final int is_updatable               = 46;
+        final int declared_data_type         = 47;
+        final int declared_numeric_precision = 48;
+        final int declared_numeric_scale     = 49;
 
         //
         // intermediate holders
@@ -3268,12 +3307,30 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                                                              : "NO";
                 }
 
-                row[is_generated] = "NEVER";
-
                 if (column.isGenerated()) {
                     row[is_generated] = "ALWAYS";
                     row[generation_expression] =
                         column.getGeneratingExpression().getSQL();
+                } else {
+                    row[is_generated] = "NEVER";
+                }
+
+                switch (column.getSystemPeriodType()) {
+
+                    case SchemaObject.PeriodSystemColumnType.PERIOD_ROW_START :
+                        row[is_system_period_start] = "YES";
+                        row[system_time_generation] = "ALWAYS";
+                        break;
+
+                    case SchemaObject.PeriodSystemColumnType.PERIOD_ROW_END :
+                        row[is_system_period_end]   = "YES";
+                        row[system_time_generation] = "ALWAYS";
+                        break;
+
+                    case SchemaObject.PeriodSystemColumnType.PERIOD_ROW_NONE :
+                        row[is_system_period_start] = "NO";
+                        row[is_system_period_end]   = "NO";
+                        break;
                 }
 
                 row[is_updatable]       = table.isWritable() ? "YES"
@@ -3475,6 +3532,140 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                                 t.insertSys(session, store, row);
                             } catch (HsqlException e) {}
                         }
+                    }
+                }
+            }
+        }
+
+        return t;
+    }
+
+    /**
+     * SQL:2011 VIEW<p>
+     *
+     * The CONSTRAINT_PERIOD_USAGE view has one row for each PERIOD referenced
+     * by a table constraint or assertion.<p>
+     *
+     * <b>Definition:</b><p>
+     *
+     *      TABLE_CATALOG       VARCHAR
+     *      TABLE_SCHEMA        VARCHAR
+     *      TABLE_NAME          VARCHAR
+     *      PERIOD_NAME         VARCHAR
+     *      CONSTRAINT_CATALOG  VARCHAR
+     *      CONSTRAINT_SCHEMA   VARCHAR
+     *      CONSTRAINT_NAME     VARCHAR
+     *
+     * </pre>
+     *
+     * <b>Description:</b> <p>
+     *
+     * <ol>
+     * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, and
+     *      PERIOD_NAME are the catalog name, schema name,
+     *      identifier, and period name, respectively, of a period
+     *      referenced by a UNIQUE or FOREIGN KEY constraint.
+     *
+     * <li> The values of CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, and
+     *      CONSTRAINT_NAME are the catalog name, schema name,
+     *      and identifier, respectively, of the constraint being
+     *      described. <p>
+     *
+     * <1i> Periods are reported only if the user or one of its roles is
+     *      the authorization (owner) of the table.
+     *
+     * </ol>
+     *
+     * @return Table
+     */
+    Table CONSTRAINT_PERIOD_USAGE(Session session, PersistentStore store) {
+
+        Table t = sysTables[CONSTRAINT_PERIOD_USAGE];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[CONSTRAINT_PERIOD_USAGE]);
+
+            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);         // not null
+            addColumn(t, "PERIOD_NAME", SQL_IDENTIFIER);        // not null
+            addColumn(t, "CONSTRAINT_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "CONSTRAINT_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "CONSTRAINT_NAME", SQL_IDENTIFIER);    // not null
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[CONSTRAINT_PERIOD_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2, 3, 4, 5, 6
+            }, false);
+
+            return t;
+        }
+
+        // column number mappings
+        final int table_catalog      = 0;
+        final int table_schema       = 1;
+        final int table_name         = 2;
+        final int period_name        = 3;
+        final int constraint_catalog = 4;
+        final int constraint_schema  = 5;
+        final int constraint_name    = 6;
+
+        //
+        // calculated column values
+        String constraintCatalog;
+        String constraintSchema;
+        String constraintName;
+
+        // Intermediate holders
+        Iterator     tables;
+        Table        table;
+        Constraint[] constraints;
+        int          constraintCount;
+        Constraint   constraint;
+        Iterator     iterator;
+        Object[]     row;
+
+        // Initialization
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+
+        // Do it.
+        while (tables.hasNext()) {
+            table = (Table) tables.next();
+
+            if (table.isView()
+                    || !session.getGrantee().isFullyAccessibleByRole(
+                        table.getName())) {
+                continue;
+            }
+
+            constraints       = table.getConstraints();
+            constraintCount   = constraints.length;
+            constraintCatalog = database.getCatalogName().name;
+            constraintSchema  = table.getSchemaName().name;
+
+            // process constraints
+            for (int i = 0; i < constraintCount; i++) {
+                constraint     = constraints[i];
+                constraintName = constraint.getName().name;
+
+                switch (constraint.getConstraintType()) {
+
+                    case SchemaObject.ConstraintTypes.CHECK : {
+
+                        // reports references to either SYSTEM_TIME or application
+                        // period constraint name in a CHECK condition
+                        break;
+                    }
+                    case SchemaObject.ConstraintTypes.UNIQUE :
+                    case SchemaObject.ConstraintTypes.PRIMARY_KEY :
+                    case SchemaObject.ConstraintTypes.FOREIGN_KEY : {
+
+                        // reports constraints defined with WITHOUT OVERLAP
+                        break;
                     }
                 }
             }
@@ -4621,6 +4812,108 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2011 VIEW<p>
+     *
+     * The KEY_PERIOD_USAGE view has one row for each PERIOD referenced in
+     * PRIMARY KEY, UNIQUE and FOREIGN KEY constraint of each accessible table
+     * defined within this database. <p>
+     *
+     * Each row is a PRIMARY KEY, UNIQUE OR FOREIGN KEY description with the
+     * following columns: <p>
+     *
+     * <pre class="SqlCodeExample">
+     * CONSTRAINT_CATALOG              VARCHAR NULL,
+     * CONSTRAINT_SCHEMA               VARCHAR NULL,
+     * CONSTRAINT_NAME                 VARCHAR NOT NULL,
+     * TABLE_CATALOG                   VARCHAR   table catalog
+     * TABLE_SCHEMA                    VARCHAR   table schema
+     * TABLE_NAME                      VARCHAR   table name
+     * PERIOD_NAME                     VARCHAR   period name
+     * </pre> <p>
+     *
+     * A period is included in this view if the user has privileges on the table.
+     * <p>
+     *
+     * @return a <code>Table</code> object describing the visible periods
+     *        referenced in primary key and unique constraints in accessible
+     *        tables defined within this database.
+     */
+    Table KEY_PERIOD_USAGE(Session session, PersistentStore store) {
+
+        Table t = sysTables[KEY_PERIOD_USAGE];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[KEY_PERIOD_USAGE]);
+
+            addColumn(t, "CONSTRAINT_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "CONSTRAINT_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "CONSTRAINT_NAME", SQL_IDENTIFIER);    // not null
+            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);         // not null
+            addColumn(t, "PERIOD_NAME", SQL_IDENTIFIER);        // not null
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[KEY_PERIOD_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                2, 1, 0, 6
+            }, false);
+
+            return t;
+        }
+
+        // Intermediate holders
+        Iterator tables;
+        Object[] row;
+
+        // column number mappings
+        final int constraint_catalog = 0;
+        final int constraint_schema  = 1;
+        final int constraint_name    = 2;
+        final int table_catalog      = 3;
+        final int table_schema       = 4;
+        final int table_name         = 5;
+        final int period_name        = 6;
+
+        // Initialization
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+
+        while (tables.hasNext()) {
+            Table    table        = (Table) tables.next();
+            String   tableCatalog = database.getCatalogName().name;
+            HsqlName tableName    = table.getName();
+
+            if (table.isView()) {
+                continue;
+            }
+
+            if (!session.getGrantee().isAccessible(tableName)) {
+                continue;
+            }
+
+            Constraint[] constraints = table.getConstraints();
+
+            for (int i = 0; i < constraints.length; i++) {
+                Constraint constraint = constraints[i];
+
+                switch (constraint.getConstraintType()) {
+
+                    case SchemaObject.ConstraintTypes.PRIMARY_KEY :
+                    case SchemaObject.ConstraintTypes.UNIQUE :
+                    case SchemaObject.ConstraintTypes.FOREIGN_KEY :
+
+                    // include usage constraint use of period
+                }
+            }
+        }
+
+        return t;
+    }
+
+    /**
      * SQL:2008 VIEW<p>
      *
      * The METHOD_SPECIFICATION_PARAMETERS view is not implemented.<p>
@@ -4931,6 +5224,125 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[dtd_identifier] = type.getDefinition();
 
                     // end common block
+                    t.insertSys(session, store, row);
+                }
+            }
+        }
+
+        return t;
+    }
+
+    /**
+     * SQL:2011 VIEW<p>
+     *
+     * The PERIODS view has one row for each period defined in a table.<p>
+     *
+     * <pre class="SqlCodeExample">
+     *      TABLE_CATALOG      VARCHAR
+     *      TABLE_SCHEMA       VARCHAR
+     *      TABLE_NAME         VARCHAR
+     *      PERIOD NAME        VARCHAR
+     *      START_COLUMN_NAME  VARCHAR
+     *      END_COLUMN_NAME    VARCHAR
+     * </pre>
+     *
+     * <b>Description:</b> <p>
+     *
+     * <ol>
+     * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, and
+     *      TABLE_NAME are the catalog name, schema name,
+     *       and identifier, respectively, of the table. <p>
+     *
+     * <li> The value of PERIOD_NAME is the name of the period, either
+     *      SYSTE_TIME or an application period.
+     *
+     * <li> The values of START_COLUMN_NAME and END_COLUMN_NAME are the names
+     *      of the period columns.
+     *
+     * <1i> Periods are reported only if the user or one of its roles
+     *      can access the table and some of its columns.
+     *
+     * <1i> Column names are reported only if the user or one of its roles is
+     *      the authorization (owner) of the table.
+     * </ol>
+     *
+     * @return Table
+     */
+    Table PERIODS(Session session, PersistentStore store) {
+
+        Table t = sysTables[PERIODS];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[PERIODS]);
+
+            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "PERIOD_NAME", SQL_IDENTIFIER);
+            addColumn(t, "START_COLUMN_NAME", SQL_IDENTIFIER);
+            addColumn(t, "END_COLUMN_NAME", SQL_IDENTIFIER);
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[PERIODS].name, false, SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2, 3
+            }, false);
+
+            return t;
+        }
+
+        final int table_catalog = 0;
+        final int table_schema  = 1;
+        final int table_name    = 2;
+        final int period_name   = 3;
+        final int start_column  = 4;
+        final int end_column    = 5;
+
+        //
+        Iterator         tables;
+        Table            table;
+        PeriodDefinition systemPeriod;
+        PeriodDefinition applicationPeriod;
+        Object[]         row;
+
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+
+        while (tables.hasNext()) {
+            table = (Table) tables.next();
+
+            if (table.isView() || !isAccessibleTable(session, table)) {
+                continue;
+            }
+
+            systemPeriod      = table.getSystemPeriod();
+            applicationPeriod = table.getApplicationPeriod();
+
+            if (systemPeriod == null && applicationPeriod == null) {
+                continue;
+            }
+
+            HsqlName name = table.getName();
+
+            for (int j = 0; j < 2; j++) {
+                PeriodDefinition period = j == 0 ? systemPeriod
+                                                 : applicationPeriod;
+
+                if (period != null) {
+                    row                = t.getEmptyRowData();
+                    row[table_catalog] = database.getCatalogName().name;
+                    row[table_schema]  = name.schema.name;
+                    row[table_name]    = name.name;
+                    row[period_name]   = period.getName().name;
+
+                    if (session.getGrantee().isFullyAccessibleByRole(name)) {
+                        row[start_column] =
+                            period.getStartColumn().getNameString();
+                        row[end_column] =
+                            period.getEndColumn().getNameString();
+                    }
+
                     t.insertSys(session, store, row);
                 }
             }
@@ -5610,6 +6022,236 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
+     * The ROUTINE_JAR_USAGE view has one row for each jar archive
+     * referenced in the body of a Java routine.<p>
+     *
+     * <b>Definition:</b><p>
+     *
+     *      SPECIFIC_CATALOG    VARCHAR ,
+     *      SPECIFIC_SCHEMA     VARCHAR ,
+     *      SPECIFIC_NAME       VARCHAR ,
+     *      JAR_CATALOG         VARCHAR ,
+     *      JAR_SCHEMA          VARCHAR ,
+     *      JAR_NAME            VARCHAR ,
+     *
+     * </pre>
+     *
+     * <b>Description:</b> <p>
+     *
+     * <ol>
+     * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA and
+     *      SPECIFIC_NAME are the catalog name, schema name,
+     *      specific routine identifier, respectively. <p>
+     *
+     * <li> The values of JAR_CATALOG, JAR_SCHEMA and JAR_NAME are
+     *      the catalog name, schema name,
+     *      identifier, and column name, respectively, of a jar
+     *      reference in the routine body.<>
+     *
+     * <1i> Currently 'CLASSPATH' is reported for all entries.
+     *
+     * </ol>
+     *
+     * @return Table
+     */
+    Table ROUTINE_JAR_USAGE(Session session, PersistentStore store) {
+
+        Table t = sysTables[ROUTINE_JAR_USAGE];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[ROUTINE_JAR_USAGE]);
+
+            addColumn(t, "SPECIFIC_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "SPECIFIC_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);
+            addColumn(t, "JAR_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "JAR_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "JAR_NAME", SQL_IDENTIFIER);
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[ROUTINE_JAR_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2, 3, 4, 5
+            }, false);
+
+            return t;
+        }
+
+        // column number mappings
+        final int specific_catalog = 0;
+        final int specific_schema  = 1;
+        final int specific_name    = 2;
+        final int jar_catalog      = 3;
+        final int jar_schema       = 4;
+        final int jar_name         = 5;
+
+        //
+        Iterator it;
+        Object[] row;
+
+        if (!session.isAdmin()) {
+            return t;
+        }
+
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.SPECIFIC_ROUTINE);
+
+        while (it.hasNext()) {
+            Routine routine = (Routine) it.next();
+
+            if (routine.getLanguage() != Routine.LANGUAGE_JAVA) {
+                continue;
+            }
+
+            row                   = t.getEmptyRowData();
+            row[specific_catalog] = database.getCatalogName().name;
+            row[specific_schema]  = routine.getSchemaName().name;
+            row[specific_name]    = routine.getSpecificName().name;
+            row[jar_catalog]      = database.getCatalogName().name;
+            row[jar_schema] =
+                database.schemaManager.getSQLJSchemaHsqlName().name;
+            row[jar_name] = "CLASSPATH";
+
+            t.insertSys(session, store, row);
+        }
+
+        return t;
+    }
+
+    /**
+     * SQL:2011 VIEW<p>
+     *
+     * The ROUTINE_PERIOD_USAGE view has one row for each PERIOD
+     * referenced in the body of a routine.<p>
+     *
+     * <b>Definition:</b><p>
+     *
+     *      SPECIFIC_CATALOG    VARCHAR ,
+     *      SPECIFIC_SCHEMA     VARCHAR ,
+     *      SPECIFIC_NAME       VARCHAR ,
+     *      ROUTINE_CATALOG     VARCHAR ,
+     *      ROUTINE_SCHEMA      VARCHAR ,
+     *      ROUTINE_NAME        VARCHAR ,
+     *      TABLE_CATALOG       VARCHAR ,
+     *      TABLE_SCHEMA        VARCHAR ,
+     *      TABLE_NAME          VARCHAR ,
+     *      PERIOD_NAME         VARCHAR ,
+     *
+     * </pre>
+     *
+     * <b>Description:</b> <p>
+     *
+     * <ol>
+     * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA and
+     *      SPECIFIC_NAME are the catalog name, schema name,
+     *      specific routine identifier, respectively, of the routine. <p>
+     * <li> The values of TABLE_CATALOG, TABLE_SCHEMA and TABLE_NAME
+     *      are the catalog name, schema name and
+     *      identifier, respectively, of a TABLE
+     *      reference in the routine body.<>
+     *
+     * <li> The value of PERIOD_NAME is the name of the PERIOD of a TABLE
+     *      reference in the routine body.<>
+     *
+     * <1i> Periods are reported only if the user or one of its roles is
+     *      the authorization (owner) of the TABLE.
+     *
+     * </ol>
+     *
+     * @return Table
+     */
+    Table ROUTINE_PERIOD_USAGE(Session session, PersistentStore store) {
+
+        Table t = sysTables[ROUTINE_PERIOD_USAGE];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[ROUTINE_PERIOD_USAGE]);
+
+            addColumn(t, "SPECIFIC_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "SPECIFIC_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);
+            addColumn(t, "ROUTINE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "ROUTINE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "ROUTINE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "PERIOD_NAME", SQL_IDENTIFIER);
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[ROUTINE_PERIOD_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                3, 4, 5, 0, 1, 2, 6, 7, 8, 9
+            }, false);
+
+            return t;
+        }
+
+        // column number mappings
+        final int specific_catalog = 0;
+        final int specific_schema  = 1;
+        final int specific_name    = 2;
+        final int routine_catalog  = 3;
+        final int routine_schema   = 4;
+        final int routine_name     = 5;
+        final int table_catalog    = 6;
+        final int table_schema     = 7;
+        final int table_name       = 8;
+        final int period_name      = 9;
+
+        //
+        Iterator         it;
+        Object[]         row;
+        Table            table;
+        PeriodDefinition systemPeriod;
+        PeriodDefinition applicationPeriod;
+
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.SPECIFIC_ROUTINE);
+
+        while (it.hasNext()) {
+            Routine        routine = (Routine) it.next();
+            OrderedHashSet set     = routine.getReferences();
+
+            for (int i = 0; i < set.size(); i++) {
+                HsqlName refName = (HsqlName) set.get(i);
+
+                if (refName.type != SchemaObject.PERIOD) {
+                    continue;
+                }
+
+                if (!session.getGrantee().isFullyAccessibleByRole(refName)) {
+                    continue;
+                }
+
+                row                   = t.getEmptyRowData();
+                row[specific_catalog] = database.getCatalogName().name;
+                row[specific_schema]  = routine.getSchemaName().name;
+                row[specific_name]    = routine.getSpecificName().name;
+                row[routine_catalog]  = database.getCatalogName().name;
+                row[routine_schema]   = routine.getSchemaName().name;
+                row[routine_name]     = routine.getName().name;
+                row[table_catalog]    = database.getCatalogName().name;
+                row[table_schema]     = refName.schema.name;
+                row[table_name]       = refName.parent.name;
+                row[period_name]      = refName.name;
+
+                try {
+                    t.insertSys(session, store, row);
+                } catch (HsqlException e) {}
+            }
+        }
+
+        return t;
+    }
+
+    /**
+     * SQL:2008 VIEW<p>
+     *
      * The ROUTINE_PRIVILEGES view has one row for each privilege granted on
      * a PROCEDURE or CATALOG.
      *
@@ -5752,107 +6394,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     } catch (HsqlException e) {}
                 }
             }
-        }
-
-        return t;
-    }
-
-    /**
-     * SQL:2008 VIEW<p>
-     *
-     * The ROUTINE_JAR_USAGE view has one row for each jar archive
-     * referenced in the body of a Java routine.<p>
-     *
-     * <b>Definition:</b><p>
-     *
-     *      SPECIFIC_CATALOG    VARCHAR ,
-     *      SPECIFIC_SCHEMA     VARCHAR ,
-     *      SPECIFIC_NAME       VARCHAR ,
-     *      JAR_CATALOG         VARCHAR ,
-     *      JAR_SCHEMA          VARCHAR ,
-     *      JAR_NAME            VARCHAR ,
-     *
-     * </pre>
-     *
-     * <b>Description:</b> <p>
-     *
-     * <ol>
-     * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA and
-     *      SPECIFIC_NAME are the catalog name, schema name,
-     *      specific routine identifier, respectively. <p>
-     *
-     * <li> The values of JAR_CATALOG, JAR_SCHEMA and JAR_NAME are
-     *      the catalog name, schema name,
-     *      identifier, and column name, respectively, of a jar
-     *      reference in the routine body.<>
-     *
-     * <1i> Currently 'CLASSPATH' is reported for all entries.
-     *
-     * </ol>
-     *
-     * @return Table
-     */
-    Table ROUTINE_JAR_USAGE(Session session, PersistentStore store) {
-
-        Table t = sysTables[ROUTINE_JAR_USAGE];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[ROUTINE_JAR_USAGE]);
-
-            addColumn(t, "SPECIFIC_CATALOG", SQL_IDENTIFIER);
-            addColumn(t, "SPECIFIC_SCHEMA", SQL_IDENTIFIER);
-            addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);
-            addColumn(t, "JAR_CATALOG", SQL_IDENTIFIER);
-            addColumn(t, "JAR_SCHEMA", SQL_IDENTIFIER);
-            addColumn(t, "JAR_NAME", SQL_IDENTIFIER);
-
-            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[ROUTINE_JAR_USAGE].name, false,
-                SchemaObject.INDEX);
-
-            t.createPrimaryKeyConstraint(name, new int[] {
-                0, 1, 2, 3, 4, 5
-            }, false);
-
-            return t;
-        }
-
-        // column number mappings
-        final int specific_catalog = 0;
-        final int specific_schema  = 1;
-        final int specific_name    = 2;
-        final int jar_catalog      = 3;
-        final int jar_schema       = 4;
-        final int jar_name         = 5;
-
-        //
-        Iterator it;
-        Object[] row;
-
-        if (!session.isAdmin()) {
-            return t;
-        }
-
-        it = database.schemaManager.databaseObjectIterator(
-            SchemaObject.SPECIFIC_ROUTINE);
-
-        while (it.hasNext()) {
-            Routine routine = (Routine) it.next();
-
-            if (routine.getLanguage() != Routine.LANGUAGE_JAVA) {
-                continue;
-            }
-
-            row                   = t.getEmptyRowData();
-            row[specific_catalog] = database.getCatalogName().name;
-            row[specific_schema]  = routine.getSchemaName().name;
-            row[specific_name]    = routine.getSpecificName().name;
-            row[jar_catalog]      = database.getCatalogName().name;
-            row[jar_schema] =
-                database.schemaManager.getSQLJSchemaHsqlName().name;
-            row[jar_name] = "CLASSPATH";
-
-            t.insertSys(session, store, row);
         }
 
         return t;
@@ -7316,6 +7857,137 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2011 VIEW<p>
+     *
+     * The TRIGGER_PERIOD_USAGE view has one row for each PRDIOD
+     * referenced in the body of a trigger.<p>
+     *
+     * <b>Definition:</b><p>
+     *
+     *      TRIGGER_CATALOG     VARCHAR ,
+     *      TRIGGER_SCHEMA      VARCHAR ,
+     *      TRIGGER_NAME        VARCHAR ,
+     *      TABLE_CATALOG       VARCHAR ,
+     *      TABLE_SCHEMA        VARCHAR ,
+     *      TABLE_NAME          VARCHAR ,
+     *
+     * </pre>
+     *
+     * <b>Description:</b> <p>
+     *
+     * <ol>
+     * <li> The values of TRIGGER_CATALOG, TRIGGER_SCHEMA and TRIGGER_NAME
+     *      are the catalog name, schema name and
+     *      identifier, respectively, of the TRIGGER.<p>
+     * <li> The values of TABLE_CATALOG, TABLE_SCHEMA and
+     *      TABLE_NAME are the catalog name, schema name and
+     *      identifier, respectively, of the TABLE
+     *      that is referenced. <p>
+     *
+     * <1i> Referenced tables are reported only if the user or one of its roles is
+     *      the authorization (owner) of the TRIGGER.
+     *
+     * </ol>
+     *
+     * @return Table
+     */
+    Table TRIGGER_PERIOD_USAGE(Session session, PersistentStore store) {
+
+        Table t = sysTables[TRIGGER_PERIOD_USAGE];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[TRIGGER_PERIOD_USAGE]);
+
+            addColumn(t, "TRIGGER_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "TRIGGER_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TRIGGER_NAME", SQL_IDENTIFIER);    // not null
+            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);      // not null
+            addColumn(t, "PERIOD_NAME", SQL_IDENTIFIER);     // not null
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[TRIGGER_PERIOD_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2, 3, 4, 5, 6
+            }, false);
+
+            return t;
+        }
+
+        // column number mappings
+        final int trigger_catalog = 0;
+        final int trigger_schema  = 1;
+        final int trigger_name    = 2;
+        final int table_catalog   = 3;
+        final int table_schema    = 4;
+        final int table_name      = 5;
+        final int period_name     = 6;
+
+        //
+        Iterator         it;
+        Object[]         row;
+        Table            table;
+        PeriodDefinition systemPeriod;
+        PeriodDefinition applicationPeriod;
+
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.TRIGGER);
+
+        while (it.hasNext()) {
+            TriggerDef trigger = (TriggerDef) it.next();
+
+            if (!session.getGrantee().isFullyAccessibleByRole(
+                    trigger.getName())) {
+                continue;
+            }
+
+            OrderedHashSet set = trigger.getReferences();
+
+            for (int i = 0; i < set.size(); i++) {
+                HsqlName refName = (HsqlName) set.get(i);
+
+                if (refName.type != SchemaObject.TABLE) {
+                    continue;
+                }
+
+                table = database.schemaManager.getUserTable(refName);
+                systemPeriod      = table.getSystemPeriod();
+                applicationPeriod = table.getApplicationPeriod();
+
+                if (systemPeriod == null && applicationPeriod == null) {
+                    continue;
+                }
+
+                for (int j = 0; j < 2; j++) {
+                    PeriodDefinition period = j == 0 ? systemPeriod
+                                                     : applicationPeriod;
+
+                    if (period != null) {
+                        row                  = t.getEmptyRowData();
+                        row[trigger_catalog] = database.getCatalogName().name;
+                        row[trigger_schema]  = trigger.getSchemaName().name;
+                        row[trigger_name]    = trigger.getName().name;
+                        row[table_catalog]   = database.getCatalogName().name;
+                        row[table_schema]    = refName.schema.name;
+                        row[table_name]      = refName.name;
+                        row[period_name]     = period.getName().name;
+
+                        try {
+                            t.insertSys(session, store, row);
+                        } catch (HsqlException e) {}
+                    }
+                }
+            }
+        }
+
+        // Initialization
+        return t;
+    }
+
+    /**
      * SQL:2008 VIEW<p>
      *
      * The TRIGGER_ROUTINE_USAGE view has one row for each routine
@@ -8577,6 +9249,127 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[table_schema]  = refName.parent.schema.name;
                 row[table_name]    = refName.parent.name;
                 row[column_name]   = refName.name;
+
+                try {
+                    t.insertSys(session, store, row);
+                } catch (HsqlException e) {}
+            }
+        }
+
+        return t;
+    }
+
+    /**
+     * SQL:2011 VIEW<p>
+     *
+     * The VIEW_PERIOD_USAGE view has one row for each table identified
+     * by a &lt;table name&gt; simply contained in a &lt;table reference&gt;
+     * that is contained in the &lt;query expression&gt; of a view. <p>
+     *
+     * <b>Definition</b><p>
+     *
+     * <pre class="SqlCodeExample">
+     *      VIEW_CATALOG    VARCHAR NULL,
+     *      VIEW_SCHEMA     VARCHAR NULL,
+     *      VIEW_NAME       VARCHAR NULL,
+     *      TABLE_CATALOG   VARCHAR NULL,
+     *      TABLE_SCHEMA    VARCHAR NULL,
+     *      TABLE_NAME      VARCHAR NULL,
+     * </pre>
+     *
+     * <b>Description:</b><p>
+     *
+     * <ol>
+     * <li> The values of VIEW_CATALOG, VIEW_SCHEMA, and VIEW_NAME are the
+     *      catalog name, schema name, and identifier,
+     *      respectively, of the view being described. <p>
+     *
+     * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, and TABLE_NAME are the
+     *      catalog name, schema name, and identifier,
+     *      respectively, of a table identified by a &lt;table name&gt;
+     *      simply contained in a &lt;table reference&gt; that is contained in
+     *      the &lt;query expression&gt; of the view being described.
+     * <1i> Referenced tables are reported only if the user or one of its roles is
+     *      the authorization (owner) of the referenced TABLE
+     * </ol>
+     *
+     * @return Table
+     */
+    Table VIEW_PERIOD_USAGE(Session session, PersistentStore store) {
+
+        Table t = sysTables[VIEW_PERIOD_USAGE];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[VIEW_PERIOD_USAGE]);
+
+            addColumn(t, "VIEW_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "VIEW_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "VIEW_NAME", SQL_IDENTIFIER);      // not null
+            addColumn(t, "TABLE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);     // not null
+            addColumn(t, "PERIOD_NAME", SQL_IDENTIFIER);    // not null
+
+            // false PK, as VIEW_CATALOG, VIEW_SCHEMA, TABLE_CATALOG, and/or
+            // TABLE_SCHEMA may be NULL
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[VIEW_PERIOD_USAGE].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2, 3, 4, 5, 6
+            }, false);
+
+            return t;
+        }
+
+        // Column number mappings
+        final int view_catalog  = 0;
+        final int view_schema   = 1;
+        final int view_name     = 2;
+        final int table_catalog = 3;
+        final int table_schema  = 4;
+        final int table_name    = 5;
+        final int period_name   = 6;
+
+        //
+        Iterator tables;
+        Table    table;
+        Object[] row;
+
+        // Initialization
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
+
+        // Do it.
+        while (tables.hasNext()) {
+            table = (Table) tables.next();
+
+            if (!table.isView()) {
+                continue;
+            }
+
+            OrderedHashSet references = table.getReferences();
+
+            for (int i = 0; i < references.size(); i++) {
+                HsqlName refName = (HsqlName) references.get(i);
+
+                if (refName.type != SchemaObject.PERIOD) {
+                    continue;
+                }
+
+                if (!session.getGrantee().isFullyAccessibleByRole(refName)) {
+                    continue;
+                }
+
+                row                = t.getEmptyRowData();
+                row[view_catalog]  = database.getCatalogName().name;
+                row[view_schema]   = table.getSchemaName().name;
+                row[view_name]     = table.getName().name;
+                row[table_catalog] = database.getCatalogName().name;
+                row[table_schema]  = refName.schema.name;
+                row[table_name]    = refName.parent.name;
+                row[period_name]   = refName.name;
 
                 try {
                     t.insertSys(session, store, row);

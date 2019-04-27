@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,10 +89,10 @@ public class RowInputTextQuoted extends RowInputText {
         try {
             field++;
 
-            StringBuffer sb    = new StringBuffer();
-            boolean      done  = false;
-            int          state = NORMAL_FIELD;
-            int          end   = -1;
+            StringBuilder sb    = new StringBuilder();
+            boolean       done  = false;
+            int           state = NORMAL_FIELD;
+            int           end   = -1;
 
             if (!isEnd) {
                 end = text.indexOf(sep, next);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -118,7 +118,7 @@ public final class NumberSequence implements SchemaObject {
                     break;
                 }
 
-            // fall through
+                throw Error.error(ErrorCode.X_42563);
             default :
                 throw Error.error(ErrorCode.X_42563);
         }
@@ -172,7 +172,7 @@ public final class NumberSequence implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer(128);
+        StringBuilder sb = new StringBuilder(128);
 
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_SEQUENCE).append(' ');
@@ -211,7 +211,7 @@ public final class NumberSequence implements SchemaObject {
 
     public String getSQLColumnDefinition() {
 
-        StringBuffer sb = new StringBuffer(128);
+        StringBuilder sb = new StringBuilder(128);
 
         sb.append(Tokens.T_GENERATED).append(' ');
 
@@ -266,7 +266,7 @@ public final class NumberSequence implements SchemaObject {
 
     public String getRestartSQL() {
 
-        StringBuffer sb = new StringBuffer(128);
+        StringBuilder sb = new StringBuilder(128);
 
         sb.append(Tokens.T_ALTER).append(' ');
         sb.append(Tokens.T_SEQUENCE);
@@ -281,7 +281,7 @@ public final class NumberSequence implements SchemaObject {
 
         String colname = t.getColumn(t.identityColumn).getName().statementName;
         NumberSequence seq = t.identitySequence;
-        StringBuffer   sb  = new StringBuffer(128);
+        StringBuilder  sb  = new StringBuilder(128);
 
         sb.append(Tokens.T_ALTER).append(' ').append(Tokens.T_TABLE);
         sb.append(' ').append(t.getName().getSchemaQualifiedStatementName());

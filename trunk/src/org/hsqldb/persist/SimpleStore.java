@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,18 +43,19 @@ import org.hsqldb.rowio.RowInputInterface;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 2.3.0
  */
 public abstract class SimpleStore implements PersistentStore {
 
-    protected DataFileCache        cache;
+    protected DataFileCache     cache;
     protected TableSpaceManager spaceManager;
     protected int               defaultObjectSize;
 
     public boolean isRowStore() {
         return false;
     }
+
     public void set(CachedObject object) {}
 
     public CachedObject get(long i) {
@@ -164,6 +165,11 @@ public abstract class SimpleStore implements PersistentStore {
 
     public void delete(Session session, Row row) {}
 
+    public RowAction addDeleteActionToRow(Session session, Row row,
+                                          int[] colMap, boolean isMV) {
+        return null;
+    }
+
     public CachedObject get(CachedObject object, RowInputInterface in) {
         return object;
     }
@@ -182,8 +188,8 @@ public abstract class SimpleStore implements PersistentStore {
 
     public void moveDataToSpace(Session session) {}
 
-    public void moveData(Session session, PersistentStore other, int colindex,
-                         int adjust) {}
+    public void moveData(Session session, PersistentStore other,
+                         int[] colIndex, int adjust) {}
 
     public void setReadOnly(boolean readonly) {}
 

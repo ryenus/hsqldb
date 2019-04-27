@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -200,11 +200,11 @@ public class ExpressionOp extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb    = new StringBuffer(64);
-        String       left  = getContextSQL(nodes.length > 0 ? nodes[LEFT]
-                                                            : null);
-        String       right = getContextSQL(nodes.length > 1 ? nodes[RIGHT]
-                                                            : null);
+        StringBuilder sb    = new StringBuilder(64);
+        String        left  = getContextSQL(nodes.length > 0 ? nodes[LEFT]
+                                                             : null);
+        String        right = getContextSQL(nodes.length > 1 ? nodes[RIGHT]
+                                                             : null);
 
         switch (opType) {
 
@@ -223,24 +223,23 @@ public class ExpressionOp extends Expression {
             case OpTypes.LIKE_ARG :
                 sb.append(' ').append(Tokens.T_LIKE).append(' ');
                 sb.append(left).append(' ').append(right).append(' ');
+                break;
+
             case OpTypes.CAST :
                 sb.append(' ').append(Tokens.T_CAST).append('(');
                 sb.append(left).append(' ').append(Tokens.T_AS).append(' ');
                 sb.append(dataType.getTypeDefinition());
                 sb.append(')');
-
-                return sb.toString();
+                break;
 
             case OpTypes.CASEWHEN :
                 sb.append(' ').append(Tokens.T_CASEWHEN).append('(');
                 sb.append(left).append(',').append(right).append(')');
-
-                return sb.toString();
+                break;
 
             case OpTypes.ALTERNATIVE :
                 sb.append(left).append(',').append(right);
-
-                return sb.toString();
+                break;
 
             case OpTypes.LIMIT :
                 if (left != null) {
@@ -291,7 +290,7 @@ public class ExpressionOp extends Expression {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append('\n');
 
@@ -554,7 +553,7 @@ public class ExpressionOp extends Expression {
         if (exprSubType == OpTypes.CAST) {
             if (nodes[RIGHT].dataType == null) {
                 nodes[RIGHT].dataType = nodes[LEFT].dataType =
-                    Type.SQL_VARCHAR_DEFAULT;;
+                    Type.SQL_VARCHAR_DEFAULT;
             }
 
             dataType = nodes[RIGHT].dataType;
@@ -889,8 +888,8 @@ public class ExpressionOp extends Expression {
                     return null;
                 }
 
-                StringBuffer sb       = new StringBuffer("");
-                boolean      hasValue = false;
+                StringBuilder sb       = new StringBuilder();
+                boolean       hasValue = false;
 
                 for (int i = 1; i < nodes.length; i++) {
                     String value = (String) nodes[i].getValue(session);
@@ -930,8 +929,8 @@ public class ExpressionOp extends Expression {
                                    : ((IntervalType) nodes[RIGHT].dataType)
                                        .getSeconds(rightValue);
 
-                return ((DateTimeType) dataType).changeZone(leftValue,
-                        nodes[LEFT].dataType, (int) zoneSeconds,
+                return ((DateTimeType) dataType).changeZone(session,
+                        leftValue, nodes[LEFT].dataType, (int) zoneSeconds,
                         session.getZoneSeconds());
             }
             case OpTypes.LIMIT :

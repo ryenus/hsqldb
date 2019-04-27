@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,7 @@ public class RowType extends Type {
 
     public String getNameString() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_ROW);
         sb.append('(');
@@ -225,8 +225,8 @@ public class RowType extends Type {
             return Tokens.T_NULL;
         }
 
-        Object[]     array = (Object[]) a;
-        StringBuffer sb    = new StringBuffer();
+        Object[]      array = (Object[]) a;
+        StringBuilder sb    = new StringBuilder();
 
         sb.append(Tokens.T_ROW);
         sb.append('(');
@@ -382,6 +382,7 @@ public class RowType extends Type {
 
         for (int i = 0; i < length; i++) {
             int pos = sort.sortOrder[i];
+
             a = arra[pos];
             b = arrb[pos];
 
@@ -459,7 +460,7 @@ public class RowType extends Type {
     synchronized TypedComparator getComparator(Session session) {
 
         if (comparator == null) {
-            TypedComparator c    = Type.newComparator(session);
+            TypedComparator c    = new TypedComparator(session);
             SortAndSlice    sort = new SortAndSlice();
 
             sort.prepareMultiColumn(dataTypes.length);
@@ -478,7 +479,7 @@ public class RowType extends Type {
             return Tokens.T_NULL;
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append('(');
 
@@ -492,7 +493,7 @@ public class RowType extends Type {
             String string = types[i].convertToSQLString(array[i]);
 
             if (maxUnitLength > 10 && string.length() > maxUnitLength) {
-                sb.append(string.substring(0, maxUnitLength - 4));
+                sb.append(string, 0, maxUnitLength - 4);
                 sb.append(" ...");
             } else {
                 sb.append(string);

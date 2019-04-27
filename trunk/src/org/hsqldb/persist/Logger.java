@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,14 +34,12 @@ package org.hsqldb.persist;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseType;
-import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Row;
@@ -88,7 +86,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 1.7.0
  */
 public class Logger implements EventLogInterface {
@@ -104,7 +102,6 @@ public class Logger implements EventLogInterface {
     private Database database;
     private boolean  logsStatements;    // false indicates Log is being opened
     private boolean  loggingEnabled;
-    private boolean  syncFile = false;
 
     //
     private boolean propIsFileDatabase;
@@ -140,8 +137,6 @@ public class Logger implements EventLogInterface {
     private Crypto    crypto;
     boolean           cryptLobs;
     public FileAccess fileAccess;
-    public boolean    isStoredFileAccess;
-    public boolean    isNewStoredFileAccess;
     String            tempDirectoryPath;
 
     //
@@ -161,12 +156,12 @@ public class Logger implements EventLogInterface {
     //
     static final int largeDataFactor = 128;
 
-    //
+    // backupState cycle normal, backup, normal or normal, checkpoint, normal
     static final int stateNormal     = 0;
     static final int stateBackup     = 1;
     static final int stateCheckpoint = 2;
 
-    //
+    // checkpointState cycle normal, required, due, normal
     static final int stateCheckpointNormal   = 0;
     static final int stateCheckpointRequired = 1;
     static final int stateCheckpointDue      = 2;
@@ -200,62 +195,10 @@ public class Logger implements EventLogInterface {
      */
     public void open() {
 
-        // oj@openoffice.org - changed to file access api
-        String fileaccess_class_name =
-            (String) database.getURLProperties().getProperty(
-                HsqlDatabaseProperties.url_fileaccess_class_name);
-        String storage_class_name =
-            (String) database.getURLProperties().getProperty(
-                HsqlDatabaseProperties.url_storage_class_name);
         boolean hasFileProps = false;
         boolean hasScript    = false;
 
-        if (fileaccess_class_name != null) {
-            String storagekey = database.getURLProperties().getProperty(
-                HsqlDatabaseProperties.url_storage_key);
-
-            try {
-                Class fileAccessClass = null;
-                Class storageClass    = null;
-
-                try {
-                    ClassLoader classLoader =
-                        Thread.currentThread().getContextClassLoader();
-
-                    fileAccessClass =
-                        classLoader.loadClass(fileaccess_class_name);
-                    storageClass = classLoader.loadClass(storage_class_name);
-                } catch (ClassNotFoundException e) {
-                    fileAccessClass = Class.forName(fileaccess_class_name);
-                    storageClass    = Class.forName(storage_class_name);
-                }
-
-                if (storageClass.isAssignableFrom(
-                        RandomAccessInterface.class)) {
-                    isNewStoredFileAccess = true;
-                }
-
-                Constructor constructor =
-                    fileAccessClass.getConstructor(new Class[]{
-                        Object.class });
-
-                fileAccess =
-                    (FileAccess) constructor.newInstance(new Object[]{
-                        storagekey });
-                isStoredFileAccess = true;
-            } catch (ClassNotFoundException e) {
-                System.out.println("ClassNotFoundException");
-            } catch (InstantiationException e) {
-                System.out.println("InstantiationException");
-            } catch (IllegalAccessException e) {
-                System.out.println("IllegalAccessException");
-            } catch (Exception e) {
-                System.out.println("Exception");
-            }
-        } else {
-            fileAccess = FileUtil.getFileAccess(database.isFilesInJar());
-        }
-
+        fileAccess = FileUtil.getFileAccess(database.isFilesInJar());
         propIsFileDatabase          = database.getType().isFileBased();
         database.databaseProperties = new HsqlDatabaseProperties(database);
         propTextAllowFullPath = database.databaseProperties.isPropertyTrue(
@@ -445,8 +388,7 @@ public class Logger implements EventLogInterface {
 
         // handle invalid paths as well as access issues
         if (!database.isFilesReadOnly()) {
-            if (database.getType() == DatabaseType.DB_MEM
-                    || isStoredFileAccess) {
+            if (database.getType() == DatabaseType.DB_MEM) {
                 tempDirectoryPath = database.getProperties().getStringProperty(
                     HsqlDatabaseProperties.hsqldb_temp_directory);
             } else {
@@ -478,10 +420,6 @@ public class Logger implements EventLogInterface {
             database.collation.setPadding(false);
         }
 
-        if (version18 && isStoredFileAccess) {
-            database.collation.setPadding(false);
-        }
-
         String temp = database.getProperties().getStringProperty(
             HsqlDatabaseProperties.hsqldb_digest);
 
@@ -506,7 +444,7 @@ public class Logger implements EventLogInterface {
         String tableType = database.databaseProperties.getStringProperty(
             HsqlDatabaseProperties.hsqldb_default_table_type);
 
-        if ("CACHED".equalsIgnoreCase(tableType)) {
+        if (Tokens.T_CACHED.equalsIgnoreCase(tableType)) {
             database.schemaManager.setDefaultTableType(TableBase.CACHED_TABLE);
         }
 
@@ -920,7 +858,7 @@ public class Logger implements EventLogInterface {
             }
 
             if (propSqlLogLevel == SimpleLog.LOG_RESULT) {
-                StringBuffer sb = new StringBuffer(values);
+                StringBuilder sb = new StringBuilder(values);
 
                 sb.append(' ').append('[');
 
@@ -1139,8 +1077,6 @@ public class Logger implements EventLogInterface {
         propWriteDelay = delay;
 
         if (log != null) {
-            syncFile = (delay == 0);
-
             log.setWriteDelay(delay);
         }
     }
@@ -1376,14 +1312,6 @@ public class Logger implements EventLogInterface {
         return fileAccess;
     }
 
-    public boolean isStoredFileAccess() {
-        return isStoredFileAccess;
-    }
-
-    public boolean isNewStoredFileAccess() {
-        return isNewStoredFileAccess;
-    }
-
     public boolean isFileDatabase() {
         return propIsFileDatabase;
     }
@@ -1538,7 +1466,8 @@ public class Logger implements EventLogInterface {
             switch (database.defaultIsolationLevel) {
 
                 case SessionInterface.TX_READ_COMMITTED :
-                    value = new StringBuffer(Tokens.T_READ).append(' ').append(
+                    value = new StringBuilder(Tokens.T_READ).append(
+                        ' ').append(
                         Tokens.T_COMMITTED).toString().toLowerCase();
                     break;
 
@@ -1603,10 +1532,6 @@ public class Logger implements EventLogInterface {
 
         if (HsqlDatabaseProperties.hsqldb_inc_backup.equals(name)) {
             return String.valueOf(propIncrementBackup);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_large_data.equals(name)) {
-            return String.valueOf(propLargeData);
         }
 
         if (HsqlDatabaseProperties.hsqldb_large_data.equals(name)) {
@@ -1728,6 +1653,10 @@ public class Logger implements EventLogInterface {
             return String.valueOf(database.sqlNullsOrder);
         }
 
+        if (HsqlDatabaseProperties.sql_pad_space.equals(name)) {
+            return String.valueOf(database.collation.isPadSpace());
+        }
+
         if (HsqlDatabaseProperties.sql_syntax_db2.equals(name)) {
             return String.valueOf(database.sqlSyntaxDb2);
         }
@@ -1815,7 +1744,7 @@ public class Logger implements EventLogInterface {
     public String[] getPropertiesSQL(boolean indexRoots) {
 
         HsqlArrayList list = new HsqlArrayList();
-        StringBuffer  sb   = new StringBuffer();
+        StringBuilder sb   = new StringBuilder();
 
         sb.append("SET DATABASE ").append(Tokens.T_UNIQUE).append(' ');
         sb.append(Tokens.T_NAME).append(' ').append(database.getNameString());
@@ -1903,8 +1832,8 @@ public class Logger implements EventLogInterface {
             HsqlDatabaseProperties.hsqldb_digest);
 
         if (!temp.equals(database.granteeManager.getDigestAlgo())) {
-            sb.append("SET DATABASE ").append(' ').append(Tokens.T_PASSWORD);
-            sb.append(' ').append(Tokens.T_DIGEST).append(' ').append('\'');
+            sb.append("SET DATABASE ").append(Tokens.T_PASSWORD).append(' ');
+            sb.append(Tokens.T_DIGEST).append(' ').append('\'');
             sb.append(database.granteeManager.getDigestAlgo()).append('\'');
             list.add(sb.toString());
             sb.setLength(0);
@@ -2491,7 +2420,7 @@ public class Logger implements EventLogInterface {
 
         // absolute paths
         if (path.startsWith("/") || path.startsWith("\\")
-                || path.indexOf(":") > -1) {
+                || path.contains(":")) {
             if (allowFull || propTextAllowFullPath) {
                 return path;
             } else {
@@ -2499,7 +2428,7 @@ public class Logger implements EventLogInterface {
             }
         }
 
-        if (path.indexOf("..") > -1) {
+        if (path.contains("..")) {
             if (allowFull || propTextAllowFullPath) {
 
                 // allow

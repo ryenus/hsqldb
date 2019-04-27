@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Bob Preston (sqlbob@users dot sourceforge.net) - text table support
- * @version 2.3.4
+ * @version 2.5.0
  * @since 1.8.0
  */
 public class Log {
@@ -589,11 +589,7 @@ public class Log {
      */
     void writeOtherStatement(Session session, String s) {
 
-        try {
-            dbLogWriter.writeOtherStatement(session, s);
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, getLogFileName());
-        }
+        dbLogWriter.writeOtherStatement(session, s);
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
             database.logger.setCheckpointRequired();
@@ -603,41 +599,21 @@ public class Log {
     }
 
     void writeInsertStatement(Session session, Row row, Table t) {
-
-        try {
-            dbLogWriter.writeInsertStatement(session, row, t);
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, getLogFileName());
-        }
+        dbLogWriter.writeInsertStatement(session, row, t);
     }
 
     void writeDeleteStatement(Session session, Table t, Object[] row) {
-
-        try {
-            dbLogWriter.writeDeleteStatement(session, t, row);
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, getLogFileName());
-        }
+        dbLogWriter.writeDeleteStatement(session, t, row);
     }
 
     void writeSequenceStatement(Session session, NumberSequence s) {
-
-        try {
-            dbLogWriter.writeSequenceStatement(session, s);
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, getLogFileName());
-        }
-
+        dbLogWriter.writeSequenceStatement(session, s);
         setModified();
     }
 
     void writeCommitStatement(Session session) {
 
-        try {
-            dbLogWriter.writeCommitStatement(session);
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, getLogFileName());
-        }
+        dbLogWriter.writeCommitStatement(session);
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
             database.logger.setCheckpointRequired();
@@ -796,10 +772,6 @@ public class Log {
     }
 
     void deleteOldDataFiles() {
-
-        if (database.logger.isStoredFileAccess()) {
-            return;
-        }
 
         try {
             File   file = new File(database.getCanonicalPath());

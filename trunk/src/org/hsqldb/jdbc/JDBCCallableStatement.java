@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
 
 package org.hsqldb.jdbc;
 
-import java.io.Reader;
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.sql.Array;
@@ -40,44 +40,24 @@ import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Date;
+import java.sql.NClob;
 import java.sql.Ref;
 import java.sql.ResultSet;
+import java.sql.RowId;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Map;
 
-//#ifdef JAVA6
-import java.sql.NClob;
-import java.sql.RowId;
-import java.sql.SQLFeatureNotSupportedException;
-import java.sql.SQLXML;
-
-//#endif JAVA6
-
-//#ifdef JAVA8
-/*
-import java.sql.JDBCType;
-import java.sql.SQLType;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.OffsetTime;
-import java.time.Period;
-import java.time.ZoneOffset;
-*/
-
-//#endif JAVA8
-
-import org.hsqldb.error.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlDateTime;
+import org.hsqldb.HsqlException;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.types.BinaryData;
@@ -91,6 +71,21 @@ import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
+
+//#ifdef JAVA8
+import java.sql.JDBCType;
+import java.sql.SQLType;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.ZoneOffset;
+
+//#endif JAVA8
+
 
 /* $Id$ */
 
@@ -218,7 +213,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  * @see JDBCConnection#prepareCall
  * @see JDBCResultSet
@@ -718,7 +713,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         return bd;
     }
 
-//#endif
+//#endif DEPRECATEDJDBC
 
     /**
      * <!-- start generic documentation -->
@@ -3468,15 +3463,12 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public RowId getRowId(int parameterIndex) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
 
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -3506,13 +3498,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized RowId getRowId(
             String parameterName) throws SQLException {
         return getRowId(findParameterIndex(parameterName));
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -3541,13 +3530,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setRowId(String parameterName,
                                       RowId x) throws SQLException {
         super.setRowId(findParameterIndex(parameterName), x);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>String</code> object.
@@ -3564,13 +3550,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setNString(String parameterName,
                                         String value) throws SQLException {
         super.setNString(findParameterIndex(parameterName), value);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object. The
@@ -3589,14 +3572,11 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setNCharacterStream(String parameterName,
             Reader value, long length) throws SQLException {
         super.setNCharacterStream(findParameterIndex(parameterName), value,
                                   length);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>java.sql.NClob</code> object. The object
@@ -3613,13 +3593,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setNClob(String parameterName,
                                       NClob value) throws SQLException {
         super.setNClob(findParameterIndex(parameterName), value);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.  The <code>reader</code> must contain  the number
@@ -3642,13 +3619,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setClob(String parameterName, Reader reader,
                                      long length) throws SQLException {
         super.setClob(findParameterIndex(parameterName), reader, length);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>InputStream</code> object.  The <code>inputstream</code> must contain  the number
@@ -3676,14 +3650,11 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setBlob(String parameterName,
                                      InputStream inputStream,
                                      long length) throws SQLException {
         super.setBlob(findParameterIndex(parameterName), inputStream, length);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.  The <code>reader</code> must contain  the number
@@ -3708,13 +3679,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setNClob(String parameterName, Reader reader,
                                       long length) throws SQLException {
         super.setNClob(findParameterIndex(parameterName), reader, length);
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -3748,15 +3716,12 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public NClob getNClob(int parameterIndex) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
 
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -3789,13 +3754,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized NClob getNClob(
             String parameterName) throws SQLException {
         return getNClob(findParameterIndex(parameterName));
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. The driver converts this to an
@@ -3813,13 +3775,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setSQLXML(String parameterName,
                                        SQLXML xmlObject) throws SQLException {
         super.setSQLXML(findParameterIndex(parameterName), xmlObject);
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -3848,15 +3807,12 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public SQLXML getSQLXML(int parameterIndex) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
 
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -3885,13 +3841,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized SQLXML getSQLXML(
             String parameterName) throws SQLException {
         return getSQLXML(findParameterIndex(parameterName));
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -3930,15 +3883,12 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 2.0
      * @see #setNString
      */
-//#ifdef JAVA6
     public String getNString(int parameterIndex) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
 
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -3978,13 +3928,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.6, HSQLDB 2.0
      * @see #setNString
      */
-//#ifdef JAVA6
     public synchronized String getNString(
             String parameterName) throws SQLException {
         return getNString(findParameterIndex(parameterName));
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -4018,15 +3965,12 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public Reader getNCharacterStream(int parameterIndex) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
 
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -4060,13 +4004,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized Reader getNCharacterStream(
             String parameterName) throws SQLException {
         return getNCharacterStream(findParameterIndex(parameterName));
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -4094,7 +4035,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public Reader getCharacterStream(int parameterIndex) throws SQLException {
 
         checkGetParameterIndex(parameterIndex);
@@ -4116,8 +4056,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         throw JDBCUtil.sqlException(ErrorCode.X_42561);
     }
-
-//#endif JAVA6
 
     /**
      * <!-- start generic documentation -->
@@ -4147,13 +4085,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized Reader getCharacterStream(
             String parameterName) throws SQLException {
         return getCharacterStream(findParameterIndex(parameterName));
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>java.sql.Blob</code> object.
@@ -4169,13 +4104,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      *  @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setBlob(String parameterName,
                                      Blob x) throws SQLException {
         super.setBlob(findParameterIndex(parameterName), x);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>java.sql.Clob</code> object.
@@ -4191,13 +4123,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      *  @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setClob(String parameterName,
                                      Clob x) throws SQLException {
         super.setClob(findParameterIndex(parameterName), x);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given input stream, which will have
@@ -4222,7 +4151,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setAsciiStream(String parameterName,
             java.io.InputStream x, long length) throws SQLException {
 
@@ -4234,8 +4162,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
         this.setAsciiStream(parameterName, x, (int) length);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given input stream, which will have
@@ -4259,7 +4185,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setBinaryStream(String parameterName,
             java.io.InputStream x, long length) throws SQLException {
 
@@ -4271,8 +4196,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
         setBinaryStream(parameterName, x, (int) length);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>Reader</code>
@@ -4298,7 +4221,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setCharacterStream(String parameterName,
             java.io.Reader reader, long length) throws SQLException {
 
@@ -4309,8 +4231,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
         setCharacterStream(parameterName, reader, (int) length);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given input stream.
@@ -4335,13 +4255,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *   @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setAsciiStream(String parameterName,
             java.io.InputStream x) throws SQLException {
         super.setAsciiStream(findParameterIndex(parameterName), x);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given input stream.
@@ -4365,13 +4282,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setBinaryStream(String parameterName,
             java.io.InputStream x) throws SQLException {
         super.setBinaryStream(findParameterIndex(parameterName), x);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>Reader</code>
@@ -4398,13 +4312,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setCharacterStream(String parameterName,
             java.io.Reader reader) throws SQLException {
         super.setCharacterStream(findParameterIndex(parameterName), reader);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object. The
@@ -4429,13 +4340,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setNCharacterStream(String parameterName,
             Reader value) throws SQLException {
         super.setNCharacterStream(findParameterIndex(parameterName), value);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.
@@ -4458,13 +4366,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setClob(String parameterName,
                                      Reader reader) throws SQLException {
         super.setClob(findParameterIndex(parameterName), reader);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>InputStream</code> object.
@@ -4488,14 +4393,11 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setBlob(
             String parameterName,
             InputStream inputStream) throws SQLException {
         super.setBlob(findParameterIndex(parameterName), inputStream);
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.
@@ -4519,13 +4421,11 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public synchronized void setNClob(String parameterName,
                                       Reader reader) throws SQLException {
         super.setNClob(findParameterIndex(parameterName), reader);
     }
 
-//#endif JAVA6
     //------------------------- JDBC 4.1 -----------------------------------
 
     /**
@@ -4554,7 +4454,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
 //#ifdef JAVA8
-/*
     public <T>T getObject(int parameterIndex, Class<T> type) throws SQLException {
 
         if (type == null) {
@@ -4564,13 +4463,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         Type hsqlType = Types.getParameterSQLType(type);
 
         if(hsqlType == null) {
-            throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42561));
+            throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
         Object source;
 
         if (wasNullValue) {
-            return (T) null;
+            return null;
         }
 
         Object o = null;
@@ -4697,16 +4596,17 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
 
         if (o == null) {
-            throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42561));
+            throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
         return (T) o;
     }
-*/
 //#else
+/*
     public <T>T getObject(int parameterIndex, Class<T> type) throws SQLException {
         throw JDBCUtil.notSupported();
     }
+*/
 
 //#endif JAVA8
 
@@ -4796,12 +4696,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void setObject(String parameterName, Object x, SQLType targetSqlType,
                            int scaleOrLength) throws SQLException {
         setObject(parameterName, x, targetSqlType.getVendorTypeNumber(), scaleOrLength);
     }
-*/
 //#endif JAVA8
     /**
      * Sets the value of the designated parameter with the given object.
@@ -4825,12 +4723,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void setObject(String parameterName, Object x, SQLType targetSqlType)
             throws SQLException {
         setObject(parameterName, x, targetSqlType.getVendorTypeNumber());
     }
-*/
 //#endif JAVA8
 
     /**
@@ -4870,12 +4766,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void registerOutParameter(int parameterIndex, SQLType sqlType)
             throws SQLException {
         registerOutParameter(parameterIndex,sqlType.getVendorTypeNumber());
     }
-*/
 //#endif JAVA8
 
     /**
@@ -4910,12 +4804,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void registerOutParameter(int parameterIndex, SQLType sqlType,
                                       int scale) throws SQLException {
         registerOutParameter(parameterIndex,sqlType.getVendorTypeNumber(), scale);
     }
-*/
 //#endif JAVA8
 
     /**
@@ -4962,12 +4854,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void registerOutParameter (int parameterIndex, SQLType sqlType,
                                        String typeName) throws SQLException {
         registerOutParameter(parameterIndex,sqlType.getVendorTypeNumber(), typeName);
     }
-*/
 //#endif JAVA8
 
     /**
@@ -5007,12 +4897,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see SQLType
      */
 //#ifdef JAVA8
-/*
     public void registerOutParameter(String parameterName, SQLType sqlType)
             throws SQLException {
         registerOutParameter(parameterName,sqlType.getVendorTypeNumber());
     }
-*/
 //#endif JAVA8
 
     /**
@@ -5048,12 +4936,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @see SQLType
      */
 //#ifdef JAVA8
-/*
     public void registerOutParameter(String parameterName, SQLType sqlType,
                                       int scale) throws SQLException {
         registerOutParameter(parameterName,sqlType.getVendorTypeNumber(), scale);
     }
-*/
 //#endif JAVA8
 
     /**
@@ -5100,12 +4986,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void registerOutParameter (String parameterName, SQLType sqlType,
                                        String typeName) throws SQLException {
         registerOutParameter(parameterName,sqlType.getVendorTypeNumber(), typeName);
     }
-*/
 //#endif JAVA8
 
 // --------------------------- Internal Implementation -------------------------
@@ -5297,9 +5181,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
                 String msg = "from SQL type " + sourceType.getNameString()
                              + " to " + targetType.getJDBCClassName()
                              + ", value: " + stringValue;
-                HsqlException err = Error.error(ErrorCode.X_42561, msg);
 
-                throw JDBCUtil.sqlException(err, e);
+                throw JDBCUtil.sqlException(ErrorCode.X_42561, msg);
             }
         }
 
@@ -5307,7 +5190,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     }
 
 //#ifdef JAVA8
-/*
     private Object getTimestampWithZone(int columnIndex) throws SQLException {
         TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
 
@@ -5331,9 +5213,9 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         LocalTime lt = LocalTime.ofNanoOfDay((v.getSeconds() + v.getZone()) * 1000_000_000L + v.getNanos());
         return OffsetTime.of(lt, z);
     }
-*/
 
 //#else
+/*
     private Object getTimestampWithZone(int columnIndex) throws SQLException {
         TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
 
@@ -5351,7 +5233,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
         return Type.SQL_TIME.convertSQLToJava(session, v);
     }
-//#endif
+*/
+//#endif JAVA8
 
     private boolean trackNull(Object o) {
         return (wasNullValue = (o == null));

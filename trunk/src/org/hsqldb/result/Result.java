@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,6 @@ import java.io.LineNumberReader;
 import java.io.StringReader;
 
 import org.hsqldb.ColumnBase;
-import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
@@ -70,7 +69,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class Result {
@@ -304,8 +303,7 @@ public class Result {
                 ResultLob resultLob = ResultLob.newLob(inputStream, false);
 
                 if (session instanceof Session) {
-                    ((Session) session).allocateResultLob(resultLob,
-                                                          inputStream);
+                    session.allocateResultLob(resultLob, inputStream);
                 } else {
                     currentResult.addLobResult(resultLob);
                 }
@@ -1070,18 +1068,7 @@ public class Result {
 
             result.errorCode = result.exception.getErrorCode();
         } else if (t instanceof OutOfMemoryError) {
-
-            // gc() at this point may clear the memory allocated so far
-
-            /** @todo 1.9.0 - review if it's better to gc higher up the stack */
-            System.gc();
-
             result.exception  = Error.error(ErrorCode.OUT_OF_MEMORY, t);
-            result.mainString = result.exception.getMessage();
-            result.subString  = result.exception.getSQLState();
-            result.errorCode  = result.exception.getErrorCode();
-        } else if (t instanceof Throwable) {
-            result.exception  = Error.error(ErrorCode.GENERAL_ERROR, t);
             result.mainString = result.exception.getMessage();
             result.subString  = result.exception.getSQLState();
             result.errorCode  = result.exception.getErrorCode();

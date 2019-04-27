@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -307,8 +307,8 @@ public class TestLobs extends TestBase {
 
             rs.next();
 
-            InputStream  is = rs.getAsciiStream(2);
-            StringBuffer sb = new StringBuffer();
+            InputStream   is = rs.getAsciiStream(2);
+            StringBuilder sb = new StringBuilder();
 
             try {
                 while (true) {

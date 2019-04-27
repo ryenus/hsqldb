@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,8 @@ import org.hsqldb.types.Type;
  * @since 1.7.0
  */
 public interface RowOutputInterface extends Cloneable {
+
+    long scaleFilePosition(long position);
 
     void setStorageSize(int size);
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import java.util.Date;
 public final class HsqlTimer implements Comparator, ThreadFactory {
 
     /** The priority queue for the scheduled tasks. */
-    protected final TaskQueue taskQueue = new TaskQueue(16, (Comparator) this);
+    protected final TaskQueue taskQueue = new TaskQueue(16, this);
 
     /** The inner runnable that executes tasks in the background thread. */
     protected final TaskRunner taskRunner = new TaskRunner();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Implementation of column, variable, parameter, etc. access operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class ExpressionColumn extends Expression {
@@ -94,6 +94,9 @@ public class ExpressionColumn extends Expression {
     RangeVariable rangeVariable;
 
     //
+    int rangePosition = -1;
+
+    //
     NumberSequence sequence;
     boolean        isWritable;    // = false; true if column of writable table
 
@@ -118,16 +121,30 @@ public class ExpressionColumn extends Expression {
 
         super(OpTypes.COLUMN);
 
-        this.column   = column;
-        this.dataType = column.getDataType();
-        columnName    = column.getName().name;
+        this.column     = column;
+        this.dataType   = column.getDataType();
+        this.columnName = column.getName().name;
+    }
+
+    ExpressionColumn(RangeVariable rangeVar, ColumnSchema column) {
+
+        super(OpTypes.COLUMN);
+
+        this.columnIndex   = rangeVar.findColumn(column.getNameString());
+        this.column        = column;
+        this.dataType      = column.getDataType();
+        this.rangeVariable = rangeVar;
+        this.columnName    = column.getName().name;
+        this.tableName     = rangeVar.getTableAlias().name;
+
+        rangeVariable.addColumn(columnIndex);
     }
 
     ExpressionColumn(RangeVariable rangeVar, int index) {
 
         super(OpTypes.COLUMN);
 
-        columnIndex = index;
+        this.columnIndex = index;
 
         setAutoAttributesAsColumn(rangeVar, columnIndex);
     }
@@ -188,8 +205,8 @@ public class ExpressionColumn extends Expression {
 
         super(OpTypes.MULTICOLUMN);
 
-        this.schema = schema;
-        tableName   = table;
+        this.schema    = schema;
+        this.tableName = table;
     }
 
     /**
@@ -200,7 +217,7 @@ public class ExpressionColumn extends Expression {
         super(opType);
 
         this.sequence = sequence;
-        dataType      = sequence.getDataType();
+        this.dataType = sequence.getDataType();
     }
 
     void setAutoAttributesAsColumn(RangeVariable range, int i) {
@@ -321,8 +338,6 @@ public class ExpressionColumn extends Expression {
                 if (column.getName().parent != null) {
                     set.add(column.getName().parent);
                 }
-
-                return;
         }
     }
 
@@ -409,8 +424,8 @@ public class ExpressionColumn extends Expression {
                                 String message = getColumnName();
 
                                 if (alias != null) {
-                                    StringBuffer sb =
-                                        new StringBuffer(message);
+                                    StringBuilder sb =
+                                        new StringBuilder(message);
 
                                     sb.append(' ').append(Tokens.T_AS).append(
                                         ' ').append(alias.getStatementName());
@@ -745,7 +760,7 @@ public class ExpressionColumn extends Expression {
                 return column.getName().statementName;
 
             case OpTypes.ROWNUM : {
-                StringBuffer sb = new StringBuffer(Tokens.T_ROWNUM);
+                StringBuilder sb = new StringBuilder(Tokens.T_ROWNUM);
 
                 sb.append('(').append(')');
 
@@ -760,7 +775,7 @@ public class ExpressionColumn extends Expression {
                             return columnName;
                         }
 
-                        StringBuffer sb = new StringBuffer();
+                        StringBuilder sb = new StringBuilder();
 
                         sb.append(tableName);
                         sb.append('.');
@@ -773,7 +788,7 @@ public class ExpressionColumn extends Expression {
                 if (rangeVariable.tableAlias == null) {
                     return column.getName().getSchemaQualifiedStatementName();
                 } else {
-                    StringBuffer sb = new StringBuffer();
+                    StringBuilder sb = new StringBuilder();
 
                     sb.append(rangeVariable.tableAlias.getStatementName());
                     sb.append('.');
@@ -787,7 +802,7 @@ public class ExpressionColumn extends Expression {
                     return "*";
                 }
 
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 for (int i = 0; i < nodes.length; i++) {
                     Expression e = nodes[i];
@@ -811,7 +826,7 @@ public class ExpressionColumn extends Expression {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         for (int i = 0; i < blanks; i++) {
             sb.append(' ');
@@ -903,15 +918,15 @@ public class ExpressionColumn extends Expression {
             Expression e = (Expression) set.get(0);
 
             if (e instanceof ExpressionColumn) {
-                StringBuffer     sb = new StringBuffer();
+                StringBuilder    sb = new StringBuilder();
                 ExpressionColumn c  = (ExpressionColumn) e;
 
                 if (c.schema != null) {
-                    sb.append(c.schema + '.');
+                    sb.append(c.schema).append('.');
                 }
 
                 if (c.tableName != null) {
-                    sb.append(c.tableName + '.');
+                    sb.append(c.tableName).append('.');
                 }
 
                 sb.append(c.getColumnName());
@@ -920,9 +935,8 @@ public class ExpressionColumn extends Expression {
             } else {
                 OrderedHashSet newSet = new OrderedHashSet();
 
-                e.collectAllExpressions(newSet,
-                                        Expression.columnExpressionSet,
-                                        Expression.emptyExpressionSet);
+                e.collectAllExpressions(newSet, OpTypes.columnExpressionSet,
+                                        OpTypes.emptyExpressionSet);
 
                 // throw with column name
                 checkColumnsResolved(newSet);
@@ -1081,11 +1095,21 @@ public class ExpressionColumn extends Expression {
         return this;
     }
 
-    Expression replaceColumnReferences(RangeVariable range,
+    Expression replaceColumnReferences(Session session, RangeVariable range,
                                        Expression[] list) {
 
         if (opType == OpTypes.COLUMN && rangeVariable == range) {
-            return list[columnIndex];
+            Expression e = list[columnIndex];
+
+            if (dataType == null || dataType.equals(e.dataType)) {
+                return e;
+            }
+
+            e = e.duplicate();
+
+            e.setDataType(session, dataType);
+
+            return e;
         }
 
         for (int i = 0; i < nodes.length; i++) {
@@ -1093,7 +1117,7 @@ public class ExpressionColumn extends Expression {
                 continue;
             }
 
-            nodes[i] = nodes[i].replaceColumnReferences(range, list);
+            nodes[i] = nodes[i].replaceColumnReferences(session, range, list);
         }
 
         return this;
@@ -1122,7 +1146,7 @@ public class ExpressionColumn extends Expression {
     /**
      * SIMPLE_COLUMN expressions are now (2.3.5) always ExpressionColumn
      */
-    public boolean equals(Expression other) {
+    boolean equals(Expression other) {
 
         if (other == this) {
             return true;

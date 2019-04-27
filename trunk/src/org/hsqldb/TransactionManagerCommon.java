@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -50,7 +51,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 2.0.0
  */
 class TransactionManagerCommon {
@@ -73,7 +74,7 @@ class TransactionManagerCommon {
     AtomicLong globalChangeTimestamp = new AtomicLong(1);
 
     //
-    long transactionCount = 0;
+    AtomicInteger transactionCount = new AtomicInteger();
 
     //
     HashMap           tableWriteLocks = new HashMap();
@@ -179,6 +180,17 @@ class TransactionManagerCommon {
         } finally {
             writeLock.unlock();
         }
+    }
+
+    void beginTransactionCommon(Session session) {
+
+        session.actionTimestamp      = getNextGlobalChangeTimestamp();
+        session.actionStartTimestamp = session.actionTimestamp;
+        session.transactionTimestamp = session.actionTimestamp;
+        session.isPreTransaction     = false;
+        session.isTransaction        = true;
+
+        transactionCount.incrementAndGet();
     }
 
     void adjustLobUsage(Session session) {
@@ -943,12 +955,12 @@ class TransactionManagerCommon {
                     if (targetSession.isInMidTransaction()) {
                         prepareReset(targetSession);
 
-                        if (targetSession.latch.getCount() > 0) {
-                            targetSession.abortTransaction = true;
+                        targetSession.abortTransaction = true;
 
+                        if (targetSession.latch.getCount() > 0) {
                             targetSession.latch.setCount(0);
                         } else {
-                            targetSession.abortTransaction = true;
+                            targetSession.rollbackNoCheck(true);
                         }
                     }
                     break;
@@ -961,12 +973,10 @@ class TransactionManagerCommon {
                     if (targetSession.isInMidTransaction()) {
                         prepareReset(targetSession);
 
-                        if (targetSession.latch.getCount() > 0) {
-                            targetSession.abortAction = true;
+                        targetSession.abortAction = true;
 
+                        if (targetSession.latch.getCount() > 0) {
                             targetSession.latch.setCount(0);
-                        } else {
-                            targetSession.abortAction = true;
                         }
                     }
                     break;

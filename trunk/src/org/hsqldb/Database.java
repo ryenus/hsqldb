@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,7 @@ public class Database {
      *  databaseProperties or URL properties for new databases.
      */
     public int                    sqlAvgScale            = 0;
-    public boolean                sqlRestrictExec          = false;
+    public boolean                sqlRestrictExec        = false;
     public boolean                sqlCharLiteral         = true;
     public boolean                sqlConcatNulls         = true;
     public boolean                sqlConvertTruncate     = true;
@@ -582,22 +582,6 @@ public class Database {
         sqlSyntaxPgs = mode;
     }
 
-    /**
-     *  Called by the garbage collector on this Databases object when garbage
-     *  collection determines that there are no more references to it.
-     */
-    protected void finalize() {
-
-        if (getState() != DATABASE_ONLINE) {
-            return;
-        }
-
-        try {
-            close(CLOSEMODE_IMMEDIATELY);
-        } catch (HsqlException e) {    // it's too late now
-        }
-    }
-
     void closeIfLast() {
 
         if (sessionManager.isEmpty() && dbState == DATABASE_ONLINE) {
@@ -727,7 +711,7 @@ public class Database {
     public String[] getSettingsSQL() {
 
         HsqlArrayList list = new HsqlArrayList();
-        StringBuffer  sb   = new StringBuffer();
+        StringBuilder sb   = new StringBuilder();
 
         if (!getCatalogName().name.equals(
                 SqlInvariants.DEFAULT_CATALOG_NAME)) {
@@ -738,7 +722,7 @@ public class Database {
             sb.setLength(0);
         }
 
-        if (!collation.isDefaultCollation()) {
+        if (!collation.isDefaultCollation() || !collation.isPadSpace()) {
             list.add(collation.getDatabaseCollationSQL());
         }
 

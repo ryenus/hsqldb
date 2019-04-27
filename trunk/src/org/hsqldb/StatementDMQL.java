@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ import org.hsqldb.map.ValuePool;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.rights.Right;
 
 /**
  * Statement implementation for DML and base DQL statements.
@@ -418,8 +419,11 @@ public abstract class StatementDMQL extends Statement {
                 continue;
             }
 
-            session.getGrantee().checkSelect(range.rangeTable,
-                                             range.usedColumns);
+            Right right = session.getGrantee().checkSelect(range.rangeTable,
+                range.usedColumns);
+            ExpressionLogical expr = right.getFilterExpression();
+
+            range.setFilterExpression(session, expr);
         }
 
         switch (type) {
@@ -518,11 +522,8 @@ public abstract class StatementDMQL extends Statement {
      */
     String describeImpl(Session session) throws Exception {
 
-        StringBuffer sb;
-
-        sb = new StringBuffer();
-
-        int blanks = 0;
+        StringBuilder sb     = new StringBuilder();
+        int           blanks = 0;
 
         switch (type) {
 
@@ -619,8 +620,8 @@ public abstract class StatementDMQL extends Statement {
         }
     }
 
-    private StringBuffer appendSubqueries(Session session, StringBuffer sb,
-                                          int blanks) {
+    private StringBuilder appendSubqueries(Session session, StringBuilder sb,
+                                           int blanks) {
 
         sb.append("SUBQUERIES[");
 
@@ -646,14 +647,14 @@ public abstract class StatementDMQL extends Statement {
         return sb;
     }
 
-    private StringBuffer appendTable(StringBuffer sb) {
+    private StringBuilder appendTable(StringBuilder sb) {
 
         sb.append("TABLE[").append(targetTable.getName().name).append(']');
 
         return sb;
     }
 
-    private StringBuffer appendSourceTable(StringBuffer sb) {
+    private StringBuilder appendSourceTable(StringBuilder sb) {
 
         sb.append("SOURCE TABLE[").append(sourceTable.getName().name).append(
             ']');
@@ -661,7 +662,7 @@ public abstract class StatementDMQL extends Statement {
         return sb;
     }
 
-    private StringBuffer appendColumns(StringBuffer sb, int[] columnMap) {
+    private StringBuilder appendColumns(StringBuilder sb, int[] columnMap) {
 
         if (columnMap == null || updateExpressions.length == 0) {
             return sb;
@@ -684,7 +685,8 @@ public abstract class StatementDMQL extends Statement {
         return sb;
     }
 
-    private StringBuffer appendMultiColumns(StringBuffer sb, int[] columnMap) {
+    private StringBuilder appendMultiColumns(StringBuilder sb,
+            int[] columnMap) {
 
         // todo - multiColVals is always null
         if (columnMap == null || multiColumnValues == null) {
@@ -707,7 +709,7 @@ public abstract class StatementDMQL extends Statement {
         return sb;
     }
 
-    private StringBuffer appendParams(StringBuffer sb) {
+    private StringBuilder appendParams(StringBuilder sb) {
 
         sb.append("PARAMETERS=[");
 
@@ -721,7 +723,7 @@ public abstract class StatementDMQL extends Statement {
         return sb;
     }
 
-    private StringBuffer appendCondition(Session session, StringBuffer sb) {
+    private StringBuilder appendCondition(Session session, StringBuilder sb) {
 
         return condition == null ? sb.append("CONDITION[]\n")
                                  : sb.append("CONDITION[").append(

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,10 +47,7 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.IllegalCharsetNameException;
 import java.sql.Clob;
 import java.sql.SQLException;
-
-//#ifdef JAVA6
 import java.sql.SQLFeatureNotSupportedException;
-//#endif JAVA6
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;

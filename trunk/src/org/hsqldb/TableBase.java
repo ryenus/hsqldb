@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.PersistentStore;
@@ -46,7 +45,7 @@ import org.hsqldb.types.Type;
  * The  base of all HSQLDB table implementations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.7.2
  */
 public class TableBase implements Cloneable {
@@ -104,28 +103,11 @@ public class TableBase implements Cloneable {
     public boolean    isSessionBased;
     protected boolean isSchemaBased;
     protected boolean isLogged;
-    private boolean   isTransactional = true;
+    public boolean    isSystemVersioned;
     boolean           hasLobColumn;
 
     //
     TableBase() {}
-
-    //
-    public TableBase(Session session, Database database, int scope, int type,
-                     Type[] colTypes) {
-
-        tableType            = type;
-        persistenceScope     = scope;
-        isSessionBased       = true;
-        persistenceId        = database.persistentStoreCollection.getNextId();
-        this.database        = database;
-        this.colTypes        = colTypes;
-        columnCount          = colTypes.length;
-        indexList            = Index.emptyArray;
-        emptyColumnCheckList = new boolean[columnCount];
-
-        createPrimaryIndex(ValuePool.emptyIntArray, Type.emptyArray, null);
-    }
 
     public TableBase duplicate() {
 
@@ -170,7 +152,7 @@ public class TableBase implements Cloneable {
 
         PersistentStore store = getRowStore(session);
 
-        return getPrimaryIndex().firstRow(session, store, 0, null);
+        return getPrimaryIndex().firstRow(session, store, null, 0, null);
     }
 
     public final RowIterator rowIterator(PersistentStore store) {
@@ -244,12 +226,8 @@ public class TableBase implements Cloneable {
         return colTypes.length;
     }
 
-    public boolean isTransactional() {
-        return isTransactional;
-    }
-
-    public void setTransactional(boolean value) {
-        isTransactional = value;
+    public boolean isSystemVersioned() {
+        return isSystemVersioned;
     }
 
     /**
@@ -470,10 +448,11 @@ public class TableBase implements Cloneable {
             }
         }
 
-        boolean replacePK =
-            index.isPrimaryKey() && list.length > 0 && list[0].isPrimaryKey();
+        boolean replacePK = index.isPrimaryKey() && list.length > 0
+                            && list[0].isPrimaryKey();
+
         if (replacePK) {
-            list = (Index[]) ArrayUtil.duplicateArray(list);
+            list    = (Index[]) ArrayUtil.duplicateArray(list);
             list[0] = index;
         } else {
             list = (Index[]) ArrayUtil.toAdjustedArray(list, index, i, 1);

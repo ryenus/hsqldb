@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ package org.hsqldb.error;
  * SQL error codes.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public interface ErrorCode {
@@ -521,6 +521,11 @@ public interface ErrorCode {
     // generated columns
     int X_42512 = 5512;                            // invalid expression in CHECK or GENERATED clause
     int X_42513 = 5513;                            // assignment to generated column
+
+    // period columns
+    int X_42516 = 5516;                            // invalid period column name or type
+    int X_42517 = 5517;                            // operation not allowed - generated or period column
+    int X_42518 = 5518;                            // operation not allowed - system versioning
 
     // constraint definition issues
     int X_42520 = 5520;                            // SET NULL requires nullable column

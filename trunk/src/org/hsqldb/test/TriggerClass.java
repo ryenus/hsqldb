@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,14 @@
 
 package org.hsqldb.test;
 
-import org.hsqldb.Trigger;
 import org.hsqldb.jdbc.JDBCArrayBasic;
+import org.hsqldb.trigger.Trigger;
 import org.hsqldb.types.Type;
 
 public class TriggerClass implements Trigger {
 
-    static int   callCount;
-    static int[] callCounts = new int[12];
+    public static int   callCount;
+    public static int[] callCounts = new int[12];
 
     public void fire(int type, String trigName, String tabName,
                      Object[] oldRow, Object[] newRow) {

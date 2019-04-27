@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,6 @@ import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.Types;
 
 /**
  * Parser for SQL stored procedures and functions - PSM
@@ -361,7 +360,6 @@ public class ParserRoutine extends ParserTable {
         Routine routine = readProcedureOrFunctionDeclaration();
 
         readRoutineBody(routine);
-
         routine.resolve(session);
 
         return routine;
@@ -1518,7 +1516,7 @@ public class ParserRoutine extends ParserTable {
 
         compileContext.setOuterRanges(rangeGroups);
 
-        Expression e = XreadValueExpressionOrNull();
+        Expression e = XreadValueExpression();
 
         if (e == null) {
             throw unexpectedToken();
@@ -1814,7 +1812,7 @@ public class ParserRoutine extends ParserTable {
 
     Statement compileCase(Routine routine, StatementCompound context) {
 
-        HsqlArrayList list      = new HsqlArrayList();
+        HsqlArrayList list;
         Expression    condition = null;
         Statement     statement;
         Statement[]   statements;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,13 +45,13 @@ import org.hsqldb.map.BitMap;
  * Wrapper for random access file for incremental backup of the .data file.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class RAShadowFile {
 
     private static final int    headerSize = 12;
-    final Database              database;
+    final EventLogInterface     logger;
     final String                pathName;
     final RandomAccessInterface source;
     RandomAccessInterface       dest;
@@ -64,10 +64,10 @@ public class RAShadowFile {
     byte[]                      buffer;
     HsqlByteArrayOutputStream   byteArrayOutputStream;
 
-    RAShadowFile(Database database, RandomAccessInterface source,
+    RAShadowFile(EventLogInterface logger, RandomAccessInterface source,
                  String pathName, long maxSize, int pageSize) {
 
-        this.database = database;
+        this.logger   = logger;
         this.pathName = pathName;
         this.source   = source;
         this.pageSize = pageSize;
@@ -164,21 +164,15 @@ public class RAShadowFile {
             dest.seek(0);
             dest.setLength(writePos);
             close();
-            database.logger.logSevereEvent("shadow backup failure pos "
-                                           + position + " " + readSize, t);
+            logger.logSevereEvent("shadow backup failure pos " + position
+                                  + " " + readSize, t);
 
             throw JavaSystem.toIOException(t);
         }
     }
 
     private void open() throws IOException {
-
-        if (database.logger.isStoredFileAccess()) {
-            dest = RAFile.newScaledRAFile(database, pathName, false,
-                                          RAFile.DATA_FILE_STORED);
-        } else {
-            dest = new RAFileSimple(database.logger, pathName, "rw");
-        }
+        dest = new RAFileSimple(logger, pathName, "rw");
     }
 
     /**
@@ -214,14 +208,7 @@ public class RAShadowFile {
 
     private static RandomAccessInterface getStorage(Database database,
             String pathName, String openMode) throws IOException {
-
-        if (database.logger.isStoredFileAccess()) {
-            return RAFile.newScaledRAFile(database, pathName,
-                                          openMode.equals("r"),
-                                          RAFile.DATA_FILE_STORED);
-        } else {
-            return new RAFileSimple(database.logger, pathName, openMode);
-        }
+        return new RAFileSimple(database.logger, pathName, openMode);
     }
 
     /** todo - take account of incomplete addition of block due to lack of disk */
@@ -340,8 +327,7 @@ public class RAShadowFile {
 
             limitSize = synchLength;
 
-            database.logger.logDetailEvent("shadow file size for backup: "
-                                           + limitSize);
+            logger.logDetailEvent("shadow file size for backup: " + limitSize);
 
             if (limitSize > 0) {
                 try {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2015, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -213,7 +213,7 @@ public class RoutineSchema implements SchemaObject {
         Routine routine = findSpecificRoutine(types);
 
         if (routine == null) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             sb.append(name.getSchemaQualifiedStatementName());
             sb.append(Tokens.T_OPENBRACKET);

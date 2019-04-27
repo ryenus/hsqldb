@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for PSM compound statements.
 
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class StatementCompound extends Statement implements RangeGroup {
@@ -107,7 +107,7 @@ public class StatementCompound extends Statement implements RangeGroup {
     public String getSQL() {
 
 /*
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         if (label != null) {
             sb.append(label.getStatementName()).append(':').append(' ');
@@ -205,7 +205,7 @@ public class StatementCompound extends Statement implements RangeGroup {
 
     String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append('\n');
 

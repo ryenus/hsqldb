@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,38 +43,26 @@ import java.sql.BatchUpdateException;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DatabaseMetaData;
+import java.sql.Date;
+import java.sql.NClob;
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.RowId;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.SQLTimeoutException;
 import java.sql.SQLWarning;
+import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Calendar;
 import java.util.UUID;
-
-//#ifdef JAVA6
-import java.sql.NClob;
-import java.sql.RowId;
-import java.sql.SQLXML;
-import java.sql.SQLFeatureNotSupportedException;
-import java.sql.SQLTimeoutException;
-
-//#endif JAVA6
-
-//#ifdef JAVA8
-/*
-import java.sql.JDBCType;
-import java.sql.SQLType;
-*/
-
-//#endif JAVA8
 
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
@@ -88,7 +76,6 @@ import org.hsqldb.lib.CharArrayWriter;
 import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.StringConverter;
-import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
@@ -108,6 +95,13 @@ import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
+
+//#ifdef JAVA8
+import java.sql.JDBCType;
+import java.sql.SQLType;
+
+//#endif JAVA8
+
 
 /* $Id$ */
 
@@ -189,7 +183,7 @@ import org.hsqldb.types.Types;
  * is required for this behaviour.
  * <p>
  * JDBCPreparedStatement objects are backed by
- * a true compiled parameteric representation. Hence, there are now significant
+ * a true compiled parametric representation. Hence, there are now significant
  * performance gains to be had by using a JDBCPreparedStatement object in
  * preference to a JDBCStatement object when a short-running SQL statement is
  * to be executed more than once. <p>
@@ -236,7 +230,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
@@ -678,7 +672,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setParameter(parameterIndex, x);
     }
 
-    /** @todo 1.9.0 - implement streaming */
+    /* @todo 1.9.0 - implement streaming */
 
     /**
      * <!-- start generic documentation -->
@@ -818,7 +812,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setParameter(parameterIndex, writer.toString());
     }
 
-//#endif
+//#endif DEPRECATEDJDBC
 
     /** @todo 1.9.0 - implement streaming */
 
@@ -1127,7 +1121,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         resultOut.addBatchedPreparedExecuteRequest(batchParamValues);
     }
 
-    /** @todo 1.9.0 - implement streaming */
+    /* @todo 1.9.0 - implement streaming */
 
     /**
      * <!-- start generic documentation -->
@@ -1636,8 +1630,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         millis = HsqlDateTime.convertMillisFromCalendar(
                 session.getCalendarGMT(), calendar, millis);
-        millis = HsqlDateTime.convertToNormalisedTime(millis,
-                session.getCalendarGMT());
+        millis = HsqlDateTime.convertToNormalisedTime(session.getCalendarGMT(),
+                millis);
 
         switch (outType.typeCode) {
 
@@ -1722,8 +1716,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_TIMESTAMP :
                 seconds    = millis / 1000;
                 if (seconds < DateTimeType.epochSeconds
-                    || seconds > DateTimeType.limitSeconds) {
-                    throw Error.error(ErrorCode.X_22008);
+                    || seconds > DateTimeType.epochLimitSeconds) {
+                    throw JDBCUtil.sqlException(ErrorCode.X_22008);
                 }
                 parameterValues[i] = new TimestampData(seconds,
                         x.getNanos(), zoneOffset / 1000);
@@ -1750,8 +1744,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 seconds = millis / 1000;
 
                 if (seconds < DateTimeType.epochSeconds
-                    || seconds > DateTimeType.limitSeconds) {
-                    throw Error.error(ErrorCode.X_22008);
+                    || seconds > DateTimeType.epochLimitSeconds) {
+                    throw JDBCUtil.sqlException(ErrorCode.X_22008);
                 }
 
                 parameterValues[i] = new TimestampData(seconds);
@@ -1814,7 +1808,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setParameter(parameterIndex, null);
     }
 
-    //------------------------- JDBC 2.0 - overriden methods -------------------
+    //------------------------- JDBC 2.0 - overridden methods -------------------
 
     /**
      * <!-- start generic documentation -->
@@ -1852,7 +1846,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * A driver is not required to implement this method.
      * The possible implementations and return values have been modified in
      * the Java 2 SDK, Standard Edition, version 1.3 to
-     * accommodate the option of continuing to proccess commands in a batch
+     * accommodate the option of continuing to process commands in a batch
      * update after a <code>BatchUpdateException</code> object has been thrown.
      * <!-- end generic documentation -->
      *
@@ -1892,7 +1886,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (!isBatch) {
             if (connection.isEmptyBatchAllowed) {
-                return ValuePool.emptyIntArray;
+                return new int[]{};
             }
 
             throw JDBCUtil.sqlExceptionSQL(ErrorCode.X_07506);
@@ -2069,9 +2063,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public String toString() {
 
-        StringBuffer sb = new StringBuffer();
-        String       sql;
-        Object[]     pv;
+        StringBuilder sb = new StringBuilder();
+        String        sql;
+        Object[]      pv;
 
         sb.append(super.toString());
 
@@ -2343,12 +2337,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since JDK 1.6, HSQLDB 2.0
      */
 
-//#ifdef JAVA6
     public void setRowId(int parameterIndex, RowId x) throws SQLException {
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA6
 
     /**
      * Sets the designated parameter to the given <code>String</code> object.
@@ -2405,15 +2396,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since JDK 1.6, HSQLDB 2.0
      */
 
-//#ifdef JAVA6
     public synchronized void setNClob(int parameterIndex,
                                       NClob value) throws SQLException {
         setClob(parameterIndex, value);
     }
 
-//#endif JAVA6
-
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.  The reader must contain  the number
@@ -2439,7 +2427,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setCharacterStream(parameterIndex, reader, length);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to a <code>InputStream</code> object.  The input stream must contain  the number
@@ -2526,16 +2514,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since JDK 1.6, HSQLDB 2.0
      */
 
-//#ifdef JAVA6
     public void setSQLXML(int parameterIndex,
                           SQLXML xmlObject) throws SQLException {
         throw JDBCUtil.notSupported();
     }
-
-//#endif JAVA6
 // --------------------------- Added: Mustang Build 86 -------------------------
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to the given input stream, which will have
@@ -2578,7 +2563,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "length: " + length);
         }
-        setAscStream(parameterIndex, x, (long) length);
+        setAscStream(parameterIndex, x, length);
     }
 
     void setAscStream(int parameterIndex, java.io.InputStream x,
@@ -2788,7 +2773,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setAscStream(parameterIndex, x, -1);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to the given input stream.
@@ -2830,7 +2815,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setBinStream(parameterIndex, x, -1);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to the given <code>Reader</code>
@@ -2874,7 +2859,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setCharStream(parameterIndex, reader, -1);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      *   Sets the designated parameter to a <code>Reader</code> object. The
@@ -2904,7 +2889,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setCharStream(parameterIndex, value, -1);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.
@@ -2933,7 +2918,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setCharStream(parameterIndex, reader, -1);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to a <code>InputStream</code> object.
@@ -2965,7 +2950,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setBinStream(parameterIndex, inputStream, -1);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
+    /* @todo 1.9.0 - implement streaming and remove length limits */
 
     /**
      * Sets the designated parameter to a <code>Reader</code> object.
@@ -3310,7 +3295,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         rootWarning = null;
     }
 
-    /** @todo 1.9.0 - implement */
+    /* @todo 1.9.0 - implement */
 
     /**
      * <!-- start generic documentation -->
@@ -3776,7 +3761,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     @SuppressWarnings("unchecked")
     public <T>T unwrap(Class<T> iface) throws java.sql.SQLException {
 
@@ -3786,8 +3770,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         throw JDBCUtil.invalidArgument("iface: " + iface);
     }
-
-//#endif JAVA6
 
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
@@ -3804,13 +3786,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public boolean isWrapperFor(
             java.lang.Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
-
-//#endif JAVA6
 
     //------------------------- JDBC 4.2 -----------------------------------
 
@@ -3832,11 +3811,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public long getLargeUpdateCount() throws SQLException {
         return super.getUpdateCount();
     }
-*/
 
 //#endif JAVA8
 
@@ -3860,14 +3837,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void setLargeMaxRows(long max) throws SQLException {
 
         int maxRows = max > Integer.MAX_VALUE ? Integer.MAX_VALUE :
                                                 (int) max;
         setMaxRows(maxRows);
     }
-*/
 
 //#endif JAVA8
 
@@ -3891,11 +3866,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public long getLargeMaxRows() throws SQLException {
         return maxRows;
     }
-*/
 
 //#endif JAVA8
 
@@ -3955,7 +3928,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public long[] executeLargeBatch() throws SQLException {
         int[] updateCounts = executeBatch();
 
@@ -3967,7 +3939,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         return longCounts;
     }
-*/
 
 //#endif JAVA8
 
@@ -4023,13 +3994,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType,
                            int scaleOrLength) throws SQLException {
         int typeNo = targetSqlType.getVendorTypeNumber().intValue();
         setObject(parameterIndex, x, typeNo, scaleOrLength);
     }
-*/
 
 //#endif JAVA8
 
@@ -4055,13 +4024,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType)
             throws SQLException {
         int typeNo = targetSqlType.getVendorTypeNumber().intValue();
         setObject(parameterIndex, x, typeNo);
     }
-*/
 //#endif JAVA8
 
     /**
@@ -4381,9 +4348,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         break;
                     }
                 } catch (HsqlException e) {
-                    JDBCUtil.throwError(e);
+                    throw JDBCUtil.sqlException(e);
                 }
-                JDBCUtil.throwError(Error.error(ErrorCode.X_42563));
+
+                throw JDBCUtil.sqlException(ErrorCode.X_42563);
+
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
                 try {
@@ -4417,11 +4386,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         break;
                     }
                 } catch (HsqlException e) {
-                    JDBCUtil.throwError(e);
+                    throw JDBCUtil.sqlException(e);
                 }
-                JDBCUtil.throwError(Error.error(ErrorCode.X_42563));
 
-            // fall through
+                throw JDBCUtil.sqlException(ErrorCode.X_42563);
+
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.SQL_GUID :
@@ -4443,11 +4412,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         break;
                     }
                 } catch (HsqlException e) {
-                    JDBCUtil.throwError(e);
+                    throw JDBCUtil.sqlException(e);
                 }
-                JDBCUtil.throwError(Error.error(ErrorCode.X_42563));
 
-                break;
+                throw JDBCUtil.sqlException(ErrorCode.X_42563);
+
             case Types.SQL_ARRAY :
                 if (o instanceof Array) {
                     setArray(i + 1, (Array) o);
@@ -4471,7 +4440,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     break;
                 }
-                JDBCUtil.throwError(Error.error(ErrorCode.X_42563));
+
+                throw JDBCUtil.sqlException(ErrorCode.X_42563);
+
             case Types.SQL_BLOB :
                 setBlobParameter(i + 1, o);
 
@@ -4496,7 +4467,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     break;
                 } catch (HsqlException e) {
-                    JDBCUtil.throwError(e);
+                    throw JDBCUtil.sqlException(e);
                 }
             }
             case Types.TINYINT :
@@ -4524,7 +4495,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     break;
                 } catch (HsqlException e) {
-                    JDBCUtil.throwError(e);
+                    throw JDBCUtil.sqlException(e);
                 }
             case Types.SQL_VARCHAR : {
                 if (o instanceof String) {
@@ -4535,7 +4506,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                         break;
                     } catch (HsqlException e) {
-                        JDBCUtil.throwError(e);
+                        throw JDBCUtil.sqlException(e);
                     }
                 }
             }
@@ -4561,7 +4532,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                     break;
                 } catch (HsqlException e) {
-                    JDBCUtil.throwError(e);
+                    throw JDBCUtil.sqlException(e);
                 }
         }
         parameterValues[i] = o;
@@ -4744,7 +4715,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.OTHER :
-                throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42563));
+                throw JDBCUtil.sqlException(ErrorCode.X_42563);
             default :
                 setParameter(i, Integer.valueOf(value));
         }
@@ -4776,7 +4747,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.OTHER :
-                throw JDBCUtil.sqlException(Error.error(ErrorCode.X_42563));
+                throw JDBCUtil.sqlException(ErrorCode.X_42563);
             default :
                 setParameter(i, Long.valueOf(value));
         }

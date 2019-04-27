@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -150,6 +150,17 @@ public class HashSet extends BaseHashMap implements Set {
         return result;
     }
 
+    public void intersect(Set c) {
+
+        Iterator it = iterator();
+
+        while (it.hasNext()) {
+            if (!c.contains(it.next())) {
+                it.remove();
+            }
+        }
+    }
+
     /** returns true if all were removed */
     public boolean removeAll(Object[] keys) {
 
@@ -194,8 +205,8 @@ public class HashSet extends BaseHashMap implements Set {
      */
     public String toString() {
 
-        Iterator     it = iterator();
-        StringBuffer sb = new StringBuffer();
+        Iterator      it = iterator();
+        StringBuilder sb = new StringBuilder();
 
         while (it.hasNext()) {
             if (sb.length() > 0) {

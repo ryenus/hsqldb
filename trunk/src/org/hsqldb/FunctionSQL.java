@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL standard function calls
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class FunctionSQL extends Expression {
@@ -822,7 +822,7 @@ public class FunctionSQL extends Expression {
                             nodes[i].dataType);
                 }
 
-                if (((NumberType) nodeDataTypes[3]).isNegative(data[3])) {
+                if (nodeDataTypes[3].isNegative(data[3])) {
                     throw Error.error(ErrorCode.X_2201G);
                 }
 
@@ -1812,8 +1812,8 @@ public class FunctionSQL extends Expression {
             case Types.SQL_INTERVAL_SECOND : {
                 return ((DTIType) nodes[1].dataType).getSecondPart(data[1]);
             }
-            case DTIType.MONTH_NAME :
-            case DTIType.DAY_NAME : {
+            case Types.DTI_MONTH_NAME :
+            case Types.DTI_DAY_NAME : {
                 return ((DateTimeType) nodes[1].dataType).getPartString(
                     session, data[1], part);
             }
@@ -1828,7 +1828,7 @@ public class FunctionSQL extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         switch (funcType) {
 
@@ -2120,7 +2120,7 @@ public class FunctionSQL extends Expression {
         return sb.toString();
     }
 
-    public boolean equals(Expression other) {
+    boolean equals(Expression other) {
 
         if (other instanceof FunctionSQL) {
             FunctionSQL o = (FunctionSQL) other;
@@ -2140,7 +2140,7 @@ public class FunctionSQL extends Expression {
      */
     public String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append('\n');
 

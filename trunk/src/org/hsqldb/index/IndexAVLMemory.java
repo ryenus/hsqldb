@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2018, The HSQL Development Group
+ * Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,16 +70,8 @@
 
 package org.hsqldb.index;
 
-import org.hsqldb.Constraint;
-import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.Row;
-import org.hsqldb.RowAVL;
-import org.hsqldb.Session;
-import org.hsqldb.Table;
 import org.hsqldb.TableBase;
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.types.Type;
 
@@ -90,7 +82,7 @@ import org.hsqldb.types.Type;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.5.0
  * @since Hypersonic SQL
  */
 public class IndexAVLMemory extends IndexAVL {
@@ -102,12 +94,12 @@ public class IndexAVLMemory extends IndexAVL {
      * @param id persistnece id
      * @param table table of the index
      * @param columns array of column indexes
-     * @param descending boolean[]
-     * @param nullsLast boolean[]
+     * @param descending boolean[] for result sets
+     * @param nullsLast boolean[] for result sets
      * @param colTypes array of column types
-     * @param pk if index is for a primary key
+     * @param pk is index for a primary key
      * @param unique is this a unique index
-     * @param constraint does this index belonging to a constraint
+     * @param constraint does this index belong to a constraint
      * @param forward is this an auto-index for an FK that refers to a table
      *   defined after this table
      */
@@ -118,87 +110,6 @@ public class IndexAVLMemory extends IndexAVL {
                           boolean forward) {
         super(name, id, table, columns, descending, nullsLast, colTypes, pk,
               unique, constraint, forward);
-    }
-
-    /**
-     * Insert a node into the index
-     */
-    public void insert(Session session, PersistentStore store, Row row) {
-
-        NodeAVL        n;
-        NodeAVL        x;
-        boolean        isleft        = true;
-        int            compare       = -1;
-        final Object[] rowData       = row.getData();
-        boolean        compareRowId  = !isUnique || hasNulls(session, rowData);
-        boolean        compareSimple = isSimple;
-
-        n = getAccessor(store);
-        x = n;
-
-        if (n == null) {
-            store.setAccessor(this, ((RowAVL) row).getNode(position));
-
-            return;
-        }
-
-        while (true) {
-            Row currentRow = n.row;
-
-            compare = 0;
-
-            if (compareSimple) {
-                compare =
-                    colTypes[0].compare(session, rowData[colIndex[0]],
-                                        currentRow.getData()[colIndex[0]]);
-
-                if (compare == 0 && compareRowId) {
-                    compare = compareRowForInsertOrDelete(session, row,
-                                                          currentRow,
-                                                          compareRowId, 1);
-                }
-            } else {
-                compare = compareRowForInsertOrDelete(session, row,
-                                                      currentRow,
-                                                      compareRowId, 0);
-            }
-
-            // after the first match and check, all compares are with row id
-            if (compare == 0 && session != null && !compareRowId
-                    && session.database.txManager.isMVRows()) {
-                if (!isEqualReadable(session, store, n)) {
-                    compareRowId = true;
-                    compare = compareRowForInsertOrDelete(session, row,
-                                                          currentRow,
-                                                          compareRowId,
-                                                          colIndex.length);
-                }
-            }
-
-            if (compare == 0) {
-                if (isConstraint) {
-                    Constraint c =
-                        ((Table) table).getUniqueConstraintForIndex(this);
-
-                    throw c.getException(row.getData());
-                } else {
-                    throw Error.error(ErrorCode.X_23505, name.statementName);
-                }
-            }
-
-            isleft = compare < 0;
-            x      = n;
-            n      = isleft ? x.nLeft
-                            : x.nRight;
-
-            if (n == null) {
-                break;
-            }
-        }
-
-        x = x.set(store, isleft, ((RowAVL) row).getNode(position));
-
-        balance(store, x, isleft);
     }
 
     void delete(PersistentStore store, NodeAVL x) {

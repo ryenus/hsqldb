@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -205,7 +205,7 @@ public class SessionManager {
             sessions[i].close();
         }
 
-        synchronized(this) {
+        synchronized (this) {
             sessionMap.clear();
         }
     }
@@ -281,14 +281,14 @@ public class SessionManager {
         return false;
     }
 
-    public synchronized void removeSchemaReference(Schema schema) {
+    public synchronized void removeSchemaReference(HsqlName schemaName) {
 
         Iterator it = sessionMap.values().iterator();
 
         for (int i = 0; it.hasNext(); i++) {
             Session session = (Session) it.next();
 
-            if (session.getCurrentSchemaHsqlName() == schema.getName()) {
+            if (session.getCurrentSchemaHsqlName() == schemaName) {
                 session.resetSchema();
             }
         }

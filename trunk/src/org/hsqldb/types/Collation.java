@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,6 @@ import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.SqlInvariants;
 import org.hsqldb.Tokens;
-import org.hsqldb.TypeInvariants;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMap;
@@ -55,7 +54,7 @@ import org.hsqldb.rights.Grantee;
  *
  * @author Frand Schoenheit (frank.schoenheit@sun dot com)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.8.0
  */
 public class Collation implements SchemaObject {
@@ -509,7 +508,7 @@ public class Collation implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_COLLATION).append(' ');
@@ -546,7 +545,7 @@ public class Collation implements SchemaObject {
 
     public String getCollateSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_COLLATE).append(' ');
 
@@ -561,7 +560,7 @@ public class Collation implements SchemaObject {
 
     public String getDatabaseCollationSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_DATABASE).append(' ');

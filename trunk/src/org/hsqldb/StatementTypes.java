@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ package org.hsqldb;
  * Codes based on SQL Standards for different types of statement.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public interface StatementTypes {
@@ -152,6 +152,12 @@ public interface StatementTypes {
     int WHILE                            = 110;
     int NULL                             = 111;
 
+    // periods
+    int ADD_TABLE_PERIOD             = 115;
+    int DROP_TABLE_PERIOD            = 116;
+    int ADD_TABLE_SYSTEM_VERSIONING  = 117;
+    int DROP_TABLE_SYSTEM_VERSIONING = 118;
+
     //
     int ALTER_FOREIGN_TABLE         = 121;
     int ALTER_USER_MAPPING          = 122;
@@ -173,7 +179,8 @@ public interface StatementTypes {
     int DATABASE_CHECKPOINT = 1002;
     int DATABASE_SHUTDOWN   = 1003;
     int DATABASE_SCRIPT     = 1004;
-    int CHECK_INDEX         = 1005;
+    int LOAD_SCRIPT         = 1005;
+    int CHECK_INDEX         = 1006;
 
     // hsqldb database settings
     int SET_DATABASE_FILES_BACKUP_INCREMENT    = 1011;
@@ -265,15 +272,16 @@ public interface StatementTypes {
     int EXPLAIN_REFERENCES       = 1150;
     int EXPLAIN_PLAN             = 1151;
     int RENAME_OBJECT            = 1152;
-    int SET_TABLE_INDEX          = 1153;
-    int SET_TABLE_READONLY       = 1154;
-    int SET_TABLE_SOURCE         = 1155;
-    int SET_TABLE_SOURCE_HEADER  = 1156;
-    int SET_TABLE_TYPE           = 1157;
-    int SET_TABLE_CLUSTERED      = 1158;
-    int SET_TABLE_NEW_TABLESPACE = 1159;
-    int SET_TABLE_SET_TABLESPACE = 1160;
-    int LOG_SCHEMA_STATEMENT     = 1161;
+    int RENAME_SCHEMA            = 1153;
+    int SET_TABLE_INDEX          = 1154;
+    int SET_TABLE_READONLY       = 1155;
+    int SET_TABLE_SOURCE         = 1156;
+    int SET_TABLE_SOURCE_HEADER  = 1157;
+    int SET_TABLE_TYPE           = 1158;
+    int SET_TABLE_CLUSTERED      = 1159;
+    int SET_TABLE_NEW_TABLESPACE = 1160;
+    int SET_TABLE_SET_TABLESPACE = 1161;
+    int LOG_SCHEMA_STATEMENT     = 1162;
 
     // hsqldb sql implementation
     int CONDITION = 1211;                         // element of IF

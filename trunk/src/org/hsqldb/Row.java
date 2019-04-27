@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,12 +36,14 @@ import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.TimestampData;
 
 /**
  * Base class for a database row object.
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.3.3
+ * @version 2.5.0
  */
 public class Row implements CachedObject {
 
@@ -73,6 +75,16 @@ public class Row implements CachedObject {
         return rowData;
     }
 
+    public Object[] getDataCopy() {
+
+        Object[] newData = new Object[rowData.length];
+        Object[] data    = getData();
+
+        System.arraycopy(data, 0, newData, 0, data.length);
+
+        return newData;
+    }
+
     boolean isDeleted(Session session, PersistentStore store) {
 
         RowAction action;
@@ -89,6 +101,42 @@ public class Row implements CachedObject {
         }
 
         return !action.canRead(session, TransactionManager.ACTION_READ);
+    }
+
+    public TimestampData getSystemStartVersion() {
+
+        if (table.isSystemVersioned) {
+            TimestampData ts = (TimestampData) getField(
+                ((Table) table).systemPeriodStartColumn);
+
+            return ts;
+        }
+
+        return DateTimeType.epochTimestamp;
+    }
+
+    public TimestampData getSystemEndVersion() {
+
+        if (table.isSystemVersioned) {
+            TimestampData ts = (TimestampData) getField(
+                ((Table) table).systemPeriodEndColumn);
+
+            return ts;
+        }
+
+        return DateTimeType.epochLimitTimestamp;
+    }
+
+    public boolean isCurrentSystemVersion() {
+
+        if (table.isSystemVersioned) {
+            TimestampData ts = (TimestampData) getField(
+                ((Table) table).systemPeriodEndColumn);
+
+            return DateTimeType.epochLimitSeconds == ts.getSeconds();
+        }
+
+        return true;
     }
 
     public void setStorageSize(int size) {}

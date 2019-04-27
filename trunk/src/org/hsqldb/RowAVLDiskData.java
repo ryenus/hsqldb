@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,10 +98,8 @@ public class RowAVLDiskData extends RowAVL {
         Object[] data = rowData;
 
         if (data == null) {
-            data = store.getData(this);
-            data = rowData;
-
-            this.keepInMemory(false);
+            rowData = store.getData(this);
+            data    = rowData;
         } else {
             accessCount++;
         }

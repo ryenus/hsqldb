@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,13 +35,8 @@ import java.io.ByteArrayInputStream;
 import java.io.CharArrayReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.sql.Clob;
 import java.sql.SQLException;
-
-//#ifdef JAVA6
-import java.sql.SQLFeatureNotSupportedException;
-//#endif JAVA6
 
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FrameworkLogger;
@@ -124,13 +119,15 @@ import org.hsqldb.lib.java.JavaSystem;
  * <!-- end release-specific documentation -->
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.5.0
  * @since JDK 1.2, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0
  */
 public class JDBCClob implements Clob {
-     private static final FrameworkLogger LOG
-             = FrameworkLogger.getLog(JDBCClob.class);
+
+    private static final FrameworkLogger LOG =
+        FrameworkLogger.getLog(JDBCClob.class);
+
     /**
      * Retrieves the number of characters
      * in the <code>CLOB</code> value
@@ -256,10 +253,10 @@ public class JDBCClob implements Clob {
     public java.io.InputStream getAsciiStream() throws SQLException {
 
         try {
-            return new ByteArrayInputStream(getData().getBytes("US-ASCII"));
-        } catch (UnsupportedEncodingException e) {
-            LOG.warning(e.getMessage(), e);
-            return null;
+            return new ByteArrayInputStream(
+                getData().getBytes(JavaSystem.CS_US_ASCII));
+        } catch (Throwable e) {
+            throw JDBCUtil.sqlException(e);
         }
     }
 
@@ -293,7 +290,7 @@ public class JDBCClob implements Clob {
             return -1;
         }
 
-        final int position = data.indexOf(searchstr, (int)start - 1);
+        final int position = data.indexOf(searchstr, (int) start - 1);
 
         return (position == -1) ? -1
                                 : position + 1;
@@ -329,9 +326,9 @@ public class JDBCClob implements Clob {
             return -1;
         }
 
-        final long dlen  = data.length();
-        final long sslen = searchstr.length();
-        final long startIndex = start-1;
+        final long dlen       = data.length();
+        final long sslen      = searchstr.length();
+        final long startIndex = start - 1;
 
         // This is potentially much less expensive than materializing a large
         // substring from some other vendor's CLOB.  Indeed, we should probably
@@ -353,7 +350,7 @@ public class JDBCClob implements Clob {
         final int index = data.indexOf(pattern, (int) startIndex);
 
         return (index == -1) ? -1
-                                : index + 1;
+                             : index + 1;
     }
 
     //---------------------------- jdbc 3.0 -----------------------------------
@@ -406,7 +403,7 @@ public class JDBCClob implements Clob {
      * length+1, then the CLOB value is extended in length to accept the
      * written characters and the undefined region up to @{code pos} is filled
      * with with space (' ') characters.
-
+     *
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -426,7 +423,8 @@ public class JDBCClob implements Clob {
      * @revised JDK 1.6, HSQLDB 2.0
      */
     public int setString(long pos, String str) throws SQLException {
-        return setString(pos, str, 0, str == null ? 0 : str.length());
+        return setString(pos, str, 0, str == null ? 0
+                                                  : str.length());
     }
 
     /**
@@ -500,6 +498,7 @@ public class JDBCClob implements Clob {
      */
     public int setString(final long pos, final String str, final int offset,
                          final int len) throws SQLException {
+
         checkReadonly();
 
         final String data = getData();
@@ -509,11 +508,12 @@ public class JDBCClob implements Clob {
         }
 
         final int strlen = str.length();
-        final int dlen = data.length();
-        final int ipos = (int) (pos - 1);
+        final int dlen   = data.length();
+        final int ipos   = (int) (pos - 1);
 
         if (offset == 0 && len == strlen && ipos == 0 && len >= dlen) {
             setData(str);
+
             return len;
         }
 
@@ -530,28 +530,37 @@ public class JDBCClob implements Clob {
         }
 
         final long endPos = (pos + len);
-        char[] chars;
+        char[]     chars;
 
         if (pos > dlen) {
+
             // 1.)  'datachars' + '\32\32\32...' + substring
             chars = new char[(int) endPos - 1];
+
             data.getChars(0, dlen, chars, 0);
-            for(int i = dlen; i < ipos; i++) {
+
+            for (int i = dlen; i < ipos; i++) {
                 chars[i] = ' ';
             }
+
             str.getChars(offset, offset + len, chars, ipos);
         } else if (endPos > dlen) {
+
             // 2.)  'datach...' + substring
             chars = new char[(int) endPos - 1];
+
             data.getChars(0, ipos, chars, 0);
             str.getChars(offset, offset + len, chars, ipos);
         } else {
+
             // 3.)  'dat' + substring + 'rs'
             chars = new char[dlen];
 
             data.getChars(0, ipos, chars, 0);
             str.getChars(offset, offset + len, chars, ipos);
+
             final int dataOffset = ipos + len;
+
             data.getChars(dataOffset, dlen, chars, dataOffset);
         }
 
@@ -629,8 +638,8 @@ public class JDBCClob implements Clob {
      * @since JDK 1.4, HSQLDB 1.7.2
      * @revised JDK 1.6, HSQLDB 2.0
      */
-    public java.io.OutputStream setAsciiStream(
-            final long pos) throws SQLException {
+    public java.io.OutputStream setAsciiStream(final long pos)
+    throws SQLException {
 
         checkReadonly();
         checkClosed();
@@ -640,22 +649,30 @@ public class JDBCClob implements Clob {
         }
 
         return new java.io.ByteArrayOutputStream() {
+
             boolean closed = false;
 
             public synchronized void close() throws java.io.IOException {
+
                 if (closed) {
                     return;
                 }
+
                 closed = true;
-                final byte[] bytes = super.buf;
-                final int length = super.count;
-                super.buf = null;
+
+                final byte[] bytes  = super.buf;
+                final int    length = super.count;
+
+                super.buf   = null;
                 super.count = 0;
+
                 try {
-                    final String str = new String(bytes, 0, length, "US-ASCII");
+                    final String str = new String(bytes, 0, length,
+                                                  JavaSystem.CS_US_ASCII);
+
                     JDBCClob.this.setString(pos, str);
-                } catch (SQLException se) {
-                    throw JavaSystem.toIOException(se);
+                } catch (Throwable e) {
+                    throw JavaSystem.toIOException(e);
                 }
             }
         };
@@ -731,8 +748,8 @@ public class JDBCClob implements Clob {
      * @since JDK 1.4, HSQLDB 1.7.2
      * @revised JDK 1.6, HSQLDB 2.0
      */
-    public java.io.Writer setCharacterStream(
-            final long pos) throws SQLException {
+    public java.io.Writer setCharacterStream(final long pos)
+    throws SQLException {
 
         checkReadonly();
         checkClosed();
@@ -742,13 +759,19 @@ public class JDBCClob implements Clob {
         }
 
         return new java.io.StringWriter() {
+
             private boolean closed = false;
+
             public synchronized void close() throws java.io.IOException {
+
                 if (closed) {
                     return;
                 }
+
                 closed = true;
+
                 final StringBuffer sb = super.getBuffer();
+
                 try {
                     JDBCClob.this.setStringBuffer(pos, sb, 0, sb.length());
                 } catch (SQLException se) {
@@ -807,10 +830,11 @@ public class JDBCClob implements Clob {
      * @revised JDK 1.6, HSQLDB 2.0
      */
     public void truncate(final long len) throws SQLException {
+
         checkReadonly();
 
         final String data = getData();
-        final long dlen = data.length();
+        final long   dlen = data.length();
 
         if (len == dlen) {
             return;
@@ -821,7 +845,6 @@ public class JDBCClob implements Clob {
         }
 
         setData(data.substring(0, (int) len));
-
     }
 
     //------------------------- JDBC 4.0 -----------------------------------
@@ -872,7 +895,7 @@ public class JDBCClob implements Clob {
         }
 
         final String data = getData();
-        final int dlen = data.length();
+        final int    dlen = data.length();
 
         if (pos == MIN_POS && length == dlen) {
             return new StringReader(data);
@@ -888,10 +911,10 @@ public class JDBCClob implements Clob {
             throw JDBCUtil.outOfRangeArgument("length: " + length);
         }
 
-        final int endIndex = (int) (startIndex + length); // exclusive
-        final char[] chars = new char[(int)length];
+        final int    endIndex = (int) (startIndex + length);    // exclusive
+        final char[] chars    = new char[(int) length];
 
-        data.getChars((int)startIndex, endIndex, chars, 0);
+        data.getChars((int) startIndex, endIndex, chars, 0);
 
         return new CharArrayReader(chars);
     }
@@ -925,6 +948,7 @@ public class JDBCClob implements Clob {
         if (data == null) {
             throw JDBCUtil.nullArgument();
         }
+
         m_data                = data;
         m_createdByConnection = false;
     }
@@ -938,8 +962,10 @@ public class JDBCClob implements Clob {
     }
 
     protected void checkReadonly() throws SQLException {
+
         if (!m_createdByConnection) {
-            throw JDBCUtil.sqlException(ErrorCode.X_25006, "Clob is read-only");
+            throw JDBCUtil.sqlException(ErrorCode.X_25006,
+                                        "Clob is read-only");
         }
     }
 
@@ -979,7 +1005,8 @@ public class JDBCClob implements Clob {
      *            <code>CLOB</code> value or if pos is less than 1
      */
     public int setStringBuffer(final long pos, final StringBuffer sb,
-            final int offset, final int len) throws SQLException {
+                               final int offset,
+                               final int len) throws SQLException {
 
         checkReadonly();
 
@@ -990,11 +1017,12 @@ public class JDBCClob implements Clob {
         }
 
         final int strlen = sb.length();
-        final int dlen = data.length();
-        final int ipos = (int) (pos - 1);
+        final int dlen   = data.length();
+        final int ipos   = (int) (pos - 1);
 
         if (offset == 0 && len == strlen && ipos == 0 && len >= dlen) {
             setData(sb.toString());
+
             return len;
         }
 
@@ -1011,28 +1039,37 @@ public class JDBCClob implements Clob {
         }
 
         final long endPos = (pos + len);
-        char[] chars;
+        char[]     chars;
 
         if (pos > dlen) {
+
             // 1.)  'datachars' + '\32\32\32...' + substring
             chars = new char[(int) endPos - 1];
+
             data.getChars(0, dlen, chars, 0);
-            for(int i = dlen; i < ipos; i++) {
+
+            for (int i = dlen; i < ipos; i++) {
                 chars[i] = ' ';
             }
+
             sb.getChars(offset, offset + len, chars, ipos);
         } else if (endPos > dlen) {
+
             // 2.)  'datach...' + substring
             chars = new char[(int) endPos - 1];
+
             data.getChars(0, ipos, chars, 0);
             sb.getChars(offset, offset + len, chars, ipos);
         } else {
+
             // 3.)  'dat' + substring + 'rs'
             chars = new char[dlen];
 
             data.getChars(0, ipos, chars, 0);
             sb.getChars(offset, offset + len, chars, ipos);
+
             final int dataOffset = ipos + len;
+
             data.getChars(dataOffset, dlen, chars, dataOffset);
         }
 

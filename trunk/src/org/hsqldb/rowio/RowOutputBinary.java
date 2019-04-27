@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import org.hsqldb.types.Types;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 1.7.0
  */
 public class RowOutputBinary extends RowOutputBase {
@@ -76,7 +76,7 @@ public class RowOutputBinary extends RowOutputBase {
         super(initialSize);
 
         this.scale        = scale;
-        this.mask         = ~(scale - 1);
+        this.mask         = -scale;
         this.sizePosition = -1;
     }
 
@@ -90,7 +90,7 @@ public class RowOutputBinary extends RowOutputBase {
         super(buffer);
 
         this.scale        = 1;
-        this.mask         = ~(scale - 1);
+        this.mask         = -scale;
         this.sizePosition = -1;
     }
 
@@ -110,6 +110,10 @@ public class RowOutputBinary extends RowOutputBase {
 
     public void writeData(Row row, Type[] types) {
         super.writeData(row, types);
+    }
+
+    public long scaleFilePosition(long position) {
+        return (position + scale - 1) & (long) mask;
     }
 
     public void setStorageSize(int size) {

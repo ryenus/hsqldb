@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,15 +34,10 @@ package org.hsqldb.jdbc;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.RowIdLifetime;
 import java.sql.SQLException;
 
-//#ifdef JAVA6
-import java.sql.RowIdLifetime;
-
-//#endif JAVA6
-
 import org.hsqldb.FunctionCustom;
-import org.hsqldb.dbinfo.DatabaseInformation;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -230,20 +225,34 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.5.0
  * @since HSQLDB 1.9.0
  * @see org.hsqldb.dbinfo.DatabaseInformation
  */
-//#ifdef JAVA6
 public class JDBCDatabaseMetaData implements DatabaseMetaData,
         java.sql.Wrapper {
 
-//#else
-/*
-public class JDBCDatabaseMetaData implements DatabaseMetaData {
-*/
+    private static final String[] openGroupNumericFunctions = {
+            "ABS", "ACOS", "ASIN", "ATAN", "ATAN2", "BITAND", "BITOR", "BITXOR",
+            "CEILING", "COS", "COT", "DEGREES", "EXP", "FLOOR", "LOG", "LOG10",
+            "MOD", "PI", "POWER", "RADIANS", "RAND", "ROUND", "ROUNDMAGIC", "SIGN",
+            "SIN", "SQRT", "TAN", "TRUNCATE"
+    };
+    private static final String[] openGroupStringFunctions = {
+            "ASCII", "CHAR", "CONCAT", "DIFFERENCE", "HEXTORAW", "INSERT", "LCASE",
+            "LEFT", "LENGTH", "LOCATE", "LTRIM", "RAWTOHEX", "REPEAT", "REPLACE",
+            "RIGHT", "RTRIM", "SOUNDEX", "SPACE", "SUBSTR", "UCASE",
+    };
+    private static final String[] openGroupDateTimeFunctions = {
+            "CURDATE", "CURTIME", "DATEDIFF", "DAYNAME", "DAYOFMONTH", "DAYOFWEEK",
+            "DAYOFYEAR", "HOUR", "MINUTE", "MONTH", "MONTHNAME", "NOW", "QUARTER",
+            "SECOND", "SECONDS_SINCE_MIDNIGHT", "TIMESTAMPADD", "TIMESTAMPDIFF",
+            "TO_CHAR", "WEEK", "YEAR"
+    };
+    private static final String[] openGroupSystemFunctions = {
+            "DATABASE", "IFNULL", "USER"
+    };
 
-//#endif
     //----------------------------------------------------------------------
     // First, a variety of minor information about the target database.
 
@@ -793,8 +802,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public String getNumericFunctions() throws SQLException {
-        return StringUtil.getList(FunctionCustom.openGroupNumericFunctions,
-                                  ",", "");
+        return StringUtil.getList(openGroupNumericFunctions, ",", "");
     }
 
     /**
@@ -806,8 +814,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public String getStringFunctions() throws SQLException {
-        return StringUtil.getList(FunctionCustom.openGroupStringFunctions,
-                                  ",", "");
+        return StringUtil.getList(openGroupStringFunctions, ",", "");
     }
 
     /**
@@ -819,8 +826,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public String getSystemFunctions() throws SQLException {
-        return StringUtil.getList(FunctionCustom.openGroupSystemFunctions,
-                                  ",", "");
+        return StringUtil.getList(openGroupSystemFunctions, ",", "");
     }
 
     /**
@@ -831,8 +837,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public String getTimeDateFunctions() throws SQLException {
-        return StringUtil.getList(FunctionCustom.openGroupDateTimeFunctions,
-                                  ",", "");
+        return StringUtil.getList(openGroupDateTimeFunctions, ",", "");
     }
 
     /**
@@ -2822,7 +2827,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_PROCEDURES").append(and("PROCEDURE_CAT",
                 "=", catalog)).append(and("PROCEDURE_SCHEM", "LIKE",
                     schemaPattern)).append(and("PROCEDURE_NAME", "LIKE",
@@ -2998,7 +3003,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuffer select = toQueryPrefix("SYSTEM_PROCEDURECOLUMNS").append(
+        StringBuilder select = toQueryPrefix("SYSTEM_PROCEDURECOLUMNS").append(
             and("PROCEDURE_CAT", "=", catalog)).append(
             and("PROCEDURE_SCHEM", "LIKE", schemaPattern)).append(
             and("PROCEDURE_NAME", "LIKE", procedureNamePattern)).append(
@@ -3091,7 +3096,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_TABLES").append(and("TABLE_CAT", "=",
                 catalog)).append(and("TABLE_SCHEM", "LIKE",
                                      schemaPattern)).append(and("TABLE_NAME",
@@ -3367,7 +3372,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuffer select = toQueryPrefix("SYSTEM_COLUMNS").append(
+        StringBuilder select = toQueryPrefix("SYSTEM_COLUMNS").append(
             and("TABLE_CAT", "=", catalog)).append(
             and("TABLE_SCHEM", "LIKE", schemaPattern)).append(
             and("TABLE_NAME", "LIKE", tableNamePattern)).append(
@@ -3654,13 +3659,13 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         Integer Nullable = (nullable) ? null
                                       : INT_COLUMNS_NO_NULLS;
-        StringBuffer select =
-            toQueryPrefix("SYSTEM_BESTROWIDENTIFIER").append(and("TABLE_CAT",
-                "=", catalog)).append(and("TABLE_SCHEM", "=",
-                    schema)).append(and("TABLE_NAME", "=",
-                                        table)).append(and("NULLABLE", "=",
-                                            Nullable)).append(" AND SCOPE IN "
-                                                + scopeIn);
+        StringBuilder select =
+                toQueryPrefix("SYSTEM_BESTROWIDENTIFIER").append(and("TABLE_CAT",
+                        "=", catalog)).append(and("TABLE_SCHEM", "=",
+                        schema)).append(and("TABLE_NAME", "=",
+                        table)).append(and("NULLABLE", "=",
+                        Nullable)).append(" AND SCOPE IN ").append(
+                        scopeIn);
 
         // By default, query already returns rows in contract order.
         // However, the way things are set up, there should never be
@@ -3707,7 +3712,12 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not support version columns. This returns an empty result set.
+     * HSQLDB 2.5.0 and later returns information on auto-updated
+     * TIMESTAMP columns defined with ON UPDATE CURRENT_TIMESTAMP, and the
+     * columns of SYSTEM_TIME periods. Columns defined as GENERATED AS IDENTITY,
+     * SEQUENCE, or an expression are not returned as they are not always
+     * automatically updated when other columns in a row are updated.
+     *
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3734,7 +3744,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_VERSIONCOLUMNS").append(and("TABLE_CAT",
                 "=", catalog)).append(and("TABLE_SCHEM", "=",
                     schema)).append(and("TABLE_NAME", "=", table));
@@ -3803,7 +3813,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_PRIMARYKEYS").append(and("TABLE_CAT", "=",
                 catalog)).append(and("TABLE_SCHEM", "=",
                                      schema)).append(and("TABLE_NAME", "=",
@@ -3919,7 +3929,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        StringBuffer select = toQueryPrefix("SYSTEM_CROSSREFERENCE").append(
+        StringBuilder select = toQueryPrefix("SYSTEM_CROSSREFERENCE").append(
             and("FKTABLE_CAT", "=", catalog)).append(
             and("FKTABLE_SCHEM", "=", schema)).append(
             and("FKTABLE_NAME", "=", table)).append(
@@ -4035,7 +4045,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         catalog = translateCatalog(catalog);
         schema  = translateSchema(schema);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_CROSSREFERENCE").append(and("PKTABLE_CAT",
                 "=", catalog)).append(and("PKTABLE_SCHEM", "=",
                     schema)).append(and("PKTABLE_NAME", "=", table));
@@ -4168,7 +4178,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         parentSchema   = translateSchema(parentSchema);
         foreignSchema  = translateSchema(foreignSchema);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_CROSSREFERENCE").append(and("PKTABLE_CAT",
                 "=", parentCatalog)).append(and("PKTABLE_SCHEM", "=",
                     parentSchema)).append(and("PKTABLE_NAME", "=",
@@ -4355,7 +4365,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         Boolean nu = (unique) ? Boolean.FALSE
                               : null;
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_INDEXINFO").append(and("TABLE_CAT", "=",
                 catalog)).append(and("TABLE_SCHEM", "=",
                                      schema)).append(and("TABLE_NAME", "=",
@@ -4726,7 +4736,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_UDTS").append(and("TYPE_CAT", "=",
                 catalog)).append(and("TYPE_SCHEM", "LIKE",
                                      schemaPattern)).append(and("TYPE_NAME",
@@ -4925,7 +4935,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuffer select = toQueryPrefixNoSelect(
+        StringBuilder select = toQueryPrefixNoSelect(
             "SELECT * FROM (SELECT USER_DEFINED_TYPE_CATALOG, USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME,"
             + "CAST (NULL AS INFORMATION_SCHEMA.SQL_IDENTIFIER), CAST (NULL AS INFORMATION_SCHEMA.SQL_IDENTIFIER), DATA_TYPE "
             + "FROM INFORMATION_SCHEMA.USER_DEFINED_TYPES "
@@ -4988,7 +4998,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             String tableNamePattern) throws SQLException {
 
         // query with no result
-        StringBuffer select = toQueryPrefixNoSelect(
+        StringBuilder select = toQueryPrefixNoSelect(
             "SELECT TABLE_NAME AS TABLE_CAT, TABLE_NAME AS TABLE_SCHEM, TABLE_NAME, TABLE_NAME AS SUPERTABLE_NAME "
             + "FROM INFORMATION_SCHEMA.TABLES ").append(
                 and("TABLE_NAME", "=", ""));
@@ -5088,7 +5098,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             String catalog, String schemaPattern, String typeNamePattern,
             String attributeNamePattern) throws SQLException {
 
-        StringBuffer select = toQueryPrefixNoSelect(
+        StringBuilder select = toQueryPrefixNoSelect(
             "SELECT TABLE_NAME AS TYPE_CAT, TABLE_NAME AS TYPE_SCHME, TABLE_NAME AS TYPE_NAME, "
             + "TABLE_NAME AS ATTR_NAME, CAST(0 AS INTEGER) AS DATA_TYPE, TABLE_NAME AS ATTR_TYPE_NAME, "
             + "CAST(0 AS INTEGER) AS ATTR_SIZE, CAST(0 AS INTEGER) AS DECIMAL_DIGITS, "
@@ -5340,12 +5350,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @throws SQLException if a database access error occurs
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public RowIdLifetime getRowIdLifetime() throws SQLException {
         return RowIdLifetime.ROWID_UNSUPPORTED;
     }
-
-//#endif JAVA6
 
     /**
      * Retrieves the schema names available in this database.  The results
@@ -5371,19 +5378,16 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @see #getSearchStringEscape
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public ResultSet getSchemas(String catalog,
                                 String schemaPattern) throws SQLException {
 
-        StringBuffer select =
+        StringBuilder select =
             toQueryPrefix("SYSTEM_SCHEMAS").append(and("TABLE_CATALOG", "=",
                 catalog)).append(and("TABLE_SCHEM", "LIKE", schemaPattern));
 
         // By default, query already returns result in contract order
         return execute(select.toString());
     }
-
-//#endif JAVA6
 
     /**
      * Retrieves whether this database supports invoking user-defined or vendor functions
@@ -5393,12 +5397,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public boolean supportsStoredFunctionsUsingCallSyntax() throws SQLException {
         return true;
     }
-
-//#endif JAVA6
 
     /** @todo */
 
@@ -5413,12 +5414,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public boolean autoCommitFailureClosesAllResultSets() throws SQLException {
         return false;
     }
-
-//#endif JAVA6
 
     /**
      * Retrieves a list of the client info properties
@@ -5441,7 +5439,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <p>
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public ResultSet getClientInfoProperties() throws SQLException {
 
         String s =
@@ -5449,8 +5446,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         return execute(s);
     }
-
-//#endif JAVA6
 
     /**
      * Retrieves a description of the JDBC 4.1[ system and ]user functions available
@@ -5500,12 +5495,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @see #getSearchStringEscape
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public ResultSet getFunctions(
             String catalog, String schemaPattern,
             String functionNamePattern) throws SQLException {
 
-        StringBuffer sb = new StringBuffer(256);
+        StringBuilder sb = new StringBuilder(256);
 
         sb.append("select ").append(
             "sp.procedure_cat as FUNCTION_CAT,").append(
@@ -5530,8 +5524,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         // FUNCTION_SCHEM, FUNCTION_NAME...
         return execute(sb.toString());
     }
-
-//#endif JAVA6
 
     /**
      * Retrieves a description of the given catalog's system or user
@@ -5627,12 +5619,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @see #getSearchStringEscape
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public ResultSet getFunctionColumns(
             String catalog, String schemaPattern, String functionNamePattern,
             String columnNamePattern) throws SQLException {
 
-        StringBuffer sb = new StringBuffer(256);
+        StringBuilder sb = new StringBuilder(256);
 
         sb.append("select pc.procedure_cat as FUNCTION_CAT,").append(
             "pc.procedure_schem as FUNCTION_SCHEM,").append(
@@ -5677,8 +5668,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         return execute(sb.toString());
     }
 
-//#endif JAVA6
-
     /**
      * Returns an object that implements the given interface to allow access to non-standard methods,
      * or standard methods not exposed by the proxy.
@@ -5693,7 +5682,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     @SuppressWarnings("unchecked")
     public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
 
@@ -5703,8 +5691,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         throw JDBCUtil.invalidArgument("iface: " + iface);
     }
-
-//#endif JAVA6
 
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
@@ -5721,13 +5707,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 1.9
      */
-//#ifdef JAVA6
     public boolean isWrapperFor(
             java.lang.Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
-//#endif JAVA6
     //--------------------------JDBC 4.1 -----------------------------
 
     /**
@@ -5756,7 +5740,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * DECIMAL_DIGITS is not applicable.
      *  <LI><B>NUM_PREC_RADIX</B> int {@code =>} Radix (typically either 10 or 2)
      *  <LI><B>COLUMN_USAGE</B> String {@code =>} The allowed usage for the column.  The
-     *  value returned will correspond to the enum name returned by {@link java.sql.PseudoColumnUsage#name PseudoColumnUsage.name()}
+     *  value returned will correspond to the enum name returned by {@link java.sql.PseudoColumnUsage PseudoColumnUsage.name()}
      *  <LI><B>REMARKS</B> String {@code =>} comment describing column (may be <code>null</code>)
      *  <LI><B>CHAR_OCTET_LENGTH</B> int {@code =>} for char types the
      *       maximum number of bytes in the column
@@ -5825,11 +5809,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public long getMaxLogicalLobSize() throws SQLException {
         return Type.SQL_BLOB.maxBlobPrecision;
     }
-*/
 
 //#endif JAVA8
 
@@ -5842,11 +5824,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @since 1.8
      */
 //#ifdef JAVA8
-/*
     public boolean supportsRefCursors() throws SQLException {
         return false;
     }
-*/
 
 //#endif JAVA8
 
@@ -5930,23 +5910,15 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      */
     private static final String whereTrue = " WHERE TRUE";
 
-//#ifdef JAVA6
     public static final int JDBC_MAJOR = 4;
 
-//#else
-/*
-    public static final int JDBC_MAJOR = 3;
-*/
-
-//#endif JAVA6
-
 //#ifdef JAVA8
-/*
     public static final int JDBC_MINOR = 2;
-*/
 
 //#else
+/*
     public static final int JDBC_MINOR = 0;
+*/
 
 //#endif JAVA8
 
@@ -6040,8 +6012,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             return "";
         }
 
-        StringBuffer sb    = new StringBuffer();
-        boolean      isStr = (val instanceof String);
+        StringBuilder sb    = new StringBuilder();
+        boolean       isStr = (val instanceof String);
 
         if (isStr && ((String) val).length() == 0) {
             return sb.append(" AND ").append(id).append(" IS NULL").toString();
@@ -6061,7 +6033,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             } else {
                 sb.append("LIKE").append(' ').append(v);
 
-                if ((v.indexOf("\\_") >= 0) || (v.indexOf("\\%") >= 0)) {
+                if (v.contains("\\_") || v.contains("\\%")) {
 
                     // then client has requested at least one escape.
                     sb.append(" ESCAPE '\\'");
@@ -6146,13 +6118,13 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <code>DatabaseMetaData</code> queries, this is the most suitable
      * thing upon which to start building. <p>
      *
-     * @return an StringBuffer whose content is:
+     * @return an StringBuilder whose content is:
      *      "SELECT * FROM &lt;table&gt; WHERE 1=1"
      * @param t the name of the table
      */
-    private StringBuffer toQueryPrefix(String t) {
+    private StringBuilder toQueryPrefix(String t) {
 
-        StringBuffer sb = new StringBuffer(255);
+        StringBuilder sb = new StringBuilder(255);
 
         return sb.append(selstar).append(t).append(whereTrue);
     }
@@ -6160,9 +6132,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     /**
      * Retrieves "&lt;expression&gt; WHERE 1=1" in string
      */
-    private StringBuffer toQueryPrefixNoSelect(String t) {
+    private StringBuilder toQueryPrefixNoSelect(String t) {
 
-        StringBuffer sb = new StringBuffer(255);
+        StringBuilder sb = new StringBuilder(255);
 
         return sb.append(t).append(whereTrue);
     }

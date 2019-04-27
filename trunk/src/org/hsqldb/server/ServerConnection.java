@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2016, The HSQL Development Group
+ * Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -315,14 +315,16 @@ class ServerConnection implements Runnable {
             // Expected failures will have been handled (by sending feedback
             // to user-- with an output Result for normal protocols), then
             // continuing.
-            StringBuffer sb = new StringBuffer(mThread
-                                               + ":Failed to connect client.");
+            StringBuilder sb = new StringBuilder(mThread);
+
+            sb.append(":Failed to connect client.");
 
             if (user != null) {
-                sb.append("  User '" + user + "'.");
+                sb.append("  User '").append(user).append("'.");
             }
 
-            server.printWithThread(sb.toString() + "  Stack trace follows.");
+            sb.append("  Stack trace follows.");
+            server.printWithThread(sb.toString());
             server.printStackTrace(e);
         }
     }
@@ -1585,7 +1587,7 @@ class ServerConnection implements Runnable {
             session = null;
 
             return Result.newErrorResult(e);
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             session = null;
 
             return Result.newErrorResult(e);
