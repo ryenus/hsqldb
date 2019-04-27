@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Defines and enumerates reserved and non-reserved SQL keywords.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.7.2
  */
 public class Tokens {
@@ -161,7 +161,7 @@ public class Tokens {
     static final String        T_EXTRACT           = "EXTRACT";
     public static final String T_FALSE             = "FALSE";
     static final String        T_FETCH             = "FETCH";
-    static final String        T_FILTER            = "FILTER";
+    public static final String T_FILTER            = "FILTER";
     static final String        T_FIRST_VALUE       = "FIRST_VALUE";
     public static final String T_FLOAT             = "FLOAT";
     static final String        T_FLOOR             = "FLOOR";
@@ -177,6 +177,7 @@ public class Tokens {
     static final String        T_GLOBAL            = "GLOBAL";
     public static final String T_GRANT             = "GRANT";
     static final String        T_GROUP             = "GROUP";
+    static final String        T_GROUPS            = "GROUPS";
     static final String        T_GROUPING          = "GROUPING";
     static final String        T_HANDLER           = "HANDLER";
     static final String        T_HAVING            = "HAVING";
@@ -378,7 +379,7 @@ public class Tokens {
     static final String        T_VERSIONING        = "VERSIONING";
     static final String        T_WHEN              = "WHEN";
     static final String        T_WHENEVER          = "WHENEVER";
-    static final String        T_WHERE             = "WHERE";
+    public static final String T_WHERE             = "WHERE";
     public static final String T_WHILE             = "WHILE";
     static final String        T_WIDTH_BUCKET      = "WIDTH_BUCKET";
     static final String        T_WINDOW            = "WINDOW";
@@ -695,6 +696,7 @@ public class Tokens {
     public static final String T_EVENT                = "EVENT";
     static final String        T_EXCLUSIVE            = "EXCLUSIVE";
     static final String        T_EXPLAIN              = "EXPLAIN";
+    static final String        T_EXPORT               = "EXPORT";
     static final String        T_FEATURE              = "FEATURE";
     static final String        T_FILE                 = "FILE";
     public static final String T_FILES                = "FILES";
@@ -807,6 +809,7 @@ public class Tokens {
     static final String        T_SQL_TINYINT          = "SQL_TINYINT";
     static final String        T_SQL_VARBINARY        = "SQL_VARBINARY";
     static final String        T_SQL_VARCHAR          = "SQL_VARCHAR";
+    public static final String T_STOP                 = "STOP";
     public static final String T_SYNONYM              = "SYNONYM";
     public static final String T_SYNTAX               = "SYNTAX";
     public static final String T_TDC                  = "TDC";
@@ -1303,23 +1306,24 @@ public class Tokens {
     public static final int USER                             = 321;
     public static final int USING                            = 322;
     public static final int VALUE                            = 323;
-    public static final int VALUES                           = 324;
-    public static final int VAR_POP                          = 325;
-    public static final int VAR_SAMP                         = 326;
-    public static final int VARBINARY                        = 327;
-    public static final int VARCHAR                          = 328;
-    public static final int VARYING                          = 329;
-    public static final int VERSIONING                       = 330;
-    public static final int WHEN                             = 331;
-    public static final int WHENEVER                         = 332;
-    public static final int WHERE                            = 333;
-    public static final int WIDTH_BUCKET                     = 334;
-    public static final int WINDOW                           = 335;
-    public static final int WITH                             = 336;
-    public static final int WITHIN                           = 337;
-    public static final int WITHOUT                          = 338;
-    public static final int WHILE                            = 339;
-    public static final int YEAR                             = 340;
+    public static final int VALUE_OF                         = 324;
+    public static final int VALUES                           = 325;
+    public static final int VAR_POP                          = 326;
+    public static final int VAR_SAMP                         = 327;
+    public static final int VARBINARY                        = 328;
+    public static final int VARCHAR                          = 329;
+    public static final int VARYING                          = 330;
+    public static final int VERSIONING                       = 331;
+    public static final int WHEN                             = 332;
+    public static final int WHENEVER                         = 333;
+    public static final int WHERE                            = 334;
+    public static final int WIDTH_BUCKET                     = 335;
+    public static final int WINDOW                           = 336;
+    public static final int WITH                             = 337;
+    public static final int WITHIN                           = 338;
+    public static final int WITHOUT                          = 339;
+    public static final int WHILE                            = 340;
+    public static final int YEAR                             = 341;
 
     //
     //SQL 200n Standard non-reserved keywords - full set
@@ -1546,96 +1550,101 @@ public class Tokens {
     public static final int ZONE                        = 571;
 
     // other token values used as switch cases
-    static final int ALIAS          = 581;
-    static final int AGGREGATE      = 582;
-    static final int AUTOCOMMIT     = 583;
-    static final int AUTHENTICATION = 584;
-    static final int BACKUP         = 585;
-    static final int BINARY_FLOAT   = 586;
-    static final int BINARY_DOUBLE  = 587;
-    static final int BIT            = 588;
-    static final int BLOCKING       = 589;
-    static final int BODY           = 590;
-    static final int BYTE           = 591;
-    static final int CACHE          = 592;
-    static final int CACHED         = 593;
-    static final int CASEWHEN       = 594;
-    static final int CHECKPOINT     = 595;
-    static final int CITEXT         = 596;
-    static final int CLASS          = 597;
-    static final int CLUSTERED      = 598;
-    static final int COMMENT        = 599;
-    static final int COMPACT        = 600;
-    static final int COMPRESSED     = 601;
-    static final int CONFLICT       = 602;
-    static final int CONTROL        = 603;
-    static final int CURRVAL        = 604;
-    static final int DATABASE       = 605;
-    static final int DEADLOCK       = 606;
-    static final int DEFRAG         = 607;
-    static final int DELAY          = 608;
-    static final int DIGEST         = 609;
-    static final int ENUM           = 610;
-    static final int EVENT          = 611;
-    static final int EXPLAIN        = 612;
-    static final int FEATURE        = 613;
-    static final int FILE           = 614;
-    static final int FILES          = 615;
-    static final int FORMAT         = 616;
-    static final int GC             = 617;
-    static final int HEADER         = 618;
-    static final int IGNORECASE     = 619;
-    static final int IMMEDIATELY    = 620;
-    static final int INTEGRITY      = 621;
-    static final int INDEX          = 622;
-    static final int INDEXER        = 623;
-    static final int INITIAL        = 624;
-    static final int LASTVAL        = 625;
-    static final int LIMIT          = 626;
-    static final int LITERAL        = 627;
-    static final int LIVE           = 628;
-    static final int LOAD           = 629;
-    static final int LOCK           = 630;
-    static final int LOCKS          = 631;
-    static final int LONG           = 632;
-    static final int LONGVAR        = 633;
-    static final int MAXROWS        = 634;
-    static final int MEDIAN         = 635;
-    static final int MEMORY         = 636;
-    static final int MILLIS         = 637;
-    static final int MINUS_EXCEPT   = 638;
-    static final int NAN            = 639;
-    static final int NEXTVAL        = 640;
-    static final int NOWAIT         = 641;
-    static final int NVARCHAR2      = 642;
-    static final int NVL2           = 643;
-    static final int OFF            = 644;
-    static final int PASSWORD       = 645;
-    static final int PERFORM        = 646;
-    static final int PLAN           = 647;
-    static final int PREVVAL        = 648;
-    static final int PROPERTY       = 649;
-    static final int RAW            = 650;
-    static final int READONLY       = 651;
-    static final int REFERENTIAL    = 652;
-    static final int REGULAR        = 653;
-    static final int RENAME         = 654;
-    static final int RESET          = 655;
-    static final int ROWNUM         = 656;
-    static final int SCRIPT         = 657;
-    static final int SEPARATOR      = 658;
-    static final int SHUTDOWN       = 659;
-    static final int SYNONYM        = 660;
-    static final int SYNTAX         = 661;
-    static final int TDC            = 662;
-    static final int TEMP           = 663;
-    static final int TEXT           = 664;
-    static final int TOP            = 665;
-    static final int TTI            = 666;
-    static final int TYPES          = 667;
-    static final int USE            = 668;
-    static final int VARCHAR2       = 669;
-    static final int WRITE_DELAY    = 670;
+    static final int        ALIAS          = 581;
+    static final int        AGGREGATE      = 582;
+    static final int        AUTOCOMMIT     = 583;
+    static final int        AUTHENTICATION = 584;
+    static final int        BACKUP         = 585;
+    static final int        BINARY_FLOAT   = 586;
+    static final int        BINARY_DOUBLE  = 587;
+    static final int        BIT            = 588;
+    static final int        BLOCKING       = 589;
+    static final int        BODY           = 590;
+    static final int        BYTE           = 591;
+    static final int        CACHE          = 592;
+    static final int        CACHED         = 593;
+    static final int        CASEWHEN       = 594;
+    static final int        CHECKPOINT     = 595;
+    static final int        CITEXT         = 596;
+    static final int        CLASS          = 597;
+    static final int        CLUSTERED      = 598;
+    static final int        COMMENT        = 599;
+    static final int        COMPACT        = 600;
+    static final int        COMPRESSED     = 601;
+    static final int        CONFLICT       = 602;
+    static final int        CONTROL        = 603;
+    static final int        CURRVAL        = 604;
+    static final int        DATABASE       = 605;
+    static final int        DEADLOCK       = 606;
+    static final int        DEFRAG         = 607;
+    static final int        DELAY          = 608;
+    static final int        DIGEST         = 609;
+    static final int        ENUM           = 610;
+    static final int        ERROR          = 611;
+    static final int        EVENT          = 612;
+    static final int        EXPLAIN        = 613;
+    static final int        EXPORT         = 614;
+    static final int        FEATURE        = 615;
+    static final int        FILE           = 616;
+    public static final int FILES          = 617;
+    static final int        FORMAT         = 618;
+    static final int        GC             = 619;
+    static final int        HEADER         = 620;
+    static final int        IGNORECASE     = 621;
+    static final int        IMMEDIATELY    = 622;
+    static final int        INTEGRITY      = 623;
+    static final int        INDEX          = 624;
+    static final int        INDEXER        = 625;
+    static final int        INFINITY       = 626;
+    static final int        INITIAL        = 627;
+    static final int        LASTVAL        = 628;
+    static final int        LIMIT          = 629;
+    static final int        LITERAL        = 630;
+    static final int        LIVE           = 631;
+    static final int        LOAD           = 632;
+    static final int        LOCK           = 633;
+    static final int        LOCKS          = 634;
+    static final int        LONG           = 635;
+    static final int        LONGVAR        = 636;
+    static final int        MAXROWS        = 637;
+    static final int        MEDIAN         = 638;
+    static final int        MEMORY         = 639;
+    static final int        MILLIS         = 640;
+    static final int        MINUS_EXCEPT   = 641;
+    static final int        NAN            = 642;
+    static final int        NEXTVAL        = 643;
+    static final int        NOWAIT         = 644;
+    static final int        NVARCHAR2      = 645;
+    static final int        NVL2           = 646;
+    static final int        OFF            = 647;
+    static final int        PASSWORD       = 648;
+    static final int        PERFORM        = 649;
+    static final int        PLAN           = 650;
+    static final int        PREVVAL        = 651;
+    static final int        PROPERTY       = 652;
+    static final int        RAW            = 653;
+    static final int        READONLY       = 654;
+    static final int        REFERENTIAL    = 655;
+    static final int        REGULAR        = 656;
+    static final int        RENAME         = 657;
+    static final int        RESET          = 658;
+    static final int        ROWNUM         = 659;
+    static final int        SCRIPT         = 660;
+    static final int        SEPARATOR      = 661;
+    static final int        SHUTDOWN       = 662;
+    static final int        STOP           = 663;
+    static final int        SYNONYM        = 664;
+    static final int        SYNTAX         = 665;
+    static final int        TDC            = 666;
+    static final int        TEMP           = 667;
+    static final int        TEXT           = 668;
+    static final int        TOP            = 669;
+    static final int        TTI            = 670;
+    static final int        TYPES          = 671;
+    static final int        USE            = 672;
+    static final int        UNLOAD         = 673;
+    static final int        VARCHAR2       = 674;
+    static final int        WRITE_DELAY    = 675;
 
     //
     static final int        ACOS                       = 701;
@@ -1795,6 +1804,8 @@ public class Tokens {
     static final int        NEWID                      = 855;
     static final int        NANVL                      = 856;
     static final int        SYS_GUID                   = 857;
+    static final int        MODIFY                     = 858;
+    static final int        KEEP                       = 859;
 
     //
     public static final int MICROSECOND = 871;
@@ -2227,6 +2238,7 @@ public class Tokens {
         reservedKeys.put(T_VARBINARY, VARBINARY);
         reservedKeys.put(T_VARCHAR, VARCHAR);
         reservedKeys.put(T_VARYING, VARYING);
+        reservedKeys.put(T_VERSIONING, VERSIONING);
         reservedKeys.put(T_WHEN, WHEN);
         reservedKeys.put(T_WHENEVER, WHENEVER);
         reservedKeys.put(T_WHERE, WHERE);
@@ -2298,10 +2310,12 @@ public class Tokens {
         commandSet.put(T_DIGEST, DIGEST);
         commandSet.put(T_DOMAIN, DOMAIN);
         commandSet.put(T_ENUM, ENUM);
+        commandSet.put(T_ERROR, ERROR);
         commandSet.put(T_EVENT, EVENT);
         commandSet.put(T_EXCEPTION, EXCEPTION);
         commandSet.put(T_EXCLUDING, EXCLUDING);
         commandSet.put(T_EXPLAIN, EXPLAIN);
+        commandSet.put(T_EXPORT, EXPORT);
         commandSet.put(T_EXPRESSION, EXPRESSION);
         commandSet.put(T_FEATURE, FEATURE);
         commandSet.put(T_FILE, FILE);
@@ -2465,6 +2479,7 @@ public class Tokens {
         commandSet.put(T_SQL_TSI_SECOND, SQL_TSI_SECOND);
         commandSet.put(T_SQL_TSI_WEEK, SQL_TSI_WEEK);
         commandSet.put(T_SQL_TSI_YEAR, SQL_TSI_YEAR);
+        commandSet.put(T_STOP, STOP);
         commandSet.put(T_STATEMENT, STATEMENT);
         commandSet.put(T_STRUCTURE, STRUCTURE);
         commandSet.put(T_STYLE, STYLE);
@@ -2719,12 +2734,11 @@ public class Tokens {
         short[] keyword = {
             ALL, AND, ANY, AS, AT, BY, BETWEEN, BOTH, CALL, CASE, CAST,
             CORRESPONDING, CONVERT, COALESCE, CREATE, CROSS, DEFAULT, DISTINCT,
-            DO, DROP, ELSE, EVERY, EXISTS, EXCEPT, FOR, FROM, FULL, GRANT,
-            GROUP, HAVING, INTO, IS, IN, INTERSECT, JOIN, INNER, LEFT, LEADING,
-            LIKE, NATURAL, NULLIF, NOT, ON, ORDER, OR, OUTER, PRIMARY,
+            DO, DROP, ELSE, EVERY, EXISTS, EXCEPT, FETCH, FOR, FROM, FULL,
+            GRANT, GROUP, HAVING, INTO, IS, IN, INTERSECT, JOIN, INNER, LEFT,
+            LEADING, LIKE, NATURAL, NULLIF, NOT, ON, ORDER, OR, OUTER, PRIMARY,
             REFERENCES, RIGHT, SELECT, SET, SOME, SUM, TABLE, THEN, TO,
-            TRAILING, TRIGGER, UNION, UNIQUE, USING, VALUES, WHEN, WHERE,
-            WINDOW, WITH,
+            TRAILING, TRIGGER, UNION, UNIQUE, USING, VALUES, WHEN, WHERE, WITH
         };
 
         for (int i = 0; i < keyword.length; i++) {
