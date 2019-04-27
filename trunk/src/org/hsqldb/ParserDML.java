@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,13 +41,14 @@ import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.map.ValuePool;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 /**
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -68,8 +69,8 @@ public class ParserDML extends ParserDQL {
         int           colCount;
         Table         table;
         RangeVariable range;
-        boolean       overridingUser    = false;
-        boolean       overridingSystem  = false;
+        boolean       overridingUser               = false;
+        boolean       overridingSystem             = false;
         boolean       assignsToIdentityOrGenerated = false;
         Token         tableToken;
         boolean       hasColumnList = false;
@@ -256,7 +257,8 @@ public class ParserDML extends ParserDQL {
                         } else if (column.hasDefault()) {
 
                             //
-                        } else if (column.isGenerated()) {
+                        } else if (column.isGenerated()
+                                   || column.isSystemPeriod()) {
                             assignsToIdentityOrGenerated = true;
 
                             if (e.getType() != OpTypes.DEFAULT) {
@@ -479,6 +481,7 @@ public class ParserDML extends ParserDQL {
         Table           table           = null;
         HsqlName[]      writeTableNames = null;
         RangeVariable   targetRange     = null;
+        TimestampData   timestamp       = null;
 
         readThis(Tokens.TRUNCATE);
 
@@ -513,6 +516,33 @@ public class ParserDML extends ParserDQL {
 
                 break;
             }
+            case Tokens.VERSIONING : {
+                if (!isTable) {
+                    throw unexpectedToken();
+                }
+
+                if (!table.isSystemVersioned()) {
+                    throw unexpectedToken();
+                }
+
+                read();
+                readThis(Tokens.TO);
+
+                if (readIfThis(Tokens.TIMESTAMP)) {
+                    String s = readQuotedString();
+
+                    timestamp =
+                        (TimestampData) Type.SQL_TIMESTAMP_WITH_TIME_ZONE
+                            .convertToType(session, s,
+                                           Type.SQL_VARCHAR_DEFAULT);
+                } else {
+                    readThis(Tokens.CURRENT_TIMESTAMP);
+
+                    timestamp = session.getTransactionSystemTimestamp();
+                }
+
+                break;
+            }
             default :
         }
 
@@ -539,10 +569,10 @@ public class ParserDML extends ParserDQL {
                 session.database.schemaManager.getCatalogAndBaseTableNames();
         }
 
-        if (withCommit) {
+        if (withCommit || timestamp != null) {
             Object[] args = new Object[] {
                 objectName, Boolean.valueOf(restartIdentity),
-                Boolean.valueOf(noCheck)
+                Boolean.valueOf(noCheck), timestamp
             };
 
             return new StatementCommand(StatementTypes.TRUNCATE, args, null,
@@ -570,7 +600,12 @@ public class ParserDML extends ParserDQL {
         Table           table;
 
         readThis(Tokens.DELETE);
-        readThis(Tokens.FROM);
+
+        if (database.sqlSyntaxOra) {
+            readIfThis(Tokens.FROM);
+        } else {
+            readThis(Tokens.FROM);
+        }
 
         targetRange =
             readRangeVariableForDataChange(StatementTypes.DELETE_WHERE);
@@ -601,9 +636,8 @@ public class ParserDML extends ParserDQL {
                 table.getQueryExpression().getMainSelect();
 
             if (condition != null) {
-                condition =
-                    condition.replaceColumnReferences(rangeVariables[0],
-                                                      baseSelect.exprColumns);
+                condition = condition.replaceColumnReferences(session,
+                        rangeVariables[0], baseSelect.exprColumns);
             }
 
             condition =
@@ -706,17 +740,16 @@ public class ParserDML extends ParserDQL {
 
         if (table != baseTable) {
             QuerySpecification baseSelect =
-                ((TableDerived) table).getQueryExpression().getMainSelect();
+                table.getQueryExpression().getMainSelect();
 
             if (condition != null) {
-                condition =
-                    condition.replaceColumnReferences(rangeVariables[0],
-                                                      baseSelect.exprColumns);
+                condition = condition.replaceColumnReferences(session,
+                        rangeVariables[0], baseSelect.exprColumns);
             }
 
             for (int i = 0; i < updateExpressions.length; i++) {
                 updateExpressions[i] =
-                    updateExpressions[i].replaceColumnReferences(
+                    updateExpressions[i].replaceColumnReferences(session,
                         rangeVariables[0], baseSelect.exprColumns);
             }
 

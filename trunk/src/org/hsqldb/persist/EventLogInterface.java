@@ -28,13 +28,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
+package org.hsqldb.persist;
+
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.0
  * @since 1.9.0
  */
-package org.hsqldb.persist;
-
 public interface EventLogInterface {
 
     void logSevereEvent(String message, Throwable t);
