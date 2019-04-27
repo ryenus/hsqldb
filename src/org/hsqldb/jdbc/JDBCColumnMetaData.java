@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,11 +130,11 @@ public final class JDBCColumnMetaData {
      */
     private String toStringImpl() throws Exception {
 
-        StringBuffer sb;
-        Field[]      fields;
-        Field        field;
+        StringBuilder sb;
+        Field[]       fields;
+        Field         field;
 
-        sb = new StringBuffer();
+        sb = new StringBuilder();
 
         sb.append('[');
 
@@ -154,6 +154,7 @@ public final class JDBCColumnMetaData {
                 sb.append(' ');
             }
         }
+
         sb.append(']');
 
         return sb.toString();

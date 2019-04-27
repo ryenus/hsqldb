@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -121,8 +121,8 @@ public class TestTextTable extends TestBase {
             }
 
             for (int row = 0; row < m_data.length; ++row) {
-                StringBuffer buf      = new StringBuffer();
-                int          colCount = m_data[row].length;
+                StringBuilder buf      = new StringBuilder();
+                int           colCount = m_data[row].length;
 
                 for (int col = 0; col < colCount; ++col) {
                     buf.append(m_data[row][col].toString());

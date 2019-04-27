@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -117,7 +117,7 @@ public class ExpressionColumnAccessor extends Expression {
         return this;
     }
 
-    Expression replaceColumnReferences(RangeVariable range,
+    Expression replaceColumnReferences(Session session, RangeVariable range,
                                        Expression[] list) {
         return this;
     }
@@ -132,7 +132,7 @@ public class ExpressionColumnAccessor extends Expression {
     /**
      * SIMPLE_COLUMN expressions can be of different Expression subclass types
      */
-    public boolean equals(Expression other) {
+    boolean equals(Expression other) {
 
         if (other == this) {
             return true;

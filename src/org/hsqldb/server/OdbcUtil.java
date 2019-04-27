@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,11 +73,10 @@ public class OdbcUtil {
                 break;
             }
         }
-        StringBuffer replyString = new StringBuffer(
-            uc.substring(0, firstWhiteSpace));
-        String keyword = replyString.toString();
+        String keyword = uc.substring(0, firstWhiteSpace);
+        StringBuilder replyString = new StringBuilder(keyword);
         if (keyword.equals("UPDATE") || keyword.equals("DELETE")) {
-            replyString.append(" " + retval);
+            replyString.append(' ').append(retval);
         } else if (keyword.equals("CREATE") || keyword.equals("DROP")) {
             // This case is significantly missing from the spec., yet
             // PostgreSQL Server echo's these commands as implemented here.
@@ -96,10 +95,10 @@ public class OdbcUtil {
                     break;
                 }
             }
-            replyString.append(" " + uc.substring(wordStart, wordEnd));
+            replyString.append(' ').append(uc, wordStart, wordEnd);
         } else if (keyword.equals("INSERT")) {
-            replyString.append(" " + 0 + ' ' + retval);
-            // The number is the supposed to be the oid for single-row
+            replyString.append(' ').append(0).append(' ').append(retval);
+            // The number is supposed to be the oid for single-row
             // inserts into a table that has row oids.
             // Since the requirement is conditional, it's very likely that the
             // client will make any use of the value we pass.
@@ -181,7 +180,7 @@ public class OdbcUtil {
     static final int ODBC_SEVERITY_INFO = 7;
     static final int ODBC_SEVERITY_LOG = 8;
 
-    static org.hsqldb.lib.IntKeyHashMap odbcSeverityMap =
+    static final org.hsqldb.lib.IntKeyHashMap odbcSeverityMap =
         new org.hsqldb.lib.IntKeyHashMap();
 
     static {
@@ -248,7 +247,7 @@ public class OdbcUtil {
             throw new IllegalArgumentException("Hex character lists contains "
                 + "an odd number of characters: " + chars);
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         char c;
         int octet;
         for (int i = 0; i < chars; i++) {

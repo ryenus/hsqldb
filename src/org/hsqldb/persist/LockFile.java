@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -353,7 +353,7 @@ import org.hsqldb.lib.StringConverter;
  * present. <p>
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 1.8.1.2
+ * @version 2.5.0
  * @since 1.7.2
  */
 public class LockFile {
@@ -543,7 +543,7 @@ public class LockFile {
 
         if (NIO_FILELOCK_AVAILABLE && NIO_LOCKFILE_CLASS != null) {
             try {
-                return (LockFile) NIO_LOCKFILE_CLASS.newInstance();
+                return (LockFile) NIO_LOCKFILE_CLASS.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
 
                 // e.printStackTrace()
@@ -1447,7 +1447,7 @@ public class LockFile {
      */
     public String toString() {
 
-        return new StringBuffer(super.toString()).append("[file =").append(
+        return new StringBuilder(super.toString()).append("[file =").append(
             cpath).append(", exists=").append(file.exists()).append(
             ", locked=").append(isLocked()).append(", valid=").append(
             isValid()).append(", ").append(toStringImpl()).append(
@@ -1882,16 +1882,6 @@ public class LockFile {
         }
 
         return released;
-    }
-
-    /**
-     * Attempts to release this object's cooperative lock condition. <p>
-     *
-     * @throws Throwable if this object encounters an unhandled exception
-     *        while trying to release the cooperative lock condition
-     */
-    protected final void finalize() throws Throwable {
-        this.tryRelease();
     }
 
     /**
@@ -2384,7 +2374,7 @@ public class LockFile {
          */
         public byte[] getMagic() {
             return (magic == null) ? null
-                                   : (byte[]) this.magic.clone();
+                                   : this.magic.clone();
         }
     }
 }

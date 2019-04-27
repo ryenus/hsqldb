@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -291,7 +291,7 @@ public class ParserDDL extends ParserRoutine {
                 readThis(Tokens.RENAME);
                 readThis(Tokens.TO);
 
-                return compileRenameObject(name, SchemaObject.SCHEMA);
+                return compileRenameSchema(name, SchemaObject.SCHEMA);
             }
             case Tokens.CATALOG : {
                 read();
@@ -772,6 +772,23 @@ public class ParserDDL extends ParserRoutine {
                         return compileAlterTableAddPrimaryKey(t, cname,
                                                               ifNotExists);
 
+                    case Tokens.PERIOD :
+                        if (cname != null) {
+                            throw unexpectedToken();
+                        }
+
+                        return compileAlterTableAddPeriod(t);
+
+                    case Tokens.SYSTEM :
+                        if (cname != null) {
+                            throw unexpectedToken();
+                        }
+
+                        read();
+                        readThis(Tokens.VERSIONING);
+
+                        return compileAlterTableAddVersioning(t);
+
                     case Tokens.COLUMN :
                         if (cname != null) {
                             throw unexpectedToken();
@@ -808,28 +825,25 @@ public class ParserDDL extends ParserRoutine {
 
                         return compileAlterTableDropConstraint(t);
                     }
+                    case Tokens.PERIOD :
+                        read();
+                        readThis(Tokens.FOR);
+
+                        return compileAlterTableDropPeriod(t);
+
+                    case Tokens.SYSTEM :
+                        read();
+                        readThis(Tokens.VERSIONING);
+
+                        return compileAlterTableDropVersioning(t);
+
                     case Tokens.COLUMN :
                         read();
 
-                    // fall through
-                    default : {
-                        checkIsSimpleName();
+                        return compileAlterTableDropColumn(t);
 
-                        String  name    = token.tokenString;
-                        boolean cascade = false;
-
-                        read();
-
-                        if (token.tokenType == Tokens.RESTRICT) {
-                            read();
-                        } else if (token.tokenType == Tokens.CASCADE) {
-                            read();
-
-                            cascade = true;
-                        }
-
-                        return compileAlterTableDropColumn(t, name, cascade);
-                    }
+                    default :
+                        return compileAlterTableDropColumn(t);
                 }
             }
             case Tokens.ALTER : {
@@ -1205,8 +1219,7 @@ public class ParserDDL extends ParserRoutine {
             readThis(Tokens.DEFAULT);
         }
 
-        Charset charset = new Charset(name, source.getName());
-
+        Charset    charset        = new Charset(name, source.getName());
         String     sql            = getLastPart();
         Object[]   args           = new Object[]{ charset };
         HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
@@ -1943,8 +1956,23 @@ public class ParserDDL extends ParserRoutine {
                                    null, writeLockNames);
     }
 
-    Statement compileAlterTableDropColumn(Table table, String colName,
-                                          boolean cascade) {
+    Statement compileAlterTableDropColumn(Table table) {
+
+        boolean cascade = false;
+
+        checkIsSimpleName();
+
+        String colName = token.tokenString;
+
+        read();
+
+        if (token.tokenType == Tokens.RESTRICT) {
+            read();
+        } else if (token.tokenType == Tokens.CASCADE) {
+            read();
+
+            cascade = true;
+        }
 
         int colindex = table.getColumnIndex(colName);
 
@@ -2083,11 +2111,19 @@ public class ParserDDL extends ParserRoutine {
 
                 break;
             }
+            case Tokens.TYPE : {
+                if (database.sqlSyntaxPgs) {
+                    read();
+
+                    return compileAlterColumnDataType(table, column);
+                }
+
+                break;
+            }
             case Tokens.GENERATED :
                 return compileAlterColumnAddSequence(table, column,
                                                      columnIndex);
 
-            // fall through
             default :
         }
 
@@ -2488,23 +2524,20 @@ public class ParserDDL extends ParserRoutine {
                                    null, writeLockNames);
     }
 
-    Statement compileAlterSchemaRename() {
+    Statement compileRenameSchema(HsqlName name, int type) {
 
-        HsqlName name = readSchemaName();
-
-        checkSchemaUpdateAuthorisation(name);
-        readThis(Tokens.RENAME);
-        readThis(Tokens.TO);
-
-        HsqlName newName = readNewSchemaName();
+        HsqlName newName = readNewSchemaObjectName(type, true);
         String   sql     = getLastPart();
-        Object[] args    = new Object[] {
+
+        checkSchemaUpdateAuthorisation(session, name);
+
+        Object[] args = new Object[] {
             name, newName
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogNameArray();
 
-        return new StatementSchema(sql, StatementTypes.RENAME_OBJECT, args,
+        return new StatementSchema(sql, StatementTypes.RENAME_SCHEMA, args,
                                    null, writeLockNames);
     }
 
@@ -2838,13 +2871,21 @@ public class ParserDDL extends ParserRoutine {
                             columnSet = readColumnNames(false);
                         }
 
-                    // fall through
-                    case Tokens.TRIGGER :
                         if (right == null) {
                             right = new Right();
                         }
 
                         right.set(rightType, columnSet);
+
+                        isTable = true;
+                        break;
+
+                    case Tokens.TRIGGER :
+                        if (right == null) {
+                            right = new Right();
+                        }
+
+                        right.set(rightType, null);
 
                         isTable = true;
                         break;
@@ -3018,7 +3059,15 @@ public class ParserDDL extends ParserRoutine {
 
         objectName = readNewSchemaObjectName(objectType, false);
 
+        ExpressionLogical filter = null;
+
         if (grant) {
+            if (objectType == SchemaObject.TABLE) {
+                filter = XreadFilterExpressionOrNull();
+
+                right.setFilterExpression(filter);
+            }
+
             readThis(Tokens.TO);
         } else {
             readThis(Tokens.FROM);
@@ -3079,7 +3128,7 @@ public class ParserDDL extends ParserRoutine {
                               : StatementTypes.REVOKE;
         Object[] args = new Object[] {
             granteeList, objectName, right, grantor, Boolean.valueOf(cascade),
-            Boolean.valueOf(isGrantOption)
+            Boolean.valueOf(isGrantOption), filter
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogNameArray();

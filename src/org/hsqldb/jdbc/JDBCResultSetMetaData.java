@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@ import java.sql.SQLException;
 
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
@@ -833,7 +832,6 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6
      */
-//#ifdef JAVA6
     @SuppressWarnings("unchecked")
     public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
 
@@ -843,8 +841,6 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         throw JDBCUtil.invalidArgument("iface: " + iface);
     }
-
-//#endif JAVA6
 
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
@@ -861,13 +857,11 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * for an object with the given interface.
      * @since JDK 1.6
      */
-//#ifdef JAVA6
     public boolean isWrapperFor(
             java.lang.Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
-//#endif JAVA6
 // ------------------------- Internal Implementation ---------------------------
     private ResultMetaData resultMetaData;
 
@@ -965,7 +959,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      */
     public String toString() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(super.toString());
 

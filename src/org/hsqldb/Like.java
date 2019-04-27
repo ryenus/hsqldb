@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2016, The HSQL Development Group
+ * Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -127,17 +127,17 @@ class Like implements Cloneable {
     private Object getStartsWith() {
 
         if (iLen == 0) {
-            return isBinary ? (Object) BinaryData.zeroLengthBinary
+            return isBinary ? BinaryData.zeroLengthBinary
                             : "";
         }
 
-        StringBuffer              sb = null;
+        StringBuilder             sb = null;
         HsqlByteArrayOutputStream os = null;
 
         if (isBinary) {
             os = new HsqlByteArrayOutputStream();
         } else {
-            sb = new StringBuffer();
+            sb = new StringBuilder();
         }
 
         int i = 0;
@@ -154,7 +154,7 @@ class Like implements Cloneable {
             return null;
         }
 
-        return isBinary ? (Object) new BinaryData(os.toByteArray(), false)
+        return isBinary ? new BinaryData(os.toByteArray(), false)
                         : sb.toString();
     }
 
@@ -194,7 +194,7 @@ class Like implements Cloneable {
             if (o instanceof char[]) {
                 c = ((char[]) o)[i];
             } else if (o instanceof ClobData) {
-                c = ((ClobData)o).getChars(session,i,1)[0];
+                c = ((ClobData) o).getChars(session, i, 1)[0];
             } else {
                 c = ((String) o).charAt(i);
             }
@@ -294,7 +294,7 @@ class Like implements Cloneable {
         }
 
         if (isIgnoreCase) {
-            pattern = (String) ((CharacterType) dataType).upper(null, pattern);
+            pattern = ((CharacterType) dataType).upper(null, pattern);
         }
 
         iLen           = 0;
@@ -409,7 +409,7 @@ class Like implements Cloneable {
 
     public String describe(Session session) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(super.toString()).append("[\n");
         sb.append("escapeChar=").append(escapeChar).append('\n');

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,13 +39,12 @@ import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.map.ValuePool;
 
 /**
  * Collection of SQL schema objects of a specific type in a schema
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class SchemaObjectSet {
@@ -394,6 +393,9 @@ public class SchemaObjectSet {
 
             case SchemaObject.INDEX :
                 return Tokens.T_INDEX;
+
+            case SchemaObject.PERIOD :
+                return Tokens.T_PERIOD;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "SchemaObjectSet");

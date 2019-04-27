@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,35 +43,31 @@ import org.hsqldb.lib.IntKeyIntValueHashMap;
  * Common elements for Type instances for DATETIME and INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 1.9.0
  */
 public abstract class DTIType extends Type {
 
-    public static final byte[] yearToSecondSeparators = {
+    public static final byte[] yearToSecondSeparators       = {
         '-', '-', ' ', ':', ':', '.'
     };
-    public static final int[]  yearToSecondFactors    = {
+    public static final int[]  yearToSecondFactors          = {
         12, 1, 24 * 60 * 60, 60 * 60, 60, 1, 0
     };
-
-//    static final int[]  hourToSecondFactors   = {
-//        60 * 60, 60, 1, 0
-//    };
     public static final int[]  yearToSecondLimits           = {
         0, 12, 0, 24, 60, 60, 1000000000
     };
     public static final int    INTERVAL_MONTH_INDEX         = 1;
     public static final int    INTERVAL_SECOND_INDEX        = 5;
     public static final int    INTERVAL_FRACTION_PART_INDEX = 6;
-    public static final long[] precisionLimits              = {
+    static final long[]        precisionLimits              = {
         1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000,
         1000000000, 10000000000L, 100000000000L, 1000000000000L
     };
-    public static final int[] precisionFactors = {
+    static final int[] precisionFactors = {
         100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1
     };
-    public static final int[] nanoScaleFactors = {
+    static final int[] nanoScaleFactors = {
         1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10,
         1
     };
@@ -112,23 +108,6 @@ public abstract class DTIType extends Type {
         intervalIndexMap.put(Types.SQL_INTERVAL_MINUTE, 4);
         intervalIndexMap.put(Types.SQL_INTERVAL_SECOND, 5);
     }
-
-    public static final int TIMEZONE_HOUR   = Types.SQL_TYPE_NUMBER_LIMIT + 1;
-    public static final int TIMEZONE_MINUTE = Types.SQL_TYPE_NUMBER_LIMIT + 2;
-    public static final int DAY_OF_WEEK     = Types.SQL_TYPE_NUMBER_LIMIT + 3;
-    public static final int DAY_OF_MONTH    = Types.SQL_TYPE_NUMBER_LIMIT + 4;
-    public static final int DAY_OF_YEAR     = Types.SQL_TYPE_NUMBER_LIMIT + 5;
-    public static final int WEEK_OF_YEAR    = Types.SQL_TYPE_NUMBER_LIMIT + 6;
-    public static final int QUARTER         = Types.SQL_TYPE_NUMBER_LIMIT + 7;
-    public static final int DAY_NAME        = Types.SQL_TYPE_NUMBER_LIMIT + 8;
-    public static final int MONTH_NAME      = Types.SQL_TYPE_NUMBER_LIMIT + 9;
-    public static final int SECONDS_MIDNIGHT = Types.SQL_TYPE_NUMBER_LIMIT
-        + 10;
-    public static final int ISO_YEAR    = Types.SQL_TYPE_NUMBER_LIMIT + 11;
-    public static final int MILLISECOND = Types.SQL_TYPE_NUMBER_LIMIT + 12;
-    public static final int MICROSECOND = Types.SQL_TYPE_NUMBER_LIMIT + 13;
-    public static final int NANOSECOND  = Types.SQL_TYPE_NUMBER_LIMIT + 14;
-    public static final int TIMEZONE    = Types.SQL_TYPE_NUMBER_LIMIT + 15;
 
     //
     public final int startIntervalType;
@@ -182,7 +161,7 @@ public abstract class DTIType extends Type {
 
     String intervalSecondToString(long seconds, int nanos, boolean signed) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         if (seconds < 0) {
             seconds = -seconds;
@@ -250,18 +229,19 @@ public abstract class DTIType extends Type {
 
         switch (part) {
 
-            case DAY_NAME :
-            case MONTH_NAME :
-            case QUARTER :
-            case DAY_OF_MONTH :
-            case DAY_OF_YEAR :
-            case DAY_OF_WEEK :
-            case WEEK_OF_YEAR :
+            case Types.DTI_DAY_NAME :
+            case Types.DTI_MONTH_NAME :
+            case Types.DTI_QUARTER :
+            case Types.DTI_DAY_OF_MONTH :
+            case Types.DTI_DAY_OF_YEAR :
+            case Types.DTI_DAY_OF_WEEK :
+            case Types.DTI_WEEK_OF_YEAR :
                 if (!isDateTimeType()) {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                if (part == DAY_NAME || part == MONTH_NAME) {
+                if (part == Types.DTI_DAY_NAME
+                        || part == Types.DTI_MONTH_NAME) {
                     return Type.SQL_VARCHAR;
                 } else {
                     return Type.SQL_INTEGER;
@@ -293,12 +273,12 @@ public abstract class DTIType extends Type {
                 return Type.SQL_INTEGER;
 
             // used for DATEPART function
-            case MILLISECOND :
-            case MICROSECOND :
-            case NANOSECOND :
+            case Types.DTI_MILLISECOND :
+            case Types.DTI_MICROSECOND :
+            case Types.DTI_NANOSECOND :
                 return Type.SQL_BIGINT;
 
-            case SECONDS_MIDNIGHT :
+            case Types.DTI_SECONDS_MIDNIGHT :
                 if (!isDateTimeType()
                         || endIntervalType < Types.SQL_INTERVAL_SECOND) {
                     throw Error.error(ErrorCode.X_42561);
@@ -306,9 +286,9 @@ public abstract class DTIType extends Type {
 
                 return Type.SQL_INTEGER;
 
-            case TIMEZONE :
-            case TIMEZONE_HOUR :
-            case TIMEZONE_MINUTE :
+            case Types.DTI_TIMEZONE :
+            case Types.DTI_TIMEZONE_HOUR :
+            case Types.DTI_TIMEZONE_MINUTE :
                 if (typeCode != Types.SQL_TIMESTAMP_WITH_TIME_ZONE
                         && typeCode != Types.SQL_TIME_WITH_TIME_ZONE) {
                     throw Error.error(ErrorCode.X_42561);
@@ -322,6 +302,15 @@ public abstract class DTIType extends Type {
     }
 
     public static int normaliseFraction(int fraction, int precision) {
+        return (fraction / nanoScaleFactors[precision])
+               * nanoScaleFactors[precision];
+    }
+
+    public static int normaliseFraction(int fraction, int digits,
+                                        int precision) {
+
+        fraction *= DTIType.nanoScaleFactors[digits];
+
         return (fraction / nanoScaleFactors[precision])
                * nanoScaleFactors[precision];
     }
@@ -362,46 +351,46 @@ public abstract class DTIType extends Type {
                 return Types.SQL_INTERVAL_SECOND;
 
             case Tokens.MILLISECOND :
-                return MILLISECOND;
+                return Types.DTI_MILLISECOND;
 
             case Tokens.MICROSECOND :
-                return MICROSECOND;
+                return Types.DTI_MICROSECOND;
 
             case Tokens.NANOSECOND :
-                return NANOSECOND;
+                return Types.DTI_NANOSECOND;
 
             case Tokens.TIMEZONE_HOUR :
-                return TIMEZONE_HOUR;
+                return Types.DTI_TIMEZONE_HOUR;
 
             case Tokens.TIMEZONE_MINUTE :
-                return TIMEZONE_MINUTE;
+                return Types.DTI_TIMEZONE_MINUTE;
 
             case Tokens.TIMEZONE :
-                return TIMEZONE;
+                return Types.DTI_TIMEZONE;
 
             case Tokens.DAY_NAME :
-                return DAY_NAME;
+                return Types.DTI_DAY_NAME;
 
             case Tokens.MONTH_NAME :
-                return MONTH_NAME;
+                return Types.DTI_MONTH_NAME;
 
             case Tokens.QUARTER :
-                return QUARTER;
+                return Types.DTI_QUARTER;
 
             case Tokens.DAY_OF_MONTH :
-                return DAY_OF_MONTH;
+                return Types.DTI_DAY_OF_MONTH;
 
             case Tokens.DAY_OF_WEEK :
-                return DAY_OF_WEEK;
+                return Types.DTI_DAY_OF_WEEK;
 
             case Tokens.DAY_OF_YEAR :
-                return DAY_OF_YEAR;
+                return Types.DTI_DAY_OF_YEAR;
 
             case Tokens.WEEK_OF_YEAR :
-                return WEEK_OF_YEAR;
+                return Types.DTI_WEEK_OF_YEAR;
 
             case Tokens.SECONDS_MIDNIGHT :
-                return SECONDS_MIDNIGHT;
+                return Types.DTI_SECONDS_MIDNIGHT;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "DTIType");
@@ -430,34 +419,34 @@ public abstract class DTIType extends Type {
             case Types.SQL_INTERVAL_SECOND :
                 return Tokens.T_SECOND;
 
-            case TIMEZONE_HOUR :
+            case Types.DTI_TIMEZONE_HOUR :
                 return Tokens.T_TIMEZONE_HOUR;
 
-            case TIMEZONE_MINUTE :
+            case Types.DTI_TIMEZONE_MINUTE :
                 return Tokens.T_TIMEZONE_MINUTE;
 
-            case DAY_NAME :
+            case Types.DTI_DAY_NAME :
                 return Tokens.T_DAY_NAME;
 
-            case MONTH_NAME :
+            case Types.DTI_MONTH_NAME :
                 return Tokens.T_MONTH_NAME;
 
-            case QUARTER :
+            case Types.DTI_QUARTER :
                 return Tokens.T_QUARTER;
 
-            case DAY_OF_MONTH :
+            case Types.DTI_DAY_OF_MONTH :
                 return Tokens.T_DAY_OF_MONTH;
 
-            case DAY_OF_WEEK :
+            case Types.DTI_DAY_OF_WEEK :
                 return Tokens.T_DAY_OF_WEEK;
 
-            case DAY_OF_YEAR :
+            case Types.DTI_DAY_OF_YEAR :
                 return Tokens.T_DAY_OF_YEAR;
 
-            case WEEK_OF_YEAR :
+            case Types.DTI_WEEK_OF_YEAR :
                 return Tokens.T_WEEK_OF_YEAR;
 
-            case SECONDS_MIDNIGHT :
+            case Types.DTI_SECONDS_MIDNIGHT :
                 return Tokens.T_SECONDS_MIDNIGHT;
 
             default :

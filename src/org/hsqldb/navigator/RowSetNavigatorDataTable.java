@@ -117,7 +117,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         mainIndex          = table.getPrimaryIndex();
         fullIndex          = table.getFullIndex(session);
         store              = table.getRowStore(session);
-        this.size          = (int) mainIndex.size(session, store);
+        this.size          = (int) store.elementCount();
 
         reset();
     }
@@ -255,7 +255,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             iterator.release();
         }
 
-        iterator = mainIndex.firstRow((Session) session, store, 0, null);
+        iterator = mainIndex.firstRow((Session) session, store, null, 0, null);
     }
 
     public void release() {

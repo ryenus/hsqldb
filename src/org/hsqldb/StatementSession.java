@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -149,6 +149,8 @@ public class StatementSession extends Statement {
                 if (((FunctionSQL) e).isValueFunction()) {
                     break;
                 }
+
+                throw Error.error(ErrorCode.X_0P000);
             default :
                 throw Error.error(ErrorCode.X_0P000);
         }

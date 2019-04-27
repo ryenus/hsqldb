@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,18 +39,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hsqldb.lib.InputStreamInterface;
 import org.hsqldb.lib.InputStreamWrapper;
 import org.hsqldb.lib.StringUtil;
+import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * Generates a tar archive from specified Files and InputStreams.
  * Modified by fredt for hot backup
- * @version 2.4.1
+ * @version 2.5.0
  * @since 2.0.0
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
@@ -284,11 +284,7 @@ public class TarGenerator {
             int    stop  = field.getStop();
             byte[] ba;
 
-            try {
-                ba = newValue.getBytes("ISO-8859-1");
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
+            ba = newValue.getBytes(JavaSystem.CS_ISO_8859_1);
 
             if (ba.length > stop - start) {
                 throw new TarMalformatException(
@@ -673,12 +669,10 @@ public class TarGenerator {
         static protected String getLameMode(File file) {
             int umod = 0;
 
-//#ifdef JAVA6
             if (file.canExecute()) {
                 umod = 1;
             }
 
-//#endif
             if (file.canWrite()) {
                 umod += 2;
             }

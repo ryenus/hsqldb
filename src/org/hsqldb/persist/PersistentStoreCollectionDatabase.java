@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.hsqldb.lib.LongKeyHashMap;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class PersistentStoreCollectionDatabase
@@ -69,6 +69,12 @@ implements PersistentStoreCollection {
         }
 
         return store;
+    }
+
+    synchronized public void setStore(TableBase table, PersistentStore store) {
+        rowStoreMap.put(table.getPersistenceId(), store);
+
+        table.store = store;
     }
 
     public void release() {

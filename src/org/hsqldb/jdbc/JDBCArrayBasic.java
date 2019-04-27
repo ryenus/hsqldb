@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -241,9 +241,7 @@ public class JDBCArrayBasic implements Array {
 
         Object[] slice = new Object[count];
 
-        for (int i = 0; i < count; i++) {
-            slice[i] = data[(int) index + i - 1];
-        }
+        System.arraycopy(data, (int) index - 1, slice, 0, count);
 
         return slice;
     }

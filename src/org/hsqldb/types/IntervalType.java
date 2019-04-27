@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.lib.ArrayUtil;
  * Type subclass for various types of INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public final class IntervalType extends DTIType {
@@ -147,8 +147,17 @@ public final class IntervalType extends DTIType {
             case Types.SQL_INTERVAL_YEAR :
             case Types.SQL_INTERVAL_YEAR_TO_MONTH :
             case Types.SQL_INTERVAL_MONTH :
-                return IntervalMonthData.class;
 
+//#ifdef JAVA8
+                return java.time.Period.class;
+
+
+//#else
+/*
+                return IntervalMonthData.class;
+*/
+
+//#endif JAVA8
             case Types.SQL_INTERVAL_DAY :
             case Types.SQL_INTERVAL_DAY_TO_HOUR :
             case Types.SQL_INTERVAL_DAY_TO_MINUTE :
@@ -159,37 +168,23 @@ public final class IntervalType extends DTIType {
             case Types.SQL_INTERVAL_MINUTE :
             case Types.SQL_INTERVAL_MINUTE_TO_SECOND :
             case Types.SQL_INTERVAL_SECOND :
-                return org.hsqldb.types.IntervalSecondData.class;
 
+//#ifdef JAVA8
+                return java.time.Duration.class;
+
+//#else
+/*
+                return IntervalSecondData.class;
+*/
+
+//#endif JAVA8
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "IntervalType");
         }
     }
 
     public String getJDBCClassName() {
-
-        switch (typeCode) {
-
-            case Types.SQL_INTERVAL_YEAR :
-            case Types.SQL_INTERVAL_YEAR_TO_MONTH :
-            case Types.SQL_INTERVAL_MONTH :
-                return IntervalMonthData.class.getName();
-
-            case Types.SQL_INTERVAL_DAY :
-            case Types.SQL_INTERVAL_DAY_TO_HOUR :
-            case Types.SQL_INTERVAL_DAY_TO_MINUTE :
-            case Types.SQL_INTERVAL_DAY_TO_SECOND :
-            case Types.SQL_INTERVAL_HOUR :
-            case Types.SQL_INTERVAL_HOUR_TO_MINUTE :
-            case Types.SQL_INTERVAL_HOUR_TO_SECOND :
-            case Types.SQL_INTERVAL_MINUTE :
-            case Types.SQL_INTERVAL_MINUTE_TO_SECOND :
-            case Types.SQL_INTERVAL_SECOND :
-                return org.hsqldb.types.IntervalSecondData.class.getName();
-
-            default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "IntervalType");
-        }
+        return getJDBCClass().getName();
     }
 
     public int getJDBCPrecision() {
@@ -260,7 +255,7 @@ public final class IntervalType extends DTIType {
             return getNameString();
         }
 
-        StringBuffer sb = new StringBuffer(32);
+        StringBuilder sb = new StringBuilder(32);
 
         sb.append(Tokens.T_INTERVAL).append(' ');
         sb.append(getQualifier(startIntervalType));
@@ -496,9 +491,6 @@ public final class IntervalType extends DTIType {
             if (is.units > getIntervalValueLimit()) {
                 throw Error.error(ErrorCode.X_22015);
             }
-
-//            int divisor = nanoScaleFactors[scale];
-//            is.nanos = (is.nanos / divisor) * divisor;
         }
 
         return a;
@@ -567,10 +559,8 @@ public final class IntervalType extends DTIType {
                             } else if (a instanceof Double) {
                                 double d = (Double) a;
 
-                                d -= (double) ((long) d);
-
+                                d     -= (double) ((long) d);
                                 nanos = (int) (d * 1000000000d);
-
                             }
                         }
 
@@ -663,7 +653,6 @@ public final class IntervalType extends DTIType {
     }
 
 //#ifdef JAVA8
-/*
     Object convertJavaTimeObject(SessionInterface session, Object a) {
 
         if (this.isIntervalYearMonthType()) {
@@ -685,12 +674,13 @@ public final class IntervalType extends DTIType {
 
         return null;
     }
-*/
 
 //#else
+/*
     TimestampData convertJavaTimeObject(SessionInterface session, Object a) {
         return null;
     }
+*/
 
 //#endif JAVA8
     public String convertToString(Object a) {
@@ -729,7 +719,7 @@ public final class IntervalType extends DTIType {
             return Tokens.T_NULL;
         }
 
-        StringBuffer sb = new StringBuffer(32);
+        StringBuilder sb = new StringBuilder(32);
 
         sb.append(Tokens.T_INTERVAL).append(' ');
         sb.append('\'').append(convertToString(a)).append('\'').append(' ');
@@ -973,7 +963,7 @@ public final class IntervalType extends DTIType {
                     long nanos = ((TimeData) a).getNanos()
                                  - ((TimeData) b).getNanos();
 
-                    return subtract(aSeconds, bSeconds, nanos);
+                    return subtract(session, aSeconds, bSeconds, nanos);
                 } else if (a instanceof TimestampData
                            && b instanceof TimestampData) {
                     long aSeconds = ((TimestampData) a).getSeconds();
@@ -981,7 +971,7 @@ public final class IntervalType extends DTIType {
                     long nanos = ((TimestampData) a).getNanos()
                                  - ((TimestampData) b).getNanos();
 
-                    return subtract(aSeconds, bSeconds, nanos);
+                    return subtract(session, aSeconds, bSeconds, nanos);
                 }
 
             // fall through
@@ -990,16 +980,18 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    private IntervalSecondData subtract(long aSeconds, long bSeconds,
-                                        long nanos) {
+    private IntervalSecondData subtract(Session session, long aSeconds,
+                                        long bSeconds, long nanos) {
 
         if (endIntervalType != Types.SQL_INTERVAL_SECOND) {
             aSeconds =
-                HsqlDateTime.getTruncatedPart(aSeconds * 1000, endIntervalType)
-                / 1000;
+                HsqlDateTime.getTruncatedPart(
+                    session.getCalendarGMT(), aSeconds * 1000,
+                    endIntervalType) / 1000;
             bSeconds =
-                HsqlDateTime.getTruncatedPart(bSeconds * 1000, endIntervalType)
-                / 1000;
+                HsqlDateTime.getTruncatedPart(
+                    session.getCalendarGMT(), bSeconds * 1000,
+                    endIntervalType) / 1000;
             nanos = 0;
         }
 
@@ -1091,8 +1083,8 @@ public final class IntervalType extends DTIType {
 
     String intervalMonthToString(Object a) {
 
-        StringBuffer sb     = new StringBuffer(8);
-        long         months = ((IntervalMonthData) a).units;
+        StringBuilder sb     = new StringBuilder(8);
+        long          months = ((IntervalMonthData) a).units;
 
         if (months < 0) {
             months = -months;
@@ -1654,13 +1646,13 @@ public final class IntervalType extends DTIType {
                 return part == startIntervalType ? (int) units
                                                  : (int) (units % 60);
             }
-            case MILLISECOND :
+            case Types.DTI_MILLISECOND :
                 return ((IntervalSecondData) interval).nanos / 1000000;
 
-            case MICROSECOND :
+            case Types.DTI_MICROSECOND :
                 return ((IntervalSecondData) interval).nanos / 1000;
 
-            case NANOSECOND :
+            case Types.DTI_NANOSECOND :
                 return ((IntervalSecondData) interval).nanos;
 
             default :
@@ -1731,17 +1723,16 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public double convertToDouble(Object interval) {
+    public static double convertToDouble(Object interval) {
 
-        if (this.isIntervalYearMonthType()) {
+        if (interval instanceof IntervalMonthData) {
             double months = ((IntervalMonthData) interval).units;
 
             return months;
         } else {
-            double seconds = ((IntervalSecondData) interval).units;
-
-            seconds += ((double) ((IntervalSecondData) interval).nanos)
-                       / nanoScaleFactors[0];
+            IntervalSecondData value = (IntervalSecondData) interval;
+            double seconds = value.units
+                             + (double) value.nanos / nanoScaleFactors[0];
 
             return seconds;
         }
@@ -1754,7 +1745,7 @@ public final class IntervalType extends DTIType {
         if (this.isIntervalYearMonthType()) {
             return new IntervalMonthData(units);
         } else {
-            int nanos = (int) ((value - units) * nanoScaleFactors[0]);
+            int nanos = (int) ((value - units) * limitNanoseconds);
 
             return new IntervalSecondData(units, nanos);
         }
@@ -1762,10 +1753,8 @@ public final class IntervalType extends DTIType {
 
     public CharacterType getCharacterType() {
 
-        CharacterType type = CharacterType.getCharacterType(Types.SQL_VARCHAR,
-            displaySize());
-
-        type.nameString = getNameString();
+        String        name = getNameString();
+        CharacterType type = new CharacterType(name, displaySize());
 
         return type;
     }

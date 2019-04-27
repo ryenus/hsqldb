@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  *  Class for writing the data for a database row in text table format.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.7.0
  */
 public class RowOutputText extends RowOutputBase {
@@ -98,6 +98,10 @@ public class RowOutputText extends RowOutputBase {
             longvarSepEnd = true;
             longvarSep    = longvarSep.substring(0, longvarSep.length() - 1);
         }
+    }
+
+    public long scaleFilePosition(long pos) {
+        return pos;
     }
 
     public void setStorageSize(int size) {}
@@ -180,7 +184,7 @@ public class RowOutputText extends RowOutputBase {
         if (s.indexOf('\n') != -1 || s.indexOf('\r') != -1) {
             throw new IllegalArgumentException(
                 Error.getMessage(ErrorCode.TEXT_STRING_HAS_NEWLINE));
-        } else if (s.indexOf(sep) != -1) {
+        } else if (s.contains(sep)) {
             return null;
         }
 
@@ -285,17 +289,17 @@ public class RowOutputText extends RowOutputBase {
             case Types.SQL_CHAR :
                 writeString(s);
 
-                return;
+                break;
 
             case Types.SQL_VARCHAR :
                 writeVarString(s);
 
-                return;
+                break;
 
             default :
                 writeLongVarString(s);
 
-                return;
+                break;
         }
     }
 

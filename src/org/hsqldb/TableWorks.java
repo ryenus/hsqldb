@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * existing table which may result in a new Table object
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.7.0
  */
 public class TableWorks {
@@ -71,13 +71,23 @@ public class TableWorks {
         return table;
     }
 
-    void checkCreateForeignKey(Constraint c) {
+    void checkCreateForeignKey(Table fkTable, Constraint c) {
+
+        int[] cols = c.getRefColumns();
+
+        for (int i = 0; i < cols.length; i++) {
+            ColumnSchema column = fkTable.getColumn(cols[i]);
+
+            if (column.isSystemPeriod()) {
+                throw Error.error(ErrorCode.X_42517);
+            }
+        }
 
         boolean check = c.hasTriggeredAction();
 
         if (check) {
             for (int i = 0; i < c.core.refCols.length; i++) {
-                ColumnSchema col = table.getColumn(c.core.refCols[i]);
+                ColumnSchema col = fkTable.getColumn(c.core.refCols[i]);
 
                 if (col.isGenerated()) {
                     throw Error.error(ErrorCode.X_42524, col.getNameString());
@@ -85,7 +95,7 @@ public class TableWorks {
             }
         }
 
-        if (c.core.mainName == table.getName()) {
+        if (c.core.mainName == fkTable.getName()) {
             if (ArrayUtil.haveCommonElement(c.core.refCols, c.core.mainCols)) {
                 throw Error.error(ErrorCode.X_42527);
             }
@@ -99,7 +109,7 @@ public class TableWorks {
 
         if (check) {
             for (int i = 0; i < c.core.refCols.length; i++) {
-                ColumnSchema col     = table.getColumn(c.core.refCols[i]);
+                ColumnSchema col     = fkTable.getColumn(c.core.refCols[i]);
                 Expression   defExpr = col.getDefaultExpression();
 
                 if (defExpr == null) {
@@ -116,9 +126,9 @@ public class TableWorks {
 
         if (check && !session.isProcessingScript()) {
             for (int i = 0; i < c.core.refCols.length; i++) {
-                ColumnSchema col = table.getColumn(c.core.refCols[i]);
+                ColumnSchema col = fkTable.getColumn(c.core.refCols[i]);
 
-                if (!col.isNullable()) {
+                if (!col.isNullable() || col.isPrimaryKey()) {
                     String columnName = col.getName().statementName;
 
                     throw Error.error(ErrorCode.X_42520, columnName);
@@ -128,18 +138,18 @@ public class TableWorks {
 
         database.schemaManager.checkSchemaObjectNotExists(c.getName());
 
-        // duplicate name check for a new table
-        if (table.getConstraint(c.getName().name) != null) {
+        // duplicate name check for a new fkTable
+        if (fkTable.getConstraint(c.getName().name) != null) {
             throw Error.error(ErrorCode.X_42504, c.getName().statementName);
         }
 
         // existing FK check
-        if (table.getFKConstraintForColumns(
+        if (fkTable.getFKConstraintForColumns(
                 c.core.mainTable, c.core.mainCols, c.core.refCols) != null) {
             throw Error.error(ErrorCode.X_42528, c.getName().statementName);
         }
 
-        if (c.core.mainTable.isTemp() != table.isTemp()) {
+        if (c.core.mainTable.isTemp() != fkTable.isTemp()) {
             throw Error.error(ErrorCode.X_42524, c.getName().statementName);
         }
 
@@ -152,7 +162,7 @@ public class TableWorks {
         }
 
         // check after UNIQUE check
-        c.core.mainTable.checkReferentialColumnsMatch(c.core.mainCols, table,
+        c.core.mainTable.checkReferentialColumnsMatch(c.core.mainCols, fkTable,
                 c.core.refCols);
         ArrayUtil.reorderMaps(unique.getMainColumns(), c.getMainColumns(),
                               c.getRefColumns());
@@ -180,7 +190,7 @@ public class TableWorks {
     void addForeignKey(Constraint c) {
 
         checkModifyTable(false);
-        checkCreateForeignKey(c);
+        checkCreateForeignKey(table, c);
 
         Constraint uniqueConstraint =
             c.core.mainTable.getUniqueConstraintForColumns(c.core.mainCols);
@@ -222,11 +232,12 @@ public class TableWorks {
             c.checkReferencedRows(session, table);
         }
 
-        Table tn = table.moveDefinition(session, table.tableType, null, c,
-                                        refIndex, -1, 0, emptySet, emptySet);
+        Table tn = table.moveDefinition(session, table.tableType,
+                                        ColumnSchema.emptyArray, c, refIndex,
+                                        new int[0], 0, emptySet, emptySet);
 
         if (!session.isProcessingScript()) {
-            moveData(table, tn, -1, 0);
+            moveData(table, tn, new int[]{}, 0);
         }
 
         database.schemaManager.addSchemaObject(c);
@@ -309,8 +320,10 @@ public class TableWorks {
             c = null;
         }
 
-        Table tn = table.moveDefinition(session, table.tableType, column, c,
-                                        null, colIndex, 1, emptySet, emptySet);
+        Table tn = table.moveDefinition(session, table.tableType,
+                                        new ColumnSchema[]{ column }, c, null,
+                                        new int[]{ colIndex }, 1, emptySet,
+                                        emptySet);
 
         for (int i = 1; i < constraints.size(); i++) {
             c = (Constraint) constraints.get(i);
@@ -370,7 +383,7 @@ public class TableWorks {
                     }
 
                     c.setColumnsIndexes(tn);
-                    checkCreateForeignKey(c);
+                    checkCreateForeignKey(tn, c);
 
                     Constraint uniqueConstraint =
                         c.core.mainTable.getUniqueConstraintForColumns(
@@ -434,7 +447,7 @@ public class TableWorks {
         }
 
         column.compile(session, tn);
-        moveData(table, tn, colIndex, 1);
+        moveData(table, tn, new int[]{ colIndex }, 1);
 
         if (mainConstraint != null) {
             mainConstraint.getMain().addConstraint(mainConstraint);
@@ -534,8 +547,9 @@ public class TableWorks {
     void dropConstraintsAndIndexes(OrderedHashSet dropConstraintSet,
                                    OrderedHashSet dropIndexSet) {
 
-        Table tn = table.moveDefinition(session, table.tableType, null, null,
-                                        null, -1, 0, dropConstraintSet,
+        Table tn = table.moveDefinition(session, table.tableType,
+                                        ColumnSchema.emptyArray, null, null,
+                                        new int[0], 0, dropConstraintSet,
                                         dropIndexSet);
 
         if (tn.indexList.length == table.indexList.length) {
@@ -544,7 +558,7 @@ public class TableWorks {
             return;
         }
 
-        moveData(table, tn, -1, 0);
+        moveData(table, tn, new int[]{}, 0);
 
         table = tn;
     }
@@ -606,11 +620,12 @@ public class TableWorks {
             newIndex = table.createIndexStructure(name, col, null, null,
                                                   false, unique, false, false);
 
-            Table tn = table.moveDefinition(session, table.tableType, null,
-                                            null, newIndex, -1, 0, emptySet,
+            Table tn = table.moveDefinition(session, table.tableType,
+                                            ColumnSchema.emptyArray, null,
+                                            newIndex, new int[0], 0, emptySet,
                                             emptySet);
 
-            moveData(table, tn, -1, 0);
+            moveData(table, tn, new int[]{}, 0);
 
             table = tn;
 
@@ -635,11 +650,12 @@ public class TableWorks {
         database.schemaManager.checkSchemaObjectNotExists(
             constraint.getName());
 
-        Table tn = table.moveDefinition(session, table.tableType, null,
-                                        constraint, null, -1, 0, emptySet,
+        Table tn = table.moveDefinition(session, table.tableType,
+                                        ColumnSchema.emptyArray, constraint,
+                                        null, new int[0], 0, emptySet,
                                         emptySet);
 
-        moveData(table, tn, -1, 0);
+        moveData(table, tn, new int[]{}, 0);
 
         table = tn;
 
@@ -662,6 +678,14 @@ public class TableWorks {
      */
     void addUniqueConstraint(int[] cols, HsqlName name) {
 
+        for (int i = 0; i < cols.length; i++) {
+            ColumnSchema column = table.getColumn(cols[i]);
+
+            if (column.isSystemPeriod()) {
+                throw Error.error(ErrorCode.X_42517);
+            }
+        }
+
         checkModifyTable(false);
         database.schemaManager.checkSchemaObjectNotExists(name);
 
@@ -678,11 +702,12 @@ public class TableWorks {
         Constraint constraint =
             new Constraint(name, table, index,
                            SchemaObject.ConstraintTypes.UNIQUE);
-        Table tn = table.moveDefinition(session, table.tableType, null,
-                                        constraint, index, -1, 0, emptySet,
+        Table tn = table.moveDefinition(session, table.tableType,
+                                        ColumnSchema.emptyArray, constraint,
+                                        index, new int[0], 0, emptySet,
                                         emptySet);
 
-        moveData(table, tn, -1, 0);
+        moveData(table, tn, new int[]{}, 0);
 
         table = tn;
 
@@ -694,6 +719,16 @@ public class TableWorks {
 
     void addUniqueConstraint(Constraint constraint) {
 
+        int[] cols = constraint.getMainColumns();
+
+        for (int i = 0; i < cols.length; i++) {
+            ColumnSchema column = table.getColumn(cols[i]);
+
+            if (column.isSystemPeriod()) {
+                throw Error.error(ErrorCode.X_42517);
+            }
+        }
+
         checkModifyTable(false);
         database.schemaManager.checkSchemaObjectNotExists(
             constraint.getName());
@@ -703,11 +738,12 @@ public class TableWorks {
             throw Error.error(ErrorCode.X_42522);
         }
 
-        Table tn = table.moveDefinition(session, table.tableType, null,
-                                        constraint, constraint.getMainIndex(),
-                                        -1, 0, emptySet, emptySet);
+        Table tn = table.moveDefinition(session, table.tableType,
+                                        ColumnSchema.emptyArray, constraint,
+                                        constraint.getMainIndex(), new int[0],
+                                        0, emptySet, emptySet);
 
-        moveData(table, tn, -1, 0);
+        moveData(table, tn, new int[]{}, 0);
 
         table = tn;
 
@@ -761,11 +797,12 @@ public class TableWorks {
 
             indexSet.add(table.getIndex(indexName).getName());
 
-            Table tn = table.moveDefinition(session, table.tableType, null,
-                                            null, null, -1, 0, emptySet,
+            Table tn = table.moveDefinition(session, table.tableType,
+                                            ColumnSchema.emptyArray, null,
+                                            null, new int[0], 0, emptySet,
                                             indexSet);
 
-            moveData(table, tn, -1, 0);
+            moveData(table, tn, new int[]{}, 0);
             setNewTableInSchema(tn);
             updateConstraints(tn, emptySet);
 
@@ -781,13 +818,18 @@ public class TableWorks {
 
     void dropColumn(int colIndex, boolean cascade) {
 
+        ColumnSchema column = table.getColumn(colIndex);
+
+        if (column.isSystemPeriod()) {
+            throw Error.error(ErrorCode.X_42517);
+        }
+
         OrderedHashSet constraintNameSet = new OrderedHashSet();
         OrderedHashSet dependentConstraints =
             table.getDependentConstraints(colIndex);
         OrderedHashSet cascadingConstraints =
             table.getContainingConstraints(colIndex);
         OrderedHashSet indexNameSet = table.getContainingIndexNames(colIndex);
-        ColumnSchema   column       = table.getColumn(colIndex);
         HsqlName       columnName   = column.getName();
         OrderedHashSet referencingObjects =
             database.schemaManager.getReferencesTo(table.getName(),
@@ -877,11 +919,12 @@ public class TableWorks {
         tableSet = dropConstraintsAndIndexes(tableSet, constraintNameSet,
                                              indexNameSet);
 
-        Table tn = table.moveDefinition(session, table.tableType, null, null,
-                                        null, colIndex, -1, constraintNameSet,
-                                        indexNameSet);
+        Table tn = table.moveDefinition(session, table.tableType,
+                                        ColumnSchema.emptyArray, null, null,
+                                        new int[]{ colIndex }, -1,
+                                        constraintNameSet, indexNameSet);
 
-        moveData(table, tn, colIndex, -1);
+        moveData(table, tn, new int[]{ colIndex }, -1);
         database.schemaManager.removeSchemaObjects(referencingObjects);
         database.schemaManager.removeSchemaObjects(constraintNameSet);
         database.schemaManager.removeSchemaObjects(indexNameSet);
@@ -977,11 +1020,12 @@ public class TableWorks {
                 }
 
                 Table tn = table.moveDefinition(session, table.tableType,
-                                                null, null, null, -1, 0,
+                                                ColumnSchema.emptyArray, null,
+                                                null, new int[0], 0,
                                                 constraintNameSet,
                                                 indexNameSet);
 
-                moveData(table, tn, -1, 0);
+                moveData(table, tn, new int[]{}, 0);
 
                 tableSet = dropConstraintsAndIndexes(tableSet,
                                                      constraintNameSet,
@@ -1028,10 +1072,11 @@ public class TableWorks {
                 indexes.add(constraint.getRefIndex().getName());
 
                 Table tn = table.moveDefinition(session, table.tableType,
-                                                null, null, null, -1, 0,
+                                                ColumnSchema.emptyArray, null,
+                                                null, new int[0], 0,
                                                 constraints, indexes);
 
-                moveData(table, tn, -1, 0);
+                moveData(table, tn, new int[]{}, 0);
 
                 //
                 database.schemaManager.removeSchemaObject(
@@ -1077,6 +1122,10 @@ public class TableWorks {
                 && oldCol.getIdentitySequence()
                    == newCol.getIdentitySequence()) {
             return;
+        }
+
+        if (oldCol.isGenerated() || oldCol.isSystemPeriod()) {
+            throw Error.error(ErrorCode.X_42517);
         }
 
         checkModifyTable(true);
@@ -1175,11 +1224,12 @@ public class TableWorks {
      */
     private void retypeColumn(ColumnSchema column, int colIndex) {
 
-        Table tn = table.moveDefinition(session, table.tableType, column,
-                                        null, null, colIndex, 0, emptySet,
-                                        emptySet);
+        Table tn = table.moveDefinition(session, table.tableType,
+                                        new ColumnSchema[]{ column }, null,
+                                        null, new int[]{ colIndex }, 0,
+                                        emptySet, emptySet);
 
-        moveData(table, tn, colIndex, 0);
+        moveData(table, tn, new int[]{ colIndex }, 0);
         setNewTableInSchema(tn);
         updateConstraints(tn, emptySet);
         database.schemaManager.recompileDependentObjects(table);
@@ -1197,6 +1247,10 @@ public class TableWorks {
 
         Constraint c        = null;
         int        colIndex = table.getColumnIndex(column.getName().name);
+
+        if (column.isGenerated() || column.isSystemPeriod()) {
+            throw Error.error(ErrorCode.X_42517);
+        }
 
         if (column.isNullable() == nullable) {
             return;
@@ -1243,6 +1297,10 @@ public class TableWorks {
 
         ColumnSchema column = table.getColumn(colIndex);
 
+        if (column.isGenerated() || column.isSystemPeriod()) {
+            throw Error.error(ErrorCode.X_42517);
+        }
+
         column.setDefaultExpression(def);
         table.setColumnTypeVars(colIndex);
     }
@@ -1277,10 +1335,11 @@ public class TableWorks {
         Table tn;
 
         try {
-            tn = table.moveDefinition(session, newType, null, null, null, -1,
-                                      0, emptySet, emptySet);
+            tn = table.moveDefinition(session, newType,
+                                      ColumnSchema.emptyArray, null, null,
+                                      new int[0], 0, emptySet, emptySet);
 
-            moveData(table, tn, -1, 0);
+            moveData(table, tn, new int[]{}, 0);
         } catch (HsqlException e) {
             return false;
         }
@@ -1293,6 +1352,119 @@ public class TableWorks {
         database.schemaManager.recompileDependentObjects(table);
 
         return true;
+    }
+
+    void addSystemPeriod(PeriodDefinition period) {
+
+        if (table.systemPeriod != null) {
+            throw Error.error(ErrorCode.X_0A501);
+        }
+
+        int            columnCount = table.getColumnCount();
+        int[]          colIndex    = new int[] {
+            columnCount, columnCount + 1
+        };
+        ColumnSchema[] columns     = new ColumnSchema[] {
+            period.startColumn, period.endColumn
+        };
+
+        checkAddColumn(period.startColumn);
+        checkAddColumn(period.endColumn);
+
+        Table tn = table.moveDefinition(session, table.tableType, columns,
+                                        null, null, colIndex, 2, emptySet,
+                                        emptySet);
+
+        tn.systemPeriod = period;
+
+        // move data
+        moveData(table, tn, colIndex, 2);
+        setNewTableInSchema(tn);
+
+        table = tn;
+
+        database.granteeManager.updateAddColumn(table.getName(),
+                period.startColumn.getName());
+        database.granteeManager.updateAddColumn(table.getName(),
+                period.endColumn.getName());
+    }
+
+    void dropSystemPeriod(boolean cascade) {
+
+        if (table.systemPeriod == null) {
+            throw Error.error(ErrorCode.X_0A501);
+        }
+
+        // references in conditions and to the columns
+        OrderedHashSet referencingObjects =
+            database.schemaManager.getReferencesTo(table.getName(),
+                table.systemPeriod.startColumn.getName());
+        OrderedHashSet endReferences =
+            database.schemaManager.getReferencesTo(table.getName(),
+                table.systemPeriod.startColumn.getName());
+
+        referencingObjects.addAll(endReferences);
+
+        if (cascade) {
+            if (!referencingObjects.isEmpty()) {
+                HsqlName objectName = (HsqlName) referencingObjects.get(0);
+
+                throw Error.error(
+                    ErrorCode.X_42502,
+                    objectName.getSchemaQualifiedStatementName());
+            }
+        } else {
+            if (!referencingObjects.isEmpty()) {
+                HsqlName objectName = (HsqlName) referencingObjects.get(0);
+
+                throw Error.error(
+                    ErrorCode.X_42502,
+                    objectName.getSchemaQualifiedStatementName());
+            }
+        }
+
+        int[] colIndex = new int[] {
+            table.systemPeriodStartColumn, table.systemPeriodEndColumn
+        };
+        Table tn = table.moveDefinition(session, table.tableType,
+                                        ColumnSchema.emptyArray, null, null,
+                                        colIndex, -2, emptySet, emptySet);
+
+        tn.systemPeriod = null;
+
+        moveData(table, tn, colIndex, -2);
+        updateConstraints(tn, emptySet);
+        database.schemaManager.recompileDependentObjects(tn);
+        tn.compile(session, null);
+        setNewTableInSchema(tn);
+
+        table = tn;
+    }
+
+    void dropSystemVersioning(boolean cascade) {
+
+        // references in range variable conditions
+        OrderedHashSet referencingObjects =
+            database.schemaManager.getReferencesTo(table.getName(),
+                table.systemPeriod.getName());
+
+        if (cascade) {
+            if (!referencingObjects.isEmpty()) {
+                HsqlName objectName = (HsqlName) referencingObjects.get(0);
+
+                throw Error.error(
+                    ErrorCode.X_42502,
+                    objectName.getSchemaQualifiedStatementName());
+            }
+        } else {
+            if (!referencingObjects.isEmpty()) {
+                HsqlName objectName = (HsqlName) referencingObjects.get(0);
+
+                throw Error.error(
+                    ErrorCode.X_42502,
+                    objectName.getSchemaQualifiedStatementName());
+            }
+        }
     }
 
     void setNewTablesInSchema(OrderedHashSet tableSet) {
@@ -1350,12 +1522,12 @@ public class TableWorks {
         }
     }
 
-    void moveData(Table oldTable, Table newTable, int colIndex, int adjust) {
+    void moveData(Table oldTable, Table newTable, int[] colIndex, int adjust) {
 
         int tableType = oldTable.getTableType();
 
         if (tableType == Table.TEMP_TABLE) {
-            Session sessions[] = database.sessionManager.getAllSessions();
+            Session[] sessions = database.sessionManager.getAllSessions();
 
             for (int i = 0; i < sessions.length; i++) {
                 sessions[i].sessionData.persistentStoreCollection.moveData(

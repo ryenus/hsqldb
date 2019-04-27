@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2018, The HSQL Development Group
+ * Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -117,7 +117,7 @@ import java.awt.image.MemoryImageSource;
  *  databases via JDBC. Understands HSQLDB database particularly well.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
-  * @version 2.4.2
+  * @version 2.5.0
   * @since Hypersonic SQL
  */
 public class Transfer extends Applet

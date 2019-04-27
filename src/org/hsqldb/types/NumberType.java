@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.map.ValuePool;
  * Type subclass for all NUMBER types.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public final class NumberType extends Type {
@@ -350,7 +350,7 @@ public final class NumberType extends Type {
 
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
-                StringBuffer sb = new StringBuffer(16);
+                StringBuilder sb = new StringBuilder(16);
 
                 sb.append(getNameString());
                 sb.append('(');
@@ -1253,7 +1253,7 @@ public final class NumberType extends Type {
 
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
-                return JavaSystem.toString((BigDecimal) a);
+                return ((BigDecimal) a).toPlainString();
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
@@ -1351,9 +1351,6 @@ public final class NumberType extends Type {
                         || otherType.typeCode == Types.SQL_DOUBLE) {
                     return 0;
                 }
-
-            // fall through
-            default :
         }
 
         return -1;

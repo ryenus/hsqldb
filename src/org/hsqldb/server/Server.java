@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import java.util.StringTokenizer;
 
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.HsqlDateTime;
+import org.hsqldb.HsqlDateTime.SystemTimeString;
 import org.hsqldb.HsqlException;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -232,7 +232,7 @@ import org.hsqldb.result.ResultConstants;
  * is started as part of a larger framework. <p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.2
+ * @version 2.5.0
  * @since 1.7.2
  */
 public class Server implements HsqlSocketRequestHandler, Notified {
@@ -282,8 +282,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     private PrintWriter        errWriter;
     private ServerAcl          acl = null;    // null means no access tests
     private volatile boolean   isShuttingDown;
-
-//
+    private SystemTimeString   sysTime = new SystemTimeString();
 
     /**
      * A specialized Thread inner class in which the run() method of this
@@ -415,13 +414,6 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         }
 
         printWithThread("signalCloseAllServerConnections() exited");
-    }
-
-    protected void finalize() {
-
-        if (serverThread != null) {
-            releaseServerSocket();
-        }
     }
 
     /**
@@ -1352,7 +1344,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      * @param msg the message to print
      */
     final void printWithTimestamp(String msg) {
-        print(HsqlDateTime.getSystemTimeString() + " " + msg);
+        print(sysTime.getTimestampString() + " " + msg);
     }
 
     /**
@@ -1416,7 +1408,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
             return;
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(cid);
         sb.append(':');
@@ -1438,6 +1430,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
             case ResultConstants.EXECUTE : {
                 sb.append("SQLCLI:SQLEXECUTE:");
                 sb.append(r.getStatementID());
+
                 break;
             }
             case ResultConstants.BATCHEXECUTE :
@@ -1885,7 +1878,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
                 if (candidateAddrs.length > 0) {
                     messageID = ErrorCode.M_SERVER_OPEN_SERVER_SOCKET_1;
 
-                    StringBuffer sb = new StringBuffer();
+                    StringBuilder sb = new StringBuilder();
 
                     for (int i = 0; i < candidateAddrs.length; i++) {
                         if (sb.length() > 0) {
@@ -2152,13 +2145,11 @@ public class Server implements HsqlSocketRequestHandler, Notified {
             return;
         }
 
-        StopWatch sw;
-
         printWithThread("shutdown() entered");
-
-        sw = new StopWatch();
-
         print("Initiating shutdown sequence...");
+
+        StopWatch sw = new StopWatch();
+
         releaseServerSocket();
         DatabaseManager.deRegisterServer(this);
 
@@ -2170,39 +2161,32 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
         // Be nice and let applications exit if there are no
         // running connection threads - wait at most 100 ms per active thread
-        if (serverConnectionThreadGroup != null) {
-            if (!serverConnectionThreadGroup.isDestroyed()) {
-                int count = serverConnectionThreadGroup.activeCount();
+        for (int count = serverConnectionThreadGroup.activeCount();
+                count > 0 && serverConnectionThreadGroup.activeCount() > 0;
+                count--) {
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {
 
-                for (int i = 0;
-                        serverConnectionThreadGroup.activeCount() > 0
-                        && i < count;
-                        i++) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (Exception e) {
-
-                        // e.getMessage();
-                    }
-                }
-
-                try {
-                    serverConnectionThreadGroup.destroy();
-                    printWithThread(serverConnectionThreadGroup.getName()
-                                    + " destroyed");
-                } catch (Throwable t) {
-                    printWithThread(serverConnectionThreadGroup.getName()
-                                    + " not destroyed");
-                    printWithThread(t.toString());
-                }
+                // e.getMessage();
             }
-
-            serverConnectionThreadGroup = null;
         }
 
-        serverThread = null;
+        try {
+            serverConnectionThreadGroup.destroy();
+            printWithThread(serverConnectionThreadGroup.getName()
+                            + " destroyed");
+        } catch (Throwable t) {
+            printWithThread(serverConnectionThreadGroup.getName()
+                            + " not destroyed");
+            printWithThread(t.toString());
+        }
 
         setState(ServerConstants.SERVER_STATE_SHUTDOWN);
+
+        serverConnectionThreadGroup = null;
+        serverThread                = null;
+
         print(sw.elapsedTimeToMessage("Shutdown sequence completed"));
 
         if (isNoSystemExit()) {

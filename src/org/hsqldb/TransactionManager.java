@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,13 @@
 
 package org.hsqldb;
 
-import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 
 /**
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.5.0
  * @since 2.0.0
  */
 public interface TransactionManager {
@@ -73,6 +72,8 @@ public interface TransactionManager {
     void addInsertAction(Session session, Table table, PersistentStore store,
                          Row row, int[] changedColumns);
 
+    void addInsertAction(Session session, PersistentStore store, Row row);
+
     /**
      * add session to the end of queue when a transaction starts
      * (depending on isolation mode)
@@ -82,12 +83,6 @@ public interface TransactionManager {
     void beginActionResume(Session session);
 
     void beginTransaction(Session session);
-
-    // functional unit - accessibility of rows
-    boolean canRead(Session session, PersistentStore store, Row row, int mode,
-                    int[] colMap);
-
-    boolean canRead(Session session, PersistentStore store, long id, int mode);
 
     boolean commitTransaction(Session session);
 
@@ -112,25 +107,6 @@ public interface TransactionManager {
     void rollbackPartial(Session session, int start, long timestamp);
 
     void setTransactionControl(Session session, int mode);
-
-    /**
-     * store transaction info for a new row. called only
-     * for CACHED tables
-     */
-    void addTransactionInfo(CachedObject object);
-
-    /**
-     * add transaction info to a row just loaded from the cache. called only
-     * for CACHED tables
-     */
-    void setTransactionInfo(PersistentStore store, CachedObject object);
-
-    /**
-     * remove the transaction info
-     */
-    void removeTransactionInfo(CachedObject object);
-
-    void removeTransactionInfo(long id);
 
     void resetSession(Session session, Session targetSession, int mode);
 }

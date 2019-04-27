@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -51,7 +52,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for DDL statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class StatementSchema extends Statement {
@@ -69,7 +70,7 @@ public class StatementSchema extends Statement {
     }
 
     StatementSchema(String sql, int type) {
-        this(sql, type, null, (HsqlName[]) null, null);
+        this(sql, type, null, null, null);
     }
 
     StatementSchema(String sql, int type, Object[] args, HsqlName[] readName,
@@ -95,6 +96,7 @@ public class StatementSchema extends Statement {
         switch (type) {
 
             case StatementTypes.RENAME_OBJECT :
+            case StatementTypes.RENAME_SCHEMA :
                 group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
                 break;
 
@@ -106,6 +108,10 @@ public class StatementSchema extends Statement {
             case StatementTypes.ALTER_TABLE :
             case StatementTypes.ALTER_TRANSFORM :
             case StatementTypes.ALTER_VIEW :
+            case StatementTypes.ADD_TABLE_PERIOD :
+            case StatementTypes.DROP_TABLE_PERIOD :
+            case StatementTypes.ADD_TABLE_SYSTEM_VERSIONING :
+            case StatementTypes.DROP_TABLE_SYSTEM_VERSIONING :
                 group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
                 break;
 
@@ -284,12 +290,23 @@ public class StatementSchema extends Statement {
 
         session.database.schemaManager.setSchemaChangeTimestamp();
 
+        HsqlName sessionSchema = session.currentSchema;
+
         try {
+            if (type == StatementTypes.RENAME_SCHEMA) {
+                session.currentSchema =
+                    SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
+            }
+
             if (isLogged) {
                 session.database.logger.writeOtherStatement(session, sql);
             }
         } catch (Throwable e) {
             return Result.newErrorResult(e, sql);
+        } finally {
+            if (type == StatementTypes.RENAME_SCHEMA) {
+                session.currentSchema = sessionSchema;
+            }
         }
 
         return result;
@@ -306,7 +323,8 @@ public class StatementSchema extends Statement {
 
         switch (type) {
 
-            case StatementTypes.RENAME_OBJECT : {
+            case StatementTypes.RENAME_OBJECT :
+            case StatementTypes.RENAME_SCHEMA : {
                 HsqlName     name    = (HsqlName) arguments[0];
                 HsqlName     newName = (HsqlName) arguments[1];
                 SchemaObject object;
@@ -322,11 +340,6 @@ public class StatementSchema extends Statement {
                         return Result.newErrorResult(e, sql);
                     }
                 } else if (name.type == SchemaObject.SCHEMA) {
-
-                    /**
-                     * @todo 1.9.0 - review for schemas referenced in
-                     *  external view or trigger definitions
-                     */
                     checkSchemaUpdateAuthorisation(session, name);
                     schemaManager.checkSchemaNameCanChange(name);
                     schemaManager.renameSchema(name, newName);
@@ -648,6 +661,68 @@ public class StatementSchema extends Statement {
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
+            case StatementTypes.ADD_TABLE_PERIOD : {
+                Table            table  = (Table) arguments[0];
+                PeriodDefinition period = (PeriodDefinition) arguments[1];
+                TablePeriodWorks works  = new TablePeriodWorks(session, table);
+
+                try {
+                    if (period.getPeriodType()
+                            == SchemaObject.PeriodType.PERIOD_SYSTEM) {
+                        works.addSystemPeriod(period);
+                    } else {
+                        works.addApplicationPeriod(period);
+                    }
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.DROP_TABLE_PERIOD : {
+                Table            table   = (Table) arguments[0];
+                PeriodDefinition period  = (PeriodDefinition) arguments[1];
+                Boolean          cascade = (Boolean) arguments[2];
+                TablePeriodWorks works = new TablePeriodWorks(session, table);
+
+                try {
+                    if (period.getPeriodType()
+                            == SchemaObject.PeriodType.PERIOD_SYSTEM) {
+                        works.dropSystemPeriod(cascade.booleanValue());
+                    } else {
+                        works.dropApplicationPeriod(cascade.booleanValue());
+                    }
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.ADD_TABLE_SYSTEM_VERSIONING : {
+                Table            table = (Table) arguments[0];
+                TablePeriodWorks works = new TablePeriodWorks(session, table);
+
+                try {
+                    works.addSystemVersioning();
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.DROP_TABLE_SYSTEM_VERSIONING : {
+                Table            table   = (Table) arguments[0];
+                Boolean          cascade = (Boolean) arguments[1];
+                TablePeriodWorks works = new TablePeriodWorks(session, table);
+
+                try {
+                    works.dropSystemVersioning(cascade);
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
             case StatementTypes.ALTER_ROUTINE : {
                 Routine routine = (Routine) arguments[0];
 
@@ -935,6 +1010,21 @@ public class StatementSchema extends Statement {
                                     && !right.isFull()) {
                                 return Result.newErrorResult(
                                     Error.error(ErrorCode.X_42595), sql);
+                            }
+
+                            Expression filterExpr =
+                                right.getFilterExpression();
+
+                            if (filterExpr != null) {
+                                filterExpr = filterExpr.duplicate();
+
+                                RangeGroup ranges =
+                                    new RangeGroupSimple(t.getDefaultRanges(),
+                                                         false);
+
+                                filterExpr.resolveColumnReferences(
+                                    session, ranges, RangeGroup.emptyArray,
+                                    null);
                             }
                         }
                     }
@@ -1388,6 +1478,15 @@ public class StatementSchema extends Statement {
 
                 // find the new target
                 SchemaObject object =
+                    session.database.schemaManager
+                        .findAnySchemaObjectForSynonym(name.name,
+                                                       name.schema.name);
+
+                if (object != null) {
+                    throw Error.error(ErrorCode.X_42504);
+                }
+
+                object =
                     session.database.schemaManager
                         .findAnySchemaObjectForSynonym(targetName.name,
                                                        targetName.schema.name);

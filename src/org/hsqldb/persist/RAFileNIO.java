@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,6 @@ package org.hsqldb.persist;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
@@ -54,7 +52,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * ScaledRAFile is used for data access.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.3.3
+ * @version  2.5.0
  * @since 1.8.0.5
  */
 final class RAFileNIO implements RandomAccessInterface {
@@ -327,6 +325,8 @@ final class RAFileNIO implements RandomAccessInterface {
 
     public void close() throws IOException {
 
+        Throwable thrown = null;
+
         try {
             logger.logDetailEvent("NIO file close, size: " + fileLength);
 
@@ -334,20 +334,22 @@ final class RAFileNIO implements RandomAccessInterface {
             channel = null;
 
             for (int i = 0; i < buffers.length; i++) {
-                unmap(buffers[i]);
+                thrown = JavaSystem.unmap(buffers[i]);
 
                 buffers[i] = null;
             }
 
             file.close();
-
-            // System.gc();
         } catch (Throwable t) {
             logger.logWarningEvent("NIO buffer close error", t);
 
             IOException io = JavaSystem.toIOException(t);
 
             throw io;
+        } finally {
+            if (thrown != null) {
+                logger.logWarningEvent("NIO buffer unmap exception", thrown);
+            }
         }
     }
 
@@ -499,7 +501,7 @@ final class RAFileNIO implements RandomAccessInterface {
 
     private void setCurrentBuffer(long offset) {
 
-        if(readOnly) {
+        if (readOnly) {
             return;
         }
 
@@ -525,9 +527,10 @@ final class RAFileNIO implements RandomAccessInterface {
      */
     private void checkBuffer() {
 
-        if(readOnly) {
+        if (readOnly) {
             return;
         }
+
         int bufferIndex = (int) (currentPosition >> largeBufferScale);
 
         if (currentPosition != bufferPosition + buffer.position()) {
@@ -538,31 +541,5 @@ final class RAFileNIO implements RandomAccessInterface {
         } else if (buffer != buffers[bufferIndex]) {
             buffer = buffers[bufferIndex];
         }
-    }
-
-    /**
-     * Non-essential unmap method - see http://bugs.sun.com/view_bug.do?bug_id=4724038
-     * reported by joel_turkel at users.sourceforge.net
-     */
-    private void unmap(MappedByteBuffer buffer) throws IOException {
-
-        if (buffer == null) {
-            return;
-        }
-
-        try {
-            Method cleanerMethod = buffer.getClass().getMethod("cleaner");
-
-            cleanerMethod.setAccessible(true);
-
-            Object cleaner     = cleanerMethod.invoke(buffer);
-            Method clearMethod = cleaner.getClass().getMethod("clean");
-
-            clearMethod.invoke(cleaner);
-        } catch (InvocationTargetException e) {}
-        catch (NoSuchMethodException e) {
-
-            // Means we're not dealing with a Sun JVM?
-        } catch (Throwable e) {}
     }
 }

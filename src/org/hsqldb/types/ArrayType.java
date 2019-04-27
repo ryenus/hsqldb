@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ public class ArrayType extends Type {
 
     public String getNameString() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(dataType.getNameString()).append(' ');
         sb.append(Tokens.T_ARRAY);
@@ -114,7 +114,7 @@ public class ArrayType extends Type {
 
     public String getFullNameString() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(dataType.getFullNameString()).append(' ');
         sb.append(Tokens.T_ARRAY);
@@ -128,7 +128,7 @@ public class ArrayType extends Type {
 
     public String getDefinition() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(dataType.getDefinition()).append(' ');
         sb.append(Tokens.T_ARRAY);
@@ -311,8 +311,8 @@ public class ArrayType extends Type {
             return Tokens.T_NULL;
         }
 
-        Object[]     arra = (Object[]) a;
-        StringBuffer sb   = new StringBuffer();
+        Object[]      arra = (Object[]) a;
+        StringBuilder sb   = new StringBuilder();
 
         sb.append(Tokens.T_ARRAY);
         sb.append('[');

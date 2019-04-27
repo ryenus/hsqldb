@@ -1,4 +1,4 @@
--- author Fred Toussi (fredt@users dot sourceforge.net) version 2.4.1
+-- author Fred Toussi (fredt@users dot sourceforge.net) version 2.5.0
 /*system_procedures*/
 SELECT ROUTINE_CATALOG AS PROCEDURE_CAT, ROUTINE_SCHEMA AS PROCEDURE_SCHEM,
 ROUTINE_NAME AS PROCEDURE_NAME, 0, 0, 0,
@@ -447,7 +447,7 @@ VALUES
 ('T176', 'Sequence generator support', '', '', 'YES', NULL, ''),
 ('T177', 'Sequence generator support: simple restart option', '', '', 'YES', NULL, ''),
 ('T178', 'Identity columns: simple restart option', '', '', 'YES', NULL, ''),
-('T180', 'System-versioned tables', '', '', 'NO', NULL, ''),
+('T180', 'System-versioned tables', '', '', 'YES', NULL, ''),
 ('T181', 'Application-time period tables', '', '', 'NO', NULL, ''),
 ('T191', 'Referential action RESTRICT', '', '', 'YES', NULL, ''),
 ('T201', 'Comparable data types for referential constraints', '', '', 'YES', NULL, ''),
@@ -502,6 +502,7 @@ VALUES
 ('T491', 'LATERAL derived table', '', '', 'YES', NULL, ''),
 ('T495', 'Combined data change and retrieval', '', '', 'NO', NULL, ''),
 ('T501', 'Enhanced EXISTS predicate', '', '', 'YES', NULL, ''),
+('T502', 'Period predicate', '', '', 'YES', NULL, ''),
 ('T511', 'Transaction counts', '', '', 'NO', NULL, ''),
 ('T521', 'Named arguments in CALL statement', '', '', 'NO', NULL, ''),
 ('T522', 'Default values for IN parameters of SQL-invoked procedures', '', '', 'NO', NULL, ''),
@@ -584,7 +585,7 @@ VALUES
 ( 23, 'CURSOR COMMIT BEHAVIOR', 2, NULL, 'INT: 0: close cursors & delete prepared stmts 1: close cursors & retain prepared stmts 2: leave cursors open & retain stmts' ),
 ( 2, 'DATA SOURCE NAME', NULL, '', 'CHAR: <connection name> on CONNECT statement' ),
 ( 17, 'DBMS NAME', NULL, 'HSQLDB', 'CHAR: Name of the implementation software' ),
-( 18, 'DBMS VERSION', NULL, '2.4.1', 'CHAR: Version of the implementation software The format is: <part1>.<part2>.<part3>[<part4>] where: <part1> ::= <digit><digit> <part2> ::= <digit><digit> <part3> ::= <digit><digit><digit><digit> <part4> ::= <character representation>' ),
+( 18, 'DBMS VERSION', NULL, '2.5.0', 'CHAR: Version of the implementation software The format is: <part1>.<part2>.<part3>[<part4>] where: <part1> ::= <digit><digit> <part2> ::= <digit><digit> <part3> ::= <digit><digit><digit><digit> <part4> ::= <character representation>' ),
 ( 26, 'DEFAULT TRANSACTION ISOLATION', 2, NULL, 'INT: 1: READ UNCOMMITTED 2: READ COMMITTED 3: REPEATABLE READ 4: SERIALIZABLE' ),
 ( 28, 'IDENTIFIER CASE', 3, NULL, 'The case in which identifiers are stored in the Definition Schema INT: 1: stored in upper case 2: stored in lower case 3: stored in mixed case - case sensitive 4: stored in mixed case - case insensitive' ),
 ( 85, 'NULL COLLATION', 1, NULL, 'INT: 0: nulls higher than non-nulls 1: nulls lower than non-nulls' ),

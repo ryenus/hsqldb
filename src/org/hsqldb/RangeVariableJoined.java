@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -339,10 +339,8 @@ public class RangeVariableJoined extends RangeVariable {
     public String describe(Session session, int blanks) {
 
         RangeVariableConditions[] conditionsArray = joinConditions;
-        StringBuffer              sb;
+        StringBuilder             sb = new StringBuilder();
         String b = ValuePool.spaceString.substring(0, blanks);
-
-        sb = new StringBuffer();
 
         String temp = "INNER";
 

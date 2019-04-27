@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,13 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.lib.OrderedHashSet;
 
+/**
+ * SQL schema object for SYSNONYM
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.4.0
+ * @since 1.9.0
+ */
 public class ReferenceObject implements SchemaObject {
 
     HsqlName name;
@@ -82,7 +89,7 @@ public class ReferenceObject implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_CREATE).append(' ').append(Tokens.T_SYNONYM);
         sb.append(' ').append(name.getSchemaQualifiedStatementName());

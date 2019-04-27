@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.rights.Grantee;
  * Implementation of CHARACTER SET objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class Charset implements SchemaObject {
@@ -206,7 +206,7 @@ public class Charset implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_CREATE).append(' ').append(
             Tokens.T_CHARACTER).append(' ').append(Tokens.T_SET).append(' ');

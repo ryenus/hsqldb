@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
@@ -52,7 +53,6 @@ import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.SimpleLog;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
@@ -70,13 +70,13 @@ import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.Type.TypedComparator;
+import org.hsqldb.types.TypedComparator;
 
 /**
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -456,11 +456,14 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_40502);
         }
 
+        getTransactionSystemTimestamp();
         database.txManager.addDeleteAction(this, table, store, row, colMap);
     }
 
     void addInsertAction(Table table, PersistentStore store, Row row,
                          int[] changedColumns) {
+
+        getTransactionSystemTimestamp();
 
 //        tempActionHistory.add("add insert to transaction " + actionTimestamp);
         database.txManager.addInsertAction(this, table, store, row,
@@ -630,7 +633,9 @@ public class Session implements SessionInterface {
 
     private void endTransaction(boolean commit, boolean chain) {
 
-        abortTransaction = false;
+        abortAction        = false;
+        abortTransaction   = false;
+        systemTimestampSet = false;
 
         sessionContext.resetStack();
         sessionContext.savepoints.clear();
@@ -971,8 +976,6 @@ public class Session implements SessionInterface {
 
         sessionContext.currentMaxRows = 0;
         isBatch                       = false;
-
-        JavaSystem.gc();
 
         switch (cmd.mode) {
 
@@ -1334,6 +1337,9 @@ public class Session implements SessionInterface {
 
             r                               = cs.execute(this);
             sessionContext.currentStatement = null;
+            abortAction                     = false;
+
+            sessionData.persistentStoreCollection.clearStatementTables();
 
             return r;
         }
@@ -1638,8 +1644,11 @@ public class Session implements SessionInterface {
     private TimestampData currentDate;
     private TimestampData currentTimestamp;
     private TimestampData localTimestamp;
-    private TimeData      currentTime;
-    private TimeData      localTime;
+    private TimestampData transactionSystemTimestamp =
+        getSystemTimestamp(false);
+    boolean          systemTimestampSet = false;
+    private TimeData currentTime;
+    private TimeData localTime;
 
     /**
      * Returns the current date, unchanged for the duration of the current
@@ -1661,8 +1670,8 @@ public class Session implements SessionInterface {
         resetCurrentTimestamp();
 
         if (currentDate == null) {
-            currentDate = (TimestampData) Type.SQL_DATE.getValue(currentMillis
-                    / 1000, 0, getZoneSeconds());
+            currentDate = (TimestampData) Type.SQL_DATE.getValue(this,
+                    currentMillis / 1000, 0, getZoneSeconds());
         }
 
         return currentDate;
@@ -1734,18 +1743,30 @@ public class Session implements SessionInterface {
 
     synchronized TimestampData getSystemTimestamp(boolean withZone) {
 
-        long     millis  = System.currentTimeMillis();
-        long     seconds = millis / 1000;
-        int      nanos   = (int) (millis % 1000) * 1000000;
-        TimeZone zone    = TimeZone.getDefault();
-        int      offset  = zone.getOffset(millis) / 1000;
+        long millis  = System.currentTimeMillis();
+        long seconds = millis / 1000;
+        int  nanos   = (int) (millis % 1000) * 1000000;
+        int  offset  = 0;
 
         if (!withZone) {
+            TimeZone zone = TimeZone.getDefault();
+
+            offset  = zone.getOffset(millis) / 1000;
             seconds += offset;
             offset  = 0;
         }
 
         return new TimestampData(seconds, nanos, offset);
+    }
+
+    TimestampData getTransactionSystemTimestamp() {
+
+        if (!systemTimestampSet) {
+            transactionSystemTimestamp = getSystemTimestamp(false);
+            systemTimestampSet         = true;
+        }
+
+        return transactionSystemTimestamp;
     }
 
     private void resetCurrentTimestamp() {
@@ -2163,13 +2184,13 @@ public class Session implements SessionInterface {
     }
 
     // services
-    TypedComparator  typedComparator = Type.newComparator(this);
+    TypedComparator  typedComparator = new TypedComparator(this);
     Scanner          secondaryScanner;
     SimpleDateFormat simpleDateFormat;
     SimpleDateFormat simpleDateFormatGMT;
     Random           randomGenerator = new Random();
     long             seed            = -1;
-    public final int randomId        = randomGenerator.nextInt();
+    public final int randomId = randomGenerator.nextInt(Integer.MAX_VALUE);
 
     //
     public TypedComparator getComparator() {
@@ -2241,7 +2262,7 @@ public class Session implements SessionInterface {
 
     String getStartTransactionSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_START).append(' ').append(Tokens.T_TRANSACTION);
 
@@ -2255,7 +2276,7 @@ public class Session implements SessionInterface {
 
     String getTransactionIsolationSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TRANSACTION);
         sb.append(' ');
@@ -2266,7 +2287,7 @@ public class Session implements SessionInterface {
 
     String getSessionIsolationSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_SESSION);
         sb.append(' ').append(Tokens.T_CHARACTERISTICS).append(' ');
@@ -2277,7 +2298,7 @@ public class Session implements SessionInterface {
         return sb.toString();
     }
 
-    static void appendIsolationSQL(StringBuffer sb, int isolationLevel) {
+    static void appendIsolationSQL(StringBuilder sb, int isolationLevel) {
 
         sb.append(Tokens.T_ISOLATION).append(' ');
         sb.append(Tokens.T_LEVEL).append(' ');
@@ -2290,7 +2311,7 @@ public class Session implements SessionInterface {
 
             case SessionInterface.TX_READ_UNCOMMITTED :
             case SessionInterface.TX_READ_COMMITTED :
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 sb.append(Tokens.T_READ).append(' ');
                 sb.append(Tokens.T_COMMITTED);
@@ -2312,7 +2333,7 @@ public class Session implements SessionInterface {
     class TimeoutManager {
 
         volatile long    actionTimestamp;
-        volatile int     currentTimeout;
+        AtomicInteger    currentTimeout = new AtomicInteger();
         volatile boolean aborted;
 
         void startTimeout(int timeout) {
@@ -2323,7 +2344,8 @@ public class Session implements SessionInterface {
                 return;
             }
 
-            currentTimeout  = timeout;
+            currentTimeout.set(timeout);
+
             actionTimestamp = Session.this.actionTimestamp;
 
             database.timeoutRunner.addSession(Session.this);
@@ -2337,31 +2359,35 @@ public class Session implements SessionInterface {
 
             boolean aborted = this.aborted;
 
-            currentTimeout = 0;
-            this.aborted   = false;
+            currentTimeout.set(0);
+
+            this.aborted = false;
 
             return aborted;
         }
 
         public boolean checkTimeout() {
 
-            if (currentTimeout == 0) {
+            if (currentTimeout.get() == 0) {
                 return true;
             }
 
             if (aborted || actionTimestamp != Session.this.actionTimestamp) {
                 actionTimestamp = 0;
-                currentTimeout  = 0;
-                aborted         = false;
+
+                currentTimeout.set(0);
+
+                aborted = false;
 
                 return true;
             }
 
-            --currentTimeout;
+            int result = currentTimeout.decrementAndGet();
 
-            if (currentTimeout <= 0) {
-                currentTimeout = 0;
-                aborted        = true;
+            if (result <= 0) {
+                currentTimeout.set(0);
+
+                aborted = true;
 
                 database.txManager.resetSession(
                     null, Session.this, TransactionManager.resetSessionAbort);

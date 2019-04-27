@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,15 +36,13 @@ import java.lang.reflect.Modifier;
 import java.sql.ParameterMetaData;
 import java.sql.SQLException;
 
-import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 
 /* $Id$ */
 
-/** @todo 1.9.0 - implement internal support for INOUT, OUT return parameter */
+/* @todo 1.9.0 - implement internal support for INOUT, OUT return parameter */
 
 // fredt@users 20040412 - removed DITypeInfo dependencies
 // fredt@users 1.9.0 - utilise the new type support
@@ -71,17 +69,8 @@ import org.hsqldb.types.Type;
  * @since JDK 1.4, HSQLDB 1.7.2
  * @revised JDK 1.6, HSQLDB 2.0
  */
-//#ifdef JAVA6
 public class JDBCParameterMetaData implements ParameterMetaData,
         java.sql.Wrapper {
-
-//#else
-/*
-public class JDBCParameterMetaData
-    implements ParameterMetaData {
-*/
-
-//#endif JAVA6
 
     /**
      * Retrieves the number of parameters in the <code>PreparedStatement</code>
@@ -280,7 +269,6 @@ public class JDBCParameterMetaData
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     @SuppressWarnings("unchecked")
     public <T>T unwrap(Class<T> iface) throws java.sql.SQLException {
 
@@ -290,8 +278,6 @@ public class JDBCParameterMetaData
 
         throw JDBCUtil.invalidArgument("iface: " + iface);
     }
-
-//#endif JAVA6
 
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
@@ -308,13 +294,11 @@ public class JDBCParameterMetaData
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public boolean isWrapperFor(
             Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
 
-//#endif JAVA6
     // -------------------------- Internal Implementation ----------------------
 
     /** The metadata object with which this object is constructed */
@@ -393,12 +377,12 @@ public class JDBCParameterMetaData
      */
     private String toStringImpl() throws Exception {
 
-        StringBuffer sb;
-        Method[]     methods;
-        Method       method;
-        int          count;
+        StringBuilder sb;
+        Method[]      methods;
+        Method        method;
+        int           count;
 
-        sb = new StringBuffer();
+        sb = new StringBuilder();
 
         sb.append(super.toString());
 

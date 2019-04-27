@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,13 +39,10 @@ import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
+import javax.sql.CommonDataSource;
 import javax.sql.ConnectionPoolDataSource;
 import javax.sql.PooledConnection;
 
-//#ifdef JAVA6
-import javax.sql.CommonDataSource;
-
-//#endif JAVA6
 import org.hsqldb.jdbc.JDBCCommonDataSource;
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCDriver;
@@ -59,13 +56,8 @@ import org.hsqldb.jdbc.JDBCDriver;
  * @since JDK 1.2, HSQLDB 2.0
  */
 public class JDBCPooledDataSource extends JDBCCommonDataSource
-implements ConnectionPoolDataSource, Serializable, Referenceable
-
-//#ifdef JAVA6
-, CommonDataSource
-
-//#endif JAVA6
-{
+implements ConnectionPoolDataSource, Serializable, Referenceable,
+           CommonDataSource {
 
     public PooledConnection getPooledConnection() throws SQLException {
 

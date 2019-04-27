@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * object retrieval.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 1.9.0
  */
 public abstract class RowSetNavigator implements RangeIterator {
@@ -80,7 +80,7 @@ public abstract class RowSetNavigator implements RangeIterator {
      */
     public abstract Object[] getCurrent();
 
-    public Object getField(int i) {
+    public Object getField(int col) {
 
         Object[] current = getCurrent();
 
@@ -88,7 +88,7 @@ public abstract class RowSetNavigator implements RangeIterator {
             return null;
         }
 
-        return current[i];
+        return current[col];
     }
 
     public void setCurrent(Object[] data) {}

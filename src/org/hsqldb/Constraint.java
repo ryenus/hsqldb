@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * by the constraint.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.6.0
  */
 public final class Constraint implements SchemaObject {
@@ -322,7 +322,7 @@ public final class Constraint implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         switch (getConstraintType()) {
 
@@ -400,7 +400,7 @@ public final class Constraint implements SchemaObject {
     /**
      * Generates the foreign key declaration for a given Constraint object.
      */
-    private void getFKStatement(StringBuffer sb) {
+    private void getFKStatement(StringBuilder sb) {
 
         if (!getName().isReservedName()) {
             sb.append(Tokens.T_CONSTRAINT).append(' ');
@@ -717,11 +717,11 @@ public final class Constraint implements SchemaObject {
      * @param session Session
      * @param oldTable reference to the old version of the table
      * @param newTable reference to the new version of the table
-     * @param colIndex index at which table column is added or removed
+     * @param colIndex indexes at which table column is added or removed
      * @param adjust -1, 0, +1 to indicate if column is added or removed
      */
     void updateTable(Session session, Table oldTable, Table newTable,
-                     int colIndex, int adjust) {
+                     int[] colIndex, int adjust) {
 
         if (oldTable == core.mainTable) {
             core.mainTable = newTable;
@@ -849,7 +849,7 @@ public final class Constraint implements SchemaObject {
                                    ErrorCode.CONSTRAINT, info);
             }
             case SchemaObject.ConstraintTypes.FOREIGN_KEY : {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 for (int i = 0; i < core.refCols.length; i++) {
                     Object o = data[core.refCols[i]];
@@ -872,7 +872,7 @@ public final class Constraint implements SchemaObject {
             }
             case SchemaObject.ConstraintTypes.PRIMARY_KEY :
             case SchemaObject.ConstraintTypes.UNIQUE : {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 for (int i = 0; i < core.mainCols.length; i++) {
                     Object o = data[core.mainCols[i]];
@@ -959,8 +959,8 @@ public final class Constraint implements SchemaObject {
 
         OrderedHashSet set = new OrderedHashSet();
 
-        check.collectAllExpressions(set, Expression.columnExpressionSet,
-                                    Expression.emptyExpressionSet);
+        check.collectAllExpressions(set, OpTypes.columnExpressionSet,
+                                    OpTypes.emptyExpressionSet);
 
         return set;
     }

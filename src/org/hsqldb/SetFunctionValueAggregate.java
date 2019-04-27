@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.types.NumberType;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.Type.TypedComparator;
+import org.hsqldb.types.TypedComparator;
 import org.hsqldb.types.Types;
 
 /**
@@ -58,7 +58,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.7.2
  *
  */
@@ -68,6 +68,7 @@ public class SetFunctionValueAggregate implements SetFunction {
     private final boolean isDistinct;
 
     //
+    private final Session   session;
     private final int       setType;
     private final int       typeCode;
     private final Type      type;
@@ -90,6 +91,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                               Type returnType, boolean isDistinct,
                               ArrayType arrayType) {
 
+        this.session    = session;
         this.setType    = setType;
         this.type       = type;
         this.returnType = returnType;
@@ -100,7 +102,7 @@ public class SetFunctionValueAggregate implements SetFunction {
             distinctValues = new HashSet();
 
             if (type.isRowType() || type.isArrayType()) {
-                TypedComparator comparator = Type.newComparator(session);
+                TypedComparator comparator = new TypedComparator(session);
                 SortAndSlice    sort       = new SortAndSlice();
                 int length = type.isRowType()
                              ? ((RowType) type).getTypesArray().length
@@ -134,9 +136,9 @@ public class SetFunctionValueAggregate implements SetFunction {
 
     public void reset() {}
 
-    public void add(Session session, Object itemLeft, Object itemRight) {}
+    public void add(Object itemLeft, Object itemRight) {}
 
-    public void add(Session session, Object item) {
+    public void add(Object item) {
 
         if (item == null) {
             hasNull = true;
@@ -173,12 +175,10 @@ public class SetFunctionValueAggregate implements SetFunction {
                             currentLong +=
                                 ((IntervalSecondData) item).getNanos();
 
-                            if (Math.abs(currentLong)
-                                    >= DTIType.nanoScaleFactors[0]) {
-                                addLong(currentLong
-                                        / DTIType.nanoScaleFactors[0]);
+                            if (currentLong > 1000000000) {
+                                addLong(currentLong / 1000000000);
 
-                                currentLong %= DTIType.nanoScaleFactors[0];
+                                currentLong %= 1000000000;
                             }
                         }
 
@@ -198,11 +198,10 @@ public class SetFunctionValueAggregate implements SetFunction {
 
                         currentLong += ((TimestampData) item).getNanos();
 
-                        if (Math.abs(currentLong)
-                                >= DTIType.nanoScaleFactors[0]) {
-                            addLong(currentLong / DTIType.nanoScaleFactors[0]);
+                        if (currentLong > 1000000000) {
+                            addLong(currentLong / 1000000000);
 
-                            currentLong %= DTIType.nanoScaleFactors[0];
+                            currentLong %= 1000000000;
                         }
 
                         currentDouble = ((TimestampData) item).getZone();
@@ -298,7 +297,7 @@ public class SetFunctionValueAggregate implements SetFunction {
         }
     }
 
-    public Object getValue(Session session) {
+    public Object getValue() {
 
         if (hasNull) {
             session.addWarning(Error.error(ErrorCode.W_01003));
@@ -373,7 +372,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                             throw Error.error(ErrorCode.X_22015);
                         }
 
-                        if (((IntervalType) type).isIntervalDaySecondType()) {
+                        if (type.isIntervalDaySecondType()) {
                             long nanos =
                                 (bi[1].longValue() * DTIType
                                     .limitNanoseconds + currentLong) / count;
@@ -434,7 +433,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                             throw Error.error(ErrorCode.X_22015);
                         }
 
-                        if (((IntervalType) type).isIntervalDaySecondType()) {
+                        if (type.isIntervalDaySecondType()) {
                             return new IntervalSecondData(bi.longValue(),
                                                           currentLong,
                                                           (IntervalType) type,
@@ -477,128 +476,6 @@ public class SetFunctionValueAggregate implements SetFunction {
         }
     }
 
-    /**
-     * During parsing and before an instance of SetFunction is created,
-     * getType is called with type parameter set to correct type when main
-     * SELECT statements contain aggregates.
-     *
-     */
-    static Type getType(Session session, int setType, Type type) {
-
-        if (setType == OpTypes.COUNT) {
-            return Type.SQL_BIGINT;
-        }
-
-        int typeCode = type.typeCode;
-
-        if (type.isIntervalYearMonthType()) {
-            typeCode = Types.SQL_INTERVAL_MONTH;
-        } else if (type.isIntervalDaySecondType()) {
-            typeCode = Types.SQL_INTERVAL_SECOND;
-        }
-
-        switch (setType) {
-
-            case OpTypes.AVG :
-            case OpTypes.MEDIAN : {
-                switch (typeCode) {
-
-                    case Types.TINYINT :
-                    case Types.SQL_SMALLINT :
-                    case Types.SQL_INTEGER :
-                    case Types.SQL_BIGINT :
-                    case Types.SQL_NUMERIC :
-                    case Types.SQL_DECIMAL :
-                        int scale = session.database.sqlAvgScale;
-
-                        if (scale <= type.scale) {
-                            return type;
-                        }
-
-                        int digits = ((NumberType) type).getDecimalPrecision();
-
-                        return NumberType.getNumberType(Types.SQL_DECIMAL,
-                                                        digits + scale, scale);
-
-                    case Types.SQL_REAL :
-                    case Types.SQL_FLOAT :
-                    case Types.SQL_DOUBLE :
-                    case Types.SQL_INTERVAL_MONTH :
-                    case Types.SQL_INTERVAL_SECOND :
-                    case Types.SQL_DATE :
-                    case Types.SQL_TIMESTAMP :
-                    case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                        return type;
-
-                    default :
-                        throw Error.error(ErrorCode.X_42563);
-                }
-            }
-            case OpTypes.SUM : {
-                switch (typeCode) {
-
-                    case Types.TINYINT :
-                    case Types.SQL_SMALLINT :
-                    case Types.SQL_INTEGER :
-                        return Type.SQL_BIGINT;
-
-                    case Types.SQL_BIGINT :
-                        return Type.SQL_DECIMAL_BIGINT_SQR;
-
-                    case Types.SQL_REAL :
-                    case Types.SQL_FLOAT :
-                    case Types.SQL_DOUBLE :
-                        return Type.SQL_DOUBLE;
-
-                    case Types.SQL_NUMERIC :
-                    case Types.SQL_DECIMAL :
-                        return Type.getType(type.typeCode, null, null,
-                                            type.precision * 2, type.scale);
-
-                    case Types.SQL_INTERVAL_MONTH :
-                    case Types.SQL_INTERVAL_SECOND :
-                        return IntervalType.newIntervalType(
-                            type.typeCode, DTIType.maxIntervalPrecision,
-                            type.scale);
-
-                    default :
-                        throw Error.error(ErrorCode.X_42563);
-                }
-            }
-            case OpTypes.MIN :
-            case OpTypes.MAX :
-                if (type.isArrayType() || type.isLobType()) {
-                    throw Error.error(ErrorCode.X_42563);
-                }
-
-                return type;
-
-            case OpTypes.EVERY :
-            case OpTypes.SOME :
-                if (type.isBooleanType()) {
-                    return Type.SQL_BOOLEAN;
-                }
-                break;
-
-            case OpTypes.STDDEV_POP :
-            case OpTypes.STDDEV_SAMP :
-            case OpTypes.VAR_POP :
-            case OpTypes.VAR_SAMP :
-                if (type.isNumberType()) {
-                    return Type.SQL_DOUBLE;
-                }
-                break;
-
-            case OpTypes.USER_AGGREGATE :
-                return type;
-
-            default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "SetFunction");
-        }
-
-        throw Error.error(ErrorCode.X_42563);
-    }
-
     // long sum - originally a separate class
 
     /**
@@ -607,12 +484,10 @@ public class SetFunctionValueAggregate implements SetFunction {
      */
     static final BigInteger multiplier =
         BigInteger.valueOf(0x0000000100000000L);
-
-//        BigInteger bigint = BigInteger.ZERO;
     long hi;
     long lo;
 
-    void addLong(long value) {
+    private void addLong(long value) {
 
         if (value == 0) {}
         else if (value > 0) {
@@ -628,8 +503,6 @@ public class SetFunctionValueAggregate implements SetFunction {
                 lo -= temp & 0x00000000ffffffffL;
             }
         }
-
-//            bigint = bigint.add(BigInteger.valueOf(value));
     }
 
     private BigInteger getLongSum() {

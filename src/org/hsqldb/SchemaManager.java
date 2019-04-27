@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * Manages all SCHEMA related database objects
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.8.0
  */
 public class SchemaManager {
@@ -217,19 +217,18 @@ public class SchemaManager {
             schemaMap.remove(name);
 
             if (defaultSchemaHsqlName.name.equals(name)) {
-                HsqlName hsqlName = database.nameManager.newHsqlName(name,
-                    false, SchemaObject.SCHEMA);
-
-                schema = new Schema(hsqlName,
+                schema = new Schema(defaultSchemaHsqlName,
                                     database.getGranteeManager().getDBARole());
                 defaultSchemaHsqlName = schema.getName();
 
                 schemaMap.put(schema.getName().name, schema);
-            }
+            } else {
+                HsqlName schemaName = schema.getName();
 
-            // these are called last and in this particular order
-            database.getUserManager().removeSchemaReference(name);
-            database.getSessionManager().removeSchemaReference(schema);
+                // these are called last and in this particular order
+                database.getUserManager().removeSchemaReference(schemaName);
+                database.getSessionManager().removeSchemaReference(schemaName);
+            }
         } finally {
             writeLock.unlock();
         }
@@ -2591,7 +2590,7 @@ public class SchemaManager {
             }
 
             if (defaultSchemaHsqlName != null) {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
 
                 sb.append(Tokens.T_SET).append(' ').append(Tokens.T_DATABASE);
                 sb.append(' ').append(Tokens.T_DEFAULT).append(' ');
@@ -2721,7 +2720,7 @@ public class SchemaManager {
         try {
             HsqlArrayList tableList = getAllTables(false);
             HsqlArrayList list      = new HsqlArrayList();
-            StringBuffer  sb        = new StringBuffer();
+            StringBuilder sb        = new StringBuilder();
 
             for (int i = 0; i < tableList.size(); i++) {
                 Table table = (Table) tableList.get(i);

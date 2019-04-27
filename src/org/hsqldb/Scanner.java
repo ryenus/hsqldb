@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Scans for SQL tokens.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class Scanner {
@@ -1232,20 +1232,7 @@ public class Scanner {
 
             return true;
         } else if (character == '/' && charAt(currentPosition + 1) == '*') {
-            int pos = sqlString.indexOf("*/", currentPosition + 2);
-
-            if (pos == -1) {
-                token.tokenString = sqlString.substring(currentPosition,
-                        currentPosition + 2);
-                token.tokenType   = Tokens.X_MALFORMED_COMMENT;
-                token.isMalformed = true;
-
-                return false;
-            }
-
-            currentPosition = pos + 2;
-
-            return true;
+            return skipBracketedComment();
         }
 
         return false;
@@ -1296,6 +1283,35 @@ public class Scanner {
             eolPosition = currentPosition;
             eolCode     = c;
         }
+    }
+
+    private static int countEndOfLines(String s) {
+
+        int eolPos    = -2;
+        int eolCode   = 0;
+        int lineCount = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            int c = s.charAt(i);
+
+            if (c == '\r' || c == '\n') {
+                if (i == eolPos + 1) {
+                    if (c == '\n' && eolCode != c) {
+
+                        //
+                    } else {
+                        lineCount++;
+                    }
+                } else {
+                    lineCount++;
+                }
+
+                eolPos  = i;
+                eolCode = c;
+            }
+        }
+
+        return lineCount;
     }
 
     void scanCharacterString() {
@@ -1617,22 +1633,7 @@ public class Scanner {
 
                     return;
                 } else if (charAt(currentPosition + 1) == '*') {
-                    int pos = sqlString.indexOf("*/", currentPosition + 2);
-
-                    if (pos == -1) {
-                        token.tokenString =
-                            sqlString.substring(currentPosition,
-                                                currentPosition + 2);
-                        token.tokenType   = Tokens.X_UNKNOWN_TOKEN;
-                        token.isDelimiter = true;
-
-                        return;
-                    }
-
-                    token.tokenString = sqlString.substring(currentPosition
-                            + 2, pos);
-                    token.tokenType   = Tokens.X_REMARK;
-                    token.isDelimiter = true;
+                    scanBracketedComment();
 
                     return;
                 }
@@ -1863,6 +1864,48 @@ public class Scanner {
         setIdentifierProperties();
     }
 
+    private boolean skipBracketedComment() {
+
+        int pos = sqlString.indexOf("*/", currentPosition + 2);
+
+        if (pos == -1) {
+            token.tokenString = sqlString.substring(currentPosition,
+                    currentPosition + 2);
+            token.tokenType   = Tokens.X_MALFORMED_COMMENT;
+            token.isMalformed = true;
+
+            return false;
+        }
+
+        String comment = sqlString.substring(currentPosition + 2, pos);
+
+        currentPosition = pos + 2;
+        lineNumber      += countEndOfLines(comment);
+
+        return true;
+    }
+
+    private boolean scanBracketedComment() {
+
+        int pos = sqlString.indexOf("*/", currentPosition + 2);
+
+        if (pos == -1) {
+            token.tokenString = sqlString.substring(currentPosition,
+                    currentPosition + 2);
+            token.tokenType   = Tokens.X_UNKNOWN_TOKEN;
+            token.isDelimiter = true;
+
+            return false;
+        }
+
+        token.tokenString = sqlString.substring(currentPosition + 2, pos);
+        token.tokenType   = Tokens.X_REMARK;
+        token.isDelimiter = true;
+        lineNumber        += countEndOfLines(token.tokenString);
+
+        return true;
+    }
+
     private void setIdentifierProperties() {
 
         if (token.tokenType == Tokens.X_IDENTIFIER) {
@@ -2050,15 +2093,15 @@ public class Scanner {
 
         if (intervalPosition == 10) {
             seconds = HsqlDateTime.getDateSeconds(s.substring(0,
-                intervalPosition));
-
+                    intervalPosition));
             dateTimeType = Type.SQL_TIMESTAMP_NO_FRACTION;
 
             return new TimestampData(seconds, fraction, (int) zoneSeconds);
         } else {
             seconds = HsqlDateTime.getTimestampSeconds(s.substring(0,
-                intervalPosition));
+                    intervalPosition));
         }
+
         int position;
 
         fraction = scanIntervalFraction(DTIType.maxFractionPrecision);
@@ -2091,6 +2134,10 @@ public class Scanner {
 
         if (hasZone) {
             seconds -= zoneSeconds;
+        }
+
+        if (seconds > DateTimeType.epochLimitSeconds) {
+            throw Error.error(ErrorCode.X_22008);
         }
 
         return new TimestampData(seconds, fraction, (int) zoneSeconds);
@@ -2138,7 +2185,7 @@ public class Scanner {
 
             if (endOfPart) {
                 if (currentPart == firstPart) {
-                    if (currentDigits != 4) {
+                    if (currentDigits < 4) {
                         throw Error.error(ErrorCode.X_22007);
                     }
                 } else {
@@ -2389,8 +2436,7 @@ public class Scanner {
         }
 
         fractionPrecision = currentDigits;
-        currentValue      *= DTIType.nanoScaleFactors[currentDigits];
-        currentValue = DTIType.normaliseFraction(currentValue,
+        currentValue = DTIType.normaliseFraction(currentValue, currentDigits,
                 decimalPrecision);
 
         return currentValue;
@@ -2590,8 +2636,8 @@ public class Scanner {
                 if (token.tokenType != Tokens.X_ENDPARSE) {
                     throw Error.error(errorCode);
                 }
+                break;
 
-            // fall through
             default :
         }
 

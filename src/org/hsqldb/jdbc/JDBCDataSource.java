@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,13 +34,8 @@ package org.hsqldb.jdbc;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
-
-//#ifdef JAVA6
 import java.sql.Wrapper;
-
-//#endif JAVA6
 import java.util.Properties;
-
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
@@ -104,18 +99,9 @@ import javax.sql.DataSource;
  * @since 1.7.2
  */
 
-//#ifdef JAVA6
 @SuppressWarnings("serial")
-
-//#endif JAVA6
 public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
-        Serializable, Referenceable
-
-//#ifdef JAVA6
-, Wrapper
-
-//#endif JAVA6
-{
+        Serializable, Referenceable, Wrapper {
 
     /**
      * Retrieves a new connection using the properties that have already been
@@ -206,7 +192,6 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
      * @throws java.sql.SQLException If no object found that implements the interface
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     @SuppressWarnings("unchecked")
     public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
 
@@ -216,8 +201,6 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
 
         throw JDBCUtil.invalidArgument("iface: " + iface);
     }
-
-//#endif JAVA6
 
     /**
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
@@ -234,13 +217,10 @@ public class JDBCDataSource extends JDBCCommonDataSource implements DataSource,
      * for an object with the given interface.
      * @since JDK 1.6, HSQLDB 2.0
      */
-//#ifdef JAVA6
     public boolean isWrapperFor(
             java.lang.Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
-
-//#endif JAVA6
 
     /**
      * Retrieves the Reference of this object.

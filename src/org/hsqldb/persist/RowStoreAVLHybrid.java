@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,16 +54,16 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
-public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
+public class RowStoreAVLHybrid extends RowStoreAVL {
 
-    DataFileCache   cache;
-    private int     maxMemoryRowCount;
-    private boolean useDisk;
-    boolean         isCached;
-    int             rowIdSequence = 0;
+    DataFileCache     cache;
+    private final int maxMemoryRowCount;
+    private boolean   useDisk;
+    boolean           isCached;
+    long              rowIdSequence = 0;
 
     public RowStoreAVLHybrid(Session session, TableBase table,
                              boolean diskBased) {
@@ -203,7 +203,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         if (isCached) {
             row = new RowAVLDisk(table, (Object[]) object, this);
         } else {
-            int id = rowIdSequence++;
+            long id = rowIdSequence++;
 
             row = new RowAVL(table, (Object[]) object, id, this);
         }
@@ -219,8 +219,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             row = (Row) get(row, true);
 
             super.indexRow(session, row);
-        } catch (HsqlException e) {
-            throw e;
         } finally {
             row.keepInMemory(false);
         }
@@ -253,7 +251,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void commitPersistence(CachedObject row) {}
 
-    public void postCommitAction(Session session, RowAction action) {}
+    public void postCommitAction(Session session, RowAction rowAction) {}
 
     public void commitRow(Session session, Row row, int changeAction,
                           int txModel) {
@@ -315,15 +313,13 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void release() {
 
-        if (!isCached) {
-            destroy();
-        }
-
         if (isCached) {
             cache.adjustStoreCount(-1);
 
             cache    = null;
             isCached = false;
+        } else {
+            destroy();
         }
 
         elementCount.set(0);
@@ -339,7 +335,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             return null;
         }
 
-        RowAVL oldRow = (RowAVL) node.getRow(this);
+        RowAVL oldRow = node.getRow(this);
         RowAVL row    = (RowAVL) get(oldRow, false);
 
         node                            = row.getNode(key.getPosition());
@@ -373,9 +369,10 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         cache =
             session.sessionData.persistentStoreCollection
                 .getSessionDataCache();
-        maxMemoryRowCount = Integer.MAX_VALUE;
 
         if (cache == null) {
+            useDisk = false;
+
             return;
         }
 

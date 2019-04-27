@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 
 package org.hsqldb.lib;
 
-import java.io.IOException;
 import java.io.LineNumberReader;
 
 import org.hsqldb.map.ValuePool;
@@ -213,7 +212,7 @@ public class LineGroupReader {
 
     public static String convertToString(HsqlArrayList list, int offset) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = offset; i < list.size(); i++) {
             sb.append(list.get(i)).append(LS);

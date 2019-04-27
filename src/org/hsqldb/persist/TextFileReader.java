@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,11 +42,11 @@ import org.hsqldb.rowio.RowInputInterface;
 */
 public interface TextFileReader {
 
-    public String getHeaderLine();
+    String getHeaderLine();
 
-    public long getLineNumber();
+    long getLineNumber();
 
-    public void readHeaderLine();
+    void readHeaderLine();
 
-    public RowInputInterface readObject();
+    RowInputInterface readObject();
 }

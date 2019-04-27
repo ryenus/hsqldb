@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ package org.hsqldb.lib;
  * containing a matching key, or  or -1 if not found.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 2.3.3
  */
 public class IntIndex {
@@ -46,7 +46,6 @@ public class IntIndex {
     private int           count = 0;
     private int           capacity;
     private boolean       sorted       = true;
-    private boolean       sortOnValues = true;
     private final boolean fixedSize;
     private int[]         keys;
 
@@ -56,7 +55,7 @@ public class IntIndex {
     public IntIndex(int capacity, boolean fixedSize) {
 
         this.capacity  = capacity;
-        keys           = new int[capacity];
+        this.keys      = new int[capacity];
         this.fixedSize = fixedSize;
     }
 
@@ -80,9 +79,7 @@ public class IntIndex {
             throw new IndexOutOfBoundsException();
         }
 
-        if (!sortOnValues) {
-            sorted = false;
-        }
+        sorted = false;
 
         keys[i] = key;
     }

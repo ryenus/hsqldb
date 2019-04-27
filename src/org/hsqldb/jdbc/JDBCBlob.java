@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
-
-//#ifdef JAVA6
 import java.sql.SQLFeatureNotSupportedException;
-//#endif JAVA6
 
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.KMPSearchAlgorithm;
@@ -375,7 +372,8 @@ public class JDBCBlob implements Blob {
      * @since JDK 1.4, HSQLDB 1.7.2
      */
     public int setBytes(long pos, byte[] bytes) throws SQLException {
-        return setBytes(pos, bytes, 0, bytes == null ? 0 : bytes.length);
+        return setBytes(pos, bytes, 0, bytes == null ? 0
+                                                     : bytes.length);
     }
 
     /**
@@ -473,8 +471,8 @@ public class JDBCBlob implements Blob {
         }
 
         final int index = (int) (pos - MIN_POS);
-        byte[]    data = getData();
-        final int dlen = data.length;
+        byte[]    data  = getData();
+        final int dlen  = data.length;
 
         if (index > dlen - len) {
             byte[] temp = new byte[index + len];
@@ -486,7 +484,6 @@ public class JDBCBlob implements Blob {
         }
 
         System.arraycopy(bytes, offset, data, index, len);
-
         setData(data);
 
         return len;
@@ -572,17 +569,23 @@ public class JDBCBlob implements Blob {
         checkClosed();
 
         return new java.io.ByteArrayOutputStream() {
+
             private boolean closed;
 
             public synchronized void close() throws java.io.IOException {
+
                 if (closed) {
                     return;
                 }
+
                 closed = true;
-                byte[] bytes = super.buf;
-                int length = super.count;
-                super.buf = NO_BYTES;
+
+                byte[] bytes  = super.buf;
+                int    length = super.count;
+
+                super.buf   = NO_BYTES;
                 super.count = 0;
+
                 try {
                     JDBCBlob.this.setBytes(pos, bytes, 0, length);
                 } catch (SQLException se) {
@@ -646,7 +649,6 @@ public class JDBCBlob implements Blob {
         byte[] newData = new byte[(int) len];
 
         System.arraycopy(data, 0, newData, 0, (int) len);
-
         setData(newData);
     }
 
@@ -710,8 +712,8 @@ public class JDBCBlob implements Blob {
             return new ByteArrayInputStream(data);
         }
 
-        final int ilength = (int) length;
-        final byte[] result = new byte[ilength];
+        final int    ilength = (int) length;
+        final byte[] result  = new byte[ilength];
 
         System.arraycopy(data, index, result, 0, ilength);
 
@@ -719,12 +721,12 @@ public class JDBCBlob implements Blob {
     }
 
     // ---------------------- internal implementation --------------------------
-    public static final long MIN_POS = 1L;
-    public static final long MAX_POS = MIN_POS + (long) Integer.MAX_VALUE;
+    private static final long   MIN_POS  = 1L;
+    private static final long   MAX_POS  = MIN_POS + (long) Integer.MAX_VALUE;
     private static final byte[] NO_BYTES = new byte[0];
-    private boolean          m_closed;
-    private byte[]           m_data;
-    private final boolean    m_createdByConnection;
+    private boolean             m_closed;
+    private byte[]              m_data;
+    private final boolean       m_createdByConnection;
 
     /**
      * Constructs a new JDBCBlob instance wrapping the given octet sequence. <p>
@@ -744,6 +746,7 @@ public class JDBCBlob implements Blob {
         if (data == null) {
             throw JDBCUtil.nullArgument("data");
         }
+
         m_data                = data;
         m_createdByConnection = false;
     }
@@ -754,8 +757,10 @@ public class JDBCBlob implements Blob {
     }
 
     protected void checkReadonly() throws SQLException {
+
         if (!m_createdByConnection) {
-            throw JDBCUtil.sqlException(ErrorCode.X_25006, "Blob is read-only");
+            throw JDBCUtil.sqlException(ErrorCode.X_25006,
+                                        "Blob is read-only");
         }
     }
 

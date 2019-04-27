@@ -121,40 +121,48 @@ public class ScriptWriterEncode extends ScriptWriterText {
     /**
      * Always use before a final flush()
      */
-    protected void finishStream() throws IOException {
+    protected void finishStream() {
 
-        if (fileStreamOut instanceof GZIPOutputStream) {
-            ((GZIPOutputStream) fileStreamOut).finish();
+        try {
+            if (fileStreamOut instanceof GZIPOutputStream) {
+                ((GZIPOutputStream) fileStreamOut).finish();
+            }
+        } catch (IOException io) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR, io);
         }
     }
 
-    void writeRowOutToFile() throws IOException {
+    void writeRowOutToFile() {
 
         synchronized (fileStreamOut) {
-            if (byteOut == null) {
-                fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
+            try {
+                if (byteOut == null) {
+                    fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
+
+                    byteCount += rowOut.size();
+
+                    lineCount++;
+
+                    return;
+                }
+
+                int count = crypto.getEncodedSize(rowOut.size());
+
+                byteOut.ensureRoom(count + 4);
+
+                count = crypto.encode(rowOut.getBuffer(), 0, rowOut.size(),
+                                      byteOut.getBuffer(), 4);
+
+                byteOut.setPosition(0);
+                byteOut.writeInt(count);
+                fileStreamOut.write(byteOut.getBuffer(), 0, count + 4);
 
                 byteCount += rowOut.size();
 
                 lineCount++;
-
-                return;
+            } catch (IOException io) {
+                throw Error.error(ErrorCode.FILE_IO_ERROR, io);
             }
-
-            int count = crypto.getEncodedSize(rowOut.size());
-
-            byteOut.ensureRoom(count + 4);
-
-            count = crypto.encode(rowOut.getBuffer(), 0, rowOut.size(),
-                                  byteOut.getBuffer(), 4);
-
-            byteOut.setPosition(0);
-            byteOut.writeInt(count);
-            fileStreamOut.write(byteOut.getBuffer(), 0, count + 4);
-
-            byteCount += rowOut.size();
-
-            lineCount++;
         }
     }
 }

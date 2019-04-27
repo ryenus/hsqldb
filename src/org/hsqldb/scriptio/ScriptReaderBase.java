@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,36 +36,32 @@ import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.persist.RowInsertInterface;
 
 /**
  * Base class for all script readers.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.5.0
  * @since 1.7.2
  */
 public abstract class ScriptReaderBase {
 
-    public static final int ANY_STATEMENT             = 1;
-    public static final int DELETE_STATEMENT          = 2;
-    public static final int INSERT_STATEMENT          = 3;
-    public static final int COMMIT_STATEMENT          = 4;
-    public static final int SESSION_ID                = 5;
-    public static final int SET_SCHEMA_STATEMENT      = 6;
-    public static final int SET_FILES_CHECK_STATEMENT = 7;
-    Database                database;
-    String                  fileNamePath;
-    long                    lineCount;
+    Database           database;
+    String             fileNamePath;
+    long               lineCount;
+    RowInsertInterface inserter;
 
     ScriptReaderBase(Database db, String fileName) {
         this.database     = db;
         this.fileNamePath = fileName;
     }
 
-    public void readAll(Session session) {
-        readDDL(session);
-        readExistingData(session);
+    public void setInserter(RowInsertInterface inserter) {
+        this.inserter = inserter;
     }
+
+    public abstract void readAll(Session session);
 
     protected abstract void readDDL(Session session);
 
@@ -73,18 +69,18 @@ public abstract class ScriptReaderBase {
 
     public abstract boolean readLoggedStatement(Session session);
 
-    int              statementType;
-    int              sessionNumber;
-    boolean          sessionChanged;
-    Object[]         rowData;
-    long             sequenceValue;
-    String           rawStatement;
-    String           statement;
-    Table            currentTable;
-    PersistentStore  currentStore;
-    NumberSequence   currentSequence;
-    String           currentSchema;
-    ScriptWriterText scrwriter;
+    int                            statementType;
+    int                            sessionNumber;
+    boolean                        sessionChanged;
+    Object[]                       rowData;
+    long                           sequenceValue;
+    String                         rawStatement;
+    String                         statement;
+    Table                          currentTable;
+    PersistentStore                currentStore;
+    NumberSequence                 currentSequence;
+    String                         currentSchema;
+    RowInsertInterface.ErrorLogger errorLogger;
 
     public String getFileNamePath() {
         return fileNamePath;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.Principal;
-import java.security.PublicKey;
-
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLServerSocket;
@@ -45,7 +45,6 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import javax.security.cert.X509Certificate;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -57,7 +56,7 @@ import org.hsqldb.lib.StringConverter;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.3.1
+ * @version 2.5.0
  * @since 1.7.2
  */
 public final class HsqlSocketFactorySecure extends HsqlSocketFactory
@@ -334,18 +333,26 @@ implements HandshakeCompletedListener {
      */
     protected void verify(String host, SSLSession session) throws Exception {
 
-        X509Certificate[] chain;
-        X509Certificate   certificate;
-        Principal         principal;
-        PublicKey         publicKey;
-        String            DN;
-        String            CN;
-        int               start;
-        int               end;
-        String            emsg;
+        Certificate[]   chain;
+        X509Certificate certificate;
+        Principal       principal;
+        String          DN;
+        String          CN;
+        int             start;
+        int             end;
 
-        chain       = session.getPeerCertificateChain();
-        certificate = chain[0];
+        chain = session.getPeerCertificates();
+        if (chain == null || chain.length == 0) {
+            throw new UnknownHostException(
+                Error.getMessage(ErrorCode.M_SERVER_SECURE_VERIFY_1));
+        }
+
+        if (!(chain[0] instanceof X509Certificate)) {
+            throw new UnknownHostException(
+                Error.getMessage(ErrorCode.M_SERVER_SECURE_VERIFY_1));
+        }
+
+        certificate = (X509Certificate) chain[0];
         principal   = certificate.getSubjectDN();
         DN          = String.valueOf(principal);
         start       = DN.indexOf("CN=");

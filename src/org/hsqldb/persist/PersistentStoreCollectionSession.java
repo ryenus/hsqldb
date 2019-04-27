@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.lib.LongKeyHashMap;
  * TableBase.getPersistenceId().
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class PersistentStoreCollectionSession
@@ -309,7 +309,7 @@ implements PersistentStoreCollection {
     }
 
     synchronized public void moveData(Table oldTable, Table newTable,
-                                      int colIndex, int adjust) {
+                                      int[] colIndex, int adjust) {
 
         PersistentStore store = findStore(oldTable);
 

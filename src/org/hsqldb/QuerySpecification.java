@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -410,7 +410,7 @@ public class QuerySpecification extends QueryExpression {
         setResultColumnTypes();
         createResultMetaData(session);
         createTable(session);
-        mergeQuery();
+        mergeQuery(session);
 
         isPartTwoResolved = true;
     }
@@ -495,8 +495,8 @@ public class QuerySpecification extends QueryExpression {
                 }
 
                 list = exprColumns[i].collectAllExpressions(null,
-                        Expression.sequenceExpressionSet,
-                        Expression.subqueryAggregateExpressionSet);
+                        OpTypes.sequenceExpressionSet,
+                        OpTypes.subqueryAggregateExpressionSet);
 
                 if (list != null) {
                     isOrderSensitive = true;
@@ -552,7 +552,7 @@ public class QuerySpecification extends QueryExpression {
             if (isAggregated || isGrouped) {
                 boolean check = e.getLeftNode().isComposedOf(exprColumns, 0,
                     indexLimitVisible + groupByColumnCount,
-                    Expression.aggregateFunctionSet);
+                    OpTypes.aggregateFunctionSet);
 
                 if (!check) {
                     throw Error.error(ErrorCode.X_42576);
@@ -1032,7 +1032,7 @@ public class QuerySpecification extends QueryExpression {
         rangeVariables = rangeResolver.rangeVariables;
 
         if (rangeVariables.length > 1) {
-            isMergeable     = false;
+            isMergeable = false;
         }
     }
 
@@ -1110,7 +1110,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         if (!range.hasAnyIndexCondition()) {
-            Index index = range.rangeTable.getIndexForColumns(colMap);
+            Index index = range.rangeTable.getIndexForAllColumns(colMap);
 
             if (index != null) {
                 range.setSortIndex(index, false);
@@ -1184,6 +1184,8 @@ public class QuerySpecification extends QueryExpression {
                             }
                         }
                     }
+
+                    break;
                 }
                 default :
             }
@@ -1236,8 +1238,8 @@ public class QuerySpecification extends QueryExpression {
             for (int i = indexLimitVisible;
                     i < indexLimitVisible + groupByColumnCount; i++) {
                 exprColumns[i].collectAllExpressions(
-                    tempSet, Expression.aggregateFunctionSet,
-                    Expression.subqueryExpressionSet);
+                    tempSet, OpTypes.aggregateFunctionSet,
+                    OpTypes.subqueryExpressionSet);
 
                 if (!tempSet.isEmpty()) {
                     throw Error.error(ErrorCode.X_42572,
@@ -1249,7 +1251,7 @@ public class QuerySpecification extends QueryExpression {
                 if (!exprColumns[i].isComposedOf(
                         exprColumns, indexLimitVisible,
                         indexLimitVisible + groupByColumnCount,
-                        Expression.aggregateFunctionSet)) {
+                        OpTypes.aggregateFunctionSet)) {
                     tempSet.add(exprColumns[i]);
                 }
             }
@@ -1267,8 +1269,8 @@ public class QuerySpecification extends QueryExpression {
         } else if (isAggregated) {
             for (int i = 0; i < indexLimitVisible; i++) {
                 exprColumns[i].collectAllExpressions(
-                    tempSet, Expression.columnExpressionSet,
-                    Expression.aggregateFunctionSet);
+                    tempSet, OpTypes.columnExpressionSet,
+                    OpTypes.aggregateFunctionSet);
 
                 for (int j = 0; j < tempSet.size(); j++) {
                     Expression e = (Expression) tempSet.get(j);
@@ -1302,7 +1304,7 @@ public class QuerySpecification extends QueryExpression {
 
             if (!havingCondition.isComposedOf(
                     tempSet, outerRanges,
-                    Expression.subqueryAggregateExpressionSet)) {
+                    OpTypes.subqueryAggregateExpressionSet)) {
                 throw Error.error(ErrorCode.X_42573);
             }
 
@@ -1320,7 +1322,7 @@ public class QuerySpecification extends QueryExpression {
                 }
 
                 if (!e.isComposedOf(exprColumns, 0, indexLimitVisible,
-                                    Expression.emptyExpressionSet)) {
+                                    OpTypes.emptyExpressionSet)) {
                     throw Error.error(ErrorCode.X_42576);
                 }
             }
@@ -1340,7 +1342,7 @@ public class QuerySpecification extends QueryExpression {
                         && !e.isComposedOf(
                             exprColumns, 0,
                             indexLimitVisible + groupByColumnCount,
-                            Expression.emptyExpressionSet)) {
+                            OpTypes.emptyExpressionSet)) {
                     throw Error.error(ErrorCode.X_42576);
                 }
             }
@@ -1930,8 +1932,8 @@ public class QuerySpecification extends QueryExpression {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
-        int          limit;
+        StringBuilder sb = new StringBuilder();
+        int           limit;
 
         sb.append(Tokens.T_SELECT).append(' ');
 
@@ -2015,15 +2017,15 @@ public class QuerySpecification extends QueryExpression {
 
     public String describe(Session session, int blanks) {
 
-        StringBuffer sb;
-        String       temp;
-        StringBuffer b = new StringBuffer(blanks);
+        StringBuilder sb;
+        String        temp;
+        StringBuilder b = new StringBuilder(blanks);
 
         for (int i = 0; i < blanks; i++) {
             b.append(' ');
         }
 
-        sb = new StringBuffer();
+        sb = new StringBuilder();
 
         sb.append(b).append("isDistinctSelect=[").append(
             isDistinctSelect).append("]\n");
@@ -2043,7 +2045,7 @@ public class QuerySpecification extends QueryExpression {
 
             temp = exprColumns[index].describe(session, 2);
 
-            sb.append(temp.substring(0, temp.length() - 1));
+            sb.append(temp, 0, temp.length() - 1);
 
             if (resultMetaData.columns[i].getNullability()
                     == SchemaObject.Nullability.NO_NULLS) {
@@ -2139,7 +2141,8 @@ public class QuerySpecification extends QueryExpression {
         }
 
         if (isGrouped || isDistinctSelect) {
-            isMergeable = false;
+            isBaseMergeable = false;
+            isMergeable     = false;
         }
 
         if (rangeVariables.length != 1) {
@@ -2309,7 +2312,7 @@ public class QuerySpecification extends QueryExpression {
      * isMergeable is a flag to allow this to act as base for a query
      *
      */
-    void mergeQuery() {
+    void mergeQuery(Session session) {
 
         RangeVariable   rangeVar            = rangeVariables[0];
         Table           table               = rangeVar.getTable();
@@ -2328,14 +2331,14 @@ public class QuerySpecification extends QueryExpression {
             for (int i = 0; i < indexLimitExpressions; i++) {
                 Expression e = exprColumns[i];
 
-                exprColumns[i] = e.replaceColumnReferences(rangeVar,
+                exprColumns[i] = e.replaceColumnReferences(session, rangeVar,
                         baseSelect.exprColumns);
             }
 
             if (localQueryCondition != null) {
                 localQueryCondition =
-                    localQueryCondition.replaceColumnReferences(rangeVar,
-                        baseSelect.exprColumns);
+                    localQueryCondition.replaceColumnReferences(session,
+                        rangeVar, baseSelect.exprColumns);
             }
 
             Expression baseQueryCondition = baseSelect.queryCondition;
@@ -2371,9 +2374,8 @@ public class QuerySpecification extends QueryExpression {
     static void collectSubQueriesAndReferences(OrderedHashSet set,
             Expression expression) {
 
-        expression.collectAllExpressions(set,
-                                         Expression.subqueryExpressionSet,
-                                         Expression.emptyExpressionSet);
+        expression.collectAllExpressions(set, OpTypes.subqueryExpressionSet,
+                                         OpTypes.emptyExpressionSet);
 
         int size = set.size();
 
@@ -2416,8 +2418,8 @@ public class QuerySpecification extends QueryExpression {
     public OrderedHashSet collectOuterColumnExpressions(OrderedHashSet set,
             OrderedHashSet exclude) {
 
-        set = collectAllExpressions(set, Expression.columnExpressionSet,
-                                    Expression.subqueryAggregateExpressionSet);
+        set = collectAllExpressions(set, OpTypes.columnExpressionSet,
+                                    OpTypes.subqueryAggregateExpressionSet);
 
         if (set == null) {
             return null;
@@ -2489,26 +2491,26 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    public void replaceColumnReferences(RangeVariable range,
+    public void replaceColumnReferences(Session session, RangeVariable range,
                                         Expression[] list) {
 
         for (int i = 0; i < indexStartAggregates; i++) {
-            exprColumns[i] = exprColumns[i].replaceColumnReferences(range,
-                    list);
+            exprColumns[i] = exprColumns[i].replaceColumnReferences(session,
+                    range, list);
         }
 
         if (queryCondition != null) {
-            queryCondition = queryCondition.replaceColumnReferences(range,
-                    list);
+            queryCondition = queryCondition.replaceColumnReferences(session,
+                    range, list);
         }
 
         if (havingCondition != null) {
-            havingCondition = havingCondition.replaceColumnReferences(range,
-                    list);
+            havingCondition = havingCondition.replaceColumnReferences(session,
+                    range, list);
         }
 
         for (int i = 0, len = rangeVariables.length; i < len; i++) {
-            rangeVariables[i].replaceColumnReferences(range, list);
+            rangeVariables[i].replaceColumnReferences(session, range, list);
         }
     }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,15 +38,10 @@ import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.util.Properties;
 
-//#ifdef JAVA6
 import java.sql.SQLFeatureNotSupportedException;
 
-//#endif JAVA6
-
 //#ifdef JAVA8
-/*
 import java.sql.DriverAction;
-*/
 
 //#endif JAVA8
 
@@ -221,7 +216,7 @@ public class JDBCDriver implements Driver {
 
         if (url.regionMatches(true, 0, DatabaseURL.S_URL_INTERNAL, 0,
                               DatabaseURL.S_URL_INTERNAL.length())) {
-            JDBCConnection conn = (JDBCConnection) threadConnection.get();
+            JDBCConnection conn = threadConnection.get();
 
             if (conn == null) {
                 return null;
@@ -245,10 +240,7 @@ public class JDBCDriver implements Driver {
      *      connection to the URL
      */
 
-//#ifdef JAVA6
     @SuppressWarnings("deprecation")
-
-//#endif JAVA6
     public static Connection getConnection(String url,
             Properties info) throws SQLException {
 
@@ -507,19 +499,26 @@ public class JDBCDriver implements Driver {
      * @throws SQLFeatureNotSupportedException if the driver does not use <code>java.util.logging</code>.
      * @since JDK 1.7 M11 2010/09/10 (b123), HSQLDB 2.0.1
      */
-//#ifdef JAVA6
     public java.util.logging
             .Logger getParentLogger() throws java.sql
                 .SQLFeatureNotSupportedException {
         throw (java.sql.SQLFeatureNotSupportedException) JDBCUtil.notSupported();
     }
 
-//#endif
     public static final JDBCDriver driverInstance = new JDBCDriver();
 
     static {
         try {
+
+//#ifdef JAVA8
+            DriverManager.registerDriver(driverInstance, new EmptyDiverAction());
+//#else
+/*
             DriverManager.registerDriver(driverInstance);
+*/
+
+//#endif JAVA8
+
         } catch (Exception e) {
         }
     }
@@ -532,14 +531,17 @@ public class JDBCDriver implements Driver {
      *
      */
 
-//#ifdef JAVA6
     public final ThreadLocal<JDBCConnection> threadConnection =
         new ThreadLocal<JDBCConnection>();
 
-//#else
-/*
-    public final ThreadLocal threadConnection = new ThreadLocal();
-*/
+    //------------------------- JDBC 4.2 -----------------------------------
 
-//#endif JAVA6
+//#ifdef JAVA8
+
+    private static class EmptyDiverAction implements java.sql.DriverAction {
+        public void deregister() {}
+
+    }
+//#endif JAVA8
+
 }

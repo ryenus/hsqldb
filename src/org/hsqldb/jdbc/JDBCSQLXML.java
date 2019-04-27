@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,8 +58,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import javax.xml.bind.util.JAXBResult;
-import javax.xml.bind.util.JAXBSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -1462,15 +1460,7 @@ public class JDBCSQLXML implements SQLXML {
     protected <T extends Source>T getSourceImpl(
             Class<T> sourceClass) throws SQLException {
 
-        if (JAXBSource.class.isAssignableFrom(sourceClass)) {
-
-            // Must go first presently, since JAXBSource extends SAXSource
-            // (purely as an implementation detail) and it's not possible
-            // to instantiate a valid JAXBSource with a Zero-Args
-            // constructor(or any subclass thereof, due to the finality of
-            // its private marshaller and context object attributes)
-            // FALL THROUGH... will throw an exception
-        } else if (StreamSource.class.isAssignableFrom(sourceClass)) {
+        if (StreamSource.class.isAssignableFrom(sourceClass)) {
             return createStreamSource(sourceClass);
         } else if ((sourceClass == null)
                    || DOMSource.class.isAssignableFrom(sourceClass)) {
@@ -1498,11 +1488,13 @@ public class JDBCSQLXML implements SQLXML {
     protected <T extends Source>T createStreamSource(
             Class<T> sourceClass) throws SQLException {
 
-        StreamSource source = null;
+        StreamSource source;
 
         try {
-            source = (sourceClass == null) ? new StreamSource()
-                    : (StreamSource) sourceClass.newInstance();
+            if (sourceClass == null) source = new StreamSource();
+            else {
+                source = (StreamSource) sourceClass.getDeclaredConstructor().newInstance();
+            }
         } catch (SecurityException ex) {
             throw Exceptions.sourceInstantiation(ex);
         } catch (InstantiationException ex) {
@@ -1510,6 +1502,10 @@ public class JDBCSQLXML implements SQLXML {
         } catch (IllegalAccessException ex) {
             throw Exceptions.sourceInstantiation(ex);
         } catch (ClassCastException ex) {
+            throw Exceptions.sourceInstantiation(ex);
+        } catch (NoSuchMethodException ex) {
+            throw Exceptions.sourceInstantiation(ex);
+        } catch (InvocationTargetException ex) {
             throw Exceptions.sourceInstantiation(ex);
         }
 
@@ -1534,11 +1530,13 @@ public class JDBCSQLXML implements SQLXML {
     protected <T extends Source>T createDOMSource(
             Class<T> sourceClass) throws SQLException {
 
-        DOMSource source = null;
+        DOMSource source;
 
         try {
-            source = (sourceClass == null) ? new DOMSource()
-                    : (DOMSource) sourceClass.newInstance();
+            if (sourceClass == null) source = new DOMSource();
+            else {
+                source = (DOMSource) sourceClass.getDeclaredConstructor().newInstance();
+            }
         } catch (SecurityException ex) {
             throw Exceptions.sourceInstantiation(ex);
         } catch (IllegalAccessException ex) {
@@ -1546,6 +1544,10 @@ public class JDBCSQLXML implements SQLXML {
         } catch (InstantiationException ex) {
             throw Exceptions.sourceInstantiation(ex);
         } catch (ClassCastException ex) {
+            throw Exceptions.sourceInstantiation(ex);
+        } catch (NoSuchMethodException ex) {
+            throw Exceptions.sourceInstantiation(ex);
+        } catch (InvocationTargetException ex) {
             throw Exceptions.sourceInstantiation(ex);
         }
 
@@ -1581,11 +1583,13 @@ public class JDBCSQLXML implements SQLXML {
     protected <T extends Source>T createSAXSource(
             Class<T> sourceClass) throws SQLException {
 
-        SAXSource source = null;
+        SAXSource source;
 
         try {
-            source = (sourceClass == null) ? new SAXSource()
-                    : (SAXSource) sourceClass.newInstance();
+            if (sourceClass == null) source = new SAXSource();
+            else {
+                source = (SAXSource) sourceClass.getDeclaredConstructor().newInstance();
+            }
         } catch (SecurityException ex) {
             throw Exceptions.sourceInstantiation(ex);
         } catch (InstantiationException ex) {
@@ -1593,6 +1597,10 @@ public class JDBCSQLXML implements SQLXML {
         } catch (IllegalAccessException ex) {
             throw Exceptions.sourceInstantiation(ex);
         } catch (ClassCastException ex) {
+            throw Exceptions.sourceInstantiation(ex);
+        } catch (NoSuchMethodException ex) {
+            throw Exceptions.sourceInstantiation(ex);
+        } catch (InvocationTargetException ex) {
             throw Exceptions.sourceInstantiation(ex);
         }
 
@@ -1683,15 +1691,7 @@ public class JDBCSQLXML implements SQLXML {
         setWritable(false);
         setReadable(true);
 
-        if (JAXBResult.class.isAssignableFrom(resultClass)) {
-
-            // Must go first presently, since JAXBResult extends SAXResult
-            // (purely as an implementation detail) and it's not possible
-            // to instantiate a valid JAXBResult with a Zero-Args
-            // constructor(or any subclass thereof, due to the finality of
-            // its private UnmarshallerHandler)
-            // FALL THROUGH... will throw an exception
-        } else if ((resultClass == null)
+        if ((resultClass == null)
                    || StreamResult.class.isAssignableFrom(resultClass)) {
             return createStreamResult(resultClass);
         } else if (DOMResult.class.isAssignableFrom(resultClass)) {
@@ -1719,11 +1719,13 @@ public class JDBCSQLXML implements SQLXML {
     protected <T extends Result>T createStreamResult(
             Class<T> resultClass) throws SQLException {
 
-        StreamResult result = null;
+        StreamResult result;
 
         try {
-            result = (resultClass == null) ? new StreamResult()
-                    : (StreamResult) resultClass.newInstance();
+            if (resultClass == null) result = new StreamResult();
+            else {
+                result = (StreamResult) resultClass.getDeclaredConstructor().newInstance();
+            }
         } catch (SecurityException ex) {
             throw Exceptions.resultInstantiation(ex);
         } catch (InstantiationException ex) {
@@ -1732,6 +1734,10 @@ public class JDBCSQLXML implements SQLXML {
             throw Exceptions.resultInstantiation(ex);
         } catch (ClassCastException ex) {
             throw Exceptions.resultInstantiation(ex);
+        } catch (NoSuchMethodException ex) {
+            throw Exceptions.sourceInstantiation(ex);
+        } catch (InvocationTargetException ex) {
+            throw Exceptions.sourceInstantiation(ex);
         }
 
         OutputStream stream = setBinaryStreamImpl();
@@ -1755,8 +1761,11 @@ public class JDBCSQLXML implements SQLXML {
             Class<T> resultClass) throws SQLException {
 
         try {
-            T result = (resultClass == null) ? ((T) new DOMResult())
-                    : resultClass.newInstance();
+            T result;
+            if (resultClass == null) result = (T) new DOMResult();
+            else {
+                result = resultClass.getDeclaredConstructor().newInstance();
+            }
 
             this.domResult = (DOMResult) result;
 
@@ -1769,6 +1778,10 @@ public class JDBCSQLXML implements SQLXML {
             throw Exceptions.resultInstantiation(ex);
         } catch (ClassCastException ex) {
             throw Exceptions.resultInstantiation(ex);
+        } catch (NoSuchMethodException ex) {
+            throw Exceptions.sourceInstantiation(ex);
+        } catch (InvocationTargetException ex) {
+            throw Exceptions.sourceInstantiation(ex);
         }
     }
 
@@ -1788,8 +1801,10 @@ public class JDBCSQLXML implements SQLXML {
         SAXResult result = null;
 
         try {
-            result = (resultClass == null) ? new SAXResult()
-                    : (SAXResult) resultClass.newInstance();
+            if (resultClass == null) result = new SAXResult();
+            else {
+                result = (SAXResult) resultClass.getDeclaredConstructor().newInstance();
+            }
         } catch (SecurityException ex) {
             throw Exceptions.resultInstantiation(ex);
         } catch (InstantiationException ex) {
@@ -1798,6 +1813,10 @@ public class JDBCSQLXML implements SQLXML {
             throw Exceptions.resultInstantiation(ex);
         } catch (ClassCastException ex) {
             throw Exceptions.resultInstantiation(ex);
+        } catch (NoSuchMethodException ex) {
+            throw Exceptions.sourceInstantiation(ex);
+        } catch (InvocationTargetException ex) {
+            throw Exceptions.sourceInstantiation(ex);
         }
 
         SAX2DOMBuilder handler = null;
@@ -2520,7 +2539,7 @@ public class JDBCSQLXML implements SQLXML {
 
         /**
          * Retrieves whether this DOMBuilder is closed.
-         * 
+         *
          * @return boolean
          */
         public boolean isClosed() {
@@ -2541,7 +2560,7 @@ public class JDBCSQLXML implements SQLXML {
 
         /**
          * Retrieves the document.
-         * 
+         *
          * @return Document
          */
         public Document getDocument() {

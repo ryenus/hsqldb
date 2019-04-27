@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,6 @@ import org.hsqldb.types.Type;
  * @version 2.3.2
  * @since 1.9.0
  */
-
 public class Token {
 
     String  tokenString = "";
@@ -147,8 +146,8 @@ public class Token {
 
         if (expression instanceof ExpressionColumn) {
             if (tokenType == Tokens.ASTERISK) {
-                StringBuffer sb         = new StringBuffer();
-                Expression   expression = (Expression) this.expression;
+                StringBuilder sb         = new StringBuilder();
+                Expression    expression = (Expression) this.expression;
 
                 if (expression.opType == OpTypes.MULTICOLUMN
                         && expression.nodes.length > 0) {
@@ -229,7 +228,7 @@ public class Token {
             return dataType.convertToSQLString(tokenValue);
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         if (namePrePrefix != null) {
             if (isDelimitedPrePrefix) {
@@ -281,8 +280,8 @@ public class Token {
 */
     static String getSQL(Token[] tokens) {
 
-        boolean      wasDelimiter = true;
-        StringBuffer sb           = new StringBuffer();
+        boolean       wasDelimiter = true;
+        StringBuilder sb           = new StringBuilder();
 
         for (int i = 0; i < tokens.length; i++) {
             String sql = tokens[i].getSQL();

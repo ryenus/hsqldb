@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -106,7 +106,7 @@ public class ExpressionOrderBy extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_ORDER).append(' ').append(Tokens.T_BY).append(' ');
 
@@ -130,7 +130,7 @@ public class ExpressionOrderBy extends Expression {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(getLeftNode().describe(session, blanks));
 

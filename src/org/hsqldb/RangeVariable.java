@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -54,7 +55,7 @@ import org.hsqldb.types.Type;
  * Metadata for range variables, including conditions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class RangeVariable {
@@ -92,6 +93,12 @@ public class RangeVariable {
 
     // non-index conditions
     Expression joinCondition;
+
+    // system period condition
+    ExpressionPeriodOp periodCondition;
+
+    // role based condition
+    ExpressionLogical filterCondition;
 
     //
     boolean isLateral;
@@ -146,6 +153,8 @@ public class RangeVariable {
 
             case TRANSITION_RANGE :
                 usedColumns = new boolean[variables.size()];
+                break;
+
             case PARAMETER_RANGE :
             case VARIALBE_RANGE :
             case PLACEHOLDER_RANGE :
@@ -213,6 +222,25 @@ public class RangeVariable {
 
         if (isRightJoin) {
             whereConditions[0].rangeIndex = rangeTable.getPrimaryIndex();
+        }
+    }
+
+    public void setSystemPeriodCondition(ExpressionPeriodOp condition) {
+        periodCondition = condition;
+    }
+
+    public void setFilterExpression(Session session, ExpressionLogical expr) {
+
+        if (expr != null) {
+            expr = (ExpressionLogical) expr.duplicate();
+
+            RangeGroup ranges =
+                new RangeGroupSimple(new RangeVariable[]{ this }, false);
+
+            expr.resolveColumnReferences(session, ranges,
+                                         RangeGroup.emptyArray, null);
+
+            filterCondition = expr;
         }
     }
 
@@ -425,7 +453,7 @@ public class RangeVariable {
      * @param columnName name of column
      * @return int index or -1 if not found
      */
-    private int findColumn(String columnName) {
+    public int findColumn(String columnName) {
 
         if (variables != null) {
             return variables.getIndex(columnName);
@@ -525,6 +553,26 @@ public class RangeVariable {
         }
 
         return name.equals(rangeTable.getSchemaName().name);
+    }
+
+    public PeriodDefinition findPeriod(String schemaName, String tableName,
+                                       String periodName) {
+
+        if (resolvesSchemaAndTableName(schemaName, tableName)) {
+            PeriodDefinition period = rangeTable.getApplicationPeriod();
+
+            if (period != null && period.getName().name.equals(periodName)) {
+                return period;
+            }
+
+            period = rangeTable.getSystemPeriod();
+
+            if (period != null && period.getName().name.equals(periodName)) {
+                return period;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -679,12 +727,10 @@ public class RangeVariable {
         }
 
         if (rangeTable instanceof TableDerived) {
-            QueryExpression queryExpression =
-                ((TableDerived) rangeTable).getQueryExpression();
+            QueryExpression queryExpression = rangeTable.getQueryExpression();
 
             if (queryExpression == null) {
-                Expression dataExpression =
-                    ((TableDerived) rangeTable).getDataExpression();
+                Expression dataExpression = rangeTable.getDataExpression();
 
                 if (dataExpression != null) {
                     if (set == null) {
@@ -728,31 +774,31 @@ public class RangeVariable {
         return set;
     }
 
-    public void replaceColumnReferences(RangeVariable range,
+    public void replaceColumnReferences(Session session, RangeVariable range,
                                         Expression[] list) {
 
         QueryExpression queryExpression = rangeTable.getQueryExpression();
         Expression      dataExpression  = rangeTable.getDataExpression();
 
         if (dataExpression != null) {
-            dataExpression = dataExpression.replaceColumnReferences(range,
-                    list);
+            dataExpression.replaceColumnReferences(session, range, list);
         }
 
         if (queryExpression != null) {
-            queryExpression.replaceColumnReferences(range, list);
+            queryExpression.replaceColumnReferences(session, range, list);
         }
 
         if (joinCondition != null) {
-            joinCondition = joinCondition.replaceColumnReferences(range, list);
+            joinCondition = joinCondition.replaceColumnReferences(session,
+                    range, list);
         }
 
         for (int i = 0; i < joinConditions.length; i++) {
-            joinConditions[i].replaceColumnReferences(range, list);
+            joinConditions[i].replaceColumnReferences(session, range, list);
         }
 
         for (int i = 0; i < whereConditions.length; i++) {
-            whereConditions[i].replaceColumnReferences(range, list);
+            whereConditions[i].replaceColumnReferences(session, range, list);
         }
     }
 
@@ -771,8 +817,8 @@ public class RangeVariable {
         Expression      dataExpression  = rangeTable.getDataExpression();
 
         if (dataExpression != null) {
-            dataExpression = dataExpression.replaceExpressions(expressions,
-                    resultRangePosition);
+            dataExpression.replaceExpressions(expressions,
+                                              resultRangePosition);
         }
 
         if (queryExpression != null) {
@@ -936,7 +982,7 @@ public class RangeVariable {
             Expression e = (Expression) conditionsList.get(i);
 
             e = e.duplicate();
-            e = e.replaceColumnReferences(this, colExpr);
+            e = e.replaceColumnReferences(session, this, colExpr);
 
             OrderedHashSet set = e.collectRangeVariables(null);
 
@@ -987,14 +1033,14 @@ public class RangeVariable {
      */
     public String describe(Session session, int blanks) {
 
-        StringBuffer sb;
-        StringBuffer b = new StringBuffer(blanks);
+        StringBuilder sb;
+        StringBuilder b = new StringBuilder(blanks);
 
         for (int i = 0; i < blanks; i++) {
             b.append(' ');
         }
 
-        sb = new StringBuffer();
+        sb = new StringBuilder();
 
         String temp = "INNER";
 
@@ -1155,8 +1201,8 @@ public class RangeVariable {
             return it.getCurrent();
         }
 
-        public Object getField(int i) {
-            return it.getField(i);
+        public Object getField(int col) {
+            return it.getField(col);
         }
 
         public void setCurrent(Object[] data) {
@@ -1197,6 +1243,8 @@ public class RangeVariable {
         RangeVariableConditions[] conditions;
         RangeVariableConditions[] whereConditions;
         RangeVariableConditions[] joinConditions;
+        ExpressionPeriodOp        periodCondition;
+        ExpressionLogical         filterCondition;
         int                       condIndex = 0;
 
         //
@@ -1218,6 +1266,8 @@ public class RangeVariable {
             isBeforeFirst      = true;
             whereConditions    = rangeVar.whereConditions;
             joinConditions     = rangeVar.joinConditions;
+            periodCondition    = rangeVar.periodCondition;
+            filterCondition    = rangeVar.filterCondition;
 
             if (rangeVar.isRightJoin) {
                 lookup = new OrderedLongHashSet();
@@ -1307,7 +1357,7 @@ public class RangeVariable {
                             store, rangeVar.indexDistinctCount, null);
                 } else {
                     it = conditions[condIndex].rangeIndex.firstRow(session,
-                            store, rangeVar.indexDistinctCount, null);
+                            store, null, rangeVar.indexDistinctCount, null);
                 }
             } else {
                 getFirstRow();
@@ -1404,6 +1454,8 @@ public class RangeVariable {
 
                                     break;
                                 }
+
+                            // fall through
                             default :
                                 it = conditions[condIndex].rangeIndex
                                     .emptyIterator();
@@ -1449,6 +1501,18 @@ public class RangeVariable {
                     break;
                 }
 
+                if (periodCondition != null) {
+                    if (!periodCondition.testCondition(session)) {
+                        continue;
+                    }
+                }
+
+                if (filterCondition != null) {
+                    if (!filterCondition.testCondition(session)) {
+                        continue;
+                    }
+                }
+
                 if (conditions[condIndex].terminalCondition != null) {
                     if (!conditions[condIndex].terminalCondition.testCondition(
                             session)) {
@@ -1467,20 +1531,22 @@ public class RangeVariable {
                     }
                 }
 
-                if (!ExpressionLogical.isNullOrTrue(
-                        session,
-                        joinConditions[condIndex].nonIndexCondition)) {
-                    continue;
+                if (joinConditions[condIndex].nonIndexCondition != null) {
+                    if (!joinConditions[condIndex].nonIndexCondition
+                            .testCondition(session)) {
+                        continue;
+                    }
                 }
 
-                if (!ExpressionLogical.isNullOrTrue(
-                        session,
-                        whereConditions[condIndex].nonIndexCondition)) {
-                    hasLeftOuterRow = false;
+                if (whereConditions[condIndex].nonIndexCondition != null) {
+                    if (!whereConditions[condIndex].nonIndexCondition
+                            .testCondition(session)) {
+                        hasLeftOuterRow = false;
 
-                    addFoundRow();
+                        addFoundRow();
 
-                    continue;
+                        continue;
+                    }
                 }
 
                 Expression e = conditions[condIndex].excludeConditions;
@@ -1501,8 +1567,10 @@ public class RangeVariable {
             it = emptyIterator;
 
             if (hasLeftOuterRow && condIndex == conditions.length - 1) {
-                result = ExpressionLogical.isNullOrTrue(session,
-                        whereConditions[condIndex].nonIndexCondition);
+                result =
+                    (whereConditions[condIndex].nonIndexCondition == null
+                     || whereConditions[condIndex].nonIndexCondition
+                         .testCondition(session));
                 hasLeftOuterRow = false;
             }
 
@@ -1601,9 +1669,13 @@ public class RangeVariable {
             long    position = it.getRowId();
             boolean result   = !lookup.contains(position);
 
-            result = result
-                     && ExpressionLogical.isNullOrTrue(session,
-                         conditions[condIndex].nonIndexCondition);
+            if (result) {
+                if (conditions[condIndex].nonIndexCondition != null) {
+                    result =
+                        conditions[condIndex].nonIndexCondition.testCondition(
+                            session);
+                }
+            }
 
             return result;
         }
@@ -1649,8 +1721,6 @@ public class RangeVariable {
                     currentRange.reset();
 
                     currentIndex--;
-
-                    continue;
                 }
             }
 
@@ -1845,10 +1915,7 @@ public class RangeVariable {
 
             nonIndexCondition =
                 ExpressionLogical.andExpressions(nonIndexCondition, e);
-
-            if (Expression.EXPR_FALSE.equals(nonIndexCondition)) {
-                isFalse = true;
-            }
+            isFalse = Expression.EXPR_FALSE.equals(nonIndexCondition);
 
             if (rangeIndex == null || rangeIndex.getColumnCount() == 0) {
                 return;
@@ -2109,8 +2176,8 @@ public class RangeVariable {
 
         String describe(Session session, int blanks) {
 
-            StringBuffer sb = new StringBuffer();
-            StringBuffer b  = new StringBuffer(blanks);
+            StringBuilder sb = new StringBuilder();
+            StringBuilder b  = new StringBuilder(blanks);
 
             for (int i = 0; i < blanks; i++) {
                 b.append(' ');
@@ -2150,14 +2217,16 @@ public class RangeVariable {
             return sb.toString();
         }
 
-        private void replaceColumnReferences(RangeVariable range,
+        private void replaceColumnReferences(Session session,
+                                             RangeVariable range,
                                              Expression[] list) {
 
             if (indexCond != null) {
                 for (int i = 0; i < indexCond.length; i++) {
                     if (indexCond[i] != null) {
                         indexCond[i] =
-                            indexCond[i].replaceColumnReferences(range, list);
+                            indexCond[i].replaceColumnReferences(session,
+                                range, list);
                     }
                 }
             }
@@ -2166,30 +2235,34 @@ public class RangeVariable {
                 for (int i = 0; i < indexEndCond.length; i++) {
                     if (indexEndCond[i] != null) {
                         indexEndCond[i] =
-                            indexEndCond[i].replaceColumnReferences(range,
-                                list);
+                            indexEndCond[i].replaceColumnReferences(session,
+                                range, list);
                     }
                 }
             }
 
             if (indexEndCondition != null) {
                 indexEndCondition =
-                    indexEndCondition.replaceColumnReferences(range, list);
+                    indexEndCondition.replaceColumnReferences(session, range,
+                        list);
             }
 
             if (excludeConditions != null) {
                 excludeConditions =
-                    excludeConditions.replaceColumnReferences(range, list);
+                    excludeConditions.replaceColumnReferences(session, range,
+                        list);
             }
 
             if (nonIndexCondition != null) {
                 nonIndexCondition =
-                    nonIndexCondition.replaceColumnReferences(range, list);
+                    nonIndexCondition.replaceColumnReferences(session, range,
+                        list);
             }
 
             if (terminalCondition != null) {
                 terminalCondition =
-                    terminalCondition.replaceColumnReferences(range, list);
+                    terminalCondition.replaceColumnReferences(session, range,
+                        list);
             }
         }
 

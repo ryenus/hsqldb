@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.map.ValuePool;
-import org.hsqldb.scriptio.ScriptReaderBase;
+import org.hsqldb.scriptio.StatementLineTypes;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
@@ -63,7 +63,7 @@ import org.hsqldb.types.Type;
  * Class for reading the data for a database row from the script file.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.7.3
  */
 public class RowInputTextLog extends RowInputBase
@@ -97,38 +97,58 @@ implements RowInputInterface {
 
         scanner.reset(session, text);
 
-        statementType = ScriptReaderBase.ANY_STATEMENT;
+        statementType = StatementLineTypes.ANY_STATEMENT;
 
         scanner.scanNext();
 
-        String s = scanner.getString();
+        int tokenType = scanner.getTokenType();
 
-        if (s.equals(Tokens.T_INSERT)) {
-            statementType = ScriptReaderBase.INSERT_STATEMENT;
+        switch (tokenType) {
 
-            scanner.scanNext();
-            scanner.scanNext();
+            case Tokens.INSERT : {
+                statementType = StatementLineTypes.INSERT_STATEMENT;
 
-            tableName = scanner.getString();
-
-            scanner.scanNext();
-        } else if (s.equals(Tokens.T_DELETE)) {
-            statementType = ScriptReaderBase.DELETE_STATEMENT;
-
-            scanner.scanNext();
-            scanner.scanNext();
-
-            tableName = scanner.getString();
-        } else if (s.equals(Tokens.T_COMMIT)) {
-            statementType = ScriptReaderBase.COMMIT_STATEMENT;
-        } else if (s.equals(Tokens.T_SET)) {
-            scanner.scanNext();
-
-            if (Tokens.T_SCHEMA.equals(scanner.getString())) {
                 scanner.scanNext();
 
-                schemaName    = scanner.getString();
-                statementType = ScriptReaderBase.SET_SCHEMA_STATEMENT;
+                // scanner.getTokenType() == Tokens.INTO;
+                scanner.scanNext();
+
+                tableName = scanner.getString();
+
+                scanner.scanNext();
+
+                break;
+            }
+            case Tokens.DELETE : {
+                statementType = StatementLineTypes.DELETE_STATEMENT;
+
+                scanner.scanNext();
+
+                // scanner.getTokenType() == Tokens.FROM;
+                scanner.scanNext();
+
+                tableName = scanner.getString();
+
+                break;
+            }
+            case Tokens.COMMIT : {
+                statementType = StatementLineTypes.COMMIT_STATEMENT;
+
+                break;
+            }
+            case Tokens.SET : {
+                scanner.scanNext();
+
+                tokenType = scanner.getTokenType();
+
+                if (tokenType == Tokens.SCHEMA) {
+                    scanner.scanNext();
+
+                    schemaName    = scanner.getString();
+                    statementType = StatementLineTypes.SET_SCHEMA_STATEMENT;
+                }
+
+                break;
             }
         }
     }
@@ -178,7 +198,7 @@ implements RowInputInterface {
         if (!noSeparators) {
             scanner.scanNext();
 
-            if (statementType == ScriptReaderBase.DELETE_STATEMENT) {
+            if (statementType == StatementLineTypes.DELETE_STATEMENT) {
                 scanner.scanNext();
                 scanner.scanNext();
             }

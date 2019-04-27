@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,17 +34,17 @@ package org.hsqldb;
 /**
  * Interface for SQL set function values.
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 2.4.1
  *
  */
 public interface SetFunction {
 
-    public void add(Session session, Object itemLeft, Object itemRight);
+    void add(Object itemLeft, Object itemRight);
 
-    public void add(Session session, Object item);
+    void add(Object item);
 
-    public Object getValue(Session session);
+    Object getValue();
 
-    public void reset();
+    void reset();
 }

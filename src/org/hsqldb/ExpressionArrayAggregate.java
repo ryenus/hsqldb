@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.types.Type;
  * Implementation of array aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 2.0.1
  */
 public class ExpressionArrayAggregate extends Expression {
@@ -96,15 +96,15 @@ public class ExpressionArrayAggregate extends Expression {
         }
     }
 
-    boolean isSelfAggregate() {
+    public boolean isSelfAggregate() {
         return true;
     }
 
     public String getSQL() {
 
-        StringBuffer sb   = new StringBuffer(64);
-        String       left = getContextSQL(nodes.length > 0 ? nodes[LEFT]
-                                                           : null);
+        StringBuilder sb   = new StringBuilder(64);
+        String        left = getContextSQL(nodes.length > 0 ? nodes[LEFT]
+                                                            : null);
 
         switch (opType) {
 
@@ -133,7 +133,7 @@ public class ExpressionArrayAggregate extends Expression {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append('\n');
 
@@ -245,8 +245,9 @@ public class ExpressionArrayAggregate extends Expression {
                 arrayDataType =
                     new ArrayType(nodeDataTypes[0],
                                   ArrayType.defaultArrayCardinality);
-                dataType = SetFunctionValueAggregate.getType(session, OpTypes.MEDIAN,
-                                               exprType);
+                dataType = ExpressionAggregate.getType(session,
+                                                       OpTypes.MEDIAN,
+                                                       exprType);
 
                 if (!exprType.isNumberType()) {
                     throw Error.error(ErrorCode.X_42563);
@@ -257,7 +258,7 @@ public class ExpressionArrayAggregate extends Expression {
         condition.resolveTypes(session, null);
     }
 
-    public boolean equals(Expression other) {
+    boolean equals(Expression other) {
 
         if (other instanceof ExpressionArrayAggregate) {
             ExpressionArrayAggregate o = (ExpressionArrayAggregate) other;
@@ -321,22 +322,20 @@ public class ExpressionArrayAggregate extends Expression {
             currValue = new SetFunctionValueArray();
         }
 
-        currValue.add(session, value);
+        currValue.add(value);
 
         return currValue;
     }
 
-    public Object getAggregatedValue(Session session,
-                                     SetFunction currValue) {
+    public Object getAggregatedValue(Session session, SetFunction currValue) {
 
         if (currValue == null) {
             return null;
         }
 
-        Object[] array = (Object[]) currValue.getValue(session);
+        Object[] array = (Object[]) currValue.getValue();
 
         if (isDistinctAggregate) {
-
             arrayDataType.sort(session, array, distinctSort);
 
             int size = arrayDataType.deDuplicate(session, array, distinctSort);
@@ -362,7 +361,7 @@ public class ExpressionArrayAggregate extends Expression {
                 return resultArray;
             }
             case OpTypes.GROUP_CONCAT : {
-                StringBuffer sb = new StringBuffer(16 * array.length);
+                StringBuilder sb = new StringBuilder(16 * array.length);
 
                 for (int i = 0; i < array.length; i++) {
                     if (i > 0) {
@@ -413,7 +412,7 @@ public class ExpressionArrayAggregate extends Expression {
         return condition != null && !condition.isTrue();
     }
 
-    public void setCondition(Expression e) {
+    public void setCondition(ExpressionLogical e) {
         condition = e;
     }
 

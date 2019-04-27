@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ public class User extends Grantee {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_CREATE).append(' ').append(Tokens.T_USER);
         sb.append(' ').append(granteeName.statementName).append(' ');
@@ -104,7 +104,7 @@ public class User extends Grantee {
         String digest = granteeManager.digest(value);
 
         if (!digest.equals(password)) {
-            throw Error.error(ErrorCode.X_28000);
+            throw Error.error(ErrorCode.X_28000, granteeName.statementName);
         }
     }
 
@@ -146,7 +146,7 @@ public class User extends Grantee {
 
     public String getInitialSchemaSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_ALTER).append(' ');
         sb.append(Tokens.T_USER).append(' ');
@@ -165,7 +165,7 @@ public class User extends Grantee {
      */
     public String getLocalUserSQL() {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_ALTER).append(' ');
         sb.append(Tokens.T_USER).append(' ');
@@ -187,7 +187,7 @@ public class User extends Grantee {
             password = granteeManager.digest(password);
         }
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_ALTER).append(' ');
         sb.append(Tokens.T_USER).append(' ');
@@ -210,7 +210,7 @@ public class User extends Grantee {
             password = manager.digest(password);
         }
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_PASSWORD).append(' ').append(Tokens.T_DIGEST);
@@ -228,7 +228,7 @@ public class User extends Grantee {
      */
     public String getConnectUserSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_SESSION).append(' ');

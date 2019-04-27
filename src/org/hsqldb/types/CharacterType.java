@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,13 +43,12 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.StringUtil;
-import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * Type subclass for CHARACTER, VARCHAR, etc.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class CharacterType extends Type {
@@ -57,9 +56,9 @@ public class CharacterType extends Type {
     static final int         defaultCharPrecision    = 256;
     static final int         defaultVarcharPrecision = 32 * 1024;
     public static final long maxCharPrecision        = Integer.MAX_VALUE;
-    Collation                collation;
-    Charset                  charset;
-    String                   nameString;
+    final Collation          collation;
+    final Charset            charset;
+    final String             nameString;
 
     public CharacterType(Collation collation, int type, long precision) {
 
@@ -69,9 +68,9 @@ public class CharacterType extends Type {
             collation = Collation.getDefaultInstance();
         }
 
-        this.collation = collation;
-        this.charset   = Charset.getDefaultInstance();
-        nameString     = getNameStringPrivate();
+        this.collation  = collation;
+        this.charset    = Charset.getDefaultInstance();
+        this.nameString = getNameStringPrivate();
     }
 
     /**
@@ -81,9 +80,18 @@ public class CharacterType extends Type {
 
         super(Types.SQL_VARCHAR, type, precision, 0);
 
-        this.collation = Collation.getDefaultInstance();
-        this.charset   = Charset.getDefaultInstance();
-        nameString     = getNameStringPrivate();
+        this.collation  = Collation.getDefaultInstance();
+        this.charset    = Charset.getDefaultInstance();
+        this.nameString = getNameStringPrivate();
+    }
+
+    public CharacterType(String name, long precision) {
+
+        super(Types.SQL_VARCHAR, Types.SQL_VARCHAR, precision, 0);
+
+        this.collation  = Collation.getDefaultInstance();
+        this.charset    = Charset.getDefaultInstance();
+        this.nameString = name;
     }
 
     public int displaySize() {
@@ -168,7 +176,7 @@ public class CharacterType extends Type {
             return getNameString();
         }
 
-        StringBuffer sb = new StringBuffer(16);
+        StringBuilder sb = new StringBuilder(16);
 
         sb.append(getNameString());
         sb.append('(');
@@ -628,7 +636,7 @@ public class CharacterType extends Type {
         if (a instanceof Boolean) {
             s = a.toString();
         } else if (a instanceof BigDecimal) {
-            s = JavaSystem.toString((BigDecimal) a);
+            s = ((BigDecimal) a).toPlainString();
         } else if (a instanceof Number) {
             s = a.toString();    // use shortcut
         } else if (a instanceof String) {
@@ -656,7 +664,6 @@ public class CharacterType extends Type {
     }
 
 //#ifdef JAVA8
-/*
     String convertJavaTimeObject(SessionInterface session, Object a) {
 
         switch(a.getClass().getName()){
@@ -671,12 +678,13 @@ public class CharacterType extends Type {
 
         return null;
     }
-*/
 
 //#else
+/*
     String convertJavaTimeObject(SessionInterface session, Object a) {
         return null;
     }
+*/
 
 //#endif JAVA8
     public Object convertJavaToSQL(SessionInterface session, Object a) {
@@ -786,7 +794,18 @@ public class CharacterType extends Type {
      * can add collation and charset equality
      */
     public boolean equals(Object other) {
-        return super.equals(other);
+
+        if (other == this) {
+            return true;
+        }
+
+        if (other instanceof CharacterType) {
+            return super.equals(other)
+                   && ((CharacterType) other).getCollation().equals(
+                       getCollation());
+        }
+
+        return false;
     }
 
     public long position(SessionInterface session, Object data,
@@ -852,7 +871,7 @@ public class CharacterType extends Type {
             throw Error.error(ErrorCode.X_22011);
         }
 
-        if (offset > end || end < 0) {
+        if (end < 0) {
 
             // return zero length data
             offset = 0;
@@ -1180,11 +1199,7 @@ public class CharacterType extends Type {
                 return new CharacterType(collation, type, (int) length);
 
             case Types.SQL_CLOB :
-                CharacterType typeObject = new ClobType(length);
-
-                typeObject.collation = collation;
-
-                return typeObject;
+                return new ClobType(collation, length);
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");

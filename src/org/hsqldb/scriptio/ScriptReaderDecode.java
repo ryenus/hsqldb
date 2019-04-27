@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,23 +35,20 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.zip.GZIPInputStream;
 
 import org.hsqldb.Database;
 import org.hsqldb.Session;
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.lib.LineReader;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.Crypto;
 import org.hsqldb.rowio.RowInputTextLog;
 
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class ScriptReaderDecode extends ScriptReaderText {
@@ -80,7 +77,7 @@ public class ScriptReaderDecode extends ScriptReaderText {
                 cryptoStream = crypto.getInputStream(bufferedStream);
                 gzipStream   = new GZIPInputStream(cryptoStream);
                 dataStreamIn = new LineReader(gzipStream,
-                                              ScriptWriterText.ISO_8859_1);
+                                              JavaSystem.CS_ISO_8859_1);
             }
         } catch (Throwable t) {
             close();
@@ -111,13 +108,7 @@ public class ScriptReaderDecode extends ScriptReaderText {
 
         count = crypto.decode(buffer, 0, count, buffer, 0);
 
-        String s;
-
-        try {
-            s = new String(buffer, 0, count, "ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
-            throw Error.error(e, ErrorCode.FILE_IO_ERROR, fileNamePath);
-        }
+        String s = new String(buffer, 0, count, JavaSystem.CS_ISO_8859_1);
 
         lineCount++;
 
@@ -165,8 +156,8 @@ public class ScriptReaderDecode extends ScriptReaderText {
         } catch (Exception e) {}
 
         try {
-            if (scrwriter != null) {
-                scrwriter.close();
+            if (errorLogger != null) {
+                errorLogger.close();
             }
 
             database.recoveryMode = 0;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -211,7 +211,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
     public String getSQLAlter() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_ALTER).append(' ').append(Tokens.T_SPECIFIC);
         sb.append(' ').append(Tokens.T_ROUTINE).append(' ');
@@ -228,7 +228,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
     private String getDefinitionSQL(boolean withBody) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_CREATE).append(' ');
 
@@ -353,7 +353,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
     public String getSQLBodyDefinition() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         if (language == LANGUAGE_JAVA) {
             sb.append(Tokens.T_EXTERNAL).append(' ').append(Tokens.T_NAME);
@@ -411,7 +411,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
     public String getDataImpactString() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         switch (dataImpact) {
 
@@ -674,14 +674,16 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
                 if (routine.dataImpact == Routine.READS_SQL) {
                     if (dataImpact == Routine.CONTAINS_SQL) {
                         throw Error.error(ErrorCode.X_42608,
-                                          Tokens.T_READS + ' ' + Tokens.T_SQL);
+                                          Tokens.T_READS + ' ' + Tokens.T_SQL
+                                          + ' ' + Tokens.T_DATA);
                     }
                 } else if (routine.dataImpact == Routine.MODIFIES_SQL) {
                     if (dataImpact == Routine.CONTAINS_SQL
                             || dataImpact == Routine.READS_SQL) {
                         throw Error.error(ErrorCode.X_42608,
                                           Tokens.T_MODIFIES + ' '
-                                          + Tokens.T_SQL);
+                                          + Tokens.T_SQL + ' '
+                                          + Tokens.T_DATA);
                     }
                 }
             }
@@ -694,7 +696,8 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             for (int i = 0; i < names.length; i++) {
                 if (names[i].schema != SqlInvariants.MODULE_HSQLNAME) {
                     throw Error.error(ErrorCode.X_42608,
-                                      Tokens.T_MODIFIES + ' ' + Tokens.T_SQL);
+                                      Tokens.T_MODIFIES + ' ' + Tokens.T_SQL
+                                      + ' ' + Tokens.T_DATA);
                 }
             }
         }
@@ -705,7 +708,8 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             for (int i = 0; i < names.length; i++) {
                 if (names[i].schema != SqlInvariants.MODULE_HSQLNAME) {
                     throw Error.error(ErrorCode.X_42608,
-                                      Tokens.T_READS + ' ' + Tokens.T_SQL);
+                                      Tokens.T_READS + ' ' + Tokens.T_SQL
+                                      + ' ' + Tokens.T_DATA);
                 }
             }
         }
@@ -1364,11 +1368,11 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
      */
     public static Routine newRoutine(Session session, Method method) {
 
-        Routine      routine   = new Routine(SchemaObject.FUNCTION);
-        int          offset    = 0;
-        Class[]      params    = method.getParameterTypes();
-        String       className = method.getDeclaringClass().getName();
-        StringBuffer sb        = new StringBuffer();
+        Routine       routine   = new Routine(SchemaObject.FUNCTION);
+        int           offset    = 0;
+        Class[]       params    = method.getParameterTypes();
+        String        className = method.getDeclaringClass().getName();
+        StringBuilder sb        = new StringBuilder();
 
         sb.append("CLASSPATH:");
         sb.append(method.getDeclaringClass().getName()).append('.');

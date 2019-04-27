@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -758,15 +758,15 @@ public class QueryExpression implements RangeGroup {
     /** @todo 1.9.0 review */
     public String describe(Session session, int blanks) {
 
-        StringBuffer sb;
-        String       temp;
-        StringBuffer b = new StringBuffer(blanks);
+        StringBuilder sb;
+        String        temp;
+        StringBuilder b = new StringBuilder(blanks);
 
         for (int i = 0; i < blanks; i++) {
             b.append(' ');
         }
 
-        sb = new StringBuffer();
+        sb = new StringBuilder();
 
         switch (unionType) {
 
@@ -1114,10 +1114,9 @@ public class QueryExpression implements RangeGroup {
                        other.rightQueryExpression));
     }
 
-    public void replaceColumnReferences(RangeVariable range,
-                                        Expression[] list) {
-        leftQueryExpression.replaceColumnReferences(range, list);
-        rightQueryExpression.replaceColumnReferences(range, list);
+    public void replaceColumnReferences(Session session, RangeVariable range, Expression[] list) {
+        leftQueryExpression.replaceColumnReferences(session, range, list);
+        rightQueryExpression.replaceColumnReferences(session, range, list);
     }
 
     public void replaceRangeVariables(RangeVariable[] ranges,

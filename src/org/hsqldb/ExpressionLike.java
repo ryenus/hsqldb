@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -325,9 +325,9 @@ public final class ExpressionLike extends ExpressionLogical {
             return super.getSQL();
         }
 
-        String       left  = getContextSQL(nodes[LEFT]);
-        String       right = getContextSQL(nodes[RIGHT]);
-        StringBuffer sb    = new StringBuffer();
+        String        left  = getContextSQL(nodes[LEFT]);
+        String        right = getContextSQL(nodes[RIGHT]);
+        StringBuilder sb    = new StringBuilder();
 
         sb.append(left).append(' ').append(Tokens.T_LIKE).append(' ');
         sb.append(right);
@@ -348,7 +348,7 @@ public final class ExpressionLike extends ExpressionLogical {
             return super.describe(session, blanks);
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append('\n');
 

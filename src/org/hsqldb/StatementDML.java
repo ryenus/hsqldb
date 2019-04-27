@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,7 @@ import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.trigger.Trigger;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -54,7 +55,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 1.9.0
  */
 
@@ -196,8 +197,7 @@ public class StatementDML extends StatementDMQL {
 
         if (targetTable != baseTable) {
             QuerySpecification select =
-                ((TableDerived) targetTable).getQueryExpression()
-                    .getMainSelect();
+                targetTable.getQueryExpression().getMainSelect();
 
             this.updatableTableCheck = select.checkQueryCondition;
             this.checkRangeVariable =
@@ -544,13 +544,11 @@ public class StatementDML extends StatementDMQL {
         while (it.next()) {
             session.sessionData.startRowProcessing();
 
-            Row      row  = it.getCurrentRow();
-            Object[] data = row.getData();
-            Object[] newData = getUpdatedData(session, targets, baseTable,
-                                              updateColumnMap,
-                                              updateExpressions, colTypes,
-                                              data);
+            Row      row     = it.getCurrentRow();
+            Object[] newData = row.getDataCopy();
 
+            getUpdatedData(session, targets, baseTable, updateColumnMap,
+                           updateExpressions, colTypes, newData);
             rowset.addRow(session, row, newData, colTypes, updateColumnMap);
 
             session.sessionContext.rownum++;
@@ -598,14 +596,10 @@ public class StatementDML extends StatementDMQL {
         }
     }
 
-    static Object[] getUpdatedData(Session session, Expression[] targets,
-                                   Table targetTable, int[] columnMap,
-                                   Expression[] colExpressions,
-                                   Type[] colTypes, Object[] oldData) {
-
-        Object[] data = targetTable.getEmptyRowData();
-
-        System.arraycopy(oldData, 0, data, 0, data.length);
+    static void getUpdatedData(Session session, Expression[] targets,
+                               Table targetTable, int[] columnMap,
+                               Expression[] colExpressions, Type[] colTypes,
+                               final Object[] data) {
 
         for (int i = 0, ix = 0; i < columnMap.length; ) {
             Expression expr = colExpressions[ix++];
@@ -693,8 +687,6 @@ public class StatementDML extends StatementDMQL {
                 i++;
             }
         }
-
-        return data;
     }
 
     /**
@@ -788,13 +780,11 @@ public class StatementDML extends StatementDMQL {
                         test = mergeUpdateCondition.testCondition(session);
 
                         if (test) {
-                            Object[] data = getUpdatedData(session, targets,
-                                                           baseTable,
-                                                           updateColumnMap,
-                                                           updateExpressions,
-                                                           colTypes,
-                                                           row.getData());
+                            Object[] data = row.getDataCopy();
 
+                            getUpdatedData(session, targets, baseTable,
+                                           updateColumnMap, updateExpressions,
+                                           colTypes, data);
                             updateRowSet.addRow(session, row, data, colTypes,
                                                 updateColumnMap);
                         }
@@ -1064,7 +1054,6 @@ public class StatementDML extends StatementDMQL {
                RowSetNavigator generatedNavigator) {
 
         int           rowCount      = navigator.getSize();
-        boolean autoUpdatedColumn   = table.hasUpdatedColumn(updateColumnMap);
         RangeIterator checkIterator = null;
 
         if (updatableTableCheck != null) {
@@ -1088,10 +1077,7 @@ public class StatementDML extends StatementDMQL {
              */
             table.setIdentityColumn(session, data);
             table.setGeneratedColumns(session, data);
-
-            if (autoUpdatedColumn) {
-                table.setUpdatedColumns(session, data);
-            }
+            table.setUpdatedColumns(session, data, updateColumnMap);
         }
 
         navigator.beforeFirst();
@@ -1166,6 +1152,13 @@ public class StatementDML extends StatementDMQL {
             Table           currentTable = ((Table) row.getTable());
             int[] changedColumns = navigator.getCurrentChangedColumns();
             PersistentStore store        = currentTable.getRowStore(session);
+
+            if (currentTable.isSystemVersioned()) {
+                Object[] history = row.getData();
+                Row newRow =
+                    currentTable.insertSystemVersionHistoryRow(session, store,
+                        history);
+            }
 
             if (data == null) {
                 continue;
@@ -1405,6 +1398,7 @@ public class StatementDML extends StatementDMQL {
         navigator.beforeFirst();
 
         boolean hasUpdate = false;
+        boolean hasPeriod = false;
 
         while (navigator.next()) {
             Row             row          = navigator.getCurrentRow();
@@ -1417,17 +1411,28 @@ public class StatementDML extends StatementDMQL {
             if (data != null) {
                 hasUpdate = true;
             }
+
+            if (currentTable.isSystemVersioned()) {
+                hasPeriod = true;
+            }
         }
 
         navigator.beforeFirst();
 
-        if (hasUpdate) {
+        if (hasUpdate || hasPeriod) {
             while (navigator.next()) {
                 Row             row          = navigator.getCurrentRow();
                 Object[]        data = navigator.getCurrentChangedData();
                 Table           currentTable = ((Table) row.getTable());
                 int[] changedColumns = navigator.getCurrentChangedColumns();
                 PersistentStore store = currentTable.getRowStore(session);
+
+                if (currentTable.isSystemVersioned()) {
+                    Object[] history = row.getData();
+                    Row newRow =
+                        currentTable.insertSystemVersionHistoryRow(session,
+                            store, history);
+                }
 
                 if (data == null) {
                     continue;
@@ -1616,6 +1621,10 @@ public class StatementDML extends StatementDMQL {
                 }
 
                 if (delete && refRow.getId() == row.getId()) {
+                    continue;
+                }
+
+                if (!refRow.isCurrentSystemVersion()) {
                     continue;
                 }
 

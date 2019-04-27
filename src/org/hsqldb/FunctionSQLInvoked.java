@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -224,7 +224,7 @@ public class FunctionSQLInvoked extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(routineSchema.getName().getSchemaQualifiedStatementName());
         sb.append('(');
@@ -252,7 +252,7 @@ public class FunctionSQLInvoked extends Expression {
         return super.describe(session, blanks);
     }
 
-    boolean isSelfAggregate() {
+    public boolean isSelfAggregate() {
         return routineSchema.isAggregate();
     }
 
@@ -260,7 +260,7 @@ public class FunctionSQLInvoked extends Expression {
         return routine.isDeterministic();
     }
 
-    public boolean equals(Expression other) {
+    boolean equals(Expression other) {
 
         if (other instanceof FunctionSQLInvoked) {
             FunctionSQLInvoked o = (FunctionSQLInvoked) other;
@@ -321,7 +321,7 @@ public class FunctionSQLInvoked extends Expression {
         return condition != null && !condition.isTrue();
     }
 
-    public void setCondition(Expression e) {
+    public void setCondition(ExpressionLogical e) {
         condition = e;
     }
 }

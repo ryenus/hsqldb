@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,8 +59,8 @@ public class ExpressionAccessor extends Expression {
     }
 
     public HsqlList resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount,
-            RangeGroup[] rangeGroups, HsqlList unresolvedSet, boolean acceptsSequences) {
+            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == null) {
@@ -68,7 +68,8 @@ public class ExpressionAccessor extends Expression {
             }
 
             unresolvedSet = nodes[i].resolveColumnReferences(session,
-                    rangeGroup, rangeCount, rangeGroups, unresolvedSet, acceptsSequences);
+                    rangeGroup, rangeCount, rangeGroups, unresolvedSet,
+                    acceptsSequences);
         }
 
         return unresolvedSet;
@@ -163,8 +164,8 @@ public class ExpressionAccessor extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb   = new StringBuffer(64);
-        String       left = getContextSQL(nodes[LEFT]);
+        StringBuilder sb   = new StringBuilder(64);
+        String        left = getContextSQL(nodes[LEFT]);
 
         sb.append(left).append('[');
         sb.append(nodes[RIGHT].getSQL()).append(']');
@@ -174,7 +175,7 @@ public class ExpressionAccessor extends Expression {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append('\n');
 

@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2018, The HSQL Development Group
+ * Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,6 +73,7 @@ package org.hsqldb.index;
 import org.hsqldb.Constraint;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.OpTypes;
+import org.hsqldb.RangeVariable.RangeVariableConditions;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.SchemaObject;
@@ -88,6 +89,8 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users - corrections
@@ -108,14 +111,13 @@ import org.hsqldb.types.Type;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since Hypersonic SQL
  */
 public class IndexAVL implements Index {
 
     private static final IndexRowIterator emptyIterator =
-        new IndexRowIterator(null, (PersistentStore) null, null, null, 0,
-                             false, false);
+        new IndexRowIterator(null, null, null, null, 0, false, false);
 
     // fields
     private final long       persistenceId;
@@ -229,7 +231,7 @@ public class IndexAVL implements Index {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer(128);
+        StringBuilder sb = new StringBuilder(128);
 
         sb.append(Tokens.T_CREATE).append(' ');
 
@@ -378,7 +380,7 @@ public class IndexAVL implements Index {
      * Returns the node count.
      */
     public long size(Session session, PersistentStore store) {
-        return store.elementCount(session);
+        return getNodeCount(session, store);
     }
 
     public long sizeUnique(PersistentStore store) {
@@ -465,7 +467,7 @@ public class IndexAVL implements Index {
             }
 
 /*
-            StringBuffer s = new StringBuffer();
+            StringBuilder s = new StringBuilder();
 
             s.append("count " + rowCount + " columns " + colIndex.length
                      + " selectivity " + changes[0]);
@@ -507,7 +509,7 @@ public class IndexAVL implements Index {
     public long getNodeCount(Session session, PersistentStore store) {
 
         long        count = 0;
-        RowIterator it    = firstRow(session, store, 0, null);
+        RowIterator it    = firstRow(session, store, null, 0, null);
 
         while (it.next()) {
             count++;
@@ -739,14 +741,16 @@ public class IndexAVL implements Index {
     public void compareRowForChange(Session session, Object[] a, Object[] b,
                                     double[] changes) {
 
-        for (int j = 0; j < colIndex.length; j++) {
-            int i = colTypes[j].compare(session, a[colIndex[j]],
-                                        b[colIndex[j]]);
+        int c = 0;
 
-            if (i != 0) {
-                for (; j < colIndex.length; j++) {
-                    changes[j]++;
-                }
+        for (int j = 0; j < colIndex.length; j++) {
+            if (c == 0) {
+                c = colTypes[j].compare(session, a[colIndex[j]],
+                                        b[colIndex[j]]);
+            }
+
+            if (c != 0) {
+                changes[j]++;
             }
         }
     }
@@ -819,6 +823,23 @@ public class IndexAVL implements Index {
                 }
 
                 return i;
+            }
+        }
+
+        // versioned rows are ordered by timestamp and row id
+        if (start == 0 && table.isSystemVersioned) {
+            TimestampData newVersion      = newRow.getSystemEndVersion();
+            TimestampData existingVersion = existingRow.getSystemEndVersion();
+            int compare = Type.SQL_TIMESTAMP_WITH_TIME_ZONE.compare(session,
+                newVersion, existingVersion);
+
+            if (compare == 0) {
+                if (newVersion.getSeconds()
+                        != DateTimeType.epochLimitSeconds) {
+                    useRowId = true;
+                }
+            } else {
+                return compare;
             }
         }
 
@@ -1214,6 +1235,7 @@ public class IndexAVL implements Index {
      * @return Iterator for first row
      */
     public RowIterator firstRow(Session session, PersistentStore store,
+                                RangeVariableConditions[] conditions,
                                 int distinctCount, boolean[] map) {
 
         store.readLock();
@@ -1230,9 +1252,8 @@ public class IndexAVL implements Index {
             while (session != null && x != null) {
                 Row row = x.getRow(store);
 
-                if (session.database.txManager.canRead(
-                        session, store, row, TransactionManager.ACTION_READ,
-                        null)) {
+                if (store.canRead(session, row,
+                                  TransactionManager.ACTION_READ, null)) {
                     break;
                 }
 
@@ -1295,9 +1316,8 @@ public class IndexAVL implements Index {
             while (session != null && x != null) {
                 Row row = x.getRow(store);
 
-                if (session.database.txManager.canRead(
-                        session, store, row, TransactionManager.ACTION_READ,
-                        null)) {
+                if (store.canRead(session, row,
+                                  TransactionManager.ACTION_READ, null)) {
                     break;
                 }
 
@@ -1342,9 +1362,8 @@ public class IndexAVL implements Index {
 
             Row row = x.getRow(store);
 
-            if (session.database.txManager.canRead(
-                    session, store, row, TransactionManager.ACTION_READ,
-                    null)) {
+            if (store.canRead(session, row, TransactionManager.ACTION_READ,
+                              null)) {
                 return x;
             }
         }
@@ -1374,9 +1393,8 @@ public class IndexAVL implements Index {
 
             Row row = x.getRow(store);
 
-            if (session.database.txManager.canRead(
-                    session, store, row, TransactionManager.ACTION_READ,
-                    null)) {
+            if (store.canRead(session, row, TransactionManager.ACTION_READ,
+                              null)) {
                 return x;
             }
         }
@@ -1509,12 +1527,10 @@ public class IndexAVL implements Index {
 
         row = node.getRow(store);
 
-        session.database.txManager.setTransactionInfo(store, row);
-
-        if (session.database.txManager.canRead(session, store, row,
-                                               TransactionManager.ACTION_DUP,
-                                               null)) {
-            return true;
+        if (store.canRead(session, row, TransactionManager.ACTION_DUP, null)) {
+            if (row.isCurrentSystemVersion()) {
+                return true;
+            }
         }
 
         data = node.getData(store);
@@ -1531,12 +1547,11 @@ public class IndexAVL implements Index {
             if (compareRow(session, data, nodeData) == 0) {
                 row = c.getRow(store);
 
-                session.database.txManager.setTransactionInfo(store, row);
-
-                if (session.database.txManager.canRead(
-                        session, store, row, TransactionManager.ACTION_DUP,
-                        null)) {
-                    return true;
+                if (store.canRead(session, row, TransactionManager.ACTION_DUP,
+                                  null)) {
+                    if (row.isCurrentSystemVersion()) {
+                        return true;
+                    }
                 }
 
                 continue;
@@ -1557,12 +1572,11 @@ public class IndexAVL implements Index {
             if (compareRow(session, data, nodeData) == 0) {
                 row = c.getRow(store);
 
-                session.database.txManager.setTransactionInfo(store, row);
-
-                if (session.database.txManager.canRead(
-                        session, store, row, TransactionManager.ACTION_DUP,
-                        null)) {
-                    return true;
+                if (store.canRead(session, row, TransactionManager.ACTION_DUP,
+                                  null)) {
+                    if (row.isCurrentSystemVersion()) {
+                        return true;
+                    }
                 }
 
                 continue;
@@ -1584,7 +1598,7 @@ public class IndexAVL implements Index {
      * @param fieldCount int
      * @param compareType int
      * @param readMode int
-     * @param reversed
+     * @param reversed boolean
      * @return matching node or null
      */
     NodeAVL findNode(Session session, PersistentStore store, Object[] rowdata,
@@ -1719,9 +1733,7 @@ public class IndexAVL implements Index {
             while (result != null) {
                 currentRow = result.getRow(store);
 
-                if (session.database.txManager.canRead(session, store,
-                                                       currentRow, readMode,
-                                                       colIndex)) {
+                if (store.canRead(session, currentRow, readMode, colIndex)) {
                     break;
                 }
 
@@ -1801,9 +1813,8 @@ public class IndexAVL implements Index {
             while (result != null) {
                 currentRow = result.getRow(store);
 
-                if (session.database.txManager.canRead(
-                        session, store, currentRow,
-                        TransactionManager.ACTION_READ, colIndex)) {
+                if (store.canRead(session, currentRow,
+                                  TransactionManager.ACTION_READ, colIndex)) {
                     break;
                 }
 

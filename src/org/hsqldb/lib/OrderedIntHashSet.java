@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,27 @@ public class OrderedIntHashSet extends BaseHashMap {
               BaseHashMap.noKeyOrValue, false);
 
         isList = true;
+    }
+
+    public OrderedIntHashSet(int[] elements) {
+
+        super(elements.length, BaseHashMap.intKeyOrValue,
+              BaseHashMap.noKeyOrValue, false);
+
+        isList = true;
+
+        addAll(elements);
+    }
+
+    public OrderedIntHashSet(int[] elementsA, int[] elementsB) {
+
+        super(elementsA.length + elementsB.length, BaseHashMap.intKeyOrValue,
+              BaseHashMap.noKeyOrValue, false);
+
+        isList = true;
+
+        addAll(elementsA);
+        addAll(elementsB);
     }
 
     public boolean contains(int key) {
@@ -145,6 +166,17 @@ public class OrderedIntHashSet extends BaseHashMap {
             int value = set.get(i);
 
             add(value);
+        }
+
+        return oldSize != size();
+    }
+
+    public boolean addAll(int[] elements) {
+
+        int oldSize = size();
+
+        for (int i = 0; i < elements.length; i++) {
+            add(elements[i]);
         }
 
         return oldSize != size();

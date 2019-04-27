@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import java.lang.reflect.Array;
  * Collection of static methods for operations on arrays
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.2
+ * @version 2.5.0
  * @since 1.7.2
  */
 public class ArrayUtil {
@@ -579,6 +579,63 @@ public class ArrayUtil {
         }
 
         return k;
+    }
+
+    /**
+     * Returns the count of elements in arra from position start that are
+     * sequentially equal to the elements of arrb.
+     */
+    public static int countSameElements(int[] arra, int start, int[] arrb) {
+
+        int k     = 0;
+        int limit = arra.length - start;
+
+        if (limit > arrb.length) {
+            limit = arrb.length;
+        }
+
+        for (int i = 0; i < limit; i++) {
+            if (arra[i + start] == arrb[i]) {
+                k++;
+            } else {
+                break;
+            }
+        }
+
+        return k;
+    }
+
+    /**
+     * Returns the count of elements in arra that are smaller than the value.
+     */
+    public static int countSmallerElements(int[] arra, int value) {
+
+        int count = 0;
+
+        for (int i = 0; i < arra.length; i++) {
+            if (arra[i] < value) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    /**
+     * Returns the count of elements in arra that are smaller/equal than the
+     * value.
+     */
+    public static int countSmallerEqualElements(int[] arra, int value) {
+
+        int count = 0;
+
+        for (int i = 0; i < arra.length; i++) {
+            if (arra[i] <= value) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     /**
@@ -1200,14 +1257,14 @@ public class ArrayUtil {
     }
 
     /**
-     *  Copies elements of source to dest. If adjust is -1 the element at
-     *  colindex is not copied. If adjust is +1 that element is filled with
-     *  the Object addition. All the rest of the elements in source are
-     *  shifted left or right accordingly when they are copied. If adjust is 0
-     *  the addition is copied over the element at colindex.
+     * Copies elements of source to dest. If adjust is -1 the element at
+     * colindex is not copied. If adjust is +1 that element is filled with
+     * the Object addition. All the rest of the elements in source are
+     * shifted left or right accordingly when they are copied. If adjust is 0
+     * the addition is copied over the element at colindex.
      *
-     *  No checks are performed on array sizes and an exception is thrown
-     *  if they are not consistent with the other arguments.
+     * No checks are performed on array sizes and an exception is thrown
+     * if they are not consistent with the other arguments.
      */
     public static void copyAdjustArray(Object source, Object dest,
                                        Object addition, int colindex,
@@ -1248,6 +1305,47 @@ public class ArrayUtil {
                 System.arraycopy(source, colindex, dest, colindex + 1,
                                  endcount);
             }
+        }
+    }
+
+    /**
+     * Similar to single slot adjusted copy, with multiple slots added or
+     * removed. The colindex array is the ordered lists the slots to be added or
+     * removed. The adjust argument can be {-1, +1) for remove or add.
+     *
+     * No checks are performed on array sizes and no exception is thrown
+     * if they are not consistent with the other arguments.
+     */
+    public static void copyAdjustArray(Object[] source, Object[] dest,
+                                       int[] colindex, int adjust) {
+
+        if (adjust == 0) {
+            System.arraycopy(source, 0, dest, 0, source.length);
+
+            return;
+        }
+
+        for (int i = 0, j = 0, counter = 0;
+                i < source.length && j < dest.length; i++, j++) {
+            int adjustPos = -1;
+
+            if (counter < colindex.length) {
+                adjustPos = colindex[counter];
+
+                if (adjust > 0) {
+                    if (adjustPos == j) {
+                        j++;
+                        counter++;
+                    }
+                } else {
+                    if (adjustPos == i) {
+                        i++;
+                        counter++;
+                    }
+                }
+            }
+
+            dest[j] = source[i];
         }
     }
 
@@ -1312,6 +1410,41 @@ public class ArrayUtil {
             copyArray(intarr, newarr, j);
 
             return newarr;
+        }
+
+        return intarr;
+    }
+
+    /**
+     * similar to the function with signle colindex, but with multiple
+     * adjustments.
+     */
+    public static int[] toAdjustedColumnArray(int[] colarr, int[] colindex,
+            int adjust) {
+
+        if (colarr == null) {
+            return null;
+        }
+
+        int[] intarr = new int[colarr.length];
+        int   j      = 0;
+
+        if (adjust == 0) {
+            for (int i = 0; i < colarr.length; i++) {
+                intarr[i] = colarr[i];
+            }
+        } else if (adjust < 0) {
+            for (int i = 0; i < colarr.length; i++) {
+                int count = countSmallerElements(colindex, colarr[i]);
+
+                intarr[i] = colarr[i] - count;
+            }
+        } else {
+            for (int i = 0; i < colarr.length; i++) {
+                int count = countSmallerEqualElements(colindex, colarr[i]);
+
+                intarr[i] = colarr[i] + count;
+            }
         }
 
         return intarr;
@@ -1666,7 +1799,7 @@ public class ArrayUtil {
     }
 
     /**
-     * uses 2**scale form and returns a multiple of this that is larger or equal to value
+     * uses 2**scale form and returns a multiple of unit that is larger or equal to value
      */
     public static long getBinaryMultipleCeiling(long value, long unit) {
 
@@ -1760,6 +1893,10 @@ public class ArrayUtil {
         return shift;
     }
 
+    /**
+     * a and b must be both positive
+     * returns (a / b) or (a / b) + 1 if remainder is larger than zero
+     */
     public static int cdiv(int a, int b) {
 
         int c = a / b;

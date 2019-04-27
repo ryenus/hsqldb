@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.lib.DoubleIntIndex;
  * Maintains a list of free file blocks with fixed capacity.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 2.3.0
  */
 public class TableSpaceManagerBlocks implements TableSpaceManager {
@@ -217,8 +217,6 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         if (rowSize >= minReuse && lookup.size() > 0) {
             if (lookup.getValue(0) >= rowUnits) {
                 index = 0;
-            } else if (rowSize > Integer.MAX_VALUE) {
-                index = -1;
             } else {
                 index = lookup.findFirstGreaterEqualKeyIndex(rowUnits);
             }

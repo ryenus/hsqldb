@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -147,7 +147,7 @@ public class TestViewAsterisks extends TestBase {
     private void createView(String viewName, String[] columnList,
                             String viewStatement) throws SQLException {
 
-        StringBuffer colList = new StringBuffer();
+        StringBuilder colList = new StringBuilder();
 
         if (columnList != null) {
             colList.append(" (");
@@ -268,7 +268,7 @@ public class TestViewAsterisks extends TestBase {
         String actualTranslatedStatement = getViewStatement(viewName);
 
         if (!actualTranslatedStatement.equals(expectedTranslatedStatement)) {
-            StringBuffer message = new StringBuffer();
+            StringBuilder message = new StringBuilder();
 
             message.append(viewName).append(
                 "'s statement not translated as expected\n");

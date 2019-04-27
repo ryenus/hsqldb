@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,14 +41,13 @@ import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.DateTimeType;
-import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
 /**
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class ExpressionLogical extends Expression {
@@ -138,9 +137,10 @@ public class ExpressionLogical extends Expression {
             case OpTypes.SMALLER :
             case OpTypes.SMALLER_EQUAL :
                 setEqualityMode();
+                break;
 
-            // fall through
             case OpTypes.NOT_EQUAL :
+            case OpTypes.OVERLAPS :
             case OpTypes.RANGE_CONTAINS :
             case OpTypes.RANGE_EQUALS :
             case OpTypes.RANGE_OVERLAPS :
@@ -158,13 +158,14 @@ public class ExpressionLogical extends Expression {
             case OpTypes.MATCH_UNIQUE_FULL :
             case OpTypes.AND :
             case OpTypes.OR :
-                dataType = Type.SQL_BOOLEAN;
                 break;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "ExpressionLogical");
         }
+
+        dataType = Type.SQL_BOOLEAN;
     }
 
     /**
@@ -295,30 +296,6 @@ public class ExpressionLogical extends Expression {
     }
 
     // logical ops
-    static boolean isNullOrTrue(Session session, Expression[] conditions) {
-
-        if (conditions == null) {
-            return true;
-        }
-
-        for (int i = 0; i < conditions.length; i++) {
-            if (!conditions[i].testCondition(session)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    static boolean isNullOrTrue(Session session, Expression conditions) {
-
-        if (conditions == null) {
-            return true;
-        }
-
-        return conditions.testCondition(session);
-    }
-
     static Expression andExpressions(Expression e1, Expression e2) {
 
         if (e1 == null) {
@@ -391,7 +368,7 @@ public class ExpressionLogical extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         if (opType == OpTypes.VALUE) {
             return super.getSQL();
@@ -549,7 +526,7 @@ public class ExpressionLogical extends Expression {
 
     protected String describe(Session session, int blanks) {
 
-        StringBuffer sb = new StringBuffer(64);
+        StringBuilder sb = new StringBuilder(64);
 
         sb.append('\n');
 
@@ -632,6 +609,10 @@ public class ExpressionLogical extends Expression {
 
             case OpTypes.EXISTS :
                 sb.append(Tokens.T_EXISTS);
+                break;
+
+            case OpTypes.OVERLAPS :
+                sb.append(Tokens.T_OVERLAPS);
                 break;
 
             case OpTypes.RANGE_CONTAINS :
@@ -857,14 +838,8 @@ public class ExpressionLogical extends Expression {
 
                 break;
             }
-            case OpTypes.RANGE_CONTAINS :
-            case OpTypes.RANGE_EQUALS :
-            case OpTypes.RANGE_OVERLAPS :
-            case OpTypes.RANGE_IMMEDIATELY_PRECEDES :
-            case OpTypes.RANGE_IMMEDIATELY_SUCCEEDS :
-            case OpTypes.RANGE_PRECEDES :
-            case OpTypes.RANGE_SUCCEEDS :
-                resolveTypesForPeriodPredicates(session);
+            case OpTypes.OVERLAPS :
+                resolveTypesForOverlaps();
                 break;
 
             case OpTypes.IN :
@@ -1175,20 +1150,8 @@ public class ExpressionLogical extends Expression {
         return false;
     }
 
-    void resolveTypesForPeriodPredicates(Session session) {
+    void resolveTypesForOverlaps() {
 
-        // convert CONTAINS right part if necessary
-        if (nodes[RIGHT].nodes.length == 0) {
-            Expression[] newNodes = new Expression[] {
-                nodes[RIGHT], new ExpressionValue(null, nodes[RIGHT].dataType)
-            };
-
-            nodes[RIGHT] = new Expression(OpTypes.ROW, newNodes);
-
-            nodes[RIGHT].resolveTypes(session, null);
-        }
-
-        // end convert
         if (nodes[LEFT].nodes[0].isUnresolvedParam()) {
             nodes[LEFT].nodes[0].dataType = nodes[RIGHT].nodes[0].dataType;
         }
@@ -1288,7 +1251,7 @@ public class ExpressionLogical extends Expression {
                 return valueData;
 
             case OpTypes.NEGATE :
-                return ((NumberType) dataType).negate(
+                return dataType.negate(
                     nodes[LEFT].getValue(session, nodes[LEFT].dataType));
 
             case OpTypes.IS_NOT_NULL :
@@ -1319,69 +1282,11 @@ public class ExpressionLogical extends Expression {
                 return nodes[LEFT].getValue(session) == null ? Boolean.TRUE
                                                              : Boolean.FALSE;
             }
-            case OpTypes.RANGE_CONTAINS : {
-                Object[] left  = nodes[LEFT].getRowValue(session);
-                Object[] right = nodes[RIGHT].getRowValue(session);
-                boolean pointOfTime = nodes[RIGHT].exprSubType
-                                      != OpTypes.RANGE_EQUALS;
-
-                return DateTimeType.contains(session, left,
-                                             nodes[LEFT].nodeDataTypes, right,
-                                             nodes[RIGHT].nodeDataTypes,
-                                             pointOfTime);
-            }
-            case OpTypes.RANGE_EQUALS : {
+            case OpTypes.OVERLAPS : {
                 Object[] left  = nodes[LEFT].getRowValue(session);
                 Object[] right = nodes[RIGHT].getRowValue(session);
 
-                return DateTimeType.equals(session, left,
-                                           nodes[LEFT].nodeDataTypes, right,
-                                           nodes[RIGHT].nodeDataTypes);
-            }
-            case OpTypes.RANGE_OVERLAPS : {
-                Object[] left  = nodes[LEFT].getRowValue(session);
-                Object[] right = nodes[RIGHT].getRowValue(session);
-
-                if (nodes[LEFT].exprSubType == OpTypes.RANGE_EQUALS) {
-                    return DateTimeType.overlaps(session, left,
-                                                 nodes[LEFT].nodeDataTypes,
-                                                 right,
-                                                 nodes[RIGHT].nodeDataTypes);
-                } else {
-                    return DateTimeType.overlapsRelaxed(
-                        session, left, nodes[LEFT].nodeDataTypes, right,
-                        nodes[RIGHT].nodeDataTypes);
-                }
-            }
-            case OpTypes.RANGE_PRECEDES : {
-                Object[] left  = nodes[LEFT].getRowValue(session);
-                Object[] right = nodes[RIGHT].getRowValue(session);
-
-                return DateTimeType.precedes(session, left,
-                                             nodes[LEFT].nodeDataTypes, right,
-                                             nodes[RIGHT].nodeDataTypes);
-            }
-            case OpTypes.RANGE_IMMEDIATELY_PRECEDES : {
-                Object[] left  = nodes[LEFT].getRowValue(session);
-                Object[] right = nodes[RIGHT].getRowValue(session);
-
-                return DateTimeType.immediatelyPrecedes(session, left,
-                        nodes[LEFT].nodeDataTypes, right,
-                        nodes[RIGHT].nodeDataTypes);
-            }
-            case OpTypes.RANGE_IMMEDIATELY_SUCCEEDS : {
-                Object[] left  = nodes[LEFT].getRowValue(session);
-                Object[] right = nodes[RIGHT].getRowValue(session);
-
-                return DateTimeType.immediatelySucceeds(session, left,
-                        nodes[LEFT].nodeDataTypes, right,
-                        nodes[RIGHT].nodeDataTypes);
-            }
-            case OpTypes.RANGE_SUCCEEDS : {
-                Object[] left  = nodes[LEFT].getRowValue(session);
-                Object[] right = nodes[RIGHT].getRowValue(session);
-
-                return DateTimeType.succeeds(session, left,
+                return DateTimeType.overlaps(session, left,
                                              nodes[LEFT].nodeDataTypes, right,
                                              nodes[RIGHT].nodeDataTypes);
             }
@@ -1912,7 +1817,7 @@ public class ExpressionLogical extends Expression {
                 }
 
                 if (opType == OpTypes.NOT_EQUAL) {
-                    it = index.firstRow(session, store, 0, null);
+                    it = index.firstRow(session, store, null, 0, null);
                 } else {
                     it = index.findFirstRowNotNull(session, store);
                 }
@@ -1971,7 +1876,7 @@ public class ExpressionLogical extends Expression {
                     return null;
                 }
 
-                it = index.firstRow(session, store, 0, null);
+                it = index.firstRow(session, store, null, 0, null);
 
                 it.next();
 
@@ -1988,9 +1893,8 @@ public class ExpressionLogical extends Expression {
 
                 if (opType == OpTypes.EQUAL) {
                     if (it.next()) {
-                        return store.elementCount(session) == 1 ? Boolean.TRUE
-                                                                : Boolean
-                                                                .FALSE;
+                        return store.elementCount() == 1 ? Boolean.TRUE
+                                                         : Boolean.FALSE;
                     } else {
                         return Boolean.FALSE;
                     }
@@ -2384,13 +2288,7 @@ public class ExpressionLogical extends Expression {
                 return nodes[LEFT].costFactor(session, rangeVar, opType)
                        + nodes[RIGHT].costFactor(session, rangeVar, opType);
             }
-            case OpTypes.RANGE_CONTAINS :
-            case OpTypes.RANGE_EQUALS :
-            case OpTypes.RANGE_OVERLAPS :
-            case OpTypes.RANGE_IMMEDIATELY_PRECEDES :
-            case OpTypes.RANGE_IMMEDIATELY_SUCCEEDS :
-            case OpTypes.RANGE_PRECEDES :
-            case OpTypes.RANGE_SUCCEEDS :
+            case OpTypes.OVERLAPS :
             case OpTypes.IN :
             case OpTypes.MATCH_SIMPLE :
             case OpTypes.MATCH_PARTIAL :

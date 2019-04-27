@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 
 package org.hsqldb.rights;
 
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -54,6 +53,7 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * Contains a set of Grantee objects, and supports operations for creating,
@@ -65,7 +65,7 @@ import org.hsqldb.lib.StringConverter;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.3.0
+ * @version 2.5.0
  * @since 1.8.0
  * @see Grantee
  */
@@ -662,6 +662,10 @@ public class GranteeManager {
             throw Error.error(ErrorCode.X_28503, name.name);
         }
 
+        if (SqlInvariants.SYSTEM_AUTHORIZATION_NAME.equals(name.name)) {
+            throw Error.error(ErrorCode.X_28502, name.name);
+        }
+
         if (SqlInvariants.isLobsSchemaName(name.name)
                 || SqlInvariants.isSystemSchemaName(name.name)) {
             throw Error.error(ErrorCode.X_28502, name.name);
@@ -681,6 +685,10 @@ public class GranteeManager {
 
         if (map.containsKey(name.name)) {
             throw Error.error(ErrorCode.X_28503, name.name);
+        }
+
+        if (SqlInvariants.SYSTEM_AUTHORIZATION_NAME.equals(name.name)) {
+            throw Error.error(ErrorCode.X_28502, name.name);
         }
 
         if (SqlInvariants.isLobsSchemaName(name.name)
@@ -820,7 +828,7 @@ public class GranteeManager {
         while (it.hasNext()) {
             Grantee grantee = (Grantee) it.next();
 
-            // ADMIN_ROLE_NAME is not persisted
+            // built-in role names are not persisted
             if (!GranteeManager.isReserved(
                     grantee.getName().getNameString())) {
                 list.add(grantee.getSQL());
@@ -908,12 +916,7 @@ public class GranteeManager {
 
         byte[] data;
 
-        try {
-            data = string.getBytes("ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
-            throw Error.error(ErrorCode.GENERAL_ERROR, e);
-        }
-
+        data = string.getBytes(JavaSystem.CS_ISO_8859_1);
         data = getDigester().digest(data);
 
         return StringConverter.byteArrayToHexString(data);

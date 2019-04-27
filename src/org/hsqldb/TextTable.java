@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -334,7 +334,7 @@ public class TextTable extends Table {
      * Adds commitPersistence() call
      */
     public void insertData(Session session, PersistentStore store,
-                           Object[] data) {
+                           Object[] data, boolean enforceUnique) {
 
         Row row = (Row) store.getNewCachedObject(session, data, false);
 
@@ -350,7 +350,7 @@ public class TextTable extends Table {
             return null;
         }
 
-        StringBuffer sb = new StringBuffer(128);
+        StringBuilder sb = new StringBuilder(128);
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
         sb.append(getName().getSchemaQualifiedStatementName());
@@ -373,7 +373,7 @@ public class TextTable extends Table {
             return null;
         }
 
-        StringBuffer sb = new StringBuffer(128);
+        StringBuilder sb = new StringBuilder(128);
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
         sb.append(getName().getSchemaQualifiedStatementName());

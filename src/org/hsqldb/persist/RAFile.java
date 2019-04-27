@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@ import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.Constructor;
 
 import org.hsqldb.Database;
 import org.hsqldb.error.Error;
@@ -44,7 +43,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
-import org.hsqldb.lib.Storage;
 
 /**
  * This class is a wrapper for a random access file such as that used for
@@ -94,51 +92,6 @@ final class RAFile implements RandomAccessInterface {
     static RandomAccessInterface newScaledRAFile(Database database,
             String name, boolean readonly,
             int type) throws FileNotFoundException, IOException {
-
-        if (type == DATA_FILE_STORED) {
-            try {
-                String cname = database.getURLProperties().getProperty(
-                    HsqlDatabaseProperties.url_storage_class_name);
-                String skey = database.getURLProperties().getProperty(
-                    HsqlDatabaseProperties.url_storage_key);
-                Class storageClass;
-
-                try {
-                    ClassLoader classLoader =
-                        Thread.currentThread().getContextClassLoader();
-
-                    storageClass = classLoader.loadClass(cname);
-                } catch (ClassNotFoundException e) {
-                    storageClass = Class.forName(cname);
-                }
-
-                Constructor constructor =
-                    storageClass.getConstructor(new Class[] {
-                    String.class, Boolean.class, Object.class
-                });
-                Object accessor = constructor.newInstance(new Object[] {
-                    name, Boolean.valueOf(readonly), skey
-                });
-
-                if (accessor instanceof RandomAccessInterface) {
-                    return (RandomAccessInterface) accessor;
-                } else if (accessor instanceof org.hsqldb.lib.Storage) {
-                    return new RAStorageWrapper((Storage) accessor);
-                } else {
-                    throw new IOException();
-                }
-            } catch (ClassNotFoundException e) {
-                throw new IOException();
-            } catch (NoSuchMethodException e) {
-                throw new IOException();
-            } catch (InstantiationException e) {
-                throw new IOException();
-            } catch (IllegalAccessException e) {
-                throw new IOException();
-            } catch (java.lang.reflect.InvocationTargetException e) {
-                throw new IOException();
-            }
-        }
 
         if (type == DATA_FILE_JAR) {
             return new RAFileInJar(name);

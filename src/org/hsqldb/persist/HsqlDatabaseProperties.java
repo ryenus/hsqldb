@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.lib.StringUtil;
  * Manages a .properties file for a database.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
@@ -151,21 +151,21 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String PRODUCT_NAME         = "HSQL Database Engine";
 
 //#ifdef JAVA8
-/*
 
-    public static final String THIS_VERSION         = "2.4.1";
-    public static final String THIS_FULL_VERSION    = "2.4.1";
+    public static final String THIS_VERSION         = "2.5.0";
+    public static final String THIS_FULL_VERSION    = "2.5.0";
     public static final int    MAJOR                = 2,
-                               MINOR                = 4,
-                               REVISION             = 1;
-*/
+                               MINOR                = 5,
+                               REVISION             = 0;
 
 //#else
-    public static final String THIS_VERSION      = "2.3.6";
-    public static final String THIS_FULL_VERSION = "2.3.6";
+/*
+    public static final String THIS_VERSION      = "2.3.7";
+    public static final String THIS_FULL_VERSION = "2.3.7";
     public static final int    MAJOR             = 2,
                                MINOR             = 3,
-                               REVISION          = 6;
+                               REVISION          = 7;
+*/
 
 //#endif JAVA8
 
@@ -204,10 +204,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String url_allow_empty_batch = "allow_empty_batch";
 
     //
-    public static final String url_storage_class_name = "storage_class_name";
-    public static final String url_fileaccess_class_name =
-        "fileaccess_class_name";
-    public static final String url_storage_key = "storage_key";
     public static final String url_shutdown    = "shutdown";
     public static final String url_recover     = "recover";
     public static final String url_tls_wrapper = "tls_wrapper";
@@ -586,20 +582,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // version of a new database
         setProperty(hsqldb_version, THIS_VERSION);
         setProperty(hsqldb_modified, MODIFIED_NO_NEW);
-
-        // OOo related code
-        if (database.logger.isStoredFileAccess()) {
-            setProperty(hsqldb_cache_rows, 25000);
-            setProperty(hsqldb_cache_size, 6000);
-            setProperty(hsqldb_log_size, 10);
-            setProperty(sql_enforce_size, true);
-            setProperty(hsqldb_nio_data_file, false);
-            setProperty(hsqldb_lock_file, true);
-            setProperty(hsqldb_default_table_type, "cached");
-            setProperty(jdbc_translate_tti_types, true);
-        }
-
-        // OOo end
     }
 
     /**
@@ -673,17 +655,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             props.setProperty(
                 tx_timestamp,
                 Long.toString(database.logger.getFilesTimestamp()));
-
-            if (database.logger.isStoredFileAccess()) {
-                if (!database.logger.isNewStoredFileAccess()) {
-
-// when jar is used with embedded databases in AOO 3.4 and recent(2012) LO this
-// line can be uncommented to circumvent hard-coded check in OOo code in
-// drivers/hsqldb/HDriver.cxx
-//                    props.setProperty(hsqldb_version, VERSION_STRING_1_8_0);
-                }
-            }
-
             props.setProperty(hsqldb_modified, getProperty(hsqldb_modified));
             props.save(fileName + ".properties" + ".new");
             fa.renameElement(fileName + ".properties" + ".new",
@@ -849,13 +820,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     }
 
     public int getDefaultWriteDelay() {
-
-        // OOo related code
-        if (database.logger.isStoredFileAccess()) {
-            return 2000;
-        }
-
-        // OOo end
         return 500;
     }
 
@@ -1038,7 +1002,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public String getClientPropertiesAsString() {
 
         if (isPropertyTrue(jdbc_translate_tti_types)) {
-            StringBuffer sb = new StringBuffer(jdbc_translate_tti_types);
+            StringBuilder sb = new StringBuilder(jdbc_translate_tti_types);
 
             sb.append('=').append(true);
 

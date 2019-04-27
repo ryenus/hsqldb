@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@ import java.io.IOException;
 
 import org.hsqldb.Row;
 import org.hsqldb.Session;
-import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
@@ -50,7 +49,7 @@ import org.hsqldb.types.Type;
  * operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class RowSetNavigatorDataChangeMemory
@@ -279,8 +278,8 @@ implements RowSetNavigatorDataChange {
         return getCurrentRow().getData();
     }
 
-    public Object getField(int coord) {
-        return getCurrentRow().getData()[coord];
+    public Object getField(int col) {
+        return getCurrentRow().getData()[col];
     }
 
     public void setCurrent(Object[] data) {}
@@ -328,9 +327,9 @@ implements RowSetNavigatorDataChange {
                 .getCurrentChangedData();
         }
 
-        public Object getField(int i) {
+        public Object getField(int col) {
             return RowSetNavigatorDataChangeMemory.this
-                .getCurrentChangedData()[i];
+                .getCurrentChangedData()[col];
         }
 
         public void setCurrent(Object[] data) {}

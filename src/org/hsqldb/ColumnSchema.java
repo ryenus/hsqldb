@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL table column metadata.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class ColumnSchema extends ColumnBase implements SchemaObject {
@@ -62,6 +62,7 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
     private OrderedHashSet references;
     private OrderedHashSet generatedColumnReferences;
     private Expression     accessor;
+    private int            systemPeriodType;
 
     ColumnSchema(HsqlName name, Type type) {
         this.columnName = name;
@@ -157,7 +158,7 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
 
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         switch (parameterMode) {
 
@@ -257,6 +258,7 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
     public Expression getUpdateExpression() {
         return updateExpression;
     }
+
     /**
      * Is column writeable or always generated
      *
@@ -358,6 +360,28 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
         setWriteable(generatingExpression == null);
     }
 
+    public boolean isSystemPeriod() {
+        return systemPeriodType
+               != SchemaObject.PeriodSystemColumnType.PERIOD_ROW_NONE;
+    }
+
+    /**
+     *  Returns system period type of the column.
+     */
+    public int getSystemPeriodType() {
+        return systemPeriodType;
+    }
+
+    void setSystemPeriodType(int type) {
+
+        systemPeriodType = type;
+
+        boolean writable =
+            type == SchemaObject.PeriodSystemColumnType.PERIOD_ROW_NONE;
+
+        setWriteable(writable);
+    }
+
     public ColumnSchema duplicate() {
 
         ColumnSchema copy = new ColumnSchema(columnName, dataType, true,
@@ -366,6 +390,8 @@ public class ColumnSchema extends ColumnBase implements SchemaObject {
         copy.setNullability(this.nullability);
         copy.setGeneratingExpression(generatingExpression);
         copy.setIdentity(sequence);
+        copy.setUpdateExpression(updateExpression);
+        copy.setSystemPeriodType(systemPeriodType);
 
         return copy;
     }

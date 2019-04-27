@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import java.nio.charset.Charset;
  * as an end-of_line marker.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.5.0
  * @since 2.0.1
  */
 public class LineReader {
@@ -57,13 +57,10 @@ public class LineReader {
     //
     final InputStream stream;
     final Charset     charset;
-    final String      charsetName;
 
-    public LineReader(InputStream stream, String charsetName) {
-
-        this.stream      = stream;
-        this.charsetName = charsetName;
-        this.charset     = Charset.forName(charsetName);
+    public LineReader(InputStream stream, Charset charset) {
+        this.stream  = stream;
+        this.charset = charset;
     }
 
     public String readLine() throws IOException {
@@ -114,8 +111,7 @@ public class LineReader {
         }
 
         // can use charset with JDK 1.6
-        String string = new String(baOS.getBuffer(), 0, baOS.size(),
-                                   charsetName);
+        String string = new String(baOS.getBuffer(), 0, baOS.size(), charset);
 
         baOS.reset();
 
