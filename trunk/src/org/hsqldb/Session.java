@@ -1368,10 +1368,14 @@ public class Session implements SessionInterface {
 
             timeoutManager.startTimeout(timeout);
 
+            boolean interrupted = false;
+
             while (true) {
                 try {
                     latch.await();
                 } catch (InterruptedException e) {
+                    interrupted = true;
+
                     Thread.interrupted();
 
                     continue;
@@ -1388,8 +1392,14 @@ public class Session implements SessionInterface {
                 break repeatLoop;
             }
 
-            if (abortTransaction) {
-                return handleAbortTransaction();
+            if (abortTransaction || interrupted) {
+                Result result = handleAbortTransaction();
+
+                if (interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+
+                return result;
             }
 
             database.txManager.beginActionResume(this);
