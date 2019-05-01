@@ -35,9 +35,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.security.AccessControlException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
@@ -56,6 +54,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Vector;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -73,7 +72,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
@@ -106,8 +104,7 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import org.hsqldb.lib.RCData;
-import org.hsqldb.lib.java.JavaSystem;
+import org.hsqldb.util.lib.RCData;
 
 //dmarshall@users - 20020101 - original swing port of DatabaseManager
 //sqlbob@users 20020401 - patch 537501 by ulrivo - commandline arguments
@@ -1055,7 +1052,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             // user selects the import file, but that messes up the z
             // layering of the 3 windows already displayed.
         } else if (s.equals(LOGGING_BOX_TEXT)) {
-            JavaSystem.setLogToSystem(boxLogging.isSelected());
+            setLogToSystem(boxLogging.isSelected());
         } else if (s.equals(AUTOREFRESH_BOX_TEXT)) {
             autoRefresh = boxAutoRefresh.isSelected();
 
@@ -3066,6 +3063,16 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     + "':  " + ioe.getMessage());
             }
         }
+    }
+
+    private static void setLogToSystem(boolean value) {
+
+        try {
+            PrintWriter newPrintWriter = (value) ? new PrintWriter(System.out)
+                                                 : null;
+
+            DriverManager.setLogWriter(newPrintWriter);
+        } catch (Exception e) {}
     }
 
     private static final String tString = Boolean.TRUE.toString();

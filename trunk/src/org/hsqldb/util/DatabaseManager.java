@@ -34,13 +34,16 @@ package org.hsqldb.util;
 import java.applet.Applet;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Vector;
+
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
@@ -64,8 +67,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.MemoryImageSource;
 
-import org.hsqldb.lib.RCData;
-import org.hsqldb.lib.java.JavaSystem;
+import org.hsqldb.util.lib.RCData;
 
 // sqlbob@users 20020401 - patch 1.7.0 by sqlbob (RMP) - enhancements
 // sqlbob@users 20020401 - patch 537501 by ulrivo - command line arguments
@@ -572,9 +574,9 @@ implements ActionListener, WindowListener, KeyListener {
             Transfer.work(new String[]{ "-r" });
             refreshTree();
         } else if (s.equals("Logging on")) {
-            JavaSystem.setLogToSystem(true);
+            setLogToSystem(true);
         } else if (s.equals("Logging off")) {
-            JavaSystem.setLogToSystem(false);
+            setLogToSystem(false);
         } else if (s.equals("Help")) {
             showHelp(new String[] {
                 "", HELP_TEXT
@@ -1372,4 +1374,15 @@ implements ActionListener, WindowListener, KeyListener {
 
         tTree.update();
     }
+
+    private static void setLogToSystem(boolean value) {
+
+        try {
+            PrintWriter newPrintWriter = (value) ? new PrintWriter(System.out)
+                                                 : null;
+
+            DriverManager.setLogWriter(newPrintWriter);
+        } catch (Exception e) {}
+    }
+
 }
