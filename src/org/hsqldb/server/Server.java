@@ -37,6 +37,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.sql.DriverManager;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 
@@ -54,7 +55,6 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.Notified;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.StringUtil;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.resources.ResourceBundleHandler;
@@ -1003,7 +1003,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
         printWithThread("setTrace(" + trace + ")");
         serverProperties.setProperty(ServerProperties.sc_key_trace, trace);
-        JavaSystem.setLogToSystem(trace);
+        setLogToSystem(trace);
     }
 
     /**
@@ -1071,7 +1071,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         maxConnections = serverProperties.getIntegerProperty(
             ServerProperties.sc_key_max_connections, 16);
 
-        JavaSystem.setLogToSystem(isTrace());
+        setLogToSystem(isTrace());
 
         isSilent =
             serverProperties.isPropertyTrue(ServerProperties.sc_key_silent);
@@ -1200,7 +1200,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         logWriter        = new PrintWriter(System.out);
         errWriter        = new PrintWriter(System.err);
 
-        JavaSystem.setLogToSystem(isTrace());
+        setLogToSystem(isTrace());
     }
 
     /**
@@ -2346,4 +2346,15 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
         server.start();
     }
+
+    private static void setLogToSystem(boolean value) {
+
+        try {
+            PrintWriter newPrintWriter = (value) ? new PrintWriter(System.out)
+                                                 : null;
+
+            DriverManager.setLogWriter(newPrintWriter);
+        } catch (Exception e) {}
+    }
+
 }

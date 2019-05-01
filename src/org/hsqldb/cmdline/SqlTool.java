@@ -37,15 +37,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PipedReader;
 import java.io.PipedWriter;
-import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.hsqldb.cmdline.sqltool.Token;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.RCData;
-import org.hsqldb.cmdline.sqltool.Token;
 
 /* $Id$ */
 
@@ -584,7 +585,7 @@ public class SqlTool {
                 }
 
                 while (i + 1 < arg.length) try {
-                    scriptFiles[scriptIndex] = 
+                    scriptFiles[scriptIndex] =
                       SqlFile.URL_WITH_PROTO_RE.matcher(arg[++i]).matches() ?
                         new URL(arg[i]) :
                         new URL("file", null, arg[i]);
