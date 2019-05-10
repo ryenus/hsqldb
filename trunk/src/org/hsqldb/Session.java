@@ -520,6 +520,8 @@ public class Session implements SessionInterface {
 //        tempActionHistory.add("endAction " + actionTimestamp);
         abortAction = false;
 
+        timeoutManager.endTimeout();
+
         sessionData.persistentStoreCollection.clearStatementTables();
 
         if (result.mode == ResultConstants.ERROR) {
@@ -1344,6 +1346,9 @@ public class Session implements SessionInterface {
             return r;
         }
 
+
+        timeoutManager.startTimeout(timeout);
+
         repeatLoop:
         while (true) {
             actionIndex = rowActionList.size();
@@ -1365,8 +1370,6 @@ public class Session implements SessionInterface {
             if (abortTransaction) {
                 return handleAbortTransaction();
             }
-
-            timeoutManager.startTimeout(timeout);
 
             boolean interrupted = false;
 
@@ -1403,7 +1406,6 @@ public class Session implements SessionInterface {
             }
 
             database.txManager.beginActionResume(this);
-            timeoutManager.resumeTimeout();
 
             //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
             sessionContext.setDynamicArguments(pvals);
@@ -2024,7 +2026,7 @@ public class Session implements SessionInterface {
         if (result.getType() == ResultConstants.SQLCANCEL) {
             if (result.getSessionRandomID() == randomId) {
                 database.txManager.resetSession(
-                    null, this, TransactionManager.resetSessionAbort);
+                    null, this, TransactionManager.resetSessionStatement);
             }
         }
 
@@ -2342,38 +2344,24 @@ public class Session implements SessionInterface {
     // timeouts
     class TimeoutManager {
 
-        volatile long    actionTimestamp;
-        AtomicInteger    currentTimeout = new AtomicInteger();
-        volatile boolean aborted;
+        AtomicInteger currentTimeout = new AtomicInteger();
 
         void startTimeout(int timeout) {
 
-            aborted = false;
+            currentTimeout.set(timeout);
 
             if (timeout == 0) {
                 return;
             }
 
-            currentTimeout.set(timeout);
-
-            actionTimestamp = Session.this.actionTimestamp;
-
             database.timeoutRunner.addSession(Session.this);
-        }
-
-        void resumeTimeout() {
-            actionTimestamp = Session.this.actionTimestamp;
         }
 
         boolean endTimeout() {
 
-            boolean aborted = this.aborted;
-
             currentTimeout.set(0);
 
-            this.aborted = false;
-
-            return aborted;
+            return true;
         }
 
         public boolean checkTimeout() {
@@ -2382,25 +2370,13 @@ public class Session implements SessionInterface {
                 return true;
             }
 
-            if (aborted || actionTimestamp != Session.this.actionTimestamp) {
-                actionTimestamp = 0;
-
-                currentTimeout.set(0);
-
-                aborted = false;
-
-                return true;
-            }
-
             int result = currentTimeout.decrementAndGet();
 
             if (result <= 0) {
                 currentTimeout.set(0);
-
-                aborted = true;
-
                 database.txManager.resetSession(
-                    null, Session.this, TransactionManager.resetSessionAbort);
+                    null, Session.this,
+                    TransactionManager.resetSessionStatement);
 
                 return true;
             }

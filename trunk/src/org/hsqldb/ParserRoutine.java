@@ -297,15 +297,9 @@ public class ParserRoutine extends ParserTable {
         return cs;
     }
 
-    StatementSchema compileAlterSpecificRoutine() {
+    StatementSchema compileAlterSpecificRoutine(Routine routine) {
 
         boolean restrict = false;
-
-        readThis(Tokens.SPECIFIC);
-        readThis(Tokens.ROUTINE);
-
-        Routine routine =
-            (Routine) readSchemaObjectName(SchemaObject.SPECIFIC_ROUTINE);
 
         routine = routine.duplicate();
 

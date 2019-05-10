@@ -53,12 +53,12 @@ public interface TransactionManager {
     int ACTION_REF  = 2;
 
     //
-    int resetSessionResults  = 1;
-    int resetSessionTables   = 2;
-    int resetSessionResetAll = 3;
-    int resetSessionRollback = 4;
-    int resetSessionAbort    = 5;
-    int resetSessionClose    = 6;
+    int resetSessionResults   = 1;
+    int resetSessionTables    = 2;
+    int resetSessionResetAll  = 3;
+    int resetSessionRollback  = 4;
+    int resetSessionStatement = 5;
+    int resetSessionClose     = 6;
 
     long getGlobalChangeTimestamp();
 
