@@ -1393,7 +1393,7 @@ public class StatementCommand extends Statement {
                         case Tokens.END :
                             session.database.txManager.resetSession(session,
                                     targetSession,
-                                    TransactionManager.resetSessionAbort);
+                                    TransactionManager.resetSessionStatement);
                             break;
                     }
                 } catch (HsqlException e) {

@@ -929,12 +929,20 @@ class TransactionManagerCommon {
             switch (mode) {
 
                 case TransactionManager.resetSessionResults :
+                    if (session != targetSession) {
+                        break;
+                    }
+
                     if (!targetSession.isInMidTransaction()) {
                         targetSession.sessionData.closeAllNavigators();
                     }
                     break;
 
                 case TransactionManager.resetSessionTables :
+                    if (session != targetSession) {
+                        break;
+                    }
+
                     if (!targetSession.isInMidTransaction()) {
                         targetSession.sessionData.persistentStoreCollection
                             .clearAllTables();
@@ -942,6 +950,10 @@ class TransactionManagerCommon {
                     break;
 
                 case TransactionManager.resetSessionResetAll :
+                    if (session != targetSession) {
+                        break;
+                    }
+
                     if (!targetSession.isInMidTransaction()) {
                         targetSession.resetSession();
                     }
@@ -965,7 +977,7 @@ class TransactionManagerCommon {
                     }
                     break;
 
-                case TransactionManager.resetSessionAbort :
+                case TransactionManager.resetSessionStatement :
                     if (session == targetSession) {
                         return;
                     }

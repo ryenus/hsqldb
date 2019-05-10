@@ -349,6 +349,28 @@ public class ParserDDL extends ParserRoutine {
         }
     }
 
+    Statement compileAlterSpecificRoutine() {
+
+        readThis(Tokens.SPECIFIC);
+        readThis(Tokens.ROUTINE);
+
+        Routine routine =
+            (Routine) readSchemaObjectName(SchemaObject.SPECIFIC_ROUTINE);
+
+        switch (token.tokenType) {
+
+            case Tokens.RENAME : {
+                read();
+                readThis(Tokens.TO);
+
+                return compileRenameObject(routine.getSpecificName(),
+                                           SchemaObject.SPECIFIC_ROUTINE);
+            }
+        }
+
+        return compileAlterSpecificRoutine(routine);
+    }
+
     Statement compileAlterRoutine() {
 
         readThis(Tokens.ROUTINE);
@@ -1890,8 +1912,10 @@ public class ParserDDL extends ParserRoutine {
         HsqlArrayList list     = new HsqlArrayList();
         Constraint constraint =
             new Constraint(null, null, SchemaObject.ConstraintTypes.TEMP);
+        Boolean ifNotExists = readIfNotExists();
 
         list.add(constraint);
+        checkIsSimpleName();
         checkIsSchemaObjectName();
 
         HsqlName hsqlName =
@@ -1918,7 +1942,7 @@ public class ParserDDL extends ParserRoutine {
         String   sql  = getLastPart();
         Object[] args = new Object[] {
             Integer.valueOf(StatementTypes.ADD_COLUMN), table, column,
-            Integer.valueOf(colIndex), list
+            Integer.valueOf(colIndex), list, ifNotExists
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(

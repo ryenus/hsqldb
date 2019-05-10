@@ -917,13 +917,6 @@ public class Database {
             }
         }
 
-        public void start() {
-
-            sessionList = new OrderedHashSet();
-            timerTask = DatabaseManager.getTimer().schedulePeriodicallyAfter(0,
-                    1000, this, true);
-        }
-
         public void stop() {
 
             synchronized (this) {
@@ -948,6 +941,13 @@ public class Database {
 
                 sessionList.add(session);
             }
+        }
+
+        private void start() {
+
+            sessionList = new OrderedHashSet();
+            timerTask = DatabaseManager.getTimer().schedulePeriodicallyAfter(0,
+                    1000, this, true);
         }
     }
 }
