@@ -49,8 +49,8 @@
     <available property="switch.inplace"
                file="${swsrc}/org/hsqldb/package.html"/>
 
-     <!-- Hosting Junit 3.8.2 JavaDocs at hsqldb.org since it's not available
-          expanded anywhere on Internet that I can find. -->
+    <!-- Hosting Junit 3.8.2 JavaDocs at hsqldb.org since it's not available
+         expanded anywhere on Internet that I can find. -->
     <property name="junit.doc.link"
               value="http://www.hsqldb.org/doc/junit-3.8.2-javadoc/"/>
 
@@ -84,11 +84,11 @@ hsqldbswing.jar ant dbmanswing  DatabaseManagerSwing GUI client
 hsqldbutil.jar  ant hsqldbutil  DatabaseManagers and TransferTool
 hsqldbtest.jar  ant hsqldbtest  All, including test classes
 sqltool.jar     ant sqltool     SqlTool app (no JDBC driver)</echo>
-   </target>
+    </target>
 
-   <target name="help" description="Top-level help message">
-     <echo>Ant version: ${ant.version} </echo>
-     <echo>usage:
+    <target name="help" description="Top-level help message">
+      <echo>Ant version: ${ant.version} </echo>
+      <echo>usage:
    ant -help            Display ant help screen
    ant -projecthelp     Display all invocable targets
    ant explainjars      List all targets which build jar files
@@ -97,22 +97,22 @@ sqltool.jar     ant sqltool     SqlTool app (no JDBC driver)</echo>
 examples:
    ant hsqldb
    ant clean</echo>
-   </target>
+    </target>
 
-   <target name="-javajsse">
-     <available classname="javax.net.ssl.SSLSession" property="ant.java.hasjsse"/>
-     <echo message="ant.java.hasjsse=${ant.java.hasjsse}" />
-   </target>
+    <target name="-javajsse">
+      <available classname="javax.net.ssl.SSLSession" property="ant.java.hasjsse"/>
+      <echo message="ant.java.hasjsse=${ant.java.hasjsse}" />
+    </target>
 
-   <!-- set up java compatibility level or fail -->
-   <target name="-set-jvmvars">
-   <!-- Besides this one target taking the place of 4 targets (-javaversionX),
-        this target eliminates the redundancy in those methods by making a
-        single class-existence-test definitively responsible for determining if
-        JVM X is supported.
-        It is sufficient for this purposes if the test classes used are
-        verified to be present in version X and in all newer versions (> X)
-        (i.e. that the class is not removed from some higher JVM). -->
+    <!-- set up java compatibility level or fail -->
+    <target name="-set-jvmvars">
+    <!-- Besides this one target taking the place of 4 targets (-javaversionX),
+         this target eliminates the redundancy in those methods by making a
+         single class-existence-test definitively responsible for determining if
+         JVM X is supported.
+         It is sufficient for this purposes if the test classes used are
+         verified to be present in version X and in all newer versions (> X)
+         (i.e. that the class is not removed from some higher JVM). -->
      <available classname="java.net.IDN" property="ant.java.iscjava16"/>
      <available classname="java.sql.JDBCType" property="ant.java.iscjava18"/>
      <available classname="java.sql.ShardingKey" property="ant.java.iscjava19"/>
@@ -161,7 +161,7 @@ examples:
 
 
    <target name="-clean">
-       <delete dir="classes"/>
+     <delete dir="classes"/>
    </target>
 
    <target name="clean-all" depends="-clean, -clean-switch-branch, clean-docs"
@@ -226,8 +226,8 @@ examples:
         <!-- Since these paths are interpreted by the JVM, not ant,
              the path must be relative to run dir (build), not the
              Ant basedir -->
-       </java>
-       <echo> "${basedir}/build/jdkcodeswitch.list"</echo>
+      </java>
+      <echo> "${basedir}/build/jdkcodeswitch.list"</echo>
     </target>
 
     <!-- these are used for checking the correctness of switched code blocks -->
