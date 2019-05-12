@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
-<!-- author fredt@users.sourceforge.net 2001 - 2018 -->
+<!-- author fredt@users.sourceforge.net 2001 - 2019 -->
 <!-- additional targets 2004-2018: blaine (dot) simpson (at) admc (dot) com -->
 <project name="hsqldb" default="help" basedir="../">
   <!--  To see what build properties you can change, see the property elements
@@ -25,72 +25,70 @@
         happened to be built previously).
   -->
 
-   <property file='build/build.properties'/>
+    <property file='build/build.properties'/>
 
-   <condition property="hsqldb.version" value="2.5.0">
-       <available classname="java.sql.JDBCType"/>
-   </condition>
-   <!-- hsqldb.version is set only once - if it is set above for Java 8 and greater, the next line is a no-op -->
-   <property name="hsqldb.version" value="2.3.7"/>
+    <condition property="hsqldb.version" value="2.5.0">
+      <available classname="java.sql.JDBCType"/>
+    </condition>
+    <!-- hsqldb.version is set only once - if it is set above for Java 8 and greater, the next line is a no-op -->
+    <property name="hsqldb.version" value="2.3.7"/>
 
-   <tstamp>
-       <format property="timestamp" pattern="yyyy/MM/dd-HH:mm:ss"
-               locale="en"/>
-   </tstamp>
+    <tstamp>
+      <format property="timestamp" pattern="yyyy/MM/dd-HH:mm:ss" locale="en"/>
+    </tstamp>
 
-   <property name="build.label" value="private-${timestamp}"/>
-   <property name="build.vendor" value="${user.name}"/>
-   <property name="hsqldb.title" value="HSQLDB"/>
-   <property name="hsqldb.vendor" value="The HSQL Development Group"/>
-   <property name="description"
-             value="HyperSQL Lightweight 100% Java SQL Database Engine"/>
-   <property name="build.sysclasspath" value="ignore"/>
-   <property name="javac.encoding" value="ISO-8859-1"/>
-   <property name="swsrc" value="${basedir}/tmp/switchedsrc/"/>
-   <available property="switch.inplace"
-              file="${swsrc}/org/hsqldb/package.html"/>
-    <!-- Hosting Junit 3.8.2 JavaDocs at hsqldb.org since it's not available
-         expanded anywhere on Internet that I can find. -->
-   <property name="junit.doc.link"
-             value="http://www.hsqldb.org/doc/junit-3.8.2-javadoc/"/>
+    <property name="build.label" value="private-${timestamp}"/>
+    <property name="build.vendor" value="${user.name}"/>
+    <property name="hsqldb.title" value="HSQLDB"/>
+    <property name="hsqldb.vendor" value="The HSQL Development Group"/>
+    <property name="description"
+              value="HyperSQL Lightweight 100% Java SQL Database Engine"/>
+    <property name="build.sysclasspath" value="ignore"/>
+    <property name="javac.encoding" value="ISO-8859-1"/>
+    <property name="swsrc" value="${basedir}/tmp/switchedsrc/"/>
+    <available property="switch.inplace"
+               file="${swsrc}/org/hsqldb/package.html"/>
 
-   <!-- It is safe to override these with settings in your own
-        build.properties file. -->
-   <property name="build.debug" value="false"/>
-   <property name="build.optimize" value="false"/>
-   <!-- N.b. Compilation optimization only has effect with JDK 1.1 and 1.2 -->
+     <!-- Hosting Junit 3.8.2 JavaDocs at hsqldb.org since it's not available
+          expanded anywhere on Internet that I can find. -->
+    <property name="junit.doc.link"
+              value="http://www.hsqldb.org/doc/junit-3.8.2-javadoc/"/>
 
-   <property name="servletapi.lib" value="lib/servlet-2_3-fcs-classfiles.zip"/>
-   <property name="junit38.lib" value="lib/junit.jar"/>
-   <property name='jflex.lib' value='lib/JFlex.jar'/>
+    <!-- It is safe to override these with settings in your own
+         build.properties file. -->
+    <property name="build.debug" value="false"/>
 
-   <target name="init"/>
+    <property name="servletapi.lib" value="lib/servlet-2_3-fcs-classfiles.zip"/>
+    <property name="junit38.lib" value="lib/junit.jar"/>
+    <property name='jflex.lib' value='lib/JFlex.jar'/>
 
-   <target name='explainjars'
-           description="List description of jars that you can build">
-     <echo>Ant version: ${ant.version} </echo>
-     <echo>Java version: ${java.version} </echo>
-     <echo>HSQLDB version: ${hsqldb.version} </echo>
-     <echo>jar filename    build command   explanation
+    <target name="init"/>
+
+    <target name='explainjars'
+            description="List description of jars that you can build">
+      <echo>Ant version: ${ant.version} </echo>
+      <echo>Java version: ${java.version} </echo>
+      <echo>HSQLDB version: ${hsqldb.version} </echo>
+      <echo>Sources directory: ${swsrc} </echo>
+      <echo>
+jar filename    build command   explanation
 --------------  -------------   -----------------------------------
 hsqldb.jar      ant hsqldb      Default distribution jar
-hsqljdbc.jar    ant hsqljdbc    JDBC network client JDBC Driver.
-                                (Can connect to HyperSQL Servers)
-hsqldbmain.jar  ant hsqldbmain  No utility programs
-hsqldbutil.jar  ant hsqldbutil  Utility programs only.  No JDBC
-                                driver.  (Includes SqlTool and
-                                DatabaseManagers)
-hsqldbmin.jar   ant hsqldbmin   No utility or server programs.
-                                (Includes in-process JDBC driver,
-                                but no support for HyperSQL
-                                Servers)
+                                with GUI client, server and
+                                databse engine functionality.
+hsqldbmain.jar  ant hsqldbmain  No GUI client programs.
+hsqldbmin.jar   ant hsqldbmin   No GUI client or server.
+                                Supports in-process database,
+                                can connect to HyperSQL Servers
+hsqldbswing.jar ant dbmanswing  DatabaseManagerSwing GUI client
+hsqldbutil.jar  ant hsqldbutil  DatabaseManagers and TransferTool
 hsqldbtest.jar  ant hsqldbtest  All, including test classes
 sqltool.jar     ant sqltool     SqlTool app (no JDBC driver)</echo>
    </target>
 
    <target name="help" description="Top-level help message">
      <echo>Ant version: ${ant.version} </echo>
-      <echo>usage:
+     <echo>usage:
    ant -help            Display ant help screen
    ant -projecthelp     Display all invocable targets
    ant explainjars      List all targets which build jar files
@@ -102,8 +100,8 @@ examples:
    </target>
 
    <target name="-javajsse">
-      <available classname="javax.net.ssl.SSLSession" property="ant.java.hasjsse"/>
-      <echo message="ant.java.hasjsse=${ant.java.hasjsse}" />
+     <available classname="javax.net.ssl.SSLSession" property="ant.java.hasjsse"/>
+     <echo message="ant.java.hasjsse=${ant.java.hasjsse}" />
    </target>
 
    <!-- set up java compatibility level or fail -->
@@ -115,13 +113,13 @@ examples:
         It is sufficient for this purposes if the test classes used are
         verified to be present in version X and in all newer versions (> X)
         (i.e. that the class is not removed from some higher JVM). -->
-      <available classname="java.net.IDN" property="ant.java.iscjava16"/>
-      <available classname="java.sql.JDBCType" property="ant.java.iscjava18"/>
-      <available classname="java.sql.ShardingKey" property="ant.java.iscjava19"/>
+     <available classname="java.net.IDN" property="ant.java.iscjava16"/>
+     <available classname="java.sql.JDBCType" property="ant.java.iscjava18"/>
+     <available classname="java.sql.ShardingKey" property="ant.java.iscjava19"/>
    </target>
 
    <target name="-prepare" depends="init,-set-jvmvars">
-       <mkdir dir="classes" />
+     <mkdir dir="classes" />
    </target>
 
    <target name="-prepare-javadoc" depends="init">
@@ -144,35 +142,40 @@ examples:
        description="Just like 'clean' target, except overwrites switched source files to prevent need for a complete re-copy">
        <!-- Beware this will refresh a copy of removed artifacts under swsrc.
             You must use the real 'clean' target to really purge everything. -->
-       <fail message="Just use 'clean' for inplace-switching setups"
+     <fail message="Just use 'clean' for inplace-switching setups"
              if="switch.inplace"/>
-       <delete dir="classes"/>
-       <copy todir='${swsrc}' preservelastmodified='true'>
-           <fileset dir='src' includes='**/*.java'/>
-       </copy>
+     <delete dir="classes"/>
+     <copy todir='${swsrc}' preservelastmodified='true'>
+       <fileset dir='src' includes='**/*.java'/>
+     </copy>
    </target>
 
    <target name="clean" depends="-clean, -clean-switch-branch"
            description="Delete the /classes and work directories created by ant tasks">
-        <echo message="Use the 'clean-all' target to also purge generated doc and .jar files"/>
+     <echo message="Use the 'clean-all' target to also purge generated doc and .jar files"/>
    </target>
 
+   <target name="cleanclasses" depends="-clean"
+           description="Delete the /classes directory">
+   </target>
+
+
    <target name="-clean">
-        <delete dir="classes"/>
+       <delete dir="classes"/>
    </target>
 
    <target name="clean-all" depends="-clean, -clean-switch-branch, clean-docs"
            description="Same as clean but delete the jar and doc files as well">
-      <delete>
-         <fileset dir="lib" includes="sqltool*.jar, hsql*.jar, testsuite.jar"/>
-      </delete>
+     <delete>
+       <fileset dir="lib" includes="sqltool*.jar, hsql*.jar, testsuite.jar"/>
+     </delete>
    </target>
 
     <target name="codeswitcher" depends="-prepare"
             description="uses +-JAVA6 +-JAVA8 etc">
       <javac destdir="classes" includeantruntime="false">
-         <src path="src"/>
-         <include name="org/hsqldb/util/CodeSwitcher.java"/>
+        <src path="src"/>
+        <include name="org/hsqldb/util/CodeSwitcher.java"/>
       </javac>
       <antcall target="-update-switch-branch"/>
     </target>
@@ -207,11 +210,11 @@ examples:
 
     <!-- the args for default code switching are set and used -->
     <condition property="switchargone" value="+JAVA8" else="-JAVA8">
-        <available classname="java.sql.JDBCType"/>
+      <available classname="java.sql.JDBCType"/>
     </condition>
 
     <condition property="switchargtwo" value="+JAVA9" else="-JAVA9">
-        <available classname="java.sql.ShardingKey"/>
+      <available classname="java.sql.ShardingKey"/>
     </condition>
 
     <target name="-autoswitch" description="switch code to current JVM">
@@ -224,6 +227,7 @@ examples:
              the path must be relative to run dir (build), not the
              Ant basedir -->
        </java>
+       <echo> "${basedir}/build/jdkcodeswitch.list"</echo>
     </target>
 
     <!-- these are used for checking the correctness of switched code blocks -->
@@ -273,32 +277,31 @@ examples:
              encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
-             optimize="${build.optimize}">
-         <include name="org/hsqldb/map/**"/>
-         <compilerarg value="-Xlint:unchecked"/>
+      >
+        <include name="org/hsqldb/map/**"/>
+        <compilerarg value="-Xlint:unchecked"/>
       </javac>
     </target>
 
-    <target name="lib" depends="map"
+    <target name="-lib" depends="map"
             description="compiles the JVM-independent lib classes">
       <javac srcdir="${swsrc}"
              includeantruntime="false"
              destdir="classes"
              debug="${build.debug}"
-             optimize="${build.optimize}"
              encoding="${javac.encoding}"
       >
-         <exclude name="org/hsqldb/lib/AppendableException.java"/>
-         <exclude name="org/hsqldb/lib/RefCapablePropertyResourceBundle.java"/>
-         <exclude name="org/hsqldb/lib/RefCapableRBInterface.java"/>
-         <exclude name="org/hsqldb/lib/ValidatingResourceBundle.java"/>
-         <exclude name="org/hsqldb/lib/tar/**"/>
-         <include name="org/hsqldb/lib/**"/>
+        <exclude name="org/hsqldb/lib/AppendableException.java"/>
+        <exclude name="org/hsqldb/lib/RefCapablePropertyResourceBundle.java"/>
+        <exclude name="org/hsqldb/lib/RefCapableRBInterface.java"/>
+        <exclude name="org/hsqldb/lib/ValidatingResourceBundle.java"/>
+        <exclude name="org/hsqldb/lib/tar/**"/>
+        <include name="org/hsqldb/lib/**"/>
       </javac>
     </target>
 
-    <target name="classes" depends="lib,-javajsse"
-      description="compiles JVM-independent non-lib/util/cmdline/auth classes">
+    <target name="classes" depends="switches,-javajsse"
+      description="compiles JVM-independent non-lib/util/cmdline classes">
       <available property='_servlet_available' classpath='${servletapi.lib}'
                  classname='javax.servlet.ServletException'/>
       <fail unless='_servlet_available'
@@ -308,25 +311,27 @@ examples:
              encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
-             optimize="${build.optimize}"
        >
          <classpath>
             <pathelement location="${servletapi.lib}"/>
          </classpath>
          <include name="org/hsqldb/*.java"/>
+         <include name="org/hsqldb/auth/*.java"/>
          <include name="org/hsqldb/dbinfo/*.java"/>
          <include name="org/hsqldb/error/*.java"/>
          <include name="org/hsqldb/index/*.java"/>
-         <include name="org/hsqldb/jdbc/*.java"/>
+         <include name="org/hsqldb/jdbc/**"/>
+         <include name="org/hsqldb/lib/**"/>
+         <include name="org/hsqldb/map/*.java"/>
          <include name="org/hsqldb/navigator/*.java"/>
          <include name="org/hsqldb/persist/*.java"/>
-         <include name="org/hsqldb/resources/*.java"/>
+         <include name="org/hsqldb/resources/*"/>
          <include name="org/hsqldb/result/*.java"/>
          <include name="org/hsqldb/rights/*.java"/>
          <include name="org/hsqldb/rowio/*.java"/>
          <include name="org/hsqldb/scriptio/*.java"/>
          <include name="org/hsqldb/server/*.java"/>
-         <include name="org/hsqldb/map/*.java"/>
+         <include name="org/hsqldb/trigger/*.java"/>
          <include name="org/hsqldb/types/*.java"/>
 
       </javac>
@@ -341,19 +346,15 @@ examples:
                                                - blaine
 
    -->
-    <target name="util" depends="lib, -cmdline, -auth"
-            description="compiles the util, cmdline, and auth folders">
+    <target name="-util" depends="-prepare"
+            description="compiles the util folder">
       <javac srcdir="${swsrc}"
              includeantruntime="false"
              encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
-             optimize="${build.optimize}"
       >
          <include name="org/hsqldb/util/**"/>
-         <exclude name="org/hsqldb/util/*Swing.java"/>
-         <exclude name="org/hsqldb/util/preprocessor/**"/>
-         <exclude name="org/hsqldb/util/TableSorter.java"/>
       </javac>
       <copy todir="classes/org/hsqldb/util" preservelastmodified='true'>
           <fileset dir="src/org/hsqldb/util" includes='*.gif, *.png'/>
@@ -366,7 +367,6 @@ examples:
              encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
-             optimize="${build.optimize}"
              classpath="${ant.home}/lib/ant.jar"
       >
          <include name="org/hsqldb/util/preprocessor/**"/>
@@ -382,51 +382,34 @@ examples:
              encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
-             optimize="${build.optimize}"
       >
          <include name="org/hsqldb/cmdline/**"/>
       </javac>
     </target>
 
-    <!-- compiles the auth classes -->
-    <target name="-auth"
-            depends="lib, classes">
-      <javac srcdir="${swsrc}"
-             includeantruntime="false"
-             encoding="${javac.encoding}"
-             destdir="classes"
-             debug="${build.debug}"
-             optimize="${build.optimize}"
-      >
-         <include name="org/hsqldb/auth/**"/>
-      </javac>
-    </target>
-
-
-   <target name="swing" depends="util" unless="noswing"
+    <target name="-swing" depends="switches"
            description="compiles the swing based classes in the util folder">
       <javac srcdir="${swsrc}"
              includeantruntime="false"
              encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
-             optimize="${build.optimize}"
-       >
-      <include name="org/hsqldb/util/*Swing.java"/>
+      >
+        <include name="org/hsqldb/util/*Swing.java"/>
       <include name="org/hsqldb/util/TableSorter.java"/>
       <include name="org/hsqldb/util/DatabaseManagerCommon.java"/>
       <include name="org/hsqldb/util/ConnectionSetting.java"/>
       </javac>
-   </target>
+    </target>
 
-   <target name='-requireJunit'>
+    <target name='-requireJunit'>
       <available property='_junit_available' classpath='${junit38.lib}'
                  classname='junit.swingui.TestRunner'/>
       <fail unless='_junit_available'
             message="Place Jar file for v. 3.8.x of Junit at '${junit38.lib}', or set property 'junit38.lib'"/>
-   </target>
+    </target>
 
-   <target name="scanner-driver" depends="util"
+    <target name="scanner-driver" depends="-cmdline"
        description="Build Scanner Driver.  For SqlTool scanner developers.">
       <javac srcdir="${swsrc}"
              includeantruntime="false"
@@ -434,416 +417,283 @@ examples:
              includes="org/hsqldb/test/SqlFileScannerDriver.java"
              destdir="classes"
              debug="${build.debug}"
-             optimize="${build.optimize}"
              />
-   </target>
+    </target>
 
-   <target name="test" depends="-requireJunit, classes"
+    <target name="test" depends="-requireJunit, classes"
            description="compiles the test package classes">
          <javac srcdir="${swsrc}"
                 includeantruntime="false"
                 encoding="${javac.encoding}"
                 destdir="classes"
                 debug="${build.debug}"
-                optimize="${build.optimize}"
          >
          <classpath>
-            <pathelement location="${junit38.lib}"/>
-            <pathelement location="lib/dbunit.jar"/>
+           <pathelement location="${junit38.lib}"/>
+           <pathelement location="lib/dbunit.jar"/>
          </classpath>
          <include name="org/hsqldb/test/**"/>
          <exclude name="org/hsqldb/test/SqlFileScannerDriver.java"/>
       </javac>
       <antcall target='-test14'/>
-   </target>
+    </target>
 
     <!--jar with (jdkversion-switched) sources, useful for reading/debugging the code from other projects, can be specified via maven too-->
     <target name="hsqldbsources" description="builds jar file containing source code"
             depends="switches">
-        <jar jarfile="lib/hsqldb-sources.jar"
-             basedir="tmp/switchedsrc">
+        <jar jarfile="lib/hsqldb-sources.jar" basedir="tmp/switchedsrc">
         </jar>
     </target>
 
     <target name="hsqldbtest" depends="test, -prep-license-files"
             description="Build the hsqldbtest.jar (default plus test classes)">
-        <jar jarfile="lib/hsqldbtest.jar"
-             basedir="classes"
-         >
-         <metainf dir="doc" includes="*_lic.txt"/>
-         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
-         <manifest>
-             <attribute name='Specification-Title' value='${hsqldb.title}'/>
-             <attribute name='Specification-Version' value='${hsqldb.version}'/>
-             <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-             <attribute name='Implementation-Title' value='Test runtime'/>
-             <attribute name='Implementation-Version' value='${build.label}'/>
-             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-         </manifest>
-         <exclude name="org/hsqldb/sample/*"/>
+      <jar jarfile="lib/hsqldbtest.jar" basedir="classes">
+        <metainf dir="doc" includes="*_lic.txt"/>
+        <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
+        <manifest>
+          <attribute name='Specification-Title' value='${hsqldb.title}'/>
+          <attribute name='Specification-Version' value='${hsqldb.version}'/>
+          <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
+          <attribute name='Implementation-Title' value='Test runtime'/>
+          <attribute name='Implementation-Version' value='${build.label}'/>
+          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+        </manifest>
+        <exclude name="org/hsqldb/sample/*"/>
       </jar>
     </target>
 
-    <target name="hsqldbserver" depends="classes, -prep-license-files"
-            description="Build the hsqldserver.jar (no engin)">
-        <jar jarfile="lib/hsqldbserver.jar"
-             basedir="classes"
-         >
-         <metainf dir="doc" includes="*_lic.txt"/>
-         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
-         <manifest>
-             <attribute name='Implementation-Title' value='Server'/>
-             <attribute name='Specification-Version' value='${hsqldb.version}'/>
-             <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-             <attribute name='Implementation-Version' value='${build.label}'/>
-             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-             <attribute name='Main-Class' value='org.hsqldb.server.Server'/>
-         </manifest>
-         <include name="org/hsqldb/server/**"/>
-         <exclude name="org/hsqldb/server/Servlet*"/>
-         <exclude name="org/hsqldb/server/WebServer*"/>
-      </jar>
-    </target>
+    <fileset id='minclasses' dir='classes'
+        includes='
+            org/hsqldb/*.class
+            org/hsqldb/auth/**
+            org/hsqldb/dbinfo/**
+            org/hsqldb/error/**
+            org/hsqldb/index/**
+            org/hsqldb/jdbc/**
+            org/hsqldb/jdbc/pool/**
+            org/hsqldb/lib/**
+            org/hsqldb/lib/java/**
+            org/hsqldb/lib/tar/**
+            org/hsqldb/map/**
+            org/hsqldb/navigator/**
+            org/hsqldb/persist/**
+            org/hsqldb/resources/**
+            org/hsqldb/result/**
+            org/hsqldb/rights/**
+            org/hsqldb/rowio/**
+            org/hsqldb/server/HsqlSocketFactory*
+            org/hsqldb/server/ServerConstants*
+            org/hsqldb/scriptio/**
+            org/hsqldb/trigger/**
+            org/hsqldb/types/**
+            '
+            />
 
-    <!--
-            Sat Nov 19 17:52:33 EST 2005  Blaine changing this description,
-            because I see no Swing classes in hsqldbmain.jar when I build
-            it... why would anybody ever want them in a no-util jar anyways?
+    <fileset id='mainaddedclasses' dir='classes'
+        includes='
+            org/hsqldb/server/**
+            '
+            />
 
-            description="Build the hsqldbmain.jar (no utilities) (use ant switch '-Dnoswing=true' to exclude swing classes)">
-    -->
-    <target name="hsqldbmain" depends="classes, -prep-license-files"
-            description="Build the hsqldbmain.jar (no utilities)">
-        <jar jarfile="lib/hsqldbmain.jar"
-             basedir="classes"
-         >
-         <metainf dir="doc" includes="*_lic.txt"/>
-         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
-         <manifest>
-             <attribute name='Specification-Title' value='${hsqldb.title}'/>
-             <attribute name='Specification-Version' value='${hsqldb.version}'/>
-             <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-             <attribute name='Implementation-Title'
-                        value='Runtime without utilities'/>
-             <attribute name='Implementation-Version' value='${build.label}'/>
-             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-         </manifest>
-         <include name="org/hsqldb/**/*"/>
-         <!-- -->
-         <exclude name="org/hsqldb/systray/**"/>
-         <exclude name="org/hsqldb/util/**"/>
-         <exclude name="org/hsqldb/cmdline/**"/>
-         <exclude name="org/hsqldb/test/**"/>
-         <exclude name="org/hsqldb/sample/**"/>
-      </jar>
-    </target>
+    <fileset id='dbmanagerswingclasses' dir='classes'
+        includes='
+            org/hsqldb/util/*Swing*.class
+            org/hsqldb/util/ConnectionSetting*
+            org/hsqldb/util/ConnectionDialogCommon*
+            org/hsqldb/util/TableSorter*
+            org/hsqldb/util/DatabaseManagerCommon*
+            org/hsqldb/util/CSVWriter*
+            org/hsqldb/util/*.png
+            org/hsqldb/util/*.gif
+            org/hsqldb/lib/RCData*
+            '/>
+
+    <filelist id='dbmanagerawtaddedclasses' dir='classes'
+        files='
+            org/hsqldb/util/DatabaseManager.class
+            org/hsqldb/util/ConnectionDialog.class
+            org/hsqldb/util/Grid.class
+            org/hsqldb/util/Tree.class
+            org/hsqldb/util/MainInvoker.class
+            '/>
+
+    <fileset id='utilclasses' dir='classes' includes='
+            org/hsqldb/util/**
+            org/hsqldb/lib/RCData*
+            '/>
+
+    <fileset id='sqltoolclasses' dir='classes'
+        includes='
+            org/hsqldb/cmdline/**/*.class
+            org/hsqldb/lib/RCData*
+            org/hsqldb/lib/RefCapablePropertyResourceBundle*
+            org/hsqldb/lib/RefCapableRBInterface*
+            org/hsqldb/lib/ValidatingResourceBundle*
+            org/hsqldb/lib/AppendableException*
+            org/hsqldb/lib/FileAccess*
+            org/hsqldb/lib/StringUtil*
+            org/hsqldb/lib/BasicTextJdkLogFormatter*
+            org/hsqldb/lib/FrameworkLogger*
+            org/hsqldb/resources/jdklogging-default.properties
+            '/>
+
+    <fileset id='sqltoolres' dir='classes'
+        includes='
+            org/hsqldb/cmdline/**/*.text
+            org/hsqldb/cmdline/**/*.properties
+            org/hsqldb/cmdline/sqltool/**/*.html
+            '/>
 
     <target name="hsqldbmin" depends="classes, -prep-license-files"
             description="Build the hsqldbmin.jar (no servers)">
-        <jar jarfile="lib/hsqldbmin.jar"
-             basedir="classes"
-         >
-         <metainf dir="doc" includes="*_lic.txt"/>
-         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
-         <manifest>
-             <attribute name='Specification-Title' value='${hsqldb.title}'/>
-             <attribute name='Specification-Version' value='${hsqldb.version}'/>
-             <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-             <attribute name='Implementation-Title'
-                 value='Runtime without utilities and servers'/>
-             <attribute name='Implementation-Version' value='${build.label}'/>
-             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-         </manifest>
-         <!-- Without this, some ANT/Java combinations may get confused and
-              include nothing in the jar -->
-         <include name="org/hsqldb/**/*"/>
-         <!-- -->
-         <exclude name="org/hsqldb/systray/**"/>
-         <exclude name="org/hsqldb/util/**"/>
-         <exclude name="org/hsqldb/cmdline/**"/>
-         <exclude name="org/hsqldb/test/**"/>
-         <exclude name="org/hsqldb/sample/**"/>
-         <exclude name="org/hsqldb/resources/org_hsqldb_Server_messages.properties"/>
-         <exclude name="org/hsqldb/resources/webserver.properties"/>
-         <exclude name="hsqlServlet.class"/>
-         <exclude name="org/hsqldb/Servlet.class"/>
-         <exclude name="org/hsqldb/Server.class"/>
-         <exclude name="org/hsqldb/server/HsqlSocketFactory.class"/>
-         <exclude name="org/hsqldb/server/HsqlSocketFactorySecure.class"/>
-         <exclude name="org/hsqldb/srever/HsqlServerFactory.class"/>
-         <exclude name="org/hsqldb/srever/HsqlServerProperties.class"/>
-         <exclude name="org/hsqldb/server/HsqlSocketRequestHandler.class"/>
-         <exclude name="org/hsqldb/server/HsqlSocketRequestHandlerImpl.class"/>
-         <exclude name="org/hsqldb/server/Server.class"/>
-         <exclude name="org/hsqldb/server/Server$ServerThread.class"/>
-         <exclude name="org/hsqldb/server/ServerConnection.class"/>
-         <exclude name="org/hsqldb/server/ServerConfiguration.class"/>
-         <exclude name="org/hsqldb/server/WebServer.class"/>
-         <exclude name="org/hsqldb/server/WebServerConnection.class"/>
-         <exclude name="org/hsqldb/rowio/RowInputLegacy.class"/>
-         <exclude name="org/hsqldb/rowio/RowOutputLegacy.class"/>
-         <!-- Exclude command-line classes -->
-         <exclude name="org/hsqldb/auth/LdapAuthBeanTester.class"/>
-         <exclude name="org/hsqldb/lib/tar/DbBackupMain.class"/>
-         <exclude name="org/hsqldb/lib/tar/TarGeneratorMain.class"/>
-         <exclude name="org/hsqldb/lib/tar/TarReaderMain.class"/>
-       </jar>
-    </target>
-
-    <target name="dbmanagerswing" depends="swing, util, -prep-license-files"
-            description="Build the dbmanagerswing.jar">
-        <jar jarfile="lib/dbmanagerswing.jar"
-             basedir="classes"
-         >
-         <metainf dir="doc" includes="hsqldb_lic.txt"/>
-         <manifest>
-             <attribute name='Specification-Title' value='${hsqldb.title}'/>
-             <attribute name='Specification-Version' value='${hsqldb.version}'/>
-             <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-             <attribute name='Implementation-Title'
-                 value='DatabaseManagerSwing only'/>
-             <attribute name='Implementation-Version' value='${build.label}'/>
-             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-             <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
-         </manifest>
-         <!-- Without this, some ANT/Java combinations may get confused and
-              include nothing in the jar -->
-         <include name="org/hsqldb/util/*Swing*.class"/>
-         <include name="org/hsqldb/util/ConnectionSetting.class"/>
-         <include name="org/hsqldb/util/ConnectionDialogCommon.class"/>
-         <include name="org/hsqldb/util/TableSorter*.class"/>
-         <include name="org/hsqldb/util/DatabaseManagerCommon*.class"/>
-         <include name="org/hsqldb/util/*.png"/>
-         <include name="org/hsqldb/util/*.gif"/>
-         <include name="org/hsqldb/util/lib/RCData.class"/>
-       </jar>
-    </target>
-
-    <target name="hsqldb" depends="classes, util, swing, -prep-license-files"
-            description="Build the default hsqldb.jar">
-        <jar jarfile="lib/hsqldb.jar"
-             basedir="classes"
-             compress="true"
-         >
-         <metainf dir="doc" includes="*_lic.txt"/>
-         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
-         <manifest>
-             <attribute name='Specification-Title' value='${hsqldb.title}'/>
-             <attribute name='Specification-Version' value='${hsqldb.version}'/>
-             <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-             <attribute name='Implementation-Title'
-                        value='Standard runtime'/>
-             <attribute name='Implementation-Version' value='${build.label}'/>
-             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-             <!-- This attribute is completely ignored unless the user
-                  uses the jar like "java -jar .../hsqldb.jar" -->
-             <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
-         </manifest>
-         <exclude name="org/hsqldb/util/*Swing.*" if="noswing"/>
-         <exclude name="org/hsqldb/util/*Transfer*"/>
-         <exclude name="org/hsqldb/util/DataAccess*"/>
-         <exclude name="org/hsqldb/util/*Helper*"/>
-         <exclude name="org/hsqldb/util/JDBCTypes.*"/>
-         <exclude name="org/hsqldb/util/SQLStatements.*"/>
-         <exclude name="org/hsqldb/util/QueryTool.*"/>
-         <exclude name="org/hsqldb/util/Zaurus*"/>
-         <exclude name="org/hsqldb/test/*.class"/>
-         <exclude name="org/hsqldb/sample/*.class"/>
-         <exclude name="org/hsqldb/cmdline/**"/>
+      <jar jarfile="lib/hsqldbmin.jar">
+        <metainf dir="doc" includes="*_lic.txt"/>
+        <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
+        <manifest>
+          <attribute name='Specification-Title' value='${hsqldb.title}'/>
+          <attribute name='Specification-Version' value='${hsqldb.version}'/>
+          <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
+          <attribute name='Implementation-Title'
+                     value='Runtime without utilities and servers'/>
+          <attribute name='Implementation-Version' value='${build.label}'/>
+          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+        </manifest>
+        <fileset refid='minclasses' />
       </jar>
     </target>
 
-    <fileset id='jdbcclasses' dir='classes'
-        includes='
-                  org/hsqldb/error/*,
-                  org/hsqldb/navigator/*,
-                  org/hsqldb/result/*,
-                  org/hsqldb/lib/ArrayUtil*,
-                  org/hsqldb/lib/CountdownInputStream*,
-                  org/hsqldb/lib/HsqlByte*,
-                  org/hsqldb/lib/IntValueHashMap*,
-                  org/hsqldb/lib/InOutUtil*,
-                  org/hsqldb/lib/Iterator*,
-                  org/hsqldb/lib/HsqlHeap*,
-                  org/hsqldb/lib/HsqlArray*,
-                  org/hsqldb/lib/ObjectComparator*,
-                  org/hsqldb/lib/IntKeyHashMap*,
-                  org/hsqldb/lib/Collection*,
-                  org/hsqldb/lib/*List*,
-                  org/hsqldb/lib/Set*,
-                  org/hsqldb/lib/Hash*,
-                  org/hsqldb/lib/HsqlTimer*,
-                  org/hsqldb/lib/StringConverter*,
-                  org/hsqldb/lib/StringInputStream*,
-                  org/hsqldb/lib/java/JavaSystem*,
-                  org/hsqldb/lib/FileAccess*,
-                  org/hsqldb/ClientConnection*,
-                  org/hsqldb/SchemaObject*,
-                  org/hsqldb/HsqlNameManager*,
-                  org/hsqldb/SqlInvariants*,
-                  org/hsqldb/Constraint*,
-                  org/hsqldb/TableBase*,
-                  org/hsqldb/Table.*,
-                  org/hsqldb/lib/IntKeyIntValueHashMap*,
-                  org/hsqldb/lib/DataOutputStream*,
-                  org/hsqldb/lib/ReaderInputStream*,
-                  org/hsqldb/Scanner*,
-                  org/hsqldb/lib/StringUtil*,
-                  org/hsqldb/lib/OrderedIntHashSet*,
-                  org/hsqldb/Token*,
-                  org/hsqldb/lib/CharArrayWriter*,
-                  org/hsqldb/resources/sql-state-messages.properties,
-                  org/hsqldb/resources/ResourceBundleHandler*,
-                  org/hsqldb/jdbc/JDBC*,
-                  org/hsqldb/jdbc/pool/*,
-                  org/hsqldb/rights/Grantee.class,
-                  org/hsqldb/rowio/RowOutputBase*,
-                  org/hsqldb/rowio/RowInputBase*,
-                  org/hsqldb/rowio/RowOutputBinary*,
-                  org/hsqldb/rowio/RowInputBinary*,
-                  org/hsqldb/rowio/RowOutputInterface*,
-                  org/hsqldb/rowio/RowInputInterface*,
-                  org/hsqldb/persist/HsqlDatabaseProperties*,
-                  org/hsqldb/persist/HsqlProperties*,
-                  org/hsqldb/map/ValuePool*,
-                  org/hsqldb/map/HashIndex*,
-                  org/hsqldb/map/BaseHashMap*,
-                  org/hsqldb/map/BitMap*,
-                  org/hsqldb/types/*,
-                  org/hsqldb/Column*,
-                  org/hsqldb/DatabaseURL*,
-                  org/hsqldb/HSQLClient*,
-                  org/hsqldb/HsqlDateTime*,
-                  org/hsqldb/HsqlException*,
-                  org/hsqldb/server/HsqlSocketFactory*,
-                  org/hsqldb/HTTPClientConnection*,
-                  org/hsqldb/jdbcDriver*,
-                  org/hsqldb/Row*,
-                  org/hsqldb/SessionInterface*,
-                  org/hsqldb/types/Types*,
-                  org/hsqldb/resources/BundleHandler*,
-                  org/hsqldb/resources/sql-state-messages*
-                  '/>
-
-    <fileset id='utilclasses' dir='classes' includes='
-         org/hsqldb/util/**
-         org/hsqldb/lib/*Log*
-      '/>
-
-    <fileset id='sqltoolclasses' dir='classes'
-      includes='org/hsqldb/cmdline/**/*.class
-                  org/hsqldb/lib/RCData*
-                  org/hsqldb/lib/RefCapablePropertyResourceBundle*
-                  org/hsqldb/lib/RefCapableRBInterface*
-                  org/hsqldb/lib/ValidatingResourceBundle*
-                  org/hsqldb/lib/AppendableException*
-                  org/hsqldb/lib/FileAccess*
-                  org/hsqldb/lib/StringUtil*
-                  org/hsqldb/lib/BasicTextJdkLogFormatter*
-                  org/hsqldb/lib/FrameworkLogger*
-                  org/hsqldb/resources/jdklogging-default.properties
-                  '/>
-    <fileset id='sqltoolres' dir='classes'
-        includes='org/hsqldb/cmdline/**/*.text
-                  org/hsqldb/cmdline/**/*.properties
-                  org/hsqldb/cmdline/sqltool/**/*.html
-                  '/>
-
-    <target name="sqltool" depends="classes, -cmdline, -prep-license-files"
-            description="Build 'sqltool.jar' file">
-       <jar jarfile="lib/sqltool.jar" compress="true" filesonly="true">
-         <metainf dir="doc" includes="*_lic.txt"/>
-         <manifest>
-             <attribute name='Specification-Title' value='${hsqldb.title}'/>
-             <attribute name='Specification-Version' value='${hsqldb.version}'/>
-             <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-             <attribute name='Implementation-Title' value='SqlTool Client'/>
-             <attribute name='Implementation-Version' value='${build.label}'/>
-             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-             <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
-             <attribute name='Class-Path'
-               value='hsqldb-${hsqldb.version}.jar hsqljdbc-${hsqldb.version}.jar hsqldbmain.jar-${hsqldb.version}.jar hsqldb.jar hsqljdbc.jar hsqldbmain.jar'/>
-         </manifest>
-         <fileset refid='sqltoolclasses'/>
-         <fileset refid='sqltoolres'/>
-       </jar>
+    <target name="hsqldbmain" depends="classes, -prep-license-files"
+            description="Build the hsqldbmain.jar (no utilities)">
+      <jar jarfile="lib/hsqldbmain.jar">
+        <metainf dir="doc" includes="*_lic.txt"/>
+        <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
+        <manifest>
+          <attribute name='Specification-Title' value='${hsqldb.title}'/>
+          <attribute name='Specification-Version' value='${hsqldb.version}'/>
+          <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
+          <attribute name='Implementation-Title'
+                     value='Runtime without utilities'/>
+          <attribute name='Implementation-Version' value='${build.label}'/>
+          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+        </manifest>
+        <fileset refid='minclasses' />
+        <fileset refid='mainaddedclasses' />
+      </jar>
     </target>
 
-        <fileset id='preprocessorclasses' dir='classes' includes='org/hsqldb/util/preprocessor/*.class'/>
+    <target name="hsqldb" depends="classes, -util, -prep-license-files"
+            description="Build the default hsqldb.jar">
+      <jar jarfile="lib/hsqldb.jar" compress="true">
+        <metainf dir="doc" includes="*_lic.txt"/>
+        <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
+        <manifest>
+          <attribute name='Specification-Title' value='${hsqldb.title}'/>
+          <attribute name='Specification-Version' value='${hsqldb.version}'/>
+          <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
+          <attribute name='Implementation-Title'
+                     value='Standard runtime'/>
+          <attribute name='Implementation-Version' value='${build.label}'/>
+          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+          <!-- This attribute is completely ignored unless the user
+               uses the jar like "java -jar .../hsqldb.jar" -->
+          <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
+        </manifest>
+        <fileset refid='minclasses' />
+        <fileset refid='mainaddedclasses' />
+        <fileset refid='dbmanagerswingclasses' />
+        <filelist refid='dbmanagerawtaddedclasses' />
+      </jar>
+    </target>
+
+    <target name="dbmanswing" depends="-swing, -prep-license-files"
+            description="Build the dbmanagerswing.jar">
+      <jar jarfile="lib/dbmanagerswing.jar" compress="true" filesonly="true">
+        <metainf dir="doc" includes="*_lic.txt"/>
+        <manifest>
+          <attribute name='Specification-Title' value='${hsqldb.title}'/>
+          <attribute name='Specification-Version' value='${hsqldb.version}'/>
+          <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
+          <attribute name='Implementation-Title'
+          value='DatabaseManagerSwing only'/>
+          <attribute name='Implementation-Version' value='${build.label}'/>
+          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+          <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
+        </manifest>
+        <fileset refid='dbmanagerswingclasses'/>
+      </jar>
+    </target>
+
+    <target name="sqltool" depends="-lib, -cmdline, -prep-license-files"
+            description="Build 'sqltool.jar' file">
+      <jar jarfile="lib/sqltool.jar" compress="true" filesonly="true">
+        <metainf dir="doc" includes="*hsqldb_lic.txt"/>
+        <manifest>
+          <attribute name='Specification-Title' value='${hsqldb.title}'/>
+          <attribute name='Specification-Version' value='${hsqldb.version}'/>
+          <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
+          <attribute name='Implementation-Title' value='SqlTool Client'/>
+          <attribute name='Implementation-Version' value='${build.label}'/>
+          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+          <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
+          <attribute name='Class-Path'
+              value='hsqldb-${hsqldb.version}.jar hsqljdbc-${hsqldb.version}.jar hsqldbmain.jar-${hsqldb.version}.jar hsqldb.jar hsqljdbc.jar hsqldbmain.jar'/>
+        </manifest>
+        <fileset refid='sqltoolclasses'/>
+        <fileset refid='sqltoolres'/>
+      </jar>
+    </target>
+
+    <fileset id='preprocessorclasses' dir='classes' includes='org/hsqldb/util/preprocessor/*.class'/>
 
     <target name="preprocessor" depends="-prepare,-prep-license-files,-preprocessor"
             description="Build 'preprocessor.jar' file">
-       <jar jarfile="lib/preprocessor.jar" compress="true" filesonly="true">
-         <metainf dir="doc" includes="*_lic.txt"/>
-         <manifest>
-             <attribute name='Specification-Title' value='${hsqldb.title}'/>
-             <attribute name='Specification-Version' value='${hsqldb.version}'/>
-             <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-             <attribute name='Implementation-Title' value='HSQLDB Java Source Preprocessor Library'/>
-             <attribute name='Implementation-Version' value='${build.label}'/>
-             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-         </manifest>
-         <fileset refid='preprocessorclasses' />
-       </jar>
-    </target>
-
-<!-- classes referenced by the org.hsqldb.jdbc package classes -->
-<!-- or the org.hsqldb.jdbcDriver class are included here with some -->
-<!-- ommissions where the calling methods are not actually used -->
-    <target name="hsqljdbc" depends="classes, -prep-license-files"
-             description="Build the hsqljdbc.jar for network clients">
-        <jar jarfile="lib/hsqljdbc.jar" compress="true">
-         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
-         <metainf dir="doc" includes="*_lic.txt"/>
-         <manifest>
-             <attribute name='Specification-Title' value='${hsqldb.title}'/>
-             <attribute name='Specification-Version' value='${hsqldb.version}'/>
-             <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-             <attribute name='Implementation-Title'
-                        value='JDBC client runtime'/>
-             <attribute name='Implementation-Version' value='${build.label}'/>
-             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-         </manifest>
-          <fileset refid='jdbcclasses'/>
-        </jar>
-    </target>
-
-    <target name="hsqldbutil" depends="util, swing, -prep-license-files"
-            description="Build the utility hsqldbutil.jar">
-        <jar jarfile="lib/hsqldbutil.jar" compress="true">
-         <metainf dir="doc" includes="*_lic.txt"/>
-         <manifest>
-             <attribute name='Specification-Title' value='${hsqldb.title}'/>
-             <attribute name='Specification-Version' value='${hsqldb.version}'/>
-             <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-             <attribute name='Implementation-Title'
-                        value='Utilities runtime, without JDBC driver'/>
-             <attribute name='Implementation-Version' value='${build.label}'/>
-             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-             <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
-             <attribute name='Class-Path'
-                        value='hsqldb-${hsqldb.version}.jar hsqldbmain.jar hsqldb.jar'/>
-         </manifest>
-         <fileset refid='utilclasses'/>
-         <fileset refid='sqltoolclasses'/>
-         <fileset refid='sqltoolres'/>
+      <jar jarfile="lib/preprocessor.jar" compress="true" filesonly="true">
+        <metainf dir="doc" includes="*_lic.txt"/>
+        <manifest>
+          <attribute name='Specification-Title' value='${hsqldb.title}'/>
+          <attribute name='Specification-Version' value='${hsqldb.version}'/>
+          <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
+          <attribute name='Implementation-Title' value='HSQLDB Java Source Preprocessor Library'/>
+          <attribute name='Implementation-Version' value='${build.label}'/>
+          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+        </manifest>
+        <fileset refid='preprocessorclasses' />
       </jar>
     </target>
 
-    <target name="-doclink-18"
-                if="ant.java.iscjava18">
+    <target name="hsqldbutil" depends="-util, -prep-license-files"
+            description="Build the utility hsqldbutil.jar">
+      <jar jarfile="lib/hsqldbutil.jar" compress="true">
+        <metainf dir="doc" includes="*_lic.txt"/>
+        <manifest>
+          <attribute name='Specification-Title' value='${hsqldb.title}'/>
+          <attribute name='Specification-Version' value='${hsqldb.version}'/>
+          <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
+          <attribute name='Implementation-Title'
+          value='Utilities runtime, without JDBC driver'/>
+          <attribute name='Implementation-Version' value='${build.label}'/>
+          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+          <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
+          <attribute name='Class-Path'
+          value='hsqldb-${hsqldb.version}.jar hsqldbmain.jar hsqldb.jar'/>
+        </manifest>
+        <fileset refid='utilclasses'/>
+      </jar>
+    </target>
+
+    <target name="-doclink-18" if="ant.java.iscjava18">
                         <!-- TODO: update to final release api docs url when available -->
-        <property name="jse.doc.link"
-                  value="http://docs.oracle.com/javase/8/docs/api/"/>
-        <property name="jee.doc.link"
-                  value="http://docs.oracle.com/javaee/7/api/"/>
+      <property name="jse.doc.link"
+                value="http://docs.oracle.com/javase/8/docs/api/"/>
+      <property name="jee.doc.link"
+                value="http://docs.oracle.com/javaee/7/api/"/>
     </target>
 
     <target name="-doclink-16"
-                depends="-doclink-18" unless="ant.java.iscjava18">
-        <property name="jse.doc.link"
+            depends="-doclink-18" unless="ant.java.iscjava18">
+      <property name="jse.doc.link"
                   value="http://docs.oracle.com/javase/6/docs/api/"/>
-        <property name="jee.doc.link"
+      <property name="jee.doc.link"
                   value="http://docs.oracle.com/javaee/6/api/"/>
     </target>
 
@@ -909,12 +759,12 @@ examples:
            <tag name="jmx.managed-attribute" enabled="false"/>
            <tag name="jmx.managed-operation" enabled="false"/>
            <tag name="jmx.managed-operation-parameter" enabled="false"/>
-     </javadoc>
-     <fixcrlf preservelastmodified='true' eol="lf" encoding="UTF-8"
+      </javadoc>
+      <fixcrlf preservelastmodified='true' eol="lf" encoding="UTF-8"
          srcdir="doc/apidocs" includes="**/*.css, **/*.html, **/package-list"/>
-   </target>
+    </target>
 
-   <target name="javadocdev"
+    <target name="javadocdev"
             depends="-prepare-javadoc,-set-jvmvars,-doclink-16"
             description="Create javadoc for all HSQLDB code-base classes">
       <!-- Since our preprocessor package compilatoin depends on the
@@ -955,10 +805,10 @@ examples:
            <tag name="jmx.managed-attribute"/>
            <tag name="jmx.managed-operation"/>
            <tag name="jmx.managed-operation-parameter"/>
-     </javadoc>
-     <fixcrlf preservelastmodified='true' eol="lf" encoding="UTF-8"
+      </javadoc>
+      <fixcrlf preservelastmodified='true' eol="lf" encoding="UTF-8"
          srcdir="doc/apidocs" includes="**/*.css, **/*.html, **/package-list"/>
-   </target>
+    </target>
 
     <target name="sqlfile-scanner"
             depends="-delete.SqlFileScanner, -sqlfile-scanner"
@@ -1001,14 +851,14 @@ examples:
             message="Run target 'fetch-jflex' or otherwise place a JFlex jar file at '${jflex.lib}'"/>
       <taskdef classname="JFlex.anttask.JFlexTask" name="jflex"
                classpath='${jflex.lib}'/>
-     </target>
+    </target>
 
-     <target name="fetch-jflex" depends="-ivy-setup"
+    <target name="fetch-jflex" depends="-ivy-setup"
        description="Fetch JFlex jar file from Internet, for rebuilding SqlTool scanner">
-       <copy tofile="${jflex.lib}" preservelastmodified="true">
+      <copy tofile="${jflex.lib}" preservelastmodified="true">
          <path refid="jflex-jar.cpref"/>
-       </copy>
-     </target>
+      </copy>
+    </target>
 
     <target name="-conditionalize-jflex" depends="-set-jvmvars">
       <!-- JFlex will only run if SqlFileScanner.java does not exist
@@ -1036,17 +886,17 @@ examples:
     </target>
 
     <target name="-update-switch-branch" unless="switch.inplace">
-       <mkdir dir='${swsrc}'/>
-       <copy todir='${swsrc}' preservelastmodified='true'>
-           <fileset dir='src' includes='**/*.java'/>
-       </copy>
+      <mkdir dir='${swsrc}'/>
+      <copy todir='${swsrc}' preservelastmodified='true'>
+          <fileset dir='src' includes='**/*.java'/>
+      </copy>
     </target>
 
     <target name="-clean-switch-branch" unless="switch.inplace">
       <available property="_inplace.doublecheck"
                  file="${swsrc}/org/hsqldb/cmdline/sqltool.properties"/>
       <fail if="_inplace.doublecheck"
-  message="Aborting to prevent detected attempt to wipe original source code"/>
+      message="Aborting to prevent detected attempt to wipe original source code"/>
       <delete dir="${swsrc}"/>
     </target>
 
@@ -1073,9 +923,9 @@ examples:
     *************************************************************-->
   <!-- See the file doc-src/readme-docauthors.txt for details about out DocBook
        build system.  -->
-  <import file="build-docbook.xml"/>
+    <import file="build-docbook.xml"/>
 
-  <target name="-prep-images">
+    <target name="-prep-images">
     <!-- This will only add 'new' files to our "doc-src/images/db" directory.
          Therefore, if you want to update file "x.png", then remove it there
          before this target runs, and it will be pulled from ${dbimage.path}.
@@ -1103,113 +953,113 @@ optimizations) manually.
     <copy todir="doc-src/images/db">
       <fileset dir="${dbimage.path}"/>
     </copy>
-  </target>
+    </target>
 
-  <!-- See comments at top of "build-docbook.xml" about doc.target property -->
-  <target name="gen-docs" description="Generate Docbook documents for project"
+    <!-- See comments at top of "build-docbook.xml" about doc.target property -->
+    <target name="gen-docs" description="Generate Docbook documents for project"
           depends="validate-docs, -prep-images, -gen-docs-setup">
-    <!-- These doc-skip properties can be simplified once we require Ant 1.8 -->
-    <condition property="_genskip-guide" value="DUMMY">
-      <equals arg1="guide" arg2="${doc.target}"/>
-    </condition>
-    <condition property="_genskip-guide" value="-dbtransform-skip">
-      <isset property="doc.target"/>
-    </condition>
-    <property name="_genskip-guide" value="DUMMY"/>
-    <condition property="_genskip-util-guide" value="DUMMY">
-      <equals arg1="util-guide" arg2="${doc.target}"/>
-    </condition>
-    <condition property="_genskip-util-guide" value="-dbtransform-skip">
-      <isset property="doc.target"/>
-    </condition>
-    <property name="_genskip-util-guide" value="DUMMY"/>
+      <!-- These doc-skip properties can be simplified once we require Ant 1.8 -->
+      <condition property="_genskip-guide" value="DUMMY">
+        <equals arg1="guide" arg2="${doc.target}"/>
+      </condition>
+      <condition property="_genskip-guide" value="-dbtransform-skip">
+        <isset property="doc.target"/>
+      </condition>
+      <property name="_genskip-guide" value="DUMMY"/>
+      <condition property="_genskip-util-guide" value="DUMMY">
+        <equals arg1="util-guide" arg2="${doc.target}"/>
+      </condition>
+      <condition property="_genskip-util-guide" value="-dbtransform-skip">
+        <isset property="doc.target"/>
+      </condition>
+      <property name="_genskip-util-guide" value="DUMMY"/>
 
-    <antcall target="docbook-transform" inheritrefs="true">
-      <param name="${_genskip-guide}" value="true"/>
-      <param name="doc.name" value="guide"/>
-    </antcall>
-    <antcall target="docbook-transform" inheritrefs="true">
-      <param name="${_genskip-util-guide}" value="true"/>
-      <param name="doc.name" value="util-guide"/>
-    </antcall>
-    <antcall target="-gen-docs-complete"/>
-  </target>
+      <antcall target="docbook-transform" inheritrefs="true">
+        <param name="${_genskip-guide}" value="true"/>
+        <param name="doc.name" value="guide"/>
+      </antcall>
+      <antcall target="docbook-transform" inheritrefs="true">
+        <param name="${_genskip-util-guide}" value="true"/>
+        <param name="doc.name" value="util-guide"/>
+      </antcall>
+      <antcall target="-gen-docs-complete"/>
+    </target>
 
-  <!-- See comments at top of "build-docbook.xml" about doc.target property -->
-  <target name="validate-docs" depends="-ivy-setup"
+    <!-- See comments at top of "build-docbook.xml" about doc.target property -->
+    <target name="validate-docs" depends="-ivy-setup"
           description="Validate project DocBook source files">
     <!-- The depends above would be redundant, except that Gradle needs
          -ivy-setup to execute BEFORE the first antcall executes -->
 
-    <!-- These doc-skip properties can be simplified once we require Ant 1.8 -->
-    <condition property="_valskip-guide" value="DUMMY">
-      <equals arg1="guide" arg2="${doc.target}"/>
-    </condition>
-    <condition property="_valskip-guide" value="validation.skip">
-      <isset property="doc.target"/>
-    </condition>
-    <property name="_valskip-guide" value="DUMMY"/>
-    <condition property="_valskip-util-guide" value="DUMMY">
-      <equals arg1="util-guide" arg2="${doc.target}"/>
-    </condition>
-    <condition property="_valskip-util-guide" value="validation.skip">
-      <isset property="doc.target"/>
-    </condition>
-    <property name="_valskip-util-guide" value="DUMMY"/>
-    <antcall target="validate-doc" inheritrefs="true">
-      <param name="${_valskip-guide}" value="true"/>
-      <param name="doc.name" value="guide"/>
-    </antcall>
-    <antcall target="validate-doc" inheritrefs="true">
-      <param name="${_valskip-util-guide}" value="true"/>
-      <param name="doc.name" value="util-guide"/>
-    </antcall>
-  </target>
+      <!-- These doc-skip properties can be simplified once we require Ant 1.8 -->
+      <condition property="_valskip-guide" value="DUMMY">
+        <equals arg1="guide" arg2="${doc.target}"/>
+      </condition>
+      <condition property="_valskip-guide" value="validation.skip">
+        <isset property="doc.target"/>
+      </condition>
+      <property name="_valskip-guide" value="DUMMY"/>
+      <condition property="_valskip-util-guide" value="DUMMY">
+        <equals arg1="util-guide" arg2="${doc.target}"/>
+      </condition>
+      <condition property="_valskip-util-guide" value="validation.skip">
+        <isset property="doc.target"/>
+      </condition>
+      <property name="_valskip-util-guide" value="DUMMY"/>
+      <antcall target="validate-doc" inheritrefs="true">
+        <param name="${_valskip-guide}" value="true"/>
+        <param name="doc.name" value="guide"/>
+      </antcall>
+      <antcall target="validate-doc" inheritrefs="true">
+        <param name="${_valskip-util-guide}" value="true"/>
+        <param name="doc.name" value="util-guide"/>
+      </antcall>
+    </target>
 
-  <target name="-rm-rngcat" unless="_no-centx-url-change">
-    <delete file="stylesheets/rng-catalog.xml" quiet="true"/>
-  </target>
+    <target name="-rm-rngcat" unless="_no-centx-url-change">
+      <delete file="stylesheets/rng-catalog.xml" quiet="true"/>
+    </target>
 
-  <target name="-validation-setup">
-    <loadfile srcFile="build/local.centx_url"
-              failonerror="false" property="_lasturl"/>
-    <condition property="_no-centx-url-change">
-      <equals arg1="${_lasturl}" arg2="${dbcentx.url}"/>
-    </condition>
-    <antcall target="-rm-rngcat"/>
-    <copy file="build/rng-catalog-template.xml"
-          tofile="stylesheets/rng-catalog.xml">
-      <filterset>
-        <filter token="DBCENTX_URL" value="${dbcentx.url}"/>
-      </filterset>
-    </copy>
-    <echo file="build/local.centx_url" message="${dbcentx.url}"/>
-  </target>
+    <target name="-validation-setup">
+      <loadfile srcFile="build/local.centx_url"
+                failonerror="false" property="_lasturl"/>
+      <condition property="_no-centx-url-change">
+        <equals arg1="${_lasturl}" arg2="${dbcentx.url}"/>
+      </condition>
+      <antcall target="-rm-rngcat"/>
+      <copy file="build/rng-catalog-template.xml"
+            tofile="stylesheets/rng-catalog.xml">
+        <filterset>
+          <filter token="DBCENTX_URL" value="${dbcentx.url}"/>
+        </filterset>
+      </copy>
+      <echo file="build/local.centx_url" message="${dbcentx.url}"/>
+    </target>
 
-  <target name="-prep-license-files">
-    <mkdir dir="doc"/>
-    <fixcrlf destdir="doc" preservelastmodified='true' eol="crlf"
-             srcdir="doc-src" includes="*_lic.txt"/>
-  </target>
+    <target name="-prep-license-files">
+      <mkdir dir="doc"/>
+      <fixcrlf destdir="doc" preservelastmodified='true' eol="crlf"
+               srcdir="doc-src" includes="*_lic.txt"/>
+    </target>
 
-  <target name="osgi" depends="-ivy-setup, hsqldb"
-    description="Generates 'hsqldb-osgi.jar' file with OSGI properties in manifest">
-    <pathconvert property="bndjar.file" refid="bnd-jar.cpref"/>
-    <!-- Purposefully not using the bndwrap task available for this purpose,
-         because the docs don't explain how to use the attributes clearly enough
-         to figure out how to use it. -->
-    <java failonerror="true" fork="true" dir="lib" classpath="${bndjar.file}"
-          classname="aQute.bnd.main.bnd">
-      <sysproperty key="hsqldb.version" value="${hsqldb.version}"/>
-      <sysproperty key="build.vendor" value="${user.name}"/>
-      <sysproperty key="build.description" value="${description}"/>
-      <sysproperty key="hsqldb.title" value="${hsqldb.title}"/>
-      <arg value="wrap"/>
-      <arg value="-output"/>
-      <arg value="hsqldb-osgi.jar"/>
-      <arg value="-properties"/>
-      <arg file="build/hsqldb.bnd"/>
-      <arg value="hsqldb.jar"/>
-    </java>
-  </target>
+    <target name="osgi" depends="-ivy-setup, hsqldb"
+      description="Generates 'hsqldb-osgi.jar' file with OSGI properties in manifest">
+      <pathconvert property="bndjar.file" refid="bnd-jar.cpref"/>
+      <!-- Purposefully not using the bndwrap task available for this purpose,
+           because the docs don't explain how to use the attributes clearly enough
+           to figure out how to use it. -->
+      <java failonerror="true" fork="true" dir="lib" classpath="${bndjar.file}"
+            classname="aQute.bnd.main.bnd">
+        <sysproperty key="hsqldb.version" value="${hsqldb.version}"/>
+        <sysproperty key="build.vendor" value="${user.name}"/>
+        <sysproperty key="build.description" value="${description}"/>
+        <sysproperty key="hsqldb.title" value="${hsqldb.title}"/>
+        <arg value="wrap"/>
+        <arg value="-output"/>
+        <arg value="hsqldb-osgi.jar"/>
+        <arg value="-properties"/>
+        <arg file="build/hsqldb.bnd"/>
+        <arg value="hsqldb.jar"/>
+      </java>
+    </target>
 </project>
