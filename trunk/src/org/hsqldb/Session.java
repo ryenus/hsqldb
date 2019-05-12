@@ -100,7 +100,8 @@ public class Session implements SessionInterface {
     long                    actionTimestamp;
     long                    transactionTimestamp;
     long                    transactionEndTimestamp;
-    boolean                 txConflictRollback;
+    final boolean           txConflictRollback;
+    final boolean           txInterruptRollback;
     boolean                 isPreTransaction;
     boolean                 isTransaction;
     boolean                 isBatch;
@@ -182,6 +183,7 @@ public class Session implements SessionInterface {
         ignoreCase                  = database.sqlIgnoreCase;
         isolationLevel              = isolationLevelDefault;
         txConflictRollback          = database.txConflictRollback;
+        txInterruptRollback         = database.txInterruptRollback;
         isReadOnlyDefault           = readonly;
         isReadOnlyIsolation = isolationLevel
                               == SessionInterface.TX_READ_UNCOMMITTED;
@@ -699,8 +701,6 @@ public class Session implements SessionInterface {
         ignoreCase     = database.sqlIgnoreCase;
 
         setIsolation(isolationLevelDefault);
-
-        txConflictRollback = database.txConflictRollback;
     }
 
     /**
@@ -1377,7 +1377,7 @@ public class Session implements SessionInterface {
                 try {
                     latch.await();
                 } catch (InterruptedException e) {
-                    interrupted = true;
+                    interrupted = txInterruptRollback;
 
                     Thread.interrupted();
 

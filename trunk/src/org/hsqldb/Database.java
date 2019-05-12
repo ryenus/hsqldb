@@ -61,7 +61,7 @@ import org.hsqldb.types.Collation;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public class Database {
@@ -136,7 +136,8 @@ public class Database {
     public SessionManager     sessionManager;
     public TransactionManager txManager;
     public int defaultIsolationLevel = SessionInterface.TX_READ_COMMITTED;
-    public boolean            txConflictRollback = true;
+    public boolean            txConflictRollback  = true;
+    public boolean            txInterruptRollback = false;
 
     // schema objects
     public SchemaManager schemaManager;
