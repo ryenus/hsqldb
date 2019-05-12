@@ -1491,16 +1491,23 @@ public class ParserCommand extends ParserDDL {
                 if (readIfThis(Tokens.ROLLBACK)) {
                     readThis(Tokens.ON);
 
-                    if (!readIfThis(Tokens.DEADLOCK)) {
+                    if (readIfThis(Tokens.INTERRUPT)) {
+                        Boolean mode = processTrueOrFalseObject();
+                        StatementCommand cs = new StatementCommand(
+                            StatementTypes.SET_DATABASE_TRANSACTION_INTERRUPT,
+                            new Object[]{ mode }, null, null);
+
+                        return cs;
+                    } else {
                         readThis(Tokens.CONFLICT);
+
+                        Boolean mode = processTrueOrFalseObject();
+                        StatementCommand cs = new StatementCommand(
+                            StatementTypes.SET_DATABASE_TRANSACTION_CONFLICT,
+                            new Object[]{ mode }, null, null);
+
+                        return cs;
                     }
-
-                    Boolean mode = processTrueOrFalseObject();
-                    StatementCommand cs = new StatementCommand(
-                        StatementTypes.SET_DATABASE_TRANSACTION_CONFLICT,
-                        new Object[]{ mode }, null, null);
-
-                    return cs;
                 }
 
                 readThis(Tokens.CONTROL);
@@ -2570,8 +2577,8 @@ public class ParserCommand extends ParserDDL {
 
         read();
 
-        String sql = Tokens.T_DISCONNECT;
-        Statement cs = new StatementSession(StatementTypes.DISCONNECT, null);
+        String    sql = Tokens.T_DISCONNECT;
+        Statement cs  = new StatementSession(StatementTypes.DISCONNECT, null);
 
         return cs;
     }

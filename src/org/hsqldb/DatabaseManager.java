@@ -58,7 +58,7 @@ import org.hsqldb.persist.HsqlProperties;
  * Maintains a reference to the timer used for file locks and logging.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.7.2
  */
 public class DatabaseManager {
@@ -359,15 +359,24 @@ public class DatabaseManager {
         Object  key = path;
         HashMap databaseMap;
 
-        if (type == DatabaseType.DB_FILE) {
-            databaseMap = fileDatabaseMap;
-            key         = filePathToKey(path);
-        } else if (type == DatabaseType.DB_RES) {
-            databaseMap = resDatabaseMap;
-        } else if (type == DatabaseType.DB_MEM) {
-            databaseMap = memDatabaseMap;
-        } else {
-            throw (Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager"));
+        switch (type) {
+
+            case DB_FILE :
+                databaseMap = fileDatabaseMap;
+                key         = filePathToKey(path);
+                break;
+
+            case DB_RES :
+                databaseMap = resDatabaseMap;
+                break;
+
+            case DB_MEM :
+                databaseMap = memDatabaseMap;
+                break;
+
+            default :
+                throw (Error.runtimeError(ErrorCode.U_S0500,
+                                          "DatabaseManager"));
         }
 
         synchronized (databaseMap) {
@@ -384,15 +393,24 @@ public class DatabaseManager {
         Object  key = path;
         HashMap databaseMap;
 
-        if (type == DatabaseType.DB_FILE) {
-            databaseMap = fileDatabaseMap;
-            key         = filePathToKey(path);
-        } else if (type == DatabaseType.DB_RES) {
-            databaseMap = resDatabaseMap;
-        } else if (type == DatabaseType.DB_MEM) {
-            databaseMap = memDatabaseMap;
-        } else {
-            throw Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager");
+        switch (type) {
+
+            case DB_FILE :
+                databaseMap = fileDatabaseMap;
+                key         = filePathToKey(path);
+                break;
+
+            case DB_RES :
+                databaseMap = resDatabaseMap;
+                break;
+
+            case DB_MEM :
+                databaseMap = memDatabaseMap;
+                break;
+
+            default :
+                throw (Error.runtimeError(ErrorCode.U_S0500,
+                                          "DatabaseManager"));
         }
 
         synchronized (databaseIDMap) {

@@ -13,5 +13,4 @@ module org.hsqldb {
    requires java.naming;
    requires java.sql;
    requires java.xml;
-   requires servlet.api;
 }
