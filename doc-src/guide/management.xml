@@ -1613,6 +1613,33 @@
       <literal>hsqldb.tx_conflict_rollback</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE TRANSACTION ROLLBACK ON CONFLICT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE TRANSACTION ROLLBACK ON
+      INTERRUPT</emphasis></simpara>
+
+      <simpara><emphasis>set database transaction rollback on interrupt
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set database transaction rollback on interrupt
+      statement&gt; ::= SET DATABASE TRANSACTION ROLLBACK ON INTERRUPT { TRUE
+      | FALSE }</literal></simpara>
+
+      <simpara>When the user application interrupts a thread that is executing
+      a HyperSQL statement, the engine resets the interrupted flag on the
+      thread. Setting this property to TRUE changes the behaviour and the
+      transaction is rolled back when the interrupt is detected. This command
+      is also discussed in the <link endterm="sessions-title"
+      xlink:href="#sessions-chapt"/> chapter.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.tx_conflict_rollback</literal>.</simpara>
+
+      <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE DEFAULT ISOLATION LEVEL</primary>
       </indexterm>
 

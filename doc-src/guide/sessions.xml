@@ -221,6 +221,17 @@
     continue to work simultaneously and can fully utilise multi-core
     processors.</para>
 
+    <para>Each active session has a separate thread. When the database is run
+    as a server, HyperSQL allocates and manages the threads. In in-process
+    databases, sessions are accessed indirectly via JDBC connections. Each
+    connection must be accessed via the same thread in the user application
+    for the duration of a transaction. In in-process databases, if the user
+    application interrupts the thread that is executing SQL statements, the
+    interrupt is cleared by HyperSQL if it is caught. You can change this with
+    SET DATABASE TRANSACTION ROLLBACK ON INTERRUPT TRUE to force the
+    transaction to roll back on interrupt and keep the interrupted state of
+    the thread.</para>
+
     <para>The concurrency control model of a live database can be changed. The
     <literal>SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
     }</literal> can be used by a user with the DBA role.</para>
