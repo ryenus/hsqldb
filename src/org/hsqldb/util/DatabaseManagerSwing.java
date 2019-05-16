@@ -53,28 +53,27 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.Vector;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
@@ -106,25 +105,26 @@ import javax.swing.tree.TreePath;
 
 import org.hsqldb.lib.RCData;
 
-//dmarshall@users - 20020101 - original swing port of DatabaseManager
-//sqlbob@users 20020401 - patch 537501 by ulrivo - commandline arguments
-//sqlbob@users 20020407 - patch 1.7.0 - reengineering and enhancements
-//nickferguson@users 20021005 - patch 1.7.1 - enhancements
-//deccles@users 2004 - 2008 - bug fixes and enhancements
-//weconsultants@users 20041109 - version 1.8.0 - reengineering and enhancements:
-//              Added: Goodies 'Look and Feel'.
-//              Added: a Font Changer(Font Type\Style).
-//              Added: a Color Changer (foreground\bckground).
-//              Added: RowCounts for each JTree table nodes.
-//              Added: OneTouchExpandable attribute to JSplitPanes.
-//              Moved: setFramePositon code to a CommonSwing.setFramePositon() Method.
-//              Added: call to new method to handle exception processing (CommonSwing.errorMessage());
-//              Added: Added a new pane added at the bottom of the Frame. (Status Icon and StatusLine).
-//              Added: 2 Methods (setStatusMessage()), one overrides the other. One to change the ruung status
-//                              another to allow a message to be posted without changing the Status Icon if needed.
-//              Added: Added a customCursor for the current wait cursor
+// dmarshall@users - 20020101 - original swing port of DatabaseManager
+// sqlbob@users 20020401 - patch 537501 by ulrivo - commandline arguments
+// sqlbob@users 20020407 - patch 1.7.0 - reengineering and enhancements
+// nickferguson@users 20021005 - patch 1.7.1 - enhancements
+// deccles@users 2004 - 2008 - bug fixes and enhancements
+// weconsultants@users 20041109 - version 1.8.0 - reengineering and enhancements:
+//      Added: Goodies 'Look and Feel'.
+//      Added: a Font Changer(Font Type\Style).
+//      Added: a Color Changer (foreground\bckground).
+//      Added: RowCounts for each JTree table nodes.
+//      Added: OneTouchExpandable attribute to JSplitPanes.
+//      Moved: setFramePositon code to a CommonSwing.setFramePositon() Method.
+//      Added: call to new method to handle exception processing (CommonSwing.errorMessage());
+//      Added: Added a new pane added at the bottom of the Frame. (Status Icon and StatusLine).
+//      Added: 2 Methods (setStatusMessage()), one overrides the other. One to change the ruung status
+//             another to allow a message to be posted without changing the Status Icon if needed.
+//      Added: Added a customCursor for the current wait cursor
 //      Added: Ability to switch the current LAF while runing (Native,Java or Motif)
-//unsaved@users 2005xxxx - improvements and bug fixes
+// unsaved@users 2005xxxx - improvements and bug fixes
+// fredt@users - version 2.50 - removed deprecated
 
 /**
  * Swing Tool for managing a JDBC database.
@@ -149,10 +149,10 @@ import org.hsqldb.lib.RCData;
  *
  * @author dmarshall@users
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.7.0
  */
-public class DatabaseManagerSwing extends JApplet
+public class DatabaseManagerSwing extends JFrame
 implements ActionListener, WindowListener, KeyListener, MouseListener {
 
     /*
@@ -171,7 +171,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         homedir = System.getProperty("user.home");
     }
 
-    ArrayList                   localActionList = new ArrayList();
+    ArrayList<JMenuItem>        localActionList = new ArrayList<JMenuItem>();
     private JFrame              jframe          = null;
     private static final String DEFAULT_RCFILE  = homedir + "/dbmanager.rc";
     private static boolean      TT_AVAILABLE    = false;
@@ -306,7 +306,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     Cursor        fMainCursor;
     Cursor        txtCommandCursor;
     Cursor        txtResultCursor;
-    HashMap       tipMap     = new HashMap();
+    HashMap<AbstractButton,String> tipMap = new HashMap<AbstractButton,String>();
     private JMenu mnuSchemas = new JMenu("Schemas");
 
     /**
@@ -356,25 +356,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         Connection c    = null;
         boolean    auto = false;
 
-        if (getParameter("jdbcDriver") != null) {
-            auto      = true;
-            defDriver = getParameter("jdbcDriver");
-        }
-
-        if (getParameter("jdbcUrl") != null) {
-            auto   = true;
-            defURL = getParameter("jdbcUrl");
-        }
-
-        if (getParameter("jdbcUser") != null) {
-            auto    = true;
-            defUser = getParameter("jdbcUser");
-        }
-
-        if (getParameter("jdbcPassword") != null) {
-            auto        = true;
-            defPassword = getParameter("jdbcPassword");
-        }
 
         try {
             setWaiting("Initializing");
@@ -397,23 +378,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             connect(c);
         }
 
-        if (getParameter("loadSampleData") != null
-                && getParameter("loadSampleData").equals("true")) {
-            insertTestData();
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ie) {}
-            ;
-
-            // I don't know why, but the tree refresh below sometimes
-            // doesn't show all tables unless I put this delay here.
-            refreshTree();
-        }
-
-        if (getParameter("schemaFilter") != null) {
-            schemaFilter = getParameter("schemaFilter");
-        }
     }
 
     /**
@@ -605,14 +569,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             ConnectionDialogSwing.setConnectionSetting(newSetting);
             refreshTree();
             clearResultPanel();
-
-            if (fMain instanceof JApplet) {
-                getAppletContext().showStatus(
-                    "JDBC Connection established to a "
-                    + dMeta.getDatabaseProductName() + " v. "
-                    + dMeta.getDatabaseProductVersion() + " database as '"
-                    + dMeta.getUserName() + "'.");
-            }
         } catch (SQLException e) {
 
             //  Added: (weconsultants@users)
@@ -675,7 +631,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         JMenuItem mitem;
 
         try {
-            prefs = new DBMPrefs(fMain instanceof JApplet);
+            prefs = new DBMPrefs(false);
         } catch (Exception e) {
 /*
             System.err.println(
@@ -757,7 +713,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         boxShowGrid.setSelected(gridFormat);
         boxTooltips.setSelected(showTooltips);
         boxShowGrid.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G,
-                Event.CTRL_MASK));
+                InputEvent.CTRL_DOWN_MASK));
         boxAutoRefresh.setSelected(autoRefresh);
         boxRowCounts.setSelected(displayRowCounts);
         boxShowSys.setSelected(showSys);
@@ -873,9 +829,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         });
         bar.add(mnuHelp);
 
-        if (fMain instanceof JApplet) {
-            ((JApplet) fMain).setJMenuBar(bar);
-        } else if (fMain instanceof JFrame) {
+        if (fMain instanceof JFrame) {
             ((JFrame) fMain).setJMenuBar(bar);
         }
 
@@ -884,9 +838,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         sRecent = new String[iMaxRecent];
 
         // Modified: (weconsultants@users)Mode code to CommonSwing for general use
-        if (!(fMain instanceof JApplet)) {
-            CommonSwing.setFramePositon((JFrame) fMain);
-        }
+        CommonSwing.setFramePositon((JFrame) fMain);
 
         // Modified: (weconsultants@users) Changed from deprecated show()
         ((Component) fMain).setVisible(true);
@@ -989,7 +941,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
                     if (c != '-') {
                         KeyStroke key =
-                            KeyStroke.getKeyStroke(c, Event.CTRL_MASK);
+                            KeyStroke.getKeyStroke(c, InputEvent.CTRL_DOWN_MASK);
 
                         item.setAccelerator(key);
                     }
@@ -1846,7 +1798,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         Object[] col   = gResult.getHead();
         int      width = col.length;
         int[]    size  = new int[width];
-        Vector   data  = gResult.getData();
+        ArrayList<Object[]> data = gResult.getData();
         Object[] row;
         int      height = data.size();
 
@@ -1855,7 +1807,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         }
 
         for (int i = 0; i < height; i++) {
-            row = (Object[]) data.elementAt(i);
+            row = data.get(i);
 
             for (int j = 0; j < width; j++) {
                 String item = ((row[j] == null) ? ""
@@ -1891,7 +1843,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         b.append(NL);
 
         for (int i = 0; i < height; i++) {
-            row = (Object[]) data.elementAt(i);
+            row = data.get(i);
 
             for (int j = 0; j < width; j++) {
                 String item = ((row[j] == null) ? ""
@@ -2371,13 +2323,13 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         return node;
     }
 
-    private static final String[] usertables       = {
+    private static final String[] usertables   = {
         "TABLE", "GLOBAL TEMPORARY", "VIEW", "SYSTEM TABLE"
     };
-    private static final String[] nonSystables     = {
+    private static final String[] nonSystables = {
         "TABLE", "GLOBAL TEMPORARY", "VIEW"
     };
-    private static final HashSet  oracleSysUsers   = new HashSet();
+    private static final HashSet<String> oracleSysUsers = new HashSet<String>();
     private static final String[] oracleSysSchemas = {
         "SYS", "SYSTEM", "OUTLN", "DBSNMP", "OUTLN", "MDSYS", "ORDSYS",
         "ORDPLUGINS", "CTXSYS", "DSSYS", "PERFSTAT", "WKPROXY", "WKSYS",
@@ -2439,11 +2391,11 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             result = dMeta.getTables(null, null, null, (showSys ? usertables
                                                                 : nonSystables));
 
-            Vector tables  = new Vector();
-            Vector schemas = new Vector();
+            ArrayList<String> tables  = new ArrayList<String>();
+            ArrayList<String> schemas = new ArrayList<String>();
 
             // sqlbob@users Added remarks.
-            Vector remarks = new Vector();
+            ArrayList<String> remarks = new ArrayList<String>();
             String schema;
 
             while (result.next()) {
@@ -2455,9 +2407,9 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                 }
 
                 if (schemaFilter == null || schema.equals(schemaFilter)) {
-                    schemas.addElement(schema);
-                    tables.addElement(result.getString(3));
-                    remarks.addElement(result.getString(5));
+                    schemas.add(schema);
+                    tables.add(result.getString(3));
+                    remarks.add(result.getString(5));
 
                     continue;
                 }
@@ -2490,7 +2442,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                 String name;
 
                 try {
-                    name = (String) tables.elementAt(i);
+                    name = (String) tables.get(i);
 
                     if (isOracle && name.startsWith("BIN$")) {
                         continue;
@@ -2500,7 +2452,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                         // queries below.
                     }
 
-                    schema = (String) schemas.elementAt(i);
+                    schema = (String) schemas.get(i);
 
                     String schemaname = "";
 
@@ -2522,7 +2474,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     }
 
                     // sqlbob@users Added remarks.
-                    String remark = (String) remarks.elementAt(i);
+                    String remark = (String) remarks.get(i);
 
                     if ((remark != null) && !remark.trim().equals("")) {
                         makeNode(remark, tableNode);
@@ -2661,8 +2613,8 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     }
 
     // Added: (weconsultants@users) Needed to aggragate counts per table in jTree
-    protected int[] getRowCounts(Vector inTable,
-                                 Vector inSchema) throws Exception {
+    protected int[] getRowCounts(ArrayList inTable,
+                                 ArrayList inSchema) throws Exception {
 
         if (!displayRowCounts) {
             return (null);
@@ -2679,12 +2631,12 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
             for (int i = 0; i < inTable.size(); i++) {
                 try {
-                    String schemaPart = (String) inSchema.elementAt(i);
+                    String schemaPart = (String) inSchema.get(i);
 
                     schemaPart = schemaPart == null ? ""
                                                     : ("\"" + schemaPart
                                                        + "\".\"");
-                    name = schemaPart + (String) inTable.elementAt(i) + "\"";
+                    name = schemaPart + (String) inTable.get(i) + "\"";
 
                     ResultSet resultSet = select.executeQuery(rowCountSelect
                         + name);
@@ -2694,8 +2646,8 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     }
                 } catch (Exception e) {
                     System.err.println("Unable to get row count for table "
-                                       + inSchema.elementAt(i) + '.'
-                                       + inTable.elementAt(i)
+                                       + inSchema.get(i) + '.'
+                                       + inTable.get(i)
                                        + ".  Using value '0': " + e);
                 }
             }
@@ -2816,9 +2768,9 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
     private void updateSchemaList() {
 
-        ButtonGroup group  = new ButtonGroup();
-        ArrayList   list   = new ArrayList();
-        ResultSet   result = null;
+        ButtonGroup       group  = new ButtonGroup();
+        ArrayList<String> list   = new ArrayList<String>();
+        ResultSet         result = null;
 
         try {
             result = dMeta.getSchemas();
@@ -2926,45 +2878,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
             if (prefsFile == null) {
 
-                // LOAD PREFERENCES FROM APPLET PARAMS
-                tmpString = getParameter("autoRefresh");
-
-                if (tmpString != null) {
-                    autoRefresh = Boolean.valueOf(tmpString).booleanValue();
-                }
-
-                tmpString = getParameter("showRowCounts");
-
-                if (tmpString != null) {
-                    showRowCounts = Boolean.valueOf(tmpString).booleanValue();
-                }
-
-                tmpString = getParameter("showSysTables");
-
-                if (tmpString != null) {
-                    showSysTables = Boolean.valueOf(tmpString).booleanValue();
-                }
-
-                tmpString = getParameter("showSchemas");
-
-                if (tmpString != null) {
-                    showSchemas = Boolean.valueOf(tmpString).booleanValue();
-                }
-
-                tmpString = getParameter("resultGrid");
-
-                if (tmpString != null) {
-                    resultGrid = Boolean.valueOf(tmpString).booleanValue();
-                }
-
-                tmpString = getParameter("laf");
-                laf       = ((tmpString == null) ? CommonSwing.Native
-                                                 : tmpString);
-                tmpString = getParameter("showTooltips");
-
-                if (tmpString != null) {
-                    showTooltips = Boolean.valueOf(tmpString).booleanValue();
-                }
             } else {
 
                 // LOAD PREFERENCES FROM LOCAL PREFERENCES FILE

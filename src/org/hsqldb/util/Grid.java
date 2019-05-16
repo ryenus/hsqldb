@@ -70,7 +70,7 @@
 
 package org.hsqldb.util;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -85,11 +85,12 @@ import java.awt.Scrollbar;
 import java.awt.SystemColor;
 
 // sqlbob@users 20020401 - patch 1.7.0 by sqlbob (RMP) - enhancements
+// fredt@users - version 2.50 - removed deprecated
 
 /**
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.8.0
+ * @version 2.5.0
  * @since Hypersonic SQL
  */
 class Grid extends Panel {
@@ -114,7 +115,7 @@ class Grid extends Panel {
     // data
 // campbell-burnet@users changed access for databasemanager2
     protected String[] sColHead = new String[0];
-    protected Vector   vData    = new Vector();
+    protected ArrayList<String[]> vData = new ArrayList<String[]>();
 
 // --------------------------------------------------
     private int[] iColWidth;
@@ -161,7 +162,7 @@ class Grid extends Panel {
     /**
      * Method declaration
      */
-    Vector getData() {
+    ArrayList<String[]> getData() {
         return vData;
     }
 
@@ -222,7 +223,7 @@ class Grid extends Panel {
 
         iRowCount  = 0;
         iRowHeight = 0;
-        vData      = new Vector();
+        vData      = new ArrayList<String[]>();
     }
 
     /**
@@ -247,7 +248,7 @@ class Grid extends Panel {
             }
         }
 
-        vData.addElement(row);
+        vData.add(row);
 
         iRowCount++;
     }
@@ -573,7 +574,7 @@ class Grid extends Panel {
         w = Math.max(w, fMetrics.stringWidth(sColHead[i]));
 
         for (int j = 0; j < iRowCount; j++) {
-            String[] s = (String[]) (vData.elementAt(j));
+            String[] s = vData.get(j);
 
             w = Math.max(w, fMetrics.stringWidth(s[i]));
         }
@@ -589,7 +590,7 @@ class Grid extends Panel {
      * @param y
      */
     private String getDisplay(int x, int y) {
-        return (((String[]) (vData.elementAt(y)))[x]);
+        return vData.get(y)[x];
     }
 
     /**
@@ -600,7 +601,7 @@ class Grid extends Panel {
      * @param y
      */
     private String get(int x, int y) {
-        return (((String[]) (vData.elementAt(y)))[x]);
+        return vData.get(y)[x];
     }
 
     /**
