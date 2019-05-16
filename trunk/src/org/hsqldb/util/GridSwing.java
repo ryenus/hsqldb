@@ -31,7 +31,7 @@
 
 package org.hsqldb.util;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import java.awt.Component;
 import javax.swing.JTable;
@@ -43,18 +43,19 @@ import javax.swing.table.TableModel;
 
 // sqlbob@users 20020401 - patch 1.7.0 by sqlbob (RMP) - enhancements
 // deccles@users 20040412 - patch 933671 - various bug fixes
+// fredt@users - version 2.50 - removed deprecated
 
 /** Simple table model to represent a grid of tuples.
  *
  * @author dmarshall@users
- * @version 1.7.2
+ * @version 2.5.0
  * @since 1.7.0
  */
 class GridSwing extends AbstractTableModel {
 
-    JTable   jtable = null;
-    Object[] headers;
-    Vector   rows;
+    JTable              jtable = null;
+    Object[]            headers;
+    ArrayList<Object[]> rows;
 
     /**
      * Default constructor.
@@ -63,8 +64,8 @@ class GridSwing extends AbstractTableModel {
 
         super();
 
-        headers = new Object[0];    // initially empty
-        rows    = new Vector();     // initially empty
+        headers = new Object[0];              // initially empty
+        rows    = new ArrayList<Object[]>();  // initially empty
     }
 
     /**
@@ -125,7 +126,7 @@ class GridSwing extends AbstractTableModel {
      *  column position.
      *  <p>The first row is at offset 0, the nth row at offset n etc.
      */
-    public Vector getData() {
+    public ArrayList<Object[]> getData() {
         return rows;
     }
 
@@ -138,7 +139,7 @@ class GridSwing extends AbstractTableModel {
             return null;
         }
 
-        Object[] colArray = (Object[]) rows.elementAt(row);
+        Object[] colArray = (Object[]) rows.get(row);
 
         if (col >= colArray.length) {
             return null;
@@ -177,7 +178,7 @@ class GridSwing extends AbstractTableModel {
             }
         }
 
-        rows.addElement(row);
+        rows.add(row);
     }
 
     /**
@@ -185,7 +186,7 @@ class GridSwing extends AbstractTableModel {
      *  affecting the current headings).
      */
     public void clear() {
-        rows.removeAllElements();
+        rows.clear();
     }
 
     public void setJTable(JTable table) {

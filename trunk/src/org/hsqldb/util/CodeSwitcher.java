@@ -76,7 +76,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.LineNumberReader;
-import java.util.Vector;
+import java.util.ArrayList;
 
 // fredt@users 20020315 - patch 1.7.0 - minor fixes
 // changed line separator to System based value
@@ -87,6 +87,7 @@ import java.util.Vector;
 // if the file contents do not change, do not save a new version of file
 // fredt@users 20040322 - removed unused profiling code
 // fredt@users 20080315 - added ifndef switch
+// fredt@users 20190515 - enhancements
 
 /**
  * Modifies the source code to support different JDK or profile settings. <p>
@@ -110,18 +111,18 @@ import java.util.Vector;
  * </pre>
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.7.0
+ * @version 2.5.0
  * @since Hypersonic SQL
  */
 public class CodeSwitcher {
 
     private static final String ls = System.getProperty("line.separator",
         "\n");
-    private Vector           vList;
-    private Vector           vSwitchOn;
-    private Vector           vSwitchOff;
-    private Vector           vSwitches;
-    private static final int MAX_LINELENGTH = 82;
+    private ArrayList<String> vList;
+    private ArrayList<String> vSwitchOn;
+    private ArrayList<String> vSwitchOff;
+    private ArrayList<String> vSwitches;
+    private static final int  MAX_LINELENGTH = 82;
 
     /**
      * Method declaration
@@ -146,13 +147,13 @@ public class CodeSwitcher {
             String p = a[i];
 
             if (p.startsWith("+")) {
-                s.vSwitchOn.addElement(p.substring(1));
+                s.vSwitchOn.add(p.substring(1));
             } else if (p.startsWith("--basedir=")) {
                 baseDir = new File(p.substring("--basedir=".length()));
             } else if (p.startsWith("--pathlist=")) {
                 listFile = new File(p.substring("--pathlist=".length()));
             } else if (p.startsWith("-")) {
-                s.vSwitchOff.addElement(p.substring(1));
+                s.vSwitchOff.add(p.substring(1));
             } else {
                 s.addDir(p);
             }
@@ -229,19 +230,20 @@ public class CodeSwitcher {
      */
     static void showUsage() {
 
-        System.out.print("Usage: java CodeSwitcher paths|{--pathlist=listfile} "
-                         + "[{+|-}label...] [+][-]\n"
-                         + "If no labels are specified then all used\n"
-                         + "labels in the source code are shown.\n"
-                         + "Use +MODE to switch on the things labeld MODE\n"
-                         + "Use -MODE to switch off the things labeld MODE\n"
-                         + "Path: Any number of path or files may be\n"
-                         + "specified. Use . for the current directory\n"
-                         + "(including sub-directories).\n"
-                         + "Example: java CodeSwitcher +JAVA2 .\n"
-                         + "This example switches on code labeled JAVA2\n"
-                         + "in all *.java files in the current directory\n"
-                         + "and all subdirectories.\n");
+        System.out.print(
+            "Usage: java CodeSwitcher paths|{--pathlist=listfile} "
+            + "[{+|-}label...] [+][-]\n"
+            + "If no labels are specified then all used\n"
+            + "labels in the source code are shown.\n"
+            + "Use +MODE to switch on the things labeld MODE\n"
+            + "Use -MODE to switch off the things labeld MODE\n"
+            + "Path: Any number of path or files may be\n"
+            + "specified. Use . for the current directory\n"
+            + "(including sub-directories).\n"
+            + "Example: java CodeSwitcher +JAVA2 .\n"
+            + "This example switches on code labeled JAVA2\n"
+            + "in all *.java files in the current directory\n"
+            + "and all subdirectories.\n");
     }
 
     /**
@@ -250,10 +252,10 @@ public class CodeSwitcher {
      */
     CodeSwitcher() {
 
-        vList      = new Vector();
-        vSwitchOn  = new Vector();
-        vSwitchOff = new Vector();
-        vSwitches  = new Vector();
+        vList      = new ArrayList<String>();
+        vSwitchOn  = new ArrayList<String>();
+        vSwitchOff = new ArrayList<String>();
+        vSwitches  = new ArrayList<String>();
     }
 
     /**
@@ -267,7 +269,7 @@ public class CodeSwitcher {
         for (int i = 0; i < len; i++) {
             System.out.print(".");
 
-            String file = (String) vList.elementAt(i);
+            String file = vList.get(i);
 
             if (!processFile(file)) {
                 System.out.println("in file " + file + " !");
@@ -286,7 +288,7 @@ public class CodeSwitcher {
         System.out.println("Used labels:");
 
         for (int i = 0; i < vSwitches.size(); i++) {
-            System.out.println((String) (vSwitches.elementAt(i)));
+            System.out.println(vSwitches.get(i));
         }
     }
 
@@ -302,7 +304,7 @@ public class CodeSwitcher {
     void addDir(File f) {
 
         if (f.isFile() && f.getName().endsWith(".java")) {
-            vList.addElement(f.getPath());
+            vList.add(f.getPath());
         } else if (f.isDirectory()) {
             File[] list = f.listFiles();
 
@@ -331,15 +333,15 @@ public class CodeSwitcher {
         boolean working   = false;
 
         try {
-            Vector v  = getFileLines(f);
-            Vector v1 = new Vector(v.size());
+            ArrayList<String> v  = getFileLines(f);
+            ArrayList<String> v1 = new ArrayList<String>(v.size());
 
             for (int i = 0; i < v.size(); i++) {
-                v1.addElement(v.elementAt(i));
+                v1.add(v.get(i));
             }
 
             for (int i = 0; i < v.size(); i++) {
-                String line = (String) v.elementAt(i);
+                String line = v.get(i);
 
                 if (line == null) {
                     break;
@@ -347,7 +349,7 @@ public class CodeSwitcher {
 
                 if (working) {
                     if (line.equals("/*") || line.equals("*/")) {
-                        v.removeElementAt(i--);
+                        v.remove(i--);
 
                         continue;
                     }
@@ -371,13 +373,13 @@ public class CodeSwitcher {
                         } else if (vSwitchOff.indexOf(s) != -1) {
                             working = true;
 
-                            v.insertElementAt("/*", ++i);
+                            v.add(++i, "/*");
 
                             switchoff = true;
                         }
 
                         if (vSwitches.indexOf(s) == -1) {
-                            vSwitches.addElement(s);
+                            vSwitches.add(s);
                         }
                     } else if (line.startsWith("//#ifndef ")) {
                         if (state != 0) {
@@ -397,13 +399,13 @@ public class CodeSwitcher {
                         } else if (vSwitchOn.indexOf(s) != -1) {
                             working = true;
 
-                            v.insertElementAt("/*", ++i);
+                            v.add(++i, "/*");
 
                             switchoff = true;
                         }
 
                         if (vSwitches.indexOf(s) == -1) {
-                            vSwitches.addElement(s);
+                            vSwitches.add(s);
                         }
                     } else if (line.startsWith("//#else")) {
                         if (state != 1) {
@@ -416,17 +418,17 @@ public class CodeSwitcher {
 
                         if (!working) {}
                         else if (switchoff) {
-                            if (v.elementAt(i - 1).equals("")) {
-                                v.insertElementAt("*/", i - 1);
+                            if (v.get(i - 1).equals("")) {
+                                v.add(i - 1, "*/");
 
                                 i++;
                             } else {
-                                v.insertElementAt("*/", i++);
+                                v.add(i++, "*/");
                             }
 
                             switchoff = false;
                         } else {
-                            v.insertElementAt("/*", ++i);
+                            v.add(++i, "/*");
 
                             switchoff = true;
                         }
@@ -440,12 +442,12 @@ public class CodeSwitcher {
                         state = 0;
 
                         if (working && switchoff) {
-                            if (v.elementAt(i - 1).equals("")) {
-                                v.insertElementAt("*/", i - 1);
+                            if (v.get(i - 1).equals("")) {
+                                v.add(i - 1, "*/");
 
                                 i++;
                             } else {
-                                v.insertElementAt("*/", i++);
+                                v.add(i++, "*/");
                             }
                         }
 
@@ -463,7 +465,7 @@ public class CodeSwitcher {
             boolean filechanged = false;
 
             for (int i = 0; i < v.size(); i++) {
-                if (!v1.elementAt(i).equals(v.elementAt(i))) {
+                if (!v1.get(i).equals(v.get(i))) {
                     filechanged = true;
 
                     break;
@@ -494,10 +496,10 @@ public class CodeSwitcher {
         }
     }
 
-    static Vector getFileLines(File f) throws IOException {
+    static ArrayList<String> getFileLines(File f) throws IOException {
 
-        LineNumberReader read = new LineNumberReader(new FileReader(f));
-        Vector           v    = new Vector();
+        LineNumberReader  read = new LineNumberReader(new FileReader(f));
+        ArrayList<String> v    = new ArrayList<String>();
 
         for (;;) {
             String line = read.readLine();
@@ -506,7 +508,7 @@ public class CodeSwitcher {
                 break;
             }
 
-            v.addElement(line);
+            v.add(line);
         }
 
         read.close();
@@ -514,12 +516,12 @@ public class CodeSwitcher {
         return v;
     }
 
-    static void writeFileLines(Vector v, File f) throws IOException {
+    static void writeFileLines(ArrayList v, File f) throws IOException {
 
         FileWriter write = new FileWriter(f);
 
         for (int i = 0; i < v.size(); i++) {
-            write.write((String) v.elementAt(i));
+            write.write((String) v.get(i));
             write.write(ls);
         }
 

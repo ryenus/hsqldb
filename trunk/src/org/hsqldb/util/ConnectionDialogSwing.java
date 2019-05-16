@@ -66,12 +66,13 @@ import javax.swing.border.EmptyBorder;
 //              Added spaces to "OK" button to make same size buttons
 //              Added ":" to all labels as in databaseManager.java
 //              Added: Added code from DatabaseManager to store connection settings
+// fredt@users - version 2.50 - removed deprecated
 
 /**
  * Opens a connection to a database
  *
  * @author dmarshall@users
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.7.0
  */
 class ConnectionDialogSwing extends JDialog
@@ -292,7 +293,7 @@ implements ActionListener, ItemListener {
     // (weconsultants@users) New code
     public Vector loadRecentConnectionSettings() {
 
-        Vector passSettings = new Vector();
+        Vector<String> passSettings = new Vector<String>();
 
         settings = new Hashtable();
 
@@ -310,7 +311,7 @@ implements ActionListener, ItemListener {
             CommonSwing.errorMessage(ioe);
         }
 
-        return (passSettings);
+        return passSettings;
     }
 
     public void actionPerformed(ActionEvent ev) {

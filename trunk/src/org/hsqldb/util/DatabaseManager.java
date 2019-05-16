@@ -42,7 +42,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
@@ -73,7 +73,9 @@ import org.hsqldb.lib.RCData;
 // sqlbob@users 20020401 - patch 537501 by ulrivo - command line arguments
 // sqlbob@users 20020407 - patch 1.7.0 - reengineering
 // nickferguson@users 20021005 - patch 1.7.1 - enhancements
+// fredt@users - version 2.50 - removed deprecated
 /*
+
  * unsaved@users 20050426 - Switched default switch method from "-switch" to
  * "--switch" because "-switch" usage is ambiguous as used here.  Single
  * switches should be reserved for single-letter switches which can be mixed
@@ -1063,14 +1065,14 @@ implements ActionListener, WindowListener, KeyListener {
             CSVWriter writer = new CSVWriter(file, null);
             String[]  col    = gResult.getHead();
             int       width  = col.length;
-            Vector    data   = gResult.getData();
+            ArrayList<String[]> data   = gResult.getData();
             String[]  row;
             int       height = data.size();
 
             writer.writeHeader(col);
 
             for (int i = 0; i < height; i++) {
-                row = (String[]) data.elementAt(i);
+                row = data.get(i);
 
                 String[] myRow = new String[row.length];
 
@@ -1100,7 +1102,7 @@ implements ActionListener, WindowListener, KeyListener {
         String[] col   = gResult.getHead();
         int      width = col.length;
         int[]    size  = new int[width];
-        Vector   data  = gResult.getData();
+        ArrayList<String[]> data = gResult.getData();
         String[] row;
         int      height = data.size();
 
@@ -1109,7 +1111,7 @@ implements ActionListener, WindowListener, KeyListener {
         }
 
         for (int i = 0; i < height; i++) {
-            row = (String[]) data.elementAt(i);
+            row = data.get(i);
 
             for (int j = 0; j < width; j++) {
                 int l = row[j].length();
@@ -1143,7 +1145,7 @@ implements ActionListener, WindowListener, KeyListener {
         b.append(NL);
 
         for (int i = 0; i < height; i++) {
-            row = (String[]) data.elementAt(i);
+            row = data.get(i);
 
             for (int j = 0; j < width; j++) {
                 b.append(row[j]);
@@ -1269,32 +1271,32 @@ implements ActionListener, WindowListener, KeyListener {
             };
 
             // fredt@users Schema support
-            Vector schemas = new Vector();
-            Vector tables  = new Vector();
+            ArrayList<String> schemas = new ArrayList<String>();
+            ArrayList<String> tables  = new ArrayList<String>();
 
             // sqlbob@users Added remarks.
-            Vector    remarks = new Vector();
+            ArrayList<String> remarks = new ArrayList<String>();
             ResultSet result  = dMeta.getTables(null, null, null, usertables);
 
             try {
                 while (result.next()) {
-                    schemas.addElement(result.getString(2));
-                    tables.addElement(result.getString(3));
-                    remarks.addElement(result.getString(5));
+                    schemas.add(result.getString(2));
+                    tables.add(result.getString(3));
+                    remarks.add(result.getString(5));
                 }
             } finally {
                 result.close();
             }
 
             for (int i = 0; i < tables.size(); i++) {
-                String name   = (String) tables.elementAt(i);
-                String schema = (String) schemas.elementAt(i);
+                String name   = (String) tables.get(i);
+                String schema = (String) schemas.get(i);
                 String key    = "tab-" + name + "-";
 
                 tTree.addRow(key, name, "+", color_table);
 
                 // sqlbob@users Added remarks.
-                String remark = (String) remarks.elementAt(i);
+                String remark = (String) remarks.get(i);
 
                 if ((schema != null) && !schema.trim().equals("")) {
                     tTree.addRow(key + "s", "schema: " + schema);
