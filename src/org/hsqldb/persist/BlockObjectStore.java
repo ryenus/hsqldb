@@ -40,7 +40,7 @@ import org.hsqldb.rowio.RowInputInterface;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 2.3.0
  */
 public class BlockObjectStore extends SimpleStore {
@@ -52,7 +52,7 @@ public class BlockObjectStore extends SimpleStore {
 
     public BlockObjectStore(DataFileCache cache,
                             TableSpaceManager tableSpaceManager,
-                            Class objectClass, int storageSize,
+                            Class<?> objectClass, int storageSize,
                             int blockSize) {
 
         this.cache        = cache;

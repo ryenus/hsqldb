@@ -88,8 +88,8 @@ public class AuthUtils {
         }
     }
 
-    static Set getEnabledRoles(Connection c) throws SQLException {
-        Set roles = new HashSet<String>();
+    static Set<String> getEnabledRoles(Connection c) throws SQLException {
+        HashSet<String> roles = new HashSet<String>();
         Statement st = c.createStatement();
         ResultSet rs = null;
         try {
