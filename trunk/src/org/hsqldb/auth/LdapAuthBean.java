@@ -105,7 +105,7 @@ import org.hsqldb.lib.FrameworkLogger;
  * @see #setParentDn(String)
  * @see #init()
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
- * @since 2.0.1
+ * @since 2.5.0
  */
 public class LdapAuthBean implements AuthFunctionBean {
     private static FrameworkLogger logger =
@@ -479,7 +479,7 @@ public class LdapAuthBean implements AuthFunctionBean {
                 "You must invoke the 'init' method to initialize the "
                 + LdapAuthBean.class.getName() + " instance.");
         }
-        Hashtable env = new Hashtable(5, 0.75f);
+        Hashtable<String, String> env = new Hashtable<String, String>(5, 0.75f);
         env.put(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
         env.put(Context.PROVIDER_URL, "ldap://" + ldapHost
                 + ((ldapPort == null) ? "" : (":" + ldapPort)));
