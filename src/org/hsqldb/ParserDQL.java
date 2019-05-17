@@ -1331,11 +1331,19 @@ public class ParserDQL extends ParserBase {
             Expression e = XreadValueExpression();
 
             if (token.tokenType == Tokens.AS) {
+                if (e.getType() == OpTypes.MULTICOLUMN) {
+                    throw unexpectedToken();
+                }
+
                 read();
                 checkIsNonCoreReservedIdentifier();
             }
 
             if (isNonCoreReservedIdentifier()) {
+                if (e.getType() == OpTypes.MULTICOLUMN) {
+                    throw unexpectedToken();
+                }
+
                 e.setAlias(HsqlNameManager.getSimpleName(token.tokenString,
                         isDelimitedIdentifier()));
                 read();
