@@ -390,8 +390,8 @@ public class TestViewAsterisks extends TestBase {
 
         // ................................................................
         checkViewTranslationAndContent(
-            "C1", null, "SELECT * AS \"a2\" FROM ABC",
-            "SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C AS \"a2\" FROM PUBLIC.ABC",
+            "C1", null, "SELECT * FROM ABC",
+            "SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM PUBLIC.ABC",
             new Object[][] {
             new Object[] {
                 Integer.valueOf(1), "a", "b", "c"
