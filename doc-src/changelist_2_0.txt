@@ -1,4 +1,17 @@
--- 
+- May 2019 - version 2.5.0
+-- version 2.5.0 jar requires JRE 8 or later - tested up to Java 12
+-- version 2.5.0 can be compiled with Java 9 or later as org.hsqldb Java module jar
+-- version 2.3.7 is released as a separate jar for JRE 6 and 7 and fully compatible except for the new JDBC features
+-- added Temporal System-Versioned tables feature 
+-- added offline distributed database feature based on System-Versioned tables
+-- added role-based, row-level data access control
+-- added new properties, memory_lobs and hsqldb_tx_interrupt_rollback
+-- changed reaction to Thread interrupts by user application in in-process database, transaction is now aborted
+-- changed return type of the UUID() function to UUID; the SYS_GUID() function will continue to return a BINARY(16) value.
+-- improved reporting of line number in compile error messages for routines
+-- improved syntax compatibility modes
+-- fixed issue with formatting of some TIMESTAMP nanoseconds returned by the TO_TIMESTAMP function
+-- fixed issue with TIMESTAMPIFF with TIMESTAMP WITH TIME ZONE
 -- fixed issue with IN (UNNEST(NUMERIC ARRAY))
 -- fixed issue with transaction size repoted in INFORMATION_SCHEMA.SYSTEM_SESSIONS 
 -- fixed issue with storing plus or minus infinity DOUBLE values
@@ -6,8 +19,11 @@
 -- fixed issue with CREATE TYPE with custom COLLATION
 -- fixed an issue with multiple FOR loops in SQL routines
 -- fixed minor memory release issue with ROLLBACK and CACHED tables
--- changed calls to Java methods deprecated in JDK 9 - 11
---May 2018 - version 2.4.1
+-- fixed several minor issues
+-- changed calls to Java methods deprecated in JDK 9 - 12
+-- removed Java 5 code switch and build options
+
+20 May 2018 - version 2.4.1
 -- version 2.4.1 jar requires JRE 8 or later
 -- version 2.3.6 is released as a separate jar for JRE 1.6 and fully compatible except for the new JDBC features
 -- added support for EXPLAIN REFERENCES FROM | TO object statement
