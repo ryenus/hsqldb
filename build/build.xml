@@ -204,8 +204,6 @@ examples:
          and remove the description attribute -->
     <target name="switches" depends="codeswitcher, -autoswitch"
             description="execute code switchers for current JVM version">
-
-
     </target>
 
     <!-- the args for default code switching are set and used -->
@@ -270,38 +268,26 @@ examples:
       </java>
     </target>
 
-
-    <target name="map" description="compiles the /map folder"
-            depends="switches">
-      <javac srcdir="${swsrc}" includeantruntime="false"
-             encoding="${javac.encoding}"
-             destdir="classes"
-             debug="${build.debug}"
-      >
-        <include name="org/hsqldb/map/**"/>
-        <compilerarg value="-Xlint:unchecked"/>
-      </javac>
-    </target>
-
-    <target name="-lib" depends="map"
-            description="compiles the JVM-independent lib classes">
+    <target name="-lib" depends="switches"
+            description="compiles the JVM-independent lib and map classes">
       <javac srcdir="${swsrc}"
              includeantruntime="false"
              destdir="classes"
              debug="${build.debug}"
              encoding="${javac.encoding}"
       >
+        <include name="org/hsqldb/map/**"/>
+        <include name="org/hsqldb/lib/**"/>
         <exclude name="org/hsqldb/lib/AppendableException.java"/>
         <exclude name="org/hsqldb/lib/RefCapablePropertyResourceBundle.java"/>
         <exclude name="org/hsqldb/lib/RefCapableRBInterface.java"/>
         <exclude name="org/hsqldb/lib/ValidatingResourceBundle.java"/>
         <exclude name="org/hsqldb/lib/tar/**"/>
-        <include name="org/hsqldb/lib/**"/>
       </javac>
     </target>
 
     <target name="classes" depends="switches,-javajsse"
-      description="compiles JVM-independent non-lib/util/cmdline classes">
+            description="compiles JVM-independent non-lib/util/cmdline classes">
       <available property='_servlet_available' classpath='${servletapi.lib}'
                  classname='javax.servlet.ServletException'/>
       <fail unless='_servlet_available'
@@ -311,28 +297,28 @@ examples:
              encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
-       >
-         <classpath>
-            <pathelement location="${servletapi.lib}"/>
-         </classpath>
-         <include name="org/hsqldb/*.java"/>
-         <include name="org/hsqldb/auth/*.java"/>
-         <include name="org/hsqldb/dbinfo/*.java"/>
-         <include name="org/hsqldb/error/*.java"/>
-         <include name="org/hsqldb/index/*.java"/>
-         <include name="org/hsqldb/jdbc/**"/>
-         <include name="org/hsqldb/lib/**"/>
-         <include name="org/hsqldb/map/*.java"/>
-         <include name="org/hsqldb/navigator/*.java"/>
-         <include name="org/hsqldb/persist/*.java"/>
-         <include name="org/hsqldb/resources/*"/>
-         <include name="org/hsqldb/result/*.java"/>
-         <include name="org/hsqldb/rights/*.java"/>
-         <include name="org/hsqldb/rowio/*.java"/>
-         <include name="org/hsqldb/scriptio/*.java"/>
-         <include name="org/hsqldb/server/*.java"/>
-         <include name="org/hsqldb/trigger/*.java"/>
-         <include name="org/hsqldb/types/*.java"/>
+      >
+        <classpath>
+          <pathelement location="${servletapi.lib}"/>
+        </classpath>
+        <include name="org/hsqldb/*.java"/>
+        <include name="org/hsqldb/auth/*.java"/>
+        <include name="org/hsqldb/dbinfo/*.java"/>
+        <include name="org/hsqldb/error/*.java"/>
+        <include name="org/hsqldb/index/*.java"/>
+        <include name="org/hsqldb/jdbc/**"/>
+        <include name="org/hsqldb/lib/**"/>
+        <include name="org/hsqldb/map/*.java"/>
+        <include name="org/hsqldb/navigator/*.java"/>
+        <include name="org/hsqldb/persist/*.java"/>
+        <include name="org/hsqldb/resources/*"/>
+        <include name="org/hsqldb/result/*.java"/>
+        <include name="org/hsqldb/rights/*.java"/>
+        <include name="org/hsqldb/rowio/*.java"/>
+        <include name="org/hsqldb/scriptio/*.java"/>
+        <include name="org/hsqldb/server/*.java"/>
+        <include name="org/hsqldb/trigger/*.java"/>
+        <include name="org/hsqldb/types/*.java"/>
 
       </javac>
       <fixcrlf destdir="classes" preservelastmodified='true' eol="lf"
@@ -354,7 +340,7 @@ examples:
              destdir="classes"
              debug="${build.debug}"
       >
-         <include name="org/hsqldb/util/**"/>
+        <include name="org/hsqldb/util/**"/>
       </javac>
       <copy todir="classes/org/hsqldb/util" preservelastmodified='true'>
           <fileset dir="src/org/hsqldb/util" includes='*.gif, *.png'/>
@@ -369,7 +355,7 @@ examples:
              debug="${build.debug}"
              classpath="${ant.home}/lib/ant.jar"
       >
-         <include name="org/hsqldb/util/preprocessor/**"/>
+        <include name="org/hsqldb/util/preprocessor/**"/>
       </javac>
     </target>
 
@@ -383,12 +369,24 @@ examples:
              destdir="classes"
              debug="${build.debug}"
       >
-         <include name="org/hsqldb/cmdline/**"/>
+        <include name="org/hsqldb/cmdline/**"/>
+      </javac>
+    </target>
+
+    <target name="-module_info" depends="classes"
+            description="compiles post Java 9 module file">
+      <javac srcdir="${swsrc}"
+             includeantruntime="false"
+             encoding="${javac.encoding}"
+             destdir="classes"
+             debug="${build.debug}"
+      >
+        <include name="module-info.java"/>
       </javac>
     </target>
 
     <target name="-swing" depends="switches"
-           description="compiles the swing based classes in the util folder">
+            description="compiles the swing based classes in the util folder">
       <javac srcdir="${swsrc}"
              includeantruntime="false"
              encoding="${javac.encoding}"
@@ -396,9 +394,9 @@ examples:
              debug="${build.debug}"
       >
         <include name="org/hsqldb/util/*Swing.java"/>
-      <include name="org/hsqldb/util/TableSorter.java"/>
-      <include name="org/hsqldb/util/DatabaseManagerCommon.java"/>
-      <include name="org/hsqldb/util/ConnectionSetting.java"/>
+        <include name="org/hsqldb/util/TableSorter.java"/>
+        <include name="org/hsqldb/util/DatabaseManagerCommon.java"/>
+        <include name="org/hsqldb/util/ConnectionSetting.java"/>
       </javac>
     </target>
 
@@ -410,7 +408,7 @@ examples:
     </target>
 
     <target name="scanner-driver" depends="-cmdline"
-       description="Build Scanner Driver.  For SqlTool scanner developers.">
+            description="Build Scanner Driver.  For SqlTool scanner developers.">
       <javac srcdir="${swsrc}"
              includeantruntime="false"
              encoding="${javac.encoding}"
@@ -421,12 +419,12 @@ examples:
     </target>
 
     <target name="test" depends="-requireJunit, classes"
-           description="compiles the test package classes">
-         <javac srcdir="${swsrc}"
-                includeantruntime="false"
-                encoding="${javac.encoding}"
-                destdir="classes"
-                debug="${build.debug}"
+            description="compiles the test package classes">
+      <javac srcdir="${swsrc}"
+             includeantruntime="false"
+             encoding="${javac.encoding}"
+             destdir="classes"
+             debug="${build.debug}"
          >
          <classpath>
            <pathelement location="${junit38.lib}"/>
@@ -492,6 +490,12 @@ examples:
     <fileset id='mainaddedclasses' dir='classes'
         includes='
             org/hsqldb/server/**
+            '
+            />
+
+    <filelist id='moduleinfoclasses' dir='classes'
+        files='
+            module-info.class
             '
             />
 
@@ -605,7 +609,33 @@ examples:
       </jar>
     </target>
 
-    <target name="dbmanswing" depends="-swing, -prep-license-files"
+    <target name="hsqldbmodule" depends="classes, -util, -module_info, -prep-license-files"
+            description="Build the java module hsqldb.jar">
+      <fail message="Java 9 or later required" unless="ant.java.iscjava19"/>
+      <jar jarfile="lib/hsqldbmod.jar" compress="true">
+        <metainf dir="doc" includes="*_lic.txt"/>
+        <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
+        <manifest>
+          <attribute name='Specification-Title' value='${hsqldb.title}'/>
+          <attribute name='Specification-Version' value='${hsqldb.version}'/>
+          <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
+          <attribute name='Implementation-Title'
+                     value='Standard runtime'/>
+          <attribute name='Implementation-Version' value='${build.label}'/>
+          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+          <!-- This attribute is completely ignored unless the user
+               uses the jar like "java -jar .../hsqldb.jar" -->
+          <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
+        </manifest>
+        <fileset refid='minclasses' />
+        <fileset refid='mainaddedclasses' />
+        <fileset refid='dbmanagerswingclasses' />
+        <filelist refid='moduleinfoclasses' />
+        <exclude name="org/hsqldb/server/Servlet.class"/>
+      </jar>
+    </target>
+
+    <target name="dbmanswing" depends="-swing, -lib, -prep-license-files"
             description="Build the dbmanagerswing.jar">
       <jar jarfile="lib/dbmanagerswing.jar" compress="true" filesonly="true">
         <metainf dir="doc" includes="*_lic.txt"/>
