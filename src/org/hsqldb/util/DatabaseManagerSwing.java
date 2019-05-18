@@ -200,7 +200,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                         : ("\n\nTransferTool classes are not in CLASSPATH.\n"
                            + "To enable the Tools menu, add 'transfer.jar' "
                            + "to your class path."));
-    ;
     private static final String ABOUT_TEXT =
         "$Revision$ of DatabaseManagerSwing\n\n"
         + "Copyright (c) 2001-2019, The HSQL Development Group.\n"
@@ -331,13 +330,11 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         jframe = new JFrame("HSQLDB DatabaseManager");
         fMain  = jframe;
     }
-    ;
 
     public DatabaseManagerSwing(JFrame frameIn) {
         jframe = frameIn;
         fMain  = jframe;
     }
-    ;
 
     public void init() {
 
@@ -348,7 +345,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         main();
 
         for (int i = 0; i < localActionList.size(); i++) {
-            btn = (javax.swing.AbstractButton) localActionList.get(i);
+            btn = localActionList.get(i);
 
             btn.setEnabled(false);
         }
@@ -498,8 +495,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                 c = rcdata.getConnection(
                     null, System.getProperty("javax.net.ssl.trustStore"));
             } else {
-                c = ConnectionDialogSwing.createConnection(m.jframe,
-                        "Connect");
+                c = ConnectionDialogSwing.createConnection(m.jframe, "Connect");
             }
         } catch (Exception e) {
 
@@ -620,7 +616,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     }
 
     public void setMustExit(boolean b) {
-        this.bMustExit = b;
+        bMustExit = b;
     }
 
     private DBMPrefs prefs = null;
@@ -1529,7 +1525,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             }
         }
     }
-    ;
 
     private void executeSQL() {
 
@@ -1963,7 +1958,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         // create the popup and menus
         JPopupMenu popup = new JPopupMenu();
         JMenuItem  menuItem;
-        String     menus[] = new String[] {
+        String[]   menus = new String[] {
             "Select", "Delete", "Update", "Insert"
         };
 
@@ -2442,7 +2437,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                 String name;
 
                 try {
-                    name = (String) tables.get(i);
+                    name = tables.get(i);
 
                     if (isOracle && name.startsWith("BIN$")) {
                         continue;
@@ -2452,7 +2447,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                         // queries below.
                     }
 
-                    schema = (String) schemas.get(i);
+                    schema = schemas.get(i);
 
                     String schemaname = "";
 
@@ -2474,7 +2469,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     }
 
                     // sqlbob@users Added remarks.
-                    String remark = (String) remarks.get(i);
+                    String remark = remarks.get(i);
 
                     if ((remark != null) && !remark.trim().equals("")) {
                         makeNode(remark, tableNode);
@@ -2636,7 +2631,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     schemaPart = schemaPart == null ? ""
                                                     : ("\"" + schemaPart
                                                        + "\".\"");
-                    name = schemaPart + (String) inTable.get(i) + "\"";
+                    name = schemaPart + inTable.get(i) + "\"";
 
                     ResultSet resultSet = select.executeQuery(rowCountSelect
                         + name);
@@ -2761,8 +2756,8 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             component = (JComponent) it.next();
 
             component.setToolTipText(showTooltips
-                                     ? ((String) tipMap.get(component))
-                                     : (String) null);
+                                     ? tipMap.get(component)
+                                     : null);
         }
     }
 
@@ -2801,7 +2796,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         JRadioButtonMenuItem radioButton;
 
         for (int i = 0; i < list.size(); i++) {
-            s           = (String) list.get(i);
+            s           = list.get(i);
             radioButton = new JRadioButtonMenuItem(s);
 
             group.add(radioButton);

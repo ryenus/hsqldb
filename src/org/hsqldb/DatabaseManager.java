@@ -362,16 +362,16 @@ public class DatabaseManager {
         switch (type) {
 
             case DB_FILE :
-            databaseMap = fileDatabaseMap;
-            key         = filePathToKey(path);
+                databaseMap = fileDatabaseMap;
+                key         = filePathToKey(path);
                 break;
 
             case DB_RES :
-            databaseMap = resDatabaseMap;
+                databaseMap = resDatabaseMap;
                 break;
 
             case DB_MEM :
-            databaseMap = memDatabaseMap;
+                databaseMap = memDatabaseMap;
                 break;
 
             default :
@@ -396,16 +396,16 @@ public class DatabaseManager {
         switch (type) {
 
             case DB_FILE :
-            databaseMap = fileDatabaseMap;
-            key         = filePathToKey(path);
+                databaseMap = fileDatabaseMap;
+                key         = filePathToKey(path);
                 break;
 
             case DB_RES :
-            databaseMap = resDatabaseMap;
+                databaseMap = resDatabaseMap;
                 break;
 
             case DB_MEM :
-            databaseMap = memDatabaseMap;
+                databaseMap = memDatabaseMap;
                 break;
 
             default :
