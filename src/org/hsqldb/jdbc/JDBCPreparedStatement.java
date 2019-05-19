@@ -4510,7 +4510,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                     }
                 }
             }
-            case Types.SQL_CHAR :
+            case Types.SQL_CHAR : {
                 if (outType.precision == 1) {
                     if (o instanceof Character) {
                         o = new String(new char[] {
@@ -4519,13 +4519,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         break;
                     } else if (o instanceof Boolean) {
                         o = ((Boolean) o).booleanValue() ? "1"
-                                : "0";
+                                                         : "0";
 
                         break;
                     }
                 }
 
-            // fall through
+                try {
+                    o = outType.convertToDefaultType(session, o);
+                } catch (HsqlException e) {
+                    throw JDBCUtil.sqlException(e);
+                }
+
+                break;
+            }
             default :
                 try {
                     o = outType.convertToDefaultType(session, o);
