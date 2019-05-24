@@ -35,6 +35,13 @@ import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.SortAndSlice;
 import org.hsqldb.Session;
 
+/**
+  * Comparator with sort order and null order.<p>
+  *
+  * @author Fred Toussi (fredt@users dot sourceforge.net)
+  * @version 2.5.0
+  * @since 2.4.0
+ */
 public class TypedComparator implements ObjectComparator {
 
     final Session session;
@@ -46,7 +53,12 @@ public class TypedComparator implements ObjectComparator {
     }
 
     public int compare(Object a, Object b) {
-        return type.compare(session, a, b, sort);
+
+        if (sort == null) {
+            return type.compare(session, a, b);
+        } else {
+            return type.compare(session, a, b, sort);
+        }
     }
 
     public int hashCode(Object a) {

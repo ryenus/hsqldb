@@ -37,15 +37,14 @@ import java.math.RoundingMode;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.map.ValuePool;
-import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
-import org.hsqldb.types.RowType;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.TypedComparator;
@@ -68,12 +67,14 @@ public class SetFunctionValueAggregate implements SetFunction {
     private final boolean isDistinct;
 
     //
-    private final Session   session;
-    private final int       setType;
-    private final int       typeCode;
-    private final Type      type;
-    private final ArrayType arrayType;
-    private final Type      returnType;
+    private final Session session;
+    private final int     setType;
+    private final int     typeCode;
+    private final Type    type;
+    private final Type    returnType;
+
+    //
+    private final TypedComparator comparator;
 
     //
     private long count;
@@ -88,30 +89,28 @@ public class SetFunctionValueAggregate implements SetFunction {
     private Object     currentValue;
 
     SetFunctionValueAggregate(Session session, int setType, Type type,
-                              Type returnType, boolean isDistinct,
-                              ArrayType arrayType) {
+                              Type returnType, boolean isDistinct) {
 
         this.session    = session;
         this.setType    = setType;
         this.type       = type;
         this.returnType = returnType;
         this.isDistinct = isDistinct;
-        this.arrayType  = arrayType;
 
         if (isDistinct) {
             distinctValues = new HashSet();
 
-            if (type.isRowType() || type.isArrayType()) {
-                TypedComparator comparator = new TypedComparator(session);
-                SortAndSlice    sort       = new SortAndSlice();
-                int length = type.isRowType()
-                             ? ((RowType) type).getTypesArray().length
-                             : 1;
+            if (type.isRowType() || type.isArrayType()
+                    || type.isCharacterType()) {
+                comparator = new TypedComparator(session);
 
-                sort.prepareMultiColumn(length);
-                comparator.setType(type, sort);
+                comparator.setType(type, null);
                 distinctValues.setComparator(comparator);
+            } else {
+                comparator = null;
             }
+        } else {
+            comparator = null;
         }
 
         switch (setType) {
@@ -305,18 +304,17 @@ public class SetFunctionValueAggregate implements SetFunction {
 
         if (setType == OpTypes.COUNT) {
 
-            // todo - strings embedded in array or row
-            if (count > 0 && isDistinct && type.isCharacterType()) {
-                Object[] array = new Object[distinctValues.size()];
+            // strings, including embedded in array or row
+            if (count > 1 && isDistinct) {
+                if (type.isRowType() || type.isArrayType()
+                        || type.isCharacterType()) {
+                    Object[] array = distinctValues.toArray();
 
-                distinctValues.toArray(array);
+                    ArraySort.sort(array, array.length, comparator);
 
-                SortAndSlice sort = new SortAndSlice();
-
-                sort.prepareSingleColumn(0);
-                arrayType.sort(session, array, sort);
-
-                count = arrayType.deDuplicate(session, array, sort);
+                    count = ArraySort.deDuplicate(array, array.length,
+                                                  comparator);
+                }
             }
 
             return ValuePool.getLong(count);
