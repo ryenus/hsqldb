@@ -1810,7 +1810,8 @@ public class FunctionSQL extends Expression {
         switch (part) {
 
             case Types.SQL_INTERVAL_SECOND : {
-                return ((DTIType) nodes[1].dataType).getSecondPart(data[1]);
+                return ((DTIType) nodes[1].dataType).getSecondPart(session,
+                        data[1]);
             }
             case Types.DTI_MONTH_NAME :
             case Types.DTI_DAY_NAME : {

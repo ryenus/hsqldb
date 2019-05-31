@@ -1828,14 +1828,18 @@ public class Logger implements EventLogInterface {
                                               : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
-        sb.append(' ').append(Tokens.T_ROLLBACK).append(' ');
-        sb.append(Tokens.T_ON).append(' ');
-        sb.append(Tokens.T_INTERRUPT).append(' ');
-        sb.append(database.txInterruptRollback ? Tokens.T_TRUE
-                                               : Tokens.T_FALSE);
-        list.add(sb.toString());
-        sb.setLength(0);
+
+        if (database.txInterruptRollback) {
+            sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
+            sb.append(' ').append(Tokens.T_ROLLBACK).append(' ');
+            sb.append(Tokens.T_ON).append(' ');
+            sb.append(Tokens.T_INTERRUPT).append(' ');
+            sb.append(database.txInterruptRollback ? Tokens.T_TRUE
+                                                   : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
         sb.append("SET DATABASE ").append(Tokens.T_TEXT).append(' ');
         sb.append(Tokens.T_TABLE).append(' ').append(Tokens.T_DEFAULTS);
         sb.append(' ').append('\'');
