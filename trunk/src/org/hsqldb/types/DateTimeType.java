@@ -1709,9 +1709,9 @@ public final class DateTimeType extends DTIType {
         return millis;
     }
 
-    public BigDecimal getSecondPart(Object dateTime) {
+    public BigDecimal getSecondPart(Session session, Object dateTime) {
 
-        long seconds = getPart(null, dateTime, Types.SQL_INTERVAL_SECOND);
+        long seconds = getPart(session, dateTime, Types.SQL_INTERVAL_SECOND);
         int  nanos   = 0;
 
         if (typeCode == Types.SQL_TIMESTAMP
@@ -2007,11 +2007,17 @@ public final class DateTimeType extends DTIType {
         }
 
         if (commonType.compare(session, a[0], a[1]) >= 0) {
-            throw Error.error(ErrorCode.X_22020);
+            Object temp = a[0];
+
+            a[0] = a[1];
+            a[1] = temp;
         }
 
         if (!pointOfTime && commonType.compare(session, b[0], b[1]) >= 0) {
-            throw Error.error(ErrorCode.X_22020);
+            Object temp = b[0];
+
+            b[0] = b[1];
+            b[1] = temp;
         }
 
         return commonType;

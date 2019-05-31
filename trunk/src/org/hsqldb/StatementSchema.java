@@ -321,6 +321,7 @@ public class StatementSchema extends Statement {
                     describe(session));
         }
 
+        mainSwitch:
         switch (type) {
 
             case StatementTypes.RENAME_OBJECT :
@@ -337,7 +338,7 @@ public class StatementSchema extends Statement {
                             session.checkDDLWrite();
                             name.rename(newName);
 
-                            break;
+                            break mainSwitch;
                         } catch (HsqlException e) {
                             return Result.newErrorResult(e, sql);
                         }
@@ -347,7 +348,7 @@ public class StatementSchema extends Statement {
                         schemaManager.checkSchemaNameCanChange(name);
                         schemaManager.renameSchema(name, newName);
 
-                        break;
+                        break mainSwitch;
                     }
                 }
 

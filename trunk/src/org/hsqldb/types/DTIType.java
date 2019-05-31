@@ -488,7 +488,7 @@ public abstract class DTIType extends Type {
 
     public abstract int getPart(Session session, Object dateTime, int part);
 
-    public abstract BigDecimal getSecondPart(Object dateTime);
+    public abstract BigDecimal getSecondPart(Session session, Object dateTime);
 
     BigDecimal getSecondPart(long seconds, long nanos) {
 
