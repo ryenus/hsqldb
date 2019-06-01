@@ -281,7 +281,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             boolean required = isRequiredGetXXX(methodName, dataType);
             try {
                 Method getXXX = rs.getClass().getMethod(methodName, new Class<?>[]{int.class});
-                Object value = getXXX.invoke(rs, new Object[]{new Integer(i)});
+                Object value = getXXX.invoke(rs, new Object[]{Integer.valueOf(i)});
                 Class<?> valueClass = (value == null) ? Void.class : value.getClass();
                 printProgress("Info - Pass: " + columnName + "(" + typeName + ")");
                 if (!required) {
@@ -300,7 +300,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         Method getObjectMethod = rs.getClass().getMethod("getObject",
                 new Class<?>[]{int.class});
         Object getObjectMethodReturnValue = getObjectMethod.invoke(rs,
-                new Object[]{new Integer(columnIndex)});
+                new Object[]{Integer.valueOf(columnIndex)});
         printProgress("****************************************");
         printProgress("Warn - JDBC 4.0, Table B-6 indicates this "
                 + methodName
@@ -1853,7 +1853,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             assertEquals(false, rs.rowUpdated());
 
-            rs.updateObject(1, new Integer(1), java.sql.Types.INTEGER);
+            rs.updateObject(1, Integer.valueOf(1), java.sql.Types.INTEGER);
 
             assertEquals(true, rs.rowUpdated());
         } catch (Exception e) {
@@ -2923,10 +2923,10 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.next();
 
             Integer[] values = new Integer[]{
-                new Integer(4),
-                new Integer(3),
-                new Integer(2),
-                new Integer(1)
+                Integer.valueOf(4),
+                Integer.valueOf(3),
+                Integer.valueOf(2),
+                Integer.valueOf(1)
             };
 
             Array array = newConnection().createArrayOf("INTEGER", values);

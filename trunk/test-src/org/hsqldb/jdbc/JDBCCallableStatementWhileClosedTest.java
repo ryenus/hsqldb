@@ -1296,7 +1296,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
     public void testSetObject() throws Exception {
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
-        Object x = new Integer(1);
+        Object x = Integer.valueOf(1);
         int targetSqlType = getParameterType();
         int scale = getParameterScale();
         CallableStatement instance = newClosedCall();
