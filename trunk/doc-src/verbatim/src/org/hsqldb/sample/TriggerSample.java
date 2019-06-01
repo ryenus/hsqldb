@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,8 +42,8 @@ import java.sql.Statement;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.Trigger;
 import org.hsqldb.lib.StringUtil;
+import org.hsqldb.trigger.Trigger;
 
 // peterhudson@users 20020130 - patch 478657 by peterhudson - new class
 // fredt@users 20030727 - signature altered
@@ -326,7 +326,7 @@ public class TriggerSample implements Trigger {
                                        int qs,
                                        String impl) throws SQLException {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append("CREATE TRIGGER ");
         sb.append(trn);
@@ -350,7 +350,7 @@ public class TriggerSample implements Trigger {
     public static String getTriggerDescriptor(String trn, int typ,
             String tab) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append("TRIGGER : ");
         sb.append(trn);
