@@ -948,8 +948,8 @@
       extension to CREATE statements that create schemas, tables, views,
       sequences and indexes, as well as ALTER TABLE ... ADD CONSTRAINT and ADD
       COLUMN statements. If it is specified, then the statement does not
-      return an error if the create statement is for an object name that
-      already exists.</para>
+      return an error if the CREATE or ALTER statement is for an object name
+      that already exists.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SPECIFIC</primary>

@@ -3230,15 +3230,17 @@
             <row>
               <entry><property>crypt_lobs</property></entry>
 
-              <entry><literal>false</literal></entry>
+              <entry><literal>true</literal></entry>
 
               <entry>encryption of lobs</entry>
             </row>
 
             <row>
               <entry nameend="c3" namest="c1"><para>If the property is true,
-              the contents of the .lobs file is encrypted as
-              well.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+              the contents of the .lobs file is encrypted. HyperSQL versions
+              prior to 2.3.0 did not support encrypted lobs. Databases created
+              with those versions must be opened with crypt_lobs=false on the
+              URL.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -3312,8 +3314,8 @@
 
             <row>
               <entry nameend="c3" namest="c1"><para>The initialization vector
-              for an encrypted database.
-              Optional.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+              for an encrypted database. Optional feature introduced in
+              version 2.5.0.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
