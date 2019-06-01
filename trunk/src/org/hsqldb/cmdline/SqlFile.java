@@ -2800,8 +2800,6 @@ public class SqlFile {
      * Process a Non-Block Process Language Command.
      * Nesting not supported yet.
      *
-     * @param inString  Trimmed non-null command without leading *
-     *                  (may be empty string "").
      * @throws BadSpecial special-command-specific errors.
      * @throws SqlToolError all other errors, plus BreakException and
      *                      ContinueException.
@@ -3830,9 +3828,10 @@ public class SqlFile {
      * @param r         The ResultSet to display and close.
      * @param incCols   Optional list of which columns to include (i.e., if
      *                  given, then other columns will be skipped).
-     * @param filterRegex Optional filter.  Rows are skipped which to not
+     * @param filterString Optional filter.  Rows are skipped which to not
      *                  contain this substring in ANY COLUMN.
      *                  (Should add another param to specify targeted columns).
+     * @param updateStatus status
      * @throws SQLException thrown by JDBC driver.
      * @throws SqlToolError all other errors.
      */
@@ -4951,7 +4950,7 @@ public class SqlFile {
      *
      * @return The bytes which are the content of the file
      * @throws IOException on read errors
-     * @param binFile File
+     * @param binUrl url
      */
     public static byte[] loadBinary(final URL binUrl) throws IOException {
         byte[]                xferBuffer = new byte[10240];
@@ -5318,7 +5317,7 @@ public class SqlFile {
     /**
      * Name is self-explanatory.
      *
-     * @param filePath String
+     * @param fileUrl String
      * @param skipPrefix String
      * @throws SqlToolError  Would prefer to throw an internal exception,
      *                       but we want this method to have external

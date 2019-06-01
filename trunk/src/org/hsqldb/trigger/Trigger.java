@@ -31,6 +31,8 @@
 
 package org.hsqldb.trigger;
 
+import org.hsqldb.HsqlException;
+
 // fredt@users 20030727 - signature altered to support update triggers
 // fredt@users 20190327 - moved to own package
 /*
