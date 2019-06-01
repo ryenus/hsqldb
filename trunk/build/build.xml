@@ -341,6 +341,7 @@ examples:
              debug="${build.debug}"
       >
         <include name="org/hsqldb/util/**"/>
+        <exclude name="org/hsqldb/util/preprocessor/**"/>
       </javac>
       <copy todir="classes/org/hsqldb/util" preservelastmodified='true'>
           <fileset dir="src/org/hsqldb/util" includes='*.gif, *.png'/>
