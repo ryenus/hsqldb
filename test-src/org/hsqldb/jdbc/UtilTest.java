@@ -243,7 +243,7 @@ public class UtilTest extends BaseJdbcTestCase {
             try {
                 int val = field.getInt(null);
 
-                list.add(new Integer(val));
+                list.add(Integer.valueOf(val));
             } catch (Exception e){}
         }
 

@@ -540,7 +540,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         @Override
         protected String getResultString() {
 
-            final StringBuffer sb = new StringBuffer();
+            final StringBuilder sb = new StringBuilder();
             final String[] expectedRows = getExpectedRows();
             final int len = expectedRows.length;
 

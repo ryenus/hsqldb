@@ -85,8 +85,8 @@ public class HsqlArrayHeapTest extends BaseTestCase {
         int least = Integer.MIN_VALUE;
 
         for (int i = 0; i < ai.length; i++) {
-            println("add()     : new Integer(" + ai[i] + ")");
-            ah.add(new Integer(ai[i]));
+            println("add()     : Integer.valueOf(" + ai[i] + ")");
+            ah.add(Integer.valueOf(ai[i]));
             println("size()    : " + ah.size());
         }
 

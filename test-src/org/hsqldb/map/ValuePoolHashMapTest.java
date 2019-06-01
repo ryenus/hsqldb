@@ -77,14 +77,14 @@ public class ValuePoolHashMapTest extends BaseTestCase {
                     boolean bigrange = (i % 2) == 0;
                     int intValue = randomgen.nextInt(bigrange ? BIGRANGE
                             : SMALLRANGE);
-                    Integer intObject = new Integer(intValue);
+                    Integer intObject = Integer.valueOf(intValue);
 
                     if (intObject.intValue() != intValue) {
                         throw new Exception("Value mismatch");
                     }
                 }
 
-                System.out.println("Count new Integer() " + maxCount + " " + sw.elapsedTime());
+                System.out.println("Count Integer.valueOf(x) " + maxCount + " " + sw.elapsedTime());
             }
         } catch (Exception e) {
             printException(e);

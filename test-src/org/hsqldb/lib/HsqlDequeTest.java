@@ -48,30 +48,30 @@ public class HsqlDequeTest extends  BaseTestCase {
         HsqlDeque d = new HsqlDeque();
 
         for (int i = 0; i < 9; i++) {
-            d.add(new Integer(i));
+            d.add(Integer.valueOf(i));
         }
 
         d.removeFirst();
         d.removeFirst();
-        d.add(new Integer(9));
-        d.add(new Integer(10));
+        d.add(Integer.valueOf(9));
+        d.add(Integer.valueOf(10));
 
         for (int i = 0; i < d.size(); i++) {
             println(d.get(i));
         }
 
         System.out.println();
-        d.add(new Integer(11));
-        d.add(new Integer(12));
+        d.add(Integer.valueOf(11));
+        d.add(Integer.valueOf(12));
 
         for (int i = 0; i < d.size(); i++) {
             println(d.get(i));
         }
 
-        d.addFirst(new Integer(1));
-        d.addFirst(new Integer(0));
-        d.addFirst(new Integer(-1));
-        d.addFirst(new Integer(-2));
+        d.addFirst(Integer.valueOf(1));
+        d.addFirst(Integer.valueOf(0));
+        d.addFirst(Integer.valueOf(-1));
+        d.addFirst(Integer.valueOf(-2));
 
         for (int i = 0; i < d.size(); i++) {
             println(d.get(i));

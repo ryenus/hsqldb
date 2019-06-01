@@ -912,7 +912,7 @@ public class JDBCCallableStatementTest extends BaseCallableStatementTestCase {
      */
     @OfMethod("setObject(java.lang.String,java.lang.Object,int")
     public void testSetObject_BIGINT() throws Exception {
-        setObjectTest("bigint", new Long(Long.MAX_VALUE), Types.BIGINT);
+        setObjectTest("bigint", Long.valueOf(Long.MAX_VALUE), Types.BIGINT);
     }
 
     /**
@@ -962,7 +962,7 @@ public class JDBCCallableStatementTest extends BaseCallableStatementTestCase {
      */
     @OfMethod("setObject(java.lang.String,java.lang.Object,int")
     public void testSetObject_DOUBLE() throws Exception {
-        setObjectTest("double", new Double(Double.MAX_VALUE), Types.DOUBLE);
+        setObjectTest("double", Double.valueOf(Double.MAX_VALUE), Types.DOUBLE);
     }
 
     /**
@@ -970,7 +970,7 @@ public class JDBCCallableStatementTest extends BaseCallableStatementTestCase {
      */
     @OfMethod("setObject(java.lang.String,java.lang.Object,int")
     public void testSetObject_FLOAT() throws Exception {
-        setObjectTest("float", new Double(Double.MAX_VALUE), Types.FLOAT);
+        setObjectTest("float", Double.valueOf(Double.MAX_VALUE), Types.FLOAT);
     }
 
     /**
@@ -978,7 +978,7 @@ public class JDBCCallableStatementTest extends BaseCallableStatementTestCase {
      */
     @OfMethod("setObject(java.lang.String,java.lang.Object,int")
     public void testSetObject_INTEGER() throws Exception {
-        setObjectTest("integer", new Integer(Integer.MIN_VALUE), Types.INTEGER);
+        setObjectTest("integer", Integer.valueOf(Integer.MIN_VALUE), Types.INTEGER);
     }
 
     /**
@@ -1146,7 +1146,7 @@ public class JDBCCallableStatementTest extends BaseCallableStatementTestCase {
      */
     @OfMethod("setObject(java.lang.String,java.lang.Object,int")
     public void testSetObject_REAL() throws Exception {
-        setObjectTest("real", new Float(Float.MAX_VALUE), Types.REAL);
+        setObjectTest("real", Float.valueOf(Float.MAX_VALUE), Types.REAL);
     }
 
     /**
@@ -1154,7 +1154,7 @@ public class JDBCCallableStatementTest extends BaseCallableStatementTestCase {
      */
     @OfMethod("setObject(java.lang.String,java.lang.Object,int")
     public void testSetObject_SMALLINT() throws Exception {
-        setObjectTest("smallint", new Short(Short.MAX_VALUE), Types.SMALLINT);
+        setObjectTest("smallint", Short.valueOf(Short.MAX_VALUE), Types.SMALLINT);
     }
 
     /**

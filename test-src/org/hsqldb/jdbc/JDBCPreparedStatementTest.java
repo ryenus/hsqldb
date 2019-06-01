@@ -565,15 +565,15 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setObject method, of interface java.sql.PreparedStatement.
      */
     public void testSetObject() throws Exception {
-        setObjectTest("c_bigint", new Long(Long.MAX_VALUE), Types.BIGINT);
+        setObjectTest("c_bigint", Long.valueOf(Long.MAX_VALUE), Types.BIGINT);
         setObjectTest("c_binary", "setObject".getBytes(), Types.BINARY);
         setObjectTest("c_boolean", Boolean.TRUE, Types.BOOLEAN);
         setObjectTest("c_char", "setObject  ", Types.CHAR);
         setObjectTest("c_date", Date.valueOf("2005-12-13"), Types.DATE);
         setObjectTest("c_decimal", new BigDecimal(1.123456789), Types.DECIMAL);
-        setObjectTest("c_double", new Double(Double.MAX_VALUE), Types.DOUBLE);
-        setObjectTest("c_float", new Double(Double.MAX_VALUE), Types.FLOAT);
-        setObjectTest("c_integer", new Integer(Integer.MIN_VALUE), Types.INTEGER);
+        setObjectTest("c_double", Double.valueOf(Double.MAX_VALUE), Types.DOUBLE);
+        setObjectTest("c_float", Double.valueOf(Double.MAX_VALUE), Types.FLOAT);
+        setObjectTest("c_integer", Integer.valueOf(Integer.MIN_VALUE), Types.INTEGER);
         setObjectTest("c_longvarbinary", "setObject".getBytes(), Types.LONGVARBINARY);
         setObjectTest("c_longvarchar", "setObject", Types.LONGVARCHAR);
         //
@@ -596,8 +596,8 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
         setObjectTest("c_object", new Float[10], Types.OTHER);
         setObjectTest("c_object", new Double[10], Types.OTHER);
         //
-        setObjectTest("c_real", new Float(Float.MAX_VALUE), Types.REAL);
-        setObjectTest("c_smallint", new Short(Short.MAX_VALUE), Types.SMALLINT);
+        setObjectTest("c_real", Float.valueOf(Float.MAX_VALUE), Types.REAL);
+        setObjectTest("c_smallint", Short.valueOf(Short.MAX_VALUE), Types.SMALLINT);
         setObjectTest("c_time", Time.valueOf("1:23:47"), Types.TIME);
         setObjectTest("c_timestamp", Timestamp.valueOf("2005-12-13 01:23:47.1234"), Types.TIMESTAMP);
         setObjectTest("c_tinyint", new Byte(Byte.MAX_VALUE), Types.TINYINT);
