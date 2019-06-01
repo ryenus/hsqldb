@@ -285,7 +285,7 @@
       <title>Trigger Action in Java</title>
 
       <para>A trigger action can be written as a Java class that implements
-      the <classname>org.hsqldb.Trigger</classname> interface. This interface
+      the <classname>org.hsqldb.trigger.Trigger</classname> interface. This interface
       has a single method which is called when the trigger is activated,
       either before or after the event. When the method is called by the
       engine, it supplies the type of trigger as an int value defined by the
@@ -313,7 +313,7 @@
       modifications are ignored by the engine.</para>
 
       <para>A Java trigger that uses an instance of
-      <classname>org.hsqldb.Trigger</classname> has two forms, synchronous, or
+      <classname>org.hsqldb.trigger.Trigger</classname> has two forms, synchronous, or
       asynchronous (immediate or queued). By default, or when QUEUE 0 is
       specified, the action is performed immediately by calling the Java
       method. This is similar to SQL trigger actions.</para>
