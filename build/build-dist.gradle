@@ -55,7 +55,7 @@
  *       4: Run
  *              gradlew -i -b build-dist.gradle  # Gradle users
  *          from the build directory.
- *       5: If you used a propreties file shared with other environments,
+ *       5: If you used a properties file shared with other environments,
  *          then comment out distribution-specific build properties, including
  *          "doc.pubtime" (otherwise future document builds will label
  *          incorrectly).
