@@ -376,7 +376,7 @@
         <programlisting> SELECT NEXT VALUE FOR mysequence, col1, col2 FROM mytable WHERE ...</programlisting>
       </example>
 
-      <para>The semantics of sequences is exactly as defined by SQL:2016. If
+      <para>The semantics of sequences are exactly as defined by SQL:2016. If
       you use the same sequence twice in the same row in an INSERT statement,
       you will get the same value, as required by the Standard.</para>
 
