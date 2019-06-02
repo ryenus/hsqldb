@@ -839,8 +839,8 @@
               3;DELETE FROM T2 WHERE C1 = 9</code>"; therefore the default is
               false. Statements that are prepared with
               <classname>java.sql.PreparedStatement</classname> have been
-              limited to single statements since HSQLDB 2.0.</para><para>It is
-              recommended to set this property to TRUE and use single
+              limited to single statements since HyperSQL 2.0.</para><para>It
+              is recommended to set this property to TRUE and use single
               execution of statements.</para><para><programlisting>SET DATABASE SQL RESTRICT EXEC { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
@@ -3196,7 +3196,8 @@
               <entry nameend="c3" namest="c1"><para>No-op setting previously
               used to forces garbage collection each time a set number of
               result set row or cache row objects are created. This setting
-              has no effect in version 2.5.x,</para><para><programlisting>SET DATABASE GC &lt;numeric value&gt;</programlisting></para></entry>
+              has no effect in version 2.5.0 or
+              later,</para><para><programlisting>SET DATABASE GC &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -3402,7 +3403,7 @@
       user-defined database properties listed in this section can be specified
       as URL properties.</para>
 
-      <simpara>When HSQLDB is used with OpenOffice.org as an external
+      <simpara>When HyperSQL is used with OpenOffice.org as an external
       database, the property "default_schema=true" must be set on the URL,
       otherwise the program will not operate correctly as it does with its
       built-in hsqldb instance.</simpara>

@@ -285,11 +285,11 @@
       <title>Trigger Action in Java</title>
 
       <para>A trigger action can be written as a Java class that implements
-      the <classname>org.hsqldb.trigger.Trigger</classname> interface. This interface
-      has a single method which is called when the trigger is activated,
-      either before or after the event. When the method is called by the
-      engine, it supplies the type of trigger as an int value defined by the
-      interface(as type argument), the name of the trigger (as trigName
+      the <classname>org.hsqldb.trigger.Trigger</classname> interface. This
+      interface has a single method which is called when the trigger is
+      activated, either before or after the event. When the method is called
+      by the engine, it supplies the type of trigger as an int value defined
+      by the interface(as type argument), the name of the trigger (as trigName
       argument), the name of the table (as tabName argument), the OLD ROW (as
       oldRow argument) and the NEW ROW (as newRow argument). The oldRow
       argument is null for row level INSERT triggers. The newRow argument is
@@ -313,10 +313,10 @@
       modifications are ignored by the engine.</para>
 
       <para>A Java trigger that uses an instance of
-      <classname>org.hsqldb.trigger.Trigger</classname> has two forms, synchronous, or
-      asynchronous (immediate or queued). By default, or when QUEUE 0 is
-      specified, the action is performed immediately by calling the Java
-      method. This is similar to SQL trigger actions.</para>
+      <classname>org.hsqldb.trigger.Trigger</classname> has two forms,
+      synchronous, or asynchronous (immediate or queued). By default, or when
+      QUEUE 0 is specified, the action is performed immediately by calling the
+      Java method. This is similar to SQL trigger actions.</para>
 
       <para>When QUEUE n is specified with n larger than 0, the engine uses a
       separate thread to execute the Java method, using a queue with the size
@@ -470,7 +470,7 @@
     class that implements the <classname>org.hsqldb.Trigger</classname>
     interface.</simpara>
 
-    <simpara>Early releases of HyperSQL version 2.0 do not allow the use of
+    <simpara>Early releases of HyperSQL version 2.x did not allow the use of
     OLD TABLE or NEW TABLE in statement level triggers.</simpara>
 
     <indexterm significance="preferred" type="sql">
@@ -502,10 +502,10 @@
 
     <simpara>Two examples of a trigger with a block are given below. The block
     can include elements discussed in the <link endterm="sqlroutines-title"
-    ns2:href="#sqlroutines-chapt" ns2:title=""></link> chapter, including
-    local variables, loops and conditionals. You can also raise an exception
-    in such blocks in order to terminate the execution of the SQL statement
-    that caused the trigger to execute.</simpara>
+    ns2:href="#sqlroutines-chapt" ns2:title=""/> chapter, including local
+    variables, loops and conditionals. You can also raise an exception in such
+    blocks in order to terminate the execution of the SQL statement that
+    caused the trigger to execute.</simpara>
 
     <programlisting>/* the trigger throws an exception if a customer with the given last name already exists */
  CREATE TRIGGER trigone BEFORE INSERT ON customer 
@@ -529,7 +529,7 @@
    END
 </programlisting>
 
-    <simpara></simpara>
+    <simpara/>
 
     <indexterm significance="preferred" type="sql">
       <primary>TRIGGER EXECUTION ORDER</primary>

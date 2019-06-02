@@ -68,10 +68,10 @@
     is raised.</para>
 
     <para>Schema definition and manipulation statements are also transactional
-    according to the SQL Standard. HyperSQL 2.3 performs automatic commits
-    before and after the execution of such transactions. Therefore,
-    schema-related statements cannot be rolled back. This is likely to change
-    in future versions.</para>
+    according to the SQL Standard. HyperSQL performs automatic commits before
+    and after the execution of such transactions. Therefore, schema-related
+    statements cannot be rolled back. This is likely to change in future
+    versions.</para>
 
     <para>Some statements are not transactional. Most of these statements are
     used to change the properties of the session. These statements begin with

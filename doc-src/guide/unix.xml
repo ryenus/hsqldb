@@ -96,7 +96,7 @@
     can't depend on this if somebody else assembled your distribution. Java
     jar files are generally compatible with the same or greater major
     versions. For example,if your <filename>hsqldb.jar</filename> was built
-    with Java 1.3.6-11, then it is compatible with Java versions 1.3.* and
+    with Java 6, then it is compatible with Java versions 6 and
     greater.</simpara>
 
     <note>
@@ -178,7 +178,7 @@
 
           <simpara>All the files in the zip archive will be extracted to
           underneath a new subdirectory named like
-          <filename>hsqldb-2.0.2a/hsqldb</filename>.</simpara>
+          <filename>hsqldb-2.4.1/hsqldb</filename>.</simpara>
         </listitem>
       </varlistentry>
     </variablelist>
