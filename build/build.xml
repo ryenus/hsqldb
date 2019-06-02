@@ -513,10 +513,10 @@ examples:
             org/hsqldb/lib/RCData*
             '/>
 
-    <filelist id='dbmanagerawtaddedclasses' dir='classes'
-        files='
+    <fileset id='dbmanagerawtaddedclasses' dir='classes'
+        includes='
             org/hsqldb/util/DatabaseManager.class
-            org/hsqldb/util/ConnectionDialog.class
+            org/hsqldb/util/ConnectionDialog*
             org/hsqldb/util/Grid.class
             org/hsqldb/util/Tree.class
             org/hsqldb/util/MainInvoker.class
@@ -606,7 +606,7 @@ examples:
         <fileset refid='minclasses' />
         <fileset refid='mainaddedclasses' />
         <fileset refid='dbmanagerswingclasses' />
-        <filelist refid='dbmanagerawtaddedclasses' />
+        <fileset refid='dbmanagerawtaddedclasses' />
       </jar>
     </target>
 
