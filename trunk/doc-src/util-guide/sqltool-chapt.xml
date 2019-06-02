@@ -43,7 +43,7 @@
         enough to benefit from SqlTool.
         You can play with Java system properties, PL variables, math, and
         other things by just executing
-        <link xlink:href='http://search.maven.org/remotecontent?filepath=org/hsqldb/sqltool/2.2.6/sqltool-2.2.6.jar'>this <filename>sqltool-2.2.6.jar</filename> file</link>.
+        <link xlink:href='http://search.maven.org/remotecontent?filepath=org/hsqldb/sqltool/2.4.1/sqltool-2.4.1.jar'>this <filename>sqltool-2.4.1.jar</filename> file</link>.
         But SqlTool was made for JDBC, so you should download HyperSQL to
         have SqlTool automatically connect to a fully functional, pure Java
         database; or obtain a JDBC driver for any other SQL database that you
