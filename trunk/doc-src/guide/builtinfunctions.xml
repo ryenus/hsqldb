@@ -2835,7 +2835,7 @@
     <para><literal>DATABASE_VERSION ()</literal></para>
 
     <para>Returns the full version string for the database engine. For
-    example, 2.0.1. (JDBC)</para>
+    example, 2.5.0. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>USER function</primary>

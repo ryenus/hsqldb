@@ -162,10 +162,11 @@
       <para>If a cursor is declared with FOR READ ONLY, then it is not
       updatable.</para>
 
-      <para>In HSQLDB, if FOR READ ONLY or FOR UPDATE is not used then all the
-      updatable columns of the result set become updatable. This relaxes the
-      SQL standard rule that in this case limits updatability to only simply
-      updatable SELECT statements (where all columns are updatable).</para>
+      <para>In HyperSQL, if FOR READ ONLY or FOR UPDATE is not used then all
+      the updatable columns of the result set become updatable. This relaxes
+      the SQL standard rule that in this case limits updatability to only
+      simply updatable SELECT statements (where all columns are
+      updatable).</para>
 
       <para>In JDBC, CONCUR_READ_ONLY or CONCUR_UPDATABLE can be specified for
       the <classname>Statement</classname> parameter. CONCUR_UPDATABLE is
@@ -215,8 +216,8 @@
       <para>The SQL default is ASENSITIVE, i.e., implantation
       dependent.</para>
 
-      <para>In HSQLDB all cursors are INSENSITIVE. They do not reflect changes
-      to the data made by other statements.</para>
+      <para>In HyperSQL all cursors are INSENSITIVE. They do not reflect
+      changes to the data made by other statements.</para>
     </section>
 
     <section xml:id="dac_jdbc_cursor_holdability">
@@ -233,8 +234,8 @@
 
       <para>The SQL default is WITHOUT HOLD.</para>
 
-      <para>The JDBC default for HSQLDB result sets is WITH HOLD for read-only
-      result sets and WITHOUT HOLD for updatable result sets.</para>
+      <para>The JDBC default for HyperSQL result sets is WITH HOLD for
+      read-only result sets and WITHOUT HOLD for updatable result sets.</para>
 
       <para>If the holdability of a <classname>ResultSet</classname> is
       specified in a conflicting manner in the SQL statement and the JDBC
@@ -336,7 +337,7 @@
       <classname>java.sql.ResultSet</classname> that are used for setting
       values in new and updated rows in updatable ResultSet objects.</para>
 
-      <para>When the Java 8 version of HSQLDB jar is used, the setObject()
+      <para>When the Java 8 version of HyperSQL jar is used, the setObject()
       methods of <classname>PreparedStatement</classname> and
       <classname>CallableStatement</classname> also accept objects of the new
       types introduced in Java 8 and listed below under JDBC Returned Values.
@@ -401,7 +402,7 @@
       <para>Array objects are returned as instances of
       <classname>java.sql.Array</classname>.</para>
 
-      <para>When the Java 8 version of HSQLDB jar is used, the methods added
+      <para>When the Java 8 version of HyperSQL jar is used, the methods added
       in Java 8 become available and the behaviour of the
       <methodname>getObject(int columnIndex)</methodname> method for
       retrieving TIMESTAMP WITH TIME ZONE values changes. With Java 7 and
@@ -488,7 +489,7 @@
       <title>Cursor Declaration</title>
 
       <para>The DECLARE CURSOR statement is used within an SQL PROCEDURE body.
-      In the current version HyperSQL 2.4, the cursor is used only to return a
+      In the current version of HyperSQL, the cursor is used only to return a
       result set from the procedure. Therefore, the cursor must be declared
       WITH RETURN and can only be READ ONLY.</para>
 

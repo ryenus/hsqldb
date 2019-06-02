@@ -337,11 +337,11 @@
     </itemizedlist>
 
     <para>Persistence relies on the JVM, the operating system, and the
-    computer hardware. A database system like HSQLDB can perform millions of
+    computer hardware. A database system like HyperSQL can perform millions of
     read and write operations in an hour. As system hardware and software can
     go wrong, it is impossible to achieve zero failure rate. Therefore,
-    regular backups are recommended. HyperSQL 2.3 has built-in database backup
-    and restore features, discussed elsewhere in this chapter.</para>
+    regular backups are recommended. HyperSQL has built-in database backup and
+    restore features, discussed elsewhere in this chapter.</para>
 
     <para>A note regarding the NIO file access implementation: This
     implementation applies only to CACHED table data in the
@@ -438,7 +438,7 @@
       <primary>system-versioned tables usage</primary>
     </indexterm>
 
-    <para>HSQLDB 2.5.0 allows you to store data in temporal system-versioned
+    <para>HyperSQL 2.5.0 allows you to store data in temporal system-versioned
     tables. The additional syntax elements for CREATE TABLE and ALTER TABLE
     allow creating sytem-versioned tables and adding system versioning to
     existing tables. These are covered in the <link
@@ -739,7 +739,7 @@
       <title>Security Considerations</title>
 
       <para>Security considerations for encrypted databases have been
-      discussed at length in HSQLDB discussion groups. Development team
+      discussed at length in HyperSQL discussion groups. Development team
       members have commented that encryption is not a panacea for all security
       needs. The following issues should be taken into account:</para>
 
@@ -786,8 +786,8 @@
       statistics on different types of executed statements or other JDBC
       calls.</para>
 
-      <para>Early versions of JAMon were developed with HSQLDB and had to be
-      integrated into HSQLDB at code level. The latest versions can be added
+      <para>Early versions of JAMon were developed with HyperSQL and had to be
+      integrated into HyperSQL at code level. The latest versions can be added
       on as a proxy in a much simpler fashion.</para>
     </section>
 
@@ -894,8 +894,8 @@
       <listitem>
         <para>You can define users and roles and grant them access on
         different database objects. Each user has a password and is granted a
-        set of privileges. HSQLDB supports table level and column level
-        privileges. See the <link endterm="accesscontrol-title"
+        set of privileges. HyperSQL supports table level, column level, and
+        row level privileges. See the <link endterm="accesscontrol-title"
         xlink:href="#accesscontrol-chapt"/> chapter.</para>
       </listitem>
 
@@ -1494,7 +1494,7 @@
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
 
-      <simpara>From version 2.3, the equivalent URL properties,
+      <simpara>From version 2.3.0, the equivalent URL properties,
       <literal>hsqldb.app_log</literal> and <literal>hsqldb.sql_log</literal>,
       can be used not only for a new database, but also when opening an
       existing file database to change the event log level.</simpara>
@@ -2550,7 +2550,7 @@
       <simpara><literal>&lt;set files backup increment statement&gt; ::= SET
       FILES BACKUP INCREMENT { TRUE | FALSE }</literal></simpara>
 
-      <simpara>Older versions of HSQLDB perform a backup of the
+      <simpara>Older versions of HyperSQL perform a backup of the
       <literal>.data</literal> file before its contents are modified and the
       whole <literal>.data</literal> file is saved in a compressed form when a
       CHECKPOINT or SHUTDOWN is performed. This takes a long time when the
