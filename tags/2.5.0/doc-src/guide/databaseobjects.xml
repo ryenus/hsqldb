@@ -1,0 +1,4390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
+]>
+<chapter version="5.0" xml:id="databaseobjects-chapt"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/2000/svg"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title xml:id="databaseobjects-title">Schemas and Database Objects</title>
+
+  <info>
+    <authorgroup>
+      <author>
+        <personname><firstname>Fred</firstname><surname>Toussi</surname></personname>
+
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </author>
+    </authorgroup>
+
+    <releaseinfo>$Revision$</releaseinfo>
+
+    <pubdate>&timestamp;</pubdate>
+
+    <keywordset>
+      <keyword>HSQLDB</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>SQL</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2009-2019 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
+    </legalnotice>
+  </info>
+
+  <section xml:id="dbc_overview">
+    <title>Overview</title>
+
+    <para>The persistent elements of an SQL environment are database objects.
+    The database consists of catalogs plus authorizations.</para>
+
+    <para>A catalog contains schemas, and schemas contain the objects that
+    contain data or govern the data.</para>
+
+    <para>Each catalog contains a special schema called INFORMATION_SCHEMA.
+    This schema is read-only and contains some views and other schema objects.
+    The views contain lists of all the database objects that exist within the
+    catalog, plus all authorizations.</para>
+
+    <para>Each database object has a name. A name is an identifier and is
+    unique within its name-space.</para>
+  </section>
+
+  <section xml:id="dbc_schemas_schema_objects">
+    <title>Schemas and Schema Objects</title>
+
+    <para>In HyperSQL, there is only one catalog per database. The name of the
+    catalog is PUBLIC. You can rename the catalog with the <literal>ALTER
+    CATALOG RENAME TO</literal> statement. All schemas belong the this
+    catalog. The catalog name has no relation to the file name of the
+    database.</para>
+
+    <para>Each database has also an internal "unique" name which is
+    automatically generated when the database is created. This name is used
+    for event logging. You can also change this unique name.</para>
+
+    <para>Schema objects are database objects that contain data or govern or
+    perform operations on data. By definition, each schema object belongs to a
+    specific schema.</para>
+
+    <para>Schema objects can be divided into groups according to their
+    characteristics.</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Some kinds of schema objects can exist independently from other
+        schema object. Other kinds can exist only as an element of another
+        schema object. These dependent objects are automatically destroyed
+        when the parent object is dropped.</para>
+      </listitem>
+
+      <listitem>
+        <para>Separate name-spaces exists for different kinds of schema
+        object. Some name-spaces are shared between two similar kinds of
+        schema objects.</para>
+      </listitem>
+
+      <listitem>
+        <para>There can be dependencies between various schema objects, as a
+        schema object can include references to other schema objects. These
+        references can cross schema boundaries. Interdependence and cross
+        referencing between schema objects is allowed in some circumstances
+        and disallowed in some others.</para>
+      </listitem>
+
+      <listitem>
+        <para>Schema objects can be destroyed with the DROP statement. If
+        dependent schema objects exist, a DROP statement will succeed only if
+        it has a CASCADE clause. In this case, dependent objects are also
+        destroyed in most cases. In some cases, such as dropping DOMAIN
+        objects, the dependent objects are not destroyed, but modified to
+        remove the dependency.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>A new HyperSQL catalog contains an empty schema called PUBLIC. By
+    default, this schema is the initial schema when a new session is started.
+    New schemas and schema objects can be defined and used in the PUBLIC
+    schema, as well as any new schema that is created by the user. You can
+    rename the PUBLIC schema.</para>
+
+    <para>HyperSQL allows all schemas to be dropped, except the schema that is
+    the default initial schema for new sessions (by default, the PUBLIC
+    schema). For this schema, a DROP SCHEMA ... CASCADE statement will succeed
+    but will result in an empty schema, rather than no schema.</para>
+
+    <para>The statements for setting the initial schema for users are
+    described in the <link endterm="accesscontrol-statements-title" os=""
+    xlink:href="#accesscontrol-chapt"/> chapter.</para>
+
+    <section xml:id="dbc_names_references">
+      <title>Names and References</title>
+
+      <para>The name of a schema object is an
+      <literal>&lt;identifier&gt;</literal>. The name belongs to the
+      name-space for the particular kind of schema object. The name is unique
+      within its name-space. For example, each schema has a separate
+      name-space for TRIGGER objects.</para>
+
+      <para>In addition to the name-spaces in the schema. Each table has a
+      name-space for the names of its columns.</para>
+
+      <para>Because a schema object is always in a schema and a schema always
+      in a catalog, it is possible, and sometimes necessary, to qualify the
+      name of the schema object that is being referenced in an SQL statement.
+      This is done by forming an &lt;<literal>identifier chain&gt;</literal>.
+      In some contexts, only a simple <literal>&lt;identifier&gt;</literal>
+      can be used and the <literal>&lt;identifier chain&gt;</literal> is
+      prohibited. While in some other contexts, the use of
+      <literal>&lt;identifier chain&gt;</literal> is optional. An identifier
+      chain is formed by qualifying each object with the name of the object
+      that owns its name-space. Therefore a column name is prefixed with a
+      table name, a table name is prefixed with a schema name, and a schema
+      name is prefixed with a catalog name. A fully qualified column name is
+      in the form <literal>&lt;catalog name&gt;.&lt;schema name&gt;.&lt;table
+      name&gt;.&lt;column name&gt;</literal>, likewise, a fully qualified
+      sequence name is in the form <literal>&lt;catalog name&gt;.&lt;schema
+      name&gt;.&lt;sequence name&gt;</literal>.</para>
+
+      <para>HyperSQL extends the SQL standard to allow renaming all database
+      objects. The ALTER ... RENAME TO command has slightly different forms
+      depending on the type of object. If an object is referenced in a VIEW or
+      ROUTINE definition, it is not always possible to rename it.</para>
+    </section>
+
+    <section xml:id="dbc_character_sets">
+      <title>Character Sets</title>
+
+      <para>A CHARACTER SET is the whole or a subset of the UNICODE character
+      set.</para>
+
+      <para>A character set name can only be a <literal>&lt;regular
+      identifier&gt;</literal>. There is a separate name-space for character
+      sets.</para>
+
+      <para>There are several predefined character sets. These character sets
+      belong to INFORMATION_SCHEMA. However, when they are referenced in a
+      statement, no schema prefix is necessary.</para>
+
+      <para>The following character sets, together with some others, have been
+      specified by the SQL Standard:</para>
+
+      <para>SQL_TEXT, SQL_IDENTIFIER, SQL_CHARACTER</para>
+
+      <para>The SQL_CHARACTER consists of ASCII letters, digits and the
+      symbols used in the SQL language. SQL_TEXT and SQL_IDENTIFIER are
+      implementation defined. HyperSQL defines SQL_TEXT as the Unicode
+      character set and SQL_IDENTIFIER as the Unicode character set minus the
+      SQL language special characters.</para>
+
+      <para>SQL_TEXT consists of the full set of Unicode characters. These
+      characters can be used in strings and clobs stored in the database. The
+      character repertoire of HyperSQL is the UTF16 character set, which
+      covers all possible character sets.</para>
+
+      <para>If a predefined character set is specified for a table column,
+      then any string stored in the column must contain only characters from
+      the specified character set. HyperSQL does not enforce the CHARACTER SET
+      that is specified for a column and may accept any character string
+      supported by SQL_TEXT.</para>
+    </section>
+
+    <section xml:id="dbc_collations">
+      <title>Collations</title>
+
+      <para>A COLLATION is the method used for ordering character strings in
+      ordered sets and to determine equivalence of two character
+      strings.</para>
+
+      <para>The system collation is called SQL_TEXT. This collation sorts
+      according to the Unicode code of the characters, UNICODE_SIMPLE. The
+      system collation is always used for INFORMATION_SCHEMA tables.</para>
+
+      <para>The default database collation is the same as the system
+      collation. You can change this default, either with a language
+      collation, or with the SQL_TEXT_UCC. This collation is a
+      case-insensitive form of the UNICODE_SIMPLE collation.</para>
+
+      <para>Collations for a large number of languages are supported by
+      HyperSQL. These collations belong to INFORMATION_SCHEMA. However, when
+      they are referenced in a statement, there is no need for a schema
+      prefix.</para>
+
+      <para>A different collation than the default collation can be specified
+      for each table column that is defined as CHAR or VARCHAR.</para>
+
+      <para>A collation can also be used in an ORDER BY clause.</para>
+
+      <para>A collation can be used in the GROUP BY clause.</para>
+
+      <informalexample>
+        <programlisting> CREATE TABLE t (id INTEGER PRIMARY KEY, name VARCHAR(20) COLLATE "English")
+ SELECT * FROM t ORDER BY name COLLATE "French"
+ SELECT COUNT(*), name FROM t GROUP BY name COLLATE "English 0"
+</programlisting>
+      </informalexample>
+
+      <para>In the examples above, the collation for the column is already
+      specified when it is defined. In the first SELECT statement, the column
+      is sorted using the French collation. In the second SELECT, the
+      <literal>"English 0"</literal> collation is used in the GROUP BY clause.
+      This collation is case insensitive, so the same name with different uses
+      of upper and lower-case letters is considered the same and counted
+      together.</para>
+
+      <para>The supported collations are named according to the language. You
+      can see the list in the INFORMATION_SCHEMA.COLLATIONS view. You can use
+      just the name in double quotes for the default form of the collation. If
+      you add a strength between 0, 1, 2, 3, the case sensitivity and accent
+      sensitivity changes. The value 0 indicates least sensitivity to
+      differences. At this strength the collation is case-insensitive and
+      ignores differences between accented letters. At strength 1, differences
+      between accented letters are taken into account. At strength 2, both
+      case and accent are significant. Finally, 3 indicates additional
+      sensitivity to different punctuation. A second parameter can also be
+      used with values 0 or 1, to indicate how decomposition of accented
+      characters for comparison is handled for languages that support such
+      characters. See the Java and ICU (International Components for Unicode)
+      collation documentation for more details on these values. For example,
+      possible forms of the French collation are <literal>"French"</literal>,
+      <literal>"French 0"</literal>, <literal>"French 1"</literal>, etc. and
+      <literal>"French 2 1"</literal>, etc. When the collation is specified
+      without strength, it seems the system defaults to strength 2, which is
+      case and accent sensitive.</para>
+
+      <para>When a collation is not explicitly used in the CREATE TABLE
+      statement for a column, then the database default collation is used for
+      this column. If you change the database default collation afterwards,
+      the new collation will be used.</para>
+
+      <para>With the older versions of HyperSQL the special type
+      VARCHAR_IGNORECASE was used as the column type for case-insensitive
+      comparison. Any column already defined as VARCHAR_IGNORECASE will be
+      compared exactly as before. In version 2.3.0 and later, this form is
+      represented by the addition of UCC after the collation name, for example
+      "French UCC". You can still use the SET IGNORECASE TRUE statement in
+      your session to force the UCC to be applied to the collation for the
+      VARCHAR columns of new tables. UCC stands for Upper Case Comparison.
+      Before comparing two strings, both are converted to uppercase using the
+      current collation. This is exactly how VARCHAR_IGNORECASE worked.</para>
+
+      <para>It is recommended to use the default SQL_TEXT collation for your
+      general CHAR or VARCHAR columns. For columns where a language collation
+      is desirable, the choice should be made very carefully, because names
+      that are very similar but only differ in the accents may be considered
+      equal in searches.</para>
+
+      <para>When comparing two strings, HyperSQL 2 pads the shorter string
+      with spaces in order to compare two strings of equal length. You can
+      change the default database collation with one that does not pad the
+      string with spaces before comparison. This method of comparison was used
+      in versions older than 2.</para>
+
+      <para>User defined collations can be created based on existing
+      collations to control the space padding. These collations are part of
+      the current schema.</para>
+
+      <para>See the COLLATE keyword and SET DATABASE COLLATION statement in
+      the <link endterm="management-title" os=""
+      xlink:href="#management-chapt"/> chapter. The PAD SPACE or NO PAD clause
+      is used to control padding.</para>
+
+      <important>
+        <para>If you change the default collation of a database when there are
+        tables containing data with CHAR or VARCHAR columns that are part of
+        an index, a primary key or a unique constraint, you must execute
+        SHUTDOWN COMPACT or SHUTDOWN SCRIPT after the change. If you do not do
+        this, your queries and other statements will show erratic behaviour
+        and may result in unrecoverable errors.</para>
+      </important>
+    </section>
+
+    <section xml:id="dbc_distinct_types">
+      <title>Distinct Types</title>
+
+      <para>A distinct, user-defined TYPE is simply based on a built-in type.
+      A distinct TYPE is used in table definitions and in CAST
+      statements.</para>
+
+      <para>Distinct types share a name-space with domains.</para>
+    </section>
+
+    <section xml:id="dbc_domains_info_schema">
+      <title>Domains</title>
+
+      <para>A DOMAIN is a user-defined type, simply based on a built-in type.
+      A DOMAIN can have constraints that limit the values that the DOMAIN can
+      represent. A DOMAIN can be used in table definitions and in CAST
+      statements.</para>
+
+      <para>Distinct types share a name-space with domains.</para>
+    </section>
+
+    <section xml:id="dbc_number_sequence">
+      <title>Number Sequences</title>
+
+      <para>A SEQUENCE object produces INTEGER values in sequence. The
+      SEQUENCE can be referenced in special contexts only within certain SQL
+      statements. For each row where the object is referenced, its value is
+      incremented.</para>
+
+      <para>There is a separate name-space for SEQUENCE objects.</para>
+
+      <para>IDENTITY columns are columns of tables which have an internal,
+      unnamed SEQUENCE object. HyperSQL also supports IDENTITY columns that
+      use a named SEQUENCE object.</para>
+
+      <para>SEQUENCE objects and IDENTITY columns are supported fully
+      according to the latest SQL 2008 Standard syntax.</para>
+
+      <para><emphasis role="bold">Sequences</emphasis></para>
+
+      <para>The SQL:2008 syntax and usage is different from what is supported
+      by many existing database engines. Sequences are created with the
+      <literal>CREATE SEQUENCE</literal> command and their current value can
+      be modified at any time with <literal>ALTER SEQUENCE</literal>. The next
+      value for a sequence is retrieved with the <literal>NEXT VALUE FOR
+      &lt;name&gt;</literal> expression. This expression can be used for
+      inserting and updating table rows.</para>
+
+      <example>
+        <title>inserting the next sequence value into a table row</title>
+
+        <programlisting> INSERT INTO mytable VALUES 2, 'John', NEXT VALUE FOR mysequence</programlisting>
+      </example>
+
+      <para>You can also use it in select statements. For example, if you want
+      to number the returned rows of a SELECT in sequential order, you can
+      use:</para>
+
+      <example>
+        <title>numbering returned rows of a SELECT in sequential order</title>
+
+        <programlisting> SELECT NEXT VALUE FOR mysequence, col1, col2 FROM mytable WHERE ...</programlisting>
+      </example>
+
+      <para>The semantics of sequences are exactly as defined by SQL:2016. If
+      you use the same sequence twice in the same row in an INSERT statement,
+      you will get the same value, as required by the Standard.</para>
+
+      <para>The correct way to use a sequence value is the NEXT VALUE FOR
+      expression.</para>
+
+      <para>HyperSQL adds an extension to Standard SQL to return the last
+      value returned by the NEXT VALUE FOR expression in the current session.
+      After a statement containing NEXT VALUE FOR is executed, the value that
+      was returned for NEXT VALUE FOR is available using the CURRENT VALUE FOR
+      expression. In the example below, the NEXT VALUE FOR expression is used
+      to insert a new row. The value that was returned by NEXT VALUE FOR is
+      retrieved with the CURRENT VALUE FOR in the next insert statements to
+      populate two new rows in a different table that has a parent child
+      relationship with the first table. For example if the value 15 was
+      returned by the sequence, the same value 15 is inserted in the three
+      rows.</para>
+
+      <para><example>
+          <title>using the last value of a sequence</title>
+
+          <programlisting> INSERT INTO mytable VALUES 2, 'John', NEXT VALUE FOR mysequence
+ INSERT INTO childtable VALUES 4, CURRENT VALUE FOR mysequence
+ INSERT INTO childtable VALUES 5, CURRENT VALUE FOR mysequence</programlisting>
+        </example>The INFORMATION_SCHEMA.SEQUENCES table contains the next
+      value that will be returned from any of the defined sequences. The
+      SEQUENCE_NAME column contains the name and the NEXT_VALUE column
+      contains the next value to be returned. Note that this is only for
+      getting information and you should not use it for accessing the next
+      sequence value. When multiple sessions access the same sequence, the
+      value returned from this table by one session could also be used by a
+      different session, causing a sequence value to be used twice
+      unintentionally.</para>
+
+      <para><emphasis role="bold">Identity Auto-Increment
+      Columns</emphasis></para>
+
+      <para>Each table can contain a single auto-increment column, known as
+      the IDENTITY column. An IDENTITY column is a SMALLINT, INTEGER, BIGINT,
+      DECIMAL or NUMERIC column with its value generated by a sequence
+      generator.</para>
+
+      <para>In HyperSQL 2.x, an IDENTITY column is not by default treated as
+      the primary key for the table (as a result, multi-column primary keys
+      are possible with an IDENTITY column present). Use the SQL standard
+      syntax for declaration of the IDENTITY column.</para>
+
+      <para>The SQL standard syntax is used, which allows the initial value
+      and other options to be specified.</para>
+
+      <para><literal>&lt;colname&gt; [ INTEGER | BIGINT | DECIMAL | NUMERIC ]
+      GENERATED { BY DEFAULT | ALWAYS} AS IDENTITY [( &lt;options&gt;
+      )]</literal></para>
+
+      <informalexample>
+        <programlisting> /* this table has no primary key */
+ CREATE TABLE vals (id INTEGER GENERATED BY DEFAULT AS IDENTITY, data VARBINARY(2000))
+ 
+ /* in this table id becomes primary key because the old syntax is used - avoid this syntax */
+ CREATE TABLE vals (id INTEGER IDENTITY, data VARBINARY(2000))
+
+ /* use the standard syntax and explicity declare a primary key identity column */
+ CREATE TABLE vals (id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY, data VARBINARY(2000))
+</programlisting>
+      </informalexample>
+
+      <para>When you add a new row to such a table using an <literal>INSERT
+      INTO &lt;tablename&gt; ... </literal>statement, you can use the DEFAULT
+      keyword for the IDENTITY column, which results in an auto-generated
+      value for the column.</para>
+
+      <para>The <literal>IDENTITY() </literal>function returns the last value
+      inserted into any IDENTITY column by this session. Each session manages
+      this function call separately and is not affected by inserts in other
+      sessions. Use <literal>CALL IDENTITY() </literal>as an SQL statement to
+      retrieve this value. If you want to use the value for a field in a child
+      table, you can use <literal>INSERT INTO &lt;childtable&gt; VALUES
+      (...,IDENTITY(),...);</literal>. Both types of call to<literal>
+      IDENTITY()</literal> must be made before any additional update or insert
+      statements are issued by the session.</para>
+
+      <para>In triggers and routines, the value returned by the
+      <literal>IDENTITY()</literal> function is correct for the given context.
+      For example, if a call to a stored procedure inserts a row into a table,
+      causing a new identity value to be generated, a call to
+      <literal>IDENTITY()</literal> inside the procedure will return the new
+      identity, but a call outside the procedure will return the last identity
+      value that was generated before a call was made to the procedure.</para>
+
+      <para>The last inserted IDENTITY value can also be retrieved via JDBC,
+      by specifying the Statement or PreparedStatement object to return the
+      generated value.</para>
+
+      <para>The next IDENTITY value to be used can be changed with the
+      following statement. Note that this statement is not used in normal
+      operation and is only for special purposes, for example resetting the
+      identity generator: <programlisting> ALTER TABLE ALTER COLUMN &lt;column name&gt; RESTART WITH &lt;new value&gt;;</programlisting>For
+      backward compatibility, support has been retained for <literal>CREATE
+      TABLE &lt;tablename&gt;(&lt;colname&gt; IDENTITY, ...)</literal> as a
+      shortcut which defines the column both as an IDENTITY column and a
+      PRIMARY KEY column. Also, for backward compatibility, it is possible to
+      use NULL as the value of an IDENTITY column in an INSERT statement and
+      the value will be generated automatically. You should avoid these
+      compatibility features as they may be removed from future versions of
+      HyperSQL.</para>
+
+      <para>In the following example, the identity value for the first INSERT
+      statement is generated automatically using the DEFAULT keyword. The
+      second INSERT statement uses a call to the IDENTITY() function to
+      populate a row in the child table with the generated identity
+      value.</para>
+
+      <informalexample>
+        <programlisting> CREATE TABLE star (id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY, 
+   firstname VARCHAR(20),
+   lastname VARCHAR(20))
+ CREATE TABLE movies (starid INTEGER, movieid INTEGER PRIMARY KEY, title VARCHAR(40)) 
+ INSERT INTO star (id, firstname, lastname) VALUES (DEFAULT, 'Felix', 'the Cat')
+ INSERT INTO movies (starid, movieid, title) VALUES (IDENTITY(), 10, 'Felix in Hollywood')
+</programlisting>
+      </informalexample>
+
+      <para>HyperSQL also supports IDENTITY columns that use an external,
+      named SEQUENCE object. This feature is not part of the SQL Standard. The
+      example below uses this type of IDENTITY. Note the use of CURRENT VALUE
+      FOR seq here is multi-session safe. The returned value is the last value
+      used by this session when the row was inserted into the star table. This
+      value is available until the transaction is committed. After commit,
+      NULL is returned by the CURRENT VALUE FOR expression until the SEQUENCE
+      is used again.</para>
+
+      <informalexample>
+        <programlisting> CREATE SEQUENCE seq
+ CREATE TABLE star (id INTEGER GENERATED BY DEFAULT AS SEQUENCE seq PRIMARY KEY, 
+   firstname VARCHAR(20),
+   lastname VARCHAR(20))
+ CREATE TABLE movies (starid INTEGER, movieid INTEGER PRIMARY KEY, title VARCHAR(40)) 
+ INSERT INTO star (id, firstname, lastname) VALUES (DEFAULT, 'Felix', 'the Cat')
+ INSERT INTO movies (starid, movieid, title) VALUES (CURRENT VALUE FOR seq, 10, 'Felix in Hollywood')
+</programlisting>
+      </informalexample>
+    </section>
+
+    <section xml:id="dbc_tables">
+      <title>Tables</title>
+
+      <para>In the SQL environment, tables are the most essential components,
+      as they hold all persistent data.</para>
+
+      <para>If TABLE is considered as metadata (i.e. without its actual data)
+      it is called a <emphasis>relation</emphasis> in relational theory. It
+      has one or more columns, with each column having a distinct name and a
+      data type. A table usually has one or more constraints which limit the
+      values that can potentially be stored in the TABLE. These constraints
+      are discussed in the next section.</para>
+
+      <para>A single column of the table can be defined as IDENTITY. The
+      values stored in this column are auto-generated and are based on an
+      (unnamed) identity sequence, or optionally, a named SEQUENCE object. One
+      or more other columns of the table can be defined as GENERATED by an
+      expression that returns a value based on other columns of the same
+      row.</para>
+    </section>
+
+    <section xml:id="dbc_views">
+      <title>Views</title>
+
+      <para>A VIEW is similar to a TABLE but it does not permanently contain
+      rows of data. A view is defined as a QUERY EXPRESSION, which is often a
+      SELECT statement that references views and tables, but it can also
+      consist of a TABLE CONSTRUCTOR that does not reference any tables or
+      views.</para>
+
+      <para>A view has many uses:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Hide the structure and column names of tables. The view can
+          represent one or more tables or views as a separate table. This can
+          include aggregate data, such as sums and averages, from other
+          tables.</para>
+        </listitem>
+
+        <listitem>
+          <para>Allow access to specific rows in a table. For example, allow
+          access to records that were added since a given date, while hiding
+          older records.</para>
+        </listitem>
+
+        <listitem>
+          <para>Allow access to specific columns. For example, allow access to
+          columns that contain non-confidential information. Note that this
+          can also be achieved with the GRANT SELECT statement, using
+          column-level privileges</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>A VIEW that returns the columns of a single ordinary TABLE is
+      <glossterm>updatable</glossterm> if the query expression of the view is
+      an updatable query expression as discussed in the <link
+      endterm="dataaccess-title" os="" xlink:href="#dataaccess-chapt"/>
+      chapter. Some <glossterm>updatable</glossterm> views are
+      <glossterm>insertable-into</glossterm> because the query expression is
+      insertable-into. In these views, each column of the query expressions
+      must be a column of the underlying table and those columns of the
+      underlying table that are not in the view must have a default clause, or
+      be an IDENTITY or GENERATED column. When rows of an updatable view are
+      updated, or new rows are inserted, or rows are deleted, these changes
+      are reflected in the base table. A VIEW definition may specify that the
+      inserted or updated rows conform to the search condition of the view.
+      This is done with the CHECK OPTION clause.</para>
+
+      <para>A view that is not updatable according to the above paragraph can
+      be made updatable or insertable-into by adding INSTEAD OF triggers to
+      the view. These triggers contain statements to use the submitted data to
+      modify the contents of the underlying tables of the view separately. For
+      example, a view that represents a SELECT statement that joins two tables
+      can have an INSTEAD OF DELETE trigger with two DELETE statements, one
+      for each table. Views that have an INSTEAD OF trigger are called TRIGGER
+      INSERTABLE, TRIGGER UPDATABLE, etc. according to the triggers that have
+      been defined.</para>
+
+      <para>Views share a name-space with tables.</para>
+    </section>
+
+    <section xml:id="dbc_constraints">
+      <title>Constraints</title>
+
+      <para>A CONSTRAINT is a child schema object and can belong to a DOMAIN
+      or a TABLE. CONSTRAINT objects can be defined without specifying a name.
+      In this case the system generates a name for the new object beginning
+      with "SYS_". This default naming can be changed with the <literal>SET
+      DATABASE SQL SYS INDEX NAMES TRUE</literal> statement, to use the
+      constraint name as the name of the index.</para>
+
+      <!-- For some reason, without the quotes, the _ and . do not appear in
+      the HTML output.  Can remove the quotes if this issue is taken care of
+      or disappears.  -blaine -->
+
+      <para>In a DOMAIN, CHECK constraints can be defined that limits the
+      value represented by the DOMAIN. These constraints work exactly like a
+      CHECK constraint on a single column of a table as described
+      below.</para>
+
+      <para>In a TABLE, a constraint takes three basic forms.</para>
+
+      <para><emphasis role="bold">CHECK</emphasis></para>
+
+      <para>A CHECK constraint consists of a <literal>&lt;search
+      condition&gt;</literal> that must not be false (can be unknown) for each
+      row of the table. The <literal>&lt;search condition&gt;</literal> can
+      reference all the columns of the current row, and if it contains a
+      <literal>&lt;subquery&gt;</literal>, other tables and views in the
+      database (excluding its own table).</para>
+
+      <para><emphasis role="bold">NOT NULL</emphasis></para>
+
+      <para>A simple form of check constraint is the NOT NULL constraint,
+      which applies to a single column.</para>
+
+      <para><emphasis role="bold">UNIQUE</emphasis></para>
+
+      <para>A UNIQUE constraint is based on an equality comparison of values
+      of specific columns (taken together) of one row with the same values
+      from each of the other rows. The result of the comparison must never be
+      true (can be false or unknown). If a row of the table has NULL in any of
+      the columns of the constraint, it conforms to the constraint. A unique
+      constraint on multiple columns (c1, c2, c3, ..) means that in no two
+      rows, the sets of values for the columns can be equal unless at least
+      one of them is NULL. Each single column taken by itself can have repeat
+      values in different rows. The following example satisfies a UNIQUE
+      constraint on the two columns</para>
+
+      <example>
+        <title>Column values which satisfy a 2-column UNIQUE
+        constraint</title>
+
+        <simplelist columns="2" type="horiz">
+          <member>1,</member>
+
+          <member>2</member>
+
+          <member>2,</member>
+
+          <member>1</member>
+
+          <member>2,</member>
+
+          <member>2</member>
+
+          <member>NULL,</member>
+
+          <member>1</member>
+
+          <member>NULL,</member>
+
+          <member>1</member>
+
+          <member>1,</member>
+
+          <member>NULL</member>
+
+          <member>NULL,</member>
+
+          <member>NULL</member>
+
+          <member>NULL,</member>
+
+          <member>NULL</member>
+        </simplelist>
+      </example>
+
+      <para>If the SET DATABASE SQL UNIQUE NULLS FALSE has been set, then if
+      not all the values set of columns are null, the not null values are
+      compared and it is disallowed to insert identical rows that contain at
+      least one not-null value.</para>
+
+      <para><emphasis role="bold">PRIMARY KEY</emphasis></para>
+
+      <para>A PRIMARY KEY constraint is equivalent to a UNIQUE constraint on
+      one or more NOT NULL columns. Only one PRIMARY KEY can be defined in
+      each table.</para>
+
+      <para><emphasis role="bold">FOREIGN KEY</emphasis></para>
+
+      <para>A FOREIGN key constraint is based on an equality comparison
+      between values of specific columns (taken together) of each row with the
+      values of the columns of a UNIQUE constraint on another table or the
+      same table. The result of the comparison must never be false (can be
+      unknown). A special form of FOREIGN KEY constraint, based on its CHECK
+      clause, allows the result to be unknown only if the values for all
+      columns are NULL. A FOREIGN key can be declared only if a UNIQUE
+      constraint exists on the referenced columns.</para>
+
+      <para>Constraints share a name space with assertions.</para>
+    </section>
+
+    <section xml:id="dbc_assertions">
+      <title>Assertions</title>
+
+      <para>An ASSERTION is a top-level schema object. It consists of a
+      <literal>&lt;search condition&gt;</literal> that must not be false (can
+      be unknown). HyperSQL does not yet support assertions.</para>
+
+      <para>Assertions share a name-space with constraints</para>
+    </section>
+
+    <section xml:id="dbc_triggers">
+      <title>Triggers</title>
+
+      <para>A TRIGGER is a child schema object that always belongs to a TABLE
+      or a VIEW.</para>
+
+      <para>Each time a DELETE, UPDATE or INSERT is performed on the table or
+      view, additional actions are taken by the triggers that have been
+      declared on the table or view.</para>
+
+      <para>Triggers are discussed in detail in <link endterm="triggers-title"
+      os="" xlink:href="#triggers-chapt"/> chapter.</para>
+    </section>
+
+    <section xml:id="dbc_routines">
+      <title>Routines</title>
+
+      <para>Routines are user-defined functions or procedures. The names and
+      usage of functions and procedures are different. FUNCTION is a routine
+      that can be referenced in many types of statements. PROCEDURE is a
+      routine that can be referenced only in a CALL statement.</para>
+
+      <para>There is a separate name-space for routines.</para>
+
+      <para>Because of the possibility of overloading, each routine can have
+      more than one name. The name of the routine is the same for all
+      overloaded variants, but each variant has a <glossterm>specific
+      name</glossterm>, different from all other routine names and specific
+      names in the schema. The <glossterm>specific name</glossterm> can be
+      specified in the routine definition statement. Otherwise it is assigned
+      by the engine. The specific name is used only for schema manipulation
+      statements, which need to reference a specific variant of the routine.
+      For example, if a routine has two signatures, each signature has its own
+      <glossterm>specific name</glossterm>. This allows the user to drop one
+      of the signatures while keeping the other.</para>
+
+      <para>Routines are discussed in detail in the <link
+      endterm="sqlroutines-title" os="" xlink:href="#sqlroutines-chapt"/>
+      chapter.</para>
+    </section>
+
+    <section xml:id="dbc_indexes">
+      <title>Indexes</title>
+
+      <para>Indexes are an implementation-defined extension to the SQL
+      Standard. HyperSQL has a dedicated name-space for indexes in each
+      schema.</para>
+    </section>
+
+    <section>
+      <title>Synonyms</title>
+
+      <para>Synonyms are user-defined names that refer to other schema
+      objects. Synonyms can be defined for TABLE, VIEW, SEQUENCE, PROCEDURE
+      and FUNCTION names and used in SELECT, UPDATE, CALL, etc. statements.
+      They cannot be used in DDL statements. Synonym are in schemas, but they
+      are used without a schema qualifier. When used, a synonym is immediately
+      translated to the target name and the target name is used in the actual
+      statement. The access privileges to the target object are
+      checked.</para>
+
+      <programlisting> CREATE SYNONYM REG FOR OTHER_SCHEMA.REGISTRATION_DETAIL_TABLE
+
+ SELECT R_ID, R_DATE FROM REG WHERE R_DATA &gt; CURRENT_DATE - 3 DAY
+</programlisting>
+
+      <para>A synonym cannot be the same as the name of any existing object in
+      the schema.</para>
+    </section>
+  </section>
+
+  <section xml:id="dbc_schema_def_statements">
+    <title>Statements for Schema Definition and Manipulation</title>
+
+    <para>Schemas and schema objects can be created, modified and dropped. The
+    SQL Standard defines a range of statements for this purpose. HyperSQL
+    supports many additional statements, especially for changing the
+    properties of existing schema objects.</para>
+
+    <section xml:id="dbc_common_elements">
+      <title>Common Elements and Statements</title>
+
+      <para>These elements and statements are used for different types of
+      object. They are described here, before the statements that can use
+      them.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>identifier definition</primary>
+      </indexterm>
+
+      <para><emphasis role="bold">identifier</emphasis></para>
+
+      <para><emphasis>definition of identifier</emphasis></para>
+
+      <simpara><literal>&lt;identifier&gt; ::= &lt;regular identifier&gt; |
+      &lt;delimited identifier&gt; | &lt;SQL language identifier&gt;
+      </literal></simpara>
+
+      <simpara><literal>&lt;delimited identifier&gt; ::= &lt;double quote&gt;
+      &lt;character sequence&gt; &lt;double quote&gt;</literal></simpara>
+
+      <simpara><literal>&lt;regular identifier&gt; ::= &lt;special character
+      sequence&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL language identifier&gt; ::= &lt;special
+      character sequence&gt;</literal></simpara>
+
+      <para>A <literal>&lt;delimited identifier&gt;</literal> is a sequence of
+      characters enclosed with double-quote symbols. All characters are
+      allowed in the character sequence.</para>
+
+      <para>A <literal>&lt;regular identifier&gt;</literal> is a special
+      sequence of characters. It consists of letters, digits and the
+      underscore characters. It must begin with a letter. All the letters are
+      translated to their upper-case version.</para>
+
+      <para>The database setting, <literal>SET DATABASE SQL REGULAR NAMES
+      FALSE</literal> can be used to relax the rules for regular identifier.
+      With this setting, an underscore character can appear at the start of
+      the regular identifier, and the dollar sign character can be used in the
+      identifier.</para>
+
+      <para>A <literal>&lt;SQL language identifier&gt;</literal> is similar to
+      <literal>&lt;regular identifier&gt;</literal> but the letters can range
+      only from A-Z in the ASCII character set. This type of identifier is
+      used for names of CHARACTER SET objects.</para>
+
+      <para>If the character sequence of a delimited identifier is the same as
+      an undelimited identifier, it represents the same identifier. For
+      example, "JOHN" is the same identifier as JOHN. In a
+      <literal>&lt;regular identifier&gt;</literal> the case-normal form is
+      considered for comparison. This form consists of the upper-case
+      equivalent of all the letters. When a database object is created with
+      one of the CREATE statements or renamed with the ALTER statement, if the
+      name is enclosed in double quotes, the exact name is used as the
+      case-normal form. But if it is not enclosed in double quotes, the name
+      is converted to uppercase and this uppercase version is stored in the
+      database as the case-normal form.</para>
+
+      <para>The character sequence length of all identifiers must be between 1
+      and 128 characters.</para>
+
+      <para>A reserved word is one that is used by the SQL Standard for
+      special purposes. It is similar to a <literal>&lt;regular
+      identifier&gt;</literal> but it cannot be used as an identifier for user
+      objects. If a reserved word is enclosed in double quote characters, it
+      becomes a quoted identifier and can be used for database objects.</para>
+
+      <para>Case sensitivity rules for identifiers can be described simply as
+      follows:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>all parts of SQL statements are converted to upper case before
+          processing, <emphasis>except identifiers in double quotes and
+          strings in single quotes</emphasis></para>
+        </listitem>
+
+        <listitem>
+          <para>identifiers, both unquoted and double quoted, are then treated
+          as case-sensitive</para>
+        </listitem>
+
+        <listitem>
+          <para>most database engines follow the same rule, except, in some
+          respects, MySQL and MS SQLServer.</para>
+        </listitem>
+      </itemizedlist>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CASCADE or RESTRICT</primary>
+      </indexterm>
+
+      <para><emphasis role="bold">CASCADE or RESTRICT</emphasis></para>
+
+      <para><emphasis>drop behavior</emphasis></para>
+
+      <para><literal>&lt;drop behavior&gt; ::= CASCADE |
+      RESTRICT</literal></para>
+
+      <para>The <literal>&lt;drop behavior&gt;</literal> is a required element
+      of statements that drop a SCHEMA or a schema object. If
+      <literal>&lt;drop behavior&gt;</literal> is not specified then
+      <literal>RESTRICT</literal> is implicit. It determines the effect of the
+      statement if there are other objects in the catalog that reference the
+      SCHEMA or the schema object. If RESTRICT is specified, the statement
+      fails if there are referencing objects. If CASCADE is specified, all the
+      referencing objects are modified or dropped with cascading effect.
+      Whether a referencing object is modified or dropped, depends on the kind
+      of schema object that is dropped.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>IF EXISTS</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">IF EXISTS</emphasis></simpara>
+
+      <simpara><emphasis>drop condition (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;if exists clause&gt; ::= IF
+      EXISTS</literal></simpara>
+
+      <para>This clause is not part of the SQL standard and is a HyperSQL
+      extension to some commands that drop objects (schemas, tables, views,
+      sequences and indexes). If it is specified, then the statement does not
+      return an error if the drop statement is issued on a non-existent
+      object.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>IF NOT EXISTS</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">IF NOT EXISTS</emphasis></simpara>
+
+      <simpara><emphasis>create condition (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;if not exists clause&gt; ::= IF NOT
+      EXISTS</literal></simpara>
+
+      <para>This clause is not part of the SQL standard and is a HyperSQL
+      extension to CREATE statements that create schemas, tables, views,
+      sequences and indexes, as well as ALTER TABLE ... ADD CONSTRAINT and ADD
+      COLUMN statements. If it is specified, then the statement does not
+      return an error if the CREATE or ALTER statement is for an object name
+      that already exists.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SPECIFIC</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SPECIFIC</emphasis></simpara>
+
+      <simpara><emphasis>specific routine designator</emphasis></simpara>
+
+      <simpara><literal>&lt;specific routine designator&gt; ::= SPECIFIC
+      &lt;routine type&gt; &lt;specific name&gt; </literal></simpara>
+
+      <simpara><literal>&lt;routine type&gt; ::= ROUTINE | FUNCTION |
+      PROCEDURE</literal></simpara>
+
+      <para>This clause is used in statements that need to specify one of the
+      multiple versions of an overloaded routine. The <literal>&lt;specific
+      name&gt;</literal> is the one specified in the <literal>&lt;routine
+      definition&gt;</literal> statement. The keyword
+      <literal>ROUTINE</literal> can be used instead of either
+      <literal>FUNCTION</literal> or <literal>PROCEDURE</literal>.</para>
+    </section>
+
+    <section xml:id="dbc_renaming">
+      <title>Renaming Objects</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>RENAME</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">RENAME</emphasis></simpara>
+
+      <simpara><emphasis>rename statement (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;rename statement&gt; ::= ALTER &lt;object type&gt;
+      &lt;name&gt; RENAME TO &lt;new name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;object type&gt; ::= CATALOG | SCHEMA | DOMAIN |
+      TYPE | TABLE | CONSTRAINT | INDEX | ROUTINE | SPECIFIC
+      ROUTINE</literal></simpara>
+
+      <simpara><literal>&lt;column rename statement&gt; ::= ALTER TABLE
+      &lt;table name&gt; ALTER COLUMN &lt;name&gt; RENAME TO &lt;new
+      name&gt;</literal></simpara>
+
+      <para>This statement is used to rename an existing object. It is not
+      part of the SQL Standard. The specified <literal>&lt;name&gt;</literal>
+      is the existing name, which can be qualified with a schema name, while
+      the <literal>&lt;new name&gt;</literal> is the new name for the
+      object.</para>
+    </section>
+
+    <section xml:id="dbc_commenting">
+      <title>Commenting Objects</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COMMENT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">COMMENT</emphasis></simpara>
+
+      <simpara><emphasis>comment statement (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;comment statement&gt; ::= COMMENT ON { TABLE |
+      COLUMN | ROUTINE } &lt;name&gt; IS &lt;character string
+      literal&gt;</literal></simpara>
+
+      <para>Adds a comment to the object metadata, which can later be read
+      from an INFORMATION_SCHEMA view. This command is not part of the SQL
+      Standard. The strange syntax is due to compatibility with other database
+      engines that support the statement. The <literal>&lt;name&gt;</literal>
+      is the name of a table, view, column or routine. The name of the column
+      consists of dot-separated<literal> &lt;table name&gt; . &lt;column
+      name&gt;</literal>. The name of the table, view or routine can be a
+      simple name. All names can be qualified with a schema name. If there is
+      already a comment on the object, the new comment will replace it.</para>
+
+      <para>The comments appear in the results returned by JDBC
+      DatabaseMetaData methods, <literal>getTables()</literal> and
+      <literal>getColumns()</literal>. The
+      <literal>INFORMATION_SCHEMA.SYSTEM_COMMENTS</literal> view contains the
+      comments. You can query this view using the schema, table, and column
+      names to retrieve the comments.</para>
+    </section>
+
+    <section xml:id="dbc_schema_creation">
+      <title>Schema Creation</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE SCHEMA</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE SCHEMA</emphasis></simpara>
+
+      <simpara><emphasis>schema definition</emphasis></simpara>
+
+      <para>The <literal>CREATE_SCHEMA</literal> or <literal>DBA</literal>
+      role is required in order to create a schema. A schema can be created
+      with or without schema objects. Schema objects can always be added after
+      creating the schema, or existing ones can be dropped. Within the
+      <literal>&lt;schema definition&gt;</literal> statement, all schema
+      object creation takes place inside the newly created schema. Therefore,
+      if a schema name is specified for the schema objects, the name must
+      match that of the new schema. In addition to statements for creating
+      schema objects, the statement can include instances of
+      <literal>&lt;grant statement&gt;</literal> and <literal>&lt;role
+      definition&gt;</literal>. This is a curious aspect of the SQL standard,
+      as these elements do not really belong to schema creation.</para>
+
+      <para><literal>&lt;schema definition&gt; ::= CREATE SCHEMA &lt;schema
+      name clause&gt; [ &lt;schema character set specification&gt; ] [
+      &lt;schema element&gt;... ]</literal></para>
+
+      <para><literal>&lt;schema name clause&gt; ::= &lt;schema name&gt; |
+      AUTHORIZATION &lt;authorization identifier&gt; | &lt;schema name&gt;
+      AUTHORIZATION &lt;authorization identifier&gt;</literal></para>
+
+      <para>If the name of the schema is specified simply as
+      <literal>&lt;schema name&gt;</literal>, then the AUTHORIZATION is the
+      current user. Otherwise, the specified <literal>&lt;authorization
+      identifier&gt;</literal> is used as the AUTHORIZATION for the schema. If
+      <literal>&lt;schema name&gt;</literal> is omitted, then the name of the
+      schema is the same as the specified <literal>&lt;authorization
+      identifier&gt;</literal>.</para>
+
+      <para><literal>&lt;schema element&gt; ::= &lt;table definition&gt; |
+      &lt;view definition&gt; | &lt;domain definition&gt; | &lt;character set
+      definition&gt; | &lt;collation definition&gt; | &lt;transliteration
+      definition&gt; | &lt;assertion definition&gt; | &lt;trigger
+      definition&gt; | &lt;user-defined type definition&gt; | &lt;user-defined
+      cast definition&gt; | &lt;user-defined ordering definition&gt; |
+      &lt;transform definition&gt; | &lt;schema routine&gt; | &lt;sequence
+      generator definition&gt; | &lt;grant statement&gt; | &lt;role
+      definition&gt;</literal></para>
+
+      <para>An example of the statement is given below. Note that a single
+      semicolon appears at the end. There should be no semicolon between the
+      statements:</para>
+
+      <programlisting> CREATE SCHEMA ACCOUNTS AUTHORIZATION DBA
+   CREATE TABLE AB(A INTEGER, ...)
+   CREATE TABLE CD(C CHAR(10), ...)
+   CREATE VIEW VI AS SELECT ...
+   GRANT SELECT ON AB TO PUBLIC
+   GRANT SELECT ON CD TO JOE;
+</programlisting>
+
+      <para>It is not really necessary to create a schema and all its objects
+      as one command. The schema can be created first, and its objects can be
+      created one by one.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP SCHEMA</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP SCHEMA</emphasis></simpara>
+
+      <simpara><emphasis>drop schema statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop schema statement&gt; ::= DROP SCHEMA [ IF
+      EXISTS ] &lt;schema name&gt; [ IF EXISTS ] &lt;drop behavior&gt;
+      </literal></simpara>
+
+      <para>This command destroys an existing schema. If <literal>&lt;drop
+      behavior&gt;</literal> is <literal>RESTRICT</literal>, the schema must
+      be empty, otherwise an error is raised. If <literal>CASCADE</literal> is
+      specified as <literal>&lt;drop behavior&gt;</literal>, then all the
+      objects contained in the schema are destroyed with a CASCADE
+      option.</para>
+    </section>
+
+    <section xml:id="dbc_table_creation">
+      <title>Table Creation</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE TABLE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE TABLE</emphasis></simpara>
+
+      <simpara><emphasis>table definition</emphasis></simpara>
+
+      <simpara><literal>&lt;table definition&gt; ::= CREATE [ { &lt;table
+      scope&gt; | &lt;table type&gt; } ] TABLE [ IF NOT EXISTS ] &lt;table
+      name&gt; &lt;table contents source&gt; [ WITH SYSTEM VERSIONING ] [ ON
+      COMMIT { PRESERVE | DELETE } ROWS ]</literal></simpara>
+
+      <simpara><literal>&lt;table scope&gt; ::= { GLOBAL | LOCAL }
+      TEMPORARY</literal></simpara>
+
+      <simpara><literal>&lt;table type&gt; :: = MEMORY |
+      CACHED</literal></simpara>
+
+      <simpara><literal>&lt;table contents source&gt; ::= &lt;table element
+      list&gt; | &lt;as subquery clause&gt;</literal></simpara>
+
+      <simpara><literal>&lt;table element list&gt; ::= &lt;left paren&gt;
+      &lt;table element&gt; [ { &lt;comma&gt; &lt;table element&gt; }... ]
+      &lt;right paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;table element&gt; ::= &lt;column definition&gt; |
+      &lt;table period definition&gt; | &lt;table constraint definition&gt; |
+      &lt;like clause&gt; </literal></simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>like clause in table definition</primary>
+      </indexterm>
+
+      <simpara><emphasis>like clause</emphasis></simpara>
+
+      <para>A <literal>&lt;like clause&gt;</literal> copies all column
+      definitions from another table into the newly created table. Its three
+      options indicate if the <literal>&lt;default clause&gt;</literal>,
+      <literal>&lt;identity column specification&gt;</literal> and
+      <literal>&lt;generation clause&gt;</literal> associated with the column
+      definitions are copied or not. If an option is not specified, it
+      defaults to <literal>EXCLUDING</literal>. The <literal>&lt;generation
+      clause&gt;</literal> refers to columns that are generated by an
+      expression but not to identity columns. All NOT NULL constraints are
+      copied with the original columns, other constraints are not. The
+      <literal>&lt;like clause&gt;</literal> can be used multiple times,
+      allowing the new table to have copies of the column definitions of one
+      or more other tables.</para>
+
+      <informalexample>
+        <programlisting> CREATE TABLE t (id INTEGER PRIMARY KEY, LIKE atable INCLUDING DEFAULTS EXCLUDING IDENTITY)
+</programlisting>
+      </informalexample>
+
+      <simpara><literal>&lt;like clause&gt; ::= LIKE &lt;table name&gt; [
+      &lt;like options&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;like options&gt; ::= &lt;like
+      option&gt;...</literal></simpara>
+
+      <simpara><literal>&lt;like option&gt; ::= &lt;identity option&gt; |
+      &lt;column default option&gt; | &lt;generation
+      option&gt;</literal></simpara>
+
+      <simpara><literal>&lt;identity option&gt; ::= INCLUDING IDENTITY |
+      EXCLUDING IDENTITY</literal></simpara>
+
+      <simpara><literal>&lt;column default option&gt; ::= INCLUDING DEFAULTS |
+      EXCLUDING DEFAULTS</literal></simpara>
+
+      <simpara><literal>&lt;generation option&gt; ::= INCLUDING GENERATED |
+      EXCLUDING GENERATED</literal></simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>as subquery clause in table definition</primary>
+      </indexterm>
+
+      <simpara><emphasis>as subquery clause</emphasis></simpara>
+
+      <simpara><literal>&lt;as subquery clause&gt; ::= [ &lt;left paren&gt;
+      &lt;column name list&gt; &lt;right paren&gt; ] AS &lt;table subquery&gt;
+      { WITH NO DATA | WITH DATA }</literal></simpara>
+
+      <para>An <literal>&lt;as subquery clause&gt;</literal> used in table
+      definition creates a table based on a <literal>&lt;table
+      subquery&gt;</literal>. This kind of table definition is similar to a
+      view definition. If <literal>WITH DATA</literal> is specified, then the
+      new table will contain the rows of data returned by the
+      <literal>&lt;table subquery&gt;</literal>.</para>
+
+      <informalexample>
+        <programlisting> CREATE TABLE t (a, b, c) AS (SELECT * FROM atable) WITH DATA
+</programlisting>
+      </informalexample>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>column definition</primary>
+      </indexterm>
+
+      <simpara><emphasis>column definition</emphasis></simpara>
+
+      <simpara>A column definition consists of a <literal>&lt;column
+      name&gt;</literal> and in most cases a <literal>&lt;data
+      type&gt;</literal> or <literal>&lt;domain name&gt;</literal> as minimum.
+      The other elements of <literal>&lt;column definition&gt;</literal> are
+      optional. Each <literal>&lt;column name&gt;</literal> in a table is
+      unique.</simpara>
+
+      <simpara><literal>&lt;column definition&gt; ::= &lt;column name&gt; [
+      &lt;data type or domain name&gt; ] [ &lt;default clause&gt; |
+      &lt;identity column specification&gt; | &lt;identity column sequence
+      specification&gt; | &lt;generation clause&gt; ] [ &lt;update clause&gt;
+      ] [ &lt;column constraint definition&gt;... ] [ &lt;collate clause&gt;
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;data type or domain name&gt; ::= &lt;data type&gt;
+      | &lt;domain name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;column constraint definition&gt; ::= [
+      &lt;constraint name definition&gt; ] &lt;column constraint&gt; [
+      &lt;constraint characteristics&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;column constraint&gt; ::= NOT NULL | &lt;unique
+      specification&gt; | &lt;references specification&gt; | &lt;check
+      constraint definition&gt;</literal></simpara>
+
+      <simpara>A <literal>&lt;column constraint definition&gt;</literal> is a
+      shortcut for a <literal>&lt;table constraint definition&gt;</literal>. A
+      constraint that is defined in this way is automatically turned into a
+      table constraint. A name is automatically generated for the constraint
+      and assigned to it.</simpara>
+
+      <simpara>If a <literal>&lt;collate clause&gt;</literal> is specified,
+      then a UNIQUE or PRIMARY KEY constraint or an INDEX on the column will
+      use the specified collation. Otherwise the default collation for the
+      database is used.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>generated column specification</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">GENERATED</emphasis></simpara>
+
+      <simpara><emphasis>generated columns</emphasis></simpara>
+
+      <para>The value of a column can be auto-generated in two ways.</para>
+
+      <para>One way is specific to columns of integral types (INTEGER, BIGINT,
+      etc.) and associates a sequence generator with the column. When a new
+      row is inserted into the table, the value of the column is generated as
+      the next available value in the sequence.</para>
+
+      <para>The SQL Standard supports the use of unnamed sequences with the
+      IDENTITY keyword. In addition, HyperSQL supports the use of a named
+      SEQUENCE object, which must be in the same schema as the table.</para>
+
+      <simpara><literal>&lt;identity column specification&gt; ::= GENERATED {
+      ALWAYS | BY DEFAULT } AS IDENTITY [ &lt;left paren&gt; &lt;common
+      sequence generator options&gt; &lt;right paren&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;identity column sequence specification ::=
+      GENERATED BY DEFAULT AS SEQUENCE &lt;sequence name&gt;
+      </literal></simpara>
+
+      <para>The <literal>&lt;identity column specification&gt;</literal> or
+      <literal>&lt;identity column sequence specification&gt;</literal> can be
+      specified for only a single column of the table.</para>
+
+      <para>The <literal>&lt;identity column specification&gt;</literal> is
+      used for columns which represent values based on an unnamed sequence
+      generator. It is possible to insert a row into the table without
+      specifying a value for the column. The value is then generated by the
+      sequence generators according to its rules. An identity column may or
+      may not be the primary key. Example below:</para>
+
+      <informalexample>
+        <programlisting> CREATE TABLE t (id INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 100), name VARCHAR(20) PRIMARY KEY)
+</programlisting>
+      </informalexample>
+
+      <para>The <literal>&lt;identity column sequence
+      specification&gt;</literal> is used when the column values are based on
+      a named SEQUENCE object (which must already exist). Example
+      below:</para>
+
+      <informalexample>
+        <programlisting> CREATE TABLE t (id INTEGER GENERATED BY DEFAULT AS SEQUENCE s, name VARCHAR(20) PRIMARY KEY)
+</programlisting>
+      </informalexample>
+
+      <para>Inserting rows is done in the same way for a named or unnamed
+      sequence generator. In both cases, if no value is specified to be
+      inserted, or the DEFAULT keyword is used for the column, the value is
+      generated by the sequence generator. If a value is specified, this value
+      is used if the column definition has the BY DEFAULT specification. If
+      the column definition has the ALWAYS specification, a value can be
+      specified but the OVERRIDING SYSTEM VALUES must be specified in the
+      INSERT statement.</para>
+
+      <para>The other way in which the column value is auto-generated is by
+      using the values of other columns in the same row. This method is often
+      used to create an index on a value that is derived from other column
+      values.</para>
+
+      <simpara><literal>&lt;generation clause&gt; ::= GENERATED ALWAYS AS
+      &lt;generation expression&gt;</literal></simpara>
+
+      <simpara><literal>&lt;generation expression&gt; ::= &lt;left paren&gt;
+      &lt;value expression&gt; &lt;right paren&gt;</literal></simpara>
+
+      <para>The <literal>&lt;generation clause&gt;</literal> is used for
+      special columns which represent values based on the values held in other
+      columns in the same row. The <literal>&lt;value expression&gt;</literal>
+      must reference only other, non-generated, columns of the table in the
+      same row. Any function used in the expression must be deterministic and
+      must not access SQL-data. No <literal>&lt;query expression&gt;</literal>
+      is allowed. When <literal>&lt;generation clause&gt;</literal> is used,
+      <literal>&lt;data type&gt;</literal> must be specified.</para>
+
+      <para>A generated column can be part of a foreign key or unique
+      constraints or a column of an index. This capability is the main reason
+      for using generated columns. A generated column may contain a formula
+      that computes a value based on the values of other columns. Fast
+      searches of the computed value can be performed when an index is
+      declared on the generated column. Or the computed values can be declared
+      to be unique, using a UNIQUE constraint on the table. The computed
+      column cannot be overridden by user supplied values. When a row is
+      updated and the column values change, the generated columns are computed
+      with the new values.</para>
+
+      <para>When a row is inserted into a table, or an existing row is
+      updated, no value except DEFAULT can be specified for a generated
+      column. In the example below, data is inserted into the non-generated
+      columns and the generated column will contain 'Felix the Cat' or 'Pink
+      Panther'.</para>
+
+      <informalexample>
+        <programlisting> CREATE TABLE t (id INTEGER PRIMARY KEY, 
+   firstname VARCHAR(20),
+   lastname VARCHAR(20), 
+   fullname VARCHAR(40) GENERATED ALWAYS AS (firstname || ' ' || lastname)) 
+ INSERT INTO t (id, firstname, lastname) VALUES (1, 'Felix', 'the Cat')
+ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', DEFAULT)
+</programlisting>
+      </informalexample>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>column DEFAULT clause</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DEFAULT</emphasis></simpara>
+
+      <simpara><emphasis>default clause</emphasis></simpara>
+
+      <para>A default clause can be used if GENERATED is not specified. If a
+      column has a <literal>&lt;default clause&gt;</literal> then it is
+      possible to insert a row into the table without specifying a value for
+      the column.</para>
+
+      <simpara><literal>&lt;default clause&gt; ::= DEFAULT &lt;default
+      option&gt;</literal></simpara>
+
+      <simpara><literal>&lt;default option&gt; ::= &lt;literal&gt; |
+      &lt;datetime value function&gt; | USER | CURRENT_USER | CURRENT_ROLE |
+      SESSION_USER | SYSTEM_USER | CURRENT_CATALOG | CURRENT_SCHEMA |
+      CURRENT_PATH | NULL</literal></simpara>
+
+      <para>The type of the <literal>&lt;default option&gt;</literal> must
+      match the type of the column.</para>
+
+      <para>In PGS (PostgreSQL) compatibility mode, a NEXTVAL function can be
+      used. Also, in MSS compatibility mode, the default value can be enclosed
+      in parentheses.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ON UPDATE clause (table constraint)</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ON UPDATE</emphasis></simpara>
+
+      <simpara><emphasis>on update clause</emphasis></simpara>
+
+      <para>If a column has a <literal>&lt;on update clause&gt;</literal> then
+      every time an UPDATE or MERGE statement updates the values of the other
+      columns of the row, the value in this column is updated to the
+      CURRENT_TIMESTAMP. If the UPDATE statement explicitly updates this
+      column, then the explicit value is used instead of CURRENT
+      TIMESTAMP.</para>
+
+      <simpara><literal>&lt;on update clause&gt; ::= ON UPDATE
+      CURRENT_TIMESTAMP</literal></simpara>
+
+      <para>The type of the column must be TIMESTAMP or TIMESTAMP WITH TIME
+      ZONE.</para>
+
+      <para>This feature is not part of the SQL Standard and is similar to
+      MySQL's ON UPDATE clause.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT name and characteristics</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CONSTRAINT</emphasis></simpara>
+
+      <simpara><emphasis>constraint name and
+      characteristics</emphasis></simpara>
+
+      <simpara><literal>&lt;constraint name definition&gt; ::= CONSTRAINT
+      &lt;constraint name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;constraint characteristics&gt; ::= &lt;constraint
+      check time&gt; [ [ NOT ] DEFERRABLE [ &lt;constraint check time&gt; ]
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;constraint check time&gt; ::= INITIALLY DEFERRED |
+      INITIALLY IMMEDIATE</literal></simpara>
+
+      <para>Specify the name of a constraint and its characteristics. By
+      default, the constraint is <literal>NOT DEFERRABLE</literal> and
+      <literal>INITIALLY IMMEDIATE</literal>. This means the constraint is
+      enforced as soon as a data change statement is executed. If
+      <literal>INITIALLY DEFERRED</literal> is specified, then the constraint
+      is enforced when the session commits. The characteristics must be
+      compatible. The constraint check time can be changed temporarily for an
+      SQL session. HyperSQL does not support deferring constraint enforcement.
+      This feature of the SQL Standard has been criticised because it allows a
+      session to read uncommitted data that violates database integrity
+      constraints but has not yet been checked.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT (table constraint)</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CONSTRAINT</emphasis></simpara>
+
+      <simpara><emphasis>table constraint definition</emphasis></simpara>
+
+      <simpara><literal>&lt;table constraint definition&gt; ::= [
+      &lt;constraint name definition&gt; ] &lt;table constraint&gt; [
+      &lt;constraint characteristics&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;table constraint&gt; ::= &lt;unique constraint
+      definition&gt; | &lt;referential constraint definition&gt; | &lt;check
+      constraint definition&gt;</literal></simpara>
+
+      <para>Three kinds of constraint can be defined on a table: UNIQUE
+      (including PRIMARY KEY), FOREIGN KEY and CHECK. Each kind has its own
+      rules to limit the values that can be specified for different columns in
+      each row of the table.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>UNIQUE constraint</primary>
+      </indexterm>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>PRIMARY KEY constraint</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">UNIQUE</emphasis></simpara>
+
+      <simpara><emphasis>unique constraint definition</emphasis></simpara>
+
+      <simpara><literal>&lt;unique constraint definition&gt; ::= &lt;unique
+      specification&gt; &lt;left paren&gt; &lt;unique column list&gt;
+      &lt;right paren&gt; | UNIQUE ( VALUE )</literal></simpara>
+
+      <simpara><literal>&lt;unique specification&gt; ::= UNIQUE | PRIMARY
+      KEY</literal></simpara>
+
+      <simpara><literal>&lt;unique column list&gt; ::= &lt;column name
+      list&gt;</literal></simpara>
+
+      <para>A unique constraint is specified on a single column or on multiple
+      columns. On each set of columns taken together, only one UNIQUE
+      constraint can be specified. Each column of a PRIMARY KEY constraint has
+      an implicit NOT NULL constraint.</para>
+
+      <simpara>If <literal>UNIQUE( VALUE )</literal> is specified, the
+      constraint created on all columns of the table.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>FOREIGN KEY constraint</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">FOREIGN KEY</emphasis></simpara>
+
+      <simpara><emphasis>referential constraint
+      definition</emphasis></simpara>
+
+      <simpara><literal>&lt;referential constraint definition&gt; ::= FOREIGN
+      KEY &lt;left paren&gt; &lt;referencing columns&gt; &lt;right paren&gt;
+      &lt;references specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;references specification&gt; ::= REFERENCES
+      &lt;referenced table and columns&gt; [ MATCH &lt;match type&gt; ] [
+      &lt;referential triggered action&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;match type&gt; ::= FULL | PARTIAL |
+      SIMPLE</literal></simpara>
+
+      <simpara><literal>&lt;referencing columns&gt; ::= &lt;reference column
+      list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;referenced table and columns&gt; ::= &lt;table
+      name&gt; [ &lt;left paren&gt; &lt;reference column list&gt; &lt;right
+      paren&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;reference column list&gt; ::= &lt;column name
+      list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;referential triggered action&gt; ::= &lt;update
+      rule&gt; [ &lt;delete rule&gt; ] | &lt;delete rule&gt; [ &lt;update
+      rule&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;update rule&gt; ::= ON UPDATE &lt;referential
+      action&gt;</literal></simpara>
+
+      <simpara><literal>&lt;delete rule&gt; ::= ON DELETE &lt;referential
+      action&gt;</literal></simpara>
+
+      <simpara><literal>&lt;referential action&gt; ::= CASCADE | SET NULL |
+      SET DEFAULT | RESTRICT | NO ACTION</literal></simpara>
+
+      <para>A referential constraint allows links to be established between
+      the rows of two tables. The specified list of <literal>&lt;referencing
+      columns&gt;</literal> corresponds one by one to the columns of the
+      specified list of <literal>&lt;referenced columns&gt;</literal> in
+      another table (or sometimes in the same table). For each row in the
+      table, a row must exist in the referenced table with equivalent values
+      in the two column lists. There must exist a single unique constraint in
+      the referenced table on all the <literal>&lt;referenced
+      columns&gt;</literal>.</para>
+
+      <para>The <literal>[ MATCH match type ]</literal> clause is optional and
+      has an effect only on multi-column foreign keys and only on rows
+      containing at least a NULL in one of the <literal>&lt;referencing
+      columns&gt;</literal>. If the clause is not specified, MATCH SIMPLE is
+      the default. If <literal>MATCH SIMPLE</literal> is specified, then any
+      NULL means the row can exist (without a corresponding row in the
+      referenced table). If <literal>MATCH FULL</literal> is specified then
+      either all the column values must be NULL or none of them.
+      <literal>MATCH PARTIAL</literal> allows any NULL but the non NULL values
+      must match those of a row in the referenced table. HyperSQL does not
+      support <literal>MATCH PARTIAL</literal>.</para>
+
+      <para>Referential actions are specified with ON UPDATE and ON DELETE
+      clauses. These actions take place when a row in the referenced table
+      (the parent table) has referencing rows in the referencing table and it
+      is deleted or modified with any SQL statement. The default is NO ACTION.
+      This means the SQL statement that causes the DELETE or UPDATE is
+      terminated with an exception. The RESTRICT option is similar and works
+      exactly the same without deferrable constraints (which are not allowed
+      by HyperSQL). The other three options, CASCADE, SET NULL and SET DEFAULT
+      all allow the DELETE or UPDATE statement to complete. With DELETE
+      statements the CASCADE option results in the referencing rows to be
+      deleted. With UPDATE statements, the changes to the values of the
+      referenced columns are copied to the referencing rows. With both DELETE
+      or UPDATE statement, the SET NULL option results in the columns of the
+      referencing rows to be set to NULL. Similarly, the SET DEFAULT option
+      results in the columns of the referencing rows to be set to their
+      default values.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CHECK constraint</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CHECK</emphasis></simpara>
+
+      <simpara><emphasis>check constraint definition</emphasis></simpara>
+
+      <simpara><literal>&lt;check constraint definition&gt; ::= CHECK &lt;left
+      paren&gt; &lt;search condition&gt; &lt;right
+      paren&gt;</literal></simpara>
+
+      <para>A CHECK constraint can exist for a TABLE or for a DOMAIN. The
+      <literal>&lt;search condition&gt;</literal> evaluates to an SQL BOOLEAN
+      value for each row of the table. Within the <literal>&lt;search
+      condition&gt;</literal> all columns of the table row can be referenced.
+      For all rows of the table, the <literal>&lt;search
+      condition&gt;</literal> evaluates to TRUE or UNKNOWN. When a new row is
+      inserted, or an existing row is updated, the <literal>&lt;search
+      condition&gt;</literal> is evaluated and if it is FALSE, the insert or
+      update fails.</para>
+
+      <para>A CHECK constraint for a DOMAIN is similar. In its
+      <literal>&lt;search condition&gt;</literal>, the term VALUE is used to
+      represents the value to which the DOMAIN applies.</para>
+
+      <informalexample>
+        <programlisting> CREATE TABLE t (a VARCHAR(20) CHECK (a IS NOT NULL AND CHARACTER_LENGTH(a) &gt; 2))
+</programlisting>
+      </informalexample>
+
+      <para>The search condition of a CHECK constraint cannot contain any
+      function that is not deterministic. A check constraint is a data
+      integrity constraint; therefore it must hold with respect to the rest of
+      the data in the database. It cannot use values that are temporal or
+      ephemeral. For example, CURRENT_USER is a function that returns
+      different values depending on who is using the database, or CURRENT_DATE
+      changes day-to-day. Some temporal expressions are retrospectively
+      deterministic and are allowed in check constraints. For example, (CHECK
+      VALUE &lt; CURRENT_DATE) is valid, because CURRENT_DATE will not move
+      backwards in time, but (CHECK VALUE &gt; CURRENT_DATE) is not
+      acceptable.</para>
+
+      <para>If you want to enforce the condition that a date value that is
+      inserted into the database belongs to the future (at the time of
+      insertion), or any similar constraint, then use a TRIGGER with the
+      desired condition.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP TABLE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP TABLE</emphasis></simpara>
+
+      <simpara><emphasis>drop table statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop table statement&gt; ::= DROP TABLE [ IF
+      EXISTS ] &lt;table name&gt; [ IF EXISTS ] &lt;drop
+      behavior&gt;</literal></simpara>
+
+      <para>Destroy a table. The default drop behaviour is RESTRICT and will
+      cause the statement to fail if there is any view, routine or foreign key
+      constraint that references the table. If <literal>&lt;drop
+      behavior&gt;</literal> is <literal>CASCADE</literal>, it causes all
+      schema objects that reference the table to drop. Referencing views are
+      dropped. In the case of foreign key constraints that reference the
+      table, the constraint is dropped, rather than the TABLE or DOMAIN that
+      contains it.</para>
+    </section>
+
+    <section xml:id="dbc_sys_versioned_tables">
+      <title>Temporal System-Versioned Tables and SYSTEM_TIME Period</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>system-versioned tables</primary>
+      </indexterm>
+
+      <para>System-versioned tables are tables that contain a SYSTEM_TIME
+      period consisting of pair of columns defined as auto-generated TIMESTAMP
+      WITH TIME ZONE, together with the SYSTEM VERSIONING clause.</para>
+
+      <para>The basic component is the SYSTEM_TIME period. For each row
+      currently in the table, the start timestamp column, designated as ROW
+      START, contains the UTC timestamp of the transaction of the INSERT or
+      UPDATE statement that last modified the row. The end timestamp column,
+      designated as ROW END, contains a timestamp in the distant future (end
+      of epoch) that indicates the expiration date of the row. HyperSQL uses
+      DATE '10000-01-01' as the expiration timestamp. A table can have the
+      SYSTEM_TIME period without system versioning.</para>
+
+      <para>When WITH SYSTEM VERSIONING is used in table definition, any
+      DELETE or UPDATE is performed as usual. But the deleted rows, or the old
+      versions of the updated rows are kept in the table with the expiration
+      timestamp changed to the UTC CURRENT_TIMESTAMP at the start of the
+      transaction that contains the UPDATE or DELETE. For example, a row that
+      is updated twice has two old versions kept in the table as well as the
+      current version.</para>
+
+      <para>The history rows cannot be modified. Any DELETE or UPDATE
+      statement only sees the current version of each row of the table and
+      modifies them. SELECT statements also see the current version of the
+      rows, unless the table reference in the SELECT statement is followed by
+      <literal>FOR SYSTEM_TIME AS OF &lt;timestamp&gt;</literal> or
+      <literal>FOR SYSTEM_TIME FROM &lt;start timestamp&gt; TO &lt;end
+      timestamp&gt;</literal> or <literal>FOR SYSTEM_TIME BETWEEN &lt;start
+      timestamp&gt; AND &lt;end timestamp&gt;</literal>.</para>
+
+      <para>In a CREATE TABLE statement, the two period columns must be
+      defined as follows:</para>
+
+      <simpara><literal>&lt;period begin column name&gt; &lt;timestamp data
+      type&gt; GENERATED ALWAYS AS ROW START </literal></simpara>
+
+      <simpara><literal>&lt;period end column name&gt; &lt;timestamp data
+      type&gt; GENERATED ALWAYS AS ROW END</literal></simpara>
+
+      <para>The <literal>&lt;table period definition&gt;</literal> references
+      the period column, in a format similar to a UNIQUE constraint.</para>
+
+      <simpara><literal>&lt;table period definition&gt; ::= PERIOD FOR
+      SYSTEM_TIME &lt;left paren&gt; &lt;period begin column name&gt;
+      &lt;comma&gt; &lt;period end column name&gt; &lt;right
+      paren&gt;</literal></simpara>
+
+      <para>The timestamp type actually used by the system is always
+      TIMESTAMP(6) WITH TIME ZONE, regardless of the type specified by the
+      user. An existing table can be converted to a system-versioned table.
+      Two statement executions are needed. First, the ALTER TABLE statement to
+      create the SYSTEM_TIME period and its columns must be executed, followed
+      by the ALTER TABLE statement to add SYSTEM VERSIONING.</para>
+
+      <para>Conversely, system versioning can be removed from a table. The
+      system period can be dropped after dropping system versioning.</para>
+
+      <para>It is not allowed to change the structure of a system-versioned
+      table by adding or removing columns.</para>
+
+      <para>See the ALTER TABLE statements in this chapter.</para>
+    </section>
+
+    <section xml:id="dbc_table_settings">
+      <title>Table Settings</title>
+
+      <para>Table settings statements change the attributes of tables. These
+      attributes are specific to HyperSQL and are not part of the SQL
+      Standard.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE CLUSTERED</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE CLUSTERED</emphasis></simpara>
+
+      <simpara><emphasis>set table clustered property</emphasis></simpara>
+
+      <simpara><literal>&lt;set table clustered statement&gt; ::= SET TABLE
+      &lt;table name&gt; CLUSTERED ON &lt;left paren&gt; &lt;column name
+      list&gt; &lt;right paren&gt;</literal></simpara>
+
+      <para>Set the row clustering property of a table. The &lt;column name
+      list&gt; is a list of column names that must correspond to the columns
+      of an existing PRIMARY KEY, UNIQUE or FOREIGN KEY index, or to the
+      columns of a user defined index. This statement is only valid for CACHED
+      or TEXT tables.</para>
+
+      <para>Tables rows are stored in the database files as they are created,
+      sometimes at the end of the file, sometimes in the middle of the file.
+      After a CHECKPOINT DEFRAG or SHUTDOWN COMPACT, the rows are reordered
+      according to the primary key of the table, or if there is no primary
+      key, in no particular order.</para>
+
+      <para>When several consecutive rows of a table are retrieved during
+      query execution it is more efficient to retrieve rows that are stored
+      adjacent to one another. After executing this command, nothing changes
+      until a CHECKPOINT DEFRAG or SHUTDOWN COMPACT or SHUTDOWN SCRIPT is
+      performed. After these operations, the rows are stored in the specified
+      clustered order. The property is stored in the database and applies to
+      all future reordering of rows. Note that if extensive inserts or updates
+      are performed on the tables, the rows will get out of order until the
+      next reordering.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE TYPE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE TYPE</emphasis></simpara>
+
+      <simpara><emphasis>set table type</emphasis></simpara>
+
+      <simpara><literal>&lt;set table type statement&gt; ::= SET TABLE
+      &lt;table name&gt; TYPE { MEMORY | CACHED }</literal></simpara>
+
+      <simpara>Changes the storage type of an existing table between CACHED
+      and MEMORY types.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE read-write property</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE
+      writability</emphasis></simpara>
+
+      <simpara><emphasis>set table write property</emphasis></simpara>
+
+      <simpara><literal>&lt;set table read only statement&gt; ::= SET TABLE
+      &lt;table name&gt; { READ ONLY | READ WRITE }</literal></simpara>
+
+      <simpara>Set the writability property of a table. Tables are writable by
+      default. This statement can be used to change the property between
+      <literal>READ ONLY</literal> and <literal>READ WRITE</literal>. This is
+      a feature of HyperSQL.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE SOURCE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE SOURCE</emphasis></simpara>
+
+      <simpara><emphasis>set table source statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set table source statement&gt; ::= SET TABLE
+      &lt;table name&gt; SOURCE &lt;file and options&gt;
+      [DESC]</literal></simpara>
+
+      <simpara><literal>&lt;file and options&gt;::= &lt;doublequote&gt;
+      &lt;file path&gt; [&lt;semicolon&gt; &lt;property&gt;...]
+      &lt;doublequote&gt; </literal></simpara>
+
+      <simpara>Set the text source for a text table. This statement cannot be
+      used for tables that are not defined as TEXT TABLE.</simpara>
+
+      <variablelist>
+        <title>Supported Properties</title>
+
+        <varlistentry>
+          <term>quoted = { true | false }</term>
+
+          <listitem>
+            <para>default is true. If false, treats double quotes as normal
+            characters</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>all_quoted = { true | false }</term>
+
+          <listitem>
+            <para>default is false. If true, adds double quotes around all
+            fields.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>encoding = &lt;encoding name&gt;</term>
+
+          <listitem>
+            <para>character encoding for text and character fields, for
+            example, encoding=UTF-8. UTF-16 cannot be used.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>ignore_first = { true | false }</term>
+
+          <listitem>
+            <para>default is false. If true ignores the first line of the
+            file</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>cache_rows= &lt;numeric value&gt;</term>
+
+          <listitem>
+            <para>rows of the text file in the cache. Default is 1000
+            rows</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>cache_size = &lt;numeric value&gt;r</term>
+
+          <listitem>
+            <para>total size of the row in the cache. Default is 100
+            KB.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>cache_scale= &lt;numeric value&gt; and cache_size_scale =
+          &lt;numeric value&gt;</term>
+
+          <listitem>
+            <para>deprecated properties, replaced by cached_rows and
+            cache_size properties above.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>fs = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>field separator</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>vs = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>varchar separator</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>qc = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>quote character</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <variablelist>
+        <title>Special indicators for HyperSQL Text Table separators</title>
+
+        <varlistentry>
+          <term>\semi</term>
+
+          <listitem>
+            <para>semicolon</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\quote</term>
+
+          <listitem>
+            <para>quote</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\space</term>
+
+          <listitem>
+            <para>space character</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\apos</term>
+
+          <listitem>
+            <para>apostrophe</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\n</term>
+
+          <listitem>
+            <para>newline - Used as an end anchor (like $ in regular
+            expressions)</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\r</term>
+
+          <listitem>
+            <para>carriage return</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\t</term>
+
+          <listitem>
+            <para>tab</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\\</term>
+
+          <listitem>
+            <para>backslash</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\u####</term>
+
+          <listitem>
+            <para>a Unicode character specified in hexadecimal</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <simpara>In the example below, the text source of the table is set to
+      "myfile", the field separator to the pipe symbol, and the varchar
+      separator to the tilde symbol.</simpara>
+
+      <programlisting> SET TABLE mytable SOURCE 'myfile;fs=|;vs=.;vs=~'</programlisting>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE SOURCE HEADER</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE SOURCE
+      HEADER</emphasis></simpara>
+
+      <simpara><emphasis>set table source header
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set table source header statement&gt; ::= SET
+      TABLE &lt;table name&gt; SOURCE HEADER &lt;header
+      string&gt;</literal></simpara>
+
+      <simpara>Set the header for the text source for a text table. If this
+      command is used, the <literal>&lt;header string&gt;</literal> is used as
+      the first line of the source file of the text table. This line is not
+      part of the table data. Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE SOURCE on-off</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE SOURCE
+      on-off</emphasis></simpara>
+
+      <simpara><emphasis>set table source on-off
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set table source on-off statement&gt; ::= SET
+      TABLE &lt;table name&gt; SOURCE { ON | OFF } </literal></simpara>
+
+      <simpara>Attach or detach a text table from its text source. This
+      command does not change the properties or the name of the file that is
+      the source of a text table. When OFF is specified, the command detaches
+      the table from its source and closes the file for the source. In this
+      state, it is not possible to read or write to the table. This allows the
+      user to replace the file with a different file, or delete it. When ON is
+      specified, the source file is read. Only a user with the DBA role can
+      execute this statement.</simpara>
+    </section>
+
+    <section xml:id="dbc_table_manupulation">
+      <title>Table Manipulation</title>
+
+      <para>Table manipulation statements modify the objects such as columns
+      and constraints. Some of these statements are defined by the SQL
+      Standard. Others are HyperSQL extensions.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER TABLE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER TABLE</emphasis></simpara>
+
+      <simpara><emphasis>alter table statement</emphasis></simpara>
+
+      <simpara><literal>&lt;alter table statement&gt; ::= ALTER TABLE
+      &lt;table name&gt; &lt;alter table action&gt;</literal></simpara>
+
+      <simpara><literal>&lt;alter table action&gt; ::= &lt;add column
+      definition&gt; | &lt;alter column definition&gt; | &lt;drop column
+      definition&gt; | &lt;add table constraint definition&gt; | &lt;drop
+      table constraint definition&gt; | &lt;add table period definition&gt; |
+      &lt;drop table period definition&gt; | &lt;add system versioning
+      clause&gt; | &lt;drop system versioning clause&gt;</literal></simpara>
+
+      <simpara>Change the definition of a table. Specific types of this
+      statement are covered below.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ADD COLUMN</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ADD COLUMN</emphasis></simpara>
+
+      <simpara><emphasis>add column definition</emphasis></simpara>
+
+      <simpara><literal>&lt;add column definition&gt; ::= ADD [ COLUMN ] [IF
+      NOT EXISTS] &lt;column definition&gt; [ BEFORE &lt;other column name&gt;
+      ]</literal></simpara>
+
+      <simpara>Add a column to an existing table. The <literal>&lt;column
+      definition&gt;</literal> is specified the same way as it is used in
+      <literal>&lt;table definition&gt;</literal>. HyperSQL allows the use of
+      <literal>[ BEFORE &lt;other column name&gt; ]</literal> to specify at
+      which position the new column is added to the table.</simpara>
+
+      <simpara>If the table contains rows, the new column must have a
+      <literal>&lt;default clause&gt;</literal> or use one of the forms of
+      GENERATED. The column values for each row is then filled with the result
+      of the <literal>&lt;default clause&gt;</literal> or the generated
+      value.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP COLUMN</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP COLUMN</emphasis></simpara>
+
+      <simpara><emphasis>drop column definition</emphasis></simpara>
+
+      <simpara><literal>&lt;drop column definition&gt; ::= DROP [ COLUMN ]
+      &lt;column name&gt; &lt;drop behavior&gt;</literal></simpara>
+
+      <simpara>Destroy a column of a base table. The <literal>&lt;drop
+      behavior&gt;</literal> is either <literal>RESTRICT</literal> or
+      <literal>CASCADE</literal>. If the column is referenced in a table
+      constraint that references other columns as well as this column, or if
+      the column is referenced in a VIEW, or the column is referenced in a
+      TRIGGER, then the statement will fail if <literal>RESTRICT</literal> is
+      specified. If <literal>CASCADE</literal> is specified, then any
+      CONSTRAINT, VIEW or TRIGGER object that references the column is dropped
+      with a cascading effect.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ADD CONSTRAINT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ADD CONSTRAINT</emphasis></simpara>
+
+      <simpara><emphasis>add table constraint definition</emphasis></simpara>
+
+      <simpara><literal>&lt;add table constraint definition&gt; ::= ADD
+      &lt;table constraint definition&gt;</literal></simpara>
+
+      <simpara>Add a constraint to a table. The existing rows of the table
+      must conform to the added constraint, otherwise the statement will not
+      succeed.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP CONSTRAINT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP CONSTRAINT</emphasis></simpara>
+
+      <simpara><emphasis>drop table constraint definition</emphasis></simpara>
+
+      <simpara><literal>&lt;drop table constraint definition&gt; ::= DROP
+      CONSTRAINT &lt;constraint name&gt; &lt;drop
+      behavior&gt;</literal></simpara>
+
+      <para>Destroy a constraint on a table. The <literal>&lt;drop
+      behavior&gt;</literal> has an effect only on UNIQUE and PRIMARY KEY
+      constraints. If such a constraint is referenced by a FOREIGN KEY
+      constraint, the FOREIGN KEY constraint will be dropped if
+      <literal>CASCADE</literal> is specified. If the columns of such a
+      constraint are used in a GROUP BY clause in the query expression of a
+      VIEW or another kind of schema object, and a functional dependency
+      relationship exists between these columns and the other columns in that
+      query expression, then the VIEW or other schema object will be dropped
+      when <literal>CASCADE</literal> is specified.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ADD SYSTEM PERIOD</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ADD SYSTEM PERIOD</emphasis></simpara>
+
+      <simpara><emphasis>add system period definition</emphasis></simpara>
+
+      <simpara><literal>&lt;add table system period definition&gt; ::= ADD
+      PERIOD FOR SYSTEM_TIME &lt;left paren&gt; &lt;period begin column
+      name&gt; &lt;comma&gt; &lt;period end column name&gt; &lt;right
+      paren&gt; ADD COLUMN &lt;period begin column name&gt; &lt;timestamp data
+      type&gt; GENERATED ALWAYS AS ROW START ADD COLUMN &lt;period end column
+      name&gt; &lt;timestamp data type&gt; GENERATED ALWAYS AS ROW
+      END</literal></simpara>
+
+      <simpara>Add the system period definition and columns to a table. The
+      long statement must be entered in full. The existing rows of the table
+      are marked as created at the current timestamp with end-of-epoch
+      expiration timestamp.</simpara>
+
+      <informalexample>
+        <programlisting> ALTER TABLE t ADD PERIOD FOR SYSTEM_TIME(rs, re) ADD COLUMN rs TIMESTAMP GENERATED ALWAYS AS ROW START ADD COLUMN re TIMESTAMP GENERATED ALWAYS AS ROW END
+</programlisting>
+      </informalexample>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP SYSTEM PERIOD</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP SYSTEM PERIOD</emphasis></simpara>
+
+      <simpara><emphasis>drop system period definition</emphasis></simpara>
+
+      <simpara><literal>&lt;drop table system period definition&gt; ::= DROP
+      PERIOD FOR SYSTEM_TIME &lt;drop behavior&gt;</literal></simpara>
+
+      <para>Drop the system period definition and columns of a table. The
+      <literal>&lt;drop behavior&gt;</literal> is either
+      <literal>RESTRICT</literal> or <literal>CASCADE</literal>. If the system
+      period or its columns have been referenced in other database object such
+      as VIEW or ROUTINE, then the statement will fail if
+      <literal>RESTRICT</literal> is specified. If <literal>CASCADE</literal>
+      is specified, then any such VIEW or other database object that
+      references the period or its columns is dropped with a cascading
+      effect</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ADD SYSTEM VERSIONING</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ADD SYSTEM
+      VERSIONING</emphasis></simpara>
+
+      <simpara><emphasis>add system versioning clause</emphasis></simpara>
+
+      <simpara><literal>&lt;add system versioning clause&gt; ::= ADD SYSTEM
+      VERSIONING</literal></simpara>
+
+      <simpara>Add system versioning to a table that already has a SYSTEM_TIME
+      period definition and columns.</simpara>
+
+      <informalexample>
+        <programlisting> ALTER TABLE t ADD SYSTEM VERSIONING
+</programlisting>
+      </informalexample>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP SYSTEM VERSIONING</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP SYSTEM
+      VERSIONING</emphasis></simpara>
+
+      <simpara><emphasis>drop system versioning clause</emphasis></simpara>
+
+      <simpara><literal>&lt;drop table system period definition&gt; ::= DROP
+      SYSTEM VERSIONING</literal></simpara>
+
+      <para>Drop system versioning of a table. The <literal>&lt;drop
+      behavior&gt;</literal> is either <literal>RESTRICT</literal> or
+      <literal>CASCADE</literal>. If system versioning has been referenced in
+      other database object such as VIEW or ROUTINE, then the statement will
+      fail if <literal>RESTRICT</literal> is specified. If
+      <literal>CASCADE</literal> is specified, then any such VIEW or other
+      database object that references system versioning is dropped with a
+      cascading effect A references to system versioning consists of the FOR
+      SYSTEM_TIME clause in a SELECT statement. With the successful execution
+      of this statement, all the history rows in the table are deleted and
+      only the current versions of rows survive. The period for SYSTEM_TIME
+      and its columns survive after dropping versioning.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER COLUMN</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER COLUMN</emphasis></simpara>
+
+      <simpara><emphasis>alter column definition</emphasis></simpara>
+
+      <simpara><literal>&lt;alter column definition&gt; ::= ALTER [ COLUMN ]
+      &lt;column name&gt; &lt;alter column action&gt;</literal></simpara>
+
+      <simpara><literal>&lt;alter column action&gt; ::= &lt;set column default
+      clause&gt; | &lt;drop column default clause&gt; | &lt;alter column data
+      type clause&gt; | &lt;alter identity column specification&gt; |
+      &lt;alter column nullability&gt; | &lt;alter column name&gt; | &lt;add
+      column identity specification&gt; | &lt;drop column identity
+      specification&gt;</literal></simpara>
+
+      <simpara>Change a column and its definition. Specific types of this
+      statement are covered below. See also the RENAME statement
+      above.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DEFAULT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DEFAULT</emphasis></simpara>
+
+      <simpara><emphasis>set column default clause</emphasis></simpara>
+
+      <simpara><literal>&lt;set column default clause&gt; ::= SET &lt;default
+      clause&gt;</literal></simpara>
+
+      <simpara>Set the default clause for a column. This can be used if the
+      column is not defined as GENERATED.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP DEFAULT (table)</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP DEFAULT</emphasis></simpara>
+
+      <simpara><emphasis>drop column default clause</emphasis></simpara>
+
+      <simpara><literal>&lt;drop column default clause&gt; ::= DROP
+      DEFAULT</literal></simpara>
+
+      <simpara>Drop the default clause from a column.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATA TYPE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATA TYPE</emphasis></simpara>
+
+      <simpara><emphasis>alter column data type clause</emphasis></simpara>
+
+      <simpara><literal>&lt;alter column data type clause&gt; ::= SET DATA
+      TYPE &lt;data type&gt;</literal></simpara>
+
+      <para>Change the declared type of a column. The latest SQL Standard
+      allows only changes to type properties such as maximum length,
+      precision, or scale, and only changes that cause the property to
+      enlarge. HyperSQL allows changing the type if all the existing values
+      can be cast into the new type without string truncation or loss of
+      significant digits.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>add column identity generator</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">alter column add identity
+      generator</emphasis></simpara>
+
+      <simpara><emphasis>alter column add identity
+      generator</emphasis></simpara>
+
+      <simpara><literal>&lt;add column identity generator&gt; ::= &lt;identity
+      column specification&gt;</literal></simpara>
+
+      <simpara>Adds an identity specification to the column. The type of the
+      column must be an integral type and the existing values must not include
+      nulls. This option is specific to HyperSQL</simpara>
+
+      <programlisting> ALTER TABLE mytable ALTER COLUMN id GENERATED ALWAYS AS IDENTITY (START WITH 20000)</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>alter column identity generator</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">alter column identity
+      generator</emphasis></simpara>
+
+      <simpara><emphasis>alter identity column
+      specification</emphasis></simpara>
+
+      <simpara><literal>&lt;alter identity column specification&gt; ::=
+      &lt;alter identity column option&gt;...</literal></simpara>
+
+      <simpara><literal>&lt;alter identity column option&gt; ::= &lt;alter
+      sequence generator restart option&gt; | SET &lt;basic sequence generator
+      option&gt;</literal></simpara>
+
+      <para>Change the properties of an identity column. This command is
+      similar to the commands used for changing the properties of named
+      SEQUENCE objects discussed earlier and can use the same options.</para>
+
+      <programlisting> ALTER TABLE mytable ALTER COLUMN id RESTART WITH 1000
+ ALTER TABLE mytable ALTER COLUMN id SET INCREMENT BY 5
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>drop column identity generator</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP GENERATED</emphasis></simpara>
+
+      <simpara><emphasis>drop column identity generator</emphasis></simpara>
+
+      <simpara><literal>&lt;drop column identity specification&gt; ::= DROP
+      GENERATED</literal></simpara>
+
+      <para>Removes the identity generator from a column. After executing this
+      statement, the column values are no longer generated automatically. This
+      option is specific to HyperSQL</para>
+
+      <programlisting>  ALTER TABLE mytable ALTER COLUMN id DROP GENERATED
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>alter column nullability</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET [ NOT ] NULL</emphasis></simpara>
+
+      <simpara><emphasis>alter column nullability</emphasis></simpara>
+
+      <simpara><literal>&lt;alter column nullability&gt; ::= SET [ NOT ]
+      NULL</literal></simpara>
+
+      <simpara>Adds or removes a NOT NULL constraint from a column. This
+      option is specific to HyperSQL</simpara>
+    </section>
+
+    <section xml:id="dbc_view_creation">
+      <title>View Creation and Manipulation</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE VIEW</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE VIEW</emphasis></simpara>
+
+      <simpara><emphasis>view definition</emphasis></simpara>
+
+      <simpara><literal>&lt;view definition&gt; ::= CREATE VIEW [ IF NOT
+      EXISTS ] &lt;table name&gt; &lt;view specification&gt; AS &lt;query
+      expression&gt; [ WITH [ CASCADED | LOCAL ] CHECK OPTION
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;view specification&gt; ::= [ &lt;left paren&gt;
+      &lt;view column list&gt; &lt;right paren&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;view column list&gt; ::= &lt;column name
+      list&gt;</literal></simpara>
+
+      <simpara>Define a view. The <literal>&lt;query expression&gt;</literal>
+      is a SELECT or similar statement. The <literal>&lt;view column
+      list&gt;</literal> is the list of unique names for the columns of the
+      view. The number of columns in the <literal>&lt;view column
+      list&gt;</literal> must match the number of columns returned by the
+      <literal>&lt;query expression&gt;</literal>. If <literal>&lt;view column
+      list&gt;</literal> is not specified, then the columns of the
+      <literal>&lt;query expression&gt;</literal> should have unique names and
+      are used as the names of the view column.</simpara>
+
+      <simpara>Some views are updatable. As covered elsewhere, an updatable
+      view is based on a single table or updatable view. For updatable views,
+      the optional <literal>CHECK OPTION</literal> clause can be specified. If
+      this option is specified, then if a row of the view is updated or a new
+      row is inserted into the view, then it should contain such values that
+      the row would be included in the view after the change. If <literal>WITH
+      CASCADED CHECK OPTION</literal> is specified, then if the
+      <literal>&lt;query expression&gt;</literal> of the view references
+      another view, then the search condition of the underlying view should
+      also be satisfied by the update or insert operation.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP VIEW</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP VIEW</emphasis></simpara>
+
+      <simpara><emphasis>drop view statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop view statement&gt; ::= DROP VIEW [ IF EXISTS
+      ] &lt;table name&gt; [ IF EXISTS ] &lt;drop
+      behavior&gt;</literal></simpara>
+
+      <simpara>Destroy a view. The <literal>&lt;drop behavior&gt;</literal> is
+      similar to dropping a table.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER view</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER VIEW</emphasis></simpara>
+
+      <simpara><emphasis>alter view statement</emphasis></simpara>
+
+      <simpara><literal>&lt;alter view statement&gt; ::= ALTER VIEW &lt;table
+      name&gt; &lt;view specification&gt; AS &lt;query expression&gt; [ WITH [
+      CASCADED | LOCAL ] CHECK OPTION ]</literal></simpara>
+
+      <para>Alter a view. The statement is otherwise identical to CREATE VIEW.
+      The new definition replaces the old. If there are database objects such
+      as routines or views that reference the view, then these objects are
+      recompiled with the new view definition. If the new definition is not
+      compatible, the statement fails.</para>
+    </section>
+
+    <section xml:id="dbc_domain_creation">
+      <title>Domain Creation and Manipulation</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE DOMAIN</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE DOMAIN</emphasis></simpara>
+
+      <simpara><emphasis>domain definition</emphasis></simpara>
+
+      <simpara><literal>&lt;domain definition&gt; ::= CREATE DOMAIN &lt;domain
+      name&gt; [ AS ] &lt;predefined type&gt; [ &lt;default clause&gt; ] [
+      &lt;domain constraint&gt;... ] [ &lt;collate clause&gt;
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;domain constraint&gt; ::= [ &lt;constraint name
+      definition&gt; ] &lt;check constraint definition&gt; [ &lt;constraint
+      characteristics&gt; ]</literal></simpara>
+
+      <para>Define a domain. Although a DOMAIN is not strictly a type in the
+      SQL Standard, it can be informally considered as a type. A DOMAIN is
+      based on a <literal>&lt;predefined type&gt;</literal>, which is a base
+      type defined by the Standard. It can have a <literal>&lt;default
+      clause&gt;</literal>, similar to a column default clause. It can also
+      have one or more CHECK constraints which limit the values that can be
+      assigned to a column or variable that has the DOMAIN as its type.</para>
+
+      <informalexample>
+        <programlisting> CREATE DOMAIN valid_string AS VARCHAR(20) DEFAULT 'NO VALUE' CHECK (value IS NOT NULL AND CHARACTER_LENGTH(value) &gt; 2) 
+</programlisting>
+      </informalexample>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER DOMAIN</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER DOMAIN</emphasis></simpara>
+
+      <simpara><emphasis>alter domain statement</emphasis></simpara>
+
+      <simpara><literal>&lt;alter domain statement&gt; ::= ALTER DOMAIN
+      &lt;domain name&gt; &lt;alter domain action&gt;</literal></simpara>
+
+      <simpara><literal>&lt;alter domain action&gt; ::= &lt;set domain default
+      clause&gt; | &lt;drop domain default clause&gt; | &lt;add domain
+      constraint definition&gt; | &lt;drop domain constraint
+      definition&gt;</literal></simpara>
+
+      <simpara>Change a domain and its definition.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DOMAIN DEFAULT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DEFAULT</emphasis></simpara>
+
+      <simpara><emphasis>set domain default clause</emphasis></simpara>
+
+      <simpara><literal>&lt;set domain default clause&gt; ::= SET &lt;default
+      clause&gt;</literal></simpara>
+
+      <simpara>Set the default value in a domain.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP DOMAIN DEFAULT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP DEFAULT</emphasis></simpara>
+
+      <simpara><emphasis>drop domain default clause</emphasis></simpara>
+
+      <simpara><literal>&lt;drop domain default clause&gt; ::= DROP
+      DEFAULT</literal></simpara>
+
+      <simpara>Remove the default clause of a domain.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ADD DOMAIN CONSTRAINT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ADD CONSTRAINT</emphasis></simpara>
+
+      <simpara><emphasis>add domain constraint definition</emphasis></simpara>
+
+      <simpara><literal>&lt;add domain constraint definition&gt; ::= ADD
+      &lt;domain constraint&gt;</literal></simpara>
+
+      <simpara>Add a constraint to a domain.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP DOMAIN CONSTRAINT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP CONSTRAINT</emphasis></simpara>
+
+      <simpara><emphasis>drop domain constraint
+      definition</emphasis></simpara>
+
+      <simpara><literal>&lt;drop domain constraint definition&gt; ::= DROP
+      CONSTRAINT &lt;constraint name&gt;</literal></simpara>
+
+      <para>Destroy a constraint on a domain. If the <literal>&lt;drop
+      behavior&gt;</literal> is <literal>CASCADE</literal>, and the constraint
+      is a UNIQUE constraint which is referenced by a FOREIGN KEY constraint
+      on another table, then the FOREIGN KEY constraint is also
+      dropped.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP DOMAIN</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP DOMAIN</emphasis></simpara>
+
+      <simpara><emphasis>drop domain statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop domain statement&gt; ::= DROP DOMAIN
+      &lt;domain name&gt; &lt;drop behavior&gt;</literal></simpara>
+
+      <para>Destroy a domain. If <literal>&lt;drop behavior&gt;</literal> is
+      <literal>CASCADE</literal>, it works differently from most other
+      objects. If a table features a column of the specified DOMAIN, the
+      column survives and inherits the DEFAULT CLAUSE, and the CHECK
+      CONSTRAINT of the DOMAIN.</para>
+    </section>
+
+    <section xml:id="dbc_trigger_creation">
+      <title>Trigger Creation</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE TRIGGER</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE TRIGGER</emphasis></simpara>
+
+      <simpara><emphasis>trigger definition</emphasis></simpara>
+
+      <simpara><literal>&lt;trigger definition&gt; ::= CREATE TRIGGER
+      &lt;trigger name&gt; &lt;trigger action time&gt; &lt;trigger event&gt;
+      ON &lt;table name&gt; [ REFERENCING &lt;transition table or variable
+      list&gt; ] &lt;triggered action&gt;</literal></simpara>
+
+      <simpara><literal>&lt;trigger action time&gt; ::= BEFORE | AFTER |
+      INSTEAD OF</literal></simpara>
+
+      <simpara><literal>&lt;trigger event&gt; ::= INSERT | DELETE | UPDATE [
+      OF &lt;trigger column list&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;trigger column list&gt; ::= &lt;column name
+      list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;triggered action&gt; ::= [ FOR EACH { ROW |
+      STATEMENT } ] [ &lt;triggered when clause&gt; ] &lt;triggered SQL
+      statement&gt;</literal></simpara>
+
+      <simpara><literal>&lt;triggered when clause&gt; ::= WHEN &lt;left
+      paren&gt; &lt;search condition&gt; &lt;right
+      paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;triggered SQL statement&gt; ::= &lt;SQL procedure
+      statement&gt; | BEGIN ATOMIC { &lt;SQL procedure statement&gt;
+      &lt;semicolon&gt; }... END | [QUEUE &lt;integer literal&gt;] [NOWAIT]
+      CALL &lt;HSQLDB trigger class FQN&gt;</literal></simpara>
+
+      <simpara><literal>&lt;transition table or variable list&gt; ::=
+      &lt;transition table or variable&gt;...</literal></simpara>
+
+      <simpara><literal>&lt;transition table or variable&gt; ::= OLD [ ROW ] [
+      AS ] &lt;old transition variable name&gt; | NEW [ ROW ] [ AS ] &lt;new
+      transition variable name&gt; | OLD TABLE [ AS ] &lt;old transition table
+      name&gt; | NEW TABLE [ AS ] &lt;new transition table
+      name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;old transition table name&gt; ::= &lt;transition
+      table name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;new transition table name&gt; ::= &lt;transition
+      table name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;transition table name&gt; ::=
+      &lt;identifier&gt;</literal></simpara>
+
+      <simpara><literal>&lt;old transition variable name&gt; ::=
+      &lt;correlation name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;new transition variable name&gt; ::=
+      &lt;correlation name&gt;</literal></simpara>
+
+      <para>Trigger definition is a relatively complex statement. The
+      combination of <literal>&lt;trigger action time&gt;</literal> and
+      <literal>&lt;trigger event&gt;</literal> determines the type of the
+      trigger. Examples include BEFORE DELETE, AFTER UPDATE, INSTEAD OF
+      INSERT. If the optional <literal>[ OF &lt;trigger column list&gt;
+      ]</literal> is specified for an UPDATE trigger, then the trigger is
+      activated only if one of the columns that is in the <literal>&lt;trigger
+      column list&gt;</literal> is specified in the UPDATE statement that
+      activates the trigger.</para>
+
+      <para>If a trigger is <literal>FOR EACH ROW</literal>, which is the
+      default option, then the trigger is activated for each row of the table
+      that is affected by the execution of an SQL statement. Otherwise, it is
+      activated once only per statement execution. In the first case, there is
+      a before and after state for each row. For UPDATE triggers, both before
+      and after states exist, representing the row before the update, and
+      after the update. For DELETE, triggers, there is only a before state.
+      For INSERT triggers, there is only an after state. If a trigger is
+      <literal>FOR EACH STATEMENT</literal>, then a transient table is created
+      containing all the rows for the before state and another transient table
+      is created for the after state.</para>
+
+      <para>The <literal>[ REFERENCING &lt;transition table or variable&gt;
+      ]</literal> is used to give a name to the before and after data row or
+      table. This name can be referenced in the <literal>&lt;SQL procedure
+      statement&gt;</literal> to access the data.</para>
+
+      <para>The optional <literal>&lt;triggered when clause&gt;</literal> is a
+      search condition, similar to the search condition of a DELETE or UPDATE
+      statement. If the search condition is not TRUE for a row, then the
+      trigger is not activated for that row.</para>
+
+      <para>The <literal>&lt;SQL procedure statement&gt;</literal> is limited
+      to INSERT, DELETE, UPDATE and MERGE statements.</para>
+
+      <para>The <literal>&lt;HSQLDB trigger class FQN&gt;</literal> is a
+      delimited identifier that contains the fully qualified name of a Java
+      class that implements the <classname>org.hsqldb.Trigger</classname>
+      interface.</para>
+
+      <para>HyperSQL do not yet allow the use of OLD TABLE or NEW TABLE in
+      statement level trigger definitions.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP TRIGGER</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP TRIGGER</emphasis></simpara>
+
+      <simpara><emphasis>drop trigger statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop trigger statement&gt; ::= DROP TRIGGER
+      &lt;trigger name&gt;</literal></simpara>
+
+      <simpara>Destroy a trigger.</simpara>
+    </section>
+
+    <section xml:id="dbc_routine_creation">
+      <title>Routine Creation</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>schema routine</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">schema routine</emphasis></simpara>
+
+      <simpara><emphasis>SQL-invoked routine</emphasis></simpara>
+
+      <simpara><literal>&lt;SQL-invoked routine&gt; ::= &lt;schema
+      routine&gt;</literal></simpara>
+
+      <simpara><literal>&lt;schema routine&gt; ::= &lt;schema procedure&gt; |
+      &lt;schema function&gt;</literal></simpara>
+
+      <simpara><literal>&lt;schema procedure&gt; ::= CREATE &lt;SQL-invoked
+      procedure&gt;</literal></simpara>
+
+      <simpara><literal>&lt;schema function&gt; ::= CREATE &lt;SQL-invoked
+      function&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL-invoked procedure&gt; ::= PROCEDURE &lt;schema
+      qualified routine name&gt; &lt;SQL parameter declaration list&gt;
+      &lt;routine characteristics&gt; &lt;routine body&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL-invoked function&gt; ::= { &lt;function
+      specification&gt; | &lt;method specification designator&gt; }
+      &lt;routine body&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL parameter declaration list&gt; ::= &lt;left
+      paren&gt; [ &lt;SQL parameter declaration&gt; [ { &lt;comma&gt; &lt;SQL
+      parameter declaration&gt; }... ] ] &lt;right
+      paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL parameter declaration&gt; ::= [ &lt;parameter
+      mode&gt; ] [ &lt;SQL parameter name&gt; ] &lt;parameter type&gt; [
+      RESULT ]</literal></simpara>
+
+      <simpara><literal>&lt;parameter mode&gt; ::= IN | OUT |
+      INOUT</literal></simpara>
+
+      <simpara><literal>&lt;parameter type&gt; ::= &lt;data
+      type&gt;</literal></simpara>
+
+      <simpara><literal>&lt;function specification&gt; ::= FUNCTION &lt;schema
+      qualified routine name&gt; &lt;SQL parameter declaration list&gt;
+      &lt;returns clause&gt; &lt;routine characteristics&gt; [ &lt;dispatch
+      clause&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;method specification designator&gt; ::= SPECIFIC
+      METHOD &lt;specific method name&gt; | [ INSTANCE | STATIC | CONSTRUCTOR
+      ] METHOD &lt;method name&gt; &lt;SQL parameter declaration list&gt; [
+      &lt;returns clause&gt; ] FOR &lt;schema-resolved user-defined type
+      name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;routine characteristics&gt; ::= [ &lt;routine
+      characteristic&gt;... ]</literal></simpara>
+
+      <simpara><literal>&lt;routine characteristic&gt; ::= &lt;language
+      clause&gt; | &lt;parameter style clause&gt; | SPECIFIC &lt;specific
+      name&gt; | &lt;deterministic characteristic&gt; | &lt;SQL-data access
+      indication&gt; | &lt;null-call clause&gt; | &lt;returned result sets
+      characteristic&gt; | &lt;savepoint level
+      indication&gt;</literal></simpara>
+
+      <simpara><literal>&lt;savepoint level indication&gt; ::= NEW SAVEPOINT
+      LEVEL | OLD SAVEPOINT LEVEL</literal></simpara>
+
+      <simpara><literal>&lt;returned result sets characteristic&gt; ::=
+      DYNAMIC RESULT SETS &lt;maximum returned result
+      sets&gt;</literal></simpara>
+
+      <simpara><literal>&lt;parameter style clause&gt; ::= PARAMETER STYLE
+      &lt;parameter style&gt;</literal></simpara>
+
+      <simpara><literal>&lt;dispatch clause&gt; ::= STATIC
+      DISPATCH</literal></simpara>
+
+      <simpara><literal>&lt;returns clause&gt; ::= RETURNS &lt;returns
+      type&gt;</literal></simpara>
+
+      <simpara><literal>&lt;returns type&gt; ::= &lt;returns data type&gt; [
+      &lt;result cast&gt; ] | &lt;returns table type&gt;</literal></simpara>
+
+      <simpara><literal>&lt;returns table type&gt; ::= TABLE &lt;table
+      function column list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;table function column list&gt; ::= &lt;left
+      paren&gt; &lt;table function column list element&gt; [ { &lt;comma&gt;
+      &lt;table function column list element&gt; }... ] &lt;right
+      paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;table function column list element&gt; ::=
+      &lt;column name&gt; &lt;data type&gt;</literal></simpara>
+
+      <simpara><literal>&lt;result cast&gt; ::= CAST FROM &lt;result cast from
+      type&gt;</literal></simpara>
+
+      <simpara><literal>&lt;result cast from type&gt; ::= &lt;data type&gt; [
+      &lt;locator indication&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;returns data type&gt; ::= &lt;data type&gt; [
+      &lt;locator indication&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;routine body&gt; ::= &lt;SQL routine spec&gt; |
+      &lt;external body reference&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL routine spec&gt; ::= [ &lt;rights clause&gt; ]
+      &lt;SQL routine body&gt;</literal></simpara>
+
+      <simpara><literal>&lt;rights clause&gt; ::= SQL SECURITY INVOKER | SQL
+      SECURITY DEFINER</literal></simpara>
+
+      <simpara><literal>&lt;SQL routine body&gt; ::= &lt;SQL procedure
+      statement&gt;</literal></simpara>
+
+      <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL [ NAME
+      &lt;external routine name&gt; ] [ &lt;parameter style clause&gt;
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;parameter style&gt; ::= SQL |
+      GENERAL</literal></simpara>
+
+      <simpara><literal>&lt;deterministic characteristic&gt; ::= DETERMINISTIC
+      | NOT DETERMINISTIC</literal></simpara>
+
+      <simpara><literal>&lt;SQL-data access indication&gt; ::= NO SQL |
+      CONTAINS SQL | READS SQL DATA | MODIFIES SQL DATA</literal></simpara>
+
+      <simpara><literal>&lt;null-call clause&gt; ::= RETURNS NULL ON NULL
+      INPUT | CALLED ON NULL INPUT</literal></simpara>
+
+      <simpara><literal>&lt;maximum returned result sets&gt; ::= &lt;unsigned
+      integer&gt;</literal></simpara>
+
+      <para>Define an SQL-invoked routine. A few of the options are not used
+      by HyperSQL and have default behaviours. See the <link
+      endterm="sqlroutines-title" os="" xlink:href="#sqlroutines-chapt"/>
+      chapter for more details of various options and examples.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER routine</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER routine</emphasis></simpara>
+
+      <simpara><emphasis>alter routine statement</emphasis></simpara>
+
+      <simpara><literal>&lt;alter routine statement&gt; ::= ALTER &lt;specific
+      routine designator&gt; [ &lt;alter routine characteristics&gt; ] [
+      RESTRICT ] &lt;routine body&gt; </literal></simpara>
+
+      <simpara><literal>&lt;alter routine characteristics&gt; ::= &lt;alter
+      routine characteristic&gt;...</literal></simpara>
+
+      <simpara><literal>&lt;alter routine characteristic&gt; ::= &lt;language
+      clause&gt; | &lt;parameter style clause&gt; | &lt;SQL-data access
+      indication&gt; | &lt;null-call clause&gt; | &lt;returned result sets
+      characteristic&gt;</literal></simpara>
+
+      <simpara><literal>&lt;alter routine body&gt; ::= &lt;SQL routine
+      body&gt;</literal></simpara>
+
+      <para>Alter the characteristic and the body of an SQL-invoked routine.
+      If RESTRICT is specified and the routine is already used in a a
+      different routine or view definition, an exception is raised. Altering
+      the routine changes the implementation without changing the parameters.
+      Defining recursive SQL/PSM SQL functions is only possible by altering a
+      non-recursive routine body. An example is given in the <link
+      endterm="sqlroutines-title" os="" xlink:href="#sqlroutines-chapt"/>
+      chapter.</para>
+
+      <para>An example is given below for a function defined as a Java method,
+      then redefined as an SQL function.</para>
+
+      <programlisting> CREATE FUNCTION zero_pad(x BIGINT, digits INT, maxsize INT)
+  RETURNS CHAR VARYING(100)
+  SPECIFIC zero_pad_01
+  NO SQL DETERMINISTIC
+  LANGUAGE JAVA
+  EXTERNAL NAME 'CLASSPATH:org.hsqldb.lib.StringUtil.toZeroPaddedString';
+
+ ALTER SPECIFIC ROUTINE zero_pad_01
+  LANGUAGE SQL
+  BEGIN ATOMIC
+  DECLARE str VARCHAR(128);
+  SET str = CAST(x AS VARCHAR(128));
+  SET str = SUBSTRING('0000000000000' FROM 1 FOR digits - CHAR_LENGTH(str)) + str;
+  return str;
+  END
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP routine</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP</emphasis></simpara>
+
+      <simpara><emphasis>drop routine statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop routine statement&gt; ::= DROP &lt;specific
+      routine designator&gt; &lt;drop behavior&gt;</literal></simpara>
+
+      <simpara>Destroy an SQL-invoked routine.</simpara>
+    </section>
+
+    <section xml:id="dbc_sequence_creation">
+      <title>Sequence Creation</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE SEQUENCE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE SEQUENCE</emphasis></simpara>
+
+      <simpara><emphasis>sequence generator definition</emphasis></simpara>
+
+      <simpara><literal>&lt;sequence generator definition&gt; ::= CREATE
+      SEQUENCE [ IF NOT EXISTS ] &lt;sequence generator name&gt; [
+      &lt;sequence generator options&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;sequence generator options&gt; ::= &lt;sequence
+      generator option&gt; ...</literal></simpara>
+
+      <simpara><literal>&lt;sequence generator option&gt; ::= &lt;sequence
+      generator data type option&gt; | &lt;common sequence generator
+      options&gt;</literal></simpara>
+
+      <simpara><literal>&lt;common sequence generator options&gt; ::=
+      &lt;common sequence generator option&gt; ...</literal></simpara>
+
+      <simpara><literal>&lt;common sequence generator option&gt; ::=
+      &lt;sequence generator start with option&gt; | &lt;basic sequence
+      generator option&gt;</literal></simpara>
+
+      <simpara><literal>&lt;basic sequence generator option&gt; ::=
+      &lt;sequence generator increment by option&gt; | &lt;sequence generator
+      maxvalue option&gt; | &lt;sequence generator minvalue option&gt; |
+      &lt;sequence generator cycle option&gt;</literal></simpara>
+
+      <simpara><literal>&lt;sequence generator data type option&gt; ::= AS
+      &lt;data type&gt;</literal></simpara>
+
+      <simpara><literal>&lt;sequence generator start with option&gt; ::= START
+      WITH &lt;sequence generator start value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;sequence generator start value&gt; ::= &lt;signed
+      numeric literal&gt;</literal></simpara>
+
+      <simpara><literal>&lt;sequence generator increment by option&gt; ::=
+      INCREMENT BY &lt;sequence generator increment&gt;</literal></simpara>
+
+      <simpara><literal>&lt;sequence generator increment&gt; ::= &lt;signed
+      numeric literal&gt;</literal></simpara>
+
+      <simpara><literal>&lt;sequence generator maxvalue option&gt; ::=
+      MAXVALUE &lt;sequence generator max value&gt; | NO
+      MAXVALUE</literal></simpara>
+
+      <simpara><literal>&lt;sequence generator max value&gt; ::= &lt;signed
+      numeric literal&gt;</literal></simpara>
+
+      <simpara><literal>&lt;sequence generator minvalue option&gt; ::=
+      MINVALUE &lt;sequence generator min value&gt; | NO
+      MINVALUE</literal></simpara>
+
+      <simpara><literal>&lt;sequence generator min value&gt; ::= &lt;signed
+      numeric literal&gt;</literal></simpara>
+
+      <simpara><literal>&lt;sequence generator cycle option&gt; ::= CYCLE | NO
+      CYCLE</literal></simpara>
+
+      <para>Define a named sequence generator. A SEQUENCE object generates a
+      sequence of integers according to the specified rules. The simple
+      definition without the options defines a sequence of numbers in INTEGER
+      type starting at 1 and incrementing by 1. By default, the
+      <literal>CYCLE</literal> property is set and the minimum and maximum
+      limits are the minimum and maximum limits of the type of returned
+      values. There are self-explanatory options for changing various
+      properties of the sequence. The <literal>MAXVALUE</literal> and
+      <literal>MINVALUE</literal> specify the upper and lower limits. If
+      <literal>CYCLE</literal> is specified, after the sequence returns the
+      highest or lowest value in range, the next value will respectively be
+      the lowest or highest value in range. If <literal>NO CYCLE</literal> is
+      specified, the use of the sequence generator results in an error once
+      the limit has been reached.</para>
+
+      <para>The integer types: SMALLINT, INTEGER, BIGINT, DECIMAL and NUMERIC
+      can be used as the type of the sequence. DECIMAL and NUMERIC types must
+      have a scale of 0 and a precision not exceeding 18.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER SEQUENCE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER SEQUENCE</emphasis></simpara>
+
+      <simpara><emphasis>alter sequence generator
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;alter sequence generator statement&gt; ::= ALTER
+      SEQUENCE &lt;sequence generator name&gt; &lt;alter sequence generator
+      options&gt;</literal></simpara>
+
+      <simpara><literal>&lt;alter sequence generator options&gt; ::= &lt;alter
+      sequence generator option&gt;...</literal></simpara>
+
+      <simpara><literal>&lt;alter sequence generator option&gt; ::= &lt;alter
+      sequence generator restart option&gt; | &lt;basic sequence generator
+      option&gt;</literal></simpara>
+
+      <simpara><literal>&lt;alter sequence generator restart option&gt; ::=
+      RESTART [ WITH &lt;sequence generator restart value&gt;
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;sequence generator restart value&gt; ::=
+      &lt;signed numeric literal&gt;</literal></simpara>
+
+      <para>Change the definition of a named sequence generator. The same
+      options that are used in the definition of the SEQUENCE can be used to
+      alter it. The exception is the option for the start value which is
+      <literal>RESTART WITH</literal> for the ALTER SEQUENCE statement.</para>
+
+      <para>If RESTART is used by itself (without a value), then the current
+      value of the sequence is reset to the start value. Otherwise, the
+      current value is reset to the given restart value.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP SEQUENCE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP SEQUENCE</emphasis></simpara>
+
+      <simpara><emphasis>drop sequence generator
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop sequence generator statement&gt; ::= DROP
+      SEQUENCE [ IF EXISTS ] &lt;sequence generator name&gt; [ IF EXISTS ]
+      &lt;drop behavior&gt;</literal></simpara>
+
+      <para>Destroy an external sequence generator. If the <literal>&lt;drop
+      behavior&gt;</literal> is <literal>CASCADE</literal>, then all objects
+      that reference the sequence are dropped. These objects can be VIEW,
+      ROUTINE or TRIGGER objects.</para>
+
+      <!-- From Foundation chapt. 13 -->
+    </section>
+
+    <section xml:id="dbc_procedure_satement">
+      <title>SQL Procedure Statement</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL procedure statement</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SQL procedure
+      statement</emphasis></simpara>
+
+      <simpara><emphasis>SQL procedure statement</emphasis></simpara>
+
+      <simpara>The definition of CREATE TRIGGER and CREATE PROCEDURE
+      statements refers to &lt;SQL procedure statement&gt;. The definition of
+      this element is given below. However, only a subset of these statements
+      are allowed in trigger or routine definition.</simpara>
+
+      <simpara><literal>&lt;SQL procedure statement&gt; ::= &lt;SQL executable
+      statement&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL executable statement&gt; ::= &lt;SQL schema
+      statement&gt; | &lt;SQL data statement&gt; | &lt;SQL control
+      statement&gt; | &lt;SQL transaction statement&gt; | &lt;SQL connection
+      statement&gt; | &lt;SQL session statement&gt; | &lt;SQL diagnostics
+      statement&gt; | &lt;SQL dynamic statement&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL schema statement&gt; ::= &lt;SQL schema
+      definition statement&gt; | &lt;SQL schema manipulation
+      statement&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL schema definition statement&gt; ::= &lt;schema
+      definition&gt; | &lt;table definition&gt; | &lt;view definition&gt; |
+      &lt;SQL-invoked routine&gt; | &lt;grant statement&gt; | &lt;role
+      definition&gt; | &lt;domain definition&gt; | &lt;character set
+      definition&gt; | &lt;collation definition&gt; | &lt;transliteration
+      definition&gt; | &lt;assertion definition&gt; | &lt;trigger
+      definition&gt; | &lt;user-defined type definition&gt; | &lt;user-defined
+      cast definition&gt; | &lt;user-defined ordering definition&gt; |
+      &lt;transform definition&gt; | &lt;sequence generator
+      definition&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL schema manipulation statement&gt; ::= &lt;drop
+      schema statement&gt; | &lt;alter table statement&gt; | &lt;drop table
+      statement&gt; | &lt;drop view statement&gt; | &lt;alter routine
+      statement&gt; | &lt;drop routine statement&gt; | &lt;drop user-defined
+      cast statement&gt; | &lt;revoke statement&gt; | &lt;drop role
+      statement&gt; | &lt;alter domain statement&gt; | &lt;drop domain
+      statement&gt; | &lt;drop character set statement&gt; | &lt;drop
+      collation statement&gt; | &lt;drop transliteration statement&gt; |
+      &lt;drop assertion statement&gt; | &lt;drop trigger statement&gt; |
+      &lt;alter type statement&gt; | &lt;drop data type statement&gt; |
+      &lt;alter sequence generator statement&gt; | &lt;drop sequence generator
+      statement&gt;</literal></simpara>
+    </section>
+
+    <section xml:id="dbc_other_object_creation">
+      <title>Other Schema Object Creation</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE SYNONYM</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE SYNONYM</emphasis></simpara>
+
+      <simpara><emphasis>create synonym statement</emphasis></simpara>
+
+      <simpara><literal>&lt;create synonym statement&gt; ::= CREATE SYNONYM
+      &lt;synonym name&gt; FOR &lt;target object name&gt;</literal></simpara>
+
+      <para>Creates a synonym for the <literal>&lt;target object
+      name&gt;</literal>. The synonym is defined in the current schema, unless
+      the name is qualified with a different schema name. The target object
+      name can be a schema object in the current schema or in another schema.
+      The synonym can be used only without the schema name.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP SYNONYM</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP SYNONYM</emphasis></simpara>
+
+      <simpara><emphasis>drop synonym statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop synonym statement&gt; ::= DROP SYNONYM
+      &lt;synonym name&gt;</literal></simpara>
+
+      <para>Drops the synonym. The <literal>&lt;synonym name&gt;</literal> can
+      be the simple name of the synonym or qualified with the schema
+      name.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE INDEX</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE INDEX</emphasis></simpara>
+
+      <simpara><emphasis>create index statement</emphasis></simpara>
+
+      <simpara><literal>&lt;create index statement&gt; ::= CREATE INDEX [ IF
+      NOT EXISTS ] &lt;index name&gt; ON &lt;table name&gt; &lt;left paren&gt;
+      {&lt;column name&gt; [ASC | DESC]}, ... &lt;right
+      paren&gt;</literal></simpara>
+
+      <para>Creates an index on a group of columns of a table. The optional
+      [ASC | DESC] specifies if the column is indexed in the ascending or
+      descending order, but has no effect on how the index is created (it is
+      allowed for compatibility with other database engines). HyperSQL can use
+      all indexes in ascending or descending order as needed. Indexes should
+      not duplicate the columns of PRIMARY KEY, UNIQUE or FOREIGN key
+      constraints as each of these constraints creates an index
+      automatically.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP INDEX</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP INDEX</emphasis></simpara>
+
+      <simpara><emphasis>drop index statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop index statement&gt; ::= DROP INDEX [ IF
+      EXISTS ] &lt;index name&gt; [ IF EXISTS ]</literal></simpara>
+
+      <simpara>Destroy an index.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER INDEX</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER INDEX</emphasis></simpara>
+
+      <simpara><emphasis>change the columns of an index</emphasis></simpara>
+
+      <simpara><literal>&lt;alter index statement&gt; ::= ALTER INDEX
+      &lt;index name&gt; &lt;left paren&gt; {&lt;column name&gt;} , ...
+      &lt;right paren&gt;</literal></simpara>
+
+      <simpara>Redefine an index with a new column list. This statement is
+      more efficient than dropping an existing index and creating a new
+      one.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE TYPE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE TYPE</emphasis></simpara>
+
+      <simpara><emphasis>user-defined type definition</emphasis></simpara>
+
+      <simpara><literal>&lt;user-defined type definition&gt; ::= CREATE TYPE
+      &lt;user-defined type body&gt;</literal></simpara>
+
+      <simpara><literal>&lt;user-defined type body&gt; ::= &lt;schema-resolved
+      user-defined type name&gt; [ AS &lt;representation&gt;
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;representation&gt; ::= &lt;predefined
+      type&gt;</literal></simpara>
+
+      <simpara>Define a user-defined type. Currently only simple distinct
+      types can be defined without further attributes.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE CAST</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE CAST</emphasis></simpara>
+
+      <simpara><emphasis>user-defined cast definition</emphasis></simpara>
+
+      <simpara><literal>&lt;user-defined cast definition&gt; ::= CREATE CAST
+      &lt;left paren&gt; &lt;source data type&gt; AS &lt;target data type&gt;
+      &lt;right paren&gt; WITH &lt;cast function&gt; [ AS ASSIGNMENT
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;cast function&gt; ::= &lt;specific routine
+      designator&gt;</literal></simpara>
+
+      <simpara><literal>&lt;source data type&gt; ::= &lt;data
+      type&gt;</literal></simpara>
+
+      <simpara><literal>&lt;target data type&gt; ::= &lt;data
+      type&gt;</literal></simpara>
+
+      <simpara>Define a user-defined cast. This feature may be supported in a
+      future version of HyperSQL.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP CAST</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP CAST</emphasis></simpara>
+
+      <simpara><emphasis>drop user-defined cast statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop user-defined cast statement&gt; ::= DROP CAST
+      &lt;left paren&gt; &lt;source data type&gt; AS &lt;target data type&gt;
+      &lt;right paren&gt; &lt;drop behavior&gt;</literal></simpara>
+
+      <simpara>Destroy a user-defined cast. This feature may be supported in a
+      future version of HyperSQL.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE CHARACTER SET</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE CHARACTER SET</emphasis></simpara>
+
+      <simpara><emphasis>character set definition</emphasis></simpara>
+
+      <simpara><literal>&lt;character set definition&gt; ::= CREATE CHARACTER
+      SET &lt;character set name&gt; [ AS ] &lt;character set source&gt; [
+      &lt;collate clause&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;character set source&gt; ::= GET &lt;character set
+      specification&gt;</literal></simpara>
+
+      <para>Define a character set. A new CHARACTER SET is based on an
+      existing CHARACTER SET. The optional <literal>&lt;collate
+      clause&gt;</literal> specifies the collation to be used, otherwise the
+      collation is inherited from the default collation for the source
+      CHARACTER SET. Currently this statement has no effect, as the character
+      set used by HyperSQL is Unicode and there is no need for subset
+      character sets.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP CHARACTER SET</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP CHARACTER SET</emphasis></simpara>
+
+      <simpara><emphasis>drop character set statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop character set statement&gt; ::= DROP
+      CHARACTER SET &lt;character set name&gt;</literal></simpara>
+
+      <simpara>Destroy a character set. If the character set name is
+      referenced in any database object, the command fails. Note that
+      <literal>CASCADE</literal> or <literal>RESTRICT</literal> cannot be
+      specified for this command.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE COLLATION</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE COLLATION</emphasis></simpara>
+
+      <simpara><emphasis>collation definition</emphasis></simpara>
+
+      <simpara><literal>&lt;collation definition&gt; ::= CREATE COLLATION
+      &lt;collation name&gt; FOR &lt;character set specification&gt; FROM
+      &lt;existing collation name&gt; [ &lt;pad characteristic&gt;
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;existing collation name&gt; ::= &lt;collation
+      name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;pad characteristic&gt; ::= NO PAD | PAD
+      SPACE</literal></simpara>
+
+      <para>Define a collation. A new collation is based on an existing
+      COLLATION and applies to an existing CHARACTER SET. The
+      <literal>&lt;character set specification&gt;</literal> is always
+      SQL_TEXT. The <literal>&lt;existing collation name&gt;</literal> is
+      either SQL_TEXT or one of the language collations supported by HyperSQL.
+      The <literal>&lt;pad characteristic&gt;</literal> specifies whether
+      strings are padded with spaces for comparison.</para>
+
+      <para>This statement is typically used when a collation is required that
+      does not pad spaces before comparing two strings. For example,
+      <literal>CREATE COLLATION FRENCH_NOPAD FOR INFORMATION_SCHEMA.SQL_TEXT
+      FROM "French" NO PAD</literal>, results in a French collation without
+      padding. This collation can be used for sorting or for individual
+      columns of tables.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP COLLATION</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP COLLATION</emphasis></simpara>
+
+      <simpara><emphasis>drop collation statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop collation statement&gt; ::= DROP COLLATION
+      &lt;collation name&gt; &lt;drop behavior&gt;</literal></simpara>
+
+      <para>Destroy a collation. If the <literal>&lt;drop
+      behavior&gt;</literal> is <literal>CASCADE</literal>, then all
+      references to the collation revert to the default collation that would
+      be in force if the dropped collation was not specified.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE TRANSLATION</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE TRANSLATION</emphasis></simpara>
+
+      <simpara><emphasis>transliteration definition</emphasis></simpara>
+
+      <simpara><literal>&lt;transliteration definition&gt; ::= CREATE
+      TRANSLATION &lt;transliteration name&gt; FOR &lt;source character set
+      specification&gt; TO &lt;target character set specification&gt; FROM
+      &lt;transliteration source&gt;</literal></simpara>
+
+      <simpara><literal>&lt;source character set specification&gt; ::=
+      &lt;character set specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;target character set specification&gt; ::=
+      &lt;character set specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;transliteration source&gt; ::= &lt;existing
+      transliteration name&gt; | &lt;transliteration
+      routine&gt;</literal></simpara>
+
+      <simpara><literal>&lt;existing transliteration name&gt; ::=
+      &lt;transliteration name&gt; </literal></simpara>
+
+      <simpara><literal>&lt;transliteration routine&gt; ::= &lt;specific
+      routine designator&gt;</literal></simpara>
+
+      <para>Define a character transliteration. This feature may be supported
+      in a future version of HyperSQL.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP TRANSLATION</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP TRANSLATION</emphasis></simpara>
+
+      <simpara><emphasis>drop transliteration statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop transliteration statement&gt; ::= DROP
+      TRANSLATION &lt;transliteration name&gt;</literal></simpara>
+
+      <simpara>Destroy a character transliteration. This feature may be
+      supported in a future version of HyperSQL.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE ASSERTION</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE ASSERTION</emphasis></simpara>
+
+      <simpara><emphasis>assertion definition</emphasis></simpara>
+
+      <simpara><literal>&lt;assertion definition&gt; ::= CREATE ASSERTION
+      &lt;constraint name&gt; CHECK &lt;left paren&gt; &lt;search
+      condition&gt; &lt;right paren&gt; [ &lt;constraint characteristics&gt;
+      ]</literal></simpara>
+
+      <simpara>Specify an integrity constraint. This feature may be supported
+      in a future version of HyperSQL.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP ASSERTION</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DROP ASSERTION</emphasis></simpara>
+
+      <simpara><emphasis>drop assertion statement</emphasis></simpara>
+
+      <simpara><literal>&lt;drop assertion statement&gt; ::= DROP ASSERTION
+      &lt;constraint name&gt; [ &lt;drop behavior&gt; ]</literal></simpara>
+
+      <para>Destroy an assertion. This feature may be supported in a future
+      version of HyperSQL.</para>
+    </section>
+  </section>
+
+  <section xml:id="dbc_information_schema">
+    <title>The Information Schema</title>
+
+    <para>The Information Schema is a special schema in each catalog. The SQL
+    Standard defines a number of character sets and domains in this schema. In
+    addition, all the implementation-defined collations belong to the
+    Information Schema.</para>
+
+    <para>The SQL Standard defines many views in the Information Schema. These
+    views show the properties of the database objects that currently exist in
+    the database. When a user accesses one these views, only the properties of
+    database objects that the user can access are included.</para>
+
+    <para>HyperSQL supports all the views defined by the Standard, apart from
+    a few views that report on extended user-defined types and other optional
+    features of the Standard that are not supported by HyperSQL.</para>
+
+    <para>HyperSQL also adds some views to the Information Schema. These views
+    are for features that are not reported in any of the views defined by the
+    Standard, or for use by JDBC DatabaseMetaData.</para>
+
+    <section xml:id="dbc_char_sets_info_schema">
+      <title>Predefined Character Sets, Collations and Domains</title>
+
+      <para>The SQL Standard defines a number of character sets and domains in
+      the INFORMATION SCHEMA.</para>
+
+      <para>These domains are used in the INFORMATION SCHEMA views:</para>
+
+      <simpara>CARDINAL_NUMBER, YES_OR_NO, CHARACTER_DATA, SQL_IDENTIFIER,
+      TIME_STAMP</simpara>
+
+      <simpara>All available collations are in the INFORMATION
+      SCHEMA.</simpara>
+    </section>
+
+    <section xml:id="dbc_views_info_schema">
+      <title>Views in INFORMATION SCHEMA</title>
+
+      <para>HyperSQL supports a vast range of views in the INFORMATION_SCHEMA.
+      These include views specified by the SQL Standard, SQL/Schemata part,
+      plus views that are specific to HyperSQL and are used for JDBC
+      DatabaseMetaData queries, which are based on SQL/CLI part, or other
+      information that is not covered by the SQL Standard. The names of views
+      that are not part of SQL/Schemata start with SYSTEM_.</para>
+
+      <para>The views cover different types of information. These are covered
+      in the next sections.</para>
+    </section>
+
+    <section xml:id="dbc_visibility_info_schema">
+      <title>Visibility of Information</title>
+
+      <para>Users with the special ADMIN role can see the full information on
+      all database objects. Ordinary, non-admin users can see information on
+      the objects for which they have some privileges.</para>
+
+      <para>The rows returned to a non-admin user exclude objects on which the
+      user has no privilege. The extent of the information in visible rows
+      varies with the user's privilege. For example, the owner of a VIEW can
+      see the text of the view query, but a user of the view cannot see this
+      text. When a user cannot see the contents of some column, null is
+      returned for that column.</para>
+    </section>
+
+    <section xml:id="dbc_name_info_schema">
+      <title>Name Information</title>
+
+      <para>The names of database objects are stored in hierarchical views.
+      The top level view is INFORMATION_SCHEMA_CATALOG_NAME.</para>
+
+      <para>Below this level, there is a group of views that covers
+      authorizations and roles, without referencing schema objects. These are
+      AUTHORIZATIONS and ADMINSTRABLE_ROLE_AUTHORIZATIONS.</para>
+
+      <para>Also below the top level, there is the SCHEMATA view, which lists
+      the schemas in the catalog.</para>
+
+      <para>The views that refer to top-level schema objects are divided by
+      object type. These includes ASSERTIONS, CHARACTER_SETS, COLLATIONS,
+      DOMAINS, ROUTINES, SEQUENCES, TABLES, USER_DEFINED_TYPES and
+      VIEWS.</para>
+
+      <para>There are views that refer to objects that are dependent on the
+      top-level schema objects. These include COLUMNS and PARAMETERS, views
+      for constraints, including CHECK_CONSTRAINTS, REFERENTIAL_CONSTRAINTS
+      and TABLE_CONSTRAINTS, and finally the TRIGGERS view.</para>
+
+      <para>The usage of each type of top-level object by another is covered
+      by several views. For example TRIGGER_SEQUENCE_USAGE or
+      ROUTINE_TABLE_USAGE.</para>
+
+      <para>Several other views list the individual privileges owned or
+      granted to each AUTHORIZATION. For example ROLE_ROUTINE_GRANTS or
+      TABLE_PRIVILEGES.</para>
+    </section>
+
+    <section xml:id="dbc_data_type_info_schema">
+      <title>Data Type Information</title>
+
+      <para>The INFORMATION_SCHEMA contains comprehensive information on the
+      data types of each schema object and its elements. For example, the
+      ROUTINES view includes the return data type for each FUNCTION
+      definition. The columns for this information contain nulls for rows that
+      cover PROCEDURE definitions.</para>
+
+      <para>The COLUMNS, PARAMETERS and SEQUENCES views contain the type
+      information in columns with similar names.</para>
+
+      <para>The type information for ARRAY types is returned in the
+      ELEMENT_TYPES view. When a row of the COLUMNS or other view indicates
+      that the type of the object is an ARRAY type, then there is a
+      corresponding entry for this row in the ELEMENT_TYPES view. The
+      following columns in the ELEMENTS_TYPES view identify the database
+      object whose data type is being described: OBJECT_CATALOG,
+      OBJECT_SCHEMA, OBJECT_NAME, OBJECT_TYPE, COLLECTION_TYPE_IDENTIFIER. The
+      last column's counterpart in the COLUMNS view is named differently as
+      DTD_IDENTIFIER. So in order to determine the array element type of a
+      column, an equi-join between the COLUMNS and ELEMENT_TYPES tables on the
+      six listed columns in the ELEMENT_TYPES view and their counterparts in
+      the COLUMNS view is needed.</para>
+    </section>
+
+    <section xml:id="dbc_product_info_schema">
+      <title>Product Information</title>
+
+      <para>A group of views, including SQL_IMPLEMENTATION_INFO, SQL_FEATURES,
+      SQL_SIZING and others cover the capabilities of HyperSQL in detail.
+      These views hold static data and can be explored even when the database
+      is empty.</para>
+    </section>
+
+    <section xml:id="dbc_operations_info_schema">
+      <title>Operations Information</title>
+
+      <para>There are some HyperSQL custom views cover the current state of
+      operation of the database. These include SYSTEM_CACHEINFO,
+      SYSTEM_SESSIONINFO and SYSTEM_SESSIONS views.</para>
+    </section>
+
+    <section xml:id="dbc_standard_views_info_schema">
+      <title>SQL Standard Views</title>
+
+      <para>The following views are defined by the SQL Standard and supported
+      by HyperSQL. The columns and contents exactly match the Standard
+      requirements.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ADMINISTRABLE_ROLE_AUTHORIZATIONS</primary>
+      </indexterm>
+
+      <para>ADMINISTRABLE_ROLE_AUTHORIZATIONS</para>
+
+      <para>Information on ROLE authorizations, all granted by the admin
+      role.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>APPLICABLE_ROLES</primary>
+      </indexterm>
+
+      <para>APPLICABLE_ROLES</para>
+
+      <para>Information on ROLE authorizations for the current user</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ASSERTIONS</primary>
+      </indexterm>
+
+      <para>ASSERTIONS</para>
+
+      <para>Empty view as ASSERTION objects are not yet supported.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>AUTHORIZATIONS</primary>
+      </indexterm>
+
+      <para>AUTHORIZATIONS</para>
+
+      <para>Top level information on USER and ROLE objects in the
+      database</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CHARACTER_SETS</primary>
+      </indexterm>
+
+      <para>CHARACTER_SETS</para>
+
+      <para>List of supported CHARACTER SET objects</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CHECK_CONSTRAINTS</primary>
+      </indexterm>
+
+      <para>CHECK_CONSTRAINTS</para>
+
+      <para>Additional information specific to each CHECK constraint,
+      including the search condition</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CHECK_CONSTRAINT_ROUTINE_USAGE</primary>
+      </indexterm>
+
+      <para>CHECK_CONSTRAINT_ROUTINE_USAGE</para>
+
+      <para>Information on FUNCTION objects referenced in CHECK constraints
+      search conditions</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COLLATIONS</primary>
+      </indexterm>
+
+      <para>COLLATIONS</para>
+
+      <para>Information on collations supported by the database.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMNS</primary>
+      </indexterm>
+
+      <para>COLUMNS</para>
+
+      <para>Information on COLUMN objects in TABLE and VIEW definitions</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMN_COLUMN_USAGE</primary>
+      </indexterm>
+
+      <para>COLUMN_COLUMN_USAGE</para>
+
+      <para>Information on references to COLUMN objects from other, GENERATED,
+      COLUMN objects</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMN_DOMAIN_USAGE</primary>
+      </indexterm>
+
+      <para>COLUMN_DOMAIN_USAGE</para>
+
+      <para>Information on DOMAIN objects used in type definition of COLUMN
+      objects</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMN_PRIVILEGES</primary>
+      </indexterm>
+
+      <para>COLUMN_PRIVILEGES</para>
+
+      <para>Information on privileges on each COLUMN object, granted to
+      different ROLE and USER authorizations</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMN_UDT_USAGE</primary>
+      </indexterm>
+
+      <para>COLUMN_UDT_USAGE</para>
+
+      <para>Information on distinct TYPE objects used in type definition of
+      COLUMN objects</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT_COLUMN_USAGE</primary>
+      </indexterm>
+
+      <para>CONSTRAINT_COLUMN_USAGE</para>
+
+      <para>Information on COLUMN objects referenced by CONSTRAINT objects in
+      the database</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT_PERIOD_USAGE</primary>
+      </indexterm>
+
+      <para>CONSTRAINT_PERIOD_USAGE</para>
+
+      <para>Information on application PERIOD objects referenced by CONSTRAINT
+      objects in the database</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT_TABLE_USAGE</primary>
+      </indexterm>
+
+      <para>CONSTRAINT_TABLE_USAGE</para>
+
+      <para>Information on TABLE and VIEW objects referenced by CONSTRAINT
+      objects in the database</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DATA_TYPE_PRIVILEGES</primary>
+      </indexterm>
+
+      <para>DATA_TYPE_PRIVILEGES</para>
+
+      <para>Information on top level schema objects of various kinds that
+      reference TYPE objects</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DOMAINS</primary>
+      </indexterm>
+
+      <para>DOMAINS</para>
+
+      <para>Top level information on DOMAIN objects in the database.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DOMAIN_CONSTRAINTS</primary>
+      </indexterm>
+
+      <para>DOMAIN_CONSTRAINTS</para>
+
+      <para>Information on CONSTRAINT definitions used for DOMAIN
+      objects</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ELEMENT_TYPES</primary>
+      </indexterm>
+
+      <para>ELEMENT_TYPES</para>
+
+      <para>Information on the type of elements of ARRAY used in database
+      columns or routine parameters and return values</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ENABLED_ROLES</primary>
+      </indexterm>
+
+      <para>ENABLED_ROLES</para>
+
+      <para>Information on ROLE privileges enabled for the current
+      session</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>INFORMATION_SCHEMA_CATALOG_NAME</primary>
+      </indexterm>
+
+      <para>INFORMATION_SCHEMA_CATALOG_NAME</para>
+
+      <para>Information on the single CATALOG object of the database</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>KEY_COLUMN_USAGE</primary>
+      </indexterm>
+
+      <para>KEY_COLUMN_USAGE</para>
+
+      <para>Information on COLUMN objects of tables that are used by PRIMARY
+      KEY, UNIQUE and FOREIGN KEY constraints</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>KEY_PERIOD_USAGE</primary>
+      </indexterm>
+
+      <para>KEY_PERIOD_USAGE</para>
+
+      <para>Information on application PERIOD objects that are used by PRIMARY
+      KEY, UNIQUE and FOREIGN KEY constraints</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>PARAMETERS</primary>
+      </indexterm>
+
+      <para>PARAMETERS</para>
+
+      <para>Information on parameters of each FUNCTION or PROCEDURE</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>PERIODS</primary>
+      </indexterm>
+
+      <para>PERIODS</para>
+
+      <para>Information on PERIOD objects defined in tables</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>REFERENTIAL_CONSTRAINTS</primary>
+      </indexterm>
+
+      <para>REFERENTIAL_CONSTRAINTS</para>
+
+      <para>Additional information on FOREIGN KEY constraints, including
+      triggered action and name of UNIQUE constraint they refer to</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_AUTHORIZATION_DESCRIPTORS</primary>
+      </indexterm>
+
+      <para>ROLE_AUTHORIZATION_DESCRIPTORS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_COLUMN_GRANTS</primary>
+      </indexterm>
+
+      <para>ROLE_COLUMN_GRANTS</para>
+
+      <para>Information on privileges on COLUMN objects granted to or by the
+      current session roles</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_ROUTINE_GRANTS</primary>
+      </indexterm>
+
+      <para>ROLE_ROUTINE_GRANTS</para>
+
+      <para>Information on privileges on FUNCTION and PROCEDURE objects
+      granted to or by the current session roles</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_TABLE_GRANTS</primary>
+      </indexterm>
+
+      <para>ROLE_TABLE_GRANTS</para>
+
+      <para>Information on privileges on TABLE and VIEW objects granted to or
+      by the current session roles</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_UDT_GRANTS</primary>
+      </indexterm>
+
+      <para>ROLE_UDT_GRANTS</para>
+
+      <para>Information on privileges on TYPE objects granted to or by the
+      current session roles</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_USAGE_GRANTS</primary>
+      </indexterm>
+
+      <para>ROLE_USAGE_GRANTS</para>
+
+      <para>Information on privileges on USAGE privileges granted to or by the
+      current session roles</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_COLUMN_USAGE</primary>
+      </indexterm>
+
+      <para>ROUTINE_COLUMN_USAGE</para>
+
+      <para>Information on COLUMN objects of different tables that are
+      referenced in FUNCTION and PROCEDURE definitions</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_JAR_USAGE</primary>
+      </indexterm>
+
+      <para>ROUTINE_JAR_USAGE</para>
+
+      <para>Information on JAR usage by Java language FUNCTION and PROCEDURE
+      objects.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_PERIOD_USAGE</primary>
+      </indexterm>
+
+      <para>ROUTINE_PERIOD_USAGE</para>
+
+      <para>Information on table PERIOD objects referenced in FUNCTION and
+      PROCEDURE objects.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_PRIVILEGES</primary>
+      </indexterm>
+
+      <para>ROUTINE_PRIVILEGES</para>
+
+      <para>Information on EXECUTE privileges granted on PROCEDURE and
+      FUNCTION objects</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_ROUTINE_USAGE</primary>
+      </indexterm>
+
+      <para>ROUTINE_ROUTINE_USAGE</para>
+
+      <para>Information on PROCEDURE and FUNCTION objects that are referenced
+      in FUNCTION and PROCEDURE definitions</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_SEQUENCE_USAGE</primary>
+      </indexterm>
+
+      <para>ROUTINE_SEQUENCE_USAGE</para>
+
+      <para>Information on SEQUENCE objects that are referenced in FUNCTION
+      and PROCEDURE definitions</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_TABLE_USAGE</primary>
+      </indexterm>
+
+      <para>ROUTINE_TABLE_USAGE</para>
+
+      <para>Information on TABLE and VIEW objects that are referenced in
+      FUNCTION and PROCEDURE definitions</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINES</primary>
+      </indexterm>
+
+      <para>ROUTINES</para>
+
+      <para>Top level information on all PROCEDURE and FUNCTION objects in the
+      database</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SCHEMATA</primary>
+      </indexterm>
+
+      <para>SCHEMATA</para>
+
+      <para>Information on all the SCHEMA objects in the database</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SEQUENCES</primary>
+      </indexterm>
+
+      <para>SEQUENCES</para>
+
+      <para>Information on SEQUENCE objects</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_FEATURES</primary>
+      </indexterm>
+
+      <para>SQL_FEATURES</para>
+
+      <para>List of all SQL:2008 standard features, including information on
+      whether they are supported or not supported by HyperSQL</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_IMPLEMENTATION_INFO</primary>
+      </indexterm>
+
+      <para>SQL_IMPLEMENTATION_INFO</para>
+
+      <para>Information on name, capabilities and defaults of the database
+      engine software.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_PACKAGES</primary>
+      </indexterm>
+
+      <para>SQL_PACKAGES</para>
+
+      <para>List of the SQL:2008 Standard packages, including information on
+      whether they are supported or not supported by HyperSQL</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_PARTS</primary>
+      </indexterm>
+
+      <para>SQL_PARTS</para>
+
+      <para>List of the SQL:2008 Standard parts, including information on
+      whether they are supported or not supported by HyperSQL</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_SIZING</primary>
+      </indexterm>
+
+      <para>SQL_SIZING</para>
+
+      <para>List of the SQL:2008 Standard maximum supported sizes for
+      different features as supported by HyperSQL</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_SIZING_PROFILES</primary>
+      </indexterm>
+
+      <para>SQL_SIZING_PROFILES</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TABLES</primary>
+      </indexterm>
+
+      <para>TABLES</para>
+
+      <para>Information on all TABLE and VIEW object, including the
+      INFORMATION_SCHEMA views themselves</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TABLE_CONSTRAINTS</primary>
+      </indexterm>
+
+      <para>TABLE_CONSTRAINTS</para>
+
+      <para>Information on all table level constraints, including PRIMARY KEY,
+      UNIQUE, FOREIGN KEY and CHECK constraints</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TABLE_PRIVILEGES</primary>
+      </indexterm>
+
+      <para>TABLE_PRIVILEGES</para>
+
+      <para>Information on privileges on TABLE and VIEW objects owned or given
+      to the current user</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRANSLATIONS</primary>
+      </indexterm>
+
+      <para>TRANSLATIONS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGERED_UPDATE_COLUMNS</primary>
+      </indexterm>
+
+      <para>TRIGGERED_UPDATE_COLUMNS</para>
+
+      <para>Information on columns that have been used in TRIGGER definitions
+      in the ON UPDATE clause</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGERS</primary>
+      </indexterm>
+
+      <para>TRIGGERS</para>
+
+      <para>Top level information on the TRIGGER definitions in the
+      databases</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGER_COLUMN_USAGE</primary>
+      </indexterm>
+
+      <para>TRIGGER_COLUMN_USAGE</para>
+
+      <para>Information on COLUMN objects that have been referenced in the
+      body of TRIGGER definitions</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGER_ROUTINE_USAGE</primary>
+      </indexterm>
+
+      <para>TRIGGER_PERIOD_USAGE</para>
+
+      <para>Information on PERIOD objects that have been referenced in the
+      body of TRIGGER definitions</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGER_PERIOD_USAGE</primary>
+      </indexterm>
+
+      <para>TRIGGER_ROUTINE_USAGE</para>
+
+      <para>Information on FUNCTION and PROCEDURE objects that have been used
+      in TRIGGER definitions</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGER_SEQUENCE_USAGE</primary>
+      </indexterm>
+
+      <para>TRIGGER_SEQUENCE_USAGE</para>
+
+      <para>Information on SEQUENCE objects that been referenced in TRIGGER
+      definitions</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGER_TABLE_USAGE</primary>
+      </indexterm>
+
+      <para>TRIGGER_TABLE_USAGE</para>
+
+      <para>Information on TABLE and VIEW objects that have been referenced in
+      TRIGGER definitions</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>USAGE_PRIVILEGES</primary>
+      </indexterm>
+
+      <para>USAGE_PRIVILEGES</para>
+
+      <para>Information on USAGE privileges granted to or owned by the current
+      user</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>USER_DEFINED_TYPES</primary>
+      </indexterm>
+
+      <para>USER_DEFINED_TYPES</para>
+
+      <para>Top level information on TYPE objects in the database</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>VIEWS</primary>
+      </indexterm>
+
+      <para>VIEWS</para>
+
+      <para>Top Level information on VIEW objects in the database</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>VIEW_COLUMN_USAGE</primary>
+      </indexterm>
+
+      <para>VIEW_COLUMN_USAGE</para>
+
+      <para>Information on COLUMN objects referenced in the query expressions
+      of the VIEW objects</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>VIEW_PERIOD_USAGE</primary>
+      </indexterm>
+
+      <para>VIEW_PERIOD_USAGE</para>
+
+      <para>Information on PERIOD objects referenced in the query expressions
+      of the VIEW objects</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>VIEW_ROUTINE_USAGE</primary>
+      </indexterm>
+
+      <para>VIEW_ROUTINE_USAGE</para>
+
+      <para>Information on FUNCTION and PROCEDURE objects that have been used
+      in the query expressions of the VIEW objects</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>VIEW_TABLE_USAGE</primary>
+      </indexterm>
+
+      <para>VIEW_TABLE_USAGE</para>
+
+      <para>Information on TABLE and VIEW objects that have been referenced in
+      the query expressions of the VIEW objects</para>
+
+      <section xml:id="dbc_hypersql_views_info_schema">
+        <title>HyperSQL Custom Views</title>
+
+        <para>The following views are specific to HyperSQL. Most of these
+        views are used directly by JDBC DatabaseMetaData method calls and are
+        indicated as such. Some views contain information that is specific to
+        HyperSQL and is not covered by the SQL Standard views.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_BESTROWIDENTIFIER</primary>
+        </indexterm>
+
+        <para>SYSTEM_BESTROWIDENTIFIER</para>
+
+        <para>For DatabaseMetaData.getBestRowIdentifier</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_CACHEINFO</primary>
+        </indexterm>
+
+        <para>SYSTEM_CACHEINFO</para>
+
+        <para>Contains the current settings and variables of the data cache
+        used for all CACHED tables, and the data cache of each TEXT
+        table.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_COLUMN_SEQUENCE_USAGE</primary>
+        </indexterm>
+
+        <para>SYSTEM_COLUMN_SEQUENCE_USAGE</para>
+
+        <para>Contains a row for each column that is defined as GENERATED BY
+        DEFAULT AS SEQUENCE with the column name and sequence name</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_COLUMNS</primary>
+        </indexterm>
+
+        <para>SYSTEM_COLUMNS</para>
+
+        <para>For DatabaseMetaData.getColumns, contains a row for each
+        column</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_COMMENTS</primary>
+        </indexterm>
+
+        <para>SYSTEM_COMMENTS</para>
+
+        <para>Contains the user-defined comments added to tables and their
+        columns.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_CONNECTION_PROPERTIES</primary>
+        </indexterm>
+
+        <para>SYSTEM_CONNECTION_PROPERTIES</para>
+
+        <para>For DatabaseMetaData.getClientInfoProperties</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_CROSSREFERENCE</primary>
+        </indexterm>
+
+        <para>SYSTEM_CROSSREFERENCE</para>
+
+        <para>Full list of all columns referenced by FOREIGN KEY constraints.
+        For DatabaseMetaData.getCrossReference, getExportedKeys and
+        getImportedKeys.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_INDEXINFO</primary>
+        </indexterm>
+
+        <para>SYSTEM_INDEXINFO</para>
+
+        <para>For DatabaseMetaData.getIndexInfo</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_KEY_INDEX_USAGE</primary>
+        </indexterm>
+
+        <para>SYSTEM_KEY_INDEX_USAGE</para>
+
+        <para>List of system-generated index names for each PRIMARY KEY,
+        UNIQUE and FOREIGN KEY constraint.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_PRIMARYKEYS</primary>
+        </indexterm>
+
+        <para>SYSTEM_PRIMARYKEYS</para>
+
+        <para>For DatabaseMetaData.getPrimaryKeys</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_PROCEDURECOLUMNS</primary>
+        </indexterm>
+
+        <para>SYSTEM_PROCEDURECOLUMNS</para>
+
+        <para>For DatabaseMetaData.getProcedureColumns</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_PROCEDURES</primary>
+        </indexterm>
+
+        <para>SYSTEM_PROCEDURES</para>
+
+        <para>For DatabaseMetaData.getFunctionColumns, getFunctions and
+        getProcedures</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_PROPERTIES</primary>
+        </indexterm>
+
+        <para>SYSTEM_PROPERTIES</para>
+
+        <para>Contains the current values of all the database level
+        properties. Settings such as SQL rule enforcement, database
+        transaction model and default transaction level are all reported in
+        this view. The names of the properties are listed in the <link
+        endterm="dbproperties-title" os="" xlink:href="#dbproperties-chapt"/>
+        chapter together with the corresponding SQL statements used to change
+        the properties.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_SCHEMAS</primary>
+        </indexterm>
+
+        <para>SYSTEM_SCHEMAS</para>
+
+        <para>For DatabaseMetaData.getSchemas</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_SEQUENCES</primary>
+        </indexterm>
+
+        <para>SYSTEM_SEQUENCES</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_SESSIONINFO</primary>
+        </indexterm>
+
+        <para>SYSTEM_SESSIONINFO</para>
+
+        <para>Information on the settings and properties of the current
+        session.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_SESSIONS</primary>
+        </indexterm>
+
+        <para>SYSTEM_SESSIONS</para>
+
+        <para>Information on all open sessions in the database (when used by a
+        DBA user), or just the current session. Includes the current
+        transaction state of each session.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_TABLES</primary>
+        </indexterm>
+
+        <para>SYSTEM_TABLES</para>
+
+        <para>Information on tables and views for
+        DatabaseMetaData.getTables</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_TABLESTATS</primary>
+        </indexterm>
+
+        <para>SYSTEM_TABLESTATS</para>
+
+        <para>Information on table spaces and cardinality for each
+        table</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_TABLETYPES</primary>
+        </indexterm>
+
+        <para>SYSTEM_TABLETYPES</para>
+
+        <para>For DatabaseMetaData.getTableTypes</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_TEXTTABLES</primary>
+        </indexterm>
+
+        <para>SYSTEM_TEXTTABLES</para>
+
+        <para>Information on the settings of each text table.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_TYPEINFO</primary>
+        </indexterm>
+
+        <para>SYSTEM_TYPEINFO</para>
+
+        <para>For DatabaseMetaData.getTypeInfo</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_UDTS</primary>
+        </indexterm>
+
+        <para>SYSTEM_UDTS</para>
+
+        <para>For DatabaseMetaData.getUDTs</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_USERS</primary>
+        </indexterm>
+
+        <para>SYSTEM_USERS</para>
+
+        <para>Contains the list of all users in the database (when used by a
+        DBA user), or just the current user.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_VERSIONCOLUMNS</primary>
+        </indexterm>
+
+        <para>SYSTEM_VERSIONCOLUMNS</para>
+
+        <para>For DatabaseMetaData.getVersionColumns. Contains list of columns
+        of system PERIOD and those with ON UPDATE CURRENT TIMESTAMP.</para>
+      </section>
+    </section>
+  </section>
+</chapter>

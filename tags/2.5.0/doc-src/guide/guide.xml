@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+<!DOCTYPE book [
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
+]>
+<book version="5.0" xml:id="guide" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:ns5="http://www.w3.org/1999/xhtml"
+      xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+      xmlns:ns3="http://www.w3.org/2000/svg"
+      xmlns:ns="http://docbook.org/ns/docbook">
+  <!-- We declare the default namespace + those for prefixes xlink: and xi: in
+       the root element, so we can use them anywhere in this file. -->
+
+  <info>
+    <title>HyperSQL User Guide</title>
+
+    <subtitle>HyperSQL Database Engine 2.5.0</subtitle>
+
+    <authorgroup>
+      <editor>
+        <orgname>The HSQL Development Group</orgname>
+      </editor>
+
+      <editor>
+        <personname><firstname>Blaine</firstname>
+        <surname>Simpson</surname></personname>
+
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </editor>
+
+      <editor>
+        <personname><firstname>Fred</firstname>
+        <surname>Toussi</surname></personname>
+
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </editor>
+    </authorgroup>
+
+    <releaseinfo>$Revision$</releaseinfo>
+
+    <pubdate>&timestamp;</pubdate>
+
+    <keywordset>
+      <keyword>Hsqldb</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>Database</keyword>
+
+      <keyword>JDBC</keyword>
+
+      <keyword>Java</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2002-2019 Blaine Simpson, Fred Toussi and The HSQL
+      Development Group. Permission is granted to distribute this document
+      without any alteration under the terms of the HSQLDB license. You are
+      not allowed to distribute or display this document on the web in an
+      altered form.</para>
+    </legalnotice>
+  </info>
+
+  <preface xml:id="book-pref">
+    <title>Preface</title>
+
+    <para>HyperSQL DataBase (HSQLDB) is a modern relational database manager
+    that conforms closely to the SQL:2016 Standard and JDBC 4 specifications.
+    It supports all core features and many of the optional features of
+    SQL:2016.</para>
+
+    <para>The first versions of HSQLDB were released in 2001. Version 2, first
+    released in 2010, includes a complete rewrite of most parts of the
+    database engine.</para>
+
+    <para>This documentation covers HyperSQL version 2.5.0. This documentation
+    is regularly improved and updated. The latest, updated version can be
+    found at http://hsqldb.org/doc/2.0/</para>
+
+    <para>If you notice any mistakes in this document, or if you have problems
+    with the procedures themselves, please use the HSQLDB support facilities
+    which are listed at http://hsqldb.org/support</para>
+
+  <xi:include href="../altformats-sect.xml" />
+  </preface>
+
+  <xi:include href="running.xml" />
+
+  <xi:include href="sqlgeneral.xml" />
+
+  <xi:include href="sessions.xml" />
+
+  <xi:include href="databaseobjects.xml" />
+
+  <xi:include href="texttables.xml" />
+
+  <xi:include href="accesscontrol.xml" />
+
+  <xi:include href="dataaccess.xml" />
+
+  <xi:include href="sqlroutines.xml" />
+
+  <xi:include href="triggers.xml" />
+
+  <xi:include href="builtinfunctions.xml" />
+
+  <xi:include href="management.xml" />
+
+  <xi:include href="compatibility.xml" />
+
+  <xi:include href="dbproperties.xml" />
+
+  <xi:include href="listeners.xml" />
+
+  <xi:include href="unix.xml" />
+
+  <xi:include href="deployment.xml" />
+
+  <xi:include href="lists-app.xml" />
+
+  <xi:include href="dbfiles-app.xml" />
+  
+  <xi:include href="building-app.xml" />
+
+  <xi:include href="openoffice-app.xml" />
+
+  <xi:include href="filelinks-app.xml" />
+
+  <index type="sql" xml:id="sql-ind">
+    <title>SQL Index</title>
+  </index>
+
+  <index xml:id="book-ind">
+    <title>General Index</title>
+  </index>
+</book>
