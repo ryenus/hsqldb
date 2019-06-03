@@ -503,15 +503,16 @@ examples:
     <fileset id='dbmanagerswingclasses' dir='classes'
         includes='
             org/hsqldb/util/*Swing*.class
+            org/hsqldb/util/ConnectionDialogCommon.class
             org/hsqldb/util/ConnectionSetting*
-            org/hsqldb/util/ConnectionDialogCommon*
             org/hsqldb/util/TableSorter*
             org/hsqldb/util/DatabaseManagerCommon*
             org/hsqldb/util/CSVWriter*
             org/hsqldb/util/*.png
             org/hsqldb/util/*.gif
             org/hsqldb/lib/RCData*
-            '/>
+            '
+            />
 
     <fileset id='dbmanagerawtaddedclasses' dir='classes'
         includes='
@@ -520,7 +521,13 @@ examples:
             org/hsqldb/util/Grid.class
             org/hsqldb/util/Tree.class
             org/hsqldb/util/MainInvoker.class
-            '/>
+            '
+        excludes='
+            org/hsqldb/util/ConnectionDialogCommon.class
+            org/hsqldb/util/ConnectionDialogSwing.class
+            '
+
+            />
 
     <fileset id='utilclasses' dir='classes' includes='
             org/hsqldb/util/**
