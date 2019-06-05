@@ -1868,6 +1868,17 @@ public final class DateTimeType extends DTIType {
         }
     }
 
+    public static Object changeZoneToUTC(Object a) {
+
+        if (a instanceof TimestampData) {
+            if (((TimestampData) a).getZone() != 0) {
+                return new TimestampData(((TimestampData) a).seconds);
+            }
+        }
+
+        return a;
+    }
+
     public Object changeZone(Session session, Object a, Type otherType,
                              int targetZone, int localZone) {
 
