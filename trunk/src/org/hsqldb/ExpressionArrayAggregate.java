@@ -38,6 +38,7 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.types.ArrayType;
+import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
 
@@ -45,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of array aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 2.0.1
  */
 public class ExpressionArrayAggregate extends Expression {
@@ -248,10 +249,6 @@ public class ExpressionArrayAggregate extends Expression {
                 dataType = ExpressionAggregate.getType(session,
                                                        OpTypes.MEDIAN,
                                                        exprType);
-
-                if (!exprType.isNumberType()) {
-                    throw Error.error(ErrorCode.X_42563);
-                }
                 break;
         }
 
@@ -388,15 +385,23 @@ public class ExpressionArrayAggregate extends Expression {
                 boolean even = array.length % 2 == 0;
 
                 if (even) {
-                    Object val1 = array[(array.length / 2) - 1];
-                    Object val2 = array[array.length / 2];
-                    Object val3 = dataType.add(session, val1, val2, dataType);
+                    SetFunctionValueAggregate sf =
+                        new SetFunctionValueAggregate(session, OpTypes.AVG,
+                                                      dataType, dataType,
+                                                      false);
 
-                    return dataType.divide(session, val3, Integer.valueOf(2));
+                    sf.add(array[(array.length / 2) - 1]);
+                    sf.add(array[(array.length / 2)]);
+
+                    return sf.getValue();
                 } else {
-                    return dataType.convertToType(session,
-                                                  array[array.length / 2],
-                                                  exprType);
+                    Object value = array[array.length / 2];
+
+                    if (dataType.isTimestampType()) {
+                        value = DateTimeType.changeZoneToUTC(value);
+                    }
+
+                    return dataType.convertToType(session, value, exprType);
                 }
             }
         }

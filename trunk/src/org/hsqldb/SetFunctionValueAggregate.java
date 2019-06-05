@@ -372,8 +372,8 @@ public class SetFunctionValueAggregate implements SetFunction {
 
                         if (type.isIntervalDaySecondType()) {
                             long nanos =
-                                (bi[1].longValue() * DTIType
-                                    .limitNanoseconds + currentLong) / count;
+                                (currentLong + bi[1].longValue() * DTIType
+                                    .limitNanoseconds) / count;
 
                             return new IntervalSecondData(bi[0].longValue(),
                                                           nanos,
@@ -387,16 +387,24 @@ public class SetFunctionValueAggregate implements SetFunction {
                     case Types.SQL_DATE :
                     case Types.SQL_TIMESTAMP :
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-                        BigInteger bi =
-                            getLongSum().divide(BigInteger.valueOf(count));
+                        BigInteger[] bi = getLongSum().divideAndRemainder(
+                            BigInteger.valueOf(count));
 
-                        if (NumberType.compareToLongLimits(bi) != 0) {
+                        if (NumberType.compareToLongLimits(bi[0]) != 0) {
                             throw Error.error(ErrorCode.X_22015);
                         }
 
-                        return new TimestampData(bi.longValue(),
-                                                 (int) currentLong,
-                                                 (int) currentDouble);
+                        long seconds = bi[0].longValue();
+                        long nanos =
+                            (currentLong + bi[1].longValue() * DTIType
+                                .limitNanoseconds) / count;
+
+                        if (setType == Types.SQL_DATE) {
+                            seconds = HsqlDateTime.getNormalisedDate(seconds);
+                            nanos   = 0;
+                        }
+
+                        return new TimestampData(seconds, (int) nanos, 0);
                     }
                     default :
                         throw Error.runtimeError(ErrorCode.U_S0500,
