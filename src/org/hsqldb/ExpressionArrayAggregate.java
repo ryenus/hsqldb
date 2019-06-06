@@ -383,6 +383,7 @@ public class ExpressionArrayAggregate extends Expression {
                 arrayDataType.sort(session, array, exprSort);
 
                 boolean even = array.length % 2 == 0;
+                Object  value;
 
                 if (even) {
                     SetFunctionValueAggregate sf =
@@ -393,16 +394,16 @@ public class ExpressionArrayAggregate extends Expression {
                     sf.add(array[(array.length / 2) - 1]);
                     sf.add(array[(array.length / 2)]);
 
-                    return sf.getValue();
+                    value = sf.getValue();
                 } else {
-                    Object value = array[array.length / 2];
-
-                    if (dataType.isTimestampType()) {
-                        value = DateTimeType.changeZoneToUTC(value);
-                    }
-
-                    return dataType.convertToType(session, value, exprType);
+                    value = array[array.length / 2];
                 }
+
+                if (dataType.isTimestampType()) {
+                    value = DateTimeType.changeZoneToUTC(value);
+                }
+
+                return dataType.convertToType(session, value, exprType);
             }
         }
 
