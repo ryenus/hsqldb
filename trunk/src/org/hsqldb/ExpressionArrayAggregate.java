@@ -388,8 +388,8 @@ public class ExpressionArrayAggregate extends Expression {
                 if (even) {
                     SetFunctionValueAggregate sf =
                         new SetFunctionValueAggregate(session, OpTypes.AVG,
-                                                      dataType, dataType,
-                                                      false);
+                                                      nodes[LEFT].dataType,
+                                                      dataType, false);
 
                     sf.add(array[(array.length / 2) - 1]);
                     sf.add(array[(array.length / 2)]);
