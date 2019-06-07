@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
  * Implementation of aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ExpressionAggregate extends Expression {
@@ -307,6 +307,8 @@ public class ExpressionAggregate extends Expression {
                     case Types.SQL_DATE :
                     case Types.SQL_TIMESTAMP :
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                    case Types.SQL_TIME :
+                    case Types.SQL_TIME_WITH_TIME_ZONE :
                         return dataType;
 
                     default :
