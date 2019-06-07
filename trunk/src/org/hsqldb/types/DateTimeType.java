@@ -50,7 +50,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -1875,6 +1875,14 @@ public final class DateTimeType extends DTIType {
 
             if (ts.getZone() != 0) {
                 return new TimestampData(ts.seconds, ts.nanos);
+            }
+        }
+
+        if (a instanceof TimeData) {
+            TimeData ts = (TimeData) a;
+
+            if (ts.getZone() != 0) {
+                return new TimeData(ts.seconds, ts.nanos);
             }
         }
 

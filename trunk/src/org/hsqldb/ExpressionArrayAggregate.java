@@ -399,7 +399,7 @@ public class ExpressionArrayAggregate extends Expression {
                     value = array[array.length / 2];
                 }
 
-                if (dataType.isTimestampType()) {
+                if (dataType.isDateTimeTypeWithZone()) {
                     value = DateTimeType.changeZoneToUTC(value);
                 }
 

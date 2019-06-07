@@ -45,6 +45,7 @@ import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
+import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.TypedComparator;
@@ -57,7 +58,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.2
  *
  */
@@ -204,6 +205,22 @@ public class SetFunctionValueAggregate implements SetFunction {
                         }
 
                         currentDouble = ((TimestampData) item).getZone();
+
+                        return;
+                    }
+                    case Types.SQL_TIME :
+                    case Types.SQL_TIME_WITH_TIME_ZONE : {
+                        addLong(((TimeData) item).getSeconds());
+
+                        currentLong += ((TimeData) item).getNanos();
+
+                        if (currentLong > 1000000000) {
+                            addLong(currentLong / 1000000000);
+
+                            currentLong %= 1000000000;
+                        }
+
+                        currentDouble = ((TimeData) item).getZone();
 
                         return;
                     }
@@ -375,6 +392,8 @@ public class SetFunctionValueAggregate implements SetFunction {
                                 (currentLong + bi[1].longValue() * DTIType
                                     .limitNanoseconds) / count;
 
+                            nanos = DTIType.normaliseFraction((int) nanos, 0);
+
                             return new IntervalSecondData(bi[0].longValue(),
                                                           nanos,
                                                           (IntervalType) type,
@@ -399,12 +418,37 @@ public class SetFunctionValueAggregate implements SetFunction {
                             (currentLong + bi[1].longValue() * DTIType
                                 .limitNanoseconds) / count;
 
+                        nanos = DTIType.normaliseFraction((int) nanos, 0);
+
                         if (setType == Types.SQL_DATE) {
                             seconds = HsqlDateTime.getNormalisedDate(seconds);
                             nanos   = 0;
                         }
 
                         return new TimestampData(seconds, (int) nanos, 0);
+                    }
+                    case Types.SQL_TIME :
+                    case Types.SQL_TIME_WITH_TIME_ZONE : {
+                        BigInteger[] bi = getLongSum().divideAndRemainder(
+                            BigInteger.valueOf(count));
+
+                        if (NumberType.compareToLongLimits(bi[0]) != 0) {
+                            throw Error.error(ErrorCode.X_22015);
+                        }
+
+                        long seconds = bi[0].longValue();
+                        long nanos =
+                            (currentLong + bi[1].longValue() * DTIType
+                                .limitNanoseconds) / count;
+
+                        nanos = DTIType.normaliseFraction((int) nanos, 0);
+
+                        if (setType == Types.SQL_DATE) {
+                            seconds = HsqlDateTime.getNormalisedDate(seconds);
+                            nanos   = 0;
+                        }
+
+                        return new TimeData((int) seconds, (int) nanos, 0);
                     }
                     default :
                         throw Error.runtimeError(ErrorCode.U_S0500,
