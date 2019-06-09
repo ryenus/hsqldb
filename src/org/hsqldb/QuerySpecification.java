@@ -64,7 +64,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -1469,11 +1469,11 @@ public class QuerySpecification extends QueryExpression {
         RowSetNavigatorData navigator = (RowSetNavigatorData) r.getNavigator();
 
         if (isDistinctSelect) {
-            navigator.removeDuplicates(session);
+            navigator.removeDuplicates();
         }
 
         if (sortAndSlice.hasOrder()) {
-            navigator.sortOrder(session);
+            navigator.sortOrder();
         }
 
         if (limits != SortAndSlice.defaultLimits

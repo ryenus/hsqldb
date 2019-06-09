@@ -630,27 +630,27 @@ public class QueryExpression implements RangeGroup {
         switch (unionType) {
 
             case UNION :
-                navigator.union(session, rightNavigator);
+                navigator.union(rightNavigator);
                 break;
 
             case UNION_ALL :
-                navigator.unionAll(session, rightNavigator);
+                navigator.unionAll(rightNavigator);
                 break;
 
             case INTERSECT :
-                navigator.intersect(session, rightNavigator);
+                navigator.intersect(rightNavigator);
                 break;
 
             case INTERSECT_ALL :
-                navigator.intersectAll(session, rightNavigator);
+                navigator.intersectAll(rightNavigator);
                 break;
 
             case EXCEPT :
-                navigator.except(session, rightNavigator);
+                navigator.except(rightNavigator);
                 break;
 
             case EXCEPT_ALL :
-                navigator.exceptAll(session, rightNavigator);
+                navigator.exceptAll(rightNavigator);
                 break;
 
             default :
@@ -658,7 +658,7 @@ public class QueryExpression implements RangeGroup {
         }
 
         if (sortAndSlice.hasOrder()) {
-            navigator.sortOrderUnion(session, sortAndSlice);
+            navigator.sortOrderUnion(sortAndSlice);
         }
 
         if (sortAndSlice.hasLimit()) {
@@ -698,11 +698,11 @@ public class QueryExpression implements RangeGroup {
             switch (unionType) {
 
                 case UNION :
-                    recNav.union(session, tempNavigator);
+                    recNav.union(tempNavigator);
                     break;
 
                 case UNION_ALL :
-                    recNav.unionAll(session, tempNavigator);
+                    recNav.unionAll(tempNavigator);
                     break;
 
                 default :
@@ -1027,6 +1027,7 @@ public class QueryExpression implements RangeGroup {
                 ColumnSchema column =
                     (ColumnSchema) columns.get(unionColumnMap[i]);
                 String name = (String) columns.getKey(unionColumnMap[i]);
+
                 list.add(name, column);
             }
 
