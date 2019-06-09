@@ -48,7 +48,7 @@ import org.hsqldb.types.Type;
  * Table with data derived from a query expression.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class TableDerived extends Table {
@@ -157,10 +157,9 @@ public class TableDerived extends Table {
         TableDerived td = this;
 
         if (isRecompiled()) {
-            ParserDQL p = new ParserDQL(session, new Scanner(),
-                                        baseContext);
-            p.compileContext.setCurrentSubquery(tableName);
+            ParserDQL p = new ParserDQL(session, new Scanner(), baseContext);
 
+            p.compileContext.setCurrentSubquery(tableName);
             p.reset(session, sql);
             p.read();
 
@@ -367,7 +366,7 @@ public class TableDerived extends Table {
     }
 
     boolean hasUniqueNotNullRows(Session session) {
-        return getNavigator(session).hasUniqueNotNullRows(session);
+        return getNavigator(session).hasUniqueNotNullRows();
     }
 
     void resetToView() {
@@ -402,7 +401,7 @@ public class TableDerived extends Table {
                 RowSetNavigatorData navigator =
                     ((RowSetNavigatorData) result.getNavigator());
 
-                navigator.removeDuplicates(session);
+                navigator.removeDuplicates();
             }
 
             store = session.sessionData.getSubqueryRowStore(this);
