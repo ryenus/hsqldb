@@ -232,7 +232,7 @@ import org.hsqldb.result.ResultConstants;
  * is started as part of a larger framework. <p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.2
  */
 public class Server implements HsqlSocketRequestHandler, Notified {
@@ -2161,32 +2161,38 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
         // Be nice and let applications exit if there are no
         // running connection threads - wait at most 100 ms per active thread
-        for (int count = serverConnectionThreadGroup.activeCount();
-                count > 0 && serverConnectionThreadGroup.activeCount() > 0;
-                count--) {
-            try {
-                Thread.sleep(100);
-            } catch (Exception e) {
+        if (serverConnectionThreadGroup != null) {
+            if (!serverConnectionThreadGroup.isDestroyed()) {
+                int count = serverConnectionThreadGroup.activeCount();
 
-                // e.getMessage();
+                for (; count > 0
+                        && serverConnectionThreadGroup.activeCount() > 0;
+                        count--) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (Exception e) {
+
+                        // e.getMessage();
+                    }
+                }
+
+                try {
+                    serverConnectionThreadGroup.destroy();
+                    printWithThread(serverConnectionThreadGroup.getName()
+                                    + " destroyed");
+                } catch (Throwable t) {
+                    printWithThread(serverConnectionThreadGroup.getName()
+                                    + " not destroyed");
+                    printWithThread(t.toString());
+                }
             }
+
+            serverConnectionThreadGroup = null;
         }
 
-        try {
-            serverConnectionThreadGroup.destroy();
-            printWithThread(serverConnectionThreadGroup.getName()
-                            + " destroyed");
-        } catch (Throwable t) {
-            printWithThread(serverConnectionThreadGroup.getName()
-                            + " not destroyed");
-            printWithThread(t.toString());
-        }
+        serverThread = null;
 
         setState(ServerConstants.SERVER_STATE_SHUTDOWN);
-
-        serverConnectionThreadGroup = null;
-        serverThread                = null;
-
         print(sw.elapsedTimeToMessage("Shutdown sequence completed"));
 
         if (isNoSystemExit()) {
@@ -2356,5 +2362,4 @@ public class Server implements HsqlSocketRequestHandler, Notified {
             DriverManager.setLogWriter(newPrintWriter);
         } catch (Exception e) {}
     }
-
 }
