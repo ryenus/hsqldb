@@ -65,7 +65,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -6737,6 +6737,12 @@ public class ParserDQL extends ParserBase {
         int position      = getPosition();
 
         readThis(Tokens.DECLARE);
+
+        if (isReservedKey()) {
+            rewind(position);
+
+            return null;
+        }
 
         HsqlName cursorName = readNewSchemaObjectName(SchemaObject.CURSOR,
             false);
