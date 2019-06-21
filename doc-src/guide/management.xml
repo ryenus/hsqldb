@@ -550,7 +550,9 @@
       of backup performs a checkpoint immediately before backing up the
       files.</simpara>
 
-      <programlisting> BACKUP DATABASE TO &lt;directory name&gt; BLOCKING [ AS FILES ]</programlisting>
+      <informalexample>
+        <programlisting> BACKUP DATABASE TO &lt;directory name&gt; BLOCKING [ AS FILES ]</programlisting>
+      </informalexample>
 
       <simpara>The <emphasis>directory name</emphasis> must end with a slash
       to distinguish it as a directory, and the whole string must be in single
@@ -561,7 +563,9 @@
       perform a checkpoint and allows access to the database while backup is
       in progress.</simpara>
 
-      <programlisting> BACKUP DATABASE TO &lt;directory name&gt; NOT BLOCKING [ AS FILES ]</programlisting>
+      <informalexample>
+        <programlisting> BACKUP DATABASE TO &lt;directory name&gt; NOT BLOCKING [ AS FILES ]</programlisting>
+      </informalexample>
 
       <simpara>If you add AS FILES to the statements, the database files are
       backed up as separate files in the directory, without any gzip
@@ -672,6 +676,10 @@
         </listitem>
       </itemizedlist></para>
 
+    <para>The parameters, including the name of the cipher and the key, are
+    all specified in the database connection URL No key or other parameter is
+    stored in the database files. </para>
+
     <section xml:id="mtc_encrypted_create">
       <title>Creating and Accessing an Encrypted Database</title>
 
@@ -709,11 +717,14 @@
 
       <para>The files that are encrypted include the
       <literal>.script</literal>, <literal>.data</literal>,
-      <literal>.backup</literal> and <literal>.log</literal> files. The
-      <literal>.lobs</literal> file is not encrypted by default. The property
-      <literal>crypt_lobs=true</literal> must be specified to encrypt the
-      <literal>.lobs</literal> file. When this property is used, the blobs and
-      clobs are both compressed and encrypted.</para>
+      <literal>.backup</literal> and <literal>.log</literal> files. In version
+      2.5.0 and later, the <literal>.lobs</literal> file is encrypted by
+      default and the blobs and clobs are both compressed and encrypted. You
+      can override this with the property <literal>crypt_lobs=false</literal>
+      on the URL. Note in some earlier versions of HSQLDB, encrypted lobs were
+      not supported and in some versions, the default for this property was
+      false. You will need to set the property to false to open those
+      databases. </para>
 
       <para>Although the details of external tools are outside the scope of
       this document, openssl may be used to generate sufficiently random keys
@@ -1388,13 +1399,15 @@
       xlink:href="#databaseobjects-chapt"/> chapter. Some examples of setting
       the database collation follow:</simpara>
 
-      <programlisting> -- this collation is an ascii collation with Upper Case Comparison (coverts strings to uppercase for comparison)
+      <informalexample>
+        <programlisting> -- this collation is an ascii collation with Upper Case Comparison (coverts strings to uppercase for comparison)
  SET DATABASE COLLATION SQL_TEXT_UCC
 
  -- this collation is case-insensitive English
  SET DATABASE COLLATION "English 1"
  -- this collation is case-sensitive French
  SET DATABASE COLLATION "French 2"  </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE DEFAULT RESULT MEMORY ROWS</primary>
@@ -2972,7 +2985,8 @@
       <simpara>In the examples below, an SQL function and a Java function are
       used.</simpara>
 
-      <programlisting> SET DATABASE PASSWORD CHECK FUNCTION
+      <informalexample>
+        <programlisting> SET DATABASE PASSWORD CHECK FUNCTION
    BEGIN ATOMIC
      IF CHAR_LENGTH(PASSWORD) &gt; 6 THEN
        RETURN TRUE;
@@ -2988,6 +3002,7 @@
      return param != null &amp;&amp; param.length &gt; 6;
  }
 </programlisting>
+      </informalexample>
 
       <simpara>It is possible to replace the default password authentication
       completely with a function that uses external authentication servers,
@@ -3036,7 +3051,8 @@
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
 
-      <programlisting> SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME 'CLASSPATH:org.anorg.access.AccessClass.accessExernalMethod'
+      <informalexample>
+        <programlisting> SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME 'CLASSPATH:org.anorg.access.AccessClass.accessExernalMethod'
 
  // the Java method is defined like this
  public static java.sql.Array accessExternalMethod(String database, String user, String password) {
@@ -3046,6 +3062,7 @@
      throw new RuntimeException("failed to authenticate");
  }
 </programlisting>
+      </informalexample>
     </section>
   </section>
 </chapter>
