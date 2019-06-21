@@ -783,9 +783,11 @@
     counterpart in <literal>&lt;char value expr3&gt;</literal> are dropped
     from the result. (HyperSQL)</para>
 
-    <programlisting> -- in this example any accented character in acolumn is replaced with one without an accent
+    <informalexample>
+      <programlisting> -- in this example any accented character in acolumn is replaced with one without an accent
  TRANSLATE( acolumn, 'ÁÇÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕËÜáçéíóúàèìòùâêîôûãõëü', 'ACEIOUAEIOUAEIOUAOEUaceiouaeiouaeiouaoeu');
 </programlisting>
+    </informalexample>
 
     <indexterm significance="preferred" type="sql">
       <primary>UCASE function</primary>
@@ -1320,7 +1322,8 @@
 
     <para>An example is given below:</para>
 
-    <programlisting> WIDTH_BUCKET( 5, 10, 110, 10)
+    <informalexample>
+      <programlisting> WIDTH_BUCKET( 5, 10, 110, 10)
  0
 
  WIDTH_BUCKET( 23, 10, 110, 10)
@@ -1332,6 +1335,7 @@
  WIDTH_BUCKET( 200, 10, 110, 10)
  11
 </programlisting>
+    </informalexample>
   </section>
 
   <section xml:id="bfc_datetime_functions">
@@ -1827,12 +1831,14 @@
       <para>The example below compares the output of the function and the
       expression.</para>
 
-      <para><programlisting> VALUES ADD_MONTHS ( DATE '2012-02-29' , 1), DATE '2012-02-29' + 1 MONTH
+      <para><informalexample>
+          <programlisting> VALUES ADD_MONTHS ( DATE '2012-02-29' , 1), DATE '2012-02-29' + 1 MONTH
 
  C1                  C2         
  ------------------- ---------- 
  2012-03-31 00:00:00 2012-03-29 
-</programlisting></para>
+</programlisting>
+        </informalexample></para>
 
       <indexterm significance="preferred" type="sql">
         <primary>LAST_DAY function</primary>
@@ -1848,12 +1854,14 @@
       timestamp. The type of the result is always TIMESTAMP(0).
       (HyperSQL)</para>
 
-      <para><programlisting> VALUES LAST_DAY ( TIMESTAMP '2012-02-14 12:30:44')
+      <para><informalexample>
+          <programlisting> VALUES LAST_DAY ( TIMESTAMP '2012-02-14 12:30:44')
 
  C1                  
  ------------------- 
  2012-02-29 12:30:44 
-</programlisting></para>
+</programlisting>
+        </informalexample></para>
 
       <indexterm significance="preferred" type="sql">
         <primary>MONTHS_BETWEEN function</primary>
@@ -1871,12 +1879,14 @@
       days per month. You can cast the resulting value into INTERVAL MONTH and
       use it for datetime arithmetic. (HyperSQL)</para>
 
-      <para><programlisting> VALUES MONTHS_BETWEEN ( TIMESTAMP '2013-02-14 12:30:44', TIMESTAMP '2012-01-04 12:30:44')
+      <para><informalexample>
+          <programlisting> VALUES MONTHS_BETWEEN ( TIMESTAMP '2013-02-14 12:30:44', TIMESTAMP '2012-01-04 12:30:44')
 
  C1                                  
  ----------------------------------- 
  13.32258064516129000000000000000000 
-</programlisting></para>
+</programlisting>
+        </informalexample></para>
 
       <indexterm significance="preferred" type="sql">
         <primary>TIMESTAMPADD function</primary>
@@ -1933,10 +1943,12 @@
       <para><literal>TIMESTAMPDIFF</literal> is evaluated as &lt;datetime
       value expr 2&gt; - &lt;datetime value expr 1&gt;. (JDBC)</para>
 
-      <programlisting> TIMESTAMPADD ( SQL_TSI_MONTH, 3, DATE '2008-11-22' )
+      <informalexample>
+        <programlisting> TIMESTAMPADD ( SQL_TSI_MONTH, 3, DATE '2008-11-22' )
 
  TIMESTAMPDIFF ( SQL_TSI_HOUR, TIMESTAMP '2008-11-20 20:30:40', TIMESTAMP '2008-11-21 21:30:40' )
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>DATE_ADD function</primary>
@@ -1964,10 +1976,12 @@
       other chapters of this guide. The TIME type is supported for the
       argument to these functions. (HyperSQL)</para>
 
-      <programlisting> DATE_ADD ( DATE '2008-11-22', INTERVAL 3 MONTH )
+      <informalexample>
+        <programlisting> DATE_ADD ( DATE '2008-11-22', INTERVAL 3 MONTH )
 
  DATE_SUB ( TIMESTAMP '2008-11-22 20:30:40', INTERVAL 20 HOUR )
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>DATEADD function</primary>
@@ -2012,10 +2026,12 @@
       TIME type is not supported for the arguments to these functions.
       (HyperSQL}</para>
 
-      <programlisting> DATEADD ( 'month', 3, DATE '2008-11-22' )
+      <informalexample>
+        <programlisting> DATEADD ( 'month', 3, DATE '2008-11-22' )
 
  DATEDIFF ( 'hour', TIMESTAMP '2008-11-22 20:30:40', TIMESTAMP '2008-11-22 00:30:40' )
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>ROUND function datetime</primary>
@@ -2059,7 +2075,8 @@
       functions are given below. If the second argument is omitted, the
       datetime value is truncated to midnight the same date. (HyperSQL)</para>
 
-      <programlisting> ROUND ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
+      <informalexample>
+        <programlisting> ROUND ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
 
  TIMESTAMP '2009-01-01 00:00:00'
 
@@ -2067,6 +2084,7 @@
 
  TIMESTAMP '2008-01-01 00:00:00'
 </programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="bfc_datetime_format">
@@ -2101,10 +2119,12 @@
       and the second argument is the time part of the returned TIMESTAMP
       value. An example, including the result, is given below:</para>
 
-      <programlisting> TIMESTAMP ( '2008-11-22', '20:30:40' )
+      <informalexample>
+        <programlisting> TIMESTAMP ( '2008-11-22', '20:30:40' )
 
  TIMESTAMP '2008-11-22 20:30:40.000000'
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>TIMESTAMP_WITH_ZONE function</primary>
@@ -2145,7 +2165,8 @@
       elements from the list given below, plus punctuation and space
       characters. An example, including the result, is given below:</para>
 
-      <programlisting> TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', 'YYYY BC MONTH, DAY HH' )
+      <informalexample>
+        <programlisting> TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', 'YYYY BC MONTH, DAY HH' )
 
  2008 AD February, Friday 8
 
@@ -2153,6 +2174,7 @@
 
  The Date is 2008 AD February, Friday 8
 </programlisting>
+      </informalexample>
 
       <para>The format is internally translated to a
       <classname>java.text.SimpleDateFormat</classname> format string.
@@ -2193,10 +2215,12 @@
       types if necessary. An example, including the result, is given
       below:</para>
 
-      <programlisting> TO_TIMESTAMP ( '22/11/2008 20:30:40', 'DD/MM/YYYY HH:MI:SS' )
+      <informalexample>
+        <programlisting> TO_TIMESTAMP ( '22/11/2008 20:30:40', 'DD/MM/YYYY HH:MI:SS' )
 
  TIMESTAMP '2008-11-22 20:30:40.000000'
 </programlisting>
+      </informalexample>
 
       <para>The format strings that can be used for TO_DATE and TO_TIMESTAMP
       are more restrictive than those used for TO_CHAR, because the format
@@ -2467,7 +2491,8 @@
     shown. The UNNEST table expression is used to form a table from the
     array.</para>
 
-    <programlisting> SEQUENCE_ARRAY(0, 100, 5)
+    <informalexample>
+      <programlisting> SEQUENCE_ARRAY(0, 100, 5)
 
  ARRAY[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100] 
 
@@ -2492,6 +2517,7 @@
  2010-08-07 7
 
 </programlisting>
+    </informalexample>
   </section>
 
   <section xml:id="bfc_general_functions">

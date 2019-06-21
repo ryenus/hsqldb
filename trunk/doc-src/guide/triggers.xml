@@ -258,11 +258,13 @@
       row into a triglog table after each row insert into the testtrig
       table.</para>
 
-      <programlisting> CREATE TRIGGER trig AFTER INSERT ON testtrig 
+      <informalexample>
+        <programlisting> CREATE TRIGGER trig AFTER INSERT ON testtrig 
    REFERENCING NEW ROW AS newrow
    FOR EACH ROW WHEN (newrow.id &gt; 1)
    INSERT INTO TRIGLOG VALUES (newrow.id, newrow.data, 'inserted')
 </programlisting>
+      </informalexample>
 
       <para>In the example blow, the trigger code modifies the updated data if
       a condition is true. This type of trigger is useful when the application
@@ -271,7 +273,8 @@
       block and can contain all the SQL statements that are allowed in an
       SQL/PSM block.</para>
 
-      <programlisting> CREATE TRIGGER t BEFORE UPDATE ON customer
+      <informalexample>
+        <programlisting> CREATE TRIGGER t BEFORE UPDATE ON customer
    REFERENCING NEW AS newrow FOR EACH ROW
    BEGIN ATOMIC
      IF LENGTH(newrow.firstname) &gt; 10 THEN
@@ -279,6 +282,7 @@
      END IF;
    END
 </programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="trc_trigger_action_java">
@@ -304,8 +308,10 @@
       different tables and triggers using the supplied arguments and take
       appropriate action.</para>
 
-      <programlisting> fire (int type, String tabName, String table, Object oldRow[], Object newRow[])
+      <informalexample>
+        <programlisting> fire (int type, String tabName, String table, Object oldRow[], Object newRow[])
 </programlisting>
+      </informalexample>
 
       <para>The Java method for a synchronous trigger (see below) can modify
       the values in newRow in a BEFORE trigger. Such modifications are
@@ -346,18 +352,21 @@
       trigger is not activated if the c2 column in the updated row is
       null.</para>
 
-      <programlisting> CREATE TRIGGER TRIGBUR BEFORE UPDATE OF c1, c2, c3 ON testtrig 
+      <informalexample>
+        <programlisting> CREATE TRIGGER TRIGBUR BEFORE UPDATE OF c1, c2, c3 ON testtrig 
    referencing NEW ROW AS newrow
    FOR EACH ROW WHEN (newrow.c2 IS NOT NULL)
    CALL "org.hsqldb.test.TriggerClass"
 </programlisting>
+      </informalexample>
 
       <para>Java functions can be called from an SQL trigger. So it is
       possible to define the Java function to perform any external
       communication that are necessary for the trigger, and use SQL code for
       checks and alterations to data.</para>
 
-      <programlisting> CREATE TRIGGER t BEFORE UPDATE ON customer
+      <informalexample>
+        <programlisting> CREATE TRIGGER t BEFORE UPDATE ON customer
    REFERENCING NEW AS newrow FOR EACH ROW
    BEGIN ATOMIC
      IF LENGTH(newrow.firstname) &gt; 10 THEN
@@ -365,6 +374,7 @@
      END IF;
    END
 </programlisting>
+      </informalexample>
     </section>
   </section>
 
@@ -507,7 +517,8 @@
     blocks in order to terminate the execution of the SQL statement that
     caused the trigger to execute.</simpara>
 
-    <programlisting>/* the trigger throws an exception if a customer with the given last name already exists */
+    <informalexample>
+      <programlisting>/* the trigger throws an exception if a customer with the given last name already exists */
  CREATE TRIGGER trigone BEFORE INSERT ON customer 
    REFERENCING NEW ROW AS newrow
    FOR EACH ROW WHEN (newrow.id &gt; 100)
@@ -517,8 +528,10 @@
      END IF;
    END
 </programlisting>
+    </informalexample>
 
-    <programlisting>/* for each row inserted into the target, the trigger insert a row into the table used for logging */
+    <informalexample>
+      <programlisting>/* for each row inserted into the target, the trigger insert a row into the table used for logging */
  CREATE TRIGGER trig AFTER INSERT ON testtrig 
    BEFORE othertrigger  
    REFERENCING NEW ROW AS newrow
@@ -528,6 +541,7 @@
      /* more statements can be included */
    END
 </programlisting>
+    </informalexample>
 
     <simpara/>
 

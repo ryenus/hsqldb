@@ -144,11 +144,13 @@
       are given below. The view V is updatable when its query expression is
       updatable. The SELECT statement from this view is also updatable:</para>
 
-      <programlisting> SELECT A, B FROM T WHERE C &gt; 5
+      <informalexample>
+        <programlisting> SELECT A, B FROM T WHERE C &gt; 5
  SELECT A, B FROM (SELECT * FROM T WHERE C &gt; 10) AS TT WHERE TT.B &lt;10
  CREATE VIEW V(X,Y) AS SELECT A, B FROM T WHERE C &gt; 0 AND B &lt; 10
  SELECT X FROM V WHERE Y = 5
 </programlisting>
+      </informalexample>
 
       <para>If a cursor is declared with the SQL qualifier, <literal>FOR
       UPDATE OF &lt;column name list&gt;</literal>, then only the stated
@@ -275,11 +277,13 @@
       <para>Examples of creating statements for updatable result sets are
       given below:</para>
 
-      <programlisting> Connection c = newConnection();
+      <informalexample>
+        <programlisting> Connection c = newConnection();
  Statement st;
  c.setAutoCommit(false);
  st = c.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
  st = c.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);</programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="dac_jdbc_parameters">
@@ -301,7 +305,8 @@
       calls do not raise an exception, but one of the
       <methodname>execute()</methodname> statements does.</para>
 
-      <programlisting> // table definition: CREATE TABLE T (NAME VARCHAR(12), ...)
+      <informalexample>
+        <programlisting> // table definition: CREATE TABLE T (NAME VARCHAR(12), ...)
  Connection c = newConnection();
  PreparedStatement st = c.prepareStatement("SELECT * FROM T WHERE NAME = ?");
  // type of the parameter is VARCHAR(12), which limits length to 12 characters
@@ -314,6 +319,7 @@
  st.execute(); // exception is thrown when HyperSQL checks the value for update
 
 </programlisting>
+      </informalexample>
 
       <para>JDBC parameters can be set with any compatible type, as supported
       by the JDBC specification. For CLOB and BLOB types, you can use streams,
@@ -523,10 +529,12 @@
       to declare the cursor WITH RETURN as it is returned by the
       <classname>CallableStatement</classname>.</para>
 
-      <programlisting> DECLARE thiscursor SCROLL CURSOR WITHOUT HOLD WITH RETURN FOR SELECT * FROM INFORMATION_SCHEMA.TABLES;
+      <informalexample>
+        <programlisting> DECLARE thiscursor SCROLL CURSOR WITHOUT HOLD WITH RETURN FOR SELECT * FROM INFORMATION_SCHEMA.TABLES;
  --
  OPEN thiscursor;
 </programlisting>
+      </informalexample>
     </section>
   </section>
 
@@ -634,11 +642,13 @@
 
       <simpara>Example of character literals are given below:</simpara>
 
-      <programlisting> 'a literal'  ' string seperated'  ' into parts'
+      <informalexample>
+        <programlisting> 'a literal'  ' string seperated'  ' into parts'
  'a string''s literal form with quote character'
  U&amp;'Unicode string with Greek delta \0394 and phi \03a6 letters'
  U&amp;'Unicode string with forward slash // as custom escape character'UESCAPE'/'
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>binary literal</primary>
@@ -665,7 +675,9 @@
       divided into multiple quoted strings, separated with a space or
       end-of-line character.</simpara>
 
-      <programlisting> X'1abACD34' 'Af'</programlisting>
+      <informalexample>
+        <programlisting> X'1abACD34' 'Af'</programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>bit literal</primary>
@@ -686,7 +698,9 @@
       the bits. Long literals can be divided into multiple quoted strings,
       separated with a space or end-of-line character.</simpara>
 
-      <programlisting> B'10001001' '00010'</programlisting>
+      <informalexample>
+        <programlisting> B'10001001' '00010'</programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>numeric literal</primary>
@@ -737,10 +751,12 @@
       approximate numeric literal always includes the mantissa and exponent,
       separated by E.</simpara>
 
-      <programlisting> 12
+      <informalexample>
+        <programlisting> 12
  34.35
  +12E-2
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>boolean literal</primary>
@@ -866,13 +882,15 @@
       endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"/>
       chapter</simpara>
 
-      <programlisting> DATE '2008-08-08'
+      <informalexample>
+        <programlisting> DATE '2008-08-08'
  TIME '20:08:08'
  TIMESTAMP '2008-08-08 20:08:08.235'
 
  INTERVAL '10' DAY
  INTERVAL -'08:08' MINUTE TO SECOND
 </programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="dac_sql_references">
@@ -910,10 +928,12 @@
 
       <simpara>Examples of identifier chain are given below:</simpara>
 
-      <programlisting> SELECT MYCATALOG.MYSCHEMA.MYTABLE.MYCOL FROM MYCATALOG.MYSCHEMA.MYTABLE
+      <informalexample>
+        <programlisting> SELECT MYCATALOG.MYSCHEMA.MYTABLE.MYCOL FROM MYCATALOG.MYSCHEMA.MYTABLE
  DROP TABLE MYCATALOG.MYSCHEMA.MYTABLE CASCADE
  ALTER SEQUENCE MYCATALOG.MYSCHEMA.MYSEQUENCE RESTART WITH 100
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>column reference</primary>
@@ -1137,7 +1157,9 @@
       of the return value is the type of the first <literal>&lt;value
       expression&gt;</literal>.</simpara>
 
-      <programlisting> SELECT i, NULLIF(n, 'not defined') FROM t</programlisting>
+      <informalexample>
+        <programlisting> SELECT i, NULLIF(n, 'not defined') FROM t</programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>case expression</primary>
@@ -1201,10 +1223,12 @@
       depending on the value of dial code. The third example uses IN and
       smaller-than predicates.</simpara>
 
-      <programlisting> CASE dialcode WHEN 44 THEN 'Britain' WHEN 49 THEN 'Germany' ELSE 'Other country' END
+      <informalexample>
+        <programlisting> CASE dialcode WHEN 44 THEN 'Britain' WHEN 49 THEN 'Germany' ELSE 'Other country' END
  CASE WHEN dialcode=44 THEN 'Britain' WHEN dialcode=49 THEN 'Germany' WHEN dialcode &lt; 0 THEN 'bad dial code' ELSE 'Other country' END
  CASE dialcode WHEN IN (44,49,30) THEN 'Europe' WHEN IN (86,91,92) THEN 'Asia' WHEN &lt; 0 THEN 'bad dial code' ELSE 'Other continent' END
 </programlisting>
+      </informalexample>
 
       <simpara>The case statement can be far more complex and involve several
       conditions.</simpara>
@@ -1245,12 +1269,14 @@
       <simpara>The examples below show examples of cast with their
       result:</simpara>
 
-      <programlisting> CAST (NULL AS TIMESTAMP)
+      <informalexample>
+        <programlisting> CAST (NULL AS TIMESTAMP)
  CAST ('   199  ' AS INTEGER) = 199
  CAST ('tRue ' AS BOOLEAN) = TRUE
  CAST (INTERVAL '2' DAY AS INTEGER) = 2
  CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>NEXT VALUE FOR</primary>
@@ -1275,8 +1301,10 @@
       dialects are supported. In the example below the expression is used in
       an insert statement:</simpara>
 
-      <programlisting>INSERT INTO MYTABLE(COL1, COL2) VALUES 2, NEXT VALUE FOR MYSEQUENCE
+      <informalexample>
+        <programlisting>INSERT INTO MYTABLE(COL1, COL2) VALUES 2, NEXT VALUE FOR MYSEQUENCE
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>CURRENT VALUE FOR</primary>
@@ -1294,9 +1322,11 @@
       below, the value that was generated by the sequence for the first
       insert, is reused for the second insert:</simpara>
 
-      <programlisting> INSERT INTO MYTABLE(COL1, COL2) VALUES 2, NEXT VALUE FOR MYSEQUENCE;
+      <informalexample>
+        <programlisting> INSERT INTO MYTABLE(COL1, COL2) VALUES 2, NEXT VALUE FOR MYSEQUENCE;
  INSERT INTO CHILDTABLE(COL1, COL2) VALUES 10, CURRENT VALUE FOR MYSEQUENCE;
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>value expression</primary>
@@ -1648,7 +1678,8 @@
       literals actually represent the result of evaluation of some
       expression.</simpara>
 
-      <programlisting> ((1, 2, 3, 4) = (1, 2, 3, 4)) IS TRUE
+      <informalexample>
+        <programlisting> ((1, 2, 3, 4) = (1, 2, 3, 4)) IS TRUE
  ((1, 2, 3, 4) = (1, 2, 3, 5)) IS FALSE
  ((1, 2, 3, 4) &lt; (1, 2, 3, 4)) IS FALSE
  ((1, 2, 3, 4) &lt; (1, 2, 3, 5)) IS TRUE
@@ -1660,6 +1691,7 @@
  ((1, NULL, ...) &lt; (2, NULL, ...)) IS TRUE
  ((2, NULL, ...) &lt; (1, NULL, ...)) IS FALSE
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>BETWEEN predicate</primary>
@@ -1734,7 +1766,8 @@
       java.sql.Array object that contains the values and set the parameter
       with this array.</simpara>
 
-      <programlisting> SELECT * FROM customer WHERE firstname IN ( UNNEST(?) )
+      <informalexample>
+        <programlisting> SELECT * FROM customer WHERE firstname IN ( UNNEST(?) )
 
  Connection conn;
  PreparedStatement ps;
@@ -1743,6 +1776,7 @@
  ps.setArray(1, arr);
  ResultSet rs = ps.executeQuery();
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>LIKE predicate</primary>
@@ -1869,11 +1903,13 @@
       fourth example, it must be before all holidays (before the first
       holiday).</simpara>
 
-      <programlisting> invoice_date = SOME (SELECT holiday_date FROM holidays)
+      <informalexample>
+        <programlisting> invoice_date = SOME (SELECT holiday_date FROM holidays)
  invoice_date &gt; ALL (SELECT holiday_date FROM holidays)
  invoice_date &gt;= ANY (SELECT holiday_date FROM holidays)
  invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>EXISTS predicate</primary>
@@ -2035,7 +2071,9 @@
       if either startdate or enddate is NULL. It returns false in other
       cases.</simpara>
 
-      <programlisting> startdate IS DISTINCT FROM enddate</programlisting>
+      <informalexample>
+        <programlisting> startdate IS DISTINCT FROM enddate</programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>OVERLAPS predicate</primary>
@@ -2065,7 +2103,9 @@
       <simpara>In the example below, the period is compared with a week long
       period ending yesterday.</simpara>
 
-      <programlisting> (startdate, enddate) OVERLAPS (CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY)</programlisting>
+      <informalexample>
+        <programlisting> (startdate, enddate) OVERLAPS (CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY)</programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>PRECEDES predicate</primary>
@@ -2116,7 +2156,9 @@
       <simpara>The example below shows a predicate that returns
       TRUE.</simpara>
 
-      <programlisting>PERIOD (CURRENT_DATE - 7 DAY, CURRENT_DATE) IMMEDIATELY PRECEDES (CURRENT_DATE, CURRENT_DATE + 7 DAY)</programlisting>
+      <informalexample>
+        <programlisting>PERIOD (CURRENT_DATE - 7 DAY, CURRENT_DATE) IMMEDIATELY PRECEDES (CURRENT_DATE, CURRENT_DATE + 7 DAY)</programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="dac_aggregate_funcs">
@@ -2210,9 +2252,11 @@
       distinct combinations of the arguments are counted. Examples
       below:</simpara>
 
-      <programlisting> SELECT COUNT(DISTINCT firstname, lastname) FROM customer
+      <informalexample>
+        <programlisting> SELECT COUNT(DISTINCT firstname, lastname) FROM customer
  SELECT COUNT(DISTINCT (firstname, lastname)) FROM customer
 </programlisting>
+      </informalexample>
 
       <simpara>The EVERY, ANY and SOME operations can be performed on boolean
       expressions only. EVERY returns TRUE if all the values are TRUE,
@@ -2234,8 +2278,10 @@
       In the example below a single query returns two different filtered
       counts:</simpara>
 
-      <programlisting> SELECT COUNT(ITEM) FILTER (WHERE GENDER = 'F') AS "FEMALE COUNT", COUNT(ITEM) FILTER (WHERE GENDER = 'M') AS "MALE COUNT" FROM PEOPLE
+      <informalexample>
+        <programlisting> SELECT COUNT(ITEM) FILTER (WHERE GENDER = 'F') AS "FEMALE COUNT", COUNT(ITEM) FILTER (WHERE GENDER = 'M') AS "MALE COUNT" FROM PEOPLE
 </programlisting>
+      </informalexample>
 
       <simpara>ARRAY_AGG is different from all other aggregate functions, as
       it does not ignore the NULL values. This set function returns an array
@@ -2266,7 +2312,8 @@
       GROUP_CONCAT. The CUSTOMER table that is included for tests in the
       DatabaseManager GUI app is the source of the data.</simpara>
 
-      <programlisting> SELECT LASTNAME, ARRAY_AGG(FIRSTNAME ORDER BY FIRSTNAME) FROM Customer GROUP BY LASTNAME
+      <informalexample>
+        <programlisting> SELECT LASTNAME, ARRAY_AGG(FIRSTNAME ORDER BY FIRSTNAME) FROM Customer GROUP BY LASTNAME
 
  LASTNAME  C2                                                         
  --------- ---------------------------------------------------------- 
@@ -2281,6 +2328,7 @@
  Steel     Robert * Laura * John                   
  King      Robert * Julia * James * George         
  Sommer    Robert * Janet</programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="dac_other_syntax_elements">
@@ -2435,7 +2483,8 @@
     below a simple select statement is made more complex by adding various
     operations.</para>
 
-    <para><programlisting> CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
+    <para><informalexample>
+        <programlisting> CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
  /* in the next SELECT, no join is performed and no further operation takes place */
  SELECT * FROM atable
  /* in the next SELECT, selection is performed by the WHERE clause, with no further action */
@@ -2458,7 +2507,8 @@
  /* in the next SELECT, slicing is performed after ordering */
  SELECT * FROM atable WHERE a + b = c ORDER BY a FETCH 5 ROWS ONLY
 
-</programlisting>The next sections discuss various types of tables and
+</programlisting>
+      </informalexample>The next sections discuss various types of tables and
     operations involved in data access statements.</para>
 
     <section xml:id="dac_sql_select_statement">
@@ -2508,7 +2558,9 @@
       <simpara>In the example below a table with two rows and 3 columns is
       constructed out of some values:</simpara>
 
-      <programlisting> VALUES (12, 14, null), (10, 11, CURRENT_DATE)</programlisting>
+      <informalexample>
+        <programlisting> VALUES (12, 14, null), (10, 11, CURRENT_DATE)</programlisting>
+      </informalexample>
 
       <simpara>When a table is used directly in a UNION or similar operation,
       the keyword TABLE is used with the name:</simpara>
@@ -2520,9 +2572,11 @@
       in the union. The keyword TABLE is used in the first example. The two
       examples below are equivalent.</simpara>
 
-      <programlisting> TABLE atable UNION TABLE anothertable
+      <informalexample>
+        <programlisting> TABLE atable UNION TABLE anothertable
  SELECT * FROM atable UNION SELECT * FROM anothertable
 </programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="dac_subquery">
@@ -2712,10 +2766,12 @@
         customers as of a year ago. The second example also shows any changes
         made to the email column over the previous year.</para>
 
-        <programlisting>SELECT firstname, lastname, email FROM customer FOR SYSTEM_TIME AS OF CURRENT_TIMESTAMP - 1 YEAR
+        <informalexample>
+          <programlisting>SELECT firstname, lastname, email FROM customer FOR SYSTEM_TIME AS OF CURRENT_TIMESTAMP - 1 YEAR
 
 SELECT DISTINCT firstname, lastname, email FROM customer FOR SYSTEM_TIME FROM CURRENT_TIMESTAMP - 2 YEAR TO CURRENT_TIMESTAMP - 1 YEAR
 </programlisting>
+        </informalexample>
       </section>
 
       <section xml:id="dac_derived_table">
@@ -2764,10 +2820,12 @@ SELECT DISTINCT firstname, lastname, email FROM customer FOR SYSTEM_TIME FROM CU
         compute the sum of invoice values for each customer. The second query
         is equivalent and uses a join with a LATERAL table.</para>
 
-        <programlisting>SELECT firstname, lastname, (SELECT SUM(total) FROM invoice WHERE customerid = customer.id) s FROM customer
+        <informalexample>
+          <programlisting>SELECT firstname, lastname, (SELECT SUM(total) FROM invoice WHERE customerid = customer.id) s FROM customer
 
 SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM invoice WHERE customerid = customer.id) a (c)
 </programlisting>
+        </informalexample>
       </section>
 
       <section xml:id="dac_unnest">
@@ -2807,7 +2865,8 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
         example, the WITH clause turns the two selects into named subqueries
         which are used in a SELECT statement that uses a LEFT join.</para>
 
-        <programlisting> SELECT * FROM UNNEST(SEQUENCE_ARRAY(CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY, 1 DAY)) WITH ORDINALITY AS T(D, I)  
+        <informalexample>
+          <programlisting> SELECT * FROM UNNEST(SEQUENCE_ARRAY(CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY, 1 DAY)) WITH ORDINALITY AS T(D, I)  
 
  D          I 
  ---------- - 
@@ -2843,6 +2902,7 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
  7 2010-07-31 (null) 
 
 </programlisting>
+        </informalexample>
       </section>
 
       <section xml:id="dac_table_function">
@@ -3002,8 +3062,10 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       equality condition between on or more pairs of columns from the two
       table. Equijoin is the most commonly used type of join.</para>
 
-      <programlisting>SELECT a.*, b.* FROM a INNER JOIN b ON a.col_one = b.col_two
+      <informalexample>
+        <programlisting>SELECT a.*, b.* FROM a INNER JOIN b ON a.col_one = b.col_two
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>JOIN USING</primary>
@@ -3051,9 +3113,11 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       the rest of the columns of both tables, while the second query returns
       only one copy of col_two.</para>
 
-      <programlisting> SELECT * FROM a INNER JOIN b ON a.col_two = b.col_two
+      <informalexample>
+        <programlisting> SELECT * FROM a INNER JOIN b ON a.col_two = b.col_two
  SELECT * FROM a INNER JOIN b USING (col_two)
 </programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>OUTER JOIN</primary>
@@ -3077,8 +3141,10 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       NATURAL FULL OUTER JOIN B</literal> or <literal>A FULL OUTER JOIN B
       USING (&lt;comma separated column name list&gt;)</literal>.</para>
 
-      <programlisting> SELECT a.*, b.* FROM a LEFT OUTER JOIN b ON a.col_one = b.col_two
+      <informalexample>
+        <programlisting> SELECT a.*, b.* FROM a LEFT OUTER JOIN b ON a.col_one = b.col_two
 </programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="dac_selection">
@@ -3168,9 +3234,11 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       query, the table and its columns are renamed and the new names are used
       in the WHERE clauses:</simpara>
 
-      <programlisting> CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
+      <informalexample>
+        <programlisting> CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
  SELECT d, e, f FROM atable WHERE a + b = c
  SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>naming in select list</primary>
@@ -3190,7 +3258,9 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       column renaming in the Select list. The new names are used in the ORDER
       BY clause:</para>
 
-      <programlisting> SELECT x + y AS xysum, y + z AS yzsum FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w ORDER BY xysum, yzsum</programlisting>
+      <informalexample>
+        <programlisting> SELECT x + y AS xysum, y + z AS yzsum FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w ORDER BY xysum, yzsum</programlisting>
+      </informalexample>
 
       <para>If the names <literal>xysum</literal> or <literal>yzsum</literal>
       are not used, the computed columns cannot be referenced in the ORDER BY
@@ -3266,10 +3336,12 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
 
       <para>In the first example below, a simple column reference is used in
       GROUP BY, while in the second example, an expression is
-      used.<programlisting> CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
+      used.<informalexample>
+          <programlisting> CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
  SELECT d, e, f FROM atable WHERE a + b = c GROUP BY d, e, f
  SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &gt; 2 AND d + e &gt; 4
-</programlisting></para>
+</programlisting>
+        </informalexample></para>
 
       <para>A <literal>&lt;having clause&gt;</literal> filters the rows of the
       table that is formed after applying the <literal>&lt;group by
@@ -3291,9 +3363,11 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       clause&gt;</literal>. The following examples of SELECT DISTINCT and
       SELECT with GROUP BY are equivalent.</para>
 
-      <programlisting> SELECT DISTINCT d, e + f FROM atable WHERE a + b = c
+      <informalexample>
+        <programlisting> SELECT DISTINCT d, e + f FROM atable WHERE a + b = c
  SELECT d, e + f FROM atable WHERE a + b = c GROUP BY d, e + f
 </programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="dac_aggregation">
@@ -3413,7 +3487,8 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       of the result indicates the calculated generation of each dog, ranging
       from first to fourth generation.</para>
 
-      <programlisting> CREATE TABLE pptree (pid INT, id INT);
+      <informalexample>
+        <programlisting> CREATE TABLE pptree (pid INT, id INT);
  INSERT INTO pptree VALUES (NULL, 1) ,(1,2), (1,3),(2,4),(4,5),(3,6),(3,7);
 
  WITH RECURSIVE tree (gen, par, child) AS (
@@ -3431,6 +3506,7 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
  3   3      6     
  3   3      7     
  4   4      5</programlisting>
+      </informalexample>
 
       <para>if recursive queries become complex, they also become very
       difficult to develop and debug. HyperSQL provides an alternative to this
@@ -3493,10 +3569,12 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       columns named u and v from the two SELECT statements are used to create
       the UNION table.</para>
 
-      <para><programlisting> SELECT * FROM atable UNION CORRESPONDING BY (u, v) SELECT * FROM anothertable
-</programlisting>The type of each column of the query expression is determined
-      by combining the types of the corresponding columns from the two
-      participating tables.</para>
+      <para><informalexample>
+          <programlisting> SELECT * FROM atable UNION CORRESPONDING BY (u, v) SELECT * FROM anothertable
+</programlisting>
+        </informalexample>The type of each column of the query expression is
+      determined by combining the types of the corresponding columns from the
+      two participating tables.</para>
     </section>
 
     <section xml:id="dac_ordering">
@@ -3508,7 +3586,9 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       ascending or descending ordering is used. It can also specify whether
       NULL values are returned first or last.</para>
 
-      <programlisting> SELECT x + y AS xysum, y + z AS yzsum FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w ORDER BY xysum NULLS LAST, yzsum NULLS FIRST</programlisting>
+      <informalexample>
+        <programlisting> SELECT x + y AS xysum, y + z AS yzsum FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w ORDER BY xysum NULLS LAST, yzsum NULLS FIRST</programlisting>
+      </informalexample>
 
       <para>The ORDER BY clause specifies one or more <literal>&lt;value
       expressions&gt;</literal>. The list of rows is sorted according to the
@@ -3537,7 +3617,8 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       letters sorted after all uppercase letters. The example below shows the
       effect of collation on an ordered list.</para>
 
-      <para><programlisting> -- default collation collation for the database is ASCII
+      <para><informalexample>
+          <programlisting> -- default collation collation for the database is ASCII
  SELECT id, lastname FROM customer ORDER BY lastname
  ID LASTNAME 
  -- -------- 
@@ -3554,8 +3635,9 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
  6  king     
  36 King     
  35 White
-</programlisting>In the above example, if the LASTNAME column is itself
-      defined in the table definition with <literal>COLLATE
+</programlisting>
+        </informalexample>In the above example, if the LASTNAME column is
+      itself defined in the table definition with <literal>COLLATE
       "English"</literal>, then the COLLATE clause is not necessary in the
       ORDER BY expression.</para>
 
@@ -3616,8 +3698,10 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       routine parameters, or routine variables. The type of the constants must
       be INTEGER.</para>
 
-      <programlisting> SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 FETCH 2 ROWS ONLY 
+      <informalexample>
+        <programlisting> SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 FETCH 2 ROWS ONLY 
  SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 LIMIT 2 /* alternative keyword */ </programlisting>
+      </informalexample>
 
       <para>When the FETCH keyword is used, the specified number of rows must
       be at least 1, otherwise an error is returned. This behaviour is
@@ -3680,9 +3764,11 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       <simpara>In the second example below the rows that have the maximum
       value for column A are deleted;</simpara>
 
-      <programlisting> DELETE FROM T WHERE C &gt; 5
+      <informalexample>
+        <programlisting> DELETE FROM T WHERE C &gt; 5
  DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
 </programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="dac_truncate_statement">
@@ -3829,12 +3915,27 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
 
       <simpara>The <literal>&lt;override clause&gt;</literal> must be used
       when a value is explicitly assigned to a column that has been defined as
-      GENERATED ALWAYS AS IDENTITY. The clause, OVERRIDING USER VALUE is used
-      in this context and means the values provided by the user are simply
-      ignored and the values generated by the system are used instead. For
-      columns defined as GENERATED BY DEFAULT AS IDENTITY, the OVERRIDE SYSTEM
-      VALUE clause is optional when the user provides values to be used for
-      the insert.</simpara>
+      GENERATED ALWAYS AS IDENTITY. The OVERRIDING SYSTEM VALUES clause must
+      be used to override the sequence value with the user-supplied values.
+      For columns defined as GENERATED BY DEFAULT AS IDENTITY, there is no
+      need to use OVERRIDING when the user provides values to be used for the
+      insert. The OVERRIDING USER VALUE clause can be used with all types of
+      GENERATED columns and means the values provided by the user are simply
+      ignored and the values generated by the system are used instead. Two
+      examples of table definition and INSERT statement are given
+      below.</simpara>
+
+      <informalexample>
+        <programlisting> CREATE TABLE t1 (id INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 100), name VARCHAR(20) PRIMARY KEY)
+ CREATE TABLE t2 (id INTEGER GENERATED BY DEFAULT AS IDENTITY(START WITH 1) PRIMARY KEY, name VARCHAR(20))
+</programlisting>
+      </informalexample>
+
+      <informalexample>
+        <programlisting> INSERT INTO t1 (id, name) ORERRIDING SYSTEM VALUE VALUES ( 14, 'Test Value')
+ INSERT INTO t2 (id, name) VALUES ( 14, 'Test Value')
+</programlisting>
+      </informalexample>
 
       <simpara>An array can be inserted into a column of the array type by
       using literals, by specifying a parameter in a prepared statement or an
@@ -3846,13 +3947,15 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       INSERT operation fails if any row fails to inserted due to constraint
       violation. Examples:</simpara>
 
-      <programlisting> CREATE TABLE T (A INTEGER GENERATED BY DEFAULT AS IDENTITY, B INTEGER DEFAULT 2)
+      <informalexample>
+        <programlisting> CREATE TABLE T (A INTEGER GENERATED BY DEFAULT AS IDENTITY, B INTEGER DEFAULT 2)
  INSERT INTO T DEFAULT VALUES /* all columns of T have DEFAULT clauses */
  INSERT INTO T (SELECT * FROM Z) /* table Z has the same columns as table T */
  INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inserted into table T */
  ALTER TABLE T ADD COLUMN D VARCHAR(10) ARRAY /* an ARRAY column is added */
  INSERT INTO T VALUES DEFAULT, 3, ARRAY['hot','cold']
 </programlisting>
+      </informalexample>
 
       <para>If the table contains an IDENTITY column, the value for this
       column for the last row inserted by a session can be retrieved using a
@@ -3980,11 +4083,13 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       statement refers to the existing value for column C in its search
       condition.</simpara>
 
-      <programlisting> UPDATE T SET A = 5 WHERE ...
+      <informalexample>
+        <programlisting> UPDATE T SET A = 5 WHERE ...
  UPDATE T SET (A, B) = (1, NULL) WHERE ...
  UPDATE T SET (A, C) = (SELECT X, Y FROM U WHERE Z = C), B = 10 WHERE ...
  UPDATE T SET A = 3, B[3] = 'warm'
 </programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="dac_merge_statement">
@@ -4090,7 +4195,11 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       parameter is cast as INTEGER because the MERGE statement does not
       determine the types of values in the USING clause.</simpara>
 
-      <programlisting> CREATE TABLE t (id INT PRIMARY KEY, description VARCHAR(100))
+      <simpara>In the fourth example existing rows that match are
+      deleted.</simpara>
+
+      <informalexample>
+        <programlisting> CREATE TABLE t (id INT PRIMARY KEY, description VARCHAR(100))
  INSERT INTO t VALUES (1, 'dining table'), (2, 'deck chair')
 
  MERGE INTO t USING (VALUES(1, 'conference table'), (14, 'sofa'), (5, 'coffee table')) 
@@ -4104,7 +4213,12 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
 
  MERGE INTO t USING (VALUES(CAST(? AS INT))) AS vals(x) ON t.id = vals.x
    WHEN NOT MATCHED THEN INSERT VALUES vals.x, ?
+
+MERGE INTO t USING (SELECT * FROM tt WHERE acol = 2) AS vals(x,y) ON t.id = vals.x
+   WHEN MATCHED THEN DELETE
+   WHEN NOT MATCHED THEN INSERT VALUES vals.x, vals.y
 </programlisting>
+      </informalexample>
     </section>
   </section>
 

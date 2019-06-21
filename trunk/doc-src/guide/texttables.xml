@@ -95,13 +95,17 @@
       <para>Text Tables are defined similarly to conventional tables with the
       added TEXT keyword.</para>
 
-      <programlisting> CREATE TEXT TABLE &lt;tablename&gt; (&lt;column definition&gt; [&lt;constraint definition&gt;])</programlisting>
+      <informalexample>
+        <programlisting> CREATE TEXT TABLE &lt;tablename&gt; (&lt;column definition&gt; [&lt;constraint definition&gt;])</programlisting>
+      </informalexample>
 
       <para>The table is at first empty and cannot be written to. An
       additional SET command specifies the file and the separator character
       that the Text table uses. It assigns the file to the table.</para>
 
-      <programlisting> SET TABLE &lt;tablename&gt; SOURCE &lt;quoted_filename_and_options&gt; [DESC]</programlisting>
+      <informalexample>
+        <programlisting> SET TABLE &lt;tablename&gt; SOURCE &lt;quoted_filename_and_options&gt; [DESC]</programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="ttc_scope">
@@ -294,7 +298,9 @@
       characters. All these options may be specified within the <literal>SET
       TABLE SOURCE</literal> statement:</para>
 
-      <programlisting> SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true"</programlisting>
+      <informalexample>
+        <programlisting> SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true"</programlisting>
+      </informalexample>
 
       <para>When the default options <literal>all_quoted=</literal>
       <literal>false</literal> and <literal>quoted=true</literal> are in
@@ -329,7 +335,9 @@
       ONLY, by placing the keyword "DESC" at the end of the SET TABLE SOURCE
       statement:</para>
 
-      <programlisting> SET TABLE mytable SOURCE "myfile" DESC</programlisting>
+      <informalexample>
+        <programlisting> SET TABLE mytable SOURCE "myfile" DESC</programlisting>
+      </informalexample>
 
       <para>Text table source files are cached in memory. The maximum number
       of rows of data that are in memory at any time is controlled by the
@@ -341,7 +349,9 @@
       properties do not control the maximum size of each text table, which can
       be much larger. An example is given below:</para>
 
-      <programlisting> SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true;cache_rows=10000;cache_size=1000"</programlisting>
+      <informalexample>
+        <programlisting> SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true;cache_rows=10000;cache_size=1000"</programlisting>
+      </informalexample>
 
       <para>The properties used in earlier versions, namely the
       <varname>textdb.cache_scale</varname> and the
@@ -449,11 +459,15 @@
       underlying data source, i.e. the text file.</para>
 
       <para>You can explicitly disconnect a text table from its file by
-      issuing the following statement: <programlisting> SET TABLE mytable SOURCE OFF</programlisting></para>
+      issuing the following statement: <informalexample>
+          <programlisting> SET TABLE mytable SOURCE OFF</programlisting>
+        </informalexample></para>
 
       <para>Subsequently, <literal>mytable</literal> will be empty and
       read-only. However, the data source description will be preserved, and
-      the table can be re-connected to it with <programlisting> SET TABLE mytable SOURCE ON</programlisting></para>
+      the table can be re-connected to it with <informalexample>
+          <programlisting> SET TABLE mytable SOURCE ON</programlisting>
+        </informalexample></para>
 
       <para>When a database is opened, if the source file for an existing text
       table is missing, the table remains disconnected from its data source
@@ -597,7 +611,9 @@
     string&gt; can be used to override the default global properties. An
     example is given below:</para>
 
-    <para><programlisting> SET DATABASE TEXT TABLE DEFAULTS 'all_quoted=true;encoding=UTF-8;cache_rows=10000;cache_size=2000'</programlisting></para>
+    <para><informalexample>
+        <programlisting> SET DATABASE TEXT TABLE DEFAULTS 'all_quoted=true;encoding=UTF-8;cache_rows=10000;cache_size=2000'</programlisting>
+      </informalexample></para>
 
     <itemizedlist>
       <title>List of supported global properties</title>
