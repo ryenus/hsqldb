@@ -75,6 +75,7 @@ public class TableDerived extends Table {
             // for special use, not INFORMATION_SCHEMA views
             case TableBase.CHANGE_SET_TABLE :
             case TableBase.SYSTEM_TABLE :
+            case TableBase.MODULE_TABLE :
             case TableBase.FUNCTION_TABLE :
             case TableBase.VIEW_TABLE :
             case TableBase.RESULT_TABLE :
