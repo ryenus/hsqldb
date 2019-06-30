@@ -35,14 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
-import org.hsqldb.lib.Iterator;
-import org.hsqldb.lib.LongDeque;
-import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.OrderedIntKeyHashMap;
+import org.hsqldb.lib.*;
 import org.hsqldb.map.BitMap;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.result.ResultConstants;
@@ -1621,7 +1614,20 @@ public class ParserDQL extends ParserBase {
             }
             Expression[] es = new Expression[expressions.size()];
             expressions.toArray(es);
-            select.addGroupSet(new GroupSet(es, select.exprColumnList.toArray(), select.indexLimitVisible));
+
+            select.groupingQuery = es;
+            GroupBase gb = new GroupBase(es, select.exprColumnList.toArray(), select.indexLimitVisible);
+
+            Iterator it = gb.baseColumns.values().iterator();
+            while (it.hasNext()) {
+                select.isGrouped = true;
+                Expression e = (Expression) it.next();
+                if (e.getType() == OpTypes.ROW) {
+                    throw Error.error(ErrorCode.X_42564);
+                }
+                select.addExprColumn(e);
+            }
+            select.isDatacubeGrouped = !gb.isBasic;
         }
 
         // having
@@ -3264,10 +3270,7 @@ public class ParserDQL extends ParserBase {
     }
 
     private void checkIfGroupingOrAggregate(Expression e){
-        if (e.opType == OpTypes.GROUPING){
-            throw unsupportedFeature("Grouping functions are not allowed in GROUP BY");
-        }
-        if (71 <= e.opType && e.opType <= 86){
+        if (OpTypes.aggregateFunctionSet.contains(e.opType)){
             throw unsupportedFeature("Aggregate functions are not allowed in GROUP BY");
         }
         for (int i =0; i<e.nodes.length; i++){

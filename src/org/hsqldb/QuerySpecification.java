@@ -88,7 +88,7 @@ public class QuerySpecification extends QueryExpression {
     Expression            rowExpression;
     Expression[]          exprColumns;
     HsqlArrayList         exprColumnList;
-    GroupSet              groupSet;
+    Expression[]          groupingQuery;
     private int           groupByColumnCount;    // columns in 'group by'
     private int           havingColumnCount;     // columns in 'having' (0 or 1)
     public int            indexLimitVisible;
@@ -262,19 +262,9 @@ public class QuerySpecification extends QueryExpression {
         isDistinctSelect = true;
     }
 
-    void addGroupSet(GroupSet gs) {
-        groupSet = gs;
-        Iterator it = groupSet.baseColumns.values().iterator();
-        while (it.hasNext()) {
-            isGrouped = true;
-            Expression e = (Expression) it.next();
-            if (e.getType() == OpTypes.ROW) {
-                throw Error.error(ErrorCode.X_42564);
-            }
-            exprColumnList.add(e);
-            groupByColumnCount++;
-        }
-        isDatacubeGrouped = !groupSet.isBasic();
+    void addExprColumn(Expression e){
+        exprColumnList.add(e);
+        groupByColumnCount++;
     }
 
     void addHavingExpression(Expression e) {
@@ -1681,7 +1671,7 @@ public class QuerySpecification extends QueryExpression {
         if (!isDatacubeGrouped && !isAggregated) {
             return result;
         }
-
+        GroupSet groupSet = new GroupSet(groupingQuery);
         session.sessionContext.setGroupSet(groupSet);
         session.sessionContext.setRangeIterator(navigator);
 
