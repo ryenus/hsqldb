@@ -1,8 +1,6 @@
 package org.hsqldb;
 
-import com.sun.rowset.internal.Row;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.lib.Iterator;
 
@@ -10,26 +8,18 @@ import java.util.Arrays;
 
 public class GroupSet {
     public Expression[] query;
-    public IntKeyHashMap baseColumns = new IntKeyHashMap();
     public HsqlArrayList sets = new HsqlArrayList();
     public int nullSets = 0;
 
     private Iterator iterator;
     private HsqlArrayList current;
     private IntKeyIntValueHashMap columnIndexMap = new IntKeyIntValueHashMap();
-    private boolean isBasic = true;
 
-    public GroupSet(Expression[] expressions, Object[] exprColumns, int index) {
+    public GroupSet(Expression[] expressions) {
         query = expressions;
         iterator = sets.iterator();
-
-        for (int i = 0; i < query.length; i++) {
-            addToBaseColumns(query[i], exprColumns, index);
-        }
     }
-    public boolean isBasic(){
-        return isBasic;
-    }
+    public HsqlArrayList getSets() { return sets; }
     public boolean hasNext(){
         return iterator.hasNext();
     }
@@ -51,39 +41,6 @@ public class GroupSet {
         }
         int colIndex = columnIndexMap.get(aliasCode, -1);
         return colIndex;
-    }
-    private void addToBaseColumns(Expression e, Object[] exprColumns, int indexLimitVisible) {
-        if (e.groupingType != 0) {
-            isBasic = false;
-        }
-        if (e.opType == OpTypes.NONE){
-            return;
-        }
-        if (e.nodes.length == 0) {
-            boolean added = false;
-            for (int i = 0; i < indexLimitVisible; i++) {
-                Expression expr = (Expression) exprColumns[i];
-                String alias = e.getAlias();
-                if (alias.equals(expr.getColumnName()) || alias.equals(expr.getAlias())){
-                    baseColumns.put(expr.getAlias().hashCode(), e);
-                    added = true;
-                    break;
-                }
-            }
-            if (!added){
-                baseColumns.put(e.getAlias().hashCode(), e);
-            }
-        } else {
-            if (e.opType == OpTypes.ROW || e.opType == OpTypes.VALUELIST) {
-                for (int i = 0; i < e.nodes.length; i++) {
-                    addToBaseColumns(e.nodes[i], exprColumns, indexLimitVisible);
-                }
-            }
-            else {
-                baseColumns.put(e.getSQL().hashCode(), e);
-                return;
-            }
-        }
     }
     public int isGrouped(Expression e){
         int count = 0;

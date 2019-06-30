@@ -157,6 +157,7 @@ public interface OpTypes {
         OpTypes.USER_AGGREGATE,
         OpTypes.GROUP_CONCAT,
         OpTypes.MEDIAN,
+        OpTypes.GROUPING,
     };
 
     int[] columnOpTypes = new int[]{ OpTypes.COLUMN };
