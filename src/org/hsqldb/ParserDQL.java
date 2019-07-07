@@ -1615,7 +1615,7 @@ public class ParserDQL extends ParserBase {
             Expression[] es = new Expression[expressions.size()];
             expressions.toArray(es);
 
-            select.groupingQuery = es;
+            select.groupSet = new GroupSet(es);
             GroupBase gb = new GroupBase(es, select.exprColumnList.toArray(), select.indexLimitVisible);
 
             Iterator it = gb.baseColumns.values().iterator();

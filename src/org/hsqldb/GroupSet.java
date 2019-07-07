@@ -11,28 +11,13 @@ public class GroupSet {
     public HsqlArrayList sets = new HsqlArrayList();
     public int nullSets = 0;
 
-    private Iterator iterator;
-    private HsqlArrayList current;
     private IntKeyIntValueHashMap columnIndexMap = new IntKeyIntValueHashMap();
 
     public GroupSet(Expression[] expressions) {
         query = expressions;
-        iterator = sets.iterator();
     }
-    public HsqlArrayList getSets() { return sets; }
-    public boolean hasNext(){
-        return iterator.hasNext();
-    }
-    public HsqlArrayList current(){
-        return current;
-    }
-    public HsqlArrayList next(){
-        current = (HsqlArrayList) iterator.next();
-        return current;
-    }
-    public void resetIterator(){
-        iterator = sets.iterator();
-        current = null;
+    public Iterator getIterator(){
+        return sets.iterator();
     }
     private int getColumnIndex(Expression e){
         int aliasCode = e.getAlias().hashCode();
@@ -42,7 +27,7 @@ public class GroupSet {
         int colIndex = columnIndexMap.get(aliasCode, -1);
         return colIndex;
     }
-    public int isGrouped(Expression e){
+    public int isGrouped(HsqlArrayList current, Expression e){
         int count = 0;
         if (current == null){
             return (1<<(e.nodes.length)) - 1; //Total Aggregate case

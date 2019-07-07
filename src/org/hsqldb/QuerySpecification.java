@@ -88,7 +88,7 @@ public class QuerySpecification extends QueryExpression {
     Expression            rowExpression;
     Expression[]          exprColumns;
     HsqlArrayList         exprColumnList;
-    Expression[]          groupingQuery;
+    GroupSet              groupSet;
     private int           groupByColumnCount;    // columns in 'group by'
     private int           havingColumnCount;     // columns in 'having' (0 or 1)
     public int            indexLimitVisible;
@@ -433,8 +433,32 @@ public class QuerySpecification extends QueryExpression {
         compileContext    = null;
         outerRanges       = null;
         isResolved        = true;
-    }
 
+        resolveGroupBy();
+    }
+    public void resolveGroupBy(){
+        if (groupSet != null && isDatacubeGrouped){
+            groupSet.process(this.exprColumns, indexLimitVisible, indexStartHaving);
+
+            //Resolve casewhen expressions
+            OrderedHashSet expressions = new OrderedHashSet();
+
+            for (int i = 0; i < indexStartHaving; i++) {
+                if (exprColumns[i].hasAggregate()) {
+                    continue;
+                }
+                expressions.add(exprColumns[i]);
+            }
+            for (int i = indexStartAggregates; i < indexLimitExpressions; i++) {
+                expressions.add(exprColumns[i]);
+            }
+            for (int i=0; i< indexLimitVisible; i++){
+                if (exprColumns[i].opType == OpTypes.CASEWHEN){
+                    exprColumns[i].replaceCaseWhenExpressions(expressions, resultRangePosition);
+                }
+            }
+        }
+    }
     public void addExtraConditions(Expression e) {
 
         if (isAggregated || isGrouped) {
@@ -1587,7 +1611,11 @@ public class QuerySpecification extends QueryExpression {
 
             Object[] data = new Object[indexLimitData];
 
-            for (int i = 0; i < indexStartAggregates; i++) {
+            int start = 0;
+            if (isDatacubeGrouped){
+                start = indexLimitVisible;
+            }
+            for (int i = start; i < indexStartAggregates; i++) {
                 if (isAggregated && aggregateCheck[i]) {
                     continue;
                 } else {
@@ -1671,14 +1699,12 @@ public class QuerySpecification extends QueryExpression {
         if (!isDatacubeGrouped && !isAggregated) {
             return result;
         }
-        GroupSet groupSet = new GroupSet(groupingQuery);
-        session.sessionContext.setGroupSet(groupSet);
         session.sessionContext.setRangeIterator(navigator);
 
         if (isDatacubeGrouped) {
-            groupSet.process(this.exprColumns, indexLimitVisible, indexStartHaving);
 
-            replaceCaseWhenReferences();
+            session.sessionContext.setGroupSet(groupSet);
+            Iterator gsIt = groupSet.getIterator();
 
             Object[][] baseResult = navigator.getDataTable();
             navigator.clear();
@@ -1723,9 +1749,10 @@ public class QuerySpecification extends QueryExpression {
                     navigator.next();
                 }
             }
-            while (session.sessionContext.groupSet.hasNext()) {
+            while (gsIt.hasNext()) {
                 navigator.resetRowMap();
-                HsqlArrayList set = session.sessionContext.groupSet.next();
+                HsqlArrayList set = (HsqlArrayList) gsIt.next();
+                session.sessionContext.setGroup(set);
 
                 for (int i = 0; i < baseResult.length; i++) {
                     Object[] row = baseResult[i];
@@ -1747,8 +1774,9 @@ public class QuerySpecification extends QueryExpression {
                         navigator.setPosition(data);
                     }
                     for (int j = 0; j <indexLimitVisible; j++){
-                        if (set.contains(exprColumns[j].resultTableColumnIndex)) {
-                            data[j] = row[j];
+                        int index = exprColumns[j].resultTableColumnIndex;
+                        if (set.contains(index)) {
+                            data[j] = row[index];
                         } else {
                             data[j] = exprColumns[j].getValue(session);
                         }
@@ -1816,25 +1844,6 @@ public class QuerySpecification extends QueryExpression {
         }
 
         return result;
-    }
-
-    void replaceCaseWhenReferences(){
-        OrderedHashSet expressions = new OrderedHashSet();
-
-        for (int i = 0; i < indexStartHaving; i++) {
-            if (exprColumns[i].hasAggregate()) {
-                continue;
-            }
-            expressions.add(exprColumns[i]);
-        }
-        for (int i = indexStartAggregates; i < indexLimitExpressions; i++) {
-            expressions.add(exprColumns[i]);
-        }
-        for (int i=0; i< indexLimitVisible; i++){
-            if (exprColumns[i].opType == OpTypes.CASEWHEN){
-                exprColumns[i].replaceCaseWhenExpressions(expressions, resultRangePosition);
-            }
-        }
     }
 
     void setReferenceableColumns() {

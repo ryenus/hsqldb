@@ -88,6 +88,7 @@ public class SessionContext {
 
     // Data-Cube data
     GroupSet groupSet;
+    HsqlArrayList currentGroup;
 
     // session tables
     HashMappedList sessionTables;
@@ -328,6 +329,9 @@ public class SessionContext {
 
     public void setGroupSet(GroupSet set){
         groupSet = set;
+    }
+    public void setGroup(HsqlArrayList group){
+        currentGroup = group;
     }
 
     /**

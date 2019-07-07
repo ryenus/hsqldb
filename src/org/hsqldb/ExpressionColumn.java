@@ -667,7 +667,9 @@ public class ExpressionColumn extends Expression {
                 if (session.sessionContext.groupSet == null){
                     return 0;
                 }
-                return session.sessionContext.groupSet.isGrouped(this);
+                return session.sessionContext.groupSet.isGrouped(
+                        session.sessionContext.currentGroup,
+                        this);
 
             case OpTypes.DEFAULT :
                 return null;
