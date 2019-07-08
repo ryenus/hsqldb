@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * Metadata for range variables, including conditions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class RangeVariable {
@@ -239,7 +239,7 @@ public class RangeVariable {
 
             expr.resolveColumnReferences(session, ranges,
                                          RangeGroup.emptyArray, null);
-
+            expr.resolveTypes(session, null);
             filterCondition = expr;
         }
     }
