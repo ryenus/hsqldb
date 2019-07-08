@@ -56,7 +56,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -3087,9 +3087,14 @@ public class ParserDDL extends ParserRoutine {
 
         if (grant) {
             if (objectType == SchemaObject.TABLE) {
+                startRecording();
+
                 filter = XreadFilterExpressionOrNull();
 
-                right.setFilterExpression(filter);
+                Token[] tokenisedStatement = getRecordedStatement();
+                String  sql                = Token.getSQL(tokenisedStatement);
+
+                right.setFilterExpression(filter, sql);
             }
 
             readThis(Tokens.TO);
