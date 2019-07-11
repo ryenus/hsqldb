@@ -1138,6 +1138,7 @@ public class IndexAVL implements Index {
      * @param store store object
      * @param rowdata array containing index column data
      * @param matchCount count of columns to match
+     * @param distinctCount int
      * @param compareType int
      * @param reversed boolean
      * @param map boolean[]
@@ -1213,6 +1214,8 @@ public class IndexAVL implements Index {
      * Finds the first node where the data is not null.
      *
      * @return iterator
+     * @param session Session
+     * @param store PersistentStore
      */
     public RowIterator findFirstRowNotNull(Session session,
                                            PersistentStore store) {

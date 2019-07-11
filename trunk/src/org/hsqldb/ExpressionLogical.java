@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
 /**
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ExpressionLogical extends Expression {
@@ -1251,8 +1251,8 @@ public class ExpressionLogical extends Expression {
                 return valueData;
 
             case OpTypes.NEGATE :
-                return dataType.negate(
-                    nodes[LEFT].getValue(session, nodes[LEFT].dataType));
+                return dataType.negate(nodes[LEFT].getValue(session,
+                        nodes[LEFT].dataType));
 
             case OpTypes.IS_NOT_NULL :
             case OpTypes.IS_NULL : {
@@ -1452,40 +1452,11 @@ public class ExpressionLogical extends Expression {
      * For MATCH SIMPLE and FULL expressions, nulls in left are handled
      * prior to calling this method
      */
-    private Boolean compareValues(Session session, Object[] leftList,
-                                  Object[] rightList) {
+    private Boolean matchValues(Session session, Object[] leftData,
+                                Object[] rightData) {
 
-        int     result  = 0;
-        boolean hasNull = false;
-
-        if (leftList == null || rightList == null) {
-            return null;
-        }
-
-        for (int i = 0; i < nodes[LEFT].nodes.length; i++) {
-            if (leftList[i] == null) {
-                if (opType == OpTypes.MATCH_PARTIAL
-                        || opType == OpTypes.MATCH_UNIQUE_PARTIAL) {
-                    continue;
-                }
-
-                hasNull = true;
-            }
-
-            if (rightList[i] == null) {
-                hasNull = true;
-            }
-
-            Object leftValue  = leftList[i];
-            Object rightValue = rightList[i];
-            Type[] types      = nodes[LEFT].nodeDataTypes;
-
-            result = types[i].compare(session, leftValue, rightValue);
-
-            if (result != 0) {
-                break;
-            }
-        }
+        Type[] types  = nodes[LEFT].nodeDataTypes;
+        int    result = 0;
 
         switch (opType) {
 
@@ -1496,26 +1467,84 @@ public class ExpressionLogical extends Expression {
             case OpTypes.MATCH_FULL :
             case OpTypes.MATCH_UNIQUE_FULL :
             case OpTypes.NOT_DISTINCT :
+                for (int i = 0; i < nodes[LEFT].nodes.length; i++) {
+                    Object leftValue  = leftData[i];
+                    Object rightValue = rightData[i];
+
+                    if (leftValue == null) {
+                        if (opType == OpTypes.MATCH_PARTIAL
+                                || opType == OpTypes.MATCH_UNIQUE_PARTIAL) {
+                            continue;
+                        }
+                    }
+
+                    result = types[i].compare(session, leftValue, rightValue);
+
+                    if (result != 0) {
+                        break;
+                    }
+                }
+
                 return result == 0 ? Boolean.TRUE
                                    : Boolean.FALSE;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionLogical");
+        }
+    }
+
+    private Boolean compareValues(Session session, Object[] leftData,
+                                  Object[] rightData) {
+
+        Type[]  types   = nodes[LEFT].nodeDataTypes;
+        int     result  = 0;
+        boolean hasNull = false;
+
+        if (leftData == null || rightData == null) {
+            return null;
+        }
+
+        for (int i = 0; i < nodes[LEFT].nodes.length; i++) {
+            Object leftValue  = leftData[i];
+            Object rightValue = rightData[i];
+
+            if (leftValue == null || rightValue == null) {
+                hasNull = true;
+
+                continue;
+            }
+
+            result = types[i].compare(session, leftValue, rightValue);
+
+            if (result != 0) {
+                break;
+            }
+        }
+
+        switch (opType) {
 
             case OpTypes.IN :
             case OpTypes.EQUAL :
-                if (hasNull) {
-                    return null;
+                if (result == 0) {
+                    if (hasNull) {
+                        return null;
+                    }
+
+                    return Boolean.TRUE;
+                } else {
+                    return Boolean.FALSE;
                 }
-
-                return result == 0 ? Boolean.TRUE
-                                   : Boolean.FALSE;
-
             case OpTypes.NOT_EQUAL :
-                if (hasNull) {
-                    return null;
+                if (result == 0) {
+                    if (hasNull) {
+                        return null;
+                    }
+
+                    return Boolean.FALSE;
+                } else {
+                    return Boolean.TRUE;
                 }
-
-                return result != 0 ? Boolean.TRUE
-                                   : Boolean.FALSE;
-
             case OpTypes.GREATER :
                 if (hasNull) {
                     return null;
@@ -1597,7 +1626,7 @@ public class ExpressionLogical extends Expression {
             return leftData == rightData;
         }
 
-        return compareValues(session, leftData, rightData);
+        return matchValues(session, leftData, rightData);
     }
 
     private Boolean testMatchCondition(Session session) {
@@ -1640,9 +1669,9 @@ public class ExpressionLogical extends Expression {
                 for (int i = 0; i < length; i++) {
                     Object[] rowData =
                         nodes[RIGHT].nodes[i].getRowValue(session);
-                    Boolean result = compareValues(session, data, rowData);
+                    Boolean result = matchValues(session, data, rowData);
 
-                    if (result == null || !result.booleanValue()) {
+                    if (!result.booleanValue()) {
                         continue;
                     }
 
@@ -1687,7 +1716,7 @@ public class ExpressionLogical extends Expression {
 
                     while (it.next()) {
                         Object[] rowData = it.getCurrent();
-                        Boolean result = compareValues(session, data, rowData);
+                        Boolean  result  = matchValues(session, data, rowData);
 
                         if (result == null) {
                             continue;
@@ -1737,8 +1766,8 @@ public class ExpressionLogical extends Expression {
 
                     Object[] rowData = it.getCurrent();
 
-                    if (Boolean.TRUE.equals(compareValues(session, data,
-                                                          rowData))) {
+                    if (Boolean.TRUE.equals(matchValues(session, data,
+                                                        rowData))) {
                         return Boolean.FALSE;
                     }
                 }
@@ -1775,18 +1804,20 @@ public class ExpressionLogical extends Expression {
     private Boolean getAllAnyValue(Session session, Object[] data,
                                    TableDerived td) {
 
-        Table           table = td;
-        boolean         empty = table.isEmpty(session);
-        Index           index = table.getFullIndex(session);
+        boolean         empty     = td.isEmpty(session);
+        Index           index     = td.getFullIndex(session);
+        PersistentStore store     = td.getRowStore(session);
+        int             nullCount = countNulls(data);
+        boolean         hasNulls  = false;
+        boolean         comparedNull;
         RowIterator     it;
-        PersistentStore store = table.getRowStore(session);
-        Object[]        firstdata;
-        Object[]        lastdata;
-        boolean         hasNullValue = false;
 
-        for (int i = 0; i < table.columnCount; i++) {
-            hasNullValue |= store.hasNull(i);
+        for (int i = 0; i < td.columnCount; i++) {
+            hasNulls |= store.hasNull(i);
         }
+
+        convertToType(session, data, nodes[LEFT].nodeDataTypes,
+                      nodes[RIGHT].nodeDataTypes);
 
         switch (exprSubType) {
 
@@ -1795,146 +1826,158 @@ public class ExpressionLogical extends Expression {
                     return Boolean.FALSE;
                 }
 
-                if (countNulls(data) == data.length) {
+                if (nullCount == data.length) {
                     return null;
                 }
 
-                convertToType(session, data, nodes[LEFT].nodeDataTypes,
-                              nodes[RIGHT].nodeDataTypes);
+                int searchType = opType == OpTypes.NOT_EQUAL ? OpTypes.EQUAL
+                                                             : opType;
 
-                if (opType == OpTypes.EQUAL) {
-                    it = index.findFirstRow(session, store, data);
-
-                    if (it.next()) {
-                        return Boolean.TRUE;
-                    } else {
-                        if (hasNullValue) {
-                            return null;
-                        } else {
-                            return Boolean.FALSE;
-                        }
-                    }
-                }
-
-                if (opType == OpTypes.NOT_EQUAL) {
-                    it = index.firstRow(session, store, null, 0, null);
-                } else {
-                    it = index.findFirstRowNotNull(session, store);
-                }
-
-                if (!it.next()) {
-                    return null;
-                }
-
-                firstdata = it.getCurrent();
-
-                RowIterator lastIt = index.lastRow(session, store, 0, null);
-
-                lastIt.next();
-
-                lastdata = lastIt.getCurrent();
-
-                Boolean comparefirst = compareValues(session, data, firstdata);
-                Boolean comparelast  = compareValues(session, data, lastdata);
+                it = index.findFirstRow(session, store, data, data.length, 0,
+                                        searchType, false, null);
 
                 switch (opType) {
 
-                    case OpTypes.NOT_EQUAL :
-                        if (Boolean.TRUE.equals(comparefirst)
-                                || Boolean.TRUE.equals(comparelast)) {
-                            return Boolean.TRUE;
-                        } else if (Boolean.FALSE.equals(comparefirst)
-                                   && Boolean.FALSE.equals(comparelast)) {
-                            it = index.findFirstRow(session, store, data);
-
-                            return Boolean.FALSE;
+                    case OpTypes.EQUAL :
+                        if (it.next()) {
+                            if (nullCount == 0) {
+                                return Boolean.TRUE;
+                            } else {
+                                return null;
+                            }
                         } else {
-                            return null;
+                            if (nullCount == 0) {
+                                if (!hasNulls) {
+                                    return Boolean.FALSE;
+                                }
+                            } else {
+                                return null;
+                            }
                         }
-                    case OpTypes.GREATER :
-                        return comparefirst;
+                        break;
 
-                    case OpTypes.GREATER_EQUAL :
-                    case OpTypes.GREATER_EQUAL_PRE :
-                        return comparefirst;
-
-                    case OpTypes.SMALLER :
-                        return comparelast;
-
-                    case OpTypes.SMALLER_EQUAL :
-                        return comparelast;
+                    case OpTypes.NOT_EQUAL :
+                        if (it.next()) {
+                            if (nullCount == 0) {
+                                return Boolean.FALSE;
+                            } else {
+                                return null;
+                            }
+                        }
+                        break;
                 }
 
-                break;
+                it           = index.firstRow(store);
+                comparedNull = false;
+
+                while (it.next()) {
+                    Object[] currdata = it.getCurrent();
+                    Boolean  result   = compareValues(session, data, currdata);
+
+                    if (result == null) {
+                        comparedNull = true;
+
+                        continue;
+                    }
+
+                    if (result.booleanValue()) {
+                        it.release();
+
+                        return Boolean.TRUE;
+                    }
+                }
+
+                if (comparedNull) {
+                    return null;
+                }
+
+                return Boolean.FALSE;
             }
             case OpTypes.ALL_QUANTIFIED : {
                 if (empty) {
                     return Boolean.TRUE;
                 }
 
-                if (countNulls(data) == data.length) {
+                if (nullCount == data.length) {
                     return null;
                 }
 
-                it = index.firstRow(session, store, null, 0, null);
+                switch (opType) {
 
-                it.next();
+                    case OpTypes.EQUAL :
+                        break;
 
-                firstdata = it.getCurrent();
+                    case OpTypes.NOT_EQUAL :
+                        if (!hasNulls) {
+                            it = index.findFirstRow(session, store, data);
 
-                if (countNulls(firstdata) == data.length) {
-                    return null;
+                            if (it.next()) {
+                                return Boolean.FALSE;
+                            } else {
+                                if (nullCount == 0) {
+                                    return Boolean.TRUE;
+                                }
+                            }
+                        }
+                        break;
+
+                    case OpTypes.GREATER :
+                    case OpTypes.GREATER_EQUAL :
+                    case OpTypes.GREATER_EQUAL_PRE :
+                        if (!hasNulls) {
+                            it = index.lastRow(session, store, 0, null);
+
+                            it.next();
+
+                            Object[] lastdata = it.getCurrent();
+
+                            return compareValues(session, data, lastdata);
+                        }
+                        break;
+
+                    case OpTypes.SMALLER :
+                    case OpTypes.SMALLER_EQUAL :
+                        if (!hasNulls) {
+                            it = index.firstRow(store);
+
+                            it.next();
+
+                            Object[] firstdata = it.getCurrent();
+
+                            return compareValues(session, data, firstdata);
+                        }
                 }
 
-                convertToType(session, data, nodes[LEFT].nodeDataTypes,
-                              nodes[RIGHT].nodeDataTypes);
+                it           = index.firstRow(store);
+                comparedNull = false;
 
-                it = index.findFirstRow(session, store, data);
+                while (it.next()) {
+                    Object[] currdata = it.getCurrent();
+                    Boolean  result   = compareValues(session, data, currdata);
 
-                if (opType == OpTypes.EQUAL) {
-                    if (it.next()) {
-                        return store.elementCount() == 1 ? Boolean.TRUE
-                                                         : Boolean.FALSE;
-                    } else {
+                    if (result == null) {
+                        comparedNull = true;
+
+                        continue;
+                    }
+
+                    if (!result.booleanValue()) {
+                        it.release();
+
                         return Boolean.FALSE;
                     }
                 }
 
-                if (opType == OpTypes.NOT_EQUAL) {
-                    return it.next() ? Boolean.FALSE
-                                     : Boolean.TRUE;
+                if (comparedNull) {
+                    return null;
                 }
 
-                RowIterator lastIt = index.lastRow(session, store, 0, null);
-
-                lastIt.next();
-
-                lastdata = lastIt.getCurrent();
-
-                Boolean comparefirst = compareValues(session, data, firstdata);
-                Boolean comparelast  = compareValues(session, data, lastdata);
-
-                switch (opType) {
-
-                    case OpTypes.GREATER :
-                        return comparelast;
-
-                    case OpTypes.GREATER_EQUAL :
-                    case OpTypes.GREATER_EQUAL_PRE :
-                        return comparelast;
-
-                    case OpTypes.SMALLER :
-                        return comparefirst;
-
-                    case OpTypes.SMALLER_EQUAL :
-                        return comparefirst;
-                }
-
-                break;
+                return Boolean.TRUE;
             }
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionLogical");
         }
-
-        return null;
     }
 
     /**
