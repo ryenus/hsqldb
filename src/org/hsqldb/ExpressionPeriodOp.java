@@ -192,6 +192,10 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         return unresolvedSet;
     }
 
+    public void resolveTypes(Session session, Expression parent) {
+        super.resolveTypes(session, parent);
+    }
+
     private void transform() {
 
         // todo - keep the unnamed periods and check the types of start and end expressions to be timestamp or date
@@ -261,25 +265,15 @@ public class ExpressionPeriodOp extends ExpressionLogical {
 
     public Object getValue(Session session) {
 
-        if (opType != OpTypes.SMALLER) {
-            return super.getValue(session);
+        Object result = super.getValue(session);
+
+        if (opType == OpTypes.SMALLER) {
+            if (Boolean.FALSE.equals(result)) {
+                throw Error.error(ErrorCode.X_22020);
+            }
         }
 
-        Object left  = nodes[LEFT].getValue(session);
-        Object right = nodes[RIGHT].getValue(session);
-
-        if (left == null || right == null) {
-            return null;
-        }
-
-        int result = nodes[LEFT].dataType.compare(session, left, right,
-            opType);
-
-        if (result >= 0) {
-            throw Error.error(ErrorCode.X_22020);
-        }
-
-        return Boolean.TRUE;
+        return result;
     }
 
     void collectObjectNames(Set set) {

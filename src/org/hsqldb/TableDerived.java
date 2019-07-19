@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.types.Type;
  * Table with data derived from a query expression.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class TableDerived extends Table {
@@ -75,6 +75,7 @@ public class TableDerived extends Table {
             // for special use, not INFORMATION_SCHEMA views
             case TableBase.CHANGE_SET_TABLE :
             case TableBase.SYSTEM_TABLE :
+            case TableBase.MODULE_TABLE :
             case TableBase.FUNCTION_TABLE :
             case TableBase.VIEW_TABLE :
             case TableBase.RESULT_TABLE :
@@ -157,10 +158,9 @@ public class TableDerived extends Table {
         TableDerived td = this;
 
         if (isRecompiled()) {
-            ParserDQL p = new ParserDQL(session, new Scanner(),
-                                        baseContext);
-            p.compileContext.setCurrentSubquery(tableName);
+            ParserDQL p = new ParserDQL(session, new Scanner(), baseContext);
 
+            p.compileContext.setCurrentSubquery(tableName);
             p.reset(session, sql);
             p.read();
 
@@ -367,7 +367,7 @@ public class TableDerived extends Table {
     }
 
     boolean hasUniqueNotNullRows(Session session) {
-        return getNavigator(session).hasUniqueNotNullRows(session);
+        return getNavigator(session).hasUniqueNotNullRows();
     }
 
     void resetToView() {
@@ -402,7 +402,7 @@ public class TableDerived extends Table {
                 RowSetNavigatorData navigator =
                     ((RowSetNavigatorData) result.getNavigator());
 
-                navigator.removeDuplicates(session);
+                navigator.removeDuplicates();
             }
 
             store = session.sessionData.getSubqueryRowStore(this);

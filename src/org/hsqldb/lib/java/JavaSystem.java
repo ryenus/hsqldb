@@ -158,14 +158,4 @@ public class JavaSystem {
 
         return precision;
     }
-
-    public static void setLogToSystem(boolean value) {
-
-        try {
-            PrintWriter newPrintWriter = (value) ? new PrintWriter(System.out)
-                                                 : null;
-
-            DriverManager.setLogWriter(newPrintWriter);
-        } catch (Exception e) {}
-    }
 }

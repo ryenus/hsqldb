@@ -37,6 +37,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.sql.DriverManager;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 
@@ -54,7 +55,6 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.Notified;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.StringUtil;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.resources.ResourceBundleHandler;
@@ -232,7 +232,7 @@ import org.hsqldb.result.ResultConstants;
  * is started as part of a larger framework. <p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.2
  */
 public class Server implements HsqlSocketRequestHandler, Notified {
@@ -1003,7 +1003,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
         printWithThread("setTrace(" + trace + ")");
         serverProperties.setProperty(ServerProperties.sc_key_trace, trace);
-        JavaSystem.setLogToSystem(trace);
+        setLogToSystem(trace);
     }
 
     /**
@@ -1071,7 +1071,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         maxConnections = serverProperties.getIntegerProperty(
             ServerProperties.sc_key_max_connections, 16);
 
-        JavaSystem.setLogToSystem(isTrace());
+        setLogToSystem(isTrace());
 
         isSilent =
             serverProperties.isPropertyTrue(ServerProperties.sc_key_silent);
@@ -1200,7 +1200,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         logWriter        = new PrintWriter(System.out);
         errWriter        = new PrintWriter(System.err);
 
-        JavaSystem.setLogToSystem(isTrace());
+        setLogToSystem(isTrace());
     }
 
     /**
@@ -2161,32 +2161,38 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
         // Be nice and let applications exit if there are no
         // running connection threads - wait at most 100 ms per active thread
-        for (int count = serverConnectionThreadGroup.activeCount();
-                count > 0 && serverConnectionThreadGroup.activeCount() > 0;
-                count--) {
-            try {
-                Thread.sleep(100);
-            } catch (Exception e) {
+        if (serverConnectionThreadGroup != null) {
+            if (!serverConnectionThreadGroup.isDestroyed()) {
+                int count = serverConnectionThreadGroup.activeCount();
 
-                // e.getMessage();
+                for (; count > 0
+                        && serverConnectionThreadGroup.activeCount() > 0;
+                        count--) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (Exception e) {
+
+                        // e.getMessage();
+                    }
+                }
+
+                try {
+                    serverConnectionThreadGroup.destroy();
+                    printWithThread(serverConnectionThreadGroup.getName()
+                                    + " destroyed");
+                } catch (Throwable t) {
+                    printWithThread(serverConnectionThreadGroup.getName()
+                                    + " not destroyed");
+                    printWithThread(t.toString());
+                }
             }
+
+            serverConnectionThreadGroup = null;
         }
 
-        try {
-            serverConnectionThreadGroup.destroy();
-            printWithThread(serverConnectionThreadGroup.getName()
-                            + " destroyed");
-        } catch (Throwable t) {
-            printWithThread(serverConnectionThreadGroup.getName()
-                            + " not destroyed");
-            printWithThread(t.toString());
-        }
+        serverThread = null;
 
         setState(ServerConstants.SERVER_STATE_SHUTDOWN);
-
-        serverConnectionThreadGroup = null;
-        serverThread                = null;
-
         print(sw.elapsedTimeToMessage("Shutdown sequence completed"));
 
         if (isNoSystemExit()) {
@@ -2345,5 +2351,15 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         }
 
         server.start();
+    }
+
+    private static void setLogToSystem(boolean value) {
+
+        try {
+            PrintWriter newPrintWriter = (value) ? new PrintWriter(System.out)
+                                                 : null;
+
+            DriverManager.setLogWriter(newPrintWriter);
+        } catch (Exception e) {}
     }
 }

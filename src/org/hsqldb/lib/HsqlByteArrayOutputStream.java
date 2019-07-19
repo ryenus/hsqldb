@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2016, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import java.io.UnsupportedEncodingException;
  * (without synchronization) and java.io.DataOutputStream
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.1
  * @since 1.7.0
  */
 public class HsqlByteArrayOutputStream extends OutputStream
@@ -326,7 +326,7 @@ implements DataOutput {
         return newbuf;
     }
 
-    final public int size() {
+    public final int size() {
         return count;
     }
 
@@ -373,7 +373,7 @@ implements DataOutput {
         long newcount = count + extra;
         long newsize  = buffer.length;
 
-        if (newcount > Integer.MAX_VALUE) {
+        if (newcount > Integer.MAX_VALUE - 2) {
             throw new OutOfMemoryError("2GB maximum buffer length exceeded");
         }
 
@@ -382,8 +382,8 @@ implements DataOutput {
                 newsize *= 2;
             }
 
-            if (newsize > Integer.MAX_VALUE) {
-                newsize = Integer.MAX_VALUE;
+            if (newsize > Integer.MAX_VALUE - 2) {
+                newsize = Integer.MAX_VALUE - 2;
             }
 
             byte[] newbuf = new byte[(int) newsize];

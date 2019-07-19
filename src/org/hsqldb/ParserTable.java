@@ -1548,18 +1548,25 @@ public class ParserTable extends ParserDML {
         boolean hasNullNoiseWord     = false;
         boolean hasPrimaryKey        = false;
 
-        if (column.getDataType().typeCode == Types.SQL_TIMESTAMP) {
+        if (column.getDataType().isTimestampType()) {
             if (token.tokenType == Tokens.ON) {
-                int position = getPosition();
+                int         position = getPosition();
+                FunctionSQL function;
 
                 try {
                     read();
                     readThis(Tokens.UPDATE);
-                    readThis(Tokens.CURRENT_TIMESTAMP);
 
-                    FunctionSQL function =
-                        FunctionSQL.newSQLFunction(Tokens.T_CURRENT_TIMESTAMP,
-                                                   compileContext);
+                    if (readIfThis(Tokens.CURRENT_TIMESTAMP)) {
+                        function = FunctionSQL.newSQLFunction(
+                            Tokens.T_CURRENT_TIMESTAMP, compileContext);
+                    } else {
+                        readThis(Tokens.LOCALTIMESTAMP);
+
+                        function =
+                            FunctionSQL.newSQLFunction(Tokens.T_LOCALTIMESTAMP,
+                                                       compileContext);
+                    }
 
                     function.resolveTypes(session, null);
                     column.setUpdateExpression(function);

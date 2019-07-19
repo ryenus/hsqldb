@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,10 @@
 
 package org.hsqldb.cmdline.sqltool;
 
-import java.io.File;
+import java.net.URL;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
-import java.io.FileInputStream;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -62,7 +60,7 @@ public class FileRecordReader {
 
     // Can lower dramatically, all the way to 1, to test buffering.
     public static final int INITIAL_CHARBUFFER_SIZE = 10240;
-    private File file;
+    private URL url;
     private InputStreamReader reader;
     private Pattern recordPattern;
     private long postRead;
@@ -70,14 +68,25 @@ public class FileRecordReader {
     private char[] charBuffer = new char[INITIAL_CHARBUFFER_SIZE];
 
     /**
+     * Legacy constructor.
+     * See following constructor for documentation.
+     */
+    public FileRecordReader(
+            String filePath, String recordDelimiterRegex, String encoding)
+            throws IOException, UnsupportedEncodingException {
+        this(new URL("file", null, filePath),
+          recordDelimiterRegex, encoding);
+    }
+
+    /**
      * @throws java.util.regex.PatternSyntaxException
      * @throws UnsupportedEncodingException
      */
     public FileRecordReader(
-            String filePath, String recordDelimiterRegex, String encoding)
-            throws FileNotFoundException, UnsupportedEncodingException {
-        file = new File(filePath);
-        reader = new InputStreamReader(new FileInputStream(file), encoding);
+            URL inUrl, String recordDelimiterRegex, String encoding)
+            throws IOException, UnsupportedEncodingException {
+        url = inUrl;
+        reader = new InputStreamReader(url.openStream(), encoding);
         recordPattern = Pattern.compile(
                 "(.*?)(" + recordDelimiterRegex + ").*", Pattern.DOTALL);
     }
@@ -87,21 +96,23 @@ public class FileRecordReader {
      */
     public void close() throws IOException {
         if (reader == null)
-            throw new IllegalStateException("File already closed: " + file);
+            throw new IllegalStateException("File already closed: " + url);
         reader.close();
         reader = null;
     }
 
     public String getName() {
-        return file.getName();
+        String tableName = url.getPath();
+        int i;
+        i = tableName.lastIndexOf('/');
+        if (i > 0) tableName = tableName.substring(i+1);
+        i = tableName.lastIndexOf('\\');
+        if (i > 0) tableName = tableName.substring(i+1);
+        return tableName;
     }
 
-    public String getPath() {
-        return file.getPath();
-    }
-
-    public String getAbsolutePath() {
-        return file.getAbsolutePath();
+    public String toString() {
+        return url.toString();
     }
 
     public boolean isOpen() {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -156,24 +156,6 @@ public class TestSqlPeriodPredicates extends TestBase {
 
         executeAndTestQuery(stmt, "TIMESTAMP '2000-04-01 01:02:03'",
                             "TIMESTAMP '2000-05-01 01:02:03'");
-
-        stmt.close();
-    }
-
-    public void testFirstPeriodOverlapsWithInterval() throws SQLException {
-        String query = "SELECT emp_id FROM PUBLIC.EMP WHERE PERIOD (?, INTERVAL '40' DAY) OVERLAPS PERIOD (BUS_START, BUS_END);";
-        PreparedStatement stmt = conn.prepareStatement(query);
-        ResultSet rs;
-
-        stmt.setString(1, "TIMESTAMP '2000-02-01 01:02:03'");
-        rs = stmt.executeQuery();
-        assertAllIdsPresent(rs, 2, 3);
-        rs.close();
-
-        stmt.setString(1, "TIMESTAMP '1999-02-01 01:02:03'");
-        rs = stmt.executeQuery();
-        assertAllIdsPresent(rs);
-        rs.close();
 
         stmt.close();
     }

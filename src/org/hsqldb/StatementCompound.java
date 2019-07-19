@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for PSM compound statements.
 
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class StatementCompound extends Statement implements RangeGroup {
@@ -451,7 +451,9 @@ public class StatementCompound extends Statement implements RangeGroup {
                             break;
 
                         case StatementHandler.UNDO :
-                            session.rollbackToSavepoint();
+                            if (session.sessionContext.savepoints.size() > 0) {
+                                session.rollbackToSavepoint();
+                            }
 
                             result = Result.newPSMResult(StatementTypes.LEAVE,
                                                          labelString, null);

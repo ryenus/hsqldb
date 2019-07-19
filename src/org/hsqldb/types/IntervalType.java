@@ -1664,7 +1664,7 @@ public final class IntervalType extends DTIType {
         return ((IntervalSecondData) interval).units;
     }
 
-    public BigDecimal getSecondPart(Object interval) {
+    public BigDecimal getSecondPart(Session session, Object interval) {
 
         long seconds = ((IntervalSecondData) interval).units;
 

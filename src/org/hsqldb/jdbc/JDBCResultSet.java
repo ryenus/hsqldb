@@ -64,6 +64,7 @@ import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringInputStream;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.navigator.RowSetNavigator;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
@@ -291,7 +292,7 @@ import java.time.ZoneOffset;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class JDBCResultSet implements ResultSet {
@@ -2335,6 +2336,13 @@ public class JDBCResultSet implements ResultSet {
             row--;
         } else if (row == 0) {
             return navigator.beforeFirst();
+        } else {
+            row += navigator.getSize();
+
+            if (row < 0) {
+                navigator.beforeFirst();
+                return false;
+            }
         }
 
         return navigator.absolute(row);
@@ -4334,6 +4342,20 @@ public class JDBCResultSet implements ResultSet {
         }
 
         if (o instanceof BlobDataID) {
+            if (memoryLobs) {
+                long length = ((BlobDataID) o).length(session);
+
+                if (length > Integer.MAX_VALUE) {
+                    throw JDBCUtil.sqlException(ErrorCode.X_22001);
+                }
+
+                byte[] bytes = ((BlobDataID) o).getBytes(session, 0,
+                                   (int) length);
+                JDBCBlob b = new JDBCBlob(bytes);
+
+                return b;
+            }
+
             JDBCBlobClient blob = new JDBCBlobClient(session, (BlobDataID) o);
 
             if (isUpdatable) {
@@ -4396,6 +4418,20 @@ public class JDBCResultSet implements ResultSet {
         }
 
         if (o instanceof ClobDataID) {
+            if (memoryLobs) {
+                long length = ((ClobDataID) o).length(session);
+
+                if (length > Integer.MAX_VALUE) {
+                    throw JDBCUtil.sqlException(ErrorCode.X_22001);
+                }
+
+                String s = ((ClobDataID) o).getSubString(session, 0,
+                               (int) length);
+                JDBCClob c = new JDBCClob(s);
+
+                return c;
+            }
+
             JDBCClobClient clob = new JDBCClobClient(session, (ClobDataID) o);
 
             if (isUpdatable) {
@@ -6918,7 +6954,12 @@ public class JDBCResultSet implements ResultSet {
             case "java.time.LocalDateTime": {
                 source = getColumnInType(columnIndex, hsqlType);
                 TimestampData v = (TimestampData) source;
-                o = LocalDateTime.ofEpochSecond(v.getSeconds(), v.getNanos(), ZoneOffset.UTC);
+
+                long millis = v.getMillis();
+                int nanos = v.getNanos();
+                Calendar cal = session.getCalendarGMT();
+                cal.setTimeInMillis(millis);
+                o = LocalDateTime.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND ), nanos);
                 break;
             }
             case "java.time.OffsetTime": {
@@ -7250,6 +7291,9 @@ public class JDBCResultSet implements ResultSet {
 
     /** The first warning in the chain. Null if there are no warnings. */
     private SQLWarning rootWarning;
+
+    /** If true, retrieves a lob as an in-memory object - this breaks updatability*/
+    private boolean memoryLobs;
 
     // -------------------------- Package Attributes ----------------------------
 
@@ -7641,6 +7685,11 @@ public class JDBCResultSet implements ResultSet {
 
         if (conn != null) {
             translateTTIType = conn.isTranslateTTIType;
+
+            if (conn.connProperties != null) {
+                memoryLobs = conn.connProperties.isPropertyTrue(
+                    HsqlDatabaseProperties.url_memory_lobs, false);
+            }
         }
     }
 

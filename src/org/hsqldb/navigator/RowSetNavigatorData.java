@@ -53,7 +53,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class RowSetNavigatorData extends RowSetNavigator
@@ -129,7 +129,7 @@ implements Comparator<Object[]> {
         }
     }
 
-    public void sortFull(Session session) {
+    public void sortFull() {
 
         mainIndex = fullIndex;
 
@@ -137,7 +137,7 @@ implements Comparator<Object[]> {
         reset();
     }
 
-    public void sortOrder(Session session) {
+    public void sortOrder() {
 
         if (orderIndex != null) {
             mainIndex = orderIndex;
@@ -148,7 +148,7 @@ implements Comparator<Object[]> {
         reset();
     }
 
-    public void sortOrderUnion(Session session, SortAndSlice sortAndSlice) {
+    public void sortOrderUnion(SortAndSlice sortAndSlice) {
 
         if (sortAndSlice.index != null) {
             mainIndex = sortAndSlice.index;
@@ -341,12 +341,12 @@ implements Comparator<Object[]> {
         }
     }
 
-    public void union(Session session, RowSetNavigatorData other) {
+    public void union(RowSetNavigatorData other) {
 
         Object[] currentData;
 
-        removeDuplicates(session);
-        other.removeDuplicates(session);
+        removeDuplicates();
+        other.removeDuplicates();
 
         mainIndex = fullIndex;
 
@@ -367,7 +367,7 @@ implements Comparator<Object[]> {
         reset();
     }
 
-    public void unionAll(Session session, RowSetNavigatorData other) {
+    public void unionAll(RowSetNavigatorData other) {
 
         mainIndex = fullIndex;
 
@@ -382,10 +382,10 @@ implements Comparator<Object[]> {
         reset();
     }
 
-    public void intersect(Session session, RowSetNavigatorData other) {
+    public void intersect(RowSetNavigatorData other) {
 
-        removeDuplicates(session);
-        other.sortFull(session);
+        removeDuplicates();
+        other.sortFull();
 
         while (next()) {
             Object[] currentData = getCurrent();
@@ -399,14 +399,14 @@ implements Comparator<Object[]> {
         reset();
     }
 
-    public void intersectAll(Session session, RowSetNavigatorData other) {
+    public void intersectAll(RowSetNavigatorData other) {
 
         Object[]    compareData = null;
         RowIterator it;
         Object[]    otherData = null;
 
-        sortFull(session);
-        other.sortFull(session);
+        sortFull();
+        other.sortFull();
 
         it = fullIndex.emptyIterator();
 
@@ -415,7 +415,7 @@ implements Comparator<Object[]> {
             boolean newGroup =
                 compareData == null
                 || fullIndex.compareRowNonUnique(
-                    session, currentData, compareData,
+                    (Session) session, currentData, compareData,
                     visibleColumnCount) != 0;
 
             if (newGroup) {
@@ -427,7 +427,7 @@ implements Comparator<Object[]> {
                 otherData = it.getCurrent();
 
                 if (fullIndex.compareRowNonUnique(
-                        session, currentData, otherData,
+                        (Session) session, currentData, otherData,
                         visibleColumnCount) == 0) {
                     continue;
                 }
@@ -439,10 +439,10 @@ implements Comparator<Object[]> {
         reset();
     }
 
-    public void except(Session session, RowSetNavigatorData other) {
+    public void except(RowSetNavigatorData other) {
 
-        removeDuplicates(session);
-        other.sortFull(session);
+        removeDuplicates();
+        other.sortFull();
 
         while (next()) {
             Object[] currentData = getCurrent();
@@ -456,14 +456,14 @@ implements Comparator<Object[]> {
         reset();
     }
 
-    public void exceptAll(Session session, RowSetNavigatorData other) {
+    public void exceptAll(RowSetNavigatorData other) {
 
         Object[]    compareData = null;
         RowIterator it;
         Object[]    otherData = null;
 
-        sortFull(session);
-        other.sortFull(session);
+        sortFull();
+        other.sortFull();
 
         it = fullIndex.emptyIterator();
 
@@ -472,7 +472,7 @@ implements Comparator<Object[]> {
             boolean newGroup =
                 compareData == null
                 || fullIndex.compareRowNonUnique(
-                    session, currentData, compareData,
+                    (Session) session, currentData, compareData,
                     fullIndex.getColumnCount()) != 0;
 
             if (newGroup) {
@@ -484,7 +484,7 @@ implements Comparator<Object[]> {
                 otherData = it.getCurrent();
 
                 if (fullIndex.compareRowNonUnique(
-                        session, currentData, otherData,
+                        (Session) session, currentData, otherData,
                         fullIndex.getColumnCount()) == 0) {
                     removeCurrent();
                 }
@@ -494,9 +494,9 @@ implements Comparator<Object[]> {
         reset();
     }
 
-    public boolean hasUniqueNotNullRows(Session session) {
+    public boolean hasUniqueNotNullRows() {
 
-        sortFull(session);
+        sortFull();
         reset();
 
         Object[] lastRowData = null;
@@ -509,8 +509,8 @@ implements Comparator<Object[]> {
             }
 
             if (lastRowData != null
-                    && fullIndex.compareRow(session, lastRowData, currentData)
-                       == 0) {
+                    && fullIndex.compareRow(
+                        (Session) session, lastRowData, currentData) == 0) {
                 return false;
             } else {
                 lastRowData = currentData;
@@ -520,9 +520,9 @@ implements Comparator<Object[]> {
         return true;
     }
 
-    public void removeDuplicates(Session session) {
+    public void removeDuplicates() {
 
-        sortFull(session);
+        sortFull();
         reset();
 
         int      lastRowPos  = -1;
@@ -538,7 +538,8 @@ implements Comparator<Object[]> {
                 continue;
             }
 
-            if (fullIndex.compareRow(session, lastRowData, currentData) != 0) {
+            if (fullIndex.compareRow(
+                    (Session) session, lastRowData, currentData) != 0) {
                 lastRowPos++;
 
                 lastRowData           = currentData;
@@ -670,10 +671,6 @@ implements Comparator<Object[]> {
         }
     }
 
-    void implement() {
-        throw Error.error(ErrorCode.U_S0500, "RSND");
-    }
-
     class DataIterator implements RowIterator {
 
         int pos;
@@ -694,7 +691,6 @@ implements Comparator<Object[]> {
         public boolean next() {
 
             if (pos < size - 1) {
-
                 pos++;
 
                 return true;

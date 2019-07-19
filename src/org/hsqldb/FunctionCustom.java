@@ -77,7 +77,7 @@ import org.hsqldb.types.Types;
  * Some functions are translated into equivalent SQL Standard functions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class FunctionCustom extends FunctionSQL {
@@ -2592,12 +2592,17 @@ public class FunctionCustom extends FunctionSQL {
                         nodes[2].dataType = nodes[0].dataType;
                     }
                 } else if (nodes[0].dataType.isDateTimeType()) {
+                    if (nodes[0].dataType.typeCode
+                            != nodes[1].dataType.typeCode) {
+                        throw Error.error(ErrorCode.X_42562);
+                    }
+
                     if (nodes[2].dataType == null) {
-                        throw Error.error(ErrorCode.X_42561);
+                        throw Error.error(ErrorCode.X_42563);
                     }
 
                     if (!nodes[2].dataType.isIntervalType()) {
-                        throw Error.error(ErrorCode.X_42561);
+                        throw Error.error(ErrorCode.X_42563);
                     }
                 }
 

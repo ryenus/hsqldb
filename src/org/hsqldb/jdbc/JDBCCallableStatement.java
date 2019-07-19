@@ -213,7 +213,7 @@ import java.time.ZoneOffset;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  * @see JDBCConnection#prepareCall
  * @see JDBCResultSet
@@ -4554,7 +4554,12 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             case "java.time.LocalDateTime": {
                 source = getColumnInType(parameterIndex, hsqlType);
                 TimestampData v = (TimestampData) source;
-                o = LocalDateTime.ofEpochSecond(v.getSeconds(), v.getNanos(), ZoneOffset.UTC);
+
+                long millis = v.getMillis();
+                int nanos = v.getNanos();
+                Calendar cal = session.getCalendarGMT();
+                cal.setTimeInMillis(millis);
+                o = LocalDateTime.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND ), nanos);
                 break;
             }
             case "java.time.OffsetTime": {

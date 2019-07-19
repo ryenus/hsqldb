@@ -305,24 +305,6 @@ public class JDBCDriver implements Driver {
         } catch (InterruptedException ie) {
         }
 
-        try {
-
-            // PRE:
-            // deprecated, but should be ok, since neither
-            // the HSQLClientConnection or the HTTPClientConnection
-            // constructor will ever hold monitors on objects in
-            // an inconsistent state, such that damaged objects
-            // become visible to other threads with the
-            // potential of arbitrary behavior.
-            t.stop();
-        } catch (Exception e) {
-        } finally {
-            try {
-                t.setContextClassLoader(null);
-            } catch (Throwable th) {
-            }
-        }
-
         if (ex[0] != null) {
             throw ex[0];
         }

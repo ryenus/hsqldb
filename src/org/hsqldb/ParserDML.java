@@ -245,12 +245,16 @@ public class ParserDML extends ParserDQL {
                             assignsToIdentityOrGenerated = true;
 
                             if (e.getType() != OpTypes.DEFAULT) {
-                                if (baseTable.identitySequence.isAlways()) {
-                                    if (overridingUser) {
-                                        rowArgs[i] = new ExpressionColumn(
-                                            OpTypes.DEFAULT);
-                                    } else {
-                                        throw Error.error(ErrorCode.X_42543);
+                                if (overridingUser) {
+                                    rowArgs[i] =
+                                        new ExpressionColumn(OpTypes.DEFAULT);
+                                } else if (overridingSystem) {
+
+                                    // user value allowed
+                                } else {
+                                    if (baseTable.identitySequence
+                                            .isAlways()) {
+                                        throw Error.error(ErrorCode.X_42542);
                                     }
                                 }
                             }
@@ -266,7 +270,7 @@ public class ParserDML extends ParserDQL {
                                     rowArgs[i] =
                                         new ExpressionColumn(OpTypes.DEFAULT);
                                 } else {
-                                    throw Error.error(ErrorCode.X_42541);
+                                    throw Error.error(ErrorCode.X_42543);
                                 }
                             }
                         } else {
@@ -280,8 +284,9 @@ public class ParserDML extends ParserDQL {
                     }
                 }
 
-                if (!assignsToIdentityOrGenerated && overridingUser) {
-                    throw unexpectedTokenRequire(Tokens.T_OVERRIDING);
+                if (!assignsToIdentityOrGenerated
+                        && (overridingUser || overridingSystem)) {
+                    throw unexpectedToken(Tokens.T_OVERRIDING);
                 }
 
                 if (!hasColumnList) {
@@ -381,7 +386,7 @@ public class ParserDML extends ParserDQL {
                 overrideIndex = enforcedDefaultIndex;
             }
         } else if (overridingUser || overridingSystem) {
-            throw unexpectedTokenRequire(Tokens.T_OVERRIDING);
+            throw unexpectedToken(Tokens.T_OVERRIDING);
         }
 
         Type[] types = new Type[insertColumnMap.length];

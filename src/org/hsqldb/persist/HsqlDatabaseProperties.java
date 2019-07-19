@@ -202,6 +202,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String url_get_column_name   = "get_column_name";
     public static final String url_close_result      = "close_result";
     public static final String url_allow_empty_batch = "allow_empty_batch";
+    public static final String url_memory_lobs       = "memory_lobs";
 
     //
     public static final String url_shutdown    = "shutdown";
@@ -220,6 +221,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_tx_level = "hsqldb.tx_level";
     public static final String hsqldb_tx_conflict_rollback =
         "hsqldb.tx_conflict_rollback";
+    public static final String hsqldb_tx_interrupt_rollback =
+        "hsqldb.tx_interrupt_rollback";
     public static final String hsqldb_applog         = "hsqldb.applog";
     public static final String hsqldb_sqllog         = "hsqldb.sqllog";
     public static final String hsqldb_lob_file_scale = "hsqldb.lob_file_scale";
@@ -390,6 +393,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_tx_conflict_rollback,
                    HsqlProperties.getMeta(hsqldb_tx_conflict_rollback,
                                           SQL_PROPERTY, true));
+        dbMeta.put(hsqldb_tx_interrupt_rollback,
+                   HsqlProperties.getMeta(hsqldb_tx_interrupt_rollback,
+                                          SQL_PROPERTY, false));
         dbMeta.put(jdbc_translate_tti_types,
                    HsqlProperties.getMeta(jdbc_translate_tti_types,
                                           SQL_PROPERTY, true));
@@ -408,6 +414,12 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_full_log_replay,
                    HsqlProperties.getMeta(hsqldb_full_log_replay,
                                           SQL_PROPERTY, false));
+        dbMeta.put(hsqldb_write_delay,
+                   HsqlProperties.getMeta(hsqldb_write_delay, SQL_PROPERTY,
+                                          true));
+        dbMeta.put(hsqldb_large_data,
+                   HsqlProperties.getMeta(hsqldb_large_data, SQL_PROPERTY,
+                                          false));
         dbMeta.put(sql_ref_integrity,
                    HsqlProperties.getMeta(sql_ref_integrity, SQL_PROPERTY,
                                           true));
@@ -488,11 +500,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_ignore_case,
                    HsqlProperties.getMeta(sql_ignore_case, SQL_PROPERTY,
                                           false));
-        dbMeta.put(hsqldb_write_delay,
-                   HsqlProperties.getMeta(hsqldb_write_delay, SQL_PROPERTY,
-                                          true));
-        dbMeta.put(hsqldb_large_data,
-                   HsqlProperties.getMeta(hsqldb_large_data, SQL_PROPERTY,
+        dbMeta.put(sql_sys_index_names,
+                   HsqlProperties.getMeta(sql_sys_index_names, SQL_PROPERTY,
                                           false));
         dbMeta.put(hsqldb_files_space,
                    HsqlProperties.getMeta(hsqldb_files_space, SQL_PROPERTY, 0,
@@ -557,9 +566,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_nio_max_size,
                    HsqlProperties.getMeta(hsqldb_nio_max_size, SQL_PROPERTY,
                                           256, 64, 262144));
-        dbMeta.put(sql_sys_index_names,
-                   HsqlProperties.getMeta(sql_sys_index_names, SQL_PROPERTY,
-                                          false));
         dbMeta.put(hsqldb_min_reuse,
                    HsqlProperties.getMeta(hsqldb_min_reuse, SQL_PROPERTY, 0,
                                           0, 1024 * 1024));

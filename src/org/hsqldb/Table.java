@@ -3130,7 +3130,9 @@ public class Table extends TableBase implements SchemaObject {
                 id = (Number) identitySequence.getValueObject();
                 data[identityColumn] = id;
             } else {
-                identitySequence.userUpdate(id.longValue());
+                if (identitySequence.getName() == null) {
+                    identitySequence.userUpdate(id.longValue());
+                }
             }
         }
     }
@@ -3145,7 +3147,9 @@ public class Table extends TableBase implements SchemaObject {
             Number id = (Number) data[identityColumn];
 
             if (id != null) {
-                identitySequence.systemUpdate(id.longValue());
+                if (identitySequence.getName() == null) {
+                    identitySequence.systemUpdate(id.longValue());
+                }
             }
         }
     }

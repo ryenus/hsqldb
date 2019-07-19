@@ -37,7 +37,7 @@ import org.hsqldb.error.ErrorCode;
  * Enumerates supported database types.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 2.3.4
  */
 
@@ -67,7 +67,6 @@ public enum DatabaseType {
     }
 
     public static boolean isInProcessDatabaseType(String type) {
-
         if (DB_FILE.value.equals(type) || DB_RES.value.equals(type) || DB_MEM.value.equals(type)) {
             return true;
         }
@@ -75,12 +74,10 @@ public enum DatabaseType {
         return false;
     }
 
-
     public static DatabaseType get(String value) {
         if (DB_MEM.value.equals(value)) {
             return DB_MEM;
         }
-
 
         if (DB_FILE.value.equals(value)) {
             return DB_FILE;
@@ -92,7 +89,4 @@ public enum DatabaseType {
 
         throw Error.runtimeError(ErrorCode.U_S0500, "DatabaseType");
     }
-
-
-
 }

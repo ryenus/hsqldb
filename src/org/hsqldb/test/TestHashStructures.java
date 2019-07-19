@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@ import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.StopWatch;
 
 import junit.framework.TestCase;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)

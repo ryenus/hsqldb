@@ -56,7 +56,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -347,6 +347,28 @@ public class ParserDDL extends ParserRoutine {
                 throw unexpectedToken();
             }
         }
+    }
+
+    Statement compileAlterSpecificRoutine() {
+
+        readThis(Tokens.SPECIFIC);
+        readThis(Tokens.ROUTINE);
+
+        Routine routine =
+            (Routine) readSchemaObjectName(SchemaObject.SPECIFIC_ROUTINE);
+
+        switch (token.tokenType) {
+
+            case Tokens.RENAME : {
+                read();
+                readThis(Tokens.TO);
+
+                return compileRenameObject(routine.getSpecificName(),
+                                           SchemaObject.SPECIFIC_ROUTINE);
+            }
+        }
+
+        return compileAlterSpecificRoutine(routine);
     }
 
     Statement compileAlterRoutine() {
@@ -1890,8 +1912,10 @@ public class ParserDDL extends ParserRoutine {
         HsqlArrayList list     = new HsqlArrayList();
         Constraint constraint =
             new Constraint(null, null, SchemaObject.ConstraintTypes.TEMP);
+        Boolean ifNotExists = readIfNotExists();
 
         list.add(constraint);
+        checkIsSimpleName();
         checkIsSchemaObjectName();
 
         HsqlName hsqlName =
@@ -1918,7 +1942,7 @@ public class ParserDDL extends ParserRoutine {
         String   sql  = getLastPart();
         Object[] args = new Object[] {
             Integer.valueOf(StatementTypes.ADD_COLUMN), table, column,
-            Integer.valueOf(colIndex), list
+            Integer.valueOf(colIndex), list, ifNotExists
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
@@ -3063,9 +3087,14 @@ public class ParserDDL extends ParserRoutine {
 
         if (grant) {
             if (objectType == SchemaObject.TABLE) {
+                startRecording();
+
                 filter = XreadFilterExpressionOrNull();
 
-                right.setFilterExpression(filter);
+                Token[] tokenisedStatement = getRecordedStatement();
+                String  sql                = Token.getSQL(tokenisedStatement);
+
+                right.setFilterExpression(filter, sql);
             }
 
             readThis(Tokens.TO);
