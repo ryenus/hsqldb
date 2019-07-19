@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2014, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,8 +88,8 @@ public class AuthUtils {
         }
     }
 
-    static Set getEnabledRoles(Connection c) throws SQLException {
-        Set roles = new HashSet<String>();
+    static Set<String> getEnabledRoles(Connection c) throws SQLException {
+        HashSet<String> roles = new HashSet<String>();
         Statement st = c.createStatement();
         ResultSet rs = null;
         try {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2018, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.lib.ObjectComparator;
  * Special getOrAddXXX() methods are used for object maps in some subclasses.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.7.2
  */
 public class BaseHashMap {
@@ -209,8 +209,14 @@ public class BaseHashMap {
         for (; lookup >= 0; lookup = hashIndex.getNextLookup(lookup)) {
             tempKey = objectKeyTable[lookup];
 
-            if (key.equals(tempKey)) {
-                break;
+            if (comparator == null) {
+                if (key.equals(tempKey)) {
+                    break;
+                }
+            } else {
+                if (comparator.compare(key, tempKey) == 0) {
+                    break;
+                }
             }
         }
 
@@ -222,7 +228,7 @@ public class BaseHashMap {
         int lookup = hashIndex.getLookup(key);
         int tempKey;
 
-        for (; lookup >= 0; lookup = hashIndex.linkTable[lookup]) {
+        for (; lookup >= 0; lookup = hashIndex.getNextLookup(lookup)) {
             tempKey = intKeyTable[lookup];
 
             if (key == tempKey) {
@@ -1344,8 +1350,7 @@ public class BaseHashMap {
 
         double factor = 0.5;
 
-
-        for (int i = 0; i <accessTable.length; i++) {
+        for (int i = 0; i < accessTable.length; i++) {
             if (accessTable[i] < accessMin) {
                 accessTable[i] = 0;
             } else {

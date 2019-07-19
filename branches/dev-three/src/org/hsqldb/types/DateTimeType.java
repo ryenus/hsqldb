@@ -50,7 +50,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -1709,9 +1709,9 @@ public final class DateTimeType extends DTIType {
         return millis;
     }
 
-    public BigDecimal getSecondPart(Object dateTime) {
+    public BigDecimal getSecondPart(Session session, Object dateTime) {
 
-        long seconds = getPart(null, dateTime, Types.SQL_INTERVAL_SECOND);
+        long seconds = getPart(session, dateTime, Types.SQL_INTERVAL_SECOND);
         int  nanos   = 0;
 
         if (typeCode == Types.SQL_TIMESTAMP
@@ -1868,6 +1868,27 @@ public final class DateTimeType extends DTIType {
         }
     }
 
+    public static Object changeZoneToUTC(Object a) {
+
+        if (a instanceof TimestampData) {
+            TimestampData ts = (TimestampData) a;
+
+            if (ts.getZone() != 0) {
+                return new TimestampData(ts.seconds, ts.nanos);
+            }
+        }
+
+        if (a instanceof TimeData) {
+            TimeData ts = (TimeData) a;
+
+            if (ts.getZone() != 0) {
+                return new TimeData(ts.seconds, ts.nanos);
+            }
+        }
+
+        return a;
+    }
+
     public Object changeZone(Session session, Object a, Type otherType,
                              int targetZone, int localZone) {
 
@@ -2007,11 +2028,17 @@ public final class DateTimeType extends DTIType {
         }
 
         if (commonType.compare(session, a[0], a[1]) >= 0) {
-            throw Error.error(ErrorCode.X_22020);
+            Object temp = a[0];
+
+            a[0] = a[1];
+            a[1] = temp;
         }
 
         if (!pointOfTime && commonType.compare(session, b[0], b[1]) >= 0) {
-            throw Error.error(ErrorCode.X_22020);
+            Object temp = b[0];
+
+            b[0] = b[1];
+            b[1] = temp;
         }
 
         return commonType;

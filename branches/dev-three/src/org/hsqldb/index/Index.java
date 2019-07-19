@@ -93,21 +93,29 @@ public interface Index extends SchemaObject {
 
     /**
      * Returns the array containing column indexes for index
+     *
+     * @return int[]
      */
     int[] getColumns();
 
     /**
      * Returns the array containing column indexes for index
+     *
+     * @return Type[]
      */
     Type[] getColumnTypes();
 
     /**
      * Returns the count of visible columns used
+     *
+     * @return boolean[]
      */
     boolean[] getColumnDesc();
 
     /**
      * Returns the array containing 0, 1, .. column indexes
+     *
+     * @return int[]
      */
     int[] getDefaultColumnMap();
 
@@ -168,12 +176,17 @@ public interface Index extends SchemaObject {
                          Object[] rowdata, int[] rowColMap);
 
     /**
-     * Return the first node equal to the indexdata object. The rowdata has
-     * the same column mapping as this index.
+     * Return the first node equal to the indexdata object. The rowdata has the
+     * same column mapping as this index.
      *
      * @param session session object
      * @param store store object
+     * @param rowdata Object[]
      * @param matchCount count of columns to match
+     * @param distinctCount int
+     * @param compareType int
+     * @param reversed boolean
+     * @param map boolean[]
      * @return iterator
      */
     RowIterator findFirstRow(Session session, PersistentStore store,
@@ -194,12 +207,13 @@ public interface Index extends SchemaObject {
                              Object[] rowdata);
 
     /**
-     * Return the first node equal to the rowdata object.
-     * The rowdata has the column mapping provided in rowColMap.
+     * Return the first node equal to the rowdata object. The rowdata has the
+     * column mapping provided in rowColMap.
      *
      * @param session session object
      * @param store store object
      * @param rowdata array containing table row data
+     * @param rowColMap int[]
      * @return iterator
      */
     RowIterator findFirstRow(Session session, PersistentStore store,
@@ -209,6 +223,8 @@ public interface Index extends SchemaObject {
      * Finds the first node where the data is not null.
      *
      * @return iterator
+     * @param session Session
+     * @param store PersistentStore
      */
     RowIterator findFirstRowNotNull(Session session, PersistentStore store);
 
@@ -227,6 +243,10 @@ public interface Index extends SchemaObject {
      * Returns the row for the last node of the index
      *
      * @return last row
+     * @param session Session
+     * @param store PersistentStore
+     * @param distinctCount int
+     * @param map boolean[]
      */
     RowIterator lastRow(Session session, PersistentStore store,
                         int distinctCount, boolean[] map);
@@ -234,13 +254,13 @@ public interface Index extends SchemaObject {
     /**
      * Compares two table rows based on the columns of this index. The rowColMap
      * parameter specifies which columns of the other table are to be compared
-     * with the colIndex columns of this index. The rowColMap can cover all
-     * or only some columns of this index.
+     * with the colIndex columns of this index. The rowColMap can cover all or
+     * only some columns of this index.
      *
+     * @param session Session
      * @param a row from another table
-     * @param rowColMap column indexes in the other table
      * @param b a full row in this table
-     *
+     * @param rowColMap column indexes in the other table
      * @return comparison result, -1,0,+1
      */
     int compareRowNonUnique(Session session, Object[] a, Object[] b,

@@ -219,8 +219,9 @@ public interface StatementTypes {
     int SET_DATABASE_TRANSACTION_CONTROL       = 1052;
     int SET_DATABASE_DEFAULT_ISOLATION_LEVEL   = 1053;
     int SET_DATABASE_TRANSACTION_CONFLICT      = 1054;
-    int SET_DATABASE_UNIQUE_NAME               = 1055;
-    int SET_DATABASE_PASSWORD_DIGEST           = 1056;
+    int SET_DATABASE_TRANSACTION_INTERRUPT     = 1055;
+    int SET_DATABASE_UNIQUE_NAME               = 1056;
+    int SET_DATABASE_PASSWORD_DIGEST           = 1057;
 
     // hsqldb user settings
     int SET_USER_LOCAL          = 1091;

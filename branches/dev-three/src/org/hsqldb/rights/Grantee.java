@@ -73,7 +73,7 @@ import org.hsqldb.types.Type;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.3.4
+ * @version 2.5.1
  * @since 1.8.0
  */
 public class Grantee implements SchemaObject {
@@ -1158,15 +1158,7 @@ public class Grantee implements SchemaObject {
                             sb.append(
                                 hsqlname.getSchemaQualifiedStatementName());
 
-                            Expression expr = right.getFilterExpression();
-
-                            if (expr != null) {
-                                sb.append(' ').append(Tokens.T_FILTER);
-                                sb.append(Tokens.T_OPENBRACKET);
-                                sb.append(Tokens.T_WHERE).append(' ');
-                                sb.append(expr.getSQL());
-                                sb.append(Tokens.T_CLOSEBRACKET);
-                            }
+                            sb.append(right.getRightsFilterSQL());
                         }
                         break;
 

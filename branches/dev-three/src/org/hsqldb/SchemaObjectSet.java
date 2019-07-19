@@ -258,7 +258,23 @@ public class SchemaObjectSet {
                     (SchemaObject) ((HashMappedList) map).get(i);
 
                 object.getName().rename(newName);
-                ((HashMappedList) map).setKey(i, name.name);
+                ((HashMappedList) map).setKey(i, newName.name);
+
+                break;
+            }
+            case SchemaObject.SPECIFIC_ROUTINE : {
+                int i = ((HashMappedList) map).getIndex(name.name);
+
+                if (i == -1) {
+                    int code = getGetErrorCode(name.type);
+
+                    throw Error.error(code, name.name);
+                }
+
+                Routine routine = (Routine) ((HashMappedList) map).get(i);
+
+                routine.getSpecificName().rename(newName);
+                ((HashMappedList) map).setKey(i, newName.name);
 
                 break;
             }
@@ -426,8 +442,8 @@ public class SchemaObjectSet {
                     Routine routine = routineSchema.routines[i];
 
                     if (routine.dataImpact == Routine.NO_SQL
-                            || routine.dataImpact == Routine.CONTAINS_SQL ||
-                            routine.language == Routine.LANGUAGE_JAVA) {}
+                            || routine.dataImpact == Routine.CONTAINS_SQL
+                            || routine.language == Routine.LANGUAGE_JAVA) {}
                     else {
                         set.add(routine);
                     }

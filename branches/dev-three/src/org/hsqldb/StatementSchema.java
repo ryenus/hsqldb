@@ -321,6 +321,7 @@ public class StatementSchema extends Statement {
                     describe(session));
         }
 
+        mainSwitch:
         switch (type) {
 
             case StatementTypes.RENAME_OBJECT :
@@ -329,22 +330,26 @@ public class StatementSchema extends Statement {
                 HsqlName     newName = (HsqlName) arguments[1];
                 SchemaObject object;
 
-                if (name.type == SchemaObject.CATALOG) {
-                    try {
-                        session.checkAdmin();
-                        session.checkDDLWrite();
-                        name.rename(newName);
+                switch (name.type) {
 
-                        break;
-                    } catch (HsqlException e) {
-                        return Result.newErrorResult(e, sql);
+                    case SchemaObject.CATALOG : {
+                        try {
+                            session.checkAdmin();
+                            session.checkDDLWrite();
+                            name.rename(newName);
+
+                            break mainSwitch;
+                        } catch (HsqlException e) {
+                            return Result.newErrorResult(e, sql);
+                        }
                     }
-                } else if (name.type == SchemaObject.SCHEMA) {
-                    checkSchemaUpdateAuthorisation(session, name);
-                    schemaManager.checkSchemaNameCanChange(name);
-                    schemaManager.renameSchema(name, newName);
+                    case SchemaObject.SCHEMA : {
+                        checkSchemaUpdateAuthorisation(session, name);
+                        schemaManager.checkSchemaNameCanChange(name);
+                        schemaManager.renameSchema(name, newName);
 
-                    break;
+                        break mainSwitch;
+                    }
                 }
 
                 try {
@@ -362,7 +367,11 @@ public class StatementSchema extends Statement {
                             throw Error.error(ErrorCode.X_42501, name.name);
                         }
 
-                        name = object.getName();
+                        if (name.type == SchemaObject.SPECIFIC_ROUTINE) {
+                            name = ((Routine) object).getSpecificName();
+                        } else {
+                            name = object.getName();
+                        }
                     }
 
                     checkSchemaUpdateAuthorisation(session, name.schema);
@@ -551,8 +560,16 @@ public class StatementSchema extends Statement {
                             ColumnSchema  column = (ColumnSchema) arguments[2];
                             int colIndex = ((Integer) arguments[3]).intValue();
                             HsqlArrayList list = (HsqlArrayList) arguments[4];
+                            Boolean       ifNotExists = (Boolean) arguments[5];
                             TableWorks tableWorks = new TableWorks(session,
                                                                    table);
+
+                            if (ifNotExists.booleanValue()) {
+                                if (table.findColumn(column.getName().name)
+                                        != -1) {
+                                    break;
+                                }
+                            }
 
                             tableWorks.addColumn(column, colIndex, list);
 
@@ -1359,6 +1376,8 @@ public class StatementSchema extends Statement {
                                          true);
 
                     if (otherName != null) {
+                        setOrCheckObjectName(session, null, otherName, false);
+
                         if (schemaManager.getSchemaObject(otherName) == null) {
                             throw Error.error(ErrorCode.X_42501,
                                               otherName.name);
@@ -1720,7 +1739,7 @@ public class StatementSchema extends Statement {
     }
 
     void setOrCheckObjectName(Session session, HsqlName parent, HsqlName name,
-                              boolean check) {
+                              boolean checkNotExists) {
 
         if (name.schema == null) {
             name.schema = schemaName == null
@@ -1746,7 +1765,7 @@ public class StatementSchema extends Statement {
             checkSchemaUpdateAuthorisation(session, name.schema);
         }
 
-        if (check) {
+        if (checkNotExists) {
             session.database.schemaManager.checkSchemaObjectNotExists(name);
         }
     }

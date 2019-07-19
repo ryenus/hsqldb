@@ -35,7 +35,14 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.*;
+import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.HashMappedList;
+import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.LongDeque;
+import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.lib.OrderedIntKeyHashMap;
 import org.hsqldb.map.BitMap;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.result.ResultConstants;
@@ -58,7 +65,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -1324,11 +1331,19 @@ public class ParserDQL extends ParserBase {
             Expression e = XreadValueExpression();
 
             if (token.tokenType == Tokens.AS) {
+                if (e.getType() == OpTypes.MULTICOLUMN) {
+                    throw unexpectedToken();
+                }
+
                 read();
                 checkIsNonCoreReservedIdentifier();
             }
 
             if (isNonCoreReservedIdentifier()) {
+                if (e.getType() == OpTypes.MULTICOLUMN) {
+                    throw unexpectedToken();
+                }
+
                 e.setAlias(HsqlNameManager.getSimpleName(token.tokenString,
                         isDelimitedIdentifier()));
                 read();
@@ -1625,7 +1640,8 @@ public class ParserDQL extends ParserBase {
                 if (e.getType() == OpTypes.ROW) {
                     throw Error.error(ErrorCode.X_42564);
                 }
-                select.addExprColumn(e);
+                select.addGroupByColumnExpression(e);
+
             }
             select.isDatacubeGrouped = !gb.isBasic;
         }
@@ -6833,6 +6849,12 @@ public class ParserDQL extends ParserBase {
         int position      = getPosition();
 
         readThis(Tokens.DECLARE);
+
+        if (isReservedKey()) {
+            rewind(position);
+
+            return null;
+        }
 
         HsqlName cursorName = readNewSchemaObjectName(SchemaObject.CURSOR,
             false);

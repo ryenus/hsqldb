@@ -65,6 +65,7 @@ public final class Right {
     OrderedHashSet    referencesColumnSet;
     OrderedHashSet    triggerColumnSet;
     ExpressionLogical filterExpression;
+    String            filterSQL;
 
     //
     Right   grantableRights;
@@ -123,15 +124,17 @@ public final class Right {
 
         if (filterExpression != null) {
             right.filterExpression = filterExpression;
+            right.filterSQL = filterSQL;
         }
 
         return right;
     }
 
-    public void setFilterExpression(ExpressionLogical filter) {
+    public void setFilterExpression(ExpressionLogical filter, String sql) {
 
         if (filter != null) {
             this.filterExpression = filter;
+            this.filterSQL        = sql;
         }
     }
 
@@ -820,6 +823,20 @@ public final class Right {
         }
 
         return sb.toString().substring(0, sb.length() - 1);
+    }
+
+    String getRightsFilterSQL() {
+
+        if (filterExpression == null) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(' ');
+        sb.append(filterSQL);
+
+        return sb.toString();
     }
 
     private static void getColumnList(Table t, OrderedHashSet set,

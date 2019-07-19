@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2017, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.hsqldb.rowio.RowInputInterface;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.0
  * @since 2.3.0
  */
 public class BlockObjectStore extends SimpleStore {
@@ -52,7 +52,7 @@ public class BlockObjectStore extends SimpleStore {
 
     public BlockObjectStore(DataFileCache cache,
                             TableSpaceManager tableSpaceManager,
-                            Class objectClass, int storageSize,
+                            Class<?> objectClass, int storageSize,
                             int blockSize) {
 
         this.cache        = cache;
@@ -73,7 +73,7 @@ public class BlockObjectStore extends SimpleStore {
     }
 
     public CachedObject get(CachedObject object, boolean keep) {
-        return cache.get(object, this, keep);
+        return cache.get(object.getPos(), storageSize, this, keep);
     }
 
     public CachedObject get(long i, boolean keep) {

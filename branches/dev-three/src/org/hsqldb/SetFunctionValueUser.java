@@ -34,7 +34,7 @@ package org.hsqldb;
 /**
  * Value for user-defined aggregate functions.
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 2.4.1
  *
  */

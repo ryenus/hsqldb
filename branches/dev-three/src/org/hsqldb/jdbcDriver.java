@@ -31,6 +31,4 @@
 
 package org.hsqldb;
 
-import org.hsqldb.jdbc.JDBCDriver;
-
-public class jdbcDriver extends JDBCDriver {}
+public class jdbcDriver extends org.hsqldb.jdbc.JDBCDriver {}

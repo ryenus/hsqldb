@@ -486,6 +486,9 @@ public class Logger implements EventLogInterface {
         database.txConflictRollback =
             database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.hsqldb_tx_conflict_rollback);
+        database.txInterruptRollback =
+            database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_tx_interrupt_rollback);
         database.sqlRestrictExec = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_restrict_exec);
         database.sqlEnforceNames = database.databaseProperties.isPropertyTrue(
@@ -1572,6 +1575,10 @@ public class Logger implements EventLogInterface {
             return String.valueOf(database.txConflictRollback);
         }
 
+        if (HsqlDatabaseProperties.hsqldb_tx_interrupt_rollback.equals(name)) {
+            return String.valueOf(database.txInterruptRollback);
+        }
+
         if (HsqlDatabaseProperties.hsqldb_result_max_memory_rows.equals(
                 name)) {
             return String.valueOf(database.getResultMaxMemoryRows());
@@ -1821,6 +1828,18 @@ public class Logger implements EventLogInterface {
                                               : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
+
+        if (database.txInterruptRollback) {
+            sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
+            sb.append(' ').append(Tokens.T_ROLLBACK).append(' ');
+            sb.append(Tokens.T_ON).append(' ');
+            sb.append(Tokens.T_INTERRUPT).append(' ');
+            sb.append(database.txInterruptRollback ? Tokens.T_TRUE
+                                                   : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
         sb.append("SET DATABASE ").append(Tokens.T_TEXT).append(' ');
         sb.append(Tokens.T_TABLE).append(' ').append(Tokens.T_DEFAULTS);
         sb.append(' ').append('\'');

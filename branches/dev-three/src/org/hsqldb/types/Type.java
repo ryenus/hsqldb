@@ -48,7 +48,7 @@ import org.hsqldb.rights.Grantee;
  * Base class for type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.0
  * @since 1.9.0
  */
 public abstract class Type implements SchemaObject, Cloneable {
@@ -259,6 +259,10 @@ public abstract class Type implements SchemaObject, Cloneable {
 
         if (a == b) {
             return 0;
+        }
+
+        if (sort == null) {
+            return compare(session, a, b);
         }
 
         if (a == null) {
@@ -577,7 +581,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         return false;
     }
 
-    int hashCode(Object a) {
+    public int hashCode(Object a) {
 
         if (a == null) {
             return 0;

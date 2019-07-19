@@ -36,7 +36,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.map.ValuePool;
-import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
@@ -48,12 +47,10 @@ import org.hsqldb.types.Types;
  * Implementation of aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ExpressionAggregate extends Expression {
-
-    ArrayType arrayType;
 
     ExpressionAggregate(int type, boolean distinct, Expression e) {
 
@@ -253,11 +250,6 @@ public class ExpressionAggregate extends Expression {
             if (nodes[LEFT].dataType.isLobType()) {
                 throw Error.error(ErrorCode.X_42534);
             }
-
-            if (nodes[LEFT].dataType.isCharacterType()) {
-                arrayType = new ArrayType(nodes[LEFT].dataType,
-                                          Integer.MAX_VALUE);
-            }
         }
 
         dataType = getType(session, opType, nodes[LEFT].dataType);
@@ -315,6 +307,8 @@ public class ExpressionAggregate extends Expression {
                     case Types.SQL_DATE :
                     case Types.SQL_TIMESTAMP :
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                    case Types.SQL_TIME :
+                    case Types.SQL_TIME_WITH_TIME_ZONE :
                         return dataType;
 
                     default :
@@ -409,9 +403,7 @@ public class ExpressionAggregate extends Expression {
         }
 
         if (currValue == null) {
-            currValue = new SetFunctionValueAggregate(session, opType,
-                    nodes[LEFT].dataType, dataType, isDistinctAggregate,
-                    arrayType);
+            currValue = getSetFunction(session);
         }
 
         Object newValue = nodes[LEFT].opType == OpTypes.ASTERISK
@@ -431,14 +423,20 @@ public class ExpressionAggregate extends Expression {
         }
 
         if (currValue == null) {
-            currValue = new SetFunctionValueAggregate(session, opType,
-                    nodes[LEFT].dataType, dataType, isDistinctAggregate,
-                    arrayType);
+            currValue = getSetFunction(session);
         }
 
         currValue.addGroup(value);
 
         return currValue;
+    }
+
+
+    SetFunction getSetFunction(Session session) {
+
+        return new SetFunctionValueAggregate(session, opType,
+                                             nodes[LEFT].dataType, dataType,
+                                             isDistinctAggregate);
     }
 
     /**

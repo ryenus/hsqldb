@@ -7,7 +7,10 @@ Optionen:
                              benutzt wird).
     --stdInput               Liest von stdin ZUSÄTZLICH zu SQL-Dateien/--sql
                              Eingabe.
-    --inlineRc=url=val1,user=val2[,x=val3...][,password=]  Inline RC-Variablen
+    --inlineRc=url=val1[,asetting=val2...][,password=]
+                             Inline RC-Variablen stat der urlid.
+    --overrideRc=asetting=val1[,...][,password=]
+                             Inline RC-Variablen urlid überzuschreiben.
     --debug                  Gibt Debug Infos auf stderr aus.
     --noAutoFile             Führt die Datei auto.sql im Home-Verzeichniss
                              nicht aus.

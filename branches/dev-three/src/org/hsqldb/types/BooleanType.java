@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2019, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.map.BitMap;
  * Type implementation for BOOLEAN.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.1
+ * @version 2.5.1
  * @since 1.9.0
  */
 public final class BooleanType extends Type {
@@ -171,8 +171,8 @@ public final class BooleanType extends Type {
             // fall through
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR : {
-                a = ((CharacterType) otherType).trim(session, a, ' ',
-                                                     true, true);
+                a = ((CharacterType) otherType).trim(session, a, ' ', true,
+                                                     true);
 
                 if (((String) a).equalsIgnoreCase(Tokens.T_TRUE)) {
                     return Boolean.TRUE;
@@ -228,6 +228,10 @@ public final class BooleanType extends Type {
                     if ("0".equals(a)) {
                         return Boolean.FALSE;
                     } else if ("1".equals(a)) {
+                        return Boolean.TRUE;
+                    } else if ("N".equalsIgnoreCase((String) a)) {
+                        return Boolean.FALSE;
+                    } else if ("Y".equalsIgnoreCase((String) a)) {
                         return Boolean.TRUE;
                     }
                 }

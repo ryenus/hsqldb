@@ -366,21 +366,28 @@ public class LobManager {
             dataBuffer = new byte[largeBufferBlockSize];
         }
 
-        if (database.getType() == DatabaseType.DB_RES) {
-            lobStore = new LobStoreInJar(database, lobBlockSize);
-        } else if (database.getType() == DatabaseType.DB_FILE) {
-            lobStore = new LobStoreRAFile(database, lobBlockSize);
+        switch (database.getType()) {
 
-            if (!database.isFilesReadOnly()) {
+            case DB_FILE :
+                lobStore = new LobStoreRAFile(database, lobBlockSize);
+
+                if (!database.isFilesReadOnly()) {
+                    byteBuffer = new byte[lobBlockSize];
+
+                    initialiseLobSpace();
+                }
+                break;
+
+            case DB_RES :
+                lobStore = new LobStoreInJar(database, lobBlockSize);
+                break;
+
+            case DB_MEM :
+                lobStore   = new LobStoreMem(lobBlockSize);
                 byteBuffer = new byte[lobBlockSize];
 
                 initialiseLobSpace();
-            }
-        } else {
-            lobStore   = new LobStoreMem(lobBlockSize);
-            byteBuffer = new byte[lobBlockSize];
-
-            initialiseLobSpace();
+                break;
         }
     }
 

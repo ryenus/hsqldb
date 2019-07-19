@@ -170,6 +170,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL :
             case StatementTypes.SET_DATABASE_DEFAULT_ISOLATION_LEVEL :
             case StatementTypes.SET_DATABASE_TRANSACTION_CONFLICT :
+            case StatementTypes.SET_DATABASE_TRANSACTION_INTERRUPT :
             case StatementTypes.SET_DATABASE_GC :
             case StatementTypes.SET_DATABASE_SQL_COLLATION :
             case StatementTypes.SET_DATABASE_FILES_BACKUP_INCREMENT :
@@ -865,6 +866,19 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+            case StatementTypes.SET_DATABASE_TRANSACTION_INTERRUPT : {
+                try {
+                    boolean mode = ((Boolean) arguments[0]).booleanValue();
+
+                    session.checkAdmin();
+
+                    session.database.txInterruptRollback = mode;
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
             case StatementTypes.SET_DATABASE_GC : {
                 try {
                     int count = ((Integer) arguments[0]).intValue();
@@ -1393,7 +1407,7 @@ public class StatementCommand extends Statement {
                         case Tokens.END :
                             session.database.txManager.resetSession(session,
                                     targetSession,
-                                    TransactionManager.resetSessionAbort);
+                                    TransactionManager.resetSessionStatement);
                             break;
                     }
                 } catch (HsqlException e) {

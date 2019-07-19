@@ -455,7 +455,7 @@ public class LockFile {
      * <tt>USE_NIO_FILELOCK_PROPERTY</tt> is <tt>false</tt> at static
      * initialization, regardless of actual availability.
      */
-    public static final Class NIO_LOCKFILE_CLASS;
+    public static final Class<?> NIO_LOCKFILE_CLASS;
 
     /**
      * The timed scheduler with which to register this object's
