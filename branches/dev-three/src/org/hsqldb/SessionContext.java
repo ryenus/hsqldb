@@ -86,8 +86,8 @@ public class SessionContext {
     // range variable data
     RangeIterator[] rangeIterators;
 
-    // Data-Cube data
-    GroupSet groupSet;
+    // grouping sets data
+    GroupSet      groupSet;
     HsqlArrayList currentGroup;
 
     // session tables
@@ -327,10 +327,11 @@ public class SessionContext {
         rangeIterators[position] = null;
     }
 
-    public void setGroupSet(GroupSet set){
+    public void setGroupSet(GroupSet set) {
         groupSet = set;
     }
-    public void setGroup(HsqlArrayList group){
+
+    public void setGroup(HsqlArrayList group) {
         currentGroup = group;
     }
 

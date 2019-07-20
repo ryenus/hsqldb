@@ -660,15 +660,6 @@ public class Expression implements Cloneable {
 
         return this;
     }
-    void replaceCaseWhenExpressions(OrderedHashSet expressions,
-                                    int resultRangePosition){
-        if (nodes.length == 0){
-            return;
-        }
-        for (int i=0; i<nodes.length; i++){
-            nodes[i] = nodes[i].replaceExpressions(expressions, resultRangePosition);
-        }
-    }
 
     void replaceRangeVariables(RangeVariable[] ranges,
                                RangeVariable[] newRanges) {
@@ -2075,7 +2066,7 @@ public class Expression implements Cloneable {
     }
 
     public SetFunction updateAggregatingValue(Session session,
-                                              SetFunction currValue, SetFunction value) {
+            SetFunction currValue, SetFunction value) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
 
