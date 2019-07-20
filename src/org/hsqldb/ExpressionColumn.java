@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Implementation of column, variable, parameter, etc. access operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ExpressionColumn extends Expression {
@@ -196,6 +196,24 @@ public class ExpressionColumn extends Expression {
 
         this.nodes      = nodes;
         this.columnName = name;
+    }
+
+    /**
+     * for GROUPING function
+     */
+    ExpressionColumn(Expression groups) {
+
+        super(OpTypes.GROUPING);
+
+        Expression[] exprs = groups.nodes;
+
+        if (groups.nodes.length == 0) {
+            exprs    = new Expression[1];
+            exprs[0] = groups;
+        }
+
+        this.nodes    = exprs;
+        this.dataType = Type.SQL_INTEGER;
     }
 
     /**
@@ -664,12 +682,12 @@ public class ExpressionColumn extends Expression {
         switch (opType) {
 
             case OpTypes.GROUPING :
-                if (session.sessionContext.groupSet == null){
+                if (session.sessionContext.groupSet == null) {
                     return 0;
                 }
+
                 return session.sessionContext.groupSet.isGrouped(
-                        session.sessionContext.currentGroup,
-                        this);
+                    session.sessionContext.currentGroup, this);
 
             case OpTypes.DEFAULT :
                 return null;
@@ -827,8 +845,9 @@ public class ExpressionColumn extends Expression {
 
                 return sb.toString();
             }
-            case OpTypes.GROUPING: {
+            case OpTypes.GROUPING : {
                 StringBuffer sb = new StringBuffer();
+
                 sb.append("GROUPING(");
 
                 for (int i = 0; i < nodes.length; i++) {
@@ -839,9 +858,12 @@ public class ExpressionColumn extends Expression {
                     }
 
                     String s = e.getSQL();
+
                     sb.append(s);
                 }
+
                 sb.append(")");
+
                 return sb.toString();
             }
             default :

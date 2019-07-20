@@ -31,14 +31,20 @@
 
 package org.hsqldb.test;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import junit.framework.TestCase;
 
-import java.sql.*;
-
 /**
- * Test cases for HSQL aggregates and HAVING clause.
+ * Test cases for HSQLDB aggregates and HAVING clause.
  *
- * @author Nicholas Quek
+ * @author Nicholas Quek (kocolipy@users dot sourceforge.net)
+ * @version 2.5.1
+ * @since 2.5.1
  */
 
 public class TestDataCube extends TestCase {
@@ -107,7 +113,7 @@ public class TestDataCube extends TestCase {
         addRevenueSource("INTERNET", 2010, "GB", "OXFORD", 25000);
         addRevenueSource("INTERNET", 2010, "US", "STANFORD", 200000);
         addRevenueSource("INTERNET", 2010, "US", "NEW YORK", 300000);
-        
+
         //Channel: Direct Sales
         addRevenueSource("DIRECT SALES", 2009, "GB", "CAMBRIDGE", 80000);
         addRevenueSource("DIRECT SALES", 2009, "GB", "OXFORD", 82000);
@@ -389,7 +395,7 @@ public class TestDataCube extends TestCase {
     /**
      * Tests aggregated selection using the GROUPING SETS operator with a <b>GROUP_BY</b> clause.
      * This is a trivial use of the GROUPING SETS operator acting on one group.
-     * Equivalent to “GROUP BY CHANNEL”
+     * Equivalent to “GROUP BY CHANNEL�\uFFFD
      **/
     public void testAggregatedGroupByGS() throws SQLException {
         String sql = "SELECT CHANNEL, SUM(SALES) \n" +
@@ -685,7 +691,7 @@ public class TestDataCube extends TestCase {
                 "FROM REVENUE\n" +
                 "GROUP BY CUBE(CHANNEL, GROUPING(COUNTRY));\n";
         Object[][] expected = new Object[][]{};
-        compareResults(sql, expected, "0A501");
+        compareResults(sql, expected, "42572");
     }
 
     //------------------------------------------------------------
@@ -2259,7 +2265,7 @@ public class TestDataCube extends TestCase {
                 "FROM REVENUE\n" +
                 "GROUP BY CUBE(CHANNEL, MIN(COUNTRY));\n";
         Object[][] expected = new Object[][]{};
-        compareResults(sql, expected, "0A501");
+        compareResults(sql, expected, "42572");
     }
     //------------------------------------------------------------
     // Functions in GROUP BY TEST
@@ -2507,8 +2513,9 @@ public class TestDataCube extends TestCase {
                 sqlx.printStackTrace();
             }
 
+            // compare and report SqlState, rather then ErrorCode
             assertTrue("Statement <" + sql + "> \nthrows wrong error code: "
-                       + sqlx.getErrorCode() + " expecting error code: "
+                       + sqlx.getSQLState() + " expecting error code: "
                        + sqlState, (sqlx.getSQLState().equals(sqlState)));
 
             return;
