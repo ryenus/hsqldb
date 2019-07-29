@@ -76,6 +76,7 @@ public class QuerySpecification extends QueryExpression {
     public boolean        isAggregated;
     public boolean        isGrouped;
     public boolean        isGroupingSets;
+    boolean               isDistinctGroups;
     public boolean        isOrderSensitive;
     public boolean        isSimpleDistinct;
     RangeVariable[]       rangeVariables;
@@ -262,8 +263,12 @@ public class QuerySpecification extends QueryExpression {
         isDistinctSelect = true;
     }
 
+    void setDistinctGroups() {
+        isDistinctGroups = true;
+    }
+
     void addGroupingSets(Expression[] groupingExpressions) {
-        groupSet = new GroupSet(groupingExpressions);
+        groupSet = new GroupSet(groupingExpressions, isDistinctGroups);
     }
 
     /**
@@ -1875,7 +1880,7 @@ public class QuerySpecification extends QueryExpression {
             while (gsIt.hasNext()) {
                 navigator.resetRowMap();
 
-                HsqlArrayList set = (HsqlArrayList) gsIt.next();
+                HsqlList set = (HsqlList) gsIt.next();
 
                 session.sessionContext.setGroup(set);
 
