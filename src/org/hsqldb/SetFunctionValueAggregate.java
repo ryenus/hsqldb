@@ -334,8 +334,8 @@ public class SetFunctionValueAggregate implements SetFunction {
 
                 return;
 
-            case OpTypes.SUM :
             case OpTypes.AVG :
+            case OpTypes.SUM :
                 count += item.count;
 
                 switch (typeCode) {
@@ -352,7 +352,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                     case Types.SQL_DATE :
                     case Types.SQL_TIMESTAMP :
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-                        addLong(item);
+                        addLongGroup(item);
 
                         currentLong += item.currentLong;
 
@@ -367,7 +367,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                         return;
                     }
                     case Types.SQL_BIGINT :
-                        addLong(item);
+                        addLongGroup(item);
 
                         return;
 
@@ -641,12 +641,11 @@ public class SetFunctionValueAggregate implements SetFunction {
         }
     }
 
-    private void addLong(SetFunctionValueAggregate item) {
+    private void addLongGroup(SetFunctionValueAggregate item) {
 
+        addLong(item.lo);
 
-
-            addLong(item.lo);
-            hi += item.hi;
+        hi += item.hi;
     }
 
     private BigInteger getLongSum() {

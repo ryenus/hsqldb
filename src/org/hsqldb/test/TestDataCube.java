@@ -216,7 +216,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2009), "GB", Integer.valueOf(25000)
             }, {
                 "INTERNET", Integer.valueOf(2009), "US", Integer.valueOf(275000)
-            },{
+            }, {
                 "INTERNET", Integer.valueOf(2010), "GB", Integer.valueOf(45000)
             }, {
                 "INTERNET", Integer.valueOf(2010), "US", Integer.valueOf(500000)
@@ -256,7 +256,7 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2010), "GB", Integer.valueOf(226000)
             }, {
                 null, Integer.valueOf(2010), "US", Integer.valueOf(2333000)
-            },{
+            }, {
                 null, Integer.valueOf(2009), null, Integer.valueOf(2064500)
             }, {
                 null, Integer.valueOf(2010), null, Integer.valueOf(2559000)
@@ -335,7 +335,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2009), "GB", Integer.valueOf(25000)
         }, {
                 "INTERNET", Integer.valueOf(2009), "US", Integer.valueOf(275000)
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2010), "GB", Integer.valueOf(45000)
         }, {
                 "INTERNET", Integer.valueOf(2010), "US", Integer.valueOf(500000)
@@ -425,7 +425,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", null, null, Integer.valueOf(845000)
         }, {
                 "DIRECT SALES", null, null, Integer.valueOf(3778500)
-        },{
+        }, {
                 null, Integer.valueOf(2009), null, Integer.valueOf(2064500)
         }, {
                 null, Integer.valueOf(2010), null, Integer.valueOf(2559000)
@@ -454,7 +454,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2009), "GB", Integer.valueOf(25000)
         }, {
                 "INTERNET", Integer.valueOf(2009), "US", Integer.valueOf(275000)
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2010), "GB", Integer.valueOf(45000)
         }, {
                 "INTERNET", Integer.valueOf(2010), "US", Integer.valueOf(500000)
@@ -466,7 +466,7 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", Integer.valueOf(2010), "GB", Integer.valueOf(181000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2010), "US", Integer.valueOf(1833000)
-        },{
+        }, {
                 null, Integer.valueOf(2009), null, Integer.valueOf(2064500)
         }, {
                 null, Integer.valueOf(2010), null, Integer.valueOf(2559000)
@@ -533,7 +533,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2009), "GB", Integer.valueOf(25000), 0, 0, 0
         }, {
                 "INTERNET", Integer.valueOf(2009), "US", Integer.valueOf(275000), 0, 0, 0
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2010), "GB", Integer.valueOf(45000), 0, 0, 0
         }, {
                 "INTERNET", Integer.valueOf(2010), "US", Integer.valueOf(500000), 0, 0, 0
@@ -714,7 +714,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2009), "GB", Integer.valueOf(25000)
         }, {
                 "INTERNET", Integer.valueOf(2009), "US", Integer.valueOf(275000)
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2010), "GB", Integer.valueOf(45000)
         }, {
                 "INTERNET", Integer.valueOf(2010), "US", Integer.valueOf(500000)
@@ -761,7 +761,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2009), "GB", Integer.valueOf(25000)
         }, {
                 "INTERNET", Integer.valueOf(2009), "US", Integer.valueOf(275000)
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2010), "GB", Integer.valueOf(45000)
         }, {
                 "INTERNET", Integer.valueOf(2010), "US", Integer.valueOf(500000)
@@ -806,7 +806,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2009), "GB", "OXFORD", Integer.valueOf(15000)
         }, {
                 "INTERNET", Integer.valueOf(2009), "US", "STANFORD", Integer.valueOf(100000)
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2009), "US", "NEW YORK", Integer.valueOf(175000)
         }, {
                 "INTERNET", Integer.valueOf(2010), "GB", "CAMBRIDGE", Integer.valueOf(20000)
@@ -814,7 +814,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2010), "GB", "OXFORD", Integer.valueOf(25000)
         }, {
                 "INTERNET", Integer.valueOf(2010), "US", "STANFORD", Integer.valueOf(200000)
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2010), "US", "NEW YORK", Integer.valueOf(300000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2009), "GB", "CAMBRIDGE", Integer.valueOf(80000)
@@ -822,7 +822,7 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", Integer.valueOf(2009), "GB", "OXFORD", Integer.valueOf(82000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2009), "US", "STANFORD", Integer.valueOf(802500)
-        },{
+        }, {
                 "DIRECT SALES", Integer.valueOf(2009), "US", "NEW YORK", Integer.valueOf(800000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2010), "GB", "CAMBRIDGE", Integer.valueOf(90000)
@@ -830,7 +830,7 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", Integer.valueOf(2010), "GB", "OXFORD", Integer.valueOf(91000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2010), "US", "STANFORD", Integer.valueOf(900000)
-        },{
+        }, {
                 "DIRECT SALES", Integer.valueOf(2010), "US", "NEW YORK", Integer.valueOf(933000)
         }, {
                 "INTERNET", Integer.valueOf(2009), null, null,Integer.valueOf(300000)
@@ -840,7 +840,7 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", Integer.valueOf(2009), null, null, Integer.valueOf(1764500)
         }, {
                 "DIRECT SALES", Integer.valueOf(2010), null, null, Integer.valueOf(2014000)
-        },{
+        }, {
                 null, null, "GB", "CAMBRIDGE", Integer.valueOf(200000)
         }, {
                 null, null, "GB", "OXFORD", Integer.valueOf(213000)
@@ -910,7 +910,7 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2009), "GB", null, Integer.valueOf(187000)
         }, {
                 null, Integer.valueOf(2009), "US", null, Integer.valueOf(1877500)
-        },{
+        }, {
                 null, Integer.valueOf(2010), "GB", null, Integer.valueOf(226000)
         }, {
                 null, Integer.valueOf(2010), "US", null, Integer.valueOf(2333000)
@@ -920,7 +920,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", null, null,  "OXFORD", Integer.valueOf(40000)
         }, {
                 "INTERNET", null, null,  "STANFORD", Integer.valueOf(300000)
-        },{
+        }, {
                 "INTERNET", null, null,  "NEW YORK", Integer.valueOf(475000)
         }, {
                 "DIRECT SALES", null, null, "CAMBRIDGE", Integer.valueOf(170000)
@@ -928,13 +928,13 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", null, null, "OXFORD", Integer.valueOf(173000)
         }, {
                 "DIRECT SALES", null, null, "STANFORD", Integer.valueOf(1702500)
-        },{
+        }, {
                 "DIRECT SALES", null, null, "NEW YORK", Integer.valueOf(1733000)
         }, {
                 null, Integer.valueOf(2009), null, "CAMBRIDGE", Integer.valueOf(90000)
         }, {
                 null, Integer.valueOf(2009), null, "OXFORD", Integer.valueOf(97000)
-        },{
+        }, {
                 null, Integer.valueOf(2009), null, "STANFORD", Integer.valueOf(902500)
         }, {
                 null, Integer.valueOf(2009), null, "NEW YORK", Integer.valueOf(975000)
@@ -942,7 +942,7 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2010), null, "CAMBRIDGE", Integer.valueOf(110000)
         }, {
                 null, Integer.valueOf(2010), null, "OXFORD", Integer.valueOf(116000)
-        },{
+        }, {
                 null, Integer.valueOf(2010), null, "STANFORD", Integer.valueOf(1100000)
         }, {
                 null, Integer.valueOf(2010), null, "NEW YORK", Integer.valueOf(1233000)
@@ -966,7 +966,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2009), "GB", Integer.valueOf(25000)
         }, {
                 "INTERNET", Integer.valueOf(2009), "US", Integer.valueOf(275000)
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2010), "GB", Integer.valueOf(45000)
         }, {
                 "INTERNET", Integer.valueOf(2010), "US", Integer.valueOf(500000)
@@ -1042,7 +1042,7 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2009), "GB", null, Integer.valueOf(187000)
         }, {
                 null, Integer.valueOf(2009), "US", null, Integer.valueOf(1877500)
-        },{
+        }, {
                 null, Integer.valueOf(2010), "GB", null, Integer.valueOf(226000)
         }, {
                 null, Integer.valueOf(2010), "US", null, Integer.valueOf(2333000)
@@ -1056,7 +1056,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2009), null, "OXFORD", Integer.valueOf(15000)
         }, {
                 "INTERNET", Integer.valueOf(2009), null, "STANFORD", Integer.valueOf(100000)
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2009), null, "NEW YORK", Integer.valueOf(175000)
         }, {
                 "INTERNET", Integer.valueOf(2010), null, "CAMBRIDGE", Integer.valueOf(20000)
@@ -1064,7 +1064,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2010), null, "OXFORD", Integer.valueOf(25000)
         }, {
                 "INTERNET", Integer.valueOf(2010), null, "STANFORD", Integer.valueOf(200000)
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2010), null, "NEW YORK", Integer.valueOf(300000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2009), null, "CAMBRIDGE", Integer.valueOf(80000)
@@ -1072,7 +1072,7 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", Integer.valueOf(2009), null, "OXFORD", Integer.valueOf(82000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2009), null, "STANFORD", Integer.valueOf(802500)
-        },{
+        }, {
                 "DIRECT SALES", Integer.valueOf(2009), null, "NEW YORK", Integer.valueOf(800000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2010), null, "CAMBRIDGE", Integer.valueOf(90000)
@@ -1080,7 +1080,7 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", Integer.valueOf(2010), null, "OXFORD", Integer.valueOf(91000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2010), null, "STANFORD", Integer.valueOf(900000)
-        },{
+        }, {
                 "DIRECT SALES", Integer.valueOf(2010), null, "NEW YORK", Integer.valueOf(933000)
         }, {
                 "INTERNET", null, null, "CAMBRIDGE", Integer.valueOf(30000)
@@ -1088,7 +1088,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", null, null,  "OXFORD", Integer.valueOf(40000)
         }, {
                 "INTERNET", null, null,  "STANFORD", Integer.valueOf(300000)
-        },{
+        }, {
                 "INTERNET", null, null,  "NEW YORK", Integer.valueOf(475000)
         }, {
                 "DIRECT SALES", null, null, "CAMBRIDGE", Integer.valueOf(170000)
@@ -1096,13 +1096,13 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", null, null, "OXFORD", Integer.valueOf(173000)
         }, {
                 "DIRECT SALES", null, null, "STANFORD", Integer.valueOf(1702500)
-        },{
+        }, {
                 "DIRECT SALES", null, null, "NEW YORK", Integer.valueOf(1733000)
         }, {
                 null, Integer.valueOf(2009), null, "CAMBRIDGE", Integer.valueOf(90000)
         }, {
                 null, Integer.valueOf(2009), null, "OXFORD", Integer.valueOf(97000)
-        },{
+        }, {
                 null, Integer.valueOf(2009), null, "STANFORD", Integer.valueOf(902500)
         }, {
                 null, Integer.valueOf(2009), null, "NEW YORK", Integer.valueOf(975000)
@@ -1110,7 +1110,7 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2010), null, "CAMBRIDGE", Integer.valueOf(110000)
         }, {
                 null, Integer.valueOf(2010), null, "OXFORD", Integer.valueOf(116000)
-        },{
+        }, {
                 null, Integer.valueOf(2010), null, "STANFORD", Integer.valueOf(1100000)
         }, {
                 null, Integer.valueOf(2010), null, "NEW YORK", Integer.valueOf(1233000)
@@ -1146,7 +1146,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", null, "GB",  "OXFORD", Integer.valueOf(40000)
         }, {
                 "INTERNET", null, "US",  "STANFORD", Integer.valueOf(300000)
-        },{
+        }, {
                 "INTERNET", null, "US",  "NEW YORK", Integer.valueOf(475000)
         }, {
                 "DIRECT SALES", null, "GB", "CAMBRIDGE", Integer.valueOf(170000)
@@ -1154,13 +1154,13 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", null, "GB", "OXFORD", Integer.valueOf(173000)
         }, {
                 "DIRECT SALES", null, "US", "STANFORD", Integer.valueOf(1702500)
-        },{
+        }, {
                 "DIRECT SALES", null, "US", "NEW YORK", Integer.valueOf(1733000)
         }, {
                 null, Integer.valueOf(2009), "GB", "CAMBRIDGE", Integer.valueOf(90000)
         }, {
                 null, Integer.valueOf(2009), "GB", "OXFORD", Integer.valueOf(97000)
-        },{
+        }, {
                 null, Integer.valueOf(2009), "US", "STANFORD", Integer.valueOf(902500)
         }, {
                 null, Integer.valueOf(2009), "US", "NEW YORK", Integer.valueOf(975000)
@@ -1168,7 +1168,7 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2010), "GB", "CAMBRIDGE", Integer.valueOf(110000)
         }, {
                 null, Integer.valueOf(2010), "GB", "OXFORD", Integer.valueOf(116000)
-        },{
+        }, {
                 null, Integer.valueOf(2010), "US", "STANFORD", Integer.valueOf(1100000)
         }, {
                 null, Integer.valueOf(2010), "US", "NEW YORK", Integer.valueOf(1233000)
@@ -1184,7 +1184,7 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2009), "GB", null, Integer.valueOf(187000)
         }, {
                 null, Integer.valueOf(2009), "US", null, Integer.valueOf(1877500)
-        },{
+        }, {
                 null, Integer.valueOf(2010), "GB", null, Integer.valueOf(226000)
         }, {
                 null, Integer.valueOf(2010), "US", null, Integer.valueOf(2333000)
@@ -1222,7 +1222,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2009), "GB", "OXFORD", Integer.valueOf(15000)
         }, {
                 "INTERNET", Integer.valueOf(2009), "US", "STANFORD", Integer.valueOf(100000)
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2009), "US", "NEW YORK", Integer.valueOf(175000)
         }, {
                 "INTERNET", Integer.valueOf(2010), "GB", "CAMBRIDGE", Integer.valueOf(20000)
@@ -1230,7 +1230,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2010), "GB", "OXFORD", Integer.valueOf(25000)
         }, {
                 "INTERNET", Integer.valueOf(2010), "US", "STANFORD", Integer.valueOf(200000)
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2010), "US", "NEW YORK", Integer.valueOf(300000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2009), "GB", "CAMBRIDGE", Integer.valueOf(80000)
@@ -1238,7 +1238,7 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", Integer.valueOf(2009), "GB", "OXFORD", Integer.valueOf(82000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2009), "US", "STANFORD", Integer.valueOf(802500)
-        },{
+        }, {
                 "DIRECT SALES", Integer.valueOf(2009), "US", "NEW YORK", Integer.valueOf(800000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2010), "GB", "CAMBRIDGE", Integer.valueOf(90000)
@@ -1246,7 +1246,7 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", Integer.valueOf(2010), "GB", "OXFORD", Integer.valueOf(91000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2010), "US", "STANFORD", Integer.valueOf(900000)
-        },{
+        }, {
                 "DIRECT SALES", Integer.valueOf(2010), "US", "NEW YORK", Integer.valueOf(933000)
         }, {
                 "INTERNET", null, "GB", "CAMBRIDGE", Integer.valueOf(30000)
@@ -1254,7 +1254,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", null, "GB",  "OXFORD", Integer.valueOf(40000)
         }, {
                 "INTERNET", null, "US",  "STANFORD", Integer.valueOf(300000)
-        },{
+        }, {
                 "INTERNET", null, "US",  "NEW YORK", Integer.valueOf(475000)
         }, {
                 "DIRECT SALES", null, "GB", "CAMBRIDGE", Integer.valueOf(170000)
@@ -1262,13 +1262,13 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", null, "GB", "OXFORD", Integer.valueOf(173000)
         }, {
                 "DIRECT SALES", null, "US", "STANFORD", Integer.valueOf(1702500)
-        },{
+        }, {
                 "DIRECT SALES", null, "US", "NEW YORK", Integer.valueOf(1733000)
         }, {
                 null, Integer.valueOf(2009), "GB", "CAMBRIDGE", Integer.valueOf(90000)
         }, {
                 null, Integer.valueOf(2009), "GB", "OXFORD", Integer.valueOf(97000)
-        },{
+        }, {
                 null, Integer.valueOf(2009), "US", "STANFORD", Integer.valueOf(902500)
         }, {
                 null, Integer.valueOf(2009), "US", "NEW YORK", Integer.valueOf(975000)
@@ -1276,7 +1276,7 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2010), "GB", "CAMBRIDGE", Integer.valueOf(110000)
         }, {
                 null, Integer.valueOf(2010), "GB", "OXFORD", Integer.valueOf(116000)
-        },{
+        }, {
                 null, Integer.valueOf(2010), "US", "STANFORD", Integer.valueOf(1100000)
         }, {
                 null, Integer.valueOf(2010), "US", "NEW YORK", Integer.valueOf(1233000)
@@ -1316,7 +1316,7 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2009), "GB", null, Integer.valueOf(187000)
         }, {
                 null, Integer.valueOf(2009), "US", null, Integer.valueOf(1877500)
-        },{
+        }, {
                 null, Integer.valueOf(2010), "GB", null, Integer.valueOf(226000)
         }, {
                 null, Integer.valueOf(2010), "US", null, Integer.valueOf(2333000)
@@ -1439,7 +1439,7 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2010), "GB", Integer.valueOf(226000)
         }, {
                 null, Integer.valueOf(2010), "US", Integer.valueOf(2333000)
-        },{
+        }, {
                 null, Integer.valueOf(2009), null, Integer.valueOf(2064500)
         }, {
                 null, Integer.valueOf(2010), null, Integer.valueOf(2559000)
@@ -1462,6 +1462,50 @@ public class TestDataCube extends TestCase {
         Object[][] expected = new Object[][] {{
                 null, null, null, null, Integer.valueOf(4623500)
         }, {
+                null, null, null, null, Integer.valueOf(4623500)
+        }, {
+                "INTERNET", Integer.valueOf(2009), null, null, Integer.valueOf(300000)
+        }, {
+                "INTERNET", Integer.valueOf(2010), null, null, Integer.valueOf(545000)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2009), null, null, Integer.valueOf(1764500)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2010), null, null, Integer.valueOf(2014000)
+        }, {
+                "INTERNET", null, null, null, Integer.valueOf(845000)
+        }, {
+                "DIRECT SALES", null, null, null, Integer.valueOf(3778500)
+        }, {
+                null, null, "GB", "CAMBRIDGE", Integer.valueOf(200000)
+        }, {
+                null, null, "GB", "OXFORD", Integer.valueOf(213000)
+        }, {
+                null, null, "US", "STANFORD", Integer.valueOf(2002500)
+        }, {
+                null, null, "US", "NEW YORK", Integer.valueOf(2208000)
+        }, {
+                null, null, "GB", null, Integer.valueOf(413000)
+        }, {
+                null, null, "US", null, Integer.valueOf(4210500)
+        },
+        };
+
+        compareResults(sql, expected, "00000");
+    }
+
+    /**
+     * Tests DISTINCT nested groupings using multiple ROLLUP within GROUPING SETS.
+     *
+     * Six groupings should be produced:
+     * (CHANNEL, YEAR), (CHANNEL), (), (COUNTRY, PROVINCE), (COUNTRY), ()
+     *
+     * The second empty grouping is eliminated
+     **/
+    public void testDistinctAggregatedNest3() throws SQLException {
+        String sql = "SELECT CHANNEL, YEAR, COUNTRY, PROVINCE, SUM(SALES) \n" +
+                "FROM REVENUE\n" +
+                "GROUP BY DISTINCT GROUPING SETS(ROLLUP(CHANNEL, YEAR), ROLLUP(COUNTRY, PROVINCE));\n";
+        Object[][] expected = new Object[][] {{
                 null, null, null, null, Integer.valueOf(4623500)
         }, {
                 "INTERNET", Integer.valueOf(2009), null, null, Integer.valueOf(300000)
@@ -2120,6 +2164,39 @@ public class TestDataCube extends TestCase {
     }
 
     /**
+     * Tests aggregated selection with repeated columns using
+     * the ROLLUP operator with a <b>GROUP_BY</b> clause.
+     *
+     * The ROLLUP operator produces five groupings:
+     * (CHANNEL, YEAR), (CHANNEL, YEAR),(CHANNEL, YEAR),(CHANNEL), ()
+     *
+     * The duplicate (CHANNEL, YEAR) groupings are eliminated.
+     **/
+    public void testDistinctAggregatedRepeatedColumns() throws SQLException {
+        String sql = "SELECT CHANNEL as ROUTES, YEAR as CALENDAR, SUM(SALES)\n" +
+                "FROM REVENUE \n" +
+                "GROUP BY DISTINCT ROLLUP(CHANNEL, YEAR, ROUTES, YEAR)\n";
+        Object[][] expected = new Object[][] {{
+                null, null, Integer.valueOf(4623500)
+        }, {
+                "INTERNET", Integer.valueOf(2009), Integer.valueOf(300000)
+        }, {
+                "INTERNET", Integer.valueOf(2010), Integer.valueOf(545000)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2009), Integer.valueOf(1764500)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2010), Integer.valueOf(2014000)
+        }, {
+                "INTERNET", null, Integer.valueOf(845000)
+        }, {
+                "DIRECT SALES", null, Integer.valueOf(3778500)
+        },
+        };
+
+        compareResults(sql, expected, "00000");
+    }
+
+    /**
      * Tests an invalid <b>SELECT</b> statement that contains
      * columns not in the <b>GROUP BY</b> clause
      *
@@ -2372,7 +2449,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", null, "GB",  "OXFORD", Integer.valueOf(40000)
         }, {
                 "INTERNET", null, "US",  "STANFORD", Integer.valueOf(300000)
-        },{
+        }, {
                 "INTERNET", null, "US",  "NEW YORK", Integer.valueOf(475000)
         }, {
                 "DIRECT SALES", null, "GB", "CAMBRIDGE", Integer.valueOf(170000)
@@ -2380,7 +2457,7 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", null, "GB", "OXFORD", Integer.valueOf(173000)
         }, {
                 "DIRECT SALES", null, "US", "STANFORD", Integer.valueOf(1702500)
-        },{
+        }, {
                 "DIRECT SALES", null, "US", "NEW YORK", Integer.valueOf(1733000)
         }, {
                 "INTERNET", null, "GB" , null, Integer.valueOf(70000),
@@ -2396,7 +2473,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", null, null,  "OXFORD", Integer.valueOf(40000)
         }, {
                 "INTERNET", null, null,  "STANFORD", Integer.valueOf(300000)
-        },{
+        }, {
                 "INTERNET", null, null,  "NEW YORK", Integer.valueOf(475000)
         }, {
                 "DIRECT SALES", null, null, "CAMBRIDGE", Integer.valueOf(170000)
@@ -2404,7 +2481,7 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", null, null, "OXFORD", Integer.valueOf(173000)
         }, {
                 "DIRECT SALES", null, null, "STANFORD", Integer.valueOf(1702500)
-        },{
+        }, {
                 "DIRECT SALES", null, null, "NEW YORK", Integer.valueOf(1733000)
         }, {
                 "INTERNET", null, null, null,Integer.valueOf(845000)
@@ -2416,7 +2493,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2009), "GB", "OXFORD", Integer.valueOf(15000)
         }, {
                 "INTERNET", Integer.valueOf(2009), "US", "STANFORD", Integer.valueOf(100000)
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2009), "US", "NEW YORK", Integer.valueOf(175000)
         }, {
                 "INTERNET", Integer.valueOf(2010), "GB", "CAMBRIDGE", Integer.valueOf(20000)
@@ -2424,7 +2501,7 @@ public class TestDataCube extends TestCase {
                 "INTERNET", Integer.valueOf(2010), "GB", "OXFORD", Integer.valueOf(25000)
         }, {
                 "INTERNET", Integer.valueOf(2010), "US", "STANFORD", Integer.valueOf(200000)
-        },{
+        }, {
                 "INTERNET", Integer.valueOf(2010), "US", "NEW YORK", Integer.valueOf(300000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2009), "GB", "CAMBRIDGE", Integer.valueOf(80000)
@@ -2432,7 +2509,7 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", Integer.valueOf(2009), "GB", "OXFORD", Integer.valueOf(82000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2009), "US", "STANFORD", Integer.valueOf(802500)
-        },{
+        }, {
                 "DIRECT SALES", Integer.valueOf(2009), "US", "NEW YORK", Integer.valueOf(800000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2010), "GB", "CAMBRIDGE", Integer.valueOf(90000)
@@ -2440,7 +2517,7 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", Integer.valueOf(2010), "GB", "OXFORD", Integer.valueOf(91000)
         }, {
                 "DIRECT SALES", Integer.valueOf(2010), "US", "STANFORD", Integer.valueOf(900000)
-        },{
+        }, {
                 "DIRECT SALES", Integer.valueOf(2010), "US", "NEW YORK", Integer.valueOf(933000)
         }, {
                 "INTERNET", Integer.valueOf(2009), null, null,Integer.valueOf(300000)
@@ -2454,6 +2531,110 @@ public class TestDataCube extends TestCase {
                 "INTERNET", null, null, null,Integer.valueOf(845000)
         }, {
                 "DIRECT SALES", null, null, null, Integer.valueOf(3778500)
+        },
+        };
+
+        compareResults(sql, expected, "00000");
+    }
+
+    /**
+     * Tests the interaction of multiple features
+     * Concatenated grouping, nesting and composite columns
+     *
+     * Produces seven groupings:
+     * (CHANNEL, COUNTRY, PROVINCE), (CHANNEL, COUNTRY), (CHANNEL, PROVINCE), (CHANNEL)
+     * (CHANNEL, YEAR, COUNTRY, PROVINCE), (CHANNEL, YEAR), (CHANNEL)
+     *
+     * The duplicate are eliminated
+     **/
+    public void testDistinctAggregatedComplex() throws SQLException {
+        String sql = "SELECT CHANNEL, YEAR, COUNTRY, PROVINCE, SUM(SALES) \n" +
+                "FROM REVENUE\n" +
+                "GROUP BY DISTINCT CHANNEL, GROUPING SETS(CUBE(COUNTRY, PROVINCE), ROLLUP(YEAR, (COUNTRY, PROVINCE)));\n";
+        Object[][] expected = new Object[][] {{
+                "INTERNET", null, "GB", "CAMBRIDGE", Integer.valueOf(30000)
+        }, {
+                "INTERNET", null, "GB",  "OXFORD", Integer.valueOf(40000)
+        }, {
+                "INTERNET", null, "US",  "STANFORD", Integer.valueOf(300000)
+        }, {
+                "INTERNET", null, "US",  "NEW YORK", Integer.valueOf(475000)
+        }, {
+                "DIRECT SALES", null, "GB", "CAMBRIDGE", Integer.valueOf(170000)
+        }, {
+                "DIRECT SALES", null, "GB", "OXFORD", Integer.valueOf(173000)
+        }, {
+                "DIRECT SALES", null, "US", "STANFORD", Integer.valueOf(1702500)
+        }, {
+                "DIRECT SALES", null, "US", "NEW YORK", Integer.valueOf(1733000)
+        }, {
+                "INTERNET", null, "GB" , null, Integer.valueOf(70000),
+        }, {
+                "INTERNET", null, "US" , null,  Integer.valueOf(775000),
+        }, {
+                "DIRECT SALES", null, "GB" , null, Integer.valueOf(343000),
+        }, {
+                "DIRECT SALES", null, "US" , null, Integer.valueOf(3435500),
+        }, {
+                "INTERNET", null, null, "CAMBRIDGE", Integer.valueOf(30000)
+        }, {
+                "INTERNET", null, null,  "OXFORD", Integer.valueOf(40000)
+        }, {
+                "INTERNET", null, null,  "STANFORD", Integer.valueOf(300000)
+        }, {
+                "INTERNET", null, null,  "NEW YORK", Integer.valueOf(475000)
+        }, {
+                "DIRECT SALES", null, null, "CAMBRIDGE", Integer.valueOf(170000)
+        }, {
+                "DIRECT SALES", null, null, "OXFORD", Integer.valueOf(173000)
+        }, {
+                "DIRECT SALES", null, null, "STANFORD", Integer.valueOf(1702500)
+        }, {
+                "DIRECT SALES", null, null, "NEW YORK", Integer.valueOf(1733000)
+        }, {
+                "INTERNET", null, null, null,Integer.valueOf(845000)
+        }, {
+                "DIRECT SALES", null, null, null, Integer.valueOf(3778500)
+        }, {
+                "INTERNET", Integer.valueOf(2009), "GB", "CAMBRIDGE", Integer.valueOf(10000)
+        }, {
+                "INTERNET", Integer.valueOf(2009), "GB", "OXFORD", Integer.valueOf(15000)
+        }, {
+                "INTERNET", Integer.valueOf(2009), "US", "STANFORD", Integer.valueOf(100000)
+        }, {
+                "INTERNET", Integer.valueOf(2009), "US", "NEW YORK", Integer.valueOf(175000)
+        }, {
+                "INTERNET", Integer.valueOf(2010), "GB", "CAMBRIDGE", Integer.valueOf(20000)
+        }, {
+                "INTERNET", Integer.valueOf(2010), "GB", "OXFORD", Integer.valueOf(25000)
+        }, {
+                "INTERNET", Integer.valueOf(2010), "US", "STANFORD", Integer.valueOf(200000)
+        }, {
+                "INTERNET", Integer.valueOf(2010), "US", "NEW YORK", Integer.valueOf(300000)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2009), "GB", "CAMBRIDGE", Integer.valueOf(80000)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2009), "GB", "OXFORD", Integer.valueOf(82000)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2009), "US", "STANFORD", Integer.valueOf(802500)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2009), "US", "NEW YORK", Integer.valueOf(800000)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2010), "GB", "CAMBRIDGE", Integer.valueOf(90000)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2010), "GB", "OXFORD", Integer.valueOf(91000)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2010), "US", "STANFORD", Integer.valueOf(900000)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2010), "US", "NEW YORK", Integer.valueOf(933000)
+        }, {
+                "INTERNET", Integer.valueOf(2009), null, null,Integer.valueOf(300000)
+        }, {
+                "INTERNET", Integer.valueOf(2010), null, null, Integer.valueOf(545000)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2009), null, null, Integer.valueOf(1764500)
+        }, {
+                "DIRECT SALES", Integer.valueOf(2010), null, null, Integer.valueOf(2014000)
         },
         };
 
@@ -2537,8 +2718,6 @@ public class TestDataCube extends TestCase {
 
                 if (expected == null) {
                     result = rs.getString(col);
-                    result = rs.wasNull() ? null
-                                          : result;
                 } else if (expected instanceof String) {
                     result = rs.getString(col);
                 } else if (expected instanceof Double) {
@@ -2547,8 +2726,15 @@ public class TestDataCube extends TestCase {
                     result = Integer.valueOf(rs.getInt(col));
                 }
 
+                result = rs.wasNull() ? null
+                                      : result;
+
+                if (columns[i] != null && !columns[i].equals(result)) {
+                    columns[i] = columns[i];
+                }
+
                 assertEquals("Statement <" + sql
-                             + "> \nreturned wrong value.", columns[i],
+                             + "> \nreturned wrong value at row " + rowCount + " ", columns[i],
                                  result);
             }
 

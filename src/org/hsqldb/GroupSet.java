@@ -34,7 +34,9 @@ package org.hsqldb;
 import java.util.Arrays;
 
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.OrderedHashSet;
 
 /**
  * Transforms a tree of GROUPING SETS variants into normalised form for
@@ -53,16 +55,18 @@ public class GroupSet {
     Expression[]  groupExpressions;
     HsqlArrayList sets     = new HsqlArrayList();
     int           nullSets = 0;
+    boolean       isDistinctGroups;
 
-    public GroupSet(Expression[] expressions) {
+    public GroupSet(Expression[] expressions, boolean isDistinct) {
         groupExpressions = expressions;
+        isDistinctGroups = isDistinct;
     }
 
     public Iterator getIterator() {
         return sets.iterator();
     }
 
-    public int isGrouped(HsqlArrayList current, Expression e) {
+    public int isGrouped(HsqlList current, Expression e) {
 
         int count = 0;
 
@@ -89,12 +93,35 @@ public class GroupSet {
         HsqlArrayList tmp = evaluate(groupExpressions);
         Iterator      it  = tmp.iterator();
 
+        outerloop:
         while (it.hasNext()) {
-            HsqlArrayList set = (HsqlArrayList) it.next();
+            HsqlList set = (HsqlList) it.next();
 
             if (set.isEmpty()) {
-                nullSets++;
+                if (isDistinctGroups) {
+                    nullSets = 1;
+                } else {
+                    nullSets++;
+                }
             } else {
+                if (isDistinctGroups) {
+                    OrderedHashSet newSet = new OrderedHashSet();
+
+                    newSet.addAll(set);
+
+                    for (int i = 0; i < sets.size(); i++) {
+                        HsqlList current = (HsqlList) sets.get(i);
+
+                        if (current.size() == newSet.size()) {
+                            if (newSet.containsAll(current)) {
+                                continue outerloop;
+                            }
+                        }
+                    }
+
+                    set = newSet;
+                }
+
                 sets.add(set);
             }
         }
