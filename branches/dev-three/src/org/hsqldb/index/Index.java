@@ -167,8 +167,7 @@ public interface Index extends SchemaObject {
     /**
      * Insert a node into the index
      */
-    void insert(Session session, PersistentStore store, Row row
-                );
+    void insert(Session session, PersistentStore store, Row row);
 
     void delete(Session session, PersistentStore store, Row row);
 
