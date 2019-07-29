@@ -201,7 +201,7 @@ public final class Schema implements SchemaObject {
         return list;
     }
 
-    public void addSimpleObjects(OrderedHashSet unresolved) {
+    public void addSimpleObjects(OrderedHashSet set) {
 
         Iterator it = specificRoutineLookup.map.values().iterator();
 
@@ -209,15 +209,14 @@ public final class Schema implements SchemaObject {
             Routine routine = (Routine) it.next();
 
             if (routine.dataImpact == Routine.NO_SQL
-                    || routine.dataImpact == Routine.CONTAINS_SQL
                     || routine.language == Routine.LANGUAGE_JAVA) {
-                unresolved.add(routine);
+                set.add(routine);
             }
         }
 
-        unresolved.addAll(typeLookup.map.values());
-        unresolved.addAll(charsetLookup.map.values());
-        unresolved.addAll(collationLookup.map.values());
+        set.addAll(typeLookup.map.values());
+        set.addAll(charsetLookup.map.values());
+        set.addAll(collationLookup.map.values());
     }
 
     boolean isEmpty() {
