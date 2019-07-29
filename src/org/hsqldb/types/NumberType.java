@@ -56,7 +56,7 @@ public final class NumberType extends Type {
     static final int        tinyintPrecision             = 3;
     static final int        smallintPrecision            = 5;
     static final int        integerPrecision             = 10;
-    static final int        bigintPrecision              = 19;
+    public static final int bigintPrecision              = 19;
     static final int        doublePrecision              = 0;
     public static final int defaultNumericPrecision      = 128;
     public static final int defaultNumericScale          = 32;

@@ -81,8 +81,8 @@ implements Comparator<Object[]> {
     Index idIndex;
 
     //
-    TreeMap<Object[], Object[]>        rowMap;
-    LongKeyHashMap idMap;
+    TreeMap<Object[], Object[]> rowMap;
+    LongKeyHashMap              idMap;
 
     RowSetNavigatorData(Session session) {
         this.session = session;

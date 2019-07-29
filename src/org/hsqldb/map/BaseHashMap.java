@@ -31,6 +31,7 @@
 
 package org.hsqldb.map;
 
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 import org.hsqldb.lib.ArrayCounter;
@@ -46,7 +47,7 @@ import org.hsqldb.lib.ObjectComparator;
  * Special getOrAddXXX() methods are used for object maps in some subclasses.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.2
  */
 public class BaseHashMap {
@@ -1081,60 +1082,32 @@ public class BaseHashMap {
      */
     private void clearElementArrays(final int from, final int to) {
 
-        if (isIntKey) {
-            int counter = to;
-
-            while (--counter >= from) {
-                intKeyTable[counter] = 0;
-            }
-        } else if (isLongKey) {
-            int counter = to;
-
-            while (--counter >= from) {
-                longKeyTable[counter] = 0;
-            }
-        } else if (isObjectKey || objectKeyTable != null) {
-            int counter = to;
-
-            while (--counter >= from) {
-                objectKeyTable[counter] = null;
-            }
+        if (intKeyTable != null) {
+            Arrays.fill(intKeyTable, from, to, 0);
+        } else if (longKeyTable != null) {
+            Arrays.fill(longKeyTable, from, to, 0);
+        } else if (objectKeyTable != null) {
+            Arrays.fill(objectKeyTable, from, to, null);
         }
 
-        if (isIntValue) {
-            int counter = to;
+        if (intValueTable != null) {
+            Arrays.fill(intValueTable, from, to, 0);
+        } else if (longValueTable != null) {
+            Arrays.fill(longValueTable, from, to, 0);
+        } else if (objectValueTable != null) {
+            Arrays.fill(objectValueTable, from, to, null);
+        }
 
-            while (--counter >= from) {
-                intValueTable[counter] = 0;
-            }
-        } else if (isLongValue) {
-            int counter = to;
-
-            while (--counter >= from) {
-                longValueTable[counter] = 0;
-            }
-        } else if (isObjectValue) {
-            int counter = to;
-
-            while (--counter >= from) {
-                objectValueTable[counter] = null;
-            }
+        if (objectValueTable2 != null) {
+            Arrays.fill(objectValueTable2, from, to, null);
         }
 
         if (accessTable != null) {
-            int counter = to;
-
-            while (--counter >= from) {
-                accessTable[counter] = 0;
-            }
+            Arrays.fill(accessTable, from, to, 0);
         }
 
         if (multiValueTable != null) {
-            int counter = to;
-
-            while (--counter >= from) {
-                multiValueTable[counter] = false;
-            }
+            Arrays.fill(multiValueTable, from, to, false);
         }
     }
 
@@ -1164,7 +1137,7 @@ public class BaseHashMap {
             longKeyTable[lastPointer] = 0;
         }
 
-        if (isObjectKey || objectKeyTable != null) {
+        if (objectKeyTable != null) {
             Object array = objectKeyTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,
@@ -1348,18 +1321,31 @@ public class BaseHashMap {
             return;
         }
 
-        double factor = 0.5;
+        int limit = hashIndex.getNewNodePointer();
 
-        for (int i = 0; i < accessTable.length; i++) {
-            if (accessTable[i] < accessMin) {
-                accessTable[i] = 0;
-            } else {
-                accessTable[i] = (int) ((accessTable[i] - accessMin) * factor);
+        accessCount = 0;
+        accessMin   = Integer.MAX_VALUE;
+
+        for (int i = 0; i < limit; i++) {
+            int access = accessTable[i];
+
+            if (access == 0) {
+                continue;
+            }
+
+            access         = (access >>> 2) + 1;
+            accessTable[i] = access;
+
+            if (access > accessCount) {
+                accessCount = access;
+            } else if (access < accessMin) {
+                accessMin = access;
             }
         }
 
-        accessCount = (int) ((accessCount - accessMin) * factor);
-        accessMin   = 0;
+        if (accessMin > accessCount) {
+            accessMin = accessCount;
+        }
     }
 
     protected int capacity() {
