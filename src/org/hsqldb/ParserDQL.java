@@ -1614,6 +1614,12 @@ public class ParserDQL extends ParserBase {
             read();
             readThis(Tokens.BY);
 
+            if (readIfThis(Tokens.DISTINCT)) {
+                select.setDistinctGroups();
+            } else {
+                readIfThis(Tokens.ALL);
+            }
+
             HsqlArrayList expressions = new HsqlArrayList();
 
             while (true) {

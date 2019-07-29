@@ -528,6 +528,7 @@ public class SchemaObjectSet {
                     case SchemaObject.FUNCTION :
                     case SchemaObject.PROCEDURE :
                     case SchemaObject.SPECIFIC_ROUTINE :
+                    case SchemaObject.SEQUENCE :
                         if (!resolved.contains(name)) {
                             isResolved = false;
                         }
