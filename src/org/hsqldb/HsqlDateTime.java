@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  * timezone.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.0
  */
 public class HsqlDateTime {
@@ -601,14 +601,19 @@ public class HsqlDateTime {
         matchIndex = result.indexOf("*WW");
 
         if (matchIndex >= 0) {
-            Calendar      cal         = format.getCalendar();
-            int           matchLength = 3;
-            int           dayOfYear   = cal.get(Calendar.DAY_OF_YEAR);
-            int           weekOfYear  = ((dayOfYear - 1) / 7) + 1;
-            StringBuilder sb          = new StringBuilder(result);
+            Calendar cal         = format.getCalendar();
+            int      matchLength = 3;
+            int      dayOfYear   = cal.get(Calendar.DAY_OF_YEAR);
+            int      weekOfYear  = ((dayOfYear - 1) / 7) + 1;
+            String   week        = String.valueOf(weekOfYear);
 
-            sb.replace(matchIndex, matchIndex + matchLength,
-                       String.valueOf(weekOfYear));
+            if (week.length() == 1) {
+                week = "0" + week;
+            }
+
+            StringBuilder sb = new StringBuilder(result);
+
+            sb.replace(matchIndex, matchIndex + matchLength, week);
 
             result = sb.toString();
         }
@@ -618,12 +623,16 @@ public class HsqlDateTime {
         if (matchIndex >= 0) {
             Calendar cal         = format.getCalendar();
             int      matchLength = 3;
-            int weekOfYear = getDateTimePart(cal, date.getTime(),
-                                             Calendar.WEEK_OF_YEAR);
+            int      weekOfYear  = cal.get(Calendar.WEEK_OF_YEAR);
+            String   week        = String.valueOf(weekOfYear);
+
+            if (week.length() == 1) {
+                week = "0" + week;
+            }
+
             StringBuilder sb = new StringBuilder(result);
 
-            sb.replace(matchIndex, matchIndex + matchLength,
-                       String.valueOf(weekOfYear));
+            sb.replace(matchIndex, matchIndex + matchLength, week);
 
             result = sb.toString();
         }
