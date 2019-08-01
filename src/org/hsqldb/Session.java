@@ -523,7 +523,6 @@ public class Session implements SessionInterface {
         abortAction = false;
 
         timeoutManager.endTimeout();
-
         sessionData.persistentStoreCollection.clearStatementTables();
 
         if (result.mode == ResultConstants.ERROR) {
@@ -1345,7 +1344,6 @@ public class Session implements SessionInterface {
 
             return r;
         }
-
 
         timeoutManager.startTimeout(timeout);
 
@@ -2179,6 +2177,9 @@ public class Session implements SessionInterface {
 
         if (calendarGMT == null) {
             calendarGMT = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+
+            calendarGMT.setFirstDayOfWeek(Calendar.MONDAY);
+            calendarGMT.setMinimalDaysInFirstWeek(4);
         }
 
         return calendarGMT;
