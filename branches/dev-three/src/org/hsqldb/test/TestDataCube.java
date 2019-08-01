@@ -102,7 +102,7 @@ public class TestDataCube extends TestCase {
         } catch (Exception x) {}
 
         stmt.execute("CREATE TABLE REVENUE(CHANNEL VARCHAR(20), YEAR INTEGER, " +
-                        "COUNTRY VARCHAR(2), PROVINCE VARCHAR(20), SALES INTEGER)");
+                        "COUNTRY VARCHAR(2), PROVINCE VARCHAR(20), SALES INTEGER);");
 
         //Channel: Internet
         addRevenueSource("INTERNET", 2009, "GB", "CAMBRIDGE", 10000);
@@ -125,14 +125,14 @@ public class TestDataCube extends TestCase {
         addRevenueSource("DIRECT SALES", 2010, "US", "NEW YORK", 933000);
 
         stmt.execute("CREATE TABLE LIABILITY(CHANNEL VARCHAR(20), YEAR INTEGER, " +
-                "COUNTRY VARCHAR(2), LOSSES INTEGER)");
+                "COUNTRY VARCHAR(2), LOSSES INTEGER);");
 
         addLiabilitySource("INTERNET", 2009, "GB", 1000);
         addLiabilitySource("INTERNET", 2010, "GB", 2000);
         addLiabilitySource("INTERNET", 2009, "US", 4000);
         addLiabilitySource("INTERNET", 2010, "US", 5000);
 
-        stmt.execute("CREATE TABLE TEST(SEL INTEGER, NAME1 VARCHAR(3), NAME2 VARCHAR(3))");
+        stmt.execute("CREATE TABLE TEST(SEL INTEGER, NAME1 VARCHAR(3), NAME2 VARCHAR(3));");
 
         stmt.execute("INSERT INTO TEST (SEL, NAME1, NAME2) VALUES (0, 'FOO', 'BAR')");
         stmt.execute("INSERT INTO TEST (SEL, NAME1, NAME2) VALUES (1, 'BAZ', 'FOO')");
@@ -142,7 +142,7 @@ public class TestDataCube extends TestCase {
     protected void tearDown() throws Exception {
 
         try {
-            stmt.execute("DROP TABLE REVENUE IF EXISTS");
+            stmt.execute("DROP TABLE REVENUE IF EXISTS;");
         } catch (Exception x) {}
 
         if (stmt != null) {
@@ -185,7 +185,7 @@ public class TestDataCube extends TestCase {
     public void testAggregatedGroupByCube() throws SQLException {
         String sql = "SELECT CHANNEL, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
-                "GROUP BY CUBE(CHANNEL)\n";
+                "GROUP BY CUBE(CHANNEL);\n";
         Object[][] expected = new Object[][] {
             {
                 null, Integer.valueOf(4623500)
@@ -209,7 +209,7 @@ public class TestDataCube extends TestCase {
     public void testAggregatedGroupByCube1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
-                "GROUP BY CUBE(CHANNEL, YEAR, COUNTRY)\n";
+                "GROUP BY CUBE(CHANNEL, YEAR, COUNTRY);\n";
         Object[][] expected = new Object[][] {{
                 null, null, null, Integer.valueOf(4623500)
             }, {
@@ -277,7 +277,7 @@ public class TestDataCube extends TestCase {
     public void testInvalidCube() throws SQLException {
         String sql = "SELECT SUM(SALES)\n" +
                      "FROM REVENUE \n" +
-                     "GROUP BY CUBE()\n";
+                     "GROUP BY CUBE();\n";
         Object[][] expected = new Object[][]{};
         compareResults(sql, expected, "42581");
     }
@@ -289,7 +289,7 @@ public class TestDataCube extends TestCase {
     public void testInvalidCube1() throws SQLException {
         String sql = "SELECT CHANNEL, SUM(SALES)\n" +
                 "FROM REVENUE \n" +
-                "GROUP BY (CUBE(CHANNEL))\n";
+                "GROUP BY (CUBE(CHANNEL));\n";
         Object[][] expected = new Object[][]{};
         compareResults(sql, expected, "42581");
     }
@@ -305,7 +305,7 @@ public class TestDataCube extends TestCase {
     public void testAggregatedGroupByRollup() throws SQLException {
         String sql = "SELECT CHANNEL, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
-                "GROUP BY ROLLUP(CHANNEL)\n";
+                "GROUP BY ROLLUP(CHANNEL);\n";
         Object[][] expected = new Object[][] {
                 {
                         null, Integer.valueOf(4623500)
@@ -328,7 +328,7 @@ public class TestDataCube extends TestCase {
     public void testAggregatedGroupByRollup1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
-                "GROUP BY ROLLUP(CHANNEL, YEAR, COUNTRY)\n";
+                "GROUP BY ROLLUP(CHANNEL, YEAR, COUNTRY);\n";
         Object[][] expected = new Object[][] {{
                 null, null, null, Integer.valueOf(4623500)
         }, {
@@ -372,7 +372,7 @@ public class TestDataCube extends TestCase {
     public void testInvalidRollup() throws SQLException {
         String sql = "SELECT SUM(SALES)\n" +
                 "FROM REVENUE \n" +
-                "GROUP BY ROLLUP()\n";
+                "GROUP BY ROLLUP();\n";
         Object[][] expected = new Object[][]{};
         compareResults(sql, expected, "42581");
     }
@@ -384,7 +384,7 @@ public class TestDataCube extends TestCase {
     public void testInvalidRollup1() throws SQLException {
         String sql = "SELECT CHANNEL, SUM(SALES)\n" +
                 "FROM REVENUE \n" +
-                "GROUP BY (ROLLUP(CHANNEL))\n";
+                "GROUP BY (ROLLUP(CHANNEL));\n";
         Object[][] expected = new Object[][]{};
         compareResults(sql, expected, "42581");
     }
@@ -395,12 +395,12 @@ public class TestDataCube extends TestCase {
     /**
      * Tests aggregated selection using the GROUPING SETS operator with a <b>GROUP_BY</b> clause.
      * This is a trivial use of the GROUPING SETS operator acting on one group.
-     * Equivalent to â€œGROUP BY CHANNELâ€\uFFFD
+     * Equivalent to "GROUP BY CHANNEL"
      **/
     public void testAggregatedGroupByGS() throws SQLException {
         String sql = "SELECT CHANNEL, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
-                "GROUP BY GROUPING SETS(CHANNEL)\n";
+                "GROUP BY GROUPING SETS(CHANNEL);\n";
         Object[][] expected = new Object[][] {{
                 "INTERNET", Integer.valueOf(845000)
         }, {
@@ -420,7 +420,7 @@ public class TestDataCube extends TestCase {
     public void testAggregatedGroupByGS1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
-                "GROUP BY GROUPING SETS(CHANNEL, YEAR, COUNTRY)\n";
+                "GROUP BY GROUPING SETS(CHANNEL, YEAR, COUNTRY);\n";
         Object[][] expected = new Object[][] {{
                 "INTERNET", null, null, Integer.valueOf(845000)
         }, {
@@ -447,7 +447,7 @@ public class TestDataCube extends TestCase {
     public void testAggregatedGroupByGS2() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
-                "GROUP BY GROUPING SETS((CHANNEL, YEAR, COUNTRY),(YEAR), (COUNTRY, YEAR), ())\n";
+                "GROUP BY GROUPING SETS((CHANNEL, YEAR, COUNTRY),(YEAR), (COUNTRY, YEAR), ());\n";
         Object[][] expected = new Object[][] {{
                 null, null, null, Integer.valueOf(4623500)
         }, {
@@ -491,7 +491,7 @@ public class TestDataCube extends TestCase {
     public void testInvalidGS() throws SQLException {
         String sql = "SELECT SUM(SALES)\n" +
                 "FROM REVENUE \n" +
-                "GROUP BY GROUPING SETS()\n";
+                "GROUP BY GROUPING SETS();\n";
         Object[][] expected = new Object[][]{};
         compareResults(sql, expected, "42581");
     }
@@ -503,7 +503,7 @@ public class TestDataCube extends TestCase {
     public void testInvalidGS1() throws SQLException {
         String sql = "SELECT COUNTRY, SUM(SALES)\n" +
                 "FROM REVENUE \n" +
-                "GROUP BY (GROUPING SETS(COUNTRY))\n";
+                "GROUP BY (GROUPING SETS(COUNTRY));\n";
         Object[][] expected = new Object[][]{};
         compareResults(sql, expected, "42581");
     }
@@ -526,7 +526,7 @@ public class TestDataCube extends TestCase {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES), \n" +
                 "GROUPING(CHANNEL) AS CH, GROUPING(YEAR) as YR, GROUPING(COUNTRY) AS CO\n" +
                 "FROM REVENUE\n" +
-                "GROUP BY ROLLUP(CHANNEL,YEAR,COUNTRY); \n";
+                "GROUP BY ROLLUP(CHANNEL,YEAR,COUNTRY);\n";
         Object[][] expected = new Object[][] {{
                 null, null, null, Integer.valueOf(4623500), 1, 1, 1
         }, {
@@ -577,7 +577,7 @@ public class TestDataCube extends TestCase {
     public void testAggregatedGrouping1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES), GROUPING(CHANNEL, YEAR) " +
                 "FROM REVENUE\n" +
-                "GROUP BY CUBE(CHANNEL,YEAR); \n";
+                "GROUP BY CUBE(CHANNEL,YEAR);\n";
         Object[][] expected = new Object[][] {{
                 null, null, Integer.valueOf(4623500), 3,
         }, {
@@ -616,7 +616,7 @@ public class TestDataCube extends TestCase {
     public void testAggregatedDecode() throws SQLException {
         String sql = "SELECT DECODE(GROUPING(CHANNEL), 1, 'MULTI-CHANNEL', CHANNEL), DECODE(GROUPING(COUNTRY), 0, COUNTRY, 'MULTI-COUNTRY'), SUM(SALES) \n" +
                 "FROM REVENUE\n" +
-                "GROUP BY CUBE(CHANNEL, COUNTRY); \n";
+                "GROUP BY CUBE(CHANNEL, COUNTRY);\n";
         Object[][] expected = new Object[][] {{
                 "MULTI-CHANNEL", "MULTI-COUNTRY", Integer.valueOf(4623500),
         }, {
@@ -655,7 +655,7 @@ public class TestDataCube extends TestCase {
         String sql = "SELECT DECODE(GROUPING(CHANNEL, COUNTRY), 3, 'GRAND TOTAL', 2, COUNTRY, " +
                 "1, CHANNEL, 0, null), SUM(SALES) \n" +
                 "FROM REVENUE\n" +
-                "GROUP BY CUBE(CHANNEL, COUNTRY);";
+                "GROUP BY CUBE(CHANNEL, COUNTRY);\n";
         Object[][] expected = new Object[][] {{
                 "GRAND TOTAL", Integer.valueOf(4623500),
         }, {
@@ -1737,7 +1737,7 @@ public class TestDataCube extends TestCase {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
                 "GROUP BY ROLLUP(CHANNEL,YEAR,COUNTRY) \n" +
-                "HAVING SUM(SALES) >= 500000 AND SUM(SALES) < 2000000;";
+                "HAVING SUM(SALES) >= 500000 AND SUM(SALES) < 2000000;\n";
         Object[][] expected = new Object[][] {{
                 "INTERNET", Integer.valueOf(2010), "US", Integer.valueOf(500000),
         }, {
@@ -2354,7 +2354,7 @@ public class TestDataCube extends TestCase {
     public void testFunctionGroupBy() throws SQLException {
         String sql = "SELECT CASE WHEN A.SEL=1 THEN A.NAME2 ELSE A.NAME1 END AS NAME,\n" +
                 "  COUNT(A.NAME1) AS COUNTER FROM TEST A \n" +
-                "  GROUP BY CUBE(CASE WHEN A.SEL=1 THEN A.NAME2 ELSE A.NAME1 END, A.SEL);";
+                "  GROUP BY CUBE(CASE WHEN A.SEL=1 THEN A.NAME2 ELSE A.NAME1 END, A.SEL);\n";
         Object[][] expected = new Object[][]{{
                 null, 3
         }, {
@@ -2377,7 +2377,7 @@ public class TestDataCube extends TestCase {
     public void testFunctionGroupBy1() throws SQLException {
         String sql = "SELECT CASE WHEN A.SEL=1 THEN A.NAME2 ELSE A.NAME1 END AS NAME,\n" +
                 "  COUNT(A.NAME1) AS COUNTER FROM TEST A \n" +
-                "  GROUP BY ROLLUP(CASE WHEN A.SEL=1 THEN A.NAME2 ELSE A.NAME1 END);";
+                "  GROUP BY ROLLUP(CASE WHEN A.SEL=1 THEN A.NAME2 ELSE A.NAME1 END);\n";
         Object[][] expected = new Object[][]{{
                 null, 3
         }, {
@@ -2391,7 +2391,7 @@ public class TestDataCube extends TestCase {
     public void testFunctionGroupBy2() throws SQLException {
         String sql = "SELECT CASE WHEN A.SEL=1 THEN A.NAME2 ELSE A.NAME1 END AS NAME,\n" +
                 "  COUNT(A.NAME1) AS COUNTER FROM TEST A \n" +
-                "  GROUP BY GROUPING SETS(CASE WHEN A.SEL=1 THEN A.NAME2 ELSE A.NAME1 END, A.SEL);";
+                "  GROUP BY GROUPING SETS(CASE WHEN A.SEL=1 THEN A.NAME2 ELSE A.NAME1 END, A.SEL);\n";
         Object[][] expected = new Object[][]{{
                 "FOO", 2
         }, {
@@ -2406,7 +2406,7 @@ public class TestDataCube extends TestCase {
     public void testFunctionGroupBy3() throws SQLException {
         String sql = "SELECT A.SEL, COALESCE(A.NAME1, A.NAME2) AS NAME,\n" +
                 "COUNT(A.SEL) AS COUNTER FROM TEST A \n" +
-                "GROUP BY CUBE(COALESCE(A.NAME1, A.NAME2), A.SEL)";
+                "GROUP BY CUBE(COALESCE(A.NAME1, A.NAME2), A.SEL);\n";
         Object[][] expected = new Object[][]{{
                 null, null, 3
         }, {
@@ -2658,7 +2658,7 @@ public class TestDataCube extends TestCase {
                 "GROUP BY CUBE(CHANNEL, YEAR, COUNTRY) \n" +
                 "HAVING SUM(SALES) > 500000 \n" +
                 "ORDER BY SUM(SALES)\n" +
-                "LIMIT 5;";
+                "LIMIT 5;\n";
         Object[][] expected = new Object[][] {{
                 "INTERNET", Integer.valueOf(2010), null, Integer.valueOf(545000), Integer.valueOf(14000)
         }, {
@@ -2740,6 +2740,8 @@ public class TestDataCube extends TestCase {
 
             rowCount++;
         }
+
+        System.out.println(sql);
 
         assertEquals("Statement <" + sql
                      + "> \nreturned wrong number of rows.", rows.length,

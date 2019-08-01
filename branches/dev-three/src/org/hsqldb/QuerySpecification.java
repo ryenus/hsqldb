@@ -296,7 +296,6 @@ public class QuerySpecification extends QueryExpression {
                 // resolve to aliases in select list
                 // this is non-standard and probably should be allowed only
                 // for basic group by lists
-
                 Expression[] exprArray = new Expression[exprColumnList.size()];
 
                 exprColumnList.toArray(exprArray);
@@ -1739,7 +1738,7 @@ public class QuerySpecification extends QueryExpression {
                 start = indexLimitVisible;
             }
 
-            for (int i = start; i < indexStartAggregates; i++) {
+            for (int i = start; i < indexStartHaving; i++) {
                 if (isAggregated && aggregateCheck[i]) {
                     continue;
                 } else {
@@ -1895,7 +1894,8 @@ public class QuerySpecification extends QueryExpression {
                         }
                     }
 
-                    Object[] groupData = navigator.getGroupDataAndPosition(data);
+                    Object[] groupData =
+                        navigator.getGroupDataAndPosition(data);
 
                     if (groupData == null) {
                         navigator.add(data);    // must populate before positioning
@@ -1958,21 +1958,22 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        session.sessionContext.unsetRangeIterator(navigator);
         navigator.reset();
 
         if (havingCondition != null) {
             while (navigator.next()) {
                 Object[] data = navigator.getCurrent();
+                boolean  test = havingCondition.testCondition(session);
 
-                if (!Boolean.TRUE.equals(
-                        data[indexLimitVisible + groupByColumnCount])) {
+                if (!test) {
                     navigator.removeCurrent();
                 }
             }
 
             navigator.reset();
         }
+
+        session.sessionContext.unsetRangeIterator(navigator);
 
         return result;
     }
