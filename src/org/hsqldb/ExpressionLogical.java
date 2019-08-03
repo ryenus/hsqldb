@@ -1857,13 +1857,6 @@ public class ExpressionLogical extends Expression {
                         break;
 
                     case OpTypes.NOT_EQUAL :
-                        if (it.next()) {
-                            if (nullCount == 0) {
-                                return Boolean.FALSE;
-                            } else {
-                                return null;
-                            }
-                        }
                         break;
                 }
 
