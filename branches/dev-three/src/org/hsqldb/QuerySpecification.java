@@ -1528,28 +1528,31 @@ public class QuerySpecification extends QueryExpression {
      */
     public void resolveGroupingSets() {
 
-        if (groupSet != null && isGroupingSets) {
-            OrderedHashSet expressions = new OrderedHashSet();
+        if (!isGrouped) {
+            return;
+        }
 
-            for (int i = indexLimitVisible; i < indexStartHaving; i++) {
-                expressions.add(exprColumns[i]);
-            }
+        tempSet.clear();
 
-            for (int i = indexStartAggregates; i < indexLimitExpressions;
-                    i++) {
-                expressions.add(exprColumns[i]);
-            }
+        for (int i = indexLimitVisible; i < indexStartHaving; i++) {
+            tempSet.add(exprColumns[i]);
+        }
 
+        for (int i = indexStartAggregates; i < indexLimitExpressions; i++) {
+            tempSet.add(exprColumns[i]);
+        }
+
+        if (isGroupingSets) {
             for (int i = 0; i < indexLimitVisible; i++) {
-                exprColumns[i] = exprColumns[i].replaceExpressions(expressions,
+                exprColumns[i] = exprColumns[i].replaceExpressions(tempSet,
                         resultRangePosition);
             }
+        }
 
-            for (int i = indexStartHaving;
-                    i < indexStartHaving + havingColumnCount; i++) {
-                exprColumns[i] = exprColumns[i].replaceExpressions(expressions,
-                        resultRangePosition);
-            }
+        for (int i = indexStartHaving;
+                i < indexStartHaving + havingColumnCount; i++) {
+            exprColumns[i] = exprColumns[i].replaceExpressions(tempSet,
+                    resultRangePosition);
         }
     }
 
@@ -1738,11 +1741,14 @@ public class QuerySpecification extends QueryExpression {
                 start = indexLimitVisible;
             }
 
-            for (int i = start; i < indexStartHaving; i++) {
+            for (int i = start; i < indexStartAggregates; i++) {
                 if (isAggregated && aggregateCheck[i]) {
                     continue;
                 } else {
-                    data[i] = exprColumns[i].getValue(session);
+                    if (havingColumnCount > 0 && i == indexStartHaving) {}
+                    else {
+                        data[i] = exprColumns[i].getValue(session);
+                    }
                 }
             }
 
@@ -1819,7 +1825,7 @@ public class QuerySpecification extends QueryExpression {
             rangeIterators[i].reset();
         }
 
-        if (!isGroupingSets && !isAggregated) {
+        if (!isGroupingSets && !isAggregated && havingCondition == null) {
             return result;
         }
 
@@ -2755,6 +2761,7 @@ public class QuerySpecification extends QueryExpression {
         if (havingCondition != null) {
             havingCondition = havingCondition.replaceColumnReferences(session,
                     range, list);
+            exprColumns[indexStartHaving] = havingCondition;
         }
 
         for (int i = 0, len = rangeVariables.length; i < len; i++) {
@@ -2798,6 +2805,7 @@ public class QuerySpecification extends QueryExpression {
         if (havingCondition != null) {
             havingCondition = havingCondition.replaceExpressions(expressions,
                     resultRangePosition);
+            exprColumns[indexStartHaving] = havingCondition;
         }
 
         for (int i = 0, len = rangeVariables.length; i < len; i++) {
