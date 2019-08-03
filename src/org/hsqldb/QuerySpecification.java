@@ -85,7 +85,6 @@ public class QuerySpecification extends QueryExpression {
     int                   endInnerRange   = -1;
     Expression            queryCondition;
     Expression            checkQueryCondition;
-    private Expression    havingCondition;
     Expression            rowExpression;
     Expression[]          exprColumns;
     HsqlArrayList         exprColumnList;
@@ -382,7 +381,6 @@ public class QuerySpecification extends QueryExpression {
 
         exprColumnList.add(e);
 
-        havingCondition   = e;
         havingColumnCount = 1;
     }
 
@@ -1024,10 +1022,6 @@ public class QuerySpecification extends QueryExpression {
             set = queryCondition.collectRangeVariables(rangeVars, set);
         }
 
-        if (havingCondition != null) {
-            set = havingCondition.collectRangeVariables(rangeVars, set);
-        }
-
         return set;
     }
 
@@ -1039,10 +1033,6 @@ public class QuerySpecification extends QueryExpression {
 
         if (queryCondition != null) {
             set = queryCondition.collectRangeVariables(set);
-        }
-
-        if (havingCondition != null) {
-            set = havingCondition.collectRangeVariables(set);
         }
 
         return set;
@@ -1092,10 +1082,9 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        if (havingCondition != null) {
-            havingCondition.resolveTypes(session, null);
-
-            if (havingCondition.getDataType() != Type.SQL_BOOLEAN) {
+        if (havingColumnCount != 0) {
+            if (exprColumns[indexStartHaving].getDataType()
+                    != Type.SQL_BOOLEAN) {
                 throw Error.error(ErrorCode.X_42568);
             }
         }
@@ -1398,7 +1387,7 @@ public class QuerySpecification extends QueryExpression {
 
         tempSet.clear();
 
-        if (havingCondition != null) {
+        if (havingColumnCount != 0) {
             if (unresolvedExpressions != null) {
                 tempSet.addAll(unresolvedExpressions);
             }
@@ -1412,9 +1401,8 @@ public class QuerySpecification extends QueryExpression {
                 tempSet.addAll(extraSet);
             }
 
-            if (!havingCondition.isComposedOf(
-                    tempSet, outerRanges,
-                    OpTypes.subqueryAggregateExpressionSet)) {
+            if (!exprColumns[indexStartHaving].isComposedOf(tempSet,
+                    outerRanges, OpTypes.subqueryAggregateExpressionSet)) {
                 throw Error.error(ErrorCode.X_42573);
             }
 
@@ -1825,7 +1813,7 @@ public class QuerySpecification extends QueryExpression {
             rangeIterators[i].reset();
         }
 
-        if (!isGroupingSets && !isAggregated && havingCondition == null) {
+        if (!isGroupingSets && !isAggregated && havingColumnCount == 0) {
             return result;
         }
 
@@ -1966,10 +1954,11 @@ public class QuerySpecification extends QueryExpression {
 
         navigator.reset();
 
-        if (havingCondition != null) {
+        if (havingColumnCount != 0) {
             while (navigator.next()) {
                 Object[] data = navigator.getCurrent();
-                boolean  test = havingCondition.testCondition(session);
+                boolean test =
+                    exprColumns[indexStartHaving].testCondition(session);
 
                 if (!test) {
                     navigator.removeCurrent();
@@ -2238,9 +2227,9 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        if (havingCondition != null) {
+        if (havingColumnCount != 0) {
             sb.append(' ').append(Tokens.T_HAVING).append(' ');
-            sb.append(havingCondition.getSQL());
+            sb.append(exprColumns[indexStartHaving].getSQL());
         }
 
         if (sortAndSlice.hasOrder()) {
@@ -2342,8 +2331,8 @@ public class QuerySpecification extends QueryExpression {
             sb.append(b).append("]\n");
         }
 
-        if (havingCondition != null) {
-            temp = havingCondition.describe(session, blanks);
+        if (havingColumnCount != 0) {
+            temp = exprColumns[indexStartHaving].describe(session, blanks);
 
             sb.append(b).append("havingCondition=[").append(temp).append(
                 "]\n");
@@ -2652,10 +2641,6 @@ public class QuerySpecification extends QueryExpression {
             set = queryCondition.collectAllSubqueries(set);
         }
 
-        if (havingCondition != null) {
-            set = havingCondition.collectAllSubqueries(set);
-        }
-
         for (int i = 0; i < rangeVariables.length; i++) {
             OrderedHashSet temp = rangeVariables[i].getSubqueries();
 
@@ -2711,11 +2696,6 @@ public class QuerySpecification extends QueryExpression {
                     stopAtTypeSet);
         }
 
-        if (havingCondition != null) {
-            set = havingCondition.collectAllExpressions(set, typeSet,
-                    stopAtTypeSet);
-        }
-
         for (int i = 0; i < rangeVariables.length; i++) {
             rangeVariables[i].collectAllExpressions(set, typeSet,
                     stopAtTypeSet);
@@ -2732,10 +2712,6 @@ public class QuerySpecification extends QueryExpression {
 
         if (queryCondition != null) {
             queryCondition.collectObjectNames(set);
-        }
-
-        if (havingCondition != null) {
-            havingCondition.collectObjectNames(set);
         }
 
         for (int i = 0, len = rangeVariables.length; i < len; i++) {
@@ -2758,12 +2734,6 @@ public class QuerySpecification extends QueryExpression {
                     range, list);
         }
 
-        if (havingCondition != null) {
-            havingCondition = havingCondition.replaceColumnReferences(session,
-                    range, list);
-            exprColumns[indexStartHaving] = havingCondition;
-        }
-
         for (int i = 0, len = rangeVariables.length; i < len; i++) {
             rangeVariables[i].replaceColumnReferences(session, range, list);
         }
@@ -2778,10 +2748,6 @@ public class QuerySpecification extends QueryExpression {
 
         if (queryCondition != null) {
             queryCondition.replaceRangeVariables(ranges, newRanges);
-        }
-
-        if (havingCondition != null) {
-            havingCondition.replaceRangeVariables(ranges, newRanges);
         }
 
         for (int i = 0, len = rangeVariables.length; i < len; i++) {
@@ -2800,12 +2766,6 @@ public class QuerySpecification extends QueryExpression {
         if (queryCondition != null) {
             queryCondition = queryCondition.replaceExpressions(expressions,
                     resultRangePosition);
-        }
-
-        if (havingCondition != null) {
-            havingCondition = havingCondition.replaceExpressions(expressions,
-                    resultRangePosition);
-            exprColumns[indexStartHaving] = havingCondition;
         }
 
         for (int i = 0, len = rangeVariables.length; i < len; i++) {

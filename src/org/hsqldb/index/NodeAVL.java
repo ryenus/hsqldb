@@ -263,11 +263,11 @@ public class NodeAVL implements CachedObject {
         return 0;
     }
 
-    final public boolean isInvariable() {
+    public final boolean isInvariable() {
         return false;
     }
 
-    final public boolean isBlock() {
+    public final boolean isBlock() {
         return false;
     }
 
