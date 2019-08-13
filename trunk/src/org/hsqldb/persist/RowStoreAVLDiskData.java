@@ -32,6 +32,7 @@
 package org.hsqldb.persist;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.HsqlException;
@@ -53,13 +54,14 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of PersistentStore for TEXT tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class RowStoreAVLDiskData extends RowStoreAVL {
 
-    DataFileCache      cache;
+    TextCache          cache;
     RowOutputInterface rowOut;
+    AtomicInteger      accessCount;
 
     public RowStoreAVLDiskData(Table table) {
 
@@ -85,6 +87,10 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         }
     }
 
+    public int incrementAndGetAccessCount() {
+        return accessCount.incrementAndGet();
+    }
+
     public CachedObject get(long key, boolean keep) {
 
         CachedObject object = cache.get(key, this, keep);
@@ -104,7 +110,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         cache.writeLock.lock();
 
         try {
-            int size = object.getRealSize(cache.rowOut);
+            int size = object.getRealSize(rowOut);
 
             object.setStorageSize(size);
 
@@ -127,10 +133,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         try {
             RowAVLDiskData row = new RowAVLDiskData(this, table, in);
 
-            row.setPos(in.getFilePosition());
-            row.setStorageSize(in.getSize());
-            row.setChanged(false);
-            ((TextCache) cache).addInit(row);
+            cache.cache.put(row);
 
             return row;
         } catch (IOException e) {
@@ -163,15 +166,6 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
 
     public boolean isMemory() {
         return false;
-    }
-
-    public void set(CachedObject object) {}
-
-    public CachedObject get(long key) {
-
-        CachedObject object = cache.get(key, this, false);
-
-        return object;
     }
 
     public void removeAll() {
@@ -287,9 +281,11 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
 
     public void setCache(DataFileCache cache) {
 
-        this.cache = cache;
+        this.cache = (TextCache) cache;
         this.tableSpace =
             cache.spaceManager.getTableSpace(DataSpaceManager.tableIdDefault);
+        accessCount = cache.getAccessCount();
+        rowOut      = cache.rowOut;
     }
 
     /**

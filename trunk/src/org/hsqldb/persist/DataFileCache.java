@@ -32,6 +32,7 @@
 package org.hsqldb.persist;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -60,7 +61,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * and access.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.2
  */
 public class DataFileCache {
@@ -1059,8 +1060,6 @@ public class DataFileCache {
                 object.keepInMemory(true);
             }
 
-            store.set(object);
-
             return object;
         } catch (HsqlException e) {
             logSevereEvent(dataFileName + " getFromFile failed " + pos, e);
@@ -1119,8 +1118,6 @@ public class DataFileCache {
             if (keep) {
                 object.keepInMemory(true);
             }
-
-            store.set(object);
 
             return object;
         } catch (HsqlException e) {
@@ -1623,6 +1620,10 @@ public class DataFileCache {
 
     public RAShadowFile getShadowFile() {
         return shadowFile;
+    }
+
+    public AtomicInteger getAccessCount() {
+        return cache.getAccessCount();
     }
 
     private void logSevereEvent(String message, Throwable t, long position) {

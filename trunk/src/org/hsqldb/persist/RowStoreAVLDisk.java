@@ -32,8 +32,9 @@
 package org.hsqldb.persist;
 
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.RowAVLDisk;
@@ -60,7 +61,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of PersistentStore for CACHED tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class RowStoreAVLDisk extends RowStoreAVL {
@@ -71,47 +72,37 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
     public RowStoreAVLDisk(DataFileCache cache, Table table) {
 
-        this(table);
-
-        this.cache = cache;
-        rowOut     = cache.rowOut.duplicate();
+        this.table        = table;
+        this.database     = table.database;
+        this.indexList    = table.getIndexList();
+        this.accessorList = new CachedObject[indexList.length];
+        this.cache        = cache;
+        rowOut            = cache.rowOut.duplicate();
+        largeData         = database.logger.getDataFileFactor() > 1;
 
         cache.adjustStoreCount(1);
 
         rowActionMap = new LongKeyHashMap(8);
         largeData    = database.logger.propLargeData;
         tableSpace   = cache.spaceManager.getTableSpace(table.getSpaceID());
-        readLock     = rowActionMap.getReadLock();
-        writeLock    = rowActionMap.getWriteLock();
-    }
-
-    protected RowStoreAVLDisk(Table table) {
-
-        this.database     = table.database;
-        this.table        = table;
-        this.indexList    = table.getIndexList();
-        this.accessorList = new CachedObject[indexList.length];
-        largeData         = database.logger.getDataFileFactor() > 1;
+        lock         = new ReentrantReadWriteLock(true);
+        readLock     = lock.readLock();
+        writeLock    = lock.writeLock();
     }
 
     public boolean isMemory() {
         return false;
     }
 
-    public void set(CachedObject object) {
+    private void set(CachedObject object) {
 
         if (database.txManager.isMVRows()) {
-            RowAction rowact = (RowAction) rowActionMap.get(object.getPos());
+            RowAction action = (RowAction) rowActionMap.get(object.getPos());
 
-            ((Row) object).rowAction = rowact;
+            if (action != null) {
+                ((Row) object).rowAction = action;
+            }
         }
-    }
-
-    public CachedObject get(long key) {
-
-        CachedObject object = cache.get(key, this, false);
-
-        return object;
     }
 
     public CachedObject get(long key, boolean keep) {
@@ -142,10 +133,11 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         object.setPos(pos);
 
         if (tx) {
-            RowAction.addInsertAction(session, table, (Row) object);
+            RowAction action = RowAction.addInsertAction(session, table,
+                (Row) object);
 
             if (database.txManager.isMVRows()) {
-                rowActionMap.put(object.getPos(), ((Row) object).rowAction);
+                rowActionMap.put(object.getPos(), action);
             }
         }
 
@@ -184,11 +176,17 @@ public class RowStoreAVLDisk extends RowStoreAVL {
     public CachedObject get(RowInputInterface in) {
 
         try {
+            Row row;
+
             if (largeData) {
-                return new RowAVLDiskLarge(this, in);
+                row = new RowAVLDiskLarge(this, in);
             } else {
-                return new RowAVLDisk(this, in);
+                row = new RowAVLDisk(this, in);
             }
+
+            set(row);
+
+            return row;
         } catch (IOException e) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         }
@@ -210,9 +208,18 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         return row;
     }
 
-    public void indexRow(Session session, Row row) {
+    public void delete(Session session, Row row) {
 
-        writeLock();
+        try {
+            row = (Row) get(row, true);
+
+            super.delete(session, row);
+        } finally {
+            row.keepInMemory(false);
+        }
+    }
+
+    public void indexRow(Session session, Row row) {
 
         try {
             row = (Row) get(row, true);
@@ -220,7 +227,6 @@ public class RowStoreAVLDisk extends RowStoreAVL {
             super.indexRow(session, row);
         } finally {
             row.keepInMemory(false);
-            writeUnlock();
         }
     }
 
@@ -244,7 +250,9 @@ public class RowStoreAVLDisk extends RowStoreAVL {
     public void postCommitAction(Session session, RowAction action) {
 
         if (action.getType() == RowAction.ACTION_NONE) {
-            writeLock();
+            Lock mapLock = rowActionMap.getWriteLock();
+
+            mapLock.lock();
 
             try {
 
@@ -253,17 +261,13 @@ public class RowStoreAVLDisk extends RowStoreAVL {
                     rowActionMap.remove(action.getPos());
                 }
             } finally {
-                writeUnlock();
+                mapLock.unlock();
             }
         } else if (action.getType() == RowAction.ACTION_DELETE_FINAL
                    && !action.isDeleteComplete()) {
             action.setDeleteComplete();
 
             Row row = action.getRow();
-
-            if (row == null) {
-                row = (Row) get(action.getPos(), false);
-            }
 
             delete(session, row);
 
@@ -374,25 +378,21 @@ public class RowStoreAVLDisk extends RowStoreAVL {
             }
         }
 
-        writeLock();
+        row = (Row) cache.get(row, this, true);
+
+        Lock mapLock = rowActionMap.getWriteLock();
+
+        mapLock.lock();
 
         try {
-            action = (RowAction) rowActionMap.get(row.getPos());
+            action = RowAction.addDeleteAction(session, table, row, colMap);
 
-            if (action == null) {
-                action = RowAction.addDeleteAction(session, table, row,
-                                                   colMap);
-
-                if (action != null) {
-                    rowActionMap.put(action.getPos(), action);
-                }
-            } else {
-                row.rowAction = action;
-                action = RowAction.addDeleteAction(session, table, row,
-                                                   colMap);
+            if (action != null) {
+                rowActionMap.put(action.getPos(), action);
             }
         } finally {
-            writeUnlock();
+            mapLock.unlock();
+            row.keepInMemory(false);
         }
 
         return action;
@@ -424,7 +424,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         int position = key.getPosition();
 
         if (position >= accessorList.length) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLDisk");
         }
 
         NodeAVL node = (NodeAVL) accessorList[position];
@@ -563,7 +563,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         }
 
         CachedObject accessor = getAccessor(indexList[0]);
-        CachedObject row      = get(accessor.getPos());
+        CachedObject row      = get(accessor.getPos(), false);
 
         return row.getStorageSize() * elementCount.get();
     }

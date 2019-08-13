@@ -54,7 +54,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class RowStoreAVLHybrid extends RowStoreAVL {
@@ -100,22 +100,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL {
 
     public void setMemory(boolean mode) {
         useDisk = !mode;
-    }
-
-    public void set(CachedObject object) {}
-
-    public CachedObject get(long i) {
-
-        try {
-            if (isCached) {
-                return cache.get(i, this, false);
-            } else {
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "RowStoreAVLHybrid");
-            }
-        } catch (HsqlException e) {
-            return null;
-        }
     }
 
     public CachedObject get(long i, boolean keep) {

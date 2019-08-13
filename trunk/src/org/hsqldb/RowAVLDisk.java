@@ -95,7 +95,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.3.5
+ * @version 2.5.1
  * @since Hypersonic SQL
  */
 public class RowAVLDisk extends RowAVL {
@@ -106,8 +106,8 @@ public class RowAVLDisk extends RowAVL {
     int              storageSize;
     int              keepCount;
     volatile boolean isInMemory;
-    int              accessCount;
     boolean          isNew;
+    boolean          isFromFile;
 
     /**
      *  Flag indicating unwritten data.
@@ -161,7 +161,8 @@ public class RowAVLDisk extends RowAVL {
             n       = n.nNext;
         }
 
-        rowData = in.readData(table.getColumnTypes());
+        rowData    = in.readData(table.getColumnTypes());
+        isFromFile = true;
     }
 
     RowAVLDisk(TableBase t) {
@@ -184,12 +185,10 @@ public class RowAVLDisk extends RowAVL {
         hasNodesChanged = true;
     }
 
-    public void updateAccessCount(int count) {
-        accessCount = count;
-    }
+    public void updateAccessCount(int count) {}
 
     public int getAccessCount() {
-        return accessCount;
+        return 0;
     }
 
     public int getStorageSize() {
