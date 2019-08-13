@@ -62,7 +62,7 @@ public class RowStoreAVLMemory extends RowStoreAVL {
         this.table        = table;
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];
-        lock              = new ReentrantReadWriteLock();
+        lock              = new ReentrantReadWriteLock(true);
         readLock          = lock.readLock();
         writeLock         = lock.writeLock();
     }
@@ -73,12 +73,6 @@ public class RowStoreAVLMemory extends RowStoreAVL {
 
     public int getAccessCount() {
         return 0;
-    }
-
-    public void set(CachedObject object) {}
-
-    public CachedObject get(long i) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVMemory");
     }
 
     public CachedObject get(long i, boolean keep) {

@@ -66,7 +66,7 @@ import org.hsqldb.rowio.RowOutputTextQuoted;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.0
  */
 public class TextCache extends DataFileCache {
@@ -293,17 +293,6 @@ public class TextCache extends DataFileCache {
             dataFile.write(out.getBuffer(), 0, out.size());
         } catch (Throwable t) {
             throw Error.runtimeError(ErrorCode.U_S0500, t.getMessage());
-        }
-    }
-
-    public void addInit(CachedObject object) {
-
-        writeLock.lock();
-
-        try {
-            cache.put(object);
-        } finally {
-            writeLock.unlock();
         }
     }
 

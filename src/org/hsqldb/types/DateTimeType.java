@@ -2722,6 +2722,6 @@ public final class DateTimeType extends DTIType {
             }
         }
 
-        throw Error.error(ErrorCode.X_22007);
+        throw Error.error(ErrorCode.X_22007, name);
     }
 }

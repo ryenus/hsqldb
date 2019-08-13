@@ -31,6 +31,8 @@
 
 package org.hsqldb.persist;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArraySort;
@@ -49,7 +51,7 @@ import org.hsqldb.map.BaseHashMap;
  * to DataFileCache.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.8.0
  */
 public class Cache extends BaseHashMap {
@@ -84,7 +86,7 @@ public class Cache extends BaseHashMap {
         rowTable         = new CachedObject[capacity];
         cacheBytesLength = 0;
         objectIterator   = new BaseHashIterator(true);
-        updateAccess     = true;
+        updateAccess     = dfc instanceof TextCache;
         comparator       = rowComparator;
         reserveCount = dfc instanceof TextCache
                        || dfc instanceof DataFileCacheSession ? 0
@@ -100,30 +102,17 @@ public class Cache extends BaseHashMap {
      */
     public CachedObject get(long pos) {
 
-        if (accessCount > ACCESS_MAX) {
-            updateAndResetAccessCounts();
-        }
-
         int lookup = getObjectLookup(pos);
 
         if (lookup == -1) {
             return null;
         }
 
-        accessTable[lookup] = ++accessCount;
+        accessTable[lookup] = accessCount.incrementAndGet();
 
         CachedObject object = (CachedObject) objectKeyTable[lookup];
 
         return object;
-    }
-
-    private synchronized void updateAndResetAccessCounts() {
-
-        if (accessCount > ACCESS_MAX) {
-            updateAccessCounts();
-            resetAccessCount();
-            updateObjectAccessCounts();
-        }
     }
 
     /**
@@ -211,12 +200,6 @@ public class Cache extends BaseHashMap {
 
     private void putNoCheck(CachedObject row) {
 
-        if (accessCount > ACCESS_MAX) {
-            updateAccessCounts();
-            resetAccessCount();
-            updateObjectAccessCounts();
-        }
-
         Object existing = addOrRemoveObject(row, row.getPos(), false);
 
         if (existing != null) {
@@ -286,15 +269,15 @@ public class Cache extends BaseHashMap {
 
     private void updateAccessCounts() {
 
-        CachedObject r;
+        CachedObject row;
         int          count;
 
         if (updateAccess) {
             for (int i = 0; i < objectKeyTable.length; i++) {
-                r = (CachedObject) objectKeyTable[i];
+                row = (CachedObject) objectKeyTable[i];
 
-                if (r != null) {
-                    count = r.getAccessCount();
+                if (row != null) {
+                    count = row.getAccessCount();
 
                     if (count > accessTable[i]) {
                         accessTable[i] = count;
@@ -306,17 +289,17 @@ public class Cache extends BaseHashMap {
 
     private void updateObjectAccessCounts() {
 
-        CachedObject r;
+        CachedObject row;
         int          count;
 
         if (updateAccess) {
             for (int i = 0; i < objectKeyTable.length; i++) {
-                r = (CachedObject) objectKeyTable[i];
+                row = (CachedObject) objectKeyTable[i];
 
-                if (r != null) {
+                if (row != null) {
                     count = accessTable[i];
 
-                    r.updateAccessCount(count);
+                    row.updateAccessCount(count);
                 }
             }
         }
@@ -336,38 +319,43 @@ public class Cache extends BaseHashMap {
 
         updateAccessCounts();
 
+        if (accessCount.get() > ACCESS_MAX || accessCount.get() < 0) {
+            resetAccessCount();
+            updateObjectAccessCounts();
+        }
+
         int savecount    = 0;
         int removeCount  = size() / 2;
-        int accessTarget = all ? accessCount + 1
+        int accessTarget = all ? accessCount.get() + 1
                                : getAccessCountCeiling(removeCount,
                                    removeCount / 8);
-        int accessMid = all ? accessCount + 1
-                            : (accessMin + accessTarget) / 2;
 
         objectIterator.reset();
 
         for (; objectIterator.hasNext(); ) {
             CachedObject row = (CachedObject) objectIterator.next();
-            int          currentAccessCount = objectIterator.getAccessCount();
-            boolean oldRow = currentAccessCount < accessTarget
-                             && !row.isKeepInMemory();
-            boolean newRow = row.isNew()
-                             && row.getStorageSize()
-                                >= DataFileCache.initIOBufferSize;
-            boolean saveRow = row.hasChanged() && (oldRow || newRow);
-
-            objectIterator.setAccessCount(accessTarget);
 
             synchronized (row) {
+                int     currentAccessCount = objectIterator.getAccessCount();
+                boolean oldRow             = currentAccessCount < accessTarget;
+                boolean newRow = row.isNew()
+                                 && row.getStorageSize()
+                                    >= DataFileCache.initIOBufferSize;
+                boolean saveRow = row.hasChanged() && (oldRow || newRow);
+
                 if (saveRow) {
                     rowTable[savecount++] = row;
                 }
 
                 if (oldRow) {
-                    row.setInMemory(false);
-                    objectIterator.remove();
+                    if (row.isKeepInMemory()) {
+                        objectIterator.setAccessCount(accessTarget);
+                    } else {
+                        row.setInMemory(false);
+                        objectIterator.remove();
 
-                    cacheBytesLength -= row.getStorageSize();
+                        cacheBytesLength -= row.getStorageSize();
+                    }
                 }
             }
 
@@ -380,8 +368,7 @@ public class Cache extends BaseHashMap {
 
         saveRows(savecount);
         setAccessCountFloor(accessTarget);
-
-        accessCount++;
+        accessCount.incrementAndGet();
     }
 
     void clearUnchanged() {
@@ -480,8 +467,8 @@ public class Cache extends BaseHashMap {
         return objectIterator;
     }
 
-    protected int incrementAccessCount() {
-        return super.incrementAccessCount();
+    protected AtomicInteger getAccessCount() {
+        return accessCount;
     }
 
     static final class CachedObjectComparator implements ObjectComparator {

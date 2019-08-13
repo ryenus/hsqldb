@@ -64,7 +64,7 @@ import org.hsqldb.types.Type;
  * Holds the data structures and methods for creation of a named database table.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {
@@ -2862,7 +2862,8 @@ public class Table extends TableBase implements SchemaObject {
 
         Row row = (Row) store.getNewCachedObject(session, newData, true);
 
-        session.database.txManager.addInsertAction(session, store, row);
+        session.database.txManager.addInsertAction(session, this, store, row,
+                null);
 
         return row;
     }
@@ -2900,12 +2901,7 @@ public class Table extends TableBase implements SchemaObject {
                 DateTimeType.epochLimitTimestamp);
         }
 
-        if (enforceUnique) {
-            database.txManager.addInsertAction(session, this, store, row,
-                                               null);
-        } else {
-            database.txManager.addInsertAction(session, store, row);
-        }
+        database.txManager.addInsertAction(session, this, store, row, null);
     }
 
     /**

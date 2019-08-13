@@ -41,7 +41,7 @@ import org.hsqldb.persist.PersistentStore;
  * Represents the chain of insert / delete / rollback / commit actions on a row.
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.3.3
+ * @version 2.5.1
  * @since 2.0.0
  */
 public class RowAction extends RowActionBase {
@@ -108,19 +108,6 @@ public class RowAction extends RowActionBase {
         this.memoryRow       = row;
         this.rowId           = row.getPos();
         this.changeColumnMap = colMap;
-    }
-
-    private RowAction(RowAction other) {
-
-        this.session         = other.session;
-        this.type            = other.type;
-        this.actionTimestamp = other.actionTimestamp;
-        this.table           = other.table;
-        this.store           = other.store;
-        this.isMemory        = other.isMemory;
-        this.memoryRow       = other.memoryRow;
-        this.rowId           = other.rowId;
-        this.changeColumnMap = other.changeColumnMap;
     }
 
     synchronized public int getType() {
@@ -268,18 +255,6 @@ public class RowAction extends RowActionBase {
         return true;
     }
 
-    public boolean checkDeleteActions() {
-        return false;
-    }
-
-    public synchronized RowAction duplicate(Row newRow) {
-
-        RowAction action = new RowAction(session, table, type, newRow,
-                                         changeColumnMap);
-
-        return action;
-    }
-
     synchronized void setAsAction(Session session, byte type) {
 
         this.session    = session;
@@ -292,7 +267,7 @@ public class RowAction extends RowActionBase {
         super.setAsAction(action);
     }
 
-    public void setAsNoOp() {
+    synchronized void setAsNoOp() {
 
 //        memoryRow       = null;
         session         = null;
@@ -383,7 +358,7 @@ public class RowAction extends RowActionBase {
         return deleteComplete;
     }
 
-    public void setDeleteComplete() {
+    public synchronized void setDeleteComplete() {
         deleteComplete = true;
     }
 
@@ -594,7 +569,7 @@ public class RowAction extends RowActionBase {
     /**
      * merge rolled back actions
      */
-    synchronized int mergeRollback(Session session, long timestamp, Row row) {
+    synchronized int mergeRollback(Session session, long timestamp) {
 
         RowActionBase action         = this;
         RowActionBase head           = null;

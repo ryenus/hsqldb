@@ -68,10 +68,6 @@ public class BlockObjectStore extends SimpleStore {
         }
     }
 
-    public CachedObject get(long i) {
-        return cache.get(i, storageSize, this, false);
-    }
-
     public CachedObject get(CachedObject object, boolean keep) {
         return cache.get(object.getPos(), storageSize, this, keep);
     }
