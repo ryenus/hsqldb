@@ -418,10 +418,6 @@ public class ExpressionAggregate extends Expression {
     public SetFunction updateAggregatingValue(Session session,
                                               SetFunction currValue, SetFunction value) {
 
-        if (!nodes[RIGHT].testCondition(session)) {
-            return currValue;
-        }
-
         if (currValue == null) {
             currValue = getSetFunction(session);
         }

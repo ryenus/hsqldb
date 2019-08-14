@@ -50,7 +50,10 @@ public class SetFunctionValueArray implements SetFunction {
         list.add(item);
     }
 
-    public void addGroup(SetFunction item){}
+    public void addGroup(SetFunction item){
+        HsqlArrayList otherList = ((SetFunctionValueArray) item).list;
+        list.addAll(otherList);
+    }
 
     public Object getValue() {
         return list.toArray();
