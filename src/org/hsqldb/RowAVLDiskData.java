@@ -85,7 +85,6 @@ public class RowAVLDiskData extends RowAVL {
         position       = in.getFilePosition();
         storageSize    = in.getSize();
         rowData        = in.readData(table.getColumnTypes());
-        hasDataChanged = false;
         this.store     = store;
     }
 
@@ -100,9 +99,10 @@ public class RowAVLDiskData extends RowAVL {
         if (data == null) {
             rowData = store.getData(this);
             data    = rowData;
-        } else {
-            accessCount++;
         }
+
+        accessCount = store.getNextAccessCount();
+
 
         return data;
     }

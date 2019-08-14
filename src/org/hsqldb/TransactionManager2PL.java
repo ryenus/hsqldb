@@ -39,7 +39,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 2.0.0
  */
 public class TransactionManager2PL extends TransactionManagerCommon
@@ -205,7 +205,7 @@ implements TransactionManager {
 
             action.rollback(session, timestamp);
 
-            int type = action.mergeRollback(session, timestamp, row);
+            int type = action.mergeRollback(session, timestamp);
 
             action.store.rollbackRow(session, row, type, txModel);
         }
@@ -215,18 +215,24 @@ implements TransactionManager {
 
     public RowAction addDeleteAction(Session session, Table table,
                                      PersistentStore store, Row row,
-                                     int[] colMap) {
+                                     int[] changedColumns) {
 
         RowAction action;
 
         synchronized (row) {
-            action = RowAction.addDeleteAction(session, table, row, colMap);
+            action = RowAction.addDeleteAction(session, table, row,
+                                               changedColumns);
         }
 
-        session.rowActionList.add(action);
         store.delete(session, row);
 
         row.rowAction = null;
+
+        if (table.persistenceScope == Table.SCOPE_ROUTINE) {
+            return action;
+        }
+
+        session.rowActionList.add(action);
 
         return action;
     }
@@ -248,31 +254,13 @@ implements TransactionManager {
 
         store.indexRow(session, row);
 
-        if (table.persistenceScope == Table.SCOPE_ROUTINE) {
-            row.rowAction = null;
+        row.rowAction = null;
 
+        if (table.persistenceScope == Table.SCOPE_ROUTINE) {
             return;
         }
 
         session.rowActionList.add(action);
-
-        row.rowAction = null;
-    }
-
-    public void addInsertAction(Session session, PersistentStore store,
-                                Row row) {
-
-        RowAction action = row.rowAction;
-
-        if (action == null) {
-            throw Error.runtimeError(ErrorCode.GENERAL_ERROR,
-                                     "null insert action ");
-        }
-
-        store.indexRow(session, row);
-        session.rowActionList.add(action);
-
-        row.rowAction = null;
     }
 
     public void beginTransaction(Session session) {

@@ -31,6 +31,7 @@
 
 package org.hsqldb.map;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
@@ -111,11 +112,11 @@ public class BaseHashMap {
     protected long[]   longValueTable;
 
     //
-    protected int       accessMin;
-    protected int       accessCount;
-    protected int[]     accessTable;
-    protected boolean[] multiValueTable;
-    protected Object[]  objectValueTable2;
+    protected int           accessMin;
+    protected AtomicInteger accessCount;
+    protected int[]         accessTable;
+    protected boolean[]     multiValueTable;
+    protected Object[]      objectValueTable2;
 
     //
     final float                loadFactor;
@@ -199,6 +200,7 @@ public class BaseHashMap {
 
         if (hasAccessCount) {
             accessTable = new int[arraySize];
+            accessCount = new AtomicInteger();
         }
     }
 
@@ -416,7 +418,7 @@ public class BaseHashMap {
             }
 
             if (isLastAccessCount) {
-                accessTable[lookup] = ++accessCount;
+                accessTable[lookup] = accessCount.incrementAndGet();
             } else if (isAccessCount) {
                 accessTable[lookup]++;
             }
@@ -469,7 +471,7 @@ public class BaseHashMap {
 
         //
         if (isLastAccessCount) {
-            accessTable[lookup] = ++accessCount;
+            accessTable[lookup] = accessCount.incrementAndGet();
         } else if (isAccessCount) {
             accessTable[lookup] = 1;
         }
@@ -669,7 +671,7 @@ public class BaseHashMap {
 
         //
         if (isLastAccessCount) {
-            accessTable[lookup] = ++accessCount;
+            accessTable[lookup] = accessCount.incrementAndGet();
         } else if (isAccessCount) {
             accessTable[lookup] = 1;
         }
@@ -742,7 +744,7 @@ public class BaseHashMap {
             }
 
             if (isLastAccessCount) {
-                accessTable[lookup] = ++accessCount;
+                accessTable[lookup] = accessCount.incrementAndGet();
             } else if (isAccessCount) {
                 accessTable[lookup]++;
             }
@@ -784,7 +786,7 @@ public class BaseHashMap {
         }
 
         if (isLastAccessCount) {
-            accessTable[lookup] = ++accessCount;
+            accessTable[lookup] = accessCount.incrementAndGet();
         } else if (isAccessCount) {
             accessTable[lookup] = 1;
         }
@@ -877,7 +879,7 @@ public class BaseHashMap {
                 objectKeyTable[lookup] = object;
 
                 if (isLastAccessCount) {
-                    accessTable[lookup] = ++accessCount;
+                    accessTable[lookup] = accessCount.incrementAndGet();
                 } else if (isAccessCount) {
                     accessTable[lookup]++;
                 }
@@ -900,7 +902,7 @@ public class BaseHashMap {
         objectKeyTable[lookup] = object;
 
         if (isLastAccessCount) {
-            accessTable[lookup] = ++accessCount;
+            accessTable[lookup] = accessCount.incrementAndGet();
         } else if (isAccessCount) {
             accessTable[lookup] = 1;
         }
@@ -1247,8 +1249,11 @@ public class BaseHashMap {
     public void clear() {
 
         if (hashIndex.modified) {
-            accessCount  = 0;
-            accessMin    = accessCount;
+            if (accessCount != null) {
+                accessCount.set(0);
+            }
+
+            accessMin    = 0;
             hasZeroKey   = false;
             zeroKeyIndex = -1;
 
@@ -1267,7 +1272,7 @@ public class BaseHashMap {
      */
     protected int getAccessCountCeiling(int count, int margin) {
         return ArrayCounter.rank(accessTable, hashIndex.newNodePointer, count,
-                                 accessMin, accessCount, margin);
+                                 accessMin, accessCount.get(), margin);
     }
 
     /**
@@ -1276,10 +1281,6 @@ public class BaseHashMap {
      */
     protected void setAccessCountFloor(int count) {
         accessMin = count;
-    }
-
-    protected int incrementAccessCount() {
-        return ++accessCount;
     }
 
     /**
@@ -1317,14 +1318,16 @@ public class BaseHashMap {
 
     protected void resetAccessCount() {
 
-        if (accessCount < ACCESS_MAX) {
+        int accessMax = accessCount.get();
+
+        if (accessMax > 0 && accessMax < ACCESS_MAX) {
             return;
         }
 
         int limit = hashIndex.getNewNodePointer();
 
-        accessCount = 0;
-        accessMin   = Integer.MAX_VALUE;
+        accessMax = 0;
+        accessMin = Integer.MAX_VALUE;
 
         for (int i = 0; i < limit; i++) {
             int access = accessTable[i];
@@ -1336,16 +1339,18 @@ public class BaseHashMap {
             access         = (access >>> 2) + 1;
             accessTable[i] = access;
 
-            if (access > accessCount) {
-                accessCount = access;
+            if (access > accessMax) {
+                accessMax = access;
             } else if (access < accessMin) {
                 accessMin = access;
             }
         }
 
-        if (accessMin > accessCount) {
-            accessMin = accessCount;
+        if (accessMin > accessMax) {
+            accessMin = accessMax;
         }
+
+        accessCount.set(accessMax);
     }
 
     protected int capacity() {

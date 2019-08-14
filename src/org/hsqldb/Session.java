@@ -447,7 +447,7 @@ public class Session implements SessionInterface {
      * @throws  HsqlException
      */
     public void addDeleteAction(Table table, PersistentStore store, Row row,
-                                int[] colMap) {
+                                int[] changedColumns) {
 
 //        tempActionHistory.add("add delete action " + actionTimestamp);
         if (abortTransaction) {
@@ -459,7 +459,8 @@ public class Session implements SessionInterface {
         }
 
         getTransactionSystemTimestamp();
-        database.txManager.addDeleteAction(this, table, store, row, colMap);
+        database.txManager.addDeleteAction(this, table, store, row,
+                                           changedColumns);
     }
 
     void addInsertAction(Table table, PersistentStore store, Row row,

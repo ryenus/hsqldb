@@ -309,7 +309,7 @@ implements TransactionManager {
             try {
                 action.rollback(session, timestamp);
 
-                int type = action.mergeRollback(session, timestamp, row);
+                int type = action.mergeRollback(session, timestamp);
 
                 if (action.type == RowActionBase.ACTION_DELETE_FINAL) {
                     if (action.deleteComplete) {
@@ -330,10 +330,21 @@ implements TransactionManager {
 
     public RowAction addDeleteAction(Session session, Table table,
                                      PersistentStore store, Row row,
-                                     int[] colMap) {
+                                     int[] changedColumns) {
 
-        RowAction action = addDeleteActionToRow(session, table, store, row,
-            colMap);
+        RowAction action = store.addDeleteActionToRow(session, row,
+            changedColumns, true);
+
+        if (table.tableType == TableBase.TEMP_TABLE) {
+            store.delete(session, row);
+
+            row.rowAction = null;
+
+            if (table.persistenceScope == Table.SCOPE_ROUTINE) {
+                return action;
+            }
+        }
+
         Session actionSession = null;
         boolean redoAction    = true;
 
@@ -431,10 +442,12 @@ implements TransactionManager {
         }
 
         if (!redoAction) {
-            if (table.persistenceScope == Table.SCOPE_ROUTINE) {
+            if (table.tableType == TableBase.TEMP_TABLE) {
                 row.rowAction = null;
 
-                return;
+                if (table.persistenceScope == Table.SCOPE_ROUTINE) {
+                    return;
+                }
             }
 
             session.rowActionList.add(action);
@@ -488,20 +501,6 @@ implements TransactionManager {
         } finally {
             writeLock.unlock();
         }
-    }
-
-    public void addInsertAction(Session session, PersistentStore store,
-                                Row row) {
-
-        RowAction action = row.rowAction;
-
-        if (action == null) {
-            throw Error.runtimeError(ErrorCode.GENERAL_ERROR,
-                                     "null insert action ");
-        }
-
-        store.indexRow(session, row);
-        session.rowActionList.add(action);
     }
 
 // functional unit - accessibility of rows
@@ -711,22 +710,6 @@ implements TransactionManager {
         } finally {
             writeLock.unlock();
         }
-    }
-
-    RowAction addDeleteActionToRow(Session session, Table table,
-                                   PersistentStore store, Row row,
-                                   int[] colMap) {
-
-        RowAction action = store.addDeleteActionToRow(session, row, colMap,
-            true);
-
-        if (table.tableType == TableBase.TEMP_TABLE) {
-            store.delete(session, row);
-
-            row.rowAction = null;
-        }
-
-        return action;
     }
 
     /**

@@ -51,7 +51,7 @@ import org.hsqldb.types.TimestampData;
  * range of java.lang.* objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.1
  * @since 1.7.2
  *
  */
@@ -84,11 +84,15 @@ public class ValuePoolHashMap extends BaseHashMap {
             int keyValue = testValue.intValue();
 
             if (keyValue == intKey) {
-                if (accessCount > ACCESS_MAX) {
+                int count = accessCount.incrementAndGet();
+
+                if (count < 0) {
                     resetAccessCount();
+
+                    count = accessCount.incrementAndGet();
                 }
 
-                accessTable[lookup] = accessCount++;
+                accessTable[lookup] = count;
 
                 hits++;
 
@@ -108,11 +112,15 @@ public class ValuePoolHashMap extends BaseHashMap {
         testValue              = Integer.valueOf(intKey);
         objectKeyTable[lookup] = testValue;
 
-        if (accessCount > ACCESS_MAX) {
+        int count = accessCount.incrementAndGet();
+
+        if (count < 0) {
             resetAccessCount();
+
+            count = accessCount.incrementAndGet();
         }
 
-        accessTable[lookup] = accessCount++;
+        accessTable[lookup] = count;
 
         return testValue;
     }
@@ -132,11 +140,17 @@ public class ValuePoolHashMap extends BaseHashMap {
             long keyValue = testValue.longValue();
 
             if (keyValue == longKey) {
-                if (accessCount > ACCESS_MAX) {
+                int count = accessCount.incrementAndGet();
+
+                if (count < 0) {
                     resetAccessCount();
+
+                    count = accessCount.incrementAndGet();
                 }
 
-                accessTable[lookup] = accessCount++;
+                accessTable[lookup] = count;
+
+                hits++;
 
                 return testValue;
             } else if (keyValue > longKey) {
@@ -154,11 +168,15 @@ public class ValuePoolHashMap extends BaseHashMap {
         testValue              = Long.valueOf(longKey);
         objectKeyTable[lookup] = testValue;
 
-        if (accessCount > ACCESS_MAX) {
+        int count = accessCount.incrementAndGet();
+
+        if (count < 0) {
             resetAccessCount();
+
+            count = accessCount.incrementAndGet();
         }
 
-        accessTable[lookup] = accessCount++;
+        accessTable[lookup] = count;
 
         return testValue;
     }
@@ -193,11 +211,17 @@ public class ValuePoolHashMap extends BaseHashMap {
             testValue = (String) objectKeyTable[lookup];
 
             if (key.equals(testValue)) {
-                if (accessCount > ACCESS_MAX) {
+                int count = accessCount.incrementAndGet();
+
+                if (count < 0) {
                     resetAccessCount();
+
+                    count = accessCount.incrementAndGet();
                 }
 
-                accessTable[lookup] = accessCount++;
+                accessTable[lookup] = count;
+
+                hits++;
 
                 return testValue;
             }
@@ -213,11 +237,15 @@ public class ValuePoolHashMap extends BaseHashMap {
         lookup                 = hashIndex.linkNode(index, lastLookup);
         objectKeyTable[lookup] = testValue;
 
-        if (accessCount > ACCESS_MAX) {
+        int count = accessCount.incrementAndGet();
+
+        if (count < 0) {
             resetAccessCount();
+
+            count = accessCount.incrementAndGet();
         }
 
-        accessTable[lookup] = accessCount++;
+        accessTable[lookup] = count;
 
         return testValue;
     }
@@ -238,11 +266,17 @@ public class ValuePoolHashMap extends BaseHashMap {
             testValue = (String) objectKeyTable[lookup];
 
             if (key.equals(testValue)) {
-                if (accessCount > ACCESS_MAX) {
+                int count = accessCount.incrementAndGet();
+
+                if (count < 0) {
                     resetAccessCount();
+
+                    count = accessCount.incrementAndGet();
                 }
 
-                accessTable[lookup] = accessCount++;
+                accessTable[lookup] = count;
+
+                hits++;
 
                 return testValue;
             }
@@ -258,11 +292,15 @@ public class ValuePoolHashMap extends BaseHashMap {
         lookup                 = hashIndex.linkNode(index, lastLookup);
         objectKeyTable[lookup] = testValue;
 
-        if (accessCount > ACCESS_MAX) {
+        int count = accessCount.incrementAndGet();
+
+        if (count < 0) {
             resetAccessCount();
+
+            count = accessCount.incrementAndGet();
         }
 
-        accessTable[lookup] = accessCount++;
+        accessTable[lookup] = count;
 
         return testValue;
     }
@@ -281,11 +319,17 @@ public class ValuePoolHashMap extends BaseHashMap {
             testValue = (TimestampData) objectKeyTable[lookup];
 
             if (testValue.getSeconds() == longKey) {
-                if (accessCount > ACCESS_MAX) {
+                int count = accessCount.incrementAndGet();
+
+                if (count < 0) {
                     resetAccessCount();
+
+                    count = accessCount.incrementAndGet();
                 }
 
-                accessTable[lookup] = accessCount++;
+                accessTable[lookup] = count;
+
+                hits++;
 
                 return testValue;
             }
@@ -301,11 +345,15 @@ public class ValuePoolHashMap extends BaseHashMap {
         testValue              = new TimestampData(longKey);
         objectKeyTable[lookup] = testValue;
 
-        if (accessCount > ACCESS_MAX) {
+        int count = accessCount.incrementAndGet();
+
+        if (count < 0) {
             resetAccessCount();
+
+            count = accessCount.incrementAndGet();
         }
 
-        accessTable[lookup] = accessCount++;
+        accessTable[lookup] = count;
 
         return testValue;
     }
@@ -323,11 +371,17 @@ public class ValuePoolHashMap extends BaseHashMap {
             testValue = (Double) objectKeyTable[lookup];
 
             if (Double.doubleToLongBits(testValue.doubleValue()) == longKey) {
-                if (accessCount > ACCESS_MAX) {
+                int count = accessCount.incrementAndGet();
+
+                if (count < 0) {
                     resetAccessCount();
+
+                    count = accessCount.incrementAndGet();
                 }
 
-                accessTable[lookup] = accessCount++;
+                accessTable[lookup] = count;
+
+                hits++;
 
                 return testValue;
             }
@@ -340,14 +394,19 @@ public class ValuePoolHashMap extends BaseHashMap {
         }
 
         lookup                 = hashIndex.linkNode(index, lastLookup);
-        testValue              = Double.valueOf(Double.longBitsToDouble(longKey));
+        testValue = Double.valueOf(Double.longBitsToDouble(longKey));
         objectKeyTable[lookup] = testValue;
 
-        if (accessCount > ACCESS_MAX) {
+
+        int count = accessCount.incrementAndGet();
+
+        if (count < 0) {
             resetAccessCount();
+
+            count = accessCount.incrementAndGet();
         }
 
-        accessTable[lookup] = accessCount++;
+        accessTable[lookup] = count;
 
         return testValue;
     }
@@ -365,11 +424,17 @@ public class ValuePoolHashMap extends BaseHashMap {
             testValue = objectKeyTable[lookup];
 
             if (testValue.equals(key)) {
-                if (accessCount > ACCESS_MAX) {
+                int count = accessCount.incrementAndGet();
+
+                if (count < 0) {
                     resetAccessCount();
+
+                    count = accessCount.incrementAndGet();
                 }
 
-                accessTable[lookup] = accessCount++;
+                accessTable[lookup] = count;
+
+                hits++;
 
                 return testValue;
             }
@@ -384,11 +449,16 @@ public class ValuePoolHashMap extends BaseHashMap {
         lookup                 = hashIndex.linkNode(index, lastLookup);
         objectKeyTable[lookup] = key;
 
-        if (accessCount > ACCESS_MAX) {
+
+        int count = accessCount.incrementAndGet();
+
+        if (count < 0) {
             resetAccessCount();
+
+            count = accessCount.incrementAndGet();
         }
 
-        accessTable[lookup] = accessCount++;
+        accessTable[lookup] = count;
 
         return key;
     }

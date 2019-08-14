@@ -37,7 +37,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 2.0.0
  */
 public interface TransactionManager {
@@ -67,12 +67,11 @@ public interface TransactionManager {
     void setGlobalChangeTimestamp(long ts);
 
     RowAction addDeleteAction(Session session, Table table,
-                              PersistentStore store, Row row, int[] colMap);
+                              PersistentStore store, Row row,
+                              int[] changedColumns);
 
     void addInsertAction(Session session, Table table, PersistentStore store,
                          Row row, int[] changedColumns);
-
-    void addInsertAction(Session session, PersistentStore store, Row row);
 
     /**
      * add session to the end of queue when a transaction starts

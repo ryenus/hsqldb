@@ -61,7 +61,7 @@ import org.hsqldb.lib.LongKeyHashMap;
  * Base implementation of PersistentStore for different table types.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public abstract class RowStoreAVL implements PersistentStore {
@@ -114,8 +114,6 @@ public abstract class RowStoreAVL implements PersistentStore {
     public abstract boolean isMemory();
 
     public void setMemory(boolean mode) {}
-
-    public abstract void set(CachedObject object);
 
     public abstract CachedObject get(long key, boolean keep);
 
@@ -480,7 +478,9 @@ public abstract class RowStoreAVL implements PersistentStore {
             readLock();
 
             try {
-                elementCount.set(index.getNodeCount(null, this));
+                long count = index.getNodeCount(null, this);
+
+                elementCount.set(count);
             } finally {
                 readUnlock();
             }

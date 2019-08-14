@@ -39,7 +39,7 @@ import org.hsqldb.map.BaseHashMap;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class LongKeyHashMap extends BaseHashMap {
@@ -77,11 +77,11 @@ public class LongKeyHashMap extends BaseHashMap {
         try {
             int lookup = getLookup(key);
 
-            if (lookup != -1) {
-                return objectValueTable[lookup];
+            if (lookup == -1) {
+                return null;
             }
 
-            return null;
+            return objectValueTable[lookup];
         } finally {
             readLock.unlock();
         }
