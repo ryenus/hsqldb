@@ -46,7 +46,7 @@ import org.hsqldb.lib.StringUtil;
  * Manages a .properties file for a database.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
@@ -152,19 +152,19 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
 //#ifdef JAVA8
 
-    public static final String THIS_VERSION         = "2.5.0";
-    public static final String THIS_FULL_VERSION    = "2.5.0";
+    public static final String THIS_VERSION         = "2.5.1";
+    public static final String THIS_FULL_VERSION    = "2.5.1";
     public static final int    MAJOR                = 2,
                                MINOR                = 5,
-                               REVISION             = 0;
+                               REVISION             = 1;
 
 //#else
 /*
-    public static final String THIS_VERSION      = "2.3.7";
-    public static final String THIS_FULL_VERSION = "2.3.7";
+    public static final String THIS_VERSION      = "2.3.8";
+    public static final String THIS_FULL_VERSION = "2.3.8";
     public static final int    MAJOR             = 2,
                                MINOR             = 3,
-                               REVISION          = 7;
+                               REVISION          = 8;
 */
 
 //#endif JAVA8
