@@ -87,7 +87,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
         }
     }
 
-    public int incrementAndGetAccessCount() {
+    public int getNextAccessCount() {
         return accessCount.incrementAndGet();
     }
 

@@ -764,7 +764,7 @@ public class DataFileCache {
             dataFile.seek(INT_SPACE_LIST_POS);
             dataFile.writeInt(pos);
 
-            // set saved flag;
+            // set saved flag and sync file
             setFlag(DataFileCache.FLAG_ISSAVED, true);
             logDetailEvent("file sync end");
 
