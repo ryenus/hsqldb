@@ -49,7 +49,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * Implementation of PersistentStore for MEMORY tables.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class RowStoreAVLMemory extends RowStoreAVL {
@@ -69,10 +69,6 @@ public class RowStoreAVLMemory extends RowStoreAVL {
 
     public boolean isMemory() {
         return true;
-    }
-
-    public int getAccessCount() {
-        return 0;
     }
 
     public CachedObject get(long i, boolean keep) {
