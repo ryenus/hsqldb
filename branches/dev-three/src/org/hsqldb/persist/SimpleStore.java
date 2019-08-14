@@ -43,7 +43,7 @@ import org.hsqldb.rowio.RowInputInterface;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 2.3.0
  */
 public abstract class SimpleStore implements PersistentStore {
@@ -54,12 +54,6 @@ public abstract class SimpleStore implements PersistentStore {
 
     public boolean isRowStore() {
         return false;
-    }
-
-    public void set(CachedObject object) {}
-
-    public CachedObject get(long i) {
-        return cache.get(i, this, false);
     }
 
     public CachedObject get(CachedObject object, boolean keep) {

@@ -102,7 +102,7 @@ import org.hsqldb.lib.RCData;
  * Originally in HypersonicSQL. Extended in various versions of HSQLDB.
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.5.0
+ * @version 2.5.1
  * @since Hypersonic SQL
  */
 public class DatabaseManager extends Applet
@@ -1256,6 +1256,10 @@ implements ActionListener, WindowListener, KeyListener {
         tTree.removeAll();
 
         try {
+            if (cConn == null) {
+                throw new SQLException("no connection");
+            }
+
             wasAutoCommit = cConn.getAutoCommit();
 
             cConn.setAutoCommit(false);
@@ -1370,7 +1374,9 @@ implements ActionListener, WindowListener, KeyListener {
             tTree.addRow("-", e.getSQLState());
         } finally {
             try {
-                cConn.setAutoCommit(wasAutoCommit);
+                if (cConn != null) {
+                    cConn.setAutoCommit(wasAutoCommit);
+                }
             } catch (SQLException e) {}
         }
 
