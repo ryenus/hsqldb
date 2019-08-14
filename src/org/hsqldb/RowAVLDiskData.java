@@ -101,7 +101,7 @@ public class RowAVLDiskData extends RowAVL {
             data    = rowData;
         }
 
-        accessCount = store.incrementAndGetAccessCount();
+        accessCount = store.getNextAccessCount();
 
 
         return data;

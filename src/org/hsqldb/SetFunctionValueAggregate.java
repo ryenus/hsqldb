@@ -84,7 +84,9 @@ public class SetFunctionValueAggregate implements SetFunction {
     private boolean    hasNull;
     private boolean    every = true;
     private boolean    some  = false;
-    private long       currentLong;
+    private long       hiLong;
+    private long       loLong;
+    private long       fraction;
     private double     currentDouble;
     private BigDecimal currentBigDecimal;
     private Object     currentValue;
@@ -164,7 +166,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                     case Types.TINYINT :
                     case Types.SQL_SMALLINT :
                     case Types.SQL_INTEGER :
-                        currentLong += ((Number) item).intValue();
+                        loLong += ((Number) item).intValue();
 
                         return;
 
@@ -172,13 +174,12 @@ public class SetFunctionValueAggregate implements SetFunction {
                         if (item instanceof IntervalSecondData) {
                             addLong(((IntervalSecondData) item).getSeconds());
 
-                            currentLong +=
-                                ((IntervalSecondData) item).getNanos();
+                            fraction += ((IntervalSecondData) item).getNanos();
 
-                            if (currentLong > 1000000000) {
-                                addLong(currentLong / 1000000000);
+                            if (fraction > 1000000000) {
+                                addLong(fraction / 1000000000);
 
-                                currentLong %= 1000000000;
+                                fraction %= 1000000000;
                             }
                         }
 
@@ -196,12 +197,12 @@ public class SetFunctionValueAggregate implements SetFunction {
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
                         addLong(((TimestampData) item).getSeconds());
 
-                        currentLong += ((TimestampData) item).getNanos();
+                        fraction += ((TimestampData) item).getNanos();
 
-                        if (currentLong > 1000000000) {
-                            addLong(currentLong / 1000000000);
+                        if (fraction > 1000000000) {
+                            addLong(fraction / 1000000000);
 
-                            currentLong %= 1000000000;
+                            fraction %= 1000000000;
                         }
 
                         currentDouble = ((TimestampData) item).getZone();
@@ -212,12 +213,12 @@ public class SetFunctionValueAggregate implements SetFunction {
                     case Types.SQL_TIME_WITH_TIME_ZONE : {
                         addLong(((TimeData) item).getSeconds());
 
-                        currentLong += ((TimeData) item).getNanos();
+                        fraction += ((TimeData) item).getNanos();
 
-                        if (currentLong > 1000000000) {
-                            addLong(currentLong / 1000000000);
+                        if (fraction > 1000000000) {
+                            addLong(fraction / 1000000000);
 
-                            currentLong %= 1000000000;
+                            fraction %= 1000000000;
                         }
 
                         currentDouble = ((TimeData) item).getZone();
@@ -351,11 +352,11 @@ public class SetFunctionValueAggregate implements SetFunction {
                     case Types.SQL_INTEGER :
                         if (returnType.scale != 0) {
                             return returnType.divide(session,
-                                                     Long.valueOf(currentLong),
+                                                     Long.valueOf(loLong),
                                                      Long.valueOf(count));
                         }
 
-                        return Long.valueOf(currentLong / count);
+                        return Long.valueOf(loLong / count);
 
                     case Types.SQL_BIGINT : {
                         long value = getLongSum().divide(
@@ -389,10 +390,11 @@ public class SetFunctionValueAggregate implements SetFunction {
 
                         if (type.isIntervalDaySecondType()) {
                             long nanos =
-                                (currentLong + bi[1].longValue() * DTIType
+                                (fraction + bi[1].longValue() * DTIType
                                     .limitNanoseconds) / count;
 
-                            nanos = DTIType.normaliseFraction((int) nanos, 0);
+                            nanos = DTIType.normaliseFraction((int) nanos,
+                                                              type.scale);
 
                             return new IntervalSecondData(bi[0].longValue(),
                                                           nanos,
@@ -415,10 +417,11 @@ public class SetFunctionValueAggregate implements SetFunction {
 
                         long seconds = bi[0].longValue();
                         long nanos =
-                            (currentLong + bi[1].longValue() * DTIType
+                            (fraction + bi[1].longValue() * DTIType
                                 .limitNanoseconds) / count;
 
-                        nanos = DTIType.normaliseFraction((int) nanos, 0);
+                        nanos = DTIType.normaliseFraction((int) nanos,
+                                                          type.scale);
 
                         if (setType == Types.SQL_DATE) {
                             seconds = HsqlDateTime.getNormalisedDate(seconds);
@@ -438,7 +441,7 @@ public class SetFunctionValueAggregate implements SetFunction {
 
                         long seconds = bi[0].longValue();
                         long nanos =
-                            (currentLong + bi[1].longValue() * DTIType
+                            (fraction + bi[1].longValue() * DTIType
                                 .limitNanoseconds) / count;
 
                         nanos = DTIType.normaliseFraction((int) nanos, 0);
@@ -461,7 +464,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                     case Types.TINYINT :
                     case Types.SQL_SMALLINT :
                     case Types.SQL_INTEGER :
-                        return Long.valueOf(currentLong);
+                        return Long.valueOf(loLong);
 
                     case Types.SQL_BIGINT :
                         return new BigDecimal(getLongSum());
@@ -485,7 +488,7 @@ public class SetFunctionValueAggregate implements SetFunction {
 
                         if (type.isIntervalDaySecondType()) {
                             return new IntervalSecondData(bi.longValue(),
-                                                          currentLong,
+                                                          fraction,
                                                           (IntervalType) type,
                                                           true);
                         } else {
@@ -534,31 +537,29 @@ public class SetFunctionValueAggregate implements SetFunction {
      */
     static final BigInteger multiplier =
         BigInteger.valueOf(0x0000000100000000L);
-    long hi;
-    long lo;
 
     private void addLong(long value) {
 
         if (value == 0) {}
         else if (value > 0) {
-            hi += value >> 32;
-            lo += value & 0x00000000ffffffffL;
+            hiLong += value >> 32;
+            loLong += value & 0x00000000ffffffffL;
         } else {
             if (value == Long.MIN_VALUE) {
-                hi -= 0x000000080000000L;
+                hiLong -= 0x000000080000000L;
             } else {
                 long temp = ~value + 1;
 
-                hi -= temp >> 32;
-                lo -= temp & 0x00000000ffffffffL;
+                hiLong -= temp >> 32;
+                loLong -= temp & 0x00000000ffffffffL;
             }
         }
     }
 
     private BigInteger getLongSum() {
 
-        BigInteger biglo  = BigInteger.valueOf(lo);
-        BigInteger bighi  = BigInteger.valueOf(hi);
+        BigInteger biglo  = BigInteger.valueOf(loLong);
+        BigInteger bighi  = BigInteger.valueOf(hiLong);
         BigInteger result = (bighi.multiply(multiplier)).add(biglo);
 
 /*

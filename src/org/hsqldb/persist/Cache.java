@@ -62,7 +62,7 @@ public class Cache extends BaseHashMap {
     private long                               bytesCapacity;    // number of bytes
     private final CachedObjectComparator       rowComparator;
     private final BaseHashMap.BaseHashIterator objectIterator;
-    private boolean                            updateAccess;
+    private final boolean                      updateAccess;
 
     //
     private CachedObject[] rowTable;
