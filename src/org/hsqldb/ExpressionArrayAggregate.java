@@ -324,6 +324,18 @@ public class ExpressionArrayAggregate extends Expression {
         return currValue;
     }
 
+    public SetFunction updateAggregatingValue(Session session,
+            SetFunction currValue, SetFunction value) {
+
+        if (currValue == null) {
+            currValue = new SetFunctionValueArray();
+        }
+
+        currValue.addGroup(value);
+
+        return currValue;
+    }
+
     public Object getAggregatedValue(Session session, SetFunction currValue) {
 
         if (currValue == null) {
