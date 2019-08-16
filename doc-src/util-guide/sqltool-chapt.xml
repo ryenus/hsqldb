@@ -4371,10 +4371,10 @@ SELECT * FROM t
                 The table name may contain a schema name prefix.
             </simpara><simpara>
                 You don't need to import all of the columns in a data file.
-                To designate the fields to be skipped, iether set the PL
-                PL variable <varname>*DSV_SKIP_COLUMNS</varname>, or replace
+                To designate the fields to be skipped, either set the PL
+                PL variable <varname>*DSV_SKIP_COLS</varname>, or replace
                 the column names in the header line to "-" (hyphen).
-                The value of <varname>*DSV_SKIP_COLUMNS</varname> is
+                The value of <varname>*DSV_SKIP_COLS</varname> is
                 case-insensitive, and multiple column names are separated with
                 white space and/or commas.
             </simpara><para>
