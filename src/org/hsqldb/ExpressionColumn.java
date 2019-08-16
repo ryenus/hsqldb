@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Implementation of column, variable, parameter, etc. access operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ExpressionColumn extends Expression {
@@ -196,6 +196,24 @@ public class ExpressionColumn extends Expression {
 
         this.nodes      = nodes;
         this.columnName = name;
+    }
+
+    /**
+     * for GROUPING function
+     */
+    ExpressionColumn(Expression groups) {
+
+        super(OpTypes.GROUPING);
+
+        Expression[] exprs = groups.nodes;
+
+        if (groups.nodes.length == 0) {
+            exprs    = new Expression[1];
+            exprs[0] = groups;
+        }
+
+        this.nodes    = exprs;
+        this.dataType = Type.SQL_INTEGER;
     }
 
     /**
@@ -393,6 +411,7 @@ public class ExpressionColumn extends Expression {
             case OpTypes.DIAGNOSTICS_VARIABLE :
                 break;
 
+            case OpTypes.GROUPING :
             case OpTypes.COALESCE :
                 for (int i = 0; i < nodes.length; i++) {
                     nodes[i].resolveColumnReferences(session, rangeGroup,
@@ -662,6 +681,14 @@ public class ExpressionColumn extends Expression {
 
         switch (opType) {
 
+            case OpTypes.GROUPING :
+                if (session.sessionContext.groupSet == null) {
+                    return 0;
+                }
+
+                return session.sessionContext.groupSet.isGrouped(
+                    session.sessionContext.currentGroup, this);
+
             case OpTypes.DEFAULT :
                 return null;
 
@@ -815,6 +842,27 @@ public class ExpressionColumn extends Expression {
 
                     sb.append(s);
                 }
+
+                return sb.toString();
+            }
+            case OpTypes.GROUPING : {
+                StringBuffer sb = new StringBuffer();
+
+                sb.append("GROUPING(");
+
+                for (int i = 0; i < nodes.length; i++) {
+                    Expression e = nodes[i];
+
+                    if (i > 0) {
+                        sb.append(',');
+                    }
+
+                    String s = e.getSQL();
+
+                    sb.append(s);
+                }
+
+                sb.append(")");
 
                 return sb.toString();
             }

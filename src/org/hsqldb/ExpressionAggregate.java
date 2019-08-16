@@ -415,6 +415,19 @@ public class ExpressionAggregate extends Expression {
         return currValue;
     }
 
+    public SetFunction updateAggregatingValue(Session session,
+                                              SetFunction currValue, SetFunction value) {
+
+        if (currValue == null) {
+            currValue = getSetFunction(session);
+        }
+
+        currValue.addGroup(value);
+
+        return currValue;
+    }
+
+
     SetFunction getSetFunction(Session session) {
 
         return new SetFunctionValueAggregate(session, opType,

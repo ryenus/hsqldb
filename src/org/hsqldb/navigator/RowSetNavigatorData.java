@@ -81,8 +81,8 @@ implements Comparator<Object[]> {
     Index idIndex;
 
     //
-    TreeMap<Object[], Object[]> rowMap;
-    LongKeyHashMap              idMap;
+    TreeMap<Object[], Integer> rowMap;
+    LongKeyHashMap             idMap;
 
     RowSetNavigatorData(Session session) {
         this.session = session;
@@ -100,7 +100,7 @@ implements Comparator<Object[]> {
 
         if (select.isGrouped) {
             mainIndex = select.groupIndex;
-            rowMap    = new TreeMap<Object[], Object[]>(this);
+            rowMap    = new TreeMap<Object[], Integer>(this);
         }
 
         if (select.idIndex != null) {
@@ -164,10 +164,8 @@ implements Comparator<Object[]> {
 
         dataTable[size] = data;
 
-        size++;
-
         if (rowMap != null) {
-            rowMap.put(data, data);
+            rowMap.put(data, size);
         }
 
         if (idMap != null) {
@@ -175,6 +173,21 @@ implements Comparator<Object[]> {
 
             idMap.put(id.longValue(), data);
         }
+
+        size++;
+    }
+
+    public void setPosition(Object[] data) {
+
+        Integer mapPos = rowMap.get(data);
+
+        if (mapPos == null) {
+            return;
+        }
+
+        int pos = mapPos.intValue();
+
+        currentPos = pos;
     }
 
     public boolean addRow(Row row) {
@@ -228,6 +241,10 @@ implements Comparator<Object[]> {
         size++;
     }
 
+    public Object[][] getDataTable() {
+        return dataTable;
+    }
+
     public void release() {
 
         this.dataTable = emptyTable;
@@ -244,6 +261,10 @@ implements Comparator<Object[]> {
         this.size      = 0;
 
         reset();
+    }
+
+    public void resetRowMap() {
+        rowMap = new TreeMap(this);
     }
 
     public boolean absolute(int position) {
@@ -603,7 +624,33 @@ implements Comparator<Object[]> {
             return simpleAggregateData;
         }
 
-        return rowMap.get(data);
+        Integer position = rowMap.get(data);
+
+        if (position == null) {
+            return null;
+        }
+
+        int pos = position.intValue();
+
+        return dataTable[pos];
+    }
+
+    /**
+     * Special case for isSimpleAggregate cannot use index lookup.
+     */
+    public Object[] getGroupDataAndPosition(Object[] data) {
+
+        Integer mapPos = rowMap.get(data);
+
+        if (mapPos == null) {
+            return null;
+        }
+
+        int pos = mapPos.intValue();
+
+        currentPos = pos;
+
+        return dataTable[pos];
     }
 
     boolean containsRow(Object[] data) {

@@ -45,6 +45,7 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.IntValueHashMap;
+import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.Set;
@@ -74,6 +75,8 @@ public class QuerySpecification extends QueryExpression {
     public boolean        isDistinctSelect;
     public boolean        isAggregated;
     public boolean        isGrouped;
+    public boolean        isGroupingSets;
+    boolean               isDistinctGroups;
     public boolean        isOrderSensitive;
     public boolean        isSimpleDistinct;
     RangeVariable[]       rangeVariables;
@@ -82,10 +85,10 @@ public class QuerySpecification extends QueryExpression {
     int                   endInnerRange   = -1;
     Expression            queryCondition;
     Expression            checkQueryCondition;
-    private Expression    havingCondition;
     Expression            rowExpression;
     Expression[]          exprColumns;
     HsqlArrayList         exprColumnList;
+    GroupSet              groupSet;
     private int           groupByColumnCount;    // columns in 'group by'
     private int           havingColumnCount;     // columns in 'having' (0 or 1)
     public int            indexLimitVisible;
@@ -259,6 +262,108 @@ public class QuerySpecification extends QueryExpression {
         isDistinctSelect = true;
     }
 
+    void setDistinctGroups() {
+        isDistinctGroups = true;
+    }
+
+    void addGroupingSets(Expression[] groupingExpressions) {
+        groupSet = new GroupSet(groupingExpressions, isDistinctGroups);
+    }
+
+    /**
+     * fully resolve all group by columns
+     * add each group by expression to exprColumnList
+     */
+    void resolveColumnReferencesInGroupingSets(Session session) {
+
+        if (groupSet == null) {
+            return;
+        }
+
+        Expression[] groupExpressions = groupSet.groupExpressions;
+
+        for (int i = 0; i < groupExpressions.length; i++) {
+            Expression e = groupExpressions[i];
+
+            tempSet.clear();
+            e.resolveColumnReferences(session, this, RangeGroup.emptyArray,
+                                      tempSet);
+
+            if (!tempSet.isEmpty()) {
+
+                // when a column reference does not resolve to range variables,
+                // resolve to aliases in select list
+                // this is non-standard and probably should be allowed only
+                // for basic group by lists
+                Expression[] exprArray = new Expression[exprColumnList.size()];
+
+                exprColumnList.toArray(exprArray);
+
+                Expression resolved = e.replaceAliasInOrderBy(session,
+                    exprArray, indexLimitVisible);
+
+                if (resolved != e) {
+                    groupExpressions[i] = resolved;
+                }
+
+                tempSet.clear();
+                resolved.resolveColumnReferences(session, this,
+                                                 RangeGroup.emptyArray,
+                                                 tempSet);
+                ExpressionColumn.checkColumnsResolved(tempSet);
+            }
+        }
+
+        tempSet.clear();
+        addGroupingExpressions(groupExpressions, tempSet);
+
+        Iterator it = tempSet.iterator();
+
+        while (it.hasNext()) {
+            Expression e = (Expression) it.next();
+
+            if (e.getType() == OpTypes.ROW) {
+                throw Error.error(ErrorCode.X_42564);
+            }
+
+            e.resultTableColumnIndex = indexLimitVisible + groupByColumnCount;    //
+
+            exprColumnList.add(e.resultTableColumnIndex, e);
+
+            groupByColumnCount++;
+        }
+
+        groupSet.process();
+    }
+
+    /**
+     * collect all expressions in an extended group by expression
+     * set the flags for grouping set and group by
+     */
+    void addGroupingExpressions(Expression[] nodes, OrderedHashSet set) {
+
+        for (int i = 0; i < nodes.length; i++) {
+            Expression e = nodes[i];
+
+            if (e.groupingType != OpTypes.NONE) {
+                isGroupingSets = true;
+            }
+
+            if (e.opType == OpTypes.ROW || e.opType == OpTypes.VALUELIST) {
+                for (int j = 0; j < e.nodes.length; j++) {
+                    addGroupingExpressions(e.nodes, set);
+                }
+            } else {
+                if (e.opType == OpTypes.NONE) {
+                    continue;
+                }
+
+                nodes[i]  = (Expression) set.getOrAdd(e);
+                isGrouped = true;
+            }
+        }
+    }
+
     void addGroupByColumnExpression(Expression e) {
 
         if (e.getType() == OpTypes.ROW) {
@@ -276,7 +381,6 @@ public class QuerySpecification extends QueryExpression {
 
         exprColumnList.add(e);
 
-        havingCondition   = e;
         havingColumnCount = 1;
     }
 
@@ -294,6 +398,9 @@ public class QuerySpecification extends QueryExpression {
 
         resolveRangeVariables(session, rangeGroups);
         resolveColumnReferencesForAsterisk();
+
+        // must be after asterisk expansion
+        resolveColumnReferencesInGroupingSets(session);
         finaliseColumns();
         resolveColumnReferences(session, rangeGroups);
         setReferenceableColumns();
@@ -377,6 +484,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         resolveGroups();
+        resolveGroupingSets();
 
         for (int i = 0; i < unionColumnTypes.length; i++) {
             Type type = unionColumnTypes[i];
@@ -914,10 +1022,6 @@ public class QuerySpecification extends QueryExpression {
             set = queryCondition.collectRangeVariables(rangeVars, set);
         }
 
-        if (havingCondition != null) {
-            set = havingCondition.collectRangeVariables(rangeVars, set);
-        }
-
         return set;
     }
 
@@ -929,10 +1033,6 @@ public class QuerySpecification extends QueryExpression {
 
         if (queryCondition != null) {
             set = queryCondition.collectRangeVariables(set);
-        }
-
-        if (havingCondition != null) {
-            set = havingCondition.collectRangeVariables(set);
         }
 
         return set;
@@ -982,10 +1082,9 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        if (havingCondition != null) {
-            havingCondition.resolveTypes(session, null);
-
-            if (havingCondition.getDataType() != Type.SQL_BOOLEAN) {
+        if (havingColumnCount != 0) {
+            if (exprColumns[indexStartHaving].getDataType()
+                    != Type.SQL_BOOLEAN) {
                 throw Error.error(ErrorCode.X_42568);
             }
         }
@@ -1288,7 +1387,7 @@ public class QuerySpecification extends QueryExpression {
 
         tempSet.clear();
 
-        if (havingCondition != null) {
+        if (havingColumnCount != 0) {
             if (unresolvedExpressions != null) {
                 tempSet.addAll(unresolvedExpressions);
             }
@@ -1302,9 +1401,8 @@ public class QuerySpecification extends QueryExpression {
                 tempSet.addAll(extraSet);
             }
 
-            if (!havingCondition.isComposedOf(
-                    tempSet, outerRanges,
-                    OpTypes.subqueryAggregateExpressionSet)) {
+            if (!exprColumns[indexStartHaving].isComposedOf(tempSet,
+                    outerRanges, OpTypes.subqueryAggregateExpressionSet)) {
                 throw Error.error(ErrorCode.X_42573);
             }
 
@@ -1348,10 +1446,6 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        if (!isAggregated) {
-            return;
-        }
-
         OrderedHashSet expressions = new OrderedHashSet();
 
         for (int i = indexStartAggregates; i < indexLimitExpressions; i++) {
@@ -1372,6 +1466,10 @@ public class QuerySpecification extends QueryExpression {
             e.resultTableColumnIndex = i;
 
             expressions.add(e);
+        }
+
+        if (!isAggregated) {
+            return;
         }
 
         // order by with aggregate
@@ -1409,6 +1507,40 @@ public class QuerySpecification extends QueryExpression {
 
                 e.replaceExpressions(expressions, resultRangePosition);
             }
+        }
+    }
+
+    /**
+     * replace all expressions in select list and having condition with
+     * pointers to columns for group by and aggregate expressions
+     */
+    public void resolveGroupingSets() {
+
+        if (!isGrouped) {
+            return;
+        }
+
+        tempSet.clear();
+
+        for (int i = indexLimitVisible; i < indexStartHaving; i++) {
+            tempSet.add(exprColumns[i]);
+        }
+
+        for (int i = indexStartAggregates; i < indexLimitExpressions; i++) {
+            tempSet.add(exprColumns[i]);
+        }
+
+        if (isGroupingSets) {
+            for (int i = 0; i < indexLimitVisible; i++) {
+                exprColumns[i] = exprColumns[i].replaceExpressions(tempSet,
+                        resultRangePosition);
+            }
+        }
+
+        for (int i = indexStartHaving;
+                i < indexStartHaving + havingColumnCount; i++) {
+            exprColumns[i] = exprColumns[i].replaceExpressions(tempSet,
+                    resultRangePosition);
         }
     }
 
@@ -1590,13 +1722,21 @@ public class QuerySpecification extends QueryExpression {
 
             session.sessionData.startRowProcessing();
 
-            Object[] data = new Object[indexLimitData];
+            Object[] data  = new Object[indexLimitData];
+            int      start = 0;
 
-            for (int i = 0; i < indexStartAggregates; i++) {
+            if (isGroupingSets) {
+                start = indexLimitVisible;
+            }
+
+            for (int i = start; i < indexStartAggregates; i++) {
                 if (isAggregated && aggregateCheck[i]) {
                     continue;
                 } else {
-                    data[i] = exprColumns[i].getValue(session);
+                    if (havingColumnCount > 0 && i == indexStartHaving) {}
+                    else {
+                        data[i] = exprColumns[i].getValue(session);
+                    }
                 }
             }
 
@@ -1649,7 +1789,7 @@ public class QuerySpecification extends QueryExpression {
             int rowCount = navigator.getSize();
 
             if (rowCount == session.resultMaxMemoryRows && !isAggregated
-                    && !isSingleMemoryTable) {
+                    && !isSingleMemoryTable && !isGroupingSets) {
                 navigator = new RowSetNavigatorDataTable(session, this,
                         navigator);
 
@@ -1673,9 +1813,108 @@ public class QuerySpecification extends QueryExpression {
             rangeIterators[i].reset();
         }
 
-        if (!resultGrouped && !isAggregated) {
+        if (!isGroupingSets && !isAggregated && havingColumnCount == 0) {
             return result;
         }
+
+        session.sessionContext.setRangeIterator(navigator);
+
+        if (isGroupingSets) {
+            session.sessionContext.setGroupSet(groupSet);
+
+            Iterator   gsIt           = groupSet.getIterator();
+            Object[][] baseResult     = navigator.getDataTable();
+            int        baseResultSize = navigator.getSize();
+
+            navigator.clear();
+
+            if (groupSet.nullSets != 0) {
+                Object[] data = new Object[indexLimitData];
+
+                for (int i = 0; i < indexStartAggregates; i++) {
+                    data[i] = exprColumns[i].getValue(session);
+                }
+
+                navigator.add(data);
+                navigator.next();
+
+                if (isAggregated) {
+                    for (int i = 0; i < baseResultSize; i++) {
+                        Object[] row = baseResult[i];
+
+                        for (int j = indexStartAggregates;
+                                j < indexLimitExpressions; j++) {
+                            data[j] =
+                                exprColumns[j].updateAggregatingValue(session,
+                                    (SetFunction) data[j],
+                                    (SetFunction) row[j]);
+                        }
+                    }
+
+                    for (int i = indexStartAggregates;
+                            i < indexLimitExpressions; i++) {
+                        data[i] = exprColumns[i].getAggregatedValue(session,
+                                (SetFunction) data[i]);
+                    }
+
+                    for (int i = 0; i < indexStartAggregates; i++) {
+                        if (aggregateCheck[i]) {
+                            data[i] = exprColumns[i].getValue(session);
+                        }
+                    }
+                }
+
+                for (int i = 1; i < groupSet.nullSets; i++) {
+                    navigator.add(data);
+                    navigator.next();
+                }
+            }
+
+            while (gsIt.hasNext()) {
+                navigator.resetRowMap();
+
+                HsqlList set = (HsqlList) gsIt.next();
+
+                session.sessionContext.setGroup(set);
+
+                for (int i = 0; i < baseResultSize; i++) {
+                    Object[] row  = baseResult[i];
+                    Object[] data = new Object[indexLimitData];
+
+                    for (int j = indexLimitVisible; j < indexStartHaving;
+                            j++) {
+                        if (set.contains(j)) {
+                            data[j] = row[j];
+                        }
+                    }
+
+                    Object[] groupData =
+                        navigator.getGroupDataAndPosition(data);
+
+                    if (groupData == null) {
+                        navigator.add(data);    // must populate before positioning
+                        navigator.absolute(navigator.getSize() - 1);
+                    } else {
+                        data = groupData;
+                    }
+
+                    for (int j = indexStartAggregates;
+                            j < indexLimitExpressions; j++) {
+                        data[j] =
+                            exprColumns[j].updateAggregatingValue(session,
+                                (SetFunction) data[j], (SetFunction) row[j]);
+                    }
+
+                    for (int j = 0; j < indexLimitVisible; j++) {
+                        data[j] = exprColumns[j].getValue(session);
+                    }
+
+                    navigator.update(groupData, data);
+                }
+            }
+        }
+
+        navigator.reset();
 
         if (isAggregated) {
             if (!resultGrouped && navigator.getSize() == 0) {
@@ -1690,8 +1929,11 @@ public class QuerySpecification extends QueryExpression {
                 navigator.add(data);
             }
 
-            navigator.reset();
-            session.sessionContext.setRangeIterator(navigator);
+            if (isGroupingSets) {
+                for (int i = 0; i < groupSet.nullSets; i++) {
+                    navigator.next();
+                }
+            }
 
             while (navigator.next()) {
                 Object[] data = navigator.getCurrent();
@@ -1708,24 +1950,25 @@ public class QuerySpecification extends QueryExpression {
                     }
                 }
             }
-
-            session.sessionContext.unsetRangeIterator(navigator);
         }
 
         navigator.reset();
 
-        if (havingCondition != null) {
+        if (havingColumnCount != 0) {
             while (navigator.next()) {
                 Object[] data = navigator.getCurrent();
+                boolean test =
+                    exprColumns[indexStartHaving].testCondition(session);
 
-                if (!Boolean.TRUE.equals(
-                        data[indexLimitVisible + groupByColumnCount])) {
+                if (!test) {
                     navigator.removeCurrent();
                 }
             }
 
             navigator.reset();
         }
+
+        session.sessionContext.unsetRangeIterator(navigator);
 
         return result;
     }
@@ -1984,9 +2227,9 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        if (havingCondition != null) {
+        if (havingColumnCount != 0) {
             sb.append(' ').append(Tokens.T_HAVING).append(' ');
-            sb.append(havingCondition.getSQL());
+            sb.append(exprColumns[indexStartHaving].getSQL());
         }
 
         if (sortAndSlice.hasOrder()) {
@@ -2088,8 +2331,8 @@ public class QuerySpecification extends QueryExpression {
             sb.append(b).append("]\n");
         }
 
-        if (havingCondition != null) {
-            temp = havingCondition.describe(session, blanks);
+        if (havingColumnCount != 0) {
+            temp = exprColumns[indexStartHaving].describe(session, blanks);
 
             sb.append(b).append("havingCondition=[").append(temp).append(
                 "]\n");
@@ -2398,10 +2641,6 @@ public class QuerySpecification extends QueryExpression {
             set = queryCondition.collectAllSubqueries(set);
         }
 
-        if (havingCondition != null) {
-            set = havingCondition.collectAllSubqueries(set);
-        }
-
         for (int i = 0; i < rangeVariables.length; i++) {
             OrderedHashSet temp = rangeVariables[i].getSubqueries();
 
@@ -2457,11 +2696,6 @@ public class QuerySpecification extends QueryExpression {
                     stopAtTypeSet);
         }
 
-        if (havingCondition != null) {
-            set = havingCondition.collectAllExpressions(set, typeSet,
-                    stopAtTypeSet);
-        }
-
         for (int i = 0; i < rangeVariables.length; i++) {
             rangeVariables[i].collectAllExpressions(set, typeSet,
                     stopAtTypeSet);
@@ -2478,10 +2712,6 @@ public class QuerySpecification extends QueryExpression {
 
         if (queryCondition != null) {
             queryCondition.collectObjectNames(set);
-        }
-
-        if (havingCondition != null) {
-            havingCondition.collectObjectNames(set);
         }
 
         for (int i = 0, len = rangeVariables.length; i < len; i++) {
@@ -2504,11 +2734,6 @@ public class QuerySpecification extends QueryExpression {
                     range, list);
         }
 
-        if (havingCondition != null) {
-            havingCondition = havingCondition.replaceColumnReferences(session,
-                    range, list);
-        }
-
         for (int i = 0, len = rangeVariables.length; i < len; i++) {
             rangeVariables[i].replaceColumnReferences(session, range, list);
         }
@@ -2523,10 +2748,6 @@ public class QuerySpecification extends QueryExpression {
 
         if (queryCondition != null) {
             queryCondition.replaceRangeVariables(ranges, newRanges);
-        }
-
-        if (havingCondition != null) {
-            havingCondition.replaceRangeVariables(ranges, newRanges);
         }
 
         for (int i = 0, len = rangeVariables.length; i < len; i++) {
@@ -2544,11 +2765,6 @@ public class QuerySpecification extends QueryExpression {
 
         if (queryCondition != null) {
             queryCondition = queryCondition.replaceExpressions(expressions,
-                    resultRangePosition);
-        }
-
-        if (havingCondition != null) {
-            havingCondition = havingCondition.replaceExpressions(expressions,
                     resultRangePosition);
         }
 
