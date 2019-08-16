@@ -1110,9 +1110,10 @@
       paren&gt; &lt;column reference&gt; [ { &lt;comma&gt; &lt;column
       reference&gt; }... ] &lt;right paren&gt;</literal></simpara>
 
-      <simpara>Specify a value derived by the application of a function to an
-      argument. HyperSQL does not yet support <literal>&lt;grouping
-      operation&gt;</literal> .</simpara>
+      <simpara>Specify an integer value formed by bits denoting the presence
+      of the column in the current row of the result of GROUPING SETS.
+      HyperSQL supports <literal>&lt;grouping operation&gt;</literal> from
+      version 2.5.1.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>COALESCE expression</primary>
@@ -3300,23 +3301,64 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
 
       <simpara><emphasis role="bold">GROUP BY</emphasis></simpara>
 
-      <simpara><literal>&lt;group by clause&gt; ::= GROUP BY &lt;grouping
-      element&gt; [ { &lt;comma&gt; &lt;grouping element&gt; }...
-      ]</literal></simpara>
+      <simpara><literal>&lt;group by clause&gt; ::= GROUP BY [ &lt;set
+      quantifier&gt; ] &lt;grouping element&gt; [ { &lt;comma&gt; &lt;grouping
+      element&gt; }... ]</literal></simpara>
 
-      <simpara><literal>&lt;grouping element&gt; ::= &lt;column reference&gt;
-      [ &lt;collate clause&gt; ] </literal></simpara>
+      <simpara><literal>&lt;grouping element&gt; ::= &lt;ordinary grouping
+      set&gt; | &lt;rollup list&gt; | &lt;cube list&gt; | &lt;grouping sets
+      specification&gt; | &lt;empty grouping set&gt;</literal></simpara>
 
-      <para>The <literal>&lt;group by clause&gt;</literal> is a comma
-      separated list of columns of the table in the <literal>&lt;from
-      clause&gt;</literal> or expressions based on the columns.</para>
+      <simpara><literal>&lt;ordinary grouping set&gt; ::= &lt;grouping column
+      reference&gt; | &lt;left paren&gt; &lt;grouping column reference
+      list&gt; &lt;right paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;grouping column reference list&gt; ::=
+      &lt;grouping column reference&gt; [ { &lt;comma&gt; &lt;grouping column
+      reference&gt; }... ]</literal></simpara>
+
+      <simpara><literal>&lt;grouping column reference&gt; ::= &lt;column
+      reference&gt; [ &lt;collate clause&gt; ] </literal></simpara>
+
+      <simpara><literal>&lt;rollup list&gt; ::= ROLLUP &lt;left paren&gt;
+      &lt;ordinary grouping set list&gt; &lt;right
+      paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;ordinary grouping set list&gt; ::= &lt;ordinary
+      grouping set&gt; [ { &lt;comma&gt; &lt;ordinary grouping set&gt; }... ]
+      </literal></simpara>
+
+      <simpara><literal>&lt;cube list&gt; ::= CUBE &lt;left paren&gt;
+      &lt;ordinary grouping set list&gt; &lt;right paren&gt;
+      </literal></simpara>
+
+      <simpara><literal>&lt;grouping sets specification&gt; ::= GROUPING SETS
+      &lt;left paren&gt; &lt;grouping set list&gt; &lt;right paren&gt;
+      </literal></simpara>
+
+      <simpara><literal>&lt;grouping set list&gt; ::= &lt;grouping set&gt; [ {
+      &lt;comma&gt; &lt;grouping set&gt; }... ] </literal></simpara>
+
+      <simpara><literal>&lt;grouping set&gt; ::= &lt;ordinary grouping set&gt;
+      | &lt;rollup list&gt; | &lt;cube list&gt; | &lt;grouping sets
+      specification&gt; | &lt;empty grouping set&gt; </literal></simpara>
+
+      <simpara><literal>&lt;empty grouping set&gt; ::= &lt;left paren&gt;
+      &lt;right paren&gt;</literal></simpara>
+
+      <para>An ordinary <literal>&lt;group by clause&gt;</literal> is a comma
+      separated list of columns of the table formed by the <literal>&lt;from
+      clause&gt;</literal> or expressions based on the columns. This is the
+      most common usage and can be described as <literal>GROUP BY &lt;column
+      reference&gt; [ { &lt;comma&gt; &lt;grouping column reference&gt; }...
+      ]</literal>.</para>
 
       <para>When a <literal>&lt;group by clause&gt;</literal> is used, only
       the columns used in the <literal>&lt;group by clause&gt;</literal> or
       expressions used there, can be used in the <literal>&lt;select
       list&gt;</literal>, together with any <literal>&lt;aggregate
       function&gt;</literal> on other columns. In other words, the column
-      names or expressions listed in the GROUP BY cluase dictate what can be
+      names or expressions listed in the GROUP BY clause dictate what can be
       used in the <literal>&lt;select list&gt;</literal>. After the rows of
       the table formed by the <literal>&lt;from clause&gt;</literal> and the
       <literal>&lt;where clause&gt;</literal> are finalised, the grouping
@@ -3342,6 +3384,67 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
  SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &gt; 2 AND d + e &gt; 4
 </programlisting>
         </informalexample></para>
+
+      <para>An extended <literal>&lt;group by clause&gt;</literal> may
+      comprise elements such as GROUPING SETS, ROLLUP, CUBE and the empty
+      grouping set. These syntax elements are expanded and then simplified
+      into a list of parenthesized column elements, which result in multiple
+      grouping operations. HyperSQL version 2.5.1 supports all the syntax
+      listed above. The example below uses ROLLUP for grouping.</para>
+
+      <informalexample>
+        <programlisting> SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) AS S
+ FROM REVENUE 
+ GROUP BY ROLLUP(CHANNEL, YEAR, COUNTRY);
+</programlisting>
+      </informalexample>
+
+      <para>The ROLLUP is translated into 4 groupings: (channel, year,
+      country), (channel, year), (channel), (). The result set will contain
+      the rows as grouped by (channel, year, country), then rows as grouped by
+      (channel, year) with the country column replaced by null, then rows as
+      grouped by (channel) only, with year and country columns replaced by
+      null, then a single row representing the () empty group with all three
+      columns replaced by null.</para>
+
+      <informalexample>
+        <programlisting>CHANNEL      YEAR   COUNTRY S       
+------------ ------ ------- ------- 
+INTERNET     2009   GB      25000   
+INTERNET     2009   US      275000  
+INTERNET     2010   GB      45000   
+INTERNET     2010   US      500000  
+DIRECT SALES 2009   GB      162000  
+DIRECT SALES 2009   US      1602500 
+DIRECT SALES 2010   GB      181000  
+DIRECT SALES 2010   US      1833000 
+INTERNET     2009   (null)  300000  
+INTERNET     2010   (null)  545000  
+DIRECT SALES 2009   (null)  1764500 
+DIRECT SALES 2010   (null)  2014000 
+INTERNET     (null) (null)  845000  
+DIRECT SALES (null) (null)  3778500 
+(null)       (null) (null)  4623500 
+</programlisting>
+      </informalexample>
+
+      <para>If CUBE is used instead of ROLLUP, other permutations of the three
+      columns are added to those produced by ROLLUP. These include (channel,
+      country), (year, country), (year) and (country).</para>
+
+      <para>The optional &lt;set quantifier&gt; is either ALL or DISTINCT and
+      defaults to ALL. When GROUPING SETS is used and multiple sets are
+      specified and some duplicate groups are created as a result, use of
+      DISTINCT eliminates the duplicate groups.</para>
+
+      <para>Note any ordering of the rows returned by GROUP BY in incidental.
+      You need to use ORDER BY for the ordering your require.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>HAVING</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">HAVING</emphasis></simpara>
 
       <para>A <literal>&lt;having clause&gt;</literal> filters the rows of the
       table that is formed after applying the <literal>&lt;group by

@@ -197,14 +197,14 @@
     <section xml:id="coc_compatibility_mysql">
       <title>MySQL Compatibility</title>
 
-      <para>HyperSQL version 2.5.0 is highly compatible with MySQL and
-      supports most its the non-standard syntax. The latest versions of MySQL
-      have introduced better Standard compatibility but some of these features
-      have to be turned on via properties. You should therefore check the
-      current Standard compatibility settings of your MySQL database and use
-      the available HyperSQL properties to achieve closer results. If you
-      avoid the few anti-Standard features of MySQL, you can port your
-      databases to HyperSQL.</para>
+      <para>HyperSQL version 2.5 is highly compatible with MySQL and supports
+      most its the non-standard syntax. The latest versions of MySQL have
+      introduced better Standard compatibility but some of these features have
+      to be turned on via properties. You should therefore check the current
+      Standard compatibility settings of your MySQL database and use the
+      available HyperSQL properties to achieve closer results. If you avoid
+      the few anti-Standard features of MySQL, you can port your databases to
+      HyperSQL.</para>
 
       <para>Using HyperSQL during development and testing of MySQL apps helps
       to avoid data integrity issues that MySQL may ignore.</para>
@@ -616,7 +616,7 @@
         </listitem>
 
         <listitem>
-          <para>HyperSQL 2.5.0 supports several datetime functions in MSS
+          <para>HyperSQL 2.5 supports several datetime functions in MSS
           compatibility mode. These include DATEPART, DATENAME, EOMONTH and
           compatible DATEADD and DATEDIFF behaviour.</para>
         </listitem>

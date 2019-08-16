@@ -139,19 +139,6 @@
       with Eclipse because it's serviceable and a very similar procedure is
       likely to work with all other IDEs.</simpara>
 
-      <simpara>If you do use and enjoy Gradle, then I urge you to make the
-      product better by registering a free account for yourself at <link
-      xlink:href="http://issues.gradle.org/">the Gradle Jira site</link> and
-      vote for critical usability issues like <link
-      xlink:href="http://issues.gradle.org/browse/GRADLE-427">GRADLE-427</link>,
-      <link
-      xlink:href="http://issues.gradle.org/browse/GRADLE-1855">GRADLE-1855</link>,
-      <link
-      xlink:href="http://issues.gradle.org/browse/GRADLE-1870">GRADLE-1870</link>,
-      <link
-      xlink:href="http://issues.gradle.org/browse/GRADLE-1871">GRADLE-1871</link>,
-      to help to improve the product.</simpara>
-
       <procedure>
         <title>Invoking Gradle GUI from Windows Explorer</title>
 
@@ -607,8 +594,8 @@
 
       <para>Unlike previous versions, HyperSQL version 2.5.x cannot be
       compiled or used with JDK 5 or earlier. The jars can be compiled with
-      JKD 6 or later. Build has been tested under JDK versions 6, 8, 10 and
-      11. The same Ant version can be used with all the tested JDK's.</para>
+      JDK 6 or later. Build has been tested under JDK versions 6, 8, 9, 10, 11,
+      etc. The same Ant version can be used with all the tested JDK's.</para>
     </section>
   </section>
 

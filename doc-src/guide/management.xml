@@ -438,10 +438,10 @@
       <primary>system-versioned tables usage</primary>
     </indexterm>
 
-    <para>HyperSQL 2.5.0 allows you to store data in temporal system-versioned
-    tables. The additional syntax elements for CREATE TABLE and ALTER TABLE
-    allow creating sytem-versioned tables and adding system versioning to
-    existing tables. These are covered in the <link
+    <para>HyperSQL 2.5 and later allows you to store data in temporal
+    system-versioned tables. The additional syntax elements for CREATE TABLE
+    and ALTER TABLE allow creating sytem-versioned tables and adding system
+    versioning to existing tables. These are covered in the <link
     endterm="databaseobjects-title" xlink:href="#databaseobjects-chapt"/>
     chapter. Only CACHED or MEMORY tables can be system-versioned.</para>
 
@@ -678,7 +678,7 @@
 
     <para>The parameters, including the name of the cipher and the key, are
     all specified in the database connection URL No key or other parameter is
-    stored in the database files. </para>
+    stored in the database files.</para>
 
     <section xml:id="mtc_encrypted_create">
       <title>Creating and Accessing an Encrypted Database</title>
@@ -718,13 +718,13 @@
       <para>The files that are encrypted include the
       <literal>.script</literal>, <literal>.data</literal>,
       <literal>.backup</literal> and <literal>.log</literal> files. In version
-      2.5.0 and later, the <literal>.lobs</literal> file is encrypted by
-      default and the blobs and clobs are both compressed and encrypted. You
-      can override this with the property <literal>crypt_lobs=false</literal>
-      on the URL. Note in some earlier versions of HSQLDB, encrypted lobs were
+      2.5 and later, the <literal>.lobs</literal> file is encrypted by default
+      and the blobs and clobs are both compressed and encrypted. You can
+      override this with the property <literal>crypt_lobs=false</literal> on
+      the URL. Note in some earlier versions of HSQLDB, encrypted lobs were
       not supported and in some versions, the default for this property was
       false. You will need to set the property to false to open those
-      databases. </para>
+      databases.</para>
 
       <para>Although the details of external tools are outside the scope of
       this document, openssl may be used to generate sufficiently random keys
@@ -740,7 +740,7 @@
 
       <para>General operations on an encrypted database are performed the same
       as with any database. However, some operations are significantly slower
-      than with the equivalent cleartext database. With MEMORY tables, there
+      than with the equivalent clear text database. With MEMORY tables, there
       is no difference to the speed of SELECT statements, but data change
       statements are slower. With CACHED tables, the speed of all statements
       is slower.</para>
@@ -771,8 +771,8 @@
 
           <listitem>
             <para>HyperSQL is open source. Someone who has the key, can
-            compile and use a modified version of the program that saves a
-            full cleartext dump of an encrypted database</para>
+            compile and use a modified version of the program that saves a full
+            clear text dump of an encrypted database</para>
           </listitem>
         </itemizedlist>Therefore encryption is generally effective only when
       the users who have access to the crypt key are trusted.</para>
@@ -1541,7 +1541,7 @@
 
       <simpara>In previous versions an optional property which forced calls to
       <literal>System.gc() </literal>after the specified number of row
-      operations. This has no effect in version 2.5.x.</simpara>
+      operations. This has no effect in version 2.5.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
