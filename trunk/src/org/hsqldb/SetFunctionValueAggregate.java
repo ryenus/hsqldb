@@ -39,6 +39,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.HashSet;
+import org.hsqldb.lib.Iterator;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.IntervalMonthData;
@@ -314,6 +315,105 @@ public class SetFunctionValueAggregate implements SetFunction {
         }
     }
 
+    public void addGroup(SetFunction group) {
+
+        SetFunctionValueAggregate item = (SetFunctionValueAggregate) group;
+
+        if (isDistinct) {
+            HashSet  otherSet = item.distinctValues;
+            Iterator it       = otherSet.iterator();
+
+            while (it.hasNext()) {
+                Object value = it.next();
+
+                add(value);
+            }
+
+            return;
+        }
+
+        switch (setType) {
+
+            case OpTypes.COUNT :
+                count += item.count;
+
+                return;
+
+            case OpTypes.STDDEV_POP :
+            case OpTypes.STDDEV_SAMP :
+            case OpTypes.VAR_POP :
+            case OpTypes.VAR_SAMP :
+                count += item.count;
+
+                addDataGroup(item);
+
+                return;
+
+            case OpTypes.AVG :
+            case OpTypes.SUM :
+                count += item.count;
+
+                switch (typeCode) {
+
+                    case Types.TINYINT :
+                    case Types.SQL_SMALLINT :
+                    case Types.SQL_INTEGER :
+                        loLong += item.loLong;
+
+                        return;
+
+                    case Types.SQL_INTERVAL_SECOND :
+                    case Types.SQL_INTERVAL_MONTH :
+                    case Types.SQL_DATE :
+                    case Types.SQL_TIMESTAMP :
+                    case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
+                        addLongGroup(item);
+
+                        fraction += item.fraction;
+
+                        if (fraction > 1000000000) {
+                            addLong(fraction / 1000000000);
+
+                            fraction %= 1000000000;
+                        }
+
+                        currentDouble = item.currentDouble;
+
+                        return;
+                    }
+                    case Types.SQL_BIGINT :
+                        addLongGroup(item);
+
+                        return;
+
+                    case Types.SQL_REAL :
+                    case Types.SQL_FLOAT :
+                    case Types.SQL_DOUBLE :
+                        currentDouble += item.currentDouble;
+
+                        return;
+
+                    case Types.SQL_NUMERIC :
+                    case Types.SQL_DECIMAL :
+                        if (currentBigDecimal == null) {
+                            currentBigDecimal = item.currentBigDecimal;
+                        } else {
+                            currentBigDecimal =
+                                currentBigDecimal.add(item.currentBigDecimal);
+                        }
+
+                        return;
+
+                    default :
+                        throw Error.error(ErrorCode.X_42563);
+                }
+            default :
+                add(group.getValue());
+
+                return;
+        }
+    }
+
     public Object getValue() {
 
         if (hasNull) {
@@ -556,6 +656,13 @@ public class SetFunctionValueAggregate implements SetFunction {
         }
     }
 
+    private void addLongGroup(SetFunctionValueAggregate item) {
+
+        addLong(item.loLong);
+
+        hiLong += item.hiLong;
+    }
+
     private BigInteger getLongSum() {
 
         BigInteger biglo  = BigInteger.valueOf(loLong);
@@ -606,6 +713,30 @@ public class SetFunctionValueAggregate implements SetFunction {
         xsi = (sk - (xi * nm1));
         vk  += ((xsi * xsi) / n) / nm1;
         sk  += xi;
+    }
+
+    private void addDataGroup(SetFunctionValueAggregate value) {
+
+        double cm;
+
+        if (value == null || value.count == 0) {
+            return;
+        }
+
+        if (!initialized) {
+            n           = value.n;
+            sk          = value.sk;
+            vk          = value.vk;
+            initialized = true;
+
+            return;
+        }
+
+        cm = (sk + value.sk) / (n + value.n);
+        vk = vk + value.vk + n * (sk / n - cm) * (sk / n - cm)
+             + value.n * (value.sk / value.n - cm) * (value.sk / value.n - cm);
+        sk += value.sk;
+        n  += value.n;
     }
 
     private Double getVariance() {

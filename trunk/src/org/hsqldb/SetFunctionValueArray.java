@@ -36,7 +36,7 @@ import org.hsqldb.lib.HsqlArrayList;
 /**
  * Value for array aggregate functions.
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 2.4.1
  *
  */
@@ -48,6 +48,11 @@ public class SetFunctionValueArray implements SetFunction {
 
     public void add(Object item) {
         list.add(item);
+    }
+
+    public void addGroup(SetFunction item){
+        HsqlArrayList otherList = ((SetFunctionValueArray) item).list;
+        list.addAll(otherList);
     }
 
     public Object getValue() {

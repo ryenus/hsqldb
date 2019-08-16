@@ -38,6 +38,7 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RangeIterator;
@@ -85,6 +86,10 @@ public class SessionContext {
 
     // range variable data
     RangeIterator[] rangeIterators;
+
+    // grouping sets data
+    GroupSet groupSet;
+    HsqlList currentGroup;
 
     // session tables
     HashMappedList sessionTables;
@@ -321,6 +326,14 @@ public class SessionContext {
         int position = iterator.getRangePosition();
 
         rangeIterators[position] = null;
+    }
+
+    public void setGroupSet(GroupSet set) {
+        groupSet = set;
+    }
+
+    public void setGroup(HsqlList group) {
+        currentGroup = group;
     }
 
     /**

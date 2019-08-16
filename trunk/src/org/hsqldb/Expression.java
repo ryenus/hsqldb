@@ -61,7 +61,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class Expression implements Cloneable {
@@ -110,6 +110,7 @@ public class Expression implements Cloneable {
 
     // data type
     protected Type dataType;
+    protected int  groupingType;
 
     //
     int queryTableColumnIndex = -1;    // >= 0 when it is used for order by
@@ -2061,6 +2062,11 @@ public class Expression implements Cloneable {
 
     public SetFunction updateAggregatingValue(Session session,
             SetFunction currValue) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+    }
+
+    public SetFunction updateAggregatingValue(Session session,
+            SetFunction currValue, SetFunction value) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
 

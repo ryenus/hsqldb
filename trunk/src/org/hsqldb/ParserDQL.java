@@ -1614,10 +1614,18 @@ public class ParserDQL extends ParserBase {
             read();
             readThis(Tokens.BY);
 
-            while (true) {
-                Expression e = XreadValueExpression();
+            if (readIfThis(Tokens.DISTINCT)) {
+                select.setDistinctGroups();
+            } else {
+                readIfThis(Tokens.ALL);
+            }
 
-                select.addGroupByColumnExpression(e);
+            HsqlArrayList expressions = new HsqlArrayList();
+
+            while (true) {
+                Expression e = XreadGroupByExpressionPrimary();
+
+                expressions.add(e);
 
                 if (token.tokenType == Tokens.COMMA) {
                     read();
@@ -1627,6 +1635,11 @@ public class ParserDQL extends ParserBase {
 
                 break;
             }
+
+            Expression[] exprArray = new Expression[expressions.size()];
+
+            expressions.toArray(exprArray);
+            select.addGroupingSets(exprArray);
         }
 
         // having
@@ -2990,6 +3003,16 @@ public class ParserDQL extends ParserBase {
 
                 return new Expression(OpTypes.TABLE_SUBQUERY, td);
             }
+            case Tokens.GROUPING : {
+                read();
+                readThis(Tokens.OPENBRACKET);
+
+                Expression groupingElements = XreadRowElementList(true);
+
+                readThis(Tokens.CLOSEBRACKET);
+
+                return new ExpressionColumn(groupingElements);
+            }
             default :
                 if (isCoreReservedKey()) {
                     throw unexpectedToken();
@@ -3179,6 +3202,114 @@ public class ParserDQL extends ParserBase {
         compileContext.contextuallyTypedExpression = false;
 
         return e;
+    }
+
+    Expression XreadGroupByExpressionPrimary() {
+
+        if (token.tokenType == Tokens.GROUPING) {
+            read();
+
+            // simple syntax error if SETS is missing
+            readThis(Tokens.SETS);
+            readThis(Tokens.OPENBRACKET);
+
+            HsqlArrayList list = new HsqlArrayList();
+
+            while (true) {
+                Expression e = XreadGroupByExpressionPrimary();
+
+                list.add(e);
+
+                if (token.tokenType == Tokens.COMMA) {
+                    read();
+
+                    continue;
+                }
+
+                break;
+            }
+
+            readThis(Tokens.CLOSEBRACKET);
+
+            Expression[] array = new Expression[list.size()];
+
+            list.toArray(array);
+
+            Expression e = new Expression(OpTypes.VALUELIST, array);
+
+            e.groupingType = Tokens.SETS;
+
+            return e;
+        }
+
+        Expression e = XreadGroupByExpression();
+
+        return e;
+    }
+
+    Expression XreadGroupByExpression() {
+
+        int        groupingType = 0;
+        Expression e;
+
+        switch (token.tokenType) {
+
+            case Tokens.CUBE :
+            case Tokens.ROLLUP :
+                groupingType = token.tokenType;
+
+                read();
+                readThis(Tokens.OPENBRACKET);
+
+                e = XreadRowElementList(true);
+
+                readThis(Tokens.CLOSEBRACKET);
+                checkIfGroupingOrAggregate(e);
+
+                e.groupingType = groupingType;
+
+                return e;
+
+            case Tokens.OPENBRACKET :
+                int position = getPosition();
+
+                read();
+
+                // handle empty set here
+                if (token.tokenType == Tokens.CLOSEBRACKET) {
+                    read();
+
+                    return new ExpressionColumn(OpTypes.NONE);
+                }
+
+                rewind(position);
+
+                e = XreadValueExpression();
+
+                checkIfGroupingOrAggregate(e);
+
+                return e;
+
+            default :
+                e = XreadValueExpression();
+
+                checkIfGroupingOrAggregate(e);
+
+                return e;
+        }
+    }
+
+    private void checkIfGroupingOrAggregate(Expression e) {
+
+        if (OpTypes.subqueryAggregateExpressionSet.contains(e.opType)) {
+            throw Error.error(
+                ErrorCode.X_42572,
+                "aggregate functions / subqueries are not allowed in GROUP BY");
+        }
+
+        for (int i = 0; i < e.nodes.length; i++) {
+            checkIfGroupingOrAggregate(e.nodes[i]);
+        }
     }
 
     /**
