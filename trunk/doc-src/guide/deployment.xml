@@ -245,9 +245,9 @@
       <title>Using Table Spaces</title>
 
       <para>Data for all CACHED tables is stored in the
-      <literal>.data</literal> file. With a new optional setting, HyperSQL 2.5.0
-      allocates separate blocks of the data file to different CACHED tables.
-      This method has the following advantages:</para>
+      <literal>.data</literal> file. With new optional setting, HyperSQL 2.5
+      and later allocates separate blocks of the data file to different CACHED
+      tables. This method has the following advantages:</para>
 
       <itemizedlist>
         <listitem>
@@ -778,7 +778,7 @@
       edited freely by the user and any edits must respect the acceptable
       format.</para>
 
-      <para>In HyperSQL, the full range of ALTER TABLE commands is available to
+      <para>In HyperSQL the full range of ALTER TABLE commands is available to
       change the data structures and their names. However, if an old database
       cannot be opened due to data inconsistencies, or it uses index or column
       names that are not compatible with 2.0, manual editing of the

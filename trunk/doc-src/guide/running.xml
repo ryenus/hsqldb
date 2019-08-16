@@ -53,14 +53,14 @@
     <title>Introduction</title>
 
     <para>HyperSQL Database (HSQLDB ) is a modern relational database system.
-    Version 2.5.0 is the latest release of the all-new version 2 code. Written
+    Version 2.5.1 is the latest release of the all-new version 2 code. Written
     from ground up to follow the international ISO SQL:2016 standard, it
     supports the complete set of the classic features, together with optional
     features such as stored procedures and triggers.</para>
 
-    <para>HyperSQL version 2.5.0 is compatible with Java 8 or later. Versions
-    of the HSQLDB jar that are compiled with JDK 6 are also available. Those
-    versions are numbered 2.3.7 to distinguish the capability
+    <para>HyperSQL version 2.5 is compatible with Java 8 or later. Versions of
+    the HSQLDB jar that are compiled with JDK 6 are also available. Those
+    versions are numbered 2.3.8 to distinguish the capability
     differences.</para>
 
     <para>HyperSQL is used for development, testing and deployment of database
@@ -124,10 +124,10 @@
     </itemizedlist>
 
     <para>The HyperSQL RDBMS and JDBC Driver provide the core functionality.
-    DatabaseManagers are general-purpose database access tools that can be
+    DatabaseManagers are general purpose database access tools that can be
     used with any database engine that has a JDBC driver.</para>
 
-    <para>An additional jar, sqltool.jar, contains Sql Tool, command line
+    <para>An additional jar, sqltool.jar, contains Sql Tool, a command line
     database access tool. This is a general purpose command line database
     access tool that can be used with other database engines as well.</para>
   </section>
