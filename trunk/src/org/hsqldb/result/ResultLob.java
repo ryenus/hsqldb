@@ -31,7 +31,7 @@
 
 package org.hsqldb.result;
 
-import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -47,7 +47,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Sub-class of Result for communicating Blob and Clob operations.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.5.1
  * @since 1.9.0
  */
 public final class ResultLob extends Result {
@@ -351,7 +351,7 @@ public final class ResultLob extends Result {
         return result;
     }
 
-    public static ResultLob newLob(DataInput dataInput,
+    public static ResultLob newLob(DataInputStream dataInput,
                                    boolean readTerminate) throws IOException {
 
         ResultLob result = new ResultLob();
@@ -367,6 +367,7 @@ public final class ResultLob extends Result {
             case LobResultTypes.REQUEST_CREATE_CHARS :
                 result.blockOffset = dataInput.readLong();
                 result.blockLength = dataInput.readLong();
+                result.stream      = dataInput;
                 break;
 
             case LobResultTypes.REQUEST_GET_LOB :
@@ -575,7 +576,6 @@ public final class ResultLob extends Result {
                                          DataOutputStream dataOut)
                                          throws IOException {
 
-        //
         int  bufferLength  = session.getStreamBlockSize();
         long currentOffset = blockOffset;
 
@@ -590,6 +590,8 @@ public final class ResultLob extends Result {
 
         byteArrayOS.reset();
         byteArrayOS.write(stream, bufferLength);
+
+        //
         dataOut.writeLong(currentOffset);
         dataOut.writeLong(byteArrayOS.size());
         dataOut.write(byteArrayOS.getBuffer(), 0, byteArrayOS.size());
@@ -600,7 +602,6 @@ public final class ResultLob extends Result {
             return;
         }
 
-        //
         while (true) {
             byteArrayOS.reset();
             byteArrayOS.write(stream, bufferLength);
@@ -609,7 +610,6 @@ public final class ResultLob extends Result {
                 break;
             }
 
-            //
             dataOut.writeByte(mode);
             dataOut.writeInt(databaseID);
             dataOut.writeLong(sessionID);
@@ -631,7 +631,6 @@ public final class ResultLob extends Result {
                                          DataOutputStream dataOut)
                                          throws IOException {
 
-        //
         int  bufferLength  = session.getStreamBlockSize();
         long currentOffset = blockOffset;
 
@@ -658,7 +657,6 @@ public final class ResultLob extends Result {
             return;
         }
 
-        //
         while (true) {
             byteArrayOS.reset();
             byteArrayOS.write(reader, bufferLength / 2);
@@ -667,7 +665,6 @@ public final class ResultLob extends Result {
                 break;
             }
 
-            //
             dataOut.writeByte(mode);
             dataOut.writeInt(databaseID);
             dataOut.writeLong(sessionID);

@@ -31,7 +31,6 @@
 
 package org.hsqldb;
 
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -50,7 +49,7 @@ import org.hsqldb.types.TimestampData;
  * the session level.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.5.1
  * @since 1.7.2
  */
 public interface SessionInterface {
@@ -132,7 +131,7 @@ public interface SessionInterface {
 
     ClobDataID createClob(long length);
 
-    void allocateResultLob(ResultLob result, InputStream dataInput);
+    Result allocateResultLob(ResultLob result);
 
     Scanner getScanner();
 

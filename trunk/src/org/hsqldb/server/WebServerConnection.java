@@ -352,7 +352,7 @@ class WebServerConnection implements Runnable {
                         Error.error(ErrorCode.SERVER_DATABASE_DISCONNECTED));
                 } else {
                     resultIn.setSession(session);
-                    resultIn.readLobResults(session, dataIn, rowIn);
+                    resultIn.readLobResults(session, dataIn);
 
                     if (type == ResultConstants.SQLCANCEL) {
                         resultOut = session.cancel(resultIn);

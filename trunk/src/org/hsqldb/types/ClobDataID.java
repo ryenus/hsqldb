@@ -33,6 +33,7 @@ package org.hsqldb.types;
 
 import java.io.Reader;
 
+import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -43,7 +44,7 @@ import org.hsqldb.result.ResultLob;
  * Locator for CLOB.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ClobDataID implements ClobData {
@@ -112,7 +113,13 @@ public class ClobDataID implements ClobData {
         Result    resultIn  = session.execute(resultOut);
 
         if (resultIn.isError()) {
-            throw resultIn.getException();
+            HsqlException ex = resultIn.getException();
+
+            if (ex == null) {
+                ex = new HsqlException(resultIn);
+            }
+
+            throw ex;
         }
 
         long lobID = ((ResultLob) resultIn).getLobID();

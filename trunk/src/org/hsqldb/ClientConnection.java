@@ -34,7 +34,6 @@ package org.hsqldb;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -66,7 +65,7 @@ import org.hsqldb.types.TimestampData;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.2
  */
 public class ClientConnection implements SessionInterface, Cloneable {
@@ -583,8 +582,9 @@ public class ClientConnection implements SessionInterface, Cloneable {
     /**
      * Does nothing here
      */
-    public void allocateResultLob(ResultLob resultLob,
-                                  InputStream dataInput) {}
+    public Result allocateResultLob(ResultLob resultLob) {
+        return Result.updateZeroResult;
+    }
 
     public Scanner getScanner() {
 

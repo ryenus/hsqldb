@@ -76,7 +76,7 @@ import org.hsqldb.types.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -647,7 +647,6 @@ public class Session implements SessionInterface {
         rowActionList.clear();
         sessionData.persistentStoreCollection.clearTransactionTables();
         sessionData.closeAllTransactionNavigators();
-        sessionData.clearLobOps();
 
         if (!chain) {
             sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
@@ -684,7 +683,6 @@ public class Session implements SessionInterface {
         rollbackNoCheck(false);
         sessionData.closeAllNavigators();
         sessionData.persistentStoreCollection.clearAllTables();
-        sessionData.clearLobOps();
         statementManager.reset();
 
         sessionContext.lastIdentity = ValuePool.INTEGER_0;
@@ -1938,8 +1936,6 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_0F502);
         }
 
-        sessionData.registerNewLob(lobID);
-
         return new BlobDataID(lobID);
     }
 
@@ -1951,8 +1947,6 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_0F502);
         }
 
-        sessionData.registerNewLob(lobID);
-
         return new ClobDataID(lobID);
     }
 
@@ -1960,8 +1954,8 @@ public class Session implements SessionInterface {
         sessionData.registerLobForResult(result);
     }
 
-    public void allocateResultLob(ResultLob result, InputStream inputStream) {
-        sessionData.allocateLobForResult(result, inputStream);
+    public Result allocateResultLob(ResultLob result) {
+        return sessionData.allocateLobForResult(result);
     }
 
     Result performLOBOperation(ResultLob cmd) {

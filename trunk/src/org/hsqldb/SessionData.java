@@ -42,7 +42,6 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.CharArrayWriter;
-import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.Iterator;
@@ -66,7 +65,7 @@ import org.hsqldb.types.LobData;
  * Session semi-persistent data structures.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class SessionData {
@@ -291,28 +290,6 @@ public class SessionData {
         }
     }
 
-    // lob creation
-    boolean hasLobOps;
-    long    firstNewLobID;
-
-    public void registerNewLob(long lobID) {
-
-        if (firstNewLobID == 0) {
-            firstNewLobID = lobID;
-        }
-
-        hasLobOps = true;
-    }
-
-    public void clearLobOps() {
-        firstNewLobID = 0;
-        hasLobOps     = false;
-    }
-
-    public long getFirstLobID() {
-        return firstNewLobID;
-    }
-
     // lobs in results
     LongKeyLongValueHashMap resultLobs = new LongKeyLongValueHashMap();
 
@@ -328,8 +305,6 @@ public class SessionData {
         }
 
         database.lobManager.adjustUsageCount(session, value.getId(), adjust);
-
-        hasLobOps = true;
     }
 
     public void adjustLobUsageCount(TableBase table, Object[] data,
@@ -358,8 +333,6 @@ public class SessionData {
                 database.lobManager.adjustUsageCount(session,
                                                      ((LobData) value).getId(),
                                                      adjust);
-
-                hasLobOps = true;
             }
         }
     }
@@ -367,111 +340,108 @@ public class SessionData {
     /**
      * allocate storage for a new LOB
      */
-    public void allocateLobForResult(ResultLob result,
-                                     InputStream inputStream) {
+    public Result allocateLobForResult(ResultLob result) {
+
+        Result      actionResult = Result.updateZeroResult;
+        InputStream inputStream  = result.getInputStream();
+        long        lobId        = result.getLobID();
+        long        dataLength   = result.getBlockLength();
 
         try {
-            CountdownInputStream countStream;
-
             switch (result.getSubType()) {
 
                 case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES : {
-                    long blobId;
-                    long blobLength = result.getBlockLength();
+                    dataLength = result.getBlockLength();
 
-                    if (blobLength < 0) {
+                    if (lobId >= 0) {
+                        if (dataLength < 0) {
 
-                        // embedded session + unknown lob length
-                        allocateBlobSegments(result, result.getInputStream());
-
-                        break;
-                    }
-
-                    if (inputStream == null) {
-
-                        // embedded session + known lob length
-                        blobId      = result.getLobID();
-                        inputStream = result.getInputStream();
-                    } else {
-
-                        // server session + known or unknown lob length
-                        BlobData blob = session.createBlob(blobLength);
-
-                        blobId = blob.getId();
-
-                        resultLobs.put(result.getLobID(), blobId);
-                    }
-
-                    countStream = new CountdownInputStream(inputStream);
-
-                    countStream.setCount(blobLength);
-                    database.lobManager.setBytesForNewBlob(
-                        blobId, countStream, result.getBlockLength());
-
-                    break;
-                }
-                case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS : {
-                    long clobId;
-                    long clobLength = result.getBlockLength();
-
-                    if (clobLength < 0) {
-
-                        // embedded session + unknown lob length
-                        allocateClobSegments(result, result.getReader());
-
-                        break;
-                    }
-
-                    if (inputStream == null) {
-                        clobId = result.getLobID();
-
-                        // embedded session + known lob length
-                        if (result.getReader() != null) {
-                            inputStream =
-                                new ReaderInputStream(result.getReader());
+                            // embedded session + unknown lob length
+                            actionResult = allocateBlobSegments(result,
+                                                                inputStream);
                         } else {
-                            inputStream = result.getInputStream();
+
+                            // embedded session + known lob length
+                            actionResult =
+                                database.lobManager.setBytesForNewBlob(lobId,
+                                    inputStream, dataLength);
                         }
                     } else {
 
                         // server session + known or unknown lob length
-                        ClobData clob = session.createClob(clobLength);
+                        BlobData blob = session.createBlob(dataLength);
 
-                        clobId = clob.getId();
+                        resultLobs.put(lobId, blob.getId());
 
-                        resultLobs.put(result.getLobID(), clobId);
+                        lobId = blob.getId();
+                        actionResult =
+                            database.lobManager.setBytesForNewBlob(lobId,
+                                inputStream, dataLength);
                     }
 
-                    countStream = new CountdownInputStream(inputStream);
+                    break;
+                }
+                case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS : {
+                    if (lobId >= 0) {
+                        if (dataLength < 0) {
 
-                    countStream.setCount(clobLength * 2);
-                    database.lobManager.setCharsForNewClob(
-                        clobId, countStream, result.getBlockLength());
+                            // embedded session + unknown lob length
+                            actionResult =
+                                allocateClobSegments(result,
+                                                     result.getReader());
+                        } else {
+
+                            // embedded session + known lob length
+                            if (result.getReader() != null) {
+                                inputStream =
+                                    new ReaderInputStream(result.getReader());
+                            }
+
+                            actionResult =
+                                database.lobManager.setCharsForNewClob(lobId,
+                                    inputStream, result.getBlockLength());
+                        }
+                    } else {
+
+                        // server session + known or unknown lob length
+                        ClobData clob = session.createClob(dataLength);
+
+                        resultLobs.put(lobId, clob.getId());
+
+                        lobId = clob.getId();
+                        actionResult =
+                            database.lobManager.setCharsForNewClob(lobId,
+                                inputStream, result.getBlockLength());
+                    }
 
                     break;
                 }
                 case ResultLob.LobResultTypes.REQUEST_SET_BYTES : {
 
                     // server session + unknown lob length
-                    long   blobId     = resultLobs.get(result.getLobID());
-                    long   dataLength = result.getBlockLength();
-                    byte[] byteArray  = result.getByteArray();
-                    Result actionResult = database.lobManager.setBytes(blobId,
-                        result.getOffset(), byteArray, (int) dataLength);
+                    if (lobId < 0) {
+                        lobId = resultLobs.get(lobId);
+                    }
 
-                    // FIXME: actionResult not used anymore!?
+                    byte[] byteArray = result.getByteArray();
+
+                    actionResult = database.lobManager.setBytes(lobId,
+                            result.getOffset(), byteArray, (int) dataLength);
+
                     break;
                 }
                 case ResultLob.LobResultTypes.REQUEST_SET_CHARS : {
 
                     // server session + unknown lob length
-                    long   clobId     = resultLobs.get(result.getLobID());
-                    long   dataLength = result.getBlockLength();
-                    char[] charArray  = result.getCharArray();
-                    Result actionResult = database.lobManager.setChars(clobId,
-                        result.getOffset(), charArray, (int) dataLength);
+                    if (lobId < 0) {
+                        lobId = resultLobs.get(lobId);
+                    }
 
-                    // FIXME: actionResult not used anymore!?
+                    char[] charArray = result.getCharArray();
+
+                    actionResult = database.lobManager.setChars(lobId,
+                            result.getOffset(), charArray, (int) dataLength);
+
                     break;
                 }
             }
@@ -480,46 +450,61 @@ public class SessionData {
 
             throw Error.error(ErrorCode.GENERAL_ERROR, e);
         }
+
+        return actionResult;
     }
 
-    private void allocateBlobSegments(ResultLob result,
-                                      InputStream stream) throws IOException {
+    Result allocateBlobSegments(ResultLob result,
+                                InputStream stream) throws IOException {
 
-        //
         long currentOffset = result.getOffset();
         int  bufferLength  = session.getStreamBlockSize();
         HsqlByteArrayOutputStream byteArrayOS =
             new HsqlByteArrayOutputStream(bufferLength);
+        Result actionResult = null;
+        long   totalLength  = 0;
 
         while (true) {
             byteArrayOS.reset();
             byteArrayOS.write(stream, bufferLength);
 
             if (byteArrayOS.size() == 0) {
-                return;
+                break;
             }
 
             byte[] byteArray = byteArrayOS.getBuffer();
-            Result actionResult =
-                database.lobManager.setBytes(result.getLobID(), currentOffset,
-                                             byteArray, byteArrayOS.size());
 
-            // FIXME: actionResult not used anymore!?
+            actionResult = database.lobManager.setBytes(result.getLobID(),
+                    currentOffset, byteArray, byteArrayOS.size());
+
+            if (actionResult.isError()) {
+                break;
+            }
+
             currentOffset += byteArrayOS.size();
+            totalLength   += byteArrayOS.size();
 
             if (byteArrayOS.size() < bufferLength) {
-                return;
+                break;
             }
         }
+
+        if (actionResult == null) {
+            actionResult = ResultLob.newLobSetResponse(result.getLobID(),
+                    totalLength);
+        }
+
+        return actionResult;
     }
 
-    private void allocateClobSegments(ResultLob result,
-                                      Reader reader) throws IOException {
-        allocateClobSegments(result.getLobID(), result.getOffset(), reader);
+    private Result allocateClobSegments(ResultLob result,
+                                        Reader reader) throws IOException {
+        return allocateClobSegments(result.getLobID(), result.getOffset(),
+                                    reader);
     }
 
-    private void allocateClobSegments(long lobID, long offset,
-                                      Reader reader) throws IOException {
+    private Result allocateClobSegments(long lobID, long offset,
+                                        Reader reader) throws IOException {
 
         int             bufferLength  = session.getStreamBlockSize();
         CharArrayWriter charWriter    = new CharArrayWriter(bufferLength);
@@ -532,17 +517,20 @@ public class SessionData {
             char[] charArray = charWriter.getBuffer();
 
             if (charWriter.size() == 0) {
-                return;
+                return Result.updateZeroResult;
             }
 
             Result actionResult = database.lobManager.setChars(lobID,
                 currentOffset, charArray, charWriter.size());
 
-            // FIXME: actionResult not used anymore!?
+            if (actionResult.isError()) {
+                return actionResult;
+            }
+
             currentOffset += charWriter.size();
 
             if (charWriter.size() < bufferLength) {
-                return;
+                return Result.updateZeroResult;
             }
         }
     }

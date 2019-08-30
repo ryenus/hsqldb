@@ -602,11 +602,11 @@ public class JDBCClobClient implements Clob {
             throw JDBCUtil.notUpdatableColumn();
         }
 
-        startUpdate();
-
-        str = str.substring(offset, offset + len);
-
         try {
+            startUpdate();
+
+            str = str.substring(offset, offset + len);
+
             clob.setString(session, pos - 1, str);
 
             return len;

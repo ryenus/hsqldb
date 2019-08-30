@@ -32,14 +32,9 @@
 package org.hsqldb.test;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class AllTests extends TestCase {
-
-    public AllTests(String s) {
-        super(s);
-    }
+public class AllTests {
 
     public static Test suite() {
 
@@ -74,6 +69,7 @@ public class AllTests extends TestCase {
         suite.addTestSuite(org.hsqldb.test.TestCascade.class);
         suite.addTestSuite(org.hsqldb.test.TestGroupByHaving.class);
         suite.addTestSuite(org.hsqldb.test.TestSqlPersistent.class);     // Sometimes hangs on Connection.close after SHUTDOWN problem
+        suite.addTestSuite(org.hsqldb.test.TestDataCube.class);
 
         return suite;
     }

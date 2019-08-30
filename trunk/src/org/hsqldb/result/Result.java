@@ -69,7 +69,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class Result {
@@ -243,13 +243,13 @@ public class Result {
         return result;
     }
 
-    public static Result newResult(DataInput dataInput,
+    public static Result newResult(DataInputStream dataInput,
                                    RowInputInterface in) throws IOException {
         return newResult(null, dataInput.readByte(), dataInput, in);
     }
 
     public static Result newResult(Session session, int mode,
-                                   DataInput dataInput,
+                                   DataInputStream dataInput,
                                    RowInputInterface in) throws IOException {
 
         try {
@@ -287,12 +287,11 @@ public class Result {
         }
     }
 
-    public void readLobResults(SessionInterface session,
-                               DataInputStream inputStream,
-                               RowInputInterface in) throws IOException {
+    public Result readLobResults(Session session,
+                                 DataInputStream inputStream)
+                                 throws IOException {
 
-        Result  currentResult = this;
-        boolean hasLob        = false;
+        boolean hasLob = false;
 
         setSession(session);
 
@@ -300,12 +299,11 @@ public class Result {
             int addedResultMode = inputStream.readByte();
 
             if (addedResultMode == ResultConstants.LARGE_OBJECT_OP) {
-                ResultLob resultLob = ResultLob.newLob(inputStream, false);
+                ResultLob resultLob    = ResultLob.newLob(inputStream, false);
+                Result    actionResult = session.allocateResultLob(resultLob);
 
-                if (session instanceof Session) {
-                    session.allocateResultLob(resultLob, inputStream);
-                } else {
-                    currentResult.addLobResult(resultLob);
+                if (actionResult.isError()) {
+                    return actionResult;
                 }
 
                 hasLob = true;
@@ -319,8 +317,10 @@ public class Result {
         }
 
         if (hasLob) {
-            ((Session) session).registerResultLobs(currentResult);
+            session.registerResultLobs(this);
         }
+
+        return Result.updateZeroResult;
     }
 
     private static Result newResult(Session session, DataInput dataInput,
@@ -1352,6 +1352,11 @@ public class Result {
     }
 
     public HsqlException getException() {
+
+        if (exception == null && mode == ResultConstants.ERROR) {
+            exception = Error.error(this);
+        }
+
         return exception;
     }
 
