@@ -355,7 +355,7 @@ class ServerConnection implements Runnable {
         Result resultIn = Result.newResult(session, resultMode, dataInput,
                                            rowIn);
 
-        resultIn.readLobResults(session, dataInput, rowIn);
+        resultIn.readLobResults(session, dataInput);
         server.printRequest(mThread, resultIn);
 
         Result resultOut = null;

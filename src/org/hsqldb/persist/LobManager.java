@@ -75,7 +75,7 @@ import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class LobManager {
@@ -258,17 +258,18 @@ public class LobManager {
 
         sysLobSession = database.sessionManager.getSysLobSession();
 
-        InputStream fis = AccessController.doPrivileged(
-                new PrivilegedAction<InputStream>() {
+        InputStream fis =
+            AccessController.doPrivileged(new PrivilegedAction<InputStream>() {
 
-                    public InputStream run() {
-                        return getClass().getResourceAsStream(resourceFileName);
-                    }
-                });
-        InputStreamReader reader = new InputStreamReader(fis, JavaSystem.CS_ISO_8859_1);
+            public InputStream run() {
+                return getClass().getResourceAsStream(resourceFileName);
+            }
+        });
+        InputStreamReader reader = new InputStreamReader(fis,
+            JavaSystem.CS_ISO_8859_1);
         LineNumberReader lineReader = new LineNumberReader(reader);
-        LineGroupReader lg = new LineGroupReader(lineReader, starters);
-        HashMappedList map = lg.getAsMap();
+        LineGroupReader  lg = new LineGroupReader(lineReader, starters);
+        HashMappedList   map        = lg.getAsMap();
 
         lg.close();
 
@@ -519,8 +520,6 @@ public class LobManager {
             Result result = sysLobSession.executeCompiledStatement(createLob,
                 params, 0);
 
-            usageChanged = true;
-
             return lobID.longValue();
         } finally {
             writeLock.unlock();
@@ -543,8 +542,6 @@ public class LobManager {
 
             Result result = sysLobSession.executeCompiledStatement(createLob,
                 params, 0);
-
-            usageChanged = true;
 
             return lobID.longValue();
         } finally {
@@ -575,8 +572,8 @@ public class LobManager {
         }
     }
 
-    public void setUsageChanged() {
-        usageChanged = true;
+    public boolean isUsageChanged() {
+        return usageChanged;
     }
 
     public Result deleteUnusedLobs() {
@@ -588,25 +585,11 @@ public class LobManager {
                 return Result.updateZeroResult;
             }
 
-            Session[] sessions   = database.sessionManager.getAllSessions();
-            long      firstLobID = Long.MAX_VALUE;
+            long           limitLobID = Long.MAX_VALUE;
+            ResultMetaData meta = deleteUnusedLobs.getParametersMetaData();
+            Object[]       params     = new Object[meta.getColumnCount()];
 
-            for (int i = 0; i < sessions.length; i++) {
-                if (sessions[i].isClosed()) {
-                    continue;
-                }
-
-                long sessionLobID = sessions[i].sessionData.getFirstLobID();
-
-                if (sessionLobID != 0 && sessionLobID < firstLobID) {
-                    firstLobID = sessionLobID;
-                }
-            }
-
-            ResultMetaData meta   = deleteUnusedLobs.getParametersMetaData();
-            Object[]       params = new Object[meta.getColumnCount()];
-
-            params[0] = Long.valueOf(firstLobID);
+            params[0] = Long.valueOf(limitLobID);
 
             Result result =
                 sysLobSession.executeCompiledStatement(deleteUnusedLobs,
@@ -638,7 +621,7 @@ public class LobManager {
                 return result;
             }
 
-            // result is empty when there is no lob, or one row
+            // result is empty when there is no lob, or it has one row
             usageChanged = false;
 
             long            sizeLimit = 0;
@@ -1105,8 +1088,6 @@ public class LobManager {
                 return result;
             }
 
-            usageChanged = true;
-
             if (newLength == 0) {
                 return ResultLob.newLobSetResponse(newLobID.longValue(),
                                                    newLength);
@@ -1125,7 +1106,12 @@ public class LobManager {
                 newBlockCount++;
             }
 
-            createBlockAddresses(newLobID.longValue(), 0, newBlockCount);
+            result = createBlockAddresses(newLobID.longValue(), 0,
+                                          newBlockCount);
+
+            if (result.isError()) {
+                return result;
+            }
 
             // copy the contents
             int[][] sourceBlocks = getBlockAddresses(lobID, 0,
@@ -1136,6 +1122,8 @@ public class LobManager {
             try {
                 copyBlockSet(sourceBlocks, targetBlocks);
             } catch (HsqlException e) {
+                return Result.newErrorResult(e);
+            } catch (Throwable e) {
                 return Result.newErrorResult(e);
             }
 
@@ -1496,8 +1484,7 @@ public class LobManager {
             blockLimit++;
         }
 
-        createBlockAddresses(lobID, 0, blockLimit);
-
+        Result  actionResult   = createBlockAddresses(lobID, 0, blockLimit);
         int[][] blockAddresses = getBlockAddresses(lobID, 0, blockLimit);
 
         for (int i = 0; i < blockAddresses.length; i++) {
@@ -1519,7 +1506,7 @@ public class LobManager {
                                                     localLength);
 
                         if (read == -1) {
-                            return Result.newErrorResult(new EOFException());
+                            break;
                         }
 
                         localLength -= read;
@@ -1598,21 +1585,38 @@ public class LobManager {
         }
     }
 
+    /**
+     * for new blob only
+     *
+     * blob length is set to inputStream size (not given length)
+     */
     public Result setBytesForNewBlob(long lobID, InputStream inputStream,
                                      long length) {
 
-        if (length == 0) {
-            return ResultLob.newLobSetResponse(lobID, 0);
-        }
-
         if (byteBuffer == null) {
-            throw Error.error(ErrorCode.DATA_IS_READONLY);
+            return Result.newErrorResult(
+                Error.error(ErrorCode.DATA_IS_READONLY));
         }
 
         writeLock.lock();
 
         try {
             Result result = setBytesIS(lobID, inputStream, length, false);
+            Result actionResult = Result.updateZeroResult;
+
+            if (result.isError()) {
+                return result;
+            }
+
+            long newLength = ((ResultLob) result).getBlockLength();
+
+            if (newLength < length) {
+                actionResult = truncate(lobID, newLength);
+            }
+
+            if (actionResult.isError()) {
+                return actionResult;
+            }
 
             return result;
         } finally {
@@ -1670,10 +1674,6 @@ public class LobManager {
 
     public Result setCharsForNewClob(long lobID, InputStream inputStream,
                                      long length) {
-
-        if (length == 0) {
-            return ResultLob.newLobSetResponse(lobID, 0);
-        }
 
         if (byteBuffer == null) {
             throw Error.error(ErrorCode.DATA_IS_READONLY);
@@ -1775,7 +1775,10 @@ public class LobManager {
 
         Result result = updateLobUsage.execute(session);
 
-        usageChanged = true;
+        // todo - return a value in result and check - UPDATE decrements (to zero) then increments usage
+        if (delta < 0) {
+            usageChanged = true;
+        }
 
         session.sessionContext.pop();
 

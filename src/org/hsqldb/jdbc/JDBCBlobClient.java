@@ -251,9 +251,9 @@ public class JDBCBlobClient implements Blob {
             throw JDBCUtil.notUpdatableColumn();
         }
 
-        startUpdate();
-
         try {
+            startUpdate();
+
             blob.setBytes(session, pos - 1, bytes, offset, len);
 
             return len;

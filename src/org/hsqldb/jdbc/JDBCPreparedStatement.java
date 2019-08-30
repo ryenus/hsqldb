@@ -230,7 +230,7 @@ import java.sql.SQLType;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
@@ -2625,7 +2625,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "length: " + length);
         }
-        setBinStream(parameterIndex, x, length);
+
+        if (length > parameterTypes[parameterIndex - 1].precision) {
+            throw JDBCUtil.sqlException(ErrorCode.X_22001,
+                                    "length: " + length);
+        }
+
+        // ignore length as client/server cannot handle incorrect data length entered by user
+        setBinStream(parameterIndex, x, -1);
     }
 
     private void setBinStream(int parameterIndex, java.io.InputStream x,
@@ -2698,7 +2705,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "length: " + length);
         }
-        setCharStream(parameterIndex, reader, length);
+
+        if (length > parameterTypes[parameterIndex -1].precision) {
+            throw JDBCUtil.sqlException(ErrorCode.X_22001,
+                                    "length: " + length);
+        }
+
+        // ignore length as client/server cannot handle incorrect data length entered by user
+        setCharStream(parameterIndex, reader, -1);
     }
 
     private void setCharStream(int parameterIndex, java.io.Reader reader,
@@ -4793,7 +4807,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         ResultLob.newLobCreateBlobRequest(session.getId(), id,
                             stream, length);
 
-                    session.allocateResultLob(resultLob, null);
+                    session.allocateResultLob(resultLob);
                     resultOut.addLobResult(resultLob);
                 } else if (value instanceof InputStream) {
                     long length = streamLengths[i];
@@ -4808,7 +4822,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         ResultLob.newLobCreateBlobRequest(session.getId(), id,
                             stream, length);
 
-                    session.allocateResultLob(resultLob, null);
+                    session.allocateResultLob(resultLob);
                     resultOut.addLobResult(resultLob);
                 } else if (value instanceof BlobDataID) {
                     blob = (BlobDataID) value;
@@ -4834,7 +4848,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         ResultLob.newLobCreateClobRequest(session.getId(), id,
                             reader, length);
 
-                    session.allocateResultLob(resultLob, null);
+                    session.allocateResultLob(resultLob);
                     resultOut.addLobResult(resultLob);
                 } else if (value instanceof Reader) {
                     long length = streamLengths[i];
@@ -4849,7 +4863,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                         ResultLob.newLobCreateClobRequest(session.getId(), id,
                             reader, length);
 
-                    session.allocateResultLob(resultLob, null);
+                    session.allocateResultLob(resultLob);
                     resultOut.addLobResult(resultLob);
                 } else if (value instanceof ClobDataID) {
                     clob = (ClobDataID) value;

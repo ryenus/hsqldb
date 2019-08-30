@@ -61,6 +61,8 @@ import org.hsqldb.resources.ResourceBundleHandler;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 
+import java.util.Properties;
+
 // fredt@users 20020215 - patch 1.7.0
 // methods reorganised to use new HsqlProperties class
 // fredt@users 20020424 - patch 1.7.0 - shutdown without exit
@@ -1044,6 +1046,23 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      * Sets server properties using the specified properties object
      *
      * @param props The object containing properties to set
+     * @throws ServerAcl.AclFormatException
+     *          ACL list was requested but problem loading ACL.
+     * @throws IOException
+     *          ACL list was requested but I/O problem loading ACL.
+     */
+    public void setProperties(Properties props)
+    throws IOException, ServerAcl.AclFormatException {
+
+        HsqlProperties serverProps = new HsqlProperties(props);
+
+        setProperties(serverProps);
+    }
+
+    /**
+     * Sets server properties using the specified HsqlProperties object
+     *
+     * @param props The HsqlProperties object containing properties to set
      * @throws ServerAcl.AclFormatException
      *          ACL list was requested but problem loading ACL.
      * @throws IOException
