@@ -117,7 +117,7 @@ public class RowAction extends RowActionBase {
     synchronized RowAction addDeleteAction(Session session, int[] colMap) {
 
         if (type == ACTION_NONE) {
-            setAsAction(session, ACTION_DELETE);
+            setNoOpAsAction(session, ACTION_DELETE);
 
             changeColumnMap = colMap;
         } else {
@@ -201,7 +201,7 @@ public class RowAction extends RowActionBase {
     synchronized boolean addRefAction(Session session, int[] colMap) {
 
         if (type == ACTION_NONE) {
-            setAsAction(session, ACTION_REF);
+            setNoOpAsAction(session, ACTION_REF);
 
             changeColumnMap = colMap;
 
@@ -255,12 +255,11 @@ public class RowAction extends RowActionBase {
         return true;
     }
 
-    synchronized void setAsAction(Session session, byte type) {
+    synchronized void setNoOpAsAction(Session session, byte type) {
 
         this.session    = session;
         this.type       = type;
         actionTimestamp = session.actionTimestamp;
-        changeColumnMap = null;
     }
 
     synchronized void setAsAction(RowActionBase action) {

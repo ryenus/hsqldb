@@ -107,5 +107,6 @@ public interface TransactionManager {
 
     void setTransactionControl(Session session, int mode);
 
-    void resetSession(Session session, Session targetSession, int mode);
+    void resetSession(Session session, Session targetSession,
+                      long statementTimestamp, int mode);
 }

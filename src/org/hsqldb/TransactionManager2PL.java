@@ -327,8 +327,8 @@ implements TransactionManager {
     public void removeTransactionInfo(long id) {}
 
     public void resetSession(Session session, Session targetSession,
-                             int mode) {
-        super.resetSession(session, targetSession, mode);
+                             long statementTimestamp, int mode) {
+        super.resetSession(session, targetSession, statementTimestamp, mode);
     }
 
     private void endTransaction(Session session) {

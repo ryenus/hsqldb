@@ -427,7 +427,6 @@ public class ExpressionAggregate extends Expression {
         return currValue;
     }
 
-
     SetFunction getSetFunction(Session session) {
 
         return new SetFunctionValueAggregate(session, opType,

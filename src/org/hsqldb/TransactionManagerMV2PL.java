@@ -41,7 +41,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 2.0.0
  */
 public class TransactionManagerMV2PL extends TransactionManagerCommon
@@ -467,8 +467,8 @@ implements TransactionManager {
     }
 
     public void resetSession(Session session, Session targetSession,
-                             int mode) {
-        super.resetSession(session, targetSession, mode);
+                             long statementTimestamp, int mode) {
+        super.resetSession(session, targetSession, statementTimestamp, mode);
     }
 
     /**

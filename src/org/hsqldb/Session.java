@@ -31,7 +31,6 @@
 
 package org.hsqldb;
 
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -98,6 +97,7 @@ public class Session implements SessionInterface {
     int                     actionIndex;
     long                    actionStartTimestamp;
     long                    actionTimestamp;
+    long                    statementStartTimestamp;
     long                    transactionTimestamp;
     long                    transactionEndTimestamp;
     final boolean           txConflictRollback;
@@ -1318,6 +1318,8 @@ public class Session implements SessionInterface {
         }
 
         sessionContext.currentStatement = cs;
+        statementStartTimestamp =
+            database.txManager.getGlobalChangeTimestamp();
 
         boolean isTX = cs.isTransactionStatement();
 
@@ -2019,7 +2021,8 @@ public class Session implements SessionInterface {
         if (result.getType() == ResultConstants.SQLCANCEL) {
             if (result.getSessionRandomID() == randomId) {
                 database.txManager.resetSession(
-                    null, this, TransactionManager.resetSessionStatement);
+                    null, this, Long.MAX_VALUE,
+                    TransactionManager.resetSessionStatement);
             }
         }
 
@@ -2341,6 +2344,7 @@ public class Session implements SessionInterface {
     class TimeoutManager {
 
         AtomicInteger currentTimeout = new AtomicInteger();
+        volatile long checkTimestamp;
 
         void startTimeout(int timeout) {
 
@@ -2349,6 +2353,8 @@ public class Session implements SessionInterface {
             if (timeout == 0) {
                 return;
             }
+
+            checkTimestamp = Session.this.statementStartTimestamp;
 
             database.timeoutRunner.addSession(Session.this);
         }
@@ -2371,7 +2377,7 @@ public class Session implements SessionInterface {
             if (result <= 0) {
                 currentTimeout.set(0);
                 database.txManager.resetSession(
-                    null, Session.this,
+                    null, Session.this, checkTimestamp,
                     TransactionManager.resetSessionStatement);
 
                 return true;
