@@ -1376,37 +1376,37 @@ public class StatementCommand extends Statement {
 
                         case Tokens.ALL :
                             session.database.txManager.resetSession(session,
-                                    targetSession,
+                                    targetSession, Long.MAX_VALUE,
                                     TransactionManager.resetSessionResetAll);
                             break;
 
                         case Tokens.TABLE :
                             session.database.txManager.resetSession(session,
-                                    targetSession,
+                                    targetSession, Long.MAX_VALUE,
                                     TransactionManager.resetSessionTables);
                             break;
 
                         case Tokens.RESULT :
                             session.database.txManager.resetSession(session,
-                                    targetSession,
+                                    targetSession, Long.MAX_VALUE,
                                     TransactionManager.resetSessionResults);
                             break;
 
                         case Tokens.CLOSE :
                             session.database.txManager.resetSession(session,
-                                    targetSession,
+                                    targetSession, Long.MAX_VALUE,
                                     TransactionManager.resetSessionClose);
                             break;
 
                         case Tokens.RELEASE :
                             session.database.txManager.resetSession(session,
-                                    targetSession,
+                                    targetSession, Long.MAX_VALUE,
                                     TransactionManager.resetSessionRollback);
                             break;
 
                         case Tokens.END :
                             session.database.txManager.resetSession(session,
-                                    targetSession,
+                                    targetSession, Long.MAX_VALUE,
                                     TransactionManager.resetSessionStatement);
                             break;
                     }

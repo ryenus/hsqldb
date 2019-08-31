@@ -1822,7 +1822,7 @@ public class QuerySpecification extends QueryExpression {
         if (isGroupingSets) {
             session.sessionContext.setGroupSet(groupSet);
 
-            Iterator   gsIt           = groupSet.getIterator();
+            Iterator   groupsIterator           = groupSet.getIterator();
             Object[][] baseResult     = navigator.getDataTable();
             int        baseResultSize = navigator.getSize();
 
@@ -1870,10 +1870,10 @@ public class QuerySpecification extends QueryExpression {
                 }
             }
 
-            while (gsIt.hasNext()) {
+            while (groupsIterator.hasNext()) {
                 navigator.resetRowMap();
 
-                HsqlList set = (HsqlList) gsIt.next();
+                HsqlList set = (HsqlList) groupsIterator.next();
 
                 session.sessionContext.setGroup(set);
 
