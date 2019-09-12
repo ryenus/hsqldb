@@ -1338,7 +1338,7 @@
       <para>The alternative form of the OVERRIDING clause is OVERRIDING USER
       VALUES. This is not used much as it is always possible to avoid it. When
       this option is specified, the database engine ignores the value provided
-      by user and inserts the generated sequence value instead. </para>
+      by user and inserts the generated sequence value instead.</para>
 
       <para>The other way in which the column value is auto-generated is by
       using the values of other columns in the same row. This method is often
@@ -3476,6 +3476,38 @@
     <para>HyperSQL also adds some views to the Information Schema. These views
     are for features that are not reported in any of the views defined by the
     Standard, or for use by JDBC DatabaseMetaData.</para>
+
+    <section xml:id="dbc_explain_references">
+      <title>References to Database Objects</title>
+
+      <para>Each database object may reference other database objects. For
+      example, a VIEW references tables in its SELECT statement. An SQL
+      FUNCTION or PROCEDURE typically references tables, views, other routines
+      and sequences. There are views in the INFORMATION_SCHEMA with the word
+      "USAGE" in the name. Each of these views lists references to objects of
+      a particular type from a particular type, for example references to
+      tables from routines. </para>
+
+      <para>From version 2.5.0, a new SQL statement lists all the database
+      objects that use (reference) a particular database object.
+      Alternatively, the statement lists all the database object that are used
+      (referenced) by a particular database object.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>EXPLAIN REFERENCES</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">EXPLAIN REFERENCES</emphasis></simpara>
+
+      <simpara><emphasis>explain references</emphasis></simpara>
+
+      <simpara><literal>&lt;explain references statement&gt; ::= EXPLAIN
+      REFERENCES { TO | FROM } { TABLE | VIEW | DOMAIN | TYPE | SPACIFIC
+      ROUTINE | SEQUENCE &gt; &lt;object name&gt;</literal></simpara>
+
+      <simpara>For example, <literal>EXPLAIN REFERENCES TO TABLE
+      T1</literal>.</simpara>
+    </section>
 
     <section xml:id="dbc_char_sets_info_schema">
       <title>Predefined Character Sets, Collations and Domains</title>

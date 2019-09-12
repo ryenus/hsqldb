@@ -3820,6 +3820,29 @@ DIRECT SALES (null) (null)  3778500
       the end of the slicing clause to force the use of the index for ordering
       and slicing, instead of the index for the WHERE condition.</para>
     </section>
+
+    <section xml:id="dac_explain_plan">
+      <title>Indexes Used in SELECT Statements</title>
+
+      <para>A query expression, for example a SELECT statement, uses indexes
+      for efficient data retrieval. The EXPLAIN PLAN statement lists the
+      indexes used, together with other useful information about the
+      query.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>EXPLAIN PLAN</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">EXPLAIN PLAN</emphasis></simpara>
+
+      <simpara><emphasis>explain plan</emphasis></simpara>
+
+      <simpara><literal>&lt;explain plan&gt; ::= EXPLAIN PLAN FOR &lt;query
+      expression&gt;</literal></simpara>
+
+      <simpara>For example, <literal>EXPLAIN PLAN FOR SELECT * FROM REVENUE
+      WHERE COUNTRY = 'UK' </literal>.</simpara>
+    </section>
   </section>
 
   <section xml:id="dac_data_change_statements">
