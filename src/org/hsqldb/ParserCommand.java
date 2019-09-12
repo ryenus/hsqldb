@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.index.IndexStats;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
@@ -53,7 +54,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -2413,32 +2414,59 @@ public class ParserCommand extends ParserDDL {
 
     private Statement compilePerform() {
 
-        Integer type   = Integer.valueOf(1);
+        Integer type   = Integer.valueOf(IndexStats.checkRows);
         Integer number = Integer.valueOf(-1);
 
         read();
 
         switch (token.tokenType) {
 
+            /**
+             * PERFORM CHECK TABLE <name> INDEX [AND FIX]
+             * PERFORM CHECK ALL TABLE INDEX [AND FIX]
+             */
             case Tokens.CHECK : {
                 read();
 
+                boolean  isAll     = false;
                 HsqlName tableName = null;
 
-                readThis(Tokens.TABLE);
-                readThis(Tokens.SPACE);
+                switch (token.tokenType) {
+
+                    case Tokens.ALL : {
+                        read();
+
+                        isAll = true;
+                    }
+
+                    // fall through
+                    case Tokens.TABLE : {
+                        readThis(Tokens.TABLE);
+
+                        if (isAll) {
+                            readThis(Tokens.INDEX);
+                        } else {
+                            tableName = readTableName().getName();
+
+                            readThis(Tokens.INDEX);
+                        }
+                    }
+                }
 
                 if (readIfThis(Tokens.AND)) {
                     readThis("FIX");
 
-                    type = Integer.valueOf(2);
+                    type = Integer.valueOf(IndexStats.fixAll);
                 }
 
                 Object[] args = new Object[] {
                     tableName, type, number
                 };
                 HsqlName[] names =
-                    database.schemaManager.getCatalogAndBaseTableNames();
+                    isAll
+                    ? database.schemaManager.getCatalogAndBaseTableNames()
+                    : database.schemaManager.getCatalogAndBaseTableNames(
+                        tableName);
 
                 return new StatementCommand(StatementTypes.CHECK_INDEX, args,
                                             null, names);

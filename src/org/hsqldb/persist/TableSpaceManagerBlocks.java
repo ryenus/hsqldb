@@ -41,13 +41,13 @@ import org.hsqldb.lib.DoubleIntIndex;
  * Maintains a list of free file blocks with fixed capacity.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 2.3.0
  */
 public class TableSpaceManagerBlocks implements TableSpaceManager {
 
-    DataSpaceManager  spaceManager;
-    private final int scale;
+    final DataSpaceManager  spaceManager;
+    final int scale;
     final int         mainBlockSize;
     final int         spaceID;
     final int         minReuse;
@@ -60,6 +60,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     private long           requestCount;
     private long           requestSize;
     boolean                isModified;
+    boolean                isInitialised;
 
     //
     long freshBlockFreePos = 0;
@@ -111,11 +112,26 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         }
     }
 
-    boolean getNewMainBlock(long rowSize) {
+    private boolean getNewMainBlock(long rowSize) {
 
-        long blockCount = (mainBlockSize + rowSize) / mainBlockSize;
-        long blockSize  = blockCount * mainBlockSize;
-        long position = spaceManager.getFileBlocks(spaceID, (int) blockCount);
+        long blockCount;
+        long blockSize;
+        long position;
+
+        // called only on initialisation
+        if (!isInitialised) {
+            isInitialised = true;
+
+            spaceManager.initialiseTableSpace(this);
+
+            if (freshBlockFreePos + rowSize <= freshBlockLimit) {
+                return true;
+            }
+        }
+
+        blockCount = (mainBlockSize + rowSize) / mainBlockSize;
+        blockSize  = blockCount * mainBlockSize;
+        position   = spaceManager.getFileBlocks(spaceID, (int) blockCount);
 
         if (position < 0) {
             return false;
@@ -137,7 +153,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         return true;
     }
 
-    long getNewBlock(long rowSize, boolean asBlocks) {
+    private long getNewBlock(long rowSize, boolean asBlocks) {
 
         if (asBlocks) {
             rowSize = (int) ArrayUtil.getBinaryMultipleCeiling(rowSize,

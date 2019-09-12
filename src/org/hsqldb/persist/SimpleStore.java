@@ -110,7 +110,7 @@ public abstract class SimpleStore implements PersistentStore {
         return cache == null;
     }
 
-    public void reindex(Session session, Index index) {}
+    public void reindex(Session session, Index index, Index useIndex) {}
 
     public void setCache(DataFileCache cache) {
         this.cache = cache;

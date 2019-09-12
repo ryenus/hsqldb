@@ -35,6 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.index.IndexAVLCheck;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
@@ -55,7 +56,7 @@ import org.hsqldb.types.TimestampData;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -1029,9 +1030,19 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.CHECK_INDEX : {
                 try {
-                    int type = ((Integer) arguments[1]).intValue();
-                    Result result = Result.newDoubleColumnResult("TABLE_NAME",
-                        "INFO");
+                    HsqlName tableName = (HsqlName) arguments[0];
+                    int      type      = ((Integer) arguments[1]).intValue();
+                    Table    table;
+                    Result   result;
+
+                    if (tableName == null) {
+                        result = IndexAVLCheck.checkAllTables(session, type);
+                    } else {
+                        table = session.database.schemaManager.getUserTable(
+                            tableName.name, tableName.schema.name);
+                        result = IndexAVLCheck.checkTable(session, table,
+                                                          type);
+                    }
 
                     return result;
                 } catch (HsqlException e) {

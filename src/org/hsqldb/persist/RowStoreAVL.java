@@ -49,13 +49,15 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.IndexAVL;
+import org.hsqldb.index.IndexAVLCheck.IndexAVLProbe;
+import org.hsqldb.index.IndexStats;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.types.LobData;
 import org.hsqldb.types.Type;
-import org.hsqldb.lib.LongKeyHashMap;
 
 /*
  * Base implementation of PersistentStore for different table types.
@@ -478,7 +480,7 @@ public abstract class RowStoreAVL implements PersistentStore {
             readLock();
 
             try {
-                long count = index.getNodeCount(null, this);
+                long count = index.size(null, this);
 
                 elementCount.set(count);
             } finally {
@@ -506,7 +508,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                     readLock();
 
                     try {
-                        return index.getNodeCount(session, this);
+                        return index.size(session, this);
                     } finally {
                         readUnlock();
                     }
@@ -633,14 +635,22 @@ public abstract class RowStoreAVL implements PersistentStore {
         }
     }
 
-    public void reindex(Session session, Index index) {
+    public void reindex(Session session, Index index, Index useIndex) {
 
         writeLock();
 
         try {
-            setAccessor(index, null);
 
-            RowIterator it = table.rowIterator(this);
+            // get the iterator first in case the index set null
+            RowIterator it;
+
+            if (useIndex == null) {
+                it = table.rowIterator(this);
+            } else {
+                it = useIndex.firstRow(this);
+            }
+
+            setAccessor(index, null);
 
             while (it.next()) {
                 RowAVL row = (RowAVL) it.getCurrentRow();
@@ -651,6 +661,24 @@ public abstract class RowStoreAVL implements PersistentStore {
         } finally {
             writeUnlock();
         }
+    }
+
+    public IndexStats[] checkIndexes(Session session, int mode) {
+
+        IndexStats[] indexStats = new IndexStats[accessorList.length];
+
+        for (int i = 0; i < indexList.length; i++) {
+            IndexAVL index = (IndexAVL) indexList[i];
+            NodeAVL  node  = (NodeAVL) accessorList[i];
+            IndexAVLProbe probe = new IndexAVLProbe(session, this, index,
+                node);
+
+            probe.probe();
+
+            indexStats[i] = probe.getStats();
+        }
+
+        return indexStats;
     }
 
     public void setReadOnly(boolean readOnly) {}

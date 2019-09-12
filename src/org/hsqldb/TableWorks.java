@@ -162,8 +162,8 @@ public class TableWorks {
         }
 
         // check after UNIQUE check
-        c.core.mainTable.checkReferentialColumnsMatch(c.core.mainCols, fkTable,
-                c.core.refCols);
+        c.core.mainTable.checkReferentialColumnsMatch(c.core.mainCols,
+                fkTable, c.core.refCols);
         ArrayUtil.reorderMaps(unique.getMainColumns(), c.getMainColumns(),
                               c.getRefColumns());
 
@@ -587,7 +587,7 @@ public class TableWorks {
 
         indexes[position] = newIndex;
 
-        store.reindex(session, newIndex);
+        store.reindex(session, newIndex, null);
         database.schemaManager.recompileDependentObjects(table);
     }
 

@@ -35,7 +35,7 @@ import org.hsqldb.lib.DoubleIntIndex;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.5.1
  * @since 2.3.0
  */
 public interface DataSpaceManager {
@@ -57,6 +57,8 @@ public interface DataSpaceManager {
     int getNewTableSpaceID();
 
     long getFileBlocks(int spaceId, int blockCount);
+
+    void initialiseTableSpace(TableSpaceManagerBlocks tableSpace);
 
     void freeTableSpace(int spaceId);
 

@@ -41,10 +41,11 @@ import org.hsqldb.lib.IntIndex;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedIntHashSet;
+import org.hsqldb.map.BitMap;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.1
  * @since 2.3.0
  */
 public class DataSpaceManagerBlocks implements DataSpaceManager {
@@ -61,9 +62,11 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     final BlockObjectStore rootStore;
     final BlockObjectStore directoryStore;
     final BlockObjectStore bitMapStore;
+    final BlockObjectStore lastBlockStore;
 
     //
-    IntArrayCachedObject rootBlock;
+    IntArrayCachedObject       rootBlock;
+    DoubleIntArrayCachedObject lastBlocks;
 
     //
     final AtomicInteger spaceIdSequence = new AtomicInteger(tableIdFirst);
@@ -71,6 +74,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     int                 released = 0;
 
     //
+    public static final int lastBlockListSize       = 1024;
     public static final int dirBlockSize            = 1024 * 2;
     public static final int fileBlockItemCountLimit = 64 * 1024;
 
@@ -119,17 +123,18 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
         //
         rootStore      = getRootStore();
-        directoryStore = getDirectoryStore(false);
+        directoryStore = getDirectoryStore();
         bitMapStore    = getBitMapStore();
+        lastBlockStore = getLastBlockStore();
 
         if (cache.spaceManagerPosition == 0) {
             initialiseNewSpaceDirectory();
 
             cache.spaceManagerPosition = rootBlock.getPos() * dataFileScale;
         } else {
-            long pos = cache.spaceManagerPosition / dataFileScale;
+            long position = cache.spaceManagerPosition / dataFileScale;
 
-            rootBlock = (IntArrayCachedObject) rootStore.get(pos, true);
+            rootBlock = (IntArrayCachedObject) rootStore.get(position, true);
 
             // integrity check
             if (getBlockIndexLimit() == 0) {
@@ -141,6 +146,26 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
             }
 
             initialiseSpaceList();
+
+            int blockPos = rootBlock.getValue(dirBlockSize - 1);
+
+            if (blockPos == 0) {
+
+                // create
+                lastBlocks = new DoubleIntArrayCachedObject(lastBlockListSize);
+
+                lastBlockStore.add(lastBlocks, true);
+
+                blockPos = getFileBlockPosFromPosition(lastBlocks.getPos());
+
+                rootBlock.setValue(dirBlockSize - 1, blockPos);
+            } else {
+                position = getPositionFromFileBlock(blockPos);
+                lastBlocks =
+                    (DoubleIntArrayCachedObject) lastBlockStore.get(position,
+                        true);
+            }
+
             initialiseTableSpace(directorySpaceManager);
             initialiseTableSpace(defaultSpaceManager);
         }
@@ -154,13 +179,12 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                                     * dirBlockSize, dirBlockSize);
     }
 
-    BlockObjectStore getDirectoryStore(boolean force240) {
+    BlockObjectStore getDirectoryStore() {
 
-        return new BlockObjectStore(
-            cache, directorySpaceManager,
-            DirectoryBlockCachedObject.class,
-            DirectoryBlockCachedObject.fileSizeFactor * dirBlockSize,
-            dirBlockSize);
+        return new BlockObjectStore(cache, directorySpaceManager,
+                                    DirectoryBlockCachedObject.class,
+                                    DirectoryBlockCachedObject.fileSizeFactor
+                                    * dirBlockSize, dirBlockSize);
     }
 
     BlockObjectStore getBitMapStore() {
@@ -169,6 +193,15 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                                     BitMapCachedObject.class,
                                     bitmapStorageSize, bitmapIntSize);
     }
+
+    BlockObjectStore getLastBlockStore() {
+
+        return new BlockObjectStore(cache, directorySpaceManager,
+                                    DoubleIntArrayCachedObject.class,
+                                    DoubleIntArrayCachedObject.fileSizeFactor
+                                    * lastBlockListSize, lastBlockListSize);
+    }
+
     private void initialiseNewSpaceDirectory() {
 
         long currentSize = cache.getFileFreePos();
@@ -324,9 +357,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         bitMapStore.add(bitMap, false);
 
         //
-        int bitmapBlockPos = (int) (bitMap.getPos() * dataFileScale
-                                    / DataSpaceManager.fixedBlockSizeUnit);
-        int blockOffset = fileBlockIndex % dirBlockSize;
+        int bitmapBlockPos = getFileBlockPosFromPosition(bitMap.getPos());
+        int blockOffset    = fileBlockIndex % dirBlockSize;
         DirectoryBlockCachedObject directory = getDirectory(fileBlockIndex,
             true);
 
@@ -352,18 +384,14 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
     private DirectoryBlockCachedObject getDirectoryByIndex(int indexInRoot,
             boolean keep) {
 
-        long                       position = rootBlock.getValue(indexInRoot);
-        DirectoryBlockCachedObject directory;
+        int  blockPos = rootBlock.getValue(indexInRoot);
+        long position = getPositionFromFileBlock(blockPos);
 
         if (position == 0) {
             return null;
         }
 
-        position *= (DataSpaceManager.fixedBlockSizeUnit / dataFileScale);
-        directory = (DirectoryBlockCachedObject) directoryStore.get(position,
-                keep);
-
-        return directory;
+        return (DirectoryBlockCachedObject) directoryStore.get(position, keep);
     }
 
     private void createDirectory(int fileBlockIndex) {
@@ -374,9 +402,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
         directoryStore.add(directory, false);
 
-        int indexInRoot = fileBlockIndex / dirBlockSize;
-        int blockPosition = (int) (directory.getPos() * dataFileScale
-                                   / DataSpaceManager.fixedBlockSizeUnit);
+        int indexInRoot   = fileBlockIndex / dirBlockSize;
+        int blockPosition = getFileBlockPosFromPosition(directory.getPos());
 
         rootBlock.setValue(indexInRoot, blockPosition);
     }
@@ -555,6 +582,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
             if (tableSpace != null) {
                 tableSpace.reset();
+
                 // do not remove from spaceManagerList - can be truncate
             }
 
@@ -807,6 +835,15 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                     (TableSpaceManagerBlocks) it.next();
 
                 tableSpace.reset();
+
+                int lastBlockIndex = tableSpace.getFileBlockIndex();
+                int spaceId;
+
+                if (lastBlockIndex >= 0) {
+                    spaceId = tableSpace.getSpaceID();
+
+                    lastBlocks.addKey(spaceId, lastBlockIndex);
+                }
             }
         } finally {
             cache.writeLock.unlock();
@@ -823,18 +860,13 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     public DirectoryBlockCachedObject[] getDirectoryList() {
 
-        int                          count = 0;
+        int                          count = rootBlock.getNonZeroSize();
         DirectoryBlockCachedObject[] directoryList;
-        int[]                        rootArray = rootBlock.getIntArray();
-
-        while (rootArray[count] != 0) {
-            count++;
-        }
 
         directoryList = new DirectoryBlockCachedObject[count];
 
         for (int i = 0; i < directoryList.length; i++) {
-            directoryList[i] = getDirectory(i * dirBlockSize, false);
+            directoryList[i] = getDirectoryByIndex(i, false);
         }
 
         return directoryList;
@@ -846,14 +878,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
      */
     DoubleIntIndex checkDirectorySpaces() {
 
-        DirectoryBlockCachedObject[] directoryList = getDirectoryList();
-        DoubleIntIndex offspaceBitmaps = new DoubleIntIndex(8, false);
-
-        offspaceBitmaps.setKeysSearchTarget();
-
-        DoubleIntIndex positionBitmaps = new DoubleIntIndex(8, false);
-
-        positionBitmaps.setKeysSearchTarget();
+        DirectoryBlockCachedObject[] directoryList   = getDirectoryList();
+        DoubleIntIndex               offspaceBitmaps = new DoubleIntIndex(8);
+        DoubleIntIndex               positionBitmaps = new DoubleIntIndex(8);
 
         for (int i = 0; i < directoryList.length; i++) {
             DirectoryBlockCachedObject dir        = directoryList[i];
@@ -878,9 +905,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                     break;
                 }
 
-                position = blockPos
-                           * (DataSpaceManager.fixedBlockSizeUnit
-                              / dataFileScale);
+                position   = getPositionFromFileBlock(blockPos);
                 spaceId    = findTableSpace(position);
                 blockIndex = i * dirBlockSize + j;
 
@@ -911,12 +936,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
      */
     DoubleIntIndex checkDirectoryBitmaps(DirectoryBlockCachedObject mismatch) {
 
-        DirectoryBlockCachedObject[] directoryList = getDirectoryList();
-        DoubleIntIndex offspaceBitmaps = new DoubleIntIndex(8, false);
-
-        offspaceBitmaps.setKeysSearchTarget();
-
-        int mismatchCount = 0;
+        DirectoryBlockCachedObject[] directoryList   = getDirectoryList();
+        DoubleIntIndex               offspaceBitmaps = new DoubleIntIndex(8);
+        int                          mismatchCount   = 0;
 
         for (int i = 0; i < directoryList.length; i++) {
             DirectoryBlockCachedObject dir = directoryList[i];
@@ -929,11 +951,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                     break;
                 }
 
-                long position = blockPos
-                                * (DataSpaceManager.fixedBlockSizeUnit
-                                   / dataFileScale);
-                int spaceId    = findTableSpace(position);
-                int blockIndex = i * dirBlockSize + j;
+                long position   = getPositionFromFileBlock(blockPos);
+                int  spaceId    = findTableSpace(position);
+                int  blockIndex = i * dirBlockSize + j;
                 BitMapCachedObject currentBitMap =
                     (BitMapCachedObject) bitMapStore.get(position, false);
 
@@ -962,27 +982,30 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         return offspaceBitmaps;
     }
 
-    private void initialiseTableSpace(TableSpaceManagerBlocks tableSpace) {
+    private int findLastFreeSpace(int spaceId) {
+        return lastBlocks.getValue(spaceId, -1);
+    }
+
+    public void initialiseTableSpace(TableSpaceManagerBlocks tableSpace) {
 
         int spaceId        = tableSpace.getSpaceID();
-        int blockIndex     = -1;
         int lastBlockIndex = tableSpace.getFileBlockIndex();
 
-        if (lastBlockIndex >= 0) {
-            if (hasFreeSpace(spaceId, lastBlockIndex)) {
-                blockIndex = lastBlockIndex;
-            }
+        if (lastBlockIndex < 0) {
+            lastBlockIndex = findLastFreeSpace(spaceId);
         }
 
-        if (blockIndex < 0) {
-            blockIndex = findLargestFreeSpace(spaceId);
+        if (lastBlockIndex < 0) {
+            lastBlockIndex = findLargestFreeSpace(spaceId);
         }
 
-        if (blockIndex < 0) {
+        if (lastBlockIndex < 0) {
             return;
         }
 
-        initialiseTableSpace(tableSpace, blockIndex);
+        if (hasFreeSpace(spaceId, lastBlockIndex)) {
+            initialiseTableSpace(tableSpace, lastBlockIndex);
+        }
     }
 
     private boolean hasFreeSpace(int spaceId, int blockIndex) {
@@ -1056,6 +1079,18 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         } finally {
             ba.reset();
         }
+    }
+
+    /**
+     * input is in units of fixedBlockSizeUnit
+     * output is in units of dataFileScale
+     */
+    long getPositionFromFileBlock(int fixedBlockPos) {
+        return fixedBlockPos * (fixedBlockSizeUnit / dataFileScale);
+    }
+
+    int getFileBlockPosFromPosition(long position) {
+        return (int) (position / (fixedBlockSizeUnit / dataFileScale));
     }
 
     private class BlockAccessor {
