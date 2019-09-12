@@ -2663,6 +2663,11 @@ public class ParserCommand extends ParserDDL {
 
                 type = SchemaObject.DOMAIN;
                 break;
+            case Tokens.SEQUENCE :
+                read();
+
+                type = SchemaObject.SEQUENCE;
+                break;
 
             default :
                 throw unexpectedToken();
