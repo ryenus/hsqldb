@@ -380,7 +380,15 @@ public class IndexAVL implements Index {
      * Returns the node count.
      */
     public long size(Session session, PersistentStore store) {
-        return getNodeCount(session, store);
+
+        long        count = 0;
+        RowIterator it    = firstRow(session, store, null, 0, null);
+
+        while (it.next()) {
+            count++;
+        }
+
+        return count;
     }
 
     public long sizeUnique(PersistentStore store) {
@@ -506,18 +514,6 @@ public class IndexAVL implements Index {
         return depth - probeDepth;
     }
 
-    public long getNodeCount(Session session, PersistentStore store) {
-
-        long        count = 0;
-        RowIterator it    = firstRow(session, store, null, 0, null);
-
-        while (it.next()) {
-            count++;
-        }
-
-        return count;
-    }
-
     public boolean isEmpty(PersistentStore store) {
 
         store.readLock();
@@ -587,93 +583,6 @@ public class IndexAVL implements Index {
         temp.delete();
 
         return x;
-    }
-
-    public int checkIndex(Session session, PersistentStore store) {
-
-        int errors = 0;
-
-        store.readLock();
-
-        try {
-            NodeAVL p = getAccessor(store);
-            NodeAVL f = null;
-
-            while (p != null) {
-                f = p;
-
-                checkNodes(store, p);
-
-                p = p.getLeft(store);
-            }
-
-            p = f;
-
-            while (f != null) {
-                errors += checkNodes(store, f);
-
-                NodeAVL fnext = next(store, f);
-
-                if (fnext != null) {
-                    int c = compareRowForInsertOrDelete(session,
-                                                        fnext.getRow(store),
-                                                        f.getRow(store), true,
-                                                        0);
-
-                    if (c <= 0) {
-                        if (errors < 10) {
-                            System.out.println("broken index order "
-                                               + getName().name);
-                        }
-
-                        errors++;
-                    }
-                }
-
-                f = fnext;
-            }
-        } finally {
-            store.readUnlock();
-        }
-
-        if (errors > 0) {
-            System.out.println("total errors " + getName().name);
-        }
-
-        return errors;
-    }
-
-    int checkNodes(PersistentStore store, NodeAVL p) {
-
-        NodeAVL l      = p.nLeft;
-        NodeAVL r      = p.nRight;
-        int     errors = 0;
-
-        if (l != null && l.getBalance(store) == -2) {
-            System.out.print("broken index - deleted");
-
-            errors++;
-        }
-
-        if (r != null && r.getBalance(store) == -2) {
-            System.out.print("broken index -deleted");
-
-            errors++;
-        }
-
-        if (l != null && !p.equals(l.getParent(store))) {
-            System.out.print("broken index - no parent");
-
-            errors++;
-        }
-
-        if (r != null && !p.equals(r.getParent(store))) {
-            System.out.print("broken index - no parent");
-
-            errors++;
-        }
-
-        return errors;
     }
 
     /**

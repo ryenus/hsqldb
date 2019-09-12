@@ -158,11 +158,7 @@ public interface Index extends SchemaObject {
 
     double[] searchCost(Session session, PersistentStore store);
 
-    long getNodeCount(Session session, PersistentStore store);
-
     boolean isEmpty(PersistentStore store);
-
-    int checkIndex(Session session, PersistentStore store);
 
     /**
      * Insert a node into the index

@@ -158,7 +158,7 @@ public interface PersistentStore {
     void moveData(Session session, PersistentStore other, int[] colIndex,
                   int adjust);
 
-    void reindex(Session session, Index index);
+    void reindex(Session session, Index index, Index useIndex);
 
     void setReadOnly(boolean readonly);
 

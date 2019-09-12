@@ -472,4 +472,17 @@ public class NodeAVLDisk extends NodeAVL {
     public boolean keepInMemory(boolean keep) {
         return false;
     }
+
+    long getLeftPos() {
+        return iLeft;
+    }
+
+    long getRightPos() {
+        return iRight;
+    }
+
+    long getParentPos() {
+        return iParent;
+    }
+
 }

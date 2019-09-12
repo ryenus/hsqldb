@@ -102,7 +102,7 @@ public class TestLibSpeed {
     };
     static HashSet          hashSet  = new HashSet();
     static DoubleIntIndex doubleIntLookup =
-        new DoubleIntIndex(sNumeric.length, false);
+        new DoubleIntIndex(sNumeric.length);
     static IntKeyIntValueHashMap intKeyIntValueHashLookup =
         new IntKeyIntValueHashMap();
     static IntValueHashMap intValueHashLookup =

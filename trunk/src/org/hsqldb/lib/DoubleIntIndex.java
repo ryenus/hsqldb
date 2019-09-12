@@ -56,7 +56,7 @@ public class DoubleIntIndex implements LongLookup {
     private int           count = 0;
     private int           capacity;
     private boolean       sorted       = true;
-    private boolean       sortOnValues = true;
+    private boolean       sortOnValues = false;
     private final boolean fixedSize;
     private int[]         keys;
     private int[]         values;
@@ -65,10 +65,7 @@ public class DoubleIntIndex implements LongLookup {
     private int targetSearchValue;
 
     public DoubleIntIndex(int capacity) {
-
         this(capacity, false);
-
-        sortOnValues = false;
     }
 
     public DoubleIntIndex(int capacity, boolean fixedSize) {
@@ -329,6 +326,10 @@ public class DoubleIntIndex implements LongLookup {
      */
     public boolean addUnique(int key, int value) {
 
+        if (sortOnValues) {
+            throw new IllegalArgumentException();
+        }
+
         if (count == capacity) {
             if (fixedSize) {
                 return false;
@@ -360,6 +361,104 @@ public class DoubleIntIndex implements LongLookup {
         count++;
 
         return true;
+    }
+
+    /**
+     * must be sorted on key
+     */
+    public boolean removeKey(int key) {
+
+        if (sortOnValues) {
+            throw new IllegalArgumentException();
+        }
+
+        if (!sorted) {
+            fastQuickSort();
+        }
+
+        targetSearchValue = key;
+
+        int i = binarySlotSearch(false);
+
+        if (i == count) {
+            return false;
+        }
+
+        if (keys[i] != key) {
+            return false;
+        }
+
+        remove(i);
+
+        return true;
+    }
+
+    /**
+     * must be sorted on key
+     */
+    public boolean addOrReplaceUnique(int key, int value) {
+
+        if (sortOnValues) {
+            throw new IllegalArgumentException();
+        }
+
+        if (!sorted) {
+            fastQuickSort();
+        }
+
+        targetSearchValue = key;
+
+        int i = binarySlotSearch(false);
+
+        if (i < count) {
+            if (keys[i] == key) {
+                values[i] = value;
+
+                return true;
+            }
+
+            if (count == capacity) {
+                if (fixedSize) {
+                    return false;
+                } else {
+                    doubleCapacity();
+                }
+            }
+
+            moveRows(i, i + 1, count - i);
+        }
+
+        keys[count]   = key;
+        values[count] = value;
+
+        count++;
+
+        return true;
+    }
+
+    /**
+     * Used for values as counters. Adds the value to the existing value for the
+     * key. Or adds the key - value pair.
+     */
+    public int addCount(int key, int value) {
+
+        sortOnValues = false;
+
+        if (addUnique(key, value)) {
+            return value;
+        }
+
+        targetSearchValue = key;
+
+        int i = this.binarySlotSearch(false);
+
+        values[i] += value;
+
+        return values[i];
+    }
+
+    public int addCount(int key) {
+        return addCount(key, 1);
     }
 
     public int add(long key, long value) {
@@ -724,36 +823,56 @@ public class DoubleIntIndex implements LongLookup {
             indices.pop();
 
             if (end - start >= threshold) {
-                int pivot = partition(start, end,
-                                      start + ((end - start) >>> 1));
+                int pivot = partition(start, end);
 
                 indices.push(start, pivot - 1);
                 indices.push(pivot + 1, end);
-            } else {
-                insertionSort(start, end);
             }
         }
+
+        insertionSort(0, count - 1);
 
         sorted = true;
     }
 
-    private int partition(int start, int end, int pivot) {
+    private int partition(int start, int end) {
 
-        int store = start;
+        int pivot = (start + end) >>> 1;
+
+        // pivot is median of three values
+        if (keys[pivot] < keys[(start + pivot) >>> 1]) {
+            swap(pivot, (start + pivot) >>> 1);
+        }
+
+        if (keys[(end + pivot) >>> 1] < keys[(start + pivot) >>> 1]) {
+            swap((end + pivot) >>> 1, (start + pivot) >>> 1);
+        }
+
+        if (keys[(end + pivot) >>> 1] < keys[pivot]) {
+            swap((end + pivot) >>> 1, pivot);
+        }
+
+        int pivotValue = keys[pivot];
+        int i          = start - 1;
+        int j          = end;
 
         swap(pivot, end);
 
-        for (int i = start; i <= end - 1; i++) {
-            if (lessThan(i, end)) {
-                swap(i, store);
+        for (;;) {
+            while (keys[++i] < pivotValue) {}
 
-                store++;
+            while (pivotValue < keys[--j]) {}
+
+            if (j < i) {
+                break;
             }
+
+            swap(i, j);
         }
 
-        swap(store, end);
+        swap(i, end);
 
-        return store;
+        return i;
     }
 
     /**
