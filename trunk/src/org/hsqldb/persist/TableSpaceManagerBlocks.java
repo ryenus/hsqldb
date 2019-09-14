@@ -46,11 +46,11 @@ import org.hsqldb.lib.DoubleIntIndex;
  */
 public class TableSpaceManagerBlocks implements TableSpaceManager {
 
-    final DataSpaceManager  spaceManager;
-    final int scale;
-    final int         mainBlockSize;
-    final int         spaceID;
-    final int         minReuse;
+    final DataSpaceManager spaceManager;
+    final int              scale;
+    final int              mainBlockSize;
+    final int              spaceID;
+    final int              minReuse;
 
     //
     private DoubleIntIndex lookup;

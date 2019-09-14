@@ -911,6 +911,12 @@ public class ParserDML extends ParserDQL {
                     unresolved = expr.resolveColumnReferences(session,
                             rangeGroup, rangeGroups, null);
 
+                    /*
+                    // nested reference to VALUES(C)
+                    if (database.sqlSyntaxMys && unresolved != null
+                            && unresolved.size() > 0) {}
+                    */
+
                     ExpressionColumn.checkColumnsResolved(unresolved);
                     e.resolveTypes(session, null);
                 }

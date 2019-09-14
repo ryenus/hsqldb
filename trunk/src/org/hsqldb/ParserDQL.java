@@ -3003,6 +3003,29 @@ public class ParserDQL extends ParserBase {
 
                 return new Expression(OpTypes.TABLE_SUBQUERY, td);
             }
+            case Tokens.VALUES : {
+                /*
+                if (database.sqlSyntaxMys) {
+                    read();
+                    readThis(Tokens.OPENBRACKET);
+                    checkIsSimpleName();
+
+                    String name = token.tokenString;
+
+                    if(compileContext.contextuallyTypedExpression) {
+                        e = new ExpressionColumn(name);
+                    } else {
+                        e = new ExpressionValue(null, Type.SQL_INTEGER);
+                    }
+
+                    read();
+                    readThis(Tokens.CLOSEBRACKET);
+
+                    return e;
+                }
+                */
+                throw unexpectedToken();
+            }
             case Tokens.GROUPING : {
                 read();
                 readThis(Tokens.OPENBRACKET);

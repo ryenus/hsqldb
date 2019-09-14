@@ -168,10 +168,9 @@ public class TestHashStructures extends TestCase {
         int     testSize = 512;
         org.hsqldb.lib.IntKeyHashMap hIntMap =
             new org.hsqldb.lib.IntKeyHashMap();
-        DoubleIntIndex intLookup = new DoubleIntIndex(12, false);
+        DoubleIntIndex intLookup = new DoubleIntIndex(12);
 
         try {
-            intLookup.setKeysSearchTarget();
             populateBySerialIntKeysInt(intLookup, hIntMap, testSize);
             compareByHIteratorInt(intLookup, hIntMap);
             populateByRandomIntKeysInt(intLookup, hIntMap, testSize);
@@ -189,9 +188,8 @@ public class TestHashStructures extends TestCase {
         int     testSize = 500;
         org.hsqldb.lib.IntKeyHashMap hIntMap =
             new org.hsqldb.lib.IntKeyHashMap();
-        DoubleIntIndex intLookup = new DoubleIntIndex(testSize, false);
+        DoubleIntIndex intLookup = new DoubleIntIndex(testSize);
 
-        intLookup.setKeysSearchTarget();
         populateByRandomIntKeysInt(intLookup, hIntMap, testSize);
         compareByHIteratorInt(intLookup, hIntMap);
 

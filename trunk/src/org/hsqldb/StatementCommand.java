@@ -299,15 +299,15 @@ public class StatementCommand extends Statement {
                         name, set);
                 }
 
-                Result result =
-                    Result.newSingleColumnResult(Tokens.T_REFERENCES);
+                Result result = Result.newDoubleColumnResult("OBJCT_TYPE",
+                    "OBJECT_NAME");
 
                 for (int i = 0; i < set.size(); i++) {
                     HsqlName current = (HsqlName) set.get(i);
-                    String objectName =
-                        SchemaObjectSet.getName(current.type) + ' '
-                        + current.getSchemaQualifiedStatementName();
-                    Object[] data = new Object[]{ objectName };
+                    Object[] data    = new Object[] {
+                        SchemaObjectSet.getName(current.type),
+                        current.getSchemaQualifiedStatementName()
+                    };
 
                     result.navigator.add(data);
                 }
