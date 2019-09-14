@@ -117,6 +117,16 @@ public class ExpressionColumn extends Expression {
         this.columnName = column;
     }
 
+    /**
+     * Column reference in MySQL INSERT
+     */
+    ExpressionColumn(String column) {
+
+        super(OpTypes.COLUMN);
+
+        this.columnName = column;
+    }
+
     ExpressionColumn(ColumnSchema column) {
 
         super(OpTypes.COLUMN);
