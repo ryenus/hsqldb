@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * existing table which may result in a new Table object
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.0
  */
 public class TableWorks {
@@ -65,6 +65,10 @@ public class TableWorks {
         this.database = table.database;
         this.table    = table;
         this.session  = session;
+
+        if(table.isView()) {
+            throw Error.error(ErrorCode.X_42524);
+        }
     }
 
     public Table getTable() {
