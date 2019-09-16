@@ -204,20 +204,26 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
     private void initialiseNewSpaceDirectory() {
 
-        long currentSize = cache.getFileFreePos();
-        long totalBlocks = (currentSize / fileBlockSize) + 1;
+        long basePosition = cache.getFileFreePos();
+        long totalBlocks  = (basePosition / fileBlockSize) + 1;
         long lastFreePosition = cache.enlargeFileSpace(totalBlocks
-            * fileBlockSize - currentSize);
+            * fileBlockSize - basePosition);
+        long defaultSpaceBlockCount   = 0;
+        long directorySpaceBlockCount = 1;
 
-        defaultSpaceManager.initialiseFileBlock(null, lastFreePosition,
-                cache.getFileFreePos());
+        if (basePosition == DataFileCache.MIN_INITIAL_FREE_POS
+                || basePosition == dataFileScale) {
+            lastFreePosition = 2 * fixedBlockSizeUnit;
+        } else {
+            defaultSpaceManager.initialiseFileBlock(null, lastFreePosition,
+                    cache.getFileFreePos());
 
-        long defaultSpaceBlockCount = totalBlocks;
-        long directorySpaceBlockCount =
-            calculateDirectorySpaceBlocks(totalBlocks);
-
-        lastFreePosition = cache.enlargeFileSpace(directorySpaceBlockCount
-                * fileBlockSize);
+            defaultSpaceBlockCount = totalBlocks;
+            directorySpaceBlockCount =
+                calculateDirectorySpaceBlocks(totalBlocks);
+            lastFreePosition = cache.enlargeFileSpace(directorySpaceBlockCount
+                    * fileBlockSize);
+        }
 
         // file block is empty
         directorySpaceManager.initialiseFileBlock(null, lastFreePosition,
@@ -227,8 +233,14 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
 
         rootStore.add(root, true);
 
-        rootBlock = root;
+        rootBlock  = root;
+        lastBlocks = new DoubleIntArrayCachedObject(lastBlockListSize);
 
+        lastBlockStore.add(lastBlocks, true);
+
+        int blockPos = getFileBlockPosFromPosition(lastBlocks.getPos());
+
+        rootBlock.setValue(dirBlockSize - 1, blockPos);
         createFileBlocksInDirectory((int) defaultSpaceBlockCount,
                                     (int) directorySpaceBlockCount,
                                     tableIdDirectory);

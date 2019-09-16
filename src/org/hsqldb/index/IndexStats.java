@@ -64,7 +64,7 @@ public class IndexStats {
     public long            loopCount;
     public long            goodRowCount;
     public boolean         reindexed;    // set after a reindex
-    HsqlArrayList          unorderedList;
+    HsqlArrayList          unorderedList = new HsqlArrayList();
 
     public static Result newEmptyResult() {
 

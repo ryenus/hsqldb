@@ -183,7 +183,7 @@ public class IndexAVLCheck {
         OrderedLongHashSet badRows;
         OrderedLongHashSet loopedRows;
         OrderedLongHashSet ignoreRows;
-        HsqlArrayList      unorderedRows;
+        HsqlArrayList      unorderedRows = new HsqlArrayList();
         int                branchPosition;
         int                leafPosition;
         long               errorRowCount;
@@ -423,16 +423,18 @@ public class IndexAVLCheck {
             } catch (HsqlException e) {
                 RowInputBinary rowIn = (RowInputBinary) e.info;
 
-                rowIn.ignoreDataErrors = true;
+                if (rowIn != null) {
+                    rowIn.ignoreDataErrors = true;
 
-                try {
-                    NodeAVLDisk next = (NodeAVLDisk) node.getLeft(store);
+                    try {
+                        NodeAVLDisk next = (NodeAVLDisk) node.getLeft(store);
 
-                    getNodesFrom(depth + 1, next, false);
-                } catch (Throwable t) {
-                    badRows.add((int) leftPos);
-                } finally {
-                    rowIn.ignoreDataErrors = false;
+                        getNodesFrom(depth + 1, next, false);
+                    } catch (Throwable t) {
+                        badRows.add((int) leftPos);
+                    } finally {
+                        rowIn.ignoreDataErrors = false;
+                    }
                 }
 
                 errorRowCount++;
@@ -469,16 +471,18 @@ public class IndexAVLCheck {
             } catch (HsqlException e) {
                 RowInputBinary rowIn = (RowInputBinary) e.info;
 
-                rowIn.ignoreDataErrors = true;
+                if (rowIn != null) {
+                    rowIn.ignoreDataErrors = true;
 
-                try {
-                    NodeAVLDisk next = (NodeAVLDisk) node.getRight(store);
+                    try {
+                        NodeAVLDisk next = (NodeAVLDisk) node.getRight(store);
 
-                    getNodesFrom(depth + 1, next, false);
-                } catch (Throwable t) {
-                    badRows.add(rightPos);
-                } finally {
-                    rowIn.ignoreDataErrors = false;
+                        getNodesFrom(depth + 1, next, false);
+                    } catch (Throwable t) {
+                        badRows.add(rightPos);
+                    } finally {
+                        rowIn.ignoreDataErrors = false;
+                    }
                 }
 
                 errorRowCount++;
