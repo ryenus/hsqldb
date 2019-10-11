@@ -1317,7 +1317,7 @@ public class StatementSchema extends Statement {
                     table.compile(session, null);
                     schemaManager.addSchemaObject(table);
 
-                    if (tempIndexes != null && !tempIndexes.isEmpty()) {
+                    if (!tempIndexes.isEmpty()) {
                         TableWorks tableWorks = new TableWorks(session, table);
 
                         for (int i = 0; i < tempIndexes.size(); i++) {
@@ -1356,6 +1356,7 @@ public class StatementSchema extends Statement {
                 } catch (HsqlException e) {
                     schemaManager.removeExportedKeys(table);
                     schemaManager.removeDependentObjects(table.getName());
+                    schemaManager.removeSchemaObject(table.getName());
 
                     return Result.newErrorResult(e, sql);
                 }

@@ -39,6 +39,10 @@ import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
 
+/**
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 1.9.0
+ */
 class StatementPortal {
 
     public Object[] parameters;
@@ -111,11 +115,15 @@ class StatementPortal {
 
             try {
                 for (int i = 0; i < parameters.length; i++) {
-                    parameters[i] = (paramObjs[i] instanceof String)
-                                    ? PgType.getPgType(
-                                        paramTypes[i], true).getParameter(
-                                        (String) paramObjs[i], session)
-                                    : paramObjs[i];
+                    if (paramObjs[i] instanceof String) {
+                        PgType pgType = PgType.getPgType(paramTypes[i]);
+
+                        parameters[i] =
+                            pgType.getParameter((String) paramObjs[i],
+                                                session);
+                    } else {
+                        parameters[i] = paramObjs[i];
+                    }
                 }
             } catch (java.sql.SQLException se) {
                 throw new RecoverableOdbcFailure("Typing failure: " + se);

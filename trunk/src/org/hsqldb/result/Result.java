@@ -78,6 +78,8 @@ public class Result {
     public static final ResultMetaData sessionAttributesMetaData;
 
     static {
+
+        // calls to initialise some global statics
         SqlInvariants.isSystemSchemaName(SqlInvariants.SYSTEM_SCHEMA);
         Charset.getDefaultInstance();
         Collation.getDefaultInstance();

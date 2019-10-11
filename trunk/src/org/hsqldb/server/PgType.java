@@ -129,7 +129,7 @@ public class PgType {
                        ? -1 : lpConstraintObject.intValue();
     }
 
-    public static PgType getPgType(Type hType, boolean directColumn)
+    public static PgType getPgType(Type hType)
     throws RecoverableOdbcFailure {
         switch (hType.typeCode) {
             case Types.TINYINT:
@@ -158,25 +158,11 @@ public class PgType {
                 return boolSingleton;
 
             case Types.SQL_CHAR: // = CHARACTER
-                if (directColumn) {
-                    return new PgType(hType,
+                return new PgType(hType,
                         TYPE_BPCHAR, null, hType.precision + 4);
-                }
-                return unknownSingleton;  // constant value
 
             case Types.SQL_VARCHAR: // = CHARACTER VARYING = LONGVARCHAR
-                if (hType.precision < 0) {
-                    throw new RecoverableOdbcFailure (
-                        "Length/Precision value is below minimum value of 0");
-                }
-                if (hType.precision > Integer.MAX_VALUE) {
-                    throw new RecoverableOdbcFailure (
-                        "Length/Precision value is above maximum value of "
-                        + Integer.MAX_VALUE);
-                }
-                return (hType.precision != 0 && directColumn)
-                    ? new PgType(hType, TYPE_VARCHAR, null, hType.precision + 4)
-                    : textSingleton;
+                return new PgType(hType, TYPE_VARCHAR, null, hType.precision + 4);
                 // Return TEXT type for both unlimited VARCHARs, and for
                 // Non-direct-table-col results.
             case Types.SQL_CLOB: // = CHARACTER LARGE OBJECT
@@ -514,7 +500,7 @@ public class PgType {
     static protected final PgType minSecIntervalSingleton =
         new PgType(Type.SQL_INTERVAL_MINUTE_TO_SECOND, TYPE_TINTERVAL, 16);
     static protected final PgType secIntervalSingleton =
-        new PgType(Type.SQL_INTERVAL_SECOND, TYPE_TINTERVAL, 16);
+        new PgType(Type.SQL_INTERVAL_SECOND_MAX_PRECISION, TYPE_TINTERVAL, 16);
 
     static private void ignoredConstraintWarning(Type hsqldbType) {
         if (hsqldbType.precision == 0 && hsqldbType.scale == 0) {

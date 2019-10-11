@@ -135,6 +135,7 @@ public class TestHTTPKeepAlive extends TestBase {
                 e.printStackTrace(System.out);
             } finally {
                 try {
+                    if (c != null)
                     c.close();
                 } catch (SQLException e) {
                     e.printStackTrace();

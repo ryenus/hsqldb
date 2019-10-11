@@ -158,9 +158,12 @@ public final class Schema implements SchemaObject {
         String        setSchema = getSetSchemaSQL(name);
 
         list.add(setSchema);
+        typeLookup.getSQL(list, resolved, unresolved);
+        charsetLookup.getSQL(list, resolved, unresolved);
+        collationLookup.getSQL(list, resolved, unresolved);
+        functionLookup.getSQL(list, resolved, unresolved);
         sequenceLookup.getSQL(list, resolved, unresolved);
         tableLookup.getSQL(list, resolved, unresolved);
-        functionLookup.getSQL(list, resolved, unresolved);
         procedureLookup.getSQL(list, resolved, unresolved);
         referenceLookup.getSQL(list, resolved, unresolved);
 
@@ -199,24 +202,6 @@ public final class Schema implements SchemaObject {
         }
 
         return list;
-    }
-
-    public void addSimpleObjects(OrderedHashSet set) {
-
-        Iterator it = specificRoutineLookup.map.values().iterator();
-
-        while (it.hasNext()) {
-            Routine routine = (Routine) it.next();
-
-            if (routine.dataImpact == Routine.NO_SQL
-                    || routine.language == Routine.LANGUAGE_JAVA) {
-                set.add(routine);
-            }
-        }
-
-        set.addAll(typeLookup.map.values());
-        set.addAll(charsetLookup.map.values());
-        set.addAll(collationLookup.map.values());
     }
 
     boolean isEmpty() {
@@ -279,7 +264,7 @@ public final class Schema implements SchemaObject {
         }
     }
 
-    Iterator schemaObjectIterator(int type) {
+    public Iterator schemaObjectIterator(int type) {
 
         switch (type) {
 

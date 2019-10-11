@@ -506,7 +506,7 @@ public final class IntervalType extends DTIType {
         switch (otherType.typeCode) {
 
             case Types.SQL_CLOB :
-                a = a.toString();
+                a = Type.SQL_VARCHAR.convertToType(session, a, otherType);
 
             // fall through
             case Types.SQL_CHAR :

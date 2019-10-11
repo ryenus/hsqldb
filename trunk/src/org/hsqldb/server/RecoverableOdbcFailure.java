@@ -33,6 +33,10 @@ package org.hsqldb.server;
 
 import org.hsqldb.result.Result;
 
+/**
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 1.9.0
+ */
 class RecoverableOdbcFailure extends Exception {
     private String clientMessage = null;
     private String sqlStateCode = null;

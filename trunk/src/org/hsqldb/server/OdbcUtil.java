@@ -40,6 +40,9 @@ import org.hsqldb.result.ResultMetaData;
 
 /**
  * Static values and methods to facilitate servicing ODBC clients.
+ *
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 1.9.0
  */
 public class OdbcUtil {
 

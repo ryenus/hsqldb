@@ -34,10 +34,6 @@ package org.hsqldb.persist;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -59,7 +55,6 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.LineGroupReader;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
@@ -82,7 +77,6 @@ public class LobManager {
 
     static final String resourceFileName =
         "/org/hsqldb/resources/lob-schema.sql";
-    static final String[] starters = new String[]{ "/*" };
 
     //
     Database         database;
@@ -258,34 +252,17 @@ public class LobManager {
 
         sysLobSession = database.sessionManager.getSysLobSession();
 
-        InputStream fis =
-            AccessController.doPrivileged(new PrivilegedAction<InputStream>() {
-
-            public InputStream run() {
-                return getClass().getResourceAsStream(resourceFileName);
-            }
-        });
-        InputStreamReader reader = new InputStreamReader(fis,
-            JavaSystem.CS_ISO_8859_1);
-        LineNumberReader lineReader = new LineNumberReader(reader);
-        LineGroupReader  lg = new LineGroupReader(lineReader, starters);
-        HashMappedList   map        = lg.getAsMap();
-
-        lg.close();
-
-        String    sql       = (String) map.get("/*lob_schema_definition*/");
-        Statement statement = sysLobSession.compileStatement(sql);
-        Result    result    = statement.execute(sysLobSession);
+        HashMappedList map = LineGroupReader.getStatementMap(resourceFileName);
+        String         sql = (String) map.get("/*lob_schema_definition*/");
+        Statement      statement = sysLobSession.compileStatement(sql);
+        Result         result    = statement.execute(sysLobSession);
 
         if (result.isError()) {
             throw result.getException();
         }
 
-        HsqlName name =
-            database.schemaManager.getSchemaHsqlName("SYSTEM_LOBS");
-        Table table = database.schemaManager.getUserTable("BLOCKS",
-            "SYSTEM_LOBS");
-
+        // throws if schema not created
+        database.schemaManager.getSchemaHsqlName("SYSTEM_LOBS");
         compileStatements();
     }
 

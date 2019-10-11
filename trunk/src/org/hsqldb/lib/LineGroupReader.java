@@ -31,8 +31,13 @@
 
 package org.hsqldb.lib;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.ValuePool;
 
 /**
@@ -41,7 +46,7 @@ import org.hsqldb.map.ValuePool;
  * thrown while reading from the reader is handled internally.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class LineGroupReader {
@@ -76,7 +81,7 @@ public class LineGroupReader {
         this.reader               = reader;
 
         try {
-            getSection();
+            getNextSection();
         } catch (Exception e) {}
     }
 
@@ -91,11 +96,11 @@ public class LineGroupReader {
         this.reader               = reader;
 
         try {
-            getSection();
+            getNextSection();
         } catch (Exception e) {}
     }
 
-    public HsqlArrayList getSection() {
+    public HsqlArrayList getNextSection() {
 
         String        line;
         HsqlArrayList list = new HsqlArrayList(new String[8], 0);
@@ -143,6 +148,10 @@ public class LineGroupReader {
         }
     }
 
+    public String getSectionAsString() {
+        HsqlArrayList list = getNextSection();
+        return convertToString(list, 0);
+    }
     /**
      * Returns a map/list which contains the first line of each line group
      * as key and the rest of the lines as a String value.
@@ -152,9 +161,9 @@ public class LineGroupReader {
         HashMappedList map = new HashMappedList();
 
         while (true) {
-            HsqlArrayList list = getSection();
+            HsqlArrayList list = getNextSection();
 
-            if (list.size() < 1) {
+            if (list.size() == 0) {
                 break;
             }
 
@@ -220,4 +229,39 @@ public class LineGroupReader {
 
         return sb.toString();
     }
+
+    public static HashMappedList getStatementMap(final String path) {
+
+        HashMappedList  statementMap;
+        String[]        starters = new String[]{ "/*" };
+        LineGroupReader lg       = getGroupReader(path, starters);
+
+        statementMap = lg.getAsMap();
+
+        lg.close();
+
+        return statementMap;
+    }
+
+    public static LineGroupReader getGroupReader(final String path,
+            final String[] starters) {
+
+        InputStream fis =
+            AccessController.doPrivileged(new PrivilegedAction<InputStream>() {
+
+            public InputStream run() {
+                return getClass().getResourceAsStream(path);
+            }
+        });
+        InputStreamReader reader = new InputStreamReader(fis,
+            JavaSystem.CS_ISO_8859_1);
+        LineNumberReader lineReader = new LineNumberReader(reader);
+
+        return new LineGroupReader(lineReader, starters);
+    }
+
+    public static LineGroupReader getGroupReader(final String path) {
+        return getGroupReader(path, ValuePool.emptyStringArray);
+    }
+
 }

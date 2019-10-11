@@ -54,7 +54,7 @@ import org.hsqldb.persist.PersistentStore;
  * DatabaseInformation implementations. <p>
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.2
  */
 public class DatabaseInformation {

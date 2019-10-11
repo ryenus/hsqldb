@@ -292,13 +292,20 @@ public class Table extends TableBase implements SchemaObject {
         return set;
     }
 
-    public RangeVariable[] getDefaultRanges() {
+    public OrderedHashSet getReferencesForScript() {
 
-        if (defaultRanges == null) {
-            defaultRanges = new RangeVariable[]{ new RangeVariable(this, 0) };
+        OrderedHashSet set = getReferences();
+
+        for (int i = 0; i < colTypes.length; i++) {
+            ColumnSchema   column = getColumn(i);
+            OrderedHashSet refs   = column.getReferences();
+
+            if (refs != null && !refs.isEmpty()) {
+                set.addAll(refs);
+            }
         }
 
-        return defaultRanges;
+        return set;
     }
 
     public OrderedHashSet getReferencesForDependents() {
@@ -516,6 +523,15 @@ public class Table extends TableBase implements SchemaObject {
 
     public long getChangeTimestamp() {
         return changeTimestamp;
+    }
+
+    public RangeVariable[] getDefaultRanges() {
+
+        if (defaultRanges == null) {
+            defaultRanges = new RangeVariable[]{ new RangeVariable(this, 0) };
+        }
+
+        return defaultRanges;
     }
 
     public final void setName(HsqlName name) {
@@ -2880,6 +2896,11 @@ public class Table extends TableBase implements SchemaObject {
             Object[] data = nav.getCurrent();
             Object[] newData =
                 (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
+
+            for (int i = 0; i < newData.length; i++) {
+                newData[i] = colTypes[i].convertToTypeLimits(session,
+                        newData[i]);
+            }
 
             insertData(session, store, newData, true);
         }

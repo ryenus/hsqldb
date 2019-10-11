@@ -1173,7 +1173,8 @@ public class CharacterType extends Type {
                     return charArray[(int) length];
                 }
 
-            // fall through
+                return new CharacterType(type, (int) length);
+
             case Types.SQL_VARCHAR :
                 return new CharacterType(type, (int) length);
 

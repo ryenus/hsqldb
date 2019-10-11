@@ -41,6 +41,10 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
 
+/*
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 1.9.0
+ */
 class OdbcPreparedStatement {
 
     public String  handle, query;
