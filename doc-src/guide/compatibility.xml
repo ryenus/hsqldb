@@ -198,7 +198,7 @@
       <title>MySQL Compatibility</title>
 
       <para>HyperSQL version 2.5 is highly compatible with MySQL and supports
-      most its the non-standard syntax. The latest versions of MySQL have
+      most of its non-standard syntax. The latest versions of MySQL have
       introduced better Standard compatibility but some of these features have
       to be turned on via properties. You should therefore check the current
       Standard compatibility settings of your MySQL database and use the
@@ -359,9 +359,9 @@
 
           <para>When INSERT IGNORE is used, if any of the inserted rows would
           violate a PRIMARY KEY or UNIQUE constraint, that row is not
-          inserted. The rest of the rows are then inserted only if there is no
-          other violation such as long strings or type mismatch, otherwise the
-          appropriate error is returned.</para>
+          inserted. With multi-row inserts, the rest of the rows are then
+          inserted only if there is no other violation such as long strings or
+          type mismatch, otherwise the appropriate error is returned.</para>
 
           <para>When REPLACE or ON DUPLICATE KEY UPDATE is used, the rows that
           need replacing or updating are updated with the given values. This
@@ -373,8 +373,8 @@
 
         <listitem>
           <para>MySQL user-defined function and procedure syntax is very
-          similar to SQL Standard syntax. A few changes may still be
-          required.</para>
+          similar to SQL Standard syntax supported by HSQLDB. A few changes
+          may still be required.</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -511,8 +511,7 @@
           compatibility, the PL/HXSQL language with a similar syntax to
           PL/SQL, extensive support for additional aggregate functions, window
           analytic functions with OVER(PARTITION ... ORDER ... ROWS | RANGE
-          ...) , CUBE, ROLLUP, GROUPING SET and WITHIN GROUP (ORDER
-          BY).</para>
+          ...) and WITHIN GROUP (ORDER BY).</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -565,8 +564,8 @@
           <para>More advanced compatibility is offered by HyperXtremeSQL,
           which is a product based on HyperSQL. It has extensive support for
           additional aggregate functions, window analytic functions with
-          OVER(PARTITION ... ORDER BY ... ROWS | RANGE ...) , CUBE, ROLLUP,
-          GROUPING SET and WITHIN GROUP (ORDER BY ...).</para>
+          OVER(PARTITION ... ORDER BY ... ROWS | RANGE ...) and WITHIN GROUP
+          (ORDER BY ...).</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -629,8 +628,8 @@
           <para>More advanced compatibility is offered by HyperXtremeSQL,
           which is a product based on HyperSQL. It has extensive support for
           additional aggregate functions, window analytic functions with
-          OVER(PARTITION ... ORDER BY ... ROWS | RANGE ...) , CUBE, ROLLUP,
-          GROUPING SET and WITHIN GROUP (ORDER BY ...).</para>
+          OVER(PARTITION ... ORDER BY ... ROWS | RANGE ...) and WITHIN GROUP
+          (ORDER BY ...).</para>
         </listitem>
       </itemizedlist>
     </section>

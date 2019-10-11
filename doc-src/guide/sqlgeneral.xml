@@ -264,10 +264,10 @@
         means a single byte. Use VARBINARY(L) for general binary strings, and
         BLOB for large binary objects. You should apply the same
         considerations as with the character string types. By default,
-        LONGVARBINARY is a synonym for a long VARCHAR and can be used without
-        specifying the size. You can set LONGVARBINARY to map to BLOB, with
-        the <literal>sql.longvar_is_lob</literal> connection property or the
-        SET DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
+        LONGVARBINARY is a synonym for a long VARBINARY and can be used
+        without specifying the size. You can set LONGVARBINARY to map to BLOB,
+        with the <literal>sql.longvar_is_lob</literal> connection property or
+        the SET DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
       </listitem>
 
       <listitem>
@@ -292,7 +292,7 @@
       <listitem>
         <para>The INTERVAL type is very powerful when used together with the
         datetime types. This is very easy to use, but is supported mainly by
-        "big iron" database systems. Note that functions that add days or
+        enterprise database systems. Note that functions that add days or
         months to datetime values are not really a substitute for the INTERVAL
         type. Expressions such as <literal>(datecol - 7 DAY) &gt;
         CURRENT_DATE</literal> are optimised to use indexes when it is
