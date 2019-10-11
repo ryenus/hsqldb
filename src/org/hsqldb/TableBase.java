@@ -128,6 +128,19 @@ public class TableBase implements Cloneable {
         return tableType;
     }
 
+    /**
+     * limited type change to info_schema_table
+     */
+    public final void setTableType(int type) {
+
+        if (tableType == MEMORY_TABLE && type == INFO_SCHEMA_TABLE) {
+            tableType        = type;
+            persistenceScope = SCOPE_TRANSACTION;
+            isSessionBased   = true;
+            tableType        = type;
+        }
+    }
+
     public long getPersistenceId() {
         return persistenceId;
     }

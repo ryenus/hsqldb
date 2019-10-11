@@ -50,6 +50,9 @@ import org.hsqldb.types.BinaryData;
  * available method is reliable and may be relied upon.
  *
  * @see #available()
+ *
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 1.9.0
  */
 class OdbcPacketInputStream extends DataInputStream {
 
@@ -191,9 +194,6 @@ class OdbcPacketInputStream extends DataInputStream {
             new DataInputStream(new ByteArrayInputStream(ba));
         String s = dis.readUTF();
 
-        //String s = DataInputStream.readUTF(dis);
-        // TODO:  Test the previous two to see if one works better for
-        // high-order characters.
         dis.close();
 
         return s;

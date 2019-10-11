@@ -31,12 +31,6 @@
 
 package org.hsqldb.dbinfo;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
 import org.hsqldb.ColumnSchema;
 import org.hsqldb.Constraint;
 import org.hsqldb.Database;
@@ -72,7 +66,6 @@ import org.hsqldb.lib.LineGroupReader;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.lib.WrapperIterator;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.DataFileCache;
 import org.hsqldb.persist.DataSpaceManager;
@@ -119,34 +112,16 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.2
  */
 final class DatabaseInformationFull
 extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
-    static final HashMappedList statementMap;
-
-    static {
-        synchronized (DatabaseInformationFull.class) {
-            final String path = "/org/hsqldb/resources/information-schema.sql";
-            final String[] starters = new String[]{ "/*" };
-            InputStream fis = AccessController.doPrivileged(
-                new PrivilegedAction<InputStream>() {
-
-                public InputStream run() {
-                    return getClass().getResourceAsStream(path);
-                }
-            });
-            InputStreamReader reader     = new InputStreamReader(fis, JavaSystem.CS_ISO_8859_1);
-            LineNumberReader  lineReader = new LineNumberReader(reader);
-            LineGroupReader   lg = new LineGroupReader(lineReader, starters);
-
-            statementMap = lg.getAsMap();
-
-            lg.close();
-        }
-    }
+    static final String resourceFileName =
+        "/org/hsqldb/resources/information-schema.sql";
+    static final HashMappedList statementMap =
+        LineGroupReader.getStatementMap(resourceFileName);
 
     /**
      * Constructs a new DatabaseInformationFull instance. <p>
@@ -4825,10 +4800,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * CONSTRAINT_CATALOG              VARCHAR NULL,
      * CONSTRAINT_SCHEMA               VARCHAR NULL,
      * CONSTRAINT_NAME                 VARCHAR NOT NULL,
-     * TABLE_CATALOG                   VARCHAR   table catalog
-     * TABLE_SCHEMA                    VARCHAR   table schema
-     * TABLE_NAME                      VARCHAR   table name
-     * PERIOD_NAME                     VARCHAR   period name
+     * TABLE_CATALOG                   VARCHAR table catalog
+     * TABLE_SCHEMA                    VARCHAR table schema
+     * TABLE_NAME                      VARCHAR table name
+     * PERIOD_NAME                     VARCHAR period name
      * </pre> <p>
      *
      * A period is included in this view if the user has privileges on the table.
@@ -9220,7 +9195,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     && session.getGrantee().isFullyAccessibleByRole(
                         table.getName())) {
 
-                // fall through
+                //
             } else {
                 continue;
             }
@@ -9262,19 +9237,19 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2011 VIEW<p>
      *
-     * The VIEW_PERIOD_USAGE view has one row for each table identified
-     * by a &lt;table name&gt; simply contained in a &lt;table reference&gt;
-     * that is contained in the &lt;query expression&gt; of a view. <p>
+     * The VIEW_PERIOD_USAGE view has one row for each period contained in the
+     * &lt;query expression&gt; of a view. <p>
      *
      * <b>Definition</b><p>
      *
      * <pre class="SqlCodeExample">
-     *      VIEW_CATALOG    VARCHAR NULL,
-     *      VIEW_SCHEMA     VARCHAR NULL,
-     *      VIEW_NAME       VARCHAR NULL,
-     *      TABLE_CATALOG   VARCHAR NULL,
-     *      TABLE_SCHEMA    VARCHAR NULL,
-     *      TABLE_NAME      VARCHAR NULL,
+     *      VIEW_CATALOG    VARCHAR NOT NULL,
+     *      VIEW_SCHEMA     VARCHAR NOT NULL,
+     *      VIEW_NAME       VARCHAR NOT NULL,
+     *      TABLE_CATALOG   VARCHAR NOT NULL,
+     *      TABLE_SCHEMA    VARCHAR NOT NULL,
+     *      TABLE_NAME      VARCHAR NOT NULL,
+     *      PERIOD_NAME     VARCHAR NOT NULL,
      * </pre>
      *
      * <b>Description:</b><p>
@@ -9286,11 +9261,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, and TABLE_NAME are the
      *      catalog name, schema name, and identifier,
-     *      respectively, of a table identified by a &lt;table name&gt;
-     *      simply contained in a &lt;table reference&gt; that is contained in
+     *      respectively, of a table containing the period that is referenced in
      *      the &lt;query expression&gt; of the view being described.
-     * <1i> Referenced tables are reported only if the user or one of its roles is
-     *      the authorization (owner) of the referenced TABLE
+     * <1i> Referenced periods are reported only if the user or one of its roles is
+     *      the authorization (owner) of the containing TABLE
      * </ol>
      *
      * @return Table

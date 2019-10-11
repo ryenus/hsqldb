@@ -88,6 +88,8 @@ public class ParserTable extends ParserDML {
 
         HsqlArrayList tempConstraints = new HsqlArrayList();
         HsqlArrayList tempIndexes     = new HsqlArrayList();
+        Statement     statement       = null;
+        HsqlName[]    readLockNames   = null;
         boolean isTable = readTableContentsSource(table, tempConstraints,
             tempIndexes);
 
@@ -96,6 +98,37 @@ public class ParserTable extends ParserDML {
         }
 
         readTableVersioningClause(table);
+
+        if (token.tokenType == Tokens.AS) {
+            read();
+
+            QueryExpression queryExpression = null;
+
+            queryExpression = readTableQuery();
+
+            readThis(Tokens.WITH);
+            readThis(Tokens.DATA);
+
+            statement = new StatementQuery(session, queryExpression,
+                                           compileContext);
+            readLockNames = statement.getTableNamesForRead();
+
+            Type[] dataTypes = queryExpression.getColumnTypes();
+
+            if (table.getColumnCount() != dataTypes.length) {
+                throw Error.error(ErrorCode.X_42593);
+            }
+
+            for (int i = 0; i < dataTypes.length; i++) {
+                boolean b = table.getColumn(i).getDataType().canBeAssignedFrom(
+                    dataTypes[i]);
+
+                if (!b) {
+                    throw Error.error(ErrorCode.X_42561);
+                }
+            }
+        }
+
         readTableOnCommitClause(table);
 
         if (database.sqlSyntaxMys) {
@@ -126,16 +159,17 @@ public class ParserTable extends ParserDML {
             }
         }
 
-        String     sql            = getLastPart();
-        Object[]   args           = new Object[] {
-            table, tempConstraints, tempIndexes, null, Boolean.valueOf(ifNot)
+        String   sql  = getLastPart();
+        Object[] args = new Object[] {
+            table, tempConstraints, tempIndexes, statement,
+            Boolean.valueOf(ifNot)
         };
         HsqlName[] writeLockNames = new HsqlName[names.size()];
 
         names.toArray(writeLockNames);
 
         return new StatementSchema(sql, StatementTypes.CREATE_TABLE, args,
-                                   null, writeLockNames);
+                                   readLockNames, writeLockNames);
     }
 
     boolean readTableContentsSource(Table table,
@@ -529,23 +563,20 @@ public class ParserTable extends ParserDML {
 
     StatementSchema compileCreateTableAsSubqueryDefinition(Table table) {
 
-        HsqlName[] readName    = null;
-        boolean    withData    = true;
-        HsqlName[] columnNames = null;
-        Statement  statement   = null;
+        HsqlName[]      readName        = null;
+        boolean         withData        = true;
+        HsqlName[]      columnNames     = null;
+        Statement       statement       = null;
+        QueryExpression queryExpression = null;
 
         if (token.tokenType == Tokens.OPENBRACKET) {
             columnNames = readColumnNames(table.getName());
         }
 
         readThis(Tokens.AS);
-        readThis(Tokens.OPENBRACKET);
 
-        QueryExpression queryExpression = XreadQueryExpression();
+        queryExpression = readTableQuery();
 
-        queryExpression.setReturningResult();
-        queryExpression.resolve(session);
-        readThis(Tokens.CLOSEBRACKET);
         readThis(Tokens.WITH);
 
         if (token.tokenType == Tokens.NO) {
@@ -597,8 +628,9 @@ public class ParserTable extends ParserDML {
             readName = statement.getTableNamesForRead();
         }
 
-        Object[]   args           = new Object[] {
-            table, new HsqlArrayList(), null, statement, Boolean.FALSE
+        Object[] args = new Object[] {
+            table, new HsqlArrayList(), new HsqlArrayList(), statement,
+            Boolean.FALSE
         };
         String     sql            = getLastPart();
         HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
@@ -606,6 +638,19 @@ public class ParserTable extends ParserDML {
             StatementTypes.CREATE_TABLE, args, readName, writeLockNames);
 
         return st;
+    }
+
+    private QueryExpression readTableQuery() {
+
+        readThis(Tokens.OPENBRACKET);
+
+        QueryExpression queryExpression = XreadQueryExpression();
+
+        queryExpression.setReturningResult();
+        queryExpression.resolve(session);
+        readThis(Tokens.CLOSEBRACKET);
+
+        return queryExpression;
     }
 
     /**

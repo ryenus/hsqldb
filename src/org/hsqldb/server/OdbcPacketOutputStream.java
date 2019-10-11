@@ -48,6 +48,9 @@ import java.io.IOException;
  *     outPacket.write(that);
  *     outPacket.xmit('X', hsqlDataOutputStream);
  * </CODE>
+ *
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
+ * @since 1.9.0
  */
 class OdbcPacketOutputStream extends DataOutputStream {
 

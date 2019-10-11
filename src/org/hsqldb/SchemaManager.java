@@ -1309,98 +1309,13 @@ public class SchemaManager {
 
     public Table findTable(Session session, String name, String prefix,
                            String prePrefix) {
-
-        Table t;
-
-        if (prefix == null) {
-            t = findSessionTable(session, name);
-
-            if (t != null) {
-                return t;
-            }
-        }
-
-        if (prePrefix == null) {
-            if (Tokens.T_SESSION.equals(prefix)) {
-                t = findSessionTable(session, name);
-
-                if (t != null) {
-                    return t;
-                }
-            } else if (SqlInvariants.INFORMATION_SCHEMA.equals(prefix)
-                       && database.dbInfo != null) {
-                t = database.dbInfo.getSystemTable(session, name);
-
-                if (t != null) {
-                    return t;
-                }
-            }
-        }
-
-        t = (Table) findSchemaObject(session, name, prefix, prePrefix,
-                                     SchemaObject.TABLE);
-
-        return t;
+        return (Table) findSchemaObject(session, name, prefix, prePrefix,
+                                        SchemaObject.TABLE);
     }
 
     public SchemaObject findSchemaObject(Session session, String name,
                                          String prefix, String prePrefix,
                                          int type) {
-
-        SchemaObject object;
-
-        switch (type) {
-
-            case SchemaObject.TABLE :
-            case SchemaObject.ROUTINE :
-            case SchemaObject.PROCEDURE :
-            case SchemaObject.FUNCTION :
-            case SchemaObject.TYPE :
-                if (prefix == null) {
-                    if (session.database.sqlSyntaxOra
-                            || session.database.sqlSyntaxDb2
-                            || session.isProcessingScript()) {
-                        if (type == SchemaObject.TABLE
-                                && Tokens.T_DUAL.equals(name)) {
-                            return dualTable;
-                        }
-                    }
-
-                    if (type == SchemaObject.TABLE) {
-
-                        // in future there will be a default module for
-                        // session tables and variables and anonymous
-                        // procedural sql blocks, which can eliminate this code
-                        Table t = findSessionTable(session, name);
-
-                        if (t != null) {
-                            return t;
-                        }
-                    }
-                } else if (prePrefix == null) {
-                    if (type == SchemaObject.TABLE
-                            && Tokens.T_MODULE.equals(prefix)) {
-                        Table t = findSessionTable(session, name);
-
-                        if (t != null) {
-                            return t;
-                        }
-                    }
-
-                    if (type == SchemaObject.TABLE
-                            && Tokens.T_SESSION.equals(prefix)) {
-                        Table t = findSessionTable(session, name);
-
-                        if (t != null) {
-                            return t;
-                        }
-                    }
-                }
-        }
-
-        if (prefix == null) {
-            prefix = session.getSchemaName(null);
-        }
 
         // catalog resolution here
         if (prePrefix != null
@@ -1408,14 +1323,57 @@ public class SchemaManager {
             return null;
         }
 
-        if (type == SchemaObject.TABLE
-                && SqlInvariants.INFORMATION_SCHEMA.equals(prefix)
-                && database.dbInfo != null) {
-            Table t = database.dbInfo.getSystemTable(session, name);
+        if (type == SchemaObject.TABLE) {
+            if (prefix == null) {
+                if (session.database.sqlSyntaxOra
+                        || session.database.sqlSyntaxDb2
+                        || session.isProcessingScript()) {
+                    if (Tokens.T_DUAL.equals(name)) {
+                        return dualTable;
+                    }
+                }
 
-            if (t != null) {
-                return t;
+                // in future there will be a default module for
+                // session tables and variables and anonymous
+                // procedural sql blocks, which can eliminate this code
+                Table t = findSessionTable(session, name);
+
+                if (t != null) {
+                    return t;
+                }
+
+                if (prefix == null) {
+                    prefix = session.getSchemaName(null);
+                }
+            } else if (prePrefix == null) {
+                if (Tokens.T_MODULE.equals(prefix)) {
+                    Table t = findSessionTable(session, name);
+
+                    if (t != null) {
+                        return t;
+                    }
+                }
+
+                if (Tokens.T_SESSION.equals(prefix)) {
+                    Table t = findSessionTable(session, name);
+
+                    if (t != null) {
+                        return t;
+                    }
+                }
             }
+
+            if (SqlInvariants.INFORMATION_SCHEMA.equals(prefix)) {
+                if (database.dbInfo == null) {
+                    return null;
+                }
+
+                return database.dbInfo.getSystemTable(session, name);
+            }
+        }
+
+        if (prefix == null) {
+            prefix = session.getSchemaName(null);
         }
 
         return findSchemaObject(name, prefix, type);
@@ -2456,57 +2414,18 @@ public class SchemaManager {
             HsqlArrayList  list       = new HsqlArrayList();
             Iterator       schemas    = schemaMap.values().iterator();
 
-            schemas = schemaMap.values().iterator();
-
-            // build up set of simple objects
             while (schemas.hasNext()) {
                 Schema schema = (Schema) schemas.next();
 
-                if (SqlInvariants.isSystemSchemaName(schema.getName().name)) {
+                if (SqlInvariants.isLobsSchemaName(schema.getName().name)) {
                     continue;
                 }
 
-                if (SqlInvariants.isLobsSchemaName(schema.getName().name)) {
+                if (SqlInvariants.isSystemSchemaName(schema.getName().name)) {
                     continue;
                 }
 
                 list.add(schema.getSQL());
-                schema.addSimpleObjects(unresolved);
-            }
-
-            // list all simple objects in refernece order
-            while (true) {
-                Iterator it = unresolved.iterator();
-
-                if (!it.hasNext()) {
-                    break;
-                }
-
-                OrderedHashSet newResolved = new OrderedHashSet();
-
-                SchemaObjectSet.addAllSQL(resolved, unresolved, list, it,
-                                          newResolved);
-                unresolved.removeAll(newResolved);
-
-                if (newResolved.size() == 0) {
-                    break;
-                }
-            }
-
-            schemas = schemaMap.values().iterator();
-
-            //
-            while (schemas.hasNext()) {
-                Schema schema = (Schema) schemas.next();
-
-                if (SqlInvariants.isLobsSchemaName(schema.getName().name)) {
-                    continue;
-                }
-
-                if (SqlInvariants.isSystemSchemaName(schema.getName().name)) {
-                    continue;
-                }
-
                 list.addAll(schema.getSQLArray(resolved, unresolved));
             }
 
@@ -2528,6 +2447,7 @@ public class SchemaManager {
                 }
             }
 
+            // forward reference routines
             Iterator it = unresolved.iterator();
 
             while (it.hasNext()) {

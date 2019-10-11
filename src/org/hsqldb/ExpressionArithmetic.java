@@ -295,7 +295,9 @@ public class ExpressionArithmetic extends Expression {
                     break;
                 }
 
-            // fall through
+                resolveTypesForArithmetic(session, parent);
+                break;
+
             case OpTypes.SUBTRACT :
             case OpTypes.MULTIPLY :
             case OpTypes.DIVIDE :

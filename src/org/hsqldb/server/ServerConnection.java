@@ -118,9 +118,11 @@ import org.hsqldb.types.Type;
  *
  * ODBC support added for version 2.0.0 by Blaine Simpson.<p>
  *
+ * ODBC support updated for version 2.5.x. (fredt@users)<p>
+ *
  * @author Blaine Simpson (unsaved@users dot sourceforge.net
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.5.1
  * @since 1.6.2
  */
 class ServerConnection implements Runnable {
@@ -140,6 +142,7 @@ class ServerConnection implements Runnable {
     RowOutputInterface       rowOut;
     RowInputBinary           rowIn;
     Thread                   runnerThread;
+    InResultProcessor        processor;
 
     //
     private static AtomicInteger mCurrentThread = new AtomicInteger(0);
@@ -277,30 +280,13 @@ class ServerConnection implements Runnable {
             switch (streamProtocol) {
 
                 case HSQL_STREAM_PROTOCOL :
-                    if (firstInt
-                            != ClientConnection
-                                .NETWORK_COMPATIBILITY_VERSION_INT) {
-                        if (firstInt == -1900000) {
-                            firstInt = -2000000;
-                        }
-
-                        String verString =
-                            ClientConnection.toNetCompVersionString(firstInt);
-
-                        throw Error.error(
-                            null, ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
-                            new String[] {
-                            HsqlDatabaseProperties.THIS_VERSION, verString
-                        });
-                    }
-
                     int msgType = dataInput.readByte();
 
-                    receiveResult(msgType);
+                    processor.receiveConnection(msgType);
                     break;
 
                 case ODBC_STREAM_PROTOCOL :
-                    odbcConnect(firstInt);
+                    processor.receiveConnection(firstInt);
                     break;
 
                 default :
@@ -328,8 +314,6 @@ class ServerConnection implements Runnable {
             server.printStackTrace(e);
         }
     }
-
-    private static class CleanExit extends Exception {}
 
     private static class ClientFailure extends Exception {
 
@@ -629,6 +613,11 @@ class ServerConnection implements Runnable {
                             interposedStatement = suffix;
                             sql                 = sql.substring(0, lastSemi);
                         }
+
+                        if (suffix.startsWith("show transaction_isolation")) {
+                            interposedStatement = null;
+                            sql = "values session_isolation_level()";
+                        }
                     }
 
                     /** ******************************************* */
@@ -655,14 +644,20 @@ class ServerConnection implements Runnable {
                      * SIMPLE mode), so we are more capable than our client is.
                      */
                     if (normalized.startsWith("select current_schema()")) {
-                        server.printWithThread(
-                            "Implement 'select current_schema() emulation!");
 
-                        throw new RecoverableOdbcFailure(
-                            "current_schema() not supported yet", "0A000");
+                        //ok in PGS compatibility mode
+                        // but transalate for other modes
+                        sql = "values current_schema()";
+                        normalized = sql;
+
                     }
 
-                    if (normalized.startsWith("select n.nspname,")) {
+                    if (normalized.startsWith("show ")) {
+                        sql = "values " + sql.substring("show ".length());
+                        normalized = sql;
+                    }
+
+                    if (normalized.startsWith("values n.nspname,")) {
 
                         // Executed by psqlodbc after every user-specified query.
                         server.printWithThread(
@@ -722,7 +717,8 @@ class ServerConnection implements Runnable {
                         break;
                     }
 
-                    if (normalized.startsWith("select ")) {
+                    if (normalized.startsWith("select ")
+                            || normalized.startsWith("values ")) {
                         server.printWithThread(
                             "Performing a real non-prepared SELECT...");
 
@@ -732,6 +728,7 @@ class ServerConnection implements Runnable {
                             sql, 0, 0, StatementTypes.RETURN_RESULT, 0,
                             ResultProperties.defaultPropsValue,
                             java.sql.Statement.NO_GENERATED_KEYS, null, null);
+                        server.printWithThread(sql);
 
                         rOut = session.execute(r);
 
@@ -765,8 +762,7 @@ class ServerConnection implements Runnable {
                         pgTypes  = new PgType[columnCount];
 
                         for (int i = 0; i < pgTypes.length; i++) {
-                            pgTypes[i] = PgType.getPgType(colTypes[i],
-                                                          md.isTableColumn(i));
+                            pgTypes[i] = PgType.getPgType(colTypes[i]);
                         }
 
                         // fredt : colLabels may not contain some column names
@@ -1086,8 +1082,7 @@ class ServerConnection implements Runnable {
 
                         for (int i = 0; i < paramTypes.length; i++) {
                             outPacket.writeInt(
-                                PgType.getPgType(
-                                    paramTypes[i], true).getOid());
+                                PgType.getPgType(paramTypes[i]).getOid());
 
                             // TODO:  Determine whether parameter typing works
                             // better for Strings when try to match table column
@@ -1133,8 +1128,7 @@ class ServerConnection implements Runnable {
                     ColumnBase[] colDefs = md.columns;
 
                     for (int i = 0; i < pgTypes.length; i++) {
-                        pgTypes[i] = PgType.getPgType(colTypes[i],
-                                                      md.isTableColumn(i));
+                        pgTypes[i] = PgType.getPgType(colTypes[i]);
                     }
 
                     if (colNames.length != colDefs.length) {
@@ -1352,9 +1346,7 @@ class ServerConnection implements Runnable {
                         pgTypes  = new PgType[colCount];
 
                         for (int i = 0; i < pgTypes.length; i++) {
-                            pgTypes[i] = PgType.getPgType(
-                                colTypes[i],
-                                portal.ackResult.metaData.isTableColumn(i));
+                            pgTypes[i] = PgType.getPgType(colTypes[i]);
                         }
 
                         for (int i = 0; i < colCount; i++) {
@@ -1382,7 +1374,7 @@ class ServerConnection implements Runnable {
                         outPacket.xmit('D', dataOutput);
                     }
 
-                    if (navigator.afterLast()) {
+                    if (navigator.getSize() == 0 || navigator.afterLast()) {
                         outPacket.write("SELECT");
                         outPacket.xmit('C', dataOutput);
 
@@ -1527,11 +1519,7 @@ class ServerConnection implements Runnable {
                 while (keepAlive) {
                     msgType = dataInput.readByte();
 
-                    if (msgType < ResultConstants.MODE_UPPER_LIMIT) {
-                        receiveResult(msgType);
-                    } else {
-                        receiveOdbcPacket((char) msgType);
-                    }
+                    processor.receiveResult((char) msgType);
                 }
             } catch (CleanExit ce) {
                 keepAlive = false;
@@ -1696,10 +1684,29 @@ class ServerConnection implements Runnable {
                 // size.  The size can never be large enough that the first
                 // byte will be non-zero.
                 streamProtocol = ODBC_STREAM_PROTOCOL;
+                processor      = new OdbcInResultProcessor();
                 break;
 
             default :
                 streamProtocol = HSQL_STREAM_PROTOCOL;
+                processor      = new HsqlInResultProcessor();
+
+                if (firstInt
+                        != ClientConnection
+                            .NETWORK_COMPATIBILITY_VERSION_INT) {
+                    if (firstInt == -1900000) {
+                        firstInt = -2000000;
+                    }
+
+                    String verString =
+                        ClientConnection.toNetCompVersionString(firstInt);
+
+                    throw Error.error(null,
+                                      ErrorCode.SERVER_VERSIONS_INCOMPATIBLE,
+                                      0, new String[] {
+                        HsqlDatabaseProperties.THIS_VERSION, verString
+                    });
+                }
 
             // HSQL protocol client
         }
@@ -1967,6 +1974,7 @@ class ServerConnection implements Runnable {
             statement, 0, 0, StatementTypes.RETURN_COUNT, 0,
             ResultProperties.defaultPropsValue,
             ResultConstants.RETURN_NO_GENERATED_KEYS, null, null);
+        server.printWithThread(statement);
 
         Result rOut = session.execute(r);
 
@@ -2002,4 +2010,37 @@ class ServerConnection implements Runnable {
             }
         }
     }
+
+    class OdbcInResultProcessor implements InResultProcessor {
+
+        public void receiveConnection(int type) throws CleanExit, IOException {
+            ServerConnection.this.odbcConnect(type);
+        }
+
+        public void receiveResult(int type) throws CleanExit, IOException {
+            ServerConnection.this.receiveOdbcPacket((char) type);
+        }
+    }
+
+    class HsqlInResultProcessor implements InResultProcessor {
+
+        public void receiveConnection(int type) throws CleanExit, IOException {
+            receiveResult(type);
+        }
+
+        public void receiveResult(int type) throws CleanExit, IOException {
+            ServerConnection.this.receiveResult(type);
+        }
+    }
 }
+
+
+interface InResultProcessor {
+
+    void receiveConnection(int type) throws CleanExit, IOException;
+
+    void receiveResult(int type) throws CleanExit, IOException;
+}
+
+
+class CleanExit extends Exception {}

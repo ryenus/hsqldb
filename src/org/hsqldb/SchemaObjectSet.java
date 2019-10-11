@@ -44,7 +44,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Collection of SQL schema objects of a specific type in a schema
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class SchemaObjectSet {
@@ -74,7 +74,6 @@ public class SchemaObjectSet {
                 map = new HashMappedList();
                 break;
 
-            case SchemaObject.COLUMN :
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :
                 map = new HashMap();
@@ -107,7 +106,6 @@ public class SchemaObjectSet {
                 return object == null ? null
                                       : object.getName();
 
-            case SchemaObject.COLUMN :
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX : {
                 return (HsqlName) map.get(name);
@@ -185,7 +183,6 @@ public class SchemaObjectSet {
 
         switch (name.type) {
 
-            case SchemaObject.COLUMN :
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :
                 value = name;
@@ -278,7 +275,6 @@ public class SchemaObjectSet {
 
                 break;
             }
-            case SchemaObject.COLUMN :
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX : {
                 map.remove(name.name);
@@ -310,7 +306,6 @@ public class SchemaObjectSet {
             case SchemaObject.ASSERTION :
             case SchemaObject.TRIGGER :
             case SchemaObject.REFERENCE :
-            case SchemaObject.COLUMN :
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :
                 code = ErrorCode.X_42504;
@@ -342,7 +337,6 @@ public class SchemaObjectSet {
             case SchemaObject.ASSERTION :
             case SchemaObject.TRIGGER :
             case SchemaObject.REFERENCE :
-            case SchemaObject.COLUMN :
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :
                 code = ErrorCode.X_42501;
@@ -398,9 +392,6 @@ public class SchemaObjectSet {
             case SchemaObject.REFERENCE :
                 return Tokens.T_SYNONYM;
 
-            case SchemaObject.COLUMN :
-                return Tokens.T_COLUMN;
-
             case SchemaObject.PARAMETER :
                 return Tokens.T_PARAMETER;
 
@@ -441,12 +432,7 @@ public class SchemaObjectSet {
                 for (int i = 0; i < routineSchema.routines.length; i++) {
                     Routine routine = routineSchema.routines[i];
 
-                    if (routine.dataImpact == Routine.NO_SQL
-                            || routine.dataImpact == Routine.CONTAINS_SQL
-                            || routine.language == Routine.LANGUAGE_JAVA) {}
-                    else {
-                        set.add(routine);
-                    }
+                    set.add(routine);
                 }
             }
 
@@ -462,8 +448,14 @@ public class SchemaObjectSet {
 
         while (it.hasNext()) {
             SchemaObject   object     = (SchemaObject) it.next();
-            OrderedHashSet references = object.getReferences();
             boolean        isResolved = true;
+            OrderedHashSet references;
+
+            if (object.getType() == SchemaObject.TABLE) {
+                references = ((Table) object).getReferencesForScript();
+            } else {
+                references = object.getReferences();
+            }
 
             for (int j = 0; j < references.size(); j++) {
                 HsqlName name = (HsqlName) references.get(j);
