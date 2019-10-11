@@ -3376,12 +3376,11 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       collation that is not case sensitive can be used, or a collation for a
       different language than the original collation of the column.</para>
 
-      <para>In the first example below, a simple column reference is used in
-      GROUP BY, while in the second example, an expression is
-      used.<informalexample>
-          <programlisting> CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
- SELECT d, e, f FROM atable WHERE a + b = c GROUP BY d, e, f
- SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &gt; 2 AND d + e &gt; 4
+      <para>The first example below shows a simple GROUP BY, while in the
+      second example, has a HAVING condition.<informalexample>
+          <programlisting> CREATE TABLE REVENUE(CHANNEL VARCHAR(20), YEAR INTEGER, COUNTRY VARCHAR(2), PROVINCE VARCHAR(20), SALES INTEGER);
+ SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) FROM REVENUE GROUP BY CHANNEL, YEAR, COUNTRY;
+ SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) FROM REVENUE GROUP BY CHANNEL, YEAR, COUNTRY HAVING SUM(SALES) &gt; 50000;
 </programlisting>
         </informalexample></para>
 
