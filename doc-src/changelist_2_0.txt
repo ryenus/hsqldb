@@ -1,3 +1,10 @@
+ September 2019 - version 2.5.1 preview
+-- version 2.5.1 jar requires JRE 8 or later - tested up to Java 13
+-- added support for GROUPING SETS, ROLLUP and CUBE grouping operations
+-- fixed an issue (regression) in some server shutdown cases
+-- fixed an issue (regression) in some cases when JDBC connection timeout is used
+-- fixed several minor issues
+
 - 1 June 2019 - version 2.5.0
 -- version 2.5.0 jar requires JRE 8 or later - tested up to Java 12
 -- version 2.5.0 can be compiled with Java 9 or later as org.hsqldb Java module jar
@@ -29,7 +36,7 @@
 -- added support for HEX, UNHEX, TO_BASE64 and FROM_BASE64 functions
 -- added support for deployment in docker containers that do not support file rename
 -- added support for generated keys in update and merge
--- improved DEFRAG to allow very large data files
+-- improved CHECKPOINT DEFRAG to allow very large data files
 -- fixed issue with some temp table queries
 -- fixed issue with some SELECT ... INTO in routines
 -- fixed issue with parsing some TEXT TABLE source files
