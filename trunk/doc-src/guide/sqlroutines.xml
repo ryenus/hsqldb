@@ -836,8 +836,9 @@
       populated.</para>
 
       <para>After the procedure is executed with a JDBC
-      <methodname>CallableStatement execute()</methodname> method, all the
-      result sets that were opened are returned to the JDBC
+      <methodname>CallableStatement execute()</methodname> or
+      <methodname>executeQery()</methodname> call, all the result sets that
+      were opened are returned to the JDBC
       <classname>CallableStatement</classname>.</para>
 
       <para>Calling <methodname>getResultSet()</methodname> will return the
@@ -1620,7 +1621,7 @@
       </informalexample>
 
       <para>The above procedure is called in Java using a
-      CallableStatement</para>
+      <classname>CallableStatement</classname></para>
 
       <informalexample>
         <programlisting> Connection conn = ...;
@@ -1628,8 +1629,35 @@
  call.setString(1, "Paul");
  call.setString(2, "Smith");
  call.execute();
- if (call.getMoreResults())
+ if (call.getMoreResults()) // optional
      ResultSet result = call.getResultSet();
+
+</programlisting>
+      </informalexample>
+
+      <para>Alternatively, </para>
+
+      <informalexample>
+        <programlisting> Connection conn = ...;
+ CallableStatement call = conn.prepareCall("call new_customer(?, ?)");
+ call.setString(1, "Paul");
+ call.setString(2, "Smith");
+ call.execute();
+ ResultSet result = call.getResultSet();
+
+</programlisting>
+      </informalexample>
+
+      <para>Or in this case, where there is no OUT or INOUT parameter to be
+      accessed after the call, <methodname>executeQuery()</methodname> can be
+      called</para>
+
+      <informalexample>
+        <programlisting> Connection conn = ...;
+ CallableStatement call = conn.prepareCall("call new_customer(?, ?)");
+ call.setString(1, "Paul");
+ call.setString(2, "Smith");
+ ResultSet result = call.executeQuery();
 
 </programlisting>
       </informalexample>
