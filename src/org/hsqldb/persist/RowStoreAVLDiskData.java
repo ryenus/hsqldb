@@ -170,7 +170,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
 
     public void removeAll() {
 
-        destroy();
+        destroyIndexes();
         elementCount.set(0);
         ArrayUtil.fillArray(accessorList, null);
     }
@@ -293,11 +293,12 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
      */
     public void release() {
 
-        destroy();
+        destroyIndexes();
         table.database.logger.textTableManager.closeTextCache((Table) table);
 
         cache = null;
 
+        elementCount.set(0);
         ArrayUtil.fillArray(accessorList, null);
     }
 

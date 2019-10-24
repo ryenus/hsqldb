@@ -723,9 +723,7 @@ public class Database {
             sb.setLength(0);
         }
 
-        if (!collation.isDefaultCollation() || !collation.isPadSpace()) {
-            list.add(collation.getDatabaseCollationSQL());
-        }
+        list.add(collation.getDatabaseCollationSQL());
 
         HashMappedList lobTables =
             schemaManager.getTables(SqlInvariants.LOBS_SCHEMA);

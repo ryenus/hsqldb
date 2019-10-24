@@ -736,7 +736,7 @@ public class CharacterType extends Type {
     }
 
     public boolean canConvertFrom(Type otherType) {
-        return !otherType.isObjectType() && !otherType.isArrayType();
+        return !otherType.isObjectType();
     }
 
     public int canMoveFrom(Type otherType) {

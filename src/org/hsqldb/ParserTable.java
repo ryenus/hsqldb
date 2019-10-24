@@ -35,6 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
@@ -132,12 +133,16 @@ public class ParserTable extends ParserDML {
         readTableOnCommitClause(table);
 
         if (database.sqlSyntaxMys) {
-            if (readIfThis(Tokens.COMMENT)) {
-                readIfThis(Tokens.EQUALS_OP);
+            HashMappedList list = super.readPropertyValuePairs(true, false);
 
-                String comment = readQuotedString();
+            if (list != null) {
+                Token value = (Token) list.get(Tokens.T_COMMENT);
 
-                table.getName().comment = comment;
+                if (value != null) {
+                    String comment = value.tokenString;
+
+                    table.getName().comment = comment;
+                }
             }
         }
 

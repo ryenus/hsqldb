@@ -202,6 +202,12 @@ public class Token {
             }
 
             return type.getNameString();
+        } else if (expression instanceof ColumnSchema) {
+            isDelimiter = false;
+
+            ColumnSchema column = (ColumnSchema) expression;
+
+            return column.getName().getSchemaQualifiedStatementName();
         } else if (expression instanceof SchemaObject) {
             isDelimiter = false;
 

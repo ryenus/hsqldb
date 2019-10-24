@@ -532,7 +532,9 @@ public class Collation implements SchemaObject {
         sb.append(sourceName.statementName);
         sb.append(' ');
 
-        if (!padSpace) {
+        if (padSpace) {
+            sb.append(Tokens.T_PAD).append(' ').append(Tokens.T_SPACE);
+        } else {
             sb.append(Tokens.T_NO).append(' ').append(Tokens.T_PAD);
         }
 
@@ -568,7 +570,9 @@ public class Collation implements SchemaObject {
         sb.append(getName().statementName);
         sb.append(' ');
 
-        if (!padSpace) {
+        if (padSpace) {
+            sb.append(Tokens.T_PAD).append(' ').append(Tokens.T_SPACE);
+        } else {
             sb.append(Tokens.T_NO).append(' ').append(Tokens.T_PAD);
         }
 

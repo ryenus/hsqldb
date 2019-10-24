@@ -37,6 +37,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.map.ValuePool;
@@ -48,7 +49,7 @@ import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ParserBase {
@@ -680,7 +681,6 @@ public class ParserBase {
 
         startToken       = endToken = token.tokenType;
         startTokenString = token.tokenString;
-
         startIndex = ArrayUtil.find(Tokens.SQL_INTERVAL_FIELD_CODES,
                                     startToken);
 
@@ -907,5 +907,72 @@ public class ParserBase {
 
     public Number convertToNumber(String s, NumberType type) {
         return scanner.convertToNumber(s, type);
+    }
+
+    /**
+     * read list of comma separated prop = value pairs as tokens
+     * optionalEquals, requireEquals for use of '='
+     */
+    HashMappedList readPropertyValuePairs(boolean optionalEquals,
+                                          boolean requireEquals) {
+
+        HashMappedList list = null;
+        String         prop;
+        Token          value;
+        int            pos;
+
+        do {
+            pos = getPosition();
+
+            if (!token.isUndelimitedIdentifier) {
+                break;
+            }
+
+            prop = token.tokenString;
+
+            read();
+
+            if (token.tokenType == Tokens.X_ENDPARSE) {
+                break;
+            }
+
+            boolean equals = readIfThis(Tokens.EQUALS_OP);
+
+            if (optionalEquals) {}
+            else if (requireEquals) {
+                if (!equals) {
+                    break;
+                }
+            } else {
+                if (equals) {
+                    break;
+                }
+            }
+
+            if (token.tokenType == Tokens.X_VALUE
+                    || token.tokenType == Tokens.X_IDENTIFIER) {}
+            else {
+                break;
+            }
+
+            value = token.duplicate();
+
+            if (list == null) {
+                list = new HashMappedList();
+            }
+
+            list.put(prop, value);
+            read();
+
+            if (!readIfThis(Tokens.COMMA)) {
+                pos = getPosition();
+
+                break;
+            }
+        } while (true);
+
+        rewind(pos);
+
+        return list;
     }
 }

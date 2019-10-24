@@ -3531,11 +3531,15 @@ public class ParserDQL extends ParserBase {
             }
         }
 
+        if (minus) {
+            e = new ExpressionArithmetic(OpTypes.NEGATE, e);
+        }
+
         if (unknown) {
             e = new ExpressionLogical(OpTypes.IS_NULL, e);
-        } else if (minus) {
-            e = new ExpressionArithmetic(OpTypes.NEGATE, e);
-        } else if (not) {
+        }
+
+        if (not) {
             e = new ExpressionLogical(OpTypes.NOT, e);
         }
 
@@ -3963,10 +3967,11 @@ public class ParserDQL extends ParserBase {
 
             if (token.tokenType == Tokens.TRUE) {
                 read();
+                e = new ExpressionLogical(e, Expression.EXPR_TRUE);
             } else if (token.tokenType == Tokens.FALSE) {
                 read();
 
-                isNot = !isNot;
+                e = new ExpressionLogical(e, Expression.EXPR_FALSE);
             } else if (token.tokenType == Tokens.UNKNOWN) {
                 read();
 
