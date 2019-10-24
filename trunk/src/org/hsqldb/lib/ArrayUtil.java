@@ -252,7 +252,7 @@ public class ArrayUtil {
     }
 
     /**
-     *  Basic find for small arrays of int.
+     *  Find index of value in small array.
      */
     public static int find(int[] array, int value) {
 
@@ -342,28 +342,21 @@ public class ArrayUtil {
      */
     public static boolean haveEqualSets(int[] arra, int[] arrb, int count) {
 
-        if (ArrayUtil.haveEqualArrays(arra, arrb, count)) {
-            return true;
-        }
-
         if (count > arra.length || count > arrb.length) {
             return false;
         }
 
-        if (count == 1) {
-            return arra[0] == arrb[0];
-        }
+        outerloop:
+        for (int i = 0; i < count; i++) {
+            int val = arra[i];
 
-        int[] tempa = (int[]) resizeArray(arra, count);
-        int[] tempb = (int[]) resizeArray(arrb, count);
-
-        sortArray(tempa);
-        sortArray(tempb);
-
-        for (int j = 0; j < count; j++) {
-            if (tempa[j] != tempb[j]) {
-                return false;
+            for (int j = 0; j < count; j++) {
+                if (arrb[j] == val) {
+                    continue outerloop;
+                }
             }
+
+            return false;
         }
 
         return true;
@@ -1416,7 +1409,7 @@ public class ArrayUtil {
     }
 
     /**
-     * similar to the function with signle colindex, but with multiple
+     * similar to the function with single colindex, but with multiple
      * adjustments.
      */
     public static int[] toAdjustedColumnArray(int[] colarr, int[] colindex,

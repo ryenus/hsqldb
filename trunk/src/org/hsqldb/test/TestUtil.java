@@ -222,7 +222,7 @@ public class TestUtil {
          */
         try {
             while (true) {
-                HsqlArrayList section = sqlReader.getSection();
+                HsqlArrayList section = sqlReader.getNextSection();
 
                 startLine = sqlReader.getStartLineNumber();
 

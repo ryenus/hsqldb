@@ -100,7 +100,7 @@ public class RowStoreAVLMemory extends RowStoreAVL {
 
     public void removeAll() {
 
-        destroy();
+        destroyIndexes();
         setTimestamp(0);
         elementCount.set(0);
         ArrayUtil.fillArray(accessorList, null);
@@ -194,7 +194,7 @@ public class RowStoreAVLMemory extends RowStoreAVL {
 
     public void release() {
 
-        destroy();
+        destroyIndexes();
         setTimestamp(0);
         elementCount.set(0);
         ArrayUtil.fillArray(accessorList, null);

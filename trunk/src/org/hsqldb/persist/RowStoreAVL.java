@@ -770,7 +770,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     /**
      * Used with memory indexes
      */
-    void destroy() {
+    void destroyIndexes() {
 
         if (indexList.length == 0) {
             return;

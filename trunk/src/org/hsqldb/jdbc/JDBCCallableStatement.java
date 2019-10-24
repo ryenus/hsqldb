@@ -291,6 +291,11 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     }
 
     public ResultSet getResultSet() throws SQLException {
+        if (resultIn.mode == ResultConstants.CALL_RESPONSE
+            && resultIn.getChainedResult() != null) {
+            getMoreResults();
+        }
+
         return super.getResultSet();
     }
 

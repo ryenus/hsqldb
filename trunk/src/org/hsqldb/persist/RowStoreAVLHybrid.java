@@ -211,7 +211,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL {
     public void removeAll() {
 
         if (!isCached) {
-            destroy();
+            destroyIndexes();
         }
 
         elementCount.set(0);
@@ -303,7 +303,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL {
             cache    = null;
             isCached = false;
         } else {
-            destroy();
+            destroyIndexes();
         }
 
         elementCount.set(0);
