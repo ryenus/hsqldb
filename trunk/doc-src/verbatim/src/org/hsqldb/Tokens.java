@@ -39,7 +39,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Defines and enumerates reserved and non-reserved SQL keywords.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.2
  */
 public class Tokens {
@@ -2736,12 +2736,13 @@ public class Tokens {
 
         short[] keyword = {
             ALL, AND, ANY, AS, AT, BY, BETWEEN, BOTH, CALL, CASE, CAST,
-            CORRESPONDING, CONVERT, COALESCE, CREATE, CROSS, DEFAULT, DISTINCT,
-            DO, DROP, ELSE, EVERY, EXISTS, EXCEPT, FETCH, FOR, FROM, FULL,
-            GRANT, GROUP, HAVING, INTO, IS, IN, INTERSECT, JOIN, INNER, LEFT,
-            LEADING, LIKE, NATURAL, NULLIF, NOT, ON, ORDER, OR, OUTER, PRIMARY,
-            REFERENCES, RIGHT, SELECT, SET, SOME, SUM, TABLE, THEN, TO,
-            TRAILING, TRIGGER, UNION, UNIQUE, USING, VALUES, WHEN, WHERE, WITH
+            CORRESPONDING, CONVERT, COALESCE, CREATE, CROSS, CUBE, DEFAULT,
+            DISTINCT, DO, DROP, ELSE, EVERY, EXISTS, EXCEPT, FETCH, FOR, FROM,
+            FULL, GRANT, GROUP, GROUPING, HAVING, INTO, IS, IN, INTERSECT,
+            JOIN, INNER, LEFT, LEADING, LIKE, NATURAL, NULLIF, NOT, ON, ORDER,
+            OR, OUTER, PRIMARY, REFERENCES, RIGHT, ROLLUP, SELECT, SET, SOME,
+            SUM, TABLE, THEN, TO, TRAILING, TRIGGER, UNION, UNIQUE, USING,
+            VALUES, WHEN, WHERE, WITH
         };
 
         for (int i = 0; i < keyword.length; i++) {

@@ -297,7 +297,7 @@ public class Servlet extends HttpServlet {
 
                 session = DatabaseManager.getSession(dbId, sessionId);
 
-                resultIn.readLobResults(session, inStream, rowIn);
+                resultIn.readLobResults(session, inStream);
 
                 resultOut = session.execute(resultIn);
             }
