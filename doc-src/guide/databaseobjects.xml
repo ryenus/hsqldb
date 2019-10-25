@@ -348,15 +348,15 @@
       use a named SEQUENCE object.</para>
 
       <para>SEQUENCE objects and IDENTITY columns are supported fully
-      according to the latest SQL 2008 Standard syntax.</para>
+      according to the latest SQL Standard syntax.</para>
 
       <para><emphasis role="bold">Sequences</emphasis></para>
 
-      <para>The SQL:2008 syntax and usage is different from what is supported
-      by many existing database engines. Sequences are created with the
-      <literal>CREATE SEQUENCE</literal> command and their current value can
-      be modified at any time with <literal>ALTER SEQUENCE</literal>. The next
-      value for a sequence is retrieved with the <literal>NEXT VALUE FOR
+      <para>The SQL Standard syntax and usage is different from what is
+      supported by many existing database engines. Sequences are created with
+      the <literal>CREATE SEQUENCE</literal> command and their current value
+      can be modified at any time with <literal>ALTER SEQUENCE</literal>. The
+      next value for a sequence is retrieved with the <literal>NEXT VALUE FOR
       &lt;name&gt;</literal> expression. This expression can be used for
       inserting and updating table rows.</para>
 
@@ -3486,7 +3486,7 @@
       and sequences. There are views in the INFORMATION_SCHEMA with the word
       "USAGE" in the name. Each of these views lists references to objects of
       a particular type from a particular type, for example references to
-      tables from routines. </para>
+      tables from routines.</para>
 
       <para>From version 2.5.0, a new SQL statement lists all the database
       objects that use (reference) a particular database object.
@@ -4014,7 +4014,7 @@
 
       <para>SQL_FEATURES</para>
 
-      <para>List of all SQL:2008 standard features, including information on
+      <para>List of all SQL:2011 standard features, including information on
       whether they are supported or not supported by HyperSQL</para>
 
       <indexterm significance="preferred" type="sql">
@@ -4032,7 +4032,7 @@
 
       <para>SQL_PACKAGES</para>
 
-      <para>List of the SQL:2008 Standard packages, including information on
+      <para>List of SQL:2011 Standard packages, including information on
       whether they are supported or not supported by HyperSQL</para>
 
       <indexterm significance="preferred" type="sql">
@@ -4041,7 +4041,7 @@
 
       <para>SQL_PARTS</para>
 
-      <para>List of the SQL:2008 Standard parts, including information on
+      <para>List of the SQL:2011 Standard parts, including information on
       whether they are supported or not supported by HyperSQL</para>
 
       <indexterm significance="preferred" type="sql">
@@ -4050,7 +4050,7 @@
 
       <para>SQL_SIZING</para>
 
-      <para>List of the SQL:2008 Standard maximum supported sizes for
+      <para>List of the SQL:2011 Standard maximum supported sizes for
       different features as supported by HyperSQL</para>
 
       <indexterm significance="preferred" type="sql">

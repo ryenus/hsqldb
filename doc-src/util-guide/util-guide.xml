@@ -25,7 +25,11 @@
       </editor>
 
       <editor>
-        <personname><firstname>Blaine</firstname><surname>Simpson</surname></personname>
+        <personname>
+          <firstname>Blaine</firstname>
+
+          <surname>Simpson</surname>
+        </personname>
 
         <affiliation>
           <orgname>The HSQL Development Group</orgname>
@@ -33,7 +37,11 @@
       </editor>
 
       <editor>
-        <personname><firstname>Fred</firstname><surname>Toussi</surname></personname>
+        <personname>
+          <firstname>Fred</firstname>
+
+          <surname>Toussi</surname>
+        </personname>
 
         <affiliation>
           <orgname>The HSQL Development Group</orgname>
@@ -75,12 +83,12 @@
     listed at the beginning of the chapter. If you have problems with the
     procedures themselves, please use the HSQLDB support facilities which are
     listed at <link
-    xlink:href="http://hsqldb.org/web/hsqlSupport.html"></link>.</para>
+    xlink:href="http://hsqldb.org/support"/>.</para>
 
-    <xi:include href="../altformats-sect.xml" />
+    <xi:include href="../altformats-sect.xml"/>
   </preface>
 
-  <xi:include href="sqltool-chapt.xml" />
+  <xi:include href="sqltool-chapt.xml"/>
 
   <chapter xml:id="test-utility-chapt">
     <title>Hsqldb Test Utility</title>
@@ -123,7 +131,7 @@
     You must have the HSQLDB classes, including the util and test classes, in
     your <varname>CLASSPATH</varname>. The urlid must be set up in an RC file
     as explained in the <link endterm="auth-title"
-    xlink:href="#sqltool_auth-sect"></link> section. Use the
+    xlink:href="#sqltool_auth-sect"/> section. Use the
     <literal>rcfile=</literal> argument to specify an RC file other than the
     default of <filename>testscriptrunner.rc</filename> in the current
     directory. To see all invocation possibilities, just run TestScriptRunner
@@ -145,8 +153,10 @@
       </listitem>
 
       <listitem>
-        <para><emphasis>The remaining items in this list exemplify use of the
-        available command line-prefixes.</emphasis></para>
+        <para>
+          <emphasis>The remaining items in this list exemplify use of the
+          available command line-prefixes.</emphasis>
+        </para>
       </listitem>
 
       <listitem>
@@ -285,8 +295,11 @@
     <info>
       <authorgroup>
         <author>
-          <personname><firstname>Fred</firstname>
-          <surname>Toussi</surname></personname>
+          <personname>
+            <firstname>Fred</firstname>
+
+            <surname>Toussi</surname>
+          </personname>
 
           <affiliation>
             <orgname>The HSQL Development Group</orgname>
@@ -294,8 +307,11 @@
         </author>
 
         <author>
-          <personname><firstname>Blaine</firstname>
-          <surname>Simpson</surname></personname>
+          <personname>
+            <firstname>Blaine</firstname>
+
+            <surname>Simpson</surname>
+          </personname>
 
           <affiliation>
             <orgname>The HSQL Development Group</orgname>
@@ -325,10 +341,6 @@
       org.hsqldb.util.DatabaseManager; the SWING version,
       org.hsqldb.util.DatabaseManagerSwing. The SWING version has more
       refinements than the AWT version.</para>
-
-      <para>The AWT version of the database manager can be deployed as an
-      applet in a browser. A demo HTML file with an embedded Database Manager
-      is included in the /demo directory.</para>
 
       <para>When the Database Manager is started, a dialogue allows you to
       enter the JDBC driver, URL, user and password for the new connection. A
@@ -435,13 +447,13 @@
 
       <simpara>The default location for the RC file is
       <filename>dbmanager.rc</filename> in your home directory. The <link
-      endterm="auth-title" xlink:href="#sqltool_auth-sect"></link> section
-      explains how to put the connection information into this text file. If
-      you also run <link endterm="sqltool-title"
-      xlink:href="#sqltool-chapt"></link>, then you can share the RC file with
-      SqlTool by using a sym-link (if your operating system supports sym
-      links), or by using the <literal>--rcfile</literal> switch for either
-      SqlTool or DatabaseManagerSwing.</simpara>
+      endterm="auth-title" xlink:href="#sqltool_auth-sect"/> section explains
+      how to put the connection information into this text file. If you also
+      run <link endterm="sqltool-title" xlink:href="#sqltool-chapt"/>, then
+      you can share the RC file with SqlTool by using a sym-link (if your
+      operating system supports sym links), or by using the
+      <literal>--rcfile</literal> switch for either SqlTool or
+      DatabaseManagerSwing.</simpara>
 
       <warning>
         <simpara>Use your operating system facilities to prevent others from
@@ -510,10 +522,11 @@ java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
     <section xml:id="dbm_applet-sect">
       <title>DatabaseManagerSwing as an Applet</title>
 
-      <simpara>DatabaseManagerSwing is also an applet. You can use it in HTML,
-      JSPs, etc. Be aware that in Applet mode, actions to load or save local
-      files will be disabled, and attempts to access any server other than the
-      HTML-serving-host will fail.</simpara>
+      <simpara>DatabaseManagerSwing up to version 2.4.x is also an applet
+      (from 2.5.0 applet support is no longer available). You can use it in
+      HTML, JSPs, etc. Be aware that in Applet mode, actions to load or save
+      local files will be disabled, and attempts to access any server other
+      than the HTML-serving-host will fail.</simpara>
 
       <para>Since the Applet can not store or load locally saved preferences,
       the only way to have persistent preference settings is by using Applet
@@ -647,8 +660,11 @@ java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
     <info>
       <authorgroup>
         <author>
-          <personname><firstname>Fred</firstname>
-          <surname>Toussi</surname></personname>
+          <personname>
+            <firstname>Fred</firstname>
+
+            <surname>Toussi</surname>
+          </personname>
 
           <affiliation>
             <orgname>The HSQL Development Group</orgname>
@@ -719,8 +735,9 @@ java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
     </section>
   </chapter>
 
-  <xi:include href="systempls-app.xml" />
-  <xi:include href="filelinks-app.xml" />
+  <xi:include href="systempls-app.xml"/>
+
+  <xi:include href="filelinks-app.xml"/>
 
   <!--  Enable the index as soon as mark some index terms.
   <index xml:id="book-ind"/>

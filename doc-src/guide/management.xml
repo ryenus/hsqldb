@@ -504,8 +504,30 @@
   ) WITH SYSTEM VERSIONING
 </screen>
     </example>
+  </section>
 
-    <para/>
+  <section>
+    <title>Checking Database Tables and Indexes</title>
+
+    <para><indexterm significance="preferred">
+        <primary>check table</primary>
+      </indexterm></para>
+
+    <para>From version 2.5.1, the integrity of the indexes and table data can
+    be checked with a command. This applies to CACHED tables only. Individual
+    tables or all tables can be checked.</para>
+
+    <informalexample>
+      <programlisting> PERFORM CHECK TABLE PUBLIC.CUSTOMER INDEX</programlisting>
+    </informalexample>
+
+    <informalexample>
+      <programlisting> PERFORM CHECK ALL TABLE INDEX</programlisting>
+    </informalexample>
+
+    <para>The command reads and compares all the rows and lists the size of
+    each table and the size of each index on the table. With large tables, it
+    can take a long time to complete.</para>
   </section>
 
   <section xml:id="mtc_backup">
@@ -771,8 +793,8 @@
 
           <listitem>
             <para>HyperSQL is open source. Someone who has the key, can
-            compile and use a modified version of the program that saves a full
-            clear text dump of an encrypted database</para>
+            compile and use a modified version of the program that saves a
+            full clear text dump of an encrypted database</para>
           </listitem>
         </itemizedlist>Therefore encryption is generally effective only when
       the users who have access to the crypt key are trusted.</para>

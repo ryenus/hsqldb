@@ -48,8 +48,8 @@
   <section xml:id="dac_overview">
     <title>Overview</title>
 
-    <para>HyperSQL data access and data change statements are fully compatible
-    with the latest SQL:2016 Standard. There are a few extensions and some
+    <para>HyperSQL data access and data change statements are compatible with
+    the latest SQL:2016 Standard. There are a few extensions and some
     relaxation of rules, but these do not affect statements that are written
     to the Standard syntax. There is full support for classic SQL, as
     specified by SQL-92, and many enhancements added in later versions of the
@@ -2437,10 +2437,10 @@
     <title>Data Access Statements</title>
 
     <para>HyperSQL fully supports all of SQL-92 data access statements, plus
-    some additions from SQL:2011. Due to time constraints, the current version
-    of this Guide does not cover the subject fully. You are advised to consult
-    an SQL book such as the O'Reilly title, "SQL and Relational Theory" by C.
-    J. Date.</para>
+    most of the additions from SQL:2011. Due to time constraints, the current
+    version of this Guide does not cover the subject fully. You are advised to
+    consult an SQL book such as the O'Reilly title, "SQL and Relational
+    Theory" by C. J. Date.</para>
 
     <para>Database queries are data access statements. The most commonly used
     data access statement is the SELECT statement, but there are other
@@ -2509,8 +2509,8 @@
  SELECT * FROM atable WHERE a + b = c ORDER BY a FETCH 5 ROWS ONLY
 
 </programlisting>
-      </informalexample>The next sections discuss various types of tables and
-    operations involved in data access statements.</para>
+      </informalexample>The following sections discuss various types of tables
+    and operations involved in data access statements.</para>
 
     <section xml:id="dac_sql_select_statement">
       <title>Select Statement</title>
