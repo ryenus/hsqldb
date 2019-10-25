@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
  * Parser for SQL table definition
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ParserTable extends ParserDML {
@@ -209,7 +209,7 @@ public class ParserTable extends ParserDML {
                     start     = false;
                     startPart = false;
 
-                    break;
+                    continue;
                 }
                 case Tokens.CONSTRAINT :
                 case Tokens.PRIMARY :
@@ -224,8 +224,8 @@ public class ParserTable extends ParserDML {
 
                     start     = false;
                     startPart = false;
-                    break;
 
+                    continue;
                 case Tokens.PERIOD :
                     if (!startPart) {
                         throw unexpectedToken();
@@ -235,12 +235,16 @@ public class ParserTable extends ParserDML {
                         throw unexpectedToken();
                     }
 
-                    readAndAddPeriod(table);
+                    PeriodDefinition period = readAndAddPeriod(table);
+
+                    if (period == null) {
+                        break;
+                    }
 
                     start     = false;
                     startPart = false;
-                    break;
 
+                    continue;
                 case Tokens.COMMA :
                     if (startPart) {
                         throw unexpectedToken();
@@ -249,14 +253,14 @@ public class ParserTable extends ParserDML {
                     read();
 
                     startPart = true;
-                    break;
 
+                    continue;
                 case Tokens.CLOSEBRACKET :
                     read();
 
                     end = true;
-                    break;
 
+                    continue;
                 case Tokens.KEY :
                 case Tokens.INDEX :
                     if (database.sqlSyntaxMys) {
@@ -265,56 +269,54 @@ public class ParserTable extends ParserDML {
                         start     = false;
                         startPart = false;
 
-                        break;
+                        continue;
                     }
-                default :
-                    if (!startPart) {
-                        throw unexpectedToken();
-                    }
+            }
 
-                    checkIsSchemaObjectName();
+            if (!startPart) {
+                throw unexpectedToken();
+            }
 
-                    HsqlName hsqlName =
-                        database.nameManager.newColumnHsqlName(table.getName(),
-                            token.tokenString, isDelimitedIdentifier());
+            checkIsSchemaObjectName();
 
-                    read();
+            HsqlName hsqlName =
+                database.nameManager.newColumnHsqlName(table.getName(),
+                    token.tokenString, isDelimitedIdentifier());
 
-                    ColumnSchema newcolumn = readColumnDefinitionOrNull(table,
-                        hsqlName, tempConstraints);
+            read();
 
-                    if (newcolumn == null) {
-                        if (start) {
-                            rewind(position);
+            ColumnSchema newcolumn = readColumnDefinitionOrNull(table,
+                hsqlName, tempConstraints);
 
-                            return false;
-                        } else {
-                            throw Error.error(ErrorCode.X_42000);
-                        }
-                    }
+            if (newcolumn == null) {
+                if (start) {
+                    rewind(position);
 
-                    table.addColumn(newcolumn);
+                    return false;
+                } else {
+                    throw Error.error(ErrorCode.X_42000);
+                }
+            }
 
-                    start     = false;
-                    startPart = false;
+            table.addColumn(newcolumn);
 
-                    if (newcolumn.getSystemPeriodType()
-                            == SchemaObject.PeriodSystemColumnType
-                                .PERIOD_ROW_START) {
-                        if (hasRowStart) {
-                            throw Error.error(ErrorCode.X_42591);
-                        }
+            start     = false;
+            startPart = false;
 
-                        hasRowStart = true;
-                    } else if (newcolumn.getSystemPeriodType()
-                               == SchemaObject.PeriodSystemColumnType
-                                   .PERIOD_ROW_END) {
-                        if (hasRowEnd) {
-                            throw Error.error(ErrorCode.X_42591);
-                        }
+            if (newcolumn.getSystemPeriodType()
+                    == SchemaObject.PeriodSystemColumnType.PERIOD_ROW_START) {
+                if (hasRowStart) {
+                    throw Error.error(ErrorCode.X_42591);
+                }
 
-                        hasRowEnd = true;
-                    }
+                hasRowStart = true;
+            } else if (newcolumn.getSystemPeriodType()
+                       == SchemaObject.PeriodSystemColumnType.PERIOD_ROW_END) {
+                if (hasRowEnd) {
+                    throw Error.error(ErrorCode.X_42591);
+                }
+
+                hasRowEnd = true;
             }
         }
 
@@ -1393,23 +1395,37 @@ public class ParserTable extends ParserDML {
      *
      * @param table a table
      */
-    void readAndAddPeriod(Table table) {
+    PeriodDefinition readAndAddPeriod(Table table) {
 
         PeriodDefinition period = readPeriod(table);
+
+        if (period == null) {
+            return null;
+        }
 
         if (period.getPeriodType() == SchemaObject.PeriodType.PERIOD_SYSTEM) {
             table.systemPeriod = period;
         } else {
             table.applicationPeriod = period;
         }
+
+        return period;
     }
 
     PeriodDefinition readPeriod(Table table) {
 
         int      periodType = SchemaObject.PeriodType.PERIOD_NONE;
         HsqlName periodName = null;
+        int      position   = getPosition();
 
         readThis(Tokens.PERIOD);
+
+        if (token.tokenType != Tokens.FOR) {
+            rewind(position);
+
+            return null;
+        }
+
         readThis(Tokens.FOR);
 
         if (token.tokenType == Tokens.SYSTEM_TIME) {

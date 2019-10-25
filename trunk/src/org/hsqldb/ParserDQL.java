@@ -2604,18 +2604,28 @@ public class ParserDQL extends ParserBase {
                 read();
                 checkIsThis(Tokens.OPENBRACKET);
             } else if (token.tokenType == Tokens.PERIOD) {
+
                 read();
-                readThis(Tokens.OPENBRACKET);
 
-                e = XreadRowElementList(true);
+                if (readIfThis(Tokens.OPENBRACKET)) {
+                    e = XreadRowElementList(true);
 
-                if (e.nodes.length != 2) {
-                    throw Error.error(ErrorCode.X_42564);
+                    if (e.nodes.length != 2) {
+                        throw Error.error(ErrorCode.X_42564);
+                    }
+
+                    e = new ExpressionPeriod(e);
+
+                    readThis(Tokens.CLOSEBRACKET);
+                } else {
+                    rewind(position);
+
+                    e = XreadSimpleValueExpressionPrimary();
+
+                    if (e != null) {
+                        e = XreadArrayElementReference(e);
+                    }
                 }
-
-                e = new ExpressionPeriod(e);
-
-                readThis(Tokens.CLOSEBRACKET);
             }
 
             if (token.tokenType == Tokens.OPENBRACKET) {
