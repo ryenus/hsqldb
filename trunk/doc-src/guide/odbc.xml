@@ -468,11 +468,10 @@
     </itemizedlist>
   </section>
 
-  <section xml:id="settings-sect">
+  <section xml:id="table-sect">
     <title>Table of Settings</title>
 
-    <simpara>See the <link endterm="settings-title"
-    xlink:href="#settings-chapt"/> section for descriptions and usage details.
+    <simpara>See the above section for descriptions and usage details.
     This appendix just contains a list of the available settings.</simpara>
 
     <table>

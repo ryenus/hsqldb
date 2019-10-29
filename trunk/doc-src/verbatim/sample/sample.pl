@@ -1,8 +1,9 @@
 #!/usr/bin/perl
 
-# $Id: sample.pl 2861 2009-02-25 00:39:50Z unsaved $
+# $Id: sample.pl 3633 2010-06-06 23:56:41Z unsaved $
 
-# Sample Perl script accessing HyperSQL through the Perl DBI module.
+# Sample Perl script accessing HyperSQL through the Perl DBI and DBD/ODBC
+# modules.
 
 # This test HyperSQL client uses the ODBC DSN "tstdsn" to connect up to a
 # HyperSQL server.  Just configure your own DSN to use the HyperSQL ODBC
@@ -19,6 +20,9 @@ use vars qw:$dsn $dbh $sth $row $retval %conAttr:;
 
 $conAttr{AutoCommit} = 0;
 
+# In addition to the DSN name, you can override or supply additional DSN
+# settings, such as "Uid" and "Pwd"; or define the DSN from scratch, starting
+# with Driver.  These settings are delimited with "; ".  See pyodbc docs.
 $dsn = "dbi:ODBC:dsn=tstdsn";
 
 #$dbh = DBI->connect($dsn, undef, undef)
@@ -56,6 +60,9 @@ $retval = $sth->execute(5, 'five');
     #or die("5th insertion failed: ($DBI::err) $DBI::errstr\n");
 #die "5th insertion inserted $retval rows instead of 1\n" unless $retval eq 1;
 $dbh->commit;
+    # Some recent change to the HyperSQL server or to unixODBC has made this
+    # necessary, at least on UNIX.  Some other transaction control command
+    # would probably be more appropriate here.
 
 # Now a simple/non-parameterized Query
 $sth = $dbh->prepare("SELECT * FROM tsttbl WHERE id < 3")
