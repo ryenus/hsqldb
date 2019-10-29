@@ -52,12 +52,12 @@
     <title>Overview</title>
 
     <para>Support for ODBC access to HyperSQL servers was introduced in HSQLDB
-    version 2.0. Modified versions of the PostgreSQL ODBC software were
-    developed and an installer for 32 bit Windows was made available for
-    download. Improvements were made to the server code for version 2.5.1 to
-    allow an unmodified PostgreSQL ODBC driver to be used. This chapter has
-    been adapted from the original ODBC documentation and added to this
-    Guide.</para>
+    version 2.0. Modified versions of the PostgreSQL ODBC software (version
+    8.3) were developed and an installer for 32 bit Windows was made available
+    for download. Improvements were made to the server code for version 2.5.1
+    to allow an unmodified PostgreSQL ODBC driver (version 11) to be used.
+    This chapter has been adapted from the original ODBC documentation and
+    added to this Guide.</para>
 
     <para>The current version supports a large subset of ODBC calls. It
     supports all SQL statements, including prepared statements and result set
@@ -100,11 +100,11 @@
     <title>Windows Installation</title>
 
     <simpara>Download and install PostgreSQL ODBC software. We tested with
-    version 11 of the software but other versions may also work. In Windows,
-    go to ODBC Data Source Administrator (via Administrative Tools, Data
-    Source (ODBC) or ODBC DataSource in different versions of Windows) and
-    click on Add to add a PostgreSQL data source. You can then configure the
-    data source.</simpara>
+    version 11 of this software in Unicode mode, but other versions may also
+    work. In Windows, go to ODBC Data Source Administrator (via Administrative
+    Tools, Data Source (ODBC) or ODBC DataSource in different versions of
+    Windows) and click on Add to add a PostgreSQL data source. You can then
+    configure the data source.</simpara>
 
     <simpara>See the Settings section about individual driver runtime
     settings.</simpara>
@@ -471,8 +471,8 @@
   <section xml:id="table-sect">
     <title>Table of Settings</title>
 
-    <simpara>See the above section for descriptions and usage details.
-    This appendix just contains a list of the available settings.</simpara>
+    <simpara>See the above section for descriptions and usage details. This
+    section just contains a list of the available settings.</simpara>
 
     <table>
       <title>Settings List</title>
