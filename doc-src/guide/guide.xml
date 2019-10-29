@@ -129,6 +129,8 @@
 
   <xi:include href="deployment.xml"/>
 
+  <xi:include href="odbc.xml"/>
+
   <xi:include href="lists-app.xml"/>
 
   <xi:include href="dbfiles-app.xml"/>

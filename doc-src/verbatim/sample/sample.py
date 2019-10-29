@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# $Id: sample.py 2861 2009-02-25 00:39:50Z unsaved $
+# $Id: sample.py 3633 2010-06-06 23:56:41Z unsaved $
 
 # Sample Python script accessing HyperSQL through the Python pyodbc module.
 
@@ -13,6 +13,9 @@
 # ANSI variant of the HyperSQL ODBC Driver.  Using the normal Unicode
 # variant will generate the following error message when you try to connect:
 #    pyodbc.Error: ('0', '[0] [unixODBC]c (202) (SQLDriverConnectW)')
+# It is quite possible that this issue will be taken care of when we fix a
+# high-priority bug to do with switching between SQLDriverConnect and
+# SQLDriverConnectW on UNIX.
 
 # Author:  Blaine Simpson  (blaine dot simpson at admc dot com)
 
@@ -29,6 +32,10 @@ try:
     cursor = conn.cursor();
 
     cursor.execute("DROP TABLE tsttbl IF EXISTS");
+    conn.commit();  # Some recent change to the HyperSQL server or to unixODBC
+                    # has made this necessary, at least on UNIX.  Some other
+                    # transaction control command would probably be more
+                    # appropriate here.
 
     cursor.execute(
         "CREATE TABLE tsttbl(\n"
