@@ -50,15 +50,15 @@
   </info>
 
   <section xml:id="sgc_standards">
-    <title>Standards Support</title>
+    <title>SQL Standards Support</title>
 
-    <para>HyperSQL 2.x supports the dialect of SQL defined by SQL standards
-    92, 1999, 2003, 2008, 2011 and 2016. This means where a feature of the
-    standard is supported, e.g. left outer join, the syntax is that specified
-    by the standard text. Almost all syntactic features of SQL-92 up to
-    Advanced Level are supported, as well as SQL:2016 core and many optional
-    features of this standard. Work is in progress for a formal declaration of
-    conformance.</para>
+    <para>The SQL language consists of statements for different operations.
+    HyperSQL 2.x supports the dialect of SQL defined progressively by ISO
+    (also ANSI) SQL standards 92, 1999, 2003, 2008, 2011 and 2016. This means
+    the syntax specified by the Standard text is accepted for any supported
+    operation. Almost all features of SQL-92 up to Advanced Level are
+    supported, as well as the additional features that make up the SQL:2016
+    core and many optional features of this standard.</para>
 
     <para>At the time of this release, HyperSQL supports the widest range of
     SQL Standard features among all open source RDBMS.</para>
@@ -67,23 +67,24 @@
     writing or converting existing SQL DDL (Data Definition Language), DML
     (Data Manipulation Language) or DQL (Data Query Language) statements for
     HSQLDB, you should consult the supported syntax and modify the statements
-    accordingly. Some statements written for older versions may have to be
-    modified.</para>
+    accordingly.</para>
 
-    <para>Over 300 words are reserved by the standard and should not be used
+    <para>Over 300 words are reserved by the Standard and should not be used
     as table or column names. For example, the word POSITION is reserved as it
     is a function defined by the Standards with a similar role as
-    <methodname>String.indexOf()</methodname> in Java. HyperSQL does not
-    currently prevent you from using a reserved word if it does not support
-    its use or can distinguish it. For example CUBE is a reserved words that
-    is not currently supported by HyperSQL and is allowed as a table or column
-    name. You should avoid using such names as future versions of HyperSQL are
-    likely to support the reserved words and may reject your table definitions
-    or queries. The full list of SQL reserved words is in the appendix <link
-    endterm="lists-title" xlink:href="#lists-app"/> .</para>
-
-    <para>There are several user-defined properties to control the strict
-    application of the SQL Standard in different areas.</para>
+    <methodname>String.indexOf()</methodname> in Java. By default, HyperSQL
+    does not prevent you from using a reserved word if it does not support its
+    use or can distinguish it. For example CUBE is a reserved word for a
+    feature that is supported by HyperSQL from version 2.5.1. Before this
+    version, CUBE was allowed as a table or column name, but it is no longer
+    allowed. You should avoid using such names as future versions of HyperSQL
+    are likely to support the reserved words and may reject your table
+    definitions or queries. The full list of SQL reserved words is in the
+    appendix <link endterm="lists-title" xlink:href="#lists-app"/> . You can
+    set a property to disallow the use of reserved keywords for names of
+    tables and other database objects. There are several other user-defined
+    properties to control the strict application of the SQL Standard in
+    different areas.</para>
 
     <para>If you have to use a reserved keyword as the name of a database
     object, you can enclose it in double quotes.</para>
@@ -94,64 +95,262 @@
     <literal>DROP TABLE mytable IF EXISTS</literal> are among such
     constructs.</para>
 
-    <para>Many print books cover SQL Standard syntax and can be
-    consulted.</para>
+    <para>Many books cover SQL Standard syntax and can be consulted.</para>
 
     <para>In HyperSQL version 2, all features of JDBC4 that apply to the
     capabilities of HSQLDB are fully supported. The relevant JDBC classes are
     thoroughly documented with additional clarifications and HyperSQL specific
     comments. See the <link xlink:href="#javadoc-link">JavaDoc</link> for the
     <classname>org.hsqldb.jdbc.*</classname> classes.</para>
+
+    <para>The following sections list the keywords that start various SQL
+    statements grouped by their function.</para>
+
+    <section>
+      <title>Definition Statements (DDL and others)</title>
+
+      <para>Definition statements create, modify or remove database objects.
+      Tables and views are objects that contain data. There are other types of
+      objects that do contain data. These statements are covered in the <link
+      endterm="databaseobjects-title" xlink:href="#databaseobjects-chapt"/>
+      chapter.</para>
+
+      <para>CREATE</para>
+
+      <para>Followed by { SCHEMA | TABLE | VIEW | SEQUENCE | PROCEDURE |
+      FUNCTION | USER | ROLE | ... }, the keyword is used to create the
+      database objects.</para>
+
+      <para>ALTER </para>
+
+      <para>Followed by the same keywords as CREATE, the keyword is used to
+      modify the object. </para>
+
+      <para>DROP </para>
+
+      <para>Followed by the same keywords as above, the keyword is used to
+      remove the object. If the object contains data, the data is removed
+      too.</para>
+
+      <para>GRANT</para>
+
+      <para>Followed by the name of a role or privilege, the keyword assigns a
+      role or gives permissions to a USER or role.</para>
+
+      <para>REVOKE</para>
+
+      <para>Followed by the name of a role or privilege, REVOKE is the
+      opposite of GRANT.</para>
+
+      <para>COMMENT ON</para>
+
+      <para>Followed by the same keyword as CREATE, the keyword is used to add
+      a text comment to the object.</para>
+
+      <para>EXPLAIN REFERENCES</para>
+
+      <para>These keywords are followed by TO or FROM to list the other
+      database objects that reference the given object, or vice versa.</para>
+
+      <para>DECLARE</para>
+
+      <para>This is used for declaring temporary session tables and
+      variables.</para>
+    </section>
+
+    <section>
+      <title>Data Manipulation Statements (DML)</title>
+
+      <para>Data manipulation statements add, update or delete data in tables
+      and views. These statements are covered in the <link
+      endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/>
+      chapter.</para>
+
+      <para>INSERT</para>
+
+      <para>Inserts one or more rows into a table or view.</para>
+
+      <para>UPDATE</para>
+
+      <para>Updates one or more rows in a table or view.</para>
+
+      <para>DELETE</para>
+
+      <para>Deletes one or more rows from a table or view.</para>
+
+      <para>TRUNCATE</para>
+
+      <para>Deletes all the rows in a table.</para>
+
+      <para>MERGE</para>
+
+      <para>Performs a conditional INSERT, UPDATE or DELETE on a table or view
+      using the data given in the statement.</para>
+    </section>
+
+    <section>
+      <title>Data Query Statements (DQL)</title>
+
+      <para>Data query statements retrieve and combine data from tables and
+      views and return result sets. These statements are covered in the <link
+      endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/>
+      chapter.</para>
+
+      <para>SELECT</para>
+
+      <para>Returns a result set formed from a subset of rows and columns in
+      one or more tables or views.</para>
+
+      <para>VALUES</para>
+
+      <para>Returns a result set formed from constant values.</para>
+
+      <para>WITH ...</para>
+
+      <para>This keyword starts a series of SELECT statements that form a
+      query. The first SELECTs act as subqueries for the final SELECT
+      statement in the same query.</para>
+
+      <para>EXPLAIN PLAN</para>
+
+      <para>These keywords are followed by the full text of any DQL or DML
+      statement. The result set shows the anatomy of the given DQL or DML
+      statement, including the indexes used to access the tables.</para>
+    </section>
+
+    <section>
+      <title>Calling User Defined Procedures and Functions</title>
+
+      <para>CALL</para>
+
+      <para>Calls a procedure or function. Calling a function can return a
+      result set or a value, while calling a procedure can return one or more
+      result sets and values at the same time. This statement is covered in
+      the <link endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"/>
+      chapter.</para>
+    </section>
+
+    <section>
+      <title>Setting Properties for the Database and the Session</title>
+
+      <para>SET</para>
+
+      <para>The SET statement has many variations and is used for setting the
+      values of the general properties of the database or the current session.
+      Usage of the SET statement for the database is covered in the <link
+      endterm="management-title" xlink:href="#management-chapt"/> chapter.
+      Usage for the session is covered in the <link endterm="sessions-title"
+      xlink:href="#sessions-chapt"/> chapter.</para>
+    </section>
+
+    <section>
+      <title>General Operations on Database</title>
+
+      <para>General operations on the database include backup, checkpoint and
+      other operations. These statements are covered in detail in the <link
+      endterm="management-title" xlink:href="#management-chapt"/>
+      chapter.</para>
+
+      <para>BACKUP</para>
+
+      <para>Creates a backup of the database in a target directory.</para>
+
+      <para>PERFORM</para>
+
+      <para>Includes commands to export and import SQL scripts from / to the
+      database. </para>
+
+      <para>SCRIPT</para>
+
+      <para>Creates a script of SQL statements that creates the database
+      objects and settings.</para>
+
+      <para>CHECKPOINT</para>
+
+      <para>Saves all the changes to the database up to this point to disk
+      files.</para>
+
+      <para>SHUTDOWN</para>
+
+      <para>Shuts down the database after saving all the changes.</para>
+    </section>
+
+    <section>
+      <title>Transaction Statements</title>
+
+      <para>These statements are used in a session to start, end or control
+      transactions. They are covered in the <link endterm="sessions-title"
+      xlink:href="#sessions-chapt"/> chapter.</para>
+
+      <para>START TRANSACTION</para>
+
+      <para>This statement initiates a new transaction with the given
+      transaction characteristics</para>
+
+      <para>SET TRANSACTION </para>
+
+      <para>Introduces one of more characteristics for the next
+      transaction.</para>
+
+      <para>COMMIT</para>
+
+      <para>Commits the changes to data made in the current
+      transaction.</para>
+
+      <para>ROLLBACK</para>
+
+      <para>Rolls back the changes to data made in the current transaction. It
+      is also possible to roll back to a savepoint.</para>
+
+      <para>SAVEPOINT</para>
+
+      <para>Records a point in the current transaction so that future changes
+      can be rolled back to this point.</para>
+
+      <para>RELEASE SAVEPOINT</para>
+
+      <para>Releases an existing savepoint.</para>
+
+      <para>LOCK</para>
+
+      <para>Locks a set of tables for transaction control.</para>
+
+      <para>CONNECT</para>
+
+      <para>Starts a new session and continues operations in this
+      session.</para>
+
+      <para>DISCONNECT</para>
+
+      <para>Ends the current session.</para>
+    </section>
+
+    <section>
+      <title>Comments in Statements</title>
+
+      <para>Any SQL statement can include comments. The comments are stripped
+      before the statement is executed. </para>
+
+      <para>SQL style line comments start with two dashes
+      <literal>--</literal> and extend to the end of the line.</para>
+
+      <para>C style comments can cover part of the line or multiple lines.
+      They start with <literal>/*</literal> and end with
+      <literal>*/</literal>. </para>
+    </section>
   </section>
 
   <section xml:id="sgc_data_tables">
     <title>SQL Data and Tables</title>
 
-    <para>In an SQL system, all significant data is stored in tables and
-    sequence generators. Therefore, the first step in creating a database is
-    defining the tables and their columns. The SQL standard supports temporary
-    tables, which are for temporary data, and permanent base tables, which are
-    for persistent data.</para>
+    <para>All data is stored in tables. Therefore, creating a database
+    requires defining the tables and their columns. The SQL Standard supports
+    temporary tables, which are for temporary data, and permanent base tables,
+    which are for persistent data.</para>
 
     <para>A HyperSQL database can be an all-in-memory
     <glossterm>mem:</glossterm> database with no automatic persistence, or a
     file-based, persistent <glossterm>file:</glossterm> database.</para>
-
-    <section xml:id="sgc_temp_tables">
-      <title>Temporary Tables</title>
-
-      <para>Data in TEMPORARY tables is not saved and lasts only for the
-      lifetime of the session. The contents of each TEMP table is visible only
-      from the session that is used to populate it.</para>
-
-      <para>HyperSQL supports two types of temporary tables.</para>
-
-      <para>The <literal>GLOBAL TEMPORARY</literal> type is a schema object.
-      It is created with the <literal>CREATE GLOBAL TEMPORARY TABLE</literal>
-      statement. The definition of the table persists, and each session has
-      access to the table. But each session sees its own copy of the table,
-      which is empty at the beginning of the session.</para>
-
-      <para>The <literal>LOCAL TEMPORARY</literal> type is not a schema
-      object. It is created with the <literal>DECLARE LOCAL TEMPORARY
-      TABLE</literal> statement. The table definition lasts only for the
-      duration of the session and is not persisted in the database. The table
-      can be declared in the middle of a transaction without committing the
-      transaction. If a schema name is needed to reference these tables in a
-      given SQL statement, the pseudo schema names <literal>MODULE</literal>
-      or <literal>SESSION</literal> can be used.</para>
-
-      <para>When the session commits, the contents of all temporary tables are
-      cleared by default. If the table definition statement includes ON COMMIT
-      PRESERVE ROWS, then the contents are kept when a commit takes
-      place.</para>
-
-      <para>The rows in temporary tables are stored in memory by default. If
-      the <literal>hsqldb.result_max_memory_rows</literal> property has been
-      set or the <literal>SET SESSION RESULT MEMORY ROWS &lt;row
-      count&gt;</literal> has been specified, tables with row count above the
-      setting are stored on disk.</para>
-    </section>
 
     <section xml:id="sgc_persist_tables">
       <title>Persistent Tables</title>
@@ -161,16 +360,15 @@
       These are MEMORY tables, CACHED tables and TEXT tables.</para>
 
       <para>Memory tables are the default type when the CREATE TABLE command
-      is used. Their data is held entirely in memory but any change to their
-      structure or contents is written to the <filename>*.log</filename> and
+      is used. Their data is held entirely in memory. In file-based databases,
+      MEMORY tables are persistent and any change to their structure or
+      contents is written to the <filename>*.log</filename> and
       <filename>*.script</filename> files. The <filename>*.script</filename>
       file and the <filename>*.log</filename> file are read the next time the
-      database is opened, and the MEMORY tables are recreated with all their
-      contents. So unlike TEMPORARY tables, MEMORY tables are persistent. When
-      the database is opened, all the data for the memory tables is read and
-      inserted. This process may take a long time if the database is larger
-      than tens of megabytes. When the database is shutdown, all the data is
-      saved. This can also take a long time.</para>
+      database is opened, and the MEMORY tables are recreated with all the
+      data. This process may take a long time if the database is larger than
+      tens of megabytes. When the database is shutdown, all the data is
+      saved.</para>
 
       <para>CACHED tables are created with the CREATE CACHED TABLE command.
       Only part of their data or indexes is held in memory, allowing large
@@ -209,6 +407,42 @@
       statements such as INSERT or SELECT access different types of tables
       uniformly. No change to statements is needed to access different types
       of table.</para>
+    </section>
+
+    <section xml:id="sgc_temp_tables">
+      <title>Temporary Tables</title>
+
+      <para>Data in TEMPORARY tables is not saved and lasts only for the
+      lifetime of the session. The contents of each TEMP table is visible only
+      from the session that is used to populate it.</para>
+
+      <para>HyperSQL supports two types of temporary tables.</para>
+
+      <para>The <literal>GLOBAL TEMPORARY</literal> type is a schema object.
+      It is created with the <literal>CREATE GLOBAL TEMPORARY TABLE</literal>
+      statement. The definition of the table persists, and each session has
+      access to the table. But each session sees its own copy of the table,
+      which is empty at the beginning of the session.</para>
+
+      <para>The <literal>LOCAL TEMPORARY</literal> type is not a schema
+      object. It is created with the <literal>DECLARE LOCAL TEMPORARY
+      TABLE</literal> statement. The table definition lasts only for the
+      duration of the session and is not persisted in the database. The table
+      can be declared in the middle of a transaction without committing the
+      transaction. If a schema name is needed to reference these tables in a
+      given SQL statement, the pseudo schema name <literal>SESSION</literal>
+      can be used.</para>
+
+      <para>When the session commits, the contents of all temporary tables are
+      cleared by default. If the table definition statement includes ON COMMIT
+      PRESERVE ROWS, then the contents are kept when a commit takes
+      place.</para>
+
+      <para>The rows in temporary tables are stored in memory by default. If
+      the <literal>hsqldb.result_max_memory_rows</literal> property has been
+      set or the <literal>SET SESSION RESULT MEMORY ROWS &lt;row
+      count&gt;</literal> has been specified, tables with row count above the
+      setting are stored on disk.</para>
     </section>
   </section>
 
@@ -326,8 +560,8 @@
     <title>Data Types and Operations</title>
 
     <para>HyperSQL supports all the types defined by SQL-92, plus BOOLEAN,
-    BINARY and LOB types that were later added to the SQL Standard. It also
-    supports the non-standard OTHER type to store serializable Java
+    BINARY, ARRAY and LOB types that were later added to the SQL Standard. It
+    also supports the non-standard OTHER type to store serializable Java
     objects.</para>
 
     <para>SQL is a strongly typed language. All data stored in specific
@@ -909,19 +1143,21 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <section xml:id="sgc_length_precision">
       <title>Type Length, Precision and Scale</title>
 
-      <para>In older version of HyperSQL, all table column type definitions
-      with a column length, precision or scale qualifier were accepted and
-      ignored. HSQLDB 1.8 enforced correctness but included an option to
-      enforce the length, precision or scale.</para>
+      <para>In HyperSQL, column length, precision and scale qualifiers are
+      required and are always enforced. The VARCHAR and VARBINARY types
+      require a size parameter and do not have a default. For compatibility
+      with CREATE TABLE statements from other databases that do not have size
+      parameters for VARCHAR column, the URL property
+      <literal>hsqldb.enforce_size=false</literal> or the SQL statement
+      <literal>SET DATABASE SQL SIZE FALSE</literal> can be used to allow the
+      table creation and automatically apply a large value for the maximum
+      size of the VARCHAR column. You should test your application to ensure
+      the length, precision and scale that is used for column definitions is
+      appropriate for the application data.</para>
 
-      <para>In HyperSQL 2, length, precision and scale qualifiers are always
-      enforced. For backward compatibility, when older databases which had the
-      property <literal>hsqldb.enforce_strict_size=false</literal> are
-      converted to version 2, this property is retained. However, this is a
-      temporary measure. You should test your application to ensure the
-      length, precision and scale that is used for column definitions is
-      appropriate for the application data. You can test with the default
-      database setting, which enforces the sizes.</para>
+      <para>All other types have defaults for size or precision parameters.
+      However, the defaults may not be what your application requires and you
+      may have to specify the parameters.</para>
 
       <para>String types, including all BIT, BINARY and CHAR string types plus
       CLOB and BLOB, are generally defined with a length. If no length is
@@ -1353,8 +1589,9 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     MINUTE, SECOND are available. The units can be used individually, or as a
     range. An interval type can specify the precision of the most significant
     field and the second fraction digits of the SECOND field (if it has a
-    SECOND field). The default precision is 2. The default second precision is
-    0.</para>
+    SECOND field). The default precision is 2, following the Standard. The
+    default second precision is 0. The default precision is too small for many
+    applications and should be overridden.</para>
 
     <simpara><literal>&lt;interval type&gt; ::= INTERVAL &lt;interval
     qualifier&gt;</literal></simpara>
@@ -1606,8 +1843,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     common problems. Arrays should not be used as a substitute for
     tables.</para>
 
-    <para>HyperSQL supports arrays of values according to the SQL:2008
-    Standard.</para>
+    <para>HyperSQL supports arrays of values according to the Standard.</para>
 
     <para>Elements of the array are either NULL, or of the same data type. It
     is possible to define arrays of all supported types, including the types

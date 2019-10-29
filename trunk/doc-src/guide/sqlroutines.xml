@@ -45,90 +45,95 @@
     </legalnotice>
   </info>
 
-  <para>SQL-invoked routines are functions and procedures called from SQL.
-  HyperSQL 2.5 supports routines conforming to two parts of the SQL Standard.
-  Routines written in the SQL language are supported in conformance to SQL/PSM
-  (Persistent Stored Modules) specification. Routines written in Java are
-  supported in broad conformance to SQL/JRT specification. In addition,
-  HyperSQL's previous non-standard support for calling Java routines without
-  prior method definition is retained and enhanced in the latest version by
-  extending the SQL/JRT specification.</para>
+  <section>
+    <title>Overview</title>
 
-  <para>HyperSQL also supports user-defined aggregate functions written in the
-  SQL language or Java. This feature is an extension to the SQL
-  Standard.</para>
+    <para>SQL-invoked routines are functions and procedures called from SQL.
+    HyperSQL 2.5 supports routines conforming to two parts of the SQL
+    Standard. Routines written in the SQL language are supported in
+    conformance to SQL/PSM (Persistent Stored Modules) specification. Routines
+    written in Java are supported in broad conformance to SQL/JRT
+    specification. In addition, HyperSQL's previous non-standard support for
+    calling Java routines without prior method definition is retained and
+    enhanced in the latest version by extending the SQL/JRT
+    specification.</para>
 
-  <para>SQL-invoked routines are schema objects. Naming and referencing
-  follows conventions common to all schema objects. The same routine name can
-  be defined in two different schemas and used with schema-qualified
-  references.</para>
+    <para>HyperSQL also supports user-defined aggregate functions written in
+    the SQL language or Java. This feature is an extension to the SQL
+    Standard.</para>
 
-  <para>A routine is either a procedure or a function.</para>
+    <para>SQL-invoked routines are schema objects. Naming and referencing
+    follows conventions common to all schema objects. The same routine name
+    can be defined in two different schemas and used with schema-qualified
+    references.</para>
 
-  <para>A function:</para>
+    <para>A routine is either a procedure or a function.</para>
 
-  <itemizedlist>
-    <listitem>
-      <para>is defined with CREATE FUNCTION</para>
-    </listitem>
+    <para>A function:</para>
 
-    <listitem>
-      <para>always returns a single value or a single table</para>
-    </listitem>
+    <itemizedlist>
+      <listitem>
+        <para>is defined with CREATE FUNCTION</para>
+      </listitem>
 
-    <listitem>
-      <para>does not modify the data in the database</para>
-    </listitem>
+      <listitem>
+        <para>always returns a single value or a single table</para>
+      </listitem>
 
-    <listitem>
-      <para>is used as part of an SQL statement such as a SELECT
-      statement</para>
-    </listitem>
+      <listitem>
+        <para>does not modify the data in the database</para>
+      </listitem>
 
-    <listitem>
-      <para>can have parameters</para>
-    </listitem>
+      <listitem>
+        <para>is used as part of an SQL statement such as a SELECT
+        statement</para>
+      </listitem>
 
-    <listitem>
-      <para>can be polymorphic</para>
-    </listitem>
-  </itemizedlist>
+      <listitem>
+        <para>can have parameters</para>
+      </listitem>
 
-  <para>A procedure:</para>
+      <listitem>
+        <para>can be polymorphic</para>
+      </listitem>
+    </itemizedlist>
 
-  <itemizedlist>
-    <listitem>
-      <para>is defined with CREATE PROCEDURE</para>
-    </listitem>
+    <para>A procedure:</para>
 
-    <listitem>
-      <para>can return zero to multiple values or result sets</para>
-    </listitem>
+    <itemizedlist>
+      <listitem>
+        <para>is defined with CREATE PROCEDURE</para>
+      </listitem>
 
-    <listitem>
-      <para>can modify the data in the database</para>
-    </listitem>
+      <listitem>
+        <para>can return zero to multiple values or result sets</para>
+      </listitem>
 
-    <listitem>
-      <para>is called separately, using the CALL statement</para>
-    </listitem>
+      <listitem>
+        <para>can modify the data in the database</para>
+      </listitem>
 
-    <listitem>
-      <para>can have parameters</para>
-    </listitem>
+      <listitem>
+        <para>is called separately, using the CALL statement</para>
+      </listitem>
 
-    <listitem>
-      <para>can be polymorphic</para>
-    </listitem>
-  </itemizedlist>
+      <listitem>
+        <para>can have parameters</para>
+      </listitem>
 
-  <para>Definition of routine signature and characteristics, name resolution
-  and invocation are all implemented uniformly for routines written in SQL or
-  Java.</para>
+      <listitem>
+        <para>can be polymorphic</para>
+      </listitem>
+    </itemizedlist>
 
-  <para>Access to routines can be granted to users with GRANT EXECUTE or GRANT
-  ALL. For example, <literal>GRANT EXECUTE ON myroutine TO
-  PUBLIC</literal>.</para>
+    <para>Definition of routine signature and characteristics, name resolution
+    and invocation are all implemented uniformly for routines written in SQL
+    or Java.</para>
+
+    <para>Access to routines can be granted to users with GRANT EXECUTE or
+    GRANT ALL. For example, <literal>GRANT EXECUTE ON myroutine TO
+    PUBLIC</literal>.</para>
+  </section>
 
   <section xml:id="src_routine_definition">
     <title>Routine Definition</title>
@@ -1635,7 +1640,7 @@
 </programlisting>
       </informalexample>
 
-      <para>Alternatively, </para>
+      <para>Alternatively,</para>
 
       <informalexample>
         <programlisting> Connection conn = ...;
