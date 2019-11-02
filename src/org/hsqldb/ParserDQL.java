@@ -124,6 +124,8 @@ public class ParserDQL extends ParserBase {
         boolean isIgnoreCase   = false;
         boolean readByteOrChar = false;
         boolean enforceSize    = database.sqlEnforceSize;
+        long    length         = 0;
+        int     scale          = 0;
 
         checkIsIdentifier();
 
@@ -192,7 +194,8 @@ public class ParserDQL extends ParserBase {
                             read();
 
                             int precision = readInteger();
-                            int scale     = 0;
+
+                            scale = 0;
 
                             if (token.tokenType == Tokens.COMMA) {
                                 read();
@@ -266,6 +269,22 @@ public class ParserDQL extends ParserBase {
                     case Tokens.CITEXT :
                         typeNumber = Types.VARCHAR_IGNORECASE;
                         break;
+
+                    default :
+                        if ("BYTEA".equals(token.tokenString)) {
+                            typeNumber = Types.LONGVARBINARY;
+                        } else if ("INT2".equals(token.tokenString)) {
+                            typeNumber = Types.SQL_SMALLINT;
+                        } else if ("INT4".equals(token.tokenString)) {
+                            typeNumber = Types.SQL_INTEGER;
+                        } else if ("INT8".equals(token.tokenString)) {
+                            typeNumber = Types.SQL_BIGINT;
+                        } else if ("REAL".equals(token.tokenString)) {
+                            typeNumber = Types.SQL_DOUBLE;
+                        } else if ("TIMESTAMPTZ".equals(token.tokenString)) {
+                            typeNumber = Types.SQL_TIMESTAMP_WITH_TIME_ZONE;
+                            scale      = 6;
+                        }
                 }
             }
 
@@ -361,10 +380,9 @@ public class ParserDQL extends ParserBase {
             default :
         }
 
-        long length = typeNumber == Types.SQL_TIMESTAMP
-                      ? DTIType.defaultTimestampFractionPrecision
-                      : 0;
-        int scale = 0;
+        if (typeNumber == Types.SQL_TIMESTAMP) {
+            length = DTIType.defaultTimestampFractionPrecision;
+        }
 
         if (Types.requiresPrecision(typeNumber)
                 && token.tokenType != Tokens.OPENBRACKET && enforceSize
@@ -2604,7 +2622,6 @@ public class ParserDQL extends ParserBase {
                 read();
                 checkIsThis(Tokens.OPENBRACKET);
             } else if (token.tokenType == Tokens.PERIOD) {
-
                 read();
 
                 if (readIfThis(Tokens.OPENBRACKET)) {
@@ -3977,6 +3994,7 @@ public class ParserDQL extends ParserBase {
 
             if (token.tokenType == Tokens.TRUE) {
                 read();
+
                 e = new ExpressionLogical(e, Expression.EXPR_TRUE);
             } else if (token.tokenType == Tokens.FALSE) {
                 read();
