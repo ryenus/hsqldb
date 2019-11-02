@@ -1,6 +1,8 @@
- September 2019 - version 2.5.1 preview
+29 October 2019 - version 2.5.1 preview
 -- version 2.5.1 jar requires JRE 8 or later - tested up to Java 13
 -- added support for GROUPING SETS, ROLLUP and CUBE grouping operations
+-- added support for PERFORM CHECK ALL TABLE INDEX to check all CACHED table data and indexes
+-- added support for use of PostgreSQL ODBC driver to access a HyperSQL Server
 -- fixed an issue (regression) in some server shutdown cases
 -- fixed an issue (regression) in some cases when JDBC connection timeout is used
 -- fixed several minor issues
