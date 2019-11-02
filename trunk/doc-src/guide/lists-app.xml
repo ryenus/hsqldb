@@ -160,7 +160,7 @@
     <simpara>BETWEEN • BOTH • BY</simpara>
 
     <simpara>CALL • CASE • CAST • COALESCE • CORRESPONDING • CONVERT • COUNT •
-    CREATE • CROSS</simpara>
+    CREATE • CROSS • CUBE</simpara>
 
     <simpara>DEFAULT • DISTINCT • DROP</simpara>
 
@@ -168,7 +168,7 @@
 
     <simpara>FETCH • FOR • FROM • FULL</simpara>
 
-    <simpara>GRANT • GROUP</simpara>
+    <simpara>GRANT • GROUP • GROUPING</simpara>
 
     <simpara>HAVING</simpara>
 
@@ -186,7 +186,7 @@
 
     <simpara>PRIMARY</simpara>
 
-    <simpara>REFERENCES • RIGHT</simpara>
+    <simpara>REFERENCES • RIGHT • ROLLUP</simpara>
 
     <simpara>SELECT • SET • SOME • STDDEV_POP • STDDEV_SAMP • SUM</simpara>
 
