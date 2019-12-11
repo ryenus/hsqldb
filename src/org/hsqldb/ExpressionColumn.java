@@ -1102,19 +1102,19 @@ public class ExpressionColumn extends Expression {
                             && columnName.equals(alias)) {
                         if (matchIndex < 0) {
                             matchIndex = i;
+
+                            continue;
                         } else if (session.database.sqlEnforceRefs) {
                             String message = getColumnName();
 
                             throw Error.error(ErrorCode.X_42580, message);
                         }
                     }
-                }
 
-                if (matchIndex >= 0) {
-                    return columns[matchIndex];
-                }
+                    if (alias != null && session.database.sqlEnforceRefs) {
+                        continue;
+                    }
 
-                for (int i = 0; i < length; i++) {
                     if (columns[i] instanceof ExpressionColumn) {
                         if (equals(columns[i])) {
                             if (matchIndex < 0) {

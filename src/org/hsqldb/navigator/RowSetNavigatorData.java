@@ -412,7 +412,7 @@ implements Comparator<Object[]> {
         sortFull();
         other.sortFull();
 
-        it = fullIndex.emptyIterator();
+        it = RowIterator.emptyRowIterator;
 
         while (next()) {
             Object[] currentData = getCurrent();
@@ -469,7 +469,7 @@ implements Comparator<Object[]> {
         sortFull();
         other.sortFull();
 
-        it = fullIndex.emptyIterator();
+        it = RowIterator.emptyRowIterator;
 
         while (next()) {
             Object[] currentData = getCurrent();

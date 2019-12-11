@@ -3089,18 +3089,19 @@ class DatabaseInformationMain extends DatabaseInformation {
      *      SEQUENCE_SCHEMA      VARCHAR NULL,
      *      SEQUENCE_NAME        VARCHAR NOT NULL,
      *      DATA_TYPE            CHARACTER_DATA
-     *      DATA_TYPE            CHARACTER_DATA
      *      NUMERIC_PRECISION    CARDINAL_NUMBER
      *      NUMERIC_PRECISION_RADIX CARDINAL_NUMBER
      *      NUMERIC_SCALE        CARDINAL_NUMBER
-     *      MAXIMUM_VALUE        VARCHAR NOT NULL,
+     *      START_VALUE          VARCHAR NOT NULL,
      *      MINIMUM_VALUE        VARCHAR NOT NULL,
+     *      MAXIMUM_VALUE        VARCHAR NOT NULL,
      *      INCREMENT            VARCHAR NOT NULL,
      *      CYCLE_OPTION         VARCHAR {'YES', 'NO'},
-     *      START_WITH           VARCHAR NOT NULL,
      *      DECLARED_DATA_TYPE   CHARACTER_DATA
      *      DECLARED_NUMERIC_PRECISION CARDINAL_NUMBER
      *      DECLARED_NUMERIC_SCALE     CARDINAL_NUMBER
+     *      START_WITH           VARCHAR NOT NULL,
+     *      NEXT_VALUE           VARCHAR NOT NULL,
      *
      * </pre>
      *
@@ -3164,8 +3165,9 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "NUMERIC_PRECISION", CARDINAL_NUMBER);
             addColumn(t, "NUMERIC_PRECISION_RADIX", CARDINAL_NUMBER);
             addColumn(t, "NUMERIC_SCALE", CARDINAL_NUMBER);
-            addColumn(t, "MAXIMUM_VALUE", CHARACTER_DATA);
+            addColumn(t, "START_VALUE", CHARACTER_DATA);
             addColumn(t, "MINIMUM_VALUE", CHARACTER_DATA);
+            addColumn(t, "MAXIMUM_VALUE", CHARACTER_DATA);
             addColumn(t, "INCREMENT", CHARACTER_DATA);
             addColumn(t, "CYCLE_OPTION", YES_OR_NO);
             addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
@@ -3196,15 +3198,16 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int numeric_precision          = 4;
         final int numeric_precision_radix    = 5;
         final int numeric_scale              = 6;
-        final int maximum_value              = 7;
+        final int start_value                = 7;
         final int minimum_value              = 8;
-        final int increment                  = 9;
-        final int cycle_option               = 10;
-        final int declared_data_type         = 11;
-        final int declared_numeric_precision = 12;
-        final int declared_numeric_scale     = 13;
-        final int start_with                 = 14;
-        final int next_value                 = 15;
+        final int maximum_value              = 9;
+        final int increment                  = 10;
+        final int cycle_option               = 11;
+        final int declared_data_type         = 12;
+        final int declared_numeric_precision = 13;
+        final int declared_numeric_scale     = 14;
+        final int start_with                 = 15;
+        final int next_value                 = 16;
 
         //
         Iterator       it;
@@ -3236,14 +3239,15 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[numeric_precision] = ValuePool.getInt(type.getPrecision());
             row[numeric_precision_radix]    = ValuePool.getInt(radix);
             row[numeric_scale]              = ValuePool.INTEGER_0;
-            row[maximum_value] = String.valueOf(sequence.getMaxValue());
+            row[start_value] = String.valueOf(sequence.getStartValue());
             row[minimum_value] = String.valueOf(sequence.getMinValue());
+            row[maximum_value] = String.valueOf(sequence.getMaxValue());
             row[increment] = String.valueOf(sequence.getIncrement());
             row[cycle_option]               = sequence.isCycle() ? "YES"
                                                                  : "NO";
             row[declared_data_type]         = row[data_type];
             row[declared_numeric_precision] = row[numeric_precision];
-            row[declared_numeric_scale]     = row[declared_numeric_scale];
+            row[declared_numeric_scale]     = row[numeric_scale];
             row[start_with] = String.valueOf(sequence.getStartValue());
             row[next_value]                 = String.valueOf(sequence.peek());
 
@@ -3347,7 +3351,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                                                                  : "NO";
             row[declared_data_type]         = row[data_type];
             row[declared_numeric_precision] = row[numeric_precision];
-            row[declared_numeric_scale]     = row[declared_numeric_scale];
+            row[declared_numeric_scale]     = row[numeric_scale];
             row[start_with] = String.valueOf(sequence.getStartValue());
             row[next_value]                 = String.valueOf(sequence.peek());
 

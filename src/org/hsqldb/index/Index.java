@@ -43,7 +43,7 @@ import org.hsqldb.types.Type;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public interface Index extends SchemaObject {
@@ -62,8 +62,6 @@ public interface Index extends SchemaObject {
     IndexUse[] emptyUseArray = new IndexUse[]{};
 
     IndexUse[] asArray();
-
-    RowIterator emptyIterator();
 
     int getPosition();
 
@@ -244,7 +242,7 @@ public interface Index extends SchemaObject {
      * @param map boolean[]
      */
     RowIterator lastRow(Session session, PersistentStore store,
-                        int distinctCount, boolean[] map);
+                        int distinctCount, boolean[] usedColumnCheck);
 
     /**
      * Compares two table rows based on the columns of this index. The rowColMap
