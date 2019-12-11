@@ -382,7 +382,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         sortFull();
         other.sortFull();
 
-        it = fullIndex.emptyIterator();
+        it = RowIterator.emptyRowIterator;
 
         while (next()) {
             Object[] currentData = getCurrent();
@@ -439,7 +439,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         sortFull();
         other.sortFull();
 
-        it = fullIndex.emptyIterator();
+        it = RowIterator.emptyRowIterator;
 
         while (next()) {
             Object[] currentData = getCurrent();

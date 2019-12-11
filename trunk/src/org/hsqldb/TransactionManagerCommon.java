@@ -272,7 +272,7 @@ class TransactionManagerCommon {
                 row = (Row) action.store.get(action.getPos(), false);
             }
 
-            if (action.table.tableType != TableBase.TEMP_TABLE) {
+            if (!action.table.isTemp) {
                 writeCommit = true;
             }
 
@@ -280,7 +280,7 @@ class TransactionManagerCommon {
                 action.store.commitRow(session, row, type, txModel);
 
                 if (txModel == TransactionManager.LOCKS
-                        || action.table.tableType == TableBase.TEMP_TABLE) {
+                        || action.table.isTemp) {
                     action.setAsNoOp();
 
                     row.rowAction = null;

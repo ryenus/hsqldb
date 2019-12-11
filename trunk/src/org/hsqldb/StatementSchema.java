@@ -1023,8 +1023,7 @@ public class StatementSchema extends Statement {
 
                             right.setColumns(t);
 
-                            if (t.getTableType() == TableBase.TEMP_TABLE
-                                    && !right.isFull()) {
+                            if (t.isTemp && !right.isFull()) {
                                 return Result.newErrorResult(
                                     Error.error(ErrorCode.X_42595), sql);
                             }

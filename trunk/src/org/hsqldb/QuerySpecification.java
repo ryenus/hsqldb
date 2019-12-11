@@ -653,6 +653,7 @@ public class QuerySpecification extends QueryExpression {
             }
 
             e.replaceAliasInOrderBy(session, exprColumns, indexLimitVisible);
+
             resolveColumnReferencesAndAllocate(session, e,
                                                rangeVariables.length,
                                                RangeGroup.emptyArray, false);

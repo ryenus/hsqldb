@@ -335,7 +335,7 @@ implements TransactionManager {
         RowAction action = store.addDeleteActionToRow(session, row,
             changedColumns, true);
 
-        if (table.tableType == TableBase.TEMP_TABLE) {
+        if (table.isTemp) {
             store.delete(session, row);
 
             row.rowAction = null;
@@ -442,7 +442,7 @@ implements TransactionManager {
         }
 
         if (!redoAction) {
-            if (table.tableType == TableBase.TEMP_TABLE) {
+            if (table.isTemp) {
                 row.rowAction = null;
 
                 if (table.persistenceScope == Table.SCOPE_ROUTINE) {
@@ -511,7 +511,7 @@ implements TransactionManager {
 
         if (action == null) {
             return true;
-        } else if (action.table.tableType == TableBase.TEMP_TABLE) {
+        } else if (action.table.isTemp) {
             return true;
         }
 

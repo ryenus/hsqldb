@@ -36,10 +36,12 @@ import org.hsqldb.Row;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.1
  * @since 1.7.2
  */
 public interface RowIterator {
+
+    RowIterator emptyRowIterator = new EmptyRowIterator();
 
     Object getField(int col);
 
@@ -54,4 +56,33 @@ public interface RowIterator {
     void release();
 
     long getRowId();
+
+    final class EmptyRowIterator implements RowIterator {
+
+        private EmptyRowIterator() {}
+
+        public Object getField(int col) {
+            return null;
+        }
+
+        public boolean next() {
+            return false;
+        }
+
+        public Row getCurrentRow() {
+            return null;
+        }
+
+        public Object[] getCurrent() {
+            return null;
+        }
+
+        public void release() {}
+
+        public void removeCurrent() {}
+
+        public long getRowId() {
+            return 0L;
+        }
+    }
 }

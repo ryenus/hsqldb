@@ -945,7 +945,7 @@ public class SchemaManager {
             }
         }
 
-        if (table.tableType == TableBase.TEMP_TABLE) {
+        if (table.isTemp) {
             Session[] sessions = database.sessionManager.getAllSessions();
 
             for (int i = 0; i < sessions.length; i++) {

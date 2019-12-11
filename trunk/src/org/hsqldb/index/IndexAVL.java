@@ -86,6 +86,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rights.Grantee;
@@ -115,9 +116,6 @@ import org.hsqldb.types.Type;
  * @since Hypersonic SQL
  */
 public class IndexAVL implements Index {
-
-    private static final IndexRowIterator emptyIterator =
-        new IndexRowIterator(null, null, null, null, 0, false, false);
 
     // fields
     private final long       persistenceId;
@@ -255,10 +253,6 @@ public class IndexAVL implements Index {
     // IndexInterface
     public IndexUse[] asArray() {
         return asArray;
-    }
-
-    public RowIterator emptyIterator() {
-        return emptyIterator;
     }
 
     public int getPosition() {
@@ -1063,7 +1057,7 @@ public class IndexAVL implements Index {
                                 TransactionManager.ACTION_READ, reversed);
 
         if (node == null) {
-            return emptyIterator;
+            return RangeIterator.emptyRowIterator;
         }
 
         return new IndexRowIterator(session, store, this, node, distinctCount,
@@ -1087,7 +1081,7 @@ public class IndexAVL implements Index {
                                 TransactionManager.ACTION_READ, false);
 
         if (node == null) {
-            return emptyIterator;
+            return RangeIterator.emptyRowIterator;
         }
 
         return new IndexRowIterator(session, store, this, node, 0, false,
@@ -1112,7 +1106,7 @@ public class IndexAVL implements Index {
                                 TransactionManager.ACTION_READ, false);
 
         if (node == null) {
-            return emptyIterator;
+            return RangeIterator.emptyRowIterator;
         }
 
         return new IndexRowIterator(session, store, this, node, 0, false,
@@ -1134,7 +1128,7 @@ public class IndexAVL implements Index {
                                 TransactionManager.ACTION_READ, false);
 
         if (node == null) {
-            return emptyIterator;
+            return RangeIterator.emptyRowIterator;
         }
 
         return new IndexRowIterator(session, store, this, node, 0, false,
@@ -1173,7 +1167,7 @@ public class IndexAVL implements Index {
             }
 
             if (x == null) {
-                return emptyIterator;
+                return RangeIterator.emptyRowIterator;
             }
 
             return new IndexRowIterator(session, store, this, x,
@@ -1197,7 +1191,7 @@ public class IndexAVL implements Index {
             }
 
             if (x == null) {
-                return emptyIterator;
+                return RangeIterator.emptyRowIterator;
             }
 
             return new IndexRowIterator(null, store, this, x, 0, false, false);
@@ -1237,7 +1231,7 @@ public class IndexAVL implements Index {
             }
 
             if (x == null) {
-                return emptyIterator;
+                return RangeIterator.emptyRowIterator;
             }
 
             return new IndexRowIterator(session, store, this, x,
@@ -1808,11 +1802,11 @@ public class IndexAVL implements Index {
         return node;
     }
 
-    IndexRowIterator getIterator(Session session, PersistentStore store,
+    RowIterator getIterator(Session session, PersistentStore store,
                                  NodeAVL x, boolean single, boolean reversed) {
 
         if (x == null) {
-            return emptyIterator;
+            return RangeIterator.emptyRowIterator;
         } else {
             IndexRowIterator it = new IndexRowIterator(session, store, this,
                 x, 0, single, reversed);

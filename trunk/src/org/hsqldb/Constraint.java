@@ -913,7 +913,7 @@ public final class Constraint implements SchemaObject {
     RowIterator findFkRef(Session session, Object[] row) {
 
         if (row == null || ArrayUtil.hasNull(row, core.mainCols)) {
-            return core.refIndex.emptyIterator();
+            return RowIterator.emptyRowIterator;
         }
 
         PersistentStore store = core.refTable.getRowStore(session);
@@ -927,7 +927,7 @@ public final class Constraint implements SchemaObject {
     RowIterator findUniqueRows(Session session, Object[] row) {
 
         if (row == null || ArrayUtil.hasNull(row, core.mainCols)) {
-            return core.mainIndex.emptyIterator();
+            return RowIterator.emptyRowIterator;
         }
 
         PersistentStore store = core.mainTable.getRowStore(session);

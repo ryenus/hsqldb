@@ -70,9 +70,6 @@ public class RangeVariable {
     public static final int PLACEHOLDER_RANGE = 5;
 
     //
-    private static final RowIterator emptyIterator = new RangeIteratorEmpty();
-
-    //
     Table                  rangeTable;
     final SimpleName       tableAlias;
     private OrderedHashSet columnAliases;
@@ -240,6 +237,7 @@ public class RangeVariable {
             expr.resolveColumnReferences(session, ranges,
                                          RangeGroup.emptyArray, null);
             expr.resolveTypes(session, null);
+
             filterCondition = expr;
         }
     }
@@ -1157,7 +1155,7 @@ public class RangeVariable {
 
         Session         session;
         int             rangePosition;
-        RowIterator     it = emptyIterator;
+        RowIterator     it = RangeIterator.emptyRowIterator;
         PersistentStore store;
         boolean         isBeforeFirst;
         RangeVariable   rangeVar;
@@ -1173,7 +1171,7 @@ public class RangeVariable {
             if (isBeforeFirst) {
                 isBeforeFirst = false;
             } else {
-                if (it == emptyIterator) {
+                if (it == RangeIterator.emptyRowIterator) {
                     return false;
                 }
             }
@@ -1219,7 +1217,7 @@ public class RangeVariable {
 
             it.release();
 
-            it            = emptyIterator;
+            it            = RangeIterator.emptyRowIterator;
             isBeforeFirst = true;
         }
 
@@ -1309,7 +1307,7 @@ public class RangeVariable {
 
                 it.release();
 
-                it            = emptyIterator;
+                it            = RangeIterator.emptyRowIterator;
                 isBeforeFirst = true;
 
                 condIndex++;
@@ -1326,7 +1324,7 @@ public class RangeVariable {
 
             it.release();
 
-            it            = emptyIterator;
+            it            = RangeIterator.emptyRowIterator;
             isBeforeFirst = true;
             condIndex     = 0;
         }
@@ -1344,7 +1342,7 @@ public class RangeVariable {
             }
 
             if (conditions[condIndex].isFalse) {
-                it = conditions[condIndex].rangeIndex.emptyIterator();
+                it = RowIterator.emptyRowIterator;
 
                 return;
             }
@@ -1402,7 +1400,7 @@ public class RangeVariable {
                         .getDataType();
 
                 if (i == 0 && value == null) {
-                    it = conditions[condIndex].rangeIndex.emptyIterator();
+                    it = RowIterator.emptyRowIterator;
 
                     return;
                 }
@@ -1434,8 +1432,7 @@ public class RangeVariable {
                                 break;
 
                             default :
-                                it = conditions[condIndex].rangeIndex
-                                    .emptyIterator();
+                                it = RowIterator.emptyRowIterator;
 
                                 return;
                         }
@@ -1457,8 +1454,7 @@ public class RangeVariable {
 
                             // fall through
                             default :
-                                it = conditions[condIndex].rangeIndex
-                                    .emptyIterator();
+                                it = RowIterator.emptyRowIterator;
 
                                 return;
                         }
@@ -1496,7 +1492,7 @@ public class RangeVariable {
                 else {
                     it.release();
 
-                    it = emptyIterator;
+                    it = RangeIterator.emptyRowIterator;
 
                     break;
                 }
@@ -1564,7 +1560,7 @@ public class RangeVariable {
 
             it.release();
 
-            it = emptyIterator;
+            it = RangeIterator.emptyRowIterator;
 
             if (hasLeftOuterRow && condIndex == conditions.length - 1) {
                 result =
@@ -1612,7 +1608,7 @@ public class RangeVariable {
         public boolean next() {
 
             if (isOnRightOuterRows) {
-                if (it == emptyIterator) {
+                if (it == RangeIterator.emptyRowIterator) {
                     return false;
                 }
 
@@ -1629,7 +1625,7 @@ public class RangeVariable {
             while (true) {
                 if (it.next()) {}
                 else {
-                    it = emptyIterator;
+                    it = RangeIterator.emptyRowIterator;
 
                     break;
                 }
@@ -1755,45 +1751,6 @@ public class RangeVariable {
 
         public int getRangePosition() {
             return 0;
-        }
-    }
-
-    static final class RangeIteratorEmpty implements RowIterator {
-
-        public Object getField(int col) {
-            return null;
-        }
-
-        public boolean next() {
-            return false;
-        }
-
-        public Row getCurrentRow() {
-            return null;
-        }
-
-        public Object[] getCurrent() {
-            return null;
-        }
-
-        public boolean hasNext() {
-            return false;
-        }
-
-        public long getPos() {
-            return -1;
-        }
-
-        public int getStorageSize() {
-            return 0;
-        }
-
-        public void release() {}
-
-        public void removeCurrent() {}
-
-        public long getRowId() {
-            return 0L;
         }
     }
 
