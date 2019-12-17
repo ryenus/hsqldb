@@ -78,8 +78,8 @@ public class Expression implements Cloneable {
     static final Expression[] emptyArray = new Expression[]{};
 
     //
-    static final Expression EXPR_TRUE  = new ExpressionLogical(true);
-    static final Expression EXPR_FALSE = new ExpressionLogical(false);
+    public static final Expression EXPR_TRUE  = new ExpressionBoolean(true);
+    public static final Expression EXPR_FALSE = new ExpressionBoolean(false);
 
     // type
     protected int opType;
