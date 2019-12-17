@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * Manages all SCHEMA related database objects
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.8.0
  */
 public class SchemaManager {
@@ -2607,8 +2607,7 @@ public class SchemaManager {
         readLock.lock();
 
         try {
-            Session       sysSession = database.sessionManager.getSysSession();
-            long[][]      rootsArray = getIndexRoots(sysSession);
+            long[][]      rootsArray = getIndexRoots();
             HsqlArrayList tableList  = getAllTables(true);
             HsqlArrayList list       = new HsqlArrayList();
 
@@ -2723,7 +2722,7 @@ public class SchemaManager {
         tempIndexRoots = roots;
     }
 
-    public long[][] getIndexRoots(Session session) {
+    public long[][] getIndexRoots() {
 
         readLock.lock();
 
