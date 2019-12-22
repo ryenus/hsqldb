@@ -33,7 +33,6 @@ package org.hsqldb.types;
 
 import java.math.BigDecimal;
 
-import org.hsqldb.HsqlDateTime;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
