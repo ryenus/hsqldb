@@ -913,25 +913,21 @@ public final class DateTimeType extends DTIType {
                 }
 
                 if (a instanceof java.util.Date) {
-                    long millis;
+                    long millis = ((java.util.Date) a).getTime();
                     long seconds;
-                    int  nanos       = 0;
-                    int  zoneSeconds = 0;
+                    int nanos =
+                        DateTimeType.normaliseFraction((int) (millis % 1000)
+                                                       * 1000000, scale);
+                    int zoneSeconds = 0;
 
                     if (typeCode == Types.SQL_TIMESTAMP) {
                         millis = HsqlDateTime.convertMillisFromCalendar(
                             session.getCalendarGMT(), session.getCalendar(),
-                            ((java.util.Date) a).getTime());
+                            millis);
                     } else {
-                        millis = ((java.util.Date) a).getTime();
                         zoneSeconds =
                             HsqlDateTime.getZoneMillis(
                                 session.getCalendar(), millis) / 1000;
-                    }
-
-                    if (a instanceof java.sql.Timestamp) {
-                        nanos = ((java.sql.Timestamp) a).getNanos();
-                        nanos = DateTimeType.normaliseFraction(nanos, scale);
                     }
 
                     seconds = millis / 1000;
@@ -972,6 +968,8 @@ public final class DateTimeType extends DTIType {
 
                 if(withTimeZone) {
                     zoneSeconds = odt.get(java.time.temporal.ChronoField.OFFSET_SECONDS);
+                } else {
+                    seconds += odt.get(java.time.temporal.ChronoField.OFFSET_SECONDS);
                 }
             } else {
                 seconds = HsqlDateTime.getNormalisedDate(session.getCalendarGMT(),seconds * 1000) / 1000;

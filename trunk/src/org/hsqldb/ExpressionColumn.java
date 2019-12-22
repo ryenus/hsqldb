@@ -834,6 +834,13 @@ public class ExpressionColumn extends Expression {
                     return sb.toString();
                 }
             }
+            case OpTypes.SIMPLE_COLUMN : {
+                if (alias != null) {
+                    return alias.getStatementName();
+                } else {
+                    return Tokens.T_COLUMN_NAME;
+                }
+            }
             case OpTypes.MULTICOLUMN : {
                 if (nodes.length == 0) {
                     return "*";

@@ -384,26 +384,26 @@ public class CharacterType extends Type {
         } else if (la > lb) {
             if (collation.isPadSpace()
                     && opType != OpTypes.GREATER_EQUAL_PRE) {
-                char[] buffer = new char[la];
-
-                bs.getChars(0, lb, buffer, 0);
-                ArrayUtil.fillArray(buffer, lb, ' ');
-
-                bs = String.valueOf(buffer);
+                bs = padString(bs, la);
             }
         } else {
             if (collation.isPadSpace()
                     && opType != OpTypes.GREATER_EQUAL_PRE) {
-                char[] buffer = new char[lb];
-
-                as.getChars(0, la, buffer, 0);
-                ArrayUtil.fillArray(buffer, la, ' ');
-
-                as = String.valueOf(buffer);
+                as = padString(as, lb);
             }
         }
 
         return collation.compare(as, bs);
+    }
+
+    public static String padString(String s, int length) {
+
+        char[] buffer = new char[length];
+
+        s.getChars(0, s.length(), buffer, 0);
+        ArrayUtil.fillArray(buffer, s.length(), ' ');
+
+        return String.valueOf(buffer);
     }
 
     public Object convertToTypeLimits(SessionInterface session, Object a) {
@@ -648,8 +648,8 @@ public class CharacterType extends Type {
         } else if (a instanceof java.sql.Timestamp) {
             s = a.toString();
         } else if (a instanceof java.util.Date) {
-            s = HsqlDateTime.getTimestampString(
-                ((java.util.Date) a).getTime());
+            a = new java.sql.Timestamp(((java.util.Date) a).getTime());
+            s = a.toString();
         } else if (a instanceof java.util.UUID) {
             s = a.toString();
         } else {
