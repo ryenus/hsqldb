@@ -694,14 +694,15 @@ public class StatementCompound extends Statement implements RangeGroup {
     private Result executeProtected(Session session, Statement statement) {
 
         int actionIndex = session.rowActionList.size();
-
-        session.actionTimestamp =
+        long actionTimestamp =
             session.database.txManager.getNextGlobalChangeTimestamp();
+
+        session.actionTimestamp = actionTimestamp;
 
         Result result = statement.execute(session);
 
         if (result.isError()) {
-            session.rollbackAction(actionIndex, session.actionTimestamp);
+            session.rollbackAction(actionIndex, actionTimestamp);
         }
 
         return result;
