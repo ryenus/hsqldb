@@ -274,7 +274,8 @@ public class QuerySpecification extends QueryExpression {
      * fully resolve all group by columns
      * add each group by expression to exprColumnList
      */
-    void resolveColumnReferencesInGroupingSets(Session session) {
+    void resolveColumnReferencesInGroupingSets(Session session,
+            RangeGroup[] rangeGroups) {
 
         if (groupSet == null) {
             return;
@@ -286,10 +287,15 @@ public class QuerySpecification extends QueryExpression {
             Expression e = groupExpressions[i];
 
             tempSet.clear();
-            e.resolveColumnReferences(session, this, RangeGroup.emptyArray,
-                                      tempSet);
+            e.resolveColumnReferences(session, this, rangeVariables.length,
+                                      rangeGroups, tempSet, false);
 
             if (!tempSet.isEmpty()) {
+                if (session.database.sqlEnforceRefs) {
+                    ExpressionColumn.checkColumnsResolved(tempSet);
+
+                    continue;
+                }
 
                 // when a column reference does not resolve to range variables,
                 // resolve to aliases in select list
@@ -308,8 +314,9 @@ public class QuerySpecification extends QueryExpression {
 
                 tempSet.clear();
                 resolved.resolveColumnReferences(session, this,
+                                                 rangeVariables.length,
                                                  RangeGroup.emptyArray,
-                                                 tempSet);
+                                                 tempSet, false);
                 ExpressionColumn.checkColumnsResolved(tempSet);
             }
         }
@@ -364,19 +371,6 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    void addGroupByColumnExpression(Expression e) {
-
-        if (e.getType() == OpTypes.ROW) {
-            throw Error.error(ErrorCode.X_42564);
-        }
-
-        exprColumnList.add(e);
-
-        isGrouped = true;
-
-        groupByColumnCount++;
-    }
-
     void addHavingExpression(Expression e) {
 
         exprColumnList.add(e);
@@ -400,7 +394,8 @@ public class QuerySpecification extends QueryExpression {
         resolveColumnReferencesForAsterisk();
 
         // must be after asterisk expansion
-        resolveColumnReferencesInGroupingSets(session);
+        resolveColumnReferencesInGroupingSets(session, rangeGroups);
+        setColumnIndexes();
         finaliseColumns();
         resolveColumnReferences(session, rangeGroups);
         setReferenceableColumns();
@@ -614,11 +609,6 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        for (int i = indexLimitVisible; i < indexStartHaving; i++) {
-            exprColumns[i] = resolveColumnReferencesInGroupBy(session,
-                    exprColumns[i]);
-        }
-
         for (int i = indexStartHaving; i < indexStartOrderBy; i++) {
             resolveColumnReferencesAndAllocate(session, exprColumns[i],
                                                rangeVariables.length,
@@ -653,7 +643,6 @@ public class QuerySpecification extends QueryExpression {
             }
 
             e.replaceAliasInOrderBy(session, exprColumns, indexLimitVisible);
-
             resolveColumnReferencesAndAllocate(session, e,
                                                rangeVariables.length,
                                                RangeGroup.emptyArray, false);
@@ -789,16 +778,7 @@ public class QuerySpecification extends QueryExpression {
 
                 if (resolved) {
                     if (e.isSelfAggregate()) {
-                        if (aggregateSet == null) {
-                            aggregateSet = new ArrayListIdentity();
-                        }
-
-                        aggregateSet.add(e);
-
-                        isAggregated = true;
-
-                        expression.setAggregate();
-                        e.setCorrelatedReferences(this);
+                        addAggregateToSet(expression, e);
                     }
 
                     if (resolvedSubqueryExpressions == null) {
@@ -817,35 +797,18 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    private Expression resolveColumnReferencesInGroupBy(Session session,
-            Expression expression) {
+    private void addAggregateToSet(Expression parent, Expression e) {
 
-        if (expression == null) {
-            return null;
+        if (aggregateSet == null) {
+            aggregateSet = new ArrayListIdentity();
         }
 
-        HsqlList list = expression.resolveColumnReferences(session, this,
-            rangeVariables.length, RangeGroup.emptyArray, null, false);
+        aggregateSet.add(e);
 
-        if (list != null) {
+        isAggregated = true;
 
-            // if not resolved, resolve as simple alias
-            if (expression.getType() == OpTypes.COLUMN) {
-                Expression resolved = expression.replaceAliasInOrderBy(session,
-                    exprColumns, indexLimitVisible);
-
-                if (resolved != expression) {
-                    return resolved;
-                }
-            }
-
-            // resolve and allocate to throw exception
-            resolveColumnReferencesAndAllocate(session, expression,
-                                               rangeVariables.length,
-                                               RangeGroup.emptyArray, false);
-        }
-
-        return expression;
+        parent.setAggregate();
+        e.setCorrelatedReferences(this);
     }
 
     private HashSet getAllNamedJoinColumns() {
@@ -961,7 +924,13 @@ public class QuerySpecification extends QueryExpression {
         e.nodes = nodes;
     }
 
-    private void finaliseColumns() {
+    private void setColumnIndexes() {
+
+        for (int i = 0; i < indexLimitVisible; i++) {
+            Expression e = (Expression) exprColumnList.get(i);
+
+            e.queryTableColumnIndex = i;
+        }
 
         indexLimitRowId   = indexLimitVisible;
         indexStartHaving  = indexLimitRowId + groupByColumnCount;
@@ -969,15 +938,15 @@ public class QuerySpecification extends QueryExpression {
         indexStartAggregates = indexStartOrderBy
                                + sortAndSlice.getOrderLength();
         indexLimitData = indexLimitExpressions = indexStartAggregates;
-        exprColumns    = new Expression[indexLimitExpressions];
+    }
+
+    private void finaliseColumns() {
+
+        exprColumns = new Expression[indexLimitExpressions];
 
         exprColumnList.toArray(exprColumns);
 
         exprColumnList = null;
-
-        for (int i = 0; i < indexLimitVisible; i++) {
-            exprColumns[i].queryTableColumnIndex = i;
-        }
 
         if (sortAndSlice.hasOrder()) {
             for (int i = 0; i < sortAndSlice.getOrderLength(); i++) {
@@ -989,12 +958,12 @@ public class QuerySpecification extends QueryExpression {
         rowExpression = new Expression(OpTypes.ROW, exprColumns);
     }
 
-    private void replaceColumnIndexInOrderBy(Expression orderBy) {
+    private int replaceColumnIndexInOrderBy(Expression orderBy) {
 
         Expression e = orderBy.getLeftNode();
 
         if (e.getType() != OpTypes.VALUE) {
-            return;
+            return -1;
         }
 
         Type type = e.getDataType();
@@ -1005,7 +974,7 @@ public class QuerySpecification extends QueryExpression {
             if (0 < i && i <= indexLimitVisible) {
                 orderBy.setLeftNode(exprColumns[i - 1]);
 
-                return;
+                return i;
             }
         }
 
@@ -1823,7 +1792,7 @@ public class QuerySpecification extends QueryExpression {
         if (isGroupingSets) {
             session.sessionContext.setGroupSet(groupSet);
 
-            Iterator   groupsIterator           = groupSet.getIterator();
+            Iterator   groupsIterator = groupSet.getIterator();
             Object[][] baseResult     = navigator.getDataTable();
             int        baseResultSize = navigator.getSize();
 
