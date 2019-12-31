@@ -159,7 +159,6 @@ examples:
            description="Delete the /classes directory">
    </target>
 
-
    <target name="-clean">
      <delete dir="classes"/>
    </target>
@@ -576,7 +575,7 @@ examples:
 
     <target name="hsqldbmain" depends="classes, -prep-license-files"
             description="Build the hsqldbmain.jar (no utilities)">
-      <jar jarfile="lib/hsqldbmain.jar">
+      <jar jarfile="lib/hsqldbmain.jar" duplicate='preserve'>
         <metainf dir="doc" includes="*_lic.txt"/>
         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
         <manifest>
@@ -595,7 +594,7 @@ examples:
 
     <target name="hsqldb" depends="classes, -util, -prep-license-files"
             description="Build the default hsqldb.jar">
-      <jar jarfile="lib/hsqldb.jar" compress="true">
+      <jar jarfile="lib/hsqldb.jar" duplicate='preserve'>
         <metainf dir="doc" includes="*_lic.txt"/>
         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
         <manifest>
@@ -620,7 +619,7 @@ examples:
     <target name="hsqldbmodule" depends="classes, -util, -module_info, -prep-license-files"
             description="Build the java module hsqldb.jar">
       <fail message="Java 9 or later required" unless="ant.java.iscjava19"/>
-      <jar jarfile="lib/hsqldbmod.jar" compress="true">
+      <jar jarfile="lib/hsqldbmod.jar" duplicate='preserve'>
         <metainf dir="doc" includes="*_lic.txt"/>
         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
         <manifest>
@@ -663,7 +662,7 @@ examples:
 
     <target name="sqltool" depends="-lib, -cmdline, -prep-license-files"
             description="Build 'sqltool.jar' file">
-      <jar jarfile="lib/sqltool.jar" compress="true" filesonly="true">
+      <jar jarfile="lib/sqltool.jar" filesonly="true">
         <metainf dir="doc" includes="*hsqldb_lic.txt"/>
         <manifest>
           <attribute name='Specification-Title' value='${hsqldb.title}'/>
