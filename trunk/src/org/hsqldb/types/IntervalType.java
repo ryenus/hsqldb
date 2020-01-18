@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,11 @@ package org.hsqldb.types;
 
 import java.math.BigDecimal;
 
+//#ifdef JAVA8
+import java.time.Duration;
+import java.time.Period;
+
+//#endif JAVA8
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
@@ -150,7 +155,6 @@ public final class IntervalType extends DTIType {
 
 //#ifdef JAVA8
                 return java.time.Period.class;
-
 
 //#else
 /*
@@ -657,22 +661,47 @@ public final class IntervalType extends DTIType {
 
         if (this.isIntervalYearMonthType()) {
             if (a instanceof java.time.Period) {
-                java.time.Period v = (java.time.Period) a;
-                int months = v.getYears() * 12 + v.getMonths();
+                Period v      = (Period) a;
+                long   months = v.toTotalMonths();
 
                 return new IntervalMonthData(months, this);
             }
         } else {
             if (a instanceof java.time.Duration) {
-                java.time.Duration v = (java.time.Duration) a;
-                long second = v.getSeconds();
-                int nano   = v.getNano();
+                Duration v      = (Duration) a;
+                long     second = v.getSeconds();
+                int      nano   = v.getNano();
 
                 return new IntervalSecondData(second, nano, this, true);
             }
         }
 
         return null;
+    }
+
+    public Object convertSQLToJava(SessionInterface session, Object a) {
+
+        if (a == null) {
+            return null;
+        }
+
+        if (isIntervalYearMonthType()) {
+            IntervalMonthData months = (IntervalMonthData) a;
+            Period            v;
+
+            if (typeCode == Types.SQL_INTERVAL_MONTH) {
+                v = Period.ofMonths(months.units);
+            } else {
+                v = Period.of(months.units / 12, months.units % 12, 0);
+            }
+
+            return v;
+        } else {
+            IntervalSecondData seconds = (IntervalSecondData) a;
+            Duration d = Duration.ofSeconds(seconds.units, seconds.nanos);
+
+            return d;
+        }
     }
 
 //#else

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -247,7 +247,10 @@ public class Result {
 
     public static Result newResult(DataInputStream dataInput,
                                    RowInputInterface in) throws IOException {
-        return newResult(null, dataInput.readByte(), dataInput, in);
+
+        int readMode = dataInput.readByte();
+
+        return newResult(null, readMode, dataInput, in);
     }
 
     public static Result newResult(Session session, int mode,
