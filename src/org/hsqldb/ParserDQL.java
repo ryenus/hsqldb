@@ -1017,12 +1017,46 @@ public class ParserDQL extends ParserBase {
 
     QueryExpression XreadQueryExpression() {
 
+        try {
+            XreadWithClause();
+
+            QueryExpression queryExpression = XreadQueryExpressionBody();
+            SortAndSlice    sortAndSlice    = XreadOrderByExpression();
+
+            if (queryExpression.sortAndSlice == SortAndSlice.noSort) {
+                queryExpression.addSortAndSlice(sortAndSlice);
+            } else {
+                if (queryExpression.sortAndSlice.hasLimit()) {
+                    if (sortAndSlice.hasLimit()) {
+                        throw Error.error(ErrorCode.X_42549);
+                    }
+
+                    for (int i = 0; i < sortAndSlice.exprList.size(); i++) {
+                        Expression e =
+                            (Expression) sortAndSlice.exprList.get(i);
+
+                        queryExpression.sortAndSlice.addOrderExpression(e);
+                    }
+                } else {
+                    if (sortAndSlice != SortAndSlice.noSort) {
+                        queryExpression.addSortAndSlice(sortAndSlice);
+                    }
+                }
+            }
+
+            return queryExpression;
+        } finally {
+            compileContext.unregisterSubqueries();
+        }
+    }
+
+    void XreadWithClause() {
+
         if (token.tokenType == Tokens.WITH) {
             read();
+            compileContext.unregisterSubqueries();
 
             boolean recursive = readIfThis(Tokens.RECURSIVE);
-
-            compileContext.unregisterSubqueries();
 
             while (true) {
                 checkIsSimpleName();
@@ -1131,33 +1165,6 @@ public class ParserDQL extends ParserBase {
                 break;
             }
         }
-
-        QueryExpression queryExpression = XreadQueryExpressionBody();
-        SortAndSlice    sortAndSlice    = XreadOrderByExpression();
-
-        if (queryExpression.sortAndSlice == SortAndSlice.noSort) {
-            queryExpression.addSortAndSlice(sortAndSlice);
-        } else {
-            if (queryExpression.sortAndSlice.hasLimit()) {
-                if (sortAndSlice.hasLimit()) {
-                    throw Error.error(ErrorCode.X_42549);
-                }
-
-                for (int i = 0; i < sortAndSlice.exprList.size(); i++) {
-                    Expression e = (Expression) sortAndSlice.exprList.get(i);
-
-                    queryExpression.sortAndSlice.addOrderExpression(e);
-                }
-            } else {
-                if (sortAndSlice != SortAndSlice.noSort) {
-                    queryExpression.addSortAndSlice(sortAndSlice);
-                }
-            }
-        }
-
-        compileContext.unregisterSubqueries();
-
-        return queryExpression;
     }
 
     QueryExpression XreadQueryExpressionBody() {
@@ -2454,23 +2461,8 @@ public class ParserDQL extends ParserBase {
                 return null;
 
             case Tokens.COLON :
-                read();
-
-                if (token.tokenType == Tokens.X_DELIMITED_IDENTIFIER
-                        || token.tokenType == Tokens.X_IDENTIFIER) {}
-                else {
-                    throw unexpectedToken(Tokens.T_COLON);
-                }
-
-            // fall through
             case Tokens.QUESTION :
-                ExpressionColumn p =
-                    new ExpressionColumn(OpTypes.DYNAMIC_PARAM);
-
-                compileContext.addParameter(p, getPosition());
-                read();
-
-                return p;
+                return XreadDynamicParameterOrNull();
 
             case Tokens.COLLATION :
                 return XreadCurrentCollationSpec();
@@ -2502,6 +2494,56 @@ public class ParserDQL extends ParserBase {
         return null;
     }
 
+    Expression XreadDynamicParameterOrNull() {
+
+        switch (token.tokenType) {
+
+            case Tokens.COLON :
+                read();
+
+                if (token.tokenType == Tokens.X_VALUE) {
+                    int pos = readInteger();
+                    ExpressionColumn p =
+                        new ExpressionColumn(OpTypes.DYNAMIC_PARAM, pos);
+
+                    compileContext.addParameter(p, getPosition());
+
+                    return p;
+                } else if (token.tokenType == Tokens.X_DELIMITED_IDENTIFIER
+                           || token.tokenType == Tokens.X_IDENTIFIER) {
+
+                    if (token.namePrefix == null) {
+                        int pos = compileContext.parameters.size();
+                        ExpressionColumn p =
+                            new ExpressionColumn(OpTypes.DYNAMIC_PARAM, pos);
+
+                        compileContext.addParameter(p, getPosition());
+                        scanner.replaceToken("" + p.parameterIndex);
+                        read();
+
+                        return p;
+                    } else {
+                        throw unexpectedToken(Tokens.T_COLON);
+                    }
+                } else {
+                    throw unexpectedToken(Tokens.T_COLON);
+                }
+            case Tokens.QUESTION :
+                int pos = compileContext.parameters.size();
+                ExpressionColumn p =
+                    new ExpressionColumn(OpTypes.DYNAMIC_PARAM, pos);
+
+                compileContext.addParameter(p, getPosition());
+                scanner.replaceToken(":" + p.parameterIndex);
+                read();
+
+                return p;
+
+            default :
+                return null;
+        }
+    }
+
     // <unsigned literal> | <dynamic parameter> | <variable>
     Expression XreadSimpleValueSpecificationOrNull() {
 
@@ -2517,23 +2559,8 @@ public class ParserDQL extends ParserBase {
                 return e;
 
             case Tokens.COLON :
-                read();
-
-                if (token.tokenType == Tokens.X_DELIMITED_IDENTIFIER
-                        || token.tokenType == Tokens.X_IDENTIFIER) {}
-                else {
-                    throw unexpectedToken(Tokens.T_COLON);
-                }
-
-            // fall through
             case Tokens.QUESTION :
-                ExpressionColumn p =
-                    new ExpressionColumn(OpTypes.DYNAMIC_PARAM);
-
-                compileContext.addParameter(p, getPosition());
-                read();
-
-                return p;
+                return XreadDynamicParameterOrNull();
 
             case Tokens.X_IDENTIFIER :
             case Tokens.X_DELIMITED_IDENTIFIER :
@@ -7568,9 +7595,6 @@ public class ParserDQL extends ParserBase {
         }
 
         private void addParameter(ExpressionColumn e, int position) {
-
-            e.parameterIndex = parameters.size();
-
             parameters.put(position, e);
         }
 

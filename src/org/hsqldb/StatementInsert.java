@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -192,6 +192,10 @@ public class StatementInsert extends StatementDML {
                                     session, row.getData(), data,
                                     constraint.core.mainCols) != 0) {
                                 break;
+                            }
+
+                            if (specialAction == StatementInsert.isUpdate) {
+                                data = row.getDataCopy();
                             }
 
                             changeNavigator.addRow(session, row, data,
