@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,8 @@ import java.sql.Types;
  */
 class PostgresTransferHelper extends TransferHelper {
 
-    private final int PostgreSQL = 0;
-    private final int HSQLDB     = 1;
+    private static final int PostgreSQL = 0;
+    private static final int HSQLDB     = 1;
     String[][]        Funcs      = {
         {
             "now()", "\'now\'"

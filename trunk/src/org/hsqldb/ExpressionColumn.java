@@ -1236,6 +1236,8 @@ public class ExpressionColumn extends Expression {
                 return nodes == other.nodes;
 
             case OpTypes.DYNAMIC_PARAM :
+                return parameterIndex == other.parameterIndex;
+
             case OpTypes.VARIABLE :
             case OpTypes.PARAMETER :
             case OpTypes.COLUMN :

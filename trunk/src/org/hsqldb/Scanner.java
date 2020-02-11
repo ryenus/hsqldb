@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -312,15 +312,19 @@ public class Scanner {
         return token.dataType;
     }
 
+    public void replaceToken(String newToken) {
+
+        sqlString = sqlString.substring(0, tokenPosition) + newToken
+                    + sqlString.substring(currentPosition);
+        limit           = sqlString.length();
+        currentPosition = tokenPosition + newToken.length();
+    }
+
     public int getLineNumber() {
         return lineNumber;
     }
 
     int getTokenPosition() {
-        return tokenPosition;
-    }
-
-    int getPosition() {
         return tokenPosition;
     }
 

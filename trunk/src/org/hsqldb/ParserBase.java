@@ -154,10 +154,6 @@ public class ParserBase {
         return scanner.getPart(position, scanner.getTokenPosition());
     }
 
-    String getLastPartAndCurrent(int position) {
-        return scanner.getPart(position, scanner.getPosition());
-    }
-
     String getStatement(int startPosition, short[] startTokens) {
 
         while (true) {

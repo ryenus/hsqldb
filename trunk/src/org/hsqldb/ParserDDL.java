@@ -2208,7 +2208,7 @@ public class ParserDDL extends ParserRoutine {
                     break;
                 }
                 case Tokens.GENERATED : {
-                    sequence = readSequence(column);
+                    sequence = readSequence(table, column, true);
 
                     break;
                 }
@@ -2339,7 +2339,7 @@ public class ParserDDL extends ParserRoutine {
             throw Error.error(ErrorCode.X_42525);
         }
 
-        NumberSequence sequence = readSequence(column);
+        NumberSequence sequence = readSequence(table, column, false);
         String         sql      = getLastPart();
         Object[]       args     = new Object[] {
             StatementTypes.ALTER_COLUMN_SEQUENCE, table, column,
@@ -2353,7 +2353,8 @@ public class ParserDDL extends ParserRoutine {
                                    null, writeLockNames);
     }
 
-    NumberSequence readSequence(ColumnSchema column) {
+    NumberSequence readSequence(Table table, ColumnSchema column,
+                                boolean withType) {
 
         readThis(Tokens.GENERATED);
 
@@ -2373,16 +2374,36 @@ public class ParserDDL extends ParserRoutine {
         }
 
         readThis(Tokens.AS);
-        readThis(Tokens.IDENTITY);
-        sequence.setAlways(generatedAlways);
 
-        if (token.tokenType == Tokens.OPENBRACKET) {
+        if (!withType && token.tokenType == Tokens.SEQUENCE) {
+            if (generatedAlways) {
+                throw unexpectedToken();
+            }
+
             read();
-            readSequenceOptions(sequence, false, false, false);
-            readThis(Tokens.CLOSEBRACKET);
-        }
 
-        sequence.checkValues();
+            if (token.namePrefix != null) {
+                if (!token.namePrefix.equals(table.getSchemaName().name)) {
+                    throw unexpectedToken(token.namePrefix);
+                }
+            }
+
+            sequence = database.schemaManager.getSequence(token.tokenString,
+                    table.getSchemaName().name, true);
+
+            read();
+        } else {
+            readThis(Tokens.IDENTITY);
+            sequence.setAlways(generatedAlways);
+
+            if (token.tokenType == Tokens.OPENBRACKET) {
+                read();
+                readSequenceOptions(sequence, false, false, false);
+                readThis(Tokens.CLOSEBRACKET);
+            }
+
+            sequence.checkValues();
+        }
 
         return sequence;
     }
