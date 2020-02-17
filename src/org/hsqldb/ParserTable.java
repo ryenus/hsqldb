@@ -1825,7 +1825,6 @@ public class ParserTable extends ParserDML {
     void readCheckConstraintCondition(Constraint c) {
 
         readThis(Tokens.OPENBRACKET);
-        startRecording();
 
         isCheckOrTriggerCondition = true;
 

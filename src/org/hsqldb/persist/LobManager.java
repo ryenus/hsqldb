@@ -44,11 +44,9 @@ import java.util.zip.Inflater;
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseType;
 import org.hsqldb.HsqlException;
-import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Statement;
-import org.hsqldb.Table;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
@@ -337,7 +335,7 @@ public class LobManager {
         compressLobs = database.logger.propCompressLobs;
 
         if (compressLobs || cryptLobs) {
-            int largeBufferBlockSize = largeLobBlockSize + 4 * 1024;
+            int largeBufferBlockSize = largeLobBlockSize + 32 * 1024;
 
             inflater   = new Inflater();
             deflater   = new Deflater(Deflater.BEST_SPEED);
@@ -2096,14 +2094,8 @@ public class LobManager {
     private Result setBytesISCompressed(long lobID, InputStream inputStream,
                                         long length, boolean isClob) {
 
-        long   offset = 0;
-        byte[] tempBuffer;
-
-        if (length < largeLobBlockSize) {
-            tempBuffer = new byte[(int) length];
-        } else {
-            tempBuffer = new byte[largeLobBlockSize];
-        }
+        long   offset     = 0;
+        byte[] tempBuffer = new byte[largeLobBlockSize];
 
         while (true) {
             int localLength = tempBuffer.length;

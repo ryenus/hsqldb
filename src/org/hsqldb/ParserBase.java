@@ -54,11 +54,8 @@ import org.hsqldb.types.Types;
  */
 public class ParserBase {
 
-    protected Scanner scanner;
-    protected Token   token;
-
-    //
-    private final Token dummyToken = new Token();
+    protected Scanner  scanner;
+    protected Token    token;
 
     //
     protected int           partPosition;
@@ -78,8 +75,10 @@ public class ParserBase {
      * @param scanner the token source from which to parse commands
      */
     ParserBase(Scanner scanner) {
-        this.scanner = scanner;
-        this.token   = scanner.token;
+
+        this.scanner           = scanner;
+        this.token             = scanner.token;
+        this.recordedStatement = new HsqlArrayList();
     }
 
     public Scanner getScanner() {
@@ -114,7 +113,8 @@ public class ParserBase {
         isSchemaDefinition        = false;
         isViewDefinition          = false;
         isRecording               = false;
-        recordedStatement         = null;
+
+        recordedStatement.clear();
     }
 
     int getPosition() {
@@ -210,13 +210,15 @@ public class ParserBase {
     }
 
     //
-    void startRecording() {
+    Recorder startRecording() {
 
-        recordedStatement = new HsqlArrayList();
+        if (!isRecording) {
+            recordedStatement.add(token.duplicate());
 
-        recordedStatement.add(token.duplicate());
+            isRecording = true;
+        }
 
-        isRecording = true;
+        return new Recorder();
     }
 
     Token getRecordedToken() {
@@ -228,19 +230,38 @@ public class ParserBase {
         }
     }
 
-    Token[] getRecordedStatement() {
+    void replaceToken(String tokenString) {
 
-        isRecording = false;
+        scanner.replaceToken(tokenString);
 
-        recordedStatement.remove(recordedStatement.size() - 1);
+        if (isRecording) {
+            Token dup = token.duplicate();
 
-        Token[] tokens = new Token[recordedStatement.size()];
+            dup.position = scanner.getTokenPosition();
 
-        recordedStatement.toArray(tokens);
+            recordedStatement.add(dup);
+        }
+    }
 
-        recordedStatement = null;
+    void replaceToken(Token token1, Token token2) {
 
-        return tokens;
+        String tokenString = token1.tokenString;
+
+        if (token2 != null) {
+            tokenString += " " + token2.tokenString;
+        }
+
+        scanner.replaceToken(tokenString);
+
+        if (isRecording) {
+            token1.position = scanner.getTokenPosition();
+
+            recordedStatement.set(recordedStatement.size() - 1, token1);
+
+            if (token2 != null) {
+                recordedStatement.add(token2);
+            }
+        }
     }
 
     void read() {
@@ -970,5 +991,20 @@ public class ParserBase {
         rewind(pos);
 
         return list;
+    }
+
+    class Recorder {
+
+        int position = recordedStatement.size() - 1;
+
+        String getSQL() {
+
+            int     size   = recordedStatement.size() - position - 1;
+            Token[] tokens = new Token[size];
+
+            recordedStatement.toArraySlice(tokens, position, position + size);
+
+            return Token.getSQL(tokens);
+        }
     }
 }

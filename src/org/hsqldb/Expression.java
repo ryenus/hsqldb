@@ -1118,8 +1118,6 @@ public class Expression implements Cloneable {
                 break;
 
             case OpTypes.VALUELIST :
-
-                /** @todo - should it fall through */
                 break;
 
             case OpTypes.ROW :
@@ -1870,7 +1868,7 @@ public class Expression implements Cloneable {
         nodes[RIGHT] = temp;
     }
 
-    void setAttributesAsColumn(ColumnSchema column, boolean isWritable) {
+    void setAttributesAsColumn(ColumnSchema column) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
 

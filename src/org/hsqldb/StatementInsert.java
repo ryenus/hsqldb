@@ -194,10 +194,6 @@ public class StatementInsert extends StatementDML {
                                 break;
                             }
 
-                            if (specialAction == StatementInsert.isUpdate) {
-                                data = row.getDataCopy();
-                            }
-
                             changeNavigator.addRow(session, row, data,
                                                    baseTable.getColumnTypes(),
                                                    baseTable.defaultColumnMap);
@@ -223,6 +219,9 @@ public class StatementInsert extends StatementDML {
         } else if (specialAction == StatementInsert.isUpdate
                    && changeNavigator != null) {
             Type[] colTypes = baseTable.getColumnTypes();
+
+            session.sessionContext.setRangeIterator(
+                changeNavigator);
 
             session.sessionContext.setRangeIterator(
                 changeNavigator.getUpdateRowIterator());
