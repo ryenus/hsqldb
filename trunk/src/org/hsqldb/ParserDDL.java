@@ -1050,8 +1050,8 @@ public class ParserDDL extends ParserRoutine {
         }
 
         readThis(Tokens.AS);
-        startRecording();
 
+        Recorder        recorder = startRecording();
         QueryExpression queryExpression;
 
         try {
@@ -1063,8 +1063,7 @@ public class ParserDDL extends ParserRoutine {
             isViewDefinition = false;
         }
 
-        Token[] tokenisedStatement = getRecordedStatement();
-        int     check              = SchemaObject.ViewCheckModes.CHECK_NONE;
+        int check = SchemaObject.ViewCheckModes.CHECK_NONE;
 
         if (token.tokenType == Tokens.WITH) {
             read();
@@ -1085,7 +1084,10 @@ public class ParserDDL extends ParserRoutine {
 
         queryExpression.setView(view);
         queryExpression.resolve(session);
-        view.setStatement(Token.getSQL(tokenisedStatement));
+
+        String statementSQL = recorder.getSQL();
+
+        view.setStatement(statementSQL);
 
         StatementQuery s = new StatementQuery(session, queryExpression,
                                               compileContext);
@@ -3108,12 +3110,11 @@ public class ParserDDL extends ParserRoutine {
 
         if (grant) {
             if (objectType == SchemaObject.TABLE) {
-                startRecording();
+                Recorder recorder = startRecording();
 
                 filter = XreadFilterExpressionOrNull();
 
-                Token[] tokenisedStatement = getRecordedStatement();
-                String  sql                = Token.getSQL(tokenisedStatement);
+                String sql = recorder.getSQL();
 
                 right.setFilterExpression(filter, sql);
             }

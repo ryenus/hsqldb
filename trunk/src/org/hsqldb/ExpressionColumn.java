@@ -98,7 +98,7 @@ public class ExpressionColumn extends Expression {
 
     //
     NumberSequence sequence;
-    boolean        isWritable;    // = false; true if column of writable table
+    boolean        isUpdateColumn;
 
     //
     boolean isParam;
@@ -124,7 +124,8 @@ public class ExpressionColumn extends Expression {
 
         super(OpTypes.COLUMN);
 
-        this.columnName = column;
+        this.columnName     = column;
+        this.isUpdateColumn = true;
     }
 
     ExpressionColumn(ColumnSchema column) {
@@ -180,9 +181,7 @@ public class ExpressionColumn extends Expression {
 
         super(type);
 
-        if (type == OpTypes.DYNAMIC_PARAM) {
-            isParam = true;
-        } else if (type == OpTypes.ROWNUM) {
+        if (type == OpTypes.ROWNUM) {
             columnName = rownumName.name;
             dataType   = Type.SQL_INTEGER;
         }
@@ -194,6 +193,13 @@ public class ExpressionColumn extends Expression {
     ExpressionColumn(int type, int columnIndex) {
 
         super(type);
+
+        if (type == OpTypes.DYNAMIC_PARAM) {
+            isParam        = true;
+            parameterIndex = columnIndex;
+
+            return;
+        }
 
         this.column      = (ColumnSchema) diagnosticsList.get(columnIndex);
         this.columnIndex = columnIndex;
@@ -291,11 +297,9 @@ public class ExpressionColumn extends Expression {
         }
     }
 
-    void setAttributesAsColumn(ColumnSchema column, boolean isWritable) {
-
-        this.column     = column;
-        dataType        = column.getDataType();
-        this.isWritable = isWritable;
+    void setAttributesAsColumn(ColumnSchema column) {
+        this.column = column;
+        dataType    = column.getDataType();
     }
 
     SimpleName getSimpleName() {
@@ -440,6 +444,16 @@ public class ExpressionColumn extends Expression {
                     return unresolvedSet;
                 }
 
+                if (isUpdateColumn) {
+                    if (unresolvedSet == null) {
+                        unresolvedSet = new ArrayListIdentity();
+                    }
+
+                    unresolvedSet.add(this);
+
+                    return unresolvedSet;
+                }
+
                 for (int i = 0; i < rangeCount; i++) {
                     RangeVariable rangeVar = rangeVarArray[i];
 
@@ -570,8 +584,7 @@ public class ExpressionColumn extends Expression {
         return false;
     }
 
-    private boolean resolveColumnReference(RangeVariable rangeVar,
-                                           boolean outer) {
+    boolean resolveColumnReference(RangeVariable rangeVar, boolean outer) {
 
         if (tableName == null) {
             Expression e = rangeVar.getColumnExpression(columnName);

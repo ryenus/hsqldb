@@ -1069,7 +1069,8 @@ public final class DateTimeType extends DTIType {
 
 //#else
 /*
-    TimestampData convertJavaDateTimeObject(SessionInterface session, Object a) {
+    TimestampData convertJavaDateTimeObject(SessionInterface session,
+            Object a) {
         return null;
     }
 
@@ -1188,7 +1189,9 @@ public final class DateTimeType extends DTIType {
 /*
                 long               millis = ((TimestampData) a).getMillis();
                 java.sql.Timestamp value  = new java.sql.Timestamp(millis);
+
                 value.setNanos(((TimestampData) a).getNanos());
+
                 return value;
 */
 

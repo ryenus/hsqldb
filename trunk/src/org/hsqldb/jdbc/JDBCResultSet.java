@@ -4864,6 +4864,10 @@ public class JDBCResultSet implements ResultSet {
     public Timestamp getTimestamp(int columnIndex,
                                   Calendar cal) throws SQLException {
 
+        if (cal == null) {
+            return getTimestamp(columnIndex);
+        }
+
         TimestampData t = (TimestampData) getColumnInType(columnIndex,
             Type.SQL_TIMESTAMP);
 
@@ -4873,15 +4877,10 @@ public class JDBCResultSet implements ResultSet {
 
         long millis = t.getSeconds() * 1000;
 
-        if (!resultMetaData.columnTypes[--columnIndex]
+        if (!resultMetaData.columnTypes[columnIndex - 1]
                 .isDateTimeTypeWithZone()) {
-            Calendar calendar = cal == null ? session.getCalendar()
-                    : cal;
-
-            if (cal != null) {
-                millis = HsqlDateTime.convertMillisToCalendar(calendar,
+                millis = HsqlDateTime.convertMillisToCalendar(cal,
                         millis);
-            }
         }
 
         Timestamp ts = new Timestamp(millis);

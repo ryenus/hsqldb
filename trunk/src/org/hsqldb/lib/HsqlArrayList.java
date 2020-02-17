@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -363,6 +363,10 @@ public class HsqlArrayList extends BaseList implements HsqlList {
         return newArray;
     }
 
+    public void toArraySlice(Object[] array, int start, int limit) {
+
+        System.arraycopy(elementData, start, array, 0, limit - start);
+    }
     /**
      * Copies all elements of the list to a[]. It is assumed a[] is of the
      * correct type. If a[] is too small, a new array or the same type is

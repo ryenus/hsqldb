@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -287,7 +287,7 @@ public class ParserRoutine extends ParserTable {
 
         exprList.toArray(updateExpressions);
         resolveUpdateExpressions(table, RangeGroup.emptyGroup, columnMap,
-                                 updateExpressions, rangeGroups);
+                                 updateExpressions, rangeGroups, null);
 
         StatementDMQL cs = new StatementSet(session, targets, table,
                                             rangeGroups[0].getRangeVariables(),
@@ -762,7 +762,8 @@ public class ParserRoutine extends ParserTable {
 
     void readRoutineSQLBody(Routine routine) {
 
-        startRecording();
+        Recorder recorder = startRecording();
+
         session.sessionContext.pushRoutineTables();
 
         try {
@@ -773,8 +774,7 @@ public class ParserRoutine extends ParserTable {
                 throw unexpectedToken();
             }
 
-            Token[] tokenisedStatement = getRecordedStatement();
-            String  sql                = Token.getSQL(tokenisedStatement);
+            String sql = recorder.getSQL();
 
             statement.setSQL(sql);
             routine.setProcedure(statement);
@@ -2518,8 +2518,7 @@ public class ParserRoutine extends ParserTable {
         session.sessionContext.pushRoutineTables();
 
         try {
-            startRecording();
-
+            Recorder recorder = startRecording();
             StatementCompound parent =
                 new StatementCompound(StatementTypes.BEGIN_END, null, null);
 
@@ -2532,8 +2531,7 @@ public class ParserRoutine extends ParserTable {
                 throw unexpectedToken();
             }
 
-            Token[] tokenisedStatement = getRecordedStatement();
-            String  sql                = Token.getSQL(tokenisedStatement);
+            String sql = recorder.getSQL();
 
             statement.setSQL(sql);
             routine.setProcedure(statement);

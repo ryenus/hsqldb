@@ -2438,6 +2438,21 @@ public class ParserDQL extends ParserBase {
                 }
                 break;
 
+            case Tokens.VALUES :
+                if (compileContext.onDuplicateTypedExpression) {
+                    read();
+                    readThis(Tokens.OPENBRACKET);
+                    checkIsSimpleName();
+
+                    e = new ExpressionColumn(token.tokenString);
+
+                    read();
+                    readThis(Tokens.CLOSEBRACKET);
+
+                    return e;
+                }
+                break;
+
             case Tokens.NULL :
                 e = new ExpressionValue(null, null);
 
@@ -2511,14 +2526,21 @@ public class ParserDQL extends ParserBase {
                     return p;
                 } else if (token.tokenType == Tokens.X_DELIMITED_IDENTIFIER
                            || token.tokenType == Tokens.X_IDENTIFIER) {
-
                     if (token.namePrefix == null) {
                         int pos = compileContext.parameters.size();
                         ExpressionColumn p =
                             new ExpressionColumn(OpTypes.DYNAMIC_PARAM, pos);
 
                         compileContext.addParameter(p, getPosition());
-                        scanner.replaceToken("" + p.parameterIndex);
+
+                        Token newToken = new Token();
+
+                        newToken.tokenType = Tokens.X_VALUE;
+                        newToken.dataType  = Type.SQL_INTEGER;
+                        newToken.tokenString =
+                            String.valueOf(p.parameterIndex);
+
+                        replaceToken(newToken, null);
                         read();
 
                         return p;
@@ -2534,7 +2556,20 @@ public class ParserDQL extends ParserBase {
                     new ExpressionColumn(OpTypes.DYNAMIC_PARAM, pos);
 
                 compileContext.addParameter(p, getPosition());
-                scanner.replaceToken(":" + p.parameterIndex);
+
+                Token changedToken = new Token();
+
+                changedToken.tokenType   = Tokens.COLON;
+                changedToken.tokenString = Tokens.T_COLON;
+
+                Token newToken = new Token();
+
+                newToken.tokenType   = Tokens.X_VALUE;
+                newToken.dataType    = Type.SQL_INTEGER;
+                newToken.tokenValue  = Integer.valueOf(p.parameterIndex);
+                newToken.tokenString = String.valueOf(p.parameterIndex);
+
+                replaceToken(changedToken, newToken);
                 read();
 
                 return p;
@@ -3275,8 +3310,27 @@ public class ParserDQL extends ParserBase {
         Expression e;
 
         compileContext.contextuallyTypedExpression = true;
-        e                                          = XreadValueExpression();
-        compileContext.contextuallyTypedExpression = false;
+
+        try {
+            e = XreadValueExpression();
+        } finally {
+            compileContext.contextuallyTypedExpression = false;
+        }
+
+        return e;
+    }
+
+    Expression XreadValueExpressionOnDuplicate() {
+
+        Expression e;
+
+        compileContext.onDuplicateTypedExpression = true;
+
+        try {
+            e = XreadValueExpression();
+        } finally {
+            compileContext.onDuplicateTypedExpression = false;
+        }
 
         return e;
     }
@@ -4932,7 +4986,8 @@ public class ParserDQL extends ParserBase {
 
     TableDerived XreadJoinedTableAsSubqueryOrNull() {
 
-        int position = getPosition();
+        int      position = getPosition();
+        Recorder recorder = startRecording();
 
         readThis(Tokens.OPENBRACKET);
         compileContext.incrementDepth();
@@ -4954,7 +5009,10 @@ public class ParserDQL extends ParserBase {
         TableDerived td = newSubQueryTable(qs, OpTypes.TABLE_SUBQUERY);
 
         readThis(Tokens.CLOSEBRACKET);
-        td.setSQL(getLastPart(position));
+
+        String sql = recorder.getSQL();
+
+        td.setSQL(sql);
         td.prepareTable(session);
         compileContext.decrementDepth();
 
@@ -5138,7 +5196,9 @@ public class ParserDQL extends ParserBase {
             td = newSubQueryTable(name, queryExpression, type);
         }
 
-        td.setSQL(getLastPart(position));
+        String sql = getLastPart(position);
+
+        td.setSQL(sql);
         compileContext.decrementDepth();
 
         return td;
@@ -7213,6 +7273,7 @@ public class ParserDQL extends ParserBase {
         private HsqlArrayList usedObjects = new HsqlArrayList(8, true);
         Type                  currentDomain;
         boolean               contextuallyTypedExpression;
+        boolean               onDuplicateTypedExpression;
         Routine               callProcedure;
 
         //

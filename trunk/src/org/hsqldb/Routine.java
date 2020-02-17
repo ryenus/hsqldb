@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ import java.sql.ResultSet;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
+import org.hsqldb.ParserBase.Recorder;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCResultSet;
@@ -190,12 +191,11 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
 
         try {
             p.read();
-            p.startRecording();
 
+            Recorder recorder = p.startRecording();
             Statement newStatement = p.compileSQLProcedureStatementOrNull(this,
                 null);
-            Token[] tokenisedStatement = p.getRecordedStatement();
-            String  sql                = Token.getSQL(tokenisedStatement);
+            String sql = recorder.getSQL();
 
             newStatement.setSQL(sql);
             setProcedure(newStatement);
