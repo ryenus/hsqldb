@@ -306,6 +306,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String textdb_vs           = "textdb.vs";
     public static final String textdb_lvs          = "textdb.lvs";
     public static final String textdb_qc           = "textdb.qc";
+    public static final String textdb_null_def     = "textdb.null_def";
 
     //
     public static final String hsqldb_min_reuse = "hsqldb.min_reuse";
@@ -324,6 +325,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                             false));
         textMeta.put(textdb_ignore_first,
                      HsqlProperties.getMeta(textdb_ignore_first, SQL_PROPERTY,
+                                            false));
+        textMeta.put(textdb_null_def,
+                     HsqlProperties.getMeta(textdb_null_def, SQL_PROPERTY,
                                             false));
         textMeta.put(textdb_fs,
                      HsqlProperties.getMeta(textdb_fs, SQL_PROPERTY, ","));

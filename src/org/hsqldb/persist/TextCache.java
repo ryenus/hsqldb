@@ -36,6 +36,7 @@ import java.io.UnsupportedEncodingException;
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseType;
 import org.hsqldb.HsqlException;
+import org.hsqldb.Row;
 import org.hsqldb.Table;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -338,6 +339,12 @@ public class TextCache extends DataFileCache {
                 store.get(object, rowIn);
                 cache.put(object);
 
+                Row row = (Row) object;
+
+                if (textFileSettings.isNullDef) {
+                    table.generateDefaultForNull(row.getData());
+                }
+
                 return object;
             } catch (Throwable t) {
                 database.logger.logSevereEvent(dataFileName
@@ -393,7 +400,7 @@ public class TextCache extends DataFileCache {
 
     public void setHeader(String header) {
 
-        if (textFileSettings.ignoreFirst && fileFreePosition == 0) {
+        if (textFileSettings.isIgnoreFirst && fileFreePosition == 0) {
             try {
                 writeHeader(header);
 
@@ -440,7 +447,7 @@ public class TextCache extends DataFileCache {
     }
 
     public boolean isIgnoreFirstLine() {
-        return textFileSettings.ignoreFirst;
+        return textFileSettings.isIgnoreFirst;
     }
 
     protected void setFileModified() {

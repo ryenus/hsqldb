@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -428,5 +428,37 @@ public class TestPreparedStatements extends TestCase {
         boolean found = rs.next();
 
     }
+
+    public void testH() throws SQLException {
+
+        String sqlOne = "with t1(f1) as (select cast(? as int) from (values(0)) t), t2(f2) as (select cast(? as int) from (values(0)) t) select f1 + f2 from t1, t2";
+        String sqlTwo = "with t1(f1) as (select cast(:first as int) from (values(0)) t), t2(f2) as (select cast(:sec as int) from (values(0)) t) select f1 + f2 from t1, t2";
+
+        PreparedStatement pst = con.prepareStatement(sqlOne);
+
+        pst.setInt(1, 3);
+        pst.setInt(2, 2);
+
+        ResultSet rs = pst.executeQuery();
+
+        assertTrue(rs.next());
+
+        int val = rs.getInt(1);
+        assertEquals(5, val);
+
+        pst = con.prepareStatement(sqlOne);
+
+        pst.setInt(1, 3);
+        pst.setInt(2, 2);
+
+        rs = pst.executeQuery();
+
+        assertTrue(rs.next());
+
+        val = rs.getInt(1);
+        assertEquals(5, val);
+
+    }
+
 
 }

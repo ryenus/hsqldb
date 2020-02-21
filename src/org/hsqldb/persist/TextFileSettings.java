@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.error.ErrorCode;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 2.2.6
  */
 public class TextFileSettings {
@@ -56,7 +56,8 @@ public class TextFileSettings {
     public String              stringEncoding;
     public boolean             isQuoted;
     public boolean             isAllQuoted;
-    public boolean             ignoreFirst;
+    public boolean             isIgnoreFirst;
+    public boolean             isNullDef;
     public String              charEncoding;
     public boolean             isUTF8;
     public boolean             isUTF16;
@@ -151,10 +152,10 @@ public class TextFileSettings {
         }
 
         //-- get booleans
-        ignoreFirst =
+        isIgnoreFirst =
             dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_ignore_first);
-        ignoreFirst = tableprops.isPropertyTrue(
-            HsqlDatabaseProperties.textdb_ignore_first, ignoreFirst);
+        isIgnoreFirst = tableprops.isPropertyTrue(
+            HsqlDatabaseProperties.textdb_ignore_first, isIgnoreFirst);
         isQuoted =
             dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_quoted);
         isQuoted =
@@ -165,6 +166,11 @@ public class TextFileSettings {
         isAllQuoted =
             tableprops.isPropertyTrue(HsqlDatabaseProperties.textdb_all_quoted,
                                       isAllQuoted);
+        isNullDef =
+            dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_null_def);
+        isNullDef =
+            tableprops.isPropertyTrue(HsqlDatabaseProperties.textdb_null_def,
+                                      isNullDef);
 
         //-- get string
         stringEncoding =

@@ -1407,7 +1407,7 @@ public class ExpressionLogical extends Expression {
      */
     private Boolean compareValues(Session session, Object left, Object right) {
 
-        int result = 0;
+        int result;
 
         if (left == null || right == null) {
             return null;

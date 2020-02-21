@@ -2839,6 +2839,23 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
+     * for default values (not expressions)
+     */
+    public void generateDefaultForNull(Object[] data) {
+
+        if (hasNotNullColumns) {
+            for (int i = 0; i < colDefaults.length; i++) {
+                if (data[i] == null) {
+                    if (colNotNull[i] && colDefaults[i] != null
+                            && colDefaults[i].getType() == OpTypes.VALUE) {
+                        data[i] = colDefaults[i].getValue(null);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      *  Mid level method for inserting single rows. Performs constraint checks and
      *  fires row level triggers.
      */
