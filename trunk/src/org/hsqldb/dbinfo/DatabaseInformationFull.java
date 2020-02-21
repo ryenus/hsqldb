@@ -1417,8 +1417,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[ifs]       = textFileSettings.fs;
                 row[ivfs]      = textFileSettings.vs;
                 row[ilvfs]     = textFileSettings.lvs;
-                row[iif]       = textFileSettings.ignoreFirst ? Boolean.TRUE
-                                                              : Boolean.FALSE;
+                row[iif]       = textFileSettings.isIgnoreFirst ? Boolean.TRUE
+                                                                : Boolean
+                                                                .FALSE;
                 row[iiq]       = textFileSettings.isQuoted ? Boolean.TRUE
                                                            : Boolean.FALSE;
                 row[iiaq]      = textFileSettings.isAllQuoted ? Boolean.TRUE

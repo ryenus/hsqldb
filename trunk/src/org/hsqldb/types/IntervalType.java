@@ -51,7 +51,7 @@ import org.hsqldb.lib.ArrayUtil;
  * Type subclass for various types of INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public final class IntervalType extends DTIType {

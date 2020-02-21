@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ import org.hsqldb.lib.Set;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.navigator.RowSetNavigatorDataTable;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
@@ -55,7 +56,7 @@ import org.hsqldb.types.Types;
  * Implementation of an SQL query expression
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.5.1
  * @since 1.9.0
  */
 
@@ -674,35 +675,30 @@ public class QueryExpression implements RangeGroup {
 
     Result getResultRecursive(Session session) {
 
-        Result tempResult;
+        RowSetNavigatorData resultNav = new RowSetNavigatorData(session, this);
 
         recursiveTable.materialise(session);
-
-        RowSetNavigatorData recNav = recursiveTable.getNavigator(session);
-        Result              result = Result.newResult(recNav);
-
-        result.metaData = resultMetaData;
+        resultNav.unionAll(recursiveTable.getNavigator(session));
 
         for (int round = 0; ; round++) {
-            tempResult = rightQueryExpression.getResult(session, 0);
-
+            Result currentResult = rightQueryExpression.getResult(session, 0);
             RowSetNavigatorData tempNavigator =
-                (RowSetNavigatorData) tempResult.getNavigator();
+                (RowSetNavigatorData) currentResult.getNavigator();
 
             if (tempNavigator.isEmpty()) {
                 break;
             }
 
-            int startSize = recNav.getSize();
+            int startSize = resultNav.getSize();
 
             switch (unionType) {
 
                 case UNION :
-                    recNav.union(tempNavigator);
+                    resultNav.union(tempNavigator);
                     break;
 
                 case UNION_ALL :
-                    recNav.unionAll(tempNavigator);
+                    resultNav.unionAll(tempNavigator);
                     break;
 
                 default :
@@ -710,14 +706,24 @@ public class QueryExpression implements RangeGroup {
                                              "QueryExpression");
             }
 
-            if (startSize == recNav.getSize()) {
+            if (startSize == resultNav.getSize()) {
                 break;
             }
 
             if (round > 256) {
                 throw Error.error(ErrorCode.X_22522);
             }
+
+            PersistentStore store = recursiveTable.getRowStore(session);
+
+            store.removeAll();
+            currentResult.getNavigator().reset();
+            recursiveTable.insertSys(session, store, currentResult);
         }
+
+        Result result = Result.newResult(resultNav);
+
+        result.metaData = resultMetaData;
 
         return result;
     }
@@ -1115,7 +1121,8 @@ public class QueryExpression implements RangeGroup {
                        other.rightQueryExpression));
     }
 
-    public void replaceColumnReferences(Session session, RangeVariable range, Expression[] list) {
+    public void replaceColumnReferences(Session session, RangeVariable range,
+                                        Expression[] list) {
         leftQueryExpression.replaceColumnReferences(session, range, list);
         rightQueryExpression.replaceColumnReferences(session, range, list);
     }

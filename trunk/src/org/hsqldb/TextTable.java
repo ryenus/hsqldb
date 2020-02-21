@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@ import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.TextCache;
 import org.hsqldb.persist.TextFileReader;
+import org.hsqldb.persist.TextFileSettings;
 import org.hsqldb.rowio.RowInputInterface;
 
 /**
@@ -47,7 +48,7 @@ import org.hsqldb.rowio.RowInputInterface;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.1
  */
 public class TextTable extends Table {
 
@@ -122,7 +123,8 @@ public class TextTable extends Table {
                 cache.setHeaderInitialise(reader.getHeaderLine());
             }
 
-            readDataIntoTable(session, store, reader);
+            readDataIntoTable(session, store, reader,
+                              cache.getTextFileSettings());
         } catch (Throwable t) {
             long linenumber = reader == null ? 0
                                              : reader.getLineNumber();
@@ -151,7 +153,8 @@ public class TextTable extends Table {
     }
 
     private void readDataIntoTable(Session session, PersistentStore store,
-                                   TextFileReader reader) {
+                                   TextFileReader reader,
+                                   TextFileSettings settings) {
 
         while (true) {
             RowInputInterface rowIn = reader.readObject();
@@ -169,6 +172,11 @@ public class TextTable extends Table {
             Object[] data = row.getData();
 
             systemUpdateIdentityValue(data);
+
+            if (settings.isNullDef) {
+                generateDefaultForNull(data);
+            }
+
             enforceRowConstraints(session, data);
             store.indexRow(session, row);
         }
