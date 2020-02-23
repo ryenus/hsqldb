@@ -2815,7 +2815,10 @@ public class ParserDQL extends ParserBase {
                             return e;
                         }
 
-                    // fall through
+                        rewind(position);
+
+                        return null;
+
                     default :
                         rewind(position);
 
@@ -4458,7 +4461,7 @@ public class ParserDQL extends ParserBase {
     private ExpressionLogical XreadQuantifiedComparisonRightPart(int exprType,
             Expression l) {
 
-        int        tokenT      = token.tokenType;
+        int        tokenType   = token.tokenType;
         int        exprSubType = 0;
         Expression e;
 
@@ -4481,10 +4484,16 @@ public class ParserDQL extends ParserBase {
         readThis(Tokens.OPENBRACKET);
 
         int position = getPosition();
-
-        readOpenBrackets();
+        int brackets = readOpenBrackets();
 
         switch (token.tokenType) {
+
+            case Tokens.UNNEST :
+                e = XreadCollectionDerivedTable(OpTypes.IN);
+
+                readThis(Tokens.CLOSEBRACKET);
+                readCloseBrackets(brackets);
+                break;
 
             case Tokens.WITH :
             case Tokens.TABLE :
@@ -4502,7 +4511,7 @@ public class ParserDQL extends ParserBase {
             default :
                 rewind(position);
 
-                e = readAggregateExpression(tokenT);
+                e = readAggregateExpression(tokenType);
 
                 readThis(Tokens.CLOSEBRACKET);
                 readFilterClause(e);
@@ -5108,8 +5117,7 @@ public class ParserDQL extends ParserBase {
         compileContext.registerSubquery(name.name, td);
         checkIsThis(Tokens.UNION);
 
-        int unionType = XreadUnionType();
-
+        int                unionType               = XreadUnionType();
         QuerySpecification rightQuerySpecification = XreadSimpleTable();
         QueryExpression queryExpression = new QueryExpression(compileContext,
             leftQuerySpecification);
