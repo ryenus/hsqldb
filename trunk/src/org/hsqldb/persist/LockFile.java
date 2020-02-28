@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -330,7 +330,7 @@ import org.hsqldb.lib.StringConverter;
  * Java NIO: <p>
  *
  * A separate <tt>NIOLockFile</tt> descendant exists specifically
- * because it was determined though experimentation that
+ * because it was determined through experimentation that
  * <tt>java.nio.channels.FileLock</tt> does not always exhibit the correct
  * or desired behaviour under reflective method invocation. That is, it was
  * discovered that under some operating system/JVM combinations, after calling
@@ -352,8 +352,10 @@ import org.hsqldb.lib.StringConverter;
  * <tt>NIOLockFile</tt> to the hsqldb.jar if such features are reported
  * present. <p>
  *
+ * The nio lock file was removed in version 2.0 and reference removed in 2.5.1.
+ *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.2
  */
 public class LockFile {
@@ -424,12 +426,14 @@ public class LockFile {
     public static final String POLL_INTERVAL_PROPERTY =
         "hsqldb.lockfile.poll.interval";
 
-    /** Whether <tt>java.nio</tt> file locking is attempted by default. */
+    /** Whether <tt>java.nio</tt> file locking is attempted by default.
+     * Unsupported from version 2.0.
+     * */
     public static final boolean USE_NIO_FILELOCK_DEFAULT = false;
 
     /**
      * System property that can be used to control whether nio file locking is
-     * attempted.
+     * attempted. Unsupported from version 2.0.
      */
     public static final String USE_NIO_FILELOCK_PROPERTY =
         "hsqldb.lockfile.nio.filelock";
@@ -536,11 +540,14 @@ public class LockFile {
      * Retrieves a new <tt>NIOLockFile</tt>, or <tt>null</tt> if not available
      * under the current runtime environment.
      *
+     * Returns null from version 2.0.
+     *
      * @return a new <tt>NIOLockFile</tt>, or <tt>null</tt> if not available
      *      under the current runtime environment
      */
     private static LockFile newNIOLockFile() {
 
+        /*
         if (NIO_FILELOCK_AVAILABLE && NIO_LOCKFILE_CLASS != null) {
             try {
                 return (LockFile) NIO_LOCKFILE_CLASS.getDeclaredConstructor().newInstance();
@@ -549,6 +556,7 @@ public class LockFile {
                 // e.printStackTrace()
             }
         }
+        */
 
         return null;
     }

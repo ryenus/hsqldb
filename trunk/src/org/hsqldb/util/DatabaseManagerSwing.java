@@ -2374,6 +2374,10 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         treeModel.reload();
         tScrollPane.repaint();
 
+        if (dMeta == null) {
+            return;
+        }
+
         ResultSet result = null;
 
         // Now rebuild the tree below its root
