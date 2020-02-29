@@ -77,7 +77,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.hsqldb.ClientConnection;
 import org.hsqldb.ColumnBase;
@@ -136,7 +136,7 @@ class ServerConnection implements Runnable {
     private Server           server;
     private DataInputStream  dataInput;
     private DataOutputStream dataOutput;
-    private int              mThread;
+    private long             mThread;
     static final int         BUFFER_SIZE = 0x1000;
     final byte[]             mainBuffer  = new byte[BUFFER_SIZE];
     RowOutputInterface       rowOut;
@@ -145,7 +145,7 @@ class ServerConnection implements Runnable {
     InResultProcessor        processor;
 
     //
-    private static AtomicInteger mCurrentThread = new AtomicInteger(0);
+    private static AtomicLong mCurrentThread = new AtomicLong(0);
 
     //
     protected static String TEXTBANNER_PART1 = null;
@@ -194,11 +194,9 @@ class ServerConnection implements Runnable {
         rowOut = rowOutTemp;
 
         //
-        Thread runnerThread;
-
-        this.socket = socket;
-        this.server = server;
-        mThread     = mCurrentThread.getAndIncrement();
+        this.socket  = socket;
+        this.server  = server;
+        this.mThread = mCurrentThread.getAndIncrement();
 
         synchronized (server.serverConnSet) {
             server.serverConnSet.add(this);
@@ -301,7 +299,7 @@ class ServerConnection implements Runnable {
             // Expected failures will have been handled (by sending feedback
             // to user-- with an output Result for normal protocols), then
             // continuing.
-            StringBuilder sb = new StringBuilder(mThread);
+            StringBuilder sb = new StringBuilder(String.valueOf(mThread));
 
             sb.append(":Failed to connect client.");
 
@@ -647,9 +645,8 @@ class ServerConnection implements Runnable {
 
                         //ok in PGS compatibility mode
                         // but transalate for other modes
-                        sql = "values current_schema()";
+                        sql        = "values current_schema()";
                         normalized = sql;
-
                     }
 
                     if (normalized.startsWith("show ")) {
