@@ -124,7 +124,8 @@ import org.hsqldb.lib.RCData;
 //      Added: Added a customCursor for the current wait cursor
 //      Added: Ability to switch the current LAF while runing (Native,Java or Motif)
 // unsaved@users 2005xxxx - improvements and bug fixes
-// fredt@users - version 2.50 - removed deprecated
+// fredt@users - version 2.5.0 - removed deprecated
+// fredt@users - version 2.5.1 - enhancements
 
 /**
  * Swing Tool for managing a JDBC database.
@@ -664,14 +665,14 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
         // used shortcuts: CERGTSIUDOLM
         String[] fitems = {
-            "-Connect...", "--", "OOpen Script...", "-Save Script...",
+            "-Connect...", "-Close Connection", "--", "OOpen Script...", "-Save Script...",
             "-Save Result...", "--", "-Exit"
         };
 
         jmenu = addMenu(bar, "File", fitems);
 
         // All actions after Connect and the divider are local.
-        for (int i = 2; i < jmenu.getItemCount(); i++) {
+        for (int i = 3; i < jmenu.getItemCount(); i++) {
             mitem = jmenu.getItem(i);
 
             if (mitem != null) {
@@ -1024,6 +1025,23 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             }
 
             connect(newCon);
+        } else if (s.equals("Close Connection")) {
+            if (cConn != null) {
+                try {
+                    cConn.close();
+                } catch (SQLException e) {
+
+                    //  Added: (weconsultants@users)
+                    CommonSwing.errorMessage(e);
+                }
+
+                cConn = null;
+                dMeta = null;
+
+                rootNode.setUserObject("Connection");
+
+                directRefreshTree();
+            }
         } else if (s.equals(GRID_BOX_TEXT)) {
             gridFormat = boxShowGrid.isSelected();
 

@@ -80,7 +80,7 @@ import org.hsqldb.rowio.RowOutputBinary;
  *  (fredt@users)
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.6.2
  */
 class WebServerConnection implements Runnable {
@@ -94,7 +94,8 @@ class WebServerConnection implements Runnable {
     private static final int     REQUEST_TYPE_HEAD = 2;
     private static final int     REQUEST_TYPE_POST = 3;
     private static final String  HEADER_OK         = "HTTP/1.0 200 OK";
-    private static final String HEADER_BAD_REQUEST = "HTTP/1.0 400 Bad Request";
+    private static final String HEADER_BAD_REQUEST =
+        "HTTP/1.0 400 Bad Request";
     private static final String HEADER_NOT_FOUND = "HTTP/1.0 404 Not Found";
     private static final String HEADER_FORBIDDEN = "HTTP/1.0 403 Forbidden";
     static final int            BUFFER_SIZE      = 256;
@@ -326,6 +327,8 @@ class WebServerConnection implements Runnable {
             //
             Result resultOut;
             int    type = resultIn.getType();
+
+            server.printRequest(sessionID, resultIn);
 
             if (type == ResultConstants.CONNECT) {
                 try {

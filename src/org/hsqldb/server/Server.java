@@ -1421,7 +1421,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      * @param cid the connection identifier
      * @param r the request whose description is to be printed
      */
-    final void printRequest(int cid, Result r) {
+    final void printRequest(long cid, Result r) {
 
         if (isSilent()) {
             return;
