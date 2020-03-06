@@ -70,11 +70,11 @@ public class TestMerge extends TestBase {
      * Prints a table displaying specified columns, and checks the expected
      * number of rows.
      */
-    private void printTable(String table, String cols,
-                            int expected) throws SQLException {
+    public static void printTable(Statement statement, String table,
+                            String cols, int expected) throws SQLException {
 
         int               rows = 0;
-        ResultSet rs = stmnt.executeQuery("SELECT " + cols + " FROM " + table);
+        ResultSet rs = statement.executeQuery("SELECT " + cols + " FROM " + table);
         ResultSetMetaData rsmd = rs.getMetaData();
         String result = "Table " + table + ", expecting " + expected
                         + " rows total:\n";
@@ -118,8 +118,8 @@ public class TestMerge extends TestBase {
         stmnt.execute(
             "INSERT INTO SA.S VALUES ((0, 'D', 'd', 'Dd'),"
             + "(2, 'E', 'e', 'Ee'), (3, 'F', 'f', 'Ff'), (4, 'G', 'g', 'Gg'));");
-        printTable("SA.T", "*", 3);
-        printTable("SA.S", "*", 4);
+        printTable(stmnt, "SA.T", "*", 3);
+        printTable(stmnt, "SA.S", "*", 4);
         stmnt.execute(merge);
     }
 
@@ -141,7 +141,7 @@ public class TestMerge extends TestBase {
             // table t should now have 5 rows, first and fifth with A/B updated
             // to values A/C from S, second should be the same, and third and
             // fourth should be the inserted rows that didn't exist before.
-            printTable("SA.T", "*", 5);
+            printTable(stmnt, "SA.T", "*", 5);
         } catch (SQLException e) {
             fail(e.getMessage());
         }
@@ -163,7 +163,7 @@ public class TestMerge extends TestBase {
             );
 
             // two rows should be updated, nothing inserted
-            printTable("SA.T", "*", 3);
+            printTable(stmnt, "SA.T", "*", 3);
         } catch (SQLException e) {
             fail(e.getMessage());
         }
@@ -186,7 +186,7 @@ public class TestMerge extends TestBase {
             );
 
             // two rows should be updated, nothing inserted
-            printTable("SA.T", "*", 5);
+            printTable(stmnt, "SA.T", "*", 5);
         } catch (SQLException e) {
             fail(e.getMessage());
         }
@@ -211,7 +211,7 @@ public class TestMerge extends TestBase {
             );
 
             // two rows should be updated, two rows inserted
-            printTable("SA.T", "*", 5);
+            printTable(stmnt, "SA.T", "*", 5);
         } catch (SQLException e) {
             fail(e.getMessage());
         }
@@ -236,7 +236,7 @@ public class TestMerge extends TestBase {
             );
 
             // two rows should be updated, two rows inserted
-            printTable("SA.T", "*", 5);
+            printTable(stmnt, "SA.T", "*", 5);
         } catch (SQLException e) {
             fail(e.getMessage());
         }
@@ -261,7 +261,7 @@ public class TestMerge extends TestBase {
             );
 
             // two rows should be updated, two rows inserted
-            printTable("SA.T", "*", 5);
+            printTable(stmnt, "SA.T", "*", 5);
         } catch (SQLException e) {
             fail(e.getMessage());
         }
@@ -286,7 +286,7 @@ public class TestMerge extends TestBase {
             );
 
             // 1 row should be updated
-            printTable("SA.T", "*", 3);
+            printTable(stmnt, "SA.T", "*", 3);
         } catch (SQLException e) {
             fail(e.getMessage());
         }
@@ -311,7 +311,7 @@ public class TestMerge extends TestBase {
             );
 
             // 1 row should be inserted
-            printTable("SA.T", "*", 4);
+            printTable(stmnt, "SA.T", "*", 4);
         } catch (SQLException e) {
             fail(e.getMessage());
         }
@@ -336,7 +336,7 @@ public class TestMerge extends TestBase {
             );
 
             // 1 row should be inserted, 1 row updated
-            printTable("SA.T", "*", 4);
+            printTable(stmnt, "SA.T", "*", 4);
         } catch (SQLException e) {
             fail(e.getMessage());
         }
@@ -358,7 +358,7 @@ public class TestMerge extends TestBase {
                          + "INSERT VALUES (X.I, X.A, 'INSERTED');");
 
             // 1 row should be inserted
-            printTable("SA.T", "*", 4);
+            printTable(stmnt, "SA.T", "*", 4);
         } catch (SQLException e) {
             fail(e.getMessage());
         }
@@ -383,7 +383,7 @@ public class TestMerge extends TestBase {
             ps.executeUpdate();
 
             // 1 row should be inserted
-            printTable("SA.T", "*", 4);
+            printTable(stmnt, "SA.T", "*", 4);
         } catch (SQLException e) {
             fail(e.getMessage());
         }
@@ -415,6 +415,8 @@ public class TestMerge extends TestBase {
         TestCase   testG  = new TestMerge("testMerge7");
         TestCase   testH  = new TestMerge("testMerge8");
         TestCase   testI  = new TestMerge("testMerge9");
+        TestCase   testJ  = new TestMerge("testMerge10");
+        TestCase   testK  = new TestMerge("testMerge11");
 
         testA.run(result);
         testB.run(result);
@@ -425,6 +427,8 @@ public class TestMerge extends TestBase {
         testG.run(result);
         testH.run(result);
         testI.run(result);
+        testJ.run(result);
+        testK.run(result);
         System.out.println("TestMerge error count: " + result.failureCount());
 
         Enumeration e = result.failures();

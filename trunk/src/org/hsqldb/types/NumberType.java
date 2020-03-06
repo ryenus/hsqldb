@@ -893,7 +893,7 @@ public final class NumberType extends Type {
                     break;
                 }
 
-            // fall through
+                throw Error.error(ErrorCode.X_42561);
             default :
                 throw Error.error(ErrorCode.X_42561);
         }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,6 +70,7 @@ import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
+import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.Type;
 
 
@@ -461,7 +462,7 @@ import org.hsqldb.types.Type;
  * </div> <!-- end release-specific documentation -->
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since HSQLDB 1.9.0
  * @see JDBCDriver
  * @see JDBCStatement
@@ -3017,7 +3018,9 @@ public class JDBCConnection implements Connection {
             throw JDBCUtil.sqlException(e);
         }
 
-        return new JDBCArray(newData, type, this);
+        Type arrayType = new ArrayType(type, newData.length);
+
+        return new JDBCArray(newData, type, arrayType, this);
     }
 
     /**

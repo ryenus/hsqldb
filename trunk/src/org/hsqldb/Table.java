@@ -139,18 +139,20 @@ public class Table extends TableBase implements SchemaObject {
                 break;
 
             case CACHED_TABLE :
+                persistenceScope = SCOPE_FULL;
+                isSchemaBased    = true;
+
                 if (database.logger.isFileDatabase()) {
-                    persistenceScope = SCOPE_FULL;
-                    isSchemaBased    = true;
                     isCached         = true;
                     isLogged         = !database.isFilesReadOnly();
 
                     break;
+                } else {
+                    type = MEMORY_TABLE;
                 }
 
-                type = MEMORY_TABLE;
+                break;
 
-            // fall through
             case MEMORY_TABLE :
                 persistenceScope = SCOPE_FULL;
                 isSchemaBased    = true;

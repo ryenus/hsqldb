@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.Type;
 
 /**
@@ -505,11 +506,6 @@ public class JDBCArray implements Array {
     /**
      * Constructor should reject unsupported types.
      */
-    JDBCArray(Object[] data, Type type,
-              JDBCConnection connection) throws SQLException {
-        this(data, type, null, connection);
-    }
-
     JDBCArray(Object[] data, Type type, Type arrayType,
               JDBCConnection connection) {
 
