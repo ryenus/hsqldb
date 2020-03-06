@@ -110,9 +110,7 @@ public abstract class TestOdbcBase {
         if (inProcessServer) {
             server.shutdown();
 
-            if (server != null
-                    && server.getState()
-                       != ServerConstants.SERVER_STATE_SHUTDOWN) {
+            if (server.getState() != ServerConstants.SERVER_STATE_SHUTDOWN) {
                 throw new RuntimeException("Server failed to shut down");
             }
         }

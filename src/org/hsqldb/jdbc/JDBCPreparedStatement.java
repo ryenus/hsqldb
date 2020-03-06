@@ -1420,11 +1420,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             Type     baseType = type.collectionBaseType();
             Object[] array    = ((JDBCArray) x).getArrayInternal();
 
-            data = new Object[array.length];
+            Type otherType = ((JDBCArray) x).arrayType;
 
-            for (int i = 0; i < data.length; i++) {
-                data[i] = baseType.convertJavaToSQL(session, array[i]);
-            }
+            data = (Object[]) type.convertToType(session, array, otherType);
         } else {
             Object object = x.getArray();
 

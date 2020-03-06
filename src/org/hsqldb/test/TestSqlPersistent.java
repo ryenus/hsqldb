@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -277,7 +277,7 @@ public class TestSqlPersistent extends TestCase {
 
     public void testSelectObject() throws IOException {
 
-        String   stringValue        = null;
+        String   stringValue        = "";
         Integer  integerValue       = null;
         Double[] arrayValue         = null;
         byte[]   byteArrayValue     = null;

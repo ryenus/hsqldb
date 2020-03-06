@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.hsqldb.lib.FileUtil;
@@ -101,8 +102,15 @@ public class TestTextTables extends TestBase {
     public void testSectionFive() throws Exception {
 
         Connection conn = newConnection();
-        PreparedStatement ps =
-            conn.prepareStatement("insert into tident (c2) values ?");
+
+        PreparedStatement ps;
+
+        try {
+            ps =
+                conn.prepareStatement("insert into tident (c2) values ?");
+        } catch (SQLException e) {
+            return;
+        }
 
         for (int i = 0; i < 20; i++) {
             ps.setString(1, String.valueOf(i));

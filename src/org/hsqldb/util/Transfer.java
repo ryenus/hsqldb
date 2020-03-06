@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2019, The HSQL Development Group
+ * Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -791,7 +791,8 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             }
         }
 
-        if (s.equals("Start Transfer") || s.equals("ReStart Transfer")) {
+        if (s == null) {
+        } else if (s.equals("Start Transfer") || s.equals("ReStart Transfer")) {
             bStart.setLabel("ReStart Transfer");
             bStart.invalidate();
 

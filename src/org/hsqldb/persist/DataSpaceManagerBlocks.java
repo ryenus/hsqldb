@@ -1098,7 +1098,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
      * output is in units of dataFileScale
      */
     long getPositionFromFileBlock(int fixedBlockPos) {
-        return fixedBlockPos * (fixedBlockSizeUnit / dataFileScale);
+        return fixedBlockPos * (long) (fixedBlockSizeUnit / dataFileScale);
     }
 
     int getFileBlockPosFromPosition(long position) {
