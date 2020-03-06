@@ -37,7 +37,7 @@ class JDBCBench {
     static int              n_clients           = 10;
     static int              n_txn_per_client    = 10;
     long                    start_time          = 0;
-    static boolean          transactions        = true;
+    static final boolean    transactions        = true;
     static boolean          prepared_stmt       = false;
     static String           tableExtension      = "";
     static String           createExtension     = "";
@@ -79,6 +79,7 @@ class JDBCBench {
 
                     if (DriverName.equals(
                             "com.borland.datastore.jdbc.DataStoreDriver")) {
+
                         //
                     }
 
@@ -261,7 +262,6 @@ class JDBCBench {
         Connection  guardian = null;
 
         //
-        this.transactions  = transactions;
         this.prepared_stmt = prepared;
         start_time         = System.currentTimeMillis();
 
@@ -378,15 +378,11 @@ class JDBCBench {
 
         System.out.println("DBMS: " + s);
 
-        transactions = true;
-
         if (transactions) {
             try {
                 Conn.setAutoCommit(false);
                 System.out.println("In transaction mode");
-            } catch (SQLException Etrxn) {
-                transactions = false;
-            }
+            } catch (SQLException Etrxn) {}
         }
 
         try {
@@ -1048,8 +1044,7 @@ class JDBCBench {
                 return aBalance;
             } catch (Exception E) {
                 if (verbose) {
-                    System.out.println("Transaction failed: "
-                                       + E.toString());
+                    System.out.println("Transaction failed: " + E.toString());
                     E.printStackTrace();
                 }
 
