@@ -143,14 +143,11 @@ public class Table extends TableBase implements SchemaObject {
                 isSchemaBased    = true;
 
                 if (database.logger.isFileDatabase()) {
-                    isCached         = true;
-                    isLogged         = !database.isFilesReadOnly();
-
-                    break;
+                    isCached = true;
+                    isLogged = !database.isFilesReadOnly();
                 } else {
                     type = MEMORY_TABLE;
                 }
-
                 break;
 
             case MEMORY_TABLE :
