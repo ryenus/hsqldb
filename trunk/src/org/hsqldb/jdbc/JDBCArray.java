@@ -41,7 +41,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.Type;
 
 /**
