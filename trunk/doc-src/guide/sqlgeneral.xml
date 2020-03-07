@@ -41,7 +41,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2019 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2020 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -121,12 +121,12 @@
       FUNCTION | USER | ROLE | ... }, the keyword is used to create the
       database objects.</para>
 
-      <para>ALTER </para>
+      <para>ALTER</para>
 
       <para>Followed by the same keywords as CREATE, the keyword is used to
-      modify the object. </para>
+      modify the object.</para>
 
-      <para>DROP </para>
+      <para>DROP</para>
 
       <para>Followed by the same keywords as above, the keyword is used to
       remove the object. If the object contains data, the data is removed
@@ -258,7 +258,7 @@
       <para>PERFORM</para>
 
       <para>Includes commands to export and import SQL scripts from / to the
-      database. </para>
+      database.</para>
 
       <para>SCRIPT</para>
 
@@ -287,7 +287,7 @@
       <para>This statement initiates a new transaction with the given
       transaction characteristics</para>
 
-      <para>SET TRANSACTION </para>
+      <para>SET TRANSACTION</para>
 
       <para>Introduces one of more characteristics for the next
       transaction.</para>
@@ -329,14 +329,14 @@
       <title>Comments in Statements</title>
 
       <para>Any SQL statement can include comments. The comments are stripped
-      before the statement is executed. </para>
+      before the statement is executed.</para>
 
       <para>SQL style line comments start with two dashes
       <literal>--</literal> and extend to the end of the line.</para>
 
       <para>C style comments can cover part of the line or multiple lines.
       They start with <literal>/*</literal> and end with
-      <literal>*/</literal>. </para>
+      <literal>*/</literal>.</para>
     </section>
   </section>
 
