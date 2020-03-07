@@ -1,8 +1,15 @@
-29 October 2019 - version 2.5.1 preview
+07 March 2020 - version 2.5.1 preview
 -- version 2.5.1 jar requires JRE 8 or later - tested up to Java 13
+-- version 2.5.1 can be compiled with Java 9 or later as org.hsqldb Java module jar
+-- version 2.3.8 can be compiled with Java 6 (or 7) for JRE 6 and 7 and fully compatible with 2.5.1 except for the new JDBC features
 -- added support for GROUPING SETS, ROLLUP and CUBE grouping operations
 -- added support for PERFORM CHECK ALL TABLE INDEX to check all CACHED table data and indexes
 -- added support for use of PostgreSQL ODBC driver to access a HyperSQL Server
+-- added support for calling stored procedures with INTERVAL parameters via JDBC CallableStatement
+-- changed behaviour of WITH RECURSIVE with UNION ALL for compatibility with 
+-- improved MySQL syntax support in the ON DUPLICATE KEY UPDATE clause
+-- improved loading of text files with null or empty fields into TEXT tables with coloumns defined as NOT NULL with DEFAULT 
+-- many minor enhancements
 -- fixed an issue (regression) in some server shutdown cases
 -- fixed an issue (regression) in some cases when JDBC connection timeout is used
 -- fixed several minor issues
