@@ -53,7 +53,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2019 Bob Preston and Fred Toussi. Permission is
+      <para>Copyright 2002-2020 Bob Preston and Fred Toussi. Permission is
       granted to distribute this document without any alteration under the
       terms of the HSQLDB license. Additional permission is granted to the
       HSQL Development Group to distribute this document with or without
@@ -316,6 +316,15 @@
       character is the quote character. It interprets the rest of the field on
       this basis.</para>
 
+      <para>The setting, <literal>null_def</literal>, can be used to simplify
+      importing text files containing empty fields. These fields are
+      interpreted as null but the user may want an empty string or another
+      default value instead of null. With <literal>null_def=true</literal>
+      defined in the text source string, and a table column that is defined as
+      <literal>DEFAULT &lt;val&gt; NOT NULL</literal> with a constant value
+      for the default, the default value will be used instead of any empty or
+      NULL field.</para>
+
       <para>The character encoding for the source file is<literal> ASCII
       </literal>by default, which corresponds to the 8-bit ANSI character set.
       To support UNICODE or source files prepared with different encodings
@@ -395,6 +404,16 @@
           <listitem>
             <para>default is false. If true ignores the first line of the
             file</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>null_def = { true | false }</term>
+
+          <listitem>
+            <para>default is false. If true, replaces any null or empty fields
+            in the text file rows with the column default value of the
+            not-null column</para>
           </listitem>
         </varlistentry>
 
@@ -640,6 +659,10 @@
 
       <listitem>
         <para><literal>ignore_first=false</literal></para>
+      </listitem>
+
+      <listitem>
+        <para><literal>null_def=false</literal></para>
       </listitem>
 
       <listitem>

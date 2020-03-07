@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2009-2019 Fred Toussi. Permission is granted to
+      <para>Copyright 2009-2020 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -50,7 +50,7 @@
 
     <para>This chapter discusses features of HyperSQL in the context of the
     SQL Standard. Strings enclosed in angle brackets (for example
-    <literal>&lt;identifier&gt;</literal>) are SQL syntax elements. </para>
+    <literal>&lt;identifier&gt;</literal>) are SQL syntax elements.</para>
 
     <para>The persistent elements of an SQL environment are database objects.
     The database consists of catalogs plus authorizations.</para>
@@ -95,7 +95,7 @@
       </listitem>
 
       <listitem>
-        <para> There are multiple name-spaces within each schema. Separate
+        <para>There are multiple name-spaces within each schema. Separate
         name-spaces exists for different kinds of schema object. Some
         name-spaces are shared between two similar kinds of schema
         objects.</para>

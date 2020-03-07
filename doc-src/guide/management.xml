@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2019 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2020 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -786,7 +786,7 @@
           </listitem>
 
           <listitem>
-            <para>Only the files are encrypted, not the memory image. Poking
+            <para>Only the files are encrypted, not the memory image. Peeking
             into computer memory, while the database is open, will expose the
             contents of the database.</para>
           </listitem>
@@ -794,10 +794,11 @@
           <listitem>
             <para>HyperSQL is open source. Someone who has the key, can
             compile and use a modified version of the program that saves a
-            full clear text dump of an encrypted database</para>
+            full clear text dump of an encrypted database. Therefore
+            encryption is generally effective only when the users who have
+            access to the crypt key are trusted.</para>
           </listitem>
-        </itemizedlist>Therefore encryption is generally effective only when
-      the users who have access to the crypt key are trusted.</para>
+        </itemizedlist></para>
     </section>
   </section>
 

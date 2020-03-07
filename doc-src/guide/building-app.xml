@@ -64,7 +64,8 @@
     a Java 6 JVM, or if you want to use an alternative jar
     (<filename>hsqldb-min.jar</filename>, etc.) you must build the desired jar
     with a Java SDK. You can also find official jars built with Java 6 in the
-    maven repository at hsqldb.org and major maven repositories.</simpara>
+    maven repository at hsqldb.org and major maven repositories. You can also
+    build a jar as a Java 9+ module.</simpara>
 
     <simpara>The Gradle task / Ant target <literal>explainjars</literal>
     reports the versions of Java and Ant actually used.</simpara>
@@ -429,7 +430,7 @@
     </section>
 
     <section xml:id="bga_ant_build">
-      <title>Building Hsqldb with Ant</title>
+      <title>Building HSQLDB with Ant</title>
 
       <simpara>Once you have unpacked the zip package for hsqldb, under the
       <filename>/hsqldb</filename> folder, in <filename>/build</filename>
@@ -490,21 +491,20 @@
         </varlistentry>
 
         <varlistentry>
+          <term>hsqldbmodule</term>
+
+          <listitem>
+            <simpara>to build the <filename>hsqldb.jar</filename> file with
+            Java 9+ module information</simpara>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
           <term>hsqldbmain</term>
 
           <listitem>
             <simpara>to build a smaller jar for HSQLDB that does not contain
             utilities</simpara>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>hsqljdbc</term>
-
-          <listitem>
-            <simpara>to build an extremely small jar containing only the
-            client-side JDBC driver (can connect only to a HyperSQL
-            Server).</simpara>
           </listitem>
         </varlistentry>
 
@@ -594,8 +594,9 @@
 
       <para>Unlike previous versions, HyperSQL version 2.5.x cannot be
       compiled or used with JDK 5 or earlier. The jars can be compiled with
-      JDK 6 or later. Build has been tested under JDK versions 6, 8, 9, 10, 11,
-      etc. The same Ant version can be used with all the tested JDK's.</para>
+      JDK 6 or later. Build has been tested under JDK versions 6, 8, 9, 10,
+      11, etc. The same Ant version can be used with all the tested
+      JDK's.</para>
     </section>
   </section>
 
