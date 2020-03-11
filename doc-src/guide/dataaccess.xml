@@ -3988,7 +3988,8 @@ DIRECT SALES (null) (null)  3778500
       <simpara><emphasis>insert statement</emphasis></simpara>
 
       <simpara><literal>&lt;insert statement&gt; ::= INSERT INTO &lt;target
-      table&gt; &lt;insert columns and source&gt;</literal></simpara>
+      table&gt; [ [ AS ] &lt;correlation name&gt; ] &lt;insert columns and
+      source&gt;</literal></simpara>
 
       <simpara><literal>&lt;insert columns and source&gt; ::= &lt;from
       subquery&gt; | &lt;from constructor&gt; | &lt;from
@@ -4057,7 +4058,7 @@ DIRECT SALES (null) (null)  3778500
       </informalexample>
 
       <informalexample>
-        <programlisting> INSERT INTO t1 (id, name) ORERRIDING SYSTEM VALUE VALUES ( 14, 'Test Value')
+        <programlisting> INSERT INTO t1 (id, name) OVERRIDING SYSTEM VALUE VALUES ( 14, 'Test Value')
  INSERT INTO t2 (id, name) VALUES ( 14, 'Test Value')
 </programlisting>
       </informalexample>

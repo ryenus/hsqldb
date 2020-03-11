@@ -174,7 +174,7 @@
         <term>Database</term>
 
         <listitem>
-          <simpara>ODBC does not allow an empty string for a DSM database
+          <simpara>ODBC does not allow an empty string for a DSN database
           name. Therefore, you must specify DSN database name of "/" (without
           the quotes) to indicate the default database</simpara>
         </listitem>
