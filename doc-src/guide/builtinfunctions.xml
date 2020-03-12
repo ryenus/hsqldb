@@ -1761,14 +1761,13 @@
       <literal>&lt;extract source&gt;</literal>. The <literal>&lt;extract
       source&gt;</literal> is a datetime or interval expression. The type of
       the return value is BIGINT for most of the<literal> &lt;extract
-      field&gt;</literal> options. The exceptions is <literal>SECOND
-      </literal>where a DECIMAL value is returned which has the same precision
-      as the datetime or interval expression. The field values
-      <literal>DAY_NAME </literal>or<literal> MONTH_NAME </literal>result in a
-      character string. When <literal>MONTH_NAME</literal> is specified, a
-      string in the range January - December is returned. When
-      <literal>DAY_NAME </literal>is specified, a string in the range Sunday
-      -Saturday is returned.</para>
+      field&gt;</literal> options. The exception is <literal>SECOND</literal>,
+      where a DECIMAL value is returned which has the same precision as the
+      datetime or interval expression. The field values <literal>DAY_NAME
+      </literal>or<literal> MONTH_NAME </literal>result in a character string.
+      When <literal>MONTH_NAME</literal> is specified, a string in the range
+      January - December is returned. When <literal>DAY_NAME </literal>is
+      specified, a string in the range Sunday -Saturday is returned.</para>
 
       <para>If the <literal>&lt;extract source&gt;</literal> is <literal>FROM
       &lt;datetime value expr&gt;</literal>, different groups of
@@ -1805,7 +1804,7 @@
 
       <para>This function returns a TIMESTAMP for compatibility reasons. The
       return value is the next weekday named by the second argument that
-      occurs after the first date. For example next Wednesday is expressed as
+      occurs after the first date. For example, next Wednesday is expressed as
       <literal>NEXT_DAY(CURRENT_DATE, 'WEDNESDAY')</literal>.
       (HyperSQL)</para>
 
@@ -1872,7 +1871,7 @@
       <para><literal>MONTHS_BETWEEN ( &lt;datetime value expr1&gt; ,
       &lt;datetime value expr2&gt; )</literal></para>
 
-      <para>Returns the a number (not an INTERVAL) possibly with a fraction,
+      <para>Returns a number (not an INTERVAL) possibly with a fraction,
       representing the number of months between two days. If both dates have
       the same day of month, or are on the last day of the month, the result
       is an exact numeric. Otherwise, the fraction is calculated base on 31
@@ -2435,7 +2434,7 @@
     expr&gt; [ FROM &lt;int value expr&gt; ] )</literal></para>
 
     <para>Returns the position of the first match for the <literal>&lt;value
-    expression&gt;</literal> in the array. By default the search starts from
+    expression&gt;</literal> in the array. By default, the search starts from
     the beginning of the array. The optional <literal>&lt;int value
     expr&gt;</literal> specifies the start position. Positions are counted
     from 1. Returns zero if no match is found. (HyperSQL)</para>
@@ -2762,7 +2761,7 @@
 
     <para><literal>NEWID () </literal></para>
 
-    <para>ThIs is a synonyms for the no-arg UUID function in MSS compatibility
+    <para>This is a synonym for the no-arg UUID function in MSS compatibility
     mode. (HyperSQL)</para>
 
     <simpara><emphasis role="bold">SYS_GUID</emphasis></simpara>

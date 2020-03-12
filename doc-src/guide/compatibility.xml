@@ -70,7 +70,7 @@
     section of Management chapter.</para>
 
     <para>HyperSQL is very flexible and provides some other properties which
-    define a preference among various valid choices. For example the ability
+    define a preference among various valid choices. For example, the ability
     to set the transaction model of the database, or the ability to define the
     scale of the data type of the result of integer division or average
     calculation (<literal>SET DATABASE SQL AVG SCALE</literal>).</para>

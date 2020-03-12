@@ -140,8 +140,8 @@
 
     <para>SQL-Invoked Routines, whether PSM or JRT, are defined using a SQL
     statement with the same syntax. The part that is different is the
-    &lt;routine body&gt; which consists of SQL statements in PSM routines or a
-    reference to a Java method in JRT routines.</para>
+    <literal>&lt;routine body&gt;</literal> which consists of SQL statements
+    in PSM routines or a reference to a Java method in JRT routines.</para>
 
     <para>Details of Routine definition are discussed in this section. You may
     start by reading the next two sections which provide several examples
@@ -281,8 +281,8 @@
     possibilities, depending on the <literal>&lt;rights clause&gt;</literal>.
     This clause refers to the access rights that are checked when a routine is
     invoked. The default is <literal>SQL SECURITY DEFINER</literal>, which
-    means access rights of the definer are used; therefore no extra checks are
-    performed when the other user invokes the routine. The alternative
+    means access rights of the definer are used; therefore, no extra checks
+    are performed when the other user invokes the routine. The alternative
     <literal>SQL SECURITY INVOKER</literal> means access rights on all the
     database objects referenced by the routine are checked for the invoker.
     This alternative is not supported by HyperSQL.</para>
@@ -304,8 +304,7 @@
 
     <simpara><emphasis>SQL routine body</emphasis></simpara>
 
-    <para>The routine body of a an SQL routine consists of an
-    statement.</para>
+    <para>The routine body of an SQL routine consists of an statement.</para>
 
     <simpara><literal>&lt;SQL routine body&gt; ::= &lt;SQL procedure
     statement&gt;</literal></simpara>
@@ -1948,7 +1947,7 @@
 
     <para>If the specified Java method is not found or its parameters and
     return types do not match the definition, an exception is raised. If more
-    than one version of the Java method exist, then the one with matching
+    than one version of the Java method exists, then the one with matching
     parameter and return types is found and registered. If two “equivalent”
     methods exist, the first one is registered. (This situation arises only
     when a parameter is a primitive in one version and an Object in another
@@ -2322,7 +2321,7 @@
       database is closed, the routine definitions are lost.</para>
 
       <para>There is a workaround to prevent opening the database when the
-      static method are not on the classpath. You can create an SQL/PSM
+      static methods are not on the classpath. You can create an SQL/PSM
       procedure which calls all the SQL/JRT functions and procedures in your
       database. The calls should have the necessary dummy arguments. This
       procedure will fail to be created when the referenced methods are not
