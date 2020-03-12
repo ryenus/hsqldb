@@ -74,7 +74,7 @@
     is a function defined by the Standards with a similar role as
     <methodname>String.indexOf()</methodname> in Java. By default, HyperSQL
     does not prevent you from using a reserved word if it does not support its
-    use or can distinguish it. For example CUBE is a reserved word for a
+    use or can distinguish it. For example, CUBE is a reserved word for a
     feature that is supported by HyperSQL from version 2.5.1. Before this
     version, CUBE was allowed as a table or column name, but it is no longer
     allowed. You should avoid using such names as future versions of HyperSQL
@@ -109,7 +109,7 @@
     <section>
       <title>Definition Statements (DDL and others)</title>
 
-      <para>Definition statements create, modify or remove database objects.
+      <para>Definition statements create, modify, or remove database objects.
       Tables and views are objects that contain data. There are other types of
       objects that do contain data. These statements are covered in the <link
       endterm="databaseobjects-title" xlink:href="#databaseobjects-chapt"/>
@@ -161,7 +161,7 @@
     <section>
       <title>Data Manipulation Statements (DML)</title>
 
-      <para>Data manipulation statements add, update or delete data in tables
+      <para>Data manipulation statements add, update, or delete data in tables
       and views. These statements are covered in the <link
       endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/>
       chapter.</para>
@@ -246,7 +246,7 @@
     <section>
       <title>General Operations on Database</title>
 
-      <para>General operations on the database include backup, checkpoint and
+      <para>General operations on the database include backup, checkpoint, and
       other operations. These statements are covered in detail in the <link
       endterm="management-title" xlink:href="#management-chapt"/>
       chapter.</para>
@@ -357,7 +357,7 @@
 
       <para>HyperSQL supports the Standard definition of persistent base
       table, but defines three types according to the way the data is stored.
-      These are MEMORY tables, CACHED tables and TEXT tables.</para>
+      These are MEMORY tables, CACHED tables, and TEXT tables.</para>
 
       <para>Memory tables are the default type when the CREATE TABLE command
       is used. Their data is held entirely in memory. In file-based databases,
@@ -413,8 +413,8 @@
       <title>Temporary Tables</title>
 
       <para>Data in TEMPORARY tables is not saved and lasts only for the
-      lifetime of the session. The contents of each TEMP table is visible only
-      from the session that is used to populate it.</para>
+      lifetime of the session. The contents of each TEMP table are visible
+      only from the session that is used to populate it.</para>
 
       <para>HyperSQL supports two types of temporary tables.</para>
 
@@ -461,7 +461,7 @@
         and retrieve. NUMERIC and DECIMAL are types with user-defined decimal
         precision. They can be used with zero scale to store very large
         integers, or with a non-zero scale to store decimal fractions. The
-        DOUBLE type is a 64 bit, approximate floating point types. HyperSQL
+        DOUBLE type is a 64-bit, approximate floating point types. HyperSQL
         even allows you to store infinity in this type.</para>
       </listitem>
 
@@ -518,9 +518,9 @@
       </listitem>
 
       <listitem>
-        <para>The datetime types DATE, TIME and TIMESTAMP, together with their
-        WITH TIME ZONE variations are available. Read the details in this
-        chapter on how to use these types.</para>
+        <para>The datetime types DATE, TIME, and TIMESTAMP, together with
+        their WITH TIME ZONE variations are available. Read the details in
+        this chapter on how to use these types.</para>
       </listitem>
 
       <listitem>
@@ -617,10 +617,10 @@
       types, together with integral types, are called exact numeric
       types.</para>
 
-      <para>In HyperSQL, REAL, FLOAT, DOUBLE are equivalent and all mapped to
-      <classname>double</classname> in Java. These types are defined by the
-      SQL Standard as approximate numeric types. The bit-precision of all
-      these types is 64 bits.</para>
+      <para>In HyperSQL, REAL, FLOAT and DOUBLE are equivalent: they are all
+      mapped to <classname>double</classname> in Java. These types are defined
+      by the SQL Standard as approximate numeric types. The bit-precision of
+      all these types is 64 bits.</para>
 
       <para>The decimal precision and scale of NUMERIC and DECIMAL types can
       be optionally defined. For example, DECIMAL(10,2) means maximum total
@@ -931,7 +931,7 @@
 
       <para>The UUID type represents a UUID string. The type is similar to
       BINARY(16) but with the extra enforcement that disallows assigning,
-      casting or comparing with shorter or longer strings. Strings such as
+      casting, or comparing with shorter or longer strings. Strings such as
       '24ff1824-01e8-4dac-8eb3-3fee32ad2b9c' or
       '24ff182401e84dac8eb33fee32ad2b9c' are allowed. When a value of the UUID
       type is converted to a CHARACTER type, the hyphens are inserted in the
@@ -1123,8 +1123,8 @@
       <para>The Live Object option uses the database table as a collection of
       objects. This allows storing some attributes of the objects in the same
       table alongside the object itself and fast search and retrieval of
-      objects on their attributes. For example when many thousands of live
-      objects contain details of films, The film title and the director can be
+      objects on their attributes. For example, when many thousands of live
+      objects contain details of films, the film title and the director can be
       stored in the table and searches can be performed for films on these
       attributes:</para>
 
@@ -1135,8 +1135,8 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
         <para>In any case, at least one attribute of the object should be
         stored to allow efficient retrieval of the objects from both Live
-        Object and Serialized storage. Often an id number is used a the
-        attribute.</para>
+        Object and Serialized storage. An ID number is often used as the
+        stored column attribute.</para>
       </informalexample>
     </section>
 
@@ -1174,7 +1174,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
       <para>Values can be converted from one type to another in two different
       ways: by using explicit CAST expression or by implicit conversion used
-      in assignment, comparison and aggregation.</para>
+      in assignment, comparison, and aggregation.</para>
 
       <para>String values cannot be assigned to VARCHAR columns if they are
       longer than the defined type length. For CHARACTER columns, a long
@@ -1443,7 +1443,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <para>When an SQL session is started (with a JDBC connection) the local
     time zone of the client JVM (including any seasonal time adjustments such
-    as daylight saving time) is used as the session time zone displacement.
+    as daylight-saving time) is used as the session time zone displacement.
     Note that the SQL session time displacement is not changed when a seasonal
     time adjustment takes place while the session is open. To change the SQL
     session time zone displacement, use the following commands:</para>
@@ -1857,7 +1857,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     application.</para>
 
     <para>The full range of supported syntax allows array to be created, used
-    in SELECT or other statements, combined with rows of tables and used in
+    in SELECT or other statements, combined with rows of tables, and used in
     routine calls.</para>
 
     <section xml:id="sgc_array_def">
@@ -1996,8 +1996,8 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
       <para>Note that only simple values or variables are allowed for the
       array index when an assignment is performed. The examples below
-      demonstrates how elements of the array are referenced in SELECT and an
-      UPDATE statement.</para>
+      demonstrate how elements of the array are referenced in SELECT and
+      UPDATE statements.</para>
 
       <para><informalexample>
           <programlisting> SELECT scores[ranking], names[ranking] FROM t JOIN t1 on (t.id = t1.tid)
@@ -2032,8 +2032,8 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
       <para><emphasis>FUNCTIONS</emphasis></para>
 
-      <para>Seven functions operate on arrays. Details are described in the
-      <link endterm="builtinfunctions-title"
+      <para>Functions listed below operate on arrays. Details are described in
+      the <link endterm="builtinfunctions-title"
       xlink:href="#builtinfunctions-chapt"/> chapter.</para>
 
       <para><literal>ARRAY_AGG</literal> is an aggregate function and produces
@@ -2210,24 +2210,24 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     atable(c1);</literal>. So you do not need to specify an extra index if you
     require one on the first column of the list.</para>
 
-    <para>In HyperSQL 2, a multi-column index will speed up queries that
-    contain joins or values on the first n columns of the index. You need NOT
-    declare additional individual indexes on those columns unless you use
-    queries that search only on a subset of the columns. For example, rows of
-    a table that has a PRIMARY KEY or UNIQUE constraint on three columns or
-    simply an ordinary index on those columns can be found efficiently when
-    values for all three columns, or the first two columns, or the first
-    column, are specified in the WHERE clause. For example, <literal>SELECT
-    ... FROM t1 WHERE t1.c1 = 4 AND t1.c2 = 6 AND t1.c3 = 8 </literal>will use
-    an index on <literal>t1(c1,c2,c3)</literal> if it exists.</para>
+    <para>In HyperSQL, a multi-column index will speed up queries that contain
+    joins or values on the first n columns of the index. You need NOT declare
+    additional individual indexes on those columns unless you use queries that
+    search only on a subset of the columns. For example, rows of a table that
+    has a PRIMARY KEY or UNIQUE constraint on three columns or simply an
+    ordinary index on those columns can be found efficiently when values for
+    all three columns, or the first two columns, or the first column, are
+    specified in the WHERE clause. For example, <literal>SELECT ... FROM t1
+    WHERE t1.c1 = 4 AND t1.c2 = 6 AND t1.c3 = 8 </literal>will use an index on
+    <literal>t1(c1,c2,c3)</literal> if it exists.</para>
 
     <para>A multi-column index will not speed up queries on the second or
     third column only. The first column must be specified in the JOIN .. ON or
     WHERE conditions.</para>
 
     <para>Sometimes query speed depends on the order of the tables in the JOIN
-    .. ON or FROM clauses. For example the second query below should be faster
-    with large tables (provided there is an index on
+    .. ON or FROM clauses. For example, the second query below should be
+    faster with large tables (provided there is an index on
     <literal>TB.COL3</literal>). The reason is that <literal>TB.COL3</literal>
     can be evaluated very quickly if it applies to the first table (and there
     is an index on <literal>TB.COL3</literal>):</para>
@@ -2240,8 +2240,8 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     </informalexample>
 
     <para>The general rule is to put first the table that has a narrowing
-    condition on one of its columns. In certain cases, HyperSQL 2.2.x reorders
-    the joined tables if it is obvious that this will introduce a narrowing
+    condition on one of its columns. In certain cases, HyperSQL reorders the
+    joined tables if it is obvious that this will introduce a narrowing
     condition.</para>
 
     <para>HyperSQL features automatic, on-the-fly indexes for views and

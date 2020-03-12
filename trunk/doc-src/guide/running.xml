@@ -52,7 +52,7 @@
   <section>
     <title>Introduction</title>
 
-    <para>HyperSQL Database (HSQLDB ) is a modern relational database system.
+    <para>HyperSQL Database (HSQLDB) is a modern relational database system.
     Version 2.5.1 is the latest release of the all-new version 2 code. Written
     from ground up to follow the international ISO SQL:2016 standard, it
     supports the complete set of the classic features, together with optional
@@ -124,12 +124,12 @@
     </itemizedlist>
 
     <para>The HyperSQL RDBMS and JDBC Driver provide the core functionality.
-    DatabaseManagers are general purpose database access tools that can be
-    used with any database engine that has a JDBC driver.</para>
+    DatabaseManagerSwing is a database access tool that can be used with any
+    database engine that has a JDBC driver.</para>
 
     <para>An additional jar, sqltool.jar, contains Sql Tool, a command line
-    database access tool. This is a general purpose command line database
-    access tool that can be used with other database engines as well.</para>
+    database access tool. This is a command line database access tool that can
+    be used with other database engines as well.</para>
   </section>
 
   <section xml:id="rgc_access_tools">
@@ -508,8 +508,8 @@
       URL to connect to an SSL server is slightly different:</para>
 
       <para><example>
-          <title>Java code to connect to the local secure SSL hsql and http
-          Servers</title>
+          <title>Java code to connect to the local secure SSL hsqls: and
+          https: Servers</title>
 
           <programlisting> Connection c = DriverManager.getConnection("jdbc:hsqldb:hsqls://localhost/xdb", "SA", "");
  Connection c = DriverManager.getConnection("jdbc:hsqldb:https://localhost/xdb", "SA", "");
@@ -535,8 +535,8 @@
     <title>Accessing the Data</title>
 
     <para>As shown so far, a <classname>java.sql.Connection</classname> object
-    is always used to access the database. But the speed and performance
-    depends on the type of connection.</para>
+    is always used to access the database. But performance depends on the type
+    of connection and how it is used.</para>
 
     <para>Establishing a connection and closing it has some overheads,
     therefore it is not good practice to create a new connection to perform a
@@ -554,14 +554,15 @@
     <para>A <classname>java.sql.Connection</classname> object has some methods
     that return further <classname>java.sql.*</classname> objects. All these
     objects belong to the connection that returned them and are closed when
-    the connection is closed. These objects can be reused, but if they are not
-    needed after performing the operations, they should be closed.</para>
+    the connection is closed. These objects, listed below, can be reused. But
+    if they are not needed after performing the operations, they should be
+    closed.</para>
 
     <para>A <classname>java.sql.DatabaseMetaData</classname> object is used to
     get metadata for the database.</para>
 
     <para>A <classname>java.sql.Statement</classname> object is used to
-    execute queries and data change statements. A
+    execute queries and data change statements. A single
     <classname>java.sql.Statement</classname> can be reused to execute a
     different statement each time.</para>
 
@@ -623,7 +624,7 @@
     command. This command rewrites the <literal>.data</literal> file that
     contains the information stored in CACHED tables and compacts it to its
     minimum size. This command should be issued periodically, especially when
-    lots of inserts, updates or deletes have been performed on the cached
+    lots of inserts, updates, or deletes have been performed on the cached
     tables. Changes to the structure of the database, such as dropping or
     modifying populated CACHED tables or indexes also create large amounts of
     unused file space that can be reclaimed using this command.</para>

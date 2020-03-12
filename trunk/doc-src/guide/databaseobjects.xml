@@ -155,7 +155,7 @@
       prohibited. While in some other contexts, the use of
       <literal>&lt;identifier chain&gt;</literal> is optional. An identifier
       chain is formed by qualifying each object with the name of the object
-      that owns its name-space. Therefore a column name is prefixed with a
+      that owns its name-space. Therefore, a column name is prefixed with a
       table name, a table name is prefixed with a schema name, and a schema
       name is prefixed with a catalog name. A fully qualified column name is
       in the form <literal>&lt;catalog name&gt;.&lt;schema name&gt;.&lt;table
@@ -395,7 +395,7 @@
       to insert a new row. The value that was returned by NEXT VALUE FOR is
       retrieved with the CURRENT VALUE FOR in the next insert statements to
       populate two new rows in a different table that has a parent child
-      relationship with the first table. For example if the value 15 was
+      relationship with the first table. For example, if the value 15 was
       returned by the sequence, the same value 15 is inserted in the three
       rows.</para>
 
@@ -808,8 +808,8 @@
   <section xml:id="dbc_schema_def_statements">
     <title>Statements for Schema Definition and Manipulation</title>
 
-    <para>Schemas and schema objects can be created, modified and dropped. The
-    SQL Standard defines a range of statements for this purpose. HyperSQL
+    <para>Schemas and schema objects can be created, modified, and dropped.
+    The SQL Standard defines a range of statements for this purpose. HyperSQL
     supports many additional statements, especially for changing the
     properties of existing schema objects.</para>
 
@@ -846,7 +846,7 @@
       allowed in the character sequence.</para>
 
       <para>A <literal>&lt;regular identifier&gt;</literal> is a special
-      sequence of characters. It consists of letters, digits and the
+      sequence of characters. It consists of letters, digits, and the
       underscore characters. It must begin with a letter. All the letters are
       translated to their upper-case version.</para>
 
@@ -938,7 +938,7 @@
 
       <para>This clause is not part of the SQL standard and is a HyperSQL
       extension to some commands that drop objects (schemas, tables, views,
-      sequences and indexes). If it is specified, then the statement does not
+      sequences, and indexes). If it is specified, then the statement does not
       return an error if the drop statement is issued on a non-existent
       object.</para>
 
@@ -1031,10 +1031,11 @@
       Standard. The strange syntax is due to compatibility with other database
       engines that support the statement. The <literal>&lt;name&gt;</literal>
       is the name of a table, view, column or routine. The name of the column
-      consists of dot-separated<literal> &lt;table name&gt; . &lt;column
-      name&gt;</literal>. The name of the table, view or routine can be a
-      simple name. All names can be qualified with a schema name. If there is
-      already a comment on the object, the new comment will replace it.</para>
+      consists of dot-separated<literal> &lt;table name&gt; &lt;period&gt;
+      &lt;column name&gt;</literal>. The name of the table, view or routine
+      can be a simple name. All names can be qualified with a schema name. If
+      there is already a comment on the object, the new comment will replace
+      it.</para>
 
       <para>The comments appear in the results returned by JDBC
       DatabaseMetaData methods, <literal>getTables()</literal> and
@@ -2271,8 +2272,8 @@
       cascading effect A references to system versioning consists of the FOR
       SYSTEM_TIME clause in a SELECT statement. With the successful execution
       of this statement, all the history rows in the table are deleted and
-      only the current versions of rows survive. The period for SYSTEM_TIME
-      and its columns survive after dropping versioning.</para>
+      only the current versions of rows survive. The period for SYSTEM_TIME,
+      and its columns, survive after dropping versioning.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>ALTER COLUMN</primary>
@@ -2917,10 +2918,10 @@
       body&gt;</literal></simpara>
 
       <para>Alter the characteristic and the body of an SQL-invoked routine.
-      If RESTRICT is specified and the routine is already used in a a
-      different routine or view definition, an exception is raised. Altering
-      the routine changes the implementation without changing the parameters.
-      Defining recursive SQL/PSM SQL functions is only possible by altering a
+      If RESTRICT is specified and the routine is already used in a different
+      routine or view definition, an exception is raised. Altering the routine
+      changes the implementation without changing the parameters. Defining
+      recursive SQL/PSM SQL functions is only possible by altering a
       non-recursive routine body. An example is given in the <link
       endterm="sqlroutines-title" os="" xlink:href="#sqlroutines-chapt"/>
       chapter.</para>
@@ -3116,9 +3117,9 @@
       <simpara><emphasis>SQL procedure statement</emphasis></simpara>
 
       <simpara>The definition of CREATE TRIGGER and CREATE PROCEDURE
-      statements refers to &lt;SQL procedure statement&gt;. The definition of
-      this element is given below. However, only a subset of these statements
-      are allowed in trigger or routine definition.</simpara>
+      statements refers to <literal>&lt;SQL procedure statement&gt;</literal>.
+      The definition of this element is given below. However, only a subset of
+      these statements is allowed in trigger or routine definition.</simpara>
 
       <simpara><literal>&lt;SQL procedure statement&gt; ::= &lt;SQL executable
       statement&gt;</literal></simpara>
@@ -3498,11 +3499,11 @@
 
       <para>Each database object may reference other database objects. For
       example, a VIEW references tables in its SELECT statement. An SQL
-      FUNCTION or PROCEDURE typically references tables, views, other routines
-      and sequences. There are views in the INFORMATION_SCHEMA with the word
-      "USAGE" in the name. Each of these views lists references to objects of
-      a particular type from a particular type, for example references to
-      tables from routines.</para>
+      FUNCTION or PROCEDURE typically references tables, views, other
+      routines, and sequences. There are views in the INFORMATION_SCHEMA with
+      the word "USAGE" in the name. Each of these views lists references to
+      objects of a particular type from a particular type, for example
+      references to tables from routines.</para>
 
       <para>From version 2.5.0, a new SQL statement lists all the database
       objects that use (reference) a particular database object.
@@ -3593,11 +3594,11 @@
       and TABLE_CONSTRAINTS, and finally the TRIGGERS view.</para>
 
       <para>The usage of each type of top-level object by another is covered
-      by several views. For example TRIGGER_SEQUENCE_USAGE or
+      by several views. For example, TRIGGER_SEQUENCE_USAGE or
       ROUTINE_TABLE_USAGE.</para>
 
       <para>Several other views list the individual privileges owned or
-      granted to each AUTHORIZATION. For example ROLE_ROUTINE_GRANTS or
+      granted to each AUTHORIZATION. For example, ROLE_ROUTINE_GRANTS or
       TABLE_PRIVILEGES.</para>
     </section>
 

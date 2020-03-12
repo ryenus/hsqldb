@@ -1064,12 +1064,12 @@
     SESSION RESULT MEMORY ROWS &lt;unsigned integer
     literal&gt;</literal></simpara>
 
-    <simpara>By default the session uses memory to build result sets, subquery
-    results and temporary tables. This command sets the maximum number of rows
-    of the result (and temporary tables) that should be kept in memory. If the
-    row count of the result or temporary table exceeds the setting, the result
-    is stored on disk. The default is 0, meaning all result sets are held in
-    memory.</simpara>
+    <simpara>By default, the session uses memory to build result sets,
+    subquery results, and temporary tables. This command sets the maximum
+    number of rows of the result (and temporary tables) that should be kept in
+    memory. If the row count of the result or temporary table exceeds the
+    setting, the result is stored on disk. The default is 0, meaning all
+    result sets are held in memory.</simpara>
 
     <simpara>This statement applies to the current session only. The general
     database setting is:</simpara>

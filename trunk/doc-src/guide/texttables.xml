@@ -514,8 +514,8 @@
       <title>Text File Issues</title>
 
       <listitem>
-        <para>With file databases, text fiile locations are restricted to
-        below the directory that contains the database, unless the
+        <para>With file databases, text file locations are restricted to below
+        the directory that contains the database, unless the
         <varname>textdb.allow_full_path</varname> property is set true as a
         Java system property. This feature is for security, otherwise an admin
         database user may be able to open random files. The specified text
@@ -688,7 +688,7 @@
     <title>Transactions</title>
 
     <para>Text tables fully support transactions. New or changed rows that
-    have not been committed are not updated in the source file. Therefore the
+    have not been committed are not updated in the source file. Therefore, the
     source file always contains committed rows.</para>
 
     <para>However, text tables are not as resilient to machine crashes as

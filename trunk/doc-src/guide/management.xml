@@ -417,7 +417,7 @@
       restart in case the database is closed without a proper shutdown. The
       <literal>CHECKPOINT DEFRAG</literal> variant compacts the
       <literal>.data</literal> file in a similar way to <literal>SHUTDOWN
-      COMPACT</literal> does. Obviously this variant takes much longer than a
+      COMPACT</literal> does. Obviously, this variant takes much longer than a
       normal <literal>CHECKPOINT</literal>. A database setting allows a
       <literal>CHECKPOINT DEFRAG</literal> to be performed automatically when
       wasted space in the <literal>.data</literal> file exceeds the specified
@@ -440,7 +440,7 @@
 
     <para>HyperSQL 2.5 and later allows you to store data in temporal
     system-versioned tables. The additional syntax elements for CREATE TABLE
-    and ALTER TABLE allow creating sytem-versioned tables and adding system
+    and ALTER TABLE allow creating system-versioned tables and adding system
     versioning to existing tables. These are covered in the <link
     endterm="databaseobjects-title" xlink:href="#databaseobjects-chapt"/>
     chapter. Only CACHED or MEMORY tables can be system-versioned.</para>
@@ -541,7 +541,7 @@
     file catalog when a shutdown takes place. It automatically recovers from
     an abnormal termination and preserves the data when the catalog is opened
     next time. In an ideal operating environment, where there is no OS crash,
-    disk failure, bugs in code, etc., there would be no need to backup a
+    disk failure, bugs in code, etc., there would be no need to back up a
     database. Backing up catalogs is an insurance policy against all sorts of
     misadventure that are not under the control of the database engine.</para>
 
@@ -550,14 +550,14 @@
     <literal>*.script</literal>, etc., as detailed in previous
     chapters.</para>
 
-    <simpara>HyperSQL features commands to backup the database files into a
+    <simpara>HyperSQL features commands to back up the database files into a
     single <literal>.tar</literal> or <literal>.tar.gz</literal> file archive,
     or alternatively as copies of the database files. The backup can be
     performed by a command given in a JDBC session if the target database
     catalog is running, or on the command-line if the target catalog has been
     shutdown.</simpara>
 
-    <simpara>It is not recommended to backup the database file with an
+    <simpara>It is not recommended to back up the database file with an
     external file backup program while the database is running. The resulting
     backup will probably be inconsistent and not useful for restoring the
     database</simpara>
@@ -567,7 +567,7 @@
 
       <simpara>To back up a running catalog, obtain a JDBC connection and
       issue a <literal>BACKUP DATABASE</literal> command in SQL. In its most
-      simple form, the command format below will backup the database as a
+      simple form, the command format below will back up the database as a
       single <literal>.tar.gz</literal> file to the given directory. This type
       of backup performs a checkpoint immediately before backing up the
       files.</simpara>
@@ -689,7 +689,7 @@
 
         <listitem>
           <para>An optional initialization vector, for modes of operation that
-          use an IV, is represented as a hexidecimal string.</para>
+          use an IV, is represented as a hexadecimal string.</para>
         </listitem>
 
         <listitem>
@@ -740,13 +740,12 @@
       <para>The files that are encrypted include the
       <literal>.script</literal>, <literal>.data</literal>,
       <literal>.backup</literal> and <literal>.log</literal> files. In version
-      2.5 and later, the <literal>.lobs</literal> file is encrypted by default
-      and the blobs and clobs are both compressed and encrypted. You can
-      override this with the property <literal>crypt_lobs=false</literal> on
-      the URL. Note in some earlier versions of HSQLDB, encrypted lobs were
-      not supported and in some versions, the default for this property was
-      false. You will need to set the property to false to open those
-      databases.</para>
+      2.5 and later, the <literal>.lobs</literal> file is also encrypted by
+      default and the blobs and clobs are both compressed and encrypted. You
+      can override this with the property <literal>crypt_lobs=false</literal>
+      on the URL. Earlier versions of HSQLDB did not support encrypted lobs,
+      and in some versions the default for this property was false. You will
+      need to set the property to false to open those databases.</para>
 
       <para>Although the details of external tools are outside the scope of
       this document, openssl may be used to generate sufficiently random keys
@@ -794,7 +793,7 @@
           <listitem>
             <para>HyperSQL is open source. Someone who has the key, can
             compile and use a modified version of the program that saves a
-            full clear text dump of an encrypted database. Therefore
+            full clear text dump of an encrypted database. Therefore,
             encryption is generally effective only when the users who have
             access to the crypt key are trusted.</para>
           </listitem>
@@ -953,9 +952,9 @@
     <section xml:id="mtc_security_recommend">
       <title>Basic Security Recommendations</title>
 
-      <para>The default setting are generally adequate for embedded use of the
-      database in single-user applications. For servers on the host that are
-      accessed from the same machine or accessed within a network, and
+      <para>The default settings are generally adequate for embedded use of
+      the database in single-user applications. For servers on the host that
+      are accessed from the same machine or accessed within a network, and
       especially for those accessed from outside the network, additional
       security settings must be used. This is the minimum list of changes you
       need to make:</para>
@@ -993,13 +992,13 @@
       <title>Beyond Security Defaults</title>
 
       <para>The default settings for server and web server do not use SSL or
-      IP access control lists. These features are enabled programatically, or
+      IP access control lists. These features are enabled programmatically, or
       with the properties used to start the server.</para>
 
       <para>The default settings allow a database user with the DBA role or
       with schema creation role to access static functions on the classpath.
       You can disable this feature or limit it to specific classes and
-      methods. This can be done programatically or by setting a system
+      methods. This can be done programmatically or by setting a system
       property when you start a server.</para>
 
       <para>If access to specific static functions is granted, then these
@@ -1008,7 +1007,7 @@
 
       <para>The default settings do not allow a user to access files outside
       the database directory. This access is for TEXT table source files. You
-      can override this programatically or with a system property when you
+      can override this programmatically or with a system property when you
       start a server.</para>
 
       <para>The encryption of database file does not utilise any user-supplied
@@ -1912,7 +1911,7 @@
 
       <simpara>This command can enable or disable full enforcement of the
       rules that prevents illegal type conversions and parameters or nulls
-      without type in SQL statements (usually SELECT statements). For example
+      without type in SQL statements (usually SELECT statements). For example,
       an INTEGER column or a DATE column cannot be compared to a character
       string or searched with a LIKE expression when the property is
       <literal>TRUE</literal>.</simpara>
@@ -1953,9 +1952,9 @@
 
       <simpara>The property is <literal>TRUE</literal> by default.</simpara>
 
-      <simpara>SQL Standard requires enforcement; therefore this property
-      shouldn't be changed unless an application written for a non-conforming
-      RDBMS needs it.</simpara>
+      <simpara>SQL Standard requires enforcement; this property shouldn't be
+      changed unless an application written for a non-conforming RDBMS needs
+      it.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -1986,9 +1985,9 @@
 
       <simpara>The property is <literal>TRUE</literal> by default.</simpara>
 
-      <simpara>SQL Standard requires enforcement; therefore this property
-      shouldn't be changed unless an application written for a non-conforming
-      RDBMS needs it.</simpara>
+      <simpara>SQL Standard requires enforcement; this property shouldn't be
+      changed unless an application written for a non-conforming RDBMS needs
+      it.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2011,8 +2010,8 @@
       }</literal></simpara>
 
       <simpara>The JDBC Specification up to version 4.1 does not support some
-      SQL Standard built-in types, therefore these types must be translated to
-      a supported type when accessed through JDBC ResultSet and
+      SQL Standard built-in types. Therefore, these types must be translated
+      to a supported type when accessed through JDBC ResultSet and
       PreparedStatement methods.</simpara>
 
       <simpara>If the property is true, the TIME / TIMESTAMP WITH TIME ZONE
@@ -2148,7 +2147,7 @@
       }</literal></simpara>
 
       <simpara>When the property is <literal>TRUE</literal>, conversion from a
-      floating point value (a DOUBLE value) to an integral type always
+      floating-point value (a DOUBLE value) to an integral type always
       truncates the fractional part. When the property is
       <literal>FALSE</literal>, rounding takes place instead of truncation.
       For example, assigning the value 123456E-2 to an integer column will
@@ -2239,7 +2238,7 @@
 
       <simpara>When the property is <literal>TRUE</literal>, nulls appear
       before values in result sets with ORDER BY. When set FALSE, nulls appear
-      after the values. Some databases, including PostgreSQL, Oracle and MS
+      after the values. Some databases, including PostgreSQL, Oracle, and MS
       SQL Server, return nulls after the values.</simpara>
 
       <simpara>The property is <literal>TRUE</literal> by default.</simpara>
@@ -2350,10 +2349,10 @@
       SET DATABASE SQL SYS INDEX NAMES { TRUE | FALSE }</literal></simpara>
 
       <simpara>This property, when set TRUE, changes the naming method for
-      system generated indexes that are used to back constraints. By default,
-      the names of those indexes are generated as strings with SYS_ prefixes.
-      When the property is set TRUE, the names will be the same as the
-      constraint names.</simpara>
+      system generated indexes that are used to support UNIQUE and FOREIGN KEY
+      constraints. By default, the names of those indexes are generated as
+      strings with SYS_ prefixes. When the property is set TRUE, the names
+      will be the same as the constraint names.</simpara>
 
       <simpara>Changing the property does not affect the names of indexes for
       the constraints that have already been defined. After a restart of the
@@ -2385,7 +2384,7 @@
       &lt;expression list&gt;</literal> without the FROM clause) are supported
       and treated as the SQL Standard equivalent, <literal>VALUES
       &lt;expression list&gt;</literal>. The DUAL table is supported, as well
-      as the ROWNUM pseudo-column. BINARY type definitions such as VARCHAR(L)
+      as the ROWNUM pseudo column. BINARY type definitions such as VARCHAR(L)
       FOR BIT DATA are supported. Empty DEFAULT clauses in column definitions
       are supported.</simpara>
 
@@ -2866,7 +2865,7 @@
       allows 64TB of lob data storage capacity. The scale can be reduced in
       order to improve storage efficiency. If the lobs are a lot smaller than
       32 kilobytes, reducing the scale will reduce wasted space. The scale
-      values 1, 2, 4, 8, 16, 32 are allowed. For example if the average size
+      values 1, 2, 4, 8, 16, 32 are allowed. For example, if the average size
       of lobs is 4 kilobytes, the default scale of 32 will result in 28KB
       wasted space for each lob. Reducing the lob scale to 2 will result in
       average 1KB wasted space for each lob.</simpara>
@@ -2957,7 +2956,7 @@
       <simpara><literal>&lt;set table new space statement&gt; ::= SET TABLE
       &lt;table name&gt; NEW SPACE</literal></simpara>
 
-      <simpara>Sets the named table to use it's own space blocks within the
+      <simpara>Sets the named table to use its own space blocks within the
       <literal>.data</literal> file. Use of table spaces should be enabled
       with the SET FILES SPACE statement above, before this statement is
       executed.</simpara>

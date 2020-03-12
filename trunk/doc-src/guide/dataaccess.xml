@@ -421,11 +421,11 @@
       <para>A new method, <methodname>getObject(int columnIndex,
       Class&lt;T&gt; type)</methodname> is available in Java 8. With this
       method, you specify the required return type. The common types such as
-      String, Integer, byte[] are supported as well as new types that can be
-      use for DATE, TIME, TIMESTAMP and INTERVAL values. The table below shows
-      which Java classes are the most appropriate for the specified SQL TYPES.
-      In addition, you can use these Java types for values of SQL type that
-      are not fully matched. For example,
+      String, Integer, byte[] are supported, as well as new types that can be
+      used for DATE, TIME, TIMESTAMP, and INTERVAL values. The table below
+      shows which Java classes are the most appropriate for the specified SQL
+      TYPES. In addition, you can use these Java types for values of SQL type
+      that are not fully matched. For example,
       <classname>java.time.LocalDateTime</classname> can be used to retrieve a
       DATE value.</para>
 
@@ -634,9 +634,9 @@
       separated with a space or end-of-line character.</simpara>
 
       <simpara>Unicode literals start with U&amp; and can contain ordinary
-      characters and unicode escapes. A unicode escape begins with the
+      characters and Unicode escapes. A Unicode escape begins with the
       backslash ( \ ) character and is followed by four hexadecimal characters
-      which specify the character code. The unicode escape character can be
+      which specify the character code. The Unicode escape character can be
       custom defined for a literal string by adding UESPACE as in one of the
       examples below.</simpara>
 
@@ -1764,8 +1764,8 @@
       be used with prepared statements where a variable length array of values
       can be used as the parameter value for each call. The example below
       shows how this is used in SQL. The JDBC code must create a new
-      java.sql.Array object that contains the values and set the parameter
-      with this array.</simpara>
+      <literal>java.sql.Array</literal> object that contains the values and
+      set the parameter with this array.</simpara>
 
       <informalexample>
         <programlisting> SELECT * FROM customer WHERE firstname IN ( UNNEST(?) )
@@ -1991,7 +1991,7 @@
       UNIQUE is not specified, or if UNIQUE is specified and only one row
       matches.</simpara>
 
-      <simpara>Note that MATCH can also used be used in FOREIGN KEY constraint
+      <simpara>Note that MATCH can also be used in FOREIGN KEY constraint
       definitions. The exact meaning is described in the <link
       endterm="databaseobjects-title" xlink:href="#databaseobjects-chapt"/>
       chapter.</simpara>
@@ -2228,7 +2228,7 @@
       returns the result of the <literal>COUNT</literal> or
       <literal>&lt;computational operation&gt;</literal> for each group. In
       this case the result has the same number of rows as the original grouped
-      query. For example <literal>SELECT SUM(acolumn) &lt;table
+      query. For example, <literal>SELECT SUM(acolumn) &lt;table
       expression&gt;</literal> when <literal>&lt;table
       expression&gt;</literal> has a <literal>GROUP BY</literal> clause,
       returns the sum of values for <literal>acolumn</literal> in each
@@ -2406,7 +2406,7 @@
       This collation is used for comparing the values of the column in
       different rows. Comparison can happen during the execution of SELECT,
       UPDATE or DELETE statements, when a UNIQUE constraint or index is
-      defined on the column, or when the the rows are sorted by an ORDER BY
+      defined on the column, or when the rows are sorted by an ORDER BY
       clause.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -2614,7 +2614,7 @@
       the most common form of <literal>&lt;derived table&gt;</literal> . A
       <literal>&lt;table expression&gt;</literal> is a base table, a view or
       any form of allowed derived table. The SELECT statement performs
-      projection, naming, computing or aggregation on the rows of the
+      projection, naming, computing, or aggregation on the rows of the
       <literal>&lt;table expression&gt;</literal> .</para>
 
       <simpara><literal>&lt;query specification&gt; ::= SELECT [ DISTINCT |
@@ -2763,7 +2763,7 @@
         specification&gt;</literal> can be used after the name of a
         system-versioned table to query historic data in the table. Without
         this clause, only the current rows of the table are returned and
-        historic rows are ignored. The first examples below shows a list of
+        historic rows are ignored. The first example below shows a list of
         customers as of a year ago. The second example also shows any changes
         made to the email column over the previous year.</para>
 
@@ -3104,7 +3104,7 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       not exactly the same, the type of the shared column is formed by type
       aggregation. Type aggregations selects a type that can represent values
       of both aggregated types. Simple type aggregation picks one of the
-      types. For example SMALLINT and INTEGER, results in INTEGER, or
+      types. For example, SMALLINT and INTEGER, results in INTEGER, or
       VARCHAR(10) and VARCHAR(20) results in VARCHAR(20). More complex type
       aggregation inherits properties from both types. For example DECIMAL(8)
       and DECIMAL (6,2) results in DECIMAL (8,2).</para>
@@ -3137,7 +3137,7 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       extended to the left with nulls and added to the table. If FULL is
       specified, the addition of leftover rows is performed from both the
       first and the second table. These forms are expressed by prefixing the
-      join specification with the given keyword. For example <literal>A LEFT
+      join specification with the given keyword. For example, <literal>A LEFT
       OUTER JOIN B ON (&lt;search condition&gt;)</literal> or <literal>A
       NATURAL FULL OUTER JOIN B</literal> or <literal>A FULL OUTER JOIN B
       USING (&lt;comma separated column name list&gt;)</literal>.</para>
@@ -3156,7 +3156,7 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       condition used to limit the rows that from a result table (selection of
       rows, not columns). In SQL, simple selection is expressed with a WHERE
       condition appended to a single table or a joined table. In some cases,
-      this method of selection is the only method available. For example in
+      this method of selection is the only method available; for example in
       DELETE and UPDATE statements. But when it is possible to perform the
       selection with join conditions, this is the better method, as it results
       in a clearer expression of the query.</para>
@@ -3437,7 +3437,7 @@ DIRECT SALES (null) (null)  3778500
       DISTINCT eliminates the duplicate groups.</para>
 
       <para>Note any ordering of the rows returned by GROUP BY in incidental.
-      You need to use ORDER BY for the ordering your require.</para>
+      You need to use ORDER BY for the ordering you require.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>HAVING</primary>
@@ -3518,7 +3518,7 @@ DIRECT SALES (null) (null)  3778500
       table, but avoids copying duplicate rows.</para>
 
       <para>The collection operations are similar to the set operations, but
-      can return duplicate rows. They are <literal>A UNION ALL B</literal>,
+      can return duplicate rows. They are: <literal>A UNION ALL B</literal>,
       <literal>A INTERSECT ALL B</literal> and <literal>A EXCEPT ALL
       B</literal>. The UNION ALL operation adds all the rows from A and B into
       the new table. The INTERSECT operation copies only those rows from each
@@ -3932,7 +3932,7 @@ DIRECT SALES (null) (null)  3778500
       sequence is reset to its start value.</simpara>
 
       <simpara>TRUNCATE is faster than ordinary DELETE. The TRUNCATE statement
-      is an SQL Standard data change statement, therefore it is performed
+      is an SQL Standard data change statement; therefore it is performed
       under transaction control and can be rolled back if the connection is
       not in the auto-commit mode.</simpara>
 
@@ -4270,7 +4270,7 @@ DIRECT SALES (null) (null)  3778500
       expression&gt; | &lt;contextually typed value
       specification&gt;</literal></simpara>
 
-      <simpara>Update rows, deletes rows or insert new rows into the
+      <simpara>Update rows, delete rows or insert new rows into the
       <literal>&lt;target table&gt;</literal>. The MERGE statement uses a
       second table, specified by <literal>&lt;table reference&gt;</literal>,
       to determine the rows to be updated or inserted. It is possible to use
@@ -4321,7 +4321,7 @@ DIRECT SALES (null) (null)  3778500
       parameter is cast as INTEGER because the MERGE statement does not
       determine the types of values in the USING clause.</simpara>
 
-      <simpara>In the fourth example existing rows that match are
+      <simpara>In the fourth example, existing rows that match are
       deleted.</simpara>
 
       <informalexample>
@@ -4351,7 +4351,7 @@ MERGE INTO t USING (SELECT * FROM tt WHERE acol = 2) AS vals(x,y) ON t.id = vals
   <section xml:id="dac_diagnostics_state">
     <title>Diagnostics and State</title>
 
-    <para>HyperSQL supports some SQL statements, expressions, functions and
+    <para>HyperSQL supports some SQL statements, expressions, functions, and
     Java methods that report on the most recently executed statement.</para>
 
     <para>The <literal>IDENTITY()</literal> function returns the last inserted
