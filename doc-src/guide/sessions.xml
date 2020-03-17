@@ -289,10 +289,10 @@
 
       <para>SNAPSHOT ISOLATION is a multiversion concurrency strategy which
       uses the snapshot of the whole database at the time of the start of the
-      transaction. In this model, read only transactions use SNAPSHOT
-      ISOLATION. While other sessions are busy changing the database, the read
-      only session sees a consistent view of the database and can access all
-      the tables even when they are locked by other sessions for
+      transaction. In this model, read-only transactions use SNAPSHOT
+      ISOLATION. While other sessions are busy changing the database, the
+      read-only session sees a consistent view of the database and can access
+      all the tables even when they are locked by other sessions for
       updates.</para>
 
       <para>There are many applications for this mode of operation. In heavily
