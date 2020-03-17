@@ -1340,7 +1340,7 @@
       required because a user value is provided.</para>
 
       <informalexample>
-        <programlisting> INSERT INTO t1 (id, name) ORERRIDING SYSTEM VALUE VALUES ( 14, 'Test Value')
+        <programlisting> INSERT INTO t1 (id, name) OVERRIDING SYSTEM VALUE VALUES ( 14, 'Test Value')
 </programlisting>
       </informalexample>
 
