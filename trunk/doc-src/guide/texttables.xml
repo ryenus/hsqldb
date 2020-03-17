@@ -13,7 +13,7 @@
          xmlns:ns="http://docbook.org/ns/docbook">
   <title xml:id="texttables-title">Text Tables</title>
 
-  <subtitle>Text Tables as a Standard Feature of Hsqldb</subtitle>
+  <subtitle>Text Tables as a Standard Feature of HSQLDB</subtitle>
 
   <info>
     <authorgroup>

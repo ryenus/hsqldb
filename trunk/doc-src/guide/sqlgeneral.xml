@@ -1805,7 +1805,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <simpara><emphasis role="bold">Java 8 Extensions</emphasis></simpara>
 
-    <para>JAVA 8 does not have a type codes for INTERVAL types. HSQLDB 2.4.0
+    <para>JAVA 8 does not have SQL type codes for INTERVAL types. HSQLDB 2.4.0
     and later, when compiled with JDK8 or later, supports
     <classname>java.time</classname> types for INTERVAL types in
     <classname>ResultSet</classname>, <classname>PreparedStatement</classname>
