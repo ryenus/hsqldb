@@ -168,7 +168,8 @@ public class TestJavaFunctions extends TestBase {
         return bytes;
     }
 
-    public static byte[][] getSortedArrayByteArray(byte[][] bytes) throws SQLException {
+    public static byte[][] getSortedArrayByteArray(byte[][] bytes)
+    throws SQLException {
 
         bytes = (byte[][]) java.util.Arrays.copyOf(bytes, bytes.length);
 

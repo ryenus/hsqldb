@@ -452,6 +452,8 @@ public class SchemaObjectSet {
             OrderedHashSet references;
 
             if (object.getType() == SchemaObject.TABLE) {
+                ((Table) object).setForwardConstraints(resolved);
+
                 references = ((Table) object).getReferencesForScript();
             } else {
                 references = object.getReferences();

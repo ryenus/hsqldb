@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,8 +112,8 @@ public class TestTextTable extends TestBase {
                 FileUtil.getFileUtil().delete(completeFileName);
 
                 textFile = new PrintStream(
-                    FileUtil.getFileUtil().openOutputStreamElement(
-                        completeFileName, true));
+                    FileUtil.getFileUtil().openOutputStreamElementAppend(
+                        completeFileName));
 
                 new java.io.File(completeFileName).deleteOnExit();
             } catch (IOException ex) {
@@ -489,8 +489,8 @@ public class TestTextTable extends TestBase {
             // create a malformed file
             String fileName = "malformed.csv";
             PrintStream textFile = new PrintStream(
-                FileUtil.getFileUtil().openOutputStreamElement(
-                    fileName, true));
+                FileUtil.getFileUtil().openOutputStreamElementAppend(
+                    fileName));
 
             textFile.println("not a number;some text");
             textFile.close();
@@ -533,8 +533,8 @@ public class TestTextTable extends TestBase {
             FileUtil.getFileUtil().delete(fileName);
 
             textFile = new PrintStream(
-                FileUtil.getFileUtil().openOutputStreamElement(
-                    fileName, true));
+                FileUtil.getFileUtil().openOutputStreamElementAppend(
+                    fileName));
 
             textFile.println("1;some text");
             textFile.close();

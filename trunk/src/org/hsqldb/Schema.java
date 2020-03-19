@@ -46,7 +46,7 @@ import org.hsqldb.rights.Grantee;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.4.1
+ * @version 2.5.1
  * @since 1.9.0
 */
 public final class Schema implements SchemaObject {
@@ -158,9 +158,9 @@ public final class Schema implements SchemaObject {
         String        setSchema = getSetSchemaSQL(name);
 
         list.add(setSchema);
-        typeLookup.getSQL(list, resolved, unresolved);
         charsetLookup.getSQL(list, resolved, unresolved);
         collationLookup.getSQL(list, resolved, unresolved);
+        typeLookup.getSQL(list, resolved, unresolved);
         functionLookup.getSQL(list, resolved, unresolved);
         sequenceLookup.getSQL(list, resolved, unresolved);
         tableLookup.getSQL(list, resolved, unresolved);

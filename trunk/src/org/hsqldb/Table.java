@@ -741,6 +741,23 @@ public class Table extends TableBase implements SchemaObject {
         return sb.toString();
     }
 
+    public void setForwardConstraints(OrderedHashSet resolved) {
+
+        for (int i = 0; i < constraintList.length; i++) {
+            Constraint c = constraintList[i];
+
+            if (c.getConstraintType()
+                    == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
+                Table mainTable = c.getMain();
+
+                if (mainTable != this
+                        && !resolved.contains(mainTable.getName())) {
+                    c.isForward = true;
+                }
+            }
+        }
+    }
+
     public boolean isConnected() {
         return true;
     }

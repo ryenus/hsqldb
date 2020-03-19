@@ -64,6 +64,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Enumeration;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 import junit.framework.TestResult;
@@ -79,10 +80,10 @@ import junit.framework.TestResult;
  */
 public class TestHTTPKeepAlive extends TestBase {
 
-    static Integer     failCount    = 0;
-    static Integer     executeCount = 0;
-    private Statement  stmnt;
-    private Connection connection;
+    static AtomicInteger failCount    = new AtomicInteger();
+    static AtomicInteger executeCount = new AtomicInteger();
+    private Statement    stmnt;
+    private Connection   connection;
 
     public TestHTTPKeepAlive(String name) {
         super(name);
@@ -126,17 +127,15 @@ public class TestHTTPKeepAlive extends TestBase {
 
                 for (int i = 0; i <= 16500; i++) {
                     statement.executeQuery("SELECT * FROM link_table");
-
-                    synchronized (executeCount) {
-                        executeCount++;
-                    }
+                    executeCount.incrementAndGet();
                 }
             } catch (SQLException e) {
                 e.printStackTrace(System.out);
             } finally {
                 try {
-                    if (c != null)
-                    c.close();
+                    if (c != null) {
+                        c.close();
+                    }
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -156,13 +155,8 @@ public class TestHTTPKeepAlive extends TestBase {
                 t.join(15000);
 
                 if (t.isAlive()) {    // If thread still running, then it's probably blocked because the ports are exhausted
-                    synchronized (failCount) {
-                        if (failCount == 0) {
-                            failCount++;
-
-                            fail("Keep-Alive is probably not being used");
-                        }
-                    }
+                    failCount.incrementAndGet();
+                    fail("Keep-Alive is probably not being used");
                 }
             } catch (InterruptedException ex) {}
         }

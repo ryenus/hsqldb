@@ -6891,11 +6891,10 @@ public class ParserDQL extends ParserBase {
                 read();
                 readIfThis(Tokens.ASYMMETRIC);
 
-                Expression pointStart = XreadValueExpression();
-
+                Expression pointStart = XreadRowValuePredicand();
                 readThis(Tokens.AND);
 
-                Expression pointEnd = XreadValueExpression();
+                Expression pointEnd = XreadRowValuePredicand();
 
                 return new ExpressionPeriodOp(pointStart, pointEnd);
             }

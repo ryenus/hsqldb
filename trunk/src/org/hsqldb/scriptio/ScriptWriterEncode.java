@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.persist.Crypto;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.5.1
  * @version 1.9.0
  */
 public class ScriptWriterEncode extends ScriptWriterText {
@@ -105,7 +105,7 @@ public class ScriptWriterEncode extends ScriptWriterText {
         try {
             FileAccess   fa  = isUserScript ? FileUtil.getFileUtil()
                                             : database.logger.getFileAccess();
-            OutputStream fos = fa.openOutputStreamElement(outFile, true);
+            OutputStream fos = fa.openOutputStreamElementAppend(outFile);
 
             outDescriptor = fa.getFileSync(fos);
             fileStreamOut = fos;

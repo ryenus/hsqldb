@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.map.ValuePool;
  * allow saving and loading.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.1
  * @since 1.7.0
  */
 public class HsqlProperties {
@@ -263,7 +263,7 @@ public class HsqlProperties {
         fa.createParentDirs(fileString);
         fa.removeElement(fileString);
 
-        OutputStream fos = fa.openOutputStreamElement(fileString, false);
+        OutputStream fos = fa.openOutputStreamElement(fileString);
         FileAccess.FileSync outDescriptor = fa.getFileSync(fos);
         String name = HsqlDatabaseProperties.PRODUCT_NAME + " "
                       + HsqlDatabaseProperties.THIS_FULL_VERSION;
