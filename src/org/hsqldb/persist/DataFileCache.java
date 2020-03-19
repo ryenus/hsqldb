@@ -1431,8 +1431,8 @@ public class DataFileCache {
         if (fileAccess.isStreamElement(backupFileName
                                        + Logger.newFileExtension)) {
             deleteFile(database, backupFileName);
-            fileAccess.renameElement(backupFileName + Logger.newFileExtension,
-                                     backupFileName, true);
+            fileAccess.renameElementOrCopy(backupFileName + Logger.newFileExtension,
+                                     backupFileName);
         }
     }
 
@@ -1452,8 +1452,8 @@ public class DataFileCache {
         if (fileAccess.isStreamElement(dataFileName
                                        + Logger.newFileExtension)) {
             deleteFile(database, dataFileName);
-            fileAccess.renameElement(dataFileName + Logger.newFileExtension,
-                                     dataFileName, true);
+            fileAccess.renameElementOrCopy(dataFileName + Logger.newFileExtension,
+                                     dataFileName);
         }
     }
 
@@ -1474,7 +1474,7 @@ public class DataFileCache {
             if (fileAccess.isStreamElement(fileName)) {
                 String discardName = FileUtil.newDiscardFileName(fileName);
 
-                fileAccess.renameElement(fileName, discardName, false);
+                fileAccess.renameElement(fileName, discardName);
             }
         }
     }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,13 +34,11 @@ package org.hsqldb.lib;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.Random;
 
 import org.hsqldb.lib.java.JavaSystem;
@@ -52,7 +50,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Ocke Janssen oj@openoffice.org
- * @version 2.4.1
+ * @version 2.5.1
  * @since 1.7.2
  */
 public class FileUtil implements FileAccess {
@@ -92,22 +90,23 @@ public class FileUtil implements FileAccess {
         makeParentDirectories(new File(filename));
     }
 
-    public void removeElement(String filename) {
+    public boolean removeElement(String filename) {
 
         if (isStreamElement(filename)) {
-            delete(filename);
+            return delete(filename);
         }
+
+        return true;
     }
 
-    public void renameElement(String oldName, String newName,
-                              boolean copyIfFailed) {
+    public boolean renameElement(String oldName, String newName) {
+        return renameWithOverwrite(oldName, newName);
+    }
+
+    public boolean renameElementOrCopy(String oldName, String newName) {
 
         if (renameWithOverwrite(oldName, newName)) {
-            return;
-        }
-
-        if (!copyIfFailed) {
-            return;
+            return true;
         }
 
         InputStream  inputStream  = null;
@@ -115,7 +114,7 @@ public class FileUtil implements FileAccess {
 
         try {
             inputStream  = openInputStreamElement(oldName);
-            outputStream = openOutputStreamElement(newName, false);
+            outputStream = openOutputStreamElement(newName);
 
             InOutUtil.copy(inputStream, outputStream);
             getFileSync(outputStream).sync();
@@ -126,7 +125,7 @@ public class FileUtil implements FileAccess {
 
             LOG.error(message, e);
 
-            return;
+            return false;
         } finally {
             try {
                 if (inputStream != null) {
@@ -154,11 +153,18 @@ public class FileUtil implements FileAccess {
             oldName, newName);
 
         LOG.finer(message);
+
+        return true;
     }
 
-    public OutputStream openOutputStreamElement(String streamName,
-            boolean append) throws IOException {
-        return new FileOutputStream(new File(streamName), append);
+    public OutputStream openOutputStreamElement(String streamName)
+    throws IOException {
+        return new FileOutputStream(new File(streamName), false);
+    }
+
+    public OutputStream openOutputStreamElementAppend(String streamName)
+    throws IOException {
+        return new FileOutputStream(new File(streamName), true);
     }
 
     // end of FileAccess implementation
@@ -372,77 +378,6 @@ public class FileUtil implements FileAccess {
 
         public void sync() throws IOException {
             outDescriptor.sync();
-        }
-    }
-
-    public static class FileAccessRes implements FileAccess {
-
-        public boolean isStreamElement(String fileName) {
-
-            URL url = null;
-
-            try {
-                url = getClass().getResource(fileName);
-
-                if (url == null) {
-                    ClassLoader cl =
-                        Thread.currentThread().getContextClassLoader();
-
-                    if (cl != null) {
-                        url = cl.getResource(fileName);
-                    }
-                }
-            } catch (Throwable t) {
-
-                //
-            }
-
-            return url != null;
-        }
-
-        public InputStream openInputStreamElement(final String fileName)
-        throws IOException {
-
-            InputStream fis = null;
-
-            try {
-                fis = getClass().getResourceAsStream(fileName);
-
-                if (fis == null) {
-                    ClassLoader cl =
-                        Thread.currentThread().getContextClassLoader();
-
-                    if (cl != null) {
-                        fis = cl.getResourceAsStream(fileName);
-                    }
-                }
-            } catch (Throwable t) {
-
-                //
-            } finally {
-                if (fis == null) {
-                    throw new FileNotFoundException(fileName);
-                }
-            }
-
-            return fis;
-        }
-
-        public void createParentDirs(String filename) {}
-
-        public void removeElement(String filename) {}
-
-        public void renameElement(String oldName, String newName,
-                                  boolean copyIfFailed) {}
-
-        public OutputStream openOutputStreamElement(String streamName,
-                boolean append) throws IOException {
-            throw new IOException();
-        }
-
-        public FileAccess.FileSync getFileSync(OutputStream os)
-        throws IOException {
-            throw new IOException();
         }
     }
 

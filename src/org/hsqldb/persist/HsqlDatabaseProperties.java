@@ -667,8 +667,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                 Long.toString(database.logger.getFilesTimestamp()));
             props.setProperty(hsqldb_modified, getProperty(hsqldb_modified));
             props.save(fileName + ".properties" + ".new");
-            fa.renameElement(fileName + ".properties" + ".new",
-                             fileName + ".properties", true);
+            fa.renameElementOrCopy(fileName + ".properties" + ".new",
+                             fileName + ".properties");
         } catch (Throwable t) {
             database.logger.logSevereEvent("save failed", t);
 

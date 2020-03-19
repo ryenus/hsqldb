@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ import org.hsqldb.types.TimestampData;
  * DatabaseScriptReader and its subclasses read back the data at startup time.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.2
  */
 public abstract class ScriptWriterBase implements Runnable {
@@ -272,7 +272,7 @@ public abstract class ScriptWriterBase implements Runnable {
         try {
             FileAccess   fa  = isUserScript ? FileUtil.getFileUtil()
                                             : database.logger.getFileAccess();
-            OutputStream fos = fa.openOutputStreamElement(outFile, true);
+            OutputStream fos = fa.openOutputStreamElementAppend(outFile);
 
             outDescriptor = fa.getFileSync(fos);
             fileStreamOut = fos;
