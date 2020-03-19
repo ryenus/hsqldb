@@ -1309,7 +1309,7 @@
       file path&gt;</literal></simpara>
 
       <simpara><literal>&lt;export script for versioning statement&gt; ::=
-      PERFORM EXPORT SCRIPT FOR VERSIONING DATA FROM TIMESTAMP
+      PERFORM EXPORT SCRIPT FOR DATABASE VERSIONING DATA FROM TIMESTAMP
       &lt;single-quoted UTC timestamp string&gt; TO &lt;file
       name&gt;</literal></simpara>
 
