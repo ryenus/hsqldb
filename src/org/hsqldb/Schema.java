@@ -38,6 +38,7 @@ import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.rights.Grantee;
 
@@ -50,7 +51,24 @@ import org.hsqldb.rights.Grantee;
  * @since 1.9.0
 */
 public final class Schema implements SchemaObject {
+    //J-
 
+    static int[] scriptSequenceOne = new int[] {
+        CHARSET,
+        COLLATION,
+        TYPE,
+        SEQUENCE,
+        FUNCTION,
+    };
+
+    static int[] scriptSequenceTwo = new int[] {
+        TABLE,
+        PROCEDURE,
+        TRIGGER,
+        REFERENCE,
+        MODULE
+    };
+    //J+
     private HsqlName name;
     SchemaObjectSet  triggerLookup;
     SchemaObjectSet  constraintLookup;
@@ -65,6 +83,8 @@ public final class Schema implements SchemaObject {
     SchemaObjectSet  specificRoutineLookup;
     SchemaObjectSet  assertionLookup;
     SchemaObjectSet  referenceLookup;
+    SchemaObjectSet  conditionLookup;
+    SchemaObjectSet  moduleLookup;
     HashMappedList   tableList;
     HashMappedList   sequenceList;
     HashMappedList   referenceList;
@@ -87,6 +107,8 @@ public final class Schema implements SchemaObject {
             new SchemaObjectSet(SchemaObject.SPECIFIC_ROUTINE);
         assertionLookup = new SchemaObjectSet(SchemaObject.ASSERTION);
         referenceLookup = new SchemaObjectSet(SchemaObject.REFERENCE);
+        conditionLookup = new SchemaObjectSet(SchemaObject.EXCEPTION);
+        moduleLookup    = new SchemaObjectSet(SchemaObject.MODULE);
         tableList       = (HashMappedList) tableLookup.map;
         sequenceList    = (HashMappedList) sequenceLookup.map;
         referenceList   = (HashMappedList) referenceLookup.map;
@@ -140,35 +162,73 @@ public final class Schema implements SchemaObject {
         return sb.toString();
     }
 
-    static String getSetSchemaSQL(HsqlName schemaName) {
+    String getSetSchemaSQL() {
 
         StringBuilder sb = new StringBuilder();
 
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_SCHEMA).append(' ');
-        sb.append(schemaName.statementName);
+        sb.append(name.statementName);
 
         return sb.toString();
     }
 
-    public HsqlArrayList getSQLArray(OrderedHashSet resolved,
+    static String getCommentSQL(HsqlName name, String typeName) {
+
+        if (name.comment == null) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(Tokens.T_COMMENT).append(' ').append(Tokens.T_ON);
+        sb.append(' ').append(typeName).append(' ');
+        sb.append(name.getSchemaQualifiedStatementName());
+        sb.append(' ').append(Tokens.T_IS).append(' ');
+        sb.append(StringConverter.toQuotedString(name.comment, '\'',
+                true));
+
+        return sb.toString();
+    }
+
+    public HsqlArrayList getSQLArray(int objectType, OrderedHashSet resolved,
                                      OrderedHashSet unresolved) {
 
-        HsqlArrayList list      = new HsqlArrayList();
-        String        setSchema = getSetSchemaSQL(name);
+        HsqlArrayList list = new HsqlArrayList();
 
-        list.add(setSchema);
-        charsetLookup.getSQL(list, resolved, unresolved);
-        collationLookup.getSQL(list, resolved, unresolved);
-        typeLookup.getSQL(list, resolved, unresolved);
-        functionLookup.getSQL(list, resolved, unresolved);
-        sequenceLookup.getSQL(list, resolved, unresolved);
-        tableLookup.getSQL(list, resolved, unresolved);
-        procedureLookup.getSQL(list, resolved, unresolved);
-        referenceLookup.getSQL(list, resolved, unresolved);
+        switch (objectType) {
 
-        if (list.size() == 1) {
-            list.clear();
+            case CHARSET :
+                charsetLookup.getSQL(list, resolved, unresolved);
+                break;
+
+            case COLLATION :
+                collationLookup.getSQL(list, resolved, unresolved);
+                break;
+
+            case TYPE :
+                typeLookup.getSQL(list, resolved, unresolved);
+                break;
+
+            case SEQUENCE :
+                sequenceLookup.getSQL(list, resolved, unresolved);
+                break;
+
+            case FUNCTION :
+                functionLookup.getSQL(list, resolved, unresolved);
+                break;
+
+            case TABLE :
+                tableLookup.getSQL(list, resolved, unresolved);
+                break;
+
+            case PROCEDURE :
+                procedureLookup.getSQL(list, resolved, unresolved);
+                break;
+
+            case REFERENCE :
+                referenceLookup.getSQL(list, resolved, unresolved);
+                break;
         }
 
         return list;
@@ -250,6 +310,12 @@ public final class Schema implements SchemaObject {
             case SchemaObject.TRIGGER :
                 return triggerLookup;
 
+            case SchemaObject.EXCEPTION :
+                return conditionLookup;
+
+            case SchemaObject.MODULE :
+                return moduleLookup;
+
             case SchemaObject.REFERENCE :
                 return referenceLookup;
 
@@ -302,6 +368,12 @@ public final class Schema implements SchemaObject {
 
             case SchemaObject.ASSERTION :
                 return assertionLookup.map.values().iterator();
+
+            case SchemaObject.EXCEPTION :
+                return conditionLookup.map.values().iterator();
+
+            case SchemaObject.MODULE :
+                return moduleLookup.map.values().iterator();
 
             case SchemaObject.TRIGGER :
                 return triggerLookup.map.values().iterator();
@@ -412,6 +484,12 @@ public final class Schema implements SchemaObject {
             }
             case SchemaObject.SPECIFIC_ROUTINE :
                 return specificRoutineLookup.getObject(name);
+
+            case SchemaObject.EXCEPTION :
+                return conditionLookup.getObject(name);
+
+            case SchemaObject.MODULE :
+                return moduleLookup.getObject(name);
 
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :
@@ -529,6 +607,8 @@ public final class Schema implements SchemaObject {
         procedureLookup       = null;
         functionLookup        = null;
         specificRoutineLookup = null;
+        conditionLookup       = null;
+        moduleLookup          = null;
         sequenceLookup        = null;
         tableLookup           = null;
         typeLookup            = null;

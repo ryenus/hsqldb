@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ import org.hsqldb.rights.Grantee;
  * than all the existing names.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.1
  * @since 1.7.2
  */
 public final class HsqlNameManager {
@@ -454,6 +454,23 @@ public final class HsqlNameManager {
             sb.append(schema.getStatementName());
             sb.append('.');
             sb.append(statementName);
+
+            return sb.toString();
+        }
+
+        String getCommentSQL(String typeName) {
+
+            if (comment == null) {
+                return null;
+            }
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.append(Tokens.T_COMMENT).append(' ').append(Tokens.T_ON);
+            sb.append(' ').append(typeName).append(' ');
+            sb.append(getSchemaQualifiedStatementName());
+            sb.append(' ').append(Tokens.T_IS).append(' ');
+            sb.append(StringConverter.toQuotedString(comment, '\'', true));
 
             return sb.toString();
         }

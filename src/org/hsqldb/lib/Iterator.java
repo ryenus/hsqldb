@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,14 +36,14 @@ import java.util.NoSuchElementException;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.5.1
  * @since 1.7.2
  */
-public interface Iterator {
+public interface Iterator<E> {
 
     boolean hasNext();
 
-    Object next() throws NoSuchElementException;
+    E next() throws NoSuchElementException;
 
     int nextInt() throws NoSuchElementException;
 
@@ -51,5 +51,5 @@ public interface Iterator {
 
     void remove() throws NoSuchElementException;
 
-    void setValue(Object value);
+    void setValue(E value);
 }

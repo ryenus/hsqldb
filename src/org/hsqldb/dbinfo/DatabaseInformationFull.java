@@ -757,6 +757,56 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             t.insertSys(session, store, row);
         }
 
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.SEQUENCE);
+
+        while (it.hasNext()) {
+            SchemaObject object = (SchemaObject) it.next();
+
+            if (!session.getGrantee().isAccessible(object)) {
+                continue;
+            }
+
+            if (object.getName().comment == null) {
+                continue;
+            }
+
+            row              = t.getEmptyRowData();
+            row[catalog]     = database.getCatalogName().name;
+            row[schema]      = object.getSchemaName().name;
+            row[name]        = object.getName().name;
+            row[type]        = "SEQUENCE";
+            row[column_name] = null;
+            row[remark]      = object.getName().comment;
+
+            t.insertSys(session, store, row);
+        }
+
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.SEQUENCE);
+
+        while (it.hasNext()) {
+            SchemaObject object = (SchemaObject) it.next();
+
+            if (!session.getGrantee().isAccessible(object)) {
+                continue;
+            }
+
+            if (object.getName().comment == null) {
+                continue;
+            }
+
+            row              = t.getEmptyRowData();
+            row[catalog]     = database.getCatalogName().name;
+            row[schema]      = object.getSchemaName().name;
+            row[name]        = object.getName().name;
+            row[type]        = "TRIGGER";
+            row[column_name] = null;
+            row[remark]      = object.getName().comment;
+
+            t.insertSys(session, store, row);
+        }
+
         return t;
     }
 

@@ -263,17 +263,17 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * Returns the catalog name or null, depending on a database property.
-     */
-    public HsqlName getCatalogName() {
-        return database.getCatalogName();
-    }
-
-    /**
      * Returns the schema name.
      */
     public HsqlName getSchemaName() {
         return tableName.schema;
+    }
+
+    /**
+     * Returns the catalog name
+     */
+    public HsqlName getCatalogName() {
+        return database.getCatalogName();
     }
 
     public Grantee getOwner() {
@@ -1344,7 +1344,7 @@ public class Table extends TableBase implements SchemaObject {
         tn.applicationPeriod = applicationPeriod;
         tn.isSystemVersioned = isSystemVersioned;
 
-        if (tableType == TEMP_TABLE) {
+        if (isTemp) {
             tn.persistenceScope = persistenceScope;
         }
 

@@ -626,12 +626,11 @@ public class ParserDDL extends ParserRoutine {
                 break;
             }
             case Tokens.TABLE : {
-                boolean isModule =
+                boolean isSession =
                     token.namePrePrefix == null
-                    && (Tokens.T_MODULE.equals(token.namePrefix)
-                        || Tokens.T_SESSION.equals(token.namePrefix));
+                    && Tokens.T_SESSION.equals(token.namePrefix);
 
-                if (isModule) {
+                if (isSession) {
                     name = readNewSchemaObjectName(objectType, false);
 
                     if (!ifExists && token.tokenType == Tokens.IF) {
@@ -959,7 +958,8 @@ public class ParserDDL extends ParserRoutine {
 
     StatementSession compileDeclareLocalTableOrNull() {
 
-        int position = getPosition();
+        int position  = getPosition();
+        int tableType = TableBase.TEMP_TABLE;
 
         try {
             readThis(Tokens.DECLARE);
@@ -977,7 +977,6 @@ public class ParserDDL extends ParserRoutine {
 
         if (token.namePrePrefix == null
                 && (token.namePrefix == null
-                    || Tokens.T_MODULE.equals(token.namePrefix)
                     || Tokens.T_SESSION.equals(token.namePrefix))) {
 
             // valid name
@@ -988,9 +987,9 @@ public class ParserDDL extends ParserRoutine {
         boolean  ifNot = readIfNotExists();
         HsqlName name  = readNewSchemaObjectName(SchemaObject.TABLE, false);
 
-        name.schema = SqlInvariants.MODULE_HSQLNAME;
+        name.schema = SqlInvariants.SYSTEM_SCHEMA_HSQLNAME;
 
-        Table table = new Table(database, name, TableBase.TEMP_TABLE);
+        Table           table = new Table(database, name, tableType);
         StatementSchema cs;
 
         if (token.tokenType == Tokens.AS) {
@@ -3328,54 +3327,24 @@ public class ParserDDL extends ParserRoutine {
 
         switch (token.tokenType) {
 
-            case Tokens.ROUTINE :
-            case Tokens.TABLE : {
-                type = token.tokenType == Tokens.ROUTINE ? SchemaObject.ROUTINE
-                                                         : SchemaObject.TABLE;
-
-                read();
-                checkIsSchemaObjectName();
-
-                name = database.nameManager.newHsqlName(token.tokenString,
-                        token.isDelimitedIdentifier, type);
-
-                if (token.namePrefix == null) {
-                    name.schema = session.getCurrentSchemaHsqlName();
-                } else {
-                    name.schema = database.nameManager.newHsqlName(
-                        token.namePrefix, token.isDelimitedPrefix,
-                        SchemaObject.SCHEMA);
-                }
-
-                read();
-
+            case Tokens.SEQUENCE :
+                type = SchemaObject.SEQUENCE;
                 break;
-            }
+
+            case Tokens.TRIGGER :
+                type = SchemaObject.TRIGGER;
+                break;
+
+            case Tokens.ROUTINE :
+                type = SchemaObject.ROUTINE;
+                break;
+
+            case Tokens.TABLE :
+                type = SchemaObject.TABLE;
+                break;
+
             case Tokens.COLUMN : {
-                read();
-                checkIsSchemaObjectName();
-
-                name = database.nameManager.newHsqlName(token.tokenString,
-                        token.isDelimitedIdentifier, SchemaObject.COLUMN);
-
-                if (token.namePrefix == null) {
-                    throw Error.error(ErrorCode.X_42501);
-                }
-
-                name.parent =
-                    database.nameManager.newHsqlName(token.namePrefix,
-                                                     token.isDelimitedPrefix,
-                                                     SchemaObject.TABLE);
-
-                if (token.namePrePrefix == null) {
-                    name.parent.schema = session.getCurrentSchemaHsqlName();
-                } else {
-                    name.parent.schema = database.nameManager.newHsqlName(
-                        token.namePrePrefix, token.isDelimitedPrePrefix,
-                        SchemaObject.TABLE);
-                }
-
-                read();
+                type = SchemaObject.COLUMN;
 
                 break;
             }
@@ -3383,6 +3352,39 @@ public class ParserDDL extends ParserRoutine {
                 throw unexpectedToken();
         }
 
+        read();
+        checkIsSchemaObjectName();
+
+        name = database.nameManager.newHsqlName(token.tokenString,
+                token.isDelimitedIdentifier, type);
+
+        if (type == SchemaObject.COLUMN) {
+            if (token.namePrefix == null) {
+                throw Error.error(ErrorCode.X_42501);
+            }
+
+            name.parent = database.nameManager.newHsqlName(token.namePrefix,
+                    token.isDelimitedPrefix, SchemaObject.TABLE);
+
+            if (token.namePrePrefix == null) {
+                name.parent.schema = session.getCurrentSchemaHsqlName();
+            } else {
+                name.parent.schema = database.nameManager.newHsqlName(
+                    token.namePrePrefix, token.isDelimitedPrePrefix,
+                    SchemaObject.SCHEMA);
+            }
+        } else {
+            if (token.namePrefix == null) {
+                name.schema = session.getCurrentSchemaHsqlName();
+            } else {
+                name.schema =
+                    database.nameManager.newHsqlName(token.namePrefix,
+                                                     token.isDelimitedPrefix,
+                                                     SchemaObject.SCHEMA);
+            }
+        }
+
+        read();
         readThis(Tokens.IS);
 
         String   comment   = readQuotedString();

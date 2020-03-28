@@ -43,7 +43,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
@@ -875,6 +874,22 @@ implements ActionListener, WindowListener, KeyListener {
 
                     gResult.addRow(g);
                 }
+            } else if (sStatement.getMoreResults()) {    // repeated for if a procedure returns a result set
+                ResultSet rs = sStatement.getResultSet();
+
+                try {
+                    formatResultSet(rs);
+                } catch (Throwable t) {
+                    g[0] = "Error displaying the ResultSet";
+
+                    gResult.setHead(g);
+
+                    String s = t.getMessage();
+
+                    g[0] = s;
+
+                    gResult.addRow(g);
+                }
             } else {
                 g[0] = "update count";
 
@@ -1099,12 +1114,12 @@ implements ActionListener, WindowListener, KeyListener {
 
     void showResultInText() {
 
-        String[] col   = gResult.getHead();
-        int      width = col.length;
-        int[]    size  = new int[width];
-        ArrayList<String[]> data = gResult.getData();
-        String[] row;
-        int      height = data.size();
+        String[]  col   = gResult.getHead();
+        int       width = col.length;
+        int[]     size  = new int[width];
+        ArrayList<String[]> data  = gResult.getData();
+        String[]  row;
+        int       height = data.size();
 
         for (int i = 0; i < width; i++) {
             size[i] = col[i].length();
@@ -1293,14 +1308,14 @@ implements ActionListener, WindowListener, KeyListener {
             }
 
             for (int i = 0; i < tables.size(); i++) {
-                String name   = (String) tables.get(i);
-                String schema = (String) schemas.get(i);
+                String name   = tables.get(i);
+                String schema = schemas.get(i);
                 String key    = "tab-" + name + "-";
 
                 tTree.addRow(key, name, "+", color_table);
 
                 // sqlbob@users Added remarks.
-                String remark = (String) remarks.get(i);
+                String remark = remarks.get(i);
 
                 if ((schema != null) && !schema.trim().equals("")) {
                     tTree.addRow(key + "s", "schema: " + schema);
@@ -1392,5 +1407,4 @@ implements ActionListener, WindowListener, KeyListener {
             DriverManager.setLogWriter(newPrintWriter);
         } catch (Exception e) {}
     }
-
 }

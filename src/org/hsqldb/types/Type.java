@@ -48,7 +48,7 @@ import org.hsqldb.rights.Grantee;
  * Base class for type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public abstract class Type implements SchemaObject, Cloneable {
@@ -93,15 +93,6 @@ public abstract class Type implements SchemaObject, Cloneable {
         return userTypeModifier.getName();
     }
 
-    public final HsqlName getCatalogName() {
-
-        if (userTypeModifier == null) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "Type");
-        }
-
-        return userTypeModifier.getSchemaName().schema;
-    }
-
     public final HsqlName getSchemaName() {
 
         if (userTypeModifier == null) {
@@ -109,6 +100,15 @@ public abstract class Type implements SchemaObject, Cloneable {
         }
 
         return userTypeModifier.getSchemaName();
+    }
+
+    public final HsqlName getCatalogName() {
+
+        if (userTypeModifier == null) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+        }
+
+        return userTypeModifier.getSchemaName().schema;
     }
 
     public final Grantee getOwner() {

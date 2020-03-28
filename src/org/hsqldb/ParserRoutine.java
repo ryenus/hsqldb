@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Parser for SQL stored procedures and functions - PSM
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ParserRoutine extends ParserTable {
@@ -399,7 +399,7 @@ public class ParserRoutine extends ParserTable {
                 read();
 
                 TableDerived table =
-                    new TableDerived(database, SqlInvariants.MODULE_HSQLNAME,
+                    new TableDerived(database, SqlInvariants.SYSTEM_SCHEMA_HSQLNAME,
                                      TableBase.FUNCTION_TABLE);
 
                 readTableDefinition(routine, table);
@@ -890,7 +890,7 @@ public class ParserRoutine extends ParserTable {
 
             HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE, false);
 
-            name.schema = SqlInvariants.MODULE_HSQLNAME;
+            name.schema = SqlInvariants.SYSTEM_SCHEMA_HSQLNAME;
 
             Table table = new Table(database, name, TableBase.TEMP_TABLE);
 

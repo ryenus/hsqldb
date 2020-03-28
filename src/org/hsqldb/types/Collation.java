@@ -54,7 +54,7 @@ import org.hsqldb.rights.Grantee;
  *
  * @author Frand Schoenheit (frank.schoenheit@sun dot com)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.8.0
  */
 public class Collation implements SchemaObject {
@@ -471,12 +471,12 @@ public class Collation implements SchemaObject {
         return isFinal;
     }
 
-    public HsqlName getName() {
-        return name;
-    }
-
     public int getType() {
         return SchemaObject.COLLATION;
+    }
+
+    public HsqlName getName() {
+        return name;
     }
 
     public HsqlName getSchemaName() {

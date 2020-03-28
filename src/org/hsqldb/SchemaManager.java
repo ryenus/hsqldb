@@ -43,7 +43,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.StringConverter;
+import org.hsqldb.lib.FilteredIterator;
 import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rights.Grantee;
@@ -67,6 +67,7 @@ public class SchemaManager {
     int               defaultTableType = TableBase.MEMORY_TABLE;
     long              schemaChangeTimestamp;
     HsqlName[]        catalogNameArray;
+    UserSchemaFilter  userSchemaFilter = new UserSchemaFilter();
 
     //
     ReadWriteLock lock      = new ReentrantReadWriteLock();
@@ -307,6 +308,11 @@ public class SchemaManager {
         } finally {
             readLock.unlock();
         }
+    }
+
+    public Iterator getUserSchemaIterator() {
+        return new FilteredIterator(schemaMap.values().iterator(),
+                                    userSchemaFilter);
     }
 
     public HsqlName getUserSchemaHsqlName(String name) {
@@ -715,6 +721,10 @@ public class SchemaManager {
 
             case SchemaObject.REFERENCE :
                 set = schema.referenceLookup;
+                break;
+
+            case SchemaObject.MODULE :
+                set = schema.moduleLookup;
                 break;
 
             default :
@@ -2412,21 +2422,52 @@ public class SchemaManager {
             OrderedHashSet resolved   = new OrderedHashSet();
             OrderedHashSet unresolved = new OrderedHashSet();
             HsqlArrayList  list       = new HsqlArrayList();
-            Iterator       schemas    = schemaMap.values().iterator();
+            Iterator       schemas    = getUserSchemaIterator();
 
             while (schemas.hasNext()) {
                 Schema schema = (Schema) schemas.next();
 
-                if (SqlInvariants.isLobsSchemaName(schema.getName().name)) {
-                    continue;
-                }
-
-                if (SqlInvariants.isSystemSchemaName(schema.getName().name)) {
-                    continue;
-                }
-
                 list.add(schema.getSQL());
-                list.addAll(schema.getSQLArray(resolved, unresolved));
+
+                for (int round = 0; round < Schema.scriptSequenceOne.length;
+                        round++) {
+                    int objectType = Schema.scriptSequenceOne[round];
+
+                    list.addAll(schema.getSQLArray(objectType, resolved,
+                                                   unresolved));
+                }
+
+                while (true) {
+                    Iterator it = unresolved.iterator();
+
+                    if (!it.hasNext()) {
+                        break;
+                    }
+
+                    OrderedHashSet newResolved = new OrderedHashSet();
+
+                    SchemaObjectSet.addAllSQL(resolved, unresolved, list, it,
+                                              newResolved);
+                    unresolved.removeAll(newResolved);
+
+                    if (newResolved.size() == 0) {
+                        break;
+                    }
+                }
+            }
+
+            // all NO SQL functions have been scripted, others are scripted at the end
+            for (int round = 0; round < Schema.scriptSequenceTwo.length;
+                    round++) {
+                schemas = getUserSchemaIterator();
+
+                while (schemas.hasNext()) {
+                    Schema schema     = (Schema) schemas.next();
+                    int    objectType = Schema.scriptSequenceTwo[round];
+
+                    list.addAll(schema.getSQLArray(objectType, resolved,
+                                                   unresolved));
+                }
             }
 
             while (true) {
@@ -2480,23 +2521,14 @@ public class SchemaManager {
                 }
             }
 
-            schemas = schemaMap.values().iterator();
+            schemas = getUserSchemaIterator();
 
             while (schemas.hasNext()) {
-                Schema schema = (Schema) schemas.next();
-
-                if (SqlInvariants.isLobsSchemaName(schema.getName().name)) {
-                    continue;
-                }
-
-                if (SqlInvariants.isSystemSchemaName(schema.getName().name)) {
-                    continue;
-                }
-
-                HsqlArrayList t = schema.getTriggerSQL();
+                Schema        schema = (Schema) schemas.next();
+                HsqlArrayList t      = schema.getTriggerSQL();
 
                 if (t.size() > 0) {
-                    list.add(Schema.getSetSchemaSQL(schema.getName()));
+                    list.add(schema.getSetSchemaSQL());
                     list.addAll(t);
                 }
             }
@@ -2632,89 +2664,6 @@ public class SchemaManager {
         }
     }
 
-    public String[] getCommentsSQL() {
-
-        readLock.lock();
-
-        try {
-            HsqlArrayList tableList = getAllTables(false);
-            HsqlArrayList list      = new HsqlArrayList();
-            StringBuilder sb        = new StringBuilder();
-
-            for (int i = 0; i < tableList.size(); i++) {
-                Table table = (Table) tableList.get(i);
-
-                if (table.getTableType() == Table.INFO_SCHEMA_TABLE) {
-                    continue;
-                }
-
-                int colCount = table.getColumnCount();
-
-                for (int j = 0; j < colCount; j++) {
-                    ColumnSchema column = table.getColumn(j);
-
-                    if (column.getName().comment == null) {
-                        continue;
-                    }
-
-                    sb.setLength(0);
-                    sb.append(Tokens.T_COMMENT).append(' ').append(
-                        Tokens.T_ON);
-                    sb.append(' ').append(Tokens.T_COLUMN).append(' ');
-                    sb.append(
-                        table.getName().getSchemaQualifiedStatementName());
-                    sb.append('.').append(column.getName().statementName);
-                    sb.append(' ').append(Tokens.T_IS).append(' ');
-                    sb.append(
-                        StringConverter.toQuotedString(
-                            column.getName().comment, '\'', true));
-                    list.add(sb.toString());
-                }
-
-                if (table.getName().comment == null) {
-                    continue;
-                }
-
-                sb.setLength(0);
-                sb.append(Tokens.T_COMMENT).append(' ').append(Tokens.T_ON);
-                sb.append(' ').append(Tokens.T_TABLE).append(' ');
-                sb.append(table.getName().getSchemaQualifiedStatementName());
-                sb.append(' ').append(Tokens.T_IS).append(' ');
-                sb.append(
-                    StringConverter.toQuotedString(
-                        table.getName().comment, '\'', true));
-                list.add(sb.toString());
-            }
-
-            Iterator it = databaseObjectIterator(SchemaObject.ROUTINE);
-
-            while (it.hasNext()) {
-                SchemaObject object = (SchemaObject) it.next();
-
-                if (object.getName().comment == null) {
-                    continue;
-                }
-
-                sb.setLength(0);
-                sb.append(Tokens.T_COMMENT).append(' ').append(Tokens.T_ON);
-                sb.append(' ').append(Tokens.T_ROUTINE).append(' ');
-                sb.append(object.getName().getSchemaQualifiedStatementName());
-                sb.append(' ').append(Tokens.T_IS).append(' ');
-                sb.append(
-                    StringConverter.toQuotedString(
-                        object.getName().comment, '\'', true));
-                list.add(sb.toString());
-            }
-
-            String[] array = new String[list.size()];
-
-            list.toArray(array);
-
-            return array;
-        } finally {
-            readLock.unlock();
-        }
-    }
 
     long[][] tempIndexRoots;
 
@@ -2827,5 +2776,21 @@ public class SchemaManager {
                                            new int[]{ 0 });
 
         dataChangeTable.createIndexForColumns(null, new int[]{ 1 });
+    }
+
+    static class UserSchemaFilter implements FilteredIterator.Filter {
+
+        public boolean test(Object schemaObject) {
+
+            Schema schema = (Schema) schemaObject;
+            String name   = schema.getName().name;
+
+            if (SqlInvariants.isLobsSchemaName(name)
+                    || SqlInvariants.isSystemSchemaName(name)) {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

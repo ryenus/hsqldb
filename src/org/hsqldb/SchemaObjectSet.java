@@ -71,6 +71,8 @@ public class SchemaObjectSet {
             case SchemaObject.ASSERTION :
             case SchemaObject.TRIGGER :
             case SchemaObject.REFERENCE :
+            case SchemaObject.EXCEPTION :
+            case SchemaObject.MODULE :
                 map = new HashMappedList();
                 break;
 
@@ -101,6 +103,8 @@ public class SchemaObjectSet {
             case SchemaObject.ASSERTION :
             case SchemaObject.TRIGGER :
             case SchemaObject.REFERENCE :
+            case SchemaObject.EXCEPTION :
+            case SchemaObject.MODULE :
                 SchemaObject object = ((SchemaObject) map.get(name));
 
                 return object == null ? null
@@ -132,6 +136,8 @@ public class SchemaObjectSet {
             case SchemaObject.ASSERTION :
             case SchemaObject.TRIGGER :
             case SchemaObject.REFERENCE :
+            case SchemaObject.EXCEPTION :
+            case SchemaObject.MODULE :
                 return (SchemaObject) map.get(name);
 
             default :
@@ -242,7 +248,9 @@ public class SchemaObjectSet {
             case SchemaObject.ASSERTION :
             case SchemaObject.TRIGGER :
             case SchemaObject.ROUTINE :
-            case SchemaObject.REFERENCE : {
+            case SchemaObject.REFERENCE :
+            case SchemaObject.EXCEPTION :
+            case SchemaObject.MODULE : {
                 int i = ((HashMappedList) map).getIndex(name.name);
 
                 if (i == -1) {
@@ -306,6 +314,8 @@ public class SchemaObjectSet {
             case SchemaObject.ASSERTION :
             case SchemaObject.TRIGGER :
             case SchemaObject.REFERENCE :
+            case SchemaObject.EXCEPTION :
+            case SchemaObject.MODULE :
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :
                 code = ErrorCode.X_42504;
@@ -337,6 +347,8 @@ public class SchemaObjectSet {
             case SchemaObject.ASSERTION :
             case SchemaObject.TRIGGER :
             case SchemaObject.REFERENCE :
+            case SchemaObject.EXCEPTION :
+            case SchemaObject.MODULE :
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :
                 code = ErrorCode.X_42501;
@@ -388,6 +400,12 @@ public class SchemaObjectSet {
 
             case SchemaObject.TRIGGER :
                 return Tokens.T_TRIGGER;
+
+            case SchemaObject.EXCEPTION :
+                return Tokens.T_EXCEPTION;
+
+            case SchemaObject.MODULE :
+                return Tokens.T_MODULE;
 
             case SchemaObject.REFERENCE :
                 return Tokens.T_SYNONYM;
@@ -553,26 +571,80 @@ public class SchemaObjectSet {
                 newResolved.add(object);
             }
 
-            if (object.getType() == SchemaObject.TABLE) {
-                list.addAll(((Table) object).getSQL(resolved, unresolved));
-            } else {
-                switch (object.getType()) {
+            switch (object.getType()) {
 
-                    case SchemaObject.FUNCTION :
-                    case SchemaObject.PROCEDURE :
-                        Routine routine = ((Routine) object);
+                case SchemaObject.TABLE : {
+                    list.addAll(((Table) object).getSQL(resolved, unresolved));
 
-                        if (routine.isRecursive) {
-                            list.add(((Routine) object).getSQLDeclaration());
-                            list.add(((Routine) object).getSQLAlter());
-                        } else {
-                            list.add(object.getSQL());
+                    String comment =
+                        object.getName().getCommentSQL(Tokens.T_TABLE);
+
+                    if (comment != null) {
+                        list.add(comment);
+                    }
+
+                    for (int j = 0; j < ((Table) object).getColumnCount();
+                            j++) {
+                        ColumnSchema column = ((Table) object).getColumn(j);
+
+                        comment =
+                            column.getName().getCommentSQL(Tokens.T_COLUMN);
+
+                        if (comment != null) {
+                            list.add(comment);
                         }
-                        break;
+                    }
 
-                    default :
-                        list.add(object.getSQL());
+                    break;
                 }
+                case SchemaObject.FUNCTION :
+                case SchemaObject.PROCEDURE : {
+                    Routine routine = ((Routine) object);
+
+                    if (routine.isRecursive) {
+                        list.add(((Routine) object).getSQLDeclaration());
+                        list.add(((Routine) object).getSQLAlter());
+                    } else {
+                        list.add(object.getSQL());
+                    }
+
+                    String comment =
+                        object.getName().getCommentSQL(Tokens.T_ROUTINE);
+
+                    if (comment != null) {
+                        list.add(comment);
+                    }
+
+                    break;
+                }
+                case SchemaObject.TRIGGER : {
+                    TriggerDef trigger = ((TriggerDef) object);
+
+                    list.add(object.getSQL());
+
+                    String comment =
+                        object.getName().getCommentSQL(Tokens.T_TRIGGER);
+
+                    if (comment != null) {
+                        list.add(comment);
+                    }
+
+                    break;
+                }
+                case SchemaObject.SEQUENCE : {
+                    list.add(object.getSQL());
+
+                    String comment =
+                        object.getName().getCommentSQL(Tokens.T_SEQUENCE);
+
+                    if (comment != null) {
+                        list.add(comment);
+                    }
+
+                    break;
+                }
+                default :
+                    list.add(object.getSQL());
             }
         }
     }
