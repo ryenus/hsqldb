@@ -1584,6 +1584,22 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
                     gResult.addRow(g);
                 }
+            } else if (sStatement.getMoreResults()) {    // repeated for if a procedure returns a result set
+                ResultSet rs = sStatement.getResultSet();
+
+                try {
+                    formatResultSet(rs);
+                } catch (Throwable t) {
+                    g[0] = "Error displaying the ResultSet";
+
+                    gResult.setHead(g);
+
+                    String s = t.getMessage();
+
+                    g[0] = s;
+
+                    gResult.addRow(g);
+                }
             } else {
                 g[0] = "update count";
 

@@ -61,7 +61,7 @@ import org.hsqldb.types.Collation;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class Database {
@@ -774,11 +774,7 @@ public class Database {
 
         r.addRows(list);
 
-        // optional comments on tables etc.
-        list = schemaManager.getCommentsSQL();
-
-        r.addRows(list);
-
+        // table spaces
         list = schemaManager.getTableSpaceSQL();
 
         r.addRows(list);

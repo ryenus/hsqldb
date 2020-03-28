@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.3.3
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class RoutineSchema implements SchemaObject {
@@ -67,16 +67,16 @@ public class RoutineSchema implements SchemaObject {
         return routineType;
     }
 
-    public HsqlName getCatalogName() {
-        return name.schema.schema;
+    public HsqlName getName() {
+        return name;
     }
 
     public HsqlName getSchemaName() {
         return name.schema;
     }
 
-    public HsqlName getName() {
-        return name;
+    public HsqlName getCatalogName() {
+        return name.schema.schema;
     }
 
     public Grantee getOwner() {

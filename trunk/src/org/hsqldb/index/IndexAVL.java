@@ -112,7 +112,7 @@ import org.hsqldb.types.Type;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since Hypersonic SQL
  */
 public class IndexAVL implements Index {
@@ -205,12 +205,12 @@ public class IndexAVL implements Index {
         return name;
     }
 
-    public HsqlName getCatalogName() {
-        return name.schema.schema;
-    }
-
     public HsqlName getSchemaName() {
         return name.schema;
+    }
+
+    public HsqlName getCatalogName() {
+        return name.schema.schema;
     }
 
     public Grantee getOwner() {

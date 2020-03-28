@@ -59,7 +59,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.4.1
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class Routine implements SchemaObject, RangeGroup, Cloneable {
@@ -694,7 +694,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             HsqlName[] names = statement.getTableNamesForWrite();
 
             for (int i = 0; i < names.length; i++) {
-                if (names[i].schema != SqlInvariants.MODULE_HSQLNAME) {
+                if (names[i].schema != SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                     throw Error.error(ErrorCode.X_42608,
                                       Tokens.T_MODIFIES + ' ' + Tokens.T_SQL
                                       + ' ' + Tokens.T_DATA);
@@ -706,7 +706,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             HsqlName[] names = statement.getTableNamesForRead();
 
             for (int i = 0; i < names.length; i++) {
-                if (names[i].schema != SqlInvariants.MODULE_HSQLNAME) {
+                if (names[i].schema != SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                     throw Error.error(ErrorCode.X_42608,
                                       Tokens.T_READS + ' ' + Tokens.T_SQL
                                       + ' ' + Tokens.T_DATA);

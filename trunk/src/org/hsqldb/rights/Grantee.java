@@ -31,7 +31,6 @@
 
 package org.hsqldb.rights;
 
-import org.hsqldb.Expression;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Routine;

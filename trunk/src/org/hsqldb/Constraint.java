@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * by the constraint.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.6.0
  */
 public final class Constraint implements SchemaObject {
@@ -271,12 +271,12 @@ public final class Constraint implements SchemaObject {
         return name;
     }
 
-    public HsqlName getCatalogName() {
-        return name.schema.schema;
-    }
-
     public HsqlName getSchemaName() {
         return name.schema;
+    }
+
+    public HsqlName getCatalogName() {
+        return name.schema.schema;
     }
 
     public Grantee getOwner() {

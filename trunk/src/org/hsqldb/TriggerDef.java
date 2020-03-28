@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ import org.hsqldb.trigger.Trigger;
  *  Realisations Ltd
  *
  * @author Peter Hudson (peterhudson@users dot sourceforge.net)
- * @version  2.0.1
+ * @version  2.5.1
  * @since hsqldb 1.61
  */
 public class TriggerDef implements Runnable, SchemaObject {
@@ -214,12 +214,12 @@ public class TriggerDef implements Runnable, SchemaObject {
         return name;
     }
 
-    public HsqlName getCatalogName() {
-        return name.schema.schema;
-    }
-
     public HsqlName getSchemaName() {
         return name.schema;
+    }
+
+    public HsqlName getCatalogName() {
+        return name.schema.schema;
     }
 
     public Grantee getOwner() {

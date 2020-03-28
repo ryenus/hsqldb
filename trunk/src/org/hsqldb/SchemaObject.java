@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import org.hsqldb.rights.Grantee;
  * SQL schema object interface
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public interface SchemaObject {
@@ -75,6 +75,8 @@ public interface SchemaObject {
     int SEARCH           = 28;
     int REFERENCE        = 29;
     int PERIOD           = 30;
+    int MODULE           = 31;
+    int EXCEPTION        = 32;
 
     //
     SchemaObject[] emptyArray = new SchemaObject[]{};

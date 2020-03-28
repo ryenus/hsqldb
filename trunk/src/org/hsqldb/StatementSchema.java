@@ -52,7 +52,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for DDL statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class StatementSchema extends Statement {
@@ -1555,32 +1555,21 @@ public class StatementSchema extends Statement {
 
                         break;
                     }
-                    case SchemaObject.ROUTINE : {
-                        RoutineSchema routine =
-                            (RoutineSchema) schemaManager.getSchemaObject(
-                                name.name, name.schema.name,
-                                SchemaObject.ROUTINE);
-
-                        if (!session.getGrantee().isFullyAccessibleByRole(
-                                routine.getName())) {
-                            throw Error.error(ErrorCode.X_42501);
-                        }
-
-                        routine.getName().comment = comment;
-
-                        break;
-                    }
+                    case SchemaObject.TRIGGER :
+                    case SchemaObject.SEQUENCE :
+                    case SchemaObject.ROUTINE :
                     case SchemaObject.TABLE : {
-                        Table table =
-                            (Table) schemaManager.getSchemaObject(name.name,
-                                name.schema.name, SchemaObject.TABLE);
+                        SchemaObject object =
+                            schemaManager.getSchemaObject(name.name,
+                                                          name.schema.name,
+                                                          name.type);
 
                         if (!session.getGrantee().isFullyAccessibleByRole(
-                                table.getName())) {
+                                object.getName())) {
                             throw Error.error(ErrorCode.X_42501);
                         }
 
-                        table.getName().comment = comment;
+                        object.getName().comment = comment;
 
                         break;
                     }
