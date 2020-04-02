@@ -204,7 +204,8 @@ public class ParserRoutine extends ParserTable {
         HsqlArrayList  exprList     = new HsqlArrayList();
         LongDeque      colIndexList = new LongDeque();
 
-        readSetClauseList(rangeVars, targetSet, colIndexList, exprList);
+        readSetClauseList(rangeGroups, rangeVars, targetSet, colIndexList,
+                          exprList);
 
         if (exprList.size() > 1) {
             throw Error.parseError(ErrorCode.X_42602, null,
@@ -269,7 +270,8 @@ public class ParserRoutine extends ParserTable {
             rangeGroups[0].getRangeVariables()[TriggerDef.NEW_ROW] };
         LongDeque colIndexList = new LongDeque();
 
-        readSetClauseList(targetRangeVars, targetSet, colIndexList, exprList);
+        readSetClauseList(rangeGroups, targetRangeVars, targetSet,
+                          colIndexList, exprList);
 
         columnMap = new int[colIndexList.size()];
 
@@ -399,7 +401,8 @@ public class ParserRoutine extends ParserTable {
                 read();
 
                 TableDerived table =
-                    new TableDerived(database, SqlInvariants.SYSTEM_SCHEMA_HSQLNAME,
+                    new TableDerived(database,
+                                     SqlInvariants.SYSTEM_SCHEMA_HSQLNAME,
                                      TableBase.FUNCTION_TABLE);
 
                 readTableDefinition(routine, table);

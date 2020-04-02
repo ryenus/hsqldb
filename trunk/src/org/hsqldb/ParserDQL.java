@@ -2046,7 +2046,8 @@ public class ParserDQL extends ParserBase {
         if (table.isSystemVersioned()) {
             ExpressionPeriodOp sysPeriodSpec = new ExpressionPeriodOp();
 
-            sysPeriodSpec.setSystemRangeVariable(session, range);
+            sysPeriodSpec.setSystemRangeVariable(RangeGroup.emptyArray,
+                                                 session, range);
             range.setSystemPeriodCondition(sysPeriodSpec);
         }
 
@@ -2212,7 +2213,9 @@ public class ParserDQL extends ParserBase {
                                       columnNameList, compileContext);
 
             if (sysPeriodSpec != null) {
-                sysPeriodSpec.setSystemRangeVariable(session, range);
+                RangeGroup[] ranges = compileContext.getOuterRanges();
+
+                sysPeriodSpec.setSystemRangeVariable(ranges, session, range);
                 range.setSystemPeriodCondition(sysPeriodSpec);
             }
         }

@@ -1077,6 +1077,12 @@ public class Result {
             result.mainString = result.exception.getMessage();
             result.subString  = result.exception.getSQLState();
             result.errorCode  = result.exception.getErrorCode();
+        } else if (t instanceof IOException) {
+            result.exception = Error.error(ErrorCode.GENERAL_IO_ERROR);
+            result.mainString = result.exception.getMessage() + ' '
+                                + t.getMessage();
+            result.subString = result.exception.getSQLState();
+            result.errorCode = result.exception.getErrorCode();
         } else {
             result.exception  = Error.error(ErrorCode.GENERAL_ERROR);
             result.mainString = result.exception.getMessage();
