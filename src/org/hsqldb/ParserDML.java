@@ -547,7 +547,7 @@ public class ParserDML extends ParserDQL {
                 } else {
                     readThis(Tokens.CURRENT_TIMESTAMP);
 
-                    timestamp = session.getTransactionSystemTimestamp();
+                    timestamp = session.getTransactionUTC();
                 }
 
                 break;

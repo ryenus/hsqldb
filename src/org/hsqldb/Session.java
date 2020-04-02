@@ -458,7 +458,7 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_40502);
         }
 
-        getTransactionSystemTimestamp();
+        getTransactionUTC();
         database.txManager.addDeleteAction(this, table, store, row,
                                            changedColumns);
     }
@@ -466,7 +466,7 @@ public class Session implements SessionInterface {
     void addInsertAction(Table table, PersistentStore store, Row row,
                          int[] changedColumns) {
 
-        getTransactionSystemTimestamp();
+        getTransactionUTC();
 
 //        tempActionHistory.add("add insert to transaction " + actionTimestamp);
         database.txManager.addInsertAction(this, table, store, row,
@@ -637,9 +637,9 @@ public class Session implements SessionInterface {
 
     private void endTransaction(boolean commit, boolean chain) {
 
-        abortAction        = false;
-        abortTransaction   = false;
-        systemTimestampSet = false;
+        abortAction       = false;
+        abortTransaction  = false;
+        transactionUTCSet = false;
 
         sessionContext.resetStack();
         sessionContext.savepoints.clear();
@@ -1649,17 +1649,15 @@ public class Session implements SessionInterface {
     }
 
 // session DATETIME functions
-    long                  currentDateSCN;
     long                  currentTimestampSCN;
     long                  currentMillis;
     private TimestampData currentDate;
     private TimestampData currentTimestamp;
     private TimestampData localTimestamp;
-    private TimestampData transactionSystemTimestamp =
-        getSystemTimestamp(false);
-    boolean          systemTimestampSet = false;
-    private TimeData currentTime;
-    private TimeData localTime;
+    private TimestampData transactionUTC;
+    boolean               transactionUTCSet;
+    private TimeData      currentTime;
+    private TimeData      localTime;
 
     /**
      * Returns the current date, unchanged for the duration of the current
@@ -1752,32 +1750,35 @@ public class Session implements SessionInterface {
         }
     }
 
-    synchronized TimestampData getSystemTimestamp(boolean withZone) {
+    static TimestampData getSystemTimestamp(boolean withZone, boolean utc) {
 
         long millis  = System.currentTimeMillis();
         long seconds = millis / 1000;
         int  nanos   = (int) (millis % 1000) * 1000000;
         int  offset  = 0;
 
-        if (!withZone) {
+        if (!utc) {
             TimeZone zone = TimeZone.getDefault();
 
-            offset  = zone.getOffset(millis) / 1000;
-            seconds += offset;
-            offset  = 0;
+            offset = zone.getOffset(millis) / 1000;
+
+            if (!withZone) {
+                seconds += offset;
+                offset  = 0;
+            }
         }
 
         return new TimestampData(seconds, nanos, offset);
     }
 
-    TimestampData getTransactionSystemTimestamp() {
+    TimestampData getTransactionUTC() {
 
-        if (!systemTimestampSet) {
-            transactionSystemTimestamp = getSystemTimestamp(false);
-            systemTimestampSet         = true;
+        if (!transactionUTCSet) {
+            transactionUTC    = getSystemTimestamp(true, true);
+            transactionUTCSet = true;
         }
 
-        return transactionSystemTimestamp;
+        return transactionUTC;
     }
 
     private void resetCurrentTimestamp() {

@@ -2899,7 +2899,7 @@ public class Table extends TableBase implements SchemaObject {
     Row insertSystemVersionHistoryRow(Session session, PersistentStore store,
                                       Object[] data) {
 
-        TimestampData txTimestamp = session.getTransactionSystemTimestamp();
+        TimestampData txTimestamp = session.getTransactionUTC();
 
         if (txTimestamp.equals(data[systemPeriodStartColumn])) {
             return null;
@@ -3116,7 +3116,7 @@ public class Table extends TableBase implements SchemaObject {
             switch (column.getSystemPeriodType()) {
 
                 case SchemaObject.PeriodSystemColumnType.PERIOD_ROW_START :
-                    value = session.getTransactionSystemTimestamp();
+                    value = session.getTransactionUTC();
                     break;
 
                 case SchemaObject.PeriodSystemColumnType.PERIOD_ROW_END :
@@ -3149,9 +3149,8 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         if (systemPeriod != null) {
-            data[systemPeriodStartColumn] =
-                session.getTransactionSystemTimestamp();
-            data[systemPeriodEndColumn] = DateTimeType.epochLimitTimestamp;
+            data[systemPeriodStartColumn] = session.getTransactionUTC();
+            data[systemPeriodEndColumn]   = DateTimeType.epochLimitTimestamp;
         }
     }
 

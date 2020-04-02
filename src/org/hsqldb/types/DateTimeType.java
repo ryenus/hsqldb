@@ -2030,6 +2030,10 @@ public final class DateTimeType extends DTIType {
             return null;
         }
 
+        if (!ta[0].isDateTimeType() || !tb[0].isDateTimeType()) {
+            throw Error.error(ErrorCode.X_42562);
+        }
+
         Type commonType = SQL_TIMESTAMP_WITH_TIME_ZONE;
 
         a[0] = commonType.castToType(session, a[0], ta[0]);

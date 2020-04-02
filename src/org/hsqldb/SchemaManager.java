@@ -2664,7 +2664,6 @@ public class SchemaManager {
         }
     }
 
-
     long[][] tempIndexRoots;
 
     public void setTempIndexRoots(long[][] roots) {

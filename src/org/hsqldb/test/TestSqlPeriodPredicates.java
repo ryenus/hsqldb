@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -364,8 +364,7 @@ public class TestSqlPeriodPredicates extends TestBase {
                     predicate));
             } catch (SQLDataException e) {
                 // This is Ok. The test pass.
-                assertEquals("data exception: invalid period value",
-                             e.getMessage());
+                assertEquals("22020", e.getSQLState());
             } catch (SQLException e) {
                 e.printStackTrace();
                 fail(e.getMessage());
@@ -380,8 +379,7 @@ public class TestSqlPeriodPredicates extends TestBase {
                     predicate));
             } catch (SQLDataException e) {
                 // This is Ok. The test pass.
-                assertEquals("data exception: invalid period value",
-                             e.getMessage());
+                assertEquals("22020", e.getSQLState());
             } catch (SQLException e) {
                 e.printStackTrace();
                 fail(e.getMessage());
