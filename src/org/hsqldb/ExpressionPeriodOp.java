@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import org.hsqldb.types.Type;
  * Represents a PERIOD condition.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 2.5.0
  */
 public class ExpressionPeriodOp extends ExpressionLogical {
@@ -131,7 +131,8 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         return isSystemVersionCondition;
     }
 
-    void setSystemRangeVariable(Session session, RangeVariable range) {
+    void setSystemRangeVariable(RangeGroup[] rangeGroups, Session session,
+                                RangeVariable range) {
 
         ExpressionPeriod period = (ExpressionPeriod) nodes[LEFT];
 
@@ -139,7 +140,7 @@ public class ExpressionPeriodOp extends ExpressionLogical {
 
         Expression right = nodes[RIGHT];
         HsqlList unresolved = right.resolveColumnReferences(session,
-            RangeGroup.emptyGroup, RangeGroup.emptyArray, null);
+            RangeGroup.emptyGroup, rangeGroups, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         right.resolveTypes(session, null);

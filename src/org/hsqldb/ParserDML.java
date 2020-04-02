@@ -48,7 +48,7 @@ import org.hsqldb.types.Type;
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -710,7 +710,8 @@ public class ParserDML extends ParserDQL {
                                                     : table.getBaseTable();
 
         readThis(Tokens.SET);
-        readSetClauseList(rangeVariables, targetSet, colIndexList, exprList);
+        readSetClauseList(rangeGroups, rangeVariables, targetSet,
+                          colIndexList, exprList);
 
         columnMap = new int[colIndexList.size()];
 
@@ -938,7 +939,8 @@ public class ParserDML extends ParserDQL {
         }
     }
 
-    void readSetClauseList(RangeVariable[] rangeVars, OrderedHashSet targets,
+    void readSetClauseList(RangeGroup[] rangeGroups,
+                           RangeVariable[] rangeVars, OrderedHashSet targets,
                            LongDeque colIndexList, HsqlArrayList expressions) {
 
         while (true) {
@@ -974,6 +976,7 @@ public class ParserDML extends ParserDQL {
 
             if (token.tokenType == Tokens.SELECT) {
                 rewind(position);
+                compileContext.setOuterRanges(rangeGroups);
 
                 TableDerived td = XreadSubqueryTableBody(OpTypes.ROW_SUBQUERY);
                 QueryExpression qe = td.getQueryExpression();
@@ -1352,8 +1355,9 @@ public class ParserDML extends ParserDQL {
                 conditions[1] = condition;
 
                 readThis(Tokens.SET);
-                readSetClauseList(targetRangeVars, updateTargetSet,
-                                  updateColIndexList, updateExpressions);
+                readSetClauseList(rangeGroups, targetRangeVars,
+                                  updateTargetSet, updateColIndexList,
+                                  updateExpressions);
             } else {
                 if (conditions[2] != null) {
                     throw Error.error(ErrorCode.X_42547);
