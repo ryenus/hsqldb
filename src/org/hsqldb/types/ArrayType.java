@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.lib.ArraySort;
  * Class for ARRAY type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.1
  * @since 2.0.0
  */
 public class ArrayType extends Type {
@@ -347,22 +347,16 @@ public class ArrayType extends Type {
 
     public int canMoveFrom(Type otherType) {
 
-        if (otherType == this) {
-            return 0;
-        }
-
         if (!otherType.isArrayType()) {
             return -1;
         }
 
         if (maxCardinality >= ((ArrayType) otherType).maxCardinality) {
             return dataType.canMoveFrom(otherType);
-        } else {
-            if (dataType.canMoveFrom(otherType) == -1) {
-                return -1;
-            }
-
+        } else if (dataType.canMoveFrom(otherType) == 0) {
             return 1;
+        } else {
+            return -1;
         }
     }
 

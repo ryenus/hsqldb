@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ import org.hsqldb.lib.StringConverter;
  *
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class BinaryType extends Type {
@@ -531,17 +531,15 @@ public class BinaryType extends Type {
     }
 
     public boolean canConvertFrom(Type otherType) {
+
         return otherType.typeCode == Types.SQL_ALL_TYPES
-               || otherType.isBinaryType() || otherType.isCharacterType();
+               || otherType.isBinaryType() || otherType.isBitType()
+               || otherType.isCharacterType();
     }
 
     public int canMoveFrom(Type otherType) {
 
-        if (otherType == this) {
-            return 0;
-        }
-
-        if (!otherType.isBinaryType()) {
+        if (otherType.isBitType() || otherType.isCharacterType()) {
             return -1;
         }
 
@@ -563,34 +561,33 @@ public class BinaryType extends Type {
                                                             : -1;
                 }
 
-                return -1;
+                break;
             }
-            case Types.SQL_BLOB : {
-                if (otherType.typeCode == typeCode) {
-                    return precision >= otherType.precision ? 0
-                                                            : 1;
-                }
-
-                return -1;
-            }
-            case Types.SQL_BIT :
             case Types.SQL_BINARY : {
-                if (otherType.typeCode == typeCode
-                        || otherType.typeCode == Types.SQL_GUID) {
+                if (otherType.typeCode == typeCode) {
                     return precision == otherType.precision ? 0
                                                             : -1;
                 }
 
-                return -1;
+                if (otherType.typeCode == Types.SQL_GUID) {
+                    return precision == otherType.precision ? 0
+                                                            : -1;
+                }
+
+                break;
             }
-            case Types.SQL_BIT_VARYING : {
-                return otherType.typeCode == typeCode
-                       && precision >= otherType.precision ? 0
-                                                           : -1;
+            case Types.SQL_BLOB : {
+                if (otherType.typeCode == typeCode) {
+                    return precision >= otherType.precision ? 0
+                                                            : -1;
+                }
+
+                break;
             }
             default :
-                return -1;
         }
+
+        return -1;
     }
 
     public long position(SessionInterface session, BlobData data,

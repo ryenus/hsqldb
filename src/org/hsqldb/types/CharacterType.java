@@ -744,10 +744,6 @@ public class CharacterType extends Type {
             return 0;
         }
 
-        if (!otherType.isCharacterType()) {
-            return -1;
-        }
-
         switch (typeCode) {
 
             case Types.SQL_VARCHAR : {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.lib.StringConverter;
  * Cast to CHARACTER types converts to a hexadecimal UUID string.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.5.1
  * @since 2.3.4
  */
 public class BinaryUUIDType extends BinaryType {
@@ -245,7 +245,7 @@ public class BinaryUUIDType extends BinaryType {
             return null;
         }
 
-        return  getJavaUUID((BinaryData) a);
+        return getJavaUUID((BinaryData) a);
     }
 
     Object castOrConvertToType(SessionInterface session, Object a,
@@ -350,25 +350,17 @@ public class BinaryUUIDType extends BinaryType {
             return 0;
         }
 
-        if (!otherType.isBinaryType()) {
-            return -1;
-        }
-
         switch (otherType.typeCode) {
 
-            case Types.SQL_VARBINARY : {
-                return 1;
-            }
-            case Types.SQL_BIT :
-            case Types.SQL_BIT_VARYING :
-            case Types.SQL_BLOB : {
-                return -1;
-            }
             case Types.SQL_GUID :
-            case Types.SQL_BINARY : {
-                return precision == otherType.precision ? 0
-                                                        : -1;
-            }
+                return 0;
+
+            case Types.SQL_VARBINARY :
+            case Types.SQL_BINARY :
+            case Types.SQL_CHAR :
+            case Types.SQL_VARCHAR :
+                return -1;
+
             default :
                 return -1;
         }
