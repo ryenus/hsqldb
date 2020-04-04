@@ -1296,13 +1296,17 @@ public final class NumberType extends Type {
                 break;
 
             case Types.SQL_SMALLINT :
-                if (otherType.typeCode == Types.TINYINT) {
+                if (otherType.typeCode == typeCode
+                        || otherType.typeCode == Types.TINYINT) {
                     return 0;
                 }
                 break;
 
             case Types.SQL_INTEGER :
             case Types.SQL_BIGINT :
+                if (otherType.typeCode == typeCode) {
+                    return 0;
+                }
                 break;
 
             case Types.SQL_DECIMAL :

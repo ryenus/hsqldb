@@ -66,7 +66,7 @@ public class TableWorks {
         this.table    = table;
         this.session  = session;
 
-        if(table.isView()) {
+        if (table.isView()) {
             throw Error.error(ErrorCode.X_42524);
         }
     }
@@ -1153,7 +1153,7 @@ public class TableWorks {
 
         int colIndex = table.getColumnIndex(oldCol.getName().name);
 
-        // 0 if only metadata change is required ; 1 if only check is required ; -1 if data conversion is required
+        // 0 if only metadata change is required ; 1 only range check is required ; -1 data conversion is required
         int checkData = newType.canMoveFrom(oldType);
 
         if (newCol.isIdentity() && table.hasIdentityColumn()
@@ -1528,9 +1528,7 @@ public class TableWorks {
 
     void moveData(Table oldTable, Table newTable, int[] colIndex, int adjust) {
 
-        int tableType = oldTable.getTableType();
-
-        if (tableType == Table.TEMP_TABLE) {
+        if (oldTable.isTemp) {
             Session[] sessions = database.sessionManager.getAllSessions();
 
             for (int i = 0; i < sessions.length; i++) {
