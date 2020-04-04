@@ -1290,8 +1290,7 @@ public final class NumberType extends Type {
         switch (typeCode) {
 
             case Types.TINYINT :
-                if (otherType.typeCode == Types.SQL_SMALLINT
-                        || otherType.typeCode == Types.SQL_INTEGER) {
+                if (otherType.typeCode == Types.SQL_SMALLINT) {
                     return 1;
                 }
                 break;
@@ -1300,19 +1299,9 @@ public final class NumberType extends Type {
                 if (otherType.typeCode == Types.TINYINT) {
                     return 0;
                 }
-
-                if (otherType.typeCode == Types.SQL_INTEGER) {
-                    return 1;
-                }
                 break;
 
             case Types.SQL_INTEGER :
-                if (otherType.typeCode == Types.SQL_SMALLINT
-                        || otherType.typeCode == Types.TINYINT) {
-                    return 0;
-                }
-                break;
-
             case Types.SQL_BIGINT :
                 break;
 
