@@ -380,6 +380,7 @@ public class ParserCommand extends ParserDDL {
         String        name      = null;
         int           scope     = 0;
         int           type      = 0;
+        Boolean       colNames  = Boolean.FALSE;
         HsqlName      tableName = null;
         TimestampData timestamp = null;
 
@@ -427,6 +428,13 @@ public class ParserCommand extends ParserDDL {
                         type = Tokens.ALL;
                 }
 
+                if (readIfThis(Tokens.WITH)) {
+                    readThis(Tokens.COLUMN);
+                    readThis(Tokens.NAMES);
+
+                    colNames = Boolean.TRUE;
+                }
+
                 readThis(Tokens.TO);
 
                 scope = Tokens.DATABASE;
@@ -440,6 +448,14 @@ public class ParserCommand extends ParserDDL {
                 tableName = table.getName();
 
                 readThis(Tokens.DATA);
+
+                if (readIfThis(Tokens.WITH)) {
+                    readThis(Tokens.COLUMN);
+                    readThis(Tokens.NAMES);
+
+                    colNames = Boolean.TRUE;
+                }
+
                 readThis(Tokens.TO);
 
                 scope = Tokens.TABLE;
@@ -466,8 +482,8 @@ public class ParserCommand extends ParserDDL {
         HsqlName[] names =
             database.schemaManager.getCatalogAndBaseTableNames();
         Object[] args = new Object[] {
-            name, Integer.valueOf(scope), Integer.valueOf(type), tableName,
-            timestamp
+            name, Integer.valueOf(scope), Integer.valueOf(type), colNames,
+            tableName, timestamp
         };
 
         return new StatementCommand(StatementTypes.DATABASE_SCRIPT, args,
@@ -2663,6 +2679,7 @@ public class ParserCommand extends ParserDDL {
 
                 type = SchemaObject.DOMAIN;
                 break;
+
             case Tokens.SEQUENCE :
                 read();
 

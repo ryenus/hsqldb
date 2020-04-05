@@ -1900,7 +1900,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Returns direct mapping array.
      */
-    int[] getColumnMap() {
+    public int[] getColumnMap() {
         return defaultColumnMap;
     }
 

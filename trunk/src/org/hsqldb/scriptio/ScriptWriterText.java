@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,25 +66,25 @@ import org.hsqldb.rowio.RowOutputTextLog;
  *
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.2
  */
 public class ScriptWriterText extends ScriptWriterBase {
 
-    private static byte[] BYTES_COMMIT       = "COMMIT".getBytes(JavaSystem.CS_ISO_8859_1);
-    private static byte[] BYTES_INSERT_INTO  = "INSERT INTO ".getBytes(JavaSystem.CS_ISO_8859_1);
-    private static byte[] BYTES_VALUES       = " VALUES(".getBytes(JavaSystem.CS_ISO_8859_1);
-    private static byte[] BYTES_TERM         = ")".getBytes(JavaSystem.CS_ISO_8859_1);
-    private static byte[] BYTES_DELETE_FROM  = "DELETE FROM ".getBytes(JavaSystem.CS_ISO_8859_1);
-    private static byte[] BYTES_WHERE        = " WHERE ".getBytes(JavaSystem.CS_ISO_8859_1);
-    private static byte[] BYTES_SEQUENCE     = "ALTER SEQUENCE ".getBytes(JavaSystem.CS_ISO_8859_1);
-    private static byte[] BYTES_SEQUENCE_MID = " RESTART WITH ".getBytes(JavaSystem.CS_ISO_8859_1);
-    private static byte[] BYTES_C_ID_INIT    = "/*C".getBytes(JavaSystem.CS_ISO_8859_1);
-    private static byte[] BYTES_C_ID_TERM    = "*/".getBytes(JavaSystem.CS_ISO_8859_1);
-    private static byte[] BYTES_SCHEMA       = "SET SCHEMA ".getBytes(JavaSystem.CS_ISO_8859_1);
+    static byte[] BYTES_COMMIT       = "COMMIT".getBytes(JavaSystem.CS_ISO_8859_1);
+    static byte[] BYTES_INSERT_INTO  = "INSERT INTO ".getBytes(JavaSystem.CS_ISO_8859_1);
+    static byte[] BYTES_VALUES       = " VALUES(".getBytes(JavaSystem.CS_ISO_8859_1);
+    static byte[] BYTES_TERM         = ")".getBytes(JavaSystem.CS_ISO_8859_1);
+    static byte[] BYTES_DELETE_FROM  = "DELETE FROM ".getBytes(JavaSystem.CS_ISO_8859_1);
+    static byte[] BYTES_WHERE        = " WHERE ".getBytes(JavaSystem.CS_ISO_8859_1);
+    static byte[] BYTES_SEQUENCE     = "ALTER SEQUENCE ".getBytes(JavaSystem.CS_ISO_8859_1);
+    static byte[] BYTES_SEQUENCE_MID = " RESTART WITH ".getBytes(JavaSystem.CS_ISO_8859_1);
+    static byte[] BYTES_C_ID_INIT    = "/*C".getBytes(JavaSystem.CS_ISO_8859_1);
+    static byte[] BYTES_C_ID_TERM    = "*/".getBytes(JavaSystem.CS_ISO_8859_1);
+    static byte[] BYTES_SCHEMA       = "SET SCHEMA ".getBytes(JavaSystem.CS_ISO_8859_1);
 
     /** @todo - perhaps move this global into a lib utility class */
-    private static byte[] BYTES_LINE_SEP = System.getProperty("line.separator",
+    static byte[] BYTES_LINE_SEP = System.getProperty("line.separator",
         "\n").getBytes(JavaSystem.CS_ISO_8859_1);
 
     static {
