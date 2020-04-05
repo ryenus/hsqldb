@@ -50,6 +50,7 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rights.User;
 import org.hsqldb.scriptio.ScriptWriterText;
+import org.hsqldb.scriptio.ScriptWriterTextColumnNames;
 import org.hsqldb.types.TimestampData;
 
 /**
@@ -956,8 +957,9 @@ public class StatementCommand extends Statement {
                 String           name      = (String) arguments[0];
                 Integer          scope     = (Integer) arguments[1];
                 Integer          type      = (Integer) arguments[2];
-                HsqlName         tableName = (HsqlName) arguments[3];
-                TimestampData    timestamp = (TimestampData) arguments[4];
+                Boolean          colNames  = (Boolean) arguments[3];
+                HsqlName         tableName = (HsqlName) arguments[4];
+                TimestampData    timestamp = (TimestampData) arguments[5];
 
                 try {
                     session.checkAdmin();
@@ -965,8 +967,13 @@ public class StatementCommand extends Statement {
                     if (name == null) {
                         return session.database.getScript(false);
                     } else {
-                        dsw = new ScriptWriterText(session.database, name,
-                                                   true, true, true);
+                        if (colNames.booleanValue()) {
+                            dsw = new ScriptWriterTextColumnNames(
+                                session.database, name);
+                        } else {
+                            dsw = new ScriptWriterText(session.database, name,
+                                                       true, true, true);
+                        }
 
                         switch (type.intValue()) {
 
