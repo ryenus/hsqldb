@@ -62,10 +62,10 @@
     the SQL language or Java. This feature is an extension to the SQL
     Standard.</para>
 
-    <para>SQL-invoked routines are schema objects. Naming and referencing
-    follows conventions common to all schema objects. The same routine name
-    can be defined in two different schemas and used with schema-qualified
-    references.</para>
+    <para>SQL-invoked routines are schema-level objects. Naming and
+    referencing follows conventions common to all schema objects. The same
+    routine name can be defined in two different schemas and used with
+    schema-qualified references.</para>
 
     <para>A routine is either a procedure or a function.</para>
 
@@ -85,8 +85,8 @@
       </listitem>
 
       <listitem>
-        <para>is used as part of an SQL statement such as a SELECT
-        statement</para>
+        <para>is used as part of an SQL statement such as a SELECT statement,
+        as well as called separately using the CALL statement</para>
       </listitem>
 
       <listitem>
@@ -1138,7 +1138,8 @@
       <literal>new_customer</literal>, the value for the identity is stored in
       <literal>the_new_id</literal> variable. This is returned via the next
       CALL statement. Alternatively, <literal>the_new_id</literal> can be used
-      as an argument to another CALL statement.</para>
+      as an argument to another CALL statement. Session variables are useful
+      during development and for SQL scripting tools.</para>
 
       <informalexample>
         <programlisting> DECLARE the_new_id INT DEFAULT NULL;

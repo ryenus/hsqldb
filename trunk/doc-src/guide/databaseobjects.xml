@@ -1023,8 +1023,8 @@
       <simpara><emphasis>comment statement (HyperSQL)</emphasis></simpara>
 
       <simpara><literal>&lt;comment statement&gt; ::= COMMENT ON { TABLE |
-      COLUMN | ROUTINE } &lt;name&gt; IS &lt;character string
-      literal&gt;</literal></simpara>
+      COLUMN | ROUTINE | SEQUENCE | TRIGGER} &lt;name&gt; IS &lt;character
+      string literal&gt;</literal></simpara>
 
       <para>Adds a comment to the object metadata, which can later be read
       from an INFORMATION_SCHEMA view. This command is not part of the SQL
@@ -1035,14 +1035,15 @@
       &lt;column name&gt;</literal>. The name of the table, view or routine
       can be a simple name. All names can be qualified with a schema name. If
       there is already a comment on the object, the new comment will replace
-      it.</para>
+      it. Comments can be added to views and their columns using the TABLE
+      keyword.</para>
 
       <para>The comments appear in the results returned by JDBC
       DatabaseMetaData methods, <literal>getTables()</literal> and
       <literal>getColumns()</literal>. The
       <literal>INFORMATION_SCHEMA.SYSTEM_COMMENTS</literal> view contains the
-      comments. You can query this view using the schema, table, and column
-      names to retrieve the comments.</para>
+      comments. You can query this view using the schema name, object name,
+      and column name to retrieve the comments.</para>
     </section>
 
     <section xml:id="dbc_schema_creation">
@@ -4284,7 +4285,8 @@
         <para>SYSTEM_COMMENTS</para>
 
         <para>Contains the user-defined comments added to tables and their
-        columns.</para>
+        columns. Also informational comments on INFORMATION_SCHEMA views
+        </para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_CONNECTION_PROPERTIES</primary>
