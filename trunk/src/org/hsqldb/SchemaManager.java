@@ -1356,6 +1356,8 @@ public class SchemaManager {
                     prefix = session.getSchemaName(null);
                 }
             } else if (prePrefix == null) {
+
+                // allow parsing in-routine table names in older .script files
                 if (Tokens.T_MODULE.equals(prefix)) {
                     Table t = findSessionTable(session, name);
 
