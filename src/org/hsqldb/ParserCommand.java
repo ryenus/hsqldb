@@ -2430,9 +2430,6 @@ public class ParserCommand extends ParserDDL {
 
     private Statement compilePerform() {
 
-        Integer type   = Integer.valueOf(IndexStats.checkRows);
-        Integer number = Integer.valueOf(-1);
-
         read();
 
         switch (token.tokenType) {
@@ -2446,6 +2443,8 @@ public class ParserCommand extends ParserDDL {
 
                 boolean  isAll     = false;
                 HsqlName tableName = null;
+                Integer  type      = Integer.valueOf(IndexStats.checkRows);
+                Integer  number    = Integer.valueOf(-1);
 
                 switch (token.tokenType) {
 
