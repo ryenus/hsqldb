@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -136,8 +136,8 @@ class TestScripts extends TestUtil {
         + TestScripts.class.getName()
         + " [--ephConnId=x | --persistConnId=x] file1.txt...";
 
-    static String DEF_DB = "test3";
-    static String DEF_URL = "jdbc:hsqldb:" + DEF_DB
+    static String DEF_DB = "testdb/test3";
+    static String DEF_URL = "jdbc:hsqldb:file:" + DEF_DB
                             + ";sql.enforce_strict_size=true";
     static String DEF_USER     = "SA";
     static String DEF_PASSWORD = "";

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,9 +59,9 @@ public class TestLobs extends TestBase {
 
     public TestLobs(String name) {
 
-//        super(name);
-//        super(name, "jdbc:hsqldb:file:test3", false, false);
-        super(name, "jdbc:hsqldb:mem:test3", false, false);
+        super(name);
+//        super(name, "jdbc:hsqldb:file:testdb/test3", false, false);
+//        super(name, "jdbc:hsqldb:mem:test3", false, false);
     }
 
     protected void setUp() throws Exception {
@@ -72,6 +72,11 @@ public class TestLobs extends TestBase {
         try {
             connection = super.newConnection();
             statement  = connection.createStatement();
+
+            statement.execute("SET DATABASE EVENT LOG SQL LEVEL 4");
+            statement.execute("SET TABLE SYSTEM_LOBS.BLOCKS TYPE CACHED;");
+            statement.execute("SET TABLE SYSTEM_LOBS.LOBS TYPE CACHED;");
+            statement.execute("SET TABLE SYSTEM_LOBS.LOB_IDS TYPE CACHED;");
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -147,7 +152,7 @@ public class TestLobs extends TestBase {
         byte[] baR2 = new byte[] {
             (byte) 0xE1, (byte) 0xE2, (byte) 0xE3, (byte) 0xE4, (byte) 0xE5,
             (byte) 0xE6, (byte) 0xE7, (byte) 0xE8, (byte) 0xE9, (byte) 0xEA,
-            (byte) 0xEB
+            (byte) 0xEB, (byte) 0xEC
         };
 
         try {
@@ -161,7 +166,6 @@ public class TestLobs extends TestBase {
             PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO blo(id, b) values(2, ?)");
 
-            //st.executeUpdate("INSERT INTO blo (id, b) VALUES (1, x'A003')");
             ps.setBlob(1, new SerialBlob(baR1));
             ps.executeUpdate();
 
@@ -175,7 +179,6 @@ public class TestLobs extends TestBase {
 
             System.out.println("Size of retrieved blob: " + blob1.length());
 
-            //System.out.println("Value = (" + rs.getString("b") + ')');
             byte[] baOut = blob1.getBytes(1, (int) blob1.length());
 
             if (baOut.length != baR1.length) {
@@ -185,12 +188,12 @@ public class TestLobs extends TestBase {
 
             for (int i = 0; i < baOut.length; i++) {
                 if (baOut[i] != baR1[i]) {
-                    assertTrue("Expected array len " + baR1.length
-                               + ", got len " + baOut.length, false);
+                    assertTrue("row2 byte " + i + " differs", false);
                 }
             }
 
             rs.close();
+            connection.commit();
 
             rs = st.executeQuery("SELECT b FROM blo WHERE id = 2");
 
@@ -198,32 +201,61 @@ public class TestLobs extends TestBase {
                 assertTrue("No row with id 2", false);
             }
 
-//            ba = rs.getBytes("b"); doesn't convert but throws ClassCast
-            blob1 = rs.getBlob("b");
-            ba    = blob1.getBytes(1, baR2.length);
+            ba = rs.getBytes("b");
 
-            if (ba.length != baR2.length) {
+            if (ba.length != baR1.length) {
                 assertTrue("row2 byte length differs", false);
             }
 
+            blob1 = rs.getBlob("b");
+            ba    = blob1.getBytes(1, baR1.length);
+
+
             for (int i = 0; i < ba.length; i++) {
                 if (ba[i] != baR1[i]) {
-                    assertTrue("row2 byte " + i + " differs", false);
+                    fail("row2 byte " + i + " differs");
                 }
             }
 
             rs.close();
             connection.rollback();
 
+            rs = st.executeQuery("SELECT b FROM blo WHERE id = 2");
+
+            if (!rs.next()) {
+                assertTrue("No row with id 2", false);
+            }
+
+            blob1 = rs.getBlob("b");
+            ba    = blob1.getBytes(1, baR1.length);
+
+            if (ba.length != baR1.length) {
+                assertTrue("row2 byte length differs", false);
+            }
+
+            for (int i = 0; i < baOut.length; i++) {
+                if (baOut[i] != baR1[i]) {
+                    fail("row2 byte " + i + " differs");
+                }
+            }
+
+            rs.close();
+
             // again with stream
-            ps.setBinaryStream(1, new HsqlByteArrayInputStream(baR1),
-                               baR1.length);
+            ps.setBinaryStream(1, new HsqlByteArrayInputStream(baR2),
+                               baR2.length);
             ps.executeUpdate();
+
+            connection.commit();
 
             rs = st.executeQuery("SELECT b FROM blo WHERE id = 2");
 
             if (!rs.next()) {
                 assertTrue("No row with id 2", false);
+            }
+
+            if (!rs.next()) {
+                assertTrue("No second row with id 2", false);
             }
 
             blob1 = rs.getBlob("b");
@@ -233,15 +265,14 @@ public class TestLobs extends TestBase {
             //System.out.println("Value = (" + rs.getString("b") + ')');
             baOut = blob1.getBytes(1, (int) blob1.length());
 
-            if (baOut.length != baR1.length) {
-                assertTrue("Expected array len " + baR1.length + ", got len "
+            if (baOut.length != baR2.length) {
+                assertTrue("Expected array len " + baR2.length + ", got len "
                            + baOut.length, false);
             }
 
             for (int i = 0; i < baOut.length; i++) {
-                if (baOut[i] != baR1[i]) {
-                    assertTrue("Expected array len " + baR1.length
-                               + ", got len " + baOut.length, false);
+                if (baOut[i] != baR2[i]) {
+                    fail("row2 byte " + i + " differs");
                 }
             }
 
@@ -253,6 +284,125 @@ public class TestLobs extends TestBase {
         }
     }
 
+    public void testBlobC() {
+
+        System.out.println("Starting (sub-)test: " + getName());
+
+        ResultSet rs;
+        byte[]    ba;
+        byte[]    baR2 = new byte[] {
+            (byte) 0xF1, (byte) 0xF2, (byte) 0xF3, (byte) 0xF4, (byte) 0xF5,
+            (byte) 0xF6, (byte) 0xF7, (byte) 0xF8, (byte) 0xF9, (byte) 0xFA,
+            (byte) 0xFB
+        };
+
+        try {
+            connection.setAutoCommit(false);
+
+            Statement st = connection.createStatement();
+
+            st.executeUpdate("DROP TABLE blo IF EXISTS");
+            st.executeUpdate("CREATE TABLE blo (id INTEGER, b blob( 100))");
+
+            PreparedStatement ps = connection.prepareStatement(
+                "INSERT INTO blo(id, b) values(2, ?)");
+
+            // again with stream
+            ps.setBinaryStream(1, new HsqlByteArrayInputStream(baR2),
+                               baR2.length);
+            ps.executeUpdate();
+
+            connection.commit();
+
+            rs = st.executeQuery("SELECT b FROM blo WHERE id = 2");
+
+            if (!rs.next()) {
+                assertTrue("No row with id 2", false);
+            }
+
+            Blob blob1 = rs.getBlob("b");
+
+            System.out.println("Size of retrieved blob: " + blob1.length());
+
+            //System.out.println("Value = (" + rs.getString("b") + ')');
+            byte[] baOut = blob1.getBytes(1, (int) blob1.length());
+
+            if (baOut.length != baR2.length) {
+                assertTrue("Expected array len " + baR2.length + ", got len "
+                           + baOut.length, false);
+            }
+
+            for (int i = 0; i < baOut.length; i++) {
+                if (baOut[i] != baR2[i]) {
+                    fail("row2 byte " + i + " differs");
+                }
+            }
+
+            rs.close();
+            connection.commit();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            fail("test failure");
+        }
+    }
+
+    public void testBlobH() {
+
+        System.out.println("Starting (sub-)test: " + getName());
+
+        try {
+            String ddl1 = "DROP TABLE BLOBTEST IF EXISTS";
+            String ddl2 = "CREATE TABLE BLOBTEST(A INTEGER, B BLOB)";
+
+            statement.execute(ddl1);
+            statement.execute(ddl2);
+        } catch (SQLException e) {}
+
+        try {
+            String            dml0 = "insert into blobtest values(1, ?)";
+            String            dql0 = "select * from blobtest";
+            PreparedStatement ps   = connection.prepareStatement(dml0);
+            byte[]            data = new byte[] {
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+            };
+
+            connection.setAutoCommit(false);
+
+            Blob blob = connection.createBlob();
+
+            blob.setBytes(1, data);
+            ps.setBlob(1, blob);
+            ps.executeUpdate();
+
+            data[4] = 50;
+            blob    = new JDBCBlob(data);
+
+            ps.setBlob(1, blob);
+            ps.executeUpdate();
+            ps.close();
+            connection.commit();
+
+            ps = connection.prepareStatement(dql0);
+
+            ResultSet rs = ps.executeQuery();
+
+            rs.next();
+
+            Blob blob1 = rs.getBlob(2);
+
+            rs.next();
+
+            Blob   blob2 = rs.getBlob(2);
+            byte[] data1 = blob1.getBytes(1, 10);
+            byte[] data2 = blob2.getBytes(1, 10);
+
+            assertTrue(data1[4] == 5 && data2[4] == 50);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            fail("test failure");
+        }
+    }
     public void testClobA() {
 
         System.out.println("Starting (sub-)test: " + getName());
@@ -836,109 +986,6 @@ public class TestLobs extends TestBase {
             System.out.println(string);
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-    }
-
-    public void testBlobH() {
-
-        System.out.println("Starting (sub-)test: " + getName());
-
-        try {
-            String ddl1 = "DROP TABLE BLOBTEST IF EXISTS";
-            String ddl2 = "CREATE TABLE BLOBTEST(A INTEGER, B BLOB)";
-
-            statement.execute(ddl1);
-            statement.execute(ddl2);
-        } catch (SQLException e) {}
-
-        try {
-            String            dml0 = "insert into blobtest values(1, ?)";
-            String            dql0 = "select * from blobtest";
-            PreparedStatement ps   = connection.prepareStatement(dml0);
-            byte[]            data = new byte[] {
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-            };
-
-            connection.setAutoCommit(false);
-
-            Blob blob = connection.createBlob();
-
-            blob.setBytes(1, data);
-            ps.setBlob(1, blob);
-            ps.executeUpdate();
-
-            data[4] = 50;
-            blob    = new JDBCBlob(data);
-
-            ps.setBlob(1, blob);
-            ps.executeUpdate();
-            ps.close();
-            connection.commit();
-
-            ps = connection.prepareStatement(dql0);
-
-            ResultSet rs = ps.executeQuery();
-
-            rs.next();
-
-            Blob blob1 = rs.getBlob(2);
-
-            rs.next();
-
-            Blob   blob2 = rs.getBlob(2);
-            byte[] data1 = blob1.getBytes(1, 10);
-            byte[] data2 = blob2.getBytes(1, 10);
-
-            assertTrue(data1[4] == 5 && data2[4] == 50);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            fail("test failure");
-        }
-    }
-
-    public void testBlobI() {
-
-        System.out.println("Starting (sub-)test: " + getName());
-
-        try {
-            Statement st = connection.createStatement();
-
-            st.executeUpdate("drop table BLOBTEST if exists");
-            st.executeUpdate("create table BLOBTEST (BT_BLOB BLOB)");
-            System.out.println("Running insert...");
-
-            PreparedStatement insert =
-                connection.prepareStatement("insert into BLOBTEST values(?)");
-
-            insert.setBytes(1, new byte[]{});
-            insert.executeUpdate();
-            System.out.println("Running update...");
-
-            PreparedStatement update = connection.prepareStatement(
-                "update BLOBTEST set BT_BLOB = CONCAT(BT_BLOB,?)");
-
-            update.setBytes(1, new byte[] {
-                1, 2, 3
-            });
-            update.executeUpdate();
-            System.out.println("Running select...");
-
-            PreparedStatement select =
-                connection.prepareStatement("select BT_BLOB from BLOBTEST");
-            ResultSet result = select.executeQuery();
-
-            System.out.println("Results: " + result.getFetchSize());
-
-            while (result.next()) {
-                byte[] data = result.getBytes(1);
-                String s    = data == null ? "null"
-                                           : String.valueOf(data.length);
-
-                System.out.println("Result: " + s);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            fail("test failure");
         }
     }
 

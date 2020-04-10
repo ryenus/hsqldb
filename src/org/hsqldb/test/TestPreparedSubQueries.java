@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,7 +93,7 @@ public class TestPreparedSubQueries extends TestCase {
 
     protected void setUp() {
 
-        String url = "jdbc:hsqldb:test";
+        String url = "jdbc:hsqldb:testdb/test";
 
         try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
