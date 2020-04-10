@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ public class TestCollation extends TestBase {
     /** Creates a new instance of TestCollation */
     public TestCollation(String name) {
 
-        super(name, "jdbc:hsqldb:file:test", false, false);
+        super(name, "jdbc:hsqldb:file:testdb/test", false, false);
 
         super.isNetwork = false;
     }

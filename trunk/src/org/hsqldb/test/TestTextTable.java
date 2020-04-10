@@ -187,7 +187,7 @@ public class TestTextTable extends TestBase {
 
     /** Creates a new instance of TestTextTable */
     public TestTextTable(String testName) {
-        super(testName, "jdbc:hsqldb:file:test", false, false);
+        super(testName, "jdbc:hsqldb:file:testdb/test", false, false);
     }
 
     /**

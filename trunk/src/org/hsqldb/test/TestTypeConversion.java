@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ public class TestTypeConversion extends TestBase {
 
         super(name);
 
-//        super(name, "jdbc:hsqldb:file:test3", false, false);
+//        super(name, "jdbc:hsqldb:file:testdb/test3", false, false);
 //       super(name, "jdbc:hsqldb:mem:test3", false, false);
     }
 

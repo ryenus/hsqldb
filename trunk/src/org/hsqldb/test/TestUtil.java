@@ -70,6 +70,7 @@ public class TestUtil {
      * The executing scripts do have state.  This class should be
      * redesigned with OOD.
      */
+    static private final String dbPath = "testdb/test1";
     static private final SimpleDateFormat sdfYMDHMS =
         new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     static private boolean      abortOnErr        = false;
@@ -128,12 +129,12 @@ public class TestUtil {
 
     static void testScripts(String directory, StopWatch sw) {
 
-        TestUtil.deleteDatabase("test1");
+        TestUtil.deleteDatabase(dbPath);
 
         try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
-            String     url = "jdbc:hsqldb:test1;sql.enforce_strict_size=true";
+            String     url = "jdbc:hsqldb:file:" + dbPath + ";sql.enforce_strict_size=true";
             String     user        = "sa";
             String     password    = "";
             Connection cConnection = null;
