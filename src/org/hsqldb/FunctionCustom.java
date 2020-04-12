@@ -190,18 +190,19 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_TRANSACTION_CONTROL      = 176;
     private static final int FUNC_TRANSACTION_ID           = 177;
     private static final int FUNC_TRANSACTION_SIZE         = 178;
-    private static final int FUNC_TRANSLATE                = 179;
-    private static final int FUNC_TRUNC                    = 180;
-    private static final int FUNC_TRUNCATE                 = 181;
-    private static final int FUNC_UNHEX                    = 182;
-    private static final int FUNC_UUID                     = 183;
-    private static final int FUNC_UNIX_TIMESTAMP           = 184;
-    private static final int FUNC_UNIX_MILLIS              = 185;
-    private static final int FUNC_DATEPART                 = 186;
-    private static final int FUNC_DATENAME                 = 187;
-    private static final int FUNC_NANVL                    = 188;
-    private static final int FUNC_SQLCODE                  = 189;
-    private static final int FUNC_SQLERRM                  = 190;
+    private static final int FUNC_TRANSACTION_UTC          = 179;
+    private static final int FUNC_TRANSLATE                = 180;
+    private static final int FUNC_TRUNC                    = 181;
+    private static final int FUNC_TRUNCATE                 = 182;
+    private static final int FUNC_UNHEX                    = 183;
+    private static final int FUNC_UUID                     = 184;
+    private static final int FUNC_UNIX_TIMESTAMP           = 185;
+    private static final int FUNC_UNIX_MILLIS              = 186;
+    private static final int FUNC_DATEPART                 = 187;
+    private static final int FUNC_DATENAME                 = 188;
+    private static final int FUNC_NANVL                    = 189;
+    private static final int FUNC_SQLCODE                  = 190;
+    private static final int FUNC_SQLERRM                  = 191;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -233,6 +234,7 @@ public class FunctionCustom extends FunctionSQL {
         nonDeterministicFuncSet.add(FUNC_TRANSACTION_CONTROL);
         nonDeterministicFuncSet.add(FUNC_TRANSACTION_ID);
         nonDeterministicFuncSet.add(FUNC_TRANSACTION_SIZE);
+        nonDeterministicFuncSet.add(FUNC_TRANSACTION_UTC);
         nonDeterministicFuncSet.add(FUNC_UUID);
         nonDeterministicFuncSet.add(FUNC_UNIX_TIMESTAMP);
         nonDeterministicFuncSet.add(FUNC_UNIX_MILLIS);
@@ -371,6 +373,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.TRANSACTION_CONTROL, FUNC_TRANSACTION_CONTROL);
         customRegularFuncMap.put(Tokens.TRANSACTION_ID, FUNC_TRANSACTION_ID);
         customRegularFuncMap.put(Tokens.TRANSACTION_SIZE, FUNC_TRANSACTION_SIZE);
+        customRegularFuncMap.put(Tokens.TRANSACTION_UTC, FUNC_TRANSACTION_UTC);
         customRegularFuncMap.put(Tokens.TRANSLATE, FUNC_TRANSLATE);
         customRegularFuncMap.put(Tokens.TRUNC, FUNC_TRUNC);
         customRegularFuncMap.put(Tokens.TRUNCATE, FUNC_TRUNCATE);
@@ -558,6 +561,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TRANSACTION_CONTROL :
             case FUNC_TRANSACTION_ID :
             case FUNC_TRANSACTION_SIZE :
+            case FUNC_TRANSACTION_UTC :
                 parseList = emptyParamList;
                 break;
 
@@ -961,6 +965,9 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_TRANSACTION_SIZE : {
                 return Long.valueOf(session.getTransactionSize());
+            }
+            case FUNC_TRANSACTION_UTC : {
+                return session.getTransactionUTC();
             }
             case FUNC_LOB_ID : {
                 LobData lob = (LobData) data[0];
@@ -1368,6 +1375,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_FROM_BASE64 : {
 
 //#ifdef JAVA8
+/*
                 String val = (String) data[0];
 
                 if (val == null) {
@@ -1379,17 +1387,17 @@ public class FunctionCustom extends FunctionSQL {
                 byte[] bytes = java.util.Base64.getDecoder().decode(val);
 
                 return new BinaryData(bytes, false);
+*/
 
 //#else
-/*
                 throw Error.error(ErrorCode.X_0A501);
-*/
 
 //#endif JAVA8
             }
             case FUNC_TO_BASE64 : {
 
 //#ifdef JAVA8
+/*
                 BinaryData val = (BinaryData) data[0];
 
                 if (val == null) {
@@ -1397,11 +1405,10 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 return java.util.Base64.getEncoder().encodeToString(val.getBytes());
+*/
 
 //#else
-/*
                 throw Error.error(ErrorCode.X_0A501);
-*/
 
 //#endif JAVA8
             }
@@ -3952,6 +3959,10 @@ public class FunctionCustom extends FunctionSQL {
                 dataType = Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
                 break;
 
+            case FUNC_TRANSACTION_UTC :
+                dataType = Type.SQL_TIMESTAMP_WITH_TIME_ZONE;
+                break;
+
             case FUNC_TRANSLATE :
                 for (int i = 0; i < nodes.length; i++) {
                     if (nodes[i].dataType == null) {
@@ -4075,6 +4086,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SYS_GUID :
             case FUNC_TRANSACTION_ID :
             case FUNC_TRANSACTION_SIZE :
+            case FUNC_TRANSACTION_UTC :
                 return new StringBuilder(name).append(
                     Tokens.T_OPENBRACKET).append(
                     Tokens.T_CLOSEBRACKET).toString();
