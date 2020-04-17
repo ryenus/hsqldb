@@ -204,7 +204,7 @@
       Standard compatibility settings of your MySQL database and use the
       available HyperSQL properties to achieve closer results. If you avoid
       the few anti-Standard features of MySQL, you can port your databases to
-      HyperSQL.</para>
+      HyperSQL and make it easier to port to other database engines.</para>
 
       <para>Using HyperSQL during development and testing of MySQL apps helps
       to avoid data integrity issues that MySQL may ignore.</para>
@@ -270,7 +270,7 @@
         </listitem>
 
         <listitem>
-          <para>In MySQL, a database is the same as a schema. In HyperSQL
+          <para>In MySQL, a database is the same as a schema. In HyperSQL,
           several schemas can exist in the same database and accessed
           transparently. In addition, a HyperSQL server supports multiple
           separate databases.</para>
@@ -278,9 +278,9 @@
 
         <listitem>
           <para>In MySQL, older, non-standard, forms of database object name
-          case-sensitivity make is difficult to port applications. Use the
-          latest form which encloses case-sensitive names in double
-          quotes.</para>
+          case-sensitivity make is difficult to port applications. The modern
+          form, which encloses case-sensitive names in double quotes, follows
+          the SQL standard and is supported by HyperSQL.</para>
         </listitem>
 
         <listitem>
@@ -349,13 +349,15 @@
 
         <listitem>
           <para>HyperSQL supports ON UPDATE CURRENT_TIMESTAMP for column
-          definitions.</para>
+          definitions in CREATE TABLE statements.</para>
         </listitem>
 
         <listitem>
           <para>HyperSQL supports and translates INSERT IGNORE, REPLACE and ON
           DUPLICATE KEY UPDATE variations of INSERT into predictable and
-          error-free operations.</para>
+          error-free operations. These MySQL variations do not throw an
+          exception if any of the inserted rows would violate a PRIMARY KEY or
+          UNIQUE constraint, and take a different action instead.</para>
 
           <para>When INSERT IGNORE is used, if any of the inserted rows would
           violate a PRIMARY KEY or UNIQUE constraint, that row is not
@@ -369,6 +371,12 @@
           constraints and other integrity checks are enforced and update
           triggers are activated. The row count returned is simply the total
           number of rows inserted and updated.</para>
+
+          <para>With all the above statements, unique indexes are not
+          considered the same as unique constraints for the alternative action
+          and an exception is thrown if there is violation of a unique index.
+          It is generally better to create a unique constraint instead of a
+          unique instead. </para>
         </listitem>
 
         <listitem>

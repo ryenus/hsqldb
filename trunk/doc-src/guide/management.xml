@@ -1301,12 +1301,12 @@
       <simpara><emphasis>export script statement</emphasis></simpara>
 
       <simpara><literal>&lt;export script statement&gt; ::= PERFORM EXPORT
-      SCRIPT FOR DATABASE [ { STRUCTURE | DATA } ] TO &lt;single-quoted file
-      path&gt;</literal></simpara>
+      SCRIPT FOR DATABASE [ { STRUCTURE | DATA } ] [WITH COLUMN NAMES] TO
+      &lt;single-quoted file path&gt;</literal></simpara>
 
       <simpara><literal>&lt;export script table statement&gt; ::= PERFORM
-      EXPORT SCRIPT FOR TABLE &lt;table name&gt; DATA TO &lt;single-quouted
-      file path&gt;</literal></simpara>
+      EXPORT SCRIPT FOR TABLE &lt;table name&gt; DATA [WITH COLUMN NAMES] TO
+      &lt;single-quouted file path&gt;</literal></simpara>
 
       <simpara><literal>&lt;export script for versioning statement&gt; ::=
       PERFORM EXPORT SCRIPT FOR DATABASE VERSIONING DATA FROM TIMESTAMP
@@ -1320,7 +1320,12 @@
       or its data only to the file. When only DATABASE is specified,
       everything is written out. When STRUCTURE is specified, only the
       database settings and the definition of schema objects are written. When
-      DATA is specified, only the data in the tables is written.</simpara>
+      DATA is specified, only the data in the tables is written. The optional
+      <literal>WITH COLUMN NAMES</literal> clause includes the list of column
+      names in INSERT statements and may be useful for exporting data to other
+      database engines. This option should not be used for scripts that are
+      imported into HSQLDB with the <literal>PERFORM IMPORT SCRIPT</literal>
+      statement, as the script will be rejected.</simpara>
 
       <simpara>The second form writes the data for one table only.</simpara>
 

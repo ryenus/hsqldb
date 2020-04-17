@@ -1592,15 +1592,23 @@
     <section xml:id="dac_sql_predicates">
       <title>Predicates</title>
 
-      <simpara>Predicates are conditions with two sides and evaluate to a
-      boolean value. The left side of the predicate, the <literal>&lt;row
-      value predicand&gt;</literal>, is the common element of all predicates.
-      This element is a generalisation of both <literal>&lt;value
-      expression&gt;</literal>, which is a scalar, and of
+      <simpara>Predicates are conditions and evaluate to a boolean value. Some
+      predicates have two sides. The left side of the predicate, the
+      <literal>&lt;row value predicand&gt;</literal>, is the common element of
+      all two-sided predicates. This element is a generalisation of both
+      <literal>&lt;value expression&gt;</literal>, which is a scalar, and of
       <literal>&lt;explicit row value constructor&gt;</literal>, which is a
-      row. The two sides of a predicate can be split in CASE statements where
+      row. The two sides of a predicate can be split in CASE expressions where
       the <literal>&lt;row value predicand&gt;</literal> is part of multiple
       predicates.</simpara>
+
+      <simpara>In the following example, a column of the table is the left
+      side of two predicates in a CASE expression.</simpara>
+
+      <informalexample>
+        <programlisting>SELECT CASE city WHEN 'Oslo' THEN 'Scandinavia' WHEN IN ('Dallas', 'Boston') THEN 'America' ELSE '?' END FROM customer
+</programlisting>
+      </informalexample>
 
       <simpara>The number of fields in all <literal>&lt;row value
       predicand&gt;</literal> used in predicates must be the same and the
@@ -2039,7 +2047,7 @@
 
       <simpara>Specify a test for two datetime periods. The conversions and
       checks are applied the same way as with the CONTAINS predicate. If the
-      two period have the same begin and end datatime values the result is
+      two periods have the same begin and end datetime values the result is
       TRUE. Otherwise it is false.</simpara>
 
       <simpara>If any of the values is NULL, the result is
