@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import java.lang.reflect.Array;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.0
  */
 public class StringUtil {
@@ -120,21 +120,22 @@ public class StringUtil {
             }
         }
 
-        StringBuilder sb         = new StringBuilder(length);
-        int           padLength  = source.length();
-        int           partLength = (length - padLength) % pad.length();
+        StringBuilder sb          = new StringBuilder(length);
+        int           padedLength = source.length();
+        int           partLength  = (length - padedLength) % pad.length();
 
         if (trailing) {
             sb.append(source);
-            sb.append(pad.substring(pad.length() - partLength));
         }
 
-        for (; padLength + pad.length() <= length; padLength += pad.length()) {
+        for (; padedLength + pad.length() <= length;
+                padedLength += pad.length()) {
             sb.append(pad);
         }
 
+        sb.append(pad.substring(0, partLength));
+
         if (!trailing) {
-            sb.append(pad, 0, partLength);
             sb.append(source);
         }
 
