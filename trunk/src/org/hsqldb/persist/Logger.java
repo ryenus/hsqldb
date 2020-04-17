@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,7 +86,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.0
  */
 public class Logger implements EventLogInterface {
@@ -428,11 +428,6 @@ public class Logger implements EventLogInterface {
         if (!isNewDatabase && !version18) {
             return;
         }
-
-        temp = database.databaseProperties.getStringProperty(
-            HsqlDatabaseProperties.hsqldb_digest);
-
-        database.granteeManager.setDigestAlgo(temp);
 
         if (tempDirectoryPath != null) {
             int rows = database.databaseProperties.getIntegerProperty(

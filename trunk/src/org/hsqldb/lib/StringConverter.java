@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2019, The HSQL Development Group
+ * Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -869,5 +869,89 @@ public class StringConverter {
         }
 
         return bytes;
+    }
+
+    static void appendHex(StringBuilder b, char c) {
+
+        for (int shift = 12; shift >= 0; shift -= 4) {
+            int hex = (c >>> shift) & 0xf;
+
+            if (hex < 10) {
+                b.append((char) ('0' + hex));
+            } else {
+                b.append((char) ('A' + (hex - 10)));
+            }
+        }
+    }
+
+    public static String stringToUnicodeEscaped(String s) {
+
+        StringBuilder b = new StringBuilder(s.length() * 2);
+
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+
+            if (c >= ' ' && c < 127 && c != '\\') {
+                b.append(c);
+            } else {
+                b.append('\\');
+                appendHex(b, c);
+            }
+        }
+
+        return b.toString();
+    }
+
+    public static String unicodeEscapedToString(String s) throws IOException {
+
+        StringBuilder b = new StringBuilder(s.length() * 2);
+
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+
+            if (c != '\\') {
+                b.append(c);
+
+                continue;
+            }
+
+            i++;
+
+            if (i >= s.length()) {
+                throw new UTFDataFormatException();
+            }
+
+            c = s.charAt(i);
+
+            if (c == '\\') {
+                b.append(c);
+
+                continue;
+            }
+
+            if (i > s.length() - 4) {
+                throw new UTFDataFormatException();
+            }
+
+            c = 0;
+
+            for (int shift = 12; shift >= 0; shift -= 4, i++) {
+                int n = s.charAt(i);
+
+                n = getNibble(n);
+
+                if (n < 0) {
+                    throw new UTFDataFormatException();
+                }
+
+                c |= (n << shift);
+            }
+
+            b.append(c);
+
+            i--;
+        }
+
+        return b.toString();
     }
 }
