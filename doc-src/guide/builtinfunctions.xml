@@ -155,6 +155,18 @@
     character of <literal>&lt;char value expr&gt;</literal>. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>ASCIISTR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ASCIISTR</emphasis></simpara>
+
+    <para><literal>ASCIISTR ( &lt;char value expr&gt; )</literal></para>
+
+    <para>Returns the ASCII representation of the string argument with all
+    characters outside the range 32-126 replaced with Unicode escape codes.
+    (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>BIT_LENGTH function</primary>
     </indexterm>
 
@@ -439,12 +451,15 @@
 
     <simpara><emphasis role="bold">LTRIM</emphasis></simpara>
 
-    <para><literal>LTRIM ( &lt;char value expr&gt; ) </literal></para>
+    <para><literal>LTRIM ( &lt;char value expr 1&gt; [, &lt;char value expr
+    2&gt; ] ) </literal></para>
 
-    <para>Returns a character string based on <literal>&lt;char value
-    expr&gt;</literal> with the leading space characters removed. Equivalent
-    to SQL/Foundation <literal>TRIM( LEADING ' ' FROM &lt;char value expr&gt;
-    )</literal>. (JDBC)</para>
+    <para>When called with a single argument, returns a character string based
+    on <literal>&lt;char value expr 1&gt;</literal> with the leading space
+    characters removed. Equivalent to SQL/Foundation <literal>TRIM( LEADING '
+    ' FROM &lt;char value expr1&gt; )</literal>. When called with two
+    arguments, <literal>&lt;char value expr 2&gt;</literal> represents the
+    leading character to be removed. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>OCTET_LENGTH function</primary>
@@ -656,12 +671,15 @@
 
     <simpara><emphasis role="bold">RTRIM</emphasis></simpara>
 
-    <para><literal>RTRIM ( &lt;char value expr&gt; ) </literal></para>
+    <para><literal>RTRIM ( &lt;char value expr 1&gt; [, &lt;char value expr
+    2&gt; ] ) </literal></para>
 
-    <para>Returns a character string based on <literal>&lt;char value
-    expr&gt;</literal> with the trailing space characters removed. Equivalent
-    to SQL/Foundation <literal>TRIM(TRAILING ' ' FROM &lt;character
-    string&gt;)</literal>. (JDBC)</para>
+    <para>When called with a single argument, returns a character string based
+    on <literal>&lt;char value expr 1&gt;</literal> with the trailing space
+    characters removed. Equivalent to SQL/Foundation <literal>TRIM(TRAILING '
+    ' FROM &lt;character string&gt;)</literal>. When called with two
+    arguments, <literal>&lt;char value expr 2&gt;</literal> represents the
+    trailing character to be removed. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SOUNDEX function</primary>
@@ -799,7 +817,7 @@
 
     <para>Returns a character string that is the upper case version of the
     <literal>&lt;char value expr&gt;</literal>. Equivalent to SQL/Foundation
-    <literal>UPPER( &lt;char value expr&gt; )</literal> . (JDBC)</para>
+    <literal>UPPER( &lt;char value expr&gt; )</literal>. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>UPPER function</primary>
@@ -822,7 +840,20 @@
 
     <para>Returns a binary string formed by translation of hexadecimal digits
     and letters in the &lt;<literal>char value expr&gt;</literal>. Exactly the
-    same as the <literal>HEXTORAW</literal> function(HyperSQL)</para>
+    same as the <literal>HEXTORAW</literal> function. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>UNISTR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">UNISTR</emphasis></simpara>
+
+    <para><literal>UNISTR( &lt;char value expr&gt; )</literal></para>
+
+    <para>Returns a string formed by translation of hexadecimal escape
+    sequences in the &lt;<literal>char value expr&gt;</literal> to UTF-16
+    characters. Exactly the opposite of <literal>ASCIISTR</literal> function.
+    (HyperSQL)</para>
   </section>
 
   <section xml:id="bfc_numeric_functions">
@@ -1452,7 +1483,9 @@
       of TIMESTAMP type. If the optional <literal>[ ( &lt;time precision&gt; )
       ]</literal> or<literal> [ ( &lt;timestamp precision&gt; ) ]</literal> is
       used, then the returned value has the specified fraction of the second
-      precision. (Foundation)</para>
+      precision. When the functions are used multiple times in a single SQL
+      statement, the returned values represent the same point of time.
+      (Foundation)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>NOW function</primary>
@@ -1496,8 +1529,9 @@
 
       <para><literal>SYSDATE</literal></para>
 
-      <para>This function is similar to <literal>LOCALTIMESTAMP </literal>but
-      it returns the timestamp when it is called. (HyperSQL)</para>
+      <para>This no-arg function is similar to <literal>LOCALTIMESTAMP
+      </literal>but it returns the timestamp without fraction of second.
+      (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SYSTIMESTAMP function</primary>
@@ -2088,6 +2122,32 @@
 
     <section xml:id="bfc_datetime_format">
       <title>Functions to Convert or Format a Datetime</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>NUMTODSINTERVAL function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">NUMTODSINTERVAL</emphasis></simpara>
+
+      <para><literal>NUMTODSINTERVAL ( &lt;numeric value expr&gt;,
+      &lt;interval spec string&gt; )</literal></para>
+
+      <para>This function converts the numeric value to an interval, exactly
+      like CAST. The interval spec string is one of 'DAY', 'HOUR', 'MINUTE',
+      'SECOND'. (HyperSQL)</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>NUMTOYMINTERVAL function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">NUMTOYMINTERVAL</emphasis></simpara>
+
+      <para><literal>NUMTOYMINTERVAL ( &lt;numeric value expr&gt;,
+      &lt;interval spec string&gt; )</literal></para>
+
+      <para>This function converts the numeric value to an interval, exactly
+      like CAST. The interval spec string is 'YEAR' or 'MONTH'.
+      (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>TIMESTAMP function</primary>
@@ -3058,6 +3118,18 @@
     to new transactions and new actions (statement executions) in different
     sessions. This value is unique to the current transaction.
     (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TRANSACTION_UTC function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRANSACTION_UTC</emphasis></simpara>
+
+    <para><literal>TRANSACTION_UTC()</literal></para>
+
+    <para>Returns the transaction timestamp in UTC time zone for the session.
+    This timestamp is used in updates made to system-versioned tables during
+    the transaction. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>ACTION_ID function</primary>
