@@ -541,8 +541,6 @@ examples:
             org/hsqldb/lib/RefCapableRBInterface*
             org/hsqldb/lib/ValidatingResourceBundle*
             org/hsqldb/lib/AppendableException*
-            org/hsqldb/lib/FileAccess*
-            org/hsqldb/lib/StringUtil*
             org/hsqldb/lib/BasicTextJdkLogFormatter*
             org/hsqldb/lib/FrameworkLogger*
             org/hsqldb/resources/jdklogging-default.properties
