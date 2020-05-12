@@ -1041,12 +1041,18 @@ public class ExpressionLogical extends Expression {
 
     private void changeToRowExpression(int nodeIndex) {
 
-        if (nodes[nodeIndex].opType != OpTypes.ROW) {
-            nodes[nodeIndex] = new Expression(OpTypes.ROW,
-                                              new Expression[]{
-                                                  nodes[nodeIndex] });
-            nodes[nodeIndex].nodeDataTypes = new Type[]{
-                nodes[nodeIndex].nodes[0].dataType };
+        switch (nodes[nodeIndex].opType) {
+
+            case OpTypes.ROW :
+            case OpTypes.ROW_SUBQUERY :
+                break;
+
+            default :
+                nodes[nodeIndex] = new Expression(OpTypes.ROW,
+                                                  new Expression[]{
+                                                      nodes[nodeIndex] });
+                nodes[nodeIndex].nodeDataTypes = new Type[]{
+                    nodes[nodeIndex].nodes[0].dataType };
         }
     }
 

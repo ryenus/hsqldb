@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,13 +39,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hsqldb.lib.InputStreamInterface;
 import org.hsqldb.lib.InputStreamWrapper;
 import org.hsqldb.lib.StringUtil;
-import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * Generates a tar archive from specified Files and InputStreams.
@@ -284,7 +284,7 @@ public class TarGenerator {
             int    stop  = field.getStop();
             byte[] ba;
 
-            ba = newValue.getBytes(JavaSystem.CS_ISO_8859_1);
+            ba = newValue.getBytes(Charset.forName("ISO-8859-1"));
 
             if (ba.length > stop - start) {
                 throw new TarMalformatException(

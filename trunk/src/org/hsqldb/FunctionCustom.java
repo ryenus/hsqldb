@@ -3449,6 +3449,19 @@ public class FunctionCustom extends FunctionSQL {
 
                 break;
             }
+            case FUNC_UNISTR : {
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
+                }
+
+                if (!nodes[0].dataType.isCharacterType()) {
+                    throw Error.error(ErrorCode.X_42561);
+                }
+
+                dataType = nodes[0].dataType;
+
+                break;
+            }
             case FUNC_UNHEX :
             case FUNC_HEXTORAW : {
                 if (nodes[0].dataType == null) {
