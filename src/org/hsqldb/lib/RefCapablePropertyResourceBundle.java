@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package org.hsqldb.lib;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Enumeration;
@@ -44,8 +45,6 @@ import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.hsqldb.lib.java.JavaSystem;
 
 /* $Id$ */
 
@@ -460,7 +459,7 @@ public class RefCapablePropertyResourceBundle {
         }
 
         try {
-            return new String(ba, JavaSystem.CS_ISO_8859_1);
+            return new String(ba, Charset.forName("ISO-8859-1"));
         } catch (Throwable re) {
             throw new MissingResourceException(
                 "Value for key '" + key + "' too big to convert to String.  "

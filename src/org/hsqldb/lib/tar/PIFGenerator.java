@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,11 @@
 
 package org.hsqldb.lib.tar;
 
-import org.hsqldb.lib.java.JavaSystem;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.Date;
 
 /**
@@ -55,7 +54,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
 
     protected PIFGenerator() {
 
-        writer = new OutputStreamWriter(this, JavaSystem.CS_UTF8);
+        writer = new OutputStreamWriter(this, Charset.forName("UTF-8"));
 
         fakePid = (int) (new Date().getTime() % 100000L);
 

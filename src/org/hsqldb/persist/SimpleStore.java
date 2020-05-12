@@ -180,8 +180,6 @@ public abstract class SimpleStore implements PersistentStore {
         return null;
     }
 
-    public void moveDataToSpace(Session session) {}
-
     public void moveData(Session session, PersistentStore other,
                          int[] colIndex, int adjust) {}
 

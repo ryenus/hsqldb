@@ -531,8 +531,6 @@ public abstract class RowStoreAVL implements PersistentStore {
         return false;
     }
 
-    public void moveDataToSpace(Session session) {}
-
     /**
      * Moves the data from an old store to new after changes to table
      * The colIndex argument is the indexes of the columns that were
@@ -750,12 +748,19 @@ public abstract class RowStoreAVL implements PersistentStore {
             while (it.next()) {
                 Row     row      = it.getCurrentRow();
                 NodeAVL backnode = ((RowAVL) row).getNode(0);
-                int     j        = position;
+                int     j        = 0;
 
-                while (--j > 0) {
+                while (backnode != null) {
                     backnode = backnode.nNext;
+
+                    j++;
                 }
 
+                if (j < indexList.length) {
+                    break;
+                }
+
+                backnode = ((RowAVL) row).getNode(position - 1);
                 backnode.nNext = backnode.nNext.nNext;
             }
 

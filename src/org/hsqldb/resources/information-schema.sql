@@ -1,4 +1,4 @@
--- author Fred Toussi (fredt@users dot sourceforge.net) version 2.5.0
+-- author Fred Toussi (fredt@users dot sourceforge.net) version 2.5.1
 /*system_procedures*/
 SELECT ROUTINE_CATALOG AS PROCEDURE_CAT, ROUTINE_SCHEMA AS PROCEDURE_SCHEM,
 ROUTINE_NAME AS PROCEDURE_NAME, 0, 0, 0,
@@ -491,10 +491,10 @@ VALUES
 ('T351', 'Bracketed SQL comments (/*...*/ comments)', '', '', 'YES', NULL, ''),
 ('T401', 'INSERT into a cursor', '', '', 'NO', NULL, 'yes via JDBC'),
 ('T411', 'UPDATE statement: SET ROW option', '', '', 'NO', NULL, ''),
-('T431', 'Extended grouping capabilities', '', '', 'NO', NULL, ''),
-('T432', 'Nested and concatenated GROUPING SETS', '', '', 'NO', NULL, ''),
-('T433', 'Multiargument GROUPING function', '', '', 'NO', NULL, ''),
-('T434', 'GROUP BY DISINCT', '', '', 'NO', NULL, ''),
+('T431', 'Extended grouping capabilities', '', '', 'YES', NULL, ''),
+('T432', 'Nested and concatenated GROUPING SETS', '', '', 'YES', NULL, ''),
+('T433', 'Multiargument GROUPING function', '', '', 'YES', NULL, ''),
+('T434', 'GROUP BY DISINCT', '', '', 'YES', NULL, ''),
 ('T441', 'ABS and MOD functions', '', '', 'YES', NULL, ''),
 ('T461', 'Symmetric BETWEEN predicate', '', '', 'YES', NULL, ''),
 ('T471', 'Result sets return value', '', '', 'YES', NULL, ''),
