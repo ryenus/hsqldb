@@ -197,7 +197,7 @@ public class QuerySpecification extends QueryExpression {
         return rangeVariableList.size();
     }
 
-    // range variable sub queries are resolves fully
+    // range variable sub queries are resolved fully
     private void resolveRangeVariables(Session session,
                                        RangeGroup[] rangeGroups) {
 
