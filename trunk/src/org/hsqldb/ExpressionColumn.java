@@ -567,12 +567,16 @@ public class ExpressionColumn extends Expression {
                 }
 
                 if (resolveColumnReference(rangeVar, true)) {
-                    if (opType == OpTypes.COLUMN) {
-                        rangeGroup.setCorrelated();
+                    switch (opType) {
 
-                        for (int idxx = rangeGroups.length - 1; idxx > idx;
-                                idxx--) {
-                            rangeGroups[idxx].setCorrelated();
+                        case OpTypes.COLUMN :
+                        case OpTypes.COALESCE : {
+                            rangeGroup.setCorrelated();
+
+                            for (int idxx = rangeGroups.length - 1; idxx > idx;
+                                    idxx--) {
+                                rangeGroups[idxx].setCorrelated();
+                            }
                         }
                     }
 
