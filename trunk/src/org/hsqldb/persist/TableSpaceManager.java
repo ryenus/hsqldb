@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ public interface TableSpaceManager {
     /**
      * Allocates a block
      */
-    long getFilePosition(int rowSize, boolean asBlocks);
+    long getFilePosition(int rowSize);
 
     boolean hasFileRoom(long blockSize);
 

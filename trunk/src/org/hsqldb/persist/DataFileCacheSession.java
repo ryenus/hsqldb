@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,6 @@ public class DataFileCacheSession extends DataFileCache {
         fa                = FileUtil.getFileUtil();
         dataFileScale     = 64;
         cachedRowPadding  = dataFileScale;
-        initialFreePos    = dataFileScale;
         maxCacheRows      = 2048;
         maxCacheBytes     = maxCacheRows * 1024L;
         maxDataFileSize   = (long) Integer.MAX_VALUE * dataFileScale;
@@ -77,7 +76,7 @@ public class DataFileCacheSession extends DataFileCache {
         try {
             dataFile = new RAFile(database.logger, dataFileName, false, false,
                                   false);
-            fileFreePosition = initialFreePos;
+            fileFreePosition = dataFileScale;
 
             initBuffers();
 
@@ -112,7 +111,7 @@ public class DataFileCacheSession extends DataFileCache {
 
                 dataFile = null;
 
-                deleteFile(database, dataFileName);
+                deleteDataFile();
             }
         } catch (Throwable t) {
             database.logger.logWarningEvent("Failed to close Session RA file",
@@ -146,7 +145,7 @@ public class DataFileCacheSession extends DataFileCache {
 
         super.clear();
 
-        fileStartFreePosition = fileFreePosition = initialFreePos;
+        fileStartFreePosition = fileFreePosition = dataFileScale;
 
         initBuffers();
     }

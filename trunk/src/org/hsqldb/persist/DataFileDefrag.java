@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,18 +55,18 @@ import org.hsqldb.lib.StringUtil;
  *  image after translating the old pointers to the new.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version    2.4.1
+ * @version    2.5.1
  * @since      1.7.2
  */
 final class DataFileDefrag {
 
-    DataFileCache  dataFileOut;
-    StopWatch      stopw = new StopWatch();
-    String         dataFileName;
-    long[][]       rootsList;
-    Database       database;
-    DataFileCache  dataCache;
-    LongLookup pointerLookup;
+    DataFileCache dataFileOut;
+    StopWatch     stopw = new StopWatch();
+    String        dataFileName;
+    long[][]      rootsList;
+    Database      database;
+    DataFileCache dataCache;
+    LongLookup    pointerLookup;
 
     DataFileDefrag(Database db, DataFileCache cache) {
 
@@ -91,12 +91,24 @@ final class DataFileDefrag {
             Table table = (Table) allTables.get(i);
 
             if (table.getTableType() == TableBase.CACHED_TABLE) {
-                PersistentStore store =
-                    database.persistentStoreCollection.getStore(table);
+                RowStoreAVLDisk store =
+                    (RowStoreAVLDisk) database.persistentStoreCollection
+                        .getStore(table);
                 long size = store.elementCount();
 
                 if (size > maxSize) {
                     maxSize = size;
+                }
+
+                if (dataCache.spaceManager.isMultiSpace()
+                        && store.getSpaceManager().isDefaultSpace()) {
+                    if (store.getStorageSizeEstimate()
+                            > dataCache.spaceManager.getFileBlockSize() / 2) {
+                        int spaceId =
+                            dataCache.spaceManager.getNewTableSpaceID();
+
+                        table.setSpaceID(spaceId);
+                    }
                 }
             }
         }
@@ -121,15 +133,12 @@ final class DataFileDefrag {
                 Table t = (Table) allTables.get(i);
 
                 if (t.getTableType() == TableBase.CACHED_TABLE) {
-                    long[] rootsArray = writeTableToDataFile(t);
+                    long[] rootsArray = writeTableToDataFile(session, t);
 
                     rootsList[i] = rootsArray;
                 } else {
                     rootsList[i] = null;
                 }
-
-                database.logger.logDetailEvent("table complete "
-                                               + t.getName().name);
             }
 
             dataFileOut.close();
@@ -171,14 +180,15 @@ final class DataFileDefrag {
                                                + stopw.elapsedTime());
             } else {
                 database.logger.logSevereEvent("defrag failed ", error);
-                DataFileCache.deleteFile(database,
-                                         dataFileName
-                                         + Logger.newFileExtension);
+
+                if (dataFileOut != null) {
+                    dataFileOut.deleteDataFile();
+                }
             }
         }
     }
 
-    long[] writeTableToDataFile(Table table) {
+    long[] writeTableToDataFile(Session session, Table table) {
 
         RowStoreAVLDisk store =
             (RowStoreAVLDisk) table.database.persistentStoreCollection
@@ -186,8 +196,9 @@ final class DataFileDefrag {
         long[] rootsArray = table.getIndexRootsArray();
 
         pointerLookup.clear();
-        database.logger.logDetailEvent("lookup begins " + table.getName().name
-                                       + " " + stopw.elapsedTime());
+        database.logger.logDetailEvent("lookup begins "
+                                       + table.getName().statementName + " "
+                                       + stopw.elapsedTime());
         store.moveDataToSpace(dataFileOut, pointerLookup);
 
         for (int i = 0; i < table.getIndexCount(); i++) {
@@ -215,7 +226,7 @@ final class DataFileDefrag {
         }
 
         database.logger.logDetailEvent("table written "
-                                       + table.getName().name);
+                                       + table.getName().statementName);
 
         return rootsArray;
     }

@@ -133,14 +133,16 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final int SQL_PROPERTY    = 2;
 
     // db files modified
-    public static final int     FILES_NOT_MODIFIED = 0;
-    public static final int     FILES_MODIFIED     = 1;
-    public static final int     FILES_MODIFIED_NEW = 2;
-    public static final int     FILES_NEW          = 3;
-    private static final String MODIFIED_NO        = "no";
-    private static final String MODIFIED_YES       = "yes";
-    private static final String MODIFIED_YES_NEW   = "yes-new-files";
-    private static final String MODIFIED_NO_NEW    = "no-new-files";
+    public static final int     FILES_NOT_MODIFIED      = 0;
+    public static final int     FILES_MODIFIED          = 1;
+    public static final int     FILES_MODIFIED_NEW      = 2;
+    public static final int     FILES_MODIFIED_NEW_DATA = 3;
+    public static final int     FILES_NEW               = 4;
+    private static final String MODIFIED_NO             = "no";
+    private static final String MODIFIED_YES            = "yes";
+    private static final String MODIFIED_YES_NEW        = "yes-new-files";
+    private static final String MODIFIED_YES_NEW_DATA   = "yes-new-files-data";
+    private static final String MODIFIED_NO_NEW         = "no-new-files";
 
     // allowed property metadata
     private static final HashMap dbMeta   = new HashMap(67);
@@ -151,21 +153,21 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String PRODUCT_NAME         = "HSQL Database Engine";
 
 //#ifdef JAVA8
+/*
 
     public static final String THIS_VERSION         = "2.5.1";
     public static final String THIS_FULL_VERSION    = "2.5.1";
     public static final int    MAJOR                = 2,
                                MINOR                = 5,
                                REVISION             = 1;
+*/
 
 //#else
-/*
     public static final String THIS_VERSION      = "2.3.8";
     public static final String THIS_FULL_VERSION = "2.3.8";
     public static final int    MAJOR             = 2,
                                MINOR             = 3,
                                REVISION          = 8;
-*/
 
 //#endif JAVA8
 
@@ -668,7 +670,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             props.setProperty(hsqldb_modified, getProperty(hsqldb_modified));
             props.save(fileName + ".properties" + ".new");
             fa.renameElementOrCopy(fileName + ".properties" + ".new",
-                             fileName + ".properties");
+                                   fileName + ".properties");
         } catch (Throwable t) {
             database.logger.logSevereEvent("save failed", t);
 
@@ -851,6 +853,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                 value = MODIFIED_YES_NEW;
                 break;
 
+            case FILES_MODIFIED_NEW_DATA :
+                value = MODIFIED_YES_NEW_DATA;
+                break;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "HsqlDatabaseProperties");
@@ -868,6 +874,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             return FILES_MODIFIED;
         } else if (MODIFIED_YES_NEW.equals(value)) {
             return FILES_MODIFIED_NEW;
+        } else if (MODIFIED_YES_NEW_DATA.equals(value)) {
+            return FILES_MODIFIED_NEW_DATA;
         } else if (MODIFIED_NO_NEW.equals(value)) {
             return FILES_NEW;
         }

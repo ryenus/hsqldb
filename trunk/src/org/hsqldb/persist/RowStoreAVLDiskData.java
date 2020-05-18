@@ -114,7 +114,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
 
             object.setStorageSize(size);
 
-            long pos = tableSpace.getFilePosition(size, false);
+            long pos = tableSpace.getFilePosition(size);
 
             object.setPos(pos);
 

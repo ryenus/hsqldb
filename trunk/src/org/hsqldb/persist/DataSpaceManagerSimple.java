@@ -63,7 +63,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
             defaultSpaceManager = new TableSpaceManagerBlocks(this,
                     DataSpaceManager.tableIdDefault, fileBlockSize, capacity,
-                    cache.getDataFileScale(), 0);
+                    cache.getDataFileScale());
 
             if (!isReadOnly) {
                 initialiseSpaces();
@@ -105,43 +105,27 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
     public void freeTableSpace(int spaceId) {}
 
     public void freeTableSpace(int spaceId, DoubleIntIndex spaceList,
-                               long offset, long limit, boolean full) {
+                               long offset, long limit) {
 
         totalFragmentSize += spaceList.getTotalValues()
                              * cache.getDataFileScale();
 
-        if (full) {
-            if (cache.fileFreePosition == limit) {
-                cache.writeLock.lock();
+        if (cache.fileFreePosition == limit) {
+            cache.writeLock.lock();
 
-                try {
-                    cache.fileFreePosition = offset;
-                } finally {
-                    cache.writeLock.unlock();
-                }
-            } else {
-                totalFragmentSize += limit - offset;
-            }
-
-            if (spaceList.size() != 0) {
-                lookup = new DoubleIntIndex(spaceList.size(), true);
-
-                spaceList.copyTo(lookup);
-                spaceList.clear();
+            try {
+                cache.fileFreePosition = offset;
+            } finally {
+                cache.writeLock.unlock();
             }
         } else {
-            spaceList.compactLookupAsIntervals();
-            spaceList.setValuesSearchTarget();
-            spaceList.sort();
+            totalFragmentSize += limit - offset;
+        }
 
-            int extra = spaceList.size() - spaceList.capacity() / 2;
+        if (spaceList.size() != 0) {
+            lookup = new DoubleIntIndex(spaceList.size(), true);
 
-            if (extra > 0) {
-                spaceList.removeRange(0, extra);
-
-                totalFragmentSize -= spaceList.getTotalValues()
-                                     * cache.getDataFileScale();
-            }
+            spaceList.copyTo(lookup);
         }
     }
 
