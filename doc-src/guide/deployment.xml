@@ -241,66 +241,6 @@
       specified value, nio is not used.</para>
     </section>
 
-    <section xml:id="tspace_usage">
-      <title>Using Table Spaces</title>
-
-      <para>Data for all CACHED tables is stored in the
-      <literal>.data</literal> file. With new optional setting, HyperSQL 2.5
-      and later allocates separate blocks of the data file to different CACHED
-      tables. This method has the following advantages:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>When a table is dropped, all its data allocation blocks are
-          freed and become available for reuse.</para>
-        </listitem>
-
-        <listitem>
-          <para>When old rows are deleted in bulk, the space is immediately
-          released and reused.</para>
-        </listitem>
-      </itemizedlist>
-
-      <para>The following statement should be executed once to start the table
-      spaces for the whole database:</para>
-
-      <para><literal>SET FILES SPACE TRUE </literal></para>
-
-      <para>Then the statement below should be executed for each CACHED table
-      that will have its own space:</para>
-
-      <para><literal>SET TABLE &lt;table name&gt; NEW SPACE</literal></para>
-
-      <para>If the above statement is not executed, the table is stored in
-      common blocks shared by a number of tables.</para>
-
-      <para>If either of the above statements is executed again after the
-      first time, it does not change any settings.</para>
-
-      <para>It is better to set any table that is known to grow larger than
-      several hundred rows its own space before any data is stored.</para>
-
-      <para>If the above commands are executed when there are already some
-      rows in any CACHED table, the change does not happen immediately. In
-      this case, the table spaces are created only when CHCKPOINT DEFRAG,
-      SHUTDOWN COMPACT or SHUTDOWN SCRIPT is executed.</para>
-
-      <para>The size of the file block is 2MB when the hsqldb.cache_file_scale
-      is the default 32 (the size doubles as the scale doubles). It is
-      possible to reduce the block size to 1MB for databases that contain many
-      small tables that use their own, dedicated spaces. The statement
-      <literal>SET FILES SPACE 1</literal> is be executed instead of
-      <literal>SET FILES SPACE TRUE</literal> for a reduced block size.</para>
-
-      <para>As the table grows in size, more blocks are allocated to the
-      table. These blocks are allocated from the freed file blocks if there is
-      any available. The INFORMATION_SCHEMA.SYSTEM_TABLESTATS provides
-      information on the space usage of table spaces. In this table, the
-      SPACE_ID column contains the space id for the table. The value 1 is used
-      for the space allocated to directory structures. The value 7 is for
-      tables that use the common space.</para>
-    </section>
-
     <section xml:id="dec_disk_space">
       <title>Extra Disk Space Use</title>
 
@@ -651,117 +591,45 @@
       <primary>upgrading</primary>
     </indexterm>
 
-    <para>Any database that is not produced with a release version of HyperSQL
-    2.x must be upgraded to this version.</para>
+    <para>HSQLDB version 2.5.1 and later can open databases created with
+    version 2.0 and above. It will not open databases created with older
+    versions. It is a good idea to perform SHUTDOWN COMPACT after the
+    upgrade.</para>
 
-    <procedure>
-      <title>Upgrading Databases Created with Version 1.8.x</title>
+    <para>Downgrading is also possible. Once a database is upgraded to 2.5.1,
+    you need to perform SHUTDOWN SCRIPT before you open it with previous 2.x.x
+    versions of HyperSQL.</para>
 
-      <step>
-        <para>Open the database with the jar that created it and perform the
-        SHUTDOWN statement as an SQL statement.</para>
-      </step>
+    <para>To upgrade an old database created with version 1.8.x, you can use
+    HSQLDB version 2.3.x to 2.5.0 to open the database and perform SHUTDOWN
+    SCRIPT. You can then open the database with version 2.5.1 or later.</para>
 
-      <step>
-        <para>Open the database with the HyperSQL 2.0 jar.</para>
-      </step>
+    <para>If the 1.8.x database script format is set to BINARY or COMPRESSED
+    (ZIPPED), you must open the database with version 1.8.x and issue the SET
+    SCRIPTFORMAT TEXT and SHUTDOWN SCRIPT commands with the old version, prior
+    to version upgrade.</para>
 
-      <step>
-        <para>Perform the SHUTDOWN COMPACT statement..</para>
-      </step>
-    </procedure>
-
-    <para>The first step is to guarantee there is no <literal>.log</literal>
-    file for the database. When upgrading an application that has been
-    deployed on a large scale, it is sometimes not practical to perform the
-    first step of this procedure (with the old jar). You can ignore the first
-    step but you may lose part of the database statements that are stored in
-    the <literal>.log</literal> file. Therefore, you need to test with
-    databases created with your application to make sure typical statements
-    that are logged in the <literal>.log</literal> file are compatible with
-    the new version. Examples of known incompatible statements are some DDL
-    statements used for changing the data type or default values of
-    column.</para>
+    <para>It is strongly recommended to execute SHUTDOWN SCRIPT after an
+    automatic upgrade from previous versions.</para>
 
     <para>A note about SHUTDOWN modes. SHUTDOWN COMPACT is equivalent to
     SHUTDOWN SCRIPT plus opening the database and then performing a simple
     SHUTDOWN.</para>
 
-    <para>After upgrading a database, you may want to change some of its
-    settings. For example, the new SET FILES BACKUP INCREMENT TRUE statement
-    can improve the shutdown and checkpoint times of larger databases.</para>
+    <para>After upgrading a database, there will be some changes to its
+    settings. For example, the new SET FILES BACKUP INCREMENT TRUE is applied
+    to improve the shutdown and checkpoint times of larger databases.</para>
 
-    <para>Once a database is upgraded to 2.0, it can no longer be used with
-    previous versions of HyperSQL.</para>
+    <para>If your database has been created with version 1.7.2 or 1.7.3, first
+    upgrade to version 1.8.1 and perform a SHUTDOWN SCRIPT with this version.
+    You can then upgrade the database to version 2.x.</para>
 
-    <section xml:id="dec_upgrade_via_script">
-      <title xml:id="upgrade_via_script-title">Upgrading From Older
-      Versions</title>
-
-      <para>To upgrade from version 1.8.x with the default TEXT format script
-      files, follow the instructions above. If the 1.8.x files have database
-      script format set to BINARY or COMPRESSED (ZIPPED) you must issue the
-      SET SCRIPTFORMAT TEXT and SHUTDOWN SCRIPT commands with the old version,
-      then open with the new version of the engine. In most cases the upgrade
-      is successful and complete.</para>
-
-      <para>It is strongly recommended to execute SHUTDOWN COMPACT after an
-      automatic upgrade from previous versions.</para>
-
-      <para>If your database has been created with version 1.7.2 or 1.7.3,
-      first upgrade to version 1.8.1 and perform a SHUTDOWN SCRIPT with this
-      version. You can then upgrade the database to version 2.x.</para>
-
-      <para>To upgrade from older version database files (1.7.1 and older)
-      that contain CACHED tables, use the SCRIPT procedure below. In all
-      versions of HyperSQL, the <literal>SCRIPT 'filename'</literal> command
-      (used as an SQL statement) allows you to save a full record of your
-      database, including database object definitions and data, to a file of
-      your choice. You can export a script file using the old version of the
-      database engine and open the script as a database with 2.x.</para>
-
-      <procedure>
-        <title>Upgrade Using the SCRIPT Procedure for Very Old
-        Versions</title>
-
-        <step>
-          <para>Open the original database in the old version of
-          DatabaseManager</para>
-        </step>
-
-        <step>
-          <para>Issue the SCRIPT command, for example <literal>SCRIPT
-          'newversion.script'</literal> to create a script file containing a
-          copy of the database.</para>
-        </step>
-
-        <step>
-          <para>SHUTDOWN this database.</para>
-        </step>
-
-        <step>
-          <para>Copy the original <literal>*.properties</literal> file into
-          <filename>newversion.properties</filename> in the same directory as
-          <filename>newversion.script</filename></para>
-        </step>
-
-        <step>
-          <para>Try to open the new database <filename>newversion</filename>
-          using DatabaseManager of version 1.8.1.</para>
-        </step>
-
-        <step>
-          <para>If there is any inconsistency in the data, the script line
-          number is reported on the console and the opening process is
-          aborted. Edit and correct any problems in the
-          <filename>newversion.script</filename> before attempting to open
-          again. Use the guidelines in the next section (Manual Changes to the
-          <literal>.script</literal> File). Use a programming editor that is
-          capable of handling very large files and does not wrap long lines of
-          text.</para>
-        </step>
-      </procedure>
-    </section>
+    <para>To upgrade from older version database files (1.7.1 and older) that
+    contain CACHED tables, use the SCRIPT procedure below. In all versions of
+    HyperSQL, the <literal>SCRIPT 'filename'</literal> command (used as an SQL
+    statement) allows you to save a full record of your database, including
+    database object definitions and data, to a file of your choice. You can
+    then use the PERFORM IMPORT ... statement to load the file.</para>
 
     <section xml:id="dec_script_manual_change">
       <title>Manual Changes to the *.script File</title>

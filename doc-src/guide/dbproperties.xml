@@ -41,7 +41,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2019 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2020 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -57,8 +57,8 @@
     database services and accessing them can be found in the <link
     endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"/> chapter.
     Details and examples of how to connect via JDBC are provided in our
-    JavaDoc for <classname xlink:href="#JDBCConnection.html-link">
-    JDBCConnection</classname>.</para>
+    JavaDoc for <classname
+    xlink:href="#JDBCConnection.html-link">JDBCConnection</classname>.</para>
 
     <para>A uniform method is used to distinguish between different types of
     connection. The common driver identifier is
@@ -738,6 +738,9 @@
     pairs override the existing database properties. For example a normal
     database is opened as readonly, or the lock file is not created, or the
     sql log level is set to a value between 1 and 3.</para>
+
+    <para>Properties for database encryption and compressed .script file are
+    also required on the first connection to an existing database.</para>
 
     <para>Management of properties has changed since version 1.8. The old SET
     PROPERTY statement does not change a property and is ignored. The
@@ -2682,14 +2685,15 @@
             </row>
 
             <row>
-              <entry nameend="c3" namest="c1"><para>During updates, the
-              contents of the .data file are modified. When this property is
-              true, the modified contents are backed up gradually. This causes
-              a marginal slowdown in operations, but allows fast checkpoint
-              and shutdown.</para><para>When the property is false, the .data
-              file is backed up entirely at the time of checkpoint and
-              shutdown. Up to version 1.8, HSQLDB supported only full
-              backup.</para><para><programlisting>SET FILES BACKUP INCREMENT { TRUE | FALSE }</programlisting></para></entry>
+              <entry nameend="c3" namest="c1"><para>As the contents of the
+              .data file are modified during database operation, the original
+              contents are backed up gradually. This allows fast checkpoint
+              and shutdown.</para><para>With HSQLDB up to version 2.5.0 it was
+              possible to set the property false in order to have the .data
+              file backed up entirely at the time of checkpoint and
+              shutdown.</para><para>From version 2.5.1, this property has no
+              effect and backup is always
+              incremental.</para><para><programlisting>SET FILES BACKUP INCREMENT { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -2859,7 +2863,8 @@
               defrag operation is performed. The default is 0, which means no
               automatic checkpoint. The numeric value must be between 0 and
               100 and is interpreted as a percentage of the current size of
-              the .data file.</para><para><programlisting>SET FILES DEFRAG &lt;numeric value&gt;</programlisting></para></entry>
+              the .data file. Positive values less than 25 are converted to
+              25.</para><para><programlisting>SET FILES DEFRAG &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -3024,11 +3029,11 @@
               <entry nameend="c3" namest="c1"><para>Setting this property to
               <literal>false</literal> will avoid the use of nio access
               methods, resulting in somewhat reduced speed. If the data file
-              is larger than hsqldb.nio_max_size (default 256MB) when it is
-              first opened (or when its size is increased), nio access methods
-              are not used. Also, if the file gets larger than the amount of
-              available computer memory that needs to be allocated for nio
-              access, non-nio access methods are
+              is larger than <literal>hsqldb.nio_max_size</literal> (default
+              256MB) when it is first opened (or when its size is increased),
+              nio access methods are not used. Also, if the file gets larger
+              than the amount of available computer memory that needs to be
+              allocated for nio access, non-nio access methods are
               used.</para><para><programlisting>SET FILES NIO { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
@@ -3107,7 +3112,7 @@
 
             <row>
               <entry nameend="c3" namest="c1"><para>The .log file is processed
-              during recovery after a forced shutdwon. Out of memory
+              during recovery after a forced shutdown. Out of memory
               conditions always abort the startup. Any other exception stops
               the processing of the .log file and by default, continues the
               startup process. If this property is true, the startup process
@@ -3237,11 +3242,12 @@
             </row>
 
             <row>
-              <entry nameend="c3" namest="c1"><para>If the property is true,
-              the contents of the .lobs file is encrypted. HyperSQL versions
-              prior to 2.3.0 did not support encrypted lobs. Databases created
-              with those versions must be opened with crypt_lobs=false on the
-              URL.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+              <entry nameend="c3" namest="c1"><para>With encrypted databases,
+              if this property is true, the contents of the .lobs file are
+              also encrypted. HyperSQL versions prior to 2.3.0 did not support
+              encrypted lobs. Encrypted databases created with those versions
+              must be opened with crypt_lobs=false on the URL when they
+              contain lobs.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
