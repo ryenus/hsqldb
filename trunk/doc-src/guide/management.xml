@@ -506,6 +506,66 @@
     </example>
   </section>
 
+  <section xml:id="tspace_usage">
+    <title>Using Table Spaces</title>
+
+    <para>Data for all CACHED tables is stored in the <literal>.data</literal>
+    file. With new optional setting, HyperSQL 2.5 and later allocates separate
+    blocks of the data file to different CACHED tables. This method has the
+    following advantages:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>When a table is dropped, all its data allocation blocks are
+        freed and become available for reuse.</para>
+      </listitem>
+
+      <listitem>
+        <para>When old rows are deleted in bulk, the space is immediately
+        released and reused.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>The following statement should be executed once to start the table
+    spaces for the whole database:</para>
+
+    <para><literal>SET FILES SPACE TRUE </literal></para>
+
+    <para>Then the statement below should be executed for each CACHED table
+    that will have its own space:</para>
+
+    <para><literal>SET TABLE &lt;table name&gt; NEW SPACE</literal></para>
+
+    <para>If the above statement is not executed, the table is stored in
+    common blocks shared by a number of tables.</para>
+
+    <para>If either of the above statements is executed again after the first
+    time, it does not change any settings.</para>
+
+    <para>It is better to set any table that is known to grow larger than
+    several hundred rows its own space before any data is stored.</para>
+
+    <para>If the above commands are executed when there are already some rows
+    in any CACHED table, the change does not happen immediately. In this case,
+    the table spaces are created only when CHCKPOINT DEFRAG, SHUTDOWN COMPACT
+    or SHUTDOWN SCRIPT is executed.</para>
+
+    <para>The size of the file block is 2MB when the hsqldb.cache_file_scale
+    is the default 32 (the size doubles as the scale doubles). It is possible
+    to reduce the block size to 1MB for databases that contain many small
+    tables that use their own, dedicated spaces. The statement <literal>SET
+    FILES SPACE 1</literal> can be executed instead of <literal>SET FILES
+    SPACE TRUE</literal> for a reduced block size.</para>
+
+    <para>As the table grows in size, more blocks are allocated to the table.
+    These blocks are allocated from the freed file blocks if there is any
+    available. The INFORMATION_SCHEMA.SYSTEM_TABLESTATS provides information
+    on the space usage of table spaces. In this table, the SPACE_ID column
+    contains the space id for the table. The value 1 is used for the space
+    allocated to directory structures. The value 7 is for tables that use the
+    common space.</para>
+  </section>
+
   <section>
     <title>Checking Database Tables and Indexes</title>
 
@@ -518,16 +578,23 @@
     tables or all tables can be checked.</para>
 
     <informalexample>
-      <programlisting> PERFORM CHECK TABLE PUBLIC.CUSTOMER INDEX</programlisting>
+      <programlisting> PERFORM CHECK TABLE PUBLIC.CUSTOMER INDEX [ AND FIX ]</programlisting>
     </informalexample>
 
     <informalexample>
-      <programlisting> PERFORM CHECK ALL TABLE INDEX</programlisting>
+      <programlisting> PERFORM CHECK ALL TABLE INDEX [ AND FIX ]</programlisting>
     </informalexample>
 
     <para>The command reads and compares all the rows and lists the size of
-    each table and the size of each index on the table. With large tables, it
-    can take a long time to complete.</para>
+    each table and the size of each index on the table. If an index is
+    damaged, the list shows the number of rows that could be read as different
+    from the number of rows in the table. With large tables, it can take a
+    long time to complete.</para>
+
+    <para>It is possible to execute the command with the addition of
+    <literal>AND FIX</literal> to the end. If some indexes have been damaged
+    but at least one index on a table is undamaged, this should fix the
+    problem and if the command is run again, it should show no damage.</para>
   </section>
 
   <section xml:id="mtc_backup">
@@ -1382,6 +1449,44 @@
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>PERFORM CHECK INDEX</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CHECK INDEX</emphasis></simpara>
+
+      <simpara><emphasis>check index statement</emphasis></simpara>
+
+      <simpara><literal>&lt;check index statement&gt; ::= PERFORM CHECK { ALL
+      TABLE | TABLE &lt; table name &gt; } INDEX [ AND FIX
+      ]</literal></simpara>
+
+      <simpara>Checks the indexes on a single CACHED table, or all the CACHED
+      tables in the database. It returns a list of tables and indexes with
+      rows counts together with any errors found. The optional <literal>AND
+      FIX</literal> fixes the damaged indexes on a table if at least one index
+      is undamaged.</simpara>
+
+      <simpara>The first form is for importing data for ordinary tables. The {
+      CONTINUE | STOP | CHECK } ON ERROR clause determines the action when an
+      error occurs due to constraint violation. The CHECK option does
+      </simpara>
+
+      <simpara>This statements takes a long time to execute on large tables as
+      all the rows are read again for each index.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this statement. An
+      example of the output is given below.</simpara>
+
+      <informalexample>
+        <programlisting> TABLE_OR_INDEX_NAME        INFO                  
+ -------------------------- --------------------- 
+ TABLE PUBLIC.ZIP           rows 4096             
+ SYS_IDX_SYS_PK_10092_10093 readable rows 4096    
+ TABLE PUBLIC.TEST          rows 2084352          
+ SYS_IDX_SYS_PK_10096_10097 readable rows 2084352 </programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="mtc_database_settings">
@@ -1568,7 +1673,7 @@
 
       <simpara>In previous versions an optional property which forced calls to
       <literal>System.gc() </literal>after the specified number of row
-      operations. This has no effect in version 2.5.</simpara>
+      operations. This has no effect from version 2.5.0.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2590,27 +2695,21 @@
       <simpara><literal>&lt;set files backup increment statement&gt; ::= SET
       FILES BACKUP INCREMENT { TRUE | FALSE }</literal></simpara>
 
-      <simpara>Older versions of HyperSQL perform a backup of the
-      <literal>.data</literal> file before its contents are modified and the
-      whole <literal>.data</literal> file is saved in a compressed form when a
-      CHECKPOINT or SHUTDOWN is performed. This takes a long time when the
-      size of the database exceeds 100 MB or so (on an average 2010 computer,
-      you can expect a backup speed of 20MB per second or more).</simpara>
+      <simpara>Very old versions of HyperSQL performed a backup of the
+      <literal>.data</literal> file before its contents were modified and the
+      whole <literal>.data</literal> file was saved in a compressed form when
+      a CHECKPOINT or SHUTDOWN was performed. This takes a long time when the
+      size of the database exceeds 100 MB or so. This feature was still
+      supported until version 2.5.0 for backward compatibility.</simpara>
 
       <simpara>The alternative is backup in increments, just before some part
       of the <literal>.data</literal> file is modified. In this mode, no
-      backup is performed at CHECKPOINT or SHUTDOWN. This mode is preferred
-      for large databases which are opened and closed frequently.</simpara>
+      backup is performed at CHECKPOINT or SHUTDOWN. This mode has been
+      supported for many years. From version 2.5.1 this is the only supported
+      mode.</simpara>
 
-      <simpara>The default mode is <literal>TRUE</literal>. If the old method
-      of backup is preferred, the mode can be set
-      <literal>FALSE</literal>.</simpara>
-
-      <simpara>Warning: The old, non-incremental setting, FALSE, shouldn't be
-      used at all when the data file is larger than 4GB. If it is used, the
-      data file is not fully backed up and can result in corruption. The zip
-      compression method is used in this mode and it is limited to 4GB
-      size.</simpara>
+      <simpara>The default mode is now <literal>TRUE</literal>. This command
+      has no effect.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2836,17 +2935,23 @@
       <simpara>Changes the scale factor for the <literal>.data</literal> file.
       The default scale is 32 and allows 64GB of data storage capacity. The
       scale can be increased in order to increase the maximum data storage
-      capacity. The scale values 8, 16, 32, 64, 128, 256, 512, 1024 are
-      allowed. Scale value 1024 allows a maximum capacity of 2 TB.</simpara>
+      capacity. The scale values 16, 32, 64, 128, 256, 512, 1024 are allowed.
+      Scale value 1024 allows a maximum capacity of 2 TB.</simpara>
 
-      <simpara>This command can be used only when there is no data in CACHED
-      tables. This is equivalent to the connection property
+      <simpara>This command should be used before data is inserted into CACHED
+      TABLES. It can also be used when there is some data in CACHED tables but
+      then it has no effect until a SHUTDOWN COMPACT or SHUTDOWN SCRIPT is
+      performed. This is equivalent to the connection property
       <literal>hsqldb.cache_file_scale</literal>.</simpara>
 
       <simpara>The scale factor indicates the size of the unit of storage of
       data in bytes. For example, with a scale factor of 128, a row containing
       a small amount of data will use 128 bytes. Larger rows may use multiple
       units of 128 bytes.</simpara>
+
+      <simpara>When the data file already exists, you must perform SHUTDOWN
+      COMPACT or SHUTDOWN SCRIPT after changing the scale. Otherwise the
+      change will be forgotten. </simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
