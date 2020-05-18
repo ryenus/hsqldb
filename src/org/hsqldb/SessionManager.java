@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.rights.User;
  * Responsible for managing opening and closing of sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.5.1
  * @since 1.7.2
  */
 public class SessionManager {
@@ -115,9 +115,8 @@ public class SessionManager {
 
     public synchronized Session newSessionForLog(Database db) {
 
-        boolean autoCommit = db.databaseProperties.isVersion18();
-        Session s = new Session(db, db.getUserManager().getSysUser(),
-                                autoCommit, false, sessionIdCount, null, 0);
+        Session s = new Session(db, db.getUserManager().getSysUser(), false,
+                                false, sessionIdCount, null, 0);
 
         s.isProcessingLog = true;
 

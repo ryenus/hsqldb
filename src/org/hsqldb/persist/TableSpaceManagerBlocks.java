@@ -35,6 +35,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DoubleIntIndex;
+import org.hsqldb.lib.IntKeyIntValueHashMap;
 
 /**
  * Manages allocation of space for rows.<p>
@@ -46,14 +47,15 @@ import org.hsqldb.lib.DoubleIntIndex;
  */
 public class TableSpaceManagerBlocks implements TableSpaceManager {
 
+    //
     final DataSpaceManager spaceManager;
     final int              scale;
-    final int              mainBlockSize;
+    final int              fileBlockSize;
     final int              spaceID;
-    final int              minReuse;
 
     //
     private DoubleIntIndex lookup;
+    private DoubleIntIndex oldLookup;
     private final int      capacity;
     private long           requestGetCount;
     private long           releaseCount;
@@ -61,29 +63,32 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     private long           requestSize;
     boolean                isModified;
     boolean                isInitialised;
+    IntKeyIntValueHashMap  map;
 
     //
     long freshBlockFreePos = 0;
     long freshBlockLimit   = 0;
+    long currentBlockFloor = 0;
+    long currentBlockLimit = 0;
     int  fileBlockIndex    = -1;
 
     /**
      *
      */
-    public TableSpaceManagerBlocks(DataSpaceManager spaceManager, int tableId,
+    public TableSpaceManagerBlocks(DataSpaceManager spaceManager, int spaceId,
                                    int fileBlockSize, int capacity,
-                                   int fileScale, int minReuse) {
+                                   int fileScale) {
 
         this.spaceManager  = spaceManager;
+        this.spaceID       = spaceId;
+        this.fileBlockSize = fileBlockSize;
+        this.capacity      = capacity;
         this.scale         = fileScale;
-        this.spaceID       = tableId;
-        this.mainBlockSize = fileBlockSize;
-        this.minReuse      = minReuse;
         lookup             = new DoubleIntIndex(capacity, true);
 
         lookup.setValuesSearchTarget();
 
-        this.capacity = capacity;
+        oldLookup = new DoubleIntIndex(capacity, true);
     }
 
     public boolean hasFileRoom(long blockSize) {
@@ -104,8 +109,12 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     public void initialiseFileBlock(DoubleIntIndex spaceList,
                                     long blockFreePos, long blockLimit) {
 
+        isInitialised     = true;
         freshBlockFreePos = blockFreePos;
         freshBlockLimit   = blockLimit;
+        currentBlockFloor = (freshBlockFreePos / fileBlockSize)
+                            * (fileBlockSize / scale);
+        currentBlockLimit = freshBlockLimit / scale;
 
         if (spaceList != null) {
             spaceList.copyTo(lookup);
@@ -129,8 +138,8 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
             }
         }
 
-        blockCount = (mainBlockSize + rowSize) / mainBlockSize;
-        blockSize  = blockCount * mainBlockSize;
+        blockCount = (fileBlockSize + rowSize) / fileBlockSize;
+        blockSize  = blockCount * fileBlockSize;
         position   = spaceManager.getFileBlocks(spaceID, (int) blockCount);
 
         if (position < 0) {
@@ -149,16 +158,22 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         }
 
         freshBlockLimit += blockSize;
+        currentBlockFloor = (freshBlockFreePos / fileBlockSize)
+                            * (fileBlockSize / scale);
+        currentBlockLimit = freshBlockLimit / scale;
+
+        if (oldLookup.size() + lookup.size() > oldLookup.capacity()) {
+            resetOldList();
+        }
+
+        oldLookup.addUnsorted(lookup);
+        resetOldList();
+        lookup.clear();
 
         return true;
     }
 
-    private long getNewBlock(long rowSize, boolean asBlocks) {
-
-        if (asBlocks) {
-            rowSize = (int) ArrayUtil.getBinaryMultipleCeiling(rowSize,
-                    DataSpaceManager.fixedBlockSizeUnit);
-        }
+    private long getNewBlock(long rowSize) {
 
         if (freshBlockFreePos + rowSize > freshBlockLimit) {
             boolean result = getNewMainBlock(rowSize);
@@ -169,19 +184,6 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         }
 
         long position = freshBlockFreePos;
-
-        if (asBlocks) {
-            position = ArrayUtil.getBinaryMultipleCeiling(position,
-                    DataSpaceManager.fixedBlockSizeUnit);
-
-            long released = position - freshBlockFreePos;
-
-            if (released > 0) {
-                release(freshBlockFreePos / scale, (int) released);
-
-                freshBlockFreePos = position;
-            }
-        }
 
         freshBlockFreePos += rowSize;
 
@@ -200,63 +202,58 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
         releaseCount++;
 
-        if (lookup.size() == capacity) {
-            resetList();
-        }
-
         if (pos + rowUnits >= Integer.MAX_VALUE) {
             return;
         }
 
-        lookup.add(pos, rowUnits);
+        if ((pos >= currentBlockFloor && pos < currentBlockLimit)) {
+            lookup.add(pos, rowUnits);
+
+            if (lookup.size() == capacity) {
+                resetList(false);
+            }
+        } else {
+            oldLookup.addUnsorted(pos, rowUnits);
+
+            if (oldLookup.size() == capacity) {
+                resetOldList();
+            }
+        }
     }
 
     /**
-     * Returns the position of a free block or 0.
+     * Returns the position of a free block or throws
      */
-    synchronized public long getFilePosition(int rowSize, boolean asBlocks) {
+    synchronized public long getFilePosition(int rowSize) {
 
         requestGetCount++;
 
         if (capacity == 0) {
-            return getNewBlock(rowSize, asBlocks);
-        }
-
-        if (asBlocks) {
-            rowSize = (int) ArrayUtil.getBinaryMultipleCeiling(rowSize,
-                    DataSpaceManager.fixedBlockSizeUnit);
+            return getNewBlock(rowSize);
         }
 
         int index    = -1;
         int rowUnits = rowSize / scale;
 
-        if (rowSize >= minReuse && lookup.size() > 0) {
+        if (lookup.size() > 0) {
             if (lookup.getValue(0) >= rowUnits) {
                 index = 0;
             } else {
                 index = lookup.findFirstGreaterEqualKeyIndex(rowUnits);
+
+                if (index == -1) {
+                    lookup.compactLookupAsIntervals();
+                    lookup.setValuesSearchTarget();
+
+                    index = lookup.findFirstGreaterEqualKeyIndex(rowUnits);
+                }
             }
         }
 
         if (index == -1) {
-            return getNewBlock(rowSize, asBlocks);
+            return getNewBlock(rowSize);
         }
 
-        if (asBlocks) {
-            for (; index < lookup.size(); index++) {
-                long pos = lookup.getKey(index);
-
-                if (pos % (DataSpaceManager.fixedBlockSizeUnit / scale) == 0) {
-                    break;
-                }
-            }
-
-            if (index == lookup.size()) {
-                return getNewBlock(rowSize, asBlocks);
-            }
-        }
-
-        // statistics for successful requests only - to be used later for midSize
         requestCount++;
 
         requestSize += rowSize;
@@ -281,20 +278,24 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         if (freshBlockFreePos == 0) {
             fileBlockIndex = -1;
         } else {
-            fileBlockIndex = (int) (freshBlockFreePos / mainBlockSize);
+            fileBlockIndex = (int) (freshBlockFreePos / fileBlockSize);
         }
 
-        spaceManager.freeTableSpace(spaceID, lookup, freshBlockFreePos,
-                                    freshBlockLimit, true);
+        resetOldList();
+        resetList(true);
 
         freshBlockFreePos = 0;
         freshBlockLimit   = 0;
+        currentBlockFloor = 0;
+        currentBlockLimit = 0;
     }
 
     public long getLostBlocksSize() {
 
         long total = freshBlockLimit - freshBlockFreePos
                      + lookup.getTotalValues() * scale;
+
+        total += oldLookup.getTotalValues() * scale;
 
         return total;
     }
@@ -307,9 +308,44 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         return fileBlockIndex;
     }
 
-    private void resetList() {
+    private void resetList(boolean full) {
 
-        // dummy args for file block release
-        spaceManager.freeTableSpace(spaceID, lookup, 0, 0, false);
+        lookup.compactLookupAsIntervals();
+
+        if (full) {
+            spaceManager.freeTableSpace(spaceID, lookup, freshBlockFreePos,
+                                        freshBlockLimit);
+            lookup.clear();
+            lookup.setValuesSearchTarget();
+        } else {
+            if (lookup.size() == capacity) {
+                int limit = capacity / 2;
+
+                for (int i = 0; i < limit; i++) {
+                    int pos      = lookup.getKey(i);
+                    int rowUnits = lookup.getValue(i);
+
+                    oldLookup.addUnsorted(pos, rowUnits);
+
+                    if (oldLookup.size() == capacity) {
+                        resetOldList();
+                    }
+                }
+
+                resetOldList();
+                lookup.removeRange(0, limit);
+            }
+
+            lookup.setValuesSearchTarget();
+        }
+    }
+
+    private void resetOldList() {
+
+        if (oldLookup.size() > 0) {
+            oldLookup.compactLookupAsIntervals();
+            spaceManager.freeTableSpace(spaceID, oldLookup, 0, 0);
+            oldLookup.clear();
+        }
     }
 }

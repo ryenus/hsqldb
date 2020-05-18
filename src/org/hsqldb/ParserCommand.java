@@ -1190,12 +1190,7 @@ public class ParserCommand extends ParserDDL {
                 }
 
                 if (padSpace == null) {
-                    if (session.isProcessingScript()
-                            && database.getProperties().isVersion18()) {
-                        padSpace = Boolean.FALSE;
-                    } else {
-                        padSpace = Boolean.TRUE;
-                    }
+                    padSpace = Boolean.TRUE;
                 }
 
                 Object[] args = new Object[] {

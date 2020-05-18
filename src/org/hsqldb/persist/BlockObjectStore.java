@@ -90,7 +90,7 @@ public class BlockObjectStore extends SimpleStore {
 
         object.setStorageSize(storageSize);
 
-        long pos = spaceManager.getFilePosition(storageSize, true);
+        long pos = spaceManager.getFilePosition(storageSize);
 
         object.setPos(pos);
         cache.add(object, keep);

@@ -105,15 +105,15 @@ public class Logger implements EventLogInterface {
 
     //
     private boolean propIsFileDatabase;
-    boolean         propIncrementBackup;
     boolean         propNioDataFile;
     long            propNioMaxSize    = 256 * 1024 * 1024L;
     int             propMaxFreeBlocks = 512;
     int             propMinReuse      = 0;
     private int     propCacheMaxRows;
     private long    propCacheMaxSize;
-    int             propCacheDefragLimit;
+    int             propDataFileDefragLimit;
     private int     propDataFileScale;
+    int             propDataFileSpace;
     String          propTextSourceDefault = "";
     boolean         propTextAllowFullPath;
     private int     propWriteDelay;
@@ -128,8 +128,7 @@ public class Logger implements EventLogInterface {
     boolean         propCompressLobs;
     int             propScriptFormat = 0;
     boolean         propLargeData;
-    int             propFileSpaceValue;
-    long            propFileTimestamp;
+    long            propFilesTimestamp;
 
     //
     Log               log;
@@ -209,25 +208,38 @@ public class Logger implements EventLogInterface {
             hasScript = fileAccess.isStreamElement(database.getPath()
                                                    + scriptFileExtension);
 
-            boolean exists;
+            boolean version18 = database.databaseProperties.isVersion18();
 
-            if (database.databaseProperties.isVersion18()) {
-                exists = hasFileProps;
+            if (version18) {
+                throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION,
+                                  "unsupported old database version");
+            }
 
-                database.databaseProperties.setProperty(
-                    HsqlDatabaseProperties.hsqldb_inc_backup, false);
-            } else {
-                exists = hasScript;
+            boolean exists = hasScript;
 
-                if (!exists) {
-                    exists =
-                        fileAccess.isStreamElement(database.getPath()
-                                                   + scriptFileExtension
-                                                   + Logger.newFileExtension);
+            if (!exists) {
+                exists = fileAccess.isStreamElement(database.getPath()
+                                                    + scriptFileExtension
+                                                    + Logger.newFileExtension);
+
+                if (exists) {
+                    database.databaseProperties.setDBModified(
+                        HsqlDatabaseProperties.FILES_MODIFIED_NEW);
+                } else {
+                    exists = fileAccess.isStreamElement(database.getPath()
+                                                        + dataFileExtension);
 
                     if (exists) {
-                        database.databaseProperties.setDBModified(
-                            HsqlDatabaseProperties.FILES_MODIFIED_NEW);
+                        throw Error.error(ErrorCode.DATA_FILE_ERROR,
+                                          "database files not complete");
+                    }
+
+                    exists = fileAccess.isStreamElement(database.getPath()
+                                                        + backupFileExtension);
+
+                    if (exists) {
+                        throw Error.error(ErrorCode.DATA_FILE_ERROR,
+                                          "database files not complete");
                     }
                 }
             }
@@ -315,28 +327,12 @@ public class Logger implements EventLogInterface {
             acquireLock(database.getPath());
         }
 
-        boolean version18 = database.databaseProperties.isVersion18();
-
-        if (version18) {
-            database.setDatabaseName(newUniqueName());
-            database.schemaManager.createPublicSchema();
-
-            HsqlName name = database.schemaManager.findSchemaHsqlName(
-                SqlInvariants.PUBLIC_SCHEMA);
-
-            database.schemaManager.setDefaultSchemaHsqlName(name);
-        }
-
         log = new Log(database);
 
         log.open();
 
         logsStatements = true;
         loggingEnabled = propLogData && !database.isFilesReadOnly();
-
-        if (version18) {
-            checkpoint(null, false, false);
-        }
 
         if (database.getNameString().length() == 0) {
             database.setDatabaseName(newUniqueName());
@@ -403,9 +399,6 @@ public class Logger implements EventLogInterface {
 
         propScriptFormat = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_script_format);
-
-        boolean version18 = database.databaseProperties.isVersion18();
-
         propMaxFreeBlocks = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_cache_free_count);
         propMaxFreeBlocks = ArrayUtil.getTwoPowerFloor(propMaxFreeBlocks);
@@ -425,7 +418,7 @@ public class Logger implements EventLogInterface {
 
         database.granteeManager.setDigestAlgo(temp);
 
-        if (!isNewDatabase && !version18) {
+        if (!isNewDatabase) {
             return;
         }
 
@@ -558,8 +551,6 @@ public class Logger implements EventLogInterface {
             database.setReadOnly();
         }
 
-        propIncrementBackup = database.databaseProperties.isPropertyTrue(
-            HsqlDatabaseProperties.hsqldb_inc_backup);
         propNioDataFile = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_nio_data_file);
         propNioMaxSize =
@@ -574,7 +565,7 @@ public class Logger implements EventLogInterface {
         setLobFileScaleNoCheck(
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_lob_file_scale));
-        this.setLobFileCompressedNoCheck(
+        setLobFileCompressedNoCheck(
             database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.hsqldb_lob_file_compressed));
         setDataFileScaleNoCheck(
@@ -586,11 +577,12 @@ public class Logger implements EventLogInterface {
             HsqlDatabaseProperties.hsqldb_files_space, 0);
 
         if (fileSpace != 0) {
-            setDataFileSpaces(fileSpace);
+            setDataFileSpace(fileSpace);
         }
 
-        propCacheDefragLimit = database.databaseProperties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_defrag_limit);
+        propDataFileDefragLimit =
+            database.databaseProperties.getIntegerProperty(
+                HsqlDatabaseProperties.hsqldb_defrag_limit);
         propWriteDelay = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_write_delay_millis);
 
@@ -653,7 +645,7 @@ public class Logger implements EventLogInterface {
             switch (closemode) {
 
                 case Database.CLOSEMODE_IMMEDIATELY :
-                    log.shutdown();
+                    log.closeImmediately();
                     break;
 
                 case Database.CLOSEMODE_NORMAL :
@@ -710,7 +702,7 @@ public class Logger implements EventLogInterface {
     }
 
     public boolean isAllowedFullPath() {
-        return this.propTextAllowFullPath;
+        return propTextAllowFullPath;
     }
 
     /**
@@ -1095,24 +1087,6 @@ public class Logger implements EventLogInterface {
         return propLobBlockSize;
     }
 
-    public synchronized void setIncrementBackup(boolean val) {
-
-        if (val == propIncrementBackup) {
-            return;
-        }
-
-        if (log != null) {
-            log.setIncrementBackup(val);
-
-            if (log.hasCache()) {
-                checkpointState.compareAndSet(stateCheckpointNormal,
-                                              stateCheckpointRequired);
-            }
-        }
-
-        propIncrementBackup = val;
-    }
-
     public void setCacheMaxRows(int value) {
         propCacheMaxRows = value;
     }
@@ -1130,26 +1104,16 @@ public class Logger implements EventLogInterface {
     }
 
     public void setCacheMinReuseSize(int value) {
-        this.propMinReuse = ArrayUtil.getTwoPowerFloor(value);
+        propMinReuse = ArrayUtil.getTwoPowerFloor(value);
     }
 
     public void setDataFileScale(int value) {
 
-        if (propDataFileScale == value) {
-            return;
-        }
-
-        checkPower(value, 10);
-
-        if (value < 8 && value != 1) {
+        if (value < 16) {
             throw Error.error(ErrorCode.X_42556);
         }
 
-        if (hasCache()) {
-            throw Error.error(ErrorCode.DATA_FILE_IN_USE);
-        }
-
-        propDataFileScale = value;
+        setDataFileScaleNoCheck(value);
     }
 
     public void setDataFileScaleNoCheck(int value) {
@@ -1161,6 +1125,8 @@ public class Logger implements EventLogInterface {
         }
 
         propDataFileScale = value;
+
+        setDataFileSpace(propDataFileSpace);    // reduce if too large
     }
 
     public int getDataFileScale() {
@@ -1172,20 +1138,16 @@ public class Logger implements EventLogInterface {
                              : 1;
     }
 
-    public void setDataFileSpaces(boolean value) {
+    public void setDataFileSpace(boolean value) {
 
         if (value) {
-            setDataFileSpaces(propDataFileScale / 16);
+            setDataFileSpace(propDataFileScale / 16);
         } else {
-            setDataFileSpaces(0);
+            setDataFileSpace(0);
         }
     }
 
-    public void setDataFileSpaces(int value) {
-
-        if (propFileSpaceValue == value) {
-            return;
-        }
+    public void setDataFileSpace(int value) {
 
         if (value != 0) {
             checkPower(value, 6);
@@ -1195,30 +1157,19 @@ public class Logger implements EventLogInterface {
             value = propDataFileScale / 16;
         }
 
-        propFileSpaceValue = value;
-
-        if (hasCache()) {
-            DataFileCache dataCache = getCache();
-            boolean       result    = dataCache.setDataSpaceManager();
-
-            if (!result) {
-                return;
-            }
-
-            database.persistentStoreCollection.setNewTableSpaces();
-        }
+        propDataFileSpace = value;
     }
 
-    public int getDataFileSpaces() {
-        return propFileSpaceValue;
+    public int getDataFileSpace() {
+        return propDataFileSpace;
     }
 
     public long getFilesTimestamp() {
-        return propFileTimestamp;
+        return propFilesTimestamp;
     }
 
     public void setFilesTimestamp(long value) {
-        propFileTimestamp = value;
+        propFilesTimestamp = value;
     }
 
     public void setLobFileScale(int value) {
@@ -1271,11 +1222,16 @@ public class Logger implements EventLogInterface {
     }
 
     public void setDefagLimit(int value) {
-        propCacheDefragLimit = value;
+
+        if (value > 0 && value < 25) {
+            value = 25;
+        }
+
+        propDataFileDefragLimit = value;
     }
 
     public int getDefragLimit() {
-        return propCacheDefragLimit;
+        return propDataFileDefragLimit;
     }
 
     public void setDefaultTextTableProperties(String source,
@@ -1284,7 +1240,7 @@ public class Logger implements EventLogInterface {
         props.setProperty(HsqlDatabaseProperties.url_check_props, true);
         database.getProperties().setURLProperties(props);
 
-        this.propTextSourceDefault = source;
+        propTextSourceDefault = source;
     }
 
     public void setNioDataFile(boolean value) {
@@ -1516,20 +1472,16 @@ public class Logger implements EventLogInterface {
         }
 
         if (HsqlDatabaseProperties.hsqldb_defrag_limit.equals(name)) {
-            return String.valueOf(propCacheDefragLimit);
+            return String.valueOf(propDataFileDefragLimit);
         }
 
         if (HsqlDatabaseProperties.hsqldb_files_space.equals(name)) {
-            return String.valueOf(propFileSpaceValue);
+            return String.valueOf(propDataFileSpace);
         }
 
         if (HsqlDatabaseProperties.hsqldb_files_readonly.equals(name)) {
             return database.databaseProperties.getPropertyString(
                 HsqlDatabaseProperties.hsqldb_files_readonly);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_inc_backup.equals(name)) {
-            return String.valueOf(propIncrementBackup);
         }
 
         if (HsqlDatabaseProperties.hsqldb_large_data.equals(name)) {
@@ -1700,7 +1652,7 @@ public class Logger implements EventLogInterface {
         }
 
         if (HsqlDatabaseProperties.hsqldb_min_reuse.equals(name)) {
-            return String.valueOf(this.propMinReuse);
+            return String.valueOf(propMinReuse);
         }
 
         if (HsqlDatabaseProperties.sql_sys_index_names.equals(name)) {
@@ -1815,8 +1767,8 @@ public class Logger implements EventLogInterface {
 
         list.add(sb.toString());
         sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
-        sb.append(' ').append(Tokens.T_ROLLBACK).append(' ');
+        sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION).append(' ');
+        sb.append(Tokens.T_ROLLBACK).append(' ');
         sb.append(Tokens.T_ON).append(' ');
         sb.append(Tokens.T_CONFLICT).append(' ');
         sb.append(database.txConflictRollback ? Tokens.T_TRUE
@@ -2103,8 +2055,7 @@ public class Logger implements EventLogInterface {
         sb.setLength(0);
         sb.append("SET FILES ").append(Tokens.T_BACKUP);
         sb.append(' ').append(Tokens.T_INCREMENT).append(' ');
-        sb.append(propIncrementBackup ? Tokens.T_TRUE
-                                      : Tokens.T_FALSE);
+        sb.append(Tokens.T_TRUE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET FILES ").append(Tokens.T_CACHE);
@@ -2131,33 +2082,40 @@ public class Logger implements EventLogInterface {
             sb.setLength(0);
         }
 
-        sb.append("SET FILES ").append(Tokens.T_LOB).append(' ').append(
-            Tokens.T_SCALE);
+        if (propDataFileSpace != 0) {
+            sb.append("SET FILES ").append(Tokens.T_SPACE).append(' ');
+            sb.append(propDataFileSpace);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
+        sb.append("SET FILES ").append(Tokens.T_LOB).append(' ');
+        sb.append(Tokens.T_SCALE);
         sb.append(' ').append(getLobFileScale());
         list.add(sb.toString());
         sb.setLength(0);
 
         if (propCompressLobs) {
-            sb.append("SET FILES ").append(Tokens.T_LOB).append(' ').append(
-                Tokens.T_COMPRESSED);
-            sb.append(' ').append(propCompressLobs ? Tokens.T_TRUE
-                                                   : Tokens.T_FALSE);
+            sb.append("SET FILES ").append(Tokens.T_LOB).append(' ');
+            sb.append(Tokens.T_COMPRESSED).append(' ');
+            sb.append(propCompressLobs ? Tokens.T_TRUE
+                                       : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }
 
-        sb.append("SET FILES ").append(Tokens.T_DEFRAG);
-        sb.append(' ').append(propCacheDefragLimit);
+        sb.append("SET FILES ").append(Tokens.T_DEFRAG).append(' ');
+        sb.append(propDataFileDefragLimit);
         list.add(sb.toString());
         sb.setLength(0);
-        sb.append("SET FILES ").append(Tokens.T_NIO);
-        sb.append(' ').append(propNioDataFile ? Tokens.T_TRUE
-                                              : Tokens.T_FALSE);
+        sb.append("SET FILES ").append(Tokens.T_NIO).append(' ');
+        sb.append(propNioDataFile ? Tokens.T_TRUE
+                                  : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
-        sb.append("SET FILES ").append(Tokens.T_NIO).append(' ').append(
-            Tokens.T_SIZE);
-        sb.append(' ').append(propNioMaxSize / (1024 * 1024));
+        sb.append("SET FILES ").append(Tokens.T_NIO).append(' ');
+        sb.append(Tokens.T_SIZE).append(' ');
+        sb.append(propNioMaxSize / (1024 * 1024));
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET FILES ").append(Tokens.T_LOG).append(' ');
@@ -2169,20 +2127,10 @@ public class Logger implements EventLogInterface {
         sb.append(Tokens.T_SIZE).append(' ').append(propLogSize);
         list.add(sb.toString());
         sb.setLength(0);
-
-        if (propFileTimestamp != 0) {
-            sb.append("SET FILES ").append(Tokens.T_CHECK).append(' ');
-            sb.append(propFileTimestamp);
-            list.add(sb.toString());
-            sb.setLength(0);
-        }
-
-        if (propFileSpaceValue != 0) {
-            sb.append("SET FILES ").append(Tokens.T_SPACE).append(' ');
-            sb.append(propFileSpaceValue);
-            list.add(sb.toString());
-            sb.setLength(0);
-        }
+        sb.append("SET FILES ").append(Tokens.T_CHECK).append(' ');
+        sb.append(propFilesTimestamp);
+        list.add(sb.toString());
+        sb.setLength(0);
 
         String[] array = new String[list.size()];
 
@@ -2348,24 +2296,16 @@ public class Logger implements EventLogInterface {
                         RAShadowFile shadowFile =
                             dataFileCache.getShadowFile();
 
-                        if (shadowFile == null) {
+                        file = new File(dataFileCache.dataFileName);
+                        isw = new InputStreamWrapper(
+                            new FileInputStream(file));
 
-                            // non-incremental backup - ignore .data file
-                            backup.setFileIgnore(dataFileExtension);
-                        } else {
-                            file = new File(dataFileCache.dataFileName);
-                            isw = new InputStreamWrapper(
-                                new FileInputStream(file));
+                        isw.setSizeLimit(dataFileCache.fileStartFreePosition);
+                        backup.setStream(dataFileExtension, isw);
 
-                            isw.setSizeLimit(
-                                dataFileCache.fileStartFreePosition);
-                            backup.setStream(dataFileExtension, isw);
+                        InputStreamInterface isi = shadowFile.getInputStream();
 
-                            InputStreamInterface isi =
-                                shadowFile.getInputStream();
-
-                            backup.setStream(backupFileExtension, isi);
-                        }
+                        backup.setStream(backupFileExtension, isi);
                     }
 
                     // log

@@ -52,6 +52,7 @@ import org.hsqldb.rights.User;
 import org.hsqldb.scriptio.ScriptWriterText;
 import org.hsqldb.scriptio.ScriptWriterTextColumnNames;
 import org.hsqldb.types.TimestampData;
+import org.hsqldb.persist.RowStoreAVLDisk;
 
 /**
  * Implementation of Statement for SQL commands.<p>
@@ -361,17 +362,7 @@ public class StatementCommand extends Statement {
                 }
             }
             case StatementTypes.SET_DATABASE_FILES_BACKUP_INCREMENT : {
-                try {
-                    boolean mode = ((Boolean) arguments[0]).booleanValue();
-
-                    session.checkAdmin();
-                    session.checkDDLWrite();
-                    session.database.logger.setIncrementBackup(mode);
-
-                    return Result.updateZeroResult;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
-                }
+                return Result.updateZeroResult;
             }
             case StatementTypes.SET_DATABASE_FILES_CACHE_ROWS : {
                 try {
@@ -427,6 +418,14 @@ public class StatementCommand extends Statement {
 
                     if (session.isProcessingScript()) {
                         session.database.logger.setFilesTimestamp(value1);
+                        session.database.txManager.setGlobalChangeTimestamp(
+                            value1 + 1);
+                    } else if (session.isProcessingLog()) {
+                        if (value2 > 0) {
+                            session.database.logger.setFilesTimestamp(value1);
+                            session.database.txManager
+                                .setGlobalChangeTimestamp(value1 + 1);
+                        }
                     }
 
                     return Result.updateZeroResult;
@@ -506,11 +505,11 @@ public class StatementCommand extends Statement {
                         boolean value =
                             ((Boolean) arguments[0]).booleanValue();
 
-                        session.database.logger.setDataFileSpaces(value);
+                        session.database.logger.setDataFileSpace(value);
                     } else {
                         int value = ((Integer) arguments[0]).intValue();
 
-                        session.database.logger.setDataFileSpaces(value);
+                        session.database.logger.setDataFileSpace(value);
                     }
 
                     return Result.updateZeroResult;
@@ -1070,7 +1069,7 @@ public class StatementCommand extends Statement {
                         return Result.updateZeroResult;
                     }
 
-                    if (session.database.logger.getDataFileSpaces() == 0) {
+                    if (session.database.logger.getDataFileSpace() == 0) {
                         throw Error.error(ErrorCode.ACCESS_IS_DENIED);
                     }
 
@@ -1089,19 +1088,18 @@ public class StatementCommand extends Statement {
                     DataSpaceManager dataSpace = cache.spaceManager;
                     int tableSpaceID = dataSpace.getNewTableSpaceID();
 
-                    table.setSpaceID(tableSpaceID);
-
                     // if cache exists, a memory table can get a space id
                     // it can then be converted to cached
+                    table.setSpaceID(tableSpaceID);
+
                     if (!table.isCached()) {
                         return Result.updateZeroResult;
                     }
 
-                    TableSpaceManager tableSpace =
-                        dataSpace.getTableSpace(tableSpaceID);
-                    PersistentStore store = table.getRowStore(session);
+                    RowStoreAVLDisk store =
+                        (RowStoreAVLDisk) table.getRowStore(session);
 
-                    store.setSpaceManager(tableSpace);
+                    store.setSpaceManager(session);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -1129,23 +1127,20 @@ public class StatementCommand extends Statement {
                         return Result.updateZeroResult;
                     }
 
-                    table.setSpaceID(spaceid);
-
-                    if (table.store == null) {
-                        return Result.updateZeroResult;
-                    }
-
                     DataFileCache cache = session.database.logger.getCache();
 
                     if (cache == null) {
                         return Result.updateZeroResult;
                     }
 
+                    table.setSpaceID(spaceid);
+
                     DataSpaceManager dataSpace = cache.spaceManager;
                     TableSpaceManager tableSpace =
                         dataSpace.getTableSpace(table.getSpaceID());
+                    PersistentStore store = table.getRowStore(session);
 
-                    table.store.setSpaceManager(tableSpace);
+                    store.setSpaceManager(tableSpace);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

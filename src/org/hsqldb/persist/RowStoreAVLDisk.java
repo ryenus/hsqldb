@@ -50,7 +50,7 @@ import org.hsqldb.index.Index;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.index.NodeAVLDisk;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.DoubleIntIndex;
+import org.hsqldb.lib.DoubleLongIndex;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.LongLookup;
 import org.hsqldb.navigator.RowIterator;
@@ -128,7 +128,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
         object.setStorageSize(size);
 
-        long pos = tableSpace.getFilePosition(size, false);
+        long pos = tableSpace.getFilePosition(size);
 
         object.setPos(pos);
 
@@ -468,6 +468,19 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
     public void setReadOnly(boolean readOnly) {}
 
+    public void setSpaceManager(Session session) {
+
+        if (table.getSpaceID() == DataSpaceManager.tableIdDefault) {
+            return;
+        }
+
+        TableSpaceManager tableSpace =
+            cache.spaceManager.getTableSpace(table.getSpaceID());
+
+        setSpaceManager(tableSpace);
+        moveDataToSpace(session);
+    }
+
     public void moveDataToSpace(Session session) {
 
         Table table    = (Table) this.table;
@@ -483,7 +496,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
             return;
         }
 
-        DoubleIntIndex pointerLookup = new DoubleIntIndex((int) rowCount);
+        DoubleLongIndex pointerLookup = new DoubleLongIndex((int) rowCount);
 
         writeLock();
 
@@ -494,22 +507,15 @@ public class RowStoreAVLDisk extends RowStoreAVL {
                 new CachedObject[accessorList.length];
 
             for (int i = 0; i < accessorList.length; i++) {
-                long pos = pointerLookup.lookup(accessorList[i].getPos());
+                Index   key  = indexList[i];
+                long    pos  = pointerLookup.lookup(accessorList[i].getPos());
+                RowAVL  row  = (RowAVL) cache.get(pos, this, false);
+                NodeAVL node = row.getNode(key.getPosition());
 
-                newAccessorList[i] = cache.get(pos, this, false);
+                newAccessorList[key.getPosition()] = node;
             }
 
-            // using the old index
-            RowIterator it = rowIterator();
-
-            // todo - check this - must remove from old space, not new one
-            // it works but the rows are removed from new space manager
-            while (it.next()) {
-                Row row = it.getCurrentRow();
-
-                cache.remove(row);
-                tableSpace.release(row.getPos(), row.getStorageSize());
-            }
+            removeDefaultSpaces();
 
             accessorList = newAccessorList;
         } finally {
@@ -538,7 +544,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
         for (int i = 0; i < pointerLookup.size(); i++) {
             long newPos = targetSpace.getFilePosition(
-                (int) pointerLookup.getLongValue(i), false);
+                (int) pointerLookup.getLongValue(i));
 
             pointerLookup.setLongValue(i, newPos);
         }
@@ -553,6 +559,20 @@ public class RowStoreAVLDisk extends RowStoreAVL {
             targetCache.rowOut.reset();
             row.write(targetCache.rowOut, pointerLookup);
             targetCache.saveRowOutput(newPos);
+        }
+    }
+
+    void removeDefaultSpaces() {
+
+        TableSpaceManager defaultSpace =
+            cache.spaceManager.getDefaultTableSpace();
+        RowIterator it = rowIterator();
+
+        while (it.next()) {
+            Row row = it.getCurrentRow();
+
+            cache.remove(row);
+            defaultSpace.release(row.getPos(), row.getStorageSize());
         }
     }
 

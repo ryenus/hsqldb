@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@ package org.hsqldb.persist;
 
 import java.io.EOFException;
 
-import org.hsqldb.ColumnSchema;
 import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
@@ -41,7 +40,6 @@ import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.Statement;
 import org.hsqldb.StatementDML;
-import org.hsqldb.StatementSchema;
 import org.hsqldb.StatementTypes;
 import org.hsqldb.Table;
 import org.hsqldb.error.Error;
@@ -53,7 +51,6 @@ import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptReaderText;
 import org.hsqldb.scriptio.StatementLineTypes;
-import org.hsqldb.types.Type;
 
 /**
  * Restores the state of a Database instance from an SQL log file. <p>
@@ -62,7 +59,7 @@ import org.hsqldb.types.Type;
  * logged to the application log. If memory runs out, an exception is thrown.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.7.2
  */
 public class ScriptRunner {
@@ -157,28 +154,6 @@ public class ScriptRunner {
 
                         try {
                             cs = current.compileStatement(statement);
-
-                            if (database.getProperties().isVersion18()) {
-
-                                // convert BIT columns in .log to BOOLEAN
-                                if (cs.getType()
-                                        == StatementTypes.CREATE_TABLE) {
-                                    Table table =
-                                        (Table) ((StatementSchema) cs)
-                                            .getArguments()[0];
-
-                                    for (int i = 0; i < table.getColumnCount();
-                                            i++) {
-                                        ColumnSchema column =
-                                            table.getColumn(i);
-
-                                        if (column.getDataType().isBitType()) {
-                                            column.setType(Type.SQL_BOOLEAN);
-                                        }
-                                    }
-                                }
-                            }
-
                             result = current.executeCompiledStatement(cs,
                                     ValuePool.emptyObjectArray, 0);
                         } catch (Throwable e) {
