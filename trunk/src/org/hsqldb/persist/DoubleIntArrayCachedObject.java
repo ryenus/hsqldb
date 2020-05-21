@@ -46,19 +46,19 @@ public class DoubleIntArrayCachedObject extends CachedObjectBase {
     public static final int fileSizeFactor = 8;
 
     //
-    DoubleIntIndex values;
+    DoubleIntIndex table;
 
     public DoubleIntArrayCachedObject(int capacity) {
-        this.values = new DoubleIntIndex(capacity, true);
-        hasChanged  = true;
+        this.table = new DoubleIntIndex(capacity, true);
+        hasChanged = true;
     }
 
     public void read(RowInputInterface in) {
 
         this.position = in.getFilePosition();
 
-        int   capacity       = values.capacity();
-        int[] array          = values.getKeys();
+        int   capacity       = table.capacity();
+        int[] array          = table.getKeys();
         int   lastValueIndex = -1;
 
         for (int i = 0; i < capacity; i++) {
@@ -69,23 +69,23 @@ public class DoubleIntArrayCachedObject extends CachedObjectBase {
             }
         }
 
-        array = values.getValues();
+        array = table.getValues();
 
         for (int i = 0; i < capacity; i++) {
             array[i] = in.readInt();
         }
 
-        values.setSize(lastValueIndex + 1);
+        table.setSize(lastValueIndex + 1);
 
         hasChanged = false;
     }
 
     public int getDefaultCapacity() {
-        return values.capacity();
+        return table.capacity();
     }
 
     public int getRealSize(RowOutputInterface out) {
-        return values.capacity() * fileSizeFactor;
+        return table.capacity() * fileSizeFactor;
     }
 
     public void write(RowOutputInterface out) {
@@ -94,17 +94,17 @@ public class DoubleIntArrayCachedObject extends CachedObjectBase {
 
     public void write(RowOutputInterface out, LongLookup lookup) {
 
-        int capacity = values.capacity();
+        int capacity = table.capacity();
 
         out.setStorageSize(storageSize);
 
-        int[] array = values.getKeys();
+        int[] array = table.getKeys();
 
         for (int i = 0; i < capacity; i++) {
             out.writeInt(array[i]);
         }
 
-        array = values.getValues();
+        array = table.getValues();
 
         for (int i = 0; i < capacity; i++) {
             out.writeInt(array[i]);
@@ -115,14 +115,14 @@ public class DoubleIntArrayCachedObject extends CachedObjectBase {
 
     public void clear() {
 
-        hasChanged |= values.size() > 0;
+        hasChanged |= table.size() > 0;
 
-        values.clear();
+        table.clear();
     }
 
     public boolean removeKey(int key) {
 
-        boolean result = values.removeKey(key);
+        boolean result = table.removeKey(key);
 
         hasChanged |= result;
 
@@ -131,7 +131,7 @@ public class DoubleIntArrayCachedObject extends CachedObjectBase {
 
     public boolean addKey(int key, int value) {
 
-        boolean result = values.addOrReplaceUnique(key, value);
+        boolean result = table.addOrReplaceUnique(key, value);
 
         hasChanged |= result;
 
@@ -142,10 +142,10 @@ public class DoubleIntArrayCachedObject extends CachedObjectBase {
      * assumes all values are zero or positive
      */
     public int getValue(int key) {
-        return values.lookup(key, -1);
+        return table.lookup(key, -1);
     }
 
     public int getValue(int key, int def) {
-        return values.lookup(key, def);
+        return table.lookup(key, def);
     }
 }

@@ -31,7 +31,7 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.lib.DoubleIntIndex;
+import org.hsqldb.lib.LongLookup;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -40,15 +40,15 @@ import org.hsqldb.lib.DoubleIntIndex;
  */
 public class DataSpaceManagerSimple implements DataSpaceManager {
 
-    DataFileCache     cache;
-    TableSpaceManager defaultSpaceManager;
-    int               fileBlockSize = DataSpaceManager.fixedBlockSizeUnit;
-    long              totalFragmentSize;
-    int               spaceIdSequence = tableIdFirst;
-    DoubleIntIndex    lookup;
+    final DataFileCache     cache;
+    final TableSpaceManager defaultSpaceManager;
+    final int               fileBlockSize = fixedBlockSizeUnit;
+    long                    totalFragmentSize;
+    int                     spaceIdSequence = tableIdFirst;
+    LongLookup              lookup;
 
     /**
-     * Used for default, readonly, Text and Session data files
+     * Used for non-space default, readonly, Text and Session data files
      */
     DataSpaceManagerSimple(DataFileCache cache, boolean isReadOnly) {
 
@@ -62,7 +62,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
             int capacity = cache.database.logger.propMaxFreeBlocks;
 
             defaultSpaceManager = new TableSpaceManagerBlocks(this,
-                    DataSpaceManager.tableIdDefault, fileBlockSize, capacity,
+                    tableIdDefault, fileBlockSize, capacity,
                     cache.getDataFileScale());
 
             if (!isReadOnly) {
@@ -82,14 +82,19 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
     public TableSpaceManager getTableSpace(int spaceId) {
 
         if (spaceId >= spaceIdSequence) {
-            spaceIdSequence = spaceId + 1;
+            spaceIdSequence = spaceId + 2;
         }
 
         return defaultSpaceManager;
     }
 
     public int getNewTableSpaceID() {
-        return spaceIdSequence++;
+
+        int id = spaceIdSequence;
+
+        spaceIdSequence += 2;
+
+        return id;
     }
 
     public long getFileBlocks(int spaceId, int blockCount) {
@@ -104,8 +109,8 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
     public void freeTableSpace(int spaceId) {}
 
-    public void freeTableSpace(int spaceId, DoubleIntIndex spaceList,
-                               long offset, long limit) {
+    public void freeTableSpace(int spaceId, LongLookup spaceList, long offset,
+                               long limit) {
 
         totalFragmentSize += spaceList.getTotalValues()
                              * cache.getDataFileScale();
@@ -123,9 +128,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
         }
 
         if (spaceList.size() != 0) {
-            lookup = new DoubleIntIndex(spaceList.size(), true);
-
-            spaceList.copyTo(lookup);
+            lookup = spaceList.duplicate();
         }
     }
 

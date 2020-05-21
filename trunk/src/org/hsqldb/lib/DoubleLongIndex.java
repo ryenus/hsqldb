@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,6 +102,21 @@ public final class DoubleLongIndex implements LongLookup {
         return count;
     }
 
+    public long getTotalValues() {
+
+        long total = 0;
+
+        for (int i = 0; i < count; i++) {
+            total += values[i];
+        }
+
+        return total;
+    }
+
+    public void setSize(int newSize) {
+        count = newSize;
+    }
+
     public boolean addUnsorted(long key, long value) {
 
         if (count == capacity) {
@@ -179,6 +194,16 @@ public final class DoubleLongIndex implements LongLookup {
         sorted = true;
     }
 
+    public LongLookup duplicate() {
+
+        DoubleLongIndex duplicate = new DoubleLongIndex(capacity);
+
+        copyTo(duplicate);
+
+        return duplicate;
+    }
+
+
     /**
      * @param value the value
      * @return the index
@@ -223,6 +248,45 @@ public final class DoubleLongIndex implements LongLookup {
         targetSearchValue = value;
 
         return binarySlotSearch(false);
+    }
+
+    public boolean compactLookupAsIntervals() {
+
+        if (size() == 0) {
+            return false;
+        }
+
+        if (!sorted) {
+            fastQuickSort();
+        }
+
+        int base = 0;
+
+        for (int i = 1; i < count; i++) {
+            long limit = keys[base] + values[base];
+
+            if (limit == keys[i]) {
+                values[base] += values[i];    // base updated
+            } else {
+                base++;
+
+                keys[base]   = keys[i];
+                values[base] = values[i];
+            }
+        }
+
+        for (int i = base + 1; i < count; i++) {
+            keys[i]   = 0;
+            values[i] = 0;
+        }
+
+        if (count != base + 1) {
+            setSize(base + 1);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -500,6 +564,13 @@ public final class DoubleLongIndex implements LongLookup {
         keys     = (long[]) ArrayUtil.resizeArray(keys, capacity * 2);
         values   = (long[]) ArrayUtil.resizeArray(values, capacity * 2);
         capacity *= 2;
+    }
+
+    public void copyTo(DoubleLongIndex other) {
+
+        System.arraycopy(keys, 0, other.keys, 0, count);
+        System.arraycopy(values, 0, other.values, 0, count);
+        other.setSize(count);
     }
 
     public boolean addUnsorted(LongLookup other) {

@@ -31,13 +31,13 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.lib.DoubleIntIndex;
+import org.hsqldb.lib.LongLookup;
 
 /**
  * Manages allocation of space for rows.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.0
+ * @version 2.5.1
  * @since 2.3.0
  */
 public interface TableSpaceManager {
@@ -58,7 +58,7 @@ public interface TableSpaceManager {
 
     void addFileBlock(long blockFreePos, long blockLimit);
 
-    void initialiseFileBlock(DoubleIntIndex lookup, long blockFreePos,
+    void initialiseFileBlock(LongLookup lookup, long blockFreePos,
                              long blockLimit);
 
     void reset();
