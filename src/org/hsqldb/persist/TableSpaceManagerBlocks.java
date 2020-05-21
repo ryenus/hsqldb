@@ -33,9 +33,9 @@ package org.hsqldb.persist;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DoubleIntIndex;
-import org.hsqldb.lib.IntKeyIntValueHashMap;
+import org.hsqldb.lib.DoubleLongIndex;
+import org.hsqldb.lib.LongLookup;
 
 /**
  * Manages allocation of space for rows.<p>
@@ -54,16 +54,16 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     final int              spaceID;
 
     //
-    private DoubleIntIndex lookup;
-    private DoubleIntIndex oldLookup;
-    private final int      capacity;
-    private long           requestGetCount;
-    private long           releaseCount;
-    private long           requestCount;
-    private long           requestSize;
-    boolean                isModified;
-    boolean                isInitialised;
-    IntKeyIntValueHashMap  map;
+    private DoubleIntIndex  spaceList;
+    private DoubleIntIndex  oldList;
+    private DoubleLongIndex oldLargeList;
+    private final int       capacity;
+    private long            requestGetCount;
+    private long            releaseCount;
+    private long            requestCount;
+    private long            requestSize;
+    boolean                 isModified;
+    boolean                 isInitialised;
 
     //
     long freshBlockFreePos = 0;
@@ -84,11 +84,11 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         this.fileBlockSize = fileBlockSize;
         this.capacity      = capacity;
         this.scale         = fileScale;
-        lookup             = new DoubleIntIndex(capacity, true);
+        this.spaceList     = new DoubleIntIndex(capacity, true);
 
-        lookup.setValuesSearchTarget();
+        spaceList.setValuesSearchTarget();
 
-        oldLookup = new DoubleIntIndex(capacity, true);
+        oldList = new DoubleIntIndex(capacity, true);
     }
 
     public boolean hasFileRoom(long blockSize) {
@@ -106,8 +106,8 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         initialiseFileBlock(null, blockFreePos, blockLimit);
     }
 
-    public void initialiseFileBlock(DoubleIntIndex spaceList,
-                                    long blockFreePos, long blockLimit) {
+    public void initialiseFileBlock(LongLookup spaceList, long blockFreePos,
+                                    long blockLimit) {
 
         isInitialised     = true;
         freshBlockFreePos = blockFreePos;
@@ -117,7 +117,7 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         currentBlockLimit = freshBlockLimit / scale;
 
         if (spaceList != null) {
-            spaceList.copyTo(lookup);
+            ((DoubleIntIndex) spaceList).copyTo(this.spaceList);
         }
     }
 
@@ -162,13 +162,13 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
                             * (fileBlockSize / scale);
         currentBlockLimit = freshBlockLimit / scale;
 
-        if (oldLookup.size() + lookup.size() > oldLookup.capacity()) {
+        if (oldList.size() + spaceList.size() > oldList.capacity()) {
             resetOldList();
         }
 
-        oldLookup.addUnsorted(lookup);
+        oldList.addUnsorted(spaceList);
         resetOldList();
-        lookup.clear();
+        spaceList.clear();
 
         return true;
     }
@@ -203,19 +203,29 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         releaseCount++;
 
         if (pos + rowUnits >= Integer.MAX_VALUE) {
+            if (oldLargeList == null) {
+                oldLargeList = new DoubleLongIndex(capacity);
+            }
+
+            oldLargeList.addUnsorted(pos, rowUnits);
+
+            if (oldLargeList.size() == capacity) {
+                resetOldList();
+            }
+
             return;
         }
 
         if ((pos >= currentBlockFloor && pos < currentBlockLimit)) {
-            lookup.add(pos, rowUnits);
+            spaceList.add(pos, rowUnits);
 
-            if (lookup.size() == capacity) {
+            if (spaceList.size() == capacity) {
                 resetList(false);
             }
         } else {
-            oldLookup.addUnsorted(pos, rowUnits);
+            oldList.addUnsorted(pos, rowUnits);
 
-            if (oldLookup.size() == capacity) {
+            if (oldList.size() == capacity) {
                 resetOldList();
             }
         }
@@ -235,17 +245,17 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
         int index    = -1;
         int rowUnits = rowSize / scale;
 
-        if (lookup.size() > 0) {
-            if (lookup.getValue(0) >= rowUnits) {
+        if (spaceList.size() > 0) {
+            if (spaceList.getValue(0) >= rowUnits) {
                 index = 0;
             } else {
-                index = lookup.findFirstGreaterEqualKeyIndex(rowUnits);
+                index = spaceList.findFirstGreaterEqualKeyIndex(rowUnits);
 
                 if (index == -1) {
-                    lookup.compactLookupAsIntervals();
-                    lookup.setValuesSearchTarget();
+                    spaceList.compactLookupAsIntervals();
+                    spaceList.setValuesSearchTarget();
 
-                    index = lookup.findFirstGreaterEqualKeyIndex(rowUnits);
+                    index = spaceList.findFirstGreaterEqualKeyIndex(rowUnits);
                 }
             }
         }
@@ -258,16 +268,16 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
         requestSize += rowSize;
 
-        int key        = lookup.getKey(index);
-        int units      = lookup.getValue(index);
+        int key        = spaceList.getKey(index);
+        int units      = spaceList.getValue(index);
         int difference = units - rowUnits;
 
-        lookup.remove(index);
+        spaceList.remove(index);
 
         if (difference > 0) {
             int pos = key + rowUnits;
 
-            lookup.add(pos, difference);
+            spaceList.add(pos, difference);
         }
 
         return key;
@@ -293,9 +303,9 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     public long getLostBlocksSize() {
 
         long total = freshBlockLimit - freshBlockFreePos
-                     + lookup.getTotalValues() * scale;
+                     + spaceList.getTotalValues() * scale;
 
-        total += oldLookup.getTotalValues() * scale;
+        total += oldList.getTotalValues() * scale;
 
         return total;
     }
@@ -310,42 +320,48 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
 
     private void resetList(boolean full) {
 
-        lookup.compactLookupAsIntervals();
+        spaceList.compactLookupAsIntervals();
 
         if (full) {
-            spaceManager.freeTableSpace(spaceID, lookup, freshBlockFreePos,
+            spaceManager.freeTableSpace(spaceID, spaceList, freshBlockFreePos,
                                         freshBlockLimit);
-            lookup.clear();
-            lookup.setValuesSearchTarget();
+            spaceList.clear();
+            spaceList.setValuesSearchTarget();
         } else {
-            if (lookup.size() == capacity) {
+            if (spaceList.size() > capacity - 32) {
                 int limit = capacity / 2;
 
                 for (int i = 0; i < limit; i++) {
-                    int pos      = lookup.getKey(i);
-                    int rowUnits = lookup.getValue(i);
+                    int pos      = spaceList.getKey(i);
+                    int rowUnits = spaceList.getValue(i);
 
-                    oldLookup.addUnsorted(pos, rowUnits);
+                    oldList.addUnsorted(pos, rowUnits);
 
-                    if (oldLookup.size() == capacity) {
+                    if (oldList.size() == capacity) {
                         resetOldList();
                     }
                 }
 
+                spaceList.removeRange(0, limit);
                 resetOldList();
-                lookup.removeRange(0, limit);
             }
 
-            lookup.setValuesSearchTarget();
+            spaceList.setValuesSearchTarget();
         }
     }
 
     private void resetOldList() {
 
-        if (oldLookup.size() > 0) {
-            oldLookup.compactLookupAsIntervals();
-            spaceManager.freeTableSpace(spaceID, oldLookup, 0, 0);
-            oldLookup.clear();
+        if (oldList.size() > 0) {
+            oldList.compactLookupAsIntervals();
+            spaceManager.freeTableSpace(spaceID, oldList, 0, 0);
+            oldList.clear();
+        }
+
+        if (oldLargeList != null && oldLargeList.size() > 0) {
+            oldLargeList.compactLookupAsIntervals();
+            spaceManager.freeTableSpace(spaceID, oldLargeList, 0, 0);
+            oldLargeList.clear();
         }
     }
 }

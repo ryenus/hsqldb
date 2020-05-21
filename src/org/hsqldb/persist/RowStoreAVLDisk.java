@@ -50,6 +50,7 @@ import org.hsqldb.index.Index;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.index.NodeAVLDisk;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.DoubleLongIndex;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.LongLookup;
@@ -496,12 +497,13 @@ public class RowStoreAVLDisk extends RowStoreAVL {
             return;
         }
 
-        DoubleLongIndex pointerLookup = new DoubleLongIndex((int) rowCount);
-
         writeLock();
 
         try {
-            moveDataToSpace(cache, pointerLookup);
+            LongLookup pointerLookup = getPointerList();
+            LongLookup removeList    = pointerLookup.duplicate();
+
+            moveDataToNewSpace(cache, pointerLookup);
 
             CachedObject[] newAccessorList =
                 new CachedObject[accessorList.length];
@@ -515,7 +517,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
                 newAccessorList[key.getPosition()] = node;
             }
 
-            removeDefaultSpaces();
+            removeDefaultSpaces(removeList);
 
             accessorList = newAccessorList;
         } finally {
@@ -528,10 +530,22 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
     public void moveDataToSpace(DataFileCache targetCache,
                                 LongLookup pointerLookup) {
+        populatePointerList(pointerLookup);
+        moveDataToNewSpace(targetCache, pointerLookup);
+    }
 
-        int spaceId = table.getSpaceID();
-        TableSpaceManager targetSpace =
-            targetCache.spaceManager.getTableSpace(spaceId);
+    private DoubleLongIndex getPointerList() {
+
+        DoubleLongIndex pointerLookup =
+            new DoubleLongIndex((int) elementCount());
+
+        populatePointerList(pointerLookup);
+
+        return pointerLookup;
+    }
+
+    private void populatePointerList(LongLookup pointerLookup) {
+
         RowIterator it = indexList[0].firstRow(this);
 
         while (it.next()) {
@@ -541,6 +555,14 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         }
 
         pointerLookup.sort();
+    }
+
+    private void moveDataToNewSpace(DataFileCache targetCache,
+                                    LongLookup pointerLookup) {
+
+        int spaceId = table.getSpaceID();
+        TableSpaceManager targetSpace =
+            targetCache.spaceManager.getTableSpace(spaceId);
 
         for (int i = 0; i < pointerLookup.size(); i++) {
             long newPos = targetSpace.getFilePosition(
@@ -549,7 +571,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
             pointerLookup.setLongValue(i, newPos);
         }
 
-        it = indexList[0].firstRow(this);
+        RowIterator it = indexList[0].firstRow(this);
 
         while (it.next()) {
             CachedObject row    = it.getCurrentRow();
@@ -562,18 +584,22 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         }
     }
 
-    void removeDefaultSpaces() {
+    private void removeDefaultSpaces(LongLookup removeList) {
 
-        TableSpaceManager defaultSpace =
-            cache.spaceManager.getDefaultTableSpace();
-        RowIterator it = rowIterator();
+        DataSpaceManager manager = cache.spaceManager;
+        int              scale   = cache.getDataFileScale();
 
-        while (it.next()) {
-            Row row = it.getCurrentRow();
+        for (int i = 0; i < removeList.size(); i++) {
+            long pos  = removeList.getLongKey(i);
+            long size = removeList.getLongValue(i) / scale;
 
-            cache.remove(row);
-            defaultSpace.release(row.getPos(), row.getStorageSize());
+            removeList.setLongValue(i, size);
+            cache.release(pos);
         }
+
+        removeList.compactLookupAsIntervals();
+        manager.freeTableSpace(DataSpaceManager.tableIdDefault, removeList, 0,
+                               0);
     }
 
     long getStorageSizeEstimate() {

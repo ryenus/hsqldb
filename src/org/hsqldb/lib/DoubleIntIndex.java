@@ -577,6 +577,15 @@ public class DoubleIntIndex implements LongLookup {
         removeAll();
     }
 
+    public LongLookup duplicate() {
+
+        DoubleIntIndex duplicate = new DoubleIntIndex(capacity);
+
+        copyTo(duplicate);
+
+        return duplicate;
+    }
+
     public int lookupFirstGreaterEqual(int key) throws NoSuchElementException {
 
         if (sortOnValues) {
@@ -1059,6 +1068,7 @@ public class DoubleIntIndex implements LongLookup {
         System.arraycopy(keys, 0, other.keys, 0, count);
         System.arraycopy(values, 0, other.values, 0, count);
         other.setSize(count);
+        other.sorted = false;
     }
 
     public final void remove(int position) {

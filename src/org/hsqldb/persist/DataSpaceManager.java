@@ -31,7 +31,7 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.lib.DoubleIntIndex;
+import org.hsqldb.lib.LongLookup;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -62,7 +62,7 @@ public interface DataSpaceManager {
 
     void freeTableSpace(int spaceId);
 
-    void freeTableSpace(int spaceId, DoubleIntIndex spaceList, long offset,
+    void freeTableSpace(int spaceId, LongLookup spaceList, long offset,
                         long limit);
 
     long getLostBlocksSize();
