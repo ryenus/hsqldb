@@ -151,6 +151,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                 // create
                 lastBlocks = new DoubleIntArrayCachedObject(lastBlockListSize);
 
+                initialiseTableSpace(directorySpaceManager);
+
                 lastBlockStore.add(lastBlocks, true);
 
                 blockPos = getFileBlockPosFromPosition(lastBlocks.getPos());
@@ -161,9 +163,9 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                 lastBlocks =
                     (DoubleIntArrayCachedObject) lastBlockStore.get(position,
                         true);
-            }
 
-            initialiseTableSpace(directorySpaceManager);
+                initialiseTableSpace(directorySpaceManager);
+            }
         }
     }
 
