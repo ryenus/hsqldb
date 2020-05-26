@@ -524,6 +524,11 @@
         <para>When old rows are deleted in bulk, the space is immediately
         released and reused.</para>
       </listitem>
+
+      <listitem>
+        <para>When many rows are updated over a long period, the disk space
+        occupied by the old versions of the rows is eventually freed.</para>
+      </listitem>
     </itemizedlist>
 
     <para>The following statement should be executed once to start the table

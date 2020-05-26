@@ -159,10 +159,10 @@
       <para>An additional property, <property>hsqldb.cache_size</property> is
       used in conjunction with the <property>hsqldb.cache_rows</property>
       property. This puts a limit in bytes on the total size of rows that are
-      cached. The default values is 10,000KB. This is the size of binary
-      images of the rows and indexes. It translates to more actual memory,
-      typically 2-4 times, used for the cache because the data is represented
-      by Java objects.</para>
+      cached. The default value is 10,000KB. This is the size of binary images
+      of the rows and indexes. It translates to more actual memory, typically
+      2-4 times, used for the cache because the data is represented by Java
+      objects.</para>
 
       <para>If memory is limited, the <property>hsqldb.cache_rows</property>
       or <property>hsqldb.cache_size</property> database properties can be
@@ -246,16 +246,16 @@
 
       <para>With <glossterm>file:</glossterm> database, the engine uses the
       disk for storage of data and any change. For safely, the engine makes
-      copies of the data internally during operation. Spare space, at least
-      equal to the total size of the <literal>.data</literal> and
-      <literal>.script</literal> files, is needed. The
-      <literal>.lobs</literal> file is not copied during database updates as
-      it is not necessary for safety. When the RESULT MEMORY ROWS setting is
-      used to limit the memory rows in result sets and temporary tables, each
-      session uses additional disk space for large results and temporary
-      tables. These results are stored in files in the temp directory
-      alongside the database files, which are deleted at database
-      shutdown.</para>
+      copies of the data internally during operation. Spare space, at larger
+      than the total size of the <literal>.data</literal> and
+      <literal>.script</literal> files, plus the maximum allowed size of the
+      <literal>.log</literal> file, is needed. The <literal>.lobs</literal>
+      file is not copied during database updates as it is not necessary for
+      safety. When the RESULT MEMORY ROWS setting is used to limit the memory
+      rows in result sets and temporary tables, each session uses additional
+      disk space for large results and temporary tables. These results are
+      stored in files in the temp directory alongside the database files,
+      which are deleted at database shutdown.</para>
     </section>
 
     <section xml:id="dec_no_logging">
@@ -283,12 +283,11 @@
       For this usage, delete the database files when the application
       ends.</para>
 
-      <para>On some platforms, such as embedded devices which have a reliable
-      storage device, this is also a useful option. Your application issues
-      CHECKPOINT to save the changes made so far. This method of use reduces
-      write operations on SSD devices. For this usage, the lock file should
-      also be disabled with the connection property
-      <literal>hsqldb.lock_file=false</literal>.</para>
+      <para>On some platforms, such as embedded devices with SSD storage, this
+      is also a useful option. Your application issues CHECKPOINT to save the
+      changes made so far. This method of use reduces write operations on SSD
+      devices. For this usage, the lock file should also be disabled with the
+      connection property <literal>hsqldb.lock_file=false</literal>.</para>
     </section>
 
     <section xml:id="dec_bulk_operations">
