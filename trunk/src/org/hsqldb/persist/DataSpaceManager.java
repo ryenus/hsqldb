@@ -48,7 +48,7 @@ public interface DataSpaceManager {
     int tableIdFirst     = 8;
 
     //
-    int fixedBlockSizeUnit = 4096;
+    int fixedDiskBlockSize = 4096;
 
     TableSpaceManager getDefaultTableSpace();
 

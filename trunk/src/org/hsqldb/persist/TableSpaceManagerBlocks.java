@@ -303,9 +303,8 @@ public class TableSpaceManagerBlocks implements TableSpaceManager {
     public long getLostBlocksSize() {
 
         long total = freshBlockLimit - freshBlockFreePos
-                     + spaceList.getTotalValues() * scale;
-
-        total += oldList.getTotalValues() * scale;
+                     + spaceList.getTotalValues() * scale
+                     + oldList.getTotalValues() * scale;
 
         return total;
     }
