@@ -57,18 +57,19 @@ public class TableSpaceManagerSimple implements TableSpaceManager {
     public void release(long pos, int rowSize) {}
 
     /**
-     * Returns the position of a free block or 0.
+     * Returns the position of a free block or throws.
      */
     public long getFilePosition(int rowSize) {
 
         cache.writeLock.lock();
 
         try {
+            long filePosition = cache.getFileFreePos();
             long position;
             long newFreePosition;
 
-            position        = cache.getFileFreePos() / scale;
-            newFreePosition = cache.getFileFreePos() + rowSize;
+            position        = filePosition / scale;
+            newFreePosition = filePosition + rowSize;
 
             if (newFreePosition > cache.maxDataFileSize) {
                 cache.logSevereEvent("data file reached maximum size "

@@ -42,7 +42,7 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
     final DataFileCache     cache;
     final TableSpaceManager defaultSpaceManager;
-    final int               fileBlockSize = fixedBlockSizeUnit;
+    final int               fileBlockSize = fixedDiskBlockSize;
     long                    totalFragmentSize;
     int                     spaceIdSequence = tableIdFirst;
     LongLookup              lookup;
@@ -99,8 +99,10 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
     public long getFileBlocks(int spaceId, int blockCount) {
 
-        long filePosition = cache.enlargeFileSpace((long) blockCount
-            * fileBlockSize);
+        long filePosition = cache.getFileFreePos();
+
+        cache.enlargeFileSpace(filePosition
+                               + (long) blockCount * fileBlockSize);
 
         return filePosition;
     }
@@ -146,10 +148,11 @@ public class DataSpaceManagerSimple implements DataSpaceManager {
 
     public void initialiseSpaces() {
 
-        long currentSize = cache.getFileFreePos();
-        long totalBlocks = (currentSize + fileBlockSize) / fileBlockSize;
+        long filePosition = cache.getFileFreePos();
+        long totalBlocks = (filePosition + fileBlockSize) / fileBlockSize;
+
         long lastFreePosition = cache.enlargeFileSpace(totalBlocks
-            * fileBlockSize - currentSize);
+            * fileBlockSize);
 
         defaultSpaceManager.initialiseFileBlock(lookup, lastFreePosition,
                 cache.getFileFreePos());

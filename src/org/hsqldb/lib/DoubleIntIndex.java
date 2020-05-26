@@ -428,8 +428,8 @@ public class DoubleIntIndex implements LongLookup {
             moveRows(i, i + 1, count - i);
         }
 
-        keys[count]   = key;
-        values[count] = value;
+        keys[i]   = key;
+        values[i] = value;
 
         count++;
 
