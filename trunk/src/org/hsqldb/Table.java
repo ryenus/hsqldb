@@ -2014,6 +2014,17 @@ public class Table extends TableBase implements SchemaObject {
         return set;
     }
 
+    public String[] getColumnLabels() {
+
+        String[] labels = new String[columnCount];
+
+        for (int i = 0; i < columnCount; i++) {
+            labels[i] = ((ColumnSchema) columnList.get(i)).getName().name;
+        }
+
+        return labels;
+    }
+
     /**
      * Returns array for a new row with SQL DEFAULT value for each column n
      * where exists[n] is false. This provides default values only where

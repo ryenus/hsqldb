@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
  * Metadata for a result set.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.1
  * @since 1.8.0
  */
 public final class ResultMetaData {
@@ -85,6 +85,21 @@ public final class ResultMetaData {
     //
     private ResultMetaData(int type) {
         this.type = type;
+    }
+
+    public static ResultMetaData newResultMetaData(Type[] types,
+            String[] labels) {
+
+        ResultMetaData md = new ResultMetaData(RESULT_METADATA);
+
+        md.columnLabels        = labels;
+        md.columnTypes         = new Type[types.length];
+        md.columnCount         = types.length;
+        md.extendedColumnCount = types.length;
+
+        ArrayUtil.copyArray(types, md.columnTypes, types.length);
+
+        return md;
     }
 
     public static ResultMetaData newUpdateResultMetaData(Type[] types) {

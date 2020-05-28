@@ -48,6 +48,7 @@ import org.hsqldb.lib.Set;
 import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Collation;
@@ -1563,7 +1564,12 @@ public class Expression implements Cloneable {
                 RowSetNavigatorData navigator = table.getNavigator(session);
                 Result              result    = Result.newResult(navigator);
 
-                result.metaData = table.queryExpression.getMetaData();
+                if (table.queryExpression == null) {
+                    result.metaData = ResultMetaData.newResultMetaData(
+                        table.getColumnTypes(), table.getColumnLabels());
+                } else {
+                    result.metaData = table.queryExpression.getMetaData();
+                }
 
                 return result;
             }
