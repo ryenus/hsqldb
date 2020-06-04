@@ -1184,7 +1184,8 @@ public class FunctionCustom extends FunctionSQL {
                             DTIType.limitNanoseconds * interval.getSeconds()
                             + interval.getNanos());
                     }
-                    case Tokens.MICROSECOND : {
+                    case Tokens.MICROSECOND :
+                    case Tokens.SQL_TSI_MICRO_SECOND : {
                         t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
 
                         IntervalSecondData interval =
