@@ -1185,7 +1185,7 @@ public class TableWorks {
             oldCol.setDefaultExpression(newCol.getDefaultExpression());
             oldCol.setIdentity(newCol.getIdentitySequence());
             table.setColumnTypeVars(colIndex);
-            table.resetDefaultsFlag();
+            table.resetDefaultFlags();
 
             return;
         }

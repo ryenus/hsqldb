@@ -454,6 +454,27 @@ public class StatementSchema extends Statement {
                 try {
                     int  subType = ((Integer) arguments[0]).intValue();
                     Type domain  = (Type) arguments[1];
+                    OrderedHashSet set =
+                        session.database.schemaManager.getReferencesTo(
+                            domain.getName());
+
+                    if (subType == StatementTypes.ADD_CONSTRAINT) {
+                        for (int i = 0; i < set.size(); i++) {
+                            HsqlName objectName = (HsqlName) set.get(i);
+
+                            if (objectName.type == SchemaObject.COLUMN) {
+                                objectName = objectName.parent;
+
+                                Table table =
+                                    (Table) session.database.schemaManager
+                                        .getSchemaObject(objectName);
+
+                                if (!table.isEmpty(session)) {
+                                    throw Error.error(ErrorCode.X_42524);
+                                }
+                            }
+                        }
+                    }
 
                     switch (subType) {
 
@@ -486,6 +507,20 @@ public class StatementSchema extends Statement {
                             domain.userTypeModifier.removeDefaultClause();
 
                             break;
+                        }
+                    }
+
+                    for (int i = 0; i < set.size(); i++) {
+                        HsqlName objectName = (HsqlName) set.get(i);
+
+                        if (objectName.type == SchemaObject.COLUMN) {
+                            objectName = objectName.parent;
+
+                            Table table =
+                                (Table) session.database.schemaManager
+                                    .getSchemaObject(objectName);
+
+                            table.resetDefaultFlags();
                         }
                     }
 

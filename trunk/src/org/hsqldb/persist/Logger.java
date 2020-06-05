@@ -1126,7 +1126,9 @@ public class Logger implements EventLogInterface {
 
         propDataFileScale = value;
 
-        setDataFileSpace(propDataFileSpace);    // reduce if too large
+        if (propDataFileSpace > 0) {
+            propDataFileSpace = propDataFileScale / 16;    // reduce if too large
+        }
     }
 
     public int getDataFileScale() {
