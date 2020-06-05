@@ -1675,9 +1675,9 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * sets the flag for the presence of any default expression
+     * recreates various flags based on column properties
      */
-    void resetDefaultsFlag() {
+    void resetDefaultFlags() {
 
         hasDefaultValues   = false;
         hasGeneratedValues = false;
@@ -1687,6 +1687,12 @@ public class Table extends TableBase implements SchemaObject {
         hasLobColumn       = false;
 
         for (int i = 0; i < columnCount; i++) {
+            ColumnSchema column = getColumn(i);
+
+            colNotNull[i]       = column.isPrimaryKey() || !column.isNullable();
+            colDefaults[i]     = column.getDefaultExpression();
+            colGenerated[i]    = column.isGenerated();
+            colUpdated[i]      = column.isAutoUpdate();
             hasDefaultValues   |= colDefaults[i] != null;
             hasGeneratedValues |= colGenerated[i];
             hasUpdatedValues   |= colUpdated[i];
@@ -1856,12 +1862,12 @@ public class Table extends TableBase implements SchemaObject {
             setSingleColumnTypeVars(i);
         }
 
-        resetDefaultsFlag();
+        resetDefaultFlags();
     }
 
     void setColumnTypeVars(int i) {
         setSingleColumnTypeVars(i);
-        resetDefaultsFlag();
+        resetDefaultFlags();
     }
 
     private void setSingleColumnTypeVars(int i) {
