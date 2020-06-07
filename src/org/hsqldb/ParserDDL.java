@@ -2754,9 +2754,12 @@ public class ParserDDL extends ParserRoutine {
 
                     compileContext.currentDomain = null;
 
-                    Constraint c    = (Constraint) tempConstraints.get(0);
-                    String     sql  = getLastPart();
-                    Object[]   args = new Object[] {
+                    Constraint c = (Constraint) tempConstraints.get(0);
+
+                    c.prepareDomainCheckConstraint(session);
+
+                    String   sql  = getLastPart();
+                    Object[] args = new Object[] {
                         StatementTypes.ADD_CONSTRAINT, domain, c
                     };
                     HsqlName[] writeLockNames =
