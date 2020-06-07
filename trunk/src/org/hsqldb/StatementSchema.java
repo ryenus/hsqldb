@@ -1645,15 +1645,14 @@ public class StatementSchema extends Statement {
                               objectName.getSchemaQualifiedStatementName());
         }
 
-        Constraint[] constraints = domain.userTypeModifier.getConstraints();
-
-        set = new OrderedHashSet();
+        Constraint[]   constraints = domain.userTypeModifier.getConstraints();
+        OrderedHashSet constraintNames = new OrderedHashSet();
 
         for (int i = 0; i < constraints.length; i++) {
-            set.add(constraints[i].getName());
+            constraintNames.add(constraints[i].getName());
         }
 
-        session.database.schemaManager.removeSchemaObjects(set);
+        session.database.schemaManager.removeSchemaObjects(constraintNames);
         session.database.schemaManager.removeSchemaObject(domain.getName(),
                 cascade);
 
