@@ -229,8 +229,6 @@ public class RangeVariable {
     public void setFilterExpression(Session session, ExpressionLogical expr) {
 
         if (expr != null) {
-            expr = (ExpressionLogical) expr.duplicate();
-
             RangeGroup ranges =
                 new RangeGroupSimple(new RangeVariable[]{ this }, false);
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,15 +31,16 @@
 
 package org.hsqldb.rights;
 
+import org.hsqldb.Expression;
 import org.hsqldb.ExpressionLogical;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
+import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashSet;
-import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
 
 /**
@@ -47,7 +48,7 @@ import org.hsqldb.lib.OrderedHashSet;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public final class Right {
@@ -64,8 +65,14 @@ public final class Right {
     OrderedHashSet    updateColumnSet;
     OrderedHashSet    referencesColumnSet;
     OrderedHashSet    triggerColumnSet;
-    ExpressionLogical filterExpression;
-    String            filterSQL;
+    ExpressionLogical selectFilter;
+    ExpressionLogical insertFilter;
+    ExpressionLogical deleteFilter;
+    ExpressionLogical updateFilter;
+    String            selectFilterSQL;
+    String            insertFilterSQL;
+    String            deleteFilterSQL;
+    String            updateFilterSQL;
 
     //
     Right   grantableRights;
@@ -122,19 +129,67 @@ public final class Right {
 
         right.add(this);
 
-        if (filterExpression != null) {
-            right.filterExpression = filterExpression;
-            right.filterSQL = filterSQL;
-        }
+        right.selectFilter    = selectFilter;
+        right.selectFilterSQL = selectFilterSQL;
+        right.deleteFilter    = deleteFilter;
+        right.deleteFilterSQL = deleteFilterSQL;
+        right.insertFilter    = insertFilter;
+        right.insertFilterSQL = insertFilterSQL;
+        right.updateFilter    = updateFilter;
+        right.updateFilterSQL = updateFilterSQL;
 
         return right;
     }
 
     public void setFilterExpression(ExpressionLogical filter, String sql) {
 
-        if (filter != null) {
-            this.filterExpression = filter;
-            this.filterSQL        = sql;
+        if (canAccess(GrantConstants.SELECT)) {
+            selectFilter    = filter;
+            selectFilterSQL = sql;
+        }
+
+        if (canAccess(GrantConstants.DELETE)) {
+            deleteFilter    = filter;
+            deleteFilterSQL = sql;
+        }
+
+        if (canAccess(GrantConstants.INSERT)) {
+            insertFilter    = filter;
+            insertFilterSQL = sql;
+        }
+
+        if (canAccess(GrantConstants.UPDATE)) {
+            updateFilter    = filter;
+            updateFilterSQL = sql;
+        }
+    }
+
+    public void setFilterExpression(int rightType, ExpressionLogical filter,
+                                    String sql) {
+
+        switch (rightType) {
+
+            case GrantConstants.SELECT :
+                selectFilter    = filter;
+                selectFilterSQL = sql;
+                break;
+
+            case GrantConstants.DELETE :
+                deleteFilter    = filter;
+                deleteFilterSQL = sql;
+                break;
+
+            case GrantConstants.INSERT :
+                insertFilter    = filter;
+                insertFilterSQL = sql;
+                break;
+
+            case GrantConstants.UPDATE :
+                updateFilter    = filter;
+                updateFilterSQL = sql;
+                break;
+
+            default :
         }
     }
 
@@ -163,12 +218,19 @@ public final class Right {
 
         if (isFullSelect) {
             selectColumnSet = null;
-        } else if (right.selectColumnSet != null) {
-            if (selectColumnSet == null) {
-                selectColumnSet = new OrderedHashSet();
+        } else {
+            if (right.selectColumnSet != null) {
+                if (selectColumnSet == null) {
+                    selectColumnSet = new OrderedHashSet();
+                }
+
+                selectColumnSet.addAll(right.selectColumnSet);
             }
 
-            selectColumnSet.addAll(right.selectColumnSet);
+            if (right.selectFilter != null) {
+                selectFilter    = right.selectFilter;
+                selectFilterSQL = right.selectFilterSQL;
+            }
         }
 
         if (isFullInsert) {
@@ -604,13 +666,13 @@ public final class Right {
         return isFull || isFullDelete;
     }
 
-    public boolean canAccessFully(int privilegeType) {
+    public boolean canAccessFully(int action) {
 
         if (isFull) {
             return true;
         }
 
-        switch (privilegeType) {
+        switch (action) {
 
             case GrantConstants.DELETE :
                 return isFullDelete;
@@ -663,13 +725,13 @@ public final class Right {
     /**
      * Supports column level rights
      */
-    public boolean canAccess(int privilegeType) {
+    public boolean canAccess(int action) {
 
         if (isFull) {
             return true;
         }
 
-        switch (privilegeType) {
+        switch (action) {
 
             case GrantConstants.DELETE :
                 return isFullDelete;
@@ -760,7 +822,40 @@ public final class Right {
     }
 
     public ExpressionLogical getFilterExpression() {
-        return filterExpression;
+        return selectFilter;
+    }
+
+    public ExpressionLogical getFilterExpression(int action) {
+
+        switch (action) {
+
+            case GrantConstants.SELECT :
+                return selectFilter;
+
+            case GrantConstants.DELETE :
+                return deleteFilter;
+
+            case GrantConstants.INSERT :
+                return insertFilter;
+
+            case GrantConstants.UPDATE :
+                return updateFilter;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "Right");
+        }
+    }
+
+    public Expression[] getFiltersArray() {
+
+        return new Expression[] {
+            selectFilter, deleteFilter, insertFilter, updateFilter,
+        };
+    }
+
+    public boolean hasFilter() {
+        return selectFilter != null || deleteFilter != null
+               || insertFilter != null || updateFilter != null;
     }
 
     /**
@@ -776,33 +871,40 @@ public final class Right {
 
         if (isFullSelect) {
             sb.append(Tokens.T_SELECT);
+            appendFilterSQL(selectFilterSQL, sb);
             sb.append(',');
         } else if (selectColumnSet != null) {
             sb.append(Tokens.T_SELECT);
-            getColumnList(table, selectColumnSet, sb);
+            appendColumnList(table, selectColumnSet, sb);
+            appendFilterSQL(selectFilterSQL, sb);
             sb.append(',');
         }
 
         if (isFullInsert) {
             sb.append(Tokens.T_INSERT);
+            appendFilterSQL(insertFilterSQL, sb);
             sb.append(',');
         } else if (insertColumnSet != null) {
             sb.append(Tokens.T_INSERT);
-            getColumnList(table, insertColumnSet, sb);
+            appendColumnList(table, insertColumnSet, sb);
+            appendFilterSQL(insertFilterSQL, sb);
             sb.append(',');
         }
 
         if (isFullUpdate) {
             sb.append(Tokens.T_UPDATE);
+            appendFilterSQL(updateFilterSQL, sb);
             sb.append(',');
         } else if (updateColumnSet != null) {
             sb.append(Tokens.T_UPDATE);
-            getColumnList(table, updateColumnSet, sb);
+            appendColumnList(table, updateColumnSet, sb);
+            appendFilterSQL(updateFilterSQL, sb);
             sb.append(',');
         }
 
         if (isFullDelete) {
             sb.append(Tokens.T_DELETE);
+            appendFilterSQL(deleteFilterSQL, sb);
             sb.append(',');
         }
 
@@ -825,22 +927,18 @@ public final class Right {
         return sb.toString().substring(0, sb.length() - 1);
     }
 
-    String getRightsFilterSQL() {
+    static void appendFilterSQL(String sql, StringBuilder sb) {
 
-        if (filterExpression == null) {
-            return "";
+        if (sql == null) {
+            return;
         }
 
-        StringBuilder sb = new StringBuilder();
-
         sb.append(' ');
-        sb.append(filterSQL);
-
-        return sb.toString();
+        sb.append(sql);
     }
 
-    private static void getColumnList(Table t, OrderedHashSet set,
-                                      StringBuilder buf) {
+    private static void appendColumnList(Table t, OrderedHashSet set,
+                                         StringBuilder buf) {
 
         int       count        = 0;
         boolean[] colCheckList = t.getNewColumnCheckList();
@@ -1008,52 +1106,5 @@ public final class Right {
 
             default :
         }
-    }
-
-    /**
-     * Used solely by org.hsqldb.dbinfo in existing system tables lacking column
-     * level reporting.<p>
-     *
-     * Returns names of individual rights instead of ALL
-     */
-    String[] getTableRightsArray() {
-
-        if (isFull) {
-            return new String[] {
-                Tokens.T_SELECT, Tokens.T_INSERT, Tokens.T_UPDATE,
-                Tokens.T_DELETE, Tokens.T_REFERENCES
-            };
-        }
-
-        HsqlArrayList list  = new HsqlArrayList();
-        String[]      array = new String[list.size()];
-
-        if (isFullSelect) {
-            list.add(Tokens.T_SELECT);
-        }
-
-        if (isFullInsert) {
-            list.add(Tokens.T_INSERT);
-        }
-
-        if (isFullUpdate) {
-            list.add(Tokens.T_UPDATE);
-        }
-
-        if (isFullDelete) {
-            list.add(Tokens.T_DELETE);
-        }
-
-        if (isFullReferences) {
-            list.add(Tokens.T_REFERENCES);
-        }
-
-        if (isFullTrigger) {
-            list.add(Tokens.T_TRIGGER);
-        }
-
-        list.toArray(array);
-
-        return array;
     }
 }

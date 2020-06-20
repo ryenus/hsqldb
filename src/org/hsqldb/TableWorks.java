@@ -1168,6 +1168,11 @@ public class TableWorks {
                     checkData = 1;
                 }
             }
+
+            if (newType.isDomainType()
+                    && newType.userTypeModifier.getConstraints().length > 0) {
+                checkData = 1;
+            }
         }
 
         if (checkData == 1) {
@@ -1206,18 +1211,53 @@ public class TableWorks {
     void checkConvertColDataType(ColumnSchema oldCol, ColumnSchema newCol) {
 
         int         colIndex = table.getColumnIndex(oldCol.getName().name);
+        Type        oldType  = oldCol.getDataType();
+        Type        newType  = newCol.getDataType();
         RowIterator it       = table.rowIterator(session);
 
         while (it.next()) {
             Row    row = it.getCurrentRow();
-            Object o   = row.getData()[colIndex];
+            Object o   = row.getField(colIndex);
 
             if (!newCol.isNullable() && o == null) {
                 throw Error.error(ErrorCode.X_23502);
             }
 
-            newCol.getDataType().convertToType(session, o,
-                                               oldCol.getDataType());
+            newType.convertToType(session, o, oldType);
+
+            if (newType.isDomainType()) {
+                Constraint[] checks =
+                    newType.userTypeModifier.getConstraints();
+
+                for (int i = 0; i < checks.length; i++) {
+                    checks[i].checkCheckConstraint(session, table, oldCol, o);
+                    checkAddDomainConstraint(newType, checks[i]);
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param domain domain
+     * @param check  added constraint
+     */
+    void checkAddDomainConstraint(Type domain, Constraint check) {
+
+        Type[]      dataTypes = table.getColumnTypes();
+        RowIterator it        = table.rowIterator(session);
+
+        while (it.next()) {
+            Row row = it.getCurrentRow();
+
+            for (int i = 0; i < table.getColumnCount(); i++) {
+                if (dataTypes[i] == domain) {
+                    ColumnSchema column = table.getColumn(i);
+
+                    check.checkCheckConstraint(session, table, column,
+                                               row.getField(i));
+                }
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.Right;
 
@@ -49,7 +50,7 @@ import org.hsqldb.rights.Right;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.1
  * @since 1.7.2
  */
 
@@ -60,7 +61,7 @@ import org.hsqldb.rights.Right;
 // fredt@users - 1.9.0 - support for multi-row inserts
 public abstract class StatementDMQL extends Statement {
 
-    /** target table for INSERT_XXX, UPDATE and DELETE and MERGE */
+    /** target table for INSERT_XXX, UPDATE, DELETE and MERGE */
     Table targetTable;
     Table baseTable;
 
@@ -421,10 +422,30 @@ public abstract class StatementDMQL extends Statement {
 
             Right right = session.getGrantee().checkSelect(range.rangeTable,
                 range.usedColumns);
-            ExpressionLogical expr = right.getFilterExpression();
+            ExpressionLogical expr =
+                right.getFilterExpression(GrantConstants.SELECT);
 
-            range.setFilterExpression(session, expr);
+            if (expr != null) {
+                expr = (ExpressionLogical) expr.duplicate();
+
+                range.setFilterExpression(session, expr);
+
+                OrderedHashSet set = expr.collectAllSubqueries(null);
+
+                if (set != null && set.size() > 0) {
+                    for (int j = 0; j < set.size(); j++) {
+                        TableDerived subquery = (TableDerived) set.get(j);
+
+                        subqueries =
+                            (TableDerived[]) ArrayUtil.toAdjustedArray(
+                                subqueries, subquery, subqueries.length, 1);
+                    }
+                }
+            }
         }
+
+        ExpressionLogical expr  = null;
+        Right             right;
 
         switch (type) {
 
@@ -432,8 +453,9 @@ public abstract class StatementDMQL extends Statement {
                 break;
             }
             case StatementTypes.INSERT : {
-                session.getGrantee().checkInsert(targetTable,
-                                                 insertCheckColumns);
+                right = session.getGrantee().checkInsert(targetTable,
+                        insertCheckColumns);
+                expr = right.getFilterExpression(GrantConstants.INSERT);
 
                 break;
             }
@@ -441,23 +463,45 @@ public abstract class StatementDMQL extends Statement {
                 break;
 
             case StatementTypes.DELETE_WHERE : {
-                session.getGrantee().checkDelete(targetTable);
+                right = session.getGrantee().checkDelete(targetTable);
+                expr  = right.getFilterExpression(GrantConstants.DELETE);
 
                 break;
             }
             case StatementTypes.UPDATE_WHERE : {
-                session.getGrantee().checkUpdate(targetTable,
-                                                 updateCheckColumns);
+                right = session.getGrantee().checkUpdate(targetTable,
+                        updateCheckColumns);
+                expr = right.getFilterExpression(GrantConstants.UPDATE);
 
                 break;
             }
             case StatementTypes.MERGE : {
                 session.getGrantee().checkInsert(targetTable,
                                                  insertCheckColumns);
-                session.getGrantee().checkUpdate(targetTable,
-                                                 updateCheckColumns);
+
+                right = session.getGrantee().checkUpdate(targetTable,
+                        updateCheckColumns);
+                expr = right.getFilterExpression(GrantConstants.UPDATE);
 
                 break;
+            }
+        }
+
+        if (expr != null) {
+            expr = (ExpressionLogical) expr.duplicate();
+
+            targetRangeVariables[0].setFilterExpression(session, expr);
+
+            OrderedHashSet set = expr.collectAllSubqueries(null);
+
+            if (set != null && set.size() > 0) {
+                for (int j = 0; j < set.size(); j++) {
+                    TableDerived subquery = (TableDerived) set.get(j);
+
+                    subqueries =
+                        (TableDerived[]) ArrayUtil.toAdjustedArray(subqueries,
+                            subquery, subqueries.length, 1);
+                }
             }
         }
     }

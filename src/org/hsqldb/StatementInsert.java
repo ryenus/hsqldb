@@ -47,7 +47,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for INSERT statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 public class StatementInsert extends StatementDML {
@@ -62,20 +62,21 @@ public class StatementInsert extends StatementDML {
     /**
      * Instantiate this as an INSERT_VALUES statement.
      */
-    StatementInsert(Session session, Table targetTable, int[] insertColumnMap,
+    StatementInsert(Session session, Table targetTable,
+                    RangeVariable[] rangeVars, int[] insertColumnMap,
                     Expression insertExpression, boolean[] insertCheckColumns,
                     Expression[] updateExpressions,
                     boolean[] updateCheckColumns, int[] updateColumnMap,
                     Expression[] targets, int specialAction,
                     CompileContext compileContext) {
 
-        super(StatementTypes.INSERT, StatementTypes.X_SQL_DATA_CHANGE,
-              session.getCurrentSchemaHsqlName());
+        super(StatementTypes.INSERT, session.getCurrentSchemaHsqlName());
 
-        this.targetTable = targetTable;
-        this.baseTable   = targetTable.isTriggerInsertable() ? targetTable
-                                                             : targetTable
-                                                             .getBaseTable();
+        this.targetTable          = targetTable;
+        this.targetRangeVariables = rangeVars;
+        this.baseTable = targetTable.isTriggerInsertable() ? targetTable
+                                                           : targetTable
+                                                           .getBaseTable();
         this.insertColumnMap    = insertColumnMap;
         this.insertCheckColumns = insertCheckColumns;
         this.insertExpression   = insertExpression;
@@ -98,7 +99,8 @@ public class StatementInsert extends StatementDML {
     /**
      * Instantiate this as an INSERT_SELECT statement.
      */
-    StatementInsert(Session session, Table targetTable, int[] insertColumnMap,
+    StatementInsert(Session session, Table targetTable,
+                    RangeVariable[] rangeVars, int[] insertColumnMap,
                     boolean[] insertCheckColumns,
                     QueryExpression queryExpression,
                     Expression[] updateExpressions,
@@ -106,13 +108,13 @@ public class StatementInsert extends StatementDML {
                     Expression[] targets, int specialAction, int override,
                     CompileContext compileContext) {
 
-        super(StatementTypes.INSERT, StatementTypes.X_SQL_DATA_CHANGE,
-              session.getCurrentSchemaHsqlName());
+        super(StatementTypes.INSERT, session.getCurrentSchemaHsqlName());
 
-        this.targetTable = targetTable;
-        this.baseTable   = targetTable.isTriggerInsertable() ? targetTable
-                                                             : targetTable
-                                                             .getBaseTable();
+        this.targetTable          = targetTable;
+        this.targetRangeVariables = rangeVars;
+        this.baseTable = targetTable.isTriggerInsertable() ? targetTable
+                                                           : targetTable
+                                                           .getBaseTable();
         this.insertColumnMap    = insertColumnMap;
         this.insertCheckColumns = insertCheckColumns;
         this.queryExpression    = queryExpression;
@@ -220,9 +222,7 @@ public class StatementInsert extends StatementDML {
                    && changeNavigator != null) {
             Type[] colTypes = baseTable.getColumnTypes();
 
-            session.sessionContext.setRangeIterator(
-                changeNavigator);
-
+            session.sessionContext.setRangeIterator(changeNavigator);
             session.sessionContext.setRangeIterator(
                 changeNavigator.getUpdateRowIterator());
 

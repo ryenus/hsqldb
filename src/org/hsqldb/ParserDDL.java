@@ -2855,6 +2855,7 @@ public class ParserDDL extends ParserRoutine {
         boolean        isExec        = false;
         boolean        isAll         = false;
         boolean        isGrantOption = false;
+        boolean        isFilter      = false;
         boolean        cascade       = false;
 
         if (!grant) {
@@ -2894,12 +2895,12 @@ public class ParserDDL extends ParserRoutine {
 
                 int rightType =
                     GranteeManager.getCheckSingleRight(token.tokenString);
-                int            grantType = token.tokenType;
+                int            tokenType = token.tokenType;
                 OrderedHashSet columnSet = null;
 
                 read();
 
-                switch (grantType) {
+                switch (tokenType) {
 
                     case Tokens.REFERENCES :
                     case Tokens.SELECT :
@@ -2908,7 +2909,7 @@ public class ParserDDL extends ParserRoutine {
                         if (token.tokenType == Tokens.OPENBRACKET) {
                             columnSet = readColumnNames(false);
                         }
-
+                    case Tokens.DELETE :
                         if (right == null) {
                             right = new Right();
                         }
@@ -2916,19 +2917,24 @@ public class ParserDDL extends ParserRoutine {
                         right.set(rightType, columnSet);
 
                         isTable = true;
+
+                        if (grant && tokenType != Tokens.REFERENCES) {
+                            Recorder recorder = startRecording();
+                            ExpressionLogical filter =
+                                XreadFilterExpressionOrNull();
+
+                            if (filter != null) {
+                                String sql = recorder.getSQL();
+
+                                right.setFilterExpression(rightType, filter,
+                                                          sql);
+
+                                isFilter = true;
+                            }
+                        }
                         break;
 
                     case Tokens.TRIGGER :
-                        if (right == null) {
-                            right = new Right();
-                        }
-
-                        right.set(rightType, null);
-
-                        isTable = true;
-                        break;
-
-                    case Tokens.DELETE :
                         if (right == null) {
                             right = new Right();
                         }
@@ -3097,17 +3103,16 @@ public class ParserDDL extends ParserRoutine {
 
         objectName = readNewSchemaObjectName(objectType, false);
 
-        ExpressionLogical filter = null;
-
         if (grant) {
-            if (objectType == SchemaObject.TABLE) {
-                Recorder recorder = startRecording();
+            if (objectType == SchemaObject.TABLE && !isFilter) {
+                Recorder          recorder = startRecording();
+                ExpressionLogical filter   = XreadFilterExpressionOrNull();
 
-                filter = XreadFilterExpressionOrNull();
+                if (filter != null) {
+                    String sql = recorder.getSQL();
 
-                String sql = recorder.getSQL();
-
-                right.setFilterExpression(filter, sql);
+                    right.setFilterExpression(filter, sql);
+                }
             }
 
             readThis(Tokens.TO);
@@ -3170,7 +3175,7 @@ public class ParserDDL extends ParserRoutine {
                               : StatementTypes.REVOKE;
         Object[] args = new Object[] {
             granteeList, objectName, right, grantor, Boolean.valueOf(cascade),
-            Boolean.valueOf(isGrantOption), filter
+            Boolean.valueOf(isGrantOption)
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogNameArray();
