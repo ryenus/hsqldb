@@ -32,10 +32,8 @@
 package org.hsqldb.rights;
 
 import org.hsqldb.Expression;
-import org.hsqldb.ExpressionLogical;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
-import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
@@ -53,26 +51,26 @@ import org.hsqldb.lib.OrderedHashSet;
  */
 public final class Right {
 
-    boolean           isFull;
-    boolean           isFullSelect;
-    boolean           isFullInsert;
-    boolean           isFullUpdate;
-    boolean           isFullReferences;
-    boolean           isFullTrigger;
-    boolean           isFullDelete;
-    OrderedHashSet    selectColumnSet;
-    OrderedHashSet    insertColumnSet;
-    OrderedHashSet    updateColumnSet;
-    OrderedHashSet    referencesColumnSet;
-    OrderedHashSet    triggerColumnSet;
-    ExpressionLogical selectFilter;
-    ExpressionLogical insertFilter;
-    ExpressionLogical deleteFilter;
-    ExpressionLogical updateFilter;
-    String            selectFilterSQL;
-    String            insertFilterSQL;
-    String            deleteFilterSQL;
-    String            updateFilterSQL;
+    boolean        isFull;
+    boolean        isFullSelect;
+    boolean        isFullInsert;
+    boolean        isFullUpdate;
+    boolean        isFullReferences;
+    boolean        isFullTrigger;
+    boolean        isFullDelete;
+    OrderedHashSet selectColumnSet;
+    OrderedHashSet insertColumnSet;
+    OrderedHashSet updateColumnSet;
+    OrderedHashSet referencesColumnSet;
+    OrderedHashSet triggerColumnSet;
+    Expression     selectFilter;
+    Expression     insertFilter;
+    Expression     deleteFilter;
+    Expression     updateFilter;
+    String         selectFilterSQL;
+    String         insertFilterSQL;
+    String         deleteFilterSQL;
+    String         updateFilterSQL;
 
     //
     Right   grantableRights;
@@ -141,7 +139,7 @@ public final class Right {
         return right;
     }
 
-    public void setFilterExpression(ExpressionLogical filter, String sql) {
+    public void setFilterExpression(Expression filter, String sql) {
 
         if (canAccess(GrantConstants.SELECT)) {
             selectFilter    = filter;
@@ -164,7 +162,7 @@ public final class Right {
         }
     }
 
-    public void setFilterExpression(int rightType, ExpressionLogical filter,
+    public void setFilterExpression(int rightType, Expression filter,
                                     String sql) {
 
         switch (rightType) {
@@ -821,11 +819,7 @@ public final class Right {
         return result;
     }
 
-    public ExpressionLogical getFilterExpression() {
-        return selectFilter;
-    }
-
-    public ExpressionLogical getFilterExpression(int action) {
+    public Expression getFilterExpression(int action) {
 
         switch (action) {
 
