@@ -223,7 +223,7 @@ public class Grantee implements SchemaObject {
         return set;
     }
 
-    public boolean isAccessible(HsqlName name, int privilegeType) {
+    public boolean isAccessible(HsqlName name, int action) {
 
         if (isFullyAccessibleByRole(name)) {
             return true;
@@ -235,7 +235,7 @@ public class Grantee implements SchemaObject {
             return false;
         }
 
-        return right.canAccess(privilegeType);
+        return right.canAccess(action);
     }
 
     /**
@@ -577,105 +577,105 @@ public class Grantee implements SchemaObject {
         throw Error.error(ErrorCode.X_42501, object.getName().name);
     }
 
-    public void checkInsert(SchemaObject object, boolean[] checkList) {
+    public Right checkInsert(SchemaObject object, boolean[] checkList) {
 
         if (object instanceof Table) {
             Table table = (Table) object;
 
             if (isFullyAccessibleByRole(table.getName())) {
-                return;
+                return Right.fullRights;
             }
 
             Right right = (Right) fullRightsMap.get(table.getName());
 
             if (right != null && right.canInsert(table, checkList)) {
-                return;
+                return right;
             }
         }
 
         throw Error.error(ErrorCode.X_42501, object.getName().name);
     }
 
-    public void checkUpdate(SchemaObject object, boolean[] checkList) {
+    public Right checkUpdate(SchemaObject object, boolean[] checkList) {
 
         if (object instanceof Table) {
             Table table = (Table) object;
 
             if (isFullyAccessibleByRole(table.getName())) {
-                return;
+                return Right.fullRights;
             }
 
             Right right = (Right) fullRightsMap.get(table.getName());
 
             if (right != null && right.canUpdate(table, checkList)) {
-                return;
+                return right;
             }
         }
 
         throw Error.error(ErrorCode.X_42501, object.getName().name);
     }
 
-    public void checkReferences(SchemaObject object, boolean[] checkList) {
+    public Right checkReferences(SchemaObject object, boolean[] checkList) {
 
         if (object instanceof Table) {
             Table table = (Table) object;
 
             if (isFullyAccessibleByRole(table.getName())) {
-                return;
+                return Right.fullRights;
             }
 
             Right right = (Right) fullRightsMap.get(table.getName());
 
             if (right != null && right.canReference(table, checkList)) {
-                return;
+                return right;
             }
         }
 
         throw Error.error(ErrorCode.X_42501, object.getName().name);
     }
 
-    public void checkTrigger(SchemaObject object, boolean[] checkList) {
+    public Right checkTrigger(SchemaObject object, boolean[] checkList) {
 
         if (object instanceof Table) {
             Table table = (Table) object;
 
             if (isFullyAccessibleByRole(table.getName())) {
-                return;
+                return Right.fullRights;
             }
 
             Right right = (Right) fullRightsMap.get(table.getName());
 
             if (right != null && right.canReference(table, checkList)) {
-                return;
+                return right;
             }
         }
 
         throw Error.error(ErrorCode.X_42501, object.getName().name);
     }
 
-    public void checkDelete(SchemaObject object) {
+    public Right checkDelete(SchemaObject object) {
 
         if (object instanceof Table) {
             Table table = (Table) object;
 
             if (isFullyAccessibleByRole(table.getName())) {
-                return;
+                return Right.fullRights;
             }
 
             Right right = (Right) fullRightsMap.get(table.getName());
 
             if (right != null && right.canDelete()) {
-                return;
+                return right;
             }
         }
 
         throw Error.error(ErrorCode.X_42501, object.getName().name);
     }
 
-    public void checkAccess(SchemaObject object) {
+    public Right checkAccess(SchemaObject object) {
 
         if (isFullyAccessibleByRole(object.getName())) {
-            return;
+            return Right.fullRights;
         }
 
         HsqlName name = object.getName();
@@ -687,7 +687,7 @@ public class Grantee implements SchemaObject {
         Right right = (Right) fullRightsMap.get(name);
 
         if (right != null && !right.isEmpty()) {
-            return;
+            return right;
         }
 
         throw Error.error(ErrorCode.X_42501, object.getName().name);
@@ -1156,8 +1156,6 @@ public class Grantee implements SchemaObject {
                             sb.append(Tokens.T_TABLE).append(' ');
                             sb.append(
                                 hsqlname.getSchemaQualifiedStatementName());
-
-                            sb.append(right.getRightsFilterSQL());
                         }
                         break;
 

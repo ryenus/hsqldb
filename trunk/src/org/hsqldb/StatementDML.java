@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.9.0
  */
 
@@ -85,8 +85,8 @@ public class StatementDML extends StatementDMQL {
     /** ResultMetaData for generated values */
     ResultMetaData generatedResultMetaData;
 
-    public StatementDML(int type, int group, HsqlName schemaName) {
-        super(type, group, schemaName);
+    public StatementDML(int type, HsqlName schemaName) {
+        super(type, StatementTypes.X_SQL_DATA_CHANGE, schemaName);
     }
 
     /**
@@ -152,7 +152,7 @@ public class StatementDML extends StatementDMQL {
      */
     StatementDML(Session session, Expression[] targets,
                  RangeVariable sourceRange, RangeVariable targetRange,
-                 RangeVariable[] targetRangeVars, int[] insertColMap,
+                 RangeVariable[] rangeVars, int[] insertColMap,
                  int[] updateColMap, boolean[] checkColumns,
                  Expression mergeCondition, Expression insertExpr,
                  Expression[] updateExpr, boolean deleteFirst,
@@ -173,7 +173,7 @@ public class StatementDML extends StatementDMQL {
         this.updateColumnMap      = updateColMap;
         this.insertExpression     = insertExpr;
         this.updateExpressions    = updateExpr;
-        this.targetRangeVariables = targetRangeVars;
+        this.targetRangeVariables = rangeVars;
         this.condition            = mergeCondition;
         this.mergeInsertCondition = insertCondition;
         this.mergeUpdateCondition = updateCondition;
@@ -716,14 +716,14 @@ public class StatementDML extends StatementDMQL {
         // rowset for update operation
         RowSetNavigatorDataChange updateRowSet =
             session.sessionContext.getRowSetDataChange();
-        RangeVariable[] joinRangeIterators = targetRangeVariables;
+        RangeVariable[] joinRangeVariables = targetRangeVariables;
 
         // populate insert and update lists
         RangeIterator[] rangeIterators =
-            new RangeIterator[joinRangeIterators.length];
+            new RangeIterator[joinRangeVariables.length];
 
-        for (int i = 0; i < joinRangeIterators.length; i++) {
-            rangeIterators[i] = joinRangeIterators[i].getIterator(session);
+        for (int i = 0; i < joinRangeVariables.length; i++) {
+            rangeIterators[i] = joinRangeVariables[i].getIterator(session);
         }
 
         for (int currentIndex = 0; currentIndex >= 0; ) {
@@ -731,7 +731,7 @@ public class StatementDML extends StatementDMQL {
             boolean       beforeFirst = it.isBeforeFirst();
 
             if (it.next()) {
-                if (currentIndex < joinRangeIterators.length - 1) {
+                if (currentIndex < joinRangeVariables.length - 1) {
                     currentIndex++;
 
                     continue;
@@ -799,7 +799,7 @@ public class StatementDML extends StatementDMQL {
                         }
                     }
                 } catch (HsqlException e) {
-                    for (int i = 0; i < joinRangeIterators.length; i++) {
+                    for (int i = 0; i < joinRangeVariables.length; i++) {
                         rangeIterators[i].reset();
                     }
 
@@ -810,7 +810,7 @@ public class StatementDML extends StatementDMQL {
 
         updateRowSet.endMainDataSet();
 
-        for (int i = 0; i < joinRangeIterators.length; i++) {
+        for (int i = 0; i < joinRangeVariables.length; i++) {
             rangeIterators[i].reset();
         }
 
@@ -1539,12 +1539,25 @@ public class StatementDML extends StatementDMQL {
         return rowCount;
     }
 
-    static void performIntegrityChecks(Session session, Table table,
-                                       Object[] oldData, Object[] newData,
-                                       int[] updatedColumns) {
+    void performIntegrityChecks(Session session, Table table,
+                                Object[] oldData, Object[] newData,
+                                int[] updatedColumns) {
 
         if (newData == null) {
             return;
+        }
+
+        Expression filter = rangeVariables[0].filterCondition;
+
+        if (filter != null) {
+            RangeIterator it =
+                session.sessionContext.getCheckIterator(rangeVariables[0]);
+
+            it.setCurrent(newData);
+
+            if (!filter.testCondition(session)) {
+                throw Error.error(ErrorCode.X_44000);
+            }
         }
 
         for (int i = 0, size = table.checkConstraints.length; i < size; i++) {

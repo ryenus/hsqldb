@@ -107,12 +107,10 @@ public class ScriptRunner {
         int           currentId  = 0;
         String        statement;
         int           statementType;
-        Statement dummy = new StatementDML(StatementTypes.UPDATE_CURSOR,
-                                           StatementTypes.X_SQL_DATA_CHANGE,
-                                           null);
-        String databaseFile = database.getCanonicalPath();
-        String action       = fullReplay ? "open aborted"
-                                         : "open continued";
+        Statement dummy = new StatementDML(StatementTypes.UPDATE_CURSOR, null);
+        String        databaseFile = database.getCanonicalPath();
+        String        action       = fullReplay ? "open aborted"
+                                                : "open continued";
 
         dummy.setCompileTimestamp(Long.MAX_VALUE);
         database.setReferentialIntegrity(false);

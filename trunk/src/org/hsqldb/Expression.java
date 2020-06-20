@@ -542,7 +542,7 @@ public class Expression implements Cloneable {
             }
         }
 
-        if (OpTypes.aggregateFunctionSet.contains(opType)) {
+        if (isSelfAggregate()) {
             return false;
         }
 
@@ -624,7 +624,7 @@ public class Expression implements Cloneable {
         case OpCodes.TABLE_SUBQUERY :
         case OpCodes.ROW_SUBQUERY :
 */
-        if (OpTypes.aggregateFunctionSet.contains(opType)) {
+        if (isSelfAggregate()) {
             return false;
         }
 
@@ -1983,6 +1983,36 @@ public class Expression implements Cloneable {
         if (set != null && !set.isEmpty()) {
             throw Error.error(ErrorCode.X_0A000,
                               "subquery in check constraint");
+        }
+    }
+
+    public void resolveGrantFilter(Session session, Table table) {
+
+        RangeGroup ranges = new RangeGroupSimple(table.getDefaultRanges(),
+            false);
+        HsqlList set = resolveColumnReferences(session, ranges,
+                                               RangeGroup.emptyArray, null);
+
+        if (set != null && !set.isEmpty()) {
+            Expression e = (Expression) set.get(0);
+
+            e.getColumnName();
+
+            throw Error.error(ErrorCode.X_42501, e.getColumnName());
+        }
+
+        set = collectAllSubqueries(null);
+
+        if (set != null) {
+            if (set.size() > 0) {
+                if (set.size() > 1) {}
+
+                TableDerived subquery = (TableDerived) set.get(0);
+
+                if (subquery.isCorrelated()) {
+                    throw Error.error(ErrorCode.X_42501);
+                }
+            }
         }
     }
 

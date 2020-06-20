@@ -32,7 +32,6 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -454,25 +453,34 @@ public class StatementSchema extends Statement {
                 try {
                     int  subType = ((Integer) arguments[0]).intValue();
                     Type domain  = (Type) arguments[1];
-                    OrderedHashSet set =
+                    Expression domainDefault =
+                        domain.userTypeModifier.getDefaultClause();
+                    OrderedHashSet refSet =
                         session.database.schemaManager.getReferencesTo(
                             domain.getName());
+                    OrderedHashSet tableSet = new OrderedHashSet();
+
+                    for (int i = 0; i < refSet.size(); i++) {
+                        HsqlName objectName = (HsqlName) refSet.get(i);
+                        HsqlName tableName  = objectName.parent;
+
+                        if (tableName.type == SchemaObject.TABLE) {
+                            SchemaObject table =
+                                session.database.schemaManager.getSchemaObject(
+                                    tableName);
+
+                            tableSet.add(table);
+                        }
+                    }
 
                     if (subType == StatementTypes.ADD_CONSTRAINT) {
-                        for (int i = 0; i < set.size(); i++) {
-                            HsqlName objectName = (HsqlName) set.get(i);
+                        Constraint c = (Constraint) arguments[2];
 
-                            if (objectName.type == SchemaObject.COLUMN) {
-                                objectName = objectName.parent;
+                        for (int i = 0; i < tableSet.size(); i++) {
+                            Table      table = (Table) tableSet.get(i);
+                            TableWorks tw    = new TableWorks(session, table);
 
-                                Table table =
-                                    (Table) session.database.schemaManager
-                                        .getSchemaObject(objectName);
-
-                                if (!table.isEmpty(session)) {
-                                    throw Error.error(ErrorCode.X_42524);
-                                }
-                            }
+                            tw.checkAddDomainConstraint(domain, c);
                         }
                     }
 
@@ -510,18 +518,24 @@ public class StatementSchema extends Statement {
                         }
                     }
 
-                    for (int i = 0; i < set.size(); i++) {
-                        HsqlName objectName = (HsqlName) set.get(i);
+                    for (int i = 0; i < tableSet.size(); i++) {
+                        Table table = (Table) tableSet.get(i);
 
-                        if (objectName.type == SchemaObject.COLUMN) {
-                            objectName = objectName.parent;
+                        if (subType == StatementTypes.DROP_DEFAULT) {
+                            for (int j = 0; j < table.getColumnCount(); j++) {
+                                ColumnSchema column = table.getColumn(j);
 
-                            Table table =
-                                (Table) session.database.schemaManager
-                                    .getSchemaObject(objectName);
-
-                            table.resetDefaultFlags();
+                                if (column.dataType == domain) {
+                                    if (column.getDefaultExpression()
+                                            == null) {
+                                        column.setDefaultExpression(
+                                            domainDefault);
+                                    }
+                                }
+                            }
                         }
+
+                        table.resetDefaultFlags();
                     }
 
                     break;
@@ -1063,19 +1077,15 @@ public class StatementSchema extends Statement {
                                     Error.error(ErrorCode.X_42595), sql);
                             }
 
-                            Expression filterExpr =
-                                right.getFilterExpression();
+                            Expression[] filters = right.getFiltersArray();
 
-                            if (filterExpr != null) {
-                                filterExpr = filterExpr.duplicate();
+                            // only check the expression resolves
+                            for (int i = 0; i < filters.length; i++) {
+                                if (filters[i] != null) {
+                                    Expression expr = filters[i].duplicate();
 
-                                RangeGroup ranges =
-                                    new RangeGroupSimple(t.getDefaultRanges(),
-                                                         false);
-
-                                filterExpr.resolveColumnReferences(
-                                    session, ranges, RangeGroup.emptyArray,
-                                    null);
+                                    expr.resolveGrantFilter(session, t);
+                                }
                             }
                         }
                     }

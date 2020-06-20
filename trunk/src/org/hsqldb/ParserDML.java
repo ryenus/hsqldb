@@ -62,22 +62,23 @@ public class ParserDML extends ParserDQL {
      */
     StatementDMQL compileInsertStatement(RangeGroup[] rangeGroups) {
 
-        boolean[]     insertColumnCheckList;
-        boolean[]     updateColumnCheckList = null;
-        int[]         insertColumnMap;
-        int[]         updateColumnMap = ValuePool.emptyIntArray;
-        int           colCount;
-        Table         table;
-        RangeVariable range;
-        boolean       overridingUser               = false;
-        boolean       overridingSystem             = false;
-        boolean       assignsToIdentityOrGenerated = false;
-        Token         tableToken;
-        boolean       hasColumnList = false;
-        int           isSpecial     = StatementInsert.isNone;
-        Expression    insertExpressions;
-        Expression[]  updateExpressions = Expression.emptyArray;
-        Expression[]  targets           = null;
+        boolean[]       insertColumnCheckList;
+        boolean[]       updateColumnCheckList = null;
+        int[]           insertColumnMap;
+        int[]           updateColumnMap = ValuePool.emptyIntArray;
+        int             colCount;
+        Table           table;
+        RangeVariable   targetRange;
+        RangeVariable[] rangeVariables;
+        boolean         overridingUser               = false;
+        boolean         overridingSystem             = false;
+        boolean         assignsToIdentityOrGenerated = false;
+        Token           tableToken;
+        boolean         hasColumnList = false;
+        int             isSpecial     = StatementInsert.isNone;
+        Expression      insertExpressions;
+        Expression[]    updateExpressions = Expression.emptyArray;
+        Expression[]    targets           = null;
 
         if (database.sqlSyntaxMys) {
             if (readIfThis(Tokens.REPLACE)) {
@@ -98,12 +99,13 @@ public class ParserDML extends ParserDQL {
             readThis(Tokens.INTO);
         }
 
-        tableToken = getRecordedToken();
-        range      = readRangeVariableForDataChange(StatementTypes.INSERT);
+        tableToken  = getRecordedToken();
+        targetRange = readRangeVariableForDataChange(StatementTypes.INSERT);
 
-        range.resolveRangeTableTypes(session, RangeVariable.emptyArray);
+        targetRange.resolveRangeTableTypes(session, RangeVariable.emptyArray);
 
-        table                 = range.getTable();
+        rangeVariables        = new RangeVariable[]{ targetRange };
+        table                 = targetRange.getTable();
         insertColumnCheckList = null;
         insertColumnMap       = table.getColumnMap();
         colCount              = table.getColumnCount();
@@ -126,6 +128,7 @@ public class ParserDML extends ParserDQL {
                 insertColumnCheckList = table.getNewColumnCheckList();
 
                 StatementDMQL cs = new StatementInsert(session, table,
+                                                       rangeVariables,
                                                        insertColumnMap,
                                                        insertExpressions,
                                                        insertColumnCheckList,
@@ -164,7 +167,8 @@ public class ParserDML extends ParserDQL {
                     OrderedHashSet columnNames = new OrderedHashSet();
                     boolean        withPrefix  = database.sqlSyntaxOra;
 
-                    readSimpleColumnNames(columnNames, range, withPrefix);
+                    readSimpleColumnNames(columnNames, targetRange,
+                                          withPrefix);
                     readThis(Tokens.CLOSEBRACKET);
 
                     colCount        = columnNames.size();
@@ -303,12 +307,10 @@ public class ParserDML extends ParserDQL {
                     OrderedHashSet targetSet    = new OrderedHashSet();
                     LongDeque      colIndexList = new LongDeque();
                     HsqlArrayList  exprList     = new HsqlArrayList();
-                    RangeVariable[] rangeVariables = new RangeVariable[]{
-                        range };
                     RangeGroup rangeGroup =
                         new RangeGroupSimple(rangeVariables, false);
                     RangeVariable valueRange =
-                        new RangeVariable(range.getTable(), 2);
+                        new RangeVariable(targetRange.getTable(), 2);
 
                     isSpecial = StatementInsert.isUpdate;
 
@@ -340,6 +342,7 @@ public class ParserDML extends ParserDQL {
                 }
 
                 StatementDMQL cs = new StatementInsert(session, table,
+                                                       rangeVariables,
                                                        insertColumnMap,
                                                        insertExpressions,
                                                        insertColumnCheckList,
@@ -417,13 +420,13 @@ public class ParserDML extends ParserDQL {
             readThis(Tokens.KEY);
             readThis(Tokens.UPDATE);
 
-            OrderedHashSet  targetSet      = new OrderedHashSet();
-            LongDeque       colIndexList   = new LongDeque();
-            HsqlArrayList   exprList       = new HsqlArrayList();
-            RangeVariable[] rangeVariables = new RangeVariable[]{ range };
+            OrderedHashSet targetSet    = new OrderedHashSet();
+            LongDeque      colIndexList = new LongDeque();
+            HsqlArrayList  exprList     = new HsqlArrayList();
             RangeGroup rangeGroup = new RangeGroupSimple(rangeVariables,
                 false);
-            RangeVariable valueRange = new RangeVariable(range.getTable(), 2);
+            RangeVariable valueRange =
+                new RangeVariable(targetRange.getTable(), 2);
 
             isSpecial = StatementInsert.isUpdate;
 
@@ -451,7 +454,7 @@ public class ParserDML extends ParserDQL {
                                      valueRange);
         }
 
-        StatementDMQL cs = new StatementInsert(session, table,
+        StatementDMQL cs = new StatementInsert(session, table, rangeVariables,
                                                insertColumnMap,
                                                insertColumnCheckList,
                                                queryExpression,

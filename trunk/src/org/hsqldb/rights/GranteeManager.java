@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.5.0
+ * @version 2.5.1
  * @since 1.8.0
  * @see Grantee
  */
@@ -263,6 +263,13 @@ public class GranteeManager {
         for (int i = 0; i < granteeList.size(); i++) {
             Grantee grantee = get((String) granteeList.get(i));
 
+            if (!grantee.isRole) {
+                if (right.hasFilter()) {
+                    throw Error.error(ErrorCode.X_0P000,
+                                      grantee.getName().name);
+                }
+            }
+
             grantee.grant(name, right, grantor, withGrantOption);
 
             if (grantee.isRole) {
@@ -383,15 +390,11 @@ public class GranteeManager {
 
             if (grant) {
                 if (grantee.getDirectRoles().contains(role)) {
-
-                    /** @todo  shouldn't throw */
-                    throw Error.error(ErrorCode.X_0P000, granteeName);
+                    /** no-op */
                 }
             } else {
                 if (!grantee.getDirectRoles().contains(role)) {
-
-                    /** @todo  shouldn't throw */
-                    throw Error.error(ErrorCode.X_0P000, roleName);
+                    /** no-op */
                 }
             }
 
@@ -719,22 +722,22 @@ public class GranteeManager {
         return map.containsKey(name);
     }
 
-    public static int getCheckSingleRight(String right) {
+    public static int getCheckSingleRight(String token) {
 
-        int r = getRight(right);
+        int r = getRight(token);
 
         if (r != 0) {
             return r;
         }
 
-        throw Error.error(ErrorCode.X_42581, right);
+        throw Error.error(ErrorCode.X_42581, token);
     }
 
     /**
-     * Translate a string representation or right(s) into its numeric form.
+     * Translate a string representation or token(s) into its numeric form.
      */
-    public static int getRight(String right) {
-        return rightsStringLookup.get(right, 0);
+    public static int getRight(String token) {
+        return rightsStringLookup.get(token, 0);
     }
 
     public Grantee get(String name) {
