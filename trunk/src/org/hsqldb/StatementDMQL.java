@@ -422,11 +422,10 @@ public abstract class StatementDMQL extends Statement {
 
             Right right = session.getGrantee().checkSelect(range.rangeTable,
                 range.usedColumns);
-            ExpressionLogical expr =
-                right.getFilterExpression(GrantConstants.SELECT);
+            Expression expr = right.getFilterExpression(GrantConstants.SELECT);
 
             if (expr != null) {
-                expr = (ExpressionLogical) expr.duplicate();
+                expr = expr.duplicate();
 
                 range.setFilterExpression(session, expr);
 
@@ -444,8 +443,8 @@ public abstract class StatementDMQL extends Statement {
             }
         }
 
-        ExpressionLogical expr  = null;
-        Right             right;
+        Expression expr = null;
+        Right      right;
 
         switch (type) {
 

@@ -95,7 +95,7 @@ public class RangeVariable {
     ExpressionPeriodOp periodCondition;
 
     // role based condition
-    ExpressionLogical filterCondition;
+    Expression filterCondition;
 
     //
     boolean isLateral;
@@ -226,7 +226,7 @@ public class RangeVariable {
         periodCondition = condition;
     }
 
-    public void setFilterExpression(Session session, ExpressionLogical expr) {
+    public void setFilterExpression(Session session, Expression expr) {
 
         if (expr != null) {
             RangeGroup ranges =
@@ -1240,7 +1240,7 @@ public class RangeVariable {
         RangeVariableConditions[] whereConditions;
         RangeVariableConditions[] joinConditions;
         ExpressionPeriodOp        periodCondition;
-        ExpressionLogical         filterCondition;
+        Expression                filterCondition;
         int                       condIndex = 0;
 
         //
