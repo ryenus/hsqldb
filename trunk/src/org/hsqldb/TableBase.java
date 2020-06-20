@@ -165,11 +165,11 @@ public class TableBase implements Cloneable {
 
         PersistentStore store = getRowStore(session);
 
-        return getPrimaryIndex().firstRow(session, store, null, 0, null);
+        return getDefaultIndex().firstRow(session, store, null, 0, null);
     }
 
     public final RowIterator rowIterator(PersistentStore store) {
-        return getPrimaryIndex().firstRow(store);
+        return getDefaultIndex().firstRow(store);
     }
 
     public final int getIndexCount() {
@@ -179,6 +179,10 @@ public class TableBase implements Cloneable {
     public final Index getPrimaryIndex() {
         return indexList.length > 0 ? indexList[0]
                                     : null;
+    }
+
+    public Index getDefaultIndex() {
+        return indexList[0];
     }
 
     public final Type[] getPrimaryKeyTypes() {

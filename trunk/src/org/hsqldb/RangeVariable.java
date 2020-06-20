@@ -207,8 +207,8 @@ public class RangeVariable {
 
         columnsInGroupBy              = rangeTable.getNewColumnCheckList();
         usedColumns                   = rangeTable.getNewColumnCheckList();
-        joinConditions[0].rangeIndex  = rangeTable.getPrimaryIndex();
-        whereConditions[0].rangeIndex = rangeTable.getPrimaryIndex();
+        joinConditions[0].rangeIndex  = rangeTable.getDefaultIndex();
+        whereConditions[0].rangeIndex = rangeTable.getDefaultIndex();
     }
 
     public void setJoinType(boolean isLeft, boolean isRight) {

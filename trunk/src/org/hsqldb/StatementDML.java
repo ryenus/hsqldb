@@ -1287,7 +1287,7 @@ public class StatementDML extends StatementDMQL {
     Result executeDeleteTruncateStatement(Session session) {
 
         PersistentStore store   = targetTable.getRowStore(session);
-        RowIterator     it = targetTable.getPrimaryIndex().firstRow(store);
+        RowIterator     it = targetTable.getDefaultIndex().firstRow(store);
         boolean         hasData = false;
 
         for (int i = 0; i < targetTable.fkMainConstraints.length; i++) {
