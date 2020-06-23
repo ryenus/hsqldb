@@ -288,12 +288,13 @@
   <section xml:id="dpc_variables_url">
     <title>Variables In Connection URL</title>
 
-    <para>Two types of variables are allowed for file: database URLs. These
-    properties have an effect only if used for the first connection to the
-    database (the connection which opens the database). When running a server,
-    these variables have no effect on the connection URL but can be appended
-    to the database path URL in server.properties or the server command
-    line.</para>
+    <para>Two types of variables are allowed for file: database URL's:
+    properties for individual connections, and Properties for the whole
+    database. The database properties have an effect only if used for the
+    first connection to the database (the connection which opens the
+    database). When running a server, these variables are not used on the
+    connection URL but can be appended to the database path URL in
+    server.properties or the server command line.</para>
 
     <para>If the database part of a file: database begins with
     <literal>~/</literal> or <literal>~\</literal> the tilde character is
@@ -328,11 +329,11 @@
 
     <para>Connection properties are specified either by establishing the
     connection via the method call below, or the property can be appended to
-    the full Connection URL. The first three of these properties can be used
-    for any connection, including connection to a Server but the other three
-    have an effect only with the first connection to a file: or mem: database,
-    or when appended to the database path URL in server.properties or the
-    server command line.</para>
+    the full Connection URL. Some of the other properties can be used for any
+    connection, including connection to a Server but the others have an effect
+    only with the first connection to a file: or mem: database, or when
+    appended to the database path URL in server.properties or the server
+    command line.</para>
 
     <programlisting> DriverManager.getConnection (String url, Properties info);</programlisting>
 
@@ -635,8 +636,8 @@
             <entry nameend="c3" namest="c1"><para>Similar to the ifexists
             property, but with opposite meaning.</para><para>Has an effect
             only with <glossterm>mem:</glossterm> and
-            <glossterm>file:</glossterm> database. When false, will not create
-            a new database if one does not already exist for the
+            <glossterm>file:</glossterm> databases. When false, will not
+            create a new database if one does not already exist for the
             URL.</para><para>When the property is true (the default), a new
             <glossterm>mem:</glossterm> or <glossterm>file:</glossterm>
             database will be created if it does not exist.</para><para>Setting
@@ -679,19 +680,20 @@
           </row>
 
           <row>
-            <entry nameend="c3" namest="c1"><para>If this property is
-            <literal>true</literal>, when the last connection to a database is
-            closed, the database is automatically shut down. The property
-            takes effect only when the first connection is made to the
-            database. This means the connection that opens the database. It
-            has no effect if used with subsequent
-            connections.</para><para>This command has two uses. One is for
-            test suites, where connections to the database are made from one
-            JVM context, immediately followed by another context. The other
-            use is for applications where it is not easy to configure the
-            environment to shutdown the database. Examples reported by users
-            include web application servers, where the closing of the last
-            connection coincides with the web app being shut
+            <entry nameend="c3" namest="c1"><para>Has an effect only with
+            <glossterm>mem:</glossterm> and <glossterm>file:</glossterm>
+            databases. If this property is <literal>true</literal>, when the
+            last connection to a database is closed, the database is
+            automatically shut down. The property takes effect only when the
+            first connection is made to the database. This means the
+            connection that opens the database. It has no effect if used with
+            subsequent connections.</para><para>This command has two uses. One
+            is for test suites, where connections to the database are made
+            from one JVM context, immediately followed by another context. The
+            other use is for applications where it is not easy to configure
+            the environment to shutdown the database. Examples reported by
+            users include web application servers, where the closing of the
+            last connection coincides with the web app being shut
             down.</para><programlisting> jdbc:hsqldb:file:enrolments;shutdown=true</programlisting></entry>
           </row>
         </tbody>

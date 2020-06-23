@@ -340,10 +340,10 @@
       </indexterm>
 
       <para>As mentioned above, a USER or ROLE that does not own a schema can
-      be granted access to individual columns of the tables in the schema.
+      be granted access to individual columns of a table in the schema.
       HyperSQL adds a feature that is not part of the SQL Standard to allow
-      this access to be granted only for certain rows of the table, based on a
-      filter condition.</para>
+      this access to be granted only for certain rows of a table, based on a
+      FILTER condition.</para>
 
       <para>When the GRANT statement contains a FILTER condition, the
       condition is applied to each row of the table that a SELECT, INSERT,
@@ -367,8 +367,8 @@ INSERT INTO info VALUES 3, 'inserted data for SA current', 'South America', CURR
 INSERT INTO info VALUES 4, 'inserted data for EU expired', 'European Union', CURRENT_DATE - 1 DAY
 CREATE ROLE eu_admin
 CREATE ROLE eu_user
-GRANT SELECT ON TABLE info FILTER (WHERE region = 'European Union') TO eu_admin
-GRANT SELECT ON TABLE info FILTER (WHERE region = 'European Union' AND expires &gt; CURRENT_DATE) TO eu_user
+GRANT SELECT FILTER (WHERE region = 'European Union') ON TABLE info TO eu_admin
+GRANT SELECT FILTER (WHERE region = 'European Union' AND expires &gt; CURRENT_DATE) ON TABLE info TO eu_user
 </programlisting>
         </informalexample></para>
 
@@ -386,18 +386,25 @@ GRANT SELECT ON TABLE info FILTER (WHERE region = 'European Union' AND expires &
 
       <informalexample>
         <programlisting>CREATE ROLE common_user
-GRANT SELECT ON TABLE info FILTER (WHERE EXTRACT(HOUR FROM CURRENT_TIMESTAMP) BETWEEN 9 AND 17) TO common_user
+GRANT SELECT FILTER (WHERE EXTRACT(HOUR FROM CURRENT_TIMESTAMP) BETWEEN 9 AND 17) ON TABLE info TO common_user
 </programlisting>
       </informalexample>
 
       <para>Fine-grained data access control can also be used to implement
       multi-tenancy database solutions.</para>
 
-      <para>The <literal>&lt;filter clause&gt;</literal> on SELECT also
-      applies to any INSERT and UPDATE rights on the table and cannot be
-      revoked on its own. To change any existing fine-grained rights, all
-      rights granted on a table to a USER or ROLE must be revoked before a
-      GRANT with FILTER is made.</para>
+      <para>A separate <literal>&lt;filter clause&gt;</literal> can be
+      declared on each of SELECT, DELETE, INSERT and UPDATE rights on the
+      table. To change an existing fine-grained right granted to a ROLE on a
+      table, the existing right must be revoked before a GRANT with FILTER is
+      made. Use of ALTER TABLE to remove columns that are not referenced in a
+      FILTER condition, or to add new columns to the table, does not affect
+      the validity of the FILTER condition. But if any column that is
+      referenced is removed, you need to REVOKE the filtered rights.</para>
+
+      <para>With a MERGE statement, which may contain INSERT, UPDATE, and
+      DELETE clauses, the UPDATE filter is used when selecting the rows to
+      UPDATE, as well as rows to DELETE.</para>
     </section>
   </section>
 
@@ -639,10 +646,11 @@ GRANT SELECT ON TABLE info FILTER (WHERE EXTRACT(HOUR FROM CURRENT_TIMESTAMP) BE
     <literal>&lt;grantee&gt;</literal> objects.</simpara>
 
     <simpara><literal>&lt;privileges&gt; ::= &lt;object privileges&gt; ON
-    &lt;object name&gt; [ &lt;filter clause&gt; ]</literal></simpara>
+    &lt;object name&gt;</literal></simpara>
 
     <simpara><literal>&lt;object privileges&gt; ::= ALL PRIVILEGES |
-    &lt;action&gt; [ { &lt;comma&gt; &lt;action&gt; }... ]</literal></simpara>
+    &lt;action&gt; [ &lt;filter clause&gt; ] [ { &lt;comma&gt; &lt;action&gt;
+    }... ]</literal></simpara>
 
     <simpara><literal>&lt;action&gt; ::= SELECT | SELECT &lt;left paren&gt;
     &lt;privilege column list&gt; &lt;right paren&gt; | DELETE | INSERT [
@@ -652,13 +660,13 @@ GRANT SELECT ON TABLE info FILTER (WHERE EXTRACT(HOUR FROM CURRENT_TIMESTAMP) BE
     list&gt; &lt;right paren&gt; ] | TRIGGER | USAGE |
     EXECUTE</literal></simpara>
 
-    <simpara><literal>&lt;object name&gt; ::= [ TABLE ] &lt;table name&gt; [
-    &lt;filter clause&gt; ] | DOMAIN &lt;domain name&gt; | COLLATION
-    &lt;collation name&gt; | CHARACTER SET &lt;character set name&gt; |
-    TRANSLATION &lt;transliteration name&gt; | TYPE &lt;user-defined type
-    name&gt; | SEQUENCE &lt;sequence generator name&gt; | &lt;specific routine
-    designator&gt; | ROUTINE &lt;routine name&gt; | FUNCTION &lt;function
-    name&gt; | PROCEDURE &lt;procedure name&gt;</literal></simpara>
+    <simpara><literal>&lt;object name&gt; ::= [ TABLE ] &lt;table name&gt; |
+    DOMAIN &lt;domain name&gt; | COLLATION &lt;collation name&gt; | CHARACTER
+    SET &lt;character set name&gt; | TRANSLATION &lt;transliteration name&gt;
+    | TYPE &lt;user-defined type name&gt; | SEQUENCE &lt;sequence generator
+    name&gt; | &lt;specific routine designator&gt; | ROUTINE &lt;routine
+    name&gt; | FUNCTION &lt;function name&gt; | PROCEDURE &lt;procedure
+    name&gt;</literal></simpara>
 
     <simpara><literal>&lt;privilege column list&gt; ::= &lt;column name
     list&gt;</literal></simpara>
@@ -688,7 +696,7 @@ GRANT SELECT ON TABLE info FILTER (WHERE EXTRACT(HOUR FROM CURRENT_TIMESTAMP) BE
     <informalexample>
       <programlisting> GRANT ALL ON SEQUENCE aSequence TO roleOrUser 
  GRANT SELECT ON aTable TO roleOrUser  
- GRANT SELECT, UPDATE ON aTABLE TO roleOrUser1, roleOrUser2
+ GRANT SELECT, UPDATE FILTER(WHERE aColumn &gt; 2) ON aTABLE TO roleOrUser1, roleOrUser2
  GRANT SELECT(columnA, columnB), UPDATE(columnA, columnB) ON TABLE aTable TO roleOrUser
  GRANT EXECUTE ON SPECIFIC ROUTINE aroutine_1234 TO roleOrUser
 </programlisting>
@@ -698,7 +706,8 @@ GRANT SELECT ON TABLE info FILTER (WHERE EXTRACT(HOUR FROM CURRENT_TIMESTAMP) BE
     role for the collection of all the privileges required by an application.
     This role is then granted to any user. If further changes are made to the
     privileges of this role, they are automatically reflected in all the users
-    that have the role.</simpara>
+    that have the role. Fine-grained privileges (those with a FILTER clause)
+    can be granted to roles only.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>GRANT role</primary>

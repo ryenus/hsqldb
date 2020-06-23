@@ -1679,8 +1679,8 @@
       behavior&gt;</literal> is <literal>CASCADE</literal>, it causes all
       schema objects that reference the table to drop. Referencing views are
       dropped. In the case of foreign key constraints that reference the
-      table, the constraint is dropped, rather than the TABLE or DOMAIN that
-      contains it.</para>
+      table, the constraint is dropped, rather than the TABLE that contains
+      it.</para>
     </section>
 
     <section xml:id="dbc_sys_versioned_tables">
@@ -2534,10 +2534,18 @@
       type defined by the Standard. It can have a <literal>&lt;default
       clause&gt;</literal>, similar to a column default clause. It can also
       have one or more CHECK constraints which limit the values that can be
-      assigned to a column or variable that has the DOMAIN as its type.</para>
+      assigned to a column that has the DOMAIN as its type. The keyword VALUE
+      is used in the constraint definition to refer to the value of the
+      column.</para>
+
+      <para>If a column uses a domain that contains a <literal>&lt;default
+      clause&gt;</literal>, it can have a column default clause as well, which
+      overrides the default defined by the domain. In a table that contains a
+      column based on a domain, the CHECK constraints in table definition
+      apply in addition to the CHECK constraints of the domain.</para>
 
       <informalexample>
-        <programlisting> CREATE DOMAIN valid_string AS VARCHAR(20) DEFAULT 'NO VALUE' CHECK (value IS NOT NULL AND CHARACTER_LENGTH(value) &gt; 2) 
+        <programlisting> CREATE DOMAIN valid_string AS VARCHAR(20) DEFAULT 'NO VALUE' CHECK (VALUE IS NOT NULL AND CHARACTER_LENGTH(VALUE) &gt; 2) 
 </programlisting>
       </informalexample>
 
@@ -2570,7 +2578,8 @@
       <simpara><literal>&lt;set domain default clause&gt; ::= SET &lt;default
       clause&gt;</literal></simpara>
 
-      <simpara>Set the default value in a domain.</simpara>
+      <simpara>Set the default value in a domain. This is allowed if the
+      domain is already used in a table definition.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP DOMAIN DEFAULT</primary>
@@ -2583,7 +2592,11 @@
       <simpara><literal>&lt;drop domain default clause&gt; ::= DROP
       DEFAULT</literal></simpara>
 
-      <simpara>Remove the default clause of a domain.</simpara>
+      <simpara>Remove the default clause of a domain. This is allowed if the
+      domain is already used in a table definition. If a column uses the
+      domain as its type, the domain default is removed. If there is no
+      existing column default clause, the default clause of the domain becomes
+      the column default clause. </simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>ADD DOMAIN CONSTRAINT</primary>
@@ -2596,7 +2609,9 @@
       <simpara><literal>&lt;add domain constraint definition&gt; ::= ADD
       &lt;domain constraint&gt;</literal></simpara>
 
-      <simpara>Add a constraint to a domain.</simpara>
+      <simpara>Add a constraint to a domain. This is allowed if the domain is
+      already used in a table definition and the table data satisfies the
+      constraint.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP DOMAIN CONSTRAINT</primary>
@@ -2610,11 +2625,9 @@
       <simpara><literal>&lt;drop domain constraint definition&gt; ::= DROP
       CONSTRAINT &lt;constraint name&gt;</literal></simpara>
 
-      <para>Destroy a constraint on a domain. If the <literal>&lt;drop
-      behavior&gt;</literal> is <literal>CASCADE</literal>, and the constraint
-      is a UNIQUE constraint which is referenced by a FOREIGN KEY constraint
-      on another table, then the FOREIGN KEY constraint is also
-      dropped.</para>
+      <para>Remove a constraint on a domain. This is allowed if the domain is
+      already used in a table definition. The constraint no longer applies to
+      a column that uses the domain as its type.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP DOMAIN</primary>
@@ -2628,10 +2641,13 @@
       &lt;domain name&gt; &lt;drop behavior&gt;</literal></simpara>
 
       <para>Destroy a domain. If <literal>&lt;drop behavior&gt;</literal> is
-      <literal>CASCADE</literal>, it works differently from most other
-      objects. If a table features a column of the specified DOMAIN, the
-      column survives and inherits the DEFAULT CLAUSE, and the CHECK
-      CONSTRAINT of the DOMAIN.</para>
+      not <literal>CASCADE</literal>, an exception is raised if the domain is
+      already used in any database object. When <literal>CASCADE</literal> is
+      specified, it works differently from most other cascading operations. If
+      a table features a column that has specified DOMAIN, the column survives
+      and inherits the base data type of the domain. The default clause and
+      the check constraint of the DOMAIN no longer apply to the column (this
+      behaviour is different from the SQL Standard).</para>
     </section>
 
     <section xml:id="dbc_trigger_creation">
@@ -4285,8 +4301,8 @@
         <para>SYSTEM_COMMENTS</para>
 
         <para>Contains the user-defined comments added to tables and their
-        columns. Also informational comments on INFORMATION_SCHEMA views
-        </para>
+        columns. Also informational comments on INFORMATION_SCHEMA
+        views</para>
 
         <indexterm significance="preferred" type="sql">
           <primary>SYSTEM_CONNECTION_PROPERTIES</primary>

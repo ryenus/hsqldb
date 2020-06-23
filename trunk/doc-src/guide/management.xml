@@ -223,9 +223,9 @@
       data to the database. In <glossterm>mem:</glossterm> catalogs, CLOB and
       BLOB data is stored in memory. In <glossterm>file:</glossterm> catalogs,
       this data is stored in a single separate file which has the extension
-      <literal>*.lobs</literal>. The size of this file can grow to huge,
-      terabyte figures. By default, a minimum 32 KB is allocated to each LOB.
-      You can reduce this if your LOBs are generally smaller.</para>
+      <literal>*.lobs</literal>. The size of this file can grow to terabyte
+      figures. By default, a minimum 32 KB is allocated to each LOB. You can
+      reduce this if your LOBs are generally smaller.</para>
 
       <para>LOB data should be stored in the database using a JDBC
       PreparedStatement object. The streaming methods send the LOB to the
@@ -241,6 +241,14 @@
       from one table to another. The disk space is reused when a LOB is
       deleted and is no longer contained in any table. This happens only at
       the time of a CHECKPOINT.</para>
+
+      <para>With all-in-memory <glossterm>mem:</glossterm> databases, the
+      memory space for deleted lobs is not reused by default, as there is no
+      automatic checkpoint. Automatic checkpoints can be activated by setting
+      the LOG SIZE property to a value larger than zero. When the accumulated
+      size of deleted lobs reaches the LOG SIZE setting (in megabytes) an
+      automatic checkpoint is performed and the memory space is
+      released.</para>
 
       <para>By using a dedicated LOB store, HyperSQL achieves consistently
       high speeds (usually over 20MB / s) for both storage and retrieval of
@@ -1471,15 +1479,12 @@
       tables in the database. It returns a list of tables and indexes with
       rows counts together with any errors found. The optional <literal>AND
       FIX</literal> fixes the damaged indexes on a table if at least one index
-      is undamaged.</simpara>
-
-      <simpara>The first form is for importing data for ordinary tables. The {
-      CONTINUE | STOP | CHECK } ON ERROR clause determines the action when an
-      error occurs due to constraint violation. The CHECK option does
-      </simpara>
+      is undamaged. If this option is used, you must perform a CHECKPOINT
+      after completion, otherwise the fixes will be lost.</simpara>
 
       <simpara>This statements takes a long time to execute on large tables as
-      all the rows are read again for each index.</simpara>
+      all the rows are read again for each index. It also needs extra Java
+      heap memory over and above normal usage. </simpara>
 
       <simpara>Only a user with the DBA role can execute this statement. An
       example of the output is given below.</simpara>
@@ -2956,7 +2961,7 @@
 
       <simpara>When the data file already exists, you must perform SHUTDOWN
       COMPACT or SHUTDOWN SCRIPT after changing the scale. Otherwise the
-      change will be forgotten. </simpara>
+      change will be forgotten.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
