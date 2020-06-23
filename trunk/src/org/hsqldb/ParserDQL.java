@@ -1088,6 +1088,14 @@ public class ParserDQL extends ParserBase {
                                                  ? OpTypes.RECURSIVE_SUBQUERY
                                                  : OpTypes.TABLE_SUBQUERY);
 
+                if (nameList == null) {
+                    boolean[] cols = td.queryExpression.accessibleColumns;
+
+                    if (ArrayUtil.countTrueElements(cols) < cols.length) {
+                        throw Error.error(ErrorCode.X_42578);
+                    }
+                }
+
                 readThis(Tokens.CLOSEBRACKET);
 
                 if (token.tokenType == Tokens.CYCLE) {

@@ -854,10 +854,6 @@ public class Database {
 
         public void start() {
 
-            if (!logger.isLogged()) {
-                return;
-            }
-
             synchronized (this) {
                 if (waiting) {
                     return;

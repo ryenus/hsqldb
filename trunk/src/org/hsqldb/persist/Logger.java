@@ -153,6 +153,9 @@ public class Logger implements EventLogInterface {
     AtomicInteger checkpointState = new AtomicInteger();
 
     //
+    long maxLogSize;
+
+    //
     static final int largeDataFactor = 128;
 
     // backupState cycle normal, backup, normal or normal, checkpoint, normal
@@ -591,8 +594,10 @@ public class Logger implements EventLogInterface {
             propWriteDelay = 0;
         }
 
-        propLogSize = database.databaseProperties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_log_size);
+        setLogSize(
+            database.databaseProperties.getIntegerProperty(
+                HsqlDatabaseProperties.hsqldb_log_size));
+
         propLogData = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_log_data);
         propGC = database.databaseProperties.getIntegerProperty(
@@ -949,6 +954,11 @@ public class Logger implements EventLogInterface {
 
         if (loggingEnabled) {
             log.writeCommitStatement(session);
+        } else {
+            if (maxLogSize > 0
+                    && database.lobManager.getUsageChanged() > maxLogSize) {
+                setCheckpointRequired();
+            }
         }
     }
 
@@ -1015,6 +1025,7 @@ public class Logger implements EventLogInterface {
     public synchronized void setLogSize(int megas) {
 
         propLogSize = megas;
+        maxLogSize  = propLogSize * 1024L * 1024;
 
         if (log != null) {
             log.setLogSize(propLogSize);
