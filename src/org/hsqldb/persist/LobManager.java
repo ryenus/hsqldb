@@ -116,7 +116,7 @@ public class LobManager {
     Statement createPart;
 
     //
-    boolean usageChanged;
+    long usageChanged;
 
     //
     ReadWriteLock lock      = new ReentrantReadWriteLock();
@@ -539,7 +539,7 @@ public class LobManager {
                 sysLobSession.executeCompiledStatement(deleteLobCall, params,
                     0);
 
-            usageChanged = true;
+            usageChanged += lobBlockSize;
 
             return result;
         } finally {
@@ -547,7 +547,7 @@ public class LobManager {
         }
     }
 
-    public boolean isUsageChanged() {
+    public long getUsageChanged() {
         return usageChanged;
     }
 
@@ -556,7 +556,7 @@ public class LobManager {
         writeLock.lock();
 
         try {
-            if (lobStore == null || byteBuffer == null || !usageChanged) {
+            if (lobStore == null || byteBuffer == null || usageChanged == 0) {
                 return Result.updateZeroResult;
             }
 
@@ -597,7 +597,7 @@ public class LobManager {
             }
 
             // result is empty when there is no lob, or it has one row
-            usageChanged = false;
+            usageChanged = 0;
 
             long            sizeLimit = 0;
             RowSetNavigator navigator = result.getNavigator();
@@ -1752,7 +1752,7 @@ public class LobManager {
 
         // todo - return a value in result and check - UPDATE decrements (to zero) then increments usage
         if (delta < 0) {
-            usageChanged = true;
+            usageChanged += lobBlockSize;
         }
 
         session.sessionContext.pop();
