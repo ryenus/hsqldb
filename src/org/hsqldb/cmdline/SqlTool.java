@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -193,7 +193,7 @@ public class SqlTool {
      * Parses a comma delimited string of name value pairs into a
      * <code>Map</code> object.
      *
-     * @param varString The string to parse
+     * @param inVarString The string to parse
      * @param varMap The map to save the paired values into
      * @param lowerCaseKeys Set to <code>true</code> if the map keys should be
      *        converted to lower case
