@@ -319,7 +319,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     //getToolkit().createCustomCursor(CommonSwing.getIcon("SystemCursor"),
     //                                new Point(4, 4), "HourGlass cursor");
     // (ulrivo): variables set by arguments from the commandline
-    static String  defDriver   = "org.hsqldb.jdbcDriver";
+    static String  defDriver   = "org.hsqldb.jdbc.JDBCDriver";
     static String  defURL      = "jdbc:hsqldb:mem:.";
     static String  defUser     = "SA";
     static String  defPassword = "";

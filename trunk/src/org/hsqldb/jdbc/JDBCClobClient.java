@@ -61,7 +61,7 @@ import org.hsqldb.types.ClobInputStream;
  * Instances of this class are returned by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.0
  * @since  JDK 1.2, HSQLDB 1.9.0
  */
 public class JDBCClobClient implements Clob {

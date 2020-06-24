@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,16 +60,16 @@ class ConnectionDialogCommon {
     private static String[][]       connTypes;
     private static final String[][] sJDBCTypes = {
         {
-            "HSQL Database Engine In-Memory", "org.hsqldb.jdbcDriver",
+            "HSQL Database Engine In-Memory", "org.hsqldb.jdbc.JDBCDriver",
             "jdbc:hsqldb:mem:."
         }, {
-            "HSQL Database Engine Standalone", "org.hsqldb.jdbcDriver",
+            "HSQL Database Engine Standalone", "org.hsqldb.jdbc.JDBCDriver",
             "jdbc:hsqldb:file:\u00ABdatabase/path?\u00BB"
         }, {
-            "HSQL Database Engine Server", "org.hsqldb.jdbcDriver",
+            "HSQL Database Engine Server", "org.hsqldb.jdbc.JDBCDriver",
             "jdbc:hsqldb:hsql://localhost/"
         }, {
-            "HSQL Database Engine WebServer", "org.hsqldb.jdbcDriver",
+            "HSQL Database Engine WebServer", "org.hsqldb.jdbc.JDBCDriver",
             "jdbc:hsqldb:http://\u00ABhostname/?\u00BB"
         }, {
             "JDBC-ODBC Bridge from Sun", "sun.jdbc.odbc.JdbcOdbcDriver",

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,6 @@ import org.hsqldb.cmdline.sqltool.TokenSource;
 import org.hsqldb.lib.AppendableException;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.RCData;
-import org.hsqldb.lib.StringUtil;
 
 /* $Id$ */
 
@@ -156,6 +155,10 @@ import org.hsqldb.lib.StringUtil;
  */
 
 public class SqlFile {
+    // copies of Java 8 additions to java.sql.Types constants
+    private static final int TIME_WITH_TIMEZONE = 2013;
+    private static final int TIMESTAMP_WITH_TIMEZONE = 2014;
+
     private enum Recursion { FILE, IF, WHILE, FOREACH, FOR, FORROWS }
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(SqlFile.class);
@@ -626,7 +629,7 @@ public class SqlFile {
     /**
      * Wrapper for SqlFile(SqlFile, Reader, String)
      *
-     * @see #SqlFile(SqlFile, Reader, String)
+     * @see #SqlFile(SqlFile, Reader, String, URL)
      */
     private SqlFile(final SqlFile parentSqlFile, final URL inputUrl)
     throws IOException {
@@ -3993,8 +3996,8 @@ public class SqlFile {
                              * implement it for their custom TIMESTAMP type.
                              */
                             switch (dataType[insi]) {
-                                case org.hsqldb.types.Types.SQL_TIMESTAMP_WITH_TIME_ZONE:
-                                case org.hsqldb.types.Types.SQL_TIME_WITH_TIME_ZONE:
+                                case TIMESTAMP_WITH_TIMEZONE:
+                                case TIME_WITH_TIMEZONE:
                                 case java.sql.Types.TIMESTAMP:
                                 case java.sql.Types.DATE:
                                 case java.sql.Types.TIME:
@@ -4007,7 +4010,7 @@ public class SqlFile {
                                     if (dataType[insi]
                                             != java.sql.Types.TIMESTAMP
                                             && dataType[insi]
-                                            != org.hsqldb.types.Types.SQL_TIMESTAMP_WITH_TIME_ZONE
+                                            != TIMESTAMP_WITH_TIMEZONE
                                             && val != null) {
                                         dotAt = val.lastIndexOf('.');
                                         for (int z = dotAt + 1;
@@ -4162,7 +4165,7 @@ public class SqlFile {
                             condlPrint(((i > 0) ? "  " : "")
                                     + ((i < headerArray.length - 1
                                         || rightJust[i])
-                                       ? StringUtil.toPaddedString(
+                                       ? toPaddedString(
                                          headerArray[i], maxWidth[i],
                                          ' ', !rightJust[i])
                                        : headerArray[i])
@@ -4201,7 +4204,7 @@ public class SqlFile {
                             condlPrint(((j > 0) ? "  " : "")
                                     + ((j < fieldArray.length - 1
                                         || rightJust[j])
-                                       ? StringUtil.toPaddedString(
+                                       ? toPaddedString(
                                          fieldArray[j], maxWidth[j],
                                          ' ', !rightJust[j])
                                        : fieldArray[j])
@@ -4457,7 +4460,7 @@ public class SqlFile {
      * Describe the columns of specified table.
      *
      * @param tableName  Table that will be described.
-     * @param filter  Optional regex to filter by.
+     * @param filterString  Optional regex to filter by.
      *                By default, will match only against the column name.
      *                Prefix with "/" to match against the entire output line.
      */
@@ -4554,7 +4557,7 @@ public class SqlFile {
                         + SqlFile.escapeHtml(headerArray[i]) + "</TH>", true);
                 condlPrint(((i > 0) ? "  " : "")
                         + ((i < headerArray.length - 1 || rightJust[i])
-                           ? StringUtil.toPaddedString(
+                           ? toPaddedString(
                              headerArray[i], maxWidth[i], ' ', !rightJust[i])
                            : headerArray[i])
                         , false);
@@ -4585,7 +4588,7 @@ public class SqlFile {
                             + "</TD>", true);
                     condlPrint(((j > 0) ? "  " : "")
                             + ((j < fieldArray.length - 1 || rightJust[j])
-                               ? StringUtil.toPaddedString(
+                               ? toPaddedString(
                                  fieldArray[j], maxWidth[j], ' ', !rightJust[j])
                                : fieldArray[j])
                             , false);
@@ -5119,11 +5122,11 @@ public class SqlFile {
             case java.sql.Types.VARCHAR :
                 return "VARCHAR";
 
-            case org.hsqldb.types.Types.SQL_TIME_WITH_TIME_ZONE :
-                return "SQL_TIME_WITH_TIME_ZONE";
+            case TIME_WITH_TIMEZONE :
+                return "TIME_WITH_TIMEZONE";
 
-            case org.hsqldb.types.Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                return "SQL_TIMESTAMP_WITH_TIME_ZONE";
+            case TIMESTAMP_WITH_TIMEZONE :
+                return "TIMESTAMP_WITH_TIMEZONE";
         }
 
         return "Unknown type " + i;
@@ -5584,8 +5587,8 @@ public class SqlFile {
                     case java.sql.Types.DATE:
                     case java.sql.Types.TIME:
                     case java.sql.Types.TIMESTAMP:
-                    case org.hsqldb.types.Types.SQL_TIMESTAMP_WITH_TIME_ZONE:
-                    case org.hsqldb.types.Types.SQL_TIME_WITH_TIME_ZONE:
+                    case TIMESTAMP_WITH_TIMEZONE:
+                    case TIME_WITH_TIMEZONE:
                         parseDate[i] = true;
                         break;
                     default:
@@ -6535,5 +6538,24 @@ public class SqlFile {
             scanner = storedScanner;
         }
         t.val = ifCmdText;
+    }
+
+    public static String toPaddedString(String source, int length, char pad,
+                                        boolean trailing) {
+        int len = source.length();
+        if (len >= length) {
+            return source;
+        }
+        StringBuilder sb = new StringBuilder(length);
+        if (trailing) {
+            sb.append(source);
+        }
+        for (int i = len; i < length; i++) {
+            sb.append(pad);
+        }
+        if (!trailing) {
+            sb.append(source);
+        }
+        return sb.toString();
     }
 }
