@@ -48,7 +48,7 @@ import org.hsqldb.types.BlobInputStream;
  * Instances of this class are returned by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.5
+ * @version 2.4.0
  * @since 1.9.0
  */
 public class JDBCBlobClient implements Blob {

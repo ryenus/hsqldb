@@ -1226,7 +1226,7 @@ public class ExpressionColumn extends Expression {
     }
 
     /**
-     * SIMPLE_COLUMN expressions are now (2.3.5) always ExpressionColumn
+     * SIMPLE_COLUMN expressions are now (2.4.0) always ExpressionColumn
      */
     boolean equals(Expression other) {
 
