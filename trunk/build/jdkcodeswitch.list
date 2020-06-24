@@ -1,6 +1,6 @@
 # Files listed here will be code-switched
 # This eliminates the need for CodeSwitcher to scan all source files.
-# Version 2.5.0
+# Version 2.5.1
 
 org/hsqldb/FunctionCustom.java
 org/hsqldb/jdbc/JDBCCallableStatement.java
@@ -13,3 +13,4 @@ org/hsqldb/persist/HsqlDatabaseProperties.java
 org/hsqldb/types/CharacterType.java
 org/hsqldb/types/DateTimeType.java
 org/hsqldb/types/IntervalType.java
+org/hsqldb/test/TestJavaFunctions.java
