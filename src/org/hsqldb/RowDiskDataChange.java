@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.types.Type;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.3.5
+ * @version 2.4.0
  * @since 2.2.7
  */
 public class RowDiskDataChange extends RowAVLDisk {

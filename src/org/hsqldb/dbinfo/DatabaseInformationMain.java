@@ -1240,7 +1240,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * ROW_CARDINALITY  INTEGER   total # of rows in index (not implemented)
      * </pre> <p>
      *
-     * CARDINALITY and PAGES columns are BIGINT instead of INT since 2.3.5
+     * CARDINALITY and PAGES columns are BIGINT instead of INT since 2.4.0
      *
      * @return a <code>Table</code> object describing the visible
      *        <code>Index</code> objects for each accessible
