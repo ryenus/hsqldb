@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
-<!-- author fredt@users.sourceforge.net 2001 - 2019 -->
-<!-- additional targets 2004-2018: blaine (dot) simpson (at) admc (dot) com -->
+<!-- author fredt@users.sourceforge.net 2001 - 2020 -->
+<!-- additional targets 2004-2020: blaine (dot) simpson (at) admc (dot) com -->
 <project name="hsqldb" default="help" basedir="../">
   <!--  To see what build properties you can change, see the property elements
         below.
@@ -536,13 +536,13 @@ examples:
     <fileset id='sqltoolclasses' dir='classes'
         includes='
             org/hsqldb/cmdline/**/*.class
+            org/hsqldb/lib/AppendableException*
+            org/hsqldb/lib/BasicTextJdkLogFormatter*
+            org/hsqldb/lib/FrameworkLogger*
             org/hsqldb/lib/RCData*
             org/hsqldb/lib/RefCapablePropertyResourceBundle*
             org/hsqldb/lib/RefCapableRBInterface*
             org/hsqldb/lib/ValidatingResourceBundle*
-            org/hsqldb/lib/AppendableException*
-            org/hsqldb/lib/BasicTextJdkLogFormatter*
-            org/hsqldb/lib/FrameworkLogger*
             org/hsqldb/resources/jdklogging-default.properties
             '/>
 
