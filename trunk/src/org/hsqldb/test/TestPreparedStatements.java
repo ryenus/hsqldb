@@ -311,7 +311,8 @@ public class TestPreparedStatements extends TestCase {
         assertTrue(result1.next());
         assertTrue(result1.next());
 
-        String select2 = "SELECT name FROM testusers WHERE name IN (?)";
+/*
+        String select2 = "SELECT name FROM testusers WHERE name IN (CAST(? AS VARCHAR(10) ARRAY))";
         PreparedStatement preparedStatement2 = con.prepareStatement(select2,
             ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
@@ -321,6 +322,7 @@ public class TestPreparedStatements extends TestCase {
 
         assertTrue(result2.next());
         assertTrue(result2.next());
+*/
     }
 
     public void testD() throws SQLException, ClassNotFoundException {
