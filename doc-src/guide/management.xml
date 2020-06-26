@@ -266,11 +266,11 @@
       <example>
         <title>Using CACHED tables for the LOB schema</title>
 
-        <screen> SET TABLE SYSTEM_LOBS.BLOCKS TYPE CACHED
+        <programlisting> SET TABLE SYSTEM_LOBS.BLOCKS TYPE CACHED
  SET TABLE SYSTEM_LOBS.LOBS TYPE CACHED
  SET TABLE SYSTEM_LOBS.PARTS TYPE CACHED
  SET TABLE SYSTEM_LOBS.LOB_IDS TYPE CACHED
-</screen>
+</programlisting>
       </example>
     </section>
 
@@ -502,7 +502,7 @@
     <example>
       <title>Creating a system-versioned table</title>
 
-      <screen> CREATE TABLE codedata (
+      <programlisting> CREATE TABLE codedata (
   code CHAR(10) not null,
   id SMALLINT not null ,
   primary key (ID),
@@ -510,7 +510,7 @@
   PE TIMESTAMP GENERATED ALWAYS AS ROW END,
   PERIOD FOR SYSTEM_TIME(PS,PE)
   ) WITH SYSTEM VERSIONING
-</screen>
+</programlisting>
     </example>
   </section>
 
@@ -2678,8 +2678,8 @@
         <title>Finding foreign key rows with no parents after a bulk
         import</title>
 
-        <screen> SELECT * FROM foreign_key_table LEFT OUTER JOIN primary_key_table 
-   ON foreign_key_table.fk_col = primary_key_table.pk_col WHERE primary_key_table.pk_col IS NULL</screen>
+        <programlisting> SELECT * FROM foreign_key_table LEFT OUTER JOIN primary_key_table 
+   ON foreign_key_table.fk_col = primary_key_table.pk_col WHERE primary_key_table.pk_col IS NULL</programlisting>
       </example>
 
       <simpara>Only a user with the DBA role can execute this
