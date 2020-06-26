@@ -882,7 +882,8 @@
       discussed in the <link endterm="databaseobjects-title" xlink:arcrole=""
       xlink:href="#databaseobjects-chapt"/> chapter.</para>
 
-      <programlisting> CHAR(10)
+      <informalexample>
+        <programlisting> CHAR(10)
  CHARACTER(10)
  VARCHAR(2)
  CHAR VARYING(2)
@@ -891,6 +892,7 @@
  CHARACTER LARGE OBJECT(1M)
  LONGVARCHAR
 </programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="sgc_binary_types">
@@ -955,7 +957,8 @@
       <simpara><literal>&lt;length&gt; ::= &lt;unsigned
       integer&gt;</literal></simpara>
 
-      <programlisting> BINARY(10)
+      <informalexample>
+        <programlisting> BINARY(10)
  VARBINARY(2)
  BINARY VARYING(2)
  BLOB(1000)
@@ -963,6 +966,7 @@
  BINARY LARGE OBJECT(1M)
  LONGVARBINARY
 </programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="sgc_bit_types">
@@ -1004,10 +1008,12 @@
       &lt;length&gt; &lt;right paren&gt; ] | BIT VARYING &lt;left paren&gt;
       &lt;length&gt; &lt;right paren&gt;</literal></simpara>
 
-      <programlisting> BIT
+      <informalexample>
+        <programlisting> BIT
  BIT(10)
  BIT VARYING(2)
 </programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="sgc_lob_data">
@@ -1134,12 +1140,12 @@
         <para><programlisting>CREATE TABLE movies (director VARCHAR(30), title VARCHAR(40), obj OTHER)
 SELECT obj FROM movies WHERE director LIKE 'Luc%'
 </programlisting></para>
-
-        <para>In any case, at least one attribute of the object should be
-        stored to allow efficient retrieval of the objects from both Live
-        Object and Serialized storage. An ID number is often used as the
-        stored column attribute.</para>
       </informalexample>
+
+      <para>In any case, at least one attribute of the object should be stored
+      to allow efficient retrieval of the objects from both Live Object and
+      Serialized storage. An ID number is often used as the stored column
+      attribute.</para>
     </section>
 
     <section xml:id="sgc_length_precision">
@@ -1249,20 +1255,24 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <simpara><literal>&lt;time fractional seconds precision&gt; ::=
     &lt;unsigned integer&gt;</literal></simpara>
 
-    <programlisting> DATE
+    <informalexample>
+      <programlisting> DATE
  TIME(6)
  TIMESTAMP(2) WITH TIME ZONE
 </programlisting>
+    </informalexample>
 
     <para>TIME or TIMESTAMP literals containing a zone displacement value are
     WITH TIME ZONE. Examples of the string literals used to represent date
     time values, some with time zone, some without, are below:</para>
 
-    <programlisting> DATE '2008-08-22'
+    <informalexample>
+      <programlisting> DATE '2008-08-22'
  TIMESTAMP '2008-08-08 20:08:08'
  TIMESTAMP '2008-08-08 20:08:08+8:00' /* Beijing */
  TIME '20:08:08.034900'
  TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
+    </informalexample>
 
     <indexterm significance="preferred" type="sql">
       <primary>Time Zone</primary>
@@ -1325,8 +1335,10 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <para>Example a:</para>
 
-    <programlisting> TIME '12:00:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
+    <informalexample>
+      <programlisting> TIME '12:00:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
 </programlisting>
+    </informalexample>
 
     <para>If the session’s time zone displacement is -'8:00', then in step 1,
     TIME '12:00:00' is converted to UTC, which is TIME '20:00:00+0:00'. In
@@ -1334,8 +1346,10 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <para>Example b:</para>
 
-    <programlisting> TIME '12:00:00-5:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
+    <informalexample>
+      <programlisting> TIME '12:00:00-5:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
 </programlisting>
+    </informalexample>
 
     <para>Because the operand has a time zone, the result is independent of
     the session time zone displacement. Step 1 results in TIME
@@ -1349,8 +1363,10 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <para>CAST is used for all other conversions. Examples:</para>
 
-    <programlisting> CAST (&lt;value&gt; AS TIME WITHOUT TIME ZONE)
+    <informalexample>
+      <programlisting> CAST (&lt;value&gt; AS TIME WITHOUT TIME ZONE)
  CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
+    </informalexample>
 
     <para>In the first example, if <literal>&lt;value&gt;</literal> has a time
     zone component, it is simply dropped. For example, TIME '12:00:00-5:00' is
@@ -1630,12 +1646,14 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <para>Examples of INTERVAL type definition:</para>
 
-    <programlisting> INTERVAL YEAR TO MONTH
+    <informalexample>
+      <programlisting> INTERVAL YEAR TO MONTH
  INTERVAL YEAR(3)
  INTERVAL DAY(4) TO HOUR
  INTERVAL MINUTE(4) TO SECOND(6)
  INTERVAL SECOND(4,6)
 </programlisting>
+    </informalexample>
 
     <para>The word INTERVAL indicates the general type name. The rest of the
     definition is called an <literal>&lt;interval qualifier&gt;</literal>.
@@ -1664,11 +1682,13 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     definition, with a string representing the interval value inserted after
     the word INTERVAL. Some examples of interval literal below:</para>
 
-    <programlisting> INTERVAL '145 23:12:19.345' DAY(3) TO SECOND(3)
+    <informalexample>
+      <programlisting> INTERVAL '145 23:12:19.345' DAY(3) TO SECOND(3)
  INTERVAL '3503:12:19.345' HOUR TO SECOND(3) /* equal to the first value */
  INTERVAL '19.345' SECOND(4,3) /* maximum number of digits for the second value is 4, and each value is expressed with three fraction digits. */
  INTERVAL '-23-10' YEAR(2) TO MONTH
 </programlisting>
+    </informalexample>
 
     <para>Interval values of the types that are based on seconds can be cast
     into one another. Similarly, those that are based on months can be cast
@@ -1679,9 +1699,11 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     field, nothing is lost from the interval value. Otherwise, the values for
     the missing least-significant fields are discarded. Examples:</para>
 
-    <programlisting> CAST ( INTERVAL '145 23:12:19' DAY TO SECOND AS INTERVAL DAY TO HOUR ) = INTERVAL '145 23' DAY TO HOUR
+    <informalexample>
+      <programlisting> CAST ( INTERVAL '145 23:12:19' DAY TO SECOND AS INTERVAL DAY TO HOUR ) = INTERVAL '145 23' DAY TO HOUR
  CAST(INTERVAL '145 23' DAY TO HOUR AS INTERVAL DAY TO SECOND) = INTERVAL '145 23:00:00' DAY TO SECOND
 </programlisting>
+    </informalexample>
 
     <para>A numeric value can be cast to an interval type. In this case the
     numeric value is first converted to a single-field INTERVAL type with the
@@ -1731,13 +1753,15 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     that represent an interval value, which is then added to the given date
     literal.</literal></para>
 
-    <programlisting> DATE '2000-01-01' + INTERVAL '1-10' YEAR TO MONTH /* interval literal */
+    <informalexample>
+      <programlisting> DATE '2000-01-01' + INTERVAL '1-10' YEAR TO MONTH /* interval literal */
  DATE '2000-01-01' + '1-10' YEAR TO MONTH /* the string '1-10' is cast into INTERVAL YEAR TO MONTH */
  DATE '2000-01-01' + 22 MONTH /* the integer 22 is cast into INTERVAL MONTH, same value as above */
  DATE '2000-01-01' - 22 DAY /* the integer 22 is cast into INTERVAL DAY */
  DATE '2000-01-01' + COL2 /* the type of COL2 must be an INTERVAL type */
  DATE '2000-01-01' + COL2 MONTH /* COL2 may be a number, it is cast into a MONTH interval */
 </programlisting>
+    </informalexample>
 
     <simpara><emphasis role="bold">Datetime and Interval
     Operations</emphasis></simpara>
@@ -1772,12 +1796,14 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     fields. In the first example below, COL1 and COL2 are of the same datetime
     type, and the result is evaluated in INTERVAL YEAR TO MONTH type.</para>
 
-    <programlisting> (COL1 – COL2) YEAR TO MONTH /* the difference between two DATE or two TIEMSTAMP values in years and months */
+    <informalexample>
+      <programlisting> (COL1 – COL2) YEAR TO MONTH /* the difference between two DATE or two TIEMSTAMP values in years and months */
  (CURRENT_DATE – COL3) DAY /* the number of days between the value of COL3 and the current date */
  (CURRENT_DATE - DATE '2000-01-01') YEAR TO MONTH /* the number of years and months since the beginning of this century */
  CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
  (CURRENT_TIMESTAMP - TIMESTAMP '2009-01-01 00:00:00') DAY(4) TO SECOND(2) /* days to seconds since the given date */
 </programlisting>
+    </informalexample>
 
     <para>The individual fields of both datetime and interval values can be
     extracted using the EXTRACT function. The same function can also be used
@@ -2006,12 +2032,6 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
  UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 </programlisting>
         </informalexample></para>
-
-      <para><informalexample>
-          <programlisting> SELECT scores[ranking], names[ranking] FROM t JOIN t1 on (t.id = t1.tid)
- UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
-</programlisting>
-        </informalexample></para>
     </section>
 
     <section xml:id="sgc_array_ops">
@@ -2086,7 +2106,12 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
       <para>An array can be cast into an array of a different type. Each
       element of the array is cast into the element type of the target array
-      type.</para>
+      type. For example:</para>
+
+      <para><informalexample>
+          <programlisting> SELECT CAST(scores[ranking] AS VARCHAR(6) ARRAY), names[ranking] FROM t JOIN t1 on (t.id = t1.tid)
+</programlisting>
+        </informalexample></para>
 
       <para><emphasis>UNNEST</emphasis></para>
 
@@ -2119,7 +2144,8 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
       CUSTOMER table that is included for tests in the DatabaseManager GUI app
       is the source of the data.</simpara>
 
-      <programlisting> SELECT FIRSTNAME, LASTNAME, ARRAY(SELECT INVOICE.TOTAL FROM INVOICE WHERE CUSTOMERID = CUSTOMER.ID) AS ORDERS FROM CUSTOMER
+      <informalexample>
+        <programlisting> SELECT FIRSTNAME, LASTNAME, ARRAY(SELECT INVOICE.TOTAL FROM INVOICE WHERE CUSTOMERID = CUSTOMER.ID) AS ORDERS FROM CUSTOMER
 
  FIRSTNAME LASTNAME  ORDERS                                    
  --------- --------- -------------------------------------- 
@@ -2128,15 +2154,17 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
  Robert    Sommer    ARRAY[]                                
  Michael   Smith     ARRAY[3420.30]
 </programlisting>
+      </informalexample>
 
       <para><emphasis>COMPARISON</emphasis></para>
 
       <para>Arrays can be compared for equality, but they cannot be compared
-      for ordering values or range comparison. Array expressions are therefore
-      not allowed in an ORDER BY clause, or in a comparison expression such as
-      GREATER THAN. It is possible to define a UNIQUE constraint on a column
-      of ARRAY type. Two arrays are equal if they have the same length and the
-      values at each index position are either equal or both NULL.</para>
+      for ordering a list of values or for range comparison. Array expressions
+      are therefore not allowed in an ORDER BY clause, or in a comparison
+      expression such as GREATER THAN. It is possible to define a UNIQUE
+      constraint on a column of ARRAY type. Two arrays are equal if they have
+      the same length and the values at each index position are either equal
+      or both NULL.</para>
 
       <para><emphasis>USER DEFINED FUNCTIONS and PROCEDURES</emphasis></para>
 
@@ -2260,9 +2288,12 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
   <section xml:id="sgc_query_opt">
     <title>Query Processing and Optimisation</title>
 
-    <para>HyperSQL changes the order of tables in a query in order to optimise
-    processing. This happens only when one of the tables has a narrowing
-    condition and reordering does not change the result of the query.</para>
+    <para>HyperSQL performs "cost-base optimisation" to changes the order of
+    tables in a query in order to optimise processing. It computes and
+    compares the approximate time (cost) it takes to execute the query with
+    different table orders and chooses the one with the least costs. This
+    happens only when one of the tables has a narrowing condition and
+    reordering does not change the result of the query.</para>
 
     <section xml:id="sgc_indexes_cond">
       <title>Indexes and Conditions</title>
@@ -2338,11 +2369,13 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
       TC.LASTNAME column. Similarly, a GROUP BY query on two columns can use
       an index that covers the two columns.</para>
 
-      <para><programlisting> -- TC is a very large table
+      <para><informalexample>
+          <programlisting> -- TC is a very large table
 
  SELECT DISTINCT LASTNAME FROM TC WHERE TC.LASTNAME &gt; 'F'
  SELECT STATE, LASTNAME FROM TC GROUP BY STATE, LASTNAME
-</programlisting></para>
+</programlisting>
+        </informalexample></para>
     </section>
 
     <section xml:id="sgc_indexes_order">
