@@ -111,9 +111,9 @@
 
       <para>Definition statements create, modify, or remove database objects.
       Tables and views are objects that contain data. There are other types of
-      objects that do contain data. These statements are covered in the <link
-      endterm="databaseobjects-title" xlink:href="#databaseobjects-chapt"/>
-      chapter.</para>
+      objects that do not contain data. These statements are covered in the
+      <link endterm="databaseobjects-title"
+      xlink:href="#databaseobjects-chapt"/> chapter.</para>
 
       <para>CREATE</para>
 
@@ -259,7 +259,8 @@
       <para>PERFORM</para>
 
       <para>Includes commands to export and import SQL scripts from / to the
-      database. Also includes a command to check the consistency of the indexes.</para>
+      database. Also includes a command to check the consistency of the
+      indexes.</para>
 
       <para>SCRIPT</para>
 
@@ -346,8 +347,9 @@
 
     <para>All data is stored in tables. Therefore, creating a database
     requires defining the tables and their columns. The SQL Standard supports
-    temporary tables, which are for temporary data, and permanent base tables,
-    which are for persistent data.</para>
+    temporary tables, which are for temporary data managed by each session,
+    and permanent base tables, which are for persistent data shared by
+    different sessions.</para>
 
     <para>A HyperSQL database can be an all-in-memory
     <glossterm>mem:</glossterm> database with no automatic persistence, or a
@@ -477,15 +479,14 @@
         <para>Character string types are CHAR(L), VARCHAR(L) and CLOB (here, L
         stands for length parameter, an integer). CHAR is for fixed width
         strings and any string that is assigned to this type is padded with
-        spaces at the end. Do not use this type for general storage of
-        strings. If you use CHAR without the length L, then it is interpreted
-        as a single character string. Use VARCHAR(L) for general strings.
-        There are only memory limits and performance implications for the
-        maximum length of VARCHAR(L). If the strings are larger than a few
-        kilobytes, consider using CLOB. The CLOB types is for very large
+        spaces at the end. If you use CHAR without the length L, then it is
+        interpreted as a single character string. Do not use this type for
+        general storage of strings. Use VARCHAR(L) for general strings. There
+        are only memory limits and performance implications for the maximum
+        length of VARCHAR(L). If the strings are larger than a few kilobytes,
+        consider using CLOB. The CLOB types is a better choice for very long
         strings. Do not use this type for short strings as there are
-        performance implications. The CLOB type is a better choice for the
-        storage of long strings. By default LONGVARCHAR is a synonym for a
+        performance implications. By default LONGVARCHAR is a synonym for a
         long VARCHAR and can be used without specifying the size. You can set
         LONGVARCHAR to map to CLOB, with the
         <literal>sql.longvar_is_lob</literal> connection property or the SET
@@ -494,15 +495,15 @@
 
       <listitem>
         <para>Binary string types are BINARY(L), VARBINARY(L) and BLOB. Do not
-        use BINARY(L) unless you are storing keys such as UUID. This type pads
-        short binary strings with zero bytes. BINARY without the length L
-        means a single byte. Use VARBINARY(L) for general binary strings, and
-        BLOB for large binary objects. You should apply the same
-        considerations as with the character string types. By default,
-        LONGVARBINARY is a synonym for a long VARBINARY and can be used
-        without specifying the size. You can set LONGVARBINARY to map to BLOB,
-        with the <literal>sql.longvar_is_lob</literal> connection property or
-        the SET DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
+        use BINARY(L) unless you are storing fixed length strings such as
+        UUID. This type pads short binary strings with zero bytes. BINARY
+        without the length L means a single byte. Use VARBINARY(L) for general
+        binary strings, and BLOB for large binary objects. You should apply
+        the same considerations as with the character string types. By
+        default, LONGVARBINARY is a synonym for a long VARBINARY and can be
+        used without specifying the size. You can set LONGVARBINARY to map to
+        BLOB, with the <literal>sql.longvar_is_lob</literal> connection
+        property or the SET DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
       </listitem>
 
       <listitem>
@@ -633,15 +634,15 @@
 
       <para>Note: If a database has been set to ignore type precision limits
       with the SET DATABASE SQL SIZE FALSE command, then a type definition of
-      DECIMAL with no precision and scale is treated as DECIMAL(100,10). In
-      normal operation, it is treated as DECIMAL(100).</para>
+      DECIMAL with no precision and scale is treated as DECIMAL(128,32). In
+      normal operation, it is treated as DECIMAL(128).</para>
 
       <simpara><emphasis role="bold">Integral Types</emphasis></simpara>
 
-      <para>In expressions, TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and
-      DECIMAL (without a decimal point) can be freely combined and no data
-      narrowing takes place. The resulting value is of a type that can support
-      all possible values.</para>
+      <para>In expressions, values of TINYINT, SMALLINT, INTEGER, BIGINT,
+      NUMERIC and DECIMAL (without a decimal point) types can be freely
+      combined and no data narrowing takes place. The resulting value is of a
+      type that can support all possible values.</para>
 
       <para>If the SELECT statement refers to a simple column or function,
       then the return type is the type corresponding to the column or the
@@ -662,7 +663,7 @@
 
       <para>will return <classname>java.lang.Long</classname> and
       <classname>BigDecimal</classname> values, generated as a result of
-      uniform type promotion for all the return values. Note that type
+      uniform type promotion for all possible return values. Note that type
       promotion to <classname>BigDecimal</classname> ensures the correct value
       is returned if <literal>MAX(b)</literal> evaluates to
       <literal>Long.MAX_VALUE</literal>.</para>
