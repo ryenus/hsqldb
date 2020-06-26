@@ -77,7 +77,7 @@
   <preface xml:id="book-pref">
     <title>Preface</title>
 
-    <para>HyperSQL DataBase (HSQLDB) is a modern relational database manager
+    <para>HyperSQL DataBase (HSQLDB) is a modern relational database system
     that conforms closely to the SQL:2016 Standard and JDBC 4.2
     specifications. It supports all core features and many optional features
     of SQL:2016.</para>

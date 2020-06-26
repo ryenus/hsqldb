@@ -58,17 +58,18 @@
     supports the complete set of the classic features, together with optional
     features such as stored procedures and triggers.</para>
 
-    <para>HyperSQL version 2.5 is compatible with Java 8 or later. Versions of
-    the HSQLDB jar that are compiled with JDK 6 are also available. Those
-    versions are numbered 2.3.8 to distinguish the capability
+    <para>HyperSQL version 2.5 is compatible with Java 8 or later. A version
+    of the HSQLDB jar compiled with JDK 9 with support for the Java module
+    system is available. Versions of the jar compiled with JDK 6 are also
+    available. Those versions are numbered 2.3.8 to distinguish the capability
     differences.</para>
 
     <para>HyperSQL is used for development, testing and deployment of database
     applications.</para>
 
-    <para>Standard compliance is the most unique characteristic of HyperSQL.
-    There are several other distinctive features. HyperSQL can provide
-    database access within the user's application process, within an
+    <para>SQL Standard compliance is the most unique characteristic of
+    HyperSQL. There are several other distinctive features. HyperSQL can
+    provide database access within the user's application process, within an
     application server, or as a separate server process. HyperSQL can run
     entirely in memory using dedicated fast memory structures as opposed to
     ram disk. HyperSQL can use disk persistence in a flexible way, with
@@ -135,7 +136,7 @@
   <section xml:id="rgc_access_tools">
     <title>Running Database Access Tools</title>
 
-    <para>The tools are used for interactive user access to databases,
+    <para>The access tools are used for interactive user access to databases,
     including creation of a database, inserting or modifying data, or querying
     the database. All tools are run in the normal way for Java programs. In
     the following example the Swing version of the Database Manager is
@@ -233,11 +234,11 @@
 
     <para>The properties file contains a few settings about the database. The
     script file contains the definition of tables and other database objects,
-    plus the data for non-cached tables. The log file contains recent changes
-    to the database. The data file contains the data for cached tables and the
-    backup file is a compressed backup of the last known consistent state of
-    the data file. All these files are essential and should never be deleted.
-    For some catalogs, the <filename>test.data</filename> and
+    plus the data for memory tables. The log file contains recent changes to
+    the database. The data file contains the data for cached tables and the
+    backup file is used to revert to the last known consistent state of the
+    data file. All these files are essential and should never be deleted. For
+    some catalogs, the <filename>test.data</filename> and
     <filename>test.backup</filename> files will not be present. In addition to
     those files, a HyperSQL database may link to any formatted text files,
     such as CSV lists, anywhere on the disk.</para>
