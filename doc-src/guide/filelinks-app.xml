@@ -112,9 +112,9 @@
     </listitem> <listitem xml:id="Trigger.java-link">
       <simpara>
         Local:
-        <link xlink:href="../verbatim/src/org/hsqldb/Trigger.java"/>
+        <link xlink:href="../verbatim/src/org/hsqldb/trigger/Trigger.java"/>
       </simpara> <simpara>
-        <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/Trigger.java"/>
+        <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/trigger/Trigger.java"/>
       </simpara>
     </listitem> <listitem xml:id="TriggerSample.java-link">
       <simpara>
