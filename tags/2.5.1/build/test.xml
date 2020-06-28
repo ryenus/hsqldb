@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="hsqldb.test.suite" 
+         default="run.test.suite" 
+         basedir="..">
+
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <!-- B U I L D  T I M E S T A M P                                         -->
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <tstamp>
+       <format property="_tmpstamp" 
+               pattern="yyyy/MM/dd-hh:mm:ss"
+               locale="en"/>
+   </tstamp>
+
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <!-- U S E R  B U I L D  P R O P E R T I E S  O V E R R I D E S           -->
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <property file="${basedir}/build/build.properties"/>
+
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <!-- D E F A U L T  B U I L D  P R O P E R T I E S                        -->
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <property name="test.suite.version" 
+             value="2.2.3"/>
+                 
+   <property name="test.suite.title"
+             value="HSQLDB Test Suite"/>
+             
+   <property name="test.suite.vendor"
+             value="The HSQL Development Group"/>
+   
+   <property name="test.suite.implementation.title"
+             value="SQL:2008 / JDBC 4.1 Conformance and Supporing Library Test Cases"/>
+             
+   <property name="test.suite.implementation.label"
+             value="private-${_tmpstamp}"/>
+             
+   <property name="test.suite.implementation.vendor"
+             value="${user.name}"/>
+             
+   <property name="sqltool.jar"
+             value="${basedir}/lib/sqltool.jar" />
+             
+   <property name="hsqldb.jar"
+             value="${basedir}/lib/hsqldb.jar" />          
+             
+   <property name="junit.jar"
+             value="${basedir}/lib/junit.jar" />
+			 
+   <property name="preprocessor.jar"
+             value="${basedir}/lib/preprocessor.jar" />			 
+             
+   <property name="test.suite.jar"
+             value="${basedir}/lib/testsuite.jar" /> 
+             
+   <property name="test.src.dir"
+             value="${basedir}/test-src" />
+             
+   <property name="test.classes.dir"
+             value="${basedir}/test-classes" />
+             
+   <property name="test.results.dir"
+             value="${basedir}/test-results" />
+   
+   <property name="build.debug"
+             value="true" />
+             
+   <property name="build.optimize"
+             value="false" />
+             
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <!-- B U I L D  C L A S S P A T H                                         -->
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <path id="test.suite.javac.classpath">
+        <pathelement location="${hsqldb.jar}"/>
+        <pathelement location="${preprocessor.jar}"/>
+        <pathelement location="${sqltool.jar}"/>
+        <pathelement location="${junit.jar}" />
+   </path>
+
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <!-- S H A R E D  I N I T I A L I Z A T I O N                             -->
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <target name="-init">
+        <available classname="java.net.IDN" 
+                   property="ant.java.iscjava16"/>
+
+        <fail unless='ant.java.iscjava16'
+              message="JDK must be 1.6 or greater"/>
+
+        <available file="${hsqldb.jar}" 
+                   type='file' 
+                   property="hsqldb.available"/>
+
+        <fail unless='hsqldb.available'
+              message="'hsqldb.jar' must reside at ${hsqldb.jar}"/>
+			  
+        <available file="${preprocessor.jar}" 
+                   type='file' 
+                   property="preprocessor.available"/>
+
+        <fail unless='preprocessor.available'
+              message="'preprocessor.jar' must reside at ${preprocessor.jar}"/>			  
+
+        <available file="${sqltool.jar}" 
+                   type='file' 
+                   property="sqltool.available"/>
+
+        <fail unless='sqltool.available'
+              message="'sqltool.jar' must reside at ${sqltool.jar}"/>
+
+        <available file="${junit.jar}" 
+                   type='file' 
+                   property="junit.available"/>
+
+        <fail unless='junit.available'
+              message="'junit.jar' must reside at ${junit.jar}"/>
+
+   </target>
+
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <!-- M A K E  T E S T  S U I T E                                          -->
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <target name="make.test.suite"
+           description="Builds test classes and creates test suite jar"
+           depends="-init">
+      <mkdir dir="${test.classes.dir}"/>
+
+      <!-- Compile Classes -->
+      <javac srcdir="${test.src.dir}"
+             destdir="${test.classes.dir}"
+             debug="${build.debug}"
+             optimize="${build.optimize}"
+       >
+          <classpath refid="test.suite.javac.classpath"/>
+          <exclude name="**/TestWrapperInvocationHandler.java"/>
+          <!-- Temporarily excluding TestWrapperInvocationHandler until have
+               time to figure out how to resolve missing java.sql.* classes -->
+          <include name="**/*.java"/>
+      </javac>
+
+      <!-- Build Jar -->
+      <jar jarfile="${test.suite.jar}"
+           basedir="${test.classes.dir}">
+         <manifest>
+             <attribute name='Specification-Title' 
+                        value='${test.suite.title}'/>
+                        
+             <attribute name='Specification-Version'
+                        value='${test.suite.version}'/>
+                        
+             <attribute name='Specification-Vendor'
+                        value='${test.suite.vendor}'/>
+                        
+             <attribute name='Implementation-Title'
+                        value='${test.suite.implementation.title}'/>
+                        
+             <attribute name='Implementation-Version'
+                        value='${test.suite.implementation.label}'/>
+                        
+             <attribute name='Implementation-Vendor' 
+                        value='${test.suite.implementation.vendor}'/>
+         </manifest>
+         <fileset dir="test-src" includes="org/hsqldb/resources/*"/>
+      </jar>
+   </target>
+   
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <!-- R U N  T E S T  S U I T E                                            -->
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <target name="run.test.suite"
+           description="Runs the test suite and generates test result reports"
+           depends="-init">
+
+      <available file="${test.suite.jar}" 
+                 type='file' 
+                 property="test.suite.jar.available"/>
+                   
+      <fail unless='test.suite.jar.available'
+            message="The test suite jar must reside at ${test.suite.jar}"/>
+			
+      <delete dir="${test.results.dir}"/>
+
+      <mkdir dir="${test.results.dir}"/> 
+      <mkdir dir="${test.results.dir}/resources"/>
+      <mkdir dir="${test.results.dir}/resources/org"/>
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb"/>
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb/util"/>
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb/util/preprocessor"/>
+
+      <copy todir="${test.results.dir}/resources/org/hsqldb/util/preprocessor">
+           <fileset dir="${test.src.dir}/org/hsqldb/util/preprocessor" 
+                  includes="*.exp"/>
+      </copy>
+      <copy todir="${test.results.dir}/resources/org/hsqldb/util/preprocessor">
+           <fileset dir="${test.src.dir}/org/hsqldb/util/preprocessor" 
+                  includes="*.inc"/>
+      </copy>
+      <copy todir="${test.results.dir}/resources/org/hsqldb/util/preprocessor">
+          <fileset dir="${test.src.dir}/org/hsqldb/util/preprocessor" 
+                   includes="*.src"/>
+      </copy>
+
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc"/>
+	  
+      <copy todir="${test.results.dir}/resources/org/hsqldb/jdbc">
+         <fileset dir="${test.src.dir}/org/hsqldb/jdbc"
+                  includes="*.sql"/>
+      </copy>
+	  
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc/resources"/>
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/xml"/>      
+
+      <copy todir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/xml">
+         <fileset dir="${test.src.dir}/org/hsqldb/jdbc/resources/xml"
+                  includes="*.*"/>
+      </copy>
+      
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/sql"/>
+      
+      <copy todir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/sql">
+         <fileset dir="${test.src.dir}/org/hsqldb/jdbc/resources/sql"
+                  includes="*.*"/>
+      </copy> 
+
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb/resources"/>	  
+
+      <copy todir="${test.results.dir}/resources/org/hsqldb/resources">
+	     <fileset dir="${test.src.dir}/org/hsqldb/resources" includes="*.*"/>
+      </copy>  
+	  
+	  <echo>Starting JUnit Tests...</echo>
+
+	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <!-- U S E R  T E S T  P R O P E R T I E S                                -->
+	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	  <!-- Now using BundleHandler facility as primary properties loader, but   -->
+	  <!-- System properties still work (e.g. on command line -Dfoo=xyz or      --> 
+	  <!-- using Ant to load properties files) and now take  precedence over    -->
+	  <!-- bundle handler resources.                                            -->
+	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	  <!-- In this way, the bulk of the standard properties (that will probably -->
+	  <!-- never need to be overriden) stay under the test source folder, hence -->
+      <!-- only specific property overrides need to be placed in the build      -->
+      <!-- folder properties files or on the command line as -Dx=y directives.  -->	  
+	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	  <!-- The only (minor) disadvantage of this new scheme is that the bulk of -->
+	  <!-- the test properties will no longer show up in the test report output -->
+	  <!-- as environment settings                                              -->
+	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <property file="${basedir}/build/test.properties"/>
+      <property file="${basedir}/build/test.dbmd.convert.properties"/>
+
+      <!-- Execute JUNIT Tests -->
+      <junit showoutput="true" 
+             fork="false"
+             failureproperty="tests.failed" 
+             errorproperty="tests.failed" >
+          <batchtest todir="${test.results.dir}">
+              <fileset dir="${test.src.dir}" 
+                       includes="org/hsqldb/jdbc/**/*Test.java"/>
+              <fileset dir="${test.src.dir}" 
+                       includes="org/hsqldb/lib/**/*Test.java"/>
+              <fileset dir="${test.src.dir}" 
+                       includes="org/hsqldb/persist/**/*Test.java"/>
+              <fileset dir="${test.src.dir}" 
+                       includes="org/hsqldb/store/**/*Test.java"/>		
+              <fileset dir="${test.src.dir}" 
+                       includes="org/hsqldb/types/**/*Test.java"/>	
+					                 <fileset dir="${test.src.dir}" 
+                       includes="org/hsqldb/util/**/*Test.java"/>	
+          </batchtest>
+          <classpath>
+		      <!-- Placed first to avoid issues with JAR resource URL handling -->
+			  <!-- e.g. relative system id XML DTD, XSD and entites -->
+              <pathelement location="${test.results.dir}/resources"/>
+              <path path="${hsqldb.jar}"/>
+              <path path="${preprocessor.jar}"/>
+	          <path path="${sqltool.jar}"/>
+              <path path="${junit.jar}"/>
+              <path path="${test.suite.jar}"/>
+          </classpath>
+          <syspropertyset id="test.suite.system.properties">
+            <propertyref prefix="hsqldb.test.suite."/>
+          </syspropertyset>
+          <formatter type="xml"/>
+      </junit>
+	  
+	  <echo>Generating Test Reports...</echo>
+
+      <mkdir dir="${test.results.dir}/reports"/>
+      <mkdir dir="${test.results.dir}/reports/html"/>
+
+      <!-- Generate Test Reports -->
+      <junitreport todir="${test.results.dir}/reports">
+          <fileset dir="${test.results.dir}">
+              <include name="TEST-*.xml"/>
+          </fileset>
+          <report format="frames" 
+                  todir="${test.results.dir}/reports/html"/>
+      </junitreport>
+   </target>  
+   
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <!-- C L E A N  T E S T  S U I T E                                        -->
+   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <target name="clean.test.suite"
+           description="Deletes compiled classes, test results and suite jar">
+      <delete dir="${test.classes.dir}" />
+      <delete dir="${test.results.dir}" />
+      <delete file="${test.suite.jar}" />
+   </target>
+
+</project>
