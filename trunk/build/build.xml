@@ -820,7 +820,7 @@ examples:
            windowtitle="${hsqldb.title} ${hsqldb.version} Product Dev. API"
            doctitle="${hsqldb.title} ${hsqldb.version} Product"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2019 HSQL Development Group.&lt;/i&gt;">
-           <fileset dir="src" includes="**/*.java"/>
+           <fileset dir="src" includes="**/*.java" excludes="**/module-info.java"/>
            <!-- Fileset is really good for maintenance and control purposes,
                 but it makes the generator produce an incredible amount of
                 output when there are no errors.  The verbose attribute
