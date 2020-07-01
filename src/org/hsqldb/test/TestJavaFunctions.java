@@ -35,8 +35,10 @@ import java.math.BigInteger;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCResultSet;
@@ -48,7 +50,7 @@ import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.Type;
 
 //#ifdef JAVA8
-
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZoneOffset;
@@ -79,7 +81,6 @@ public class TestJavaFunctions extends TestBase {
         s.executeUpdate("DROP FUNCTION TEST_QUERY IF EXISTS");
         s.executeUpdate("DROP FUNCTION TEST_CUSTOM_RESULT IF EXISTS");
         s.executeUpdate("DROP FUNCTION SORT_BYTE_ARRAY IF EXISTS");
-        s.executeUpdate("DROP FUNCTION SORT_BINARY_ARRAY IF EXISTS");
         s.executeUpdate("DROP TABLE T IF EXISTS");
         s.executeUpdate("CREATE TABLE T(C VARCHAR(20), I INT)");
         s.executeUpdate("INSERT INTO T VALUES 'Thames', 10");
@@ -95,9 +96,6 @@ public class TestJavaFunctions extends TestBase {
         s.executeUpdate(
             "CREATE FUNCTION SORT_BYTE_ARRAY(VARBINARY(20)) RETURNS VARBINARY(20) "
             + " NO SQL LANGUAGE JAVA EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestJavaFunctions.getSortedByteArray'");
-        s.executeUpdate(
-            "CREATE FUNCTION SORT_BINARY_ARRAY(VARBINARY(20) ARRAY) RETURNS VARBINARY(20) ARRAY "
-            + " NO SQL LANGUAGE JAVA EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestJavaFunctions.getSortedArrayByteArray'");
         s.executeUpdate("CHECKPOINT");
         c.close();
     }
@@ -190,11 +188,13 @@ public class TestJavaFunctions extends TestBase {
             System.out.println(result.getString(1));
         }
 
-        System.out.println("TIMESTAMP'2019-01-01 01:02:03', TIMESTAMP'2019-01-01 01:02:03+5:00'");
-        System.out.println(OffsetDateTime.of(2019, 1, 1,1, 2, 3, 0, ZoneOffset.ofHours(5)));
+        System.out.println(
+            "TIMESTAMP'2019-01-01 01:02:03', TIMESTAMP'2019-01-01 01:02:03+5:00'");
+        System.out.println(OffsetDateTime.of(2019, 1, 1, 1, 2, 3, 0,
+                                             ZoneOffset.ofHours(5)));
 
-        result = statement.executeQuery(
-                "CALL TIMESTAMP'2019-01-01 01:02:03+5:00'");
+        result =
+            statement.executeQuery("CALL TIMESTAMP'2019-01-01 01:02:03+5:00'");
 
         while (result.next()) {
             System.out.println(result.getString(1));
@@ -208,14 +208,14 @@ public class TestJavaFunctions extends TestBase {
 
         // create function and link it to Java method
         statement.executeUpdate(
-                "CREATE FUNCTION TIME_FUNCTION (t TIME, tz TIME WITH TIME ZONE)"
-                        + " RETURNS CHAR VARYING(100)"
-                        + " LANGUAGE JAVA DETERMINISTIC NO SQL"
-                        + " EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestJavaFunctions.exampleTimeFunction';");
+            "CREATE FUNCTION TIME_FUNCTION (t TIME, tz TIME WITH TIME ZONE)"
+            + " RETURNS CHAR VARYING(100)"
+            + " LANGUAGE JAVA DETERMINISTIC NO SQL"
+            + " EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestJavaFunctions.exampleTimeFunction';");
 
         // use the function and print the result
         ResultSet result = statement.executeQuery(
-                "CALL TIME_FUNCTION(TIME'01:02:03', TIME'01:02:03+5:00')");
+            "CALL TIME_FUNCTION(TIME'01:02:03', TIME'01:02:03+5:00')");
 
         while (result.next()) {
             System.out.println(result.getString(1));
@@ -224,28 +224,74 @@ public class TestJavaFunctions extends TestBase {
         System.out.println("TIME'01:02:03', TIME'01:02:03+5:00'");
         System.out.println(OffsetTime.of(1, 2, 3, 0, ZoneOffset.ofHours(5)));
 
-        result = statement.executeQuery(
-                "CALL TIME'01:02:03+5:00'");
+        result = statement.executeQuery("CALL TIME'01:02:03+5:00'");
 
         while (result.next()) {
             System.out.println(result.getString(1));
         }
     }
 
-    public static String exampleIntervalFunction(final java.time.Period months, final java.time.Duration days) {
-        return "[months, days] : " + months.toString() + ", " + days.toString();
+    public void testFive() throws SQLException {
+
+        Connection connection = newConnection();
+        Statement  statement  = connection.createStatement();
+
+        statement.execute("DROP TABLE IF EXISTS ts CASCADE");
+        statement.execute(
+            "CREATE TABLE ts (id INTEGER PRIMARY KEY, expiry TIMESTAMP(9))");
+
+        String insert = "INSERT INTO ts (id, expiry) VALUES(1, ?)";
+        PreparedStatement preparedStatement =
+            connection.prepareStatement(insert);
+        Timestamp timestampBefore = new Timestamp(System.currentTimeMillis());
+
+        timestampBefore.setNanos(123456789);
+        preparedStatement.setTimestamp(1, timestampBefore);
+        preparedStatement.executeUpdate();
+
+        ResultSet resultSet =
+            statement.executeQuery("SELECT id, expiry from ts where id = 1");
+
+        if (resultSet.next()) {
+            Timestamp timestampAfter = resultSet.getTimestamp("expiry");
+
+            assertEquals(timestampBefore, timestampAfter);
+        }
+
+        statement.execute("DELETE FROM ts");
+
+        Instant inst = Instant.ofEpochSecond(0, 123456789);
+        preparedStatement.setObject(1, inst);
+        preparedStatement.executeUpdate();
+
+        resultSet =
+                statement.executeQuery("SELECT id, expiry from ts where id = 1");
+
+        if (resultSet.next()) {
+            Timestamp timestampAfter = resultSet.getTimestamp("expiry");
+
+            assertEquals(inst.getEpochSecond(), timestampAfter.getTime() / 1000);
+            assertEquals(inst.getNano(), timestampAfter.getNanos());
+        }
     }
 
-    public static String exampleTimestampFunction(final java.sql.Timestamp ts, final java.time.OffsetDateTime tsz) {
-        return "[ts, tsz] : " + ts.toString() + ", "  + tsz.toString();
+    public static String exampleIntervalFunction(final java.time.Period months,
+            final java.time.Duration days) {
+        return "[months, days] : " + months.toString() + ", "
+               + days.toString();
     }
 
-    public static String exampleTimeFunction(final java.sql.Time t, final java.time.OffsetTime tz) {
-        return "[ts, tsz] : " + t.toString() + ", "  + tz.toString();
+    public static String exampleTimestampFunction(final java.sql.Timestamp ts,
+            final java.time.OffsetDateTime tsz) {
+        return "[ts, tsz] : " + ts.toString() + ", " + tsz.toString();
+    }
+
+    public static String exampleTimeFunction(final java.sql.Time t,
+            final java.time.OffsetTime tz) {
+        return "[ts, tsz] : " + t.toString() + ", " + tz.toString();
     }
 
 //#endif JAVA8
-
     public static ResultSet getQueryResult(Connection connection,
                                            int i) throws SQLException {
 

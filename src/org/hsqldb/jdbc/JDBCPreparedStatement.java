@@ -776,7 +776,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         checkSetParameterIndex(parameterIndex);
 
-        String    msg = null;
         final int ver = JDBCDatabaseMetaData.JDBC_MAJOR;
 
         if (x == null) {
@@ -785,7 +784,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         // CHECKME:  Is JDBC4 clarification of UNICODE stream format retroactive?
         if ((ver < 4) && (length % 2 != 0)) {
-            msg = "Odd length argument for UTF16 encoded stream: " + length;
+            String msg = "Odd length argument for UTF16 encoded stream: " + length;
 
             throw JDBCUtil.invalidArgument(msg);
         }
@@ -813,8 +812,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     }
 
 //#endif DEPRECATEDJDBC
-
-    /** @todo 1.9.0 - implement streaming */
 
     /**
      * <!-- start generic documentation -->
@@ -1120,8 +1117,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         System.arraycopy(parameterValues, 0, batchParamValues, 0, len);
         resultOut.addBatchedPreparedExecuteRequest(batchParamValues);
     }
-
-    /* @todo 1.9.0 - implement streaming */
 
     /**
      * <!-- start generic documentation -->
@@ -2619,6 +2614,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized void setBinaryStream(int parameterIndex,
             java.io.InputStream x, long length) throws SQLException {
 
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
+
         if (length < 0) {
             throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "length: " + length);
@@ -2698,6 +2697,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setCharacterStream(int parameterIndex,
             java.io.Reader reader, long length) throws SQLException {
+
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         if (length < 0) {
             throw JDBCUtil.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
@@ -4304,7 +4307,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * If a parameter has been set using a stream method, it should be set
      * again for the next reuse. When set using other methods, the parameter
      * setting is retained for the next use.
-     * @throws SQLException
+     * @throws SQLException if a parameter has not been set
      */
     private void checkParametersSet() throws SQLException {
 
@@ -4558,13 +4561,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         parameterSet[i]    = Boolean.TRUE;
     }
 
-    /**
-     * setParameterForClob
-     *
-     * @param i int
-     * @param o Object
-     * @throws SQLException
-     */
     void setClobParameter(int i, Object o) throws SQLException {
         setClobParameter(i, o, 0);
     }
@@ -4917,17 +4913,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         } else if (statementRetType == StatementTypes.RETURN_RESULT) {
             getMoreResults();
         }
-    }
-
-    boolean isAnyParameterSet() {
-
-        for (int i = 0; i < parameterValues.length; i++) {
-            if (parameterSet[i] != null) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
