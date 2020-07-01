@@ -35,6 +35,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 
 //#ifdef JAVA8
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -926,10 +927,8 @@ public final class DateTimeType extends DTIType {
                 if (a instanceof java.util.Date) {
                     long millis = ((java.util.Date) a).getTime();
                     long seconds;
-                    int nanos =
-                        DateTimeType.normaliseFraction((int) (millis % 1000)
-                                                       * 1000000, scale);
-                    int zoneSeconds = 0;
+                    int  nanos;
+                    int  zoneSeconds = 0;
 
                     if (typeCode == Types.SQL_TIMESTAMP) {
                         millis = HsqlDateTime.convertMillisFromCalendar(
@@ -946,6 +945,14 @@ public final class DateTimeType extends DTIType {
                     if (seconds < epochSeconds
                             || seconds > epochLimitSeconds) {
                         throw Error.error(ErrorCode.X_22008);
+                    }
+
+                    if (a instanceof java.sql.Timestamp) {
+                        nanos = ((java.sql.Timestamp) a).getNanos();
+                        nanos = DateTimeType.normaliseFraction(nanos, scale);
+                    } else {
+                        nanos = DateTimeType.normaliseFraction(
+                            (int) (millis % 1000) * 1000000, scale);
                     }
 
                     return new TimestampData(seconds, nanos, zoneSeconds);
@@ -1024,6 +1031,33 @@ public final class DateTimeType extends DTIType {
             }
 
             return new TimestampData(seconds, nanos, zoneSeconds);
+        } else if (a instanceof java.time.Instant) {
+            Instant ins = (Instant) a;
+
+            seconds = ins.getEpochSecond();
+
+            if (timestamp) {
+                nanos   = ins.getNano();
+
+                if (nanos < 0) {
+                    nanos += DTIType.limitNanoseconds;
+
+                    seconds--;
+                }
+                nanos       = DateTimeType.normaliseFraction(nanos, scale);
+                zoneSeconds = session.getZoneSeconds();
+
+                if (!withTimeZone) {
+                    seconds += zoneSeconds;
+                }
+            } else {
+                seconds += zoneSeconds;
+                seconds =
+                    HsqlDateTime.getNormalisedDate(
+                        session.getCalendarGMT(), seconds * 1000) / 1000;
+            }
+
+            return new TimestampData(seconds, nanos, zoneSeconds);
         }
 
         return null;
@@ -1032,7 +1066,7 @@ public final class DateTimeType extends DTIType {
     TimeData convertJavaTimeObject(SessionInterface session, Object a) {
 
         int seconds;
-        int nanos       = 0;
+        int nanos;
         int zoneSeconds = 0;
 
         if (a instanceof java.time.OffsetTime) {
@@ -1362,7 +1396,6 @@ public final class DateTimeType extends DTIType {
 
         switch (typeCode) {
 
-            /** @todo -  range checks for units added */
             case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_TIME :
                 if (b instanceof IntervalMonthData) {

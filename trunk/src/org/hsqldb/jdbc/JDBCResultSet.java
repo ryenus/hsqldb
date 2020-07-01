@@ -1659,7 +1659,7 @@ public class JDBCResultSet implements ResultSet {
                 byte[] bytes = bd.getBytes();
 
                 if (bytes.length == 0) {
-                    return false;
+                    return Boolean.FALSE;
                 }
 
                 return bytes[0] == 0 ? Boolean.FALSE

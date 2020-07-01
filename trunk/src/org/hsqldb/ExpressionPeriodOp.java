@@ -131,7 +131,7 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         return isSystemVersionCondition;
     }
 
-    void setSystemRangeVariable(RangeGroup[] rangeGroups, Session session,
+    void setSystemRangeVariable(Session session, RangeGroup[] rangeGroups,
                                 RangeVariable range) {
 
         ExpressionPeriod period = (ExpressionPeriod) nodes[LEFT];
