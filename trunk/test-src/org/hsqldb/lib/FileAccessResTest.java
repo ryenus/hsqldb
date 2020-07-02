@@ -35,7 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.hsqldb.lib.FileAccess.FileSync;
-import org.hsqldb.lib.FileUtil.FileAccessRes;
+import org.hsqldb.lib.FileAccessRes;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
@@ -161,7 +161,7 @@ public class FileAccessResTest extends BaseTestCase {
         FileAccess testSubject = getTestSubject();
 
         // defined as NO-OP
-        testSubject.renameElement(oldName, newName, false);
+        testSubject.renameElement(oldName, newName);
     }
 
     /**

@@ -7,7 +7,7 @@
 -- Comment lines must start with -- and are ignored
 -- Lines starting with spaces belongs to last line
 -- Checked lines start with comments containing <tag> where <tag> is:
---   c <rows>     ResultSet expects a with <rows> rows
+--   c <rows>     ResultSet expects a result with <rows> rows
 --   r <string>   ResultSet expected with <string> result in first row/column
 --   u <count>    Update count <count> expected
 --   e            Exception must occur
