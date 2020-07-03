@@ -165,10 +165,22 @@
     <section xml:id="mtc_table_types">
       <title>Tables</title>
 
+      <para>In <glossterm>mem:</glossterm> catalogs, MEMORY tables without
+      persistence are supported alongside TEXT tables with persistence but
+      CACHED table are not supported.</para>
+
+      <para>In <glossterm>file:</glossterm> and <glossterm>res:</glossterm>
+      catalogs, MEMORY, CACHED and TEXT tables are all supported with
+      persistence.</para>
+
       <para>TEXT tables are designed for special applications where the data
       has to be in an interchangeable format, such as CSV (comma separated
-      values). TEXT tables should not be used for routine storage of data that
-      changes a lot.</para>
+      values). Rows of data can be inserted into TEXT tables and existing rows
+      can be updated or deleted. For data that is updated a lot, it is
+      better to use a MEMORY or CACHED table to improve reliability in case of
+      system crash. TEXT tables can also be used to open CSV or DSV (delimiter
+      separated values) files in order to copy the data into other types of
+      table.</para>
 
       <para>MEMORY tables and CACHED tables are generally used for data
       storage. The difference between the two is as follows:</para>
@@ -254,8 +266,8 @@
       high speeds (usually over 20MB / s) for both storage and retrieval of
       LOBs.</para>
 
-      <para>There is an internal LOBS schema in the database to store the
-      id's, sizes and addresses of the LOBs (but not the actual LOBS) in a few
+      <para>There is an internal LOBS schema in the database to store the IDs,
+      sizes and addresses of the LOBs (but not the actual LOBS) in a few
       system tables. This schema is stored in the database as MEMORY tables.
       Therefore, the amount of JVM memory should be increased when more than
       tens of thousands of LOBs are stored in the database. If your database
@@ -315,7 +327,7 @@
     <title>ACID, Persistence and Reliability</title>
 
     <para>HyperSQL's persistence mechanism has proven reliable, as the last
-    critical issue was fixed 2 years before the release of version 2.0.</para>
+    critical issue was fixed in 2008.</para>
 
     <para>There are further enhancements in the latest version.</para>
 
@@ -355,12 +367,12 @@
     implementation applies only to CACHED table data in the
     <literal>.data</literal> file. Other files are not accessed via NIO. There
     has been an issue with some JVM implementations of nio not releasing the
-    file buffers after they were closed. HyperSQL uses a workaround which is
-    recommended for Sun JVM's. This does not apply to other JVM's. In such
-    environments, it is therefore recommended to test the CHECKPOINT DEFRAG
-    operation and the shutting down and restarting the database inside the
-    same Java process extensively with NIO. Use of NIO is not essential and
-    can be turned off if necessary.</para>
+    file buffers after they were closed. HyperSQL uses workarounds which are
+    recommended for Sun JVMs and later OpenJDK ones. This does not apply to
+    other JVMs. In such environments, it is therefore recommended to stress
+    test the CHECKPOINT DEFRAG operation and the shutting down and restarting
+    the database inside the same Java process extensively with NIO. Use of NIO
+    is not essential and can be turned off if necessary.</para>
 
     <section xml:id="mtc_acid">
       <title>Atomicity, Consistency, Isolation, Durability</title>
@@ -476,9 +488,9 @@
       </listitem>
     </orderedlist>
 
-    <para>All SQL statements that access the table see the current rows of the
-    table only. SELECT statements can include a FOR SYSTEM_TIME clause to
-    access historic data in a given timestamp range. This is discussed in
+    <para>All DML statements that modify the table data see the current rows
+    of the table only. SELECT statements can include a FOR SYSTEM_TIME clause
+    to access historic data in a given timestamp range. This is discussed in
     <link endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/>
     chapter.</para>
 
@@ -491,13 +503,13 @@
     written to a script and applied to a replica. See the PERFORM SCRIPT
     statement in this chapter. The timestamp used for export is the timestamp
     at the point of last synchronization. For example, if the first EXPORT
-    occurs at TIMESTAMP '2019-01-01 10:10:10' and the script is later imported
+    occurs at TIMESTAMP '2020-10-01 10:10:10' and the script is later imported
     into the replica, the second EXPORT should use that timestamp. This
     ensures old histories that have already been exported are not exported
     again. The import will skip duplicates and there is no harm in exporting
     from an earlier timestamp, except it will take longer to import.</para>
 
-    <para>An example follows:</para>
+    <para>An example of a system-versioned table follows:</para>
 
     <example>
       <title>Creating a system-versioned table</title>
@@ -518,9 +530,9 @@
     <title>Using Table Spaces</title>
 
     <para>Data for all CACHED tables is stored in the <literal>.data</literal>
-    file. With new optional setting, HyperSQL 2.5 and later allocates separate
-    blocks of the data file to different CACHED tables. This method has the
-    following advantages:</para>
+    file. With a new optional setting, HyperSQL 2.5 and later allocates
+    separate blocks of the data file to different CACHED tables. This method
+    has the following advantages:</para>
 
     <itemizedlist>
       <listitem>
@@ -1484,7 +1496,7 @@
 
       <simpara>This statements takes a long time to execute on large tables as
       all the rows are read again for each index. It also needs extra Java
-      heap memory over and above normal usage. </simpara>
+      heap memory over and above normal usage.</simpara>
 
       <simpara>Only a user with the DBA role can execute this statement. An
       example of the output is given below.</simpara>

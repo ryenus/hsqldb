@@ -596,14 +596,14 @@
       compiled or used with JDK 5 or earlier. The jars can be compiled with
       JDK 6 or later. Build has been tested under JDK versions 6, 8, 9, 10,
       11, etc. The same Ant version can be used with all the tested
-      JDK's.</para>
+      JDKs.</para>
     </section>
   </section>
 
   <section xml:id="bga_build_ide">
     <title>Building with IDE Compilers</title>
 
-    <simpara>The Ant build.xml can be used with most IDE's to build the Jar
+    <simpara>The Ant build.xml can be used with most IDEs to build the Jar
     targets. All HyperSQL source files are supplied ready to compile. It is
     therefore possible to compile the sources without using Ant. If
     compilation with Java 1.6 is required, you should run the Ant switchtojdk6
