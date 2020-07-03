@@ -431,9 +431,10 @@ examples:
            <pathelement location="lib/dbunit.jar"/>
          </classpath>
          <include name="org/hsqldb/test/**"/>
+         <!-- odbc tests require Junit 4.10-->
+         <exclude name="org/hsqldb/test/odbc/**"/>
          <exclude name="org/hsqldb/test/SqlFileScannerDriver.java"/>
       </javac>
-      <antcall target='-test14'/>
     </target>
 
     <!--jar with (jdkversion-switched) sources, useful for reading/debugging the code from other projects, can be specified via maven too-->
@@ -671,7 +672,7 @@ examples:
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
           <attribute name='Class-Path'
-              value='hsqldb-${hsqldb.version}.jar hsqljdbc-${hsqldb.version}.jar hsqldbmain.jar-${hsqldb.version}.jar hsqldb.jar hsqljdbc.jar hsqldbmain.jar'/>
+              value='hsqldb-${hsqldb.version}.jar hsqldbmain.jar-${hsqldb.version}.jar hsqldb.jar hsqldbmain.jar'/>
         </manifest>
         <fileset refid='sqltoolclasses'/>
         <fileset refid='sqltoolres'/>
@@ -777,7 +778,7 @@ examples:
            failonerror="true"
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
-           bottom="&lt;i&gt;Copyright &#169; 2001 - 2019 HSQL Development Group.&lt;/i&gt;">
+           bottom="&lt;i&gt;Copyright &#169; 2001 - 2020 HSQL Development Group.&lt;/i&gt;">
            <classpath>
              <pathelement location="${servletapi.lib}"/>
              <pathelement location="${junit38.lib}"/>
@@ -819,7 +820,7 @@ examples:
            failonerror="true"
            windowtitle="${hsqldb.title} ${hsqldb.version} Product Dev. API"
            doctitle="${hsqldb.title} ${hsqldb.version} Product"
-           bottom="&lt;i&gt;Copyright &#169; 2001 - 2019 HSQL Development Group.&lt;/i&gt;">
+           bottom="&lt;i&gt;Copyright &#169; 2001 - 2020 HSQL Development Group.&lt;/i&gt;">
            <fileset dir="src" includes="**/*.java" excludes="**/module-info.java"/>
            <!-- Fileset is really good for maintenance and control purposes,
                 but it makes the generator produce an incredible amount of

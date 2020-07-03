@@ -328,7 +328,7 @@
       connections to other RDBMS servers. The
       <methodname>Connection.createBlob()</methodname> and
       <methodname>createClob()</methodname> methods can be used to create the
-      new LOBs. For very large LOB's the stream methods are preferable as they
+      new LOBs. For very large LOBs the stream methods are preferable as they
       use less memory.</para>
 
       <para>For array parameters, you can use a

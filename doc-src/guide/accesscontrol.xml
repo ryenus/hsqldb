@@ -61,7 +61,7 @@
     rights on some of the schemas or the objects they contain. The persistent
     elements of an SQL environment are database objects</para>
 
-    <para>Authorizations names are stored in the database in the case-normal
+    <para>Authorization names are stored in the database in the case-normal
     form. When connecting to a database via JDBC, the user name and password
     must match the case of this case-normal form.</para>
 

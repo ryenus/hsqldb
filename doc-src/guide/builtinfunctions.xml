@@ -3163,7 +3163,7 @@
 
     <para><literal>LOB_ID( &lt;column reference&gt; )</literal></para>
 
-    <para>Returns internal ID of a lob as a BIGINT value. Lob ID's are unique
+    <para>Returns internal ID of a lob as a BIGINT value. Lob IDs are unique
     and never reused. The &lt;column reference&gt; is the name of the column
     (or variable, or argument) which is a CLOB or BLOB. Returns null if the
     value is null. (HyperSQL)</para>

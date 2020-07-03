@@ -534,9 +534,9 @@
       or use the startup/shutdown functions supplied by many UNIXes, because
       these features are all non-portable.</simpara>
 
-      <simpara>Offsetting these limitations, this one script does it's
-      intended job great on the UNIX varieties I have tested, and can easily
-      be modified to accommodate other UNIXes. While you don't have tight
+      <simpara>Offsetting these limitations, this one script does its intended
+      job great on the UNIX varieties I have tested, and can easily be
+      modified to accommodate other UNIXes. While you don't have tight
       integration with OS-specific daemon administration guis, etc., you do
       have a well-tested and well-behaved script that gives good, utilitarian
       feedback.</simpara>
@@ -655,7 +655,7 @@
           rc.conf.local</literal> to see if you have one of these files). For
           good UNIXes that use System V style init, you must set up hard links
           or soft links either manually or with management tools (such as
-          <literal>chkconfig</literal> or <literal>insserv</literal>) or Gui's
+          <literal>chkconfig</literal> or <literal>insserv</literal>) or GUIs
           (like run level editors).</simpara>
 
           <para>This paragraph is for Mac OS X users only. If you followed the
