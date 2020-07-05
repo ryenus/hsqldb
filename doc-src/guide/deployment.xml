@@ -933,7 +933,7 @@
       the suggestions in the appropriate sections below. If you need to
       specify a specific version, follow the instructions in the
       range-versioning section but change the version range specifications to
-      literal versions like <literal>2.2.9</literal>.</para>
+      literal versions like <literal>2.5.1</literal>.</para>
     </section>
 
     <section xml:id="dec_snapshot_repos">
@@ -1086,7 +1086,7 @@
 
         <simpara>At the time that I'm writing this, our builds are only
           providing one classifier (besides the default no-classifier, of
-          course) and it's name is "debug".
+          course) and its name is "debug".
           Therefore in all examples for using a classifier I am using
           classifier name "debug".
         </simpara>
