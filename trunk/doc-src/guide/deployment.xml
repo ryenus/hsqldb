@@ -1083,6 +1083,13 @@
           because I have so far failed to get that to succeed. Classifiers in
           in <filename>ivy.xml</filename> are supported if using Gradle, as
           covered below.</simpara>
+
+        <simpara>At the time that I'm writing this, our builds are only
+          providing one classifier (besides the default no-classifier, of
+          course) and it's name is "debug".
+          Therefore in all examples for using a classifier I am using
+          classifier name "debug".
+        </simpara>
         </example>
 
         <example>
@@ -1099,7 +1106,7 @@
    &lt;!-- Scope defaults to "compile":
    &lt;scope&gt;test&lt;/scope&gt;
      Use a classifier to pull one of our alternative jars:
-   &lt;classifier&gt;jdk5&lt;/classifier&gt;
+   &lt;classifier&gt;debug&lt;/classifier&gt;
    --&gt;
  &lt;/dependency&gt;</programlisting>
         </example>
@@ -1108,10 +1115,10 @@
           <title>Sample Range Gradle Dependency</title>
 
           <programlisting>
- dependencies.compile (group: 'org.hsqldb', name: 'hsqldb', version:'[2,)', classifier: 'jdk5')
+ dependencies.compile 'org.hsqldb:hsqldb:[2,):debug'
  dependencies {
-     runtime 'org.hsqldb:hsqldb:[2,):jdk6debug@jar',
-             'org.hsqldb:sqltool:[2,):jdk6debug@jar'
+     runtime 'org.hsqldb:hsqldb:[2,):debug@jar',
+             'org.hsqldb:sqltool:[2,):debug@jar'
  }</programlisting>
         </example>
 
@@ -1128,14 +1135,14 @@
             <programlisting>
  &lt;ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven"&gt;
  ...
- &lt;dependency org="org.hsqldb" name="hsqldb" rev="[2,)" m:classifier="jdk5"/&gt;</programlisting>
+ &lt;dependency org="org.hsqldb" name="hsqldb" rev="[2,)" m:classifier="debug"/&gt;</programlisting>
           </example></para>
 
         <example>
           <title>Sample Range Groovy Dependency, using Grape</title>
 
           <programlisting>
-@Grab(group='org.hsqldb', module='hsqldb', version='[2,)', classifier='jdk6debug')</programlisting>
+@Grab('org.hsqldb:hsqldb:[2,):debug')</programlisting>
         </example>
       </section>
     </section>
