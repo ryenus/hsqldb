@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -187,7 +187,7 @@ class TransferSQLText extends DataAccessPoint {
         sLast = "";
     }
 
-    class ColumnDef {
+    static class ColumnDef {
 
         String columnName;
         String columnType;
@@ -318,7 +318,7 @@ class TransferSQLText extends DataAccessPoint {
             columnName = cDef.columnName;
             columnType = cDef.columnType;
 
-            if (columnName.toUpperCase().indexOf("CONSTRAINT") >= 0) {
+            if (columnName.toUpperCase().contains("CONSTRAINT")) {
                 translatedLine +=
                     CreateLine.substring(currentPos, currentPos + cDef.len)
                     + ",";
@@ -828,7 +828,7 @@ class TransferSQLText extends DataAccessPoint {
                             String sValue =
                                 currentLine.substring(iStart).trim();
 
-                            if (sValue.indexOf("<null>") >= 0) {
+                            if (sValue.contains("<null>")) {
                                 vColumnValues.addElement(null);
                             } else {
                                 int    i       = sValue.indexOf('\'') + 1;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -322,7 +322,7 @@ public class RowInputBinary extends RowInputBase implements RowInputInterface {
     /**
      * Nulls in array are treated as 0
      */
-    public int[] readIntArray() throws IOException {
+    public int[] readIntArray() {
 
         int   size = readInt();
         int[] data = new int[size];

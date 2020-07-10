@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -720,7 +721,7 @@ public class JDBCResultSet implements ResultSet {
         BigDecimal bd = getBigDecimal(columnIndex);
 
         if (bd != null) {
-            bd = bd.setScale(scale, BigDecimal.ROUND_DOWN);
+            bd = bd.setScale(scale, RoundingMode.DOWN);
         }
 
         return bd;

@@ -31,6 +31,7 @@
 
 package org.hsqldb.lib;
 
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 /**
@@ -187,8 +188,8 @@ public final class DoubleLongIndex implements LongLookup {
 
     public void clear() {
 
-        ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_LONG, keys, 0, count);
-        ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_LONG, values, 0, count);
+        Arrays.fill(keys, 0);
+        Arrays.fill(values, 0);
 
         count  = 0;
         sorted = true;
@@ -202,7 +203,6 @@ public final class DoubleLongIndex implements LongLookup {
 
         return duplicate;
     }
-
 
     /**
      * @param value the value

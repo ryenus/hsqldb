@@ -31,6 +31,8 @@
 
 package org.hsqldb.persist;
 
+import java.util.Arrays;
+
 import org.hsqldb.Database;
 import org.hsqldb.Session;
 import org.hsqldb.Table;

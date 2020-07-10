@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import javax.swing.UIManager;
  * @version 1.7.2
  * @since 1.7.0
  */
-class CommonSwing {
+final class CommonSwing {
 
     protected static String messagerHeader = "Database Manager Swing Error";
     protected static String Native         = "Native";

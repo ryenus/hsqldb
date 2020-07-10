@@ -1061,7 +1061,7 @@ class JDBCBench {
         }    /* end of DoOne         */
     }    /* end of class ClientThread */
 
-    class MemoryWatcherThread extends Thread {
+    static class MemoryWatcherThread extends Thread {
 
         long    min          = 0;
         long    max          = 0;

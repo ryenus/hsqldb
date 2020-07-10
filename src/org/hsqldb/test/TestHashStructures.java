@@ -507,9 +507,9 @@ public class TestHashStructures extends TestCase {
         org.hsqldb.lib.Iterator hIt = hMap.keySet().iterator();
 
         for (int i = 0; hIt.hasNext(); i++) {
-            Object hKey = Integer.valueOf(hIt.nextInt());
-            Object oU   = uMap.get(hKey);
-            Object hU   = hMap.get(((Integer) hKey).intValue());
+            Integer hKey = Integer.valueOf(hIt.nextInt());
+            Object oU    = uMap.get(hKey);
+            Object hU    = hMap.get(hKey.intValue());
 
             if (!oU.equals(hU)) {
                 throw new Exception("HashMap value mismatch");

@@ -63,9 +63,8 @@ public class RowAVLDiskLarge extends RowAVLDisk {
      *
      * @param store store
      * @param in data source
-     * @throws IOException
      */
-    public RowAVLDiskLarge(PersistentStore store, RowInputInterface in) throws IOException {
+    public RowAVLDiskLarge(PersistentStore store, RowInputInterface in) {
 
         super(store.getTable());
 

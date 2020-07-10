@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,27 +34,27 @@ package org.hsqldb.lib;
 /**
  * This should be used as the datatype for parameters and instance variables
  * instead of HsqlArrayList or HsqlLinkedList to allow interchangeable use of the
- * two.
+ * two. Updated for generics fredt@users.
  *
  * @author dnordahl@users
- * @version 2.3.3
+ * @version 2.5.2
  * @since 1.7.2
  */
-public interface HsqlList extends Collection {
+public interface HsqlList<E> extends Collection<E> {
 
-    void add(int index, Object element);
+    void add(int index, E element);
 
-    boolean add(Object element);
+    boolean add(E element);
 
-    Object get(int index);
+    E get(int index);
 
-    Object remove(int index);
+    E remove(int index);
 
-    Object set(int index, Object element);
+    E set(int index, E element);
 
     boolean isEmpty();
 
     int size();
 
-    Iterator iterator();
+    Iterator<E> iterator();
 }

@@ -486,8 +486,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
 
         ProcessNextStep();
         fMain.setVisible(true);
-
-        return;
     }
 
     private void RefreshMainDisplay() {
@@ -761,7 +759,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             transfer();
         } else if (s.equals("Quit")) {
             exit();
-        } else if (s.indexOf("Select Schema") >= 0) {
+        } else if (s.contains("Select Schema")) {
             String[] selection = lTable.getSelectedItems();
 
             if ((selection == null) || (selection.length == 0)) {
@@ -781,7 +779,7 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
             }
 
             ProcessNextStep();
-        } else if (s.indexOf("Select Catalog") >= 0) {
+        } else if (s.contains("Select Catalog")) {
             String selection = lTable.getSelectedItem();
 
             if ((selection == null) || (selection.equals(""))) {

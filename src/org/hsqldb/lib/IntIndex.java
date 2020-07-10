@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,8 @@
 
 package org.hsqldb.lib;
 
+import java.util.Arrays;
+
 /**
  * Maintains an ordered  integer index. Equal keys are allowed.
  *
@@ -45,7 +47,7 @@ public class IntIndex {
 
     private int           count = 0;
     private int           capacity;
-    private boolean       sorted       = true;
+    private boolean       sorted = true;
     private final boolean fixedSize;
     private int[]         keys;
 
@@ -79,8 +81,7 @@ public class IntIndex {
             throw new IndexOutOfBoundsException();
         }
 
-        sorted = false;
-
+        sorted  = false;
         keys[i] = key;
     }
 
@@ -613,12 +614,7 @@ public class IntIndex {
      * @return true or false
      */
     protected boolean lessThan(int i, int j) {
-
-        if (keys[i] < keys[j]) {
-            return true;
-        }
-
-        return false;
+        return keys[i] < keys[j];
     }
 
     protected void moveRows(int fromIndex, int toIndex, int rows) {
@@ -640,7 +636,7 @@ public class IntIndex {
 
     public synchronized void removeAll() {
 
-        ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_INT, keys, 0, count);
+        Arrays.fill(keys, 0);
 
         count = 0;
     }

@@ -140,10 +140,8 @@ public class RowAVLDisk extends RowAVL {
      *
      * @param store store
      * @param in data source
-     * @throws IOException
      */
-    public RowAVLDisk(PersistentStore store,
-                      RowInputInterface in) throws IOException {
+    public RowAVLDisk(PersistentStore store, RowInputInterface in) {
 
         super(store.getTable(), (Object[]) null);
 

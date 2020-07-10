@@ -253,7 +253,7 @@ public class RoutineSchema implements SchemaObject {
 
                     if (typeDifference < -NumberType.DOUBLE_WIDTH) {
                         if (matchIndex == -1) {
-                            continue;
+                            continue outerLoop;
                         }
 
                         int oldDiff = types[0].precedenceDegree(

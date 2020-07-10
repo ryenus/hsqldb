@@ -364,10 +364,8 @@ public final class Constraint implements SchemaObject {
                     sb.append(
                         getRef().getName().getSchemaQualifiedStatementName());
                     sb.append(' ').append(Tokens.T_ADD).append(' ');
-                    getFKStatement(sb);
-                } else {
-                    getFKStatement(sb);
                 }
+                getFKStatement(sb);
                 break;
 
             case SchemaObject.ConstraintTypes.CHECK :

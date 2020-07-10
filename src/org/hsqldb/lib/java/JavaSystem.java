@@ -45,7 +45,7 @@ import java.nio.charset.Charset;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.5.0
  */
-public class JavaSystem {
+public final class JavaSystem {
 
     public static final Charset CS_ISO_8859_1 = Charset.forName("ISO-8859-1");
     public static final Charset CS_US_ASCII   = Charset.forName("US-ASCII");

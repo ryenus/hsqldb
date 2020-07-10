@@ -143,8 +143,7 @@ public class TestUtil {
 
             filelist = new File(absolute).list();
 
-            ArraySort.sort((Object[]) filelist, filelist.length,
-                           new StringComparator());
+            ArraySort.sort(filelist, filelist.length, new StringComparator());
 
             for (int i = 0; i < filelist.length; i++) {
                 String fname = filelist[i];

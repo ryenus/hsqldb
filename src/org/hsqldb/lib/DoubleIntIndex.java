@@ -31,6 +31,7 @@
 
 package org.hsqldb.lib;
 
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 /**
@@ -1056,8 +1057,8 @@ public class DoubleIntIndex implements LongLookup {
 
     public void removeAll() {
 
-        ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_INT, keys, 0, count);
-        ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_INT, values, 0, count);
+        Arrays.fill(keys, 0);
+        Arrays.fill(values, 0);
 
         count  = 0;
         sorted = true;

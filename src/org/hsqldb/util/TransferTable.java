@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2019, The HSQL Development Group
+ * Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -139,7 +139,7 @@ class TransferTable implements Serializable {
 
     void transferStructure() throws Exception {
 
-        String Statement = new String("");
+        String Statement = "";
 
         if (destDb.helper.needTransferTransaction()) {
             try {
@@ -354,7 +354,7 @@ class TransferTable implements Serializable {
 
     void transferAlter() throws Exception {
 
-        String Statement = new String("");
+        String Statement = "";
 
         if (destDb.helper.needTransferTransaction()) {
             try {

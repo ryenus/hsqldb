@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ package org.hsqldb.lib;
  * @version 1.7.2
  * @since 1.7.2
  */
-public class ArrayCounter {
+public final class ArrayCounter {
 
     /**
      * Returns an int[] array of length segments containing the distribution

@@ -292,14 +292,13 @@ public class BinaryUUIDType extends BinaryType {
 
             b = new BinaryData(bytes, false);
 
-            return b;
         } else {
             if (b.length(session) != precision) {
                 throw Error.error(ErrorCode.X_22001);
             }
 
-            return b;
         }
+        return b;
     }
 
     public Object convertToDefaultType(SessionInterface session, Object a) {

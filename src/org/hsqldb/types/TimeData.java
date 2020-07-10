@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ public class TimeData {
     }
 
     public long getMillis() {
-        return seconds * 1000;
+        return seconds * 1000L;
     }
 
     public boolean equals(Object other) {

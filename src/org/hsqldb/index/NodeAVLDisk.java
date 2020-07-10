@@ -97,7 +97,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.4.0
+ * @version 2.5.2
  * @since Hypersonic SQL
  */
 public class NodeAVLDisk extends NodeAVL {
@@ -108,8 +108,7 @@ public class NodeAVLDisk extends NodeAVL {
     private int             iId;    // id of Index object for this Node
     public static final int SIZE_IN_BYTE = 4 * 4;
 
-    public NodeAVLDisk(RowAVLDisk r, RowInputInterface in,
-                       int id) throws IOException {
+    public NodeAVLDisk(RowAVLDisk r, RowInputInterface in, int id) {
 
         super(r);
 
@@ -333,7 +332,6 @@ public class NodeAVLDisk extends NodeAVL {
                                : (int) n.getPos();
 
         row.setNodesChanged();
-
         row.keepInMemory(false);
 
         return node;
@@ -348,7 +346,6 @@ public class NodeAVLDisk extends NodeAVL {
                                 : (int) n.getPos();
 
         row.setNodesChanged();
-
         row.keepInMemory(false);
 
         return node;
@@ -484,5 +481,4 @@ public class NodeAVLDisk extends NodeAVL {
     long getParentPos() {
         return iParent;
     }
-
 }

@@ -545,7 +545,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
         try {
             dMeta      = cConn.getMetaData();
-            isOracle = (dMeta.getDatabaseProductName().indexOf("Oracle") >= 0);
+            isOracle = (dMeta.getDatabaseProductName().contains("Oracle"));
             sStatement = cConn.createStatement();
 
             updateAutoCommitBox();
@@ -1646,8 +1646,8 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             // This test can be very liberal.  Too liberal will just do
             // some extra refreshes.  Too conservative will display
             // obsolete info.
-            if (upper.indexOf("ALTER") > -1 || upper.indexOf("DROP") > -1
-                    || upper.indexOf("CREATE") > -1) {
+            if (upper.contains("ALTER") || upper.contains("DROP")
+                    || upper.contains("CREATE")) {
                 directRefreshTree();
             }
         }
@@ -2093,7 +2093,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
                     if (childNode.getChildCount() > 0) {
                         childName = childNode.getFirstChild().toString();
-                        isChar    = childName.indexOf("CHAR") >= 0;
+                        isChar    = childName.contains("CHAR");
                         result    += " WHERE " + quoteObjectName(column);
 
                         if (isChar) {
@@ -2131,7 +2131,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
                     if (childNode.getChildCount() > 0) {
                         childName = childNode.getFirstChild().toString();
-                        isChar    = childName.indexOf("CHAR") >= 0;
+                        isChar    = childName.contains("CHAR");
                         result    += " WHERE " + quoteObjectName(column);
 
                         if (isChar) {
@@ -2184,7 +2184,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     // If our first child (type) is some sort of char, use ''
                     // in the string.  Makes is more obvious to the user when
                     // they need to use a string
-                    if (childName.indexOf("CHAR") >= 0) {
+                    if (childName.contains("CHAR")) {
                         quote = "\'\'";
                     } else {
                         quote = "";
@@ -2867,7 +2867,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
      * These are settings for items in the View and Options pulldown menus,
      * plus Help/Show Tooltips.
      */
-    public class DBMPrefs {
+    public static class DBMPrefs {
 
         public File prefsFile = null;
 

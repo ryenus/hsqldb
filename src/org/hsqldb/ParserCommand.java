@@ -1608,7 +1608,7 @@ public class ParserCommand extends ParserDDL {
             case Tokens.CHECK : {
                 read();
 
-                long longValue  = readBigint();
+                long longValue1 = readBigint();
                 long longValue2 = -1;
 
                 type  = StatementTypes.SET_DATABASE_FILES_CHECK;
@@ -1620,7 +1620,7 @@ public class ParserCommand extends ParserDDL {
 
                 Object[] args = new Object[2];
 
-                args[0] = Long.valueOf(longValue);
+                args[0] = Long.valueOf(longValue1);
                 args[1] = Long.valueOf(longValue2);
 
                 return new StatementCommand(type, args, null, names);

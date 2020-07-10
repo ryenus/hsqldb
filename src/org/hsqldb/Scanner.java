@@ -485,8 +485,6 @@ public class Scanner {
             // no end quote
             token.tokenType   = Tokens.X_MALFORMED_BINARY_STRING;
             token.isMalformed = true;
-
-            return;
         }
     }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.server.ServerConstants;
  */
 
 // patch 1.9.0 by Blaine Simpson - IPv6 support
-public class DatabaseURL {
+public final class DatabaseURL {
 
     public static final String S_DOT               = ".";
     public static final String S_MEM               = "mem:";

@@ -166,8 +166,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL {
             }
         } catch (HsqlException e) {
             return null;
-        } catch (IOException e1) {
-            return null;
         }
 
         return null;

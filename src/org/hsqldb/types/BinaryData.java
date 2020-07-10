@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.lib.ArrayUtil;
  * A Binary object instance always wraps a non-null byte[] object.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.5.2
  * @since 1.7.2
  */
 public class BinaryData implements BlobData {
@@ -255,8 +255,14 @@ public class BinaryData implements BlobData {
         return position(session, bytes, start);
     }
 
-    /** @todo - implement */
     public long nonZeroLength(SessionInterface session) {
+
+        for (int i = data.length - 1; i > 0; i--) {
+            if (data[i] != 0) {
+                return i + 1;
+            }
+        }
+
         return data.length;
     }
 

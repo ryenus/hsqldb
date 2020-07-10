@@ -38,7 +38,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Constructor;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -55,7 +54,7 @@ import java.util.Hashtable;
  * @version 1.7.2
  * @since 1.7.0
  */
-class ConnectionDialogCommon {
+final class ConnectionDialogCommon {
 
     private static String[][]       connTypes;
     private static final String[][] sJDBCTypes = {
@@ -210,11 +209,11 @@ class ConnectionDialogCommon {
 
             // reached end of file -- this is not clean but it works
         } catch (ClassNotFoundException cnfe) {
-            throw (IOException) new IOException("Unrecognized class type "
-                                                + cnfe.getMessage());
+            throw new IOException("Unrecognized class type "
+                                  + cnfe.getMessage());
         } catch (ClassCastException cce) {
-            throw (IOException) new IOException("Unrecognized class type "
-                                                + cce.getMessage());
+            throw new IOException("Unrecognized class type "
+                                  + cce.getMessage());
         } catch (Throwable t) {}
         finally {
             if (objStream != null) {

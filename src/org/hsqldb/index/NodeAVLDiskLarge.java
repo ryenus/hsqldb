@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,8 +55,7 @@ public class NodeAVLDiskLarge extends NodeAVL {
     private int             iId;    // id of Index object for this Node
     public static final int SIZE_IN_BYTE = 4 * 4;
 
-    public NodeAVLDiskLarge(RowAVLDisk r, RowInputInterface in,
-                            int id) throws IOException {
+    public NodeAVLDiskLarge(RowAVLDisk r, RowInputInterface in, int id) {
 
         super(r);
 

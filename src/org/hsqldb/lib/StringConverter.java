@@ -488,7 +488,7 @@ public class StringConverter {
         int count = 0;
 
         while (count < length) {
-            c = (int) bytearr[offset + count];
+            c = bytearr[offset + count];
 
             if (bcount == buf.length) {
                 buf = (char[]) ArrayUtil.resizeArray(buf, length);
@@ -518,7 +518,7 @@ public class StringConverter {
                         throw new UTFDataFormatException();
                     }
 
-                    char2 = (int) bytearr[offset + count - 1];
+                    char2 = bytearr[offset + count - 1];
 
                     if ((char2 & 0xC0) != 0x80) {
                         throw new UTFDataFormatException();
@@ -537,8 +537,8 @@ public class StringConverter {
                         throw new UTFDataFormatException();
                     }
 
-                    char2 = (int) bytearr[offset + count - 2];
-                    char3 = (int) bytearr[offset + count - 1];
+                    char2 = bytearr[offset + count - 2];
+                    char3 = bytearr[offset + count - 1];
 
                     if (((char2 & 0xC0) != 0x80) || ((char3 & 0xC0) != 0x80)) {
                         throw new UTFDataFormatException();

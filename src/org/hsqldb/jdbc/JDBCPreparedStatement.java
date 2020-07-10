@@ -60,6 +60,7 @@ import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Calendar;
 import java.util.UUID;
@@ -69,9 +70,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.StatementTypes;
-import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.CharArrayWriter;
 import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
@@ -782,15 +781,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             throw JDBCUtil.nullArgument("x");
         }
 
-        // CHECKME:  Is JDBC4 clarification of UNICODE stream format retroactive?
-        if ((ver < 4) && (length % 2 != 0)) {
-            String msg = "Odd length argument for UTF16 encoded stream: " + length;
-
-            throw JDBCUtil.invalidArgument(msg);
-        }
-
-        String       encoding = (ver < 4) ? "UTF16"
-                : "UTF8";
+        String       encoding = "UTF8";
         StringWriter writer   = new StringWriter();
 
         try {
@@ -864,10 +855,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
-        ArrayUtil.fillArray(parameterValues, null);
-        ArrayUtil.fillArray(parameterSet, null);
-        ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_LONG, streamLengths, 0,
-                             streamLengths.length);
+        Arrays.fill(parameterValues, null);
+        Arrays.fill(parameterSet, null);
+        Arrays.fill(streamLengths, 0, streamLengths.length, 0);
     }
 
     //----------------------------------------------------------------------

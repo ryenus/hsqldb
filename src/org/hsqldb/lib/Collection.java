@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,10 @@ package org.hsqldb.lib;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.5.2
  * @since 1.7.2
  */
-public interface Collection {
+public interface Collection<E> {
 
     int size();
 
@@ -45,17 +45,17 @@ public interface Collection {
 
     boolean contains(Object o);
 
-    Iterator iterator();
+    Iterator<E> iterator();
 
 /*
     Object[] toArray();
     Object[] toArray(Object a[]);
 */
-    boolean add(Object o);
+    boolean add(E o);
 
     boolean remove(Object o);
 
-    boolean addAll(Collection c);
+    boolean addAll(Collection</*? extends*/ E> c);
 
 /*
     boolean containsAll(Collection c);

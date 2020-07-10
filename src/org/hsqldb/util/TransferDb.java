@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -435,12 +435,12 @@ class TransferDb extends DataAccessPoint {
         String    insert         = "";
         ResultSet ImportedKeys   = null;
         boolean   importedkeys   = false;
-        String    alterCreate    = new String("");
-        String    alterDrop      = new String("");
-        String    ConstraintName = new String("");
-        String    RefTableName   = new String("");
-        String    foreignKeyName = new String("");
-        String    columnName     = new String("");
+        String    alterCreate    = "";
+        String    alterDrop      = "";
+        String    ConstraintName = "";
+        String    RefTableName   = "";
+        String    foreignKeyName = "";
+        String    columnName     = "";
 
         Dest.helper.setSchema(TTable.Stmts.sSchema);
 
@@ -638,9 +638,9 @@ class TransferDb extends DataAccessPoint {
 
         boolean   indices     = false;
         ResultSet Indices     = null;
-        String    IndiceName  = new String("");
-        String    CreateIndex = new String("");
-        String    DropIndex   = new String("");
+        String    IndiceName  = "";
+        String    CreateIndex = "";
+        String    DropIndex   = "";
 
         try {
             Indices = meta.getIndexInfo(TTable.Stmts.sDatabaseToConvert,

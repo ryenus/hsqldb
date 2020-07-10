@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -218,7 +218,7 @@ public class TestKarl {
             System.out.print(rs.getMetaData().getColumnLabel(i) + "\t");
         }
 
-        System.out.println("");
+        System.out.println();
 
         while (rs.next()) {
             for (int i = 1; i <= col_count; i++) {
@@ -226,7 +226,7 @@ public class TestKarl {
                 System.out.print("\t");
             }
 
-            System.out.println("");
+            System.out.println();
         }
 
         st.close();
@@ -249,7 +249,7 @@ public class TestKarl {
             System.out.print(rs.getMetaData().getColumnLabel(i) + "\t");
         }
 
-        System.out.println("");
+        System.out.println();
 
         while (rs.next()) {
             for (int i = 1; i <= col_count; i++) {
@@ -257,7 +257,7 @@ public class TestKarl {
                 System.out.print("\t");
             }
 
-            System.out.println("");
+            System.out.println();
         }
 
         System.out.println("END GET METADATA");
