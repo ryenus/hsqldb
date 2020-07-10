@@ -617,8 +617,8 @@ public class JDBCSQLXML implements SQLXML {
      *
      * @param bytes the gzipped octet sequence representing the SQLXML value
      * @param clone whether to clone the given gzipped octet sequence
-     * @param systemId
-     * @param publicId
+     * @param systemId id
+     * @param publicId id
      * @throws SQLException if the argument does not represent a
      *      valid SQLXML value
      */
@@ -2073,7 +2073,7 @@ public class JDBCSQLXML implements SQLXML {
          * <p>Creates a new instance of SAX2DOMBuilder, which creates
          * a new document. The document is available via
          * {@link #getDocument()}.</p>
-         * @throws javax.xml.parsers.ParserConfigurationException
+         * @throws javax.xml.parsers.ParserConfigurationException exception
          */
         public SAX2DOMBuilder() throws ParserConfigurationException {
 
@@ -2577,7 +2577,7 @@ public class JDBCSQLXML implements SQLXML {
 
         /**
          * Assigns the current element.
-         * @param element
+         * @param element the element
          */
         protected void setCurrentElement(Element element) {
             this.currentElement = element;
@@ -2592,7 +2592,7 @@ public class JDBCSQLXML implements SQLXML {
 
         /**
          * Assigns the current node. <p>
-         * @param node
+         * @param node the node
          */
         protected void setCurrentNode(Node node) {
             this.currentNode = node;

@@ -116,7 +116,7 @@ public class StatementSignal extends Statement {
 
         switch (type) {
 
-            /** @todo - check sqlState against allowed values */
+            /* @todo - check sqlState against allowed values */
             case StatementTypes.SIGNAL :
             case StatementTypes.RESIGNAL :
                 HsqlException ex = Error.error(getMessage(session), sqlState);

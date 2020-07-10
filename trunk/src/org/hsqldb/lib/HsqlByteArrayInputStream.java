@@ -201,7 +201,7 @@ implements DataInput {
 
     public String readLine() throws IOException {
 
-        /** @todo: this will probably be useful */
+        /* @todo: this will probably be useful */
         throw new java.lang.UnsupportedOperationException("not implemented");
     }
 

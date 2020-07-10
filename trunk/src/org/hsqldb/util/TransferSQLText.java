@@ -149,16 +149,6 @@ class TransferSQLText extends DataAccessPoint {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param type
-     * @param r
-     * @param p
-     *
-     * @throws SQLException
-     */
     private void transferRow(TransferResultSet r) throws Exception {
 
         String sLast = "";

@@ -81,6 +81,8 @@ import java.sql.Statement;
 /**
  * Extract a directory tree and store in an HSQLDB database.
  *
+ * Improved in HSQLDB.
+ *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @version 1.7.0
  * @since Hypersonic SQL
@@ -94,21 +96,21 @@ class FindFile {
      * java org.hsqldb.sample.FindFile -init .
      * Re-create database from directory '.'
      * java org.hsqldb.sample.FindFile name
-     * Find files like 'name'
+     * Find files with names containing 'name'
      * </pre>
      *
-     * @param arg
+     * @param arg arguments
      */
     public static void main(String[] arg) {
 
         // Exceptions may occur
         try {
 
-            // Load the HSQL Database Engine JDBC driver
+            // Load the HSQLDB Database Engine JDBC driver
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             // Connect to the database
-            // It will be create automatically if it does not yet exist
+            // The database will be created automatically if it does not exist
             // 'testfiles' in the URL is the name of the database
             // "SA" is the user name and "" is the (empty) password
             Connection conn =
@@ -119,12 +121,12 @@ class FindFile {
             if (arg.length == 1) {
 
                 // One parameter:
-                // Find and print the list of files that are like this
+                // Find and print the list of file names that contain the parameter
                 listFiles(conn, arg[0]);
             } else if ((arg.length == 2) && arg[0].equals("-init")) {
 
                 // Command line parameters: -init pathname
-                // Init the database and fill all file names in
+                // Initialise the database and fill all file names in
                 fillFileNames(conn, arg[1]);
             } else {
 
@@ -146,10 +148,8 @@ class FindFile {
         }
     }
 
-    // Search in the database and list out files like this
-
     /**
-     * @throws SQLException
+     * Search in the database and list out files LIKE the given name
      */
     static void listFiles(Connection conn, String name) throws SQLException {
 
@@ -162,8 +162,8 @@ class FindFile {
         Statement stat = conn.createStatement();
 
         // Now execute the search query
-        // UCASE: This is a case insensitive search
-        // ESCAPE ':' is used so it can be easily searched for '\'
+        // UCASE: This is a case-insensitive search
+        // ESCAPE ':' is used so we can search for any characters in file names
         ResultSet result = stat.executeQuery("SELECT Path FROM Files WHERE "
                                              + "UCASE(Path) LIKE '%" + name
                                              + "%' ESCAPE ':'");
@@ -172,15 +172,13 @@ class FindFile {
         while (result.next()) {
 
             // Print the first column of the result
-            // could use also getString("Path")
+            // could use also getString("path")
             System.out.println(result.getString(1));
         }
 
         // Close the ResultSet - not really necessary, but recommended
         result.close();
     }
-
-    // Re-create the database and fill the file names in
 
     /**
      * @throws SQLException
@@ -199,17 +197,16 @@ class FindFile {
         } catch (SQLException e) {    // Ignore Exception, because the table may not yet exist
         }
 
-        // For compatibility to other database, use varchar(255)
-        // In HSQL Database Engine, length is unlimited, like Java Strings
+        // The varchar size should be large enough for long paths
         stat.execute("CREATE TABLE Files"
-                     + "(Path varchar(255),Name varchar(255))");
+                     + "(path VARCHAR(255),name VARCHAR(255))");
 
         // Close the Statement object, it is no longer used
         stat.close();
 
-        // Use a PreparedStatement because Path and Name could contain '
+        // Use a PreparedStatement because Path and Name could contain the single quote character
         PreparedStatement prep =
-            conn.prepareCall("INSERT INTO Files (Path,Name) VALUES (?,?)");
+            conn.prepareCall("INSERT INTO Files (path,name) VALUES (?,?)");
 
         // Start with the 'root' directory and recurse all subdirectories
         fillPath(root, "", prep);
@@ -219,10 +216,8 @@ class FindFile {
         System.out.println("Finished");
     }
 
-    // Fill the file names, using the PreparedStatement
-
     /**
-     * @throws SQLException
+     * Fill the file names, using the PreparedStatement
      */
     static void fillPath(String path, String name,
                          PreparedStatement prep) throws SQLException {

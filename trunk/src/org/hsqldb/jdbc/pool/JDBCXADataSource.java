@@ -100,15 +100,12 @@ implements XADataSource, Serializable, Referenceable, CommonDataSource {
      * Gets a new XAConnection after validating the given username
      * and password.
      *
+     * @see #getXAConnection()
+     *
      * @param user String which must match the 'user' configured for this
      *             JDBCXADataSource.
      * @param password  String which must match the 'password' configured
      *                  for this JDBCXADataSource.
-     *
-     * @see #getXAConnection()
-     *
-     * @param user the user
-     * @param password the password
      * @throws SQLException on error
      */
     public XAConnection getXAConnection(String user,

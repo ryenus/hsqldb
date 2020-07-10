@@ -121,7 +121,6 @@ import org.hsqldb.lib.java.JavaSystem;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.5.0
  * @since JDK 1.2, HSQLDB 1.7.2
- * @revised JDK 1.6, HSQLDB 2.0
  */
 public class JDBCClob implements Clob {
 
@@ -420,7 +419,6 @@ public class JDBCClob implements Clob {
      * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 2.0
      */
     public int setString(long pos, String str) throws SQLException {
         return setString(pos, str, 0, str == null ? 0
@@ -494,7 +492,6 @@ public class JDBCClob implements Clob {
      * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 2.0
      */
     public int setString(final long pos, final String str, final int offset,
                          final int len) throws SQLException {
@@ -636,7 +633,6 @@ public class JDBCClob implements Clob {
      * @see #getAsciiStream
      *
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 2.0
      */
     public java.io.OutputStream setAsciiStream(final long pos)
     throws SQLException {
@@ -746,7 +742,6 @@ public class JDBCClob implements Clob {
      * @see #getCharacterStream
      *
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 2.0
      */
     public java.io.Writer setCharacterStream(final long pos)
     throws SQLException {
@@ -827,7 +822,6 @@ public class JDBCClob implements Clob {
      * @exception java.sql.SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 2.0
      */
     public void truncate(final long len) throws SQLException {
 

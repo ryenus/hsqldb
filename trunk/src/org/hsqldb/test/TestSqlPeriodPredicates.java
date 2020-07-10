@@ -101,7 +101,7 @@ public class TestSqlPeriodPredicates extends TestBase {
      *
      * @param rs result set containing the result of the query
      * @param expectedIds list if the expected ids. If null, expects an empty result set.
-     * @throws SQLException
+     * @throws SQLException exception
      */
     private void assertAllIdsPresent(ResultSet rs, int ...expectedIds) throws
         SQLException {

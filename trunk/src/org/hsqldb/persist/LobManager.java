@@ -752,7 +752,7 @@ public class LobManager {
         }
     }
 
-    /** @todo - implement as compareText() */
+    /* @todo - implement as compareText() */
     public int compare(Collation collation, long lobId, String b) {
 
         writeLock.lock();
@@ -919,7 +919,7 @@ public class LobManager {
                                  : -1;
     }
 
-    /** @todo - word-separator and end block zero issues */
+    /* @todo - word-separator and end block zero issues */
     private int compareTextNormal(Collation collation, long aID, long bID) {
 
         Object[] data    = getLobHeader(aID);
@@ -1124,7 +1124,7 @@ public class LobManager {
         }
     }
 
-    /** @todo - currently unused and returns whole length */
+    /* @todo - currently unused and returns whole length */
     public Result getTruncateLength(long lobID) {
 
         writeLock.lock();

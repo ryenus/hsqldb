@@ -42,7 +42,7 @@ import org.hsqldb.map.ValuePool;
 
 /**
  * Uses a LineNumberReader and returns multiple consecutive lines which conform
- * to the specified group demarcation characteristics. Any {@link IOException}
+ * to the specified group demarcation characteristics. Any exception
  * thrown while reading from the reader is handled internally.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)

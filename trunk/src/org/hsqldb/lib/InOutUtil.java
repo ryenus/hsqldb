@@ -46,7 +46,6 @@ import java.io.Writer;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.1
- * @revised 1.8.0
  * @since 1.7.2
  */
 public final class InOutUtil {

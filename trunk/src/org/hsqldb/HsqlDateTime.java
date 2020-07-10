@@ -658,7 +658,7 @@ public class HsqlDateTime {
     /**
      * Converts the given format into a pattern accepted by <code>java.text.SimpleDataFormat</code>
      *
-     * @param format
+     * @param format date format
      */
     public static String toJavaDatePattern(String format) {
 
@@ -885,7 +885,7 @@ public class HsqlDateTime {
         /**
          * Checks whether the specified bit is not set.
          *
-         * @param bit
+         * @param bit numbered from high bit
          */
         private boolean isZeroBit(int bit) {
             return (state & (1L << bit)) == 0;
@@ -893,7 +893,7 @@ public class HsqlDateTime {
 
         /**
          * Sets the specified bit.
-         * @param bit
+         * @param bit numbered from high bit
          */
         private void setBit(int bit) {
             state |= (1L << bit);
@@ -902,8 +902,8 @@ public class HsqlDateTime {
         /**
          * Matches the specified character against tokens.
          *
-         * @param ch
-         * @param position
+         * @param ch character
+         * @param position in the string
          */
         public boolean next(char ch, int position) {
 

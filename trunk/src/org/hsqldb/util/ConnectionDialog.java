@@ -74,9 +74,6 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
     private Hashtable    settings;
     private Choice       types, recent;
 
-    /**
-     * @throws Exception
-     */
     public static Connection createConnection(String driver, String url,
             String user, String password) throws Exception {
 
@@ -85,13 +82,6 @@ class ConnectionDialog extends Dialog implements ActionListener, ItemListener {
         return DriverManager.getConnection(url, user, password);
     }
 
-    /**
-     * Constructor declaration
-     *
-     *
-     * @param owner
-     * @param title
-     */
     ConnectionDialog(Frame owner, String title) {
         super(owner, title, true);
     }

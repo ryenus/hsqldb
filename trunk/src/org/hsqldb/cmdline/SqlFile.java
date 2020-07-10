@@ -2213,7 +2213,7 @@ public class SqlFile {
     /**
      * Deference *{} PL variables and ${} System Property variables.
      *
-     * @throws SqlToolError
+     * @throws SqlToolError on error
      */
     private String dereference(final String inString,
     final boolean permitAlias) throws SqlToolError {
@@ -3336,10 +3336,10 @@ public class SqlFile {
         int[]    listSet = null;
         String[] types   = null;
 
-        /** For workaround for \T for Oracle */
+        /* For workaround for \T for Oracle */
         String[] additionalSchemas = null;
 
-        /** This is for specific non-getTable() queries */
+        /* This is for specific non-getTable() queries */
         Statement statement = null;
         ResultSet rs        = null;
         String    narrower  = "";
@@ -5213,7 +5213,8 @@ public class SqlFile {
     }
 
     /**
-     * @offset  Position of the leading \.
+     * @param string string with escape
+     * @param offset  Position of the leading \.
      */
     private static String convertNumericEscape(
     final String string, final int offset) {
@@ -5273,7 +5274,7 @@ public class SqlFile {
      *
      * @param s String
      * @param lineNum int
-     * @throws SqlToolError
+     * @throws SqlToolError on error
      * @return String
      */
     private String preprocessCsvQuoting(final String s, final int lineNum)
@@ -6064,9 +6065,9 @@ public class SqlFile {
      * top.
      *
      * @param nestingCommand Set to null to read scanner until EOF.
-     * @throws BadSpecial
-     * @throws IOException
-     * @throws SqlToolError
+     * @throws BadSpecial on error
+     * @throws IOException on error
+     * @throws SqlToolError on error
      * @return TokenList
      */
     private TokenList seekTokenSource(final String nestingCommand)
@@ -6121,7 +6122,7 @@ public class SqlFile {
      * trimmed, but it is trimmed now (by the Scanner).
      *
      * @param defToken Token
-     * @throws BadSpecial
+     * @throws BadSpecial on error
      */
     private void processMacro(final Token defToken) throws BadSpecial {
         Matcher matcher;
@@ -6444,8 +6445,8 @@ public class SqlFile {
      *
      * @param pWriter PrintWriter
      * @param filePath only used for error reporting.
-     * @throws BadSpecial
-     * @throws SqlToolError
+     * @throws BadSpecial on error
+     * @throws SqlToolError on error
      */
     private void writeHeader(final PrintWriter pWriter, final String filePath)
     throws BadSpecial, SqlToolError {
@@ -6486,7 +6487,7 @@ public class SqlFile {
     /**
      * @param pwQuery the writer
      * @param filePath only used for error reporting.
-     * @throws SqlToolError
+     * @throws SqlToolError on error
      */
     private void writeFooter(final PrintWriter pwQuery, final String filePath)
     throws SqlToolError {

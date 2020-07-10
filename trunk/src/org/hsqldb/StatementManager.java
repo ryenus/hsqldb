@@ -341,7 +341,6 @@ public final class StatementManager {
      * Compiles an SQL statement and returns a CompiledStatement Object
      *
      * @param session the session
-     * @throws Throwable
      * @return CompiledStatement
      */
     synchronized Statement compile(Session session,

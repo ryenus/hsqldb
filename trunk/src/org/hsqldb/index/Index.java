@@ -239,7 +239,7 @@ public interface Index extends SchemaObject {
      * @param session Session
      * @param store PersistentStore
      * @param distinctCount int
-     * @param map boolean[]
+     * @param usedColumnCheck boolean[]
      */
     RowIterator lastRow(Session session, PersistentStore store,
                         int distinctCount, boolean[] usedColumnCheck);

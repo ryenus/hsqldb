@@ -67,7 +67,6 @@ import org.hsqldb.types.Type;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.3.4
  * @since JDK 1.4, HSQLDB 1.7.2
- * @revised JDK 1.6, HSQLDB 2.0
  */
 public class JDBCParameterMetaData implements ParameterMetaData,
         java.sql.Wrapper {

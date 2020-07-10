@@ -333,9 +333,6 @@ class DatabaseManagerCommon {
         }
     }
 
-    /**
-     * @throws SQLException
-     */
     static long testStatement(Statement sStatement, String sql,
                               int max) throws SQLException {
 

@@ -152,39 +152,18 @@ class Grid extends Panel {
         add(sbVert);
     }
 
-    /**
-     * Method declaration
-     */
     String[] getHead() {
         return sColHead;
     }
 
-    /**
-     * Method declaration
-     */
     ArrayList<String[]> getData() {
         return vData;
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param d
-     */
     public void setMinimumSize(Dimension d) {
         dMinimum = d;
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param x
-     * @param y
-     * @param w
-     * @param h
-     */
     public void setBounds(int x, int y, int w, int h) {
 
         // fredt@users 20011210 - patch 450412 by elise@users
@@ -204,12 +183,6 @@ class Grid extends Panel {
         repaint();
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param head
-     */
     public void setHead(String[] head) {
 
         iColCount = head.length;
@@ -226,12 +199,6 @@ class Grid extends Panel {
         vData      = new ArrayList<String[]>();
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param data
-     */
     public void addRow(String[] data) {
 
         if (data.length != iColCount) {
@@ -253,19 +220,11 @@ class Grid extends Panel {
         iRowCount++;
     }
 
-    /**
-     * Method declaration
-     *
-     */
     public void update() {
         adjustScroll();
         repaint();
     }
 
-    /**
-     * Method declaration
-     *
-     */
     void adjustScroll() {
 
         if (iRowHeight == 0) {
@@ -292,13 +251,6 @@ class Grid extends Panel {
         iY = iRowHeight * sbVert.getValue();
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
-
     // fredt@users 20020130 - comment by fredt
     // to remove this deprecated method we need to rewrite the Grid class as a
     // ScrollPane component
@@ -324,12 +276,6 @@ class Grid extends Panel {
         return super.handleEvent(e);
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param g
-     */
     public void paint(Graphics g) {
 
         if (g == null) {
@@ -437,24 +383,10 @@ class Grid extends Panel {
         g.drawImage(iImage, 0, 0, this);
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param g
-     */
     public void update(Graphics g) {
         paint(g);
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     * @param x
-     * @param y
-     */
     public boolean mouseMove(Event e, int x, int y) {
 
         if (y <= iRowHeight) {
@@ -488,14 +420,6 @@ class Grid extends Panel {
         return mouseExit(e, x, y);
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     * @param x
-     * @param y
-     */
     public boolean mouseDrag(Event e, int x, int y) {
 
         if (bDrag && x < iWidth) {
@@ -514,14 +438,6 @@ class Grid extends Panel {
         return true;
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     * @param x
-     * @param y
-     */
     public boolean mouseExit(Event e, int x, int y) {
 
         if (bDrag) {
@@ -533,40 +449,22 @@ class Grid extends Panel {
         return true;
     }
 
-    /**
-     * Method declaration
-     */
     public Dimension preferredSize() {
         return dMinimum;
     }
 
-    /**
-     * Method declaration
-     */
     public Dimension getPreferredSize() {
         return dMinimum;
     }
 
-    /**
-     * Method declaration
-     */
     public Dimension getMinimumSize() {
         return dMinimum;
     }
 
-    /**
-     * Method declaration
-     */
     public Dimension minimumSize() {
         return dMinimum;
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param i
-     */
     private void calcAutoWidth(int i) {
 
         int w = 10;
@@ -582,34 +480,14 @@ class Grid extends Panel {
         iColWidth[i] = w + 6;
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param x
-     * @param y
-     */
     private String getDisplay(int x, int y) {
         return vData.get(y)[x];
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param x
-     * @param y
-     */
     private String get(int x, int y) {
         return vData.get(y)[x];
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param f
-     */
     private static int getMaxHeight(FontMetrics f) {
         return f.getHeight() + 4;
     }

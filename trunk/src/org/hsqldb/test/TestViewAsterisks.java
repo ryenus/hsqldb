@@ -244,7 +244,7 @@ public class TestViewAsterisks extends TestBase {
      *
      *  @param viewName
      *      the name of the to-be-created view
-     *  @param columnNames
+     *  @param columnList
      *      the names of the columns of the view, as to be specified in the CREATE VIEW statement. Might be null,
      *      in this case the view will be created without an explicit column list
      *  @param viewStatement

@@ -244,7 +244,6 @@ class ConnectionDialogCommon {
      * Here's a non-secure method of storing recent connection settings.
      *
      * @param settings ConnectionSetting[]
-     * @throw IOException if something goes wrong while writing
      */
     private static void storeRecentConnectionSettings(Hashtable settings) {
 

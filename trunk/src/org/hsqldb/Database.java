@@ -632,7 +632,7 @@ public class Database {
             closemode = CLOSEMODE_IMMEDIATELY;
         }
 
-        /**
+        /*
          * impact of possible error conditions in closing the log
          * for the CLOSEMODE_COMPACT mode
          */

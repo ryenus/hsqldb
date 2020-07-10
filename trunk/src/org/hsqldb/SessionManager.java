@@ -51,7 +51,7 @@ public class SessionManager {
     private Session        sysSession;
     private Session        sysLobSession;
 
-    /**
+    /*
      * @todo:
      * Eliminate the Database-centric nature of SessionManager.
      * e.g. Sessions should be able to migrate from one Database instance
@@ -72,7 +72,7 @@ public class SessionManager {
                                     sessionIdCount++, null, 0);
     }
 
-    /**
+    /*
      *  @todo:
      * It should be possible to create an initially 'disconnected' Session that
      * can execute general commands using a SessionCommandInterpreter.

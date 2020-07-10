@@ -155,7 +155,7 @@ public final class BlobType extends BinaryType {
         return session.database.lobManager.compare((BlobData) a, (BlobData) b);
     }
 
-    /** @todo - implement */
+    /* @todo - implement */
     public Object convertToTypeLimits(SessionInterface session, Object a) {
         return a;
     }

@@ -236,7 +236,7 @@ public class StatementSet extends StatementDMQL {
 
             case StatementSet.VARIABLE_SET : {
 
-                /** @todo - cover row assignment */
+                /* @todo - cover row assignment */
                 sb.append(Tokens.T_SET).append(' ');
                 sb.append(targets[0].getColumn().getName().statementName);
                 sb.append(' ').append('=').append(' ').append(

@@ -1187,8 +1187,6 @@ public class Table extends TableBase implements SchemaObject {
 
     /**
      *  Returns any unique Constraint using this index
-     *
-     * @param  index
      */
     public Constraint getUniqueOrPKConstraintForIndex(Index index) {
 
@@ -1208,9 +1206,6 @@ public class Table extends TableBase implements SchemaObject {
 
     /**
      *  Returns the next constraint of a given type
-     *
-     * @param  from
-     * @param  type
      */
     int getNextConstraintIndex(int from, int type) {
 
@@ -2281,8 +2276,6 @@ public class Table extends TableBase implements SchemaObject {
 
     /**
      *  Returns any unique Constraint using this index
-     *
-     * @param  index
      */
     public Constraint getUniqueConstraintForIndex(Index index) {
 

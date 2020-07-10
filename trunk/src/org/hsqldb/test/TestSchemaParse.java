@@ -432,7 +432,7 @@ public class TestSchemaParse extends TestCase {
             "Trivial Label/alias 5", 1,
             queryRowCount("SELECT ali.i FROM tsttbl ali WHERE ali.i = 1"));
 
-        /**
+        /*
          * Uncomment when this mixing of aliases and real names is fixed.
          *
          * assertEquals("Mixed Label/aliases 1", 1, queryRowCount(
@@ -467,7 +467,7 @@ public class TestSchemaParse extends TestCase {
                 "SELECT ali1.vc FROM tsttbl ali1, joinedtbl ali2\n"
                 + "WHERE i = i2 AND vc2 = 'zwei'"));
 
-        /**
+        /*
          * Uncomment when this mixing of aliases and real names is fixed.
          * assertEquals("Join w/Mixed Labels/aliases 1", 1, queryRowCount(
          * "SELECT vc FROM tsttbl ali1, joinedtbl ali2\n"
@@ -888,7 +888,7 @@ public class TestSchemaParse extends TestCase {
                                       + "joinedtbl\n" + ")"));
     }
 
-    /** @todo fredt - need to define additional identifiers to use for all cases of expect */
+    /* @todo fredt - need to define additional identifiers to use for all cases of expect */
     private static final int SQL_ABORT   = -1234;
     private static final int SQL_INITIAL = -1233;
     private static final int SQL_FAIL    = -1;
@@ -922,7 +922,7 @@ public class TestSchemaParse extends TestCase {
         assertEquals(m, expect, retval);
     }
 
-/** @todo fredt - this method body seems to be incorrect */
+    /* @todo fredt - this method body seems to be incorrect */
     private void execSQL(String s, int expect) {
         execSQL(s, s, expect);
     }

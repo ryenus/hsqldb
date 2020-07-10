@@ -900,16 +900,6 @@ class TransferDb extends DataAccessPoint {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param type
-     * @param r
-     * @param p
-     *
-     * @throws SQLException
-     */
     private void transferRow(TransferResultSet r, PreparedStatement p,
                              int len,
                              int[] types)

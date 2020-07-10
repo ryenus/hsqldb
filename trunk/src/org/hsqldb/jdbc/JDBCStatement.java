@@ -535,7 +535,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
         rootWarning = null;
     }
 
-    /** @todo 1.9.0 - implement */
+    /* @todo 1.9.0 - implement */
 
     /**
      * <!-- start generic documentation -->

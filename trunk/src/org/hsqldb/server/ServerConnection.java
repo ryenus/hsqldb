@@ -456,7 +456,7 @@ class ServerConnection implements Runnable {
             throw cleanExit;    // not "clean", but handled
         }
 
-        /**
+        /*
          * ODBC Service State Machine  (the remainder of this method)
          */
         switch (odbcCommMode) {
@@ -618,7 +618,7 @@ class ServerConnection implements Runnable {
                         }
                     }
 
-                    /** ******************************************* */
+                    /* ******************************************* */
                     String normalized = sql.trim().toLowerCase();
 
                     if (server.isTrace()) {

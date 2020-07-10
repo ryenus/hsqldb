@@ -614,7 +614,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         return typeCode + ((int) precision << 8) + (scale << 16);
     }
 
-    /** @todo 1.9.0 - review all - need max implementation defined lengths, used for parameters */
+    /* @todo 1.9.0 - review all - need max implementation defined lengths, used for parameters */
 
     // null type
     public static final Type SQL_ALL_TYPES = NullType.getNullType();

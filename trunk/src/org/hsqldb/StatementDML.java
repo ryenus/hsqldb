@@ -349,7 +349,7 @@ public class StatementDML extends StatementDMQL {
         }
     }
 
-    /**
+    /*
      * @todo - fredt - low priority - this does not work with different prepare calls
      * with the same SQL statement, but different generated column requests
      * To fix, add comment encapsulating the generated column list to SQL
@@ -1070,7 +1070,7 @@ public class StatementDML extends StatementDMQL {
             // for identity using global sequence
             session.sessionData.startRowProcessing();
 
-            /**
+            /*
              * @todo 1.9.0 - make optional using database property -
              * this means the identity column can be set to null to force
              * creation of a new identity value
@@ -1626,7 +1626,7 @@ public class StatementDML extends StatementDMQL {
                 Row      refRow  = refiterator.getCurrentRow();
                 Object[] refData = null;
 
-                /** @todo use MATCH */
+                /* @todo use MATCH */
                 if (c.core.refIndex.compareRowNonUnique(
                         session, refRow.getData(), row.getData(),
                         c.core.mainCols) != 0) {

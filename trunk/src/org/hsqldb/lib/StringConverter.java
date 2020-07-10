@@ -119,7 +119,7 @@ public class StringConverter {
      * @param s hexadecimal string
      *
      * @return byte array for the hex string
-     * @throws IOException
+     * @throws IOException on error
      */
     public static byte[] hexStringToByteArray(String s) throws IOException {
 
@@ -170,7 +170,7 @@ public class StringConverter {
      * Compacts a bit string into a BitMap
      * @param s bit string
      * @return BitMap for the bit string
-     * @throws IOException
+     * @throws IOException on error
      */
     public static BitMap sqlBitStringToBitMap(String s) throws IOException {
 
@@ -633,7 +633,7 @@ public class StringConverter {
      *
      * @param is InputStream to read from
      * @param encoding character encoding of the string
-     * @throws IOException
+     * @throws IOException on error
      * @return a Java string
      */
     public static String inputStreamToString(InputStream is,

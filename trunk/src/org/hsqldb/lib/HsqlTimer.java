@@ -546,7 +546,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
                             // task queue
                             period = 0;
 
-                            /** @todo : is -1, -2 ... fairer? */
+                            /* @todo : is -1, -2 ... fairer? */
                         } else if (late > 0) {
 
                             // compensate for scheduling overruns

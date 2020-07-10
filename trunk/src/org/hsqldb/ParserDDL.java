@@ -3141,7 +3141,7 @@ public class ParserDDL extends ParserRoutine {
                 isGrantOption = true;
             }
 
-            /** @todo - implement */
+            /* @todo - implement */
             if (token.tokenType == Tokens.GRANTED) {
                 read();
                 readThis(Tokens.BY);

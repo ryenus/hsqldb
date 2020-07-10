@@ -199,7 +199,7 @@ public class TestDatetimeSimple extends TestCase {
         rs.next();
         System.out.println("Match? " + (rs.getInt("c") > 0));
 
-        /** ********  TIMESTAMP COL BELOW ********* */
+        /* ********  TIMESTAMP COL BELOW ********* */
         st.executeUpdate("DROP TABLE t2 IF EXISTS");
         st.executeUpdate("CREATE TABLE t2(i int, ts timestamp)");
         /* These all failed with the original version
@@ -211,7 +211,7 @@ public class TestDatetimeSimple extends TestCase {
             "INSERT INTO t2 VALUES(1, timestamp '2008-11-27 12:30:00')");
         st.executeUpdate("INSERT INTO t2 VALUES(1, '2008-11-27 12:30:00')");
 
-        /** FOLLOWING ALL WORK AS EXPECTED: */
+        /* FOLLOWING ALL WORK AS EXPECTED: */
         ps = conn.prepareStatement("INSERT INTO t2 VALUES(2, ?)");
 
         ps.setTimestamp(1, java.sql.Timestamp.valueOf("2008-10-27 0:00:00"));

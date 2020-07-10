@@ -47,10 +47,9 @@ import org.hsqldb.result.ResultConstants;
  * @author fredt@usrs
  * @version 2.4.0
  * @since 1.9.0
- * @revised JDK 1.7, HSQLDB 2.0.1
  */
 
-/**
+/*
  * JDBC specification.
  *
  * Closing the Statement closes the ResultSet instance returned. But:
@@ -66,7 +65,7 @@ import org.hsqldb.result.ResultConstants;
  * and the various ResultSets that it may have returned for different queries.
  */
 
-/**
+/*
  * review the following issues:
  *
  * Does not always close ResultSet object directly when closed. Although RS
