@@ -32,18 +32,19 @@
 package org.hsqldb.lib;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Comparator;
 
-// fredt@users - 1.8.0, 1.9.0 - enhancements
+// fredt@users - 1.8.0 - 2.5.x - enhancements
 
 /**
  * Intended as an asynchronous alternative to Vector.
  *
  * @author dnordahl@users
- * @version 2.3.3
+ * @version 2.5.2
  * @since 1.7.0
  */
-public class HsqlArrayList extends BaseList implements HsqlList {
+public class HsqlArrayList<E> extends BaseList<E> implements HsqlList<E> {
 
 //fredt@users
 /*
@@ -71,26 +72,28 @@ public class HsqlArrayList extends BaseList implements HsqlList {
 */
     private static final int   DEFAULT_INITIAL_CAPACITY = 8;
     private static final float DEFAULT_RESIZE_FACTOR    = 2.0f;
-    Object[]                   elementData;
-    Object[]                   reserveElementData;
+    E[]                        elementData;
+    E[]                        reserveElementData;
     private boolean            minimizeOnClear;
 
-    public HsqlArrayList(Object[] data, int count) {
+    public HsqlArrayList(E[] data, int count) {
         elementData  = data;
         elementCount = count;
     }
 
     /** Creates a new instance of HsqlArrayList */
+    @SuppressWarnings( "unchecked" )
     public HsqlArrayList() {
 
 //        reporter.initCounter++;
-        elementData = new Object[DEFAULT_INITIAL_CAPACITY];
+        elementData = (E[]) new Object[DEFAULT_INITIAL_CAPACITY];
     }
 
     /**
      * Creates a new instance of HsqlArrayList that minimizes the size when
      * empty
      */
+    @SuppressWarnings( "unchecked" )
     public HsqlArrayList(int initialCapacity, boolean minimize) {
 
 //        reporter.initCounter++;
@@ -98,11 +101,12 @@ public class HsqlArrayList extends BaseList implements HsqlList {
             initialCapacity = DEFAULT_INITIAL_CAPACITY;
         }
 
-        elementData     = new Object[initialCapacity];
+        elementData     = (E[]) new Object[initialCapacity];
         minimizeOnClear = minimize;
     }
 
     /** Creates a new instance with the given initial capacity */
+    @SuppressWarnings( "unchecked" )
     public HsqlArrayList(int initialCapacity) {
 
 //        reporter.initCounter++;
@@ -115,11 +119,11 @@ public class HsqlArrayList extends BaseList implements HsqlList {
             initialCapacity = DEFAULT_INITIAL_CAPACITY;
         }
 
-        elementData = new Object[initialCapacity];
+        elementData = (E[]) new Object[initialCapacity];
     }
 
     /** Inserts an element at the given index */
-    public void add(int index, Object element) {
+    public void add(int index, E element) {
 
 //        reporter.updateCounter++;
         if (index > elementCount) {
@@ -137,7 +141,8 @@ public class HsqlArrayList extends BaseList implements HsqlList {
         }
 
         if (index < elementCount) {
-            System.arraycopy(elementData, index, elementData, index + 1, elementCount - index);
+            System.arraycopy(elementData, index, elementData, index + 1,
+                             elementCount - index);
         }
 
         elementData[index] = element;
@@ -146,7 +151,8 @@ public class HsqlArrayList extends BaseList implements HsqlList {
     }
 
     /** Appends an element to the end of the list */
-    public boolean add(Object element) {
+    @Override
+    public boolean add(E element) {
 
 //        reporter.updateCounter++;
         if (elementCount >= elementData.length) {
@@ -161,7 +167,8 @@ public class HsqlArrayList extends BaseList implements HsqlList {
     }
 
     /** Gets the element at given position */
-    public Object get(int index) {
+    @Override
+    public E get(int index) {
 
         if (index >= elementCount) {
             throw new IndexOutOfBoundsException("Index out of bounds: "
@@ -178,6 +185,7 @@ public class HsqlArrayList extends BaseList implements HsqlList {
     }
 
     /** returns the index of given object or -1 if not found */
+    @Override
     public int indexOf(Object o) {
 
         if (o == null) {
@@ -200,7 +208,9 @@ public class HsqlArrayList extends BaseList implements HsqlList {
     }
 
     /** Removes and returns the element at given position */
-    public Object remove(int index) {
+    @Override
+    @SuppressWarnings( "unchecked" )
+    public E remove(int index) {
 
         if (index >= elementCount) {
             throw new IndexOutOfBoundsException("Index out of bounds: "
@@ -213,10 +223,11 @@ public class HsqlArrayList extends BaseList implements HsqlList {
                                                 + index + " < 0");
         }
 
-        Object removedObj = elementData[index];
+        E removedObj = elementData[index];
 
         if (index < elementCount - 1) {
-            System.arraycopy(elementData, index + 1, elementData, index, elementCount - 1 - index);
+            System.arraycopy(elementData, index + 1, elementData, index,
+                             elementCount - 1 - index);
         }
 
         elementCount--;
@@ -231,7 +242,8 @@ public class HsqlArrayList extends BaseList implements HsqlList {
     }
 
     /** Replaces the element at given position */
-    public Object set(int index, Object element) {
+    @SuppressWarnings( "unchecked" )
+    public E set(int index, E element) {
 
         if (index >= elementCount) {
             throw new IndexOutOfBoundsException("Index out of bounds: "
@@ -248,10 +260,11 @@ public class HsqlArrayList extends BaseList implements HsqlList {
 
         elementData[index] = element;
 
-        return replacedObj;
+        return (E) replacedObj;
     }
 
     /** Returns the number of elements in the array list */
+    @Override
     public final int size() {
         return elementCount;
     }
@@ -272,7 +285,8 @@ public class HsqlArrayList extends BaseList implements HsqlList {
             return;
         }
 
-        Object[] newArray = (Object[]) Array.newInstance(
+        @SuppressWarnings( "unchecked" )
+        E[] newArray = (E[]) Array.newInstance(
             elementData.getClass().getComponentType(), baseSize);
         int count = elementData.length > newArray.length ? newArray.length
                                                          : elementData.length;
@@ -280,8 +294,7 @@ public class HsqlArrayList extends BaseList implements HsqlList {
         System.arraycopy(elementData, 0, newArray, 0, count);
 
         if (minimizeOnClear && reserveElementData == null) {
-            ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_OBJECT, elementData, 0,
-                                 elementData.length);
+            Arrays.fill(elementData, 0);
 
             reserveElementData = elementData;
         }
@@ -342,10 +355,9 @@ public class HsqlArrayList extends BaseList implements HsqlList {
         elementCount = newSize;
     }
 
-// fredt@users
-    public Object[] toArray() {
+    public E[] toArray() {
 
-        Object[] newArray = (Object[]) Array.newInstance(
+        E[] newArray = (E[]) Array.newInstance(
             elementData.getClass().getComponentType(), elementCount);
 
         System.arraycopy(elementData, 0, newArray, 0, elementCount);
@@ -353,9 +365,9 @@ public class HsqlArrayList extends BaseList implements HsqlList {
         return newArray;
     }
 
-    public Object[] toArray(int start, int limit) {
+    public E[] toArray(int start, int limit) {
 
-        Object[] newArray = (Object[]) Array.newInstance(
+        E[] newArray = (E[]) Array.newInstance(
             elementData.getClass().getComponentType(), limit - start);
 
         System.arraycopy(elementData, start, newArray, 0, limit - start);
@@ -363,7 +375,7 @@ public class HsqlArrayList extends BaseList implements HsqlList {
         return newArray;
     }
 
-    public void toArraySlice(Object[] array, int start, int limit) {
+    public void toArraySlice(E[] array, int start, int limit) {
 
         System.arraycopy(elementData, start, array, 0, limit - start);
     }
@@ -375,11 +387,11 @@ public class HsqlArrayList extends BaseList implements HsqlList {
      * Differs from the implementation in java.util.ArrayList in the second
      * aspect.
      */
-    public Object toArray(Object a) {
+    public E[] toArray(E[] a) {
 
         if (Array.getLength(a) < elementCount) {
-            a = Array.newInstance(a.getClass().getComponentType(),
-                                  elementCount);
+            a = (E[]) Array.newInstance(a.getClass().getComponentType(),
+                                        elementCount);
         }
 
         System.arraycopy(elementData, 0, a, 0, elementCount);
@@ -387,7 +399,7 @@ public class HsqlArrayList extends BaseList implements HsqlList {
         return a;
     }
 
-    public void sort(Comparator c) {
+    public void sort(Comparator<? super E> c) {
 
         if (elementCount < 2) {
             return;
@@ -396,7 +408,7 @@ public class HsqlArrayList extends BaseList implements HsqlList {
         ArraySort.sort(elementData, elementCount, c);
     }
 
-    public Object[] getArray() {
+    public E[] getArray() {
         return elementData;
     }
 }

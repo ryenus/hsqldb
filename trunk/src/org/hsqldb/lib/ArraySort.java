@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import java.util.Comparator;
  * @version 2.4.1
  * @since 1.9.0
  */
-public class ArraySort {
+public final class ArraySort {
 
     /**
      * Returns the index of the lowest element == the given search target,

@@ -176,21 +176,17 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
     public CachedObject get(RowInputInterface in) {
 
-        try {
-            Row row;
+        Row row;
 
-            if (largeData) {
-                row = new RowAVLDiskLarge(this, in);
-            } else {
-                row = new RowAVLDisk(this, in);
-            }
-
-            set(row);
-
-            return row;
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
+        if (largeData) {
+            row = new RowAVLDiskLarge(this, in);
+        } else {
+            row = new RowAVLDisk(this, in);
         }
+
+        set(row);
+
+        return row;
     }
 
     public CachedObject getNewCachedObject(Session session, Object object,

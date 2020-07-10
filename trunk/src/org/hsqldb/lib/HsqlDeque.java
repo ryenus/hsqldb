@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb.lib;
 
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 // fredt@users 20020130 - patch 1.7.0 by fredt - new class
@@ -234,9 +235,7 @@ public class HsqlDeque extends BaseList implements HsqlList {
 
         firstindex = endindex = elementCount = 0;
 
-        for (int i = 0; i < list.length; i++) {
-            list[i] = null;
-        }
+        Arrays.fill(list, null);
     }
 
     public int indexOf(Object value) {

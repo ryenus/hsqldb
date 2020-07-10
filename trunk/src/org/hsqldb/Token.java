@@ -104,6 +104,13 @@ public class Token {
 
         Token token = new Token();
 
+        copyTo(token);
+
+        return token;
+    }
+
+    private void copyTo(Token token) {
+
         token.tokenString              = tokenString;
         token.tokenType                = tokenType;
         token.dataType                 = dataType;
@@ -126,8 +133,6 @@ public class Token {
         token.isCoreReservedIdentifier = isCoreReservedIdentifier;
         token.isHostParameter          = isHostParameter;
         token.isMalformed              = isMalformed;
-
-        return token;
     }
 
     public String getFullString() {
@@ -273,17 +278,6 @@ public class Token {
         return sb.toString();
     }
 
-/*
-    for (int i = 0; i < tokens.length; i++) {
-        if (tokens[i].schemaObjectIdentifier instanceof Expression) {
-            ColumnSchema column =
-                ((Expression) tokens[i].schemaObjectIdentifier)
-                    .getColumn();
-
-            tokens[i].schemaObjectIdentifier = column.getName();
-        }
-    }
-*/
     static String getSQL(Token[] tokens) {
 
         boolean       wasDelimiter = true;

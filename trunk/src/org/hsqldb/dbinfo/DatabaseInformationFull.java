@@ -1597,7 +1597,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                             if (tableIdList[j] == spaceId) {
                                 allocated += fileBlockSize;
                                 used += fileBlockSize
-                                        - freeSpaceList[j] * cacheScale;
+                                        - (long) freeSpaceList[j] * cacheScale;
                             }
                         }
                     }
@@ -1631,7 +1631,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             for (int j = 0; j < tableIdList.length; j++) {
                 if (tableIdList[j] == DataSpaceManager.tableIdDefault) {
                     allocated += fileBlockSize;
-                    used      += fileBlockSize - freeSpaceList[j] * cacheScale;
+                    used      += fileBlockSize - (long) freeSpaceList[j] * cacheScale;
                 } else if (tableIdList[j] == DataSpaceManager.tableIdEmpty
                            && bitMapList[j] != 0) {
                     empty += fileBlockSize;

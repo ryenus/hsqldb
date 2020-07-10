@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb.lib;
 
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 /**
@@ -199,9 +200,7 @@ public class LongDeque {
 
         firstindex = endindex = elementCount = 0;
 
-        for (int i = 0; i < list.length; i++) {
-            list[i] = 0;
-        }
+        Arrays.fill(list, 0);
     }
 
     public void zeroSize() {

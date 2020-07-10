@@ -1247,6 +1247,8 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         for (int i = 0; i < dbID.length; i++) {
             if (dbAlias[i] != null) {
                 shutdown = false;
+
+                break;
             }
         }
 

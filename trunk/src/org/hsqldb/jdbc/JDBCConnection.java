@@ -848,7 +848,7 @@ public class JDBCConnection implements Connection {
         if (!changed) {
             return sql;
         }
-        sb.append(sql.substring(tail, sql.length()));
+        sb.append(sql.substring(tail));
 
         return sb.toString();
     }

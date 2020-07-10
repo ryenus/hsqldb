@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -475,6 +475,11 @@ class TestBench {
             if (createExtension.length() > 0) {
                 Query += createExtension;
             }
+
+            Stmt.execute(Query);
+            Stmt.clearWarnings();
+
+            Query = "SET TABLE tellers NEW SPACE";
 
             Stmt.execute(Query);
             Stmt.clearWarnings();
@@ -1289,7 +1294,7 @@ class TestBench {
         }    /* end of DoOne         */
     }    /* end of class ClientThread */
 
-    class MemoryWatcherThread extends Thread {
+    static class MemoryWatcherThread extends Thread {
 
         long    min          = 0;
         long    max          = 0;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.lib.FrameworkLogger;
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @since 2.0.1
  */
-public class AuthUtils {
+public final class AuthUtils {
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(AuthUtils.class);
 

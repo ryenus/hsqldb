@@ -1173,8 +1173,8 @@ public final class DateTimeType extends DTIType {
                 ZoneOffset zone = ZoneOffset.ofTotalSeconds(ts.zone);
                 long millis =
                     HsqlDateTime.getNormalisedTime((ts.seconds + ts.zone)
-                                                   * 1000);
-                long      nanos = millis * 1000000L;
+                                                   * 1_000L);
+                long      nanos = millis * 1_000_000L;
                 LocalTime ldt   = LocalTime.ofNanoOfDay(nanos + ts.nanos);
                 Object    value = OffsetTime.of(ldt, zone);
 

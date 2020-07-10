@@ -64,7 +64,7 @@ import org.hsqldb.types.Type;
  * Holds the data structures and methods for creation of a named database table.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {
@@ -1684,7 +1684,7 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0; i < columnCount; i++) {
             ColumnSchema column = getColumn(i);
 
-            colNotNull[i]       = column.isPrimaryKey() || !column.isNullable();
+            colNotNull[i]      = column.isPrimaryKey() || !column.isNullable();
             colDefaults[i]     = column.getDefaultExpression();
             colGenerated[i]    = column.isGenerated();
             colUpdated[i]      = column.isAutoUpdate();
@@ -2771,45 +2771,14 @@ public class Table extends TableBase implements SchemaObject {
         return roots;
     }
 
-    /**
-     *  Sets the index roots of a cached table to specified file
-     *  pointers. If a
-     *  file pointer is -1 then the particular index root is null. A null index
-     *  root signifies an empty table. Accordingly, all index roots should be
-     *  null or all should be a valid file pointer/reference.
-     */
-    public void setIndexRoots(long[] roots, long[] uniqueSize,
-                              long cardinality) {
-
-        if (!isCached) {
-            throw Error.error(ErrorCode.X_42501, tableName.name);
-        }
-
-        PersistentStore store =
-            database.persistentStoreCollection.getStore(this);
-
-        for (int index = 0; index < indexList.length; index++) {
-            store.setAccessor(indexList[index], roots[index]);
-        }
-
-        for (int index = 0; index < indexList.length; index++) {
-            store.setElementCount(indexList[index], cardinality,
-                                  uniqueSize[index]);
-        }
-    }
-
     public void setIndexRoots(long[] roots) {
 
-        if (!isCached) {
-            throw Error.error(ErrorCode.X_42501, tableName.name);
-        }
-
+        int indexCount = getIndexCount();
         PersistentStore store =
             database.persistentStoreCollection.getStore(this);
+        long cardinality = store.elementCount();
 
-        for (int index = 0; index < indexList.length; index++) {
-            store.setAccessor(indexList[index], roots[index]);
-        }
+        store.setAccessors(0, roots, new long[indexCount], cardinality);
     }
 
     /**
@@ -2848,8 +2817,12 @@ public class Table extends TableBase implements SchemaObject {
             // version 1.x database
         }
 
-        setIndexRoots(roots, uniqueSize, cardinality);
+        PersistentStore store =
+            database.persistentStoreCollection.getStore(this);
+
+        store.setAccessors(0, roots, uniqueSize, cardinality);
     }
+
 
     public void generateAndCheckData(Session session, Object[] data) {
 

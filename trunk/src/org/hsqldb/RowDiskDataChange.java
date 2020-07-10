@@ -83,14 +83,14 @@ public class RowDiskDataChange extends RowAVLDisk {
      * @param session the session
      * @param store store
      * @param in data source
-     * @throws IOException
      */
     public RowDiskDataChange(Session session, PersistentStore store,
-                             RowInputInterface in) throws IOException {
+                             RowInputInterface in) {
 
         super(store, in);
 
-        targetTable = store.getTable().database.schemaManager.findTable(session,
+        targetTable =
+            store.getTable().database.schemaManager.findTable(session,
                 (String) rowData[COL_POS_TABLE_NAME],
                 (String) rowData[COL_POS_SCHEMA_NAME], null);
 

@@ -120,11 +120,11 @@ public class ParserDML extends ParserDQL {
                 read();
                 readThis(Tokens.VALUES);
 
-                insertExpressions = new Expression(OpTypes.ROW,
-                                                   new Expression[]{});
+                Expression row = new Expression(OpTypes.ROW,
+                                                Expression.emptyArray);
+
                 insertExpressions = new Expression(OpTypes.VALUELIST,
-                                                   new Expression[]{
-                                                       insertExpressions });
+                                                   new Expression[]{ row });
                 insertColumnCheckList = table.getNewColumnCheckList();
 
                 StatementDMQL cs = new StatementInsert(session, table,

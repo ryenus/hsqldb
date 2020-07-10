@@ -505,8 +505,6 @@ public class TableBase implements Cloneable {
 
         if (store != null) {
             store.resetAccessorKeys(session, indexes);
-
-            return;
         }
     }
 

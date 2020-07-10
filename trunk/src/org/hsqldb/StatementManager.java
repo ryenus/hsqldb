@@ -343,8 +343,7 @@ public final class StatementManager {
      * @param session the session
      * @return CompiledStatement
      */
-    synchronized Statement compile(Session session,
-                                   Result cmd) throws Throwable {
+    synchronized Statement compile(Session session, Result cmd) {
 
         int       props = cmd.getExecuteProperties();
         Statement cs    = null;

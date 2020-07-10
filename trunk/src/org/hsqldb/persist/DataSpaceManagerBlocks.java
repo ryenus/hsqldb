@@ -152,7 +152,6 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                 lastBlocks = new DoubleIntArrayCachedObject(lastBlockListSize);
 
                 initialiseTableSpace(directorySpaceManager);
-
                 lastBlockStore.add(lastBlocks, true);
 
                 blockPos = getFileBlockPosFromPosition(lastBlocks.getPos());
@@ -230,7 +229,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
      */
     private void ensureDirectorySpaceAvailable(int blockCount) {
 
-        long dirObjectSize = bitmapStorageSize * blockCount;
+        long dirObjectSize = (long) bitmapStorageSize * blockCount;
 
         dirObjectSize += DirectoryBlockCachedObject.fileSizeFactor
                          * dirBlockSize;
@@ -240,8 +239,8 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         if (!hasRoom) {
             int  index              = getBlockIndexLimit();
             long filePosition       = (long) index * fileBlockSize;
-            long  dirSpaceBlockCount = dirObjectSize / fileBlockSize + 1;
-            long delta = dirSpaceBlockCount * fileBlockSize;
+            long dirSpaceBlockCount = dirObjectSize / fileBlockSize + 1;
+            long delta              = dirSpaceBlockCount * fileBlockSize;
 
             cache.enlargeFileSpace(filePosition + delta);
             directorySpaceManager.addFileBlock(filePosition,
@@ -705,7 +704,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                         continue;
                     }
 
-                    fragment += ba.getFreeSpaceValue() * dataFileScale;
+                    fragment += (long) ba.getFreeSpaceValue() * dataFileScale;
 
                     if (ba.getTableId() == tableIdEmpty) {
                         fragment += fileBlockSize;
@@ -922,7 +921,7 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
         }
 
         if (lastBlockIndex >= 0) {
-            long position = lastBlockIndex * fileBlockItemCount;
+            long position = (long) lastBlockIndex * fileBlockItemCount;
             int  id       = findTableSpace(position);
 
             if (id != spaceId) {
@@ -1004,10 +1003,10 @@ public class DataSpaceManagerBlocks implements DataSpaceManager {
                                            freeItems);
 
             if (unsetCount == freeItems) {
-                tableSpace.initialiseFileBlock(
-                    null,
-                    blockPos + (fileBlockSize - freeItems * dataFileScale),
-                    blockPos + fileBlockSize);
+                tableSpace.initialiseFileBlock(null, blockPos + fileBlockSize
+                                               - (long) freeItems
+                                                 * dataFileScale, blockPos
+                                                     + fileBlockSize);
             } else {
                 cache.logSevereEvent("space manager error - recovered", null);
             }

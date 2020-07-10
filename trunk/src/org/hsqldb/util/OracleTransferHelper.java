@@ -96,8 +96,7 @@ class OracleTransferHelper extends TransferHelper {
                                int columnIndex) throws SQLException {
 
         if (columnType.equals("SERIAL")) {
-            String SeqName = new String("_" + columnDesc.getString(4)
-                                        + "_seq");
+            String SeqName = "_" + columnDesc.getString(4) + "_seq";
             int spaceleft = 31 - SeqName.length();
 
             if (t.Stmts.sDestTable.length() > spaceleft) {
@@ -147,7 +146,7 @@ class OracleTransferHelper extends TransferHelper {
                               String columnType, ResultSet columnDesc,
                               int columnIndex) throws SQLException {
 
-        String SeqName   = new String("_" + columnDesc.getString(4) + "_seq");
+        String SeqName   = "_" + columnDesc.getString(4) + "_seq";
         int    spaceleft = 31 - SeqName.length();
 
         if (aTableName.length() > spaceleft) {
@@ -158,7 +157,7 @@ class OracleTransferHelper extends TransferHelper {
 
         String CompareString = "nextval(\'\"" + SeqName + "\"\'";
 
-        if (columnType.indexOf(CompareString) >= 0) {
+        if (columnType.contains(CompareString)) {
 
             // We just found a increment
             columnType = "SERIAL";

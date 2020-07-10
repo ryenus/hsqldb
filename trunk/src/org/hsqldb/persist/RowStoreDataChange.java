@@ -76,8 +76,6 @@ public class RowStoreDataChange extends RowStoreAVLHybrid {
             return new RowDiskDataChange(session, this, in);
         } catch (HsqlException e) {
             return null;
-        } catch (IOException e1) {
-            return null;
         }
     }
 }

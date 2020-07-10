@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,20 +46,20 @@ class HelperFactory {
 
         TransferHelper f = null;
 
-        if (productLowerName.indexOf("hsql database") != -1) {
+        if (productLowerName.contains("hsql database")) {
             f = new HsqldbTransferHelper();
-        } else if (productLowerName.indexOf("postgresql") != -1) {
+        } else if (productLowerName.contains("postgresql")) {
             f = new PostgresTransferHelper();
-        } else if (productLowerName.indexOf("mckoi") != -1) {
+        } else if (productLowerName.contains("mckoi")) {
             f = new McKoiTransferHelper();
-        } else if (productLowerName.indexOf("informix") != -1) {
+        } else if (productLowerName.contains("informix")) {
             f = new InformixTransferHelper();
-        } else if (productLowerName.indexOf("oracle") != -1) {
+        } else if (productLowerName.contains("oracle")) {
             System.out.println("using the Oracle helper");
 
             f = new OracleTransferHelper();
         } else if (productLowerName.equals("access")
-                   || (productLowerName.indexOf("microsoft") != -1)) {
+                   || (productLowerName.contains("microsoft"))) {
             f = new SqlServerTransferHelper();
         } else {
             f = new TransferHelper();

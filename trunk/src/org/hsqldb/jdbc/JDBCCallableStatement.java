@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -712,7 +713,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         BigDecimal bd = getBigDecimal(parameterIndex);
 
         if (bd != null) {
-            bd = bd.setScale(scale, BigDecimal.ROUND_DOWN);
+            bd = bd.setScale(scale, RoundingMode.DOWN);
         }
 
         return bd;
@@ -4553,7 +4554,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             case "java.time.LocalTime": {
                 source = getColumnInType(parameterIndex, hsqlType);
                 TimeData v = (TimeData) source;
-                o = LocalTime.ofNanoOfDay(v.getSeconds() * 1000_000_000L + v.getNanos());
+                o = LocalTime.ofNanoOfDay(v.getSeconds() * 1_000_000_000L + v.getNanos());
                 break;
             }
             case "java.time.LocalDateTime": {
@@ -5061,9 +5062,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         if (resultIn.getType() == ResultConstants.CALL_RESPONSE) {
             Object[] data = resultIn.getParameterData();
 
-            for (int i = 0; i < parameterValues.length; i++) {
-                parameterValues[i] = data[i];
-            }
+            System.arraycopy(data, 0, parameterValues, 0, parameterValues.length);
         }
     }
 
@@ -5220,7 +5219,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         }
 
         ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
-        LocalTime lt = LocalTime.ofNanoOfDay((v.getSeconds() + v.getZone()) * 1000_000_000L + v.getNanos());
+        LocalTime lt = LocalTime.ofNanoOfDay((v.getSeconds() + v.getZone()) * 1_000_000_000L + v.getNanos());
         return OffsetTime.of(lt, z);
     }
 

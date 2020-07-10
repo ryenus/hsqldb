@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * any global transaction.
      * See section 1.2.4 of the JDBC 3.0 spec.
      * 
-     * @param autoCommit
+     * @param autoCommit mode
      * @throws SQLException on error
      */
     public void setAutoCommit(boolean autoCommit) throws SQLException {

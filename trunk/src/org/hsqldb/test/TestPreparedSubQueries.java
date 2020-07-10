@@ -47,7 +47,7 @@ public class TestPreparedSubQueries extends TestCase {
 
     private Connection con = null;
 
-    private class sqlStmt {
+    private static class sqlStmt {
 
         boolean prepare;
         boolean update;

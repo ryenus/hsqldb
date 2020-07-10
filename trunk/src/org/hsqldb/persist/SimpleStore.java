@@ -145,6 +145,9 @@ public abstract class SimpleStore implements PersistentStore {
 
     public void setElementCount(Index key, long size, long uniqueSize) {}
 
+    public void setAccessors(long base, long[] accessors, long[] uniqueSize,
+                             long cardinality) {}
+
     public void setAccessor(Index key, CachedObject accessor) {}
 
     public void setAccessor(Index key, long accessor) {}

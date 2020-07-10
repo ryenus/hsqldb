@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2019, The HSQL Development Group
+ * Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,7 +95,7 @@ import java.util.Random;
  * @version 1.8.0
  * @since 1.7.0
  */
-class DatabaseManagerCommon {
+final class DatabaseManagerCommon {
 
     private static Random rRandom    = new Random(100);
     static String[]       selectHelp = {
@@ -294,7 +294,7 @@ class DatabaseManagerCommon {
      * Redid this file to remove sizing requirements and to make it faster
      * Speeded it up 10 fold.
      *
-     * @param file
+     * @param file file path
      */
     static String readFile(String file) {
 

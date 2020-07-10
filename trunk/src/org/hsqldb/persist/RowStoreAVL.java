@@ -63,7 +63,7 @@ import org.hsqldb.types.Type;
  * Base implementation of PersistentStore for different table types.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public abstract class RowStoreAVL implements PersistentStore {
@@ -356,6 +356,24 @@ public abstract class RowStoreAVL implements PersistentStore {
         }
 
         return index.firstRow(this);
+    }
+
+    /**
+     *  Sets the index roots of a cached table to specified file pointers.
+     *  If a file pointer is -1 then the particular index root is null. A null
+     *  index root signifies an empty table. Accordingly, all index roots should
+     *  be null or all should be a valid file pointer/reference.
+     */
+    public void setAccessors(long base, long[] accessors, long[] uniqueSize,
+                             long cardinality) {
+
+        for (int index = 0; index < indexList.length; index++) {
+            setAccessor(indexList[index], accessors[index]);
+        }
+
+        for (int index = 0; index < indexList.length; index++) {
+            setElementCount(indexList[index], cardinality, uniqueSize[index]);
+        }
     }
 
     public void setAccessor(Index key, CachedObject accessor) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,18 +37,18 @@ import java.util.NoSuchElementException;
  * Abstract base for Lists
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.5.2
  * @since 1.7.0
  */
-abstract class BaseList {
+abstract class BaseList<E> {
 
     protected int elementCount;
 
-    abstract Object get(int index);
+    abstract E get(int index);
 
-    abstract Object remove(int index);
+    abstract E remove(int index);
 
-    abstract boolean add(Object o);
+    abstract boolean add(E o);
 
     abstract int size();
 
@@ -87,10 +87,10 @@ abstract class BaseList {
         return -1;
     }
 
-    public boolean addAll(Collection other) {
+    public boolean addAll(Collection</* ? extends */E> other) {
 
         boolean  result = false;
-        Iterator it     = other.iterator();
+        Iterator<E> it  = other.iterator();
 
         while (it.hasNext()) {
             result = true;
@@ -101,14 +101,13 @@ abstract class BaseList {
         return result;
     }
 
-    public boolean addAll(Object[] array) {
+    public boolean addAll(E[] array) {
 
-        boolean result = false;
+        boolean  result = false;
+        for ( E object : array ) {
+          result = true;
 
-        for (int i = 0; i < array.length; i++) {
-            result = true;
-
-            add(array[i]);
+          add(object);
         }
 
         return result;
@@ -119,6 +118,7 @@ abstract class BaseList {
     }
 
     /** Returns a string representation */
+    @Override
     public String toString() {
 
         StringBuilder sb = new StringBuilder(32 + elementCount * 3);
@@ -128,7 +128,7 @@ abstract class BaseList {
         sb.append(' ');
         sb.append('{');
 
-        Iterator it = iterator();
+        Iterator<?> it = iterator();
 
         while (it.hasNext()) {
             sb.append(it.next());
@@ -144,11 +144,11 @@ abstract class BaseList {
         return sb.toString();
     }
 
-    public Iterator iterator() {
+    public Iterator<E> iterator() {
         return new BaseListIterator();
     }
 
-    private class BaseListIterator implements Iterator {
+    private class BaseListIterator implements Iterator<E> {
 
         int     counter = 0;
         boolean removed;
@@ -157,12 +157,12 @@ abstract class BaseList {
             return counter < elementCount;
         }
 
-        public Object next() {
+        public E next() {
 
             if (counter < elementCount) {
                 removed = false;
 
-                Object returnValue = get(counter);
+                E returnValue = get(counter);
 
                 counter++;
 

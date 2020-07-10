@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.result.Result;
  * @version 2.2.7
  * @since 1.9.0
  */
-public class Error {
+public final class Error {
 
     //
     public static boolean TRACE          = false;

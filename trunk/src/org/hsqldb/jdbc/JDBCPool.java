@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Wrapper;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import javax.naming.NamingException;
@@ -547,10 +548,7 @@ public class JDBCPool implements DataSource,
             }
         }
 
-        for (int i = 0; i < connections.length; i++) {
-            connections[i] = null;
-        }
-
+        Arrays.fill(connections, null);
     }
     // ------------------------ internal ------------------------
     interface RefState {

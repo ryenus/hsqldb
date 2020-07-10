@@ -787,7 +787,7 @@ public class LockFile {
      * @throws WrongMagicException if it is determined that the file's
      *      content does not start with {@link #MAGIC}.
      */
-    private final void checkHeartbeat(boolean withCreateNewFile)
+    private void checkHeartbeat(boolean withCreateNewFile)
     throws LockFile.FileSecurityException,
            LockFile.LockHeldExternallyException,
            LockFile.UnexpectedEndOfFileException,
@@ -881,7 +881,7 @@ public class LockFile {
      *
      * @throws UnexpectedFileIOException if an <tt>IOException</tt> is thrown
      */
-    private final void closeRAF() throws LockFile.UnexpectedFileIOException {
+    private void closeRAF() throws LockFile.UnexpectedFileIOException {
 
         if (raf != null) {
             try {
@@ -1021,7 +1021,7 @@ public class LockFile {
      *         method does not permit all necessary parent directories to be
      *         created
      */
-    private final void setPath(String path)
+    private void setPath(String path)
     throws LockFile.FileCanonicalizationException,
            LockFile.FileSecurityException {
 
@@ -1060,7 +1060,7 @@ public class LockFile {
      *         java.lang.SecurityManager#checkWrite(java.lang.String)}</tt>
      *         method denies write access to the file
      */
-    private final void openRAF()
+    private void openRAF()
     throws LockFile.UnexpectedFileNotFoundException,
            LockFile.FileSecurityException, LockFile.UnexpectedFileIOException {
 
@@ -1090,7 +1090,7 @@ public class LockFile {
      * @throws WrongMagicException if a value other than <tt>MAGIC</tt> is read
      *         from the <tt>DataInputStream</tt>
      */
-    private final void checkMagic(final DataInputStream dis)
+    private void checkMagic(final DataInputStream dis)
     throws LockFile.FileSecurityException,
            LockFile.UnexpectedEndOfFileException,
            LockFile.UnexpectedFileIOException, LockFile.WrongMagicException {
@@ -1144,7 +1144,7 @@ public class LockFile {
      * @throws WrongMagicException if the lock file does not start with the
      *         the {@link #MAGIC} value
      */
-    private final long readHeartbeat()
+    private long readHeartbeat()
     throws LockFile.FileSecurityException,
            LockFile.UnexpectedFileNotFoundException,
            LockFile.UnexpectedEndOfFileException,
@@ -1188,7 +1188,7 @@ public class LockFile {
     /**
      * Schedules the lock heartbeat task.
      */
-    private final void startHeartbeat() {
+    private void startHeartbeat() {
 
         if (timerTask == null || HsqlTimer.isCancelled(timerTask)) {
             Runnable runner = new HeartbeatRunner();
@@ -1201,7 +1201,7 @@ public class LockFile {
     /**
      * Cancels the lock heartbeat task.
      */
-    private final void stopHeartbeat() {
+    private void stopHeartbeat() {
 
         if (timerTask != null && !HsqlTimer.isCancelled(timerTask)) {
             HsqlTimer.cancel(timerTask);
@@ -1232,7 +1232,7 @@ public class LockFile {
      * @throws UnexpectedFileIOException if any other I/O error occurs while
      *      attempting to write the <tt>MAGIC</tt> value to the target file.
      */
-    private final void writeMagic()
+    private void writeMagic()
     throws LockFile.FileSecurityException,
            LockFile.UnexpectedEndOfFileException,
            LockFile.UnexpectedFileIOException {
@@ -1270,7 +1270,7 @@ public class LockFile {
      * @throws UnexpectedFileIOException if the current heartbeat timestamp
      *      value cannot be written due to an underlying I/O error
      */
-    private final void writeHeartbeat()
+    private void writeHeartbeat()
     throws LockFile.FileSecurityException,
            LockFile.UnexpectedEndOfFileException,
            LockFile.UnexpectedFileIOException {
@@ -1581,7 +1581,7 @@ public class LockFile {
      * @throws WrongMagicException if the target file did not begin with the
      *      expected <tt>MAGIC</tt> value
      */
-    private final void pollHeartbeat()
+    private void pollHeartbeat()
     throws LockFile.FileSecurityException,
            LockFile.LockHeldExternallyException,
            LockFile.UnexpectedFileNotFoundException,
@@ -1614,7 +1614,7 @@ public class LockFile {
             }
         }
 
-        /**
+        /*
          * @todo:
          * Do not want to specify just BaseException in the throws clause.
          * Is this really the cleanest way?

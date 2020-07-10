@@ -32,26 +32,27 @@
 package org.hsqldb.lib;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 /**
  * Collection of static methods for operations on arrays
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.2
  * @since 1.7.2
  */
-public class ArrayUtil {
+public final class ArrayUtil {
 
-    public static final int        CLASS_CODE_BYTE    = 'B';
-    public static final int        CLASS_CODE_CHAR    = 'C';
-    public static final int        CLASS_CODE_DOUBLE  = 'D';
-    public static final int        CLASS_CODE_FLOAT   = 'F';
-    public static final int        CLASS_CODE_INT     = 'I';
-    public static final int        CLASS_CODE_LONG    = 'J';
-    public static final int        CLASS_CODE_OBJECT  = 'L';
-    public static final int        CLASS_CODE_SHORT   = 'S';
-    public static final int        CLASS_CODE_BOOLEAN = 'Z';
-    private static IntValueHashMap classCodeMap       = new IntValueHashMap();
+    public static final int              CLASS_CODE_BYTE    = 'B';
+    public static final int              CLASS_CODE_CHAR    = 'C';
+    public static final int              CLASS_CODE_DOUBLE  = 'D';
+    public static final int              CLASS_CODE_FLOAT   = 'F';
+    public static final int              CLASS_CODE_INT     = 'I';
+    public static final int              CLASS_CODE_LONG    = 'J';
+    public static final int              CLASS_CODE_OBJECT  = 'L';
+    public static final int              CLASS_CODE_SHORT   = 'S';
+    public static final int              CLASS_CODE_BOOLEAN = 'Z';
+    private static final IntValueHashMap classCodeMap = new IntValueHashMap();
 
     static {
         classCodeMap.put(byte.class, ArrayUtil.CLASS_CODE_BYTE);
@@ -87,81 +88,63 @@ public class ArrayUtil {
             case ArrayUtil.CLASS_CODE_BYTE : {
                 byte[] array = (byte[]) data;
 
-                while (--to >= from) {
-                    array[to] = 0;
-                }
+                Arrays.fill(array, from, to, (byte) 0);
 
                 return;
             }
             case ArrayUtil.CLASS_CODE_CHAR : {
                 char[] array = (char[]) data;
 
-                while (--to >= from) {
-                    array[to] = 0;
-                }
+                Arrays.fill(array, from, to, (char) 0);
 
                 return;
             }
             case ArrayUtil.CLASS_CODE_SHORT : {
                 short[] array = (short[]) data;
 
-                while (--to >= from) {
-                    array[to] = 0;
-                }
+                Arrays.fill(array, from, to, (short) 0);
 
                 return;
             }
             case ArrayUtil.CLASS_CODE_INT : {
                 int[] array = (int[]) data;
 
-                while (--to >= from) {
-                    array[to] = 0;
-                }
+                Arrays.fill(array, from, to, 0);
 
                 return;
             }
             case ArrayUtil.CLASS_CODE_LONG : {
                 long[] array = (long[]) data;
 
-                while (--to >= from) {
-                    array[to] = 0;
-                }
+                Arrays.fill(array, from, to, 0L);
 
                 return;
             }
             case ArrayUtil.CLASS_CODE_FLOAT : {
                 float[] array = (float[]) data;
 
-                while (--to >= from) {
-                    array[to] = 0;
-                }
+                Arrays.fill(array, from, to, 0);
 
                 return;
             }
             case ArrayUtil.CLASS_CODE_DOUBLE : {
                 double[] array = (double[]) data;
 
-                while (--to >= from) {
-                    array[to] = 0;
-                }
+                Arrays.fill(array, from, to, 0);
 
                 return;
             }
             case ArrayUtil.CLASS_CODE_BOOLEAN : {
                 boolean[] array = (boolean[]) data;
 
-                while (--to >= from) {
-                    array[to] = false;
-                }
+                Arrays.fill(array, from, to, false);
 
                 return;
             }
             default : {
                 Object[] array = (Object[]) data;
 
-                while (--to >= from) {
-                    array[to] = null;
-                }
+                Arrays.fill(array, from, to, null);
 
                 return;
             }
@@ -257,6 +240,20 @@ public class ArrayUtil {
     public static int find(int[] array, int value) {
 
         for (int i = 0; i < array.length; i++) {
+            if (array[i] == value) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     *  Find index of value in the first count elements of small array.
+     */
+    public static int find(int[] array, int count, int value) {
+
+        for (int i = 0; i < count; i++) {
             if (array[i] == value) {
                 return i;
             }
@@ -1420,7 +1417,6 @@ public class ArrayUtil {
         }
 
         int[] intarr = new int[colarr.length];
-        int   j      = 0;
 
         if (adjust == 0) {
             for (int i = 0; i < colarr.length; i++) {
