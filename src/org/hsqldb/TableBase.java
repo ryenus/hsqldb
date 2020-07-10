@@ -532,7 +532,7 @@ public class TableBase implements Cloneable {
         return newIndex;
     }
 
-    /**
+    /*
      * @todo - this is not for general use, as it returns true when table has no
      * rows, but not where it has rows that are not visible by session.
      * current usage is fine.

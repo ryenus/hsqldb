@@ -79,8 +79,8 @@ public class HashIndex {
     /**
      * Reset the structure with a new size as empty.
      *
-     * @param hashTableSize
-     * @param capacity
+     * @param hashTableSize size
+     * @param capacity capacity
      */
     public void reset(int hashTableSize, int capacity) {
 
@@ -114,7 +114,7 @@ public class HashIndex {
     }
 
     /**
-     * @param hash
+     * @param hash hash value
      */
     public int getHashIndex(int hash) {
         return (hash & 0x7fffffff) % hashTable.length;

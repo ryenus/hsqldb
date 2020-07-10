@@ -122,7 +122,7 @@ public final class ClobType extends CharacterType {
         return true;
     }
 
-    /** @todo - collation comparison */
+    /* @todo - collation comparison */
     public int compare(Session session, Object a, Object b) {
         return compare(session, a, b, OpTypes.EQUAL);
     }

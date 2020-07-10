@@ -154,12 +154,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
     static final int TRFM_DUMP             = 2;
     static final int TRFM_RESTORE          = 3;
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param s
-     */
     public void trace(String s) {
 
         if ((s != null) &&!s.equals("")) {
@@ -178,9 +172,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         m._main(null);
     }
 
-    /**
-     * @throws IllegalArgumentException for the obvious reason
-     */
     public static void work(String[] arg) {
 
         Transfer m = new Transfer();
@@ -188,11 +179,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         m._main(arg);
     }
 
-    /**
-     * Run with --help arg for syntax help.
-     *
-     * @throws IllegalArgumentException for the obvious reason
-     */
     public static void main(String[] arg) {
 
         System.getProperties().put("sun.java2d.noddraw", "true");
@@ -537,13 +523,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         fMain.setVisible(true);
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param f
-     * @param m
-     */
     private void addMenuItems(Menu f, String[] m) {
 
         for (int i = 0; i < m.length; i++) {
@@ -558,12 +537,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
     public void itemStateChanged(ItemEvent e) {
 
         ItemSelectable item = e.getItemSelectable();
@@ -651,12 +624,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param t
-     */
     private void displayTable(TransferTable t) {
 
         tCurrent = t;
@@ -687,12 +654,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         cIdxForced.setState(t.Stmts.bIdxForced);
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param and
-     */
     private void updateEnabled(boolean and) {
 
         boolean b = cTransfer.getState();
@@ -722,9 +683,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         }
     }
 
-    /**
-     * Method ProcessNextStep
-     */
     private void ProcessNextStep() {
 
         switch (iSelectionStep) {
@@ -767,12 +725,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param ev
-     */
     public void actionPerformed(ActionEvent ev) {
 
         if (ev.getSource() instanceof TextField) {
@@ -890,28 +842,10 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
     public void windowActivated(WindowEvent e) {}
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
     public void windowDeactivated(WindowEvent e) {}
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
     public void windowClosed(WindowEvent e) {}
 
     private void cleanup() {
@@ -927,12 +861,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         } catch (Exception e) {}
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param ev
-     */
     public void windowClosing(WindowEvent ev) {
 
         fMain.dispose();
@@ -942,34 +870,12 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
     public void windowDeiconified(WindowEvent e) {}
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
     public void windowIconified(WindowEvent e) {}
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
     public void windowOpened(WindowEvent e) {}
 
-    /**
-     * Method declaration
-     *
-     */
     private void initGUI() {
 
         Font fFont = new Font("Dialog", Font.PLAIN, 12);
@@ -1124,12 +1030,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         fMain.add("South", pMessage);
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param center
-     */
     private Panel createBorderPanel(Component center) {
 
         Panel p = new Panel();
@@ -1145,12 +1045,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         return p;
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param s
-     */
     private Label createLabel(String s) {
 
         Label l = new Label(s);
@@ -1212,10 +1106,6 @@ implements WindowListener, ActionListener, ItemListener, Traceable {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     */
     private void transfer() {
 
         saveTable();

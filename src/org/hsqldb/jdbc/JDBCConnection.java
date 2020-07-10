@@ -470,7 +470,7 @@ import org.hsqldb.types.Type;
  * @see JDBCCallableStatement
  * @see JDBCResultSet
  * @see JDBCDatabaseMetaData
- * @see java.sql.DriverManager#getConnection
+ * @see java.sql.DriverManager
  * @see java.sql.Statement
  * @see java.sql.ResultSet
  * @see java.sql.DatabaseMetaData
@@ -762,7 +762,7 @@ public class JDBCConnection implements Connection {
         final int inside_escape_inside_single_quotes = 4;
         final int inside_escape_inside_double_quotes = 5;
 
-        /** @todo */
+        /* @todo */
 
         // final int inside_single_line_comment          = 6;
         // final int inside_multi_line_comment           = 7;
@@ -853,7 +853,7 @@ public class JDBCConnection implements Connection {
         return sb.toString();
     }
 
-    /**
+    /*
      * @todo - semantics of autocommit regarding commit when the ResultSet is closed
      */
 
@@ -2684,7 +2684,7 @@ public class JDBCConnection implements Connection {
         return new JDBCSQLXML();
     }
 
-    /** @todo:  ThreadPool? HsqlTimer with callback? */
+    /* @todo:  ThreadPool? HsqlTimer with callback? */
 
     /**
      * <!-- start generic documentation -->
@@ -2777,7 +2777,7 @@ public class JDBCConnection implements Connection {
         }
     }
 
-    /** @todo 20051207 */
+    /* @todo 20051207 */
 
     /**
      * Sets the value of the client info property specified by name to the
@@ -2851,7 +2851,7 @@ public class JDBCConnection implements Connection {
         throw ex;
     }
 
-    /** @todo 20051207 */
+    /* @todo 20051207 */
 
     /**
      * Sets the value of the connection's client info properties.  The
@@ -2901,7 +2901,7 @@ public class JDBCConnection implements Connection {
         throw ex;
     }
 
-    /** @todo 1.9.0 */
+    /* @todo 1.9.0 */
 
     /**
      * Returns the value of the client info property specified by name.  This
@@ -2932,7 +2932,7 @@ public class JDBCConnection implements Connection {
         return null;
     }
 
-    /** @todo - 1.9 */
+    /* @todo - 1.9 */
 
     /**
      * Returns a list containing the name and current value of each client info
@@ -3429,7 +3429,7 @@ public class JDBCConnection implements Connection {
         try {
             if (DatabaseURL.isInProcessDatabaseType(connType)) {
 
-                /**
+                /*
                  * @todo - fredt - this should be the only static reference to
                  * a core class (apart form references to the Type package)
                  * from the jdbc package - we might make it dynamic

@@ -931,7 +931,7 @@ public class Grantee implements SchemaObject {
      * granted to the object itself.
      */
 
-    /**
+    /*
      * @todo -- see if this is correct and the currentRole.fullRightsMap
      * is always updated prior to being added to this.fullRightsMap
      */

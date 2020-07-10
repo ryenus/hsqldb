@@ -79,7 +79,7 @@ import org.hsqldb.HsqlException;
  */
 public class JDBCXAResource implements XAResource {
 
-    /**
+    /*
      * @todo:
      * Make thread safe.
      * Figure out how to ensure that orphaned transactions to do not make
@@ -199,7 +199,7 @@ public class JDBCXAResource implements XAResource {
         //}
         try {
 
-            /**
+            /*
              * @todo:  Determine if work was committed, rolled back, or both,
              * and return appropriate Heuristic*Exception.
              * connection.commit();
@@ -236,7 +236,7 @@ public class JDBCXAResource implements XAResource {
             throw new XAException("Invalid XAResource state");
         }
 
-        /** @todo - probably all flags can be ignored */
+        /* @todo - probably all flags can be ignored */
         if (flags == XAResource.TMSUCCESS) {}
 
         state = XA_STATE_ENDED;
@@ -255,7 +255,7 @@ public class JDBCXAResource implements XAResource {
      */
     public void forget(Xid xid) throws XAException {
 
-        /**
+        /*
          * Should this method not attempt to clean up the aborted
          * transaction by rolling back or something?  Maybe the
          * tx manager will already have called rollback() if
@@ -321,12 +321,12 @@ public class JDBCXAResource implements XAResource {
 
     public int prepareThis() throws XAException {
 
-        /**
+        /*
          * @todo:  This is where the real 2-phase work should be done to
          * determine if a commit done here would succeed or not.
          */
 
-        /**
+        /*
          * @todo:  May improve performance to return XA_RDONLY whenever
          * possible, but I don't know.
          * Could determine this by checking if DB instance is in RO mode,
@@ -403,7 +403,7 @@ public class JDBCXAResource implements XAResource {
 
         try {
 
-            /**
+            /*
              * @todo:  Determine if work was committed, rolled back, or both,
              * and return appropriate Heuristic Exception.
              */

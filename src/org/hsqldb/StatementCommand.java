@@ -691,7 +691,7 @@ public class StatementCommand extends Statement {
                     boolean padSpaces =
                         ((Boolean) arguments[1]).booleanValue();
 
-                    /** @todo 1.9.0 - ensure no data in character columns */
+                    /* @todo 1.9.0 - ensure no data in character columns */
                     session.checkAdmin();
                     session.checkDDLWrite();
                     session.database.collation.setCollation(name, padSpaces);

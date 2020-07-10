@@ -169,7 +169,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         "GLOBAL TEMPORARY", "SYSTEM TABLE", "TABLE", "VIEW"
     };
 
-    /** Provides naming support. */
+    /* Provides naming support. */
     static {
         synchronized (DatabaseInformationMain.class) {
             nonCachedTablesSet = new HashSet();
@@ -669,7 +669,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         //-------------------------------------------
 
-        /**
+        /*
          * @todo -  Maybe include: - backing index (constraint) name?
          *       - column sequence in index (constraint)?
          */
@@ -708,7 +708,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            /** @todo - requires access to the actual columns */
+            /* @todo - requires access to the actual columns */
             if (table.isView() || !isAccessibleTable(session, table)) {
                 continue;
             }
@@ -912,7 +912,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            /** @todo - requires access to the actual columns */
+            /* @todo - requires access to the actual columns */
             if (!isAccessibleTable(session, table)) {
                 continue;
             }

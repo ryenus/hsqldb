@@ -413,7 +413,6 @@ public class Session implements SessionInterface {
 
     /**
      * This is used for reading - writing to existing tables.
-     * @throws  HsqlException
      */
     void checkReadWrite() {
 
@@ -424,7 +423,6 @@ public class Session implements SessionInterface {
 
     /**
      * This is used for creating new database objects such as tables.
-     * @throws  HsqlException
      */
     void checkDDLWrite() {
 
@@ -444,7 +442,6 @@ public class Session implements SessionInterface {
      *
      * @param  table the table of the row
      * @param  row the deleted row
-     * @throws  HsqlException
      */
     public void addDeleteAction(Table table, PersistentStore store, Row row,
                                 int[] changedColumns) {
@@ -490,7 +487,6 @@ public class Session implements SessionInterface {
      *  Setter for the autocommit attribute.
      *
      * @param  autocommit the new value
-     * @throws  HsqlException
      */
     public synchronized void setAutoCommit(boolean autocommit) {
 
@@ -552,7 +548,7 @@ public class Session implements SessionInterface {
 
     public synchronized void startPhasedTransaction() {}
 
-    /**
+    /*
      * @todo - fredt - for two phased pre-commit - after this call, further
      * state changing calls should fail
      */
@@ -573,8 +569,6 @@ public class Session implements SessionInterface {
 
     /**
      * Commits any uncommitted transaction this Session may have open
-     *
-     * @throws  HsqlException
      */
     public synchronized void commit(boolean chain) {
 
@@ -609,8 +603,6 @@ public class Session implements SessionInterface {
 
     /**
      * Rolls back any uncommitted transaction this Session may have open.
-     *
-     * @throws  HsqlException
      */
     public synchronized void rollback(boolean chain) {
 
@@ -706,7 +698,6 @@ public class Session implements SessionInterface {
      *  name of an existing one replaces the old SAVEPOINT.
      *
      * @param  name name of the savepoint
-     * @throws  HsqlException if there is no current transaction
      */
     public synchronized void savepoint(String name) {
 
@@ -728,7 +719,6 @@ public class Session implements SessionInterface {
      *  Performs a partial transaction ROLLBACK to savepoint.
      *
      * @param  name name of savepoint
-     * @throws  HsqlException
      */
     public synchronized void rollbackToSavepoint(String name) {
 
@@ -747,8 +737,6 @@ public class Session implements SessionInterface {
 
     /**
      * Performs a partial transaction ROLLBACK of current savepoint level.
-     *
-     * @throws  HsqlException
      */
     public synchronized void rollbackToSavepoint() {
 
@@ -772,7 +760,6 @@ public class Session implements SessionInterface {
      * Releases a savepoint
      *
      * @param  name name of savepoint
-     * @throws  HsqlException if name does not correspond to a savepoint
      */
     public synchronized void releaseSavepoint(String name) {
 
@@ -1310,7 +1297,7 @@ public class Session implements SessionInterface {
 
             try {
 
-                /** special autocommit for backward compatibility */
+                /* special autocommit for backward compatibility */
                 commit(false);
             } catch (HsqlException e) {
                 database.logger.logInfoEvent("Exception at commit");

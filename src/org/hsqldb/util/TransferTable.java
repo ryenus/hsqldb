@@ -130,10 +130,6 @@ class TransferTable implements Serializable {
 
     /**
      * extractTableStructure
-     *
-     * @param Source
-     * @param Destination
-     * @throws Exception
      */
     void extractTableStructure(DataAccessPoint Source,
                                DataAccessPoint Destination) throws Exception {
@@ -141,9 +137,6 @@ class TransferTable implements Serializable {
         Source.getTableStructure(this, Destination);
     }
 
-    /**
-     * @throws SQLException
-     */
     void transferStructure() throws Exception {
 
         String Statement = new String("");

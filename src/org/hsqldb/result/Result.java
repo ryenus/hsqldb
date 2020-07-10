@@ -1057,7 +1057,7 @@ public class Result {
         return newErrorResult(t, null);
     }
 
-    /** @todo 1.9.0 fredt - move the messages to Error.java */
+    /* @todo 1.9.0 fredt - move the messages to Error.java */
     public static Result newErrorResult(Throwable t, String statement) {
 
         Result result = newResult(ResultConstants.ERROR);

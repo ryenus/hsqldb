@@ -107,7 +107,7 @@ class CommonSwing {
     // (weconsultants@users: Callable errorMessage method
     protected static void errorMessage(String errorMessage) {
 
-        /**
+        /*
          * Display Jpanel Error messages any text Errors. Overloads
          * errorMessage(Exception exceptionMsg)
          */
@@ -128,7 +128,7 @@ class CommonSwing {
     // (weconsultants@users: Callable errorMessage method
     public static void errorMessage(Exception exceptionMsg, boolean quiet) {
 
-        /**
+        /*
          * Display Jpanel Error messages any SQL Errors. Overloads
          * errorMessage(String e)
          */

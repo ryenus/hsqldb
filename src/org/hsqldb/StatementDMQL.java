@@ -537,7 +537,7 @@ public abstract class StatementDMQL extends Statement {
         }
     }
 
-    /** @todo 1.9.0 - build the metadata only once and reuse */
+    /* @todo 1.9.0 - build the metadata only once and reuse */
 
     /**
      * Returns the metadata for the placeholder parameters.

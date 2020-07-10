@@ -434,7 +434,7 @@ public class StatementCompound extends Statement implements RangeGroup {
 
                 session.clearWarnings();
 
-                /**
+                /*
                  * @todo - if condition is "transaction rollback" promote to
                  * top call level without any further action
                  * if condition is system related promote to top level

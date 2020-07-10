@@ -614,7 +614,7 @@ public class StatementSession extends Statement {
                         return Result.updateZeroResult;
                     }
 
-                    /** @todo may need different error code */
+                    /* @todo may need different error code */
                     throw Error.error(ErrorCode.X_28000);
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);

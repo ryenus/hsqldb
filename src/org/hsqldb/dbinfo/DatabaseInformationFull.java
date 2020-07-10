@@ -3848,7 +3848,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    /**
+    /*
      * a DEFINITION_SCHEMA table. Not in the INFORMATION_SCHEMA list
      */
 /*
@@ -7661,7 +7661,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            /** requires any INSERT or UPDATE or DELETE or REFERENCES or TRIGGER, (not SELECT) right */
+            /* requires any INSERT or UPDATE or DELETE or REFERENCES or TRIGGER, (not SELECT) right */
             if (table.isView()
                     || !session.getGrantee().hasNonSelectTableRight(table)) {
                 continue;

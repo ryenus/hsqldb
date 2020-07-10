@@ -79,8 +79,8 @@ public class FileRecordReader {
     }
 
     /**
-     * @throws java.util.regex.PatternSyntaxException
-     * @throws UnsupportedEncodingException
+     * @throws java.util.regex.PatternSyntaxException on error
+     * @throws UnsupportedEncodingException on error
      */
     public FileRecordReader(
             URL inUrl, String recordDelimiterRegex, String encoding)
@@ -122,7 +122,7 @@ public class FileRecordReader {
     /**
      * To be replaced by proper unit test class
      *
-     * @throws IOException
+     * @throws IOException on error
      */
     public static void main(String[] sa) throws IOException {
         if (sa.length != 2)
@@ -138,7 +138,7 @@ public class FileRecordReader {
 
     /**
      * @return null if no more records in input file
-     * @throws IOException
+     * @throws IOException on error
      */
     public String nextRecord() throws IOException {
         Matcher matcher;
@@ -166,8 +166,8 @@ public class FileRecordReader {
     }
 
     /**
-     * @param increaseBuffer.  If true, grab 2 x as many bytes as previous read.
-     * @throws IOException
+     * @param increaseBuffer  If true, grab 2 x as many bytes as previous read.
+     * @throws IOException on error
      */
     private void reload(boolean increaseBuffer) throws IOException {
         if (reader == null)

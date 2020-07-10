@@ -83,7 +83,7 @@ public class ScriptWriterText extends ScriptWriterBase {
     static byte[] BYTES_C_ID_TERM    = "*/".getBytes(JavaSystem.CS_ISO_8859_1);
     static byte[] BYTES_SCHEMA       = "SET SCHEMA ".getBytes(JavaSystem.CS_ISO_8859_1);
 
-    /** @todo - perhaps move this global into a lib utility class */
+    /* @todo - perhaps move this global into a lib utility class */
     static byte[] BYTES_LINE_SEP = System.getProperty("line.separator",
         "\n").getBytes(JavaSystem.CS_ISO_8859_1);
 

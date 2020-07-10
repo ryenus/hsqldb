@@ -214,7 +214,7 @@ public class TestUtil {
 
         System.out.println("Opened test script file: " + sourceName);
 
-        /**
+        /*
          * we read the lines from the start of one section of the script "/*"
          *  until the start of the next section, collecting the lines in the
          *  list.

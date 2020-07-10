@@ -98,7 +98,7 @@ public class StatementResultUpdate extends StatementDML {
             case ResultConstants.UPDATE_CURSOR : {
                 row = getRow(session, args);
 
-                /**
+                /*
                  * @todo - in 2PL mode isDeleted() always returns false.
                  * While write lock prevents delete by other transactions,
                  * same-transaction deletes are not caught

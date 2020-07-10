@@ -460,7 +460,7 @@ public final class BitType extends BinaryType {
         }
     }
 
-    /** @todo - implement */
+    /* @todo - implement */
     public long position(SessionInterface session, BlobData data,
                          BlobData otherData, Type otherType, long offset) {
 

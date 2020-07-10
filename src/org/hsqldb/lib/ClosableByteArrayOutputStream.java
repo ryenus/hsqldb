@@ -38,7 +38,7 @@ import java.io.UnsupportedEncodingException;
 
 /* $Id$ */
 
-/**
+/*
  * @todo - finer-grained synchronization to reduce average
  * potential monitor contention
  */

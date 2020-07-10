@@ -59,7 +59,7 @@ import org.hsqldb.result.Result;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.TimestampData;
 
-/**
+/*
  * @todo - can lock the database engine as readonly in a wrapper for this when
  * used at checkpoint
  */
@@ -484,7 +484,7 @@ public abstract class ScriptWriterBase implements Runnable {
                 sync();
             }
 
-            /** @todo: can do Cache.cleanUp() here, too */
+            /* @todo: can do Cache.cleanUp() here, too */
         } catch (Exception e) {
 
             // ignore exceptions

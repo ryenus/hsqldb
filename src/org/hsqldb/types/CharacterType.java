@@ -282,7 +282,7 @@ public class CharacterType extends Type {
                 throw Error.error(ErrorCode.X_42562);
             default :
 
-                /**
+                /*
                  * @todo - this seems to be allowed in SQL-92 (is in NIST)
                  * but is disallowed in SQL:2003
                  * need to make dependent on a database property
@@ -893,7 +893,7 @@ public class CharacterType extends Type {
                 throw Error.error(ErrorCode.X_22001);
             }
 
-            /** @todo - change to support long strings */
+            /* @todo - change to support long strings */
             String result = ((ClobData) data).getSubString(session, offset,
                 (int) length);
 
@@ -990,7 +990,7 @@ public class CharacterType extends Type {
             }
         }
 
-        /** @todo - change to support long strings */
+        /* @todo - change to support long strings */
         if (startindex == 0 && endindex == s.length()) {}
         else {
             s = s.substring(startindex, endindex);

@@ -97,8 +97,6 @@ public class TestMerge extends TestBase {
 
     /**
      * Sets up tables T and S and executes MERGE query on them
-     * @param sql
-     * @throws SQLException
      */
     private void executeMerge(String merge) throws SQLException {
 

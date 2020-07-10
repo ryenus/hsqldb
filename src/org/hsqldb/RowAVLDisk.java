@@ -138,7 +138,7 @@ public class RowAVLDisk extends RowAVL {
     /**
      *  Constructor when read from the disk into the Cache.
      *
-     * @param t table
+     * @param store store
      * @param in data source
      * @throws IOException
      */
@@ -340,9 +340,7 @@ public class RowAVLDisk extends RowAVL {
     /**
      *  Writes the Nodes, immediately after the row size.
      *
-     * @param out
-     *
-     * @throws IOException
+     * @param out row output
      */
     void writeNodes(RowOutputInterface out) {
 

@@ -192,7 +192,7 @@ public class Logger implements EventLogInterface {
      *  If the specified Database object is a new database, its database
      *  files are first created.
      *
-     * @throws  HsqlException if there is a problem, such as the case when
+     * @throws  org.hsqldb.HsqlException if there is a problem, such as the case when
      *      the specified files are in use by another process
      */
     public void open() {

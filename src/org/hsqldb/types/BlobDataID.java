@@ -200,7 +200,7 @@ public class BlobDataID implements BlobData {
         return ((ResultLob) resultIn).getOffset();
     }
 
-    /** @todo - implement the next method call in Session */
+    /* @todo - implement the next method call in Session */
     public long nonZeroLength(SessionInterface session) {
 
         ResultLob resultOut = ResultLob.newLobGetTruncateLength(id);

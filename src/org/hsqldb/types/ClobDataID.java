@@ -239,7 +239,7 @@ public class ClobDataID implements ClobData {
         return ((ResultLob) resultIn).getOffset();
     }
 
-    /** @todo - implement the next method call in Session */
+    /* @todo - implement the next method call in Session */
     public long nonSpaceLength(SessionInterface session) {
 
         ResultLob resultOut = ResultLob.newLobGetTruncateLength(id);

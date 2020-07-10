@@ -1642,8 +1642,6 @@ public class LockFile {
      * Attempts to obtain a cooperative lock condition upon this object's lock
      * file. <p>
      *
-     * @return <tt>true</tt> if this object already holds a lock or the lock was
-     *      obtained successfully, else <tt>false</tt>
      * @throws FileSecurityException if the lock condition could not be
      *      obtained due to a Java security permission violation
      * @throws LockHeldExternallyException if the lock condition could not
@@ -1664,7 +1662,8 @@ public class LockFile {
      *      because the target file was the wrong length
      * @throws WrongMagicException if the lock condition could not be obtained
      *      because the target file had the wrong <tt>MAGIC</tt> value
-     * @return <tt>true</tt> if and only if a lock condition is obtained;
+     * @return <tt>true</tt> if and only if a lock condition is obtained
+     *      successfully;
      *      <tt>false</tt> otherwise.  In general, an exception will
      *      <em>always</em> be thrown if a lock condition cannot be obtained for
      *      any reason

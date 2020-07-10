@@ -575,7 +575,7 @@ public class JDBCClobFile implements java.sql.Clob {
      *
      * @param startPos inclusive
      * @param endPos exclusive
-     * @throws SQLException
+     * @throws SQLException exception
      */
     private void fillSpace(final long startPos,
                            long endPos) throws SQLException {

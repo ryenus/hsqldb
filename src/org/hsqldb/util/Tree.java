@@ -146,25 +146,9 @@ class Tree extends Panel {
         add(sbVert);
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param d
-     */
     public void setMinimumSize(Dimension d) {
         dMinimum = d;
     }
-
-    /**
-     * Method declaration
-     *
-     *
-     * @param x
-     * @param y
-     * @param w
-     * @param h
-     */
 
 // fredt@users 20011210 - patch 450412 by elise@users
 // with additional replacement of deprecated methods
@@ -186,10 +170,6 @@ class Tree extends Panel {
         repaint();
     }
 
-    /**
-     * Method declaration
-     *
-     */
     public void removeAll() {
 
         vData     = new Vector();
@@ -202,15 +182,6 @@ class Tree extends Panel {
         repaint();
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param key
-     * @param value
-     * @param state
-     * @param color
-     */
     public void addRow(String key, String value, String state, int color) {
 
         String[] row = new String[4];
@@ -235,30 +206,15 @@ class Tree extends Panel {
         iRowCount++;
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param key
-     * @param value
-     */
     public void addRow(String key, String value) {
         addRow(key, value, null, 0);
     }
 
-    /**
-     * Method declaration
-     *
-     */
     public void update() {
         adjustScroll();
         repaint();
     }
 
-    /**
-     * Method declaration
-     *
-     */
     void adjustScroll() {
 
         iTreeHeight = iRowHeight * (iRowCount + 1);
@@ -276,13 +232,6 @@ class Tree extends Panel {
         iX = sbHoriz.getValue();
         iY = iRowHeight * sbVert.getValue();
     }
-
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     */
 
 // fredt@users 20020130 - comment by fredt
 // to remove this deprecated method we need to rewrite the Tree class as a
@@ -307,12 +256,6 @@ class Tree extends Panel {
         return super.handleEvent(e);
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param g
-     */
     public void paint(Graphics g) {
 
         if (g == null || iWidth <= 0 || iHeight <= 0) {
@@ -410,52 +353,26 @@ class Tree extends Panel {
         g.drawImage(iImage, 0, 0, this);
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param g
-     */
     public void update(Graphics g) {
         paint(g);
     }
 
-    /**
-     * Method declaration
-     */
     public Dimension preferredSize() {
         return dMinimum;
     }
 
-    /**
-     * Method declaration
-     */
     public Dimension getPreferredSize() {
         return dMinimum;
     }
 
-    /**
-     * Method declaration
-     */
     public Dimension getMinimumSize() {
         return dMinimum;
     }
 
-    /**
-     * Method declaration
-     */
     public Dimension minimumSize() {
         return dMinimum;
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param e
-     * @param x
-     * @param y
-     */
     public boolean mouseDown(Event e, int x, int y) {
 
         if (iRowHeight == 0 || x > iWidth || y > iHeight) {
@@ -524,12 +441,6 @@ class Tree extends Panel {
         return true;
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param f
-     */
     private static int getMaxHeight(FontMetrics f) {
         return f.getHeight() + 2;
     }

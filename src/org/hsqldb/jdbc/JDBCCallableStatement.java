@@ -89,7 +89,7 @@ import java.time.ZoneOffset;
 
 /* $Id$ */
 
-/** @todo fredt 1.9.0 - continuous review wrt multiple result sets, named parameters etc. */
+/* @todo fredt 1.9.0 - continuous review wrt multiple result sets, named parameters etc. */
 
 // campbell-burnet@users patch 1.7.2 - CallableStatement impl removed
 // from JDBCParameterMetaData and moved here; sundry changes elsewhere to
@@ -5008,7 +5008,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     private IntValueHashMap parameterNameMap;
     private boolean         wasNullValue;
 
-    /** parameter index => registered OUT type */
+    /* parameter index => registered OUT type */
 
 //  private IntKeyIntValueHashMap outRegistrationMap;
 
@@ -5120,7 +5120,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         super.close();
     }
 
-    /**
+    /*
      * Checks if the parameter of the given index has been successfully
      * registered as an OUT parameter. <p>
      *

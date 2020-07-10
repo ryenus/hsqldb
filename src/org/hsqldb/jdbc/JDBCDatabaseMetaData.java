@@ -1003,7 +1003,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         return true;
     }
 
-    /** @todo needs the full conversion matrix here. Should use org.hsqldb.types */
+    /* @todo needs the full conversion matrix here. Should use org.hsqldb.types */
 
     /**
      * (JDBC4 clarification:)
@@ -2632,7 +2632,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         return true;
     }
 
-    /** @todo update javadoc */
+    /* @todo update javadoc */
 
     /**
      * Retrieves whether this database supports the given transaction isolation level.
@@ -2838,7 +2838,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         return execute(select.toString());
     }
 
-    /**
+    /*
      * Indicates that it is not known whether the procedure returns
      * a result.
      * <P>
@@ -2849,7 +2849,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
 
 //    int procedureResultUnknown        = 0;
 
-    /**
+    /*
      * Indicates that the procedure does not return a result.
      * <P>
      * A possible value for column <code>PROCEDURE_TYPE</code> in the
@@ -2858,7 +2858,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      */
 //    int procedureNoResult             = 1;
 
-    /**
+    /*
      * Indicates that the procedure returns a result.
      * <P>
      * A possible value for column <code>PROCEDURE_TYPE</code> in the
@@ -5401,7 +5401,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         return true;
     }
 
-    /** @todo */
+    /* @todo */
 
     /**
      * Retrieves whether a <code>SQLException</code> while autoCommit is <code>true</code> indicates

@@ -1913,8 +1913,6 @@ public class ParserCommand extends ParserDDL {
 
     /**
      * Responsible for  handling the execution of COMMIT [WORK]
-     *
-     * @throws  HsqlException
      */
     private Statement compileCommit() {
 
@@ -2429,7 +2427,7 @@ public class ParserCommand extends ParserDDL {
 
         switch (token.tokenType) {
 
-            /**
+            /*
              * PERFORM CHECK TABLE <name> INDEX [AND FIX]
              * PERFORM CHECK ALL TABLE INDEX [AND FIX]
              */

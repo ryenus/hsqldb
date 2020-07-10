@@ -1392,7 +1392,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             txtCommand.setCursor(txtCommandCursor);
             txtResult.setCursor(txtResultCursor);
 
-            /** @todo: Enable actionButtons */
+            /* @todo: Enable actionButtons */
         } else {
 
             // save the old cursors
@@ -1414,7 +1414,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             txtCommand.setCursor(waitCursor);
             txtResult.setCursor(waitCursor);
 
-            /** @todo: Disable actionButtons */
+            /* @todo: Disable actionButtons */
         }
 
         setStatusLine(busyText, ((busyText == null) ? gResult.getRowCount()

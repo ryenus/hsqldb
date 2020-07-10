@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
 /**
- * A variation on {@link java.util.CountDownLatch} to allow counting up as well
+ * A variation on {@link java.util.concurrent.CountDownLatch} to allow counting up as well
  * as down.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
@@ -85,7 +85,7 @@ public class CountUpDownLatch {
      * <ul>
      * <li>The count reaches zero due an invocation of {@link #countDown()
      * countDown()}, {@link  #countDown(int) countDown(int}}, or {@link
-     * setCount(int) setCount(int)}.
+     * #setCount(int) setCount(int)}.
      * <li>Some other thread {@linkplain Thread#interrupt interrupts} the
      * current thread.
      * </ul>
@@ -120,7 +120,7 @@ public class CountUpDownLatch {
      * <ul>
      * <li>The {@code count} reaches zero due to an invocation of {@link
      * #countDown countDown()}, {@link #countDown(int) countDown(int}}, or
-     * {@link setCount(int) setCount(int)}
+     * {@link #setCount(int)} setCount(int)}
      * <li>Some other thread {@linkplain Thread#interrupt interrupts} the
      * current thread
      * <li>The specified waiting time elapses.
@@ -324,7 +324,7 @@ public class CountUpDownLatch {
          * {@code await(...)} methods of the enclosing {@link CountUpDownLatch}
          * class.
          *
-         * @param ignored
+         * @param ignored ignored param
          * @return -1 on failure; 1 if acquisition in shared mode succeeded and
          *         subsequent shared-mode acquires might also succeed, in which
          *         case a subsequent waiting thread must check availability.

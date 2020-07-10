@@ -35,7 +35,7 @@ import java.io.CharArrayReader;
 import java.io.IOException;
 import java.io.Writer;
 
-/**
+/*
  * @todo - finer-grained synchronization to reduce average
  * potential monitor contention
  */

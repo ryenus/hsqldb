@@ -218,7 +218,7 @@ public class GranteeManager {
      *  table.getName(); if a different HsqlName
      *  object with an identical name attribute is specified, then
      *  rights checks and tests will fail, since the HsqlName
-     *  class implements its {@link HsqlName#hashCode hashCode} and
+     *  class implements its {@link HsqlName#hashCode() hashCode} and
      *  {@link HsqlName#equals equals} methods based on pure object
      *  identity, rather than on attribute values. <p>
      */
@@ -353,7 +353,7 @@ public class GranteeManager {
 
             // campbell-burnet@users
 
-            /** @todo: Correct reporting of actual grant path */
+            /* @todo: Correct reporting of actual grant path */
             throw Error.error(ErrorCode.X_0P501, roleName);
         }
 
@@ -390,11 +390,11 @@ public class GranteeManager {
 
             if (grant) {
                 if (grantee.getDirectRoles().contains(role)) {
-                    /** no-op */
+                    /* no-op */
                 }
             } else {
                 if (!grantee.getDirectRoles().contains(role)) {
-                    /** no-op */
+                    /* no-op */
                 }
             }
 

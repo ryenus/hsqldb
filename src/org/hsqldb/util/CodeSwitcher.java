@@ -124,12 +124,6 @@ public class CodeSwitcher {
     private ArrayList<String> vSwitches;
     private static final int  MAX_LINELENGTH = 82;
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param a
-     */
     public static void main(String[] a) {
 
         CodeSwitcher s = new CodeSwitcher();
@@ -292,11 +286,6 @@ public class CodeSwitcher {
         }
     }
 
-    /**
-     * Wrapper
-     *
-     * @param path
-     */
     void addDir(String path) {
         addDir(new File(path));
     }
@@ -318,12 +307,6 @@ public class CodeSwitcher {
         }
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param name
-     */
     boolean processFile(String name) {
 
         File    f         = new File(name);
@@ -529,12 +512,6 @@ public class CodeSwitcher {
         write.close();
     }
 
-    /**
-     * Method declaration
-     *
-     *
-     * @param error
-     */
     static void printError(String error) {
         System.out.println("");
         System.out.println("ERROR: " + error);

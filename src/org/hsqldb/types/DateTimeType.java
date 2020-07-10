@@ -837,7 +837,7 @@ public final class DateTimeType extends DTIType {
         return convertToType(session, a, otherType);
     }
 
-    /** @todo - check the time zone conversion */
+    /* @todo - check the time zone conversion */
     public Object convertJavaToSQL(SessionInterface session, Object a) {
 
         if (a == null) {
@@ -2031,7 +2031,7 @@ public final class DateTimeType extends DTIType {
      * compare data of the same types.
      * <p>
      *
-     * @param session
+     * @param session The session
      * @param a First period to compare
      * @param ta Types of the first period
      * @param b Second period to compare
@@ -2114,7 +2114,7 @@ public final class DateTimeType extends DTIType {
      * Important: when this method returns, the boundaries of the periods may
      * have been changed.
      *
-     * @param session
+     * @param session The session
      * @param a First period to compare
      * @param ta Types of the first period
      * @param b Second period to compare
@@ -2188,7 +2188,7 @@ public final class DateTimeType extends DTIType {
      * the same result of "b OVERLAPS a"
      * <p>
      *
-     * @param session
+     * @param session The session
      * @param a First period to compare
      * @param ta Types of the first period
      * @param b Second period to compare
@@ -2230,7 +2230,7 @@ public final class DateTimeType extends DTIType {
      * Important: when this method returns, the boundaries of the periods may
      * have been changed.
      *
-     * @param session
+     * @param session  The session
      * @param a First period to compare
      * @param ta Types of the first period
      * @param b Second period to compare
@@ -2269,7 +2269,7 @@ public final class DateTimeType extends DTIType {
      * than or equal to the start value of b, i.e., if ae <= as.
      * <p>
      *
-     * @param session
+     * @param session  The session
      * @param a First period to compare
      * @param ta Types of the first period
      * @param b Second period to compare
@@ -2300,7 +2300,7 @@ public final class DateTimeType extends DTIType {
      * of y, i.e., if xe = ys.
      * <p>
      *
-     * @param session
+     * @param session The session
      * @param a First period to compare
      * @param ta Types of the first period
      * @param b Second period to compare
@@ -2331,7 +2331,7 @@ public final class DateTimeType extends DTIType {
      * of y, i.e., if xs = ye.
      * <p>
      *
-     * @param session
+     * @param session The session
      * @param a First period to compare
      * @param ta Types of the first period
      * @param b Second period to compare
@@ -2362,7 +2362,7 @@ public final class DateTimeType extends DTIType {
      * i.e., if xs >= ye.
      * <p>
      *
-     * @param session
+     * @param session The session
      * @param a First period to compare
      * @param ta Types of the first period
      * @param b Second period to compare
@@ -2392,7 +2392,7 @@ public final class DateTimeType extends DTIType {
      * This predicate returns True if the two periods have every time point in common, i.e., if xs = ys and xe = ye.
      * <p>
      *
-     * @param session
+     * @param session The session
      * @param a First period to compare
      * @param ta Types of the first period
      * @param b Second period to compare
@@ -2429,7 +2429,7 @@ public final class DateTimeType extends DTIType {
      * a period with the same date time value for the period start and end.
      * <p>
      *
-     * @param session
+     * @param session The session
      * @param a First period to compare
      * @param ta Types of the first period
      * @param b Second period to compare
@@ -2625,7 +2625,7 @@ public final class DateTimeType extends DTIType {
         return ti;
     }
 
-    /** @todo - overflow */
+    /* @todo - overflow */
     public static TimestampData addMonths(Session session,
                                           TimestampData source, int months) {
 

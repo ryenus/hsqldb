@@ -55,10 +55,6 @@ public class TestKarl {
     static final String SHUTDOWN_IMMEDIATELY = "SHUTDOWN IMMEDIATELY";
     static final String SHUTDOWN_COMPACT     = "SHUTDOWN COMPACT";
 
-    /**
-     *
-     * @param args
-     */
     public static void main(String[] args) {
 
         Connection c = null;
@@ -151,10 +147,6 @@ public class TestKarl {
         }
     }
 
-    /**
-     * @param p_connection
-     * @throws SQLException
-     */
     private static void doCreateTableTest(Connection p_connection)
     throws SQLException {
 
@@ -177,10 +169,6 @@ public class TestKarl {
         System.out.println("END INSERT INTO TESTTABLE");
     }
 
-    /**
-     * @param p_connection
-     * @throws SQLException
-     */
     private static void doUpdateInsertDeleteWaehler(Connection p_connection)
     throws SQLException {
 
@@ -217,11 +205,6 @@ public class TestKarl {
         System.out.println("END DELETE FROM WAEHLER");
     }
 
-    /**
-     * @param p_connection
-     * @param p_table
-     * @throws SQLException
-     */
     private static void printTable(Connection p_connection,
                                    String p_table) throws SQLException {
 
@@ -250,10 +233,6 @@ public class TestKarl {
         System.out.println("... END GET TABLE " + p_table);
     }
 
-    /**
-     * @param p_connection
-     * @throws SQLException
-     */
     private static void printMeta(Connection p_connection)
     throws SQLException {
 

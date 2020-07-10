@@ -370,7 +370,7 @@ public class Scanner {
     }
 
     /**
-     * returns hex value of a hex character, or 16 if not a hex character
+     * returns hex value of a hex character, or -1 if not a hex character
      */
     static int getHexValue(int c) {
 
@@ -1789,7 +1789,7 @@ public class Scanner {
 
             case '_' :
 
-                /**
+                /*
                  * @todo 1.9.0 - review following
                  * identifier chain must not have catalog identifier
                  * character set specification to be included in the token.dataType
@@ -1806,7 +1806,7 @@ public class Scanner {
 
                 if (token.tokenType != Tokens.X_IDENTIFIER) {
 
-                    /** @todo 1.9.0 - review message malformed character set identifier */
+                    /* @todo 1.9.0 - review message malformed character set identifier */
                     token.tokenType   = Tokens.X_MALFORMED_STRING;
                     token.isMalformed = true;
 
@@ -1818,7 +1818,7 @@ public class Scanner {
                 if (charAt(currentPosition) == '\'') {
                     if (token.namePrePrefix != null) {
 
-                        /** @todo 1.9.0 - review message malformed character set identifier */
+                        /* @todo 1.9.0 - review message malformed character set identifier */
                         token.tokenType   = Tokens.X_MALFORMED_STRING;
                         token.isMalformed = true;
 
@@ -2069,7 +2069,7 @@ public class Scanner {
         return new TimestampData(seconds);
     }
 
-    /**
+    /*
      * @todo 1.9.0 - review the following
      *      - misses nano fractions
      *      - misses displacement

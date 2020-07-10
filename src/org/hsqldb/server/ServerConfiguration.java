@@ -37,7 +37,7 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlProperties;
 
-/**
+/*
  * @todo:  move to here from Server and WebServer the remaining extraneous code
  *          dealing primarily with reading/setting properties from files, etc.
  */

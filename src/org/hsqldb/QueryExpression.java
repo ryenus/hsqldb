@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  * @since 1.9.0
  */
 
-/**
+/*
  * @todo 1.9.0 - review these
  * - work out usage of getMainSelect etc and add relevant methods
  * - Result metadata for the final result of QueryExpression
@@ -761,7 +761,7 @@ public class QueryExpression implements RangeGroup {
         return leftQueryExpression.getMainSelect();
     }
 
-    /** @todo 1.9.0 review */
+    /* @todo regular review */
     public String describe(Session session, int blanks) {
 
         StringBuilder sb;
