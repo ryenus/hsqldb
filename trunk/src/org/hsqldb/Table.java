@@ -686,8 +686,9 @@ public class Table extends TableBase implements SchemaObject {
         StringBuilder sb = new StringBuilder(128);
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
-        sb.append(getName().getSchemaQualifiedStatementName());
-        sb.append(' ').append(Tokens.T_INDEX).append(' ').append('\'');
+        sb.append(getName().getSchemaQualifiedStatementName()).append(' ');
+        sb.append(Tokens.T_INDEX).append(' ');
+        sb.append('\'');
         sb.append(StringUtil.getList(roots, " ", ""));
         sb.append(' ');
         sb.append(StringUtil.getList(new long[indexList.length], " ", ""));
@@ -2773,12 +2774,11 @@ public class Table extends TableBase implements SchemaObject {
 
     public void setIndexRoots(long[] roots) {
 
-        int indexCount = getIndexCount();
         PersistentStore store =
             database.persistentStoreCollection.getStore(this);
         long cardinality = store.elementCount();
 
-        store.setAccessors(0, roots, new long[indexCount], cardinality);
+        store.setAccessors(0, roots, cardinality);
     }
 
     /**
@@ -2804,25 +2804,19 @@ public class Table extends TableBase implements SchemaObject {
             roots[index] = v;
         }
 
-        try {
-            for (int index = 0; index < indexCount; index++) {
-                long v = p.readBigint();
+        for (int index = 0; index < indexCount; index++) {
+            long v = p.readBigint();
 
-                uniqueSize[index] = v;
-            }
-
-            cardinality = p.readBigint();
-        } catch (Exception e) {
-
-            // version 1.x database
+            uniqueSize[index] = v;
         }
+
+        cardinality = p.readBigint();
 
         PersistentStore store =
             database.persistentStoreCollection.getStore(this);
 
-        store.setAccessors(0, roots, uniqueSize, cardinality);
+        store.setAccessors(0, roots, cardinality);
     }
-
 
     public void generateAndCheckData(Session session, Object[] data) {
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 
 /**
- * Base class for a stored object.
+ * Base class for a stored simple object.
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @version 2.3.3

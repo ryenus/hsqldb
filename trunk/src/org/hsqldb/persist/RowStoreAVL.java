@@ -358,22 +358,8 @@ public abstract class RowStoreAVL implements PersistentStore {
         return index.firstRow(this);
     }
 
-    /**
-     *  Sets the index roots of a cached table to specified file pointers.
-     *  If a file pointer is -1 then the particular index root is null. A null
-     *  index root signifies an empty table. Accordingly, all index roots should
-     *  be null or all should be a valid file pointer/reference.
-     */
-    public void setAccessors(long base, long[] accessors, long[] uniqueSize,
-                             long cardinality) {
-
-        for (int index = 0; index < indexList.length; index++) {
-            setAccessor(indexList[index], accessors[index]);
-        }
-
-        for (int index = 0; index < indexList.length; index++) {
-            setElementCount(indexList[index], cardinality, uniqueSize[index]);
-        }
+    public void setAccessors(long base, long[] accessors, long cardinality) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
     }
 
     public void setAccessor(Index key, CachedObject accessor) {
@@ -541,7 +527,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         return 0;
     }
 
-    public void setElementCount(Index key, long size, long uniqueSize) {
+    final void setElementCount(long size) {
         elementCount.set(size);
     }
 
@@ -778,7 +764,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                     break;
                 }
 
-                backnode = ((RowAVL) row).getNode(position - 1);
+                backnode       = ((RowAVL) row).getNode(position - 1);
                 backnode.nNext = backnode.nNext.nNext;
             }
 

@@ -133,8 +133,7 @@ public interface PersistentStore {
 
     CachedObject getAccessor(Index key);
 
-    void setAccessors(long base, long[] accessors, long[] uniqueSize,
-                      long cardinality);
+    void setAccessors(long base, long[] accessors, long cardinality);
 
     void setAccessor(Index key, CachedObject accessor);
 
@@ -147,8 +146,6 @@ public interface PersistentStore {
     long elementCount(Session session);
 
     long elementCountUnique(Index index);
-
-    void setElementCount(Index key, long size, long uniqueSize);
 
     boolean hasNull(int pos);
 

@@ -104,7 +104,7 @@ public interface Index extends SchemaObject {
     Type[] getColumnTypes();
 
     /**
-     * Returns the count of visible columns used
+     * Returns the array containing desc column flags
      *
      * @return boolean[]
      */
