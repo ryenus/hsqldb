@@ -980,7 +980,7 @@ public class Logger implements EventLogInterface {
      *  files, in order to ensure as much as possible the ACID properties
      *  of the database.
      *
-     * @throws  HsqlException if there is a problem checkpointing the
+     * @throws  org.hsqldb.HsqlException if there is a problem checkpointing the
      *      database
      */
     public void checkpoint(Session session, boolean defrag, boolean lobs) {

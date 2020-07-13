@@ -1802,8 +1802,8 @@ public class IndexAVL implements Index {
         return node;
     }
 
-    RowIterator getIterator(Session session, PersistentStore store,
-                                 NodeAVL x, boolean single, boolean reversed) {
+    RowIterator getIterator(Session session, PersistentStore store, NodeAVL x,
+                            boolean single, boolean reversed) {
 
         if (x == null) {
             return RangeIterator.emptyRowIterator;

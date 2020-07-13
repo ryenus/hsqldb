@@ -113,6 +113,13 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         return object;
     }
 
+    public CachedObject get(long key) {
+
+        CachedObject object = cache.get(key, this, false);
+
+        return object;
+    }
+
     public CachedObject get(CachedObject object, boolean keep) {
 
         object = cache.get(object, this, keep);
@@ -436,6 +443,21 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         accessorList[key.getPosition()] = node;
 
         return node;
+    }
+
+    /**
+     *  Sets the index roots of a cached table to specified file pointers.
+     *  If a file pointer is -1 then the particular index root is null. A null
+     *  index root signifies an empty table. Accordingly, all index roots should
+     *  be null or all should be a valid file pointer/reference.
+     */
+    public void setAccessors(long base, long[] accessors, long cardinality) {
+
+        for (int index = 0; index < indexList.length; index++) {
+            setAccessor(indexList[index], accessors[index]);
+        }
+
+        setElementCount(cardinality);
     }
 
     public void setAccessor(Index key, long accessor) {

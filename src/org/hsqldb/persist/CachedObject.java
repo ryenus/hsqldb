@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,9 +84,9 @@ public interface CachedObject {
 
     int getRealSize(RowOutputInterface out);
 
-    void read(RowInputInterface in);
-
     int getDefaultCapacity();
+
+    void read(RowInputInterface in);
 
     void write(RowOutputInterface out);
 
