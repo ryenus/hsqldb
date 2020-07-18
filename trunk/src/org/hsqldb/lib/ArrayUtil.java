@@ -52,7 +52,7 @@ public final class ArrayUtil {
     public static final int              CLASS_CODE_OBJECT  = 'L';
     public static final int              CLASS_CODE_SHORT   = 'S';
     public static final int              CLASS_CODE_BOOLEAN = 'Z';
-    private static final IntValueHashMap classCodeMap = new IntValueHashMap();
+    private static final IntValueHashMap classCodeMap = new IntValueHashMap(16);
 
     static {
         classCodeMap.put(byte.class, ArrayUtil.CLASS_CODE_BYTE);

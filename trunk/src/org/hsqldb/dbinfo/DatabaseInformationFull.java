@@ -112,7 +112,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -679,26 +679,24 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Iterator it;
         Object[] row;
 
-        //
-        DITableInfo ti = new DITableInfo();
-
         it = allTables();
 
         while (it.hasNext()) {
-            Table table = (Table) it.next();
+            Table  table = (Table) it.next();
+            String comment;
 
             if (!session.getGrantee().isAccessible(table)) {
                 continue;
             }
-
-            ti.setTable(table);
 
             int colCount = table.getColumnCount();
 
             for (int i = 0; i < colCount; i++) {
                 ColumnSchema column = table.getColumn(i);
 
-                if (column.getName().comment == null) {
+                comment = column.getName().comment;
+
+                if (comment == null) {
                     continue;
                 }
 
@@ -708,13 +706,14 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[name]        = table.getName().name;
                 row[type]        = "COLUMN";
                 row[column_name] = column.getName().name;
-                row[remark]      = column.getName().comment;
+                row[remark]      = comment;
 
                 t.insertSys(session, store, row);
             }
 
-            if (table.getTableType() != Table.INFO_SCHEMA_TABLE
-                    && table.getName().comment == null) {
+            comment = table.getName().comment;
+
+            if (comment == null) {
                 continue;
             }
 
@@ -727,7 +726,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 || table.getTableType() == Table.INFO_SCHEMA_TABLE ? "VIEW"
                                                                    : "TABLE";
             row[column_name] = null;
-            row[remark]      = ti.getRemark();
+            row[remark]      = comment;
 
             t.insertSys(session, store, row);
         }
@@ -783,7 +782,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         it = database.schemaManager.databaseObjectIterator(
-            SchemaObject.SEQUENCE);
+            SchemaObject.TRIGGER);
 
         while (it.hasNext()) {
             SchemaObject object = (SchemaObject) it.next();
@@ -1631,7 +1630,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             for (int j = 0; j < tableIdList.length; j++) {
                 if (tableIdList[j] == DataSpaceManager.tableIdDefault) {
                     allocated += fileBlockSize;
-                    used      += fileBlockSize - (long) freeSpaceList[j] * cacheScale;
+                    used += fileBlockSize
+                            - (long) freeSpaceList[j] * cacheScale;
                 } else if (tableIdList[j] == DataSpaceManager.tableIdEmpty
                            && bitMapList[j] != 0) {
                     empty += fileBlockSize;

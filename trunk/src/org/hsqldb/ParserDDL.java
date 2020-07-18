@@ -1499,7 +1499,7 @@ public class ParserDDL extends ParserRoutine {
 
         cs.setSchemaHsqlName(schemaName);
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList list = new HsqlArrayList(128);
 
         list.add(cs);
         getCompiledStatementBody(list);
