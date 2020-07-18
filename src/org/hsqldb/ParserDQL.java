@@ -7278,11 +7278,11 @@ public class ParserDQL extends ParserBase {
 
         //
         private OrderedIntKeyHashMap parameters   = new OrderedIntKeyHashMap();
-        private HsqlArrayList usedSequences       = new HsqlArrayList(8, true);
-        private HsqlArrayList        usedRoutines = new HsqlArrayList(8, true);
+        private HsqlArrayList usedSequences       = new HsqlArrayList(16, true);
+        private HsqlArrayList        usedRoutines = new HsqlArrayList(16, true);
         private OrderedIntKeyHashMap rangeVariables =
             new OrderedIntKeyHashMap();
-        private HsqlArrayList usedObjects = new HsqlArrayList(8, true);
+        private HsqlArrayList usedObjects = new HsqlArrayList(16, true);
         Type                  currentDomain;
         boolean               contextuallyTypedExpression;
         boolean               onDuplicateTypedExpression;

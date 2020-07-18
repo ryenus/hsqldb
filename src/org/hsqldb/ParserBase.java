@@ -78,7 +78,7 @@ public class ParserBase {
 
         this.scanner           = scanner;
         this.token             = scanner.token;
-        this.recordedStatement = new HsqlArrayList();
+        this.recordedStatement = new HsqlArrayList(256);
     }
 
     public Scanner getScanner() {

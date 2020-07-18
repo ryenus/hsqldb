@@ -103,7 +103,7 @@ public class LineGroupReader {
     public HsqlArrayList getNextSection() {
 
         String        line;
-        HsqlArrayList list = new HsqlArrayList(new String[8], 0);
+        HsqlArrayList list = new HsqlArrayList(new String[128], 0);
 
         if (nextStartLine != null) {
             list.add(nextStartLine);
