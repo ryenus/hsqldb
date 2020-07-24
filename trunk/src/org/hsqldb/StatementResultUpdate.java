@@ -143,7 +143,7 @@ public class StatementResultUpdate extends StatementDML {
 
                 list.addRow(row);
                 list.endMainDataSet();
-                delete(session, baseTable, list);
+                delete(session, baseTable, list, null);
 
                 break;
             }

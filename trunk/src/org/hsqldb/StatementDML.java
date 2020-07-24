@@ -357,9 +357,17 @@ public class StatementDML extends StatementDMQL {
      */
     public void setGeneratedColumnInfo(int generate, ResultMetaData meta) {
 
-        // also supports INSERT_SELECT
-        if (type != StatementTypes.INSERT && type != StatementTypes.MERGE) {
-            return;
+        // also covers INSERT_SELECT
+        switch (type) {
+
+            case StatementTypes.INSERT :
+            case StatementTypes.MERGE :
+            case StatementTypes.UPDATE_WHERE :
+            case StatementTypes.DELETE_WHERE :
+                break;
+
+            default :
+                return;
         }
 
         int idColIndex = baseTable.getIdentityColumnIndex();
@@ -427,6 +435,10 @@ public class StatementDML extends StatementDMQL {
                         }
                     }
                 }
+                break;
+
+            case ResultConstants.RETURN_PRIMARY_KEYS :
+                generatedIndexes = baseTable.getPrimaryKey();
                 break;
         }
 
@@ -575,22 +587,20 @@ public class StatementDML extends StatementDMQL {
 
         count = update(session, baseTable, rowset, generatedNavigator);
 
+        if (count == 0) {
+            session.addWarning(HsqlException.noDataCondition);
+        }
+
         if (resultOut == null) {
             if (count == 1) {
                 return Result.updateOneResult;
             } else if (count == 0) {
-                session.addWarning(HsqlException.noDataCondition);
-
                 return Result.updateZeroResult;
             }
 
             return new Result(ResultConstants.UPDATECOUNT, count);
         } else {
             resultOut.setUpdateCount(count);
-
-            if (count == 0) {
-                session.addWarning(HsqlException.noDataCondition);
-            }
 
             return resultOut;
         }
@@ -833,24 +843,20 @@ public class StatementDML extends StatementDMQL {
             baseTable.fireTriggers(session, Trigger.INSERT_AFTER, newData);
         }
 
+        if (count == 0) {
+            session.addWarning(HsqlException.noDataCondition);
+        }
+
         if (resultOut == null) {
             if (count == 1) {
                 return Result.updateOneResult;
-            }
-
-            if (count == 0) {
-                session.addWarning(HsqlException.noDataCondition);
-
+            } else if (count == 0) {
                 return Result.updateZeroResult;
             }
 
             return new Result(ResultConstants.UPDATECOUNT, count);
         } else {
             resultOut.setUpdateCount(count);
-
-            if (count == 0) {
-                session.addWarning(HsqlException.noDataCondition);
-            }
 
             return resultOut;
         }
@@ -1239,6 +1245,14 @@ public class StatementDML extends StatementDMQL {
             targetRangeVariables);
         RowSetNavigatorDataChange rowset =
             session.sessionContext.getRowSetDataChange();
+        Result          resultOut          = null;
+        RowSetNavigator generatedNavigator = null;
+
+        if (generatedIndexes != null) {
+            resultOut = Result.newUpdateCountResult(generatedResultMetaData,
+                    0);
+            generatedNavigator = resultOut.getChainedResult().getNavigator();
+        }
 
         session.sessionContext.rownum = 1;
 
@@ -1261,18 +1275,26 @@ public class StatementDML extends StatementDMQL {
         rowset.endMainDataSet();
 
         if (rowset.getSize() > 0) {
-            count = delete(session, baseTable, rowset);
-        } else {
+            count = delete(session, baseTable, rowset, generatedNavigator);
+        }
+
+        if (count == 0) {
             session.addWarning(HsqlException.noDataCondition);
-
-            return Result.updateZeroResult;
         }
 
-        if (count == 1) {
-            return Result.updateOneResult;
-        }
+        if (resultOut == null) {
+            if (count == 1) {
+                return Result.updateOneResult;
+            } else if (count == 0) {
+                return Result.updateZeroResult;
+            }
 
-        return new Result(ResultConstants.UPDATECOUNT, count);
+            return new Result(ResultConstants.UPDATECOUNT, count);
+        } else {
+            resultOut.setUpdateCount(count);
+
+            return resultOut;
+        }
     }
 
     Result executeDeleteTruncateStatement(Session session) {
@@ -1324,7 +1346,8 @@ public class StatementDML extends StatementDMQL {
      *  DELETE.
      */
     int delete(Session session, Table table,
-               RowSetNavigatorDataChange navigator) {
+               RowSetNavigatorDataChange navigator,
+               RowSetNavigator generatedNavigator) {
 
         int rowCount = navigator.getSize();
 
@@ -1398,6 +1421,12 @@ public class StatementDML extends StatementDMQL {
             PersistentStore store        = currentTable.getRowStore(session);
 
             session.addDeleteAction(currentTable, store, row, null);
+
+            if (generatedNavigator != null) {
+                Object[] generatedValues = getGeneratedColumns(row.getData());
+
+                generatedNavigator.add(generatedValues);
+            }
 
             if (data != null) {
                 hasUpdate = true;
