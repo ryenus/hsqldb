@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,9 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
@@ -1012,6 +1015,123 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
             fail("prepared statement execute succeeds after close()");
         } catch (Exception ex) {
         }
+    }
+
+    
+    /**
+     * Test of getGeneratedKeys() method of interface java.sql.Statement on
+     * statements prepared using prepareStatement(String, String[]) method of 
+     * interface java.sql.Connection.
+     */
+    public void testGetGeneratedKeys() throws Exception {
+        PreparedStatement insert = newConnection().prepareStatement(
+                "insert into all_types(id,c_varchar) " +
+                "values(?,?)",
+                new String[]{
+                    // The values we want to have returned
+                    "id","c_varchar"
+                });
+        m_statementList.add(insert);
+        
+        PreparedStatement update = newConnection().prepareStatement(
+                "update all_types " +
+                "set c_varchar=? " +
+                "where id=?",
+                new String[]{
+                    // The values we want to have returned
+                    "id","c_varchar"
+                });
+        m_statementList.add(update);
+        
+        PreparedStatement delete = newConnection().prepareStatement(
+                "delete from all_types " +
+                "where id=?",
+                new String[]{
+                    // The values we want to have returned
+                    "id","c_varchar"
+                });
+        m_statementList.add(delete);
+        
+        final int    id        = 99;
+        final String c_varchar = "Laura";
+        
+        final int expectedCount = 1;
+        boolean executeResult;
+        ResultSet generatedKeys;
+        
+        //
+        // insert
+        final int    insert_expectedReturn_ID        = id;
+        final String insert_expectedReturn_C_VARCHAR = c_varchar;
+        
+        insert.setInt(   1, insert_expectedReturn_ID);
+        insert.setString(2, insert_expectedReturn_C_VARCHAR);
+        
+        executeResult = insert.execute();
+        
+        assertFalse("INSERT statement execution returned a result set.", 
+                executeResult);
+        
+        assertEquals("Number of affected rows differs.", 
+                expectedCount, insert.getUpdateCount());
+        
+        generatedKeys = insert.getGeneratedKeys();
+        assertTrue("The result set containing the generated key / requested columns is empty.",
+                generatedKeys.next());
+        
+        assertEquals(insert_expectedReturn_ID,        generatedKeys.getInt(1));
+        assertEquals(insert_expectedReturn_C_VARCHAR, generatedKeys.getString(2));
+        
+        generatedKeys.close();
+        
+        //
+        // update
+        final int    update_expectedReturn_ID        = insert_expectedReturn_ID;
+        final String update_expectedReturn_C_VARCHAR = "Susanne";
+        
+        update.setString(1, update_expectedReturn_C_VARCHAR);
+        update.setInt(   2, update_expectedReturn_ID);
+        
+        executeResult = update.execute();
+        
+        assertFalse("UPDATE statement execution returned a result set.", 
+                executeResult);
+        
+        assertEquals("Number of affected rows differs.", 
+                expectedCount, update.getUpdateCount());
+        
+        generatedKeys = update.getGeneratedKeys();
+        assertTrue("The result set containing the generated key / requested columns is empty.",
+                generatedKeys.next());
+        
+        assertEquals(update_expectedReturn_ID,        generatedKeys.getInt(1));
+        assertEquals(update_expectedReturn_C_VARCHAR, generatedKeys.getString(2));
+        
+        generatedKeys.close();
+        
+        //
+        // delete
+        final int    delete_expectedReturn_ID        = update_expectedReturn_ID;
+        final String delete_expectedReturn_C_VARCHAR = update_expectedReturn_C_VARCHAR;
+        
+        delete.setInt(1, delete_expectedReturn_ID);
+        
+        executeResult = delete.execute();
+        
+        assertFalse("DELETE statement execution returned a result set.", 
+                executeResult);
+        
+        assertEquals("Number of affected rows differs.", 
+                expectedCount, delete.getUpdateCount());
+        
+        generatedKeys = delete.getGeneratedKeys();
+        assertTrue("The result set containing the generated key / requested columns is empty.",
+                generatedKeys.next());
+        
+        assertEquals(delete_expectedReturn_ID,        generatedKeys.getInt(1));
+        assertEquals(delete_expectedReturn_C_VARCHAR, generatedKeys.getString(2));
+        
+        generatedKeys.close();
     }
 
     public static void main(java.lang.String[] argList) {

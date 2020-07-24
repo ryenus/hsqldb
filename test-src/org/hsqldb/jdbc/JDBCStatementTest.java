@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2011, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
+import java.util.AbstractMap;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
@@ -525,8 +532,125 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      */
     @OfMethod("getGeneratedKeys()")
     public void testGetGeneratedKeys() throws Exception {
-        // TODO
-        stubTestResult();
+        Statement stmt = newStatement();
+        
+        final int    id        = 99;
+        final String firstname = "Laura";
+        final String lastname  = "Steel";
+        final String street    = "429 Seventh Av.";
+        final String city      = "Dallas";
+        
+        int       expectedCount = 1;
+        boolean   executeResult;
+        ResultSet generatedKeys;
+        
+        //
+        // insert
+        final int    insert_expectedReturn_ID        = id;
+        final String insert_expectedReturn_FIRSTNAME = firstname;
+        final String insert_expectedReturn_LASTNAME  = lastname;
+        final String insert_expectedReturn_STREET    = street;
+        final String insert_expectedReturn_CITY      = city;
+        
+        executeResult = stmt.execute(
+                "insert into customer " +
+                "values("   + insert_expectedReturn_ID + ", " + 
+                        "'" + insert_expectedReturn_FIRSTNAME + "', " +
+                        "'" + insert_expectedReturn_LASTNAME + "', " +
+                        "'" + insert_expectedReturn_STREET + "', " +
+                        "'" + insert_expectedReturn_CITY + "')", 
+                new String[]{
+                    // The values we want to have returned
+                    "ID", "FIRSTNAME", "LASTNAME", "STREET", "CITY"
+                });
+        
+        assertFalse("INSERT statement execution returned a result set.", 
+                executeResult);
+        
+        assertEquals("Number of affected rows differs.", 
+                expectedCount, stmt.getUpdateCount());
+        
+        generatedKeys = stmt.getGeneratedKeys();
+        assertTrue("The result set containing the generated key / requested columns is empty.",
+                generatedKeys.next());
+        
+        assertEquals(insert_expectedReturn_ID,        generatedKeys.getInt(1));
+        assertEquals(insert_expectedReturn_FIRSTNAME, generatedKeys.getString(2));
+        assertEquals(insert_expectedReturn_LASTNAME,  generatedKeys.getString(3));
+        assertEquals(insert_expectedReturn_STREET,    generatedKeys.getString(4));
+        assertEquals(insert_expectedReturn_CITY,      generatedKeys.getString(5));
+        
+        generatedKeys.close();
+        
+        //
+        // update
+        final int    update_expectedReturn_ID        = insert_expectedReturn_ID;
+        final String update_expectedReturn_FIRSTNAME = insert_expectedReturn_FIRSTNAME;
+        final String update_expectedReturn_LASTNAME  = insert_expectedReturn_LASTNAME;
+        final String update_expectedReturn_STREET    = "366 - 20th Ave.";
+        final String update_expectedReturn_CITY      = "Olten";
+        
+        executeResult = stmt.execute(
+                "update customer " +
+                "set STREET='" + update_expectedReturn_STREET + "', " +
+                      "CITY='" + update_expectedReturn_CITY + "' " +
+                "where ID="+update_expectedReturn_ID, 
+                new String[]{
+                    // The values we want to have returned
+                    "ID", "FIRSTNAME", "LASTNAME", "STREET", "CITY"
+                });
+        
+        assertFalse("UPDATE statement execution returned a result set.", 
+                executeResult);
+        
+        assertEquals("Number of affected rows differs.", 
+                expectedCount, stmt.getUpdateCount());
+        
+        generatedKeys = stmt.getGeneratedKeys();
+        assertTrue("The result set containing the generated key / requested columns is empty.",
+                generatedKeys.next());
+        
+        assertEquals(update_expectedReturn_ID,        generatedKeys.getInt(1));
+        assertEquals(update_expectedReturn_FIRSTNAME, generatedKeys.getString(2));
+        assertEquals(update_expectedReturn_LASTNAME,  generatedKeys.getString(3));
+        assertEquals(update_expectedReturn_STREET,    generatedKeys.getString(4));
+        assertEquals(update_expectedReturn_CITY,      generatedKeys.getString(5));
+        
+        generatedKeys.close();
+        
+        //
+        // delete
+        final int    delete_expectedReturn_ID        = update_expectedReturn_ID;
+        final String delete_expectedReturn_FIRSTNAME = update_expectedReturn_FIRSTNAME;
+        final String delete_expectedReturn_LASTNAME  = update_expectedReturn_LASTNAME;
+        final String delete_expectedReturn_STREET    = update_expectedReturn_STREET;
+        final String delete_expectedReturn_CITY      = update_expectedReturn_CITY;
+        
+        executeResult = stmt.execute(
+                "delete from customer " +
+                "where ID="+delete_expectedReturn_ID, 
+                new String[]{
+                    // The values we want to have returned
+                    "ID", "FIRSTNAME", "LASTNAME", "STREET", "CITY"
+                });
+        
+        assertFalse("DELETE statement execution returned a result set.", 
+                executeResult);
+        
+        assertEquals("Number of affected rows differs.", 
+                expectedCount, stmt.getUpdateCount());
+        
+        generatedKeys = stmt.getGeneratedKeys();
+        assertTrue("The result set containing the generated key / requested columns is empty.",
+                generatedKeys.next());
+        
+        assertEquals(delete_expectedReturn_ID,        generatedKeys.getInt(1));
+        assertEquals(delete_expectedReturn_FIRSTNAME, generatedKeys.getString(2));
+        assertEquals(delete_expectedReturn_LASTNAME,  generatedKeys.getString(3));
+        assertEquals(delete_expectedReturn_STREET,    generatedKeys.getString(4));
+        assertEquals(delete_expectedReturn_CITY,      generatedKeys.getString(5));
+        
+        generatedKeys.close();
     }
 
     /**

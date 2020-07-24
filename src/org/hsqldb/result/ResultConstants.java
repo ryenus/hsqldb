@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import org.hsqldb.StatementTypes;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @since 2.1.1
+ * @since 2.5.2
  * @version 1.7.2
  */
 
@@ -732,4 +732,5 @@ public interface ResultConstants {
     int RETURN_NO_GENERATED_KEYS          = 2;     // matching java.sql.Statement constant
     int RETURN_GENERATED_KEYS_COL_NAMES   = 11;    // constant in HSQLDB only
     int RETURN_GENERATED_KEYS_COL_INDEXES = 21;    // constant in HSQLDB only
+    int RETURN_PRIMARY_KEYS               = 31;    // constant in HSQLDB only
 }
