@@ -1642,7 +1642,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      *  Returns the identity column index.
      */
-    int getIdentityColumnIndex() {
+    public int getIdentityColumnIndex() {
         return identityColumn;
     }
 

@@ -138,16 +138,9 @@ public class StatementInsert extends StatementDML {
      */
     Result getResult(Session session) {
 
-        Result          resultOut          = null;
-        RowSetNavigator generatedNavigator = null;
-        PersistentStore store              = baseTable.getRowStore(session);
-        int             count              = 0;
-
-        if (generatedIndexes != null) {
-            resultOut = Result.newUpdateCountResult(generatedResultMetaData,
-                    0);
-            generatedNavigator = resultOut.getChainedResult().getNavigator();
-        }
+        Result          resultOut = null;
+        PersistentStore store     = baseTable.getRowStore(session);
+        int             count     = 0;
 
         if (isSimpleInsert) {
             Type[] colTypes = baseTable.getColumnTypes();
@@ -245,6 +238,15 @@ public class StatementInsert extends StatementDML {
         }
 
         if (newDataNavigator.getSize() != 0) {
+            RowSetNavigator generatedNavigator = null;
+
+            if (generatedIndexes != null) {
+                resultOut =
+                    Result.newUpdateCountResult(generatedResultMetaData, 0);
+                generatedNavigator =
+                    resultOut.getChainedResult().getNavigator();
+            }
+
             insertRowSet(session, generatedNavigator, newDataNavigator);
 
             count += newDataNavigator.getSize();

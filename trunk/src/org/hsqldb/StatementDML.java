@@ -55,7 +55,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 
@@ -1015,14 +1015,6 @@ public class StatementDML extends StatementDMQL {
                         throw ex;
                     }
                 }
-            } else {
-
-                // DYNAMIC_PARAM and PARAMETER expressions may have wider values
-                if (e.dataType == null
-                        || type.typeDataGroup != e.dataType.typeDataGroup
-                        || type.isArrayType()) {
-                    value = type.convertToType(session, value, e.dataType);
-                }
             }
 
             data[colIndex] = value;
@@ -1069,7 +1061,6 @@ public class StatementDML extends StatementDMQL {
 
             // for identity using global sequence
             session.sessionData.startRowProcessing();
-
             /*
              * @todo 1.9.0 - make optional using database property -
              * this means the identity column can be set to null to force
