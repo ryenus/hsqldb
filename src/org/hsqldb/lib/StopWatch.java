@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,10 @@ package org.hsqldb.lib;
  * If the watch is zeroed, then the accumulated time is discarded and
  * the watch starts again with zero accumulated time. <p>
  *
+ * Nanosecond support added by fredt@users
+ *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 1.7.2
+ * @version 2.5.2
  * @since 1.7.2
  */
 public class StopWatch {
@@ -49,7 +51,7 @@ public class StopWatch {
     /**
      * The last time this object made the transition
      * from stopped to running state, as reported
-     * by System.currentTimeMillis().
+     * by System.nanoTime().
      */
     private long startTime;
     private long lastStart;
@@ -77,30 +79,60 @@ public class StopWatch {
     }
 
     /**
-     * Retrieves the accumulated time this object has spent running since
+     * Retrieves the accumulated milliseconds this object has spent running since
      * it was last zeroed.
-     * @return the accumulated time this object has spent running since
+     * @return the accumulated milliseconds this object has spent running since
      * it was last zeroed.
      */
     public long elapsedTime() {
 
         if (running) {
-            return total + System.currentTimeMillis() - startTime;
+            return (total + System.nanoTime() - startTime) / 1000000;
         } else {
             return total;
         }
     }
 
     /**
-     * Retrieves the accumulated time this object has spent running since
+     * Retrieves the accumulated nanoseconds this object has spent running since
+     * it was last zeroed.
+     * @return the accumulated nanoseconds this object has spent running since
+     * it was last zeroed.
+     */
+    public long elapsedNanos() {
+
+        if (running) {
+            return total + System.nanoTime() - startTime;
+        } else {
+            return total;
+        }
+    }
+
+    /**
+     * Retrieves the accumulated milliseconds this object has spent running since
      * it was last started.
-     * @return the accumulated time this object has spent running since
+     * @return the accumulated milliseconds this object has spent running since
      * it was last started.
      */
     public long currentElapsedTime() {
 
         if (running) {
-            return System.currentTimeMillis() - startTime;
+            return (System.nanoTime() - startTime) / 1000000;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Retrieves the accumulated nanoseconds this object has spent running since
+     * it was last started.
+     * @return the accumulated nanoseconds this object has spent running since
+     * it was last started.
+     */
+    public long currentElapsedNanos() {
+
+        if (running) {
+            return (System.nanoTime() - startTime);
         } else {
             return 0;
         }
@@ -117,11 +149,11 @@ public class StopWatch {
     /**
      * Ensures that this object is in the running state.  If this object is not
      * running, then the call has the effect of setting the <code>startTime</code>
-     * attribute to the current value of System.currentTimeMillis() and setting
+     * attribute to the current value of System.nanoTime() and setting
      * the <code>running</code> attribute to <code>true</code>.
      */
     public void start() {
-        startTime = System.currentTimeMillis();
+        startTime = System.nanoTime();
         running   = true;
     }
 
@@ -136,7 +168,7 @@ public class StopWatch {
     public void stop() {
 
         if (running) {
-            total   += System.currentTimeMillis() - startTime;
+            total   += System.nanoTime() - startTime;
             running = false;
         }
     }
@@ -156,6 +188,15 @@ public class StopWatch {
     }
 
     /**
+     * Retrieves prefix + " in " + elapsedNanos() + " ns."
+     * @param prefix The string to use as a prefix
+     * @return prefix + " in " + elapsedNanos() + " ns."
+     */
+    public String elapsedNanosToMessage(String prefix) {
+        return prefix + " in " + elapsedNanos() + " ns.";
+    }
+
+    /**
      * Retrieves prefix + " in " + elapsedTime() + " ms."
      * @param prefix The string to use as a prefix
      * @return prefix + " in " + elapsedTime() + " ms."
@@ -163,6 +204,15 @@ public class StopWatch {
     public String currentElapsedTimeToMessage(String prefix) {
         return prefix + " in " + currentElapsedTime() + " ms.";
     }
+
+   /**
+    * Retrieves prefix + " in " + elapsedTime() + " ns."
+    * @param prefix The string to use as a prefix
+    * @return prefix + " in " + elapsedTime() + " ns."
+    */
+   public String currentElapsedNanosToMessage(String prefix) {
+       return prefix + " in " + currentElapsedNanos() + " ns.";
+   }
 
     /**
      * Retrieves the internal state of this object, as a String.

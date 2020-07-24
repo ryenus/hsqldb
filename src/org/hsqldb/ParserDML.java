@@ -48,7 +48,7 @@ import org.hsqldb.types.Type;
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -244,6 +244,7 @@ public class ParserDML extends ParserDQL {
                         Expression e = rowArgs[i];
                         ColumnSchema column =
                             baseTable.getColumn(insertColumnMap[i]);
+                        Type colType = column.getDataType();
 
                         if (column.isIdentity()) {
                             assignsToIdentityOrGenerated = true;
@@ -284,6 +285,15 @@ public class ParserDML extends ParserDQL {
 
                         if (e.isUnresolvedParam()) {
                             e.setAttributesAsColumn(column);
+                        }
+
+                        // DYNAMIC_PARAM and PARAMETER expressions may have wider values
+                        if (e.dataType == null || colType.typeDataGroup != e
+                                .dataType.typeDataGroup || colType
+                                .isArrayType()) {
+                            rowArgs[i] =
+                                ExpressionOp.getCastExpression(session, e,
+                                                               colType);
                         }
                     }
                 }
@@ -1300,6 +1310,31 @@ public class ParserDML extends ParserDQL {
 
             ExpressionColumn.checkColumnsResolved(unresolved);
             insertExpression.resolveTypes(session, null);
+
+
+            Expression[] rowList = insertExpression.nodes;
+
+            for (int j = 0; j < rowList.length; j++) {
+                Expression[] rowArgs = rowList[j].nodes;
+
+                for (int i = 0; i < rowArgs.length; i++) {
+                    Expression e = rowArgs[i];
+                    ColumnSchema column = table.getColumn(insertColumnMap[i]);
+                    Type colType = column.getDataType();
+
+                    if (e.isUnresolvedParam()) {
+                        e.setAttributesAsColumn(column);
+                    }
+
+                    // DYNAMIC_PARAM and PARAMETER expressions may have wider values
+                    if (e.dataType == null
+                        || colType.typeDataGroup != e.dataType.typeDataGroup
+                        || colType.isArrayType()) {
+                        rowArgs[i] = ExpressionOp.getCastExpression(session, e,
+                            colType);
+                    }
+                }
+            }
         }
 
         StatementDMQL cs = new StatementDML(session, targets, sourceRange,
