@@ -1586,7 +1586,7 @@
       interface allows this method of access from Java programs and is
       supported by HyperSQL.</para>
 
-      <para>HyperSQL support this method of returning single or multiple
+      <para>HyperSQL supports this method of returning single or multiple
       result sets from SQL/PSM procedures only via the JDBC CallableStatement
       interface. Cursors are declared and opened within the body of the
       procedure. No further operation is performed on the cursors within the

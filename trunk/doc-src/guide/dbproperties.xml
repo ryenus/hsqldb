@@ -1929,7 +1929,7 @@
             <row>
               <entry nameend="c3" namest="c1"><para>The CREATE TABLE command
               results in a MEMORY table by default. Setting the value
-              <emphasis>cached</emphasis> for this property will result in a
+              <literal>cached</literal> for this property will result in a
               cached table by default. The qualified forms such as CREATE
               MEMORY TABLE or CREATE CACHED TABLE are not affected at all by
               this property.</para><para><programlisting>SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY }</programlisting></para></entry>
@@ -2010,7 +2010,8 @@
             <row>
               <entry nameend="c3" namest="c1"><para>Indicates the default
               transaction isolation level for each new session. The values,
-              read_committed and serializable are allowed. Individual sessions
+              <literal>read_committed</literal> and
+              <literal>serializable</literal> are allowed. Individual sessions
               can change their isolation level.</para><para><programlisting>SET DATABASE DEFAULT ISOLATION LEVEL { READ COMMITTED | SERIALIZABLE }</programlisting></para></entry>
             </row>
           </tbody>
