@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -323,7 +323,7 @@ public class RangeVariableResolver {
     }
 
     /**
-     * Divides AND and OR conditions and assigns
+     * Divides AND and OR conditions and adds to list
      */
     static Expression decomposeOrConditions(Expression e,
             HsqlList conditions) {

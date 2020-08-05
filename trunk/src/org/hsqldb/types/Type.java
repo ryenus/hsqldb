@@ -1059,6 +1059,7 @@ public abstract class Type implements SchemaObject, Cloneable {
                 if (precision > 53) {
                     throw Error.error(ErrorCode.X_42592, "" + precision);
                 }
+
                 return SQL_DOUBLE;
 
             case Types.SQL_REAL :
