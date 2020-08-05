@@ -308,7 +308,7 @@ public class ExpressionLogical extends Expression {
 
         if (ExpressionLogical.EXPR_FALSE.equals(e1)
                 || ExpressionLogical.EXPR_FALSE.equals(e2)) {
-            return ExpressionLogical.EXPR_FALSE;
+            return new ExpressionBoolean(false);
         }
 
         if (e1 == e2) {

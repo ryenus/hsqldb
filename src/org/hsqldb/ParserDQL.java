@@ -2432,12 +2432,12 @@ public class ParserDQL extends ParserBase {
             case Tokens.TRUE :
                 read();
 
-                return Expression.EXPR_TRUE;
+                return new ExpressionBoolean(true);
 
             case Tokens.FALSE :
                 read();
 
-                return Expression.EXPR_FALSE;
+                return new ExpressionBoolean(false);
 
             case Tokens.DEFAULT :
                 if (compileContext.contextuallyTypedExpression) {
@@ -4090,11 +4090,11 @@ public class ParserDQL extends ParserBase {
             if (token.tokenType == Tokens.TRUE) {
                 read();
 
-                e = new ExpressionLogical(e, Expression.EXPR_TRUE);
+                e = new ExpressionLogical(e, new ExpressionBoolean(true));
             } else if (token.tokenType == Tokens.FALSE) {
                 read();
 
-                e = new ExpressionLogical(e, Expression.EXPR_FALSE);
+                e = new ExpressionLogical(e, new ExpressionBoolean(false));
             } else if (token.tokenType == Tokens.UNKNOWN) {
                 read();
 

@@ -1929,12 +1929,12 @@ public class ParserTable extends ParserDML {
                 case Tokens.TRUE :
                     read();
 
-                    return Expression.EXPR_TRUE;
+                    return new ExpressionBoolean(true);
 
                 case Tokens.FALSE :
                     read();
 
-                    return Expression.EXPR_FALSE;
+                    return new ExpressionBoolean(false);
             }
         } else if (dataType.isBitType()) {
             switch (token.tokenType) {
