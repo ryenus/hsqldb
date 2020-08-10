@@ -681,7 +681,8 @@ public class SqlFile {
         // execute() to block.
         this.reader = reader;
         this.inputStreamLabel = inputStreamLabel;
-        this.atBase = (atBase == null) ? new URL("file", null, ".") : atBase;
+        this.atBase = (atBase == null) ? new URL("file", null, ".") :
+            new URL(atBase.getProtocol(), atBase.getHost(), atBase.getFile().replace('\\', '/'));
     }
 
     public void setConnection(final Connection jdbcConn) {
@@ -6380,11 +6381,11 @@ public class SqlFile {
                   new URL(s) : new URL("file", null, s);
             if (atBase == null)
                 throw new BadSpecial(SqltoolRB.illegal_at.getString());
-            return (s.length() > 2 &&
-              (s.charAt(1) == '/' || s.charAt(1) == '\\'))
-              ? new URL(atBase, s.substring(2))
+            final String s2 = s.replace('\\', '/');
+            return (s2.length() > 2 && s2.charAt(1) == '/')
+              ? new URL(atBase, s2.substring(2))
               : new URL(atBase.getProtocol(), atBase.getHost(),
-                atBase.getFile() + s.substring(1));
+                atBase.getFile() + s2.substring(1));
         } catch (MalformedURLException mue) {
             throw new BadSpecial(mue.getMessage());
         }
@@ -6398,11 +6399,11 @@ public class SqlFile {
             throw new BadSpecial(SqltoolRB.desturl_nowrite.getString(
               atBase.toString()));
         try {
-            return new File(((s.length() > 2 &&
-              (s.charAt(1) == '/' || s.charAt(1) == '\\'))
-              ? new URL(atBase, s.substring(2))
-              : new URL(atBase.getProtocol(), atBase.getHost(),
-                atBase.getFile() + s.substring(1))).getPath());
+            final String s2 = s.replace('\\', '/');
+            return new File(((s2.length() > 2 && s2.charAt(1) == '/')
+                ? new URL(atBase, s2.substring(2))
+                : new URL(atBase.getProtocol(), atBase.getHost(),
+                atBase.getFile() + s2.substring(1))).getPath());
         } catch (MalformedURLException mue) {
             throw new BadSpecial(mue.getMessage());
         }
