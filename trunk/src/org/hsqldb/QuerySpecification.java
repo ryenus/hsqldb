@@ -509,7 +509,7 @@ public class QuerySpecification extends QueryExpression {
 
         checkLobUsage();
         setMergeability();
-        setUpdatability();
+        setUpdatability(session);
         setResultColumnTypes();
         createResultMetaData(session);
         createTable(session);
@@ -2364,7 +2364,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    void setUpdatability() {
+    void setUpdatability(Session session) {
 
         if (!isUpdatable) {
             return;
@@ -2385,7 +2385,9 @@ public class QuerySpecification extends QueryExpression {
         }
 
         if (sortAndSlice.hasLimit() || sortAndSlice.hasOrder()) {
-            return;
+            if (!session.database.sqlSyntaxDb2) {
+                return;
+            }
         }
 
         RangeVariable rangeVar  = rangeVariables[0];
