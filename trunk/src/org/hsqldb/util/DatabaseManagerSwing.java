@@ -150,7 +150,7 @@ import org.hsqldb.lib.RCData;
  *
  * @author dmarshall@users
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.7.0
  */
 public class DatabaseManagerSwing extends JFrame
@@ -1704,15 +1704,19 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         }
 
         try {
-            ResultSetMetaData m         = r.getMetaData();
-            int               col       = m.getColumnCount();
-            Object[]          h         = new Object[col];
-            boolean[]         isVarChar = new boolean[col];
+            ResultSetMetaData m           = r.getMetaData();
+            int               col         = m.getColumnCount();
+            Object[]          h           = new Object[col];
+            boolean[]         nullLiteral = new boolean[col];
 
             for (int i = 1; i <= col; i++) {
                 h[i - 1] = m.getColumnLabel(i);
-                isVarChar[i - 1] = (m.getColumnType(i)
-                                    == java.sql.Types.VARCHAR);
+                switch(m.getColumnType(i)) {
+                    case java.sql.Types.CHAR:
+                    case java.sql.Types.VARCHAR:
+                    case java.sql.Types.VARBINARY:
+                        nullLiteral[i - 1] = true;
+                }
             }
 
             gResult.setHead(h);
@@ -1723,8 +1727,10 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                         h[i - 1] = r.getObject(i);
 
                         if (r.wasNull()) {
-                            h[i - 1] = (isVarChar[i - 1] ? NULL_STR
-                                                         : null);
+                            h[i - 1] = (nullLiteral[i - 1] ? NULL_STR : null);
+                        } else if (m.getColumnType(i) == java.sql.Types.VARBINARY ||
+                                   m.getColumnType(i) == java.sql.Types.BINARY) {
+                            h[i - 1] = r.getString(i);
                         }
                     } catch (SQLException e) {}
                 }
