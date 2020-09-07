@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import javax.swing.JFrame;
 //  weconsultants@users 20050215 - version 1.8.0 -  Update: Compatbilty fix for JDK 1.3
 //      - Replaced: Objects JSpinner spinnerFontSizes and SpinnerNumberModel spinnerModelSizes
 //        for JComboBox fontSizesComboBox and String fontSizes[];
-public class FontDialogSwing extends JDialog {
+class FontDialogSwing extends JDialog {
 
     private static boolean      isRunning   = false;
     private static final String BACKGROUND  = "Background";

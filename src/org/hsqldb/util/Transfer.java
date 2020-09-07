@@ -120,7 +120,7 @@ import java.awt.image.MemoryImageSource;
   * @version 2.5.0
   * @since Hypersonic SQL
  */
-public class Transfer extends Applet
+public class Transfer extends Panel
 implements WindowListener, ActionListener, ItemListener, Traceable {
 
     Frame            fMain;

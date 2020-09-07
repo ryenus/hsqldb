@@ -104,7 +104,7 @@ import org.hsqldb.lib.RCData;
  * @version 2.5.1
  * @since Hypersonic SQL
  */
-public class DatabaseManager extends Applet
+public class DatabaseManager extends Panel
 implements ActionListener, WindowListener, KeyListener {
 
     static final String    NL           = System.getProperty("line.separator");
