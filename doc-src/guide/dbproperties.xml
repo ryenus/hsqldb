@@ -693,8 +693,13 @@
             other use is for applications where it is not easy to configure
             the environment to shutdown the database. Examples reported by
             users include web application servers, where the closing of the
-            last connection coincides with the web app being shut
-            down.</para><programlisting> jdbc:hsqldb:file:enrolments;shutdown=true</programlisting></entry>
+            last connection coincides with the web app being shut down. Note
+            the automatic shutdown happens in a background thread and the
+            Connection.close() call returns before the shutdown is complete.
+            This may cause an issue if the shutdown takes a long time to save
+            the data and the user application (or unit test) immediately reopens the
+            database while this is happening. In these contexts, use an
+            explicit SHUTDOWN as an SQL statement.</para><programlisting> jdbc:hsqldb:file:enrolments;shutdown=true</programlisting></entry>
           </row>
         </tbody>
       </tgroup>
