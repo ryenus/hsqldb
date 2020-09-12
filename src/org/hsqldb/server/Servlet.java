@@ -130,7 +130,7 @@ import org.hsqldb.rowio.RowOutputBinary;
  * calls are supported.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.5.2
  * @since 1.6.2
  */
 public class Servlet extends HttpServlet {
@@ -159,7 +159,14 @@ public class Servlet extends HttpServlet {
             getInitParameter("hsqldb.server.use_web-inf_path");
 
         if (!dbStr.equals(".") && "true".equalsIgnoreCase(useWebInfStr)) {
-            dbStr = getServletContext().getRealPath("/") + "WEB-INF/" + dbStr;
+            String realPath = getServletContext().getRealPath("/");
+            // bug #1350 to work with Tomcat 8 and above
+            if (realPath != null) {
+                if (!realPath.endsWith("/")) {
+                    realPath += '/';
+                }
+                dbStr = realPath + "WEB-INF/" + dbStr;
+            }
         }
 
 // end WEB-INF patch
