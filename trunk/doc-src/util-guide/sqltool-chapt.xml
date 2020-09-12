@@ -4573,7 +4573,7 @@ SELECT * FROM t
                '<varname>sqltool.REMOVE_EMPTY_VARS</varname>' to
                <literal>false</literal>
                and set <varname>*NULL_REP_TOKEN</varname> to the
-               empty string like "<literal>* *NULL_RP_TOKEN =</literal>".
+               empty string like "<literal>* *NULL_REP_TOKEN =</literal>".
                This will cause both nulls and empty strings to write empty
                strings to the export CSV file; and will cause empty strings in
                the import CSV file to create nulls.
