@@ -234,7 +234,8 @@ import java.sql.SQLType;
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
  */
-public class JDBCPreparedStatement extends JDBCStatementBase implements PreparedStatement {
+public class JDBCPreparedStatement extends JDBCStatementBase implements
+    PreparedStatement {
 
     /**
      * <!-- start generic documentation -->
@@ -383,15 +384,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
-        checkSetParameterIndex(parameterIndex);
 
-        if (parameterTypes[parameterIndex - 1].typeCode
-                == Types.SQL_SMALLINT) {
-            parameterValues[--parameterIndex] = Integer.valueOf(x);
-            parameterSet[parameterIndex]      = Boolean.TRUE;
-
-            return;
-        }
         setIntParameter(parameterIndex, x);
     }
 
@@ -413,14 +406,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
-        checkSetParameterIndex(parameterIndex);
 
-        if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_INTEGER) {
-            parameterValues[--parameterIndex] = Integer.valueOf(x);
-            parameterSet[parameterIndex]      = Boolean.TRUE;
-
-            return;
-        }
         setIntParameter(parameterIndex, x);
     }
 
@@ -442,14 +428,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
-        checkSetParameterIndex(parameterIndex);
 
-        if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BIGINT) {
-            parameterValues[--parameterIndex] = Long.valueOf(x);
-            parameterSet[parameterIndex]      = Boolean.TRUE;
-
-            return;
-        }
         setLongParameter(parameterIndex, x);
     }
 
@@ -856,7 +835,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             checkClosed();
         }
         Arrays.fill(parameterValues, null);
-        Arrays.fill(parameterSet, null);
+        Arrays.fill(parameterSet, false);
         Arrays.fill(streamLengths, 0, streamLengths.length, 0);
     }
 
@@ -1387,14 +1366,16 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         checkParameterIndex(parameterIndex);
 
-        Type type = this.parameterMetaData.columnTypes[parameterIndex - 1];
+        int  index = parameterIndex - 1;
+        Type type  = parameterMetaData.columnTypes[index];
 
         if (!type.isArrayType()) {
             throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
         if (x == null) {
-            setParameter(parameterIndex, null);
+            parameterValues[index] = null;
+            parameterSet[index]    = true;
 
             return;
         }
@@ -1426,8 +1407,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 throw JDBCUtil.notSupported();
             }
         }
-        parameterValues[parameterIndex - 1] = data;
-        parameterSet[parameterIndex - 1]    = Boolean.TRUE;
+        parameterValues[index] = data;
+        parameterSet[index]    = true;
     }
 
     /**
@@ -1526,7 +1507,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (x == null) {
             parameterValues[i] = null;
-            parameterSet[i]    = Boolean.TRUE;
+            parameterSet[i]    = true;
 
             return;
         }
@@ -1558,7 +1539,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             default :
                 throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
-        parameterSet[i] = Boolean.TRUE;
+        parameterSet[i] = true;
     }
 
     /**
@@ -1596,16 +1577,16 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         checkSetParameterIndex(parameterIndex);
 
-        int i = parameterIndex - 1;
+        int index = parameterIndex - 1;
 
         if (x == null) {
-            parameterValues[i] = null;
-            parameterSet[i]    = Boolean.TRUE;
+            parameterValues[index] = null;
+            parameterSet[index]    = true;
 
             return;
         }
 
-        Type     outType    = parameterTypes[i];
+        Type     outType    = parameterTypes[index];
         long     millis     = x.getTime();
         int      zoneOffset = 0;
         Calendar calendar   = cal == null ? session.getCalendar()
@@ -1627,9 +1608,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             default :
                 throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
-        parameterValues[i] = new TimeData((int) (millis / 1000), 0,
+        parameterValues[index] = new TimeData((int) (millis / 1000), 0,
                 zoneOffset / 1000);
-        parameterSet[i] = Boolean.TRUE;
+        parameterSet[index] = true;
     }
 
     /**
@@ -1672,16 +1653,16 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         checkSetParameterIndex(parameterIndex);
 
-        int i = parameterIndex - 1;
+        int index = parameterIndex - 1;
 
         if (x == null) {
-            parameterValues[i] = null;
-            parameterSet[i]    = Boolean.TRUE;
+            parameterValues[index] = null;
+            parameterSet[index]    = true;
 
             return;
         }
 
-        Type     outType    = parameterTypes[i];
+        Type     outType    = parameterTypes[index];
         long     millis     = x.getTime();
         long     seconds;
         int      zoneOffset = 0;
@@ -1702,14 +1683,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                     || seconds > DateTimeType.epochLimitSeconds) {
                     throw JDBCUtil.sqlException(ErrorCode.X_22008);
                 }
-                parameterValues[i] = new TimestampData(seconds,
+                parameterValues[index] = new TimestampData(seconds,
                         x.getNanos(), zoneOffset / 1000);
 
                 break;
             case Types.SQL_TIME :
                 millis = HsqlDateTime.getNormalisedTime(
                         session.getCalendarGMT(), millis);
-                parameterValues[i] = new TimeData((int) (millis / 1000),
+                parameterValues[index] = new TimeData((int) (millis / 1000),
                         x.getNanos(), 0);
 
                 break;
@@ -1717,7 +1698,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 millis = HsqlDateTime.getNormalisedTime(
                         session.getCalendarGMT(), millis);
                 zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
-                parameterValues[i] = new TimeData((int) (millis / 1000),
+                parameterValues[index] = new TimeData((int) (millis / 1000),
                         x.getNanos(), zoneOffset / 1000);
 
                 break;
@@ -1731,13 +1712,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                     throw JDBCUtil.sqlException(ErrorCode.X_22008);
                 }
 
-                parameterValues[i] = new TimestampData(seconds);
+                parameterValues[index] = new TimestampData(seconds);
 
                 break;
             default :
                 throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
-        parameterSet[i] = Boolean.TRUE;
+        parameterSet[index] = true;
     }
 
     /**
@@ -2130,7 +2111,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @see java.sql.ParameterMetaData
      * @since JDK 1.4, HSQL 1.7.0
      */
-    public synchronized ParameterMetaData getParameterMetaData() throws SQLException {
+    public synchronized ParameterMetaData getParameterMetaData() throws
+        SQLException {
 
         checkClosed();
 
@@ -2537,7 +2519,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @param length the number of bytes in the stream
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @since JDK 1.6 b86, HSQLDB 2.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized void setAsciiStream(int parameterIndex,
             java.io.InputStream x, long length) throws SQLException {
@@ -2599,7 +2581,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @param length the number of bytes in the stream
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @since JDK 1.6 b86, HSQLDB 2.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized void setBinaryStream(int parameterIndex,
             java.io.InputStream x, long length) throws SQLException {
@@ -2683,7 +2665,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @param length the number of characters in the stream
      * @exception SQLException if a database access error occurs or
      * this method is called on a closed <code>PreparedStatement</code>
-     * @since JDK 1.6 b86, HSQLDB 2.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized void setCharacterStream(int parameterIndex,
             java.io.Reader reader, long length) throws SQLException {
@@ -3714,7 +3696,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @throws SQLException if this method is called on a closed
      * <code>Statement</code>
      * <p>
-     * @since JDK 1.6 Build 81, HSQLDB 2.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized void setPoolable(
             boolean poolable) throws SQLException {
@@ -3734,7 +3716,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @throws SQLException if this method is called on a closed
      * <code>Statement</code>
      * <p>
-     * @since JDK 1.6 Build 81, HSQLDB 2.0
+     * @since JDK 1.6, HSQLDB 2.0
      * <p>
      * @see #setPoolable(boolean) setPoolable(boolean)
      */
@@ -4138,11 +4120,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         int paramCount = parameterMetaData.getColumnCount();
 
         parameterValues = new Object[paramCount];
-        parameterSet    = new Boolean[paramCount];
+        parameterSet    = new boolean[paramCount];
         streamLengths   = new long[paramCount];
 
-        //
-        //
         for (int i = 0; i < paramCount; i++) {
             if (parameterTypes[i].isLobType()) {
                 hasLOBs = true;
@@ -4177,7 +4157,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         parameterTypes    = result.metaData.columnTypes;
         parameterModes    = new byte[paramCount];
         parameterValues   = new Object[paramCount];
-        parameterSet      = new Boolean[paramCount];
+        parameterSet      = new boolean[paramCount];
         streamLengths     = new long[paramCount];
 
         //
@@ -4233,20 +4213,23 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @param i The parameter index to check
      * @throws SQLException if the specified parameter index is invalid
      */
-    protected void checkSetParameterIndex(int i) throws SQLException {
+    protected void checkSetParameterIndex(int parameterIndex) throws
+        SQLException {
 
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
 
-        if (i < 1 || i > parameterValues.length) {
-            String msg = "parameter index out of range: " + i;
+        if (parameterIndex < 1 || parameterIndex > parameterValues.length) {
+            String msg = "parameter index out of range: " + parameterIndex;
 
             throw JDBCUtil.outOfRangeArgument(msg);
         }
 
-        if (parameterModes[i - 1] == SchemaObject.ParameterModes.PARAM_OUT) {
-            String msg = "Not IN or INOUT mode for parameter: " + i;
+        if (parameterModes[parameterIndex - 1] ==
+            SchemaObject.ParameterModes.PARAM_OUT) {
+            String msg = "Not IN or INOUT mode for parameter: " +
+                         parameterIndex;
 
             throw JDBCUtil.invalidArgument(msg);
         }
@@ -4259,21 +4242,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @param i The parameter index to check
      * @throws SQLException if the specified parameter index is invalid
      */
-    protected void checkGetParameterIndex(int i) throws SQLException {
-
-        String msg;
+    protected void checkGetParameterIndex(int parameterIndex) throws
+        SQLException {
 
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
 
-        if (i < 1 || i > parameterValues.length) {
-            msg = "parameter index out of range: " + i;
+        if (parameterIndex < 1 || parameterIndex > parameterValues.length) {
+            String msg = "parameter index out of range: " + parameterIndex;
 
             throw JDBCUtil.outOfRangeArgument(msg);
         }
 
-        int mode = parameterModes[i - 1];
+        int mode = parameterModes[parameterIndex - 1];
 
         switch (mode) {
 
@@ -4282,9 +4264,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case SchemaObject.ParameterModes.PARAM_INOUT :
                 break;
             case SchemaObject.ParameterModes.PARAM_IN :
-            default :
-                msg = "Not OUT or INOUT mode: " + mode + " for parameter: "
-                      + i;
+            default:
+                String msg = "Not OUT or INOUT mode for parameter: " +
+                             parameterIndex;
 
                 throw JDBCUtil.invalidArgument(msg);
         }
@@ -4307,8 +4289,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         for (int i = 0; i < parameterSet.length; i++) {
             if (parameterModes[i] != SchemaObject.ParameterModes.PARAM_OUT) {
-                if (parameterSet[i] == null) {
-                    throw JDBCUtil.sqlException(ErrorCode.JDBC_PARAMETER_NOT_SET);
+                if (!parameterSet[i]) {
+                    throw JDBCUtil.sqlException(ErrorCode.
+                        JDBC_PARAMETER_NOT_SET);
                 }
             }
         }
@@ -4322,20 +4305,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @param o object
      * @throws SQLException if either argument is not acceptable.
      */
-    void setParameter(int i, Object o) throws SQLException {
+    void setParameter(int parameterIndex, Object o) throws SQLException {
 
-        checkSetParameterIndex(i);
+        checkSetParameterIndex(parameterIndex);
 
-        i--;
+        int index = parameterIndex - 1;
 
         if (o == null) {
-            parameterValues[i] = null;
-            parameterSet[i]    = Boolean.TRUE;
+            parameterValues[index] = null;
+            parameterSet[index]    = true;
 
             return;
         }
 
-        Type outType = parameterTypes[i];
+        Type outType = parameterTypes[index];
 
         switch (outType.typeCode) {
 
@@ -4424,7 +4407,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             case Types.SQL_ARRAY :
                 if (o instanceof Array) {
-                    setArray(i + 1, (Array) o);
+                    setArray(parameterIndex, (Array) o);
 
                     return;
                 }
@@ -4449,11 +4432,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 throw JDBCUtil.sqlException(ErrorCode.X_42563);
 
             case Types.SQL_BLOB :
-                setBlobParameter(i + 1, o);
+                setBlobParameter(parameterIndex, o);
 
                 return;
             case Types.SQL_CLOB :
-                setClobParameter(i + 1, o);
+                setClobParameter(parameterIndex, o);
 
                 return;
             case Types.SQL_DATE :
@@ -4547,8 +4530,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                     throw JDBCUtil.sqlException(e);
                 }
         }
-        parameterValues[i] = o;
-        parameterSet[i]    = Boolean.TRUE;
+        parameterValues[index] = o;
+        parameterSet[index]    = true;
     }
 
     void setClobParameter(int i, Object o) throws SQLException {
@@ -4569,7 +4552,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 parameterValues[i - 1] = is;
                 streamLengths[i - 1]   = streamLength;
-                parameterSet[i - 1]    = Boolean.FALSE;
+                parameterSet[i - 1]    = true;
 
                 return;
             }
@@ -4592,20 +4575,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
             parameterValues[i - 1] = o;
             streamLengths[i - 1]   = streamLength;
-            parameterSet[i - 1]    = Boolean.FALSE;
+            parameterSet[i - 1]    = true;
 
             return;
         } else if (o instanceof Reader) {
             parameterValues[i - 1] = o;
             streamLengths[i - 1]   = streamLength;
-            parameterSet[i - 1]    = Boolean.FALSE;
+            parameterSet[i - 1]    = true;
 
             return;
         } else if (o instanceof String) {
             JDBCClob clob = new JDBCClob((String) o);
 
             parameterValues[i - 1] = clob;
-            parameterSet[i - 1]    = Boolean.FALSE;
+            parameterSet[i - 1]    = true;
 
             return;
         }
@@ -4637,7 +4620,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 parameterValues[i - 1] = is;
                 streamLengths[i - 1]   = streamLength;
-                parameterSet[i - 1]    = Boolean.FALSE;
+                parameterSet[i - 1]    = true;
 
                 return;
             }
@@ -4649,7 +4632,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             return;
         } else if (o instanceof Blob) {
             parameterValues[i - 1] = o;
-            parameterSet[i - 1]    = Boolean.FALSE;
+            parameterSet[i - 1]    = true;
 
             return;
         } else if (o instanceof BlobInputStream) {
@@ -4664,20 +4647,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             // in the same database ? see if it blocks in
             parameterValues[i - 1] = o;
             streamLengths[i - 1]   = streamLength;
-            parameterSet[i - 1]    = Boolean.FALSE;
+            parameterSet[i - 1]    = true;
 
             return;
         } else if (o instanceof InputStream) {
             parameterValues[i - 1] = o;
             streamLengths[i - 1]   = streamLength;
-            parameterSet[i - 1]    = Boolean.FALSE;
+            parameterSet[i - 1]    = true;
 
             return;
         } else if (o instanceof byte[]) {
             JDBCBlob blob = new JDBCBlob((byte[]) o);
 
             parameterValues[i - 1] = blob;
-            parameterSet[i - 1]    = Boolean.TRUE;
+            parameterSet[i - 1]    = true;
 
             return;
         }
@@ -4691,11 +4674,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @param value object to set
      * @throws SQLException if either argument is not acceptable
      */
-    void setIntParameter(int i, int value) throws SQLException {
+    void setIntParameter(int parameterIndex, int value) throws SQLException {
 
-        checkSetParameterIndex(i);
+        checkSetParameterIndex(parameterIndex);
 
-        int outType = parameterTypes[i - 1].typeCode;
+        int index   = parameterIndex - 1;
+        int outType = parameterTypes[index].typeCode;
 
         switch (outType) {
 
@@ -4704,16 +4688,16 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_INTEGER : {
                 Object o = Integer.valueOf(value);
 
-                parameterValues[i - 1] = o;
-                parameterSet[i - 1]    = Boolean.TRUE;
+                parameterValues[index] = o;
+                parameterSet[index]    = true;
 
                 break;
             }
             case Types.SQL_BIGINT : {
                 Object o = Long.valueOf(value);
 
-                parameterValues[i - 1] = o;
-                parameterSet[i - 1]    = Boolean.TRUE;
+                parameterValues[index] = o;
+                parameterSet[index]    = true;
 
                 break;
             }
@@ -4722,7 +4706,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.OTHER :
                 throw JDBCUtil.sqlException(ErrorCode.X_42563);
             default :
-                setParameter(i, Integer.valueOf(value));
+                setParameter(parameterIndex, Integer.valueOf(value));
         }
     }
 
@@ -4734,19 +4718,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @param value object to set
      * @throws SQLException if either argument is not acceptable
      */
-    void setLongParameter(int i, long value) throws SQLException {
+    void setLongParameter(int parameterIndex, long value) throws SQLException {
 
-        checkSetParameterIndex(i);
+        checkSetParameterIndex(parameterIndex);
+        int index   = parameterIndex - 1;
 
-        int outType = parameterTypes[i - 1].typeCode;
+        int outType = parameterTypes[index].typeCode;
 
         switch (outType) {
 
             case Types.SQL_BIGINT :
                 Object o = Long.valueOf(value);
 
-                parameterValues[i - 1] = o;
-                parameterSet[i - 1]    = Boolean.TRUE;
+                parameterValues[index] = o;
+                parameterSet[index]    = true;
 
                 break;
             case Types.SQL_BINARY :
@@ -4754,7 +4739,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.OTHER :
                 throw JDBCUtil.sqlException(ErrorCode.X_42563);
             default :
-                setParameter(i, Long.valueOf(value));
+                setParameter(parameterIndex, Long.valueOf(value));
         }
     }
 
@@ -4916,7 +4901,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     protected Object[] parameterValues;
 
     /** Flags for bound variables. */
-    protected Boolean[] parameterSet;
+    protected boolean[] parameterSet;
 
     /** The SQL types of the parameters. */
     protected Type[] parameterTypes;

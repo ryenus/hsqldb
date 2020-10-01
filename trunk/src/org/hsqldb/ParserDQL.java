@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
+import org.hsqldb.QueryExpression.RecursiveQuerySettings;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
@@ -65,7 +66,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -283,7 +284,7 @@ public class ParserDQL extends ParserBase {
                             typeNumber = Types.SQL_DOUBLE;
                         } else if ("TIMESTAMPTZ".equals(token.tokenString)) {
                             typeNumber = Types.SQL_TIMESTAMP_WITH_TIME_ZONE;
-                            scale      = 6;
+                            scale = DTIType.defaultTimestampFractionPrecision;
                         }
                 }
             }
@@ -1098,68 +1099,9 @@ public class ParserDQL extends ParserBase {
 
                 readThis(Tokens.CLOSEBRACKET);
 
-                if (token.tokenType == Tokens.CYCLE) {
-                    throw unsupportedFeature();
-                }
-
-                if (recursive && token.tokenType == Tokens.CYCLE) {
-                    Table    table           = td;
-                    int[]    cycleColumnList = readColumnList(table, false);
-                    HsqlName name;
-
-                    readThis(Tokens.SET);
-                    checkIsSimpleName();
-
-                    name = database.nameManager.newColumnHsqlName(
-                        table.getName(), token.tokenString,
-                        token.isDelimitedIdentifier);
-
-                    ColumnSchema cycleMarkColumn = new ColumnSchema(name,
-                        null, true, false, null);
-
-                    if (table.getColumnIndex(name.name) != -1) {
-                        throw Error.error(ErrorCode.X_42578,
-                                          token.tokenString);
-                    }
-
-                    read();
-                    readThis(Tokens.TO);
-
-                    String cycleMarkValue = readQuotedString();
-
-                    if (cycleMarkValue.length() != 1) {
-                        throw unexpectedToken(cycleMarkValue);
-                    }
-
-                    readThis(Tokens.DEFAULT);
-
-                    String noncycleMarkValue = readQuotedString();
-
-                    if (noncycleMarkValue.length() != 1) {
-                        throw unexpectedToken(noncycleMarkValue);
-                    }
-
-                    if (cycleMarkValue.equals(noncycleMarkValue)) {
-                        throw unexpectedToken(cycleMarkValue);
-                    }
-
-                    readThis(Tokens.USING);
-                    checkIsSimpleName();
-                    checkIsSimpleName();
-
-                    name = database.nameManager.newColumnHsqlName(
-                        table.getName(), token.tokenString,
-                        token.isDelimitedIdentifier);
-
-                    if (table.getColumnIndex(name.name) != -1) {
-                        throw Error.error(ErrorCode.X_42578,
-                                          token.tokenString);
-                    }
-
-                    read();
-
-                    ColumnSchema pathColumn = new ColumnSchema(name, null,
-                        true, false, null);
+                if (td.queryExpression != null
+                        && td.queryExpression.isRecursive()) {
+                    XreadRecursiveFeatures(td);
                 }
 
                 compileContext.registerSubquery(queryName.name, td);
@@ -1173,6 +1115,125 @@ public class ParserDQL extends ParserBase {
                 break;
             }
         }
+    }
+
+    void XreadRecursiveFeatures(TableDerived table) {
+
+        RecursiveQuerySettings settings = null;
+
+        if (token.tokenType == Tokens.SEARCH) {
+            read();
+
+            settings = new RecursiveQuerySettings();
+
+            switch (token.tokenType) {
+
+                case Tokens.DEPTH :
+                    read();
+
+                    settings.searchOrderType =
+                        RecursiveQuerySettings.depthFirst;
+                    break;
+
+                case Tokens.BREADTH :
+                    read();
+
+                    settings.searchOrderType =
+                        RecursiveQuerySettings.breadthFirst;
+                    break;
+
+                default :
+                    throw unexpectedTokenRequire("DEPTH or BREADTH");
+            }
+
+            readThis(Tokens.FIRST);
+            readThis(Tokens.BY);
+
+            settings.searchOrderSort = XreadOrderBy();
+
+            readThis(Tokens.SET);
+            checkIsSimpleName();
+
+            HsqlName searchOrderName =
+                database.nameManager.newColumnHsqlName(table.getName(),
+                    token.tokenString, token.isDelimitedIdentifier);
+
+            if (table.findColumn(searchOrderName.name) != -1) {
+                throw Error.error(ErrorCode.X_42578, token.tokenString);
+            }
+
+            read();
+
+            settings.searchOrderSetColumn = new ColumnSchema(searchOrderName,
+                    Type.SQL_INTEGER, true, false, null);
+        }
+
+        if (token.tokenType == Tokens.CYCLE) {
+            read();
+
+            if (settings == null) {
+                settings = new RecursiveQuerySettings();
+            }
+
+            OrderedHashSet set = new OrderedHashSet();
+
+            readColumnNameList(set, null, false);
+
+            settings.cycleColumnList = table.getColumnIndexes(set);
+
+            readThis(Tokens.SET);
+            checkIsSimpleName();
+
+            HsqlName cycleName =
+                database.nameManager.newColumnHsqlName(table.getName(),
+                    token.tokenString, token.isDelimitedIdentifier);
+
+            settings.cycleMarkColumn = new ColumnSchema(cycleName,
+                    Type.SQL_CHAR, true, false, null);
+
+            if (table.findColumn(cycleName.name) != -1) {
+                throw Error.error(ErrorCode.X_42578, token.tokenString);
+            }
+
+            read();
+            readThis(Tokens.TO);
+
+            settings.cycleMarkValue = readQuotedString();
+
+            if (settings.cycleMarkValue.length() != 1) {
+                throw unexpectedToken(settings.cycleMarkValue);
+            }
+
+            readThis(Tokens.DEFAULT);
+
+            settings.noCycleMarkValue = readQuotedString();
+
+            if (settings.noCycleMarkValue.length() != 1) {
+                throw unexpectedToken(settings.noCycleMarkValue);
+            }
+
+            if (settings.cycleMarkValue.equals(settings.noCycleMarkValue)) {
+                throw unexpectedToken(settings.cycleMarkValue);
+            }
+
+            readThis(Tokens.USING);
+            checkIsSimpleName();
+
+            HsqlName pathName =
+                database.nameManager.newColumnHsqlName(table.getName(),
+                    token.tokenString, token.isDelimitedIdentifier);
+
+            if (table.findColumn(pathName.name) != -1) {
+                throw Error.error(ErrorCode.X_42578, token.tokenString);
+            }
+
+            read();
+
+            settings.cyclePathColumn = new ColumnSchema(pathName,
+                    Type.SQL_ARRAY_ALL_TYPES, true, false, null);
+        }
+
+        table.queryExpression.setRecursiveQuerySettings(settings);
     }
 
     QueryExpression XreadQueryExpressionBody() {
@@ -5115,17 +5176,43 @@ public class ParserDQL extends ParserBase {
 
         QuerySpecification leftQuerySpecification = XreadSimpleTable();
 
+        leftQuerySpecification.isBaseMergeable = false;
+        leftQuerySpecification.isMergeable     = false;
+
         leftQuerySpecification.resolveReferences(session,
                 compileContext.getOuterRanges());
         leftQuerySpecification.resolve(session);
 
-        TableDerived td = newSubQueryTable(name, leftQuerySpecification,
-                                           OpTypes.TABLE_SUBQUERY);
+        HsqlName leftName =
+            database.nameManager.newHsqlName(SqlInvariants.SYSTEM_SUBQUERY,
+                                             false, SchemaObject.SUBQUERY);
+        TableDerived leftTable = newSubQueryTable(leftName,
+            leftQuerySpecification, OpTypes.TABLE_SUBQUERY);
 
         compileContext.decrementDepth();
-        td.prepareTable(session, columnNames);
+        leftTable.prepareTable(session, columnNames);
+
+        TableDerived workTable = newSubQueryTable(name,
+            leftQuerySpecification, OpTypes.TABLE_SUBQUERY);
+
+        workTable.prepareTable(session, columnNames);
+
+        workTable.queryExpression = null;
+
+        HsqlName recursiveName =
+            database.nameManager.newHsqlName("RECURSIVE_TABLE", false,
+                                             SchemaObject.SUBQUERY);
+        TableDerived recursiveTable = newSubQueryTable(name,
+            leftQuerySpecification, OpTypes.TABLE_SUBQUERY);
+
+        recursiveTable.prepareTable(session, columnNames);
+
+        recursiveTable.queryExpression = null;
+
+        compileContext.registerSubquery(recursiveName.name);
+        compileContext.registerSubquery(recursiveName.name, recursiveTable);
         compileContext.registerSubquery(name.name);
-        compileContext.registerSubquery(name.name, td);
+        compileContext.registerSubquery(name.name, workTable);
         checkIsThis(Tokens.UNION);
 
         int                unionType               = XreadUnionType();
@@ -5134,13 +5221,17 @@ public class ParserDQL extends ParserBase {
             leftQuerySpecification);
 
         rightQuerySpecification.isBaseMergeable = false;
+        rightQuerySpecification.isMergeable     = false;
 
         rightQuerySpecification.resolveReferences(session,
                 compileContext.getOuterRanges());
         queryExpression.addUnion(rightQuerySpecification, unionType);
 
-        queryExpression.isRecursive    = true;
-        queryExpression.recursiveTable = td;
+        queryExpression.isRecursive          = true;
+        queryExpression.recursiveWorkTable   = workTable;
+        queryExpression.recursiveResultTable = recursiveTable;
+        queryExpression.isBaseMergeable      = false;
+        queryExpression.isMergeable          = false;
 
         queryExpression.resolve(session);
 
@@ -7277,9 +7368,9 @@ public class ParserDQL extends ParserBase {
         private HsqlArrayList namedSubqueries;
 
         //
-        private OrderedIntKeyHashMap parameters   = new OrderedIntKeyHashMap();
-        private HsqlArrayList usedSequences       = new HsqlArrayList(16, true);
-        private HsqlArrayList        usedRoutines = new HsqlArrayList(16, true);
+        private OrderedIntKeyHashMap parameters = new OrderedIntKeyHashMap();
+        private HsqlArrayList usedSequences     = new HsqlArrayList(16, true);
+        private HsqlArrayList usedRoutines      = new HsqlArrayList(16, true);
         private OrderedIntKeyHashMap rangeVariables =
             new OrderedIntKeyHashMap();
         private HsqlArrayList usedObjects = new HsqlArrayList(16, true);
@@ -7472,8 +7563,6 @@ public class ParserDQL extends ParserBase {
 
             return rangeVarIndex++;
         }
-
-        private int test;
 
         public int getNextResultRangeVarIndex() {
 

@@ -119,7 +119,7 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
             object.setPos(pos);
 
             if (tx) {
-                RowAction.addInsertAction(session, table, (Row) object);
+                RowAction.addInsertAction(session, table, this, (Row) object);
             }
 
             cache.add(object, false);

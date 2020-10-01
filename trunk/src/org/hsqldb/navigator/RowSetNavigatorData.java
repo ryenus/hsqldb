@@ -53,7 +53,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class RowSetNavigatorData extends RowSetNavigator
@@ -81,7 +81,7 @@ implements Comparator<Object[]> {
     Index idIndex;
 
     //
-    TreeMap<Object[], Integer> rowMap;
+    TreeMap<Object[], Integer> groupMap;
     LongKeyHashMap             idMap;
 
     RowSetNavigatorData(Session session) {
@@ -100,7 +100,7 @@ implements Comparator<Object[]> {
 
         if (select.isGrouped) {
             mainIndex = select.groupIndex;
-            rowMap    = new TreeMap<Object[], Integer>(this);
+            groupMap    = new TreeMap<Object[], Integer>(this);
         }
 
         if (select.idIndex != null) {
@@ -164,8 +164,8 @@ implements Comparator<Object[]> {
 
         dataTable[size] = data;
 
-        if (rowMap != null) {
-            rowMap.put(data, size);
+        if (groupMap != null) {
+            groupMap.put(data, size);
         }
 
         if (idMap != null) {
@@ -179,7 +179,7 @@ implements Comparator<Object[]> {
 
     public void setPosition(Object[] data) {
 
-        Integer mapPos = rowMap.get(data);
+        Integer mapPos = groupMap.get(data);
 
         if (mapPos == null) {
             return;
@@ -264,7 +264,7 @@ implements Comparator<Object[]> {
     }
 
     public void resetRowMap() {
-        rowMap = new TreeMap(this);
+        groupMap = new TreeMap(this);
     }
 
     public boolean absolute(int position) {
@@ -302,6 +302,20 @@ implements Comparator<Object[]> {
 
         currentPos--;
         size--;
+    }
+
+    public void removeRange(int start, int rows) {
+
+        ArrayUtil.adjustArray(ArrayUtil.CLASS_CODE_OBJECT, dataTable, size,
+                              start, -rows);
+
+        if (currentPos >= start + rows) {
+            currentPos -= rows;
+        } else if (currentPos >= start) {
+            currentPos = start;
+        }
+
+        size -= rows;
     }
 
     public void reset() {
@@ -460,6 +474,23 @@ implements Comparator<Object[]> {
         reset();
     }
 
+    public void exceptNoDedup(RowSetNavigatorData other) {
+
+        other.sortFull();
+        reset();
+
+        while (next()) {
+            Object[] currentData = getCurrent();
+            boolean  hasRow      = other.containsRow(currentData);
+
+            if (hasRow) {
+                removeCurrent();
+            }
+        }
+
+        reset();
+    }
+
     public void exceptAll(RowSetNavigatorData other) {
 
         Object[]    compareData = null;
@@ -572,30 +603,13 @@ implements Comparator<Object[]> {
             return;
         }
 
-        if (limitstart != 0) {
+        if ((long) limitstart + limitcount < size) {
             reset();
-
-            for (int i = 0; i < limitstart; i++) {
-                next();
-                removeCurrent();
-            }
+            removeRange(limitstart + limitcount,
+                        size - limitstart - limitcount);
         }
 
-        if (limitcount >= size) {
-            return;
-        }
-
-        reset();
-
-        for (int i = 0; i < limitcount; i++) {
-            next();
-        }
-
-        while (next()) {
-            removeCurrent();
-        }
-
-        reset();
+        removeRange(0, limitstart);
     }
 
     boolean hasNull(Object[] data) {
@@ -624,7 +638,7 @@ implements Comparator<Object[]> {
             return simpleAggregateData;
         }
 
-        Integer position = rowMap.get(data);
+        Integer position = groupMap.get(data);
 
         if (position == null) {
             return null;
@@ -640,7 +654,7 @@ implements Comparator<Object[]> {
      */
     public Object[] getGroupDataAndPosition(Object[] data) {
 
-        Integer mapPos = rowMap.get(data);
+        Integer mapPos = groupMap.get(data);
 
         if (mapPos == null) {
             return null;

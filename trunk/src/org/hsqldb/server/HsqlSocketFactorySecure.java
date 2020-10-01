@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -377,7 +377,7 @@ implements HandshakeCompletedListener {
             // TLS_HOSTNAME_MISMATCH
             throw new UnknownHostException(
                 Error.getMessage(
-                    ErrorCode.M_SERVER_SECURE_VERIFY_3, 0, new Object[] {
+                    ErrorCode.M_SERVER_SECURE_VERIFY_3, 0, new String[] {
                 CN, host
             }));
         }

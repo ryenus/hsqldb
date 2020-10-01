@@ -39,7 +39,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 2.0.0
  */
 public class TransactionManager2PL extends TransactionManagerCommon
@@ -220,7 +220,7 @@ implements TransactionManager {
         RowAction action;
 
         synchronized (row) {
-            action = RowAction.addDeleteAction(session, table, row,
+            action = RowAction.addDeleteAction(session, table, store, row,
                                                changedColumns);
         }
 

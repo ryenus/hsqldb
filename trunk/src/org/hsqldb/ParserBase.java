@@ -846,7 +846,7 @@ public class ParserBase {
         if (token.tokenType == Tokens.X_ENDPARSE) {
             return Error.parseError(ErrorCode.X_42590,
                                     ErrorCode.TOKEN_REQUIRED,
-                                    scanner.getLineNumber(), new Object[] {
+                                    scanner.getLineNumber(), new String[] {
                 "", required
             });
         }
@@ -866,7 +866,7 @@ public class ParserBase {
         }
 
         return Error.parseError(ErrorCode.X_42581, ErrorCode.TOKEN_REQUIRED,
-                                scanner.getLineNumber(), new Object[] {
+                                scanner.getLineNumber(), new String[] {
             tokenS, required
         });
     }

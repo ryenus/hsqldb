@@ -279,7 +279,7 @@ public abstract class ScriptWriterBase implements Runnable {
             fileStreamOut = new BufferedOutputStream(fos, 1 << 14);
         } catch (IOException e) {
             throw Error.error(e, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_Message_Pair, new Object[] {
+                              ErrorCode.M_Message_Pair, new String[] {
                 e.toString(), outFile
             });
         }

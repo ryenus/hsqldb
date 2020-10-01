@@ -39,7 +39,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Defines and enumerates reserved and non-reserved SQL keywords.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.7.2
  */
 public class Tokens {
@@ -708,6 +708,7 @@ public class Tokens {
     public static final String T_IGNORECASE           = "IGNORECASE";
     public static final String T_INDEX                = "INDEX";
     public static final String T_INDEXER              = "INDEXER";
+    public static final String T_INFINITY             = "INFINITY";
     public static final String T_INITIAL              = "INITIAL";
     public static final String T_INTEGRITY            = "INTEGRITY";
     public static final String T_INTERRUPT            = "INTERRUPT";
@@ -764,6 +765,7 @@ public class Tokens {
     static final String        T_REFERENTIAL          = "REFERENTIAL";
     public static final String T_REGULAR              = "REGULAR";
     static final String        T_RENAME               = "RENAME";
+    static final String        T_ROOTS                = "ROOTS";
     static final String        T_ROWNUM               = "ROWNUM";
     static final String        T_SCRIPT               = "SCRIPT";
     static final String        T_SEPARATOR            = "SEPARATOR";
@@ -827,6 +829,7 @@ public class Tokens {
     public static final String T_TYPES                = "TYPES";
     public static final String T_VARCHAR_IGNORECASE   = "VARCHAR_IGNORECASE";
     public static final String T_VARCHAR2             = "VARCHAR2";
+    public static final String T_UNLOAD               = "UNLOAD";
     public static final String T_UTF16                = "UTF16";
     static final String        T_WRITE_DELAY          = "WRITE_DELAY";
     public static final String T_YES                  = "YES";
@@ -860,6 +863,7 @@ public class Tokens {
     static final String        T_ASIN             = "ASIN";
     static final String        T_ATAN             = "ATAN";
     static final String        T_ATAN2            = "ATAN2";
+    static final String        T_BIN_TO_NUM       = "BIN_TO_NUM";
     static final String        T_BITAND           = "BITAND";
     static final String        T_BITANDNOT        = "BITANDNOT";
     static final String        T_BITNOT           = "BITNOT";
@@ -922,6 +926,7 @@ public class Tokens {
     static final String        T_POSITION_ARRAY   = "POSITION_ARRAY";
     static final String        T_RADIANS          = "RADIANS";
     static final String        T_RAND             = "RAND";
+    static final String        T_RATIO_TO_REPORT  = "RATIO_TO_REPORT";
     static final String        T_RAWTOHEX         = "RAWTOHEX";
     static final String        T_REGEXP_MATCHES   = "REGEXP_MATCHES";
     static final String        T_REGEXP_REPLACE   = "REGEXP_REPLACE";
@@ -1633,23 +1638,24 @@ public class Tokens {
     static final int        REGULAR        = 657;
     static final int        RENAME         = 658;
     static final int        RESET          = 659;
-    static final int        ROWNUM         = 660;
-    static final int        SCRIPT         = 661;
-    static final int        SEPARATOR      = 662;
-    static final int        SHUTDOWN       = 663;
-    static final int        STOP           = 664;
-    static final int        SYNONYM        = 665;
-    static final int        SYNTAX         = 666;
-    static final int        TDC            = 667;
-    static final int        TEMP           = 668;
-    static final int        TEXT           = 669;
-    static final int        TOP            = 670;
-    static final int        TTI            = 671;
-    static final int        TYPES          = 672;
-    static final int        USE            = 673;
-    static final int        UNLOAD         = 674;
-    static final int        VARCHAR2       = 675;
-    static final int        WRITE_DELAY    = 676;
+    static final int        ROOTS          = 660;
+    static final int        ROWNUM         = 661;
+    static final int        SCRIPT         = 662;
+    static final int        SEPARATOR      = 663;
+    static final int        SHUTDOWN       = 664;
+    static final int        STOP           = 665;
+    static final int        SYNONYM        = 666;
+    static final int        SYNTAX         = 667;
+    static final int        TDC            = 668;
+    static final int        TEMP           = 669;
+    static final int        TEXT           = 670;
+    static final int        TOP            = 671;
+    static final int        TTI            = 672;
+    static final int        TYPES          = 673;
+    static final int        USE            = 674;
+    static final int        UNLOAD         = 675;
+    static final int        VARCHAR2       = 676;
+    static final int        WRITE_DELAY    = 677;
 
     //
     static final int        ACOS                       = 701;
@@ -1814,6 +1820,7 @@ public class Tokens {
     static final int        SYS_GUID                   = 860;
     static final int        MODIFY                     = 861;
     static final int        KEEP                       = 862;
+    static final int        BIN_TO_NUM                 = 863;
 
     //
     public static final int MICROSECOND = 871;
@@ -1988,6 +1995,7 @@ public class Tokens {
                          CURRENT_DEFAULT_TRANSFORM_GROUP);
         reservedKeys.put(T_CURRENT_PATH, CURRENT_PATH);
         reservedKeys.put(T_CURRENT_ROLE, CURRENT_ROLE);
+        reservedKeys.put(T_CURRENT_ROW, CURRENT_ROW);
         reservedKeys.put(T_CURRENT_SCHEMA, CURRENT_SCHEMA);
         reservedKeys.put(T_CURRENT_TIME, CURRENT_TIME);
         reservedKeys.put(T_CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
@@ -2051,6 +2059,7 @@ public class Tokens {
         reservedKeys.put(T_GLOBAL, GLOBAL);
         reservedKeys.put(T_GRANT, GRANT);
         reservedKeys.put(T_GROUP, GROUP);
+        reservedKeys.put(T_GROUPS, GROUPS);
         reservedKeys.put(T_GROUPING, GROUPING);
         reservedKeys.put(T_HANDLER, HANDLER);
         reservedKeys.put(T_HAVING, HAVING);
@@ -2240,6 +2249,7 @@ public class Tokens {
         reservedKeys.put(T_USER, USER);
         reservedKeys.put(T_USING, USING);
         reservedKeys.put(T_VALUE, VALUE);
+        reservedKeys.put(T_VALUE_OF, VALUE_OF);
         reservedKeys.put(T_VALUES, VALUES);
         reservedKeys.put(T_VAR_POP, VAR_POP);
         reservedKeys.put(T_VAR_SAMP, VAR_SAMP);
@@ -2280,6 +2290,7 @@ public class Tokens {
         commandSet.put(T_BYTE, BYTE);
         commandSet.put(T_BLOCKING, BLOCKING);
         commandSet.put(T_BODY, BODY);
+        commandSet.put(T_BREADTH, BREADTH);
         commandSet.put(T_CACHE, CACHE);
         commandSet.put(T_CACHED, CACHED);
         commandSet.put(T_CASCADE, CASCADE);
@@ -2313,6 +2324,7 @@ public class Tokens {
         commandSet.put(T_DEFINER, DEFINER);
         commandSet.put(T_DEFRAG, DEFRAG);
         commandSet.put(T_DELAY, DELAY);
+        commandSet.put(T_DEPTH, DEPTH);
         commandSet.put(T_DESC, DESC);
         commandSet.put(T_DIAGNOSTICS, DIAGNOSTICS);
         commandSet.put(T_DIGEST, DIGEST);
@@ -2321,6 +2333,7 @@ public class Tokens {
         commandSet.put(T_ERROR, ERROR);
         commandSet.put(T_EVENT, EVENT);
         commandSet.put(T_EXCEPTION, EXCEPTION);
+        commandSet.put(T_EXCLUDE, EXCLUDE);
         commandSet.put(T_EXCLUDING, EXCLUDING);
         commandSet.put(T_EXPLAIN, EXPLAIN);
         commandSet.put(T_EXPORT, EXPORT);
@@ -2347,6 +2360,7 @@ public class Tokens {
         commandSet.put(T_INCREMENT, INCREMENT);
         commandSet.put(T_INDEX, INDEX);
         commandSet.put(T_INDEXER, INDEXER);
+        commandSet.put(T_INFINITY, INFINITY);
         commandSet.put(T_INITIAL, INITIAL);
         commandSet.put(T_INPUT, INPUT);
         commandSet.put(T_INSTEAD, INSTEAD);
@@ -2435,6 +2449,7 @@ public class Tokens {
         commandSet.put(T_ROLE, ROLE);
         commandSet.put(T_ROUTINE, ROUTINE);
         commandSet.put(T_ROW_COUNT, ROW_COUNT);
+        commandSet.put(T_ROOTS, ROOTS);
         commandSet.put(T_ROWNUM, ROWNUM);
         commandSet.put(T_SCALE, SCALE);
         commandSet.put(T_SCHEMA, SCHEMA);
@@ -2534,6 +2549,7 @@ public class Tokens {
         commandSet.put(T_ASIN, ASIN);
         commandSet.put(T_ATAN, ATAN);
         commandSet.put(T_ATAN2, ATAN2);
+        commandSet.put(T_BIN_TO_NUM, BIN_TO_NUM);
         commandSet.put(T_BITAND, BITAND);
         commandSet.put(T_BITANDNOT, BITANDNOT);
         commandSet.put(T_BITLENGTH, BITLENGTH);
@@ -2579,6 +2595,7 @@ public class Tokens {
         commandSet.put(T_INSTR, INSTR);
         commandSet.put(T_IFNULL, IFNULL);
         commandSet.put(T_ISNULL, ISNULL);
+        commandSet.put(T_KEEP, KEEP);
         commandSet.put(T_LAST_DAY, LAST_DAY);
         commandSet.put(T_LCASE, LCASE);
         commandSet.put(T_LEAST, LEAST);
@@ -2657,6 +2674,7 @@ public class Tokens {
         commandSet.put(T_UUID, UUID);
         commandSet.put(T_UNIX_MILLIS, UNIX_MILLIS);
         commandSet.put(T_UNIX_TIMESTAMP, UNIX_TIMESTAMP);
+        commandSet.put(T_UNLOAD, UNLOAD);
         commandSet.put(T_WEEK, WEEK);
         commandSet.put(T_WEEK_OF_YEAR, WEEK_OF_YEAR);
 

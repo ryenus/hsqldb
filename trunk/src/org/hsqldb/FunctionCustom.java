@@ -77,7 +77,7 @@ import org.hsqldb.types.Types;
  * Some functions are translated into equivalent SQL Standard functions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class FunctionCustom extends FunctionSQL {
@@ -2276,21 +2276,29 @@ public class FunctionCustom extends FunctionSQL {
                 }
             }
             case FUNC_POSITION_ARRAY : {
-                if (data[1] == null) {
+                if (data[0] == null) {
                     return null;
                 }
 
-                if (data[2] == null) {
+                if (data[1] == null) {
                     return null;
                 }
 
                 Object[]  array       = (Object[]) data[1];
                 ArrayType dt          = (ArrayType) nodes[1].dataType;
                 Type      elementType = dt.collectionBaseType();
-                int start = ((Number) Type.SQL_INTEGER.convertToType(session,
-                    data[2], nodes[2].dataType)).intValue();
+                int       start       = 1;
 
-                if (start <= 0) {
+                if (nodes[2] != null) {
+                    if (data[2] == null) {
+                        return null;
+                    }
+
+                    ((Number) Type.SQL_INTEGER.convertToType(session, data[2],
+                            nodes[2].dataType)).intValue();
+                }
+
+                if (start < 1) {
                     throw Error.error(ErrorCode.X_22003);
                 }
 
@@ -3771,17 +3779,14 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
-                if (nodes[2] == null) {
-                    nodes[2] = new ExpressionValue(ValuePool.INTEGER_1,
-                                                   Type.SQL_INTEGER);
-                }
+                if (nodes[2] != null) {
+                    if (nodes[2].dataType == null) {
+                        nodes[2].dataType = Type.SQL_INTEGER;
+                    }
 
-                if (nodes[2].dataType == null) {
-                    nodes[2].dataType = Type.SQL_INTEGER;
-                }
-
-                if (!nodes[2].dataType.isIntegralType()) {
-                    throw Error.error(ErrorCode.X_42563);
+                    if (!nodes[2].dataType.isIntegralType()) {
+                        throw Error.error(ErrorCode.X_42563);
+                    }
                 }
 
                 dataType = Type.SQL_INTEGER;
@@ -4095,7 +4100,7 @@ public class FunctionCustom extends FunctionSQL {
                 sb.append(nodes[0].getSQL()).append(' ').append(Tokens.T_IN);
                 sb.append(' ').append(nodes[1].getSQL());
 
-                if (((Number) nodes[1].valueData).intValue() == Tokens.DESC) {
+                if (nodes[2] != null) {
                     sb.append(' ').append(Tokens.T_FROM);
                     sb.append(' ').append(nodes[2].getSQL());
                 }

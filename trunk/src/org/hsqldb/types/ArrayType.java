@@ -48,12 +48,12 @@ import org.hsqldb.lib.ArraySort;
  * Class for ARRAY type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 2.0.0
  */
 public class ArrayType extends Type {
 
-    public static final int defaultArrayCardinality      = 1024;
+    public static final int defaultArrayCardinality      = 1024*1024;
     public static final int defaultLargeArrayCardinality = Integer.MAX_VALUE;
     final Type              dataType;
     final int               maxCardinality;

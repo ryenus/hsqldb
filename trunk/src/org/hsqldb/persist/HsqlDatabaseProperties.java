@@ -612,7 +612,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             exists = super.load();
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_LOAD_SAVE_PROPERTIES, new Object[] {
+                              ErrorCode.M_LOAD_SAVE_PROPERTIES, new String[] {
                 t.toString(), fileName
             });
         }
@@ -675,7 +675,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             database.logger.logSevereEvent("save failed", t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_LOAD_SAVE_PROPERTIES, new Object[] {
+                              ErrorCode.M_LOAD_SAVE_PROPERTIES, new String[] {
                 t.toString(), fileName
             });
         }

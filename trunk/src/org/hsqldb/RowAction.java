@@ -41,7 +41,7 @@ import org.hsqldb.persist.PersistentStore;
  * Represents the chain of insert / delete / rollback / commit actions on a row.
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 2.0.0
  */
 public class RowAction extends RowActionBase {
@@ -51,14 +51,13 @@ public class RowAction extends RowActionBase {
     final PersistentStore store;
     final Row             memoryRow;
     final long            rowId;
-    boolean               isMemory;
     RowAction             updatedAction;
 
     public static RowAction addInsertAction(Session session, TableBase table,
-            Row row) {
+            PersistentStore store, Row row) {
 
-        RowAction action = new RowAction(session, table, ACTION_INSERT, row,
-                                         null);
+        RowAction action = new RowAction(session, table, store, ACTION_INSERT,
+                                         row, null);
 
         row.rowAction = action;
 
@@ -66,12 +65,13 @@ public class RowAction extends RowActionBase {
     }
 
     public static RowAction addDeleteAction(Session session, TableBase table,
-            Row row, int[] colMap) {
+            PersistentStore store, Row row, int[] colMap) {
 
         RowAction action = row.rowAction;
 
         if (action == null) {
-            action = new RowAction(session, table, ACTION_DELETE, row, colMap);
+            action = new RowAction(session, table, store, ACTION_DELETE, row,
+                                   colMap);
             row.rowAction = action;
 
             return action;
@@ -86,8 +86,8 @@ public class RowAction extends RowActionBase {
         RowAction action = row.rowAction;
 
         if (action == null) {
-            action = new RowAction(session, row.getTable(), ACTION_REF, row,
-                                   colMap);
+            action = new RowAction(session, row.getTable(), null, ACTION_REF,
+                                   row, colMap);
             row.rowAction = action;
 
             return true;
@@ -96,15 +96,14 @@ public class RowAction extends RowActionBase {
         return action.addRefAction(session, colMap);
     }
 
-    public RowAction(Session session, TableBase table, byte type, Row row,
-                     int[] colMap) {
+    public RowAction(Session session, TableBase table, PersistentStore store,
+                     byte type, Row row, int[] colMap) {
 
         this.session         = session;
         this.type            = type;
         this.actionTimestamp = session.actionTimestamp;
         this.table           = table;
-        this.store           = table.getRowStore(session);
-        this.isMemory        = row.isMemory();
+        this.store           = store;
         this.memoryRow       = row;
         this.rowId           = row.getPos();
         this.changeColumnMap = colMap;

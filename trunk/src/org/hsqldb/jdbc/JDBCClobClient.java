@@ -751,7 +751,7 @@ public class JDBCClobClient implements Clob {
         resultSet.startUpdate(colIndex + 1);
 
         resultSet.preparedStatement.parameterValues[colIndex] = clob;
-        resultSet.preparedStatement.parameterSet[colIndex]    = Boolean.TRUE;
+        resultSet.preparedStatement.parameterSet[colIndex]    = true;
     }
 
     private void checkClosed() throws SQLException {

@@ -87,7 +87,7 @@ public class DataFileCacheSession extends DataFileCache {
             release();
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_DataFileCache_open, new Object[] {
+                              ErrorCode.M_DataFileCache_open, new String[] {
                 t.toString(), dataFileName
             });
         }
@@ -118,7 +118,7 @@ public class DataFileCacheSession extends DataFileCache {
                                             t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_DataFileCache_close, new Object[] {
+                              ErrorCode.M_DataFileCache_close, new String[] {
                 t.toString(), dataFileName
             });
         } finally {

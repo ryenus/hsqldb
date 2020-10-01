@@ -1894,7 +1894,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
                     ServerConfiguration.listLocalInetAddressNames();
 
                 int      messageID;
-                Object[] messageParameters;
+                String[] messageParameters;
 
                 if (candidateAddrs.length > 0) {
                     messageID = ErrorCode.M_SERVER_OPEN_SERVER_SOCKET_1;
@@ -1909,12 +1909,12 @@ public class Server implements HsqlSocketRequestHandler, Notified {
                         sb.append(candidateAddrs[i]);
                     }
 
-                    messageParameters = new Object[] {
+                    messageParameters = new String[] {
                         address, sb.toString()
                     };
                 } else {
                     messageID = ErrorCode.M_SERVER_OPEN_SERVER_SOCKET_2;
-                    messageParameters = new Object[]{ address };
+                    messageParameters = new String[]{ address };
                 }
 
                 throw new UnknownHostException(Error.getMessage(messageID, 0,

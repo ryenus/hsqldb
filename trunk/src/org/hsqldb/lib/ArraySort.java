@@ -41,14 +41,14 @@ import java.util.Comparator;
  *
  * @author Tony Lai (tony_lai@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public final class ArraySort {
 
     /**
      * Returns the index of the lowest element == the given search target,
-     * or -1
+     * or when not found, a negative value -(insert position + 1)
      * @return index or a negative value if not found
      */
     public static int searchFirst(Object[] array, int start, int limit,

@@ -48,7 +48,7 @@ import org.hsqldb.rights.Grantee;
  * Base class for type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public abstract class Type implements SchemaObject, Cloneable {
@@ -799,7 +799,7 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     //
     public static final ArrayType SQL_ARRAY_ALL_TYPES =
-        new ArrayType(SQL_ALL_TYPES, 0);
+        new ArrayType(SQL_ALL_TYPES, ArrayType.defaultArrayCardinality);
 
     public static ArrayType getDefaultArrayType(int type) {
         return new ArrayType(getDefaultType(type),

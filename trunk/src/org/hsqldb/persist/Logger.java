@@ -2254,8 +2254,8 @@ public class Logger implements EventLogInterface {
 
             if (compressed != nameImpliesCompress) {
                 throw Error.error(null, ErrorCode.COMPRESSION_SUFFIX_MISMATCH,
-                                  0, new Object[] {
-                    Boolean.valueOf(compressed), archiveFile.getName()
+                                  0, new String[] {
+                    String.valueOf(compressed), archiveFile.getName()
                 });
             }
 

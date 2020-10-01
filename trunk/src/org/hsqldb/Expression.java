@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class Expression implements Cloneable {
@@ -1160,7 +1160,8 @@ public class Expression implements Cloneable {
                     nodes[i].dataType = nodeDataType;
                 }
 
-                dataType = new ArrayType(nodeDataType, nodes.length);
+                dataType = new ArrayType(nodeDataType,
+                                         ArrayType.defaultArrayCardinality);
 
                 return;
             }
@@ -1177,7 +1178,9 @@ public class Expression implements Cloneable {
                     throw Error.error(ErrorCode.X_42564);
                 }
 
-                dataType = new ArrayType(dataType, Integer.MAX_VALUE);
+                dataType =
+                    new ArrayType(dataType,
+                                  ArrayType.defaultLargeArrayCardinality);
 
                 break;
             }

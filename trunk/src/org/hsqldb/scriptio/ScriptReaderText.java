@@ -60,7 +60,7 @@ import org.hsqldb.types.Type;
  * corresponds to ScriptWriterText.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- *  @version 2.5.1
+ *  @version 2.5.2
  *  @since 1.7.2
  */
 public class ScriptReaderText extends ScriptReaderBase {
@@ -366,8 +366,8 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         return Error.error(t, ErrorCode.ERROR_IN_SCRIPT_FILE,
                            ErrorCode.M_DatabaseScriptReader_read,
-                           new Object[] {
-            Long.valueOf(lineCount), t.toString()
+                           new String[] {
+            String.valueOf(lineCount), t.toString()
         });
     }
 

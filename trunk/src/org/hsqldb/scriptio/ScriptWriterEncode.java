@@ -68,7 +68,7 @@ public class ScriptWriterEncode extends ScriptWriterText {
             isCrypt       = true;
         } catch (IOException e) {
             throw Error.error(e, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_Message_Pair, new Object[] {
+                              ErrorCode.M_Message_Pair, new String[] {
                 e.toString(), outFile
             });
         }
@@ -85,7 +85,7 @@ public class ScriptWriterEncode extends ScriptWriterText {
             isCrypt       = true;
         } catch (IOException e) {
             throw Error.error(e, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_Message_Pair, new Object[] {
+                              ErrorCode.M_Message_Pair, new String[] {
                 e.toString(), outFile
             });
         }
@@ -112,7 +112,7 @@ public class ScriptWriterEncode extends ScriptWriterText {
             fileStreamOut = new BufferedOutputStream(fos, 1 << 14);
         } catch (IOException e) {
             throw Error.error(e, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_Message_Pair, new Object[] {
+                              ErrorCode.M_Message_Pair, new String[] {
                 e.toString(), outFile
             });
         }

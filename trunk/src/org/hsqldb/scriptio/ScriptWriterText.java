@@ -119,7 +119,7 @@ public class ScriptWriterText extends ScriptWriterBase {
                 fileStreamOut = new GZIPOutputStream(fileStreamOut);
             } catch (IOException e) {
                 throw Error.error(e, ErrorCode.FILE_IO_ERROR,
-                                  ErrorCode.M_Message_Pair, new Object[] {
+                                  ErrorCode.M_Message_Pair, new String[] {
                     e.toString(), outFile
                 });
             }

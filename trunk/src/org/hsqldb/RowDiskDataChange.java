@@ -57,7 +57,8 @@ public class RowDiskDataChange extends RowAVLDisk {
 
     //
     static final Type[] arrayType = new Type[]{
-        new ArrayType(Type.SQL_INTEGER, Integer.MAX_VALUE) };
+        new ArrayType(Type.SQL_INTEGER,
+                      ArrayType.defaultLargeArrayCardinality) };
     Table    targetTable;
     Object[] updateData;
     int[]    updateColMap;

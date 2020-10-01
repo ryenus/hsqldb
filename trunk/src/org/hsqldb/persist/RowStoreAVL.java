@@ -172,7 +172,8 @@ public abstract class RowStoreAVL implements PersistentStore {
                                           int[] colMap, boolean isMV) {
 
         synchronized (row) {
-            return RowAction.addDeleteAction(session, table, row, colMap);
+            return RowAction.addDeleteAction(session, table, this, row,
+                                             colMap);
         }
     }
 

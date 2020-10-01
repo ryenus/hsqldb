@@ -128,7 +128,7 @@ public final class Error {
      * @return an <code>HsqlException</code>
      */
     public static HsqlException error(Throwable t, int code, int subCode,
-                                      final Object[] add) {
+                                      final String[] add) {
 
         String message = getMessage(code, subCode, add);
         int    sqlCode = subCode < ERROR_CODE_BASE ? code
@@ -141,7 +141,7 @@ public final class Error {
 
     public static HsqlException parseError(int code, int subCode,
                                            int lineNumber,
-                                           final Object[] add) {
+                                           final String[] add) {
 
         String message = getMessage(code, subCode, add);
 
@@ -195,7 +195,7 @@ public final class Error {
      *
      * @return an <code>HsqlException</code>
      */
-    private static String insertStrings(String message, Object[] add) {
+    private static String insertStrings(String message, String[] add) {
 
         StringBuilder sb        = new StringBuilder(message.length() + 32);
         int           lastIndex = 0;
@@ -214,7 +214,7 @@ public final class Error {
 
             sb.append(message, lastIndex, escIndex);
             sb.append(add[i] == null ? "null exception message"
-                                     : add[i].toString());
+                                     : add[i]);
 
             lastIndex = escIndex + MESSAGE_TAG.length();
         }
@@ -259,7 +259,7 @@ public final class Error {
      * @return the error message associated with the error code
      */
     public static String getMessage(final int code, int subCode,
-                                    final Object[] add) {
+                                    final String[] add) {
 
         String message = getResourceString(code);
 
