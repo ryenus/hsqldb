@@ -1216,21 +1216,22 @@ public class ParserDQL extends ParserBase {
                 throw unexpectedToken(settings.cycleMarkValue);
             }
 
-            readThis(Tokens.USING);
-            checkIsSimpleName();
+            if (readIfThis(Tokens.USING)) {
+                checkIsSimpleName();
 
-            HsqlName pathName =
-                database.nameManager.newColumnHsqlName(table.getName(),
-                    token.tokenString, token.isDelimitedIdentifier);
+                HsqlName pathName =
+                    database.nameManager.newColumnHsqlName(table.getName(),
+                        token.tokenString, token.isDelimitedIdentifier);
 
-            if (table.findColumn(pathName.name) != -1) {
-                throw Error.error(ErrorCode.X_42578, token.tokenString);
+                if (table.findColumn(pathName.name) != -1) {
+                    throw Error.error(ErrorCode.X_42578, token.tokenString);
+                }
+
+                read();
+
+                settings.cyclePathColumn = new ColumnSchema(pathName,
+                        Type.SQL_ARRAY_ALL_TYPES, true, false, null);
             }
-
-            read();
-
-            settings.cyclePathColumn = new ColumnSchema(pathName,
-                    Type.SQL_ARRAY_ALL_TYPES, true, false, null);
         }
 
         table.queryExpression.setRecursiveQuerySettings(settings);
