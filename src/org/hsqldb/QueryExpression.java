@@ -738,7 +738,6 @@ public class QueryExpression implements RangeGroup {
             switch (unionType) {
 
                 case UNION :
-                    currentNavigator.exceptNoDedup(resultNav);
                     resultNav.union(currentNavigator);
                     break;
 
