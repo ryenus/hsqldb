@@ -49,7 +49,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator using a table as the data store.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class RowSetNavigatorDataTable extends RowSetNavigatorData {
@@ -323,8 +323,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
             addAdjusted(currentData, rightColumnIndexes);
         }
-
-        other.release();
     }
 
     public void union(RowSetNavigatorData other) {
@@ -351,7 +349,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             it.release();
         }
 
-        other.release();
         reset();
     }
 
@@ -369,7 +366,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             }
         }
 
-        other.release();
+        reset();
     }
 
     public void intersectAll(RowSetNavigatorData other) {
@@ -410,7 +407,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             removeCurrent();
         }
 
-        other.release();
+        reset();
     }
 
     public void except(RowSetNavigatorData other) {
@@ -427,7 +424,24 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             }
         }
 
-        other.release();
+        reset();
+    }
+
+    public void exceptNoDedup(RowSetNavigatorData other) {
+
+        other.sortFull();
+        reset();
+
+        while (next()) {
+            Object[] currentData = getCurrent();
+            boolean  hasRow      = other.containsRow(currentData);
+
+            if (hasRow) {
+                removeCurrent();
+            }
+        }
+
+        reset();
     }
 
     public void exceptAll(RowSetNavigatorData other) {
@@ -465,7 +479,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             }
         }
 
-        other.release();
+        reset();
     }
 
     public boolean hasUniqueNotNullRows() {
@@ -548,6 +562,8 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         while (next()) {
             removeCurrent();
         }
+
+        reset();
     }
 
     boolean hasNull(Object[] data) {

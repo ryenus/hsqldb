@@ -143,8 +143,8 @@ public class TextTable extends Table {
             // everything is in order here.
             // At this point table should either have a valid (old) data
             // source and cache or have an empty source and null cache.
-            throw Error.error(t, ErrorCode.TEXT_FILE, 0, new Object[] {
-                Long.valueOf(linenumber), t.toString()
+            throw Error.error(t, ErrorCode.TEXT_FILE, 0, new String[] {
+                String.valueOf(linenumber), t.toString()
             });
         }
 

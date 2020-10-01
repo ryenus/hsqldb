@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,7 +95,7 @@ public final class JDBCUtil {
         return sqlException(Error.error(id, add));
     }
 
-    static SQLException sqlException(int id, int subId, Object[] add) {
+    static SQLException sqlException(int id, int subId, String[] add) {
         return sqlException(Error.error(null, id, subId, add));
     }
 

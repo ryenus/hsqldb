@@ -396,7 +396,7 @@ public class JDBCBlobClient implements Blob {
         resultSet.startUpdate(colIndex + 1);
 
         resultSet.preparedStatement.parameterValues[colIndex] = blob;
-        resultSet.preparedStatement.parameterSet[colIndex]    = Boolean.TRUE;
+        resultSet.preparedStatement.parameterSet[colIndex]    = true;
     }
 
     private void checkClosed() throws SQLException {

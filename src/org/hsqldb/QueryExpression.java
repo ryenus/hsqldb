@@ -56,15 +56,8 @@ import org.hsqldb.types.Types;
  * Implementation of an SQL query expression
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
- */
-
-/*
- * @todo 1.9.0 - review these
- * - work out usage of getMainSelect etc and add relevant methods
- * - Result metadata for the final result of QueryExpression
- *
  */
 public class QueryExpression implements RangeGroup {
 
@@ -106,29 +99,30 @@ public class QueryExpression implements RangeGroup {
     boolean[]      accessibleColumns;
 
     //
-    View    view;
-    boolean isBaseMergeable;
-    boolean isMergeable;
-    boolean isUpdatable;
-    boolean isInsertable;
-    boolean isCheckable;
-    boolean isTopLevel;
-    boolean isRecursive;
-    boolean isSingleRow;
-    boolean acceptsSequences;
-    boolean isCorrelated;
-    boolean isTable;
-    boolean isValueList;
-
-    //
-    TableDerived recursiveTable;
-
-    //
+    View             view;
+    boolean          isBaseMergeable;
+    boolean          isMergeable;
+    boolean          isUpdatable;
+    boolean          isInsertable;
+    boolean          isCheckable;
+    boolean          isTopLevel;
+    boolean          isRecursive;
+    boolean          isSingleRow;
+    boolean          acceptsSequences;
+    boolean          isCorrelated;
+    boolean          isTable;
+    boolean          isValueList;
     public TableBase resultTable;
     public Index     mainIndex;
     public Index     fullIndex;
     public Index     orderIndex;
     public Index     idIndex;
+
+    //
+    TableDerived                   recursiveWorkTable;
+    TableDerived                   recursiveResultTable;
+    private RecursiveQuerySettings recursiveSettings;
+    TableDerived[]                 materialiseList = TableDerived.emptyArray;
 
     //
     CompileContext compileContext;
@@ -457,14 +451,14 @@ public class QueryExpression implements RangeGroup {
         if (isRecursive) {
             leftQueryExpression.resolveTypesPartTwoRecursive(session);
 
-            recursiveTable.colTypes = leftQueryExpression.getColumnTypes();
+            recursiveWorkTable.colTypes = leftQueryExpression.getColumnTypes();
 
-            for (int i = 0; i < recursiveTable.colTypes.length; i++) {
-                recursiveTable.getColumn(i).setType(
-                    recursiveTable.colTypes[i]);
+            for (int i = 0; i < recursiveWorkTable.colTypes.length; i++) {
+                recursiveWorkTable.getColumn(i).setType(
+                    recursiveWorkTable.colTypes[i]);
             }
 
-            recursiveTable.getFullIndex(session);
+            recursiveWorkTable.getFullIndex(session);
         } else {
             leftQueryExpression.resolveTypesPartTwo(session);
         }
@@ -532,13 +526,8 @@ public class QueryExpression implements RangeGroup {
     }
 
     void resolveTypesPartThree(Session session) {
-
         compileContext = null;
         isResolved     = true;
-
-        if (isRecursive) {
-            recursiveTable.queryExpression.isCorrelated = false;
-        }
     }
 
     public Object[] getValues(Session session) {
@@ -658,6 +647,8 @@ public class QueryExpression implements RangeGroup {
                 throw Error.runtimeError(ErrorCode.U_S0500, "QueryExpression");
         }
 
+        rightNavigator.release();
+
         if (sortAndSlice.hasOrder()) {
             navigator.sortOrderUnion(sortAndSlice);
         }
@@ -673,19 +664,72 @@ public class QueryExpression implements RangeGroup {
         return first;
     }
 
+    public void setRecursiveQuerySettings(RecursiveQuerySettings settings) {
+
+        OrderedHashSet subqueryList = rightQueryExpression.getSubqueries();
+        OrderedHashSet refList      = new OrderedHashSet();
+
+        if (subqueryList == null) {
+            subqueryList = new OrderedHashSet();
+        }
+
+        for (int i = 0; i < subqueryList.size(); i++) {
+            TableDerived td = (TableDerived) subqueryList.get(i);
+
+            if (td.isCorrelated()) {
+                continue;
+            }
+
+            QueryExpression qe = td.queryExpression;
+
+            if (qe == null) {
+                continue;
+            }
+
+            refList = qe.collectRangeVariables(refList);
+
+            for (int j = 0; j < refList.size(); j++) {
+                RangeVariable range = (RangeVariable) refList.get(j);
+
+                if (range.rangeTable == recursiveWorkTable
+                        || range.rangeTable == recursiveResultTable) {
+                    materialiseList =
+                        ArrayUtil.toAdjustedArray(materialiseList, td);
+
+                    break;
+                }
+            }
+        }
+
+        recursiveSettings = settings;
+    }
+
     Result getResultRecursive(Session session) {
 
         RowSetNavigatorData resultNav = new RowSetNavigatorData(session, this);
+        Result leftResult = leftQueryExpression.getResult(session, 0);
+        PersistentStore recursiveStore =
+            recursiveWorkTable.getRowStore(session);
+        PersistentStore recursiveResultStore =
+            recursiveResultTable.getRowStore(session);
 
-        recursiveTable.materialise(session);
-        resultNav.unionAll(recursiveTable.getNavigator(session));
+        leftResult.getNavigator().reset();
+        recursiveWorkTable.insertSys(session, recursiveStore, leftResult);
+        leftResult.getNavigator().reset();
+        recursiveResultTable.insertSys(session, recursiveResultStore,
+                                       leftResult);
+        resultNav.unionAll((RowSetNavigatorData) leftResult.getNavigator());
 
         for (int round = 0; ; round++) {
+            for (int i = 0; i < materialiseList.length; i++) {
+                materialiseList[i].materialise(session);
+            }
+
             Result currentResult = rightQueryExpression.getResult(session, 0);
-            RowSetNavigatorData tempNavigator =
+            RowSetNavigatorData currentNavigator =
                 (RowSetNavigatorData) currentResult.getNavigator();
 
-            if (tempNavigator.isEmpty()) {
+            if (currentNavigator.isEmpty()) {
                 break;
             }
 
@@ -694,11 +738,12 @@ public class QueryExpression implements RangeGroup {
             switch (unionType) {
 
                 case UNION :
-                    resultNav.union(tempNavigator);
+                    currentNavigator.exceptNoDedup(resultNav);
+                    resultNav.union(currentNavigator);
                     break;
 
                 case UNION_ALL :
-                    resultNav.unionAll(tempNavigator);
+                    resultNav.unionAll(currentNavigator);
                     break;
 
                 default :
@@ -714,11 +759,13 @@ public class QueryExpression implements RangeGroup {
                 throw Error.error(ErrorCode.X_22522);
             }
 
-            PersistentStore store = recursiveTable.getRowStore(session);
-
-            store.removeAll();
-            currentResult.getNavigator().reset();
-            recursiveTable.insertSys(session, store, currentResult);
+            currentNavigator.reset();
+            recursiveResultTable.insertSys(session, recursiveResultStore,
+                                           currentResult);
+            recursiveStore.removeAll();
+            currentNavigator.reset();
+            recursiveWorkTable.insertSys(session, recursiveStore,
+                                         currentResult);
         }
 
         Result result = Result.newResult(resultNav);
@@ -1146,4 +1193,21 @@ public class QueryExpression implements RangeGroup {
     }
 
     public void setAsExists() {}
+
+    static class RecursiveQuerySettings {
+
+        static final int none         = 0;
+        static final int depthFirst   = 1;
+        static final int breadthFirst = 2;
+        static final int findCycle    = 1;
+        int              searchOrderType;
+        SortAndSlice     searchOrderSort;
+        ColumnSchema     searchOrderSetColumn;
+        int              cycle;
+        int[]            cycleColumnList;
+        ColumnSchema     cycleMarkColumn;
+        String           cycleMarkValue;
+        String           noCycleMarkValue;
+        ColumnSchema     cyclePathColumn;
+    }
 }

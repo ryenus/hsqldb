@@ -92,7 +92,7 @@ public class RowStoreAVLMemory extends RowStoreAVL {
         Row  row = new RowAVL(table, (Object[]) object, id, this);
 
         if (tx) {
-            RowAction.addInsertAction(session, table, row);
+            RowAction.addInsertAction(session, table, this, row);
         }
 
         return row;

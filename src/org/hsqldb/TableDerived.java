@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.types.Type;
  * Table with data derived from a query expression.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class TableDerived extends Table {
@@ -394,9 +394,7 @@ public class TableDerived extends Table {
                 return;
             }
 
-            Result result;
-
-            result = queryExpression.getResult(session, 0);
+            Result result = queryExpression.getResult(session, 0);
 
             if (uniqueRows) {
                 RowSetNavigatorData navigator =

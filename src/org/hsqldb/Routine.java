@@ -59,7 +59,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class Routine implements SchemaObject, RangeGroup, Cloneable {
@@ -1244,7 +1244,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
                 cl = Class.forName(className);
             } catch (Throwable t) {
                 throw Error.error(t, ErrorCode.X_42501,
-                                  ErrorCode.M_Message_Pair, new Object[] {
+                                  ErrorCode.M_Message_Pair, new String[] {
                     t.toString(), className
                 });
             }
@@ -1254,7 +1254,7 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             methods = cl.getMethods();
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.X_42501, ErrorCode.M_Message_Pair,
-                              new Object[] {
+                              new String[] {
                 t.toString(), className
             });
         }

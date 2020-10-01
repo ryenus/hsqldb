@@ -159,7 +159,7 @@ public class TextCache extends DataFileCache {
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_opening_file_error,
-                              new Object[] {
+                              new String[] {
                 dataFileName, t.toString()
             });
         }
@@ -203,7 +203,7 @@ public class TextCache extends DataFileCache {
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_closing_file_error,
-                              new Object[] {
+                              new String[] {
                 dataFileName, t.toString()
             });
         } finally {
@@ -235,7 +235,7 @@ public class TextCache extends DataFileCache {
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_purging_file_error,
-                              new Object[] {
+                              new String[] {
                 dataFileName, t.toString()
             });
         } finally {

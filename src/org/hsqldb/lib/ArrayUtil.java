@@ -1227,6 +1227,21 @@ public final class ArrayUtil {
         return newarray;
     }
 
+
+    /**
+     * Returns an array containing the elements of parameter source with an
+     * added element at the end. Parameter addition is an Object to add.
+     */
+    public static <T> T[] toAdjustedArray(T[] source, T addition) {
+
+        int size     = source.length;
+        T[] newArray = Arrays.copyOf(source, size + 1);
+
+        newArray[size] = addition;
+
+        return newArray;
+    }
+
     /**
      * Returns an array containing the elements of parameter source, with one
      * element removed or added. Parameter adjust {-1, +1} indicates the

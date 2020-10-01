@@ -141,7 +141,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         object.setPos(pos);
 
         if (tx) {
-            RowAction action = RowAction.addInsertAction(session, table,
+            RowAction action = RowAction.addInsertAction(session, table, this,
                 (Row) object);
 
             if (database.txManager.isMVRows()) {
@@ -378,7 +378,8 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
         if (!isMV) {
             synchronized (row) {
-                return RowAction.addDeleteAction(session, table, row, colMap);
+                return RowAction.addDeleteAction(session, table, this, row,
+                                                 colMap);
             }
         }
 
@@ -389,7 +390,8 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         mapLock.lock();
 
         try {
-            action = RowAction.addDeleteAction(session, table, row, colMap);
+            action = RowAction.addDeleteAction(session, table, this, row,
+                                               colMap);
 
             if (action != null) {
                 rowActionMap.put(action.getPos(), action);

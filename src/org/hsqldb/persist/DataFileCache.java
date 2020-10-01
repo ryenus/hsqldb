@@ -402,7 +402,7 @@ public class DataFileCache {
             release();
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_DataFileCache_open, new Object[] {
+                              ErrorCode.M_DataFileCache_open, new String[] {
                 t.toString(), dataFileName
             });
         }
@@ -503,7 +503,7 @@ public class DataFileCache {
             database.logger.logSevereEvent("DataFileCache.restoreBackup", t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_Message_Pair, new Object[] {
+                              ErrorCode.M_Message_Pair, new String[] {
                 t.toString(), backupFileName
             });
         }
@@ -589,7 +589,7 @@ public class DataFileCache {
             logSevereEvent("DataFileCache.close", t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_DataFileCache_close, new Object[] {
+                              ErrorCode.M_DataFileCache_close, new String[] {
                 t.toString(), dataFileName
             });
         } finally {
@@ -694,7 +694,7 @@ public class DataFileCache {
             logSevereEvent("DataFileCache.reset commit", t);
 
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_DataFileCache_close, new Object[] {
+                              ErrorCode.M_DataFileCache_close, new String[] {
                 t.toString(), dataFileName
             });
         } finally {
