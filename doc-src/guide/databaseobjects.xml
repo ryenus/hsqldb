@@ -2596,7 +2596,7 @@
       domain is already used in a table definition. If a column uses the
       domain as its type, the domain default is removed. If there is no
       existing column default clause, the default clause of the domain becomes
-      the column default clause. </simpara>
+      the column default clause.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>ADD DOMAIN CONSTRAINT</primary>
@@ -2752,7 +2752,7 @@
       class that implements the <classname>org.hsqldb.Trigger</classname>
       interface.</para>
 
-      <para>HyperSQL do not yet allow the use of OLD TABLE or NEW TABLE in
+      <para>HyperSQL does not yet allow the use of OLD TABLE or NEW TABLE in
       statement level trigger definitions.</para>
 
       <indexterm significance="preferred" type="sql">

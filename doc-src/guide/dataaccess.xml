@@ -3569,27 +3569,35 @@ DIRECT SALES (null) (null)  3778500
       body of the main <literal>&lt;query expression body&gt;</literal> using
       the specified &lt;query name&gt;.</para>
 
-      <para>The RECURSIVE keyword changes the way the elements of the
-      <literal>&lt;with list&gt;</literal> are interpreted. The
-      <literal>&lt;query expression&gt;</literal> contained in the
-      <literal>&lt;with list element&gt;</literal> must be the UNION or UNION
-      ALL of two &lt;query expression body&gt; elements (simple VALUES or
-      SELECT statements). The left element of the UNION is evaluated first and
-      its result becomes the result of the <literal>&lt;with list
-      element&gt;</literal>. After this step, the current result of the
-      &lt;with list element&gt; is referenced in the right element (a SELECT
-      statement) of the UNION, the UNION is performed between the result and
-      previous result of the <literal>&lt;with list element&gt;</literal>,
-      which is enlarged by this operation. The UNION operation is performed
-      again and again, until the result of the <literal>&lt;with list
+      <para> When RECURSIVE is used, the <literal>&lt;with column
+      list&gt;</literal> must be defined. The RECURSIVE keyword changes the
+      way the elements of the <literal>&lt;with list&gt;</literal> are
+      interpreted. The <literal>&lt;query expression&gt;</literal> contained
+      in the <literal>&lt;with list element&gt;</literal> must be the UNION or
+      UNION ALL of two &lt;query expression body&gt; elements (simple VALUES
+      or SELECT statements). The left element of the UNION is evaluated first
+      and its result becomes the initial result of the <literal>&lt;with list
+      element&gt;</literal>. A working table is created and the initial result
+      set is copied to it. After this step, the contents of the working table
+      is used when the &lt;with list element&gt; is referenced in the right
+      element (a SELECT statement) of the UNION. The UNION is performed
+      between the latest result and previous contents of the <literal>&lt;with
+      list element&gt;</literal>, which is enlarged by this operation. At each
+      iteration, the working table is cleared and filled with the latest
+      result and operation is performed again and again, until the latest
+      result is empty and the contents the <literal>&lt;with list
       element&gt;</literal> stops changing. The result of the
       <literal>&lt;with list element&gt;</literal> is now complete and is
       later used in the execution of the <literal>&lt;query expression
-      body&gt;</literal>. When RECURSIVE is used, the <literal>&lt;with column
-      list&gt;</literal> must be defined.</para>
+      body&gt;</literal>.</para>
 
-      <para>HyperSQL limits recursion to 265 rounds. If this is exceeded, an
+      <para>HyperSQL limits recursion to 256 rounds. If this is exceeded, an
       error is raised.</para>
+
+      <para>From version 2.5.2, HyperSQL extends recursive query processing by
+      allowing the use of RECURSIVE_TABLE to reference the current full
+      contents of the <literal>&lt;with list element&gt;</literal>. This can
+      be used in subqueries with IN and EXISTS predicates. </para>
 
       <para>A trivial example of a recursive query is given below. Note the
       first column GEN. For example, if each row of the table represents a
@@ -3598,27 +3606,31 @@ DIRECT SALES (null) (null)  3778500
       from first to fourth generation.</para>
 
       <informalexample>
-        <programlisting> CREATE TABLE pptree (pid INT, id INT);
- INSERT INTO pptree VALUES (NULL, 1) ,(1,2), (1,3),(2,4),(4,5),(3,6),(3,7);
+        <programlisting> CREATE TABLE pptree (pid INT, id INT, name VARCHAR(10));
+ INSERT INTO pptree VALUES (NULL, 1, 'dizzi'),(1,2, 'fizzi'),
+                           (1,3, 'gizzi'),(2,4, 'kizzi'),
+                           (4,5, 'mizzi'),(3,6, 'pizzi'),
+                           (3,7, 'rizzi');
 
- WITH RECURSIVE tree (gen, par, child) AS (
-   VALUES(1, CAST(null as int), 1)
+ WITH RECURSIVE tree (gen, par, child, name) AS (
+   VALUES(1, CAST(null as int), 1, 'dizzi')
    UNION
-   SELECT gen + 1, pid, id FROM pptree, tree WHERE pid = child
+   SELECT gen + 1, pid, id, name FROM pptree, tree WHERE pid = child
    ) SELECT * FROM tree;
 
- GEN PAR    CHILD 
- --- ------ ----- 
- 1   (null) 1     
- 2   1      2     
- 2   1      3     
- 3   2      4     
- 3   3      6     
- 3   3      7     
- 4   4      5</programlisting>
+ GEN PAR    CHILD NAME  
+ --- ------ ----- ----- 
+ 1   (null) 1     dizzi 
+ 2   1      2     fizzi 
+ 2   1      3     gizzi 
+ 3   2      4     kizzi 
+ 3   3      6     pizzi 
+ 3   3      7     rizzi 
+ 4   4      5     mizzi 
+</programlisting>
       </informalexample>
 
-      <para>if recursive queries become complex, they also become very
+      <para>If recursive queries become complex, they also become very
       difficult to develop and debug. HyperSQL provides an alternative to this
       with user-defined SQL functions which return tables. Functions can
       perform any complex, repetitive task with better control, using loops,
