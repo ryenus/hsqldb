@@ -62,7 +62,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -1071,16 +1071,17 @@ public final class DateTimeType extends DTIType {
 
         if (a instanceof java.time.OffsetTime) {
             OffsetTime ot     = (OffsetTime) a;
-            int        offset = ot.get(ChronoField.OFFSET_SECONDS);
 
             seconds = ot.toLocalTime().toSecondOfDay();
             nanos   = ot.getNano();
             nanos   = DateTimeType.normaliseFraction(nanos, scale);
 
+
             if (withTimeZone) {
-                zoneSeconds = offset;
-            } else {
-                seconds += offset;
+                zoneSeconds = ot.get(ChronoField.OFFSET_SECONDS);
+
+                seconds -= zoneSeconds;
+                seconds = DateTimeType.normaliseTime(seconds);
             }
 
             return new TimeData(seconds, nanos, zoneSeconds);
@@ -1093,6 +1094,8 @@ public final class DateTimeType extends DTIType {
 
             if (withTimeZone) {
                 zoneSeconds = session.getZoneSeconds();
+                seconds -= zoneSeconds;
+                seconds = DateTimeType.normaliseTime(seconds);
             }
 
             return new TimeData(seconds, nanos, zoneSeconds);
