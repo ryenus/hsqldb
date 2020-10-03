@@ -71,16 +71,16 @@ public class QueryExpression implements RangeGroup {
                             UNION_TERM    = 7;
 
     //
-    int                     columnCount;
-    private QueryExpression leftQueryExpression;
-    private QueryExpression rightQueryExpression;
-    SortAndSlice            sortAndSlice;
-    private int             unionType;
-    private boolean         unionCorresponding;
-    private OrderedHashSet  unionCorrespondingColumns;
-    int[]                   unionColumnMap;
-    Type[]                  unionColumnTypes;
-    boolean                 isFullOrder;
+    int                    columnCount;
+    QueryExpression        leftQueryExpression;
+    QueryExpression        rightQueryExpression;
+    SortAndSlice           sortAndSlice;
+    private int            unionType;
+    private boolean        unionCorresponding;
+    private OrderedHashSet unionCorrespondingColumns;
+    int[]                  unionColumnMap;
+    Type[]                 unionColumnTypes;
+    boolean                isFullOrder;
 
     //
     HsqlList unresolvedExpressions;
@@ -119,10 +119,10 @@ public class QueryExpression implements RangeGroup {
     public Index     idIndex;
 
     //
-    TableDerived                   recursiveWorkTable;
-    TableDerived                   recursiveResultTable;
-    private RecursiveQuerySettings recursiveSettings;
-    TableDerived[]                 materialiseList = TableDerived.emptyArray;
+    TableDerived           recursiveWorkTable;
+    TableDerived           recursiveResultTable;
+    RecursiveQuerySettings recursiveSettings;
+    TableDerived[]         materialiseList = TableDerived.emptyArray;
 
     //
     CompileContext compileContext;
@@ -1204,6 +1204,7 @@ public class QueryExpression implements RangeGroup {
         ColumnSchema     searchOrderSetColumn;
         int              cycle;
         int[]            cycleColumnList;
+        ColumnSchema     cycleColumnFirst;
         ColumnSchema     cycleMarkColumn;
         String           cycleMarkValue;
         String           noCycleMarkValue;

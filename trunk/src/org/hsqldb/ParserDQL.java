@@ -1181,6 +1181,13 @@ public class ParserDQL extends ParserBase {
 
             settings.cycleColumnList = table.getColumnIndexes(set);
 
+            if (set.size() > 1) {
+                throw Error.error(ErrorCode.X_42564, token.tokenString);
+            }
+
+            settings.cycleColumnFirst =
+                table.getColumn(settings.cycleColumnList[0]);
+
             readThis(Tokens.SET);
             checkIsSimpleName();
 
@@ -1189,7 +1196,7 @@ public class ParserDQL extends ParserBase {
                     token.tokenString, token.isDelimitedIdentifier);
 
             settings.cycleMarkColumn = new ColumnSchema(cycleName,
-                    Type.SQL_CHAR, true, false, null);
+                    Type.SQL_CHAR, false, false, null);
 
             if (table.findColumn(cycleName.name) != -1) {
                 throw Error.error(ErrorCode.X_42578, token.tokenString);
@@ -1229,8 +1236,12 @@ public class ParserDQL extends ParserBase {
 
                 read();
 
+                Type arrayType =
+                    new ArrayType(settings.cycleColumnFirst.getDataType(),
+                                  ArrayType.defaultArrayCardinality);
+
                 settings.cyclePathColumn = new ColumnSchema(pathName,
-                        Type.SQL_ARRAY_ALL_TYPES, true, false, null);
+                        arrayType, false, false, null);
             }
         }
 
