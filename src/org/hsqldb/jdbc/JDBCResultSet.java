@@ -293,7 +293,7 @@ import java.time.ZoneOffset;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class JDBCResultSet implements ResultSet {
@@ -6865,9 +6865,6 @@ public class JDBCResultSet implements ResultSet {
             throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
-        Object source = getColumnValue(columnIndex);
-
-
         if (wasNullValue) {
             return null;
         }
@@ -6932,12 +6929,13 @@ public class JDBCResultSet implements ResultSet {
                 o = getTimestamp(columnIndex);
                 break;
             }
-            case "java.util.UUID":
-                source = getColumnInType(columnIndex, hsqlType);
+            case "java.util.UUID": {
+                Object source = getColumnInType(columnIndex, hsqlType);
                 o = Type.SQL_GUID.convertSQLToJava(session, source);
                 break;
+            }
             case "java.time.LocalDate": {
-                source = getColumnInType(columnIndex, hsqlType);
+                Object source = getColumnInType(columnIndex, hsqlType);
                 TimestampData v = (TimestampData) source;
                 long millis = v.getMillis();
                 Calendar cal = session.getCalendarGMT();
@@ -6946,13 +6944,13 @@ public class JDBCResultSet implements ResultSet {
                 break;
             }
             case "java.time.LocalTime": {
-                source = getColumnInType(columnIndex, hsqlType);
+                Object source = getColumnInType(columnIndex, hsqlType);
                 TimeData v = (TimeData) source;
                 o = LocalTime.ofNanoOfDay(v.getSeconds() * 1000000000L + v.getNanos());
                 break;
             }
             case "java.time.LocalDateTime": {
-                source = getColumnInType(columnIndex, hsqlType);
+                Object source = getColumnInType(columnIndex, hsqlType);
                 TimestampData v = (TimestampData) source;
 
                 long millis = v.getMillis();
@@ -6976,7 +6974,7 @@ public class JDBCResultSet implements ResultSet {
                 if (!sourceType.isIntervalDaySecondType()) {
                     break;
                 }
-                source = getColumnValue(columnIndex);
+                Object source = getColumnValue(columnIndex);
                 IntervalSecondData v = (IntervalSecondData) source;
                 o = Duration.ofSeconds(v.getSeconds(), v.getNanos());
                 break;
@@ -6987,7 +6985,7 @@ public class JDBCResultSet implements ResultSet {
                 if (!sourceType.isIntervalYearMonthType()) {
                     break;
                 }
-                source = getColumnValue(columnIndex);
+                Object source = getColumnValue(columnIndex);
                 IntervalMonthData v = (IntervalMonthData) source;
                 int months = v.getMonths();
 
@@ -7216,8 +7214,9 @@ public class JDBCResultSet implements ResultSet {
             return null;
         }
 
-        ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
+        ZoneOffset    z   = ZoneOffset.ofTotalSeconds(v.getZone());
         LocalDateTime ldt = LocalDateTime.ofEpochSecond(v.getSeconds(), v.getNanos(), z);
+
         return OffsetDateTime.of(ldt, z);
     }
 
@@ -7228,16 +7227,13 @@ public class JDBCResultSet implements ResultSet {
             return null;
         }
 
-        long s = (v.getSeconds() + v.getZone());
+        int s = v.getSeconds() + v.getZone();
 
-        if (s < 0) {
-            s += 3600 * 24;
-        }
+        s = DateTimeType.normaliseTime(s);
 
-        s %= 3600 * 24;
+        ZoneOffset z  = ZoneOffset.ofTotalSeconds(v.getZone());
+        LocalTime  lt = LocalTime.ofNanoOfDay(s * 1000000000L + v.getNanos());
 
-        ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
-        LocalTime lt = LocalTime.ofNanoOfDay(s * 1000000000L + v.getNanos());
         return OffsetTime.of(lt, z);
     }
 
