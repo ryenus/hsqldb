@@ -1183,14 +1183,26 @@ public class ParserDML extends ParserDQL {
         LongDeque      updateColIndexList = new LongDeque();
         Expression[]   conditions         = new Expression[3];
         boolean        deleteFirst        = false;
+        int opOne = readMergeWhen(rangeGroups, fullRangeGroup,
+                                  updateColIndexList, insertColNames,
+                                  updateTargetSet, insertList, updateList,
+                                  targetRangeVars, sourceRange, conditions);
 
-        readMergeWhen(rangeGroups, fullRangeGroup, updateColIndexList,
-                      insertColNames, updateTargetSet, insertList, updateList,
-                      targetRangeVars, sourceRange, conditions);
-
-        // conditions[0], [1] and [2] are null (no action) or TRUE if there is no merge condition for the action
-        if (conditions[2] != null) {
+        if (opOne == StatementTypes.DELETE_WHERE) {
             deleteFirst = true;
+        }
+
+        if (token.tokenType == Tokens.WHEN) {
+            int opTwo = readMergeWhen(rangeGroups, fullRangeGroup,
+                                      updateColIndexList, insertColNames,
+                                      updateTargetSet, insertList, updateList,
+                                      targetRangeVars, sourceRange,
+                                      conditions);
+
+            if (opTwo == StatementTypes.DELETE_WHERE
+                    && opOne == StatementTypes.INSERT) {
+                deleteFirst = true;
+            }
         }
 
         if (token.tokenType == Tokens.WHEN) {
@@ -1198,21 +1210,6 @@ public class ParserDML extends ParserDQL {
                           insertColNames, updateTargetSet, insertList,
                           updateList, targetRangeVars, sourceRange,
                           conditions);
-        }
-
-        if (conditions[1] == null && conditions[2] != null) {
-            deleteFirst = true;
-        }
-
-        if (token.tokenType == Tokens.WHEN) {
-            readMergeWhen(rangeGroups, fullRangeGroup, updateColIndexList,
-                          insertColNames, updateTargetSet, insertList,
-                          updateList, targetRangeVars, sourceRange,
-                          conditions);
-        }
-
-        if (conditions[1] == null && conditions[2] != null) {
-            deleteFirst = true;
         }
 
         if (insertList.size() > 0) {
@@ -1311,27 +1308,25 @@ public class ParserDML extends ParserDQL {
             ExpressionColumn.checkColumnsResolved(unresolved);
             insertExpression.resolveTypes(session, null);
 
-
             Expression[] rowList = insertExpression.nodes;
 
             for (int j = 0; j < rowList.length; j++) {
                 Expression[] rowArgs = rowList[j].nodes;
 
                 for (int i = 0; i < rowArgs.length; i++) {
-                    Expression e = rowArgs[i];
-                    ColumnSchema column = table.getColumn(insertColumnMap[i]);
-                    Type colType = column.getDataType();
+                    Expression   e       = rowArgs[i];
+                    ColumnSchema column  = table.getColumn(insertColumnMap[i]);
+                    Type         colType = column.getDataType();
 
                     if (e.isUnresolvedParam()) {
                         e.setAttributesAsColumn(column);
                     }
 
                     // DYNAMIC_PARAM and PARAMETER expressions may have wider values
-                    if (e.dataType == null
-                        || colType.typeDataGroup != e.dataType.typeDataGroup
-                        || colType.isArrayType()) {
-                        rowArgs[i] = ExpressionOp.getCastExpression(session, e,
-                            colType);
+                    if (e.dataType == null || colType.typeDataGroup != e
+                            .dataType.typeDataGroup || colType.isArrayType()) {
+                        rowArgs[i] = ExpressionOp.getCastExpression(session,
+                                e, colType);
                     }
                 }
             }
@@ -1351,23 +1346,18 @@ public class ParserDML extends ParserDQL {
 
     /**
      * Parses a WHEN clause from a MERGE statement. This can be either a
-     * WHEN MATCHED or WHEN NOT MATCHED clause, or both, and the appropriate
+     * WHEN MATCHED or WHEN NOT MATCHED clause, and the appropriate
      * values will be updated.
-     *
-     * If the var that is to hold the data is not null, then we already
-     * encountered this type of clause, which is only allowed once, and at least
-     * one is required.
      */
-    private void readMergeWhen(RangeGroup[] rangeGroups,
-                               RangeGroup rangeGroup,
-                               LongDeque updateColIndexList,
-                               OrderedHashSet insertColumnNames,
-                               OrderedHashSet updateTargetSet,
-                               HsqlArrayList insertExpressions,
-                               HsqlArrayList updateExpressions,
-                               RangeVariable[] targetRangeVars,
-                               RangeVariable sourceRangeVar,
-                               Expression[] conditions) {
+    private int readMergeWhen(RangeGroup[] rangeGroups, RangeGroup rangeGroup,
+                              LongDeque updateColIndexList,
+                              OrderedHashSet insertColumnNames,
+                              OrderedHashSet updateTargetSet,
+                              HsqlArrayList insertExpressions,
+                              HsqlArrayList updateExpressions,
+                              RangeVariable[] targetRangeVars,
+                              RangeVariable sourceRangeVar,
+                              Expression[] conditions) {
 
         Table      table       = targetRangeVars[0].rangeTable;
         int        columnCount = table.getColumnCount();
@@ -1396,6 +1386,8 @@ public class ParserDML extends ParserDQL {
                 readSetClauseList(rangeGroups, targetRangeVars,
                                   updateTargetSet, updateColIndexList,
                                   updateExpressions);
+
+                return StatementTypes.UPDATE_WHERE;
             } else {
                 if (conditions[2] != null) {
                     throw Error.error(ErrorCode.X_42547);
@@ -1408,6 +1400,8 @@ public class ParserDML extends ParserDQL {
                 conditions[2] = condition;
 
                 readThis(Tokens.DELETE);
+
+                return StatementTypes.DELETE_WHERE;
             }
         } else if (token.tokenType == Tokens.NOT) {
             if (insertExpressions.size() != 0) {
@@ -1453,6 +1447,8 @@ public class ParserDML extends ParserDQL {
             }
 
             insertExpressions.add(e);
+
+            return StatementTypes.INSERT;
         } else {
             throw unexpectedToken();
         }
