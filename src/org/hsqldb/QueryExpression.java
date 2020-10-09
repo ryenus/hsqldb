@@ -364,7 +364,7 @@ public class QueryExpression implements RangeGroup {
                     int index = ((Integer) e.getValue(null)).intValue();
 
                     if (0 < index && index <= unionColumnNames.length) {
-                        sort.getLeftNode().queryTableColumnIndex = index - 1;
+                        sort.getLeftNode().resultTableColumnIndex = index - 1;
 
                         continue;
                     }
@@ -374,7 +374,7 @@ public class QueryExpression implements RangeGroup {
                                            e.getColumnName());
 
                 if (index >= 0) {
-                    sort.getLeftNode().queryTableColumnIndex = index;
+                    sort.getLeftNode().resultTableColumnIndex = index;
 
                     continue;
                 }

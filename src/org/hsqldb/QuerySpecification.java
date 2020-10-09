@@ -632,7 +632,7 @@ public class QuerySpecification extends QueryExpression {
 
             replaceColumnIndexInOrderBy(e);
 
-            if (e.getLeftNode().queryTableColumnIndex != -1) {
+            if (e.getLeftNode().resultTableColumnIndex != -1) {
                 continue;
             }
 
@@ -929,7 +929,7 @@ public class QuerySpecification extends QueryExpression {
         for (int i = 0; i < indexLimitVisible; i++) {
             Expression e = (Expression) exprColumnList.get(i);
 
-            e.queryTableColumnIndex = i;
+            e.resultTableColumnIndex = i;
         }
 
         indexLimitRowId   = indexLimitVisible;
@@ -1385,7 +1385,7 @@ public class QuerySpecification extends QueryExpression {
             for (int i = 0; i < orderCount; i++) {
                 Expression e = (Expression) sortAndSlice.exprList.get(i);
 
-                if (e.queryTableColumnIndex != -1) {
+                if (e.resultTableColumnIndex != -1) {
                     continue;
                 }
 
@@ -1402,7 +1402,7 @@ public class QuerySpecification extends QueryExpression {
             for (int i = 0; i < orderCount; i++) {
                 Expression e = (Expression) sortAndSlice.exprList.get(i);
 
-                if (e.queryTableColumnIndex != -1) {
+                if (e.resultTableColumnIndex != -1) {
                     continue;
                 }
 
