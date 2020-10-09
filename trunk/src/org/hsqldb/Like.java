@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2019, The HSQL Development Group
+ * Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,7 +88,7 @@ import org.hsqldb.types.Type;
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 2.3.1
+ * @version 2.5.2
  * @since 1.6.2
  */
 
@@ -107,7 +107,8 @@ class Like implements Cloneable {
     private int      iFirstWildCard;
     private boolean  isNull;
     int              escapeChar;
-    boolean          hasCollation;
+    String           prefix          = "";
+    static final int NORMAL_CHAR     = 0;
     static final int UNDERSCORE_CHAR = 1;
     static final int PERCENT_CHAR    = 2;
     boolean          isVariable      = true;
@@ -116,46 +117,8 @@ class Like implements Cloneable {
 
     Like() {}
 
-    void setParams(boolean collation) {
-        hasCollation = collation;
-    }
-
     void setIgnoreCase(boolean flag) {
         isIgnoreCase = flag;
-    }
-
-    private Object getStartsWith() {
-
-        if (iLen == 0) {
-            return isBinary ? BinaryData.zeroLengthBinary
-                            : "";
-        }
-
-        StringBuilder             sb = null;
-        HsqlByteArrayOutputStream os = null;
-
-        if (isBinary) {
-            os = new HsqlByteArrayOutputStream();
-        } else {
-            sb = new StringBuilder();
-        }
-
-        int i = 0;
-
-        for (; i < iLen && wildCardType[i] == 0; i++) {
-            if (isBinary) {
-                os.writeByte(cLike[i]);
-            } else {
-                sb.append(cLike[i]);
-            }
-        }
-
-        if (i == 0) {
-            return null;
-        }
-
-        return isBinary ? new BinaryData(os.toByteArray(), false)
-                        : sb.toString();
     }
 
     Boolean compare(Session session, Object o) {
@@ -177,6 +140,18 @@ class Like implements Cloneable {
         if (o instanceof ClobData) {
             o = ((ClobData) o).getChars(session, 0,
                                         (int) ((ClobData) o).length(session));
+        }
+
+        if (!isBinary && prefix.length() > 0) {
+            if (length < prefix.length()) {
+                return false;
+            }
+
+            o = ((String) o).substring(0, prefix.length());
+
+            int compare = dataType.compare(session, prefix, o);
+
+            return compare == 0;
         }
 
         return compareAt(session, o, 0, 0, iLen, length, cLike, wildCardType)
@@ -223,7 +198,7 @@ class Like implements Cloneable {
         for (; i < iLen; i++) {
             switch (wildCardType[i]) {
 
-                case 0 :                  // general character
+                case NORMAL_CHAR :        // general character
                     if ((j >= jLen)
                             || (cLike[i] != getChar(session, o, j++))) {
                         return false;
@@ -359,6 +334,50 @@ class Like implements Cloneable {
                 wildCardType[i + 1] = PERCENT_CHAR;
             }
         }
+
+        if (isBinary) {
+            return;
+        }
+
+        prefix = "";
+
+        int     prefixLength = 0;
+        boolean found        = false;
+
+        outerloop:
+        for (int i = 0; i < iLen; i++) {
+            switch (wildCardType[i]) {
+
+                case NORMAL_CHAR : {
+                    if (found) {
+                        found = false;
+
+                        break outerloop;
+                    }
+
+                    break;
+                }
+                case UNDERSCORE_CHAR : {
+                    found = false;
+
+                    break outerloop;
+                }
+                case PERCENT_CHAR : {
+                    if (found) {
+                        found = false;
+
+                        break outerloop;
+                    }
+
+                    prefixLength = i;
+                    found        = true;
+                }
+            }
+        }
+
+        if (found) {
+            prefix = ((String) pattern).substring(0, prefixLength);
+        }
     }
 
     boolean isEquivalentToUnknownPredicate() {
@@ -386,25 +405,6 @@ class Like implements Cloneable {
 
     int getFirstWildCardIndex() {
         return iFirstWildCard;
-    }
-
-    Object getRangeLow() {
-        return getStartsWith();
-    }
-
-    Object getRangeHigh(Session session) {
-
-        Object o = getStartsWith();
-
-        if (o == null) {
-            return null;
-        }
-
-        if (isBinary) {
-            return new BinaryData(session, (BinaryData) o, maxByteValue);
-        } else {
-            return dataType.concat(session, o, "\uffff");
-        }
     }
 
     public String describe(Session session) {

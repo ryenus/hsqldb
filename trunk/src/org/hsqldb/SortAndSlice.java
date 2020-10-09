@@ -58,6 +58,7 @@ public final class SortAndSlice {
     public boolean[]   sortDescending;
     public boolean[]   sortNullsLast;
     public Collation[] collations;
+    boolean            hasCollation;
     boolean            sortUnion;
     HsqlArrayList      exprList = new HsqlArrayList();
     ExpressionOp       limitCondition;
@@ -66,7 +67,7 @@ public final class SortAndSlice {
     boolean            strictLimit;
     boolean            zeroLimit;
     boolean            usingIndex;
-    boolean            allDescending;
+    boolean            descendingSort;
     public boolean     skipSort       = false;    // true when result can be used as is
     public boolean     skipFullResult = false;    // true when result can be sliced as is
     public Index   index;
@@ -168,26 +169,25 @@ public final class SortAndSlice {
         sortOrder      = new int[columnCount];
         sortDescending = new boolean[columnCount];
         sortNullsLast  = new boolean[columnCount];
+        collations     = new Collation[columnCount];
 
         for (int i = 0; i < columnCount; i++) {
             ExpressionOrderBy sort = (ExpressionOrderBy) exprList.get(i);
+            int colIndex           = sort.getLeftNode().resultTableColumnIndex;
 
-            if (sort.getLeftNode().queryTableColumnIndex == -1) {
+            if (colIndex == -1) {
                 sortOrder[i] = startColumn + i;
             } else {
-                sortOrder[i] = sort.getLeftNode().queryTableColumnIndex;
+                sortOrder[i] = colIndex;
             }
 
             sortDescending[i] = sort.isDescending();
             sortNullsLast[i]  = sort.isNullsLast();
+            collations[i]     = sort.collation;
             hasNullsLast      |= sortNullsLast[i];
 
             if (sort.collation != null) {
-                if (collations == null) {
-                    collations = new Collation[columnCount];
-                }
-
-                collations[i] = sort.collation;
+                hasCollation = true;
             }
         }
     }
@@ -223,16 +223,14 @@ public final class SortAndSlice {
         }
 
         if (columnCount == 0) {
-            if (limitCondition == null) {
-                return;
+            if (limitCondition != null) {
+                skipFullResult = true;
             }
-
-            skipFullResult = true;
 
             return;
         }
 
-        if (collations != null) {
+        if (hasCollation) {
             return;
         }
 
@@ -265,9 +263,9 @@ public final class SortAndSlice {
 
         int count = ArrayUtil.countTrueElements(sortDescending);
 
-        allDescending = count == columnCount;
+        descendingSort = count == columnCount;
 
-        if (!allDescending && count > 0) {
+        if (!descendingSort && count > 0) {
             return;
         }
 
@@ -304,7 +302,7 @@ public final class SortAndSlice {
         }
 
         if (rangeIndex == primaryTableIndex) {
-            if (allDescending) {
+            if (descendingSort) {
                 boolean reversed = select.rangeVariables[0].reverseOrder();
 
                 if (!reversed) {
@@ -317,7 +315,7 @@ public final class SortAndSlice {
         } else if (!select.rangeVariables[0].joinConditions[0]
                 .hasIndexCondition()) {
             if (select.rangeVariables[0].setSortIndex(primaryTableIndex,
-                    allDescending)) {
+                    descendingSort)) {
                 skipSort       = true;
                 skipFullResult = true;
             }
@@ -478,7 +476,7 @@ public final class SortAndSlice {
             Index orderIndex = table.createAndAddIndexStructure(session, null,
                 sortOrder, sortDescending, sortNullsLast, false, false, false);
 
-            if (collations != null) {
+            if (hasCollation) {
                 for (int i = 0; i < columnCount; i++) {
                     if (collations[i] != null) {
                         Type type = orderIndex.getColumnTypes()[i];

@@ -43,7 +43,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.5.2
  * @since 1.9.0
  */
 public final class ExpressionLike extends ExpressionLogical {
@@ -275,9 +275,7 @@ public final class ExpressionLike extends ExpressionLogical {
         }
 
         if (likeObject.isEquivalentToEqualsPredicate()) {
-            opType = OpTypes.EQUAL;
-            nodes[RIGHT] = new ExpressionValue(likeObject.getRangeLow(),
-                                               Type.SQL_VARCHAR);
+            opType     = OpTypes.EQUAL;
             likeObject = null;
 
             setEqualityMode();

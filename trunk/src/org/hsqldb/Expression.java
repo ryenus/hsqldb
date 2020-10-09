@@ -113,9 +113,6 @@ public class Expression implements Cloneable {
     protected Type dataType;
     protected int  groupingType;
 
-    //
-    int queryTableColumnIndex = -1;    // >= 0 when it is used for order by
-
     // self position in the result table
     int resultTableColumnIndex = -1;
 
