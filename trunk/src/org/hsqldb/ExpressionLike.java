@@ -275,7 +275,9 @@ public final class ExpressionLike extends ExpressionLogical {
         }
 
         if (likeObject.isEquivalentToEqualsPredicate()) {
-            opType     = OpTypes.EQUAL;
+            opType = OpTypes.EQUAL;
+            nodes[RIGHT] = new ExpressionValue(likeObject.getRangeLow(),
+                                               Type.SQL_VARCHAR);
             likeObject = null;
 
             setEqualityMode();
