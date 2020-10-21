@@ -223,9 +223,11 @@ public final class SortAndSlice {
         }
 
         if (columnCount == 0) {
-            if (limitCondition != null) {
-                skipFullResult = true;
+            if (limitCondition == null) {
+                return;
             }
+
+            skipFullResult = true;
 
             return;
         }
