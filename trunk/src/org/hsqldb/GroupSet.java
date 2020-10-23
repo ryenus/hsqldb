@@ -47,7 +47,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * added support for GROUPING SETS, ROLLUP, CUBE and GROUPING functionality.
  *
  * @author Nicholas Quek (kocolipy@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 2.5.1
  */
 public class GroupSet {
@@ -127,11 +127,11 @@ public class GroupSet {
         }
     }
 
-    private int getColumnIndex(Expression e) {
+    private static int getColumnIndex(Expression e) {
         return e.resultTableColumnIndex;
     }
 
-    private HsqlArrayList evaluate(Expression e) {
+    private static HsqlArrayList evaluate(Expression e) {
 
         if (e.opType == OpTypes.NONE) {
             HsqlArrayList sets = new HsqlArrayList();
@@ -176,15 +176,17 @@ public class GroupSet {
         }
     }
 
-    private HsqlArrayList evaluate(Expression[] e) {
+    private static HsqlArrayList evaluate(Expression[] e) {
 
         HsqlArrayList sets = new HsqlArrayList();
 
         if (e.length == 0) {
-            HsqlArrayList inner = new HsqlArrayList();
+            sets.add(new HsqlArrayList());
 
-            sets.add(inner);
+            return sets;
+        }
 
+        if (e[0] == null) {
             return sets;
         }
 
@@ -209,7 +211,7 @@ public class GroupSet {
         return sets;
     }
 
-    private HsqlArrayList powerSet(Expression[] expressions) {
+    private static HsqlArrayList powerSet(Expression[] expressions) {
 
         HsqlArrayList sets = new HsqlArrayList();
 
@@ -260,7 +262,7 @@ public class GroupSet {
         return sets;
     }
 
-    private HsqlArrayList rollUp(Expression[] expressions) {
+    private static HsqlArrayList rollUp(Expression[] expressions) {
 
         HsqlArrayList sets = new HsqlArrayList();
 
@@ -308,7 +310,7 @@ public class GroupSet {
         return sets;
     }
 
-    private HsqlArrayList grouping(Expression[] expressions) {
+    private static HsqlArrayList grouping(Expression[] expressions) {
 
         HsqlArrayList sets = new HsqlArrayList();
 

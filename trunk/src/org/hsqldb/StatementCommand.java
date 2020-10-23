@@ -1162,7 +1162,7 @@ public class StatementCommand extends Statement {
                         throw Error.error(ErrorCode.ACCESS_IS_DENIED);
                     }
 
-                    Index index = table.getIndexForColumns(session, colIndex);
+                    Index index = table.getIndexForColumns(colIndex);
 
                     if (index != null) {
                         Index[] indexes = table.getIndexList();
