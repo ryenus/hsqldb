@@ -3519,6 +3519,10 @@ public class ParserDQL extends ParserBase {
 
     private void checkIfGroupingOrAggregate(Expression e) {
 
+        if (e == null) {
+            return;
+        }
+
         if (OpTypes.subqueryAggregateExpressionSet.contains(e.opType)) {
             throw Error.error(
                 ErrorCode.X_42572,

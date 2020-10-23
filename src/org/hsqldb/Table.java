@@ -2607,7 +2607,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      *  Finds an existing index for a column group - for persistent tables
      */
-    synchronized Index getIndexForColumns(Session session, int[] cols) {
+    synchronized Index getIndexForColumns(int[] cols) {
 
         int i = bestIndexForColumn[cols[0]];
 
