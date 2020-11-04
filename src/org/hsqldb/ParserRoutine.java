@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Parser for SQL stored procedures and functions - PSM
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class ParserRoutine extends ParserTable {
@@ -289,7 +289,7 @@ public class ParserRoutine extends ParserTable {
 
         exprList.toArray(updateExpressions);
         resolveUpdateExpressions(table, RangeGroup.emptyGroup, columnMap,
-                                 updateExpressions, rangeGroups, null);
+                                 targets, updateExpressions, rangeGroups, null);
 
         StatementDMQL cs = new StatementSet(session, targets, table,
                                             rangeGroups[0].getRangeVariables(),

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * ScaledRAFile is used for data access.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.5.0
+ * @version  2.5.2
  * @since 1.8.0.5
  */
 final class RAFileNIO implements RandomAccessInterface {
@@ -175,6 +175,11 @@ final class RAFileNIO implements RandomAccessInterface {
     public int read() throws IOException {
 
         try {
+
+            if (currentPosition == fileLength) {
+                return -1;
+            }
+
             int value = buffer.get();
 
             positionBufferMove(1);
@@ -375,9 +380,15 @@ final class RAFileNIO implements RandomAccessInterface {
     private boolean enlargeFile(long newFileLength) {
 
         try {
-            long newBufferLength = newFileLength;
+            long newBufferLength;
 
-            if (!readOnly) {
+            if (readOnly) {
+                newBufferLength = largeBufferSize;
+
+                if (file.length() - fileLength < largeBufferSize) {
+                    newBufferLength = file.length() - fileLength;
+                }
+            } else {
                 newBufferLength = largeBufferSize;
             }
 
@@ -500,10 +511,6 @@ final class RAFileNIO implements RandomAccessInterface {
     }
 
     private void setCurrentBuffer(long offset) {
-
-        if (readOnly) {
-            return;
-        }
 
         int bufferIndex = (int) (offset >> largeBufferScale);
 
