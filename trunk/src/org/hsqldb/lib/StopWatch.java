@@ -89,7 +89,7 @@ public class StopWatch {
         if (running) {
             return (total + System.nanoTime() - startTime) / 1000000;
         } else {
-            return total;
+            return total / 1000000;
         }
     }
 

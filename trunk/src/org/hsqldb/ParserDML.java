@@ -346,7 +346,7 @@ public class ParserDML extends ParserDQL {
 
                     exprList.toArray(updateExpressions);
                     resolveUpdateExpressions(table, rangeGroup,
-                                             updateColumnMap,
+                                             updateColumnMap, targets,
                                              updateExpressions, rangeGroups,
                                              valueRange);
                 }
@@ -460,7 +460,7 @@ public class ParserDML extends ParserDQL {
 
             exprList.toArray(updateExpressions);
             resolveUpdateExpressions(table, rangeGroup, updateColumnMap,
-                                     updateExpressions, rangeGroups,
+                                     targets, updateExpressions, rangeGroups,
                                      valueRange);
         }
 
@@ -758,7 +758,7 @@ public class ParserDML extends ParserDQL {
             sortAndSlice = XreadOrderByExpression();
         }
 
-        resolveUpdateExpressions(table, rangeGroup, columnMap,
+        resolveUpdateExpressions(table, rangeGroup, columnMap, targets,
                                  updateExpressions, rangeGroups, null);
 
         if (table != baseTable) {
@@ -846,7 +846,7 @@ public class ParserDML extends ParserDQL {
     }
 
     void resolveUpdateExpressions(Table targetTable, RangeGroup rangeGroup,
-                                  int[] columnMap,
+                                  int[] columnMap, Expression[] targets,
                                   Expression[] colExpressions,
                                   RangeGroup[] rangeGroups,
                                   RangeVariable valuesRange) {
@@ -921,8 +921,16 @@ public class ParserDML extends ParserDQL {
                 }
 
                 if (e.isUnresolvedParam()) {
-                    e.setAttributesAsColumn(
-                        targetTable.getColumn(columnMap[i]));
+                    if (targets.length > i
+                            && targets[i].opType == OpTypes.ARRAY_ACCESS) {
+                        Type type = targetTable.getColumn(
+                            columnMap[i]).getDataType().collectionBaseType();
+
+                        e.setDataType(session, type);
+                    } else {
+                        e.setAttributesAsColumn(
+                            targetTable.getColumn(columnMap[i]));
+                    }
                 } else if (e.getType() == OpTypes.DEFAULT) {
 
                     //
@@ -1266,7 +1274,8 @@ public class ParserDML extends ParserDQL {
             }
 
             resolveUpdateExpressions(table, fullRangeGroup, updateColumnMap,
-                                     updateExpressions, rangeGroups, null);
+                                     targets, updateExpressions, rangeGroups,
+                                     null);
         }
 
         HsqlList unresolved = null;
