@@ -72,6 +72,7 @@ import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BinaryUUIDType;
+import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.DateTimeType;
@@ -759,7 +760,7 @@ public class JDBCResultSet implements ResultSet {
         Type sourceType = resultMetaData.columnTypes[columnIndex - 1];
 
         if (sourceType.typeCode == Types.SQL_BLOB) {
-            BlobDataID x = (BlobDataID) getColumnInType(columnIndex,
+            BlobData x = (BlobData) getColumnInType(columnIndex,
                 sourceType);
 
             if (x == null) {
