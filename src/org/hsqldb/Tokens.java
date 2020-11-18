@@ -835,23 +835,24 @@ public class Tokens {
     public static final String T_YES                  = "YES";
 
     //
-    public static final String T_DAY_NAME     = "DAY_NAME";
-    public static final String T_MONTH_NAME   = "MONTH_NAME";
-    public static final String T_QUARTER      = "QUARTER";
-    public static final String T_DAY_OF_WEEK  = "DAY_OF_WEEK";
-    public static final String T_DAY_OF_MONTH = "DAY_OF_MONTH";
-    public static final String T_DAY_OF_YEAR  = "DAY_OF_YEAR";
-    public static final String T_WEEK_OF_YEAR = "WEEK_OF_YEAR";
-    static final String        T_DAYNAME      = "DAYNAME";
-    static final String        T_MONTHNAME    = "MONTHNAME";
-    static final String        T_DAYOFMONTH   = "DAYOFMONTH";
-    static final String        T_DAYOFWEEK    = "DAYOFWEEK";
-    static final String        T_DAYOFYEAR    = "DAYOFYEAR";
-    static final String        T_WEEK         = "WEEK";
-    static final String        T_DAYS         = "DAYS";
-    static final String        T_MICROSECOND  = "MICROSECOND";
-    static final String        T_MILLISECOND  = "MILLISECOND";
-    static final String        T_NANOSECOND   = "NANOSECOND";
+    public static final String T_DAY_NAME         = "DAY_NAME";
+    public static final String T_MONTH_NAME       = "MONTH_NAME";
+    public static final String T_QUARTER          = "QUARTER";
+    public static final String T_DAY_OF_WEEK      = "DAY_OF_WEEK";
+    public static final String T_DAY_OF_MONTH     = "DAY_OF_MONTH";
+    public static final String T_DAY_OF_YEAR      = "DAY_OF_YEAR";
+    public static final String T_WEEK_OF_YEAR     = "WEEK_OF_YEAR";
+    public static final String T_ISO_WEEK_OF_YEAR = "ISO_WEEK_OF_YEAR";
+    static final String        T_DAYNAME          = "DAYNAME";
+    static final String        T_MONTHNAME        = "MONTHNAME";
+    static final String        T_DAYOFMONTH       = "DAYOFMONTH";
+    static final String        T_DAYOFWEEK        = "DAYOFWEEK";
+    static final String        T_DAYOFYEAR        = "DAYOFYEAR";
+    static final String        T_WEEK             = "WEEK";
+    static final String        T_DAYS             = "DAYS";
+    static final String        T_MICROSECOND      = "MICROSECOND";
+    static final String        T_MILLISECOND      = "MILLISECOND";
+    static final String        T_NANOSECOND       = "NANOSECOND";
 
     //
     static final String        T_ACOS             = "ACOS";
@@ -1804,23 +1805,24 @@ public class Tokens {
     static final int        UUID                       = 844;
     static final int        WEEK                       = 845;
     public static final int WEEK_OF_YEAR               = 846;
-    static final int        LONGBLOB                   = 847;
-    static final int        LONGTEXT                   = 848;
-    static final int        MEDIUMBLOB                 = 849;
-    static final int        MEDIUMTEXT                 = 850;
-    static final int        TINYBLOB                   = 851;
-    static final int        TINYTEXT                   = 852;
-    static final int        DUPLICATE                  = 853;
-    static final int        DATETIMEOFFSET             = 854;
-    static final int        DATENAME                   = 855;
-    static final int        DATEPART                   = 856;
-    static final int        EOMONTH                    = 857;
-    static final int        NEWID                      = 858;
-    static final int        NANVL                      = 859;
-    static final int        SYS_GUID                   = 860;
-    static final int        MODIFY                     = 861;
-    static final int        KEEP                       = 862;
-    static final int        BIN_TO_NUM                 = 863;
+    public static final int ISO_WEEK_OF_YEAR           = 847;
+    static final int        LONGBLOB                   = 848;
+    static final int        LONGTEXT                   = 849;
+    static final int        MEDIUMBLOB                 = 850;
+    static final int        MEDIUMTEXT                 = 851;
+    static final int        TINYBLOB                   = 852;
+    static final int        TINYTEXT                   = 853;
+    static final int        DUPLICATE                  = 854;
+    static final int        DATETIMEOFFSET             = 855;
+    static final int        DATENAME                   = 856;
+    static final int        DATEPART                   = 857;
+    static final int        EOMONTH                    = 858;
+    static final int        NEWID                      = 859;
+    static final int        NANVL                      = 860;
+    static final int        SYS_GUID                   = 861;
+    static final int        MODIFY                     = 862;
+    static final int        KEEP                       = 863;
+    static final int        BIN_TO_NUM                 = 864;
 
     //
     public static final int MICROSECOND = 871;
@@ -2677,6 +2679,7 @@ public class Tokens {
         commandSet.put(T_UNLOAD, UNLOAD);
         commandSet.put(T_WEEK, WEEK);
         commandSet.put(T_WEEK_OF_YEAR, WEEK_OF_YEAR);
+        commandSet.put(T_ISO_WEEK_OF_YEAR, ISO_WEEK_OF_YEAR);
 
         //
         commandSet.put(T_ISOLATION_LEVEL, ISOLATION_LEVEL);

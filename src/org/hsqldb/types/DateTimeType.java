@@ -1623,6 +1623,7 @@ public final class DateTimeType extends DTIType {
                 break;
 
             case Types.DTI_WEEK_OF_YEAR :
+            case Types.DTI_ISO_WEEK_OF_YEAR :
                 calendarPart = Calendar.WEEK_OF_YEAR;
                 break;
 

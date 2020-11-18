@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.lib.IntKeyIntValueHashMap;
  * Common elements for Type instances for DATETIME and INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.2
  * @since 1.9.0
  */
 public abstract class DTIType extends Type {
@@ -236,6 +236,7 @@ public abstract class DTIType extends Type {
             case Types.DTI_DAY_OF_YEAR :
             case Types.DTI_DAY_OF_WEEK :
             case Types.DTI_WEEK_OF_YEAR :
+            case Types.DTI_ISO_WEEK_OF_YEAR :
                 if (!isDateTimeType()) {
                     throw Error.error(ErrorCode.X_42561);
                 }
@@ -389,6 +390,9 @@ public abstract class DTIType extends Type {
             case Tokens.WEEK_OF_YEAR :
                 return Types.DTI_WEEK_OF_YEAR;
 
+            case Tokens.ISO_WEEK_OF_YEAR :
+                return Types.DTI_ISO_WEEK_OF_YEAR;
+
             case Tokens.SECONDS_MIDNIGHT :
                 return Types.DTI_SECONDS_MIDNIGHT;
 
@@ -445,6 +449,9 @@ public abstract class DTIType extends Type {
 
             case Types.DTI_WEEK_OF_YEAR :
                 return Tokens.T_WEEK_OF_YEAR;
+
+            case Types.DTI_ISO_WEEK_OF_YEAR :
+                return Tokens.T_ISO_WEEK_OF_YEAR;
 
             case Types.DTI_SECONDS_MIDNIGHT :
                 return Tokens.T_SECONDS_MIDNIGHT;
