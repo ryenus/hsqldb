@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL standard function calls
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class FunctionSQL extends Expression {
@@ -299,11 +299,11 @@ public class FunctionSQL extends Expression {
                     Tokens.MONTH, Tokens.DAY, Tokens.HOUR, Tokens.MINUTE,
                     Tokens.SECOND, Tokens.DAY_OF_WEEK, Tokens.WEEK_OF_YEAR,
                     Tokens.QUARTER, Tokens.DAY_OF_YEAR, Tokens.DAY_OF_MONTH,
-                    Tokens.WEEK_OF_YEAR, Tokens.DAY_NAME, Tokens.MONTH_NAME,
-                    Tokens.SECONDS_MIDNIGHT, Tokens.TIMEZONE_HOUR,
-                    Tokens.TIMEZONE_MINUTE, Tokens.MILLISECOND,
-                    Tokens.MICROSECOND, Tokens.NANOSECOND, Tokens.FROM,
-                    Tokens.QUESTION, Tokens.CLOSEBRACKET
+                    Tokens.ISO_WEEK_OF_YEAR, Tokens.DAY_NAME,
+                    Tokens.MONTH_NAME, Tokens.SECONDS_MIDNIGHT,
+                    Tokens.TIMEZONE_HOUR, Tokens.TIMEZONE_MINUTE,
+                    Tokens.MILLISECOND, Tokens.MICROSECOND, Tokens.NANOSECOND,
+                    Tokens.FROM, Tokens.QUESTION, Tokens.CLOSEBRACKET
                 };
                 break;
 

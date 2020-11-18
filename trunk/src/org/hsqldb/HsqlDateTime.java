@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  * timezone.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.7.0
  */
 public class HsqlDateTime {
@@ -308,6 +308,17 @@ public class HsqlDateTime {
 
             switch (part) {
 
+                case Types.DTI_ISO_WEEK_OF_YEAR : {
+                    int dayWeek = calendar.get(Calendar.DAY_OF_WEEK);
+
+                    if (dayWeek == 1) {
+                        dayWeek = 8;
+                    }
+                    calendar.add(Calendar.DAY_OF_YEAR, 2 - dayWeek);
+                    resetToDate(calendar);
+
+                    break;
+                }
                 case Types.DTI_WEEK_OF_YEAR : {
                     int dayWeek = calendar.get(Calendar.DAY_OF_WEEK);
 
@@ -470,7 +481,7 @@ public class HsqlDateTime {
         Types.SQL_INTERVAL_MONTH, Types.SQL_INTERVAL_MONTH,
         Types.SQL_INTERVAL_MONTH,
         -1, -1,
-        Types.DTI_WEEK_OF_YEAR, -1, Types.SQL_INTERVAL_DAY, Types.SQL_INTERVAL_DAY,
+        Types.DTI_WEEK_OF_YEAR, Types.DTI_ISO_WEEK_OF_YEAR, Types.SQL_INTERVAL_DAY, Types.SQL_INTERVAL_DAY,
         -1,
         Types.SQL_INTERVAL_HOUR, -1, Types.SQL_INTERVAL_HOUR,
         Types.SQL_INTERVAL_MINUTE,

@@ -48,7 +48,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * has been added to differentiate HSQLDB-specific type specializations.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.2
  * @since 1.7.2
  */
 public class Types {
@@ -129,6 +129,7 @@ public class Types {
     public static final int DTI_MICROSECOND      = 133;
     public static final int DTI_NANOSECOND       = 134;
     public static final int DTI_TIMEZONE         = 135;
+    public static final int DTI_ISO_WEEK_OF_YEAR = 136;
 
     // used where local defines are used in the same range as SQL type numbers
     public static final int SQL_TYPE_NUMBER_LIMIT = 256;
