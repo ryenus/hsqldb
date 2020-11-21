@@ -69,7 +69,6 @@ public class HsqlDateTime {
     private static final Calendar tempCalDefault = new GregorianCalendar();
     private static final Calendar tempCalGMT =
         new GregorianCalendar(TimeZone.getTimeZone("GMT"), defaultLocale);
-    private static final Date   tempDate    = new Date(0);
     private static final String sdfdPattern = "yyyy-MM-dd";
     private static final SimpleDateFormat sdfd =
         new SimpleDateFormat(sdfdPattern);
@@ -133,17 +132,18 @@ public class HsqlDateTime {
         }
     }
 
-    public static void getTimestampString(StringBuilder sb, long seconds,
+    public static String getTimestampString(long seconds,
                                           int nanos, int scale) {
 
         synchronized (sdfts) {
-            tempDate.setTime(seconds * 1000);
-            sb.append(sdfts.format(tempDate));
+            sysDate.setTime(seconds * 1000);
+            String ts = sdfts.format(sysDate);
 
             if (scale > 0) {
-                sb.append('.');
-                sb.append(StringUtil.toZeroPaddedString(nanos, 9, scale));
+                ts += '.' + StringUtil.toZeroPaddedString(nanos, 9, scale);
             }
+
+            return ts;
         }
     }
 

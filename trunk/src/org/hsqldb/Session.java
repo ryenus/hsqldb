@@ -75,7 +75,7 @@ import org.hsqldb.types.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -125,9 +125,8 @@ public class Session implements SessionInterface {
     private int        sessionMaxRows;
     int                sessionOptimization = 8;
     private final long sessionId;
-    int                sessionTxId = -1;
     private boolean    ignoreCase;
-    private long       sessionStartTimestamp;
+    private final long connectTime = System.currentTimeMillis();
 
     // internal connection
     private JDBCConnection intConnection;
@@ -197,10 +196,9 @@ public class Session implements SessionInterface {
         setResultMemoryRowCount(database.getResultMaxMemoryRows());
         resetSchema();
 
-        sessionData           = new SessionData(database, this);
-        statementManager      = new StatementManager(database);
-        timeoutManager        = new TimeoutManager();
-        sessionStartTimestamp = System.currentTimeMillis();
+        sessionData      = new SessionData(database, this);
+        statementManager = new StatementManager(database);
+        timeoutManager   = new TimeoutManager();
     }
 
     void resetSchema() {
@@ -893,8 +891,6 @@ public class Session implements SessionInterface {
 
 // campbell-burnet@users 20020810 metadata 1.7.2
 //----------------------------------------------------------------
-    private final long connectTime = System.currentTimeMillis();
-
 // more efficient for MetaData concerns than checkAdmin
 
     /**

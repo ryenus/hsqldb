@@ -1076,7 +1076,6 @@ public final class DateTimeType extends DTIType {
             nanos   = ot.getNano();
             nanos   = DateTimeType.normaliseFraction(nanos, scale);
 
-
             if (withTimeZone) {
                 zoneSeconds = ot.get(ChronoField.OFFSET_SECONDS);
 
@@ -1290,24 +1289,17 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP : {
                 TimestampData ts = (TimestampData) a;
+                String tss = HsqlDateTime.getTimestampString(ts.getSeconds()
+                    + ts.getZone(), ts.getNanos(), scale);
 
-                sb = new StringBuilder();
-
-                HsqlDateTime.getTimestampString(sb,
-                                                ts.getSeconds()
-                                                + ts.getZone(), ts.getNanos(),
-                                                    scale);
-
-                if (!withTimeZone) {
-                    return sb.toString();
+                if (withTimeZone) {
+                    s = Type.SQL_INTERVAL_HOUR_TO_MINUTE
+                        .intervalSecondToString(((TimestampData) a).getZone(),
+                                                0, true);
+                    tss += s;
                 }
 
-                s = Type.SQL_INTERVAL_HOUR_TO_MINUTE.intervalSecondToString(
-                    ((TimestampData) a).getZone(), 0, true);
-
-                sb.append(s);
-
-                return sb.toString();
+                return tss;
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");

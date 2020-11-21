@@ -41,9 +41,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.TestCase;
-import junit.framework.TestResult;
-
 public class TestDatabaseMetaData extends TestBase {
 
     public TestDatabaseMetaData(String name) {
@@ -165,7 +162,7 @@ public class TestDatabaseMetaData extends TestBase {
             }
 
             rs.close();
-            assertTrue("expected table t_1 count of 1", i == 1);
+            assertEquals("expected table t_1 count of 1", 1, i);
 
             // test various methods
             dbmd.getPrimaryKeys(null, null, "T_1");

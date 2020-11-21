@@ -36,6 +36,7 @@ import org.hsqldb.Constraint;
 import org.hsqldb.Database;
 import org.hsqldb.Expression;
 import org.hsqldb.ExpressionColumn;
+import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
@@ -943,6 +944,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * KEY (VARCHAR)       VALUE (VARCHAR)
      * ------------------- ---------------
      * AUTOCOMMIT          TRUE / FALSE (session is in autocommit mode or not)
+     * CONNECTED           timestamp of start of session
      * CURRENT SCHEMA      the name of current schema
      * CURRENT STATEMENT   current SQL statement
      * DATABASE            the name of the database
@@ -988,6 +990,16 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         row    = t.getEmptyRowData();
         row[0] = "SESSION ID";
         row[1] = String.valueOf(session.getId());
+
+        t.insertSys(session, store, row);
+
+        row    = t.getEmptyRowData();
+        row[0] = "CONNECTED";
+
+        TimestampData ts =
+            TimestampData.fromMillisecondsGMT(session.getConnectTime());
+
+        row[1] = Type.SQL_TIMESTAMP_WITH_TIME_ZONE.convertToString(ts);
 
         t.insertSys(session, store, row);
 
@@ -1180,7 +1192,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             s              = sessions[i];
             row            = t.getEmptyRowData();
             row[isid]      = ValuePool.getLong(s.getId());
-            row[ict]       = new TimestampData(s.getConnectTime() / 1000);
+            row[ict] = TimestampData.fromMillisecondsGMT(s.getConnectTime());
             row[iuname]    = s.getUsername();
             row[iis_admin] = s.isAdmin() ? Boolean.TRUE
                                          : Boolean.FALSE;

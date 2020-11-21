@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ package org.hsqldb.types;
  * Implementation of data item for TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class TimestampData {
@@ -63,6 +63,14 @@ public class TimestampData {
         this.seconds = seconds;
         this.nanos   = nanos;
         this.zone    = zoneSeconds;
+    }
+
+    public static TimestampData fromMillisecondsGMT(long millis) {
+
+        long sec   = millis / 1000;
+        int  nanos = (int) (millis % 1000) * 1000000;
+
+        return new TimestampData(sec, nanos);
     }
 
     public long getSeconds() {
