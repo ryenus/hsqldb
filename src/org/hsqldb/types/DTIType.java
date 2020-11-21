@@ -60,7 +60,7 @@ public abstract class DTIType extends Type {
     public static final int    INTERVAL_MONTH_INDEX         = 1;
     public static final int    INTERVAL_SECOND_INDEX        = 5;
     public static final int    INTERVAL_FRACTION_PART_INDEX = 6;
-    static final long[]        precisionLimits              = {
+    public static final long[] precisionLimits              = {
         1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000,
         1000000000, 10000000000L, 100000000000L, 1000000000000L
     };
