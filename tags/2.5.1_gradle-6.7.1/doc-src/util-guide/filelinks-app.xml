@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+
+<!DOCTYPE book [
+  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+]>
+
+<appendix version="5.0" xmlns="http://docbook.org/ns/docbook"
+          xml:id="filelinks-app"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+  <!-- We declare the default namespace + those for prefixes xlink: and xi: in
+       the root element, so we can use them anywhere in this file. -->
+
+  <title>HyperSQL File Links</title>
+  <subtitle>HyperSQL Files referred to in this Guide</subtitle>
+  <simpara>
+    HyperSQL files referred to in the text may be retrieved from the
+    canonical HyperSQL documentation site, &distro_baseurl;, or from the
+    same location you are reading this page from.
+  </simpara>
+  <note><simpara>
+    If you are reading this document with a standalone PDF reader,
+    only the &distro_baseurl;/... links will function.
+  </simpara></note>
+
+  <itemizedlist>
+    <title>
+      Pairs of local + &distro_baseurl; links for referenced files.
+    </title>
+    <listitem xml:id="sqltool.rc-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/sqltool.rc"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/sqltool.rc"/>
+      </simpara>
+    </listitem> <listitem xml:id="sampledata.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/sampledata.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/sampledata.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="sample.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/sample.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/sample.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="html-report.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/html-report.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/html-report.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="pl.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/pl.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/pl.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="plsql.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/plsql.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/plsql.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="dsv-sample.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/dsv-sample.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/dsv-sample.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="csv-sample.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/sample/csv-sample.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/csv-sample.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="sqljrt.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/testrun/sqltool/sqljrt.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/testrun/sqltool/sqljrt.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="sqlpsm.sql-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/testrun/sqltool/sqlpsm.sql"/>
+      </simpara> <simpara>
+        <link xlink:href="&distro_baseurl;/verbatim/testrun/sqltool/sqlpsm.sql"/>
+      </simpara>
+    </listitem> <listitem xml:id="SqlFileEmbedder.java-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/src/org/hsqldb/sample/SqlFileEmbedder.java"/>
+      </simpara> <simpara>
+      <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/sample/SqlFileEmbedder.java"/>
+      </simpara>
+    </listitem> <listitem xml:id="SqlTool.html-link">
+      <simpara>
+        Local:
+        <link xlink:href="../apidocs/org/hsqldb/cmdline/SqlFile.html"/>
+      </simpara> <simpara>
+      <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jcmdline/SqlFile.html"/>
+      </simpara>
+    </listitem>
+  </itemizedlist>
+</appendix>
