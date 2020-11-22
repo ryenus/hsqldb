@@ -473,17 +473,17 @@ Add switch -q to make Gradle run quieter, or -i -s to run louder
 
 Usage:
    gradlew --help           Display 'gradlew' command syntax
-   gradlew hsqltasks        Display all invocable targets
+   gradlew tasks            Display main tasks.  Add swith '--all' to see all.
    gradlew explainjars      List all targets which build jar files
    gradlew explainprops     Explain how to change build properties
-   gradlew ANYTHING ELSE    'gradlew --help' and 'gradlew hsqltasks' for details
+   gradlew ANYTHING ELSE    'gradlew --help' and 'gradlew tasks' for details
 
 examples:
    gradlew hsqldb
    gradlew clean
 """
 } }
-hsqlhelp.description = 'Displays a customhelp message'
+hsqlhelp.description = 'Displays a HyperSQL-specific help message'
 
 task explainprops { doLast {
     println '''
@@ -611,112 +611,30 @@ dependencies if you use stylesheets (via 'nsstylebase.url'), schema file, and
 entities locally, as described in comments at top of file "build-docbook.xml".
 """
 } }
-installDbImages.description = 'Install DocBook resources (minimal by defaul)'
+installDbImages.description = 'Install DocBook resources (minimal by default)'
 
 /**
- * TODO: Attempt to use Gradle task groups to see if that's good enough to
- * eliminate need for custom task.
- *
- * Override OOTB 'tasks'.
- * Hides -private tasks from Ant.
- * Hides tasks without descriptions.
- * Hides Ant-subproject tasks because for tasks in sub-projects, Gradle always
- *  creates unqualified and one qualified to the sub-project.
- *
- * Only problem here is that Gradle gives us no way to discern overridden
- * tasks, so that we could present both the sub-project target and the
- * super-project target in this case.
- * In this case, we present only the overriding target until Gradle fixes the
- * bug that I registered.
+ * These task.group settings are so that 'gradle tasks' or 'gradle -t' will
+ * list and describe tasks as we want them.
  */
-task hsqltasks { doLast {
-    Pattern privatePattern = Pattern.compile('(?:\\d{3})?(-.*)')
-    print """
-------------------------------------------------------------
-Root Project
-------------------------------------------------------------
-
-Help tasks
-----------
-dependencies - Displays the dependencies of root project '$project.name'.
-explainjars - List all targets which build jar files
-explainprops - How to change build properties of root project '$project.name'.
-hsqlhelp - Displays a custom help message
-help - Displays a Gradle help message
-projects - Displays the sub-projects of root project '$project.name'.
-properties - Displays the properties of root project '$project.name'.
-hsqltasks - Displays the tasks in root project '$project.name'.
-
-Other tasks
------------
-"""
-    boolean displayAll = (project.hasProperty('allTasks')
-            && Boolean.parseBoolean(project.property('allTasks')))
-    def describedPrivates = []
-    def hardTaskDescriptions =
-            ['tasks', 'help', 'explainprops', 'explainjars'] as Set
-    Matcher pMatcher
-    getTasks().each { t ->
-        assert t.name.length() > 0: 'Task with 0 length name encountered.'
-        if (t.description != null) {
-            pMatcher = privatePattern.matcher(t.name)
-            if (pMatcher.matches()) {
-                 assert pMatcher.groupCount() == 1 && pMatcher.group(1) != null:
-                        "Internal problem w/ regex pattern: $privatePattern"
-                describedPrivates << pMatcher.group(1)
-                return
-            }
-        }
-        if (!displayAll && t.description != null
-                && !hardTaskDescriptions.contains(t.name))
-            println "$t.name - $t.description"
-    }
-
-    if (displayAll) {
-        def dependOnMap = [:]
-        def depList
-        getTasks().each { t ->
-            depList = []
-            dependOnMap[t] = depList
-            t.dependsOn.each { u ->
-                if (u instanceof Task) depList << u
-                else if (u instanceof TaskDependency)
-                    // Retarded that t must pass itself as param to its own u:
-                    u.getDependencies(t).each { depList << it }
-            }
-        }
-        def allDependees = [] as Set  // Purposefully excluding wrappees
-        dependOnMap.values().each { allDependees.addAll(it) }
-        getTasks().each { t ->
-            if (!allDependees.contains(t)
-                    && !hardTaskDescriptions.contains(t.name)) {
-                // t is now non-depended-upon
-                print t.name
-                if (t.description != null) print " - $t.description"
-                println()
-                recursiveAggregator(dependOnMap[t], dependOnMap, []).each {
-                    print "    $it.name"
-                    if (it.description != null) print " - $it.description"
-                    println()
-                }
-            }
-        }
-    } else {
-        println('''
-To see all tasks and more detail, run 'gradle -PallTasks=true tasks'.
-(N.b. our -P switch differs from Gradle's out-of-the-box --all switch for this
-purpose).''')
-    }
-    if (describedPrivates.size() > 0)
-        logger.warn('\nWARNING:  Private Ant tasks have descriptions: '
-                + describedPrivates.join(', '))
-    if (prohibitionMap.size() > 0)
-        logger.warn('''\nWARNING:  The following tasks have been renamed to avoid conflict with
-    Gradle plugin task names:
-        ''' + prohibitionMap)
-} }
-hsqltasks.description =
-        "Displays the tasks in root project '$project.name'."
+['explainjars' , 'explainprops', 'hsqlhelp', 'antHelp'].each {
+    tasks[it].group = 'Help'
+}
+['hsqldb', 'hsqldbmin', 'hsqldbmain', 'hsqldbmodule', 'hsqldbsources',
+ 'hsqldbutil', 'osgi', 'preprocessor', 'sqltool', 'hsqldbtest',
+ 'dbmanswing'].each {
+    tasks[it].group = 'HyperSQL Jar Generation'
+}
+['checkTabs', 'serialver', 'standaloneValidation'].each {
+    tasks[it].group = 'Utilities'
+}
+['gen-docs', 'regen-docs', 'installDbImages', 'javadoc', 'javadocdev',
+ 'validate-doc', 'validate-docs'].each {
+    tasks[it].group = 'Documentation System'
+}
+['classes', 'classes-base', 'test', 'clean', 'clean-all', 'clean-docs'].each {
+    tasks[it].group = 'Lifecycle'
+}
 
 if (prohibitionMap.size() > 0)
     logger.warn('''\nWARNING:  The following tasks have been renamed to avoid conflict with
