@@ -62,8 +62,6 @@
     <property name="junit38.lib" value="lib/junit.jar"/>
     <property name='jflex.lib' value='lib/JFlex.jar'/>
 
-    <target name="init"/>
-
     <target name='explainjars'
             description="List description of jars that you can build">
       <echo>Ant version: ${ant.version} </echo>
@@ -118,11 +116,11 @@ examples:
      <available classname="java.sql.ShardingKey" property="ant.java.iscjava19"/>
    </target>
 
-   <target name="-prepare" depends="init,-set-jvmvars">
+   <target name="-prepare" depends="-set-jvmvars">
      <mkdir dir="classes" />
    </target>
 
-   <target name="-prepare-javadoc" depends="init">
+   <target name="-prepare-javadoc">
      <delete dir="doc/apidocs"/>
      <!-- Must be vigilant about cleaning up from previous runs, since this
           same directory is used for both public API spec, and the full
