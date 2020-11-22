@@ -303,7 +303,7 @@ import org.xml.sax.SAXException;
  *     <TBODY>
  *         <TR >
  *             <TH>
- *                 <tt>org.hsqldb.jdbc.JDBCConnection.createSQLXML()</tt>
+ *                 {@code org.hsqldb.jdbc.JDBCConnection.createSQLXML()}
  *             </TH>
  *             <TD >
  *                 Write-only
@@ -320,7 +320,7 @@ import org.xml.sax.SAXException;
  *         </TR>
  *         <TR>
  *             <TH>
- *                 <tt>org.hsqldb.jdbc.JDBCResultSet.getSQLXML(...)</tt>
+ *                 {@code org.hsqldb.jdbc.JDBCResultSet.getSQLXML(...)}
  *             </TH>
  *             <TD >
  *                 Read-only
@@ -1064,16 +1064,16 @@ public class JDBCSQLXML implements SQLXML {
     }
 
     /**
-     * @param namespaceURI of the document element to create or <code>null</code>.
-     * @param qualifiedName of the document element to be created or <code>null</code>.
-     * @param docType of document to be created or <code>null</code>.
-     *   When <code>doctype</code> is not <code>null</code>, its
-     *   <code>Node.ownerDocument</code> attribute is set to the document
+     * @param namespaceURI of the document element to create or {@code null}.
+     * @param qualifiedName of the document element to be created or {@code null}.
+     * @param docType of document to be created or {@code null}.
+     *   When {@code doctype} is not {@code null}, its
+     *   {@code Node.ownerDocument} attribute is set to the document
      *   being created.
      * @return with its document element.
-     *   If the <code>NamespaceURI</code>, <code>qualifiedName</code>, and
-     *   <code>doctype</code> are <code>null</code>, the returned
-     *   <code>Document</code> is empty with no document element.
+     *   If the {@code NamespaceURI}, {@code qualifiedName}, and
+     *   {@code doctype} are {@code null}, the returned
+     *   {@code Document} is empty with no document element.
      * @throws java.sql.SQLException wrapping any internal exception that occurs.
      * @see org.w3c.dom.DOMImplementation#createDocument(String,String,DocumentType)
      */
@@ -1310,7 +1310,7 @@ public class JDBCSQLXML implements SQLXML {
     /**
      * Assigns this object's readability status.
      *
-     * @param readable if <tt>true</tt>, then readable; else not readable
+     * @param readable if {@code true}, then readable; else not readable
      */
     protected synchronized void setReadable(boolean readable) {
         this.readable = readable;
@@ -1331,7 +1331,7 @@ public class JDBCSQLXML implements SQLXML {
     /**
      * Assigns this object's writability status.
      *
-     * @param writable if <tt>true</tt>, then writable; else not writable
+     * @param writable if {@code true}, then writable; else not writable
      */
     protected synchronized void setWritable(boolean writable) {
         this.writable = writable;
@@ -1340,7 +1340,7 @@ public class JDBCSQLXML implements SQLXML {
     /**
      * Retrieves the object's readability status.
      *
-     * @return if <tt>true</tt>, then readable; else not readable
+     * @return if {@code true}, then readable; else not readable
      */
     public synchronized boolean isReadable() {
         return this.readable;
@@ -1349,7 +1349,7 @@ public class JDBCSQLXML implements SQLXML {
     /**
      * Retrieves the object's readability status.
      *
-     * @return if <tt>true</tt>, then writable; else not writable
+     * @return if {@code true}, then writable; else not writable
      */
     public synchronized boolean isWritable() {
         return this.writable;
@@ -1456,7 +1456,7 @@ public class JDBCSQLXML implements SQLXML {
      *      DOMSource is returned.
      * @return a Source for reading the XML value.
      * @throws SQLException if there is an error processing the XML value
-     *   or if the given <tt>sourceClass</tt> is not supported.
+     *   or if the given {@code sourceClass} is not supported.
      */
     protected <T extends Source>T getSourceImpl(
             Class<T> sourceClass) throws SQLException {
@@ -1481,7 +1481,7 @@ public class JDBCSQLXML implements SQLXML {
      *
      * @param sourceClass The class of the source
      * @throws java.sql.SQLException if there is an error processing the XML
-     *      value or if the given <tt>sourceClass</tt> is not supported.
+     *      value or if the given {@code sourceClass} is not supported.
      * @return a new StreamSource for reading the XML value designated by this
      *      SQLXML instance
      */
@@ -1523,7 +1523,7 @@ public class JDBCSQLXML implements SQLXML {
      *
      * @param sourceClass The class of the source
      * @throws java.sql.SQLException if there is an error processing the XML
-     *      value or if the given <tt>sourceClass</tt> is not supported.
+     *      value or if the given {@code sourceClass} is not supported.
      * @return a new DOMSource for reading the XML value designated by this
      *      SQLXML instance
      */
@@ -1576,7 +1576,7 @@ public class JDBCSQLXML implements SQLXML {
      *
      * @param sourceClass The class of the source
      * @throws java.sql.SQLException if there is an error processing the XML
-     *      value or if the given <tt>sourceClass</tt> is not supported.
+     *      value or if the given {@code sourceClass} is not supported.
      * @return a new SAXSource for reading the XML value designated by this
      *      SQLXML instance
      */
@@ -1619,7 +1619,7 @@ public class JDBCSQLXML implements SQLXML {
      *
      * @param sourceClass The class of the source
      * @throws java.sql.SQLException if there is an error processing the XML
-     *      value or if the given <tt>sourceClass</tt> is not supported.
+     *      value or if the given {@code sourceClass} is not supported.
      * @return a new StAXSource for reading the XML value designated by this
      *      SQLXML instance
      */
@@ -2176,7 +2176,7 @@ public class JDBCSQLXML implements SQLXML {
          * <p>The information from this event is not necessary for
          * normal Namespace processing: the SAX XML reader will
          * automatically replace prefixes for element and attribute
-         * names when the <code>http://xml.org/sax/features/namespaces</code>
+         * names when the {@code http://xml.org/sax/features/namespaces}
          * feature is <var>true</var> (the default).</p>
          *
          * <p>There are cases, however, when applications need to
@@ -2219,7 +2219,7 @@ public class JDBCSQLXML implements SQLXML {
          * <p>See {@link #startPrefixMapping startPrefixMapping} for
          * details.  These events will always occur immediately after the
          * corresponding {@link #endElement endElement} event, but the order of
-         * {@link #endPrefixMapping endPrefixMapping} events is not otherwise
+         * {@code endPrefixMapping} events is not otherwise
          * guaranteed.</p>
          *
          * @param prefix the prefix that was being mapped.
@@ -2938,7 +2938,7 @@ public class JDBCSQLXML implements SQLXML {
          * <p>See {@link #startPrefixMapping startPrefixMapping} for
          * details.  These events will always occur immediately after the
          * corresponding {@link #endElement endElement} event, but the order of
-         * {@link #endPrefixMapping endPrefixMapping} events is not otherwise
+         * {@code endPrefixMapping} events is not otherwise
          * guaranteed.</p>
          *
          * @param prefix the prefix that was being mapped.

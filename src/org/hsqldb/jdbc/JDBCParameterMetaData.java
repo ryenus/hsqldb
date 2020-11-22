@@ -55,17 +55,17 @@ import org.hsqldb.types.Type;
 /**
  * An object that can be used to get information about the types
  * and properties for each parameter marker in a
- * <code>PreparedStatement</code> object. (JDBC4 Clarification:) For some queries and driver
- * implementations, the data that would be returned by a <code>ParameterMetaData</code>
- * object may not be available until the <code>PreparedStatement</code> has
+ * {@code PreparedStatement} object. (JDBC4 Clarification:) For some queries and driver
+ * implementations, the data that would be returned by a {@code ParameterMetaData}
+ * object may not be available until the {@code PreparedStatement} has
  * been executed.
  * <p>
  * Some driver implementations may not be able to provide information about the
- * types and properties for each parameter marker in a <code>CallableStatement</code>
+ * types and properties for each parameter marker in a {@code CallableStatement}
  * object.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.5.2
  * @since JDK 1.4, HSQLDB 1.7.2
  */
 public class JDBCParameterMetaData implements ParameterMetaData,

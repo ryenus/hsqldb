@@ -4210,7 +4210,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * Checks if the specified parameter index value is valid in terms of
      * setting an IN or IN OUT parameter value. <p>
      *
-     * @param i The parameter index to check
+     * @param parameterIndex The parameter index to check
      * @throws SQLException if the specified parameter index is invalid
      */
     protected void checkSetParameterIndex(int parameterIndex) throws
@@ -4239,7 +4239,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * Checks if the specified parameter index value is valid in terms of
      * getting an OUT or INOUT parameter value. <p>
      *
-     * @param i The parameter index to check
+     * @param parameterIndex The parameter index to check
      * @throws SQLException if the specified parameter index is invalid
      */
     protected void checkGetParameterIndex(int parameterIndex) throws
@@ -4301,7 +4301,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * The internal parameter value setter always converts the parameter to
      * the type required for data transmission.
      *
-     * @param i parameter index
+     * @param parameterIndex parameter index
      * @param o object
      * @throws SQLException if either argument is not acceptable.
      */
@@ -4670,7 +4670,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
 
     /**
      * Used with int and narrower integral primitives
-     * @param i parameter index
+     * @param parameterIndex parameter index
      * @param value object to set
      * @throws SQLException if either argument is not acceptable
      */
@@ -4714,7 +4714,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * Used with long and narrower integral primitives. Conversion to BINARY
      * or OTHER types will throw here and not passed to setParameter().
      *
-     * @param i parameter index
+     * @param parameterIndex parameter index
      * @param value object to set
      * @throws SQLException if either argument is not acceptable
      */

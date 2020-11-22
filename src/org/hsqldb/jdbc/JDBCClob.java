@@ -808,7 +808,7 @@ public class JDBCClob implements Clob {
      *
      * <b>Implementation Notes:</b> <p>
      *
-     * HSQLDB throws an SQLException if the specified <tt>len</tt> is greater
+     * HSQLDB throws an SQLException if the specified <code>len</code> is greater
      * than the value returned by {@link #length() length}. <p>
      *
      * </div>
