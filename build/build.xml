@@ -747,7 +747,7 @@ examples:
 
     <target name="javadoc" depends="-prepare-javadoc,-set-jvmvars,-doclink-16"
             description="Create javadoc for the distribution package">
-      <!-- TODO:  Find out why JDBCDriver class is listed twice in the lass
+      <!-- TODO:  Find out why JDBCDriver class is listed twice in the class
            list pane, but only when All Classes selected
            only listed once if jdbc package is selected). -->
       <javadoc
