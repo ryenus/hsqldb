@@ -34,20 +34,12 @@
  *****************************************************************************
  * For snapshot builds, just publish jar-pairs individually, exactly as
  * described in the 2nd part of "Instructions for doing a full, public
- * release:" above, beginning  with "Now, for each alternative".
+ * release:" above, beginning with "Now, for each alternative".
  * (In this case, clean-all really will blow away your only docs, so either
  * back them up or regenerate them afterwards).
  *
  * @author Blaine Simpson  (blaine dot simpson at admc dot com)
  */
-
-buildscript { dependencies {
-    // This 'buildscript' only here because with current version of Gradle,
-    // 'buildscript' is only honored from the top-level build file executed.
-    // When we "apply" 'build.gradle, the 'buildscript' there will be ignored.
-    classpath fileTree(dir: '.', include: 'gradle-javaPropFile-plugin-*.jar')
-    classpath fileTree(dir: '.', include: 'gradle-ivyxml-plugin-*.jar')
-} }
 
 apply plugin: 'java'
 apply plugin: 'maven'
@@ -64,6 +56,18 @@ defaultTasks 'uploadArchives'
 
 configurations {
     deployJars
+}
+
+List<String> ss = [];
+// Apply property '(URL)' suffixes.  Strip suffix and convert type.
+ext.properties.keySet().findResults {
+    if (!it.endsWith('(URL)')) return null;
+    final int sLen =  it.length()
+    return it.substring(0, sLen - '(URL)'.length())
+}.each { newName->
+    // Impossible to remove ext members.  Closest we can do is to set to null.
+    ext[newName] = new URL(ext[newName + '(URL)'])
+    ext[newName + '(URL)'] = null
 }
 
 if (project.hasProperty('mavenRepository.dest.url')) {
@@ -158,6 +162,9 @@ uploadArchives {
 }
 
 uploadArchives { doFirst {
+    //project.setProperty 'group', 'helo there'
+    project.group = project['project.group']
+    //throw new Exception('(' + project.group + '), (' + project.property('group') + ')')
     ['title', 'group', 'mavenRepository.dest.url', 'scm.connection',
             'scm.url', 'url', 'inceptionYear', 'description'].each {
         assert (project.hasProperty(it) && project.property(it) != null
@@ -188,18 +195,18 @@ uploadArchives { doFirst {
 
 // This is because jar.inputs is read-only
 // Funny name is work-around for Gradle sequencing bug
-task zJarDep << {
+task zJarDep { doLast {
     if (jar.archivePath.exists() && jar.archivePath.lastModified()
             < file('../lib/hsqldb-osgi.jar').lastModified()) {
-        println "Deleting $jar.archivePath.absolutePath"
+        logger.warn "Deleting $jar.archivePath.absolutePath"
         jar.archivePath.delete()
     }
-}
+} }
 
-jar << {
+jar { doLast {
     File srcFile = file('../lib/hsqldb-osgi.jar')
     jar.archivePath.setBytes(srcFile.bytes)
-}
+} }
 
 jar.dependsOn = [osgi, zJarDep]
 if (project.hasProperty('classifier')) jar.classifier = project.classifier
@@ -208,23 +215,23 @@ clean.dependsOn = [prohibitionMap['clean']]
 
 // This is because jar.inputs is read-only
 // Funny name is work-around for Gradle sequencing bug
-task zSqltoolJarDep << {
+task zSqltoolJarDep { doLast {
     if (sqltoolJar.archivePath.exists() && sqltoolJar.archivePath.lastModified()
             < file('../lib/sqltool.jar').lastModified()) {
-        println "Deleting $sqltoolJar.archivePath.absolutePath"
+        logger.warn "Deleting $sqltoolJar.archivePath.absolutePath"
         sqltoolJar.archivePath.delete()
     }
-}
+} }
 
 task sqltoolJar(dependsOn: [sqltool, zSqltoolJarDep], type: Jar) {
-    baseName = 'sqltool'
+    archiveBaseName = 'sqltool'
     if (project.hasProperty('classifier')) classifier = project.classifier
 }
 
-sqltoolJar << {
+sqltoolJar { doLast {
     File srcFile = file('../lib/sqltool.jar')
     sqltoolJar.archivePath.setBytes(srcFile.bytes)
-}
+} }
 
 task sourcesJar(type: Jar, dependsOn:classes) {
      classifier = 'sources'
@@ -241,7 +248,7 @@ task javadocJar(type: Jar, dependsOn:javadoc) {
 javadocJar.description = 'Build javadoc jar file'
 
 task sqltoolSourcesJar(type: Jar, dependsOn:classes) {
-    baseName = 'sqltool'
+    archiveBaseName = 'sqltool'
     classifier = 'sources'
     //from sourceSets.main.allSource
     from fileTree(dir: '../src')
@@ -249,7 +256,7 @@ task sqltoolSourcesJar(type: Jar, dependsOn:classes) {
 sqltoolSourcesJar.description = 'Build Sqltool sources jar file'
 
 task sqltoolJavadocJar(type: Jar, dependsOn:javadoc) {
-    baseName = 'sqltool'
+    archiveBaseName = 'sqltool'
     classifier = 'javadoc'
     //from javadoc.destinationDir
     from fileTree(dir: '../doc/apidocs')

@@ -285,21 +285,31 @@ examples:
       </javac>
     </target>
 
-    <target name="classes" depends="switches,-javajsse"
+    <target name="classes" depends="classes-base"
             description="compiles JVM-independent non-lib/util/cmdline classes">
       <available property='_servlet_available' classpath='${servletapi.lib}'
                  classname='javax.servlet.ServletException'/>
       <fail unless='_servlet_available'
             message="Place Jar file for Servlet API at '${servletapi.lib}', or set property 'servletapi.lib'"/>
       <javac srcdir="${swsrc}"
+             sourcepath=""
+             includeantruntime="false"
+             encoding="${javac.encoding}"
+             destdir="classes"
+             debug="${build.debug}"
+             classpath="${servletapi.lib}">
+        <include name="org/hsqldb/server/Servlet.java"/>
+      </javac>
+    </target>
+
+    <target name="classes-base" depends="switches,-javajsse"
+    description="compiles JVM-independent non-lib/util/cmdline/servlet classes">
+      <javac srcdir="${swsrc}"
              includeantruntime="false"
              encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
       >
-        <classpath>
-          <pathelement location="${servletapi.lib}"/>
-        </classpath>
         <include name="org/hsqldb/*.java"/>
         <include name="org/hsqldb/auth/*.java"/>
         <include name="org/hsqldb/dbinfo/*.java"/>
@@ -318,7 +328,7 @@ examples:
         <include name="org/hsqldb/server/*.java"/>
         <include name="org/hsqldb/trigger/*.java"/>
         <include name="org/hsqldb/types/*.java"/>
-
+        <exclude name="org/hsqldb/server/Servlet.java"/>
       </javac>
       <fixcrlf destdir="classes" preservelastmodified='true' eol="lf"
                encoding="ISO-8859-1" srcdir="src"
@@ -373,9 +383,10 @@ examples:
       </javac>
     </target>
 
-    <target name="-module_info" depends="classes"
+    <target name="-module_info" depends="classes-base"
             description="compiles post Java 9 module file">
       <javac srcdir="${swsrc}"
+             sourcepath=""
              includeantruntime="false"
              encoding="${javac.encoding}"
              destdir="classes"
@@ -615,7 +626,8 @@ examples:
       </jar>
     </target>
 
-    <target name="hsqldbmodule" depends="classes, -util, -module_info, -prep-license-files"
+    <target name="hsqldbmodule"
+            depends="classes-base, -util, -module_info, -prep-license-files"
             description="Build the java module hsqldb.jar">
       <fail message="Java 9 or later required" unless="ant.java.iscjava19"/>
       <jar jarfile="lib/hsqldbmod.jar" duplicate='preserve'>
