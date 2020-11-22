@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -642,7 +642,7 @@ public class JDBCBlobFile implements java.sql.Blob {
     }
 
     /**
-     * Retrieves the canonical <tt>File</tt> object denoting the file that
+     * Retrieves the canonical <code>File</code> object denoting the file that
      * backs this BLOB.
      *
      * @return the file that backs this BLOB.

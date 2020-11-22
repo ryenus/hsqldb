@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,17 +76,17 @@ import org.hsqldb.types.Types;
  * <div class="ReleaseSpecificDocumentation">
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
- * HSQLDB supports a subset of the <code>ResultSetMetaData</code> interface.<p>
+ * HSQLDB supports a subset of the {@code ResultSetMetaData} interface.<p>
  *
- * The JDBC specification for <code>ResultSetMetaData</code> is in part very
+ * The JDBC specification for {@code ResultSetMetaData} is in part very
  * vague. This causes potential incompatibility between interpretations of the
  * specification as realized in different JDBC driver implementations. As such,
  * deciding to what degree reporting ResultSetMetaData is accurate has been
  * considered very carefully. Hopefully, the design decisions made in light of
- * these considerations have yeilded precisely the subset of full
+ * these considerations have yielded precisely the subset of full
  * ResultSetMetaData support that is most commonly needed and that is most
  * important, while also providing, under the most common use-cases, the
- * fastest access with the least overhead and the best comprimise between
+ * fastest access with the least overhead and the best compromise between
  * speed, accuracy, jar-footprint and retention of JDBC resources. <p>
  *
  * (fredt@users) <br>
@@ -125,7 +125,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 2.0 fully supports SQL Satandard features T174 and T176 that
+     * HSQLDB 2.0 fully supports SQL Standard features T174 and T176 that
      * define identity column support.
      *
      * <hr>
@@ -263,10 +263,10 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * HSQLDB 2.2 fully supports this feature.  <p>
      *
-     * <tt>columnNoNulls</tt> is always returned for result set columns
+     * {@code columnNoNulls} is always returned for result set columns
      * that represent constants, sequences or table columns known
-     * to be not null. <tt>columnNullable</tt> is returned for NULL constants,
-     * or nullable table columns. <tt>columnNullableUnknown</tt> is returned
+     * to be not null. {@code columnNullable} is returned for NULL constants,
+     * or nullable table columns. {@code columnNullableUnknown} is returned
      * for all other columns such as aggregates and computed values.<p>
      *
      * To determine the nullable status of a table column in isolation from
@@ -333,7 +333,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <ol>
      * <li>Long character types and datetime types:<p>
      *
-     *     The maximum length/precision, repectively.
+     *     The maximum length/precision, respectively.
      *
      * <li>CHAR and VARCHAR types:
      *
@@ -410,7 +410,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * In HSQLDB, a <code>ResultSet</code> column label is determined using the
+     * In HSQLDB, a {@code ResultSet} column label is determined using the
      * following order of precedence:
      *
      * <OL>
@@ -875,7 +875,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
     /**
      * Constructs a new JDBCResultSetMetaData object from the specified
-     * JDBCResultSet and HsqlProprties objects.
+     * object.
      *
      * @param meta the ResultMetaData object from which to construct a new
      *        JDBCResultSetMetaData object
@@ -950,7 +950,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * Returns a string representation of the object. <p>
      *
      * The string consists of the name of the class of which the
-     * object is an instance, the at-sign character `<code>@</code>',
+     * object is an instance, the at-sign character `{@code @}',
      * the unsigned hexadecimal representation of the hash code of the
      * object and a comma-delimited list of this object's indexed attributes,
      * enclosed in square brackets.

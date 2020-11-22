@@ -138,7 +138,7 @@ public final class InOutUtil {
     }
 
     /**
-     * the specified <tt>amount</tt> from the given input stream to the
+     * the specified <code>amount</code> from the given input stream to the
      * given output stream, using a buffer of the given size.
      *
      * @param inputStream from which to source bytes
@@ -207,7 +207,7 @@ public final class InOutUtil {
     }
 
     /**
-     * the specified <tt>amount</tt> from the given input stream to the
+     * the specified <code>amount</code> from the given input stream to the
      * given output stream, using a buffer of the given size.
      *
      * @param reader from which to source characters

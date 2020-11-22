@@ -46,22 +46,22 @@ import java.io.Writer;
  *
  * Accumulates output in a character array that automatically grows as needed.<p>
  *
- * Data is retrieved using <tt>toCharArray()</tt>, <tt>toCharArrayReader()</tt>
- * and <tt>toString()</tt>. <p>
+ * Data is retrieved using {@code toCharArray()}, {@code toCharArrayReader()}
+ * and {@code toString()}. <p>
  *
- * {@link #close() Closing} a <tt>ClosableCharArrayWriter</tt> prevents
+ * {@link #close() Closing} a {@code ClosableCharArrayWriter} prevents
  * further write operations, but all other operations will succeed until after
  * the first invocation of {@link #free() free()}.<p>
  *
- * Freeing a <tt>ClosableCharArrayWriter</tt> closes the writer and
+ * Freeing a {@code ClosableCharArrayWriter} closes the writer and
  * releases its internal buffer, preventing successful invocation of all
- * operations, with the exception of <tt>size()<tt>, <tt>close()</tt>,
- * <tt>isClosed()</tt>, <tt>free()</tt> and <tt>isFreed()</tt>. <p>
+ * operations, with the exception of {@code size()}, {@code close()},
+ * {@code isClosed()}, {@code free()} and {@code isFreed()}. <p>
  *
  * This class is especially useful when an accumulating writer must be
  * handed off to an extenal client under contract that the writer should
  * exhibit true Closable behaviour, both in response to internally tracked
- * events and to client invocation of the <tt>Writer.close()</tt> method.
+ * events and to client invocation of the {@code Writer.close()} method.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.8.x
@@ -101,10 +101,10 @@ public class ClosableCharArrayWriter extends Writer {
 
     /**
      * Creates a new writer with a buffer capacity of the specified
-     * <tt>size</tt>, in characters.
+     * {@code size}, in characters.
      *
      * @param size the initial size.
-     * @exception IllegalArgumentException if <tt>size</tt> is negative.
+     * @exception IllegalArgumentException if {@code size} is negative.
      */
     public ClosableCharArrayWriter(int size) throws IllegalArgumentException {
 
@@ -121,7 +121,7 @@ public class ClosableCharArrayWriter extends Writer {
      *
      * @param c the single character to be written.
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this writer has been {@link #close() closed}.
      */
     public synchronized void write(int c) throws IOException {
@@ -145,7 +145,7 @@ public class ClosableCharArrayWriter extends Writer {
      * @param off the start offset in the source character sequence.
      * @param len the number of characters to write.
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this writer has been {@link #close() closed}.
      */
     public synchronized void write(char[] c, int off,
@@ -175,13 +175,13 @@ public class ClosableCharArrayWriter extends Writer {
      * Efficiently writes the designated portion of the designated string. <p>
      *
      * The operation occurs as if by calling
-     * <tt>str.getChars(off, off + len, buf, count)</tt>. <p>
+     * {@code str.getChars(off, off + len, buf, count)}. <p>
      *
      * @param str the string from which to write
      * @param off the start offset in the string.
      * @param len the number of characters to write.
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this writer has been {@link #close() closed}.
      */
     public synchronized void write(String str, int off,
@@ -213,7 +213,7 @@ public class ClosableCharArrayWriter extends Writer {
      * By default, does nothing. <p>
      *
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this writer has been {@link #close() closed}.
      */
     public void flush() throws IOException {
@@ -224,11 +224,11 @@ public class ClosableCharArrayWriter extends Writer {
      * Writes the complete contents of this writer's buffered data to the
      * specified writer. <p>
      *
-     * The operation occurs as if by calling <tt>out.write(buf, 0, count)</tt>.
+     * The operation occurs as if by calling {@code out.write(buf, 0, count)}.
      *
      * @param out the writer to which to write the data.
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this writer has been {@link #free() freed}.
      */
     public synchronized void writeTo(Writer out) throws IOException {
@@ -246,7 +246,7 @@ public class ClosableCharArrayWriter extends Writer {
      * @return  the current capacity (the length of the internal
      *          data array)
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this writer has been {@link #free() freed}.
      */
     public synchronized int capacity() throws IOException {
@@ -257,13 +257,13 @@ public class ClosableCharArrayWriter extends Writer {
     }
 
     /**
-     * Resets the <tt>count</tt> field of this writer to zero, so that all
+     * Resets the {@code count} field of this writer to zero, so that all
      * currently accumulated output is effectively discarded. Further write
      * operations will reuse the allocated buffer space.
      *
      * @see #count
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this output stream has been {@link #close() closed}.
      */
     public synchronized void reset() throws IOException {
@@ -298,7 +298,7 @@ public class ClosableCharArrayWriter extends Writer {
      * @return the current contents of this writer, as a character array.
      * @see #size()
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this writer has been {@link #free() freed}.
      */
     public synchronized char[] toCharArray() throws IOException {
@@ -311,7 +311,7 @@ public class ClosableCharArrayWriter extends Writer {
     /**
      * Returns the current size of this writer's accumulated character data.
      *
-     * @return the value of the <tt>count</tt> field, which is the number
+     * @return the value of the {@code count} field, which is the number
      *      of valid characters accumulated in this writer.
      * @see #count
      * @throws java.io.IOException never
@@ -347,7 +347,7 @@ public class ClosableCharArrayWriter extends Writer {
      * @return a reader representing this writer's accumulated
      *      character data
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this writer has been {@link #free() freed}.
      */
     public synchronized CharArrayReader toCharArrayReader()
@@ -394,7 +394,7 @@ public class ClosableCharArrayWriter extends Writer {
     }
 
     /**
-     * @return <tt>true</tt> if this writer is closed, else <tt>false</tt>
+     * @return {@code true} if this writer is closed, else {@code false}
      */
     public synchronized boolean isClosed() {
         return closed;
@@ -416,7 +416,7 @@ public class ClosableCharArrayWriter extends Writer {
     }
 
     /**
-     * @return <tt>true</tt> if this writer is freed; else <tt>false</tt>.
+     * @return {@code true} if this writer is freed; else {@code false}.
      */
     public synchronized boolean isFreed() {
         return freed;
@@ -443,12 +443,12 @@ public class ClosableCharArrayWriter extends Writer {
     }
 
     /**
-     * Retrieves a copy of <tt>original</tt> with the given
-     * <tt>newLength</tt>. <p>
+     * Retrieves a copy of {@code original} with the given
+     * {@code newLength}. <p>
      *
      * @param original the object to copy
      * @param newLength the length of the copy
-     * @return copy of <tt>original</tt> with the given <tt>newLength</tt>
+     * @return copy of {@code original} with the given {@code newLength}
      */
     protected char[] copyOf(char[] original, int newLength) {
 

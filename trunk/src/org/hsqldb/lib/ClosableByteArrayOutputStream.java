@@ -49,23 +49,23 @@ import java.io.UnsupportedEncodingException;
  *
  * Accumulates output in a byte array that automatically grows as needed.<p>
  *
- * Data is retrieved using <tt>toByteArray()</tt>,
- * <tt>toByteArrayInputStream()</tt>, <tt>toString()</tt> and
- * <tt>toString(encoding)</tt>. <p>
+ * Data is retrieved using {@code toByteArray()},
+ * {@code toByteArrayInputStream()}, {@code toString()} and
+ * {@code toString(encoding)}. <p>
  *
- * {@link #close() Closing} a <tt>ClosableByteArrayOutputStream</tt> prevents
+ * {@link #close() Closing} a {@code ClosableByteArrayOutputStream} prevents
  * further write operations, but all other operations may succeed until after
  * the first invocation of {@link #free() free()}.<p>
  *
- * Freeing a <tt>ClosableByteArrayOutputStream</tt> closes the stream and
+ * Freeing a {@code ClosableByteArrayOutputStream} closes the stream and
  * releases the internal buffer, preventing successful invocation of all
- * operations, with the exception of <tt>size()<tt>, <tt>close()</tt>,
- * <tt>isClosed()</tt>, <tt>free()</tt> and <tt>isFreed()</tt>. <p>
+ * operations, with the exception of {@code size()}, {@code close()},
+ * {@code isClosed()}, {@code free()} and {@code isFreed()}. <p>
  *
  * This class is especially useful when an accumulating output stream must be
  * handed off to an external client under contract that the stream should
  * exhibit true Closable behaviour in response both to internally tracked
- * events and to client invocation of the <tt>OutputStream.close()</tt> method.
+ * events and to client invocation of the {@code OutputStream.close()} method.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.9.0
@@ -105,7 +105,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
 
     /**
      * Creates a new output stream with a buffer capacity of the specified
-     * <tt>size</tt>, in bytes.
+     * {@code size}, in bytes.
      *
      * @param size the initial size.
      * @exception IllegalArgumentException if size is negative.
@@ -126,7 +126,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *
      * @param b the single byte to be written.
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this output stream has been {@link #close() closed}.
      */
     public synchronized void write(int b) throws IOException {
@@ -150,7 +150,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * @param off the start offset in the data.
      * @param len the number of bytes to write.
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this output stream has been {@link #close() closed}.
      */
     public synchronized void write(byte[] b, int off,
@@ -180,7 +180,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * By default, does nothing. <p>
      *
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this output stream has been {@link #close() closed}.
      */
     public void flush() throws IOException {
@@ -191,11 +191,11 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * Writes the complete contents of this stream's accumulated data to the
      * specified output stream. <p>
      *
-     * The operation occurs as if by calling <tt>out.write(buf, 0, count)</tt>.
+     * The operation occurs as if by calling {@code out.write(buf, 0, count)}.
      *
      * @param out the output stream to which to write the data.
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this output stream has been {@link #free() freed}.
      */
     public synchronized void writeTo(OutputStream out) throws IOException {
@@ -208,7 +208,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      *
      * @return  the length of the internal data array
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this output stream has been {@link #free() freed}.
      */
     public synchronized int capacity() throws IOException {
@@ -219,14 +219,14 @@ public class ClosableByteArrayOutputStream extends OutputStream {
     }
 
     /**
-     * Resets the <tt>count</tt> field of this output stream to zero, so that
+     * Resets the {@code count} field of this output stream to zero, so that
      * all currently accumulated data is effectively discarded. <p>
      *
      * Further write operations will reuse the allocated buffer space. <p>
      *
      * @see #count
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this output stream has been {@link #close() closed}.
      */
     public synchronized void reset() throws IOException {
@@ -245,7 +245,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * returned by a subsequent call to the {@link #capacity()} method. <p>
      *
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this output stream has been {@link #free() freed}.
      */
     public synchronized void trimToSize() throws IOException {
@@ -263,7 +263,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * @return a copy of this stream's accumulated data, as a byte array.
      * @see #size()
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this output stream has been {@link #free() freed}.
      */
     public synchronized byte[] toByteArray() throws IOException {
@@ -276,7 +276,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
     /**
      * Returns the current size of this stream's accumulated data.
      *
-     * @return the value of the <tt>count</tt> field, which is the number
+     * @return the value of the {@code count} field, which is the number
      *      of valid bytes in this output stream.
      * @see #count
      * @throws java.io.IOException never
@@ -312,7 +312,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * @return an input stream representing this output stream's accumulated
      *      data
      * @throws java.io.IOException if an I/O error occurs.
-     *      In particular, an <tt>IOException</tt> may be thrown
+     *      In particular, an {@code IOException} may be thrown
      *      if this output stream has been {@link #free() freed}.
      */
     public synchronized ByteArrayInputStream toByteArrayInputStream()
@@ -380,7 +380,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
 
     /**
      * Retrieves whether this stream is closed. <p>
-     * @return <tt>true</tt> if this stream is closed, else <tt>false</tt>
+     * @return {@code true} if this stream is closed, else {@code false}
      */
     public synchronized boolean isClosed() {
         return closed;
@@ -404,7 +404,7 @@ public class ClosableByteArrayOutputStream extends OutputStream {
     /**
      * Retrieves whether this stream is freed. <p>
      *
-     * @return <tt>true</tt> if this stream is freed; else <tt>false</tt>.
+     * @return {@code true} if this stream is freed; else {@code false}.
      */
     public synchronized boolean isFreed() {
         return freed;
@@ -436,12 +436,12 @@ public class ClosableByteArrayOutputStream extends OutputStream {
     }
 
     /**
-     * Retrieves a copy of <tt>original</tt> with the given
-     * <tt>newLength</tt>. <p>
+     * Retrieves a copy of {@code original} with the given
+     * {@code newLength}. <p>
      *
      * @param original the object to copy
      * @param newLength the length of the copy
-     * @return copy of <tt>original</tt> with the given <tt>newLength</tt>
+     * @return copy of {@code original} with the given {@code newLength}
      */
     protected byte[] copyOf(byte[] original, int newLength) {
 

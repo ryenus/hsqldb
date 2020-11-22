@@ -380,17 +380,17 @@ import org.hsqldb.types.Type;
  *
  * Specifically, the <b>'&lt;path&gt;'</b> component of a <b>res:</b> protocol
  * database connection <b>&lt;url&gt;</b> is first converted to lower case
- * with <tt>Locale.ENGLISH</tt> and only then used to obtain resource URL
+ * with <code>Locale.ENGLISH</code> and only then used to obtain resource URL
  * objects, which in turn are used to read the database files as resources on
  * the class path. <p>
  *
  * Due to lower case conversion by the driver, <b>res:</b> <b>'&lt;path&gt;'</b>
  * components <em>never</em> find jar resources stored with
- * <tt>Locale.ENGLISH</tt> mixed case paths. The rationale for converting to
+ * <code>Locale.ENGLISH</code> mixed case paths. The rationale for converting to
  * lower case is that not all pkzip implementations guarantee path case is
  * preserved when archiving resources, and conversion to lower case seems to
  * be the most common occurrence (although there is also no actual guarantee
- * that the conversion is <tt>Locale.ENGLISH</tt>).<p>
+ * that the conversion is <code>Locale.ENGLISH</code>).<p>
  *
  * More importantly, <b>res:</b> <b>'&lt;path&gt;'</b> components <em>must</em>
  * point only to resources contained in one or more jars on the class
@@ -400,7 +400,7 @@ import org.hsqldb.types.Type;
  * This restriction is enforced to avoid the unfortunate situation in which,
  * because <b>res:</b> database instances do not create a <b>&lt;path&gt;</b>.lck
  * file (they are strictly files-read-only) and because the <b>&lt;path&gt;</b>
- * components of <b>res:</b> and <b>file:</b> database <tt>URI</tt>s are not
+ * components of <b>res:</b> and <b>file:</b> database <code>URI</code>s are not
  * checked for file system equivalence, it is possible for the same database
  * files to be accessed concurrently by both <b>file:</b> and <b>res:</b>
  * database instances. That is, without this restriction, it is possible that
@@ -1935,7 +1935,7 @@ public class JDBCConnection implements Connection {
      * Previous to JDBC 4, if the connection is autoCommit,
      * setting a savepoint has no effect, as it is cleared upon the execution
      * of the next transactional statement. When built for JDBC 4, this method
-     * throws an SQLException when this <tt>Connection</tt> object is currently
+     * throws an SQLException when this <code>Connection</code> object is currently
      * in auto-commit mode, as per the JDBC 4 standard.
      * </div> <!-- end release-specific documentation -->
      *
@@ -1992,17 +1992,17 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Previous to JDBC 4, <tt>JDBCSavepoint</tt> objects are valid for the life of
-     * the originating <tt>Connection</tt> object and hence can be used
+     * Previous to JDBC 4, <code>JDBCSavepoint</code> objects are valid for the life of
+     * the originating <code>Connection</code> object and hence can be used
      * interchangeably, as long as they have equal savepoint names. <p>
      *
-     * When built for JDBC 4, <tt>JDBCConnection</tt> objects invalidate
-     * <tt>JDBCSavepoint</tt> objects when auto-commit mode is entered as well
+     * When built for JDBC 4, <code>JDBCConnection</code> objects invalidate
+     * <code>JDBCSavepoint</code> objects when auto-commit mode is entered as well
      * as when they are used to successfully release or roll back to a named SQL
      * savepoint.  As per the JDBC 4 standard, when built for JDBC 4, this
-     * method throws an <tt>SQLException</tt> when this <tt>Connection</tt>
+     * method throws an <code>SQLException</code> when this <code>Connection</code>
      * object is currently in auto-commit mode and an invalidated
-     * <tt>JDBCSavepoint</tt> is specified.
+     * <code>JDBCSavepoint</code> is specified.
      * </div> <!-- end release-specific documentation -->
      *
      * @param savepoint the <code>Savepoint</code> object to roll back to
@@ -2074,17 +2074,17 @@ public class JDBCConnection implements Connection {
      *
      * <b>HSLQDB Note:</b><p>
      *
-     * Previous to JDBC 4, <tt>JDBCSavepoint</tt> objects are valid for the life of
-     * the originating <tt>Connection</tt> object and hence can be used
+     * Previous to JDBC 4, <code>JDBCSavepoint</code> objects are valid for the life of
+     * the originating <code>Connection</code> object and hence can be used
      * interchangeably, as long as they have equal savepoint names. <p>
      *
-     * When built for JDBC 4, <tt>JDBCConnection</tt> objects invalidate
-     * <tt>JDBCSavepoint</tt> objects when auto-commit mode is entered as well
+     * When built for JDBC 4, <code>JDBCConnection</code> objects invalidate
+     * <code>JDBCSavepoint</code> objects when auto-commit mode is entered as well
      * as when they are used to successfully release or roll back to a named SQL
      * savepoint.  As per the JDBC 4 standard, when built for JDBC 4, this
-     * method throws an <tt>SQLException</tt> when this <tt>Connection</tt>
+     * method throws an <code>SQLException</code> when this <code>Connection</code>
      * object is currently in auto-commit mode and when an invalidated
-     * <tt>JDBCSavepoint</tt> is specified. <p>
+     * <code>JDBCSavepoint</code> is specified. <p>
      *
      * @param savepoint the <code>Savepoint</code> object to be removed
      * @exception SQLException if a database access error occurs, this

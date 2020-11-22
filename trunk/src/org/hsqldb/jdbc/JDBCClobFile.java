@@ -895,7 +895,7 @@ public class JDBCClobFile implements java.sql.Clob {
     }
 
     /**
-     * Retrieves the canonical <tt>File</tt> object denoting the file that
+     * Retrieves the canonical <code>File</code> object denoting the file that
      * backs this CLOB.
      *
      * @return the file that backs this CLOB.
