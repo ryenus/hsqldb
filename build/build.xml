@@ -381,17 +381,17 @@ examples:
       </javac>
     </target>
 
+    <!-- TODO:  This to be generalized to work for specified module -->
     <target name="-module_info" depends="classes-base"
             description="compiles post Java 9 module file">
-      <javac srcdir="${swsrc}"
+      <property name="target.module" value="org.hsqldb"/>
+      <javac srcdir="src/modules/${target.module}"
              sourcepath=""
              includeantruntime="false"
              encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
-      >
-        <include name="module-info.java"/>
-      </javac>
+      />
     </target>
 
     <target name="-swing" depends="switches"
@@ -831,7 +831,7 @@ examples:
            windowtitle="${hsqldb.title} ${hsqldb.version} Product Dev. API"
            doctitle="${hsqldb.title} ${hsqldb.version} Product"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2020 HSQL Development Group.&lt;/i&gt;">
-           <fileset dir="src" includes="**/*.java" excludes="**/module-info.java"/>
+           <fileset dir="src" includes="org/**/*.java"/>
            <!-- Fileset is really good for maintenance and control purposes,
                 but it makes the generator produce an incredible amount of
                 output when there are no errors.  The verbose attribute
