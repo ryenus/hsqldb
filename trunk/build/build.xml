@@ -689,6 +689,27 @@ examples:
       </jar>
     </target>
 
+    <!-- Provisional.  This will probably become a piece of another target. -->
+    <target name="clone-shared-libs">
+      <property name="libclonesrc" value="tmp/clonesrc"/>
+      <mkdir dir='${libclonesrc}'/>
+      <fileset id='libclones' dir='src/org/hsqldb/lib'
+          includes='
+              AppendableException*
+              BasicTextJdkLogFormatter*
+              FrameworkLogger*
+              RCData*
+              RefCapablePropertyResourceBundle*
+              RefCapableRBInterface*
+              ValidatingResourceBundle*
+              '/>
+      <copy todir='${libclonesrc}' preservelastmodified='true'>
+        <fileset refid="libclones"/>
+      </copy>
+      <replace dir="${libclonesrc}" token="org.hsqldb.lib"
+               value="org.hsqldb.cmdline.sqltool"/>
+    </target>
+
     <fileset id='preprocessorclasses' dir='classes' includes='org/hsqldb/util/preprocessor/*.class'/>
 
     <target name="preprocessor" depends="-prepare,-prep-license-files,-preprocessor"
