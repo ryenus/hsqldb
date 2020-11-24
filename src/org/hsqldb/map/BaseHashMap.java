@@ -1499,10 +1499,6 @@ public class BaseHashMap {
         public void remove() throws NoSuchElementException {
             throw new NoSuchElementException("Hash Iterator");
         }
-
-        public void setValue(Object value) {
-            throw new NoSuchElementException("Hash Iterator");
-        }
     }
 
     protected class MultiValueKeyIterator implements Iterator {
@@ -1553,10 +1549,6 @@ public class BaseHashMap {
 
         public void remove() throws NoSuchElementException {
             addOrRemoveMultiVal(0, 0, oldKey, null, true, false);
-        }
-
-        public void setValue(Object value) {
-            throw new NoSuchElementException("Hash Iterator");
         }
     }
 
@@ -1691,15 +1683,6 @@ public class BaseHashMap {
 
                 lookup--;
             }
-        }
-
-        public void setValue(Object value) {
-
-            if (keys) {
-                throw new NoSuchElementException();
-            }
-
-            objectValueTable[lookup] = value;
         }
 
         public int getAccessCount() {

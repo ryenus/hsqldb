@@ -36,7 +36,7 @@ import java.util.NoSuchElementException;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.7.2
  */
 public interface Iterator<E> {
@@ -50,6 +50,4 @@ public interface Iterator<E> {
     long nextLong() throws NoSuchElementException;
 
     void remove() throws NoSuchElementException;
-
-    void setValue(E value);
 }
