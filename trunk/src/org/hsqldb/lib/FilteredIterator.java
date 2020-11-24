@@ -90,10 +90,6 @@ public class FilteredIterator<E> implements Iterator {
         throw new NoSuchElementException("Iterator");
     }
 
-    public void setValue(Object value) {
-        throw new NoSuchElementException("Iterator");
-    }
-
     public interface Filter<E> {
         boolean test(E object);
     }

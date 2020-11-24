@@ -39,15 +39,11 @@ import org.hsqldb.map.BaseHashMap;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class LongKeyHashMap extends BaseHashMap {
 
-    Set        keySet;
-    Collection values;
-
-    //
     ReentrantReadWriteLock           lock = new ReentrantReadWriteLock(true);
     ReentrantReadWriteLock.ReadLock  readLock  = lock.readLock();
     ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
@@ -142,14 +138,42 @@ public class LongKeyHashMap extends BaseHashMap {
         }
     }
 
+    public boolean isEmpty() {
+
+        readLock.lock();
+
+        try {
+            return super.isEmpty();
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    public int size() {
+
+        readLock.lock();
+
+        try {
+            return super.size();
+        } finally {
+            readLock.unlock();
+        }
+    }
+
     public void putAll(LongKeyHashMap other) {
 
-        Iterator it = other.keySet().iterator();
+        writeLock.lock();
 
-        while (it.hasNext()) {
-            long key = it.nextLong();
+        try {
+            Iterator it = other.keySet().iterator();
 
-            put(key, other.get(key));
+            while (it.hasNext()) {
+                long key = it.nextLong();
+
+                put(key, other.get(key));
+            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -196,21 +220,11 @@ public class LongKeyHashMap extends BaseHashMap {
     }
 
     public Set keySet() {
-
-        if (keySet == null) {
-            keySet = new KeySet();
-        }
-
-        return keySet;
+        return new KeySet();
     }
 
     public Collection values() {
-
-        if (values == null) {
-            values = new Values();
-        }
-
-        return values;
+        return new Values();
     }
 
     class KeySet implements Set {
