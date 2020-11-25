@@ -31,8 +31,8 @@
 
 package org.hsqldb.cmdline;
 
-import org.hsqldb.lib.RefCapableRBInterface;
-import org.hsqldb.lib.ValidatingResourceBundle;
+import org.hsqldb.cmdline.libclone.RefCapableRBInterface;
+import org.hsqldb.cmdline.libclone.ValidatingResourceBundle;
 
 /* $Id$ */
 

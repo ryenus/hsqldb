@@ -166,7 +166,7 @@ public class RefCapablePropertyResourceBundle {
             "(?s)\\Q${\\E([^}]+?)(?:\\Q:+\\E([^}]+))?\\Q}");
     private Pattern posPattern = Pattern.compile(
             "(?s)\\Q%{\\E(\\d)(?:\\Q:+\\E([^}]+))?\\Q}");
-    private ClassLoader loader;  // Needed to load referenced files
+    private Class<? extends Enum<?>> loaderClass;
 
     public static final int THROW_BEHAVIOR = 0;
     public static final int EMPTYSTRING_BEHAVIOR = 1;
@@ -177,11 +177,12 @@ public class RefCapablePropertyResourceBundle {
     }
 
     private RefCapablePropertyResourceBundle(String baseName,
-            PropertyResourceBundle wrappedBundle, ClassLoader loader) {
+            PropertyResourceBundle wrappedBundle,
+            Class<? extends Enum<?>> loaderClass) {
         this.baseName = baseName;
         this.wrappedBundle = wrappedBundle;
         Locale locale = wrappedBundle.getLocale();
-        this.loader = loader;
+        this.loaderClass = loaderClass;
         language = locale.getLanguage();
         country = locale.getCountry();
         variant = locale.getVariant();
@@ -345,9 +346,9 @@ public class RefCapablePropertyResourceBundle {
      * @see ResourceBundle#getBundle(String)
      */
     public static RefCapablePropertyResourceBundle getBundle(String baseName,
-            ClassLoader loader) {
+            ClassLoader loader, Class<? extends Enum<?>> loaderClass) {
         return getRef(baseName, ResourceBundle.getBundle(baseName,
-                Locale.getDefault(), loader), loader);
+                Locale.getDefault(), loader), loaderClass);
     }
     /**
      * Use exactly like java.util.ResourceBundle.get(String, Locale, ClassLoader).
@@ -355,9 +356,10 @@ public class RefCapablePropertyResourceBundle {
      * @see ResourceBundle#getBundle(String, Locale, ClassLoader)
      */
     public static RefCapablePropertyResourceBundle
-            getBundle(String baseName, Locale locale, ClassLoader loader) {
-        return getRef(baseName,
-                ResourceBundle.getBundle(baseName, locale, loader), loader);
+            getBundle(String baseName, Locale locale, ClassLoader loader,
+            Class<? extends Enum<?>> loaderClass) {
+        return getRef(baseName, ResourceBundle.getBundle(
+          baseName, locale, loader), loaderClass);
     }
 
     /**
@@ -365,7 +367,7 @@ public class RefCapablePropertyResourceBundle {
      * or throw a MissingResourceException.
      */
     static private RefCapablePropertyResourceBundle getRef(String baseName,
-            ResourceBundle rb, ClassLoader loader) {
+            ResourceBundle rb, Class<? extends Enum<?>> loaderClass) {
         if (!(rb instanceof PropertyResourceBundle))
             throw new MissingResourceException(
                     "Found a Resource Bundle, but it is a "
@@ -374,27 +376,34 @@ public class RefCapablePropertyResourceBundle {
         if (allBundles.containsKey(rb)) return allBundles.get(rb);
         RefCapablePropertyResourceBundle newPRAFP =
                 new RefCapablePropertyResourceBundle(baseName,
-                        (PropertyResourceBundle) rb, loader);
+                        (PropertyResourceBundle) rb, loaderClass);
         allBundles.put(rb, newPRAFP);
         return newPRAFP;
     }
 
     /**
-     * Recursive
+     * Recursive.
+     * For consistency we do not allow paths relative to anything other
+     * than root.  Even though we load via Class, baseNames are resolved
+     * as if absolute, just like ClassLoader lookups.
      */
     private InputStream getMostSpecificStream(
             String key, String l, String c, String v) {
-        final String filePath = baseName.replace('.', '/') + '/' + key
+        // Now that using a Class to look up resource for this special case,
+        // absolute paths need to begin with slash.
+        final String filePath =
+               (baseName.matches("^[^./].*[./].+") ? "/" : "")
+                + baseName.replace('.', '/') + '/' + key
                 + ((l == null) ? "" : ("_" + l))
                 + ((c == null) ? "" : ("_" + c))
                 + ((v == null) ? "" : ("_" + v))
                 + ".text";
-        // System.err.println("Seeking " + filePath);
+        //System.err.println("Seeking " + filePath + " FOR " + baseName);
         InputStream is = (InputStream) AccessController.doPrivileged(
             new PrivilegedAction<InputStream>() {
 
             public InputStream run() {
-                return loader.getResourceAsStream(filePath);
+                return loaderClass.getResourceAsStream(filePath);
             }
         });
         // N.b.  If were using Class.getRes... instead of ClassLoader.getRes...

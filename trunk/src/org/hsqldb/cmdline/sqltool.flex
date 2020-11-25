@@ -34,7 +34,7 @@
 package org.hsqldb.cmdline.sqltool;
 
 import java.io.PrintStream;
-import org.hsqldb.lib.FrameworkLogger;
+import org.hsqldb.cmdline.libclone.FrameworkLogger;
 
 %%
 // Defaults to Yylex

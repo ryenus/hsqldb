@@ -82,9 +82,9 @@ import org.hsqldb.cmdline.sqltool.SqlFileScanner;
 import org.hsqldb.cmdline.sqltool.Token;
 import org.hsqldb.cmdline.sqltool.TokenList;
 import org.hsqldb.cmdline.sqltool.TokenSource;
-import org.hsqldb.lib.AppendableException;
-import org.hsqldb.lib.FrameworkLogger;
-import org.hsqldb.lib.RCData;
+import org.hsqldb.cmdline.libclone.AppendableException;
+import org.hsqldb.cmdline.libclone.FrameworkLogger;
+import org.hsqldb.cmdline.libclone.RCData;
 
 /* $Id$ */
 
