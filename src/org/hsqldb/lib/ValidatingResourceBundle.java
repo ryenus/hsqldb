@@ -71,7 +71,7 @@ public class ValidatingResourceBundle {
         this.enumType = enumType;
         try {
             wrappedRCPRB = RefCapablePropertyResourceBundle.getBundle(baseName,
-                    enumType.getClassLoader());
+                    enumType.getClassLoader(), enumType);
             validate();
         } catch (RuntimeException re) {
             System.err.println("Failed to initialize resource bundle: " + re);
