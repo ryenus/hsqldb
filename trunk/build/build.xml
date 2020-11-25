@@ -675,8 +675,10 @@ examples:
       </jar>
     </target>
 
-    <target name="-sqltool-mdescriptor" if="ant.java.iscjava19">
-      <javac srcdir="src/modules/org.hsqldb.sqltool"
+    <target name="-compile-mdescriptor" if="ant.java.iscjava19">
+      <fail unless='module.name'
+            message="Target '-compile-mdescriptor' called when prop 'module.name'not set"/>
+      <javac srcdir="src/modules/${module.name}"
              sourcepath=""
              includeantruntime="false"
              encoding="${javac.encoding}"
@@ -685,9 +687,11 @@ examples:
       />
     </target>
 
-    <target name="sqltool"
-            depends="-lib, -cmdline, -prep-license-files, -sqltool-mdescriptor"
+    <target name="sqltool" depends="-lib, -cmdline, -prep-license-files"
             description="Build 'sqltool.jar' file">
+      <antcall target="-compile-mdescriptor" inheritrefs="true">
+        <param name="module.name" value="org.hsqldb.sqltool"/>
+      </antcall>
       <jar jarfile="lib/sqltool.jar" filesonly="true">
         <metainf dir="doc" includes="*hsqldb_lic.txt"/>
         <manifest>
