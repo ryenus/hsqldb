@@ -284,8 +284,9 @@ examples:
       </javac>
     </target>
 
-    <target name="classes" depends="classes-base"
-            description="compiles JVM-independent non-lib/util/cmdline classes">
+    <target name="classes-servlet" description="compiles Servlet class"
+           unless="ant.java.iscjava19">
+      <!-- 'unless' above should be removed once learn how to include in named module-->
       <available property='_servlet_available' classpath='${servletapi.lib}'
                  classname='javax.servlet.ServletException'/>
       <fail unless='_servlet_available'
@@ -301,7 +302,7 @@ examples:
       </javac>
     </target>
 
-    <target name="classes-base" depends="switches,-javajsse"
+    <target name="classes" depends="switches,-javajsse"
     description="compiles JVM-independent non-lib/util/cmdline/servlet classes">
       <javac srcdir="${swsrc}"
              includeantruntime="false"
@@ -396,19 +397,6 @@ examples:
                          org/hsqldb/cmdline/**/*.html"/>
     </target>
 
-    <!-- TODO:  This to be generalized to work for specified module -->
-    <target name="-module_info" depends="classes-base"
-            description="compiles post Java 9 module file">
-      <property name="target.module" value="org.hsqldb"/>
-      <javac srcdir="src/modules/${target.module}"
-             sourcepath=""
-             includeantruntime="false"
-             encoding="${javac.encoding}"
-             destdir="classes"
-             debug="${build.debug}"
-      />
-    </target>
-
     <target name="-swing" depends="switches"
             description="compiles the swing based classes in the util folder">
       <javac srcdir="${swsrc}"
@@ -485,6 +473,7 @@ examples:
       </jar>
     </target>
 
+    <fileset id='empty.fileset' dir='z:y:w:/nosuch' erroronmissingdir="false"/>
     <fileset id='minclasses' dir='classes'
         includes='
             org/hsqldb/*.class
@@ -513,16 +502,7 @@ examples:
             />
 
     <fileset id='mainaddedclasses' dir='classes'
-        includes='
-            org/hsqldb/server/**
-            '
-            />
-
-    <filelist id='moduleinfoclasses' dir='classes'
-        files='
-            module-info.class
-            '
-            />
+        includes='org/hsqldb/server/**' />
 
     <fileset id='dbmanagerswingclasses' dir='classes'
         includes='
@@ -535,8 +515,7 @@ examples:
             org/hsqldb/util/*.png
             org/hsqldb/util/*.gif
             org/hsqldb/lib/RCData*
-            '
-            />
+            '/>
 
     <fileset id='dbmanagerawtaddedclasses' dir='classes'
         includes='
@@ -550,7 +529,6 @@ examples:
             org/hsqldb/util/ConnectionDialogCommon.class
             org/hsqldb/util/ConnectionDialogSwing.class
             '
-
             />
 
     <fileset id='utilclasses' dir='classes' includes='
@@ -606,8 +584,29 @@ examples:
       </jar>
     </target>
 
-    <target name="hsqldb" depends="classes, -util, -prep-license-files"
+    <target name="hsqldb"
+            depends="classes, -util, -prep-license-files, classes-servlet"
             description="Build the default hsqldb.jar">
+      <antcall target="-compile-mdescriptor" inheritrefs="true">
+        <param name="module.name" value="org.hsqldb"/>
+      </antcall>
+      <condition property="fileset.ref" value="dbmanagerawtaddedclasses">
+        <not>
+          <isset property="ant.java.iscjava19"/>
+        </not>
+      </condition>
+      <condition property="fileset.ref" value="empty.fileset">
+        <isset property="ant.java.iscjava19"/>
+      </condition>
+
+      <condition property="module.dir" value="z:y:w:/nosuch">
+        <not>
+          <isset property="ant.java.iscjava19"/>
+        </not>
+      </condition>
+      <condition property="module.dir" value="classes/modules/org.hsqldb">
+        <isset property="ant.java.iscjava19"/>
+      </condition>
       <jar jarfile="lib/hsqldb.jar" duplicate='preserve'>
         <metainf dir="doc" includes="*_lic.txt"/>
         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
@@ -626,34 +625,10 @@ examples:
         <fileset refid='minclasses' />
         <fileset refid='mainaddedclasses' />
         <fileset refid='dbmanagerswingclasses' />
-        <fileset refid='dbmanagerawtaddedclasses' />
-      </jar>
-    </target>
 
-    <target name="hsqldbmodule"
-            depends="classes-base, -util, -module_info, -prep-license-files"
-            description="Build the java module hsqldb.jar">
-      <fail message="Java 9 or later required" unless="ant.java.iscjava19"/>
-      <jar jarfile="lib/hsqldbmod.jar" duplicate='preserve'>
-        <metainf dir="doc" includes="*_lic.txt"/>
-        <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
-        <manifest>
-          <attribute name='Specification-Title' value='${hsqldb.title}'/>
-          <attribute name='Specification-Version' value='${hsqldb.version}'/>
-          <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-          <attribute name='Implementation-Title'
-                     value='Standard runtime'/>
-          <attribute name='Implementation-Version' value='${build.label}'/>
-          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-          <!-- This attribute is completely ignored unless the user
-               uses the jar like "java -jar .../hsqldb.jar" -->
-          <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
-        </manifest>
-        <fileset refid='minclasses' />
-        <fileset refid='mainaddedclasses' />
-        <fileset refid='dbmanagerswingclasses' />
-        <filelist refid='moduleinfoclasses' />
-        <exclude name="org/hsqldb/server/Servlet.class"/>
+        <exclude name="org/hsqldb/server/Servlet.class" if="ant.java.iscjava19" />
+        <fileset refid='${fileset.ref}' />
+        <fileset dir='${module.dir}' erroronmissingdir="false"/>
       </jar>
     </target>
 
@@ -678,11 +653,12 @@ examples:
     <target name="-compile-mdescriptor" if="ant.java.iscjava19">
       <fail unless='module.name'
             message="Target '-compile-mdescriptor' called when prop 'module.name'not set"/>
-      <javac srcdir="src/modules/${module.name}"
-             sourcepath=""
+      <mkdir dir='classes/modules/${module.name}'/>
+      <javac srcdir="${swsrc}/modules/${module.name}"
+             sourcepath="${swsrc}"
              includeantruntime="false"
              encoding="${javac.encoding}"
-             destdir="classes"
+             destdir="classes/modules/${module.name}"
              debug="${build.debug}"
       />
     </target>
@@ -707,7 +683,8 @@ examples:
         </manifest>
         <fileset refid='sqltoolclasses'/>
         <fileset refid='sqltoolres'/>
-        <filelist refid='moduleinfoclasses'/>
+        <fileset refid='moduleinfoclasses'/>
+        <fileset dir='classes/modules/org.hsqldb.sqltool' />
       </jar>
     </target>
 
