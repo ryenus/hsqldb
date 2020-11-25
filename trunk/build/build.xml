@@ -46,6 +46,7 @@
     <property name="build.sysclasspath" value="ignore"/>
     <property name="javac.encoding" value="ISO-8859-1"/>
     <property name="swsrc" value="${basedir}/tmp/switchedsrc/"/>
+    <property name="libclonesrc" value="${basedir}/tmp/libclonesrc"/>
     <available property="switch.inplace"
                file="${swsrc}/org/hsqldb/package.html"/>
 
@@ -330,6 +331,7 @@ examples:
       </javac>
       <fixcrlf destdir="classes" preservelastmodified='true' eol="lf"
                encoding="ISO-8859-1" srcdir="src"
+               excludes="org/hsqldb/cmdline/**"
                includes="**/*.properties, **/*.text, **/*.sql, **/*.html"/>
     </target>
 
@@ -369,8 +371,14 @@ examples:
 
     <!-- compiles the cmdline classes -->
     <target name="-cmdline"
-            depends="-prepare, -update-switch-branch,
+            depends="-prepare, -update-switch-branch, -clone-shared-libs,
                      -conditionalize-sqlfile-scanner, -sqlfile-scanner">
+      <javac srcdir="${libclonesrc}"
+             includeantruntime="false"
+             encoding="${javac.encoding}"
+             destdir="classes"
+             debug="${build.debug}"
+      />
       <javac srcdir="${swsrc}"
              includeantruntime="false"
              encoding="${javac.encoding}"
@@ -379,6 +387,13 @@ examples:
       >
         <include name="org/hsqldb/cmdline/**"/>
       </javac>
+      <fixcrlf destdir="classes" preservelastmodified='true' eol="lf"
+               encoding="ISO-8859-1" srcdir="src"
+               includes="org/hsqldb/resources/jdklogging-default.properties
+                         org/hsqldb/cmdline/**/*.properties,
+                         org/hsqldb/cmdline/**/*.text,
+                         org/hsqldb/cmdline/**/*.sql,
+                         org/hsqldb/cmdline/**/*.html"/>
     </target>
 
     <!-- TODO:  This to be generalized to work for specified module -->
@@ -544,20 +559,11 @@ examples:
             '/>
 
     <fileset id='sqltoolclasses' dir='classes'
-        includes='
-            org/hsqldb/cmdline/**/*.class
-            org/hsqldb/lib/AppendableException*
-            org/hsqldb/lib/BasicTextJdkLogFormatter*
-            org/hsqldb/lib/FrameworkLogger*
-            org/hsqldb/lib/RCData*
-            org/hsqldb/lib/RefCapablePropertyResourceBundle*
-            org/hsqldb/lib/RefCapableRBInterface*
-            org/hsqldb/lib/ValidatingResourceBundle*
-            org/hsqldb/resources/jdklogging-default.properties
-            '/>
+        includes='org/hsqldb/cmdline/**/*.class'/>
 
     <fileset id='sqltoolres' dir='classes'
         includes='
+            org/hsqldb/resources/jdklogging-default.properties
             org/hsqldb/cmdline/**/*.text
             org/hsqldb/cmdline/**/*.properties
             org/hsqldb/cmdline/sqltool/**/*.html
@@ -669,7 +675,18 @@ examples:
       </jar>
     </target>
 
-    <target name="sqltool" depends="-lib, -cmdline, -prep-license-files"
+    <target name="-sqltool-mdescriptor" if="ant.java.iscjava19">
+      <javac srcdir="src/modules/org.hsqldb.sqltool"
+             sourcepath=""
+             includeantruntime="false"
+             encoding="${javac.encoding}"
+             destdir="classes"
+             debug="${build.debug}"
+      />
+    </target>
+
+    <target name="sqltool"
+            depends="-lib, -cmdline, -prep-license-files, -sqltool-mdescriptor"
             description="Build 'sqltool.jar' file">
       <jar jarfile="lib/sqltool.jar" filesonly="true">
         <metainf dir="doc" includes="*hsqldb_lic.txt"/>
@@ -686,12 +703,11 @@ examples:
         </manifest>
         <fileset refid='sqltoolclasses'/>
         <fileset refid='sqltoolres'/>
+        <filelist refid='moduleinfoclasses'/>
       </jar>
     </target>
 
-    <!-- Provisional.  This will probably become a piece of another target. -->
-    <target name="clone-shared-libs">
-      <property name="libclonesrc" value="tmp/clonesrc"/>
+    <target name="-clone-shared-libs">
       <mkdir dir='${libclonesrc}'/>
       <fileset id='libclones' dir='src/org/hsqldb/lib'
           includes='
@@ -707,7 +723,7 @@ examples:
         <fileset refid="libclones"/>
       </copy>
       <replace dir="${libclonesrc}" token="org.hsqldb.lib"
-               value="org.hsqldb.cmdline.sqltool"/>
+               value="org.hsqldb.cmdline.libclone"/>
     </target>
 
     <fileset id='preprocessorclasses' dir='classes' includes='org/hsqldb/util/preprocessor/*.class'/>
