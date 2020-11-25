@@ -112,9 +112,9 @@ examples:
          It is sufficient for this purposes if the test classes used are
          verified to be present in version X and in all newer versions (> X)
          (i.e. that the class is not removed from some higher JVM). -->
-     <available classname="java.net.IDN" property="ant.java.iscjava16"/>
-     <available classname="java.sql.JDBCType" property="ant.java.iscjava18"/>
-     <available classname="java.sql.ShardingKey" property="ant.java.iscjava19"/>
+     <available classname="java.net.IDN" property="ant.java.iscjava06"/>
+     <available classname="java.sql.JDBCType" property="ant.java.iscjava08"/>
+     <available classname="java.sql.ShardingKey" property="ant.java.iscjava09"/>
    </target>
 
    <target name="-prepare" depends="-set-jvmvars">
@@ -241,7 +241,7 @@ examples:
     </target>
 
     <target name="switchtojdk8" depends="codeswitcher"
-            description="self explanatory" if="ant.java.iscjava18">
+            description="self explanatory" if="ant.java.iscjava08">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
         <arg value="+JAVA8"/>
         <arg value="-JAVA9"/>
@@ -254,7 +254,7 @@ examples:
     </target>
 
     <target name="switchtojdk9" depends="codeswitcher"
-            description="self explanatory" if="ant.java.iscjava19">
+            description="self explanatory" if="ant.java.iscjava09">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
         <arg value="+JAVA8"/>
         <arg value="+JAVA9"/>
@@ -285,7 +285,7 @@ examples:
     </target>
 
     <target name="classes-servlet" description="compiles Servlet class"
-           unless="ant.java.iscjava19">
+           unless="ant.java.iscjava09">
       <!-- 'unless' above should be removed once learn how to include in named module-->
       <available property='_servlet_available' classpath='${servletapi.lib}'
                  classname='javax.servlet.ServletException'/>
@@ -592,20 +592,20 @@ examples:
       </antcall>
       <condition property="fileset.ref" value="dbmanagerawtaddedclasses">
         <not>
-          <isset property="ant.java.iscjava19"/>
+          <isset property="ant.java.iscjava09"/>
         </not>
       </condition>
       <condition property="fileset.ref" value="empty.fileset">
-        <isset property="ant.java.iscjava19"/>
+        <isset property="ant.java.iscjava09"/>
       </condition>
 
       <condition property="module.dir" value="z:y:w:/nosuch">
         <not>
-          <isset property="ant.java.iscjava19"/>
+          <isset property="ant.java.iscjava09"/>
         </not>
       </condition>
       <condition property="module.dir" value="classes/modules/org.hsqldb">
-        <isset property="ant.java.iscjava19"/>
+        <isset property="ant.java.iscjava09"/>
       </condition>
       <jar jarfile="lib/hsqldb.jar" duplicate='preserve'>
         <metainf dir="doc" includes="*_lic.txt"/>
@@ -626,7 +626,7 @@ examples:
         <fileset refid='mainaddedclasses' />
         <fileset refid='dbmanagerswingclasses' />
 
-        <exclude name="org/hsqldb/server/Servlet.class" if="ant.java.iscjava19" />
+        <exclude name="org/hsqldb/server/Servlet.class" if="ant.java.iscjava09" />
         <fileset refid='${fileset.ref}' />
         <fileset dir='${module.dir}' erroronmissingdir="false"/>
       </jar>
@@ -650,7 +650,7 @@ examples:
       </jar>
     </target>
 
-    <target name="-compile-mdescriptor" if="ant.java.iscjava19">
+    <target name="-compile-mdescriptor" if="ant.java.iscjava09">
       <fail unless='module.name'
             message="Target '-compile-mdescriptor' called when prop 'module.name'not set"/>
       <mkdir dir='classes/modules/${module.name}'/>
@@ -668,6 +668,14 @@ examples:
       <antcall target="-compile-mdescriptor" inheritrefs="true">
         <param name="module.name" value="org.hsqldb.sqltool"/>
       </antcall>
+      <condition property="module.dir" value="z:y:w:/nosuch">
+        <not>
+          <isset property="ant.java.iscjava09"/>
+        </not>
+      </condition>
+      <condition property="module.dir" value="classes/modules/org.hsqldb.sqltool">
+        <isset property="ant.java.iscjava09"/>
+      </condition>
       <jar jarfile="lib/sqltool.jar" filesonly="true">
         <metainf dir="doc" includes="*hsqldb_lic.txt"/>
         <manifest>
@@ -683,8 +691,7 @@ examples:
         </manifest>
         <fileset refid='sqltoolclasses'/>
         <fileset refid='sqltoolres'/>
-        <fileset refid='moduleinfoclasses'/>
-        <fileset dir='classes/modules/org.hsqldb.sqltool' />
+        <fileset dir='${module.dir}' erroronmissingdir="false"/>
       </jar>
     </target>
 
@@ -745,7 +752,7 @@ examples:
       </jar>
     </target>
 
-    <target name="-doclink-18" if="ant.java.iscjava18">
+    <target name="-doclink-18" if="ant.java.iscjava08">
                         <!-- TODO: update to final release api docs url when available -->
       <property name="jse.doc.link"
                 value="http://docs.oracle.com/javase/8/docs/api/"/>
@@ -754,7 +761,7 @@ examples:
     </target>
 
     <target name="-doclink-16"
-            depends="-doclink-18" unless="ant.java.iscjava18">
+            depends="-doclink-18" unless="ant.java.iscjava08">
       <property name="jse.doc.link"
                   value="http://docs.oracle.com/javase/6/docs/api/"/>
       <property name="jee.doc.link"
@@ -882,7 +889,7 @@ examples:
       <delete file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
     </target>
 
-     <!-- If you don't want this to run unless ant.java.iscjava16 is set,
+     <!-- If you don't want this to run unless ant.java.iscjava06 is set,
           then call -conditionalize-sqlfile-scanner before this target. -->
     <target name="-sqlfile-scanner" depends="-conditionalize-jflex, jflex"
             unless="-sqlfile-scanner.skip">
@@ -926,17 +933,17 @@ examples:
 
     <target name="-conditionalize-jflex" depends="-set-jvmvars">
       <!-- JFlex will only run if SqlFileScanner.java does not exist
-           and ant.java.iscjava16 -->
+           and ant.java.iscjava06 -->
       <available property="jflex.skip" type="file"
                  file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
       <condition property="jflex.skip"> <not>
-        <isset property="ant.java.iscjava16"/>
+        <isset property="ant.java.iscjava06"/>
       </not> </condition>
     </target>
 
     <target name="-conditionalize-sqlfile-scanner" depends="-set-jvmvars">
       <condition property="-sqlfile-scanner.skip"> <not>
-        <isset property="ant.java.iscjava16"/>
+        <isset property="ant.java.iscjava06"/>
       </not> </condition>
     </target>
 
