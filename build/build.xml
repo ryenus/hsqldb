@@ -599,12 +599,12 @@ examples:
         <isset property="ant.java.iscjava09"/>
       </condition>
 
-      <condition property="module.dir" value="z:y:w:/nosuch">
+      <condition property="hsqldb.module.dir" value="z:y:w:/nosuch">
         <not>
           <isset property="ant.java.iscjava09"/>
         </not>
       </condition>
-      <condition property="module.dir" value="classes/modules/org.hsqldb">
+      <condition property="hsqldb.module.dir" value="classes/modules/org.hsqldb">
         <isset property="ant.java.iscjava09"/>
       </condition>
       <jar jarfile="lib/hsqldb.jar" duplicate='preserve'>
@@ -630,7 +630,7 @@ examples:
 
         <exclude name="org/hsqldb/server/Servlet.class" if="ant.java.iscjava09" />
         <fileset refid='${fileset.ref}' />
-        <fileset dir='${module.dir}' erroronmissingdir="false"/>
+        <fileset dir='${hsqldb.module.dir}' erroronmissingdir="false"/>
       </jar>
 
       <!-- Ant jar task doesn't support -e switch! -->
@@ -690,12 +690,12 @@ examples:
       <antcall target="-compile-mdescriptor" inheritrefs="true">
         <param name="module.name" value="org.hsqldb.sqltool"/>
       </antcall>
-      <condition property="module.dir" value="z:y:w:/nosuch">
+      <condition property="sqltool.module.dir" value="z:y:w:/nosuch">
         <not>
           <isset property="ant.java.iscjava09"/>
         </not>
       </condition>
-      <condition property="module.dir" value="classes/modules/org.hsqldb.sqltool">
+      <condition property="sqltool.module.dir" value="classes/modules/org.hsqldb.sqltool">
         <isset property="ant.java.iscjava09"/>
       </condition>
       <jar jarfile="lib/sqltool.jar" filesonly="true">
@@ -715,7 +715,7 @@ examples:
         </manifest>
         <fileset refid='sqltoolclasses'/>
         <fileset refid='sqltoolres'/>
-        <fileset dir='${module.dir}' erroronmissingdir="false"/>
+        <fileset dir='${sqltool.module.dir}' erroronmissingdir="false"/>
       </jar>
 
       <!-- Ant jar task doesn't support -e switch! -->
