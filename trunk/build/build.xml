@@ -585,7 +585,7 @@ examples:
     </target>
 
     <target name="hsqldb"
-            depends="classes, -util, -prep-license-files, classes-servlet"
+            depends="classes, -util, -prep-license-files, classes-servlet, -set-jar.exec.path"
             description="Build the default hsqldb.jar">
       <antcall target="-compile-mdescriptor" inheritrefs="true">
         <param name="module.name" value="org.hsqldb"/>
@@ -620,7 +620,9 @@ examples:
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <!-- This attribute is completely ignored unless the user
                uses the jar like "java -jar .../hsqldb.jar" -->
+          <!-- give with 'jar -e...' invocaton to support Java modules:
           <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
+          -->
         </manifest>
         <fileset refid='minclasses' />
         <fileset refid='mainaddedclasses' />
@@ -630,6 +632,13 @@ examples:
         <fileset refid='${fileset.ref}' />
         <fileset dir='${module.dir}' erroronmissingdir="false"/>
       </jar>
+
+      <!-- Ant jar task doesn't support -e switch! -->
+      <exec executable="${jar.exec.path}" dir="lib" failonerror="true">
+        <arg value="-ufe"/>
+        <arg value="hsqldb.jar"/>
+        <arg value="org.hsqldb.util.DatabaseManagerSwing"/>
+      </exec>
     </target>
 
     <target name="dbmanswing" depends="-swing, -lib, -prep-license-files"
@@ -663,7 +672,20 @@ examples:
       />
     </target>
 
-    <target name="sqltool" depends="-lib, -cmdline, -prep-license-files"
+    <target name="-set-jar.exec.path">
+      <available property="jar.exec.path" file="${java.home}/bin/jar"
+                 type="file" value="${java.home}/bin/jar" />
+      <available property="jar.exec.path" file="${java.home}/../bin/jar"
+                 type="file" value="${java.home}/../bin/jar" />
+      <available property="jar.exec.path" file="${java.home}/bin/jar.exe"
+                 type="file" value="${java.home}/bin/jar.exe" />
+      <available property="jar.exec.path" file="${java.home}/../bin/jar.exe"
+                 type="file" value="${java.home}/../bin/jar.exe" />
+      <fail unless="jar.exec.path">Failed to find jar by searching around ${java.home}</fail>
+    </target>
+
+    <target name="sqltool"
+            depends="-lib, -cmdline, -prep-license-files, -set-jar.exec.path"
             description="Build 'sqltool.jar' file">
       <antcall target="-compile-mdescriptor" inheritrefs="true">
         <param name="module.name" value="org.hsqldb.sqltool"/>
@@ -685,7 +707,9 @@ examples:
           <attribute name='Implementation-Title' value='SqlTool Client'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+          <!-- give with 'jar -e...' invocaton to support Java modules:
           <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
+          -->
           <attribute name='Class-Path'
               value='hsqldb-${hsqldb.version}.jar hsqldbmain.jar-${hsqldb.version}.jar hsqldb.jar hsqldbmain.jar'/>
         </manifest>
@@ -693,6 +717,13 @@ examples:
         <fileset refid='sqltoolres'/>
         <fileset dir='${module.dir}' erroronmissingdir="false"/>
       </jar>
+
+      <!-- Ant jar task doesn't support -e switch! -->
+      <exec executable="${jar.exec.path}" dir="lib" failonerror="true">
+        <arg value="-ufe"/>
+        <arg value="sqltool.jar"/>
+        <arg value="org.hsqldb.cmdline.SqlTool"/>
+      </exec>
     </target>
 
     <target name="-clone-shared-libs">
