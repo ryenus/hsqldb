@@ -154,7 +154,7 @@
       For example if a table with 100,000 rows contains 40,000 rows with 1,000
       bytes of data in each row and 60,000 rows with 100 bytes in each, the
       cache can grow to contain 50,000 of the smaller rows, but as explained
-      further, only 10,000 or the large rows.</para>
+      below, only 10,000 or the large rows.</para>
 
       <para>An additional property, <property>hsqldb.cache_size</property> is
       used in conjunction with the <property>hsqldb.cache_rows</property>
@@ -173,11 +173,6 @@
 
       <para>Data for CLOB and BLOB columns is not cached and does not affect
       the CACHED table memory cache.</para>
-
-      <para>The use of Java NIO file access method also increases memory
-      usage. Access with NIO improves database update speed and is used by
-      default for data files up to 256 MB. For minimal memory use, NIO access
-      should be disabled.</para>
 
       <para>The operating system usually allocates a large amount of buffer
       memory for speed up file read operations. Therefore, when a lot of
@@ -200,10 +195,10 @@
     <section xml:id="dec_lob_mem_use">
       <title>Lob Memory Usage</title>
 
-      <para>Access to lobs is always performed in chunks, so it is perfectly
-      possible to store and access a CLOB or BLOB that is larger than the JVM
-      memory allocation. The actual total size of lobs is almost unlimited. We
-      have tested with over 100 GB of lobs without any loss of
+      <para>Access to lobs is always performed in chunks internally, so it is
+      perfectly possible to store and access a CLOB or BLOB that is larger
+      than the JVM memory allocation. The actual total size of lobs is almost
+      unlimited. We have tested with over 100 GB of lobs without any loss of
       performance.</para>
 
       <para>By default, HyperSQL 2 uses memory-based tables for the lob schema
@@ -242,16 +237,26 @@
     </section>
 
     <section xml:id="dec_disk_space">
-      <title>Extra Disk Space Use</title>
+      <title>Disk Space Use</title>
 
       <para>With <glossterm>file:</glossterm> database, the engine uses the
-      disk for storage of data and any change. For safely, the engine makes
-      copies of the data internally during operation. Spare space, at larger
-      than the total size of the <literal>.data</literal> and
+      disk for storage of data and any change. This includes: the
+      <literal>.script</literal> file which is always present, the
+      <literal>.log</literal> file which grows in size and is reset at regular
+      intervals, the <literal>.data</literal> file when CACHED tables are
+      used, and the <literal>.lobs</literal> file when CLOB or BLOB data is
+      used. The <literal>.backup</literal> file is used for safely by the
+      engine to store parts of the <literal>.data</literal> file that are
+      modified internally during operation. Both the <literal>.log</literal>
+      and <literal>.backup</literal> files are reset at each CHECKPOINT and a
+      new copy of the <literal>.script</literal> file is written. Spare space,
+      at larger than the total size of the <literal>.data</literal> and
       <literal>.script</literal> files, plus the maximum allowed size of the
       <literal>.log</literal> file, is needed. The <literal>.lobs</literal>
       file is not copied during database updates as it is not necessary for
-      safety. When the RESULT MEMORY ROWS setting is used to limit the memory
+      safety.</para>
+
+      <para>When the RESULT MEMORY ROWS setting is used to limit the memory
       rows in result sets and temporary tables, each session uses additional
       disk space for large results and temporary tables. These results are
       stored in files in the temp directory alongside the database files,
@@ -261,13 +266,14 @@
     <section xml:id="dec_no_logging">
       <title>Using HyperSQL Without Logging Data Change</title>
 
-      <para>All file database that are not readonly, write changes to the
-      <literal>.log</literal> file. There are scenarios where writing to the
-      <literal>.log</literal> file can be turned off to improve performance,
-      especially with larger databases. For these applications you can set the
-      property <literal>hsqldb.log_data=false</literal> to disable the
-      recovery log and speed up data change performance. The equivalent SQL
-      command is SET FILES LOG FALSE.</para>
+      <para>All <glossterm>file:</glossterm> database that are not read-only,
+      write changes to the <literal>.log</literal> file. There are scenarios
+      where writing to the <literal>.log</literal> file can be turned off to
+      improve performance, especially with larger databases used for temporary
+      data. For these applications you can set the property
+      <literal>hsqldb.log_data=false</literal> to disable the recovery log and
+      speed up data change performance. The equivalent SQL command is SET
+      FILES LOG FALSE.</para>
 
       <para>With this setting, no data is logged, but all the changes to
       cached tables are written to the <literal>.data</literal> file. To
@@ -284,10 +290,11 @@
       ends.</para>
 
       <para>On some platforms, such as embedded devices with SSD storage, this
-      is also a useful option. Your application issues CHECKPOINT to save the
-      changes made so far. This method of use reduces write operations on SSD
-      devices. For this usage, the lock file should also be disabled with the
-      connection property <literal>hsqldb.lock_file=false</literal>.</para>
+      is also a useful option. Your application should issue CHECKPOINT to
+      save the changes made so far. This method of use reduces write
+      operations on SSD devices. For this usage, the lock file can also be
+      disabled with the connection property
+      <literal>hsqldb.lock_file=false</literal>.</para>
     </section>
 
     <section xml:id="dec_bulk_operations">
@@ -1084,12 +1091,10 @@
           in <filename>ivy.xml</filename> are supported if using Gradle, as
           covered below.</simpara>
 
-        <simpara>At the time that I'm writing this, our builds are only
+          <simpara>At the time that I'm writing this, our builds are only
           providing one classifier (besides the default no-classifier, of
-          course) and its name is "debug".
-          Therefore in all examples for using a classifier I am using
-          classifier name "debug".
-        </simpara>
+          course) and its name is "debug". Therefore in all examples for using
+          a classifier I am using classifier name "debug".</simpara>
         </example>
 
         <example>

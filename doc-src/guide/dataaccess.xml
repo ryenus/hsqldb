@@ -2889,18 +2889,18 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
 
  CREATE TABLE expenses (item_date DATE, cost DECIMAL(8,2))
  --
- SELECT item_date, SUM(cost) AS s FROM expenses WHERE item_date &gt;= CURRENT_DATE - 7 DAY GROUP BY item_date
+ SELECT item_date, SUM(cost) AS total FROM expenses WHERE item_date &gt;= CURRENT_DATE - 7 DAY GROUP BY item_date
 
- ITEM_DATE  S      
+ ITEM_DATE  TOTAL      
  ---------- ------ 
  2010-07-27 100.12 
  2010-07-29 50.45  
 
- WITH costs(i_d, s) AS (SELECT item_date, SUM(cost) AS s FROM expenses WHERE item_date &gt;= CURRENT_DATE - 7 DAY GROUP BY item_date),
+ WITH costs(item_date, total) AS (SELECT item_date, SUM(cost) FROM expenses WHERE item_date &gt;= CURRENT_DATE - 7 DAY GROUP BY item_date),
  dates(d, i) AS (SELECT * FROM UNNEST(SEQUENCE_ARRAY(CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY, 1 DAY)) WITH ORDINALITY)   
- SELECT i, d, s FROM dates LEFT OUTER JOIN costs ON dates.d = costs.i_d
+ SELECT i, d, total FROM dates LEFT OUTER JOIN costs ON dates.d = costs.item_date
 
- I D          S      
+ I D          TOTAL      
  - ---------- ------ 
  1 2010-07-25 (null) 
  2 2010-07-26 (null) 
@@ -3547,7 +3547,8 @@ DIRECT SALES (null) (null)  3778500
       referenced in the query expression body. The ephemeral tables are
       created and populated before the rest of the query expression is
       executed. Their contents do not change during the execution of the
-      <literal>&lt;query expression body&gt;</literal>.</para>
+      <literal>&lt;query expression body&gt;</literal> that follows the WITH
+      clause.</para>
 
       <para><literal>&lt;with clause&gt; ::= WITH [ RECURSIVE ] &lt;with
       list&gt;</literal></para>
@@ -3565,39 +3566,41 @@ DIRECT SALES (null) (null)  3778500
 
       <para>An example of the use of the WITH clause is given above under
       UNNEST. The <literal>&lt;query expression&gt;</literal> in the WITH
-      clause is evaluated once and its result table can be referenced in the
-      body of the main <literal>&lt;query expression body&gt;</literal> using
-      the specified &lt;query name&gt;.</para>
+      clause is evaluated and its result table can be referenced in the body
+      of the main <literal>&lt;query expression body&gt;</literal> using the
+      specified <literal>&lt;query name&gt;</literal>.</para>
 
-      <para> When RECURSIVE is used, the <literal>&lt;with column
+      <para>When RECURSIVE is used, the <literal>&lt;with column
       list&gt;</literal> must be defined. The RECURSIVE keyword changes the
-      way the elements of the <literal>&lt;with list&gt;</literal> are
-      interpreted. The <literal>&lt;query expression&gt;</literal> contained
-      in the <literal>&lt;with list element&gt;</literal> must be the UNION or
-      UNION ALL of two &lt;query expression body&gt; elements (simple VALUES
-      or SELECT statements). The left element of the UNION is evaluated first
-      and its result becomes the initial result of the <literal>&lt;with list
-      element&gt;</literal>. A working table is created and the initial result
-      set is copied to it. After this step, the contents of the working table
-      is used when the &lt;with list element&gt; is referenced in the right
-      element (a SELECT statement) of the UNION. The UNION is performed
-      between the latest result and previous contents of the <literal>&lt;with
-      list element&gt;</literal>, which is enlarged by this operation. At each
-      iteration, the working table is cleared and filled with the latest
-      result and operation is performed again and again, until the latest
-      result is empty and the contents the <literal>&lt;with list
-      element&gt;</literal> stops changing. The result of the
-      <literal>&lt;with list element&gt;</literal> is now complete and is
-      later used in the execution of the <literal>&lt;query expression
-      body&gt;</literal>.</para>
+      way the <literal>&lt;with list&gt;</literal> is interpreted. The
+      <literal>&lt;query expression&gt;</literal> contained in the
+      <literal>&lt;with list element&gt;</literal> must be the UNION or UNION
+      ALL of two &lt;query expression body&gt; elements (VALUES or SELECT
+      statements). A working table is created and the left side SELECT of the
+      UNION is evaluated only once and its result is copied to the working
+      table. This result is also copied to the general result of the
+      <literal>&lt;query expression&gt;</literal>. Iteration starts after this
+      step. In each iteration, the right side SELECT is evaluated. The
+      contents of the working table is used when the <literal>&lt;query
+      name&gt;</literal> is referenced in the right side SELECT statement of
+      the UNION. The result of this SELECT is then added to the previous
+      general result of the <literal>&lt;query expression&gt;</literal> with
+      UNION or UNION ALL. The working table is cleared and filled with the
+      latest result. These operations are repeated again and again, until the
+      latest result is empty and the general result of the <literal>&lt;query
+      expression&gt;</literal> stops changing. The result of the
+      <literal>&lt;with list element&gt;</literal> is now fully populated and
+      is later used in the execution of the <literal>&lt;query expression
+      body&gt;</literal> that follows the WITH clause.</para>
 
       <para>HyperSQL limits recursion to 256 rounds. If this is exceeded, an
       error is raised.</para>
 
       <para>From version 2.5.2, HyperSQL extends recursive query processing by
-      allowing the use of RECURSIVE_TABLE to reference the current full
-      contents of the <literal>&lt;with list element&gt;</literal>. This can
-      be used in subqueries with IN and EXISTS predicates. </para>
+      allowing the use of RECURSIVE_TABLE to reference the current general
+      result of the <literal>&lt;query expression&gt;</literal>. This table
+      name can be used in subqueries with an IN predicate in order to reduce
+      and limit the new result created in each iteration. </para>
 
       <para>A trivial example of a recursive query is given below. Note the
       first column GEN. For example, if each row of the table represents a
@@ -3610,7 +3613,7 @@ DIRECT SALES (null) (null)  3778500
  INSERT INTO pptree VALUES (NULL, 1, 'dizzi'),(1,2, 'fizzi'),
                            (1,3, 'gizzi'),(2,4, 'kizzi'),
                            (4,5, 'mizzi'),(3,6, 'pizzi'),
-                           (3,7, 'rizzi');
+                           (3,7, 'tizzi');
 
  WITH RECURSIVE tree (gen, par, child, name) AS (
    VALUES(1, CAST(null as int), 1, 'dizzi')
@@ -3625,7 +3628,7 @@ DIRECT SALES (null) (null)  3778500
  2   1      3     gizzi 
  3   2      4     kizzi 
  3   3      6     pizzi 
- 3   3      7     rizzi 
+ 3   3      7     tizzi 
  4   4      5     mizzi 
 </programlisting>
       </informalexample>
@@ -3635,6 +3638,20 @@ DIRECT SALES (null) (null)  3778500
       with user-defined SQL functions which return tables. Functions can
       perform any complex, repetitive task with better control, using loops,
       variables and, if necessary, recursion.</para>
+
+      <para>The query below computes the Fibonacci numbers up to 100 digits.
+      The WHERE clause limits the iteration.</para>
+
+      <informalexample>
+        <programlisting> WITH RECURSIVE Fibonacci(N1, F1, N2, F2) AS (
+   VALUES(0, CAST(0 AS DECIMAL(100)), 1, CAST(1 AS DECIMAL(100))
+   UNION
+   SELECT N1 + 1, F1 + F2, N1 +2, F1 + 2 * F2
+   FROM Fibonacci p 
+   WHERE N1 &lt; 100
+ ) SELECT * FROM Fibonacci
+</programlisting>
+      </informalexample>
     </section>
 
     <section xml:id="dac_query_expression">
@@ -4339,6 +4356,12 @@ DIRECT SALES (null) (null)  3778500
       each WHEN clause can be used to filter (reduce) the rows for the
       particular action.</simpara>
 
+      <simpara>HyperSQL allows only one UPDATE, INSERT or DELETE operation in
+      a MERGE statement. If both UPDATE and DELETE are used, the operations
+      are performed in the order they appear in the MERGE statement. If the
+      search conditions of both operations apply to the same row, only the
+      first operation is performed.</simpara>
+
       <simpara>The MERGE statement can be used with only the WHEN NOT MATCHED
       clause as a conditional INSERT statement that inserts a row if no
       existing rows match a condition.</simpara>
@@ -4379,7 +4402,7 @@ DIRECT SALES (null) (null)  3778500
  MERGE INTO t USING (VALUES(CAST(? AS INT))) AS vals(x) ON t.id = vals.x
    WHEN NOT MATCHED THEN INSERT VALUES vals.x, ?
 
-MERGE INTO t USING (SELECT * FROM tt WHERE acol = 2) AS vals(x,y) ON t.id = vals.x
+ MERGE INTO t USING (SELECT * FROM tt WHERE acol = 2) AS vals(x,y) ON t.id = vals.x
    WHEN MATCHED THEN DELETE
    WHEN NOT MATCHED THEN INSERT VALUES vals.x, vals.y
 </programlisting>

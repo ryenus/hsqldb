@@ -222,8 +222,8 @@
         </listitem>
 
         <listitem>
-          <para>MySQL foreign key constraints are not enforced by the default
-          MyISAM engine. Be aware of the possibility of data being rejected by
+          <para>MySQL foreign key constraints are not enforced by the MyISAM
+          engine. Be aware of the possibility of data being rejected by
           HyperSQL due to these constraints.</para>
         </listitem>
 
@@ -248,9 +248,7 @@
         <listitem>
           <para>Use <literal>SET DATABASE SQL SYNTAX MYS TRUE</literal> or the
           equivalent URL property <literal>sql.syntax_mys=true</literal> to
-          enable support for AUTO_INCREMENT and TEXT data types and several
-          other types. These type definitions are translated into HyperSQL
-          equivalents.</para>
+          enable support for MySQL features.</para>
         </listitem>
 
         <listitem>
@@ -280,7 +278,9 @@
           <para>In MySQL, older, non-standard, forms of database object name
           case-sensitivity make is difficult to port applications. The modern
           form, which encloses case-sensitive names in double quotes, follows
-          the SQL standard and is supported by HyperSQL.</para>
+          the SQL standard and is supported by HyperSQL. Use of the backtick
+          character for case-sensitive names, only allowed by MySQL, is also
+          supported and is translated to double quotes.</para>
         </listitem>
 
         <listitem>
@@ -316,15 +316,16 @@
           types), as well as non-standard types, which are also supported by
           HyperSQL. Supported types include SMALLINT, INT, BIGINT, DOUBLE,
           FLOAT, DECIMAL, NUMERIC, VARCHAR, CHAR, BINARY, VARBINARY, BLOB,
-          DATE, TIMESTAMP (all Standard SQL) and TINYINT, DATETIME (non
-          Standard). UNSIGNED types are converted to signed.</para>
+          DATE, TIMESTAMP (all Standard SQL). Non Standard types such as
+          AUTO_INCREMENT, TINYINT, DATETIME, TEXT, TINYLOB, MEDIUMLOB are also
+          supported. UNSIGNED types are converted to signed. These type
+          definitions are translated into HyperSQL equivalents.</para>
         </listitem>
 
         <listitem>
           <para>In MYS syntax compatibility mode, HyperSQL translates MySQL's
           ENUM data type to VARCHAR with a check constraint on the enum
-          values. Data types such as TEXT, TINYTEXT, TINYLOB, MEDIUMLOB are
-          translated to Standard VARCHAR or BINARY types.</para>
+          values.</para>
         </listitem>
 
         <listitem>
@@ -376,7 +377,7 @@
           considered the same as unique constraints for the alternative action
           and an exception is thrown if there is violation of a unique index.
           It is generally better to create a unique constraint instead of a
-          unique index. </para>
+          unique index.</para>
         </listitem>
 
         <listitem>
