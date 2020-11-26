@@ -176,9 +176,9 @@
       <para>TEXT tables are designed for special applications where the data
       has to be in an interchangeable format, such as CSV (comma separated
       values). Rows of data can be inserted into TEXT tables and existing rows
-      can be updated or deleted. For data that is updated a lot, it is
-      better to use a MEMORY or CACHED table to improve reliability in case of
-      system crash. TEXT tables can also be used to open CSV or DSV (delimiter
+      can be updated or deleted. For data that is updated a lot, it is better
+      to use a MEMORY or CACHED table to improve reliability in case of system
+      crash. TEXT tables can also be used to open CSV or DSV (delimiter
       separated values) files in order to copy the data into other types of
       table.</para>
 
@@ -2717,21 +2717,15 @@
       <simpara><literal>&lt;set files backup increment statement&gt; ::= SET
       FILES BACKUP INCREMENT { TRUE | FALSE }</literal></simpara>
 
-      <simpara>Very old versions of HyperSQL performed a backup of the
-      <literal>.data</literal> file before its contents were modified and the
-      whole <literal>.data</literal> file was saved in a compressed form when
-      a CHECKPOINT or SHUTDOWN was performed. This takes a long time when the
-      size of the database exceeds 100 MB or so. This feature was still
-      supported until version 2.5.0 for backward compatibility.</simpara>
+      <simpara>Before any part of the <literal>.data</literal> file is
+      modified, the original contents are stored in the
+      <literal>.backup</literal> file. At CHECKPOINT or SHUTDOWN the latest
+      data is fully saved and the <literal>.backup</literal> file is deleted.
+      </simpara>
 
-      <simpara>The alternative is backup in increments, just before some part
-      of the <literal>.data</literal> file is modified. In this mode, no
-      backup is performed at CHECKPOINT or SHUTDOWN. This mode has been
-      supported for many years. From version 2.5.1 this is the only supported
-      mode.</simpara>
-
-      <simpara>The default mode is now <literal>TRUE</literal>. This command
-      has no effect.</simpara>
+      <simpara>In older versions, this command allowed an alternative method
+      of backup that is no longer supported. From version 2.5.1 this command
+      is still accepted but has no effect.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
