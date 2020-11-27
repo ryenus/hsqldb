@@ -350,6 +350,10 @@ public class FrameworkLogger {
                 consoleHandler.setLevel(Level.INFO);
 
                 istream = FrameworkLogger.class.getResourceAsStream(path);
+                if (istream == null)
+                    throw new Exception(
+                      "Failed to resolve default logging config from'"
+                      + path + "'");
 
                 lm.readConfiguration(istream);
 
@@ -375,7 +379,8 @@ public class FrameworkLogger {
 
             System.err.println(
                 "<clinit> failure initializing JDK logging system.  "
-                + "Continuing without Application logging.");
+                + "Continuing without Application logging.  "
+                + e);
             e.printStackTrace();
         } finally {
             if (istream != null) {
@@ -711,11 +716,17 @@ public class FrameworkLogger {
      */
     public static boolean isDefaultJdkConfig() {
 
-        File globalCfgFile = new File(System.getProperty("java.home"),
+        File globalCfgFile;
+
+        globalCfgFile = new File(System.getProperty("java.home"),
                                       "lib/logging.properties");
 
         if (!globalCfgFile.isFile()) {
-            return false;
+            globalCfgFile = new File(System.getProperty("java.home"),
+                                          "conf/logging.properties");
+            if (!globalCfgFile.isFile()) {
+                return false;
+            }
         }
 
         FileInputStream fis = null;
