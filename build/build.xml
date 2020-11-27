@@ -27,7 +27,7 @@
 
     <property file='build/build.properties'/>
 
-    <condition property="hsqldb.version" value="2.5.1">
+    <condition property="hsqldb.version" value="2.5.2">
       <available classname="java.sql.JDBCType"/>
     </condition>
     <!-- hsqldb.version is set only once - if it is set above for Java 8 and greater, the next line is a no-op -->
