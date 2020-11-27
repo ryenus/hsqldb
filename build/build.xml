@@ -711,7 +711,7 @@ examples:
           <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
           -->
           <attribute name='Class-Path'
-              value='hsqldb-${hsqldb.version}.jar hsqldbmain.jar-${hsqldb.version}.jar hsqldb.jar hsqldbmain.jar'/>
+              value='hsqldb-${hsqldb.version}.jar hsqldb.jar hsqldbmain.jar'/>
         </manifest>
         <fileset refid='sqltoolclasses'/>
         <fileset refid='sqltoolres'/>
