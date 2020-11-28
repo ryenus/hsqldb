@@ -121,8 +121,8 @@ examples:
       <mkdir dir="classes" />
       <mkdir dir="classes/modules/org.hsqldb" />
       <delete dir="classes/modules/org.hsqldb" includes="**/*"/>
-      <mkdir dir="classes/modules/org.hsqldb.cmdline" />
-      <delete dir="classes/modules/org.hsqldb.cmdline" includes="**/*"/>
+      <mkdir dir="classes/modules/org.hsqldb.sqltool" />
+      <delete dir="classes/modules/org.hsqldb.sqltool" includes="**/*"/>
     </target>
 
     <target name="-prepare-javadoc">
