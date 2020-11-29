@@ -46,7 +46,7 @@
     <property name="build.sysclasspath" value="ignore"/>
     <property name="javac.encoding" value="ISO-8859-1"/>
     <property name="swsrc" value="${basedir}/tmp/switchedsrc/"/>
-    <property name="libclonesrc" value="${basedir}/tmp/libclonesrc"/>
+    <property name="libclonesrc" value="${swsrc}org/hsqldb/cmdline/libclone"/>
     <available property="switch.inplace"
                file="${swsrc}/org/hsqldb/package.html"/>
 
@@ -377,12 +377,14 @@ examples:
     <target name="-cmdline"
             depends="-prepare, -update-switch-branch, -clone-shared-libs,
                      -conditionalize-sqlfile-scanner, -sqlfile-scanner">
+<!--
       <javac srcdir="${libclonesrc}"
              includeantruntime="false"
              encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
       />
+-->
       <javac srcdir="${swsrc}"
              includeantruntime="false"
              encoding="${javac.encoding}"
@@ -792,7 +794,7 @@ examples:
                   value="http://docs.oracle.com/javaee/6/api/"/>
     </target>
 
-    <target name="javadoc" depends="-prepare-javadoc,-set-jvmvars,-doclink-16"
+    <target name="javadoc" depends="-prepare-javadoc, switches, -clone-shared-libs, -set-jvmvars, -doclink-16"
             description="Create javadoc for the distribution package">
       <!-- TODO:  Find out why JDBCDriver class is listed twice in the class
            list pane, but only when All Classes selected
@@ -842,7 +844,7 @@ examples:
              <pathelement location="${servletapi.lib}"/>
              <pathelement location="${junit38.lib}"/>
            </classpath>
-           <packageset dir='src'>
+           <packageset dir="${swsrc}">
                <include name='org/hsqldb/jdbc'/>
            </packageset>
            <link href="${jse.doc.link}"/>
@@ -860,7 +862,7 @@ examples:
     </target>
 
     <target name="javadocdev"
-            depends="-prepare-javadoc,-set-jvmvars,-doclink-16"
+            depends="-prepare-javadoc, switches, -clone-shared-libs,-set-jvmvars,-doclink-16"
             description="Create javadoc for all HSQLDB code-base classes">
       <!-- Since our preprocessor package compilatoin depends on the
            env-specific ant runtime lib via includeAntRuntime=true, Javadoc
@@ -880,7 +882,7 @@ examples:
            windowtitle="${hsqldb.title} ${hsqldb.version} Product Dev. API"
            doctitle="${hsqldb.title} ${hsqldb.version} Product"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2020 HSQL Development Group.&lt;/i&gt;">
-           <fileset dir="src" includes="org/**/*.java"/>
+           <fileset dir="${swsrc}" includes="org/**/*.java"/>
            <!-- Fileset is really good for maintenance and control purposes,
                 but it makes the generator produce an incredible amount of
                 output when there are no errors.  The verbose attribute
