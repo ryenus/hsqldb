@@ -393,11 +393,17 @@ examples:
       </javac>
       <fixcrlf destdir="classes" preservelastmodified='true' eol="lf"
                encoding="ISO-8859-1" srcdir="src"
-               includes="org/hsqldb/resources/jdklogging-default.properties
-                         org/hsqldb/cmdline/**/*.properties,
+               includes="org/hsqldb/cmdline/**/*.properties,
                          org/hsqldb/cmdline/**/*.text,
                          org/hsqldb/cmdline/**/*.sql,
                          org/hsqldb/cmdline/**/*.html"/>
+      <fixcrlf destdir="classes/org/hsqldb/cmdline"
+               preservelastmodified='true' eol="lf"
+               encoding="ISO-8859-1"
+               file="src/org/hsqldb/resources/jdklogging-default.properties"/>
+      <replace token="org.hsqldb.lib"
+               file="classes/org/hsqldb/cmdline/jdklogging-default.properties"
+               value="org.hsqldb.cmdline.libclone"/>
     </target>
 
     <target name="-swing" depends="switches"
@@ -545,7 +551,6 @@ examples:
 
     <fileset id='sqltoolres' dir='classes'
         includes='
-            org/hsqldb/resources/jdklogging-default.properties
             org/hsqldb/cmdline/**/*.text
             org/hsqldb/cmdline/**/*.properties
             org/hsqldb/cmdline/sqltool/**/*.html
@@ -729,6 +734,8 @@ examples:
       </copy>
       <replace dir="${libclonesrc}" token="org.hsqldb.lib"
                value="org.hsqldb.cmdline.libclone"/>
+      <replace dir="${libclonesrc}" token="/org/hsqldb/resources/"
+               value="/org/hsqldb/cmdline/"/>
     </target>
 
     <fileset id='preprocessorclasses' dir='classes' includes='org/hsqldb/util/preprocessor/*.class'/>

@@ -200,6 +200,12 @@ public class FrameworkLogger {
                                  new Object[]{ "WARN" }));
     }
 
+    /**
+     * Reconfigure log4j if present.
+     * (TODO:  Class-presence test is inadequate.  Should check
+     * Log4j is actuall used).
+     * Reconfigure java.util.logging otherwise
+     */
     static void reconfigure() {
 
         noopMode = false;
@@ -333,47 +339,49 @@ public class FrameworkLogger {
             return;
         }
 
+        // Set up java.util.logging
         InputStream istream = null;
-        Logger cmdlineLogger;
         try {
             LogManager lm = LogManager.getLogManager();
+            //lm.reset();
+            if (System.getProperty("java.util.logging.config.class") != null
+              || System.getProperty("java.util.logging.config.file") != null) {
+                // App has explicitly configured logging, so do not
+                // apply hsqldb customizations, but still do not run
+                // updateConfiguration in case previously loaded hsqldb
+                // customizations before app customized.
+                lm.readConfiguration();
+                //lm.updateConfiguration(null);
+                /* This only for system debugging:
+                System.err.println(FrameworkLogger.class.getName()
+                  + " reconfigured HANDS-OFF");
+                */
+                return;
+            }
             String path =
                 "/org/hsqldb/resources/jdklogging-default.properties";
 
-            if (isDefaultJdkConfig()) {
-                lm.reset();
+            ConsoleHandler consoleHandler = new ConsoleHandler();
 
-                ConsoleHandler consoleHandler = new ConsoleHandler();
+            consoleHandler.setFormatter(
+                new BasicTextJdkLogFormatter(false));
+            consoleHandler.setLevel(Level.INFO);
 
-                consoleHandler.setFormatter(
-                    new BasicTextJdkLogFormatter(false));
-                consoleHandler.setLevel(Level.INFO);
+            istream = FrameworkLogger.class.getResourceAsStream(path);
+            if (istream == null)
+                throw new Exception(
+                  "Failed to resolve default logging config from'"
+                  + path + "'");
+            lm.readConfiguration(istream);
 
-                istream = FrameworkLogger.class.getResourceAsStream(path);
-                if (istream == null)
-                    throw new Exception(
-                      "Failed to resolve default logging config from'"
-                      + path + "'");
+            Logger cmdlineLogger = Logger.getLogger("org.hsqldb.cmdline");
 
-                lm.readConfiguration(istream);
-
-                cmdlineLogger = Logger.getLogger("org.hsqldb.cmdline");
-
-                cmdlineLogger.addHandler(consoleHandler);
-                cmdlineLogger.setUseParentHandlers(false);
-            } else {
-
-                // Do not intervene.  Use JDK logging exactly as configured
-                // by user.
-                lm.readConfiguration();
-
-                // The only bad thing about doing this is that if the app
-                // has programmatically changed the logging config after
-                // starting the program but before using FrameworkLogger,
-                // we will clobber those customizations.
-                // Set sys srop 'hsqldb.reconfig_logging' to false to
-                // prevent this.
-            }
+            cmdlineLogger.addHandler(consoleHandler);
+            cmdlineLogger.setUseParentHandlers(false);
+            /* This only for system debugging:
+            System.err.println(FrameworkLogger.class.getName()
+              + " reconfigured HSQLDB with file '" + path + "'");
+             */
         } catch (Exception e) {
             noopMode = true;
 
@@ -705,72 +713,5 @@ public class FrameworkLogger {
      */
     public void error(String message, Throwable t) {
         privlog(Level.WARNING, message, t, 2, FrameworkLogger.class);
-    }
-
-    /**
-     * Whether this JVM is configured with java.util.logging defaults. If the
-     * JRE-provided config file is not in the expected place, then we return
-     * false.
-     *
-     * @return boolean
-     */
-    public static boolean isDefaultJdkConfig() {
-
-        File globalCfgFile;
-
-        globalCfgFile = new File(System.getProperty("java.home"),
-                                      "lib/logging.properties");
-
-        if (!globalCfgFile.isFile()) {
-            globalCfgFile = new File(System.getProperty("java.home"),
-                                          "conf/logging.properties");
-            if (!globalCfgFile.isFile()) {
-                return false;
-            }
-        }
-
-        FileInputStream fis = null;
-        LogManager      lm  = LogManager.getLogManager();
-
-        try {
-            fis = new FileInputStream(globalCfgFile);
-
-            Properties defaultProps = new Properties();
-
-            defaultProps.load(fis);
-
-            Enumeration names = defaultProps.propertyNames();
-            int         i     = 0;
-            String      name;
-            String      liveVal;
-
-            while (names.hasMoreElements()) {
-                i++;
-
-                name    = (String) names.nextElement();
-                liveVal = lm.getProperty(name);
-
-                if (liveVal == null) {
-                    return false;
-                }
-
-                if (!lm.getProperty(name).equals(liveVal)) {
-                    return false;
-                }
-            }
-
-            return true;
-        } catch (IOException ioe) {
-            return false;
-        } finally {
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException ioe) {
-
-                    // Intentional no-op
-                }
-            }
-        }
     }
 }
