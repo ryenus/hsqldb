@@ -58,23 +58,34 @@
   <section xml:id="bga_overview">
     <title>Purpose</title>
 
-    <simpara>From version 2.4.0, the supplied <filename>hsqldb.jar</filename>
-    file is tested and built with Java 8. The code is also tested extensively
-    with Java 6 as well as more recent Java versions. If you want to run with
-    a Java 6 JVM, or if you want to use an alternative jar
-    (<filename>hsqldb-min.jar</filename>, etc.) you must build the desired jar
-    with a Java SDK. You can also find official jars built with Java 6 in the
-    maven repository at hsqldb.org and major maven repositories. You can also
-    build a jar as a Java 9+ module.</simpara>
+    <simpara>From version 2.4.0, the <filename>hsqldb.jar</filename> file
+    supplied in the zip release package is tested and built with Java 8. The
+    code is also tested extensively with Java 6 as well as the latest Java
+    versions. If you want to run with a Java 6 JVM, or build a Java 11 module,
+    or use an alternative jar (<filename>hsqldb-min.jar</filename>, etc.), you
+    must build the desired jar with a JDK. You can also find official jars
+    built with Java 6 and Java 11 in major maven repositories as well as
+    downloads from hsqldb.org.</simpara>
 
     <simpara>The Gradle task / Ant target <literal>explainjars</literal>
     reports the versions of Java and Ant actually used.</simpara>
+
+    <simpara>If you want to change Ant or Gradle build settings, edit the text
+    file <filename>build.properties</filename> in the HyperSQL
+    <filename>build</filename> directory (creating it if it doesn't exist
+    yet), and enter your properties using Java properties file syntax. (You
+    can also use <filename>local-docbook.properties</filename> in the same way
+    for DocBook-specific properties).</simpara>
   </section>
 
   <section xml:id="bga_gradle_invoke">
     <title>Building with Gradle</title>
 
-    <simpara>As noted above, Java JDK 6 or later is required.</simpara>
+    <titleabbrev>Building with Gradle</titleabbrev>
+
+    <indexterm significance="preferred">
+      <primary>Gradle</primary>
+    </indexterm>
 
     <simpara>Unlike most software build systems, you do not need to have the
     Gradle system installed on your computer to use it. You don't need to
@@ -82,9 +93,7 @@
     <filename>gradlew</filename> <emphasis>wrapper</emphasis> scripts that you
     can see in HyperSQL's <filename>build</filename> directory. If you want or
     need to learn more about Gradle, you can start on the <link
-    xlink:href="http://gradle.org/documentation"> Gradle Documentation
-    page</link> on the <link xlink:href="http://gradle.org"> Gradle web
-    site</link>.</simpara>
+    xlink:href="http://gradle.org"> Gradle web site</link>.</simpara>
 
     <note>
       <title>Gradle honors <varname>JAVA_HOME</varname></title>
@@ -111,206 +120,41 @@
       variable, I ask you to utilize a search engine.</simpara>
     </important>
 
-    <indexterm significance="preferred">
-      <primary>Gradle</primary>
-    </indexterm>
+    <simpara>You can invoke Gradle builds from the command-line.</simpara>
 
-    <section xml:id="bga_gradle_gui">
-      <title>Invoking a Gradle Build Graphically</title>
+    <procedure>
+      <step>
+        <simpara>Get a command-line shell. Windows users can use either
+        <guimenuitem>Start/Run...</guimenuitem> or <guimenuitem>Start/Start
+        Search</guimenuitem>, and enter "<literal>cmd</literal>". Non-windows
+        users will know how to get a shell.</simpara>
+      </step>
 
-      <simpara>Whether from an IDE, a shortcut or launch icon, to run a Gradle
-      graphical build you just need to execute either the file
-      <literal>gradle-gui.cmd</literal> (on Windows) or
-      <literal>gradle-gui</literal> (all other platforms), both of which
-      reside in the <filename>build</filename> directory of your HyperSQL
-      distribution.</simpara>
+      <step>
+        <simpara>In the shell, cd to the <filename>build</filename> directory
+        under the root directory where you extracted or installed HyperSQL to.
+        (Operating system search or find functions can be used if you can't
+        find it quickly by poking around on the command line or with Windows
+        Explorer, etc.).</simpara>
+      </step>
 
-      <simpara>I will explain how to invoke a graphical Gradle build from
-      Windows Explorer and from Eclipse IDE. Users of other operating systems
-      should be able to infer how to use their own file manager in the same
-      way as shown for Internet Explorer. Users who want a desktop shortcut,
-      quick-launch icon should first get Gradle working from a file manager
-      (like Windows Explorer), then seek out instructions for making
-      shortcuts, etc. for your operating system or desktop manager. (Try a web
-      search).</simpara>
+      <step>
+        <simpara>Windows users can ignore this step. UNIX shell users should
+        ensure that the current directory (<literal>.</literal>) is in their
+        search path, or prefix their <literal>gradlew</literal> command in the
+        next step with <literal>./</literal> (e.g., like
+        <literal>./gradlew</literal>).</simpara>
+      </step>
 
-      <simpara>Some IDEs, like IntelliJ have direct support for Gradle. The
-      Spring Framework team is working on a sophisticated plugin for using
-      Gradle with their IDE. But I'm going to document a very basic setup done
-      with Eclipse because it's serviceable and a very similar procedure is
-      likely to work with all other IDEs.</simpara>
+      <step>
+        <simpara>In the shell, run <literal>gradlew</literal> for a
+        build.</simpara>
 
-      <procedure>
-        <title>Invoking Gradle GUI from Windows Explorer</title>
-
-        <step>
-          <simpara>Start up Windows explorer. Depending on your Windows
-          version, it will be in the Start Menu, or in the menu you get when
-          you right-click <guimenuitem>Start</guimenuitem>.</simpara>
-        </step>
-
-        <step>
-          <simpara>Navigate Windows Explorer to the <filename>build</filename>
-          directory within your HyperSQL installation.</simpara>
-        </step>
-
-        <step>
-          <simpara>Find an icon or line (depending on your Windows Explorer
-          view) for the file <filename>gradle-gui.cmd</filename>. If there is
-          no listing for <filename>gradle-gui.cmd</filename>, but two listings
-          for <filename>gradle-gui</filename>, then you want the one signified
-          by text, icon, or mouse-over tooltip, as a <emphasis>batch or CMD
-          file</emphasis>. Double-click this item.</simpara>
-        </step>
-      </procedure>
-
-      <procedure>
-        <title>Setting up Gradle Graphical Builds from Eclipse IDE</title>
-
-        <step>
-          <simpara>From Eclipse, use pulldown menu
-          <guimenuitem>Run</guimenuitem> / <guimenuitem>External
-          Tools</guimenuitem> / <guimenuitem>External Tools
-          Configurations...</guimenuitem>.</simpara>
-        </step>
-
-        <step>
-          <simpara>Right-click on Program in the left navigator Right-click
-          <guilabel>Project</guilabel> in the left navigator panel and select
-          <guimenuitem>New</guimenuitem>. (Depending on the state of your
-          workspace, instead of <guimenuitem>New</guimenuitem> in the
-          context-sensitive menu, there may be a
-          <guilabel>New_configuration</guilabel> or similar item nested under
-          <guilabel>Program</guilabel>, in which case you should select
-          that).</simpara>
-        </step>
-
-        <step>
-          <simpara>To the right, change the value in the
-          <guilabel>Name:</guilabel> field to <literal>HSQLDB Gradle</literal>
-          (or whatever name you want for this launcher config (this Gradle
-          launcher is only for your HSQLDB project).</simpara>
-        </step>
-
-        <step>
-          <simpara>Make sure that the <guilabel>Main</guilabel> tab is
-          selected.</simpara>
-        </step>
-
-        <step>
-          <para>For the <guimenuitem>Location:</guimenuitem> field, use the
-          <guimenuitem>Browse Workspace...</guimenuitem> button to navigate to
-          and select the <filename>gradle-gui.cmd</filename> (Windows) or
-          <filename>gradle-gui</filename> (other) file in the
-          <filename>build</filename> directory of your HyperSQL project.
-          <mediaobject>
-              <imageobject>
-                <imagedata align="center" fileref="eclipse-gradle-cfg.png"
-                           format="PNG"/>
-
-                <!-- Instead of specifying width="6.5in" here, I've scaled the
-                  image file itself.  This causes HTML representation to
-                  display the image without distortion and reduction with its
-                  native size, and is manually sized correctly for PDF/PS. -->
-              </imageobject>
-
-              <caption>
-                <simpara>Configuring Gradle GUI Launcher in Eclipse</simpara>
-              </caption>
-            </mediaobject> Depending on your Eclipse version and workspace
-          setup, the value populated into the <guilabel>Location:</guilabel>
-          field after you select the program may appear very differently than
-          in this screen shot.</para>
-        </step>
-
-        <step>
-          <simpara>Click the <guilabel>Run</guilabel> button. The Gradle Gui
-          should run. (If you just <guilabel>Apply</guilabel> and
-          <guilabel>Close</guilabel> here instead of <guilabel>Run</guilabel>,
-          the new Gradle launch item will not be added to the pulldown and
-          toolbar menus).</simpara>
-        </step>
-      </procedure>
-
-      <para>After doing the Eclipse setup, you can use pulldown menu
-      <guimenuitem>Run</guimenuitem> / <guimenuitem>External
-      Tools</guimenuitem> or the equivalent tool bar button button to launch
-      the Gradle Gui. <mediaobject>
-          <imageobject>
-            <imagedata align="center" fileref="eclipse-gradle-invoke.png"
-                       format="PNG"/>
-
-            <!-- Instead of specifying width="6.5in" here, I've scaled the
-                image file itself.  This causes HTML representation to
-                display the image without distortion and reduction with its
-                native size, and is manually sized correctly for PDF/PS. -->
-          </imageobject>
-
-          <caption>
-            <simpara>Invoking Gradle GUI from Eclipse</simpara>
-          </caption>
-        </mediaobject> You can do this and close it after each use, or, to
-      avoid startup lag, minimize it when it's not in use.</para>
-    </section>
-
-    <section xml:id="bga_gradle_cmd">
-      <title>Invoking a Gradle Build from the Command Line</title>
-
-      <simpara>You can invoke graphical and non-graphical Gradle builds from
-      the command-line.</simpara>
-
-      <procedure>
-        <step>
-          <simpara>Get a command-line shell. Windows users can use either
-          <guimenuitem>Start/Run...</guimenuitem> or <guimenuitem>Start/Start
-          Search</guimenuitem>, and enter "<literal>cmd</literal>".
-          Non-windows users will know how to get a shell.</simpara>
-        </step>
-
-        <step>
-          <simpara>In the shell, cd to the <filename>build</filename>
-          directory under the root directory where you extracted or installed
-          HyperSQL to. (Operating system search or find functions can be used
-          if you can't find it quickly by poking around on the command line or
-          with Windows Explorer, etc.).</simpara>
-        </step>
-
-        <step>
-          <simpara>Windows users can ignore this step. UNIX shell users should
-          ensure that the current directory (<literal>.</literal>) is in their
-          search path, or prefix their <literal>gradlew</literal> or
-          <literal>gradle-gui</literal> command in the next step with
-          <literal>./</literal> (e.g., like
-          <literal>./gradlew</literal>).</simpara>
-        </step>
-
-        <step>
-          <simpara>In the shell, run either <literal>gradle-gui</literal> for
-          a graphical build; or <literal>gradlew</literal> for a text-based
-          build.</simpara>
-        </step>
-      </procedure>
-
-      <simpara>The <filename>gradle-gui</filename> file is our own wrapper
-      script for <literal>gradlew --gui</literal>. Be aware that both
-      <filename>gradle-gui</filename> and <literal>gradlew --gui</literal>
-      suffer from the limitation that the <literal>--gui</literal> switch is
-      mutually exclusive with most or all other arguments (including tasks). I
-      have registered GRADLE bugs 1861 and 1863 about this.</simpara>
-    </section>
-
-    <section xml:id="bga_gradle_using">
-      <title>Using Gradle</title>
-
-      <section xml:id="bga_gradle_text">
-        <title>Using Text-based Gradle</title>
-
-        <simpara>If you ran just <literal>gradlew</literal> or
-        <literal>gradlew.bat</literal>, then you will be presented with simple
-        instructions for how to do everything that you want to do. Basically,
-        you will run the same <literal>gradlew</literal> or
-        <literal>gradle.bat</literal> command repeatedly, with different
-        switches and arguments.</simpara>
+        <simpara>If you ran just <literal>gradlew</literal>, then you will be
+        presented with simple instructions for how to do everything that you
+        want to do. Basically, you will run the same
+        <literal>gradlew</literal> command repeatedly, with different switches
+        and arguments for each build target.</simpara>
 
         <note>
           <simpara>Gradle's -v switch reports version details more directly
@@ -318,82 +162,18 @@
           operating system version to the Groovy version (the language
           interpreter used for Gradle instructions).</simpara>
         </note>
-      </section>
+      </step>
+    </procedure>
 
-      <section xml:id="bga_gradle_using_gui">
-        <title>Using the Gradle GUI</title>
+    <simpara>For example, the command below builds the
+    <filename>hsqldb.jar</filename> file:</simpara>
 
-        <mediaobject>
-          <imageobject>
-            <imagedata align="center" fileref="gradle-gui.png" format="PNG"/>
+    <informalexample>
+      <screen> gradlew hsqldb</screen>
+    </informalexample>
 
-            <!-- Instead of specifying width="6.5in" here, I've scaled the
-                image file itself.  This causes HTML representation to
-                display the image without distortion and reduction with its
-                native size, and is manually sized correctly for PDF/PS. -->
-          </imageobject>
-
-          <caption>
-            <simpara>Sample Gradle GUI Screen</simpara>
-          </caption>
-        </mediaobject>
-
-        <procedure>
-          <title>First Time using Gradle Gui</title>
-
-          <step>
-            <simpara>It takes the Gradle gui a while to start up, because,
-            similar to an IDE, it is generating a list of details about
-            available tasks.</simpara>
-          </step>
-
-          <step>
-            <simpara>In the main window, in the top panel, with the
-            <guilabel>Task Tree</guilabel> tab selected, you have the list of
-            public tasks, sorted alphabetically. Down bottom is displayed the
-            output of the last task(s) execution. (After startup it will show
-            the output of the task <literal>tasks</literal>).</simpara>
-          </step>
-
-          <step>
-            <simpara>Scroll to the <literal>help</literal> task and click it
-            once to select it, then click the green
-            <guilabel>Execute</guilabel> toolbar button above. (You could also
-            have double-clicked the item, but you can use the selection
-            procedure to pick multiple tasks with Control or Shift keys to
-            execute multiple tasks in a single run-- and the tasks will
-            execute in the same order that you had selected them).</simpara>
-          </step>
-
-          <step>
-            <simpara>Scroll through and read the output of the
-            <literal>help</literal> task in the bottom panel. Where this help
-            screen speaks about verbosity switches, you can accomplish the
-            same thing by using the <guimenuitem>Setup</guimenuitem> tab.
-            Whenever Gradle output (in the bottom panel) talks about running
-            <literal>gradlew &lt;sometask&gt;...</literal>, you can execute
-            the specified task(s) by selecting and executing them like we just
-            did.</simpara>
-          </step>
-        </procedure>
-
-        <note>
-          <title>Gradle GUI Limitations</title>
-
-          <simpara>The Gradle GUI is fairly new and lacks some of the power
-          available to text-based users. Most significantly, in my opinion, is
-          the following item for which I have opened Gradle
-          <emphasis>issues</emphasis> 1855. There is no convenient way to set
-          build properties. If you want to change Ant or Gradle build
-          settings, edit the text file <filename>build.properties</filename>
-          in the HyperSQL <filename>build</filename> directory (creating it if
-          it doesn't exist yet), and enter your properties using Java
-          properties file syntax. (You can also use
-          <filename>local-docbook.properties</filename> in the same way for
-          DocBook-specific properties).</simpara>
-        </note>
-      </section>
-    </section>
+    <simpara>The Gradle invocations actually run Ant build targets. Some of
+    the targets are listed in the next section.</simpara>
   </section>
 
   <section xml:id="bga_building_ant">
@@ -405,13 +185,13 @@
       <primary>Ant</primary>
     </indexterm>
 
-    <simpara>You should use version 1.7.x of Ant (Another Neat Tool) to do Ant
-    builds with HyperSQL.</simpara>
+    <simpara>You should use version 1.9 or 1.10 of Ant (Another Neat Tool) to
+    do Ant builds with HyperSQL.</simpara>
 
     <section xml:id="bga_ant_obtaining">
       <title>Obtaining Ant</title>
 
-      <simpara>Ant is a part of the Jakarta/Apache Project.</simpara>
+      <simpara>Ant is a part of the Apache Project.</simpara>
 
       <itemizedlist>
         <listitem>
@@ -443,7 +223,7 @@
         <screen> ant -projecthelp</screen>
       </informalexample>
 
-      <simpara>This displays the available ant targets, which you can supply
+      <simpara>This displays the available Ant targets, which you can supply
       as command line arguments to ant. These include</simpara>
 
       <variablelist>
@@ -451,8 +231,8 @@
           <term>hsqldb</term>
 
           <listitem>
-            <simpara>to build the <filename>hsqldb.jar</filename>
-            file</simpara>
+            <simpara>to build the <filename>hsqldb.jar</filename> file. This
+            contains the engine and the GUI database manager.</simpara>
           </listitem>
         </varlistentry>
 
@@ -469,8 +249,8 @@
           <term>clean</term>
 
           <listitem>
-            <simpara>to clean up the /classes directory that is
-            created</simpara>
+            <simpara>to clean up the /classes directory that is created during
+            a build.</simpara>
           </listitem>
         </varlistentry>
 
@@ -478,7 +258,8 @@
           <term>clean-all</term>
 
           <listitem>
-            <simpara>to remove the old jar and doc files as well</simpara>
+            <simpara>to remove the old jar and doc files as well as
+            clean.</simpara>
           </listitem>
         </varlistentry>
 
@@ -486,16 +267,17 @@
           <term>javadoc</term>
 
           <listitem>
-            <simpara>to build javadoc</simpara>
+            <simpara>to build javadoc for all public classes accessible to
+            user applications.</simpara>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>hsqldbmodule</term>
+          <term>dbmanswing</term>
 
           <listitem>
-            <simpara>to build the <filename>hsqldb.jar</filename> file with
-            Java 9+ module information</simpara>
+            <simpara>to build the <filename>dbmanagerswing.jar</filename>
+            file</simpara>
           </listitem>
         </varlistentry>
 
@@ -513,8 +295,8 @@
 
           <listitem>
             <simpara>to build a small jar that supports
-            <emphasis>in-process</emphasis> catalogs, but neither running nor
-            connecting to HyperSQL Servers.</simpara>
+            <emphasis>in-process</emphasis> catalogs, but not running HyperSQL
+            Servers.</simpara>
           </listitem>
         </varlistentry>
 
@@ -537,7 +319,7 @@
         </varlistentry>
       </variablelist>
 
-      <simpara>HSQLDB can be built in any combination of two JRE (Java Runtime
+      <simpara>HSQLDB can be built in any combination of JRE (Java Runtime
       Environment) versions and many jar file sizes.</simpara>
 
       <simpara>A jar built with an older JRE is compatible for use with a
@@ -545,11 +327,10 @@
       JDBC capabilities of HyperSQL and the JRE will be not be
       available.</simpara>
 
-      <simpara>The client jar (<filename>hsqljdbc.jar</filename>) contains
-      only the HSQLDB JDBC Driver client. The smallest engine jar
-      (<filename>hsqldbmin.jar</filename>) contains the engine and the HSQLDB
-      JDBC Driver client. The default size (<filename>hsqldb.jar</filename>)
-      also contains server mode support and the utilities. The largest size
+      <simpara>The smallest engine jar (<filename>hsqldbmin.jar</filename>)
+      contains the engine and the HSQLDB JDBC Driver client. The default size
+      (<filename>hsqldb.jar</filename>) also contains server mode support and
+      the utilities. The largest size
       (<filename>hsqldbtest.jar</filename>)includes some test classes as well.
       Before building the <filename>hsqldbtest.jar</filename> package, you
       should download the junit jar from <link
@@ -587,16 +368,10 @@
 
       <simpara>The Ant method always builds a jar with the JDK that is used by
       Ant and specified in its JAVA_HOME environment variable.</simpara>
-    </section>
 
-    <section xml:id="bga_old_jdk">
-      <title>Building for Different JDKs</title>
-
-      <para>Unlike previous versions, HyperSQL version 2.5.x cannot be
-      compiled or used with JDK 5 or earlier. The jars can be compiled with
-      JDK 6 or later. Build has been tested under JDK versions 6, 8, 9, 10,
-      11, etc. The same Ant version can be used with all the tested
-      JDKs.</para>
+      <para>The jars can be compiled with JDK 6 or later. Build has been
+      tested under JDK versions 6, 8, 9, 10, 11, etc. The same Ant version can
+      be used with all the tested JDKs.</para>
     </section>
   </section>
 
@@ -605,7 +380,7 @@
 
     <simpara>The Ant build.xml can be used with most IDEs to build the Jar
     targets. All HyperSQL source files are supplied ready to compile. It is
-    therefore possible to compile the sources without using Ant. If
+    therefore possible to compile the sources without using Ant direcly. If
     compilation with Java 1.6 is required, you should run the Ant switchtojdk6
     target before compiling to modify the files that have code blocks specific
     to Java 8 or above (these are listed in the jdkcodeswitch.list
@@ -776,10 +551,10 @@
     how to set a build property to tell it where to install the validator, and
     will give instructions on how to use it.</simpara>
 
-    <para>There are several properties that can be used to dramatically
-    decrease run times for partial doc builds. Read about these properties in
-    comment at the top of the file <filename>build-docbook.xml</filename> in
-    the <filename>build</filename> directory. <itemizedlist>
+    <para>There are several properties that can be used to dramatically reduce
+    run times for partial doc builds. Read about these properties in comment
+    at the top of the file <filename>build-docbook.xml</filename> in the
+    <filename>build</filename> directory. <itemizedlist>
         <listitem>
           <simpara>validation.skip</simpara>
         </listitem>
