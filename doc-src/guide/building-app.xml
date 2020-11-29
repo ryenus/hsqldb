@@ -485,11 +485,9 @@
           include our Guide source files in our main distribution zip file, in
           order to keep it small. You may want to build from the trunk branch
           or the latest release tag. You can download a static snapshot
-          tarball from
-          http://hsqldb.svn.sourceforge.net/viewvc/hsqldb/base/trunk/ or under
-          http://hsqldb.svn.sourceforge.net/viewvc/hsqldb/base/tags/ , or you
-          can export a snapshot or check out a work area using a Subversion
-          client.</simpara>
+          tarball from https://sourceforge.net/p/hsqldb/svn/HEAD/tree/ or you
+          can use a Subversion client such as TortoiseSVN to export a snapshot
+          or check out a work area.</simpara>
         </listitem>
 
         <listitem>
