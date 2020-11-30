@@ -280,6 +280,10 @@ project.ext.set('antBuildClosures', [{
         it.import.@file = 'build-docbook-gradled.xml'
         it.@name = it.@name.text() + '_gradled'
         it.attributes().remove('basedir')
+        // Following two purposefully remove Ant target 'help' which is the
+        // default target in build.xml.
+        it.attributes().remove('default')
+        it.target.find{ targ -> targ.@name.text() == "help" }.replaceNode {}
     }, {
         it.@name = it.@name.text() + '_gradled'
         it.import.replaceNode {}
@@ -292,7 +296,8 @@ if (project.hasProperty('addlAntBuildClosures'))
     antBuildClosures = addlAntBuildClosures + antBuildClosures
 
 File[] outFs = resequenceAntDependencies('-gradled', antBuildClosures,
-  tasks.collect { it.name }.sort(), sourceAntBuildFiles)
+   // Remove mapping for 'help' since purposefully excluding Ant 'help' target
+  tasks.findResults { it.name == 'help' ? null : it.name }.sort(), sourceAntBuildFiles)
 
 ant.importBuild(outFs[0].absolutePath)
 if (!ext.retainGradled) outFs.each { it.deleteOnExit() }
@@ -617,7 +622,7 @@ installDbImages.description = 'Install DocBook resources (minimal by default)'
  * These task.group settings are so that 'gradle tasks' or 'gradle -t' will
  * list and describe tasks as we want them.
  */
-['explainjars' , 'explainprops', 'hsqlhelp', 'antHelp'].each {
+['explainjars' , 'explainprops', 'hsqlhelp'].each {
     tasks[it].group = 'Help'
 }
 ['hsqldb', 'hsqldbmin', 'hsqldbmain', 'hsqldbsources',
