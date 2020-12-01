@@ -2025,7 +2025,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * @return a String representation of this object
      */
-    public String toString() {
+    public synchronized String toString() {
 
         StringBuilder sb = new StringBuilder();
         String        sql;
@@ -2755,7 +2755,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *   @since 1.6
      */
-    public void setAsciiStream(int parameterIndex,
+    public synchronized void setAsciiStream(int parameterIndex,
                                java.io.InputStream x) throws SQLException {
         setAscStream(parameterIndex, x, -1);
     }
@@ -2841,7 +2841,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since 1.6
      */
-    public void setCharacterStream(int parameterIndex,
+    public synchronized void setCharacterStream(int parameterIndex,
                                    java.io.Reader reader) throws SQLException {
         setCharStream(parameterIndex, reader, -1);
     }
@@ -2871,7 +2871,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *   @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      *   @since 1.6
      */
-    public void setNCharacterStream(int parameterIndex,
+    public synchronized void setNCharacterStream(int parameterIndex,
                                     Reader value) throws SQLException {
         setCharStream(parameterIndex, value, -1);
     }
@@ -2900,7 +2900,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this method
      * @since 1.6
      */
-    public void setClob(int parameterIndex,
+    public synchronized void setClob(int parameterIndex,
                         Reader reader) throws SQLException {
         setCharStream(parameterIndex, reader, -1);
     }
@@ -2932,7 +2932,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * @since 1.6
      */
-    public void setBlob(int parameterIndex,
+    public synchronized void setBlob(int parameterIndex,
                         InputStream inputStream) throws SQLException {
         setBinStream(parameterIndex, inputStream, -1);
     }
@@ -2962,7 +2962,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * @since 1.6
      */
-    public void setNClob(int parameterIndex,
+    public synchronized void setNClob(int parameterIndex,
                          Reader reader) throws SQLException {
         setCharStream(parameterIndex, reader, -1);
     }
@@ -3202,7 +3202,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      */
-    public void cancel() throws SQLException {
+    public synchronized void cancel() throws SQLException {
         checkClosed();
         String sql = resultOut.getMainString();
         int randomId = connection.sessionProxy.getRandomId();
@@ -3798,7 +3798,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * @since 1.8
      */
 //#ifdef JAVA8
-    public long getLargeUpdateCount() throws SQLException {
+    public synchronized long getLargeUpdateCount() throws SQLException {
         return super.getUpdateCount();
     }
 
@@ -3824,7 +3824,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * @since 1.8
      */
 //#ifdef JAVA8
-    public void setLargeMaxRows(long max) throws SQLException {
+    public synchronized void setLargeMaxRows(long max) throws SQLException {
 
         int maxRows = max > Integer.MAX_VALUE ? Integer.MAX_VALUE :
                                                 (int) max;
@@ -3853,7 +3853,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * @since 1.8
      */
 //#ifdef JAVA8
-    public long getLargeMaxRows() throws SQLException {
+    public synchronized long getLargeMaxRows() throws SQLException {
         return maxRows;
     }
 
@@ -3915,7 +3915,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * @since 1.8
      */
 //#ifdef JAVA8
-    public long[] executeLargeBatch() throws SQLException {
+    public synchronized long[] executeLargeBatch() throws SQLException {
         int[] updateCounts = executeBatch();
 
         long[] longCounts = new long[updateCounts.length];
@@ -3981,7 +3981,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * @since 1.8
      */
 //#ifdef JAVA8
-    public void setObject(int parameterIndex, Object x, SQLType targetSqlType,
+    public synchronized void setObject(int parameterIndex, Object x, SQLType targetSqlType,
                            int scaleOrLength) throws SQLException {
         int typeNo = targetSqlType.getVendorTypeNumber().intValue();
         setObject(parameterIndex, x, typeNo, scaleOrLength);
@@ -4011,7 +4011,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * @since 1.8
      */
 //#ifdef JAVA8
-    public void setObject(int parameterIndex, Object x, SQLType targetSqlType)
+    public synchronized void setObject(int parameterIndex, Object x, SQLType targetSqlType)
             throws SQLException {
         int typeNo = targetSqlType.getVendorTypeNumber().intValue();
         setObject(parameterIndex, x, typeNo);
@@ -4041,7 +4041,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * the currently running {@code Statement}
      * @since 1.8
      */
-    public long executeLargeUpdate() throws SQLException {
+    public synchronized long executeLargeUpdate() throws SQLException {
         return executeUpdate();
     }
 
