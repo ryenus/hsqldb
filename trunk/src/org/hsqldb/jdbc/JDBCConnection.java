@@ -159,7 +159,7 @@ import org.hsqldb.types.Type;
  *
  * <!-- start release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3> <p>
+ * <h1>HSQLDB-Specific Information:</h1> <p>
  *
  * To get a <code>Connection</code> to an HSQLDB database, the
  * following code may be used (updated to reflect the most recent
@@ -498,7 +498,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 1.7.2, support for precompilation at the engine level
      * has been implemented, so it is now much more efficient and performant
@@ -560,7 +560,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 1.7.2, support for precompilation at the engine level
      * has been implemented, so it is now much more efficient and performant
@@ -624,7 +624,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 1.7.2, the support for and behaviour of
      * CallableStatement has changed.  Please read the introductory section
@@ -671,7 +671,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB converts the JDBC SQL
      * grammar into the system's native SQL grammar prior to sending
@@ -890,7 +890,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Up to and including HSQLDB 2.0,
      *
@@ -963,7 +963,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      * </div><!-- end release-specific documentation -->
      *
      * @exception SQLException if a database access error occurs,
@@ -995,7 +995,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 1.7.2, savepoints are fully supported both
      * in SQL and via the JDBC interface. <p>
@@ -1046,7 +1046,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 1.7.2, HSQLDB <code>INTERNAL</code> <code>Connection</code>
      * objects are not closable from JDBC client code. <p>
@@ -1118,7 +1118,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 essentially supports full database metadata. <p>
      *
@@ -1152,7 +1152,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 supports the SQL standard, which will not allow calls to
      * this method to succeed during a transaction.<p>
@@ -1246,7 +1246,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports a single catalog per database. If the given catalog name
      * is not the same as the database catalog name, this method throws an
@@ -1279,7 +1279,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports a single catalog per database. This method
      * returns the catalog name for the current database
@@ -1319,7 +1319,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 accepts all isolation levels. <code>Connection.TRANSACTION_READ_UNCOMMITED</code>
      * is promoted to <code>Connection.TRANSACTION_READ_COMMITED, but the transactions become read only</code>.
@@ -1376,7 +1376,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 supports all isolation levels. <code>Connection.TRANSACTION_READ_UNCOMMITED</code>
      * is promoted to <code>Connection.TRANSACTION_READ_COMMITED</code>.
@@ -1427,7 +1427,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB produces warnings whenever a createStatement(),
      * prepareStatement() or prepareCall() invocation requests an unsupported
@@ -1465,7 +1465,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * The standard behaviour is implemented. <p>
      *
@@ -1498,7 +1498,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 adheres closely to SQL and JDBC standards. The
      * interpretation of of resultSetType and resultSetConcurrency has
@@ -1562,7 +1562,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 adheres closely to SQL and JDBC standards. The
      * interpretation of of resultSetType and resultSetConcurrency has
@@ -1632,7 +1632,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 adheres closely to SQL and JDBC standards. The
      * interpretation of of resultSetType and resultSetConcurrency has
@@ -1705,7 +1705,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * For compatibility, HSQLDB returns an empty map. <p>
      *
@@ -1749,7 +1749,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. Calling this
      * method always throws a <code>SQLException</code>, stating that
@@ -1794,7 +1794,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div> <!-- end release-specific documentation -->
@@ -1838,7 +1838,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB returns the current holdability.<p>
      *
@@ -1876,7 +1876,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports this feature. <p>
      *
@@ -1930,7 +1930,7 @@ public class JDBCConnection implements Connection {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Previous to JDBC 4, if the connection is autoCommit,
      * setting a savepoint has no effect, as it is cleared upon the execution
@@ -1990,7 +1990,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Previous to JDBC 4, <code>JDBCSavepoint</code> objects are valid for the life of
      * the originating <code>Connection</code> object and hence can be used
@@ -2155,7 +2155,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 adheres closely to SQL and JDBC standards. The
      * interpretation of of resultSetType and resultSetConcurrency has
@@ -2226,7 +2226,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 adheres closely to SQL and JDBC standards. The
      * interpretation of of resultSetType and resultSetConcurrency has
@@ -2305,7 +2305,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 adheres closely to SQL and JDBC standards. The
      * interpretation of of resultSetType and resultSetConcurrency has
@@ -2397,7 +2397,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with version 2.0, HSQLDB supports returning generated columns
      * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
@@ -2486,7 +2486,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with version 2.0, HSQLDB supports returning generated columns
      * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
@@ -2561,7 +2561,7 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with version 2.0, HSQLDB supports returning generated columns
      * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
@@ -2703,9 +2703,9 @@ public class JDBCConnection implements Connection {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
-     * HSQLDB uses a maximum timeout of 60 seconds if timeout has be specified
+     * HSQLDB uses a maximum timeout of 60 seconds if timeout has been specified
      * as zero.
      *
      * </div> <!-- end release-specific documentation -->
@@ -2826,7 +2826,7 @@ public class JDBCConnection implements Connection {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0, throws an SQLClientInfoException when this method is
      * called.

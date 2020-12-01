@@ -209,7 +209,7 @@ public class StringUtil {
      *     <code>quote</code> argument.
      * <li> No attempt is made to escape the quote character sequence if it is
      *      found internal to a list element.
-     * <ul>
+     * </ul>
      * @return a CSV list
      * @param separator the <code>String</code> to use as the list element separator
      * @param quote the <code>String</code> with which to quote the list elements
@@ -243,7 +243,7 @@ public class StringUtil {
      * <code>separator</code> argument.
      * <li>Prepends and appends each element with the value of the
      *     <code>quote</code> argument.
-     * <ul>
+     * </ul>
      * @return a CSV list
      * @param s the array of int values
      * @param separator the <code>String</code> to use as the separator
@@ -298,7 +298,7 @@ public class StringUtil {
      *     <code>quote</code> argument.
      * <li> No attempt is made to escape the quote character sequence if it is
      *      found internal to a list element.
-     * <ul>
+     * </ul>
      * @return a CSV list
      * @param separator the <code>String</code> to use as the list element separator
      * @param quote the <code>String</code> with which to quote the list elements

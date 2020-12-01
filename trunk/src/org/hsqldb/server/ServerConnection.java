@@ -1630,7 +1630,7 @@ class ServerConnection implements Runnable {
      * if client connects with hsqls to a https server; or
      * hsql to a http server.
      * All other client X server combinations are handled gracefully.
-     * <P/>
+     * <P>
      * If returns (a.o.t. throws), then state variable streamProtocol will
      * be set.
      *

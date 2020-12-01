@@ -71,7 +71,7 @@ import org.hsqldb.persist.HsqlProperties;
  *
  * <!-- start release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3> <p>
+ * <h1>HSQLDB-Specific Information:</h1> <p>
  *
  *  When the HSQL Database Engine Driver class is loaded, it creates an
  *  instance of itself and register it with the DriverManager. This means
@@ -140,7 +140,7 @@ public class JDBCDriver implements Driver {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      *  For the HSQL Database Engine, at least "user" and
      *  "password" properties should be included in the Properties.<p>
@@ -357,7 +357,7 @@ public class JDBCDriver implements Driver {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB uses the values submitted in info to set the value for
      * each DriverPropertyInfo object returned. It does not use the default
@@ -448,7 +448,7 @@ public class JDBCDriver implements Driver {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      *  HSQLDB 2.0 is aimed to be compliant with JDBC 4.2 specification.
      *  It supports SQL 92 Entry Level and beyond.

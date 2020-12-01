@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ import javax.sql.DataSource;
  *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3> <p>
+ * <h1>HSQLDB-Specific Information:</h1> <p>
  *
  * This implementation of data source is a basic implementation and does not
  * perform connection pooling.<p>

@@ -256,7 +256,7 @@ import org.xml.sax.SAXException;
  *
  * <!-- start release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3> <p>
+ * <h1>HSQLDB-Specific Information:</h1> <p>
  *
  * Starting with HSQLDB 2.0, a rudimentary client-side SQLXML interface
  * implementation (this class) is supported for local use when the product is
@@ -280,9 +280,10 @@ import org.xml.sax.SAXException;
  *
  * Here is the current read/write availability lifecycle for JDBCSQLXML:
  *
- * <TABLE summary="">
+ * <TABLE>
+ *     <CAPTION> Lifecycle</CAPTION>
  *     <THEAD valign="bottom">
- *         <TR align="center">
+ *         <TR>
  *             <TH>
  *                 Origin
  *             </TH>
@@ -431,7 +432,7 @@ public class JDBCSQLXML implements SQLXML {
     private boolean writable;
 
     /**
-     * Constructs a new, initially write-only JDBCSQLXML object. <p>
+     * Constructs a new, initially write-only JDBCSQLXML object.
      */
     protected JDBCSQLXML() {
         setReadable(false);
@@ -440,7 +441,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Constructs a new read-only JDBCSQLXML object from the given octet
-     * sequence. <p>
+     * sequence.
      *
      * @param bytes the octet sequence representing the SQLXML value
      * @throws SQLException if the argument does not represent a
@@ -452,7 +453,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Constructs a new read-only JDBCSQLXML object from the given character
-     * sequence. <p>
+     * sequence.
      *
      * @param chars the character sequence representing the SQLXML value
      * @throws SQLException if the argument does not represent a
@@ -463,7 +464,7 @@ public class JDBCSQLXML implements SQLXML {
     }
 
     /**
-     * Constructs a new JDBCSQLXML object from the given Document. <p>
+     * Constructs a new JDBCSQLXML object from the given Document.
      *
      * @param document the Document representing the SQLXML value
      * @throws java.sql.SQLException if the argument does not represent a
@@ -478,7 +479,7 @@ public class JDBCSQLXML implements SQLXML {
      * sequence. <p>
      *
      * Relative URI references will be resolved against the present working
-     * directory reported by the Java virtual machine. <p>
+     * directory reported by the Java virtual machine.
      *
      * @param inputStream an octet stream representing an SQLXML value
      * @throws SQLException if the argument does not represent a
@@ -510,7 +511,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Constructs a new read-only JDBCSQLXML object from the given Source
-     * object. <p>
+     * object.
      *
      * @param source a Source representing an SQLXML value
      * @throws SQLException if the argument does not represent a
@@ -525,7 +526,7 @@ public class JDBCSQLXML implements SQLXML {
      * sequence. <p>
      *
      * Relative URI references will be resolved against the present working
-     * directory reported by the Java virtual machine. <p>
+     * directory reported by the Java virtual machine.
      *
      * @param string a character sequence representing an SQLXML value
      * @throws SQLException if the argument does not represent a
@@ -537,7 +538,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Constructs a new read-only JDBCSQLXML object from the given octet
-     * sequence. <p>
+     * sequence.
      *
      * @param bytes the octet sequence representing the SQLXML value
      * @param systemId must be a String that conforms to the URI syntax;
@@ -557,7 +558,7 @@ public class JDBCSQLXML implements SQLXML {
      * Constructs a new read-only JDBCSQLXML object from the given octet
      * sequence. <p>
      *
-     * Relative URI references will be resolved against the given systemId. <p>
+     * Relative URI references will be resolved against the given systemId.
      *
      * @param inputStream an octet stream representing an SQLXML value
      * @param systemId a String that conforms to the URI syntax, indicating
@@ -598,7 +599,7 @@ public class JDBCSQLXML implements SQLXML {
      * Constructs a new read-only JDBCSQLXML object from the given character
      * sequence. <p>
      *
-     * Relative URI references will be resolved against the given systemId. <p>
+     * Relative URI references will be resolved against the given systemId.
      *
      * @param string a character sequence representing an SQLXML value
      * @param systemId a String that conforms to the URI syntax, indicating
@@ -613,7 +614,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Constructs a new read-only JDBCSQLXML object from the given gzipped octet
-     * sequence. <p>
+     * sequence.
      *
      * @param bytes the gzipped octet sequence representing the SQLXML value
      * @param clone whether to clone the given gzipped octet sequence
@@ -641,7 +642,7 @@ public class JDBCSQLXML implements SQLXML {
     /**
      * This method closes this object and releases the resources that it held.
      * The SQL XML object becomes invalid and neither readable or writable
-     * when this method is called.
+     * when this method is called.<p>
      *
      * After <code>free</code> has been called, any attempt to invoke a
      * method other than <code>free</code> will result in a <code>SQLException</code>
@@ -1098,7 +1099,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Initializes this object's SQLXML value from the given Source
-     * object. <p>
+     * object.
      *
      * @param source the Source representing the SQLXML value
      * @throws SQLException if the argument does not represent a
@@ -1357,7 +1358,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Retrieves a stream representing the XML value designated by this
-     * SQLXML instance. <p>
+     * SQLXML instance.
      *
      * @return a stream containing the XML data.
      * @throws SQLException if there is an error processing the XML value.
@@ -1376,7 +1377,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Retrieves a reader representing the XML value designated by this
-     * SQLXML instance. <p>
+     * SQLXML instance.
      *
      * @return a reader containing the XML data.
      * @throws SQLException if there is an error processing the XML value.
@@ -1387,7 +1388,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Retrieves a string representing the XML value designated by this
-     * SQLXML instance. <p>
+     * SQLXML instance.
      *
      * @return a string containing the XML data.
      * @throws SQLException if there is an error processing the XML value.
@@ -1404,7 +1405,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Retrieves a stream to completely write the XML value this SQLXML
-     * instance represents. <p>
+     * instance represents.
      *
      * @return a stream to which the data can be written.
      * @throws SQLException if there is an error processing the XML value.
@@ -1424,7 +1425,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Retrieves a writer to completely write the XML value this SQLXML
-     * instance represents. <p>
+     * instance represents.
      *
      * @return a writer to which the data can be written.
      * @throws SQLException if there is an error processing the XML value.
@@ -1439,7 +1440,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Sets the XML value designated by this SQLXML instance using the given
-     * String representation. <p>
+     * String representation.
      *
      * @param value the XML value
      * @throws SQLException if there is an error processing the XML value.
@@ -1450,7 +1451,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Returns a Source for reading the XML value designated by this SQLXML
-     * instance. <p>
+     * instance.
      *
      * @param sourceClass The class of the source, or null.  If null, then a
      *      DOMSource is returned.
@@ -1477,7 +1478,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Retrieves a new StreamSource for reading the XML value designated by this
-     * SQLXML instance. <p>
+     * SQLXML instance.
      *
      * @param sourceClass The class of the source
      * @throws java.sql.SQLException if there is an error processing the XML
@@ -1519,7 +1520,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Retrieves a new DOMSource for reading the XML value designated by this
-     * SQLXML instance. <p>
+     * SQLXML instance.
      *
      * @param sourceClass The class of the source
      * @throws java.sql.SQLException if there is an error processing the XML
@@ -1615,7 +1616,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * Retrieves a new StAXSource for reading the XML value designated by this
-     * SQLXML instance. <p>
+     * SQLXML instance.
      *
      * @param sourceClass The class of the source
      * @throws java.sql.SQLException if there is an error processing the XML
@@ -2070,9 +2071,9 @@ public class JDBCSQLXML implements SQLXML {
         private Locator locator;
 
         /**
-         * <p>Creates a new instance of SAX2DOMBuilder, which creates
+         * Creates a new instance of SAX2DOMBuilder, which creates
          * a new document. The document is available via
-         * {@link #getDocument()}.</p>
+         * {@link #getDocument()}.
          * @throws javax.xml.parsers.ParserConfigurationException exception
          */
         public SAX2DOMBuilder() throws ParserConfigurationException {
@@ -2569,7 +2570,7 @@ public class JDBCSQLXML implements SQLXML {
         }
 
         /**
-         * Retrieves the current element. <p>
+         * Retrieves the current element.
          */
         protected Element getCurrentElement() {
             return this.currentElement;
@@ -2584,7 +2585,7 @@ public class JDBCSQLXML implements SQLXML {
         }
 
         /**
-         * Retrieves the current node. <p>
+         * Retrieves the current node.
          */
         protected Node getCurrentNode() {
             return this.currentNode;

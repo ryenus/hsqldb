@@ -88,7 +88,7 @@ import org.hsqldb.lib.java.JavaSystem;
  *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3> <p>
+ * <h1>HSQLDB-Specific Information:</h1> <p>
  *
  * Previous to 2.0, the HSQLDB driver did not implement Clob using an SQL
  * locator(CLOB).  That is, an HSQLDB Clob object did not contain a logical
@@ -153,7 +153,7 @@ public class JDBCClob implements Clob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * The official specification above is ambiguous in that it does not
      * precisely indicate the policy to be observed when
@@ -371,7 +371,7 @@ public class JDBCClob implements Clob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
@@ -442,7 +442,7 @@ public class JDBCClob implements Clob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
@@ -584,7 +584,7 @@ public class JDBCClob implements Clob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
@@ -692,7 +692,7 @@ public class JDBCClob implements Clob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
@@ -792,7 +792,7 @@ public class JDBCClob implements Clob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 2.0 this feature is fully supported. <p>
      *

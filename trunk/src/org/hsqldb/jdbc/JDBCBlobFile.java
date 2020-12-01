@@ -58,7 +58,7 @@ import org.hsqldb.lib.KMPSearchAlgorithm;
 /**
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3> <p>
+ * <h1>HSQLDB-Specific Information:</h1> <p>
  *
  * Starting with 2.1, in addition to HSQLDB driver support for both client-side
  * in-memory and remote SQL CLOB data implementations, this class is provided
@@ -295,7 +295,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This operation affects only the content of the underlying file; it has no
      * effect upon a value stored in a database. To propagate the updated
@@ -345,7 +345,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This operation affects only the content of the underlying file; it has no
      * effect upon a value stored in a database. To propagate the updated
@@ -411,7 +411,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Data written to the returned stream affects only the content of the
      * underlying file; it has no effect upon a value stored in a database.
@@ -487,7 +487,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This operation affects only the length of the underlying file; it has no
      * effect upon a value stored in a database. To propagate the truncated
@@ -544,7 +544,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This operation closes any input and/or output streams obtained
      * via {@link #getBinaryStream()}, {@link #getBinaryStream(long, long)} or

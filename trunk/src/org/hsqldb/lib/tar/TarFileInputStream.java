@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -172,7 +172,6 @@ public class TarFileInputStream {
      *   <LI>we always know ahead-of-time how many bytes we should read, and
      *   <LI>we always want to read quantities of bytes in multiples of 512.
      * </OL>
-     * </P>
      *
      * @param blocks  How many 512 blocks to read.
      * @throws IOException for an I/O error on the underlying InputStream

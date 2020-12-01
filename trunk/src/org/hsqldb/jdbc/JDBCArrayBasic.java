@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ import org.hsqldb.types.Type;
  * JDBC driver supports the data type.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.5.0
  * @since JDK 1.2, HSQLDB 2.0.1
  */
 public class JDBCArrayBasic implements Array {
@@ -143,7 +143,7 @@ public class JDBCArrayBasic implements Array {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB always returns an array of <code>Object</code>.
      *
@@ -179,7 +179,7 @@ public class JDBCArrayBasic implements Array {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB always returns an array of <code>Object</code>.
      *
@@ -215,7 +215,7 @@ public class JDBCArrayBasic implements Array {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB always returns an array of <code>Object</code>.
      *
@@ -269,7 +269,7 @@ public class JDBCArrayBasic implements Array {
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB always returns an array of <code>Object</code>.
      *

@@ -174,7 +174,7 @@ import java.sql.SQLType;
  *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3> <p>
+ * <h1>HSQLDB-Specific Information:</h1> <p>
  *
  * From version 2.0, the implementation meets the JDBC specification
  * requirement that any existing ResultSet is closed when execute() or
@@ -294,7 +294,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB currently ignores the sqlType argument.
      * </div>
@@ -327,7 +327,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports BOOLEAN type for boolean values. This method can also
      * be used to set the value of a parameter of the SQL type BIT(1), which is
@@ -442,7 +442,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Since 1.7.1, HSQLDB handles Java positive/negative Infinity
      * and NaN <code>float</code> values consistent with the Java Language
@@ -470,7 +470,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Since 1.7.1, HSQLDB handles Java positive/negative Infinity
      * and NaN <code>double</code> values consistent with the Java Language
@@ -521,7 +521,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Including 2.0, HSQLDB represents all XXXCHAR values internally as
      * java.lang.String objects; there is no appreciable difference between
@@ -549,7 +549,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Including 2.0, HSQLDB represents all XXXBINARY values the same way
      * internally; there is no appreciable difference between BINARY,
@@ -577,7 +577,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * to an SQL <code>DATE</code> value when it sends it to the database.
      * <!-- end generic documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * When a setXXX method is used to set a parameter of type
      * TIMESTAMP WITH TIME ZONE or TIME WITH TIME ZONE the time zone of the
@@ -602,7 +602,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * to an SQL <code>TIME</code> value when it sends it to the database.
      * <!-- end generic documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * When a setXXX method is used to set a parameter of type
      * TIMESTAMP WITH TIME ZONE or TIME WITH TIME ZONE the time zone of the
@@ -628,7 +628,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * database.
      * <!-- end generic documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * When a setXXX method is used to set a parameter of type
      * TIMESTAMP WITH TIME ZONE or TIME WITH TIME ZONE the time zone of the
@@ -668,7 +668,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From HSQLDB 2.0 this method uses the US-ASCII character encoding to convert bytes
      * from the stream into the characters of a String.<p>
@@ -717,7 +717,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 1.7.0 to 1.8.0.x, this method complies with behavior as defined by
      * the JDBC3 specification (the stream is treated as though it has UTF16
@@ -799,7 +799,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Since 1.7.2, this method works according to the standard.
      * </div>
@@ -916,7 +916,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Since 1.7.2, this method supports conversions listed in the
      * conversion table B-5 of the JDBC 3 specification.
@@ -979,7 +979,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3><p>
+     * <h1>HSQLDB-Specific Information:</h1><p>
      *
      * Since 1.7.2, this method supports conversions listed in the conversion
      * table B-5 of the JDBC 3 specification.
@@ -1014,7 +1014,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * If the statement is a call to a PROCEDURE, it may return multiple
      * multiple fetchable results. <p>
@@ -1050,7 +1050,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Since 1.7.2, this feature is supported.
      * </div>
@@ -1104,7 +1104,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From HSQLDB 2.0 this method uses streaming to send data
      * when the target is a CLOB.<p>
@@ -1136,7 +1136,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Including 2.0 HSQLDB does not support the SQL REF type. Calling this method
      * throws an exception.
@@ -1163,7 +1163,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * For parameters of type Blob, setBlob works normally.<p>
      *
@@ -1258,7 +1258,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * For parameters of type Clob, setClob works normally.<p>
      *
@@ -1347,7 +1347,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From version 2.0, HSQLDB supports the SQL ARRAY type.
      *
@@ -1432,7 +1432,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Since 1.7.2, this feature is supported and is <em>inexpensive</em> as
      * it is backed by underlying DBMS support.  If the statement
@@ -1554,7 +1554,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * timezone, which is that of the virtual machine running the application.
      * <!-- end generic documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * When a setXXX method is used to set a parameter of type
      * TIMESTAMP WITH TIME ZONE or TIME WITH TIME ZONE the time zone (including
@@ -1625,7 +1625,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * timezone, which is that of the virtual machine running the application.
      * <!-- end generic documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * When a setXXX method is used to set a parameter of type
      * TIMESTAMP WITH TIME ZONE or TIME WITH TIME ZONE the time zone (including
@@ -1746,7 +1746,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB simply ignores the sqlType and typeName arguments.
      * </div>
@@ -1816,7 +1816,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 1.7.2, this feature is supported. <p>
      *
@@ -1905,7 +1905,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * As per JDBC spec, calling this method has no effect.
      * </div>
@@ -2070,7 +2070,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Including 2.0, HSQLDB does not support the DATALINK SQL type for which this
      * method is intended. Calling this method throws an exception.
@@ -2097,7 +2097,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Since 1.7.2, this feature is supported.
      * </div>
@@ -2173,7 +2173,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -2219,7 +2219,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with version 2.0, HSQLDB supports this feature with single-row and
      * multi-row insert, update and merge statements. <p>
@@ -2405,7 +2405,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * data should be send to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * In HSQLDB 2.0, this method uses streaming to send the data when the
      * stream is assigned to a BLOB target. For other binary targets the
@@ -2502,7 +2502,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From HSQLDB 2.0 this method uses the US-ASCII character encoding to convert bytes
      * from the stream into the characters of a String.<p>
@@ -2568,7 +2568,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This method uses streaming to send the data when the
      * stream is assigned to a BLOB target. For other binary targets the
@@ -2653,7 +2653,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This method uses streaming to send data
      * when the target is a CLOB.<p>
@@ -2737,7 +2737,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * In HSQLDB 2.0, this method does not use streaming to send the data,
      * whether the target is a CLOB or other binary object.
@@ -2778,7 +2778,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This method does not use streaming to send the data,
      * whether the target is a CLOB or other binary object.<p>
@@ -2822,7 +2822,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * In HSQLDB 2.0, this method does not use streaming to send the data,
      * whether the target is a CLOB or other binary object.
@@ -2981,7 +2981,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB always returns zero, meaning there is no limit.
      * </div>
@@ -3020,7 +3020,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * To present, calls to this method are simply ignored; HSQLDB always
      * stores the full number of bytes when dealing with any of the field types
@@ -3115,7 +3115,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * To present, HSQLDB always returns zero, meaning there
      * is no limit.
@@ -3151,7 +3151,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * The maximum number of seconds to wait is 32767.
      * </div>
@@ -3190,7 +3190,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB version 2.3.4 and later supports aborting an SQL query
      * or data update statement.
@@ -3234,7 +3234,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 1.9 HSQLDB, produces Statement warnings.
      * </div>
@@ -3265,7 +3265,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Supported in HSQLDB 1.9.
      * </div>
@@ -3305,7 +3305,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Including 2.0, HSQLDB does not support named cursors;
      * calls to this method are ignored.
@@ -3332,7 +3332,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Without an interceding call to executeXXX, each invocation of this
      * method will produce a new, initialized ResultSet instance referring to
@@ -3409,7 +3409,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Up to 1.8.0.x, HSQLDB supports only <code>FETCH_FORWARD</code>;
      * Setting any other value would throw an <code>SQLException</code>
@@ -3455,7 +3455,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Up to 1.8.0.x, HSQLDB always returned FETCH_FORWARD.
      *
@@ -3494,7 +3494,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB uses the specified value as a hint, but may process more or fewer
      * rows than specified.
@@ -3563,7 +3563,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports <code>CONCUR_READ_ONLY</code> and
      * <code>CONCUR_READ_UPDATEBLE</code> concurrency.
@@ -3593,7 +3593,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 1.7.0 and later versions support <code>TYPE_FORWARD_ONLY</code>
      * and <code>TYPE_SCROLL_INSENSITIVE</code>.
@@ -3629,7 +3629,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 1.7.2, this feature is supported.
      * </div>

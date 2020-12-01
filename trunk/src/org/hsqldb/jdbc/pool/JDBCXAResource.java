@@ -249,7 +249,6 @@ public class JDBCXAResource implements XAResource {
      * garbage-collectable after (a) this method is called, and (b) the tx
      * manager releases its handle to it.
      *
-     * @see javax.transaction.xa.XAResource#forget(Xid)
      * @param xid Xid
      * @throws XAException on error
      */

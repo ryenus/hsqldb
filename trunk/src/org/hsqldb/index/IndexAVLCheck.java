@@ -360,7 +360,7 @@ public class IndexAVLCheck {
             return badRows;
         }
 
-        /**
+        /*
          * todo -
          *
          * this goes from root to branch in one direction. we can also check the

@@ -85,7 +85,7 @@ import org.hsqldb.result.ResultProperties;
  *
  * <!-- start release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3><p>
+ * <h1>HSQLDB-Specific Information:</h1><p>
  * From version 2.0, the implementation meets the JDBC specification
  * requirement that any existing ResultSet is closed when execute() or
  * executeQuery() methods are called. The connection property close_result=true
@@ -121,7 +121,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This method should not be used for statements other than SELECT queries.<p>
      *
@@ -225,7 +225,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Including 1.7.2, HSQLDB always returns zero, meaning there
      * is no limit.
@@ -263,7 +263,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * To present, calls to this method are simply ignored; HSQLDB always
      * stores the full number of bytes when dealing with any of the field types
@@ -375,7 +375,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * To present, HSQLDB always returns zero, meaning there
      * is no limit.
@@ -409,7 +409,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * The maximum number of seconds to wait is 32767.
      * </div>
@@ -446,7 +446,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB version 2.3.4 and later supports aborting an SQL query
      * or data update statement.
@@ -490,7 +490,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * In 2.0, HSQLDB may produces Statement warnings;
      * this method always returns null.
@@ -520,7 +520,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * In HSQLDB 2.0, <code>SQLWarning</code> objects may
      * be produced for Statement Objects; calls to this method clear the warnings.
@@ -560,7 +560,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Including 2.0, HSQLDB does not support named cursors;
      * calls to this method are ignored.
@@ -621,7 +621,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -695,7 +695,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB accepts all valid parameters. <p>
      * </div>
@@ -741,7 +741,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB returns the fetch direction. <p>
      * </div>
@@ -773,7 +773,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB uses the specified value as a hint, but may process more or fewer
      * rows than specified.
@@ -838,7 +838,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports <code>CONCUR_READ_ONLY</code> and
      * <code>CONCUR_UPDATABLE</code> concurrency.
@@ -866,7 +866,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 1.7.0 and later versions support <code>TYPE_FORWARD_ONLY</code>
      * and <code>TYPE_SCROLL_INSENSITIVE</code>.
@@ -900,7 +900,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 1.7.2, this feature is supported.
      * </div>
@@ -940,7 +940,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 1.7.2, this feature is supported.
      * </div>
@@ -1006,7 +1006,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 1.7.2, this feature is supported. <p>
      *
@@ -1116,7 +1116,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB moves to the next ResultSet and returns the correct result. <p>
      * </div>
@@ -1159,7 +1159,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with version 2.0, HSQLDB supports this feature with single-row
      * and multi-row insert, update and merge statements. <p>
@@ -1208,7 +1208,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with version 2.0, HSQLDB supports returning generated columns
      * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
@@ -1272,7 +1272,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with version 2.0, HSQLDB supports returning generated columns
      * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
@@ -1325,7 +1325,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with version 2.0, HSQLDB supports returning generated columns
      * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
@@ -1390,7 +1390,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 2.0, HSQLDB supports this feature.
      *
@@ -1463,7 +1463,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 2.0, HSQLDB supports this feature.
      *
@@ -1526,7 +1526,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 2.0, HSQLDB supports this feature.
      *

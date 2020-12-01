@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ package org.hsqldb.lib.tar;
  * capitalized.
  * Since a single field is known as either "linkflag" or "typeflag", we are
  * going with the UStar name typeflag for this field.
- * </P> <P>
+ * <P>
  * We purposefully define no variable for this list of fields, since
  * we DO NOT WANT TO access or change these values, due to application
  * goals or JVM limitations:<UL>
@@ -59,11 +59,10 @@ package org.hsqldb.lib.tar;
  * </UL>
  * Our application has no use for these, or Java has no ability to
  * work with them.
- * </P> <P>
+ * <P>
  * This class will be very elegant when refactored as an enum with enumMap(s)
  * and using generics with auto-boxing instead of the ugly and non-validating
  * casts.
- * </P>
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */

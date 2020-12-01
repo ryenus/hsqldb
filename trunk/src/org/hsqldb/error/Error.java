@@ -227,7 +227,7 @@ public final class Error {
     }
 
     /**
-     * Returns the error message given the error code.<br/>
+     * Returns the error message given the error code.<p>
      * This method is be used when throwing exception other
      * than <code>HsqlException</code>.
      *
@@ -239,7 +239,7 @@ public final class Error {
     }
 
     /**
-     * Returns the error SQL STATE sting given the error code.<br/>
+     * Returns the error SQL STATE sting given the error code.<p>
      * This method is be used when throwing exception based on other exceptions.
      *
      * @param errorCode    the error code associated to the error message
@@ -250,7 +250,8 @@ public final class Error {
     }
 
     /**
-     * Returns the error message given the error code.<br/> This method is used
+     * Returns the error message given the error code.<p>
+     * This method is used
      * when throwing exception other than <code>HsqlException</code>.
      *
      * @param code the code for the error message

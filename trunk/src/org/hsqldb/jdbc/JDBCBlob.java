@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,7 +86,7 @@ import org.hsqldb.lib.java.JavaSystem;
  *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3> <p>
+ * <h1>HSQLDB-Specific Information:</h1> <p>
  *
  * Previous to 2.0, the HSQLDB driver did not implement Blob using an SQL
  * locator(BLOB).  That is, an HSQLDB Blob object did not contain a logical
@@ -146,7 +146,7 @@ public class JDBCBlob implements Blob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * The official specification above is ambiguous in that it does not
      * precisely indicate the policy to be observed when
@@ -328,7 +328,7 @@ public class JDBCBlob implements Blob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
@@ -396,7 +396,7 @@ public class JDBCBlob implements Blob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
@@ -507,7 +507,7 @@ public class JDBCBlob implements Blob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
@@ -609,7 +609,7 @@ public class JDBCBlob implements Blob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with HSQLDB 2.0 this feature is fully supported. <p>
      *

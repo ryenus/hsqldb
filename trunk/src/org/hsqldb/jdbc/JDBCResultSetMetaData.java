@@ -74,7 +74,7 @@ import org.hsqldb.types.Types;
  *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3> <p>
+ * <h1>HSQLDB-Specific Information:</h1> <p>
  *
  * HSQLDB supports a subset of the {@code ResultSetMetaData} interface.<p>
  *
@@ -123,7 +123,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 fully supports SQL Standard features T174 and T176 that
      * define identity column support.
@@ -164,7 +164,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 1.7.1 did not report this value accurately.  <p>
      *
@@ -202,7 +202,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 handles this differently from previous versions. <p>
      *
@@ -230,7 +230,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 fully supports this feature and returns true for
      * NUMERIC and DECIMAL columns. <p>
@@ -259,7 +259,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.2 fully supports this feature.  <p>
      *
@@ -297,7 +297,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 fully supports this feature.  <p>
      *
@@ -324,7 +324,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 fully supports this feature.  <p>
      *
@@ -408,7 +408,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * In HSQLDB, a {@code ResultSet} column label is determined using the
      * following order of precedence:
@@ -446,7 +446,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * In HSQLDB, a ResultSet column name is determined using the following
      * order of precedence:
@@ -494,7 +494,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Since 1.8.0.x, HSQLDB implements standard SQL SCHEMA support;
      * this method returns the actual schema of the column's table.
@@ -529,7 +529,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 reports the correct length or precision for
      * all columns. For DOUBLE, the binary precision of 64 is returned, while
@@ -558,7 +558,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 reports the correct scale for all columns.<p>
      *
@@ -608,7 +608,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB returns the name of the catalog. The default name is
      * PUBLIC.
@@ -649,7 +649,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This reports the SQL type code of the column. For time and timestamp
      * types that are WITH TIME ZONE, the values as the SQL Standard CLI
@@ -699,7 +699,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0 this method returns true if the ResultSet is not updatable
      * or the column in question is not updatable.<p>
@@ -725,7 +725,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0 this method returns false if the ResultSet is not updatable
      * or the column in question is not updatable.<p>
@@ -752,7 +752,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0 this method returns false if the ResultSet is not updatable
      * or the column in question is not updatable.<p>
@@ -785,7 +785,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      * <!-- start Release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 fully supports this feature.<p>
      *

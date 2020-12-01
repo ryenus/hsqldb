@@ -90,7 +90,7 @@ public class TestSqlPersistent extends TestCase {
     /**
      *  demonstration of bug fix #482109 - inserting Integers
      *  and Strings with PreparedStatement.setObject() did not work;
-     *  String, Integer and Array types are inserted and retrieved<b>
+     *  String, Integer and Array types are inserted and retrieved<p>
      *
      *  demonstration of retrieving values using different getXXX methods
      */

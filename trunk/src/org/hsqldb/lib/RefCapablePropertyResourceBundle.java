@@ -80,7 +80,7 @@ import java.util.regex.Pattern;
  * To eliminate the need to prohibit the use of any strings in the .properties
  * values, and to enforce consistency, you <b>must</b> use the following rules
  * to when putting your referenced files into place.
- * <P/>
+ * <P>
  * REFERENCED FILE DIRECTORY is a directory named with the base name of the
  * properties file, and in the same parent directory.  So, the referenced
  * file directory <CODE>/a/b/c/greentea</CODE> is used to hold all reference
@@ -92,7 +92,7 @@ import java.util.regex.Pattern;
  * REFERENCED FILES themselves all have the base name of the property key,
  * with locale appendages exactly as the <i>referring</i> properties files
  * has, plus the suffix <CODE>.text</CODE>.
- * <P/>
+ * <P>
  * So, if we have the following line in
  * <CODE>/a/b/c/greentea_de.properties</CODE>:
  * <PRE>
@@ -100,7 +100,7 @@ import java.util.regex.Pattern;
  * </PRE>
  * then you <b>must</b> have a reference text file
  * <CODE>/a/b/c/greentea/1_de.properties</CODE>:
- * <P/>
+ * <P>
  * In reference text files,
  * sequences of "\r", "\n" and "\r\n" are all translated to the line
  * delimiter for your platform (System property <CODE>line.separator</CODE>).
@@ -109,18 +109,18 @@ import java.util.regex.Pattern;
  * end your file with two of them).
  * (The file itself is never modified-- I'm talking about the value returned
  * by <CODE>getString(String)</CODE>).
- * <P/>
+ * <P>
  * To prevent throwing at runtime due to unset variables, use a wrapper class
  * like SqltoolRB (use SqltoolRB.java as a template).
  * To prevent throwing at runtime due to unset System Properties, or
  * insufficient parameters passed to getString(String, String[]), set the
  * behavior values appropriately.
- * <P/>
+ * <P>
  * Just like all Properties files, referenced files must use ISO-8859-1
  * encoding, with unicode escapes for characters outside of ISO-8859-1
  * character set.  But, unlike Properties files, \ does not need to be
  * escaped for normal usage.
- * <P/>
+ * <P>
  * The getString() methods with more than one parameter substitute for
  * "positional" parameters of the form "%{1}".
  * The getExpandedString() methods substitute for System Property names

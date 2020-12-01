@@ -59,14 +59,14 @@ public class WrapperIterator implements Iterator {
     private boolean notNull;
 
     /**
-     * Constructor for an empty iterator. <p>
+     * Constructor for an empty iterator.
      */
     public WrapperIterator() {
         this.elements = emptyelements;
     }
 
     /**
-     * Constructor for all elements of the specified array. <p>
+     * Constructor for all elements of the specified array.
      *
      * @param elements the array of objects to enumerate
      */
@@ -75,7 +75,7 @@ public class WrapperIterator implements Iterator {
     }
 
     /**
-     * Constructor for not-null elements of specified array. <p>
+     * Constructor for not-null elements of specified array.
      *
      * @param elements the array of objects to iterate
      */

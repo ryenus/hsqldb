@@ -148,7 +148,7 @@ import java.time.ZoneOffset;
  *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3> <p>
+ * <h1>HSQLDB-Specific Information:</h1> <p>
  *
  * Beyond the XOpen/ODBC extended scalar functions, stored procedures are
  * typically supported in ways that vary greatly from one DBMS implementation
@@ -244,7 +244,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. This method can be called after a
      * PrepareCall method. HSQLDB has already determined which parameters are
@@ -320,7 +320,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -361,7 +361,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -398,7 +398,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -432,7 +432,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -467,7 +467,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -501,7 +501,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -536,7 +536,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -570,7 +570,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -604,7 +604,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -639,7 +639,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -675,7 +675,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -732,7 +732,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -769,7 +769,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -806,7 +806,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -843,7 +843,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -892,7 +892,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -975,7 +975,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -1040,7 +1040,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. <p>
      *
@@ -1077,7 +1077,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. <p>
      *
@@ -1114,7 +1114,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -1160,7 +1160,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -1207,7 +1207,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -1262,7 +1262,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -1316,7 +1316,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -1374,7 +1374,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -1456,7 +1456,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -1508,7 +1508,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -1560,7 +1560,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -1624,7 +1624,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -1663,7 +1663,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. <p>
      *
@@ -1703,7 +1703,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. <p>
      *
@@ -1738,7 +1738,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -1772,7 +1772,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -1805,7 +1805,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -1837,7 +1837,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -1869,7 +1869,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -1901,7 +1901,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -1933,7 +1933,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -1965,7 +1965,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -1998,7 +1998,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2033,7 +2033,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2067,7 +2067,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2102,7 +2102,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2134,7 +2134,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2167,7 +2167,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2207,7 +2207,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2246,7 +2246,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2294,7 +2294,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2338,7 +2338,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2398,7 +2398,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2439,7 +2439,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2477,7 +2477,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2516,7 +2516,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2555,7 +2555,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      * </div>
@@ -2604,7 +2604,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -2645,7 +2645,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -2681,7 +2681,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -2714,7 +2714,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -2747,7 +2747,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -2780,7 +2780,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -2813,7 +2813,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -2846,7 +2846,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -2879,7 +2879,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -2913,7 +2913,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -2946,7 +2946,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -2979,7 +2979,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3012,7 +3012,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3052,7 +3052,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3086,7 +3086,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3126,7 +3126,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3160,7 +3160,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3192,7 +3192,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3225,7 +3225,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3258,7 +3258,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3297,7 +3297,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3338,7 +3338,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3379,7 +3379,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3415,7 +3415,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3451,7 +3451,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3486,7 +3486,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3520,7 +3520,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -3700,7 +3700,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. <p>
      *
@@ -3739,7 +3739,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. <p>
      *
@@ -3796,7 +3796,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. <p>
      *
@@ -3830,7 +3830,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. <p>
      *
@@ -3870,7 +3870,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. <p>
      *
@@ -3914,7 +3914,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. <p>
      *
@@ -3952,7 +3952,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. <p>
      *
@@ -3991,7 +3991,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. <p>
      *
@@ -4025,7 +4025,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not yet support this feature. <p>
      *
@@ -4073,7 +4073,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this feature. <p>
      *
@@ -5264,7 +5264,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports this method for a call to a FUNCTION that returns a result.
      * For a PROCEDURE that returns one or more results, the first result is
