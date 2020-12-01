@@ -3122,7 +3122,7 @@ public class JDBCConnection implements Connection {
      * @see #getSchema
      * @since JDK 1.7, HSQLDB 2.0.1
      */
-    public void setSchema(String schema) throws SQLException {
+    public synchronized void setSchema(String schema) throws SQLException {
 
         checkClosed();
 
