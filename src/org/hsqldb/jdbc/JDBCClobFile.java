@@ -71,7 +71,7 @@ import org.hsqldb.lib.InOutUtil;
 /**
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3> <p>
+ * <h1>HSQLDB-Specific Information:</h1> <p>
  *
  * Starting with 2.1, in addition to HSQLDB driver support for both client-side
  * in-memory and remote SQL CLOB data implementations, this class is provided
@@ -688,7 +688,7 @@ public class JDBCClobFile implements java.sql.Clob {
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * When the value specified for <code>pos</code> is greater then the
      * length+1, an  <code>SQLException</code> is thrown.

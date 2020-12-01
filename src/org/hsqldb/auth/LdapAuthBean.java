@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -466,7 +466,6 @@ public class LdapAuthBean implements AuthFunctionBean {
 
     /**
      *
-     * @see AuthFunctionBean#authenticate(String, String)
      * @param userName String
      * @param password String
      * @throws DenyException on access denial

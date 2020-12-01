@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -292,8 +292,8 @@ public class TarFileOutputStream {
 
     /**
      * Implements java.io.Closeable.
-     * <P/>
-     * <B>IMPORTANT:<B/>  This method <B>deletes</B> the work file after
+     * <P>
+     * <B>IMPORTANT:</B>  This method <B>deletes</B> the work file after
      * closing it!
      *
      * @see java.io.Closeable

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -433,7 +433,6 @@ public class FrameworkLogger {
      * work with static (class-level) pointers to logger instances, for
      * performance efficiency. See the class-level JavaDoc for a usage example.
      *
-     * @see FrameworkLogger
      * @param c Class
      * @return FrameworkLogger
      */

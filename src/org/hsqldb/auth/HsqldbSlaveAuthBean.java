@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -137,9 +137,6 @@ public class HsqldbSlaveAuthBean implements AuthFunctionBean {
         initialized = true;
     }
 
-    /**
-     * @see AuthFunctionBean#authenticate(String, String)
-     */
     public String[] authenticate(String userName, String password)
             throws DenyException {
         if (!initialized) {

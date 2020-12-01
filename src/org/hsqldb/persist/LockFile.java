@@ -2177,7 +2177,7 @@ public class LockFile {
         }
 
         /**
-         * Retrieves the underlying <code>EOFException<code>. <p>
+         * Retrieves the underlying <code>EOFException</code>.
          *
          * @return Value of property reason.
          */
@@ -2188,7 +2188,7 @@ public class LockFile {
         /**
          * Subclass-specific override. <p>
          *
-         * @return representation of <code>lockFile<code>, {@code inMethod} and
+         * @return representation of {@code lockFile}, {@code inMethod} and
          *      {@code reason}, as a {@code String} object
          */
         public String getMessage() {    // override
@@ -2205,7 +2205,7 @@ public class LockFile {
         private final IOException reason;
 
         /**
-         * Constructs a new <code>UnexpectedFileIOException<code>.
+         * Constructs a new <code>UnexpectedFileIOException</code>.
          *
          * @param lockFile the underlying {@code LockFile} object
          * @param inMethod the name of the method in which the exception
@@ -2251,7 +2251,7 @@ public class LockFile {
         private final FileNotFoundException reason;
 
         /**
-         * Constructs a new <code>UnexpectedFileNotFoundException<code>. <p>
+         * Constructs a new <code>UnexpectedFileNotFoundException</code>.
          *
          * @param lockFile the underlying {@code LockFile} object
          * @param inMethod the name of the method in which the exception

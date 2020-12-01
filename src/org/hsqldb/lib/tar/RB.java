@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import org.hsqldb.lib.RefCapableRBInterface;
  *  this class is clinitted.
  * The reason for this is to allow us developers to detect all such errors
  *  before end-users ever use this class.
- * </P> <P>
+ * <P>
  * IMPORTANT:  To add a new ResourceBundle element, add two new lines, one
  * like <PRE>
  *    public static final int NEWKEYID = keyCounter++;
@@ -54,7 +54,6 @@ import org.hsqldb.lib.RefCapableRBInterface;
  * Both should be inserted right after all of the other lines of the same type.
  * NEWKEYID is obviously a new constant which you will use in calling code
  * like RB.NEWKEYID.
- * </P>
  */
 public enum RB implements RefCapableRBInterface {
     DbBackup_syntax,

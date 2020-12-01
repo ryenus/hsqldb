@@ -56,7 +56,7 @@ import org.hsqldb.jdbc.pool.JDBCPooledDataSource;
 /**
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3> <p>
+ * <h1>HSQLDB-Specific Information:</h1> <p>
  *
  * A connection pool for HyperSQL connections. This implementation of
  * {@link javax.sql.DataSource DataSource} is dedicated to HyperSQL and

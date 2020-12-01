@@ -325,7 +325,6 @@ public class SqlFile {
      * are not used without checking.
      * TODO:  Could do what is needed by making a Map subclass with
      * overridden setters which enforce dirtiness.
-     * <P/>
      */
     private void updateUserSettings() {
         // Unset those system userVars where empty string makes no sense.
@@ -3822,7 +3821,7 @@ public class SqlFile {
      * supplied JDBC resources.
      * The last 3 params are to narrow down records and columns where
      * that can not be done with a where clause (like in metadata queries).
-     * <P/>
+     * <P>
      * Caller is responsible for closing any passed Statement or ResultSet.
      *
      * @param statement The SQL Statement that the result set is for.

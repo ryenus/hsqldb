@@ -370,7 +370,7 @@ public class TextTable extends Table {
     }
 
     /**
-     * Generates the SET TABLE <tablename> SOURCE HEADER <string> statement for a
+     * Generates the {@code SET TABLE <tablename> SOURCE HEADER <string>} statement for a
      * text table;
      */
     String getDataSourceHeader() {

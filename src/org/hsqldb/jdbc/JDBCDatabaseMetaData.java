@@ -121,9 +121,9 @@ import org.hsqldb.types.Type;
  *
  * <!-- start release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
- * <h3>HSQLDB-Specific Information:</h3>
+ * <h1>HSQLDB-Specific Information:</h1>
  *
- * <h4>Metadata Table Production</h4>
+ * <h2>Metadata Table Production</h2>
  *
  * Starting with HSQLDB 1.7.2, the metadata table (a.k.a system table) production
  * implementation provided in the default build filters metadata based on each
@@ -162,12 +162,12 @@ import org.hsqldb.types.Type;
  * in compliance with the SQL:2011 Standard and report the properties of all
  * database objects.</p>
  *
- * <h4>Schema Metadata</h4>
+ * <h2>Schema Metadata</h2>
  *
  * The SQL SCHEMA concept became fully supported in the HSQLDB 1.8.x series and
  * this fact is reflected in the all subsequent versions of this class.
  *
- * <h4>Catalog Metadata</h4>
+ * <h2>Catalog Metadata</h2>
  *
  * Starting with HSQLDB 2.0, SQL standards compliance up to SQL:2008 and beyond
  * is a major theme which is reflected in the provision of the majority of the
@@ -197,13 +197,13 @@ import org.hsqldb.types.Type;
  * such as opening, manipulating or querying against multiple database
  * catalogs within a single session, not even in a one-at-a-time fashion.
  *
- * <h4>Index Metadata</h4>
+ * <h2>Index Metadata</h2>
  *
  * It must still be noted that as of the most recent release, HSQLDB continues
  * to ignore the <code>approximate</code> argument of {@link #getIndexInfo
  * getIndexInfo()} as no data is returned for CARDINALITY and PAGES coloumns.
  *
- * <h4>Notes for developers extending metadata table production</h4>
+ * <h2>Notes for developers extending metadata table production</h2>
  *
  * Note that in the absence of an ORDER BY clause, queries against the metadata
  * tables that directly support this class are expected to return rows in JDBC
@@ -262,7 +262,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This method <em>always</em> returns
      * <code>true because the listed procedures are those which
@@ -284,7 +284,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB always reports <code>true</code>.<p>
      *
@@ -336,7 +336,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This makes an SQL call to the isReadOnlyDatabase function
      * which provides correct determination of the read-only status for
@@ -370,7 +370,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * By default HSQLDB sorts null at start and
      * this method returns <code>false</code>.
@@ -398,7 +398,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * By default HSQLDB sorts null at start and
      * this method returns <code>false</code>.
@@ -422,7 +422,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * By default HSQLDB sorts null at start and
      * this method returns <code>true</code>.
@@ -446,7 +446,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * By default HSQLDB sorts null at start and
      * this method returns <code>false</code>.
@@ -468,7 +468,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * Retrieves the name of this database product.
      *
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Returns the name of the HSQLDB engine.
      * </div> <p>
@@ -484,7 +484,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * Retrieves the version number of this database product.
      *
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Returns the full version string.
      * </div> <p>
@@ -544,7 +544,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From HSQLDB 1.7.2 it is assumed that this refers to data being stored
      * by the JDBC client. This method always returns false.
@@ -562,7 +562,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not use a file for each table.
      * This method always returns <code>false</code>.
@@ -582,7 +582,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB treats unquoted identifiers as case insensitive and stores
      * them in upper case. It treats quoted identifiers as case sensitive and
@@ -604,7 +604,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB treats unquoted identifiers as case insensitive and stores
      * them in upper case. It treats quoted identifiers as case sensitive and
@@ -626,7 +626,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB treats unquoted identifiers as case insensitive and stores
      * them in upper case. It treats quoted identifiers as case sensitive and
@@ -648,7 +648,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB treats unquoted identifiers as case insensitive and stores
      * them in upper case. It treats quoted identifiers as case sensitive and
@@ -670,7 +670,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB treats unquoted identifiers as case insensitive and stores
      * them in upper case. It treats quoted identifiers as case sensitive and
@@ -692,7 +692,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB treats unquoted identifiers as case insensitive and stores
      * them in upper case. It treats quoted identifiers as case sensitive and
@@ -714,7 +714,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB treats unquoted identifiers as case insensitive and stores
      * them in upper case. It treats quoted identifiers as case sensitive and
@@ -734,7 +734,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB treats unquoted identifiers as case insensitive and stores
      * them in upper case. It treats quoted identifiers as case sensitive and
@@ -756,7 +756,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB uses the standard SQL identifier quote character
      * (the double quote character); this method always returns <b>"</b>.
@@ -776,7 +776,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * The list is empty. However, HSQLDB also supports SQL:2008 keywords
      * and disallows them for database object names without double quoting.
@@ -852,7 +852,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB uses the "\" character to escape wildcard characters.
      * </div>
@@ -872,7 +872,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * By default HSQLDB does not support using any "extra" characters in
      * unquoted identifier names; this method always returns the empty String.
@@ -896,7 +896,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 1.7.0, HSQLDB supports this type of
      * <code>ALTER TABLE</code> statement; this method always
@@ -916,7 +916,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 1.7.0, HSQLDB supports this type of
      * <code>ALTER TABLE</code> statement; this method always
@@ -939,7 +939,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports column aliasing; this method always
      * returns <code>true</code>.
@@ -961,7 +961,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * By default HSQLDB returns NULL when NULL and non-NULL values
      * are concatenated.
@@ -988,7 +988,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports conversions; this method always
      * returns <code>true</code>.
@@ -1014,7 +1014,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 supports conversion according to SQL standards. In addition,
      * it supports conversion between values of BOOLEAN and BIT types.
@@ -1054,7 +1054,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports table correlation names; this method always
      * returns <code>true</code>.
@@ -1075,7 +1075,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not require that table correlation names are different from the
      * names of the tables; this method always returns <code>false</code>.
@@ -1096,7 +1096,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports expressions in <code>ORDER BY</code> lists; this
      * method always returns <code>true</code>.
@@ -1118,7 +1118,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports using a column that is not in the <code>SELECT</code>
      * statement in an <code>ORDER BY</code> clause; this method always
@@ -1140,7 +1140,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports using the <code>GROUP BY</code> clause; this method
      * always returns <code>true</code>.
@@ -1162,7 +1162,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports using a column that is
      * not in the <code>SELECT</code> statement in a
@@ -1187,7 +1187,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports using columns not included in
      * the <code>SELECT</code> statement in a <code>GROUP BY</code> clause
@@ -1211,7 +1211,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports specifying a
      * <code>LIKE</code> escape clause; this method
@@ -1234,7 +1234,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 supports getting multiple
      * <code>ResultSet</code> objects from a single call to the method
@@ -1256,7 +1256,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB allows having multiple
      * transactions open at once (on different connections); this method
@@ -1277,7 +1277,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the specification of non-nullable columns; this method
      * always returns <code>true</code>.
@@ -1297,7 +1297,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports the ODBC Minimum SQL grammar;
      * this method always returns <code>true</code>.
@@ -1315,7 +1315,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports the ODBC Core SQL grammar;
      * this method always returns <code>true</code>.
@@ -1333,7 +1333,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports the ODBC Extended SQL grammar;
      * this method always returns <code>true</code>.
@@ -1352,7 +1352,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports the ANSI92 entry level SQL grammar;
      * this method always returns <code>true</code>.
@@ -1370,7 +1370,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports the ANSI92 intermediate SQL grammar;
      * this method always returns <code>true</code>.
@@ -1389,7 +1389,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports the ANSI92 full SQL grammar. The exceptions,
      * such as support for ASSERTION, are not considered grammar issues.
@@ -1409,7 +1409,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This method always returns <code>true</code>.
      * </div>
@@ -1426,7 +1426,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports outer joins; this method always returns
      * <code>true</code>.
@@ -1446,7 +1446,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports full nested outer
      * joins; this method always returns <code>true</code>. <p>
@@ -1466,7 +1466,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the LEFT OUTER join syntax;
      * this method always returns <code>true</code>.
@@ -1484,7 +1484,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 1.8.0, HSQLDB supports schemas.
      * </div>
@@ -1501,7 +1501,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports declaration of
      * functions or procedures directly in SQL.<p>
@@ -1519,7 +1519,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB uses the standard name CATALOG.
      * </div>
@@ -1538,7 +1538,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * When allowed, a catalog appears at the start of a fully qualified
      * table name; this method always returns <code>true</code>.
@@ -1558,7 +1558,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * When used, a catalog name is separated with period;
      * this method <em>always</em> returns a period
@@ -1577,7 +1577,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports schemas where allowed by the standard;
      * this method always returns <code>true</code>.
@@ -1599,7 +1599,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports schemas where allowed by the standard;
      * this method always returns <code>true</code>.
@@ -1620,7 +1620,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports schemas where allowed by the standard;
      * this method always returns <code>true</code>.
@@ -1642,7 +1642,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports schemas where allowed by the standard;
      * this method always returns <code>true</code>.
@@ -1664,7 +1664,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports schemas where allowed by the standard;
      * this method always returns <code>true</code>.
@@ -1686,7 +1686,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports catalog names where allowed by the standard;
      * this method always returns <code>true</code>.
@@ -1707,7 +1707,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports catalog names where allowed by the standard;
      * this method always returns <code>true</code>.
@@ -1728,7 +1728,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports catalog names where allowed by the standard;
      * this method always returns <code>true</code>.
@@ -1749,7 +1749,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports catalog names where allowed by the standard;
      * this method always returns <code>true</code>.
@@ -1770,7 +1770,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * From 2.0, HSQLDB supports catalog names where allowed by the standard;
      * this method always returns <code>true</code>.
@@ -1792,7 +1792,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 supports updatable result sets;
      * this method always returns <code>true</code>.
@@ -1811,7 +1811,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 supports updatable result sets;
      * this method always returns <code>true</code>.
@@ -1830,7 +1830,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 supports updatable result sets;
      * this method always returns <code>true</code>.
@@ -1849,7 +1849,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports calling public static Java methods in the context of SQL
      * Stored Procedures; this method always returns <code>true</code>.
@@ -1870,7 +1870,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB has always supported subqueries in comparison expressions;
      * this method always returns <code>true</code>.
@@ -1891,7 +1891,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB has always supported subqueries in <code>EXISTS</code>
      * expressions; this method always returns <code>true</code>.
@@ -1913,7 +1913,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB has always supported subqueries in <code>IN</code>
      * statements; this method always returns <code>true</code>.
@@ -1934,7 +1934,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB has always supported subqueries in quantified
      * expressions; this method always returns <code>true</code>.
@@ -1954,7 +1954,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB has always supported correlated subqueries;
      * this method always returns <code>true</code>.
@@ -1974,7 +1974,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports SQL <code>UNION</code>;
      * this method always returns <code>true</code>.
@@ -1994,7 +1994,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports SQL <code>UNION ALL</code>;
      * this method always returns <code>true</code>.
@@ -2015,7 +2015,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 supports keeping cursors open across commits.
      * This method always returns <code>true</code>.
@@ -2035,7 +2035,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.0 closes open cursors at rollback.
      * This method always returns <code>false</code>.
@@ -2055,7 +2055,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports keeping statements open across commits;
      * this method always returns <code>true</code>.
@@ -2077,7 +2077,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports keeping statements open  across rollbacks;
      * this method always returns <code>true</code>.
@@ -2105,7 +2105,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
      * memory availability; this method always returns <code>0</code>.
@@ -2130,7 +2130,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
      * memory availability; this method always returns <code>0</code>.
@@ -2152,7 +2152,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 2.0, HSQLDB implements the SQL standard, which is 128 for
      * all names.
@@ -2174,7 +2174,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
      * memory availability; this method always returns <code>0</code>.
@@ -2195,7 +2195,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
      * memory availability; this method always returns <code>0</code>.
@@ -2217,7 +2217,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
      * memory availability; this method always returns <code>0</code>.
@@ -2239,7 +2239,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
      * memory availability; this method always returns <code>0</code>.
@@ -2260,7 +2260,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
      * memory availability; this method always returns <code>0</code>.
@@ -2282,7 +2282,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
      * memory availability; this method always returns <code>0</code>.
@@ -2304,7 +2304,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 2.0, HSQLDB implements the SQL standard, which is 128 for
      * all names.
@@ -2326,7 +2326,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
      * memory and disk availability; this method always returns <code>0</code>.
@@ -2349,7 +2349,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 2.0, HSQLDB implements the SQL standard, which is 128 for
      * all names.
@@ -2370,7 +2370,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 2.0, HSQLDB implements the SQL standard, which is 128 for
      * all names.
@@ -2392,7 +2392,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 2.0, HSQLDB implements the SQL standard, which is 128 for
      * all names.
@@ -2414,7 +2414,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
      * memory and disk availability; this method always returns <code>0</code>.
@@ -2436,7 +2436,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3><p>
+     * <h1>HSQLDB-Specific Information:</h1><p>
      *
      * Including 2.0, {@link #getMaxRowSize} <em>always</em> returns
      * 0, indicating that the maximum row size is unknown or has no limit.
@@ -2459,7 +2459,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
      * memory availability; this method always returns <code>0</code>.
@@ -2481,7 +2481,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
      * memory availability; this method always returns <code>0</code>.
@@ -2503,7 +2503,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Up to and including 1.8.0.x, HSQLDB did not impose a "known" limit.  Th
      * hard limit was the maximum length of a java.lang.String
@@ -2530,7 +2530,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not impose a "known" limit.  The limit is subject to
      * memory availability; this method always returns <code>0</code>.
@@ -2552,7 +2552,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 2.0, HSQLDB implements the SQL standard, which is 128 for
      * all names.
@@ -2576,7 +2576,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information</h3>
+     * <h1>HSQLDB-Specific Information:</h1>
      *
      * Default isolation mode in version 2.0 is TRANSACTION_READ_COMMITTED.
      * </div>
@@ -2618,7 +2618,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports transactions;
      * this method always returns <code>true</code>.
@@ -2639,7 +2639,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information</h3>
+     * <h1>HSQLDB-Specific Information:</h1>
      * HSQLDB supports all levels.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2666,7 +2666,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB does not support a mix of both data definition and
      * data manipulation statements within a transaction.  DDL commits the
@@ -2689,7 +2689,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports only data manipulation
      * statements within a transaction.  DDL commits the
@@ -2712,7 +2712,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Including 2.0, a data definition statement within a transaction forces
      * the transaction to commit; this method always returns <code>true</code>.
@@ -2733,7 +2733,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Including 2.0, a data definition statement is not ignored within a
      * transaction.  Rather, a data definition statement within a
@@ -2787,7 +2787,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -2957,7 +2957,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -3045,7 +3045,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -3161,7 +3161,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 1.8.0, the list of schemas is returned.
      * </div>
@@ -3189,7 +3189,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
      * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
@@ -3223,7 +3223,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Since 1.7.1, HSQLDB reports: "TABLE", "VIEW" and "GLOBAL TEMPORARY"
      * types.
@@ -3328,7 +3328,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -3405,7 +3405,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -3493,7 +3493,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -3590,7 +3590,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -3710,7 +3710,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB 2.5.0 and later returns information on auto-updated
      * TIMESTAMP columns defined with ON UPDATE CURRENT_TIMESTAMP, and the
@@ -3771,7 +3771,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -3886,7 +3886,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -4001,7 +4001,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -4121,7 +4121,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -4254,7 +4254,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
      * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
@@ -4315,7 +4315,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -4419,7 +4419,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      * Updates to ResultSet rows are not visible after moving from the updated
      * row.
      * </div>
@@ -4442,7 +4442,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Rows deleted from the ResultSet are still visible after moving from the
      * deleted row.
@@ -4466,7 +4466,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Rows added to a ResultSet are not visible after moving from the
      * insert row; this method always returns <code>false</code>.
@@ -4490,7 +4490,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Updates made by other connections or the same connection while the
      * ResultSet is open are not visible in the ResultSet.
@@ -4515,7 +4515,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Deletes made by other connections or the same connection while the
      * ResultSet is open are not visible in the ResultSet.
@@ -4540,7 +4540,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Inserts made by other connections or the same connection while the
      * ResultSet is open are not visible in the ResultSet.
@@ -4566,7 +4566,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Updates made to the rows of the ResultSet are not detected by
      * calling the <code>ResultSet.rowUpdated</code>.
@@ -4593,7 +4593,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Deletes made to the rows of the ResultSet are not detected by
      * calling the <code>ResultSet.rowDeleted</code>.
@@ -4620,7 +4620,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Inserts made into the ResultSet are not visible and thus not detected by
      * calling the <code>ResultSet.rowInserted</code>.
@@ -4644,7 +4644,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports batch updates;
      * this method always returns <code>true</code>.
@@ -4693,7 +4693,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -4773,7 +4773,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Beginning with 1.7.2, this SQL feature is supported
      * through JDBC as well as SQL. <p>
@@ -4795,7 +4795,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 1.7.2, HSQLDB supports JDBC named parameters to
      * callable statements; this method returns true. <p>
@@ -4818,7 +4818,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports multiple ResultSet
      * objects returned from a <code>CallableStatement</code>;
@@ -4841,7 +4841,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports retrieval of
      * autogenerated keys through the JDBC interface;
@@ -4892,7 +4892,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB supports the SQL Standard. It treats unquoted identifiers as
      * case insensitive in SQL and stores
@@ -4974,7 +4974,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This method is intended for tables of structured types.
      * From 2.0 this method returns an empty ResultSet.
@@ -5069,7 +5069,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This method is intended for attributes of structured types.
      * From 2.0 this method returns an empty ResultSet.
@@ -5119,7 +5119,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB returns true for both alternatives. <p>
      *
@@ -5146,7 +5146,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB defaults to HOLD_CURSORS_OVER_COMMIT for CONSUR_READ_ONLY
      * ResultSet objects.
@@ -5171,7 +5171,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      * Returns the major version
      * </div>
      * <!-- end release-specific documentation -->
@@ -5197,7 +5197,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * This returns the digit after the first point in version.
      * </div>
@@ -5227,7 +5227,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5245,7 +5245,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      * </div>
      * <!-- end release-specific documentation -->
      * @return JDBC version minor number
@@ -5263,7 +5263,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * HSQLDB returns  <code>sqlStateSQL</code> under JDBC4 which is equivalent
      * to JDBC3 value of sqlStateSQL99. <p>
@@ -5287,7 +5287,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Updates to a LOB are made directly. This means the lobs in an updatable
      * ResultSet can be updated and the change is applied when the updateRow()
@@ -5313,7 +5313,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
-     * <h3>HSQLDB-Specific Information:</h3> <p>
+     * <h1>HSQLDB-Specific Information:</h1> <p>
      *
      * Starting with 2.0, HSQLDB supports statement pooling when built under
      * JDK 1.6+. <p>

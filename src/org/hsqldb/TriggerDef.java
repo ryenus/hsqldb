@@ -616,8 +616,9 @@ public class TriggerDef implements Runnable, SchemaObject {
      *  immediately and executed by the main thread. Otherwise, the row
      *  data objects are added to the queue to be used by the Trigger thread.
      *
-     * @param  row1
-     * @param  row2
+     * @param session the session
+     * @param  oldData old row
+     * @param  newData new row
      */
     synchronized void pushPair(Session session, Object[] oldData,
                                Object[] newData) {

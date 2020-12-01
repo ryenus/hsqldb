@@ -436,13 +436,11 @@ public final class ArrayUtil {
      * once in the two input arrays.
      * <p>
      * e.g.
-     * </p>
-     * <code>
-     * <table width="90%" bgcolor="lightblue">
-     * <tr><td colspane="3">The arrays</td></tr>
+     * <table>
+     * <tr><td colspan="3">The arrays</td></tr>
      * <tr><td>int []arra</td><td>=</td><td>{2,11,5,8}</td></tr>
      * <tr><td>int []arrb</td><td>=</td><td>{20,8,10,11,28,12}</td></tr>
-     * <tr><td colspane="3">will result in:</td></tr>
+     * <tr><td colspan="3">will result in:</td></tr>
      * <tr><td>int []arrc</td><td>=</td><td>{11,8}</td></tr>
      * </table>
      *
@@ -1226,7 +1224,6 @@ public final class ArrayUtil {
 
         return newarray;
     }
-
 
     /**
      * Returns an array containing the elements of parameter source with an

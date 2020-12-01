@@ -782,7 +782,7 @@ public class BinaryType extends Type {
         }
     }
 
-    /** @todo check and adjust max precision */
+    /* @todo check and adjust max precision */
     public static BinaryType getBinaryType(int type, long precision) {
 
         switch (type) {

@@ -77,29 +77,26 @@ public final class DatabaseURL {
      *
      * <p> The following components are isolated:
      *
-     * <p>
      * <ul> url: the original url
      *
-     * <p> connection_type: a static string that indicate the protocol. If the
+     * <li> connection_type: a static string that indicate the protocol. If the
      * url does not begin with a valid protocol, null is returned by this method
      * instead of the properties object.
      *
-     * <p> host: name of host in networked modes in lowercase
+     * <li> host: name of host in networked modes in lowercase
      *
-     * <p> port: port number in networked mode, or 0 if not present
+     * <li> port: port number in networked mode, or 0 if not present
      *
-     * <p> path: path of the resource on server in networked modes, minimum
+     * <li> path: path of the resource on server in networked modes, minimum
      * (slash) with path elements appended apart from servlet path which is
      * (slash) plus the name of the servlet
      *
-     * <p> database: database name. For memory, networked modes,
+     * <li> database: database name. For memory, networked modes,
      * this is returned in lowercase, for file: and res: databases the original case of
      * characters is preserved. Returns empty string if name is not present in
      * the url.
      *
-     * <p> for each protocol if port number is not in the url
-     *
-     * <p> Additional connection properties specified as key/value pairs.
+     * <li> Additional connection properties specified as key/value pairs.
      * </ul>
      *
      * @return null returned if the part that should represent the port is not

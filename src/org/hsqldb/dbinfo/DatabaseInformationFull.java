@@ -407,7 +407,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * state of all row caching objects for the accessible
      * tables defined within this database. <p>
      *
-     * Currently, the row caching objects for which state is reported are: <p>
+     * Currently, the row caching objects for which state is reported are:
      *
      * <OL>
      * <LI> the system-wide <code>Cache</code> object used by CACHED tables.
@@ -415,7 +415,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * </OL> <p>
      *
      * Each row is a cache object state description with the following
-     * columns: <p>
+     * columns:
      *
      * <pre class="SqlCodeExample">
      * CACHE_FILE          CHARACTER_DATA   absolute path of cache data file
@@ -827,7 +827,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * ANSI/ISO conforming feature info base table in the definition
      * schema. <p>
      *
-     * Currently, the database properties reported are: <p>
+     * Currently, the database properties reported are:
      *
      * <OL>
      *     <LI>hsqldb.cache_file_scale - the scaling factor used to translate data and index structure file pointers
@@ -2082,7 +2082,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * The ASSERTIONS view is empty.<p>
+     * The ASSERTIONS view is empty.
      *
      */
     Table ASSERTIONS(Session session, PersistentStore store) {
