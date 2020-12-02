@@ -45,7 +45,9 @@
               value="HyperSQL Lightweight 100% Java SQL Database Engine"/>
     <property name="build.sysclasspath" value="ignore"/>
     <property name="javac.encoding" value="ISO-8859-1"/>
-    <property name="swsrc" value="${basedir}/tmp/switchedsrc/"/>
+    <property name="tmpsrc" value="${basedir}/tmp/switchedsrc/"/>
+
+    <property name="swsrc" value="${tmpsrc}"/>
     <property name="libclonesrc" value="${swsrc}org/hsqldb/cmdline/libclone"/>
     <available property="switch.inplace"
                file="${swsrc}/org/hsqldb/package.html"/>
@@ -778,23 +780,23 @@ examples:
       </jar>
     </target>
 
-    <target name="-doclink-18" if="ant.java.iscjava08">
+    <target name="-doclink-11" if="ant.java.iscjava09">
+      <property name="jse.doc.link"
+                value="https://docs.oracle.com/en/java/javase/11/docs/api/"/>
+    </target>
+
+    <target name="-doclink-08" depends="-doclink-11" if="ant.java.iscjava08">
                         <!-- TODO: update to final release api docs url when available -->
       <property name="jse.doc.link"
                 value="http://docs.oracle.com/javase/8/docs/api/"/>
-      <property name="jee.doc.link"
-                value="http://docs.oracle.com/javaee/7/api/"/>
     </target>
 
-    <target name="-doclink-16"
-            depends="-doclink-18" unless="ant.java.iscjava08">
+    <target name="-doclink-06" depends="-doclink-08">
       <property name="jse.doc.link"
                   value="http://docs.oracle.com/javase/6/docs/api/"/>
-      <property name="jee.doc.link"
-                  value="http://docs.oracle.com/javaee/6/api/"/>
     </target>
 
-    <target name="javadoc" depends="-prepare-javadoc, switches, -clone-shared-libs, -set-jvmvars, -doclink-16"
+    <target name="javadoc" depends="-prepare-javadoc, switches, -clone-shared-libs, -set-jvmvars, -doclink-06"
             description="Create javadoc for the distribution package">
       <!-- TODO:  Find out why JDBCDriver class is listed twice in the class
            list pane, but only when All Classes selected
@@ -848,7 +850,6 @@ examples:
                <include name='org/hsqldb/jdbc'/>
            </packageset>
            <link href="${jse.doc.link}"/>
-           <link href="${jee.doc.link}"/>
            <tag name="todo" enabled="false"/>
            <tag name="revised" enabled="false"/>
            <tag name="jboss.xmbean" enabled="false"/>
@@ -862,7 +863,7 @@ examples:
     </target>
 
     <target name="javadocdev"
-            depends="-prepare-javadoc, switches, -clone-shared-libs,-set-jvmvars,-doclink-16"
+            depends="-prepare-javadoc, switches, -clone-shared-libs,-set-jvmvars,-doclink-06"
             description="Create javadoc for all HSQLDB code-base classes">
       <!-- Since our preprocessor package compilatoin depends on the
            env-specific ant runtime lib via includeAntRuntime=true, Javadoc
@@ -893,7 +894,6 @@ examples:
              <pathelement location="${servletapi.lib}"/>
            </classpath>
            <link href="${jse.doc.link}"/>
-           <link href="${jee.doc.link}"/>
            <link href="${junit.doc.link}"/>
            <tag name="todo"/>
            <tag name="revised"/>
@@ -990,11 +990,7 @@ examples:
     </target>
 
     <target name="-clean-switch-branch" unless="switch.inplace">
-      <available property="_inplace.doublecheck"
-                 file="${swsrc}/org/hsqldb/cmdline/sqltool.properties"/>
-      <fail if="_inplace.doublecheck"
-      message="Aborting to prevent detected attempt to wipe original source code"/>
-      <delete dir="${swsrc}"/>
+      <delete dir="${tmpsrc}"/>
     </target>
 
     <target name="update-readme"
