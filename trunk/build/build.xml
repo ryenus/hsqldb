@@ -53,6 +53,7 @@
     </condition>
 
     <property name="libclonesrc" value="${swsrc}org/hsqldb/cmdline/libclone"/>
+    <property name="utilclonesrc" value="${swsrc}org/hsqldb/cmdline/utilclone"/>
 
     <!-- Hosting Junit 3.8.2 JavaDocs at hsqldb.org since it's not available
          expanded anywhere on Internet that I can find. -->
@@ -379,7 +380,7 @@ examples:
 
     <!-- compiles the cmdline classes -->
     <target name="-cmdline"
-            depends="-prepare, -update-switch-branch, -clone-shared-libs,
+            depends="-prepare, -update-switch-branch, -clone-shared-sources,
                      -conditionalize-sqlfile-scanner, -sqlfile-scanner">
 
       <javac srcdir="${swsrc}"
@@ -521,9 +522,9 @@ examples:
             org/hsqldb/util/TableSorter*
             org/hsqldb/util/DatabaseManagerCommon*
             org/hsqldb/util/CSVWriter*
+            org/hsqldb/util/RCData*
             org/hsqldb/util/*.png
             org/hsqldb/util/*.gif
-            org/hsqldb/lib/RCData*
             '/>
 
     <fileset id='dbmanagerawtaddedclasses' dir='classes'
@@ -542,7 +543,6 @@ examples:
 
     <fileset id='utilclasses' dir='classes' includes='
             org/hsqldb/util/**
-            org/hsqldb/lib/RCData*
             '/>
 
     <fileset id='sqltoolclasses' dir='classes'
@@ -615,11 +615,6 @@ examples:
                      value='Standard runtime'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-          <!-- This attribute is completely ignored unless the user
-               uses the jar like "java -jar .../hsqldb.jar" -->
-          <!-- give with 'jar -e...' invocaton to support Java modules:
-          <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
-          -->
         </manifest>
         <fileset refid='minclasses' />
         <fileset refid='mainaddedclasses' />
@@ -697,9 +692,6 @@ examples:
           <attribute name='Implementation-Title' value='SqlTool Client'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-          <!-- give with 'jar -e...' invocaton to support Java modules:
-          <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
-          -->
           <attribute name='Class-Path'
               value='hsqldb-${hsqldb.version}.jar hsqldb.jar hsqldbmain.jar'/>
         </manifest>
@@ -716,25 +708,29 @@ examples:
       </exec>
     </target>
 
-    <target name="-clone-shared-libs">
+    <target name="-clone-shared-sources">
       <mkdir dir='${libclonesrc}'/>
-      <fileset id='libclones' dir='src/org/hsqldb/lib'
+      <mkdir dir='${utilclonesrc}'/>
+      <copy todir='${libclonesrc}' preservelastmodified='true'>
+        <fileset dir='src/org/hsqldb/lib'
           includes='
               AppendableException*
               BasicTextJdkLogFormatter*
               FrameworkLogger*
-              RCData*
               RefCapablePropertyResourceBundle*
               RefCapableRBInterface*
               ValidatingResourceBundle*
               '/>
-      <copy todir='${libclonesrc}' preservelastmodified='true'>
-        <fileset refid="libclones"/>
+      </copy>
+      <copy todir='${utilclonesrc}' preservelastmodified='true'>
+        <fileset dir='src/org/hsqldb/util' includes='RCData*'/>
       </copy>
       <replace dir="${libclonesrc}" token="org.hsqldb.lib"
                value="org.hsqldb.cmdline.libclone"/>
       <replace dir="${libclonesrc}" token="/org/hsqldb/resources/"
                value="/org/hsqldb/cmdline/"/>
+      <replace dir="${utilclonesrc}" token="org.hsqldb.util"
+               value="org.hsqldb.cmdline.utilclone"/>
     </target>
 
     <fileset id='preprocessorclasses' dir='classes' includes='org/hsqldb/util/preprocessor/*.class'/>
@@ -792,7 +788,7 @@ examples:
         org/hsqldb/sample/TriggerSample.java,
         org/hsqldb/sample/SqlFileEmbedder.java,
         org/hsqldb/lib/FrameworkLogger.java,
-        org/hsqldb/lib/RCData.java,
+        org/hsqldb/util/RCData.java,
         org/hsqldb/lib/tar/DbBackup.java,
         org/hsqldb/lib/tar/DbBackupMain.java,
         org/hsqldb/test/TestScriptRunner.java,
@@ -824,7 +820,7 @@ examples:
                   value="http://docs.oracle.com/javase/6/docs/api/"/>
     </target>
 
-    <target name="javadoc" depends="-prepare-javadoc, switches, -clone-shared-libs, -set-jvmvars, -doclink-06"
+    <target name="javadoc" depends="-prepare-javadoc, switches, -clone-shared-sources, -set-jvmvars, -doclink-06"
             description="Create javadoc for the distribution package">
       <!-- TODO:  Find out why JDBCDriver class is listed twice in the class
            list pane, but only when All Classes selected
@@ -864,7 +860,7 @@ examples:
     </target>
 
     <target name="javadocdev"
-            depends="-prepare-javadoc, switches, -clone-shared-libs,-set-jvmvars,-doclink-06"
+            depends="-prepare-javadoc, switches, -clone-shared-sources,-set-jvmvars,-doclink-06"
             description="Create javadoc for all HSQLDB code-base classes">
       <!-- Since our preprocessor package compilatoin depends on the
            env-specific ant runtime lib via includeAntRuntime=true, Javadoc

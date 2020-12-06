@@ -33,7 +33,7 @@ package org.hsqldb.sample;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.hsqldb.lib.RCData;
+import org.hsqldb.util.RCData;
 import org.hsqldb.cmdline.SqlFile;
 import org.hsqldb.cmdline.SqlToolError;
 import java.io.File;

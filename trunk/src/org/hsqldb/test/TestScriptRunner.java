@@ -46,7 +46,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.lang.reflect.Method;
 import org.hsqldb.test.TestUtil;
-import org.hsqldb.lib.RCData;
+import org.hsqldb.util.RCData;
 
 /**
  * @see #main
