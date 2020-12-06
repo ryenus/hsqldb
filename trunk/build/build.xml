@@ -22,7 +22,7 @@
         Use multiple class directories (javac dest dirs).
         Current tactic requires tons of complicated includes and exludes
         and still often bundles arbitrary extra stuff (determined by what
-        happened to be built previously).
+        happened to be built previously). Mostly fixed in 2.5.1 and .2
   -->
 
     <property file='build/build.properties'/>
@@ -45,12 +45,14 @@
               value="HyperSQL Lightweight 100% Java SQL Database Engine"/>
     <property name="build.sysclasspath" value="ignore"/>
     <property name="javac.encoding" value="ISO-8859-1"/>
-    <property name="tmpsrc" value="${basedir}/tmp/switchedsrc/"/>
 
-    <property name="swsrc" value="${tmpsrc}"/>
+    <!-- "switch.inplace" can be set in build.properties for in-place switching of source files-->
+    <property name="tmpsrc" value="${basedir}/tmp/switchedsrc/"/>
+    <condition property="swsrc" value="${basedir}/src/" else="${tmpsrc}">
+      <istrue value="${switch.inplace}"/>
+    </condition>
+
     <property name="libclonesrc" value="${swsrc}org/hsqldb/cmdline/libclone"/>
-    <available property="switch.inplace"
-               file="${swsrc}/org/hsqldb/package.html"/>
 
     <!-- Hosting Junit 3.8.2 JavaDocs at hsqldb.org since it's not available
          expanded anywhere on Internet that I can find. -->
@@ -379,14 +381,7 @@ examples:
     <target name="-cmdline"
             depends="-prepare, -update-switch-branch, -clone-shared-libs,
                      -conditionalize-sqlfile-scanner, -sqlfile-scanner">
-<!--
-      <javac srcdir="${libclonesrc}"
-             includeantruntime="false"
-             encoding="${javac.encoding}"
-             destdir="classes"
-             debug="${build.debug}"
-      />
--->
+
       <javac srcdir="${swsrc}"
              includeantruntime="false"
              encoding="${javac.encoding}"
@@ -780,6 +775,39 @@ examples:
       </jar>
     </target>
 
+    <fileset id='javadocsources' dir='${swsrc}'
+        includes='
+        org/hsqldb/jdbc/JDBCDriver.java,
+        org/hsqldb/jdbc/pool/JDBCPooledConnection.java,
+        org/hsqldb/jdbc/pool/JDBCPooledDataSource.java,
+        org/hsqldb/jdbc/pool/JDBCXAConnection.java,
+        org/hsqldb/jdbc/pool/JDBCXAConnectionWrapper.java,
+        org/hsqldb/jdbc/pool/JDBCXADataSource.java,
+        org/hsqldb/jdbc/pool/JDBCXAResource.java,
+        org/hsqldb/jdbc/pool/JDBCXID.java,
+        org/hsqldb/trigger/Trigger.java,
+        org/hsqldb/server/Server.java,
+        org/hsqldb/server/WebServer.java,
+        org/hsqldb/server/ServerAcl.java,
+        org/hsqldb/sample/TriggerSample.java,
+        org/hsqldb/sample/SqlFileEmbedder.java,
+        org/hsqldb/lib/FrameworkLogger.java,
+        org/hsqldb/lib/RCData.java,
+        org/hsqldb/lib/tar/DbBackup.java,
+        org/hsqldb/lib/tar/DbBackupMain.java,
+        org/hsqldb/test/TestScriptRunner.java,
+        org/hsqldb/cmdline/SqlFile.java,
+        org/hsqldb/util/MainInvoker.java,
+        org/hsqldb/cmdline/SqlTool.java,
+        org/hsqldb/auth/AuthBeanMultiplexer.java,
+        org/hsqldb/auth/AuthFunctionBean.java,
+        org/hsqldb/auth/JaasAuthBean.java,
+        org/hsqldb/auth/HsqldbSlaveAuthBean.java,
+        org/hsqldb/auth/LdapAuthBean.java,
+        org/hsqldb/auth/LdapAuthBeanTester.java
+            '/>
+
+
     <target name="-doclink-11" if="ant.java.iscjava09">
       <property name="jse.doc.link"
                 value="https://docs.oracle.com/en/java/javase/11/docs/api/"/>
@@ -802,34 +830,6 @@ examples:
            list pane, but only when All Classes selected
            only listed once if jdbc package is selected). -->
       <javadoc
-           sourcefiles="src/org/hsqldb/jdbc/JDBCDriver.java,
-                        src/org/hsqldb/jdbc/pool/JDBCPooledConnection.java,
-                        src/org/hsqldb/jdbc/pool/JDBCPooledDataSource.java,
-                        src/org/hsqldb/jdbc/pool/JDBCXAConnection.java,
-                        src/org/hsqldb/jdbc/pool/JDBCXAConnectionWrapper.java,
-                        src/org/hsqldb/jdbc/pool/JDBCXADataSource.java,
-                        src/org/hsqldb/jdbc/pool/JDBCXAResource.java,
-                        src/org/hsqldb/jdbc/pool/JDBCXID.java,
-                        src/org/hsqldb/trigger/Trigger.java,
-                        src/org/hsqldb/server/Server.java,
-                        src/org/hsqldb/server/WebServer.java,
-                        src/org/hsqldb/server/ServerAcl.java,
-                        src/org/hsqldb/sample/TriggerSample.java,
-                        src/org/hsqldb/sample/SqlFileEmbedder.java,
-                        src/org/hsqldb/lib/FrameworkLogger.java,
-                        src/org/hsqldb/lib/RCData.java,
-                        src/org/hsqldb/lib/tar/DbBackup.java,
-                        src/org/hsqldb/lib/tar/DbBackupMain.java,
-                        src/org/hsqldb/test/TestScriptRunner.java,
-                        src/org/hsqldb/cmdline/SqlFile.java,
-                        src/org/hsqldb/util/MainInvoker.java,
-                        src/org/hsqldb/cmdline/SqlTool.java,
-                        src/org/hsqldb/auth/AuthBeanMultiplexer.java,
-                        src/org/hsqldb/auth/AuthFunctionBean.java,
-                        src/org/hsqldb/auth/JaasAuthBean.java,
-                        src/org/hsqldb/auth/HsqldbSlaveAuthBean.java,
-                        src/org/hsqldb/auth/LdapAuthBean.java,
-                        src/org/hsqldb/auth/LdapAuthBeanTester.java"
            destdir="doc/apidocs"
            stylesheetfile="doc-src/apidocs/javadoc.css"
            docencoding="UTF-8"
@@ -842,6 +842,7 @@ examples:
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2020 HSQL Development Group.&lt;/i&gt;">
+          <sourcefiles id="javadocsources"/>
            <classpath>
              <pathelement location="${servletapi.lib}"/>
              <pathelement location="${junit38.lib}"/>
