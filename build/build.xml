@@ -625,7 +625,7 @@ examples:
         <fileset dir='${hsqldb.module.dir}'/>
       </jar>
 
-      <!-- Ant jar task doesn't support -e switch! -->
+      <!-- Ant jar task doesn't support -e / -Main-Class switch! -->
       <exec executable="${jar.exec.path}" dir="lib" failonerror="true">
         <arg value="-ufe"/>
         <arg value="hsqldb.jar"/>
