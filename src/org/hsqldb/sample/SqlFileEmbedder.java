@@ -33,7 +33,7 @@ package org.hsqldb.sample;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import org.hsqldb.util.RCData;
+import org.hsqldb.cmdline.utilclone.RCData;
 import org.hsqldb.cmdline.SqlFile;
 import org.hsqldb.cmdline.SqlToolError;
 import java.io.File;
@@ -70,7 +70,7 @@ public class SqlFileEmbedder {
     }
 
     /**
-     * Run<PRE> java SqlFileEmbedder</PRE> to see Syntax message.
+     * Run<PRE> java org.hsqldb.sample.SqlFileEmbedder</PRE> to see Syntax message.
      *
      * @param sa String[]
      * @throws Exception on any problem
