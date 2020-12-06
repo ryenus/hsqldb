@@ -46,7 +46,7 @@ import java.util.Map;
 
 import org.hsqldb.cmdline.sqltool.Token;
 import org.hsqldb.cmdline.libclone.FrameworkLogger;
-import org.hsqldb.cmdline.libclone.RCData;
+import org.hsqldb.cmdline.utilclone.RCData;
 
 /* $Id$ */
 

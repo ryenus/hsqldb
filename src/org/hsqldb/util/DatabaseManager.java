@@ -66,8 +66,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.MemoryImageSource;
 
-import org.hsqldb.lib.RCData;
-
 // sqlbob@users 20020401 - patch 1.7.0 by sqlbob (RMP) - enhancements
 // sqlbob@users 20020401 - patch 537501 by ulrivo - command line arguments
 // sqlbob@users 20020407 - patch 1.7.0 - reengineering
