@@ -1,4 +1,5 @@
 module org.hsqldb.sqltool {
-   requires java.sql;
-   //exports org.hsqldb.cmdline.sqltool;
+    requires transitive java.sql;
+    exports org.hsqldb.cmdline.utilclone;
+    exports org.hsqldb.cmdline;
 }
