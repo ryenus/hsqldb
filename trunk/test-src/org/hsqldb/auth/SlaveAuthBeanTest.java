@@ -195,7 +195,7 @@ public class SlaveAuthBeanTest extends BaseTestCase {
      */
     public static void main(String[] sa) {
         if (sa.length > 0 && sa[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(SlaveAuthBeanTest.class);
+            TestRunner.run(SlaveAuthBeanTest.class);
         } else {
             junit.framework.TestResult result = TestRunner.run(suite());
 

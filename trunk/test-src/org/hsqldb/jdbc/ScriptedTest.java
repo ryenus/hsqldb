@@ -70,18 +70,10 @@ public class ScriptedTest extends BaseScriptedTestCase {
         this.connectionFactory().removeEventListener(m_deleter);
     }
 
-    /**
-     *
-     * @return
-     */
     public static Test suite() {
         return instance.getSuite();
     }
 
-    /**
-     *
-     * @return
-     */
     @SuppressWarnings("CallToThreadDumpStack")
     protected Test getSuite() {
         TestSuite suite = new TestSuite("ScriptTest");
@@ -101,10 +93,6 @@ public class ScriptedTest extends BaseScriptedTestCase {
         return suite;
     }
 
-    /**
-     * @param args
-     * @throws java.lang.Exception
-     */
     public static void main(String[] args) throws Exception {
         junit.textui.TestRunner.run(suite());
     }

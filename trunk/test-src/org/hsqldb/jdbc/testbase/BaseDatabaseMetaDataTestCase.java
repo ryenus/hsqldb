@@ -2290,7 +2290,7 @@ public abstract class BaseDatabaseMetaDataTestCase extends BaseJdbcTestCase {
         assertEquals(expResult, result);
     }
 
-    /**
+    /*
      * Test of providesQueryObjectGenerator method, of interface java.sql.DatabaseMetaData.
      */
     //    public void testProvidesQueryObjectGenerator() throws Exception {

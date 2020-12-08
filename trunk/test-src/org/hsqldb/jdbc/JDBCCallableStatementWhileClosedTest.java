@@ -75,58 +75,30 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
         super.tearDown();
     }
 
-    /**
-     *
-     * @return
-     */
     public static TestSuite suite() {
         return new TestSuite(JDBCCallableStatementWhileClosedTest.class);
     }
 
-    /**
-     *
-     * @return
-     */
     protected String getSql() {
         return "{?= call cast(1 as integer)}";
     }
 
-    /**
-     *
-     * @return
-     */
     protected int getParameterType() {
         return java.sql.Types.INTEGER;
     }
 
-    /**
-     *
-     * @return
-     */
     protected String getParameterTypeName() {
         return "INTEGER";
     }
 
-    /**
-     *
-     * @return
-     */
     protected int getParameterScale() {
         return 0;
     }
 
-    /**
-     *
-     * @return
-     */
     protected int getParameterIndex() {
         return 1;
     }
 
-    /**
-     *
-     * @return
-     */
     protected String getParameterName() {
         return "@p0";
     }
@@ -135,11 +107,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
         return -ErrorCode.X_07501;
     }
 
-    /**
-     *
-     * @return
-     * @throws java.lang.Exception
-     */
     protected CallableStatement newClosedCall() throws Exception {
         CallableStatement instance = connectionFactory().prepareCall(getSql(), newConnection());
 
@@ -167,7 +134,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of registerOutParameter method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"registerOutParameter(java.lang.String,int)",
         "registerOutParameter(java.lang.String,int,java.lang.String)",
@@ -223,7 +190,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of wasNull method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod("wasNull()")
     public void testWasNull() throws Exception {
@@ -239,7 +206,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getString method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getString(java.lang.String)", "getString(int)"})
     public void testGetString() throws Exception {
@@ -262,7 +229,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getBoolean method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getBoolean(java.lang.String)", "getBoolean(int)"})
     public void testGetBoolean() throws Exception {
@@ -285,7 +252,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getByte method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getByte(java.lang.String)", "getByte(int)"})
     public void testGetByte() throws Exception {
@@ -308,7 +275,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getShort method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getShort(java.lang.String)", "getShort(int)"})
     public void testGetShort() throws Exception {
@@ -331,7 +298,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getInt method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getInt(java.lang.String)", "getInt(int)"})
     public void testGetInt() throws Exception {
@@ -354,7 +321,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getLong method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getLong(java.lang.String)", "getLong(int)"})
     public void testGetLong() throws Exception {
@@ -377,7 +344,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getFloat method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getFloat(java.lang.String)", "getFloat(int)"})
     public void testGetFloat() throws Exception {
@@ -400,7 +367,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getDouble method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getDouble(java.lang.String)", "getDouble(int)"})
     public void testGetDouble() throws Exception {
@@ -423,7 +390,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getBigDecimal method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @SuppressWarnings("deprecation")
     @OfMethod({"getBigDecimal(java.lang.String)", "getBigDecimal(int)", "getBigDecimal(int,int)"})
@@ -452,7 +419,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getBytes method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getBytes(java.lang.String)", "getBytes(int)"})
     public void testGetBytes() throws Exception {
@@ -475,7 +442,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getDate method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getDate(java.lang.String)",
         "getDate(java.lang.String,java.util.Calendar)",
@@ -515,7 +482,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getTime method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getTime(java.lang.String)",
         "getTime(java.lang.String,java.util.Calendar)",
@@ -555,7 +522,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getTimestamp method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getTimestamp(java.lang.String)",
         "getTimestamp(java.lang.String,java.util.Calendar)",
@@ -595,7 +562,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getObject method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getObject(java.lang.String)",
         "getObject(java.lang.String,java.util.Map<java.lang.String,java.lang.Class<?>>)",
@@ -635,7 +602,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getRef method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getRef(java.lang.String)", "getRef(int)"})
     public void testGetRef() throws Exception {
@@ -658,7 +625,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getBlob method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     @OfMethod({"getBlob(java.lang.String)", "getBlob(int)"})
     public void testGetBlob() throws Exception {
@@ -681,7 +648,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getClob method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getClob(java.lang.String)", "getClob(int)"})
     public void testGetClob() throws Exception {
@@ -704,7 +671,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getArray method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getArray(java.lang.String)", "getArray(int)"})
     public void testGetArray() throws Exception {
@@ -727,7 +694,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getURL method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"getURL(java.lang.String)", "getURL(int)"})
     public void testGetURL() throws Exception {
@@ -750,7 +717,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setURL method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"setURL(java.lang.String,java.net.URL)", "setURL(int,java.net.URL)"})
     public void testSetURL() throws Exception {
@@ -773,7 +740,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setNull method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"setNull(java.lang.String, int)",
         "setNull(java.lang.String,int,java.lang.String)",
@@ -813,7 +780,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setBoolean method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"setBoolean(java.lang.String,boolean)", "setBoolean(int,boolean)"})
     public void testSetBoolean() throws Exception {
@@ -836,7 +803,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setByte method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"setByte(java.lang.String,byte)", "setByte(int,byte)"})
     public void testSetByte() throws Exception {
@@ -859,7 +826,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setShort method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"setShort(java.lang.String,short)", "setShort(int,short)"})
     public void testSetShort() throws Exception {
@@ -882,7 +849,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setInt method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"setInt(java.lang.String,int)", "setInt(int,int)"})
     public void testSetInt() throws Exception {
@@ -905,7 +872,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setLong method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"setLong(java.lang.String,long)", "setLong(int,long)"})
     public void testSetLong() throws Exception {
@@ -928,7 +895,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setFloat method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"setFloat(java.lang.String,float)", "setFloat(int,float)"})
     public void testSetFloat() throws Exception {
@@ -951,7 +918,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setDouble method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"setDouble(java.lang.String,double)", "setDouble(int,double)"})
     public void testSetDouble() throws Exception {
@@ -974,7 +941,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setBigDecimal method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"setBigDecimal(java.lang.String,java.math.BigDecimal)", "setBigDecimal(int,java.math.BigDecimal)"})
     public void testSetBigDecimal() throws Exception {
@@ -997,7 +964,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setString method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"setString(java.lang.String,java.lang.String)", "setString(int,java.lang.String)"})
     public void testSetString() throws Exception {
@@ -1020,7 +987,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setBytes method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception on error
      */
     @OfMethod({"setBytes(java.lang.String,[B)", "setBytes(int,[B)"})
     public void testSetBytes() throws Exception {
@@ -1043,7 +1010,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setDate method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     @OfMethod({"setDate(java.lang.String,java.sql.Date)",
         "setDate(java.lang.String,java.sql.Date,java.util.Calendar)",
@@ -1083,7 +1050,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setTime method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     @OfMethod({"setTime(java.lang.String,java.sql.Time)",
         "setTime(java.lang.String,java.sql.Time,java.util.Calendar)",
@@ -1123,7 +1090,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setTimestamp method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     @OfMethod({"setTimestamp(java.lang.String,java.sql.Timeastamp)",
         "setTimestamp(java.lang.String,java.sql.Timestamp,java.util.Calendar)",
@@ -1163,7 +1130,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setAsciiStream method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     @OfMethod({"setAsciiStream(java.lang.String,java.io.InputStream)",
         "setAsciiStream(int,java.io.InputStream)",
@@ -1224,7 +1191,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setBinaryStream method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     @OfMethod({"setBinaryStream(java.lang.String,java.io.InputStream)",
         "setBinaryStreamm(int,java.io.InputStream)",
@@ -1285,7 +1252,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setObject method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     @OfMethod({"setObject(java.lang.String,java.lang.Object",
         "setObject(int,java.lang.Object",
@@ -1346,7 +1313,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setCharacterStream method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     @OfMethod({"setCharacterStream(java.lang.String,java.io.Reader)",
         "setCharacterStream(int,java.io.Reader)",
@@ -1407,7 +1374,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getRowId method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     @OfMethod({"getRowId(java.lang.String)","getRowId(int)"})
     public void testGetRowId() throws Exception {
@@ -1432,7 +1399,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setRowId method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     @OfMethod({"setRowId(java.lang.String,java.sql.RowId)","setRowId(int,java.sql.RowId)"})
     public void testSetRowId() throws Exception {
@@ -1458,7 +1425,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setNString method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     @OfMethod({"setNString(java.lang.String,java.lang.String)","setNString(int,java.lang.String)"})
     public void testSetNString() throws Exception {
@@ -1484,7 +1451,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setNCharacterStream method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     @OfMethod({"setNCharacterStream(java.lang.String,java.io.Reader)",
         "setNCharacterStream(int,java.io.Reader)",
@@ -1528,7 +1495,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setNClob method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     @OfMethod({"setNClob(java.lang.String,java.io.Reader)",
         "setNClob(int,java.io.Reader)",
@@ -1590,7 +1557,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setClob method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     public void testSetClob() throws Exception {
         String parameterName = getParameterName();
@@ -1646,7 +1613,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setBlob method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     public void testSetBlob() throws Exception {
         String parameterName = getParameterName();
@@ -1694,7 +1661,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getNClob method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     public void testGetNClob() throws Exception {
         String parameterName = getParameterName();
@@ -1742,7 +1709,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of setSQLXML method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     public void testSetSQLXML() throws Exception {
         String parameterName = getParameterName();
@@ -1769,7 +1736,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getSQLXML method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     public void testGetSQLXML() throws Exception {
         CallableStatement instance = newClosedCall();
@@ -1791,7 +1758,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getNString method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     public void testGetNString() throws Exception {
         CallableStatement instance = newClosedCall();
@@ -1813,7 +1780,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getNCharacterStream method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     public void testGetNCharacterStream() throws Exception {
         CallableStatement instance = newClosedCall();
@@ -1835,7 +1802,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of getCharacterStream method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     public void testGetCharacterStream() throws Exception {
         CallableStatement instance = newClosedCall();
@@ -1857,7 +1824,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     /**
      * Test of close method, of interface java.sql.CallableStatement
-     * @throws java.lang.Exception
+     * @throws  java.lang.Exception on error
      */
     public void testClose() throws Exception {
         CallableStatement instance = newClosedCall();

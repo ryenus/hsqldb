@@ -37,6 +37,7 @@ import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 
 @ForSubject(OdbcPacketInputStream.class)
 public class OdbcPacketInputStreamTest extends BaseTestCase {
@@ -105,7 +106,7 @@ public class OdbcPacketInputStreamTest extends BaseTestCase {
      */
     public static void main(java.lang.String[] args) {
         if (args.length > 0 && args[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(ServerSuite.class);
+            TestRunner.run(ServerSuite.class);
         } else {
             junit.framework.TestResult result = junit.textui.TestRunner.run(suite());
 

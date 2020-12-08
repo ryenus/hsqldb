@@ -61,8 +61,8 @@ public class IntervalTypeTest extends BaseTestCase {
          * @param type interval type
          * @param precision interval precision
          * @param fractionPrecision interval fraction precision
-         * @param text interval literal text
-         * @param failMessage
+         * @param literalText interval literal text
+         * @param failMessage string
          */
         public TestParameters(
                 final int type,

@@ -49,8 +49,8 @@ import org.hsqldb.testbase.OfMethod;
  *
  * In order to automate exhaustive combinatoric testing, concrete subclasses
  * must also provide a <tt>public static TestCase suite()</tt> method that
- * delegates to {@link #createTestSuite(java.lang.Class)}, passing their own
- * @{link Class} and the supported type count (one greater than the maximum
+ * delegates to createTestSuite(java.lang.Class), passing their own
+ * Class and the supported type count (one greater than the maximum
  * valid index than can be passed to the concrete implementation of
  * {@link #getSQLTypeCode(int)} or  {@link #getSQLTypeName(int)}.  <p>
  *

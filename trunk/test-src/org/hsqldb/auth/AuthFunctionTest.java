@@ -559,10 +559,10 @@ public class AuthFunctionTest extends BaseTestCase {
      */
     static public void main(String[] sa) {
         if (sa.length > 0 && sa[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(AuthFunctionTest.class);
+            TestRunner.run(AuthFunctionTest.class);
         } else {
             junit.framework.TestResult result = TestRunner.run(suite());
-            
+
             System.exit(result.wasSuccessful() ? 0 : 1);
         }
 

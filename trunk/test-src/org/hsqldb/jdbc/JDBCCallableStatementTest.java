@@ -1424,10 +1424,6 @@ public class JDBCCallableStatementTest extends BaseCallableStatementTestCase {
         return new TestSuite(JDBCCallableStatementTest.class);
     }
 
-    /**
-     *
-     * @param argList
-     */
     public static void main(java.lang.String[] argList) {
 
         junit.textui.TestRunner.run(suite());

@@ -58,10 +58,10 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
     /**
      * supplies new Clob instances to createClob and hence newClob.
      *
-     * @return
-     * @throws Exception
+     * @return new clob
+     * @throws Exception on error
      * @see #createClob()
-     * @see #newClob(java.lang.String)
+     * @see #newClobFromString(String)
      */
     protected abstract Clob handleCreateClob() throws Exception;
 
@@ -69,7 +69,7 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
      * for testing purposes.
      *
      * @return a newly created Clob instance.
-     * @throws Exception
+     * @throws Exception on error
      */
     public final Clob createClob() throws Exception {
         final Clob clob = handleCreateClob();
@@ -82,9 +82,9 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
     /**
      * with the given character content.
      *
-     * @param data
-     * @return
-     * @throws Exception
+     * @param data string
+     * @return new clob
+     * @throws Exception on error
      */
     protected Clob newClobFromString(final String data) throws Exception {
         final Clob clob = createClob();
@@ -111,9 +111,9 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
     /**
      * with the given character content.
      *
-     * @param data
-     * @return
-     * @throws Exception
+     * @param resource string
+     * @return new clob
+     * @throws Exception on error
      */
     protected Clob newClobFromResource(final String resource) throws Exception {
         Clob clob = createClob();
@@ -218,7 +218,7 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
 
     /**
      *
-     * @throws Exception
+     * @throws Exception on error
      */
     @OfMethod("getAsciiStream()")
     public void testGetAsciiStream() throws Exception {

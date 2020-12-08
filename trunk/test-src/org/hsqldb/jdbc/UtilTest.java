@@ -50,7 +50,7 @@ import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
 
 /**
- * Test of class {@link org.hsqldb.jdbc.Util}.
+ * Test of class {@link org.hsqldb.jdbc.JDBCUtil}.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */

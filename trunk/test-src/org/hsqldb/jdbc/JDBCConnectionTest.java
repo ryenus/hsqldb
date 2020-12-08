@@ -903,7 +903,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         assertEquals(expResult, result);
     }
 
-    /**
+    /*
      * Test of createQueryObject method, of interface java.sql.Connection.
      */
 //    public void testCreateQueryObject() throws Exception {

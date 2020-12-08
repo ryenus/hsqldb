@@ -770,7 +770,7 @@ public class DatabaseMetaDataDefaultValues {
      * having the same default values supplied by this class
      *
      * @param args the first argument is interpreted as the property prefix.
-     * @throws Exception
+     * @throws Exception on error
      */
     public static void main(String[] args) throws Exception {
         String prefix = (args == null

@@ -49,8 +49,8 @@ import java.util.List;
  * For creating, tracking and closing the
  * JDBC objects used by this test suite. <p>
  *
- * Note that a facility is provided to notify parties interested in the {@link
- * EventListener#closedRegisteredObjects(org.hsqldb.testbase.ConnectionFactory)}
+ * Note that a facility is provided to notify parties interested in the
+ * closedRegisteredObjects(org.hsqldb.testbase.ConnectionFactory)
  * event. <p>
  *
  * For example, this facility is used by the {@link BaseTestCase}
@@ -145,7 +145,7 @@ public final class ConnectionFactory {
      * to be closed at teardown.
      *
      * @param conn to track for close.
-     * @param rollback
+     * @param rollback boolean
      */
     public void registerConnection(Connection conn, boolean rollback) {
         m_connectionRegistrations.add(new ConnectionRegistration(conn, rollback));

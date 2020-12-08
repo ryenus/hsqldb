@@ -65,19 +65,10 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         super(name);
     }
 
-    /**
-     *
-     * @throws java.lang.Exception
-     * @return
-     */
     protected Statement newStatement() throws Exception {
         return connectionFactory().createStatement(newConnection());
     }
 
-    /**
-     *
-     * @throws java.lang.Throwable
-     */
     @Override
     public void runTest() throws Throwable {
         try {
@@ -88,12 +79,6 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         }
     }
 
-    /**
-     *
-     * @param resource
-     * @throws java.lang.Exception
-     * @return
-     */
     protected Reader getScriptReader(final String resource) throws Exception {
 
         final URL resourceURL = getClass().getResource(resource);
@@ -105,11 +90,6 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         return new InputStreamReader(resourceURL.openStream());
     }
 
-    /**
-     *
-     * @param resource
-     * @throws java.lang.Exception
-     */
     @Override
     protected void executeScript(String resource) throws Exception {
 
@@ -164,12 +144,6 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         printProgress("Processed lines: " + reader.getLineNumber());
     }
 
-    /**
-     *
-     * @param stmt
-     * @param lines
-     * @param line
-     */
     protected void executeSection(Statement stmt, List lines, int line) {
         BaseSection section = getSectionFactory().createSection(lines);
 
@@ -189,15 +163,9 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
             TestCase.fail(section.toString());
         }
     }
-    /**
-     *
-     */
+
     private SectionFactory m_sectionFactory;
 
-    /**
-     *
-     * @return
-     */
     protected SectionFactory getSectionFactory() {
 
         if (m_sectionFactory == null) {
@@ -220,9 +188,6 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         return m_sectionFactory;
     }
 
-    /**
-     *
-     */
     protected interface SectionFactory {
 
         /**
@@ -231,21 +196,13 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
          *
          *
          * @return a ParesedSection object
-         * @param lines
+         * @param lines list
          */
         BaseSection createSection(List lines);
     }
 
-    /**
-     *
-     */
     protected class DefaultSectionFactory implements SectionFactory {
 
-        /**
-         *
-         * @param list
-         * @return
-         */
         public BaseSection createSection(List list) {
             char sectionType = ' ';
             String[] lines = null;
@@ -309,11 +266,6 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
             }
         }
 
-        /**
-         *
-         * @param sectionType
-         * @return
-         */
         protected boolean isRecognizedSectionType(char sectionType) {
             switch (Character.toLowerCase(sectionType)) {
                 case ' ':
@@ -332,42 +284,17 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         }
     }
 
-    /**
-     *
-     */
     protected abstract class BaseSection {
 
-        /**
-         *
-         */
         protected char m_type = ' ';
-        /**
-         *
-         */
         String m_message = null;
-        /**
-         *
-         */
         protected String[] m_lines = null;
-        /**
-         *
-         */
         protected int m_resEndRow = 0;
-        /**
-         *
-         */
         protected String m_sql = null;
 
-        /**
-         *
-         */
         protected BaseSection() {
         }
 
-        /**
-         *
-         * @param lines
-         */
         protected BaseSection(String[] lines) {
 
             m_lines = lines;
@@ -402,10 +329,6 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
             m_sql = sb.toString();
         }
 
-        /**
-         *
-         * @return
-         */
         @Override
         public String toString() {
             String className = getClass().getName();
@@ -448,41 +371,20 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
             return sb.toString();
         }
 
-        /**
-         *
-         * @return
-         */
         protected abstract String getResultString();
 
-        /**
-         *
-         * @return
-         */
         protected String getMessage() {
             return m_message;
         }
 
-        /**
-         *
-         * @return
-         */
         protected char getType() {
             return m_type;
         }
 
-        /**
-         *
-         * @return
-         */
         protected String getSql() {
             return m_sql;
         }
 
-        /**
-         *
-         * @param stmt
-         * @return
-         */
         protected boolean execute(Statement stmt) {
             boolean success = false;
 
@@ -500,24 +402,11 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         }
     }
 
-    /**
-     *
-     */
     protected class ResultSetSection extends BaseSection {
 
-        /**
-         *
-         */
         private String m_delimiter = getProperty("TestUtilFieldDelimiter", ",");
-        /**
-         *
-         */
         private String[] m_expectedRows = null;
 
-        /**
-         *
-         * @param lines String[]
-         */
         protected ResultSetSection(String[] lines) {
 
             super(lines);
@@ -533,10 +422,6 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
             }
         }
 
-        /**
-         *
-         * @return
-         */
         @Override
         protected String getResultString() {
 
@@ -555,11 +440,6 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
             return "Result Set Section";
         }
 
-        /**
-         *
-         * @param stmt
-         * @return
-         */
         @Override
         protected boolean execute(Statement stmt) {
 
@@ -633,29 +513,15 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
             return true;
         }
 
-        /**
-         *
-         * @return
-         */
         private String[] getExpectedRows() {
             return m_expectedRows;
         }
     }
 
-    /**
-     *
-     */
     protected class UpdateCountSection extends BaseSection {
 
-        /**
-         *
-         */
         int m_expectedUpdateCount;
 
-        /**
-         *
-         * @param lines
-         */
         protected UpdateCountSection(String[] lines) {
             super(lines);
 
@@ -663,28 +529,15 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
             m_expectedUpdateCount = Integer.parseInt(lines[0]);
         }
 
-        /**
-         *
-         * @return
-         */
         @Override
         protected String getResultString() {
             return Integer.toString(getExpectedUpdateCount());
         }
 
-        /**
-         *
-         * @return
-         */
         private int getExpectedUpdateCount() {
             return m_expectedUpdateCount;
         }
 
-        /**
-         *
-         * @param stmt
-         * @return
-         */
         @Override
         protected boolean execute(final Statement stmt) {
             try {
@@ -712,30 +565,17 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
      */
     protected class SilentSection extends BaseSection {
 
-        /**
-         *
-         * @param lines
-         */
         protected SilentSection(String[] lines) {
             super(lines);
 
             m_type = 's';
         }
 
-        /**
-         *
-         * @return
-         */
         @Override
         protected String getResultString() {
             return null;
         }
 
-        /**
-         *
-         * @param stmt
-         * @return
-         */
         @Override
         protected boolean execute(Statement stmt) {
             try {
@@ -747,20 +587,10 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         }
     }
 
-    /**
-     *
-     */
     protected class RowCountSection extends BaseSection {
 
-        /**
-         *
-         */
         private int m_expectedRowCount;
 
-        /**
-         *
-         * @param lines
-         */
         protected RowCountSection(String[] lines) {
             super(lines);
 
@@ -768,28 +598,15 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
             m_expectedRowCount = Integer.parseInt(lines[0]);
         }
 
-        /**
-         *
-         * @return
-         */
         @Override
         protected String getResultString() {
             return Integer.toString(getExpectedRowCount());
         }
 
-        /**
-         *
-         * @return
-         */
         private int getExpectedRowCount() {
             return m_expectedRowCount;
         }
 
-        /**
-         *
-         * @param stmt
-         * @return
-         */
         @Override
         protected boolean execute(Statement stmt) {
             try {
@@ -835,35 +652,19 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         }
     }
 
-    /**
-     *
-     */
     protected class ExceptionSection extends BaseSection {
 
-        /**
-         *
-         * @param lines
-         */
         protected ExceptionSection(String[] lines) {
             super(lines);
 
             m_type = 'e';
         }
 
-        /**
-         *
-         * @return
-         */
         @Override
         protected String getResultString() {
             return "SQLException";
         }
 
-        /**
-         *
-         * @param aStatement
-         * @return
-         */
         @Override
         protected boolean execute(Statement stmt) {
 
@@ -881,76 +682,42 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         }
     }
 
-    /**
-     *
-     */
     protected class BlankSection extends BaseSection {
 
-        /**
-         *
-         * @param lines
-         */
         protected BlankSection(String[] lines) {
             super(lines);
 
             m_type = ' ';
         }
 
-        /**
-         *
-         * @return
-         */
         @Override
         protected String getResultString() {
             return "No result specified for this section";
         }
     }
 
-    /**
-     *
-     */
     protected class IgnoredSection extends BaseSection {
 
-        /**
-         *
-         * @param lines
-         * @param type
-         */
         protected IgnoredSection(String[] lines, char type) {
             super(lines);
 
             m_type = type;
         }
 
-        /**
-         *
-         * @return
-         */
         @Override
         protected String getResultString() {
             return "This section, of type '" + getType() + "' was ignored";
         }
     }
 
-    /**
-     *
-     */
     protected class DisplaySection extends BaseSection {
 
-        /**
-         *
-         * @param inLines
-         */
         protected DisplaySection(String[] lines) {
             m_lines = lines;
             int firstSlash = m_lines[0].indexOf('/');
             m_lines[0] = m_lines[0].substring(firstSlash + 1);
         }
 
-        /**
-         *
-         * @return
-         */
         @Override
         protected String getResultString() {
 

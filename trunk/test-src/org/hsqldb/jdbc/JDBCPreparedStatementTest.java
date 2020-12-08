@@ -748,7 +748,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
         stmt.executeQuery();
     }
 
-    /**
+    /*
      * @todo this query is not good for null tests "select * from all_types
      * where c_array = ?"
      *

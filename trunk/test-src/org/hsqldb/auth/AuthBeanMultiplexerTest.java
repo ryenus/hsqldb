@@ -282,7 +282,7 @@ public class AuthBeanMultiplexerTest extends BaseTestCase {
      */
     static public void main(String[] sa) {
         if (sa.length > 0 && sa[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(AuthBeanMultiplexerTest.class);
+            TestRunner.run(AuthBeanMultiplexerTest.class);
         } else {
             junit.framework.TestResult result = TestRunner.run(suite());
 

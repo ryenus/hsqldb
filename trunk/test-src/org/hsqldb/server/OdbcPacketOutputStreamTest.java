@@ -278,7 +278,7 @@ public class OdbcPacketOutputStreamTest extends BaseTestCase {
 
     @OfMethod("write(java.lang.String,boolean)")
     public void testString() throws IOException {
-        /** TODO:  Test high-order characters */
+        /* TODO:  Test high-order characters */
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         String testString1 = "Ein gro\u00df Baum\nwith blossom";
@@ -305,7 +305,7 @@ public class OdbcPacketOutputStreamTest extends BaseTestCase {
 
     @OfMethod("write(java.lang.String,boolean)")
     public void testNullTermdString() throws IOException {
-        /** TODO:  Test high-order characters */
+        /* TODO:  Test high-order characters */
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         String testString1 = "Ein gro\u00df Baum\nwith blossom";
@@ -351,7 +351,7 @@ public class OdbcPacketOutputStreamTest extends BaseTestCase {
 
     @OfMethod("writeSized(java.lang.String)")
     public void testSizedString() throws IOException {
-        /** TODO:  Test high-order characters */
+        /* TODO:  Test high-order characters */
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         String testString1 = "Ein gro\u00df Baum\nwith blossom";

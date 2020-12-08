@@ -60,7 +60,7 @@ public class AuthSuite extends TestCase {
 
     public static void main(java.lang.String[] args) {
         if (args.length > 0 && args[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(AuthSuite.class);
+            TestRunner.run(AuthSuite.class);
         } else {
             junit.framework.TestResult result = TestRunner.run(suite());
 

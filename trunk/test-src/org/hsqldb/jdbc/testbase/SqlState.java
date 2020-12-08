@@ -123,13 +123,13 @@ import org.hsqldb.resources.ResourceBundleHandler;
  *
  * <ul>
  * <li>"S" denotes the {@link #Class} value corresponds to successful
- *     completion and is a completion condition;<p>
+ *     completion and is a completion condition;
  * </li>
  * <li>"W" denotes the {@link #Class} value corresponds to a successful
- *     completion but with a warning and is a completion condition;<p>
+ *     completion but with a warning and is a completion condition;
  * </li>
  * <li>"N" denotes the {@link #Class} value corresponds to a no-data situation
- *     and is a completion condition;</p>
+ *     and is a completion condition;
  * </li>
  * <li>"X" denotes the {@link #Class} value corresponds to an exception
  *     condition.
@@ -146,13 +146,13 @@ public abstract class SqlState implements Serializable {
      *
      * <ul>
      * <li>"S" denotes the {@link #Class} value corresponds to successful
-     *     completion and is a completion condition;<p>
+     *     completion and is a completion condition;
      * </li>
      * <li>"W" denotes the {@link #Class} value corresponds to a successful
-     *     completion but with a warning and is a completion condition;<p>
+     *     completion but with a warning and is a completion condition;
      * </li>
      * <li>"N" denotes the {@link #Class} value corresponds to a no-data
-     *     situation and is a completion condition;</p>
+     *     situation and is a completion condition;
      * </li>
      * <li>"X" denotes the {@link #Class} value corresponds to an exception
      *     condition.</li>
@@ -245,7 +245,7 @@ public abstract class SqlState implements Serializable {
     public static final Map<String, SqlState> Map = Collections.unmodifiableMap(s_map);
 
     /**
-     * Constructs a new {@link SqlState} from the given
+     * Constructs a new SqlState from the given
      * <tt>sqlStateCategory</tt>, <tt>sqlStateClass</tt> and
      * <tt>sqlStateSubclass</tt>.<p>
      *
@@ -342,70 +342,43 @@ public abstract class SqlState implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
-        /**
-         *
-         * @param sqlStateSubclass
-         */
         public NoData(final String sqlStateSubclass) {
             super(Constant.SqlStateClass.NoData,
                     sqlStateSubclass);
         }
-        /**
-         *
-         */
+
         public static final NoData NoSubclass = new NoData(
                 Constant.SqlStateSubclass.NoSubclass);
-        /**
-         *
-         */
+
         public static final NoData NoAdditionalResultSetsReturned =
                 new NoData(Constant.SqlStateSubclass.NoData.NoAdditionalResultSetsReturned);
     }
 
-    /**
-     *
-     */
     @SuppressWarnings("PublicInnerClass")
     public static final class Warning extends SqlState {
 
         private static final long serialVersionUID = 1L;
 
-        /**
-         *
-         * @param subClass
-         */
         public Warning(final String subClass) {
             super(Constant.SqlStateClass.Warning, subClass);
         }
-        /**
-         *
-         */
+
         public static final Warning NoSubclass =
                 new Warning(Constant.SqlStateSubclass.NoSubclass);
-        /**
-         *
-         */
+
         public static final Warning AdditionalResultSetsReturned = new Warning(
                 Constant.SqlStateSubclass.Warning.AdditionalResultSetsReturned);
-        /**
-         *
-         */
+
         public static final Warning ArrayDataRightTruncation = new Warning(
                 Constant.SqlStateSubclass.Warning.ArrayDataRightTruncation);
-        /**
-         *
-         */
+
         public static final Warning AttemptToReturnTooManyResultSets =
                 new Warning(
                 Constant.SqlStateSubclass.Warning.AttemptToReturnTooManyResultSets);
-        /**
-         *
-         */
+
         public static final Warning CursorOperationConflict = new Warning(
                 Constant.SqlStateSubclass.Warning.CursorOperationConflict);
-        /**
-         *
-         */
+
         public static final Warning DefaultValueTooLongForInformationSchema =
                 new Warning(
                 Constant.SqlStateSubclass.Warning.DefaultValueTooLongForInformationSchema);
@@ -467,19 +440,11 @@ public abstract class SqlState implements Serializable {
                 Constant.SqlStateSubclass.Warning.StringDataRightTruncation);
     }
 
-    /**
-     *
-     */
     @SuppressWarnings("PublicInnerClass")
     public static abstract class Exception extends SqlState {
 
         private static final long serialVersionUID = 1L;
 
-        /**
-         *
-         * @param sqlStateClass
-         * @param sqlStateSubclass
-         */
         protected Exception(final String sqlStateClass,
                 final String sqlStateSubclass) {
             super(sqlStateClass, sqlStateSubclass);
@@ -491,41 +456,25 @@ public abstract class SqlState implements Serializable {
             }
         }
 
-        /**
-         *
-         */
         public static final class AmbiguousCursorName extends Exception {
 
             private static final long serialVersionUID = 1L;
 
-            /**
-             *
-             * @param sqlStateSubclass
-             */
             public AmbiguousCursorName(final String sqlStateSubclass) {
                 super(Constant.SqlStateClass.AmbiguousCursorName,
                         sqlStateSubclass);
             }
-            /**
-             *
-             */
+
             public static final AmbiguousCursorName NoSubclass =
                     new AmbiguousCursorName(
                     Constant.SqlStateSubclass.NoSubclass);
         }
 
-        /**
-         *
-         */
         public static final class AttemptToAssignToNonUpdatableColumn
                 extends Exception {
 
             private static final long serialVersionUID = 1L;
 
-            /**
-             *
-             * @param sqlStateSubclass
-             */
             public AttemptToAssignToNonUpdatableColumn(
                     final String sqlStateSubclass) {
                 super(Constant.SqlStateClass.AttemptToAssignToNonUpdatableColumn,
@@ -543,10 +492,6 @@ public abstract class SqlState implements Serializable {
 
             private static final long serialVersionUID = 1L;
 
-            /**
-             *
-             * @param sqlStateSubclass
-             */
             public AttemptToAssignToOrderingColumn(
                     final String sqlStateSubclass) {
                 super(Constant.SqlStateClass.AttemptToAssignToOrderingColumn,
@@ -558,17 +503,11 @@ public abstract class SqlState implements Serializable {
 
             private static final long serialVersionUID = 1L;
 
-            /**
-             *
-             * @param sqlStateSubclass
-             */
             public CardinalityViolation(final String sqlStateSubclass) {
                 super(Constant.SqlStateClass.CardinalityViolation,
                         sqlStateSubclass);
             }
-            /**
-             *
-             */
+
             public static final CardinalityViolation NoSubclass =
                     new CardinalityViolation(
                     Constant.SqlStateSubclass.NoSubclass);
@@ -581,17 +520,11 @@ public abstract class SqlState implements Serializable {
 
             private static final long serialVersionUID = 1L;
 
-            /**
-             *
-             * @param sqlStateSubclass
-             */
             public ConnectionException(final String sqlStateSubclass) {
                 super(Constant.SqlStateClass.ConnectionException,
                         sqlStateSubclass);
             }
-            /**
-             *
-             */
+
             public static final ConnectionException NoSubclass =
                     new ConnectionException(
                     Constant.SqlStateSubclass.NoSubclass);
@@ -601,17 +534,11 @@ public abstract class SqlState implements Serializable {
 
             private static final long serialVersionUID = 1L;
 
-            /**
-             *
-             * @param sqlStateSubclass
-             */
             public InvalidCursorState(final String sqlStateSubclass) {
                 super(Constant.SqlStateClass.InvalidCursorState,
                         sqlStateSubclass);
             }
-            /**
-             *
-             */
+
             public static final InvalidCursorState NoSubclass =
                     new InvalidCursorState(Constant.SqlStateSubclass.NoSubclass);
             public static final InvalidCursorState IdentifiedCursorIsNotOpen =
@@ -631,28 +558,17 @@ public abstract class SqlState implements Serializable {
         }
     }
 
-    /**
-     *
-     */
     @SuppressWarnings("PublicInnerClass")
     public interface Constant {
 
-        /**
-         *
-         */
         public static final int SQLSTATE_CONDITION_BUNDLE_ID =
                 ResourceBundleHandler.getBundleHandle("sqlstate-condition",
                 SqlState.class.getClassLoader());
-        /**
-         *
-         */
+
         public static final int SQLSTATE_SUBCONDITION_BUNDLE_ID =
                 ResourceBundleHandler.getBundleHandle("sqlstate-subcondition",
                 SqlState.class.getClassLoader());
 
-        /**
-         *
-         */
         public interface SqlStateCategory {
 
             char SuccessfulCompletion = 'S';
@@ -661,9 +577,6 @@ public abstract class SqlState implements Serializable {
             char Exception = 'X';
         }
 
-        /**
-         *
-         */
         public interface SqlStateClass {
 
             String AmbiguousCursorName = "3C";
@@ -765,9 +678,6 @@ public abstract class SqlState implements Serializable {
             }
         }
 
-        /**
-         *
-         */
         public interface SqlStateSubclass {
 
             String NoSubclass = "000";
@@ -907,31 +817,16 @@ public abstract class SqlState implements Serializable {
 
     static final class Routine {
 
-        /**
-         *
-         * @param sqlStateClass
-         * @return
-         */
         public static String conditionForSqlStateClass(final String sqlStateClass) {
             return ResourceBundleHandler.getString(Constant.SQLSTATE_CONDITION_BUNDLE_ID,
                     sqlStateClass);
         }
 
-        /**
-         *
-         * @param sqlState
-         * @return
-         */
         public static String subConditionForSqlState(final String sqlState) {
             return ResourceBundleHandler.getString(Constant.SQLSTATE_SUBCONDITION_BUNDLE_ID,
                     sqlState);
         }
 
-        /**
-         *
-         * @param value
-         * @return
-         */
         public static char categoryForSqlState(final String value) {
             SqlState.Routine.checkSqlState(value);
 
@@ -946,10 +841,6 @@ public abstract class SqlState implements Serializable {
             }
         }
 
-        /**
-         *
-         * @param sqlStateCategory
-         */
         public static void checkSqlStateCategory(final char sqlStateCategory) {
             switch (sqlStateCategory) {
                 case Constant.SqlStateCategory.Exception:
@@ -968,7 +859,7 @@ public abstract class SqlState implements Serializable {
 
         /**
          *
-         * @param sqlState
+         * @param sqlState string
          * @throws IllegalArgumentException if <tt>sqlstate</tt> is null or
          *  <tt>sqlstate</tt> length is not 5
          */
@@ -1004,10 +895,6 @@ public abstract class SqlState implements Serializable {
             return (ch >= '5' && ch <= '9') || (ch >= 'I' && ch <= 'Z');
         }
 
-        /**
-         *
-         * @param sqlStateClass
-         */
         public static void checkSqlStateClass(final String sqlStateClass) {
             if (sqlStateClass == null) {
                 throw new IllegalArgumentException(
@@ -1028,10 +915,6 @@ public abstract class SqlState implements Serializable {
             }
         }
 
-        /**
-         *
-         * @param sqlStateSubclass
-         */
         public static void checkSqlStateSubclass(final String sqlStateSubclass) {
             if (sqlStateSubclass == null) {
                 throw new IllegalArgumentException(
@@ -1052,11 +935,6 @@ public abstract class SqlState implements Serializable {
             }
         }
 
-        /**
-         *
-         * @param value
-         * @return
-         */
         public static boolean isStandardDefinedConditionSqlState(
                 final String value) {
             SqlState.Routine.checkSqlState(value);
@@ -1064,11 +942,6 @@ public abstract class SqlState implements Serializable {
             return isStandardDefinedConditionSqlState(value.substring(0, 2), value.substring(2));
         }
 
-        /**
-         *
-         * @param value
-         * @return
-         */
         public static boolean isImplementationDefinedConditionSqlState(
                 final String value) {
             SqlState.Routine.checkSqlState(value);
@@ -1076,12 +949,6 @@ public abstract class SqlState implements Serializable {
             return isImplementationDefinedConditionSqlState(value.substring(0, 2), value.substring(2));
         }
 
-        /**
-         *
-         * @param sqlStateClass
-         * @param sqlStateSubclass
-         * @return
-         */
         public static boolean isStandardDefinedConditionSqlState(
                 final String sqlStateClass,
                 final String sqlStateSubclass) {
@@ -1089,12 +956,6 @@ public abstract class SqlState implements Serializable {
                     && SqlState.Routine.mustBeImplementationDefinedConditionSqlStateSubclass(sqlStateSubclass);
         }
 
-        /**
-         *
-         * @param sqlStateClass
-         * @param sqlStateSubclass
-         * @return
-         */
         public static boolean isImplementationDefinedConditionSqlState(
                 final String sqlStateClass,
                 final String sqlStateSubclass) {
@@ -1103,34 +964,19 @@ public abstract class SqlState implements Serializable {
                     && SqlState.Routine.mustBeImplementationDefinedConditionSqlStateSubclass(sqlStateClass));
         }
 
-        /**
-         *
-         * @param sqlStateClass
-         * @return
-         */
         public static boolean isStandardDefinedConditionSqlStateClass(
                 final String sqlStateClass) {
             checkSqlStateClass(sqlStateClass);
             return SqlState.Routine.isReservedForStandardDefinedCondition(sqlStateClass.charAt(0));
         }
 
-        /**
-         *
-         * @param sqlStateClass
-         * @return
-         */
         public static boolean canBeStandardDefinedConditionSqlStateSubclass(
-                final String sqlStateSublass) {
-            checkSqlStateSubclass(sqlStateSublass);
+                final String sqlStateSubclass) {
+            checkSqlStateSubclass(sqlStateSubclass);
             return SqlState.Routine.isReservedForStandardDefinedCondition(
-                    sqlStateSublass.charAt(0));
+                    sqlStateSubclass.charAt(0));
         }
 
-        /**
-         *
-         * @param sqlStateClass
-         * @return
-         */
         public static boolean isImplementationDefinedConditionSqlStateClass(
                 final String sqlStateClass) {
             checkSqlStateClass(sqlStateClass);
@@ -1138,11 +984,6 @@ public abstract class SqlState implements Serializable {
                     sqlStateClass.charAt(0));
         }
 
-        /**
-         *
-         * @param sqlStateClass
-         * @return
-         */
         public static boolean mustBeImplementationDefinedConditionSqlStateSubclass(
                 final String sqlStateSubclass) {
             checkSqlStateSubclass(sqlStateSubclass);
@@ -1152,11 +993,6 @@ public abstract class SqlState implements Serializable {
             return (ch >= '5' && ch <= '9') || (ch >= 'I' && ch <= 'Z');
         }
 
-        /**
-         *
-         * @param sqlStateSubclass
-         * @return
-         */
         public static boolean isNoSubclass(final String sqlStateSubclass) {
             return Constant.SqlStateSubclass.NoSubclass.equals(sqlStateSubclass);
         }

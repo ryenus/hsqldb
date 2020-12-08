@@ -49,7 +49,6 @@ public class HsqldbEmbeddedDatabaseCloser implements ConnectionFactory.Connectio
 
     public static final ConnectionFactory.ConnectionFactoryEventListener Instance = new HsqldbEmbeddedDatabaseCloser();
 
-    @Override
     public void finishedClosingRegisteredObjects(ConnectionFactory source) {
         DatabaseManager.closeDatabases(Database.CLOSEMODE_IMMEDIATELY);
     }

@@ -98,7 +98,7 @@ public class JDBCDataSourceTest extends BaseJdbcTestCase {
         Connection conn = ds.getConnection();
     }
 
-    /**
+    /*
      * Test of createQueryObject method, of interface javax.sql.DataSource.
      */
 //    public void testCreateQueryObject() throws Exception {
@@ -127,7 +127,7 @@ public class JDBCDataSourceTest extends BaseJdbcTestCase {
 //        // TODO:  test update and delete functions.
 //    }
 
-    /**
+    /*
      * Test of getQueryObjectGenerator method, of interface javax.sql.DataSource.
      */
 //    public void testGetQueryObjectGenerator() throws Exception {
