@@ -68,7 +68,7 @@ public class ScriptIterator implements Iterator {
      * Constructs a new ScriptIterator.
      *
      * @param url from which to read SQL statements
-     * @throws IOException
+     * @throws IOException on error
      */
     public ScriptIterator(URL url) throws IOException {
         this(new BufferedReader(new InputStreamReader(url.openStream())));

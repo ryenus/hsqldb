@@ -413,8 +413,6 @@ public class HsqlTimerTest extends BaseTestCase {
 
     /**
      * Runs the HsqlTimer tests.
-     *
-     * @param args Currently unused
      */
     @OfMethod("<<ALL_METHODS>>")
     public void testHsqlTimer() throws Exception {
@@ -531,7 +529,7 @@ public class HsqlTimerTest extends BaseTestCase {
      * Runs the java.util.Timer test using the given arguments. <p>
      *
      * @param taskCount the number of WriteAndSync tasks to add
-     * @param periodMultiplier the period with with to schedule the tasks, as a
+     * @param period the period with with to schedule the tasks, as a
      * multiple of the computed, system-specific average sync time.
      * @param duration The number of milliseconds that the foreground Thread
      * should sleep while the specified number of WriteAndSync tasks are running
@@ -584,7 +582,7 @@ public class HsqlTimerTest extends BaseTestCase {
      * Runs the HsqlTimer test using the given arguments. <p>
      *
      * @param taskCount the number of WriteAndSync tasks to add
-     * @param periodMultiplier the period with with to schedule the tasks, as a
+     * @param period the period with with to schedule the tasks, as a
      * multiple of the computed, system-specific average sync time.
      * @param duration The number of milliseconds that the foreground Thread
      * should sleep while the specified number of WriteAndSync tasks are running

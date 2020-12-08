@@ -470,8 +470,8 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     /**
      * for file: or jar: resources.
      *
-     * @param packageName
-     * @throws java.io.IOException
+     * @param packageName string
+     * @throws java.io.IOException on error
      * @return array of paths to the resources in the given package
      */
     protected String[] getResoucesInPackage(final String packageName) throws IOException {
@@ -847,7 +847,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     /**
      * to standard output.
      *
-     * @param method
+     * @param method the method
      * @param msg to print
      */
     @SuppressWarnings("AssignmentToMethodParameter")
@@ -1078,7 +1078,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * Invoked before the main teardown behavior occurs, providing a facility
      * for controlling event listener registration / invocation
      *
-     * @throws Exception
+     * @throws Exception on error
      */
     protected void preTearDown() throws Exception {
         activateConnectionFactoryListeners();
@@ -1135,7 +1135,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     /**
      * Invoked before the main teardown behavior occurs.
      *
-     * @throws Exception
+     * @throws Exception on error
      */
     protected void postTearDown() throws Exception {
         deactivateConnectionFactoryListeners();

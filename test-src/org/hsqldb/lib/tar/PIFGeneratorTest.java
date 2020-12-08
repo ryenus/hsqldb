@@ -162,12 +162,8 @@ public class PIFGeneratorTest extends BaseTestCase {
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
     public static void main(String[] sa) {
-        if (sa.length > 0 && sa[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(PIFGeneratorTest.class);
-        } else {
-            junit.framework.TestResult result = TestRunner.run(suite());
+        junit.framework.TestResult result = TestRunner.run(suite());
 
-            System.exit(result.wasSuccessful() ? 0 : 1);
-        }
+        System.exit(result.wasSuccessful() ? 0 : 1);
     }
 }

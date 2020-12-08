@@ -34,6 +34,7 @@ import junit.framework.TestSuite;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
+import junit.textui.TestRunner;
 
 @ForSubject(SqltoolRB.class)
 public class SqltoolRBTest extends BaseTestCase {
@@ -85,7 +86,7 @@ public class SqltoolRBTest extends BaseTestCase {
      */
     public static void main(String[] sa) {
         if (sa.length > 0 && sa[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(SqltoolRBTest.class);
+            TestRunner.run(SqltoolRBTest.class);
         } else {
             junit.framework.TestResult result =
                     junit.textui.TestRunner.run(suite());

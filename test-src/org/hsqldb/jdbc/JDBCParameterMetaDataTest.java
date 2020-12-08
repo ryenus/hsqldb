@@ -163,7 +163,7 @@ public class JDBCParameterMetaDataTest extends BaseJdbcTestCase {
         assertEquals("pmd.getScale(" + param + ")", expResult, result);
     }
 
-    /** @todo use an insert or update statement here, where nullability is
+    /* @todo use an insert or update statement here, where nullability is
      *  returned more precisely.
      */
     /**
