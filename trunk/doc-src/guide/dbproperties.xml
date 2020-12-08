@@ -288,7 +288,7 @@
   <section xml:id="dpc_variables_url">
     <title>Variables In Connection URL</title>
 
-    <para>Two types of variables are allowed for file: database URLs:
+    <para>Two types of variables are allowed for file: database URL's:
     properties for individual connections, and Properties for the whole
     database. The database properties have an effect only if used for the
     first connection to the database (the connection which opens the
