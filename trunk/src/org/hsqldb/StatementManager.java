@@ -43,7 +43,7 @@ import org.hsqldb.result.Result;
  * statements for a Session instance.<p>
  *
  * A compiled statement is registered by a session to be managed. Once
- * registered, it is linked with one or more sessions.<p>
+ * registered, it can be reused.<p>
  *
  * The sql statement text distinguishes different compiled statements and acts
  * as lookup key when a session initially looks for an existing instance of
