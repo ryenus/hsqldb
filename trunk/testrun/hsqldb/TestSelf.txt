@@ -43,7 +43,9 @@ create table ref2(id int identity,idMain int,
 /*u1*/  insert into ref values(2,2)
 /*e*/   update main set id=2-id
 /*e*/   drop table main;
-drop table ref2;drop table ref;drop table main
+drop table ref2;
+drop table ref;
+drop table main
 
 -- Data Definition
 drop table T1 if exists
@@ -71,9 +73,15 @@ create index it4b on t4(tm,nr)
 create unique index it4c on t4(tm,nr)
 drop index it4b
 create index it9 on t9(nr,x);
-drop table t1;drop table t2;drop table "T3";
-DROP TABLE T4;Drop Table T5; drop table T6
-drop table t7; drop table t8; drop table t9
+drop table t1;
+drop table t2;
+drop table "T3";
+DROP TABLE T4;
+Drop Table T5;
+drop table T6
+drop table t7;
+drop table t8;
+drop table t9
 create user "test" password "test-p"
 GRANT CHANGE_AUTHORIZATION TO "test"
 create table test (id integer)
@@ -106,19 +114,19 @@ drop table test
 create cached table test (id integer null)
 drop table test
 -- Data Manipulation without result
-create table address(nr integer,name varchar(16),placezip smallint)
-insert into address values(1,'Boss',3000)
-insert into address (nr,name,placezip) values(2,'Walt',8000)
-insert into address values(-3,'',0)
-insert into address select * from address where nr>0
-update address set nr=4 where nr=-2
-insert into address values(3,'x',3000)
-insert into address (name,nr,placezip) values('y',4,8000)
-insert into address (name,nr,placezip)
-  select name,placezip,nr from address where name like 'x%'
-delete from address where name like 'x%'
-update address set name='Rene' where nr=4
-update address set nr=5, name='What' where nr=1 and name='Boss'
+create table addresses(nr integer,name varchar(16),placezip smallint)
+insert into addresses values(1,'Boss',3000)
+insert into addresses (nr,name,placezip) values(2,'Walt',8000)
+insert into addresses values(-3,'',0)
+insert into addresses select * from addresses where nr>0
+update addresses set nr=4 where nr=-2
+insert into addresses values(3,'x',3000)
+insert into addresses (name,nr,placezip) values('y',4,8000)
+insert into addresses (name,nr,placezip)
+  select name,placezip,nr from addresses where name like 'x%'
+delete from addresses where name like 'x%'
+update addresses set name='Rene' where nr=4
+update addresses set nr=5, name='What' where nr=1 and name='Boss'
 create table place(zip smallint,name longvarchar(100),country char(4))
 insert into place values(3000,'Langenthal\t1','CH')
 insert into place values(0,'\\\\Heaven',null)
@@ -165,31 +173,31 @@ delete from hlo where nro=10;
 DROP TABLE HLO
 
 -- Select with update count
-/*c6*/ select * from address
-/*c0*/ select * from address where nr in(-1)
+/*c6*/ select * from addresses
+/*c0*/ select * from addresses where nr in(-1)
 /*c4*/ select * from place
 /*c4*/ select * from invoices
-/*c1*/ select nr from address where nr<0
-/*c0*/ select * from address where nr>=0 and nr<=0
-/*c1*/ select count(*) from address where nr=-99
-/*c0*/ select * from address where not name like '%'
-/*c1*/ select * from address,place p where (nr=4) and p.zip=placezip
-/*c1*/ select * from address,place p where (nr=4 or nr>3 and nr<2) and
+/*c1*/ select nr from addresses where nr<0
+/*c0*/ select * from addresses where nr>=0 and nr<=0
+/*c1*/ select count(*) from addresses where nr=-99
+/*c0*/ select * from addresses where not name like '%'
+/*c1*/ select * from addresses,place p where (nr=4) and p.zip=placezip
+/*c1*/ select * from addresses,place p where (nr=4 or nr>3 and nr<2) and
   p.zip=placezip or (p.zip>0 and p.zip<-1 or p.zip=-2)
-/*c1*/select * from address a,place p,invoices i where
+/*c1*/select * from addresses a,place p,invoices i where
   a.placezip=p.zip and a.nr=i.addressnr and i.addressnr=4
-/*c1*/ select p.zip,p.*,country from address a,place p,invoices i where
+/*c1*/ select p.zip,p.*,country from addresses a,place p,invoices i where
   a.placezip=p.zip and a.nr=i.addressnr and i.addressnr=4
-/*c7*/ select * from address union all select * from address where nr=4
+/*c7*/ select * from addresses union all select * from addresses where nr=4
 /*c1*/ select max(place.zip) x from place
-/*c0*/ select * from address where name like 'Wal_' escape 'l'
-/*c2*/ select * from address where name like 'Wal_' escape '+'
+/*c0*/ select * from addresses where name like 'Wal_' escape 'l'
+/*c2*/ select * from addresses where name like 'Wal_' escape '+'
 /*c4*/ select total as x from invoices order by addressnr desc,total asc
 /*c3*/ select place.* from place where not country = 'NULL' and
   not name is null and not name is NULL and
   not name = 'null' and not country = 'NULL' order by zip
-/*c3*/ select * from address where nr in (1,5,99,5,4)
-/*c1*/ select * from (select * from address) as address where nr=4
+/*c3*/ select * from addresses where nr in (1,5,99,5,4)
+/*c1*/ select * from (select * from addresses) as addresses where nr=4
 -- from 1.7.2, next result no longer returns null == null
 /*c5*/ select p1.country from place p1,place p2 where p1.country=p2.country
 /*c1*/ select * from t_double where id>-10 and d>1.3 and d>.3
@@ -212,18 +220,24 @@ DROP TABLE HLO
 /*r0*/ select count(*) from test;
 /*u1*/ insert into test values(1,null);
 /*r1*/ select nr from test group by nr;
-/*r2*/ update test set nr=2;select avg(nr) from test
-/*r3*/ update test set nr=1+1*2;select sum(nr) from test
-/*r-3*/ update test set nr=-(select max(t2.nr) from test t2);select nr from test
-/*r4*/ update test set nr=2*(1- -1);select nr from test
+update test set nr=2;
+/*r2*/ select avg(nr) from test
+update test set nr=1+1*2;
+/*r3*/ select sum(nr) from test
+update test set nr=-(select max(t2.nr) from test t2);
+/*r-3*/ select nr from test
+update test set nr=2*(1- -1);
+/*r4*/ select nr from test
 /*r4*/ select sum(nr) from test where nr in(select t2.nr from test t2)
 /*e*/ update test set nr=1/0
 update test set nr=null;
 /*rNULL*/ select nr from test
 update test set nr=null;
 /*rNULL*/ select nr from test
-/*r2*/ update test set nr=4/2;select "TEST"."NR" from test
-/*r34   */ update test set name='3' || '4';select distinct name from test
+update test set nr=4/2;
+/*r2*/ select "TEST"."NR" from test
+update test set name='3' || '4';
+/*r34   */ select distinct name from test
 /*rHo*/ select 'Ho' as hhoo from TEsT where name in ('34','y','z')
 update test set name=null;
 /*rNULL*/select name from "TEST"
@@ -236,9 +250,14 @@ create table "t6"("x" char(6),s smallint not null,b bigint, c binary);
 /*u1*/ insert into "t6" values(null,100, 1000000000000, null);
 /*u1*/ delete from "t6"
 -- Finish
-drop table address drop table place drop table invoices
-drop table t_double;drop table t_date drop table t_bit
-drop table problem; drop table class
+drop table addresses
+drop table place
+drop table invoices
+drop table t_double;
+drop table t_date
+drop table t_bit
+drop table problem;
+drop table class
 
 -- Other tests
 CREATE TABLE Address(ID INTEGER PRIMARY KEY,organization VARCHAR(20),
@@ -330,11 +349,11 @@ set maxrows 0
 drop table test_maxrows
 
 -- test functions
-CREATE TABLE Product(ID INTEGER PRIMARY KEY,Name VARCHAR(255),Cost DECIMAL(10,4))
-insert into product values (0,'Test',10.3444)
-/*r10.34*/select round(cost,2) from product
-/*r10.3444*/select cost from product
-drop table product
+CREATE TABLE Products(ID INTEGER PRIMARY KEY,Name VARCHAR(255),Cost DECIMAL(10,4))
+insert into products values (0,'Test',10.3444)
+/*r10.34*/select round(cost,2) from products
+/*r10.3444*/select cost from products
+drop table products
 
 -- IN (subquery)
 create table A ( C1 VARCHAR(10))
@@ -347,33 +366,33 @@ drop table A
 drop table B
 
 -- simple transactional tests
-CREATE TABLE PRODUCT(ID INTEGER PRIMARY KEY,NAME VARCHAR(20),COST DECIMAL(10,4))
-INSERT INTO PRODUCT VALUES(0,'Iron',5.4)
-INSERT INTO PRODUCT VALUES(1,'Wood',24.8)
-INSERT INTO PRODUCT VALUES(2,'Fire',24.8)
+CREATE TABLE PRODUCTS(ID INTEGER PRIMARY KEY,NAME VARCHAR(20),COST DECIMAL(10,4))
+INSERT INTO PRODUCTS VALUES(0,'Iron',5.4)
+INSERT INTO PRODUCTS VALUES(1,'Wood',24.8)
+INSERT INTO PRODUCTS VALUES(2,'Fire',24.8)
 SET AUTOCOMMIT FALSE
-INSERT INTO PRODUCT VALUES(3,'ERR1',0.0)
-INSERT INTO PRODUCT VALUES(4,'ERR1',0.0)
-DELETE FROM PRODUCT WHERE ID=2
-UPDATE PRODUCT SET NAME='ERR2' WHERE NAME<>'ERR1'
-/*c2*/ SELECT * FROM PRODUCT WHERE NAME='ERR1'
-/*c2*/ SELECT * FROM PRODUCT WHERE NAME='ERR2'
-/*c4*/ SELECT * FROM PRODUCT
+INSERT INTO PRODUCTS VALUES(3,'ERR1',0.0)
+INSERT INTO PRODUCTS VALUES(4,'ERR1',0.0)
+DELETE FROM PRODUCTS WHERE ID=2
+UPDATE PRODUCTS SET NAME='ERR2' WHERE NAME<>'ERR1'
+/*c2*/ SELECT * FROM PRODUCTS WHERE NAME='ERR1'
+/*c2*/ SELECT * FROM PRODUCTS WHERE NAME='ERR2'
+/*c4*/ SELECT * FROM PRODUCTS
 ROLLBACK
-/*c0*/ SELECT * FROM PRODUCT WHERE NAME='ERR1'
-/*c0*/ SELECT * FROM PRODUCT WHERE NAME='ERR2'
-/*c3*/ SELECT * FROM PRODUCT
+/*c0*/ SELECT * FROM PRODUCTS WHERE NAME='ERR1'
+/*c0*/ SELECT * FROM PRODUCTS WHERE NAME='ERR2'
+/*c3*/ SELECT * FROM PRODUCTS
 SET AUTOCOMMIT TRUE
-DROP TABLE PRODUCT
+DROP TABLE PRODUCTS
 
 
 
 
 -- Exceptions
 /*e*/ +
-/*e*/ select nr from address union select nr,nr from address
+/*e*/ select nr from addresses union select nr,nr from addresses
 /*e*/ create something
-/*e*/ create index x on address (nr +
+/*e*/ create index x on addresses (nr +
 /*e*/ create table p2 (id integer primary key, id2 integer primary key)
 /*e*/ create table p3 (id integer primary key + 2)
 /*e*/ drop index x
@@ -420,8 +439,10 @@ insert into test values(1,null,null);
 /*e*/ insert into test values(2,'1234567','');
 /*u1*/ insert into test values(2,'12345','');
 /*r12345*/ select name from test where nr=2;
-/*r123  */insert into test values(3,'123',''); select name from test where nr=3;
-/*r12345*/ insert into test values(4,'','12345'); select other from test where nr=4;
+insert into test values(3,'123','');
+/*r123  */ select name from test where nr=3;
+insert into test values(4,'','12345');
+/*r12345*/ select other from test where nr=4;
 insert into test values(5,'','123');
 /*r123*/ select other from test where nr=5;
 drop table test;
