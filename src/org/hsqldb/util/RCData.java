@@ -400,9 +400,9 @@ public class RCData {
                                             + " for password");
         }
 
-        Class.forName(curDriver);
-        // This is not necessary for jdbc:odbc or if class loaded by a
-        // service resource file.  Consider checking for that.
+        // Every modern JDBC driver will register the driver as SP service
+        // or a module service, so this should never be needed:
+        //Class.forName(curDriver);
 
         Connection c = (userString == null)
                      ? DriverManager.getConnection(urlString)
