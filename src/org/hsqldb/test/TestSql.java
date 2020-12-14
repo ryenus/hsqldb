@@ -507,15 +507,15 @@ public class TestSql extends TestBase {
     public void testAny() {
 
         try {
-            String ddl =
-                "drop table PRICE_RELATE_USER_ORDER_V2 if exists;"
-                + "create table PRICE_RELATE_USER_ORDER_V2 "
+            String ddldrop = "drop table PRICE_RELATE_USER_ORDER_V2 if exists";
+            String ddl = "create table PRICE_RELATE_USER_ORDER_V2 "
                 + "(ID_ORDER_V2 BIGINT, ID_USER NUMERIC, DATE_CREATE TIMESTAMP)";
             String sql = "insert into PRICE_RELATE_USER_ORDER_V2 "
                          + "(ID_ORDER_V2, ID_USER, DATE_CREATE) " + "values "
                          + "(?, ?, ?)";
             Statement st = connection.createStatement();
 
+            st.execute(ddldrop);
             st.execute(ddl);
 
             PreparedStatement ps = connection.prepareStatement(sql);

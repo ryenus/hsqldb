@@ -407,6 +407,8 @@ public class TestStoredProcedure extends TestBase {
             assertEquals("INFORMATION_SCHEMA", rs.getString(2));
         }
 
+        rs.close();
+
         PreparedStatement ps = conn.prepareStatement(
             "call get_columns_and_table('TABLES', 'INFORMATION_SCHEMA')");
 
@@ -430,6 +432,7 @@ public class TestStoredProcedure extends TestBase {
             assertEquals("INFORMATION_SCHEMA", rs.getString(2));
         }
 
+        rs.close();
     }
 
     public static void procWithResultOne(Integer[] intparam,
