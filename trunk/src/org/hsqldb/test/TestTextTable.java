@@ -37,6 +37,8 @@ import java.sql.SQLException;
 
 import org.hsqldb.lib.FileUtil;
 
+import java.sql.Statement;
+
 /** test various text table features
  *
  * @author frank.schoenheit@sun.com
@@ -145,18 +147,20 @@ public class TestTextTable extends TestBase {
         private void createTable(java.sql.Connection connection)
         throws SQLException {
 
-            String createTable = "DROP TABLE \"" + m_name + "\" IF EXISTS;";
+            String dropTable = "DROP TABLE \"" + m_name + "\" IF EXISTS;";
 
-            createTable += "CREATE TEXT TABLE \"" + m_name + "\" ( "
+            String createTable = "CREATE TEXT TABLE \"" + m_name + "\" ( "
                            + m_columnSpec + " );";
 
-            connection.createStatement().execute(createTable);
+            Statement statement = connection.createStatement();
+            statement.execute(dropTable);
+            statement.execute(createTable);
 
             boolean test = isReadOnly(m_name);
             String setTableSource = "SET TABLE \"" + m_name + "\" SOURCE \""
                                     + getDataSourceSpec() + "\"";
 
-            connection.createStatement().execute(setTableSource);
+            statement.execute(setTableSource);
         }
     }
     ;

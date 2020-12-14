@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Scans for SQL tokens.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class Scanner {
@@ -2467,14 +2467,39 @@ public class Scanner {
         scanToken();
         scanWhitespace();
 
-        if (token.tokenType == Tokens.PLUS_OP) {
-            scanToken();
-            scanWhitespace();
-        } else if (token.tokenType == Tokens.MINUS_OP) {
-            minus = true;
+        switch (token.tokenType) {
 
-            scanToken();
-            scanWhitespace();
+            case Tokens.MINUS_OP :
+                minus = true;
+
+                scanToken();
+                scanWhitespace();
+
+                if (token.tokenType == Tokens.INFINITY) {
+                    minus           = false;
+                    token.tokenType = Tokens.X_VALUE;
+                    token.dataType  = Type.SQL_DOUBLE;
+                    token.tokenValue =
+                        Double.valueOf(Double.NEGATIVE_INFINITY);
+                }
+                break;
+
+            case Tokens.PLUS_OP :
+                scanToken();
+                scanWhitespace();
+                break;
+
+            case Tokens.NAN :
+                token.tokenType  = Tokens.X_VALUE;
+                token.dataType   = Type.SQL_DOUBLE;
+                token.tokenValue = Double.valueOf(Double.NaN);
+                break;
+
+            case Tokens.INFINITY :
+                token.tokenType  = Tokens.X_VALUE;
+                token.dataType   = Type.SQL_DOUBLE;
+                token.tokenValue = Double.valueOf(Double.POSITIVE_INFINITY);
+                break;
         }
 
         if (!hasNonSpaceSeparator && token.tokenType == Tokens.X_VALUE
