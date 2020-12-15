@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ public class TestUpdatableResultSets extends TestBase {
     Statement  statement;
 
     public TestUpdatableResultSets(String name) {
-        super(name, true, false);
+        super(name);
     }
 
     protected void setUp() throws Exception {

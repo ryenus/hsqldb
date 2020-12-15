@@ -48,7 +48,7 @@ public class TestTextTables extends TestBase {
     static String filepath = TestDirectorySettings.fileBase + "testtext/";
 
     public TestTextTables(String name) {
-        super(name, url, false, false);
+        super(name, url);
     }
 
     protected void setUp() throws Exception {

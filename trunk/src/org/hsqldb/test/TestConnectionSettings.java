@@ -31,14 +31,60 @@
 
 package org.hsqldb.test;
 
-public class BlaineTrig implements org.hsqldb.trigger.Trigger {
+interface TestConnectionSettings {
 
-    public void fire(int i, String name, String table, Object[] row1,
-                     Object[] row2) {
-        System.err.println("Hello World.  There is a fire");
+    String url();
+
+    String dbPath();
+
+    boolean isNet();
+
+    class TestConnectionSettingsMem
+    implements TestConnectionSettings {
+
+
+        public String url() {
+            return "jdbc:hsqldb:mem:test;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
+        }
+
+        public String dbPath() {
+            return "mem:test;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
+        }
+
+        public boolean isNet() {
+            return false;
+        }
     }
 
-    public static String capitalize(String s) {
-        return s.toUpperCase();
+    class TestConnectionSettingsFile
+    implements TestConnectionSettings {
+
+        public String url() {
+            return TestDirectorySettings.fileBaseURL + "unitestdb";
+        }
+
+        public String dbPath() {
+            return TestDirectorySettings.fileBase + "unitestdb";
+        }
+
+        public boolean isNet() {
+            return false;
+        }
+    }
+
+    class TestConnectionSettingsServerMem
+    implements TestConnectionSettings {
+
+        public String url() {
+            return "jdbc:hsqldb:hsql://localhost/test";
+        }
+
+        public String dbPath() {
+            return "mem:test;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
+        }
+
+        public boolean isNet() {
+            return true;
+        }
     }
 }

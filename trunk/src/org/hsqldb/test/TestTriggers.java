@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ public class TestTriggers extends TestBase {
     private static String dbPath = "/hsql/testtrig/trigs";
 
     public TestTriggers(String testName) {
-        super(testName, "jdbc:hsqldb:file:" + dbPath, false, false);
+        super(testName, "jdbc:hsqldb:file:" + dbPath);
         TestUtil.deleteDatabase(dbPath);
     }
 
