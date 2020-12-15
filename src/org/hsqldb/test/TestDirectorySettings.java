@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,9 @@
 package org.hsqldb.test;
 
 public class TestDirectorySettings {
-    public static String fileBase    = "c:/hsql/";
+    public static String fileBase    = "c://hsql/";
     public static String fileBaseURL = "jdbc:hsqldb:file:" + fileBase;
 
-    public static String fileBaseUser    = "c:/hsql_dbs/";
+    public static String fileBaseUser    = "c://hsql_dbs/";
     public static String fileBaseURLUser = "jdbc:hsqldb:file:" + fileBaseUser;
 }

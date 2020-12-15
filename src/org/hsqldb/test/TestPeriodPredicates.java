@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ public class TestPeriodPredicates extends TestBase {
 
     public TestPeriodPredicates(String name) {
 
-        super(name, "jdbc:hsqldb:mem:test", false, false);
+        super(name, "jdbc:hsqldb:mem:test");
 
         scanner = new Scanner();
     }

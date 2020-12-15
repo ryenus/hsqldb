@@ -61,7 +61,7 @@ public class TestViewAsterisks extends TestBase {
 
     /** Creates a new instance of TestViewAsterisks */
     public TestViewAsterisks(String testName) {
-        super(testName, null, false, false);
+        super(testName);
     }
 
     /**

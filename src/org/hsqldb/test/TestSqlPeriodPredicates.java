@@ -58,7 +58,7 @@ public class TestSqlPeriodPredicates extends TestBase {
 
     public TestSqlPeriodPredicates(String name) throws Exception {
 
-        super(name,  "jdbc:hsqldb:mem:test", true, false);
+        super(name);
     }
 
     public void setUp() throws Exception {

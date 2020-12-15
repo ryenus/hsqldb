@@ -55,17 +55,14 @@ public class TestCollation extends TestBase {
 
     /** Creates a new instance of TestCollation */
     public TestCollation(String name) {
-
-        super(name, "jdbc:hsqldb:file:testdb/test", false, false);
-
-        super.isNetwork = false;
+        super(name, "jdbc:hsqldb:file:testdb/test");
     }
 
     protected void setUp() throws Exception {
 
         super.setUp();
 
-        connection     = super.newConnection();
+        connection     = newConnection();
         statement      = connection.createStatement();
         collIterator   = Collation.getCollationsIterator();
         localeIterator = Collation.getLocalesIterator();
