@@ -1415,6 +1415,9 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
         return routine;
     }
 
+    /**
+     * simply named function only - requires return type
+     */
     public static void createRoutines(Session session, HsqlName schema,
                                       String name) {
 
@@ -1424,8 +1427,10 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             name, true, SchemaObject.FUNCTION);
 
         for (int i = 0; i < routines.length; i++) {
-            routines[i].setName(routineName);
-            session.database.schemaManager.addSchemaObject(routines[i]);
+            if (routines[i].getReturnType() != Type.SQL_ALL_TYPES) {
+                routines[i].setName(routineName);
+                session.database.schemaManager.addSchemaObject(routines[i]);
+            }
         }
     }
 }
