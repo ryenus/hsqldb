@@ -129,10 +129,10 @@ public class TestStoredProcedure extends TestBase {
         try {
             statement = conn.createStatement();
 
-            statement.execute("create user testuser password 'test'");
-            statement.execute("create table testtable(v varchar(20))");
+            statement.execute("create user testusert2 password 'test'");
+            statement.execute("create table testtablet2(v varchar(20))");
             statement.execute(
-                "insert into testtable values ('tennis'), ('tent'), ('television'), ('radio')");
+                "insert into testtablet2 values ('tennis'), ('tent'), ('television'), ('radio')");
 
             ResultSet rs = statement.executeQuery(
                 "call \"org.hsqldb.test.TestStoredProcedure.funcTest2\"('test')");
@@ -157,7 +157,7 @@ public class TestStoredProcedure extends TestBase {
             assertTrue("test result not correct", b);
 
             rs = statement.executeQuery(
-                "select count(*) from testtable where func2(v)");
+                "select count(*) from testtablet2 where func2(v)");
 
             rs.next();
 
@@ -165,7 +165,7 @@ public class TestStoredProcedure extends TestBase {
 
             assertTrue("test result not correct", count == 3);
             statement.execute(
-                "grant execute on specific function public.f2 to testuser");
+                "grant execute on specific function public.f2 to testusert2");
 
             boolean isResult = statement.execute("call func2('test')");
 

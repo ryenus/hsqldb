@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,9 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.util.Calendar;
 
-import junit.framework.Assert;
-
 /**
  * Tests for normalisation of Time and Date values.
- * Base on the original test submission.
+ * Based on the original test submission.
  * @author Miro Halas
  */
 public class TestDateTime extends TestBase {
@@ -55,7 +53,7 @@ public class TestDateTime extends TestBase {
 
         super.setUp();
 
-        Connection connection = super.newConnection();
+        Connection connection = newConnection();
         Statement  statement  = connection.createStatement();
 
         statement.execute("drop table time_test if exists");
@@ -85,7 +83,7 @@ public class TestDateTime extends TestBase {
         final String DELETE_DATE = "delete from date_test where date_test = ?";
         Calendar          calGenerate = Calendar.getInstance();
         java.sql.Date     insertDate;
-        Connection        connection = super.newConnection();
+        Connection        connection = newConnection();
         PreparedStatement insertStatement;
         int               iUpdateCount = 0;
 
@@ -161,7 +159,7 @@ public class TestDateTime extends TestBase {
             "select time_test.* from time_test where time_test = ?";
         final String DELETE_TIME = "delete from time_test where time_test = ?";
         java.sql.Time     insertTime;
-        Connection        connection = super.newConnection();
+        Connection        connection = newConnection();
         PreparedStatement insertStatement;
         int               iUpdateCount = 0;
 
@@ -249,7 +247,7 @@ public class TestDateTime extends TestBase {
         final String DELETE_TIME = "delete from time_test where time_test = ?";
         Calendar          calGenerate = Calendar.getInstance();
         java.sql.Time     insertTime;
-        Connection        connection = super.newConnection();
+        Connection        connection = newConnection();
         PreparedStatement insertStatement;
         int               iUpdateCount = 0;
 

@@ -54,7 +54,7 @@ public class TestSqlPersistent extends TestCase {
 
     // change the url to reflect your preferred db location and name
 //    String url = "jdbc:hsqldb:hsql://localhost/mytest";
-    String     url = "jdbc:hsqldb:/hsql/test/testpersistent";
+    String     url = TestDirectorySettings.fileBaseURL + "test/testpersistent";
     String     user;
     String     password;
     Statement  stmnt;
@@ -73,7 +73,7 @@ public class TestSqlPersistent extends TestCase {
         stmnt      = null;
         connection = null;
 
-        TestUtil.deleteDatabase("/hsql/test/testpersistent");
+        TestUtil.deleteDatabase(TestDirectorySettings.fileBase + "test/testpersistent");
 
         try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
@@ -215,7 +215,6 @@ public class TestSqlPersistent extends TestCase {
             while ((c = re.read()) > -1) {
                 System.out.print((char) c);
             }
-
 
             // retrieving objects inserted into the third column
             stringValueResult = rs.getObject(3);

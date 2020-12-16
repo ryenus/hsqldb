@@ -58,10 +58,7 @@ public class TestLobs extends TestBase {
     Statement  statement;
 
     public TestLobs(String name) {
-
         super(name);
-//        super(name, "jdbc:hsqldb:file:testdb/test3", false, false);
-//        super(name, "jdbc:hsqldb:mem:test3", false, false);
     }
 
     protected void setUp() throws Exception {
@@ -161,7 +158,7 @@ public class TestLobs extends TestBase {
             Statement st = connection.createStatement();
 
             st.executeUpdate("DROP TABLE blo IF EXISTS");
-            st.executeUpdate("CREATE TABLE blo (id INTEGER, b blob( 100))");
+            st.executeUpdate("CREATE TABLE blo (id INTEGER PRIMARY KEY, b blob( 100))");
 
             PreparedStatement ps = connection.prepareStatement(
                 "INSERT INTO blo(id, b) values(2, ?)");

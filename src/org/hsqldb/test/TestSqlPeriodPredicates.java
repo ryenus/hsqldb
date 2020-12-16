@@ -37,13 +37,11 @@ import java.sql.ResultSet;
 import java.sql.SQLDataException;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
-import junit.framework.Assert;
 
 /**
  * Base tests for the period predicates queries.
@@ -347,7 +345,7 @@ public class TestSqlPeriodPredicates extends TestBase {
      */
     public void testInvalidPeriodDateSpecification() {
         PreparedStatement stmt = null;
-        List<String> predicates = new LinkedList<String> ();
+        List<String> predicates = new ArrayList<String> ();
         Collections.addAll(predicates, "OVERLAPS", "EQUALS", "CONTAINS",
                            "PRECEDES", "SUCCEEDS", "IMMEDIATELY PRECEDES",
                            "IMMEDIATELY SUCCEEDS");
