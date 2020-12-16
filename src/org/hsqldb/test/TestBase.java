@@ -78,7 +78,7 @@ public abstract class TestBase extends TestCase {
 
     static TestConnectionSettings settings = new TestConnectionSettingsMem();
     String                        serverProps;
-    String                        url;
+    final String                  url;
     final String                  user     = "sa";
     final String                  password = "";
     Server                        server;
@@ -127,18 +127,6 @@ public abstract class TestBase extends TestCase {
                            + getName() + "   ******");
 
         if (isNetwork) {
-
-            //  change the url to reflect your preferred db location and name
-            if (url == null) {
-                if (isServlet) {
-                    url = "jdbc:hsqldb:http://localhost:8080/HSQLwebApp/test";
-                } else if (isHTTP) {
-                    url = "jdbc:hsqldb:http://localhost:8085/test";
-                } else {
-                    url = "jdbc:hsqldb:hsql://localhost/test";
-                }
-            }
-
             if (!isServlet) {
                 server = isHTTP ? new WebServer()
                                 : new Server();
