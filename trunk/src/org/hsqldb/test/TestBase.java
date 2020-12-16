@@ -71,28 +71,42 @@ import junit.framework.TestResult;
  *    </servlet-mapping>
  * }</code>
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 1.7.2
+ * @version 2.5.2
  * @since 1.7.2
  */
 public abstract class TestBase extends TestCase {
 
-    static TestConnectionSettings settings =
-        new TestConnectionSettingsMem();
-    String       serverProps;
-    String       url;
-    final String user     = "sa";
-    final String password = "";
-    Server       server;
-    boolean      isNetwork = true;
-    boolean      isHTTP    = false;    // Set false to test HSQL protocol, true to test HTTP, in which case you can use isUseTestServlet to target either HSQL's webserver, or the Servlet server-mode
-    boolean isServlet = false;
+    static TestConnectionSettings settings = new TestConnectionSettingsMem();
+    String                        serverProps;
+    String                        url;
+    final String                  user     = "sa";
+    final String                  password = "";
+    Server                        server;
+    final boolean                 isNetwork;
+    final boolean                 isHTTP;    // Set false to test HSQL protocol, true to test HTTP, in which case you can use isUseTestServlet to target either HSQL's webserver, or the Servlet server-mode
+    final boolean isServlet;
 
     public TestBase(String name) {
 
         super(name);
 
-        this.url       = settings.url();
-        this.isNetwork = settings.isNet();
+        this.url = settings.url();
+
+        String type = settings.connType();
+
+        if ("hsql:".equalsIgnoreCase(type)) {
+            this.isNetwork = true;
+            this.isHTTP    = false;
+            this.isServlet = false;
+        } else if ("http:".equalsIgnoreCase(type)) {
+            this.isNetwork = true;
+            this.isHTTP    = true;
+            this.isServlet = settings.isServlet();
+        } else {
+            this.isNetwork = false;
+            this.isHTTP    = false;
+            this.isServlet = false;
+        }
     }
 
     public TestBase(String name, String userUrl) {
@@ -101,6 +115,8 @@ public abstract class TestBase extends TestCase {
 
         this.url       = userUrl;
         this.isNetwork = false;
+        this.isHTTP    = false;
+        this.isServlet = false;
     }
 
     protected void setUp() throws Exception {

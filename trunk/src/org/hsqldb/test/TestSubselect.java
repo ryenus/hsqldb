@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,8 +53,8 @@ public class TestSubselect extends TestCase {
     // Class variables
     //------------------------------------------------------------
     private static final String databaseDriver = "org.hsqldb.jdbc.JDBCDriver";
-    private static final String databaseURL =
-        "jdbc:hsqldb:/hsql/test/subselect";
+    private static final String databaseURL = TestDirectorySettings.fileBaseURL
+        + "test/subselect";
     private static final String databaseUser     = "sa";
     private static final String databasePassword = "";
 
@@ -84,7 +84,8 @@ public class TestSubselect extends TestCase {
 
     protected void setUp() throws Exception {
 
-        TestUtil.deleteDatabase("/hsql/test/subselect");
+        TestUtil.deleteDatabase(TestDirectorySettings.fileBase
+                                + "test/subselect");
         Class.forName(databaseDriver);
 
         jdbcConnection = getJDBCConnection();

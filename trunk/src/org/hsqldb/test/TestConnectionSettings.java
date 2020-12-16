@@ -31,17 +31,20 @@
 
 package org.hsqldb.test;
 
+/**
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ */
 interface TestConnectionSettings {
 
     String url();
 
     String dbPath();
 
-    boolean isNet();
+    String connType();
 
-    class TestConnectionSettingsMem
-    implements TestConnectionSettings {
+    boolean isServlet();
 
+    class TestConnectionSettingsMem implements TestConnectionSettings {
 
         public String url() {
             return "jdbc:hsqldb:mem:test;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
@@ -51,29 +54,36 @@ interface TestConnectionSettings {
             return "mem:test;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
         }
 
-        public boolean isNet() {
+        public String connType() {
+            return "mem:";
+        }
+
+        public boolean isServlet() {
             return false;
         }
     }
 
-    class TestConnectionSettingsFile
-    implements TestConnectionSettings {
+    class TestConnectionSettingsFile implements TestConnectionSettings {
 
         public String url() {
-            return TestDirectorySettings.fileBaseURL + "unitestdb";
+            return TestDirectorySettings.fileBaseURL
+                   + "unitestdb;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
         }
 
         public String dbPath() {
             return TestDirectorySettings.fileBase + "unitestdb";
         }
 
-        public boolean isNet() {
+        public String connType() {
+            return "file:";
+        }
+
+        public boolean isServlet() {
             return false;
         }
     }
 
-    class TestConnectionSettingsServerMem
-    implements TestConnectionSettings {
+    class TestConnectionSettingsServerMem implements TestConnectionSettings {
 
         public String url() {
             return "jdbc:hsqldb:hsql://localhost/test";
@@ -83,7 +93,71 @@ interface TestConnectionSettings {
             return "mem:test;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
         }
 
-        public boolean isNet() {
+        public String connType() {
+            return "hsql:";
+        }
+
+        public boolean isServlet() {
+            return false;
+        }
+    }
+
+    class TestConnectionSettingsHttpServerMem
+    implements TestConnectionSettings {
+
+        public String url() {
+            return "jdbc:hsqldb:http://localhost:8085/test";
+        }
+
+        public String dbPath() {
+            return "mem:test;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
+        }
+
+        public String connType() {
+            return "http:";
+        }
+
+        public boolean isServlet() {
+            return false;
+        }
+    }
+
+    class TestConnectionSettingsServerFile implements TestConnectionSettings {
+
+        public String url() {
+            return "jdbc:hsqldb:hsql://localhost/test";
+        }
+
+        public String dbPath() {
+            return TestDirectorySettings.fileBase
+                   + "unitestdb;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
+        }
+
+        public String connType() {
+            return "hsql:";
+        }
+
+        public boolean isServlet() {
+            return false;
+        }
+    }
+
+    class TestConnectionSettingsHttpServletMem
+    implements TestConnectionSettings {
+
+        public String url() {
+            return "jdbc:hsqldb:http://localhost:8080/test";
+        }
+
+        public String dbPath() {
+            return "mem:test;sql.enforce_strict_size=true;sql.restrict_exec=true;hsqldb.tx=mvcc";
+        }
+
+        public String connType() {
+            return "http:";
+        }
+
+        public boolean isServlet() {
             return true;
         }
     }
