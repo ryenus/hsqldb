@@ -325,8 +325,11 @@ public class StatementSchema extends Statement {
 
             case StatementTypes.RENAME_OBJECT :
             case StatementTypes.RENAME_SCHEMA : {
-                HsqlName     name    = (HsqlName) arguments[0];
-                HsqlName     newName = (HsqlName) arguments[1];
+                HsqlName name     = (HsqlName) arguments[0];
+                HsqlName newName  = (HsqlName) arguments[1];
+                boolean  ifExists = ((Boolean) arguments[2]).booleanValue();
+
+
                 SchemaObject object;
 
                 switch (name.type) {
@@ -353,6 +356,15 @@ public class StatementSchema extends Statement {
 
                 try {
                     name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
+
+                    if (ifExists) {
+                        object = schemaManager.findUserTable(name.name,
+                                name.schema.name);
+
+                        if (object == null) {
+                            return Result.updateZeroResult;
+                        }
+                    }
 
                     if (name.type == SchemaObject.COLUMN) {
                         Table table = schemaManager.getUserTable(name.parent);
