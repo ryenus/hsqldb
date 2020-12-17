@@ -509,7 +509,8 @@ examples:
             org/hsqldb/trigger/**
             org/hsqldb/types/**
             '
-            />
+        excludes='org/hsqldb/Server.class'
+    />
 
     <fileset id='mainaddedclasses' dir='classes'
         includes='org/hsqldb/server/**' />
