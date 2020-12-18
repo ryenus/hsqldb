@@ -294,8 +294,7 @@ examples:
       </javac>
     </target>
 
-    <target name="classes-servlet" description="compiles Servlet class"
-           unless="ant.java.iscjava09">
+    <target name="classes-servlet" description="compiles Servlet class">
       <!-- 'unless' above should be removed once learn how to include in named module-->
       <available property='_servlet_available' classpath='${servletapi.lib}'
                  classname='javax.servlet.ServletException'/>
@@ -627,7 +626,6 @@ examples:
         <fileset refid='mainaddedclasses' />
         <fileset refid='dbmanagerswingclasses' />
 
-        <exclude name="org/hsqldb/server/Servlet.class" if="ant.java.iscjava09" />
         <fileset refid='${fileset.ref}' />
         <fileset dir='${hsqldb.module.dir}'/>
       </jar>
