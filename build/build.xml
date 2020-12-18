@@ -128,6 +128,8 @@ examples:
       <delete dir="classes/modules/org.hsqldb" includes="**/*"/>
       <mkdir dir="classes/modules/org.hsqldb.sqltool" />
       <delete dir="classes/modules/org.hsqldb.sqltool" includes="**/*"/>
+      <mkdir dir="classes/modules/org.hsqldb.min" />
+      <delete dir="classes/modules/org.hsqldb.min" includes="**/*"/>
     </target>
 
     <target name="-prepare-javadoc">
@@ -558,6 +560,9 @@ examples:
 
     <target name="hsqldbmin" depends="classes, -prep-license-files"
             description="Build the hsqldbmin.jar (no servers)">
+      <antcall target="-compile-mdescriptor" inheritrefs="true">
+        <param name="module.name" value="org.hsqldb.min"/>
+      </antcall>
       <jar jarfile="lib/hsqldbmin.jar">
         <metainf dir="doc" includes="*_lic.txt"/>
         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
@@ -571,6 +576,7 @@ examples:
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
         </manifest>
         <fileset refid='minclasses' />
+        <fileset dir="classes/modules/org.hsqldb.min"/>
       </jar>
     </target>
 
@@ -683,7 +689,6 @@ examples:
       <antcall target="-compile-mdescriptor" inheritrefs="true">
         <param name="module.name" value="org.hsqldb.sqltool"/>
       </antcall>
-      <property name="sqltool.module.dir" value="classes/modules/org.hsqldb.sqltool"/>
       <jar jarfile="lib/sqltool.jar" filesonly="true">
         <metainf dir="doc" includes="*hsqldb_lic.txt"/>
         <manifest>
@@ -698,7 +703,7 @@ examples:
         </manifest>
         <fileset refid='sqltoolclasses'/>
         <fileset refid='sqltoolres'/>
-        <fileset dir='${sqltool.module.dir}'/>
+        <fileset dir="classes/modules/org.hsqldb.sqltool"/>
       </jar>
 
       <!-- Ant jar task doesn't support -e switch! -->
