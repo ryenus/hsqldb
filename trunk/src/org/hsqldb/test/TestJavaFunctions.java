@@ -59,7 +59,7 @@ import java.time.ZoneOffset;
 public class TestJavaFunctions extends TestBase {
 
     public TestJavaFunctions() {
-        super("TestJavaFunction", "jdbc:hsqldb:mem:test", false, false);
+        super("TestJavaFunction");
     }
 
     protected void setUp() throws Exception {
