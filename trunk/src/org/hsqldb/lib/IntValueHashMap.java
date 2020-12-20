@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,8 +63,7 @@ public class IntValueHashMap extends BaseHashMap {
             throw new NoSuchElementException();
         }
 
-        int hash   = key.hashCode();
-        int lookup = getLookup(key, hash);
+        int lookup = getLookup(key);
 
         if (lookup != -1) {
             return intValueTable[lookup];
@@ -79,8 +78,7 @@ public class IntValueHashMap extends BaseHashMap {
             throw new NoSuchElementException();
         }
 
-        int hash   = key.hashCode();
-        int lookup = getLookup(key, hash);
+        int lookup = getLookup(key);
 
         if (lookup != -1) {
             return intValueTable[lookup];
@@ -95,8 +93,7 @@ public class IntValueHashMap extends BaseHashMap {
             throw new NoSuchElementException();
         }
 
-        int hash   = key.hashCode();
-        int lookup = getLookup(key, hash);
+        int lookup = getLookup(key);
 
         if (lookup != -1) {
             value[0] = intValueTable[lookup];
@@ -186,7 +183,7 @@ public class IntValueHashMap extends BaseHashMap {
 
         public Object get(Object key) {
 
-            int lookup = IntValueHashMap.this.getLookup(key, key.hashCode());
+            int lookup = IntValueHashMap.this.getLookup(key);
 
             if (lookup < 0) {
                 return null;

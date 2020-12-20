@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import org.hsqldb.map.BaseHashMap;
  * This class does not store null keys.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class LongValueHashMap extends BaseHashMap {
@@ -56,14 +56,20 @@ public class LongValueHashMap extends BaseHashMap {
               BaseHashMap.longKeyOrValue, false);
     }
 
+    public LongValueHashMap(int initialCapacity, ObjectComparator comparator) {
+
+        this(initialCapacity);
+
+        setComparator(comparator);
+    }
+
     public long get(Object key) throws NoSuchElementException {
 
         if (key == null) {
             throw new NoSuchElementException();
         }
 
-        int hash   = key.hashCode();
-        int lookup = getLookup(key, hash);
+        int lookup = getLookup(key);
 
         if (lookup != -1) {
             return longValueTable[lookup];
@@ -78,8 +84,7 @@ public class LongValueHashMap extends BaseHashMap {
             throw new NoSuchElementException();
         }
 
-        int hash   = key.hashCode();
-        int lookup = getLookup(key, hash);
+        int lookup = getLookup(key);
 
         if (lookup != -1) {
             return longValueTable[lookup];
@@ -94,8 +99,7 @@ public class LongValueHashMap extends BaseHashMap {
             throw new NoSuchElementException();
         }
 
-        int hash   = key.hashCode();
-        int lookup = getLookup(key, hash);
+        int lookup = getLookup(key);
 
         if (lookup != -1) {
             value[0] = longValueTable[lookup];
@@ -172,7 +176,7 @@ public class LongValueHashMap extends BaseHashMap {
 
         public Object get(Object key) {
 
-            int lookup = LongValueHashMap.this.getLookup(key, key.hashCode());
+            int lookup = LongValueHashMap.this.getLookup(key);
 
             if (lookup < 0) {
                 return null;

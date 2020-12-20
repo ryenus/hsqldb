@@ -31,6 +31,7 @@
 
 package org.hsqldb.persist;
 
+import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hsqldb.error.Error;
@@ -51,7 +52,7 @@ import org.hsqldb.map.BaseHashMap;
  * to DataFileCache.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.8.0
  */
 public class Cache extends BaseHashMap {
@@ -471,7 +472,8 @@ public class Cache extends BaseHashMap {
         return accessCount;
     }
 
-    static final class CachedObjectComparator implements ObjectComparator {
+    static final class CachedObjectComparator
+    implements Comparator, ObjectComparator {
 
         static final int COMPARE_LAST_ACCESS = 0;
         static final int COMPARE_POSITION    = 1;
@@ -511,6 +513,10 @@ public class Cache extends BaseHashMap {
             return diff == 0 ? 0
                              : diff > 0 ? 1
                                         : -1;
+        }
+
+        public boolean equals(Object a, Object b) {
+            return compare(a, b) == 0;
         }
 
         public int hashCode(Object o) {
