@@ -48,7 +48,7 @@ import org.hsqldb.lib.ObjectComparator;
  * Special getOrAddXXX() methods are used for object maps in some subclasses.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.7.2
  */
 public class BaseHashMap {
@@ -204,6 +204,30 @@ public class BaseHashMap {
         }
     }
 
+    protected int getLookup(Object key) {
+
+        int    hash   = comparator == null ? key.hashCode()
+                                           : comparator.hashCode(key);
+        int    lookup = hashIndex.getLookup(hash);
+        Object tempKey;
+
+        for (; lookup >= 0; lookup = hashIndex.getNextLookup(lookup)) {
+            tempKey = objectKeyTable[lookup];
+
+            if (comparator == null) {
+                if (key.equals(tempKey)) {
+                    break;
+                }
+            } else {
+                if (comparator.equals(key, tempKey)) {
+                    break;
+                }
+            }
+        }
+
+        return lookup;
+    }
+
     protected int getLookup(Object key, int hash) {
 
         int    lookup = hashIndex.getLookup(hash);
@@ -217,7 +241,7 @@ public class BaseHashMap {
                     break;
                 }
             } else {
-                if (comparator.compare(key, tempKey) == 0) {
+                if (comparator.equals(key, tempKey)) {
                     break;
                 }
             }
@@ -349,8 +373,7 @@ public class BaseHashMap {
                         break;
                     }
                 } else {
-                    if (comparator.compare(objectKeyTable[lookup], objectKey)
-                            == 0) {
+                    if (comparator.equals(objectKeyTable[lookup], objectKey)) {
                         break;
                     }
                 }
@@ -517,8 +540,8 @@ public class BaseHashMap {
                         continue;
                     }
                 } else {
-                    if (comparator.compare(objectKeyTable[lookup], objectKey)
-                            == 0) {}
+                    if (comparator.equals(objectKeyTable[lookup],
+                                          objectKey)) {}
                     else {
                         continue;
                     }

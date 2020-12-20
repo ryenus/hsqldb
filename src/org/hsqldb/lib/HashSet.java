@@ -37,7 +37,7 @@ import org.hsqldb.map.BaseHashMap;
  * This class does not store null keys.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.7.2
  */
 public class HashSet extends BaseHashMap implements Set {
@@ -89,15 +89,7 @@ public class HashSet extends BaseHashMap implements Set {
 
     public Object get(Object key) {
 
-        int hashCode;
-
-        if (comparator == null) {
-            hashCode = key.hashCode();
-        } else {
-            hashCode = comparator.hashCode(key);
-        }
-
-        int lookup = getLookup(key, hashCode);
+        int lookup = getLookup(key);
 
         if (lookup < 0) {
             return null;

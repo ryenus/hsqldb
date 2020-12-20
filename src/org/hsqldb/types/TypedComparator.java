@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,18 +31,20 @@
 
 package org.hsqldb.types;
 
-import org.hsqldb.lib.ObjectComparator;
-import org.hsqldb.SortAndSlice;
+import java.util.Comparator;
+
 import org.hsqldb.Session;
+import org.hsqldb.SortAndSlice;
+import org.hsqldb.lib.ObjectComparator;
 
 /**
   * Comparator with sort order and null order.<p>
   *
   * @author Fred Toussi (fredt@users dot sourceforge.net)
-  * @version 2.5.0
+  * @version 2.5.2
   * @since 2.4.0
  */
-public class TypedComparator implements ObjectComparator {
+public class TypedComparator implements Comparator, ObjectComparator {
 
     final Session session;
     Type          type;
@@ -59,6 +61,19 @@ public class TypedComparator implements ObjectComparator {
         } else {
             return type.compare(session, a, b, sort);
         }
+    }
+
+    public boolean equals(Object a, Object b) {
+
+        if (a == b) {
+            return true;
+        }
+
+        if (a == null || b == null) {
+            return false;
+        }
+
+        return type.compare(session, a, b) == 0;
     }
 
     public int hashCode(Object a) {

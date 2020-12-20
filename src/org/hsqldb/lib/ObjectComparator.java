@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,11 @@ package org.hsqldb.lib;
 
 import java.util.Comparator;
 
-public interface ObjectComparator extends Comparator {
+public interface ObjectComparator<T> {
 
-    int hashCode(Object a);
+    boolean equals(T a, T b);
 
-    long longKey(Object a);
+    int hashCode(T a);
+
+    long longKey(T a);
 }

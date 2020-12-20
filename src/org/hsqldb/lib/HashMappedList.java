@@ -39,7 +39,7 @@ package org.hsqldb.lib;
  * This class does not store null keys.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.5.2
  * @since 1.7.2
  */
 public class HashMappedList extends HashMap {
@@ -64,7 +64,7 @@ public class HashMappedList extends HashMap {
 
     public Object remove(Object key) {
 
-        int lookup = getLookup(key, key.hashCode());
+        int lookup = getLookup(key);
 
         if (lookup < 0) {
             return null;
@@ -86,7 +86,7 @@ public class HashMappedList extends HashMap {
 
     public boolean add(Object key, Object value) {
 
-        int lookup = getLookup(key, key.hashCode());
+        int lookup = getLookup(key);
 
         if (lookup >= 0) {
             return false;
@@ -120,7 +120,7 @@ public class HashMappedList extends HashMap {
             throw new IndexOutOfBoundsException();
         }
 
-        int lookup = getLookup(key, key.hashCode());
+        int lookup = getLookup(key);
 
         if (lookup >= 0) {
             return false;
@@ -197,7 +197,7 @@ public class HashMappedList extends HashMap {
     }
 
     public int getIndex(Object key) {
-        return getLookup(key, key.hashCode());
+        return getLookup(key);
     }
 
     public Object[] toValuesArray(Object[] a) {
