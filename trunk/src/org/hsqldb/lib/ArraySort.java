@@ -104,8 +104,7 @@ public final class ArraySort {
         return baseIndex + 1;
     }
 
-    public static void sort(Object[] array, int limit, Comparator comparator
-                            ) {
+    public static void sort(Object[] array, int limit, Comparator comparator) {
 
         if (limit < 2) {
             return;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,14 +34,14 @@ package org.hsqldb.lib;
 import java.io.Serializable;
 import java.util.Comparator;
 
-public class StringComparator implements Comparator, Serializable {
+public class StringComparator implements Comparator<String>, Serializable {
 
     /*
      * @author Fred Toussi (fredt@users dot sourceforge.net)
-     * @version 1.9.0
+     * @version 2.5.2
      * @since 1.9.0
      */
-    public int compare(Object a, Object b) {
+    public int compare(String a, String b) {
 
         // handle nulls
         if (a == b) {
@@ -56,6 +56,6 @@ public class StringComparator implements Comparator, Serializable {
             return 1;
         }
 
-        return ((String) a).compareTo((String) b);
+        return a.compareTo(b);
     }
 }

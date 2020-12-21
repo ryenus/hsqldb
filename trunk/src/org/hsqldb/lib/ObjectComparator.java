@@ -31,8 +31,6 @@
 
 package org.hsqldb.lib;
 
-import java.util.Comparator;
-
 public interface ObjectComparator<T> {
 
     boolean equals(T a, T b);

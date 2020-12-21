@@ -473,7 +473,7 @@ public class Cache extends BaseHashMap {
     }
 
     static final class CachedObjectComparator
-    implements Comparator, ObjectComparator {
+    implements Comparator<CachedObject>, ObjectComparator<CachedObject> {
 
         static final int COMPARE_LAST_ACCESS = 0;
         static final int COMPARE_POSITION    = 1;
@@ -488,7 +488,7 @@ public class Cache extends BaseHashMap {
             compareCount = 0;
         }
 
-        public int compare(Object a, Object b) {
+        public int compare(CachedObject a, CachedObject b) {
 
             long diff;
 
@@ -497,13 +497,11 @@ public class Cache extends BaseHashMap {
             switch (compareType) {
 
                 case COMPARE_POSITION :
-                    diff = ((CachedObject) a).getPos()
-                           - ((CachedObject) b).getPos();
+                    diff = a.getPos() - b.getPos();
                     break;
 
                 case COMPARE_SIZE :
-                    diff = ((CachedObject) a).getStorageSize()
-                           - ((CachedObject) b).getStorageSize();
+                    diff = a.getStorageSize() - b.getStorageSize();
                     break;
 
                 default :
@@ -515,16 +513,16 @@ public class Cache extends BaseHashMap {
                                         : -1;
         }
 
-        public boolean equals(Object a, Object b) {
+        public boolean equals(CachedObject a, CachedObject b) {
             return compare(a, b) == 0;
         }
 
-        public int hashCode(Object o) {
+        public int hashCode(CachedObject o) {
             return o.hashCode();
         }
 
-        public long longKey(Object o) {
-            return ((CachedObject) o).getPos();
+        public long longKey(CachedObject o) {
+            return o.getPos();
         }
     }
 }
