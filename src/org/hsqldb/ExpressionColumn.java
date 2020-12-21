@@ -173,10 +173,6 @@ public class ExpressionColumn extends Expression {
         this.rangePosition = rangePosition;
     }
 
-    ExpressionColumn() {
-        super(OpTypes.ASTERISK);
-    }
-
     ExpressionColumn(int type) {
 
         super(type);
