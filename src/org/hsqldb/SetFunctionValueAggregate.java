@@ -59,7 +59,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.7.2
  *
  */
@@ -102,16 +102,16 @@ public class SetFunctionValueAggregate implements SetFunction {
         this.isDistinct = isDistinct;
 
         if (isDistinct) {
-            distinctValues = new HashSet();
-
             if (type.isRowType() || type.isArrayType()
                     || type.isCharacterType()) {
                 comparator = new TypedComparator(session);
 
                 comparator.setType(type, null);
-                distinctValues.setComparator(comparator);
+
+                distinctValues = new HashSet(comparator);
             } else {
-                comparator = null;
+                comparator     = null;
+                distinctValues = new HashSet();
             }
         } else {
             comparator = null;
