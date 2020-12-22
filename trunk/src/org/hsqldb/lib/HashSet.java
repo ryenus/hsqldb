@@ -51,6 +51,25 @@ public class HashSet extends BaseHashMap implements Set {
               BaseHashMap.noKeyOrValue, false);
     }
 
+    public HashSet(ObjectComparator comparator)
+    throws IllegalArgumentException {
+
+        super(8, BaseHashMap.objectKeyOrValue, BaseHashMap.noKeyOrValue,
+              false);
+
+        setComparator(comparator);
+    }
+
+    public HashSet(int initialCapacity,
+                   ObjectComparator comparator)
+                   throws IllegalArgumentException {
+
+        super(initialCapacity, BaseHashMap.objectKeyOrValue,
+              BaseHashMap.noKeyOrValue, false);
+
+        setComparator(comparator);
+    }
+
     public void setComparator(ObjectComparator comparator) {
         super.setComparator(comparator);
     }
