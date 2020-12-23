@@ -947,10 +947,6 @@ examples:
       -->
       <copy todir="${swsrc}/org/hsqldb/cmdline/sqltool"
             file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
-      <replace token="&lt;tt&gt;" value="{@code "
-            file="${swsrc}/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
-      <replace token="&lt;/tt&gt;" value="}"
-            file="${swsrc}/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
     </target>
 
     <target name="-init-jflex" unless="jflex.skip">
@@ -992,6 +988,12 @@ examples:
         <jflex file="src/org/hsqldb/cmdline/sqltool.flex" destdir="src"/>
         <!-- A limitation of the jflex task is that you must specify the .flex
              files individually and explicitly.  No filesets, etc. -->
+      <!-- JFlex writes tt tags which have been deprecated for Javadoc, so
+           replace them: -->
+      <replace token="&lt;tt&gt;" value="{@code "
+            file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
+      <replace token="&lt;/tt&gt;" value="}"
+            file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
     </target>
 
     <target name="-update-switch-branch" unless="switch.inplace">
