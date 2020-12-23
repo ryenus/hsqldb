@@ -927,8 +927,8 @@ examples:
 
       <!-- We no longer remove SqlFileScanner.java automatically.
            We can't depend on file timestamps, because Subversion doesn't
-           preserve them, so we must depend on the user to manually remove
-           SqlFileScanner.java if they want it regenerated.
+           preserve them, so we must depend on explicit removal of
+           SqlFileScanner.java if we want it regenerated.
       <dependset>
         <srcfilelist dir="src/org/hsqldb/cmdline">
           <file name="sqltool.flex"/>
@@ -940,6 +940,10 @@ examples:
       -->
       <copy todir="${swsrc}/org/hsqldb/cmdline/sqltool"
             file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
+      <replace token="&lt;tt&gt;" value="{@code "
+            file="${swsrc}/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
+      <replace token="&lt;/tt&gt;" value="}"
+            file="${swsrc}/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
     </target>
 
     <target name="-init-jflex" unless="jflex.skip">
