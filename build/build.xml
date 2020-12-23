@@ -573,6 +573,7 @@ examples:
                      value='Runtime without utilities and servers'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+          <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='minclasses' />
         <fileset dir="classes/modules/org.hsqldb.min"/>
@@ -592,6 +593,7 @@ examples:
                      value='Runtime without utilities'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+          <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='minclasses' />
         <fileset refid='mainaddedclasses' />
@@ -621,6 +623,7 @@ examples:
                      value='Standard runtime'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+          <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='minclasses' />
         <fileset refid='mainaddedclasses' />
@@ -651,6 +654,7 @@ examples:
           <attribute name='Implementation-Version' value='${build.label}'/>
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
+          <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='dbmanagerswingclasses'/>
       </jar>
@@ -698,6 +702,7 @@ examples:
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <attribute name='Class-Path'
               value='hsqldb-${hsqldb.version}.jar hsqldb.jar hsqldbmain.jar'/>
+          <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='sqltoolclasses'/>
         <fileset refid='sqltoolres'/>
@@ -750,6 +755,7 @@ examples:
           <attribute name='Implementation-Title' value='HSQLDB Java Source Preprocessor Library'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+          <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='preprocessorclasses' />
       </jar>
@@ -770,6 +776,7 @@ examples:
           <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
           <attribute name='Class-Path'
           value='hsqldb-${hsqldb.version}.jar hsqldbmain.jar hsqldb.jar'/>
+          <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='utilclasses'/>
       </jar>
