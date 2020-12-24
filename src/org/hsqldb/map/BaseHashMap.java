@@ -826,7 +826,8 @@ public class BaseHashMap {
             return null;
         }
 
-        int    hash        = objectKey.hashCode();
+        int    hash = (comparator == null) ? hash = objectKey.hashCode()
+                                           : comparator.hashCode(objectKey);
         int    index       = hashIndex.getHashIndex(hash);
         int    lookup      = hashIndex.hashTable[index];
         int    lastLookup  = -1;
@@ -835,27 +836,37 @@ public class BaseHashMap {
         for (; lookup >= 0;
                 lastLookup = lookup,
                 lookup = hashIndex.getNextLookup(lookup)) {
-            if (objectKeyTable[lookup].equals(objectKey)) {
-                returnValue            = objectKeyTable[lookup];
-                objectKeyTable[lookup] = null;
-
-                if (accessTable != null) {
-                    accessTable[lookup] = 0;
+            if (comparator == null) {
+                if (objectKeyTable[lookup].equals(objectKey)) {}
+                else {
+                    continue;
                 }
-
-                hashIndex.unlinkNode(index, lastLookup, lookup);
-
-                if (isObjectValue) {
-                    returnValue              = objectValueTable[lookup];
-                    objectValueTable[lookup] = null;
+            } else {
+                if (comparator.equals(objectKeyTable[lookup], objectKey)) {}
+                else {
+                    continue;
                 }
-
-                if (removeRow) {
-                    removeRow(lookup);
-                }
-
-                return returnValue;
             }
+
+            returnValue            = objectKeyTable[lookup];
+            objectKeyTable[lookup] = null;
+
+            if (accessTable != null) {
+                accessTable[lookup] = 0;
+            }
+
+            hashIndex.unlinkNode(index, lastLookup, lookup);
+
+            if (isObjectValue) {
+                returnValue              = objectValueTable[lookup];
+                objectValueTable[lookup] = null;
+            }
+
+            if (removeRow) {
+                removeRow(lookup);
+            }
+
+            return returnValue;
         }
 
         // not found

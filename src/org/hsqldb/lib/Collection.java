@@ -43,7 +43,7 @@ public interface Collection<E> {
 
     boolean isEmpty();
 
-    boolean contains(Object o);
+    boolean contains(E o);
 
     Iterator<E> iterator();
 
@@ -53,7 +53,7 @@ public interface Collection<E> {
 */
     boolean add(E o);
 
-    boolean remove(Object o);
+    boolean remove(E o);
 
     boolean addAll(Collection</*? extends*/ E> c);
 
