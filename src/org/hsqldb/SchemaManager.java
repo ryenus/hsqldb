@@ -398,19 +398,13 @@ public class SchemaManager {
             return defaultSchemaHsqlName;
         }
 
-        readLock.lock();
+        HsqlName schemaName = findSchemaHsqlName(name);
 
-        try {
-            Schema schema = ((Schema) schemaMap.get(name));
-
-            if (schema == null) {
-                throw Error.error(ErrorCode.X_3F000, name);
-            }
-
-            return schema.getName();
-        } finally {
-            readLock.unlock();
+        if (schemaName == null) {
+            throw Error.error(ErrorCode.X_3F000, name);
         }
+
+        return schemaName;
     }
 
     /**

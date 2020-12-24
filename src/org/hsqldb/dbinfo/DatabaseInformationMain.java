@@ -143,7 +143,7 @@ import org.hsqldb.types.Types;
  * (fredt@users) <p>
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.2
  * @since 1.7.2
  */
 class DatabaseInformationMain extends DatabaseInformation {
@@ -668,11 +668,11 @@ class DatabaseInformationMain extends DatabaseInformation {
         Boolean inKey;           // column participates in PK or AK?
 
         //-------------------------------------------
-
         /*
          * @todo -  Maybe include: - backing index (constraint) name?
          *       - column sequence in index (constraint)?
          */
+
         //-------------------------------------------
         // Intermediate holders
         Iterator       tables;
@@ -1699,11 +1699,19 @@ class DatabaseInformationMain extends DatabaseInformation {
                         }
                     }
 
-                    row[specific_cat]     = database.getCatalogName().name;
-                    row[specific_schem]   = routine.getSchemaName().name;
-                    row[specific_name]    = routine.getSpecificName().name;
-                    row[procedure_name]   = routine.getName().name;
-                    row[parameter_name]   = column.getName().name;
+                    row[specific_cat]   = database.getCatalogName().name;
+                    row[specific_schem] = routine.getSchemaName().name;
+                    row[specific_name]  = routine.getSpecificName().name;
+                    row[procedure_name] = routine.getName().name;
+
+                    HsqlName colName   = column.getName();
+                    String   colString = "";
+
+                    if (colName != null) {
+                        colString = colName.name;
+                    }
+
+                    row[parameter_name]   = colString;
                     row[ordinal_position] = ValuePool.getInt(j + 1);
                     row[parameter_mode] =
                         ValuePool.getInt(column.getParameterMode());

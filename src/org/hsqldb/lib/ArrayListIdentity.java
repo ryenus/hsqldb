@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,9 @@
 
 package org.hsqldb.lib;
 
-public class ArrayListIdentity extends HsqlArrayList implements HsqlList {
+public class ArrayListIdentity<E> extends HsqlArrayList<E> {
 
+    @Override
     public int indexOf(Object o) {
 
         for (int i = 0; i < elementCount; i++) {
