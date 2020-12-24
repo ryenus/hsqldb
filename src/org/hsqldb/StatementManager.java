@@ -32,25 +32,24 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.lib.IntKeyHashMap;
+import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.LongKeyHashMap;
-import org.hsqldb.lib.LongKeyIntValueHashMap;
-import org.hsqldb.lib.LongValueHashMap;
+import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultMetaData;
 
 /**
  * This class manages the reuse of Statement objects for prepared
  * statements for a Session instance.<p>
  *
- * A compiled statement is registered by a session to be managed. Once
- * registered, it can be reused.<p>
+ * A compiled statement is registered by a session to be managed.<p>
  *
  * The sql statement text distinguishes different compiled statements and acts
  * as lookup key when a session initially looks for an existing instance of
  * the compiled sql statement.<p>
  *
- * Once a session is linked with a statement, it uses the unique compiled
- * statement id for the sql statement to access the statement.<p>
+ * The unique compiled statement id for the sql statement is used to access the
+ * statement.<p>
  *
  * Changes to database structure via DDL statements, will result in all
  * registered Statement objects to become invalidated. This is done by
@@ -60,17 +59,17 @@ import org.hsqldb.result.Result;
  *
  * This class keeps count of the number of time each registered compiled
  * statement is linked to a session. It unregisters a compiled statement when
- * no session remains linked to it.<p>
+ * it is not in use.<p>
  *
- * Modified by fredt@users from the original by campbell-burnet@users to simplify,
- * support multiple identical prepared statements per session, and avoid
- * memory leaks. Modified further to support schemas. Changed implementation
- * in 1.9 as a session object<p>
+ * Modified by fredt@users from the original by campbell-burnet@users to
+ * simplify, support multiple identical prepared statements per session, and
+ * avoid memory leaks. Changed implementation to a session object for optimised
+ * access.<p>
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.4.0
+ * @version 2.5.2
  * @since 1.7.2
  */
 public final class StatementManager {
@@ -81,14 +80,11 @@ public final class StatementManager {
      */
     private Database database;
 
-    /** Map: Schema id (int) => {Map: SQL String => Compiled Statement id (long)} */
-    private IntKeyHashMap schemaMap;
+    /** Set: Compiled statement wrapper for Statement object. */
+    private HashSet<StatementWrapper>  statementSet;
 
-    /** Map: Compiled statement id (int) => CompiledStatement object. */
+    /** Map: Compiled statement id (int) => wrapper for Statement object. */
     private LongKeyHashMap csidMap;
-
-    /** Map: Compiled statement id (int) => number of uses of the statement */
-    private LongKeyIntValueHashMap useMap;
 
     /**
      * Monotonically increasing counter used to assign unique ids to compiled
@@ -105,9 +101,8 @@ public final class StatementManager {
     StatementManager(Database database) {
 
         this.database = database;
-        schemaMap     = new IntKeyHashMap();
+        statementSet  = new HashSet(new StatementComparator());
         csidMap       = new LongKeyHashMap();
-        useMap        = new LongKeyIntValueHashMap();
         next_cs_id    = 0;
     }
 
@@ -116,9 +111,8 @@ public final class StatementManager {
      */
     synchronized void reset() {
 
-        schemaMap.clear();
+        statementSet.clear();
         csidMap.clear();
-        useMap.clear();
 
         next_cs_id = 0;
     }
@@ -136,31 +130,9 @@ public final class StatementManager {
     }
 
     /**
-     * Retrieves the registered compiled statement identifier associated with
-     * the specified SQL String, or a value less than zero, if no such
-     * statement has been registered.
-     *
-     * @param schema the schema id
-     * @param sql the SQL String
-     * @return the compiled statement identifier associated with the
-     *      specified SQL String
-     */
-    private long getStatementID(HsqlName schema, String sql) {
-
-        LongValueHashMap sqlMap =
-            (LongValueHashMap) schemaMap.get(schema.hashCode());
-
-        if (sqlMap == null) {
-            return -1;
-        }
-
-        return sqlMap.get(sql, -1);
-    }
-
-    /**
-     * Returns an existing CompiledStatement object with the given
+     * Returns an existing tatement object with the given
      * statement identifier. Returns null if the CompiledStatement object
-     * has been invalidated and cannot be recompiled
+     * has expired and cannot be recompiled
      *
      * @param session the session
      * @param csid the identifier of the requested CompiledStatement object
@@ -168,52 +140,65 @@ public final class StatementManager {
      */
     public synchronized Statement getStatement(Session session, long csid) {
 
-        Statement cs = (Statement) csidMap.get(csid);
+        StatementWrapper sw = (StatementWrapper) csidMap.get(csid);
 
-        if (cs == null) {
+        if (sw == null) {
             return null;
         }
 
-        if (cs.getCompileTimestamp()
+        Statement statement = sw.statement;
+
+        if (statement.getCompileTimestamp()
                 < database.schemaManager.getSchemaChangeTimestamp()) {
-            Statement newStatement = recompileStatement(session, cs);
+            Statement newStatement = recompileStatement(session, statement);
 
             if (newStatement == null) {
-                freeStatement(csid);
+                removeStatement(csid);
 
                 return null;
             }
 
-            registerStatement(cs.getID(), newStatement);
+            newStatement.setCompileTimestamp(
+                database.txManager.getGlobalChangeTimestamp());
+
+            sw.statement = newStatement;
 
             return newStatement;
         }
 
-        return cs;
+        return sw.statement;
     }
 
     /**
-     * Recompiles an existing statement
+     * Recompiles an existing statement.
+     *
+     * Used by transaction manager for all statements, prepared or not prepred.
      *
      * @param session the session
-     * @param statement the old CompiledStatement object
+     * @param statement the old expired statement
      * @return the requested CompiledStatement object
      */
     public synchronized Statement getStatement(Session session,
             Statement statement) {
 
-        long      csid = statement.getID();
-        Statement cs   = (Statement) csidMap.get(csid);
+        long             csid = statement.getID();
+        StatementWrapper sw   = (StatementWrapper) csidMap.get(csid);
 
-        if (cs != null) {
+        if (sw != null) {
             return getStatement(session, csid);
         }
 
-        cs = recompileStatement(session, statement);
-
-        return cs;
+        return recompileStatement(session, statement);
     }
 
+    /**
+     * Returns an up-to-date compiled statement using the SQL and settings of
+     * the original. Returns null if the new statement is invalid.
+     *
+     * @param session the session
+     * @param cs the old expired statement
+     * @return the new Statement object
+     */
     private Statement recompileStatement(Session session, Statement cs) {
 
         HsqlName  oldSchema = session.getCurrentSchemaHsqlName();
@@ -267,110 +252,141 @@ public final class StatementManager {
     /**
      * Registers a compiled statement to be managed.
      *
-     * The only caller should be a Session that is attempting to prepare
-     * a statement for the first time or process a statement that has been
-     * invalidated due to DDL changes.
-     *
-     * @param csid existing id or negative if the statement is not yet managed
-     * @param cs The CompiledStatement to add
-     * @return The compiled statement id assigned to the CompiledStatement
-     *  object
+     * @param wrapper the wrapper for the Statement to add
+     * @return The statement id assigned to the Statement object
      */
-    private long registerStatement(long csid, Statement cs) {
+    private long registerStatement(StatementWrapper wrapper) {
+
+        Statement cs = wrapper.statement;
 
         cs.setCompileTimestamp(database.txManager.getGlobalChangeTimestamp());
 
-        int              schemaid = cs.getSchemaName().hashCode();
-        LongValueHashMap sqlMap   = (LongValueHashMap) schemaMap.get(schemaid);
-
-        if (sqlMap == null) {
-            sqlMap = new LongValueHashMap();
-
-            schemaMap.put(schemaid, sqlMap);
-        }
-
-        if (csid < 0) {
-            csid = nextID();
-        }
+        long csid = nextID();
 
         cs.setID(csid);
-        sqlMap.put(cs.getSQL(), csid);
-        csidMap.put(csid, cs);
+        statementSet.add(wrapper);
+        csidMap.put(csid, wrapper);
 
         return csid;
     }
 
     /**
-     * Removes one (or all) of the links between a session and a compiled
-     * statement. If the statement is not linked with any other session, it is
+     * Removes a link between a PreparedStatement and a Statement. If the
+     * statement is not linked with any other PreparedStatement, it is
      * removed from management.
      *
      * @param csid the compiled statement identifier
      */
     synchronized void freeStatement(long csid) {
 
-        if (csid == -1) {
+        StatementWrapper sw = (StatementWrapper) csidMap.get(csid);
+
+        if (sw == null) {
+            return;
+        }
+
+        sw.usageCount--;
+
+        if (sw.usageCount == 0) {
+            removeStatement(csid);
+        }
+    }
+
+    /**
+     * Removes an invalidated Statement.
+     *
+     * @param csid the compiled statement identifier
+     */
+    synchronized void removeStatement(long csid) {
+
+        if (csid <= 0) {
 
             // statement was never added
             return;
         }
 
-        int useCount = useMap.get(csid, 1);
+        StatementWrapper sw = (StatementWrapper) csidMap.remove(csid);
 
-        if (useCount > 1) {
-            useMap.put(csid, useCount - 1);
-
-            return;
+        if (sw != null) {
+            statementSet.remove(sw);
         }
-
-        Statement cs = (Statement) csidMap.remove(csid);
-
-        if (cs != null) {
-            int schemaid = cs.getSchemaName().hashCode();
-            LongValueHashMap sqlMap =
-                (LongValueHashMap) schemaMap.get(schemaid);
-            String sql = cs.getSQL();
-
-            sqlMap.remove(sql);
-        }
-
-        useMap.remove(csid);
     }
 
     /**
-     * Compiles an SQL statement and returns a CompiledStatement Object
+     * Compiles an SQL statement and returns a Statement Object
      *
      * @param session the session
+     * @param cmd the Result holding the SQL
      * @return CompiledStatement
      */
     synchronized Statement compile(Session session, Result cmd) {
 
-        int       props = cmd.getExecuteProperties();
-        Statement cs    = null;
-        String    sql   = cmd.getMainString();
-        long      csid  = getStatementID(session.currentSchema, sql);
+        StatementWrapper newWrapper = new StatementWrapper();
 
-        if (csid >= 0) {
-            cs = (Statement) csidMap.get(csid);
+        newWrapper.sql               = cmd.getMainString();
+        newWrapper.cursorProps       = cmd.getExecuteProperties();
+        newWrapper.generatedType     = cmd.getGeneratedResultType();
+        newWrapper.generatedMetaData = cmd.getGeneratedResultMetaData();
+        newWrapper.schemaName        = session.currentSchema;
+
+        StatementWrapper wrapper = statementSet.get(newWrapper);
+
+        if (wrapper != null) {
+            if (wrapper.statement.getCompileTimestamp()
+                    >= database.schemaManager.getSchemaChangeTimestamp()) {
+                wrapper.usageCount++;
+
+                return wrapper.statement;
+            }
+
+            // old version is invalid
+            removeStatement(wrapper.statement.getID());
         }
 
-        // generated result props still overwrite earlier version
-        if (cs == null || !cs.isValid() || cs.getCompileTimestamp() < database
-                .schemaManager.getSchemaChangeTimestamp() || cs
-                .getCursorPropertiesRequest() != props) {
-            cs = session.compileStatement(sql, props);
+        wrapper = newWrapper;
+        wrapper.statement = session.compileStatement(wrapper.sql,
+                wrapper.cursorProps);
 
-            cs.setCursorPropertiesRequest(props);
+        wrapper.statement.setCursorPropertiesRequest(wrapper.cursorProps);
+        wrapper.statement.setGeneratedColumnInfo(cmd.getGeneratedResultType(),
+                cmd.getGeneratedResultMetaData());
+        registerStatement(wrapper);
 
-            csid = registerStatement(csid, cs);
+        wrapper.usageCount = 1;
+
+        return wrapper.statement;
+    }
+
+    private static class StatementComparator
+        implements ObjectComparator<StatementWrapper> {
+
+        public boolean equals(StatementWrapper s1, StatementWrapper s2) {
+
+            return s1.sql.equals(s2.sql)
+                   && s1.schemaName.equals(s2.schemaName)
+                   && s1.cursorProps == s2.cursorProps
+                   && s1.generatedType == s2.generatedType
+                   && ResultMetaData.areGeneratedReguestsCompatible(
+                       s1.generatedMetaData, s2.generatedMetaData);
         }
 
-        int useCount = useMap.get(csid, 0) + 1;
+        public int hashCode(StatementWrapper a) {
+            return a.sql.hashCode();
+        }
 
-        useMap.put(csid, useCount);
-        cs.setGeneratedColumnInfo(cmd.getGeneratedResultType(),
-                                  cmd.getGeneratedResultMetaData());
+        public long longKey(StatementWrapper a) {
+            return 0L;
+        }
+    }
 
-        return cs;
+    private static class StatementWrapper {
+
+        String         sql;
+        HsqlName       schemaName;
+        int            cursorProps;
+        int            generatedType;
+        ResultMetaData generatedMetaData;
+        Statement      statement;
+        long           usageCount;
     }
 }
