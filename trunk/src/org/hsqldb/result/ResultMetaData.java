@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
  * Metadata for a result set.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.8.0
  */
 public final class ResultMetaData {
@@ -542,6 +542,40 @@ public final class ResultMetaData {
         ArrayUtil.projectRow(columns, columnMap, newMeta.columns);
 
         return newMeta;
+    }
+
+    public static boolean areGeneratedReguestsCompatible(ResultMetaData a,
+            ResultMetaData b) {
+
+        if (a == b) {
+            return true;
+        }
+
+        if (a == null || b == null) {
+            return false;
+        }
+
+        if (a.columnLabels != b.columnLabels) {
+            if (a.columnLabels == null || b.columnLabels == null) {
+                return false;
+            }
+
+            if (!ArrayUtil.areEqual(a.columnLabels, b.columnLabels)) {
+                return false;
+            }
+        }
+
+        if (a.colIndexes != b.colIndexes) {
+            if (a.columnLabels == null || b.columnLabels == null) {
+                return false;
+            }
+
+            if (!ArrayUtil.areEqual(a.colIndexes, b.colIndexes)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public boolean areTypesCompatible(ResultMetaData newMeta) {
