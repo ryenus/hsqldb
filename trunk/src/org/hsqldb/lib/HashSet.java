@@ -40,7 +40,7 @@ import org.hsqldb.map.BaseHashMap;
  * @version 2.5.2
  * @since 1.7.2
  */
-public class HashSet extends BaseHashMap implements Set {
+public class HashSet<E> extends BaseHashMap implements Set<E> {
 
     public HashSet() {
         this(8);
@@ -70,17 +70,13 @@ public class HashSet extends BaseHashMap implements Set {
         setComparator(comparator);
     }
 
-    public void setComparator(ObjectComparator comparator) {
-        super.setComparator(comparator);
-    }
-
-    public boolean contains(Object key) {
+    public boolean contains(E key) {
         return super.containsKey(key);
     }
 
-    public boolean containsAll(Collection col) {
+    public boolean containsAll(Collection<E> col) {
 
-        Iterator it = col.iterator();
+        Iterator<E> it = col.iterator();
 
         while (it.hasNext()) {
             if (contains(it.next())) {
@@ -93,9 +89,9 @@ public class HashSet extends BaseHashMap implements Set {
         return true;
     }
 
-    public Object getOrAdd(Object key) {
+    public Object getOrAdd(E key) {
 
-        Object value = get(key);
+        E value = get(key);
 
         if (value == null) {
             value = key;
@@ -106,19 +102,19 @@ public class HashSet extends BaseHashMap implements Set {
         return value;
     }
 
-    public Object get(Object key) {
+    public E get(E key) {
 
         int lookup = getLookup(key);
 
         if (lookup < 0) {
             return null;
         } else {
-            return objectKeyTable[lookup];
+            return (E) objectKeyTable[lookup];
         }
     }
 
     /** returns true if added */
-    public boolean add(Object key) {
+    public boolean add(E key) {
 
         int count = size();
 
@@ -128,10 +124,10 @@ public class HashSet extends BaseHashMap implements Set {
     }
 
     /** returns true if any added */
-    public boolean addAll(Collection c) {
+    public boolean addAll(Collection<E> c) {
 
         boolean  changed = false;
-        Iterator it      = c.iterator();
+        Iterator<E> it      = c.iterator();
 
         while (it.hasNext()) {
             changed |= add(it.next());
@@ -141,7 +137,7 @@ public class HashSet extends BaseHashMap implements Set {
     }
 
     /** returns true if any added */
-    public boolean addAll(Object[] keys) {
+    public boolean addAll(E[] keys) {
 
         boolean changed = false;
 
@@ -153,7 +149,7 @@ public class HashSet extends BaseHashMap implements Set {
     }
 
     /** returns true if any added */
-    public boolean addAll(Object[] keys, int start, int limit) {
+    public boolean addAll(E[] keys, int start, int limit) {
 
         boolean changed = false;
 
@@ -165,14 +161,14 @@ public class HashSet extends BaseHashMap implements Set {
     }
 
     /** returns true if removed */
-    public boolean remove(Object key) {
+    public boolean remove(E key) {
         return super.removeObject(key, false) != null;
     }
 
     /** returns true if all were removed */
-    public boolean removeAll(Collection c) {
+    public boolean removeAll(Collection<E> c) {
 
-        Iterator it     = c.iterator();
+        Iterator<E> it     = c.iterator();
         boolean  result = true;
 
         while (it.hasNext()) {
@@ -182,9 +178,9 @@ public class HashSet extends BaseHashMap implements Set {
         return result;
     }
 
-    public void intersect(Set c) {
+    public void intersect(Set<E> c) {
 
-        Iterator it = iterator();
+        Iterator<E> it = iterator();
 
         while (it.hasNext()) {
             if (!c.contains(it.next())) {
@@ -194,7 +190,7 @@ public class HashSet extends BaseHashMap implements Set {
     }
 
     /** returns true if all were removed */
-    public boolean removeAll(Object[] keys) {
+    public boolean removeAll(E[] keys) {
 
         boolean result = true;
 
@@ -205,29 +201,29 @@ public class HashSet extends BaseHashMap implements Set {
         return result;
     }
 
-    public void toArray(Object[] a) {
+    public void toArray(E[] a) {
 
-        Iterator it = iterator();
+        Iterator<E> it = iterator();
 
         for (int i = 0; it.hasNext(); i++) {
             a[i] = it.next();
         }
     }
 
-    public Object[] toArray() {
+    public E[] toArray() {
 
         if (isEmpty()) {
-            return emptyObjectArray;
+            return (E[]) emptyObjectArray;
         }
 
-        Object[] array = new Object[size()];
+        E[] array = (E[]) new Object[size()];
 
         toArray(array);
 
         return array;
     }
 
-    public Iterator iterator() {
+    public Iterator<E> iterator() {
         return new BaseHashIterator(true);
     }
 

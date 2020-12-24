@@ -299,6 +299,49 @@ public final class ArrayUtil {
     }
 
     /**
+     * Returns true if arra and arrb contain the same integers in the same
+     * order. This implies the arrays are of the same length.
+     */
+    public static boolean areEqual(Object[] arra, Object[] arrb) {
+
+        if (arra.length == arrb.length) {
+            for (int i = 0; i < arra.length; i++) {
+                if (arra[i] != arrb[i]) {
+                    if (arra[i] == null || arrb[i] == null) {
+                        return false;
+                    }
+                    if (!arra[i].equals(arrb[i])) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns true if arra and arrb contain the same integers in the same
+     * order. This implies the arrays are of the same length.
+     */
+    public static boolean areEqual(int[] arra, int[] arrb) {
+
+        if (arra.length == arrb.length) {
+            for (int i = 0; i < arra.length; i++) {
+                if (arra[i] != arrb[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Returns true if arra and arrb contain the same set of integers, not
      * necessarily in the same order. This implies the arrays are of the same
      * length.

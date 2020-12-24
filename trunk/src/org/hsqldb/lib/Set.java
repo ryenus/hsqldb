@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,43 +34,14 @@ package org.hsqldb.lib;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
+ * @version 2.5.2
  * @since 1.7.2
  */
-public interface Set extends Collection {
-
-    int size();
-
-    boolean isEmpty();
-
-    boolean contains(Object o);
-
-    Iterator iterator();
-
-/*
-    Object[] toArray();
-
-    void toArray(Object a[]);
-*/
-    boolean add(Object o);
+public interface Set<E> extends Collection<E> {
 
     /**
      * This method returns the Object that is already in the set and is
      * equal to the argument o.
      */
-    Object get(Object o);
-
-    boolean remove(Object o);
-
-/*
-    boolean containsAll(Collection c);
-    boolean addAll(Collection c);
-    boolean retainAll(Collection c);
-    boolean removeAll(Collection c);
-*/
-    void clear();
-
-    boolean equals(Object o);
-
-    int hashCode();
+    Object get(E o);
 }
