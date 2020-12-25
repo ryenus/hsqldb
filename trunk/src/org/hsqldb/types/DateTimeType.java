@@ -934,7 +934,17 @@ public final class DateTimeType extends DTIType {
                         millis = HsqlDateTime.convertMillisFromCalendar(
                             session.getCalendarGMT(), session.getCalendar(),
                             millis);
+
+                        if (a instanceof java.sql.Date) {
+                            millis = HsqlDateTime.getNormalisedDate(
+                                session.getCalendarGMT(), millis);
+                        }
                     } else {
+                        if (a instanceof java.sql.Date) {
+                            millis = HsqlDateTime.getNormalisedDate(
+                                session.getCalendarGMT(), millis);
+                        }
+
                         zoneSeconds =
                             HsqlDateTime.getZoneMillis(
                                 session.getCalendar(), millis) / 1000;
