@@ -1705,11 +1705,8 @@ class DatabaseInformationMain extends DatabaseInformation {
                     row[procedure_name] = routine.getName().name;
 
                     HsqlName colName   = column.getName();
-                    String   colString = "";
-
-                    if (colName != null) {
-                        colString = colName.name;
-                    }
+                    String   colString = (colName == null) ? ""
+                                                           : colName.name;
 
                     row[parameter_name]   = colString;
                     row[ordinal_position] = ValuePool.getInt(j + 1);

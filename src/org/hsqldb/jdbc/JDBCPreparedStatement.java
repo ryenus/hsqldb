@@ -592,7 +592,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      */
     public synchronized void setDate(int parameterIndex,
                                      Date x) throws SQLException {
-        setParameter(parameterIndex, x);
+        setDate(parameterIndex, x, null);
     }
 
     /**
@@ -617,7 +617,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      */
     public synchronized void setTime(int parameterIndex,
                                      Time x) throws SQLException {
-        setParameter(parameterIndex, x);
+        setTime(parameterIndex, x, null);
     }
 
     /**
@@ -647,7 +647,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      */
     public synchronized void setTimestamp(int parameterIndex,
             Timestamp x) throws SQLException {
-        setParameter(parameterIndex, x);
+        setTimestamp(parameterIndex, x, null);
     }
 
     /* @todo 1.9.0 - implement streaming */
