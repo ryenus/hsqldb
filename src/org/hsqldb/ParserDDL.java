@@ -633,7 +633,8 @@ public class ParserDDL extends ParserRoutine {
             case Tokens.TABLE : {
                 boolean isSession =
                     token.namePrePrefix == null
-                    && Tokens.T_SESSION.equals(token.namePrefix);
+                    && (Tokens.T_SESSION.equals(token.namePrefix)
+                        || Tokens.T_MODULE.equals(token.namePrefix));
 
                 if (isSession) {
                     name = readNewSchemaObjectName(objectType, false);
@@ -736,7 +737,7 @@ public class ParserDDL extends ParserRoutine {
             name.schema = session.getCurrentSchemaHsqlName();
         }
 
-        Table    t;
+        Table t;
 
         if (ifExists) {
             t = (Table) database.schemaManager.findUserTable(name.name,
@@ -748,6 +749,7 @@ public class ParserDDL extends ParserRoutine {
 
         if (t != null) {
             name = t.getName();
+
             checkSchemaUpdateAuthorisation(name.schema);
         }
 
@@ -1012,12 +1014,12 @@ public class ParserDDL extends ParserRoutine {
             return null;
         }
 
-        if (token.namePrePrefix == null
-                && (token.namePrefix == null
-                    || Tokens.T_SESSION.equals(token.namePrefix))) {
+        boolean isSession = token.namePrePrefix == null
+                            && (token.namePrefix == null
+                                || Tokens.T_SESSION.equals(token.namePrefix)
+                                || Tokens.T_MODULE.equals(token.namePrefix));
 
-            // valid name
-        } else {
+        if (!isSession) {
             throw unexpectedToken();
         }
 

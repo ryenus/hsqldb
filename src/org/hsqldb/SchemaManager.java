@@ -1360,7 +1360,8 @@ public class SchemaManager {
                     }
                 }
 
-                if (Tokens.T_SESSION.equals(prefix)) {
+                if (Tokens.T_SESSION.equals(prefix)
+                        || Tokens.T_MODULE.equals(prefix)) {
                     Table t = findSessionTable(session, name);
 
                     if (t != null) {
