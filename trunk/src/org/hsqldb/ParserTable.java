@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
  * Parser for SQL table definition
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class ParserTable extends ParserDML {
@@ -79,7 +79,7 @@ public class ParserTable extends ParserDML {
         }
 
         if (token.tokenType == Tokens.AS) {
-            return compileCreateTableAsSubqueryDefinition(table);
+            return compileCreateTableAsSubqueryDefinition(table, ifNot);
         }
 
         return compileCreateTableBody(table, ifNot);
@@ -95,7 +95,7 @@ public class ParserTable extends ParserDML {
             tempIndexes);
 
         if (!isTable) {
-            return compileCreateTableAsSubqueryDefinition(table);
+            return compileCreateTableAsSubqueryDefinition(table, ifNot);
         }
 
         readTableVersioningClause(table);
@@ -568,7 +568,7 @@ public class ParserTable extends ParserDML {
         return columnList;
     }
 
-    StatementSchema compileCreateTableAsSubqueryDefinition(Table table) {
+    StatementSchema compileCreateTableAsSubqueryDefinition(Table table, boolean ifNotExists) {
 
         HsqlName[]      readName        = null;
         boolean         withData        = true;
@@ -637,7 +637,7 @@ public class ParserTable extends ParserDML {
 
         Object[] args = new Object[] {
             table, new HsqlArrayList(), new HsqlArrayList(), statement,
-            Boolean.FALSE
+            Boolean.valueOf(ifNotExists)
         };
         String     sql            = getLastPart();
         HsqlName[] writeLockNames = database.schemaManager.catalogNameArray;
