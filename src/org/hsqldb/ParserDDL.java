@@ -1032,7 +1032,7 @@ public class ParserDDL extends ParserRoutine {
         StatementSchema cs;
 
         if (token.tokenType == Tokens.AS) {
-            cs = compileCreateTableAsSubqueryDefinition(table);
+            cs = compileCreateTableAsSubqueryDefinition(table, ifNot);
         } else {
             cs = compileCreateTableBody(table, ifNot);
 
