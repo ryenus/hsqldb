@@ -89,12 +89,12 @@ public final class ArrayCounter {
      * range is less than or equals target. Parameter margin indicates the
      * margin of error in target<p>
      *
-     * In statistics, this can be used to calculate a median or quadrile value.
+     * In statistics, this can be used to calculate a median or quartile value.
      * A usage example applied to an array of age values is to determine
      * the maximum age of a given number of people. With the example array
      * given in countSegments, rank(array, c, 6000, 18, 65, 0) will return an age
      * value between 18-64 (inclusive) and the count of all people aged between
-     * 18 and the returned value(exclusive) will be less than or equal 6000.
+     * 18 and the returned value(exclusive) will be less than or equal to 6000.
      *
      */
     public static int rank(int[] array, int elements, int target, int start,

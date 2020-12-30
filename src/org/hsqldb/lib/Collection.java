@@ -43,24 +43,15 @@ public interface Collection<E> {
 
     boolean isEmpty();
 
-    boolean contains(E o);
+    boolean contains(Object o);
 
     Iterator<E> iterator();
 
-/*
-    Object[] toArray();
-    Object[] toArray(Object a[]);
-*/
     boolean add(E o);
 
-    boolean remove(E o);
+    boolean remove(Object o);
 
-    boolean addAll(Collection</*? extends*/ E> c);
+    boolean addAll(Collection<? extends E> c);
 
-/*
-    boolean containsAll(Collection c);
-    boolean removeAll(Collection c);
-    boolean retainAll(Collection c);
-*/
     void clear();
 }

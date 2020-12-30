@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ public interface HsqlHeap {
      *      dictates that this Heap is not currently accepting additions
      *      or that this Heap is currently full (optional)
      */
-    void add(Object o) throws IllegalArgumentException, RuntimeException;
+    void add(Object o) throws RuntimeException;
 
     /**
      * Retrieves the least element from this Heap, without removing it.

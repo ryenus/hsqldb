@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,7 +92,7 @@ public class HsqlArrayHeap implements HsqlHeap {
     }
 
     public synchronized void add(Object o)
-    throws IllegalArgumentException, RuntimeException {
+    throws RuntimeException {
 
         int ci;    // current index
         int pi;    // parent index

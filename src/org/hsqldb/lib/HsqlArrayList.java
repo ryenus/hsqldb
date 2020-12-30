@@ -176,11 +176,6 @@ public class HsqlArrayList<E> extends BaseList<E> implements HsqlList<E> {
                                                 + elementCount);
         }
 
-        if (index < 0) {
-            throw new IndexOutOfBoundsException("Index out of bounds: "
-                                                + index + " < 0");
-        }
-
         return elementData[index];
     }
 
@@ -209,18 +204,12 @@ public class HsqlArrayList<E> extends BaseList<E> implements HsqlList<E> {
 
     /** Removes and returns the element at given position */
     @Override
-    @SuppressWarnings( "unchecked" )
     public E remove(int index) {
 
         if (index >= elementCount) {
             throw new IndexOutOfBoundsException("Index out of bounds: "
                                                 + index + " >= "
                                                 + elementCount);
-        }
-
-        if (index < 0) {
-            throw new IndexOutOfBoundsException("Index out of bounds: "
-                                                + index + " < 0");
         }
 
         E removedObj = elementData[index];
@@ -251,16 +240,11 @@ public class HsqlArrayList<E> extends BaseList<E> implements HsqlList<E> {
                                                 + elementCount);
         }
 
-        if (index < 0) {
-            throw new IndexOutOfBoundsException("Index out of bounds: "
-                                                + index + " < 0");
-        }
-
-        Object replacedObj = elementData[index];
+        E replacedObj = elementData[index];
 
         elementData[index] = element;
 
-        return (E) replacedObj;
+        return replacedObj;
     }
 
     /** Returns the number of elements in the array list */
@@ -355,48 +339,45 @@ public class HsqlArrayList<E> extends BaseList<E> implements HsqlList<E> {
         elementCount = newSize;
     }
 
-    public E[] toArray() {
+    public Object[] toArray() {
 
-        E[] newArray = (E[]) Array.newInstance(
-            elementData.getClass().getComponentType(), elementCount);
+        Object[] newArray = new Object[elementCount];
 
         System.arraycopy(elementData, 0, newArray, 0, elementCount);
 
         return newArray;
     }
 
-    public E[] toArray(int start, int limit) {
-
-        E[] newArray = (E[]) Array.newInstance(
-            elementData.getClass().getComponentType(), limit - start);
-
-        System.arraycopy(elementData, start, newArray, 0, limit - start);
-
-        return newArray;
-    }
-
+    /**
+     * Copies elements of the list from start to limit to array. The array must
+     * be large enough.
+     */
     public void toArraySlice(E[] array, int start, int limit) {
-
         System.arraycopy(elementData, start, array, 0, limit - start);
     }
+
     /**
-     * Copies all elements of the list to a[]. It is assumed a[] is of the
-     * correct type. If a[] is too small, a new array or the same type is
-     * returned. If a[] is larger, only the list elements are copied and no
-     * other change is made to the array.
+     * Copies all elements of the list to a[].<p>
+     *
+     * If a[] is too small, a new array or the same type is
+     * returned.<p>
+     *
+     * If a[] is larger, only the list elements are copied and no
+     * other change is made to the array.<p>
+     *
      * Differs from the implementation in java.util.ArrayList in the second
      * aspect.
      */
-    public E[] toArray(E[] a) {
+    public E[] toArray(E[] array) {
 
-        if (Array.getLength(a) < elementCount) {
-            a = (E[]) Array.newInstance(a.getClass().getComponentType(),
+        if (array.length < elementCount) {
+            array = (E[]) Array.newInstance(array.getClass().getComponentType(),
                                         elementCount);
         }
 
-        System.arraycopy(elementData, 0, a, 0, elementCount);
+        System.arraycopy(elementData, 0, array, 0, elementCount);
 
-        return a;
+        return array;
     }
 
     public void sort(Comparator<? super E> c) {

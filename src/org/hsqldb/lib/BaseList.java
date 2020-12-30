@@ -44,42 +44,50 @@ abstract class BaseList<E> {
 
     protected int elementCount;
 
-    abstract E get(int index);
+    public abstract E get(int index);
 
-    abstract E remove(int index);
+    public abstract E remove(int index);
 
-    abstract boolean add(E o);
+    public abstract boolean add(E element);
 
-    abstract int size();
+    public abstract int size();
 
-    public boolean contains(Object o) {
-        return indexOf(o) == -1 ? false
-                                : true;
-    }
-
-    public boolean remove(Object o) {
-
-        int i = indexOf(o);
-
-        if (i == -1) {
-            return false;
-        }
-
-        remove(i);
-
-        return true;
-    }
-
-    public int indexOf(Object o) {
+    public boolean contains(Object element) {
 
         for (int i = 0, size = size(); i < size; i++) {
             Object current = get(i);
 
-            if (current == null) {
-                if (o == null) {
-                    return i;
-                }
-            } else if (current.equals(o)) {
+            if (current == element ||
+                (current != null && current.equals(element))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean remove(Object element) {
+
+        for (int i = 0, size = size(); i < size; i++) {
+            Object current = get(i);
+
+            if (current == element ||
+                (current != null && current.equals(element))) {
+                remove(i);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public int indexOf(E element) {
+
+        for (int i = 0, size = size(); i < size; i++) {
+            Object current = get(i);
+
+            if (current == element ||
+                (current != null && current.equals(element))) {
                 return i;
             }
         }
@@ -87,10 +95,10 @@ abstract class BaseList<E> {
         return -1;
     }
 
-    public boolean addAll(Collection</* ? extends */E> other) {
+    public boolean addAll(Collection<? extends E> other) {
 
-        boolean  result = false;
-        Iterator<E> it  = other.iterator();
+        boolean               result = false;
+        Iterator<? extends E> it     = other.iterator();
 
         while (it.hasNext()) {
             result = true;

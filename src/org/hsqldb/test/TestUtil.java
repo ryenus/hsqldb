@@ -515,9 +515,11 @@ abstract class ParsedSection {
             //Otherwise it will be discarded, and the offset (between the array and the vector)
             //set to 1.
             if (s.length() == 3) {
-                lines = (String[]) linesArray.toArray(1, linesArray.size());
+                lines = new String[linesArray.size() -1];
+                linesArray.toArraySlice(lines, 1, linesArray.size());
             } else {
-                lines    = (String[]) linesArray.toArray();
+                lines    = new String[linesArray.size()];
+                linesArray.toArray(lines);
                 lines[0] = lines[0].substring(3);
             }
 
@@ -547,7 +549,8 @@ abstract class ParsedSection {
                 k--;
             } while (k >= 0);
         } else {
-            lines = (String[]) linesArray.toArray();
+            lines = new String[linesArray.size()];
+            linesArray.toArray(lines);
 
             for (k = 0; k < lines.length; k++) {
                 sqlBuff.append(lines[k]);
@@ -1058,7 +1061,8 @@ class WaitSection extends ParsedSection {
 
         /* Can't user the super constructor, since it does funny things when
          * constructing the SQL Buffer, which we don't need. */
-        lines = (String[]) linesArray.toArray();
+        lines = new String[linesArray.size()];
+        linesArray.toArray(lines);
 
         int    closeCmd = lines[0].indexOf("*/");
         String cmd      = lines[0].substring(0, closeCmd);
@@ -1150,7 +1154,8 @@ class ProceedSection extends ParsedSection {
 
         /* Can't use the super constructor, since it does funny things when
          * constructing the SQL Buffer, which we don't need. */
-        lines = (String[]) linesArray.toArray();
+        lines = new String[linesArray.size()];
+        linesArray.toArray(lines);
 
         int    closeCmd = lines[0].indexOf("*/");
         String cmd      = lines[0].substring(0, closeCmd);
@@ -1395,7 +1400,8 @@ class DisplaySection extends ParsedSection {
 
         /* Can't user the super constructor, since it does funny things when
          * constructing the SQL Buffer, which we don't need. */
-        lines = (String[]) sectionLines.toArray();
+        lines = new String[sectionLines.size()];
+        sectionLines.toArray(lines);
 
         int firstSlash = lines[0].indexOf('/');
 

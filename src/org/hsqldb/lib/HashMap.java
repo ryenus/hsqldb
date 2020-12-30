@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,10 @@ import org.hsqldb.map.BaseHashMap;
  * This class does not store null keys.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.5.2
  * @since 1.7.2
  */
-public class HashMap extends BaseHashMap {
+public class HashMap<K, V> extends BaseHashMap {
 
     Set        keySet;
     Collection values;
@@ -54,24 +54,24 @@ public class HashMap extends BaseHashMap {
               BaseHashMap.objectKeyOrValue, false);
     }
 
-    public Object get(Object key) {
+    public V get(Object key) {
 
         int hash   = key.hashCode();
         int lookup = getLookup(key, hash);
 
         if (lookup != -1) {
-            return objectValueTable[lookup];
+            return (V) objectValueTable[lookup];
         }
 
         return null;
     }
 
-    public Object put(Object key, Object value) {
-        return super.addOrRemove(0, 0, key, value, false);
+    public V put(K key, V value) {
+        return (V) super.addOrRemove(0, 0, (K) key, (V) value, false);
     }
 
-    public Object remove(Object key) {
-        return super.removeObject(key, false);
+    public V remove(Object key) {
+        return (V) super.removeObject((K)key, false);
     }
 
     public boolean containsKey(Object key) {
@@ -82,20 +82,20 @@ public class HashMap extends BaseHashMap {
         return super.containsValue(value);
     }
 
-    public void putAll(HashMap t) {
+    public void putAll(HashMap<? extends K, ? extends V> t) {
 
-        Iterator it = t.keySet().iterator();
+        Iterator<? extends K> it = t.keySet().iterator();
 
         while (it.hasNext()) {
-            Object key = it.next();
+            K key = it.next();
 
             put(key, t.get(key));
         }
     }
 
-    public void valuesToArray(Object[] array) {
+    public void valuesToArray(V[] array) {
 
-        Iterator it = values().iterator();
+        Iterator<V> it = values().iterator();
         int      i  = 0;
 
         while (it.hasNext()) {
@@ -105,9 +105,9 @@ public class HashMap extends BaseHashMap {
         }
     }
 
-    public void keysToArray(Object[] array) {
+    public void keysToArray(K[] array) {
 
-        Iterator it = keySet().iterator();
+        Iterator<K> it = keySet().iterator();
         int      i  = 0;
 
         while (it.hasNext()) {
@@ -117,7 +117,7 @@ public class HashMap extends BaseHashMap {
         }
     }
 
-    public Set keySet() {
+    public Set<K> keySet() {
 
         if (keySet == null) {
             keySet = new KeySet();
@@ -126,7 +126,7 @@ public class HashMap extends BaseHashMap {
         return keySet;
     }
 
-    public Collection values() {
+    public Collection<V> values() {
 
         if (values == null) {
             values = new Values();
@@ -135,7 +135,7 @@ public class HashMap extends BaseHashMap {
         return values;
     }
 
-    class KeySet implements Set {
+    class KeySet implements Set<K> {
 
         public Iterator iterator() {
             return HashMap.this.new BaseHashIterator(true);
@@ -145,36 +145,31 @@ public class HashMap extends BaseHashMap {
             return HashMap.this.size();
         }
 
-        public boolean contains(Object o) {
-            return containsKey(o);
+        public boolean contains(Object key) {
+            return containsKey(key);
         }
 
-        public Object get(Object key) {
+        public K get(K key) {
 
             int lookup = HashMap.this.getLookup(key, key.hashCode());
 
             if (lookup < 0) {
                 return null;
             } else {
-                return HashMap.this.objectKeyTable[lookup];
+                return (K) HashMap.this.objectKeyTable[lookup];
             }
         }
 
-        public boolean add(Object value) {
+        public boolean add(K key) {
             throw new UnsupportedOperationException();
         }
 
-        public boolean addAll(Collection c) {
+        public boolean addAll(Collection<? extends K> c) {
             throw new UnsupportedOperationException();
         }
 
         public boolean remove(Object o) {
-
-            int oldSize = size();
-
-            HashMap.this.remove(o);
-
-            return size() != oldSize;
+            throw new UnsupportedOperationException();
         }
 
         public boolean isEmpty() {
@@ -186,7 +181,7 @@ public class HashMap extends BaseHashMap {
         }
     }
 
-    class Values implements Collection {
+    class Values implements Collection<V> {
 
         public Iterator iterator() {
             return HashMap.this.new BaseHashIterator(false);
@@ -200,11 +195,11 @@ public class HashMap extends BaseHashMap {
             throw new UnsupportedOperationException();
         }
 
-        public boolean add(Object value) {
+        public boolean add(V value) {
             throw new UnsupportedOperationException();
         }
 
-        public boolean addAll(Collection c) {
+        public boolean addAll(Collection<? extends V> c) {
             throw new UnsupportedOperationException();
         }
 

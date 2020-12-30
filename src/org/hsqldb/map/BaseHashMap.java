@@ -154,8 +154,8 @@ public class BaseHashMap {
             throw new IllegalArgumentException();
         }
 
-        if (initialCapacity < 3) {
-            initialCapacity = 3;
+        if (initialCapacity < 4) {
+            initialCapacity = 4;
         }
 
         this.loadFactor      = 1;    // can use any value if necessary
@@ -164,8 +164,8 @@ public class BaseHashMap {
 
         int hashtablesize = (int) (initialCapacity * loadFactor);
 
-        if (hashtablesize < 3) {
-            hashtablesize = 3;
+        if (hashtablesize < 4) {
+            hashtablesize = 4;
         }
 
         hashIndex = new HashIndex(hashtablesize, initialCapacity, true);
