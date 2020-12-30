@@ -51,7 +51,7 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
               BaseHashMap.noKeyOrValue, false);
     }
 
-    public HashSet(ObjectComparator comparator)
+    public HashSet(ObjectComparator<E> comparator)
     throws IllegalArgumentException {
 
         super(8, BaseHashMap.objectKeyOrValue, BaseHashMap.noKeyOrValue,
@@ -70,7 +70,7 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         setComparator(comparator);
     }
 
-    public boolean contains(E key) {
+    public boolean contains(Object key) {
         return super.containsKey(key);
     }
 
@@ -89,7 +89,7 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         return true;
     }
 
-    public Object getOrAdd(E key) {
+    public E getOrAdd(E key) {
 
         E value = get(key);
 
@@ -124,10 +124,10 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
     }
 
     /** returns true if any added */
-    public boolean addAll(Collection<E> c) {
+    public boolean addAll(Collection<? extends E> c) {
 
-        boolean  changed = false;
-        Iterator<E> it      = c.iterator();
+        boolean               changed = false;
+        Iterator<? extends E> it      = c.iterator();
 
         while (it.hasNext()) {
             changed |= add(it.next());
@@ -161,14 +161,14 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
     }
 
     /** returns true if removed */
-    public boolean remove(E key) {
+    public boolean remove(Object key) {
         return super.removeObject(key, false) != null;
     }
 
     /** returns true if all were removed */
-    public boolean removeAll(Collection<E> c) {
+    public boolean removeAll(Collection<? extends E> c) {
 
-        Iterator<E> it     = c.iterator();
+        Iterator<? extends E> it = c.iterator();
         boolean  result = true;
 
         while (it.hasNext()) {
@@ -199,6 +199,21 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         }
 
         return result;
+    }
+
+    public int getCommonElementCount(Set<E> other) {
+
+        int count = 0;
+
+        Iterator<E> it = iterator();
+
+        while (it.hasNext()) {
+            if (other.contains(it.next())) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     public void toArray(E[] a) {

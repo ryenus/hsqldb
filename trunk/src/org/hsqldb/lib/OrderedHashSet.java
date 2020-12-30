@@ -39,10 +39,10 @@ package org.hsqldb.lib;
  * This class does not store null elements.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.5.2
  * @since 1.9.0
  */
-public class OrderedHashSet extends HashSet implements HsqlList, Set {
+public class OrderedHashSet<E> extends HashSet<E> implements HsqlList<E>, Set<E> {
 
     public OrderedHashSet() {
 
@@ -51,19 +51,28 @@ public class OrderedHashSet extends HashSet implements HsqlList, Set {
         isList = true;
     }
 
+    public OrderedHashSet(ObjectComparator<E> comparator) {
+
+        super(8);
+
+        isList = true;
+
+        setComparator(comparator);
+    }
+
     public boolean remove(Object key) {
         return super.removeObject(key, true) != null;
     }
 
-    public Object remove(int index) throws IndexOutOfBoundsException {
+    public E remove(int index) throws IndexOutOfBoundsException {
 
         checkRange(index);
 
-        return super.removeObject(objectKeyTable[index], true);
+        return (E) super.removeObject(objectKeyTable[index], true);
     }
 
     public boolean insert(int index,
-                          Object key) throws IndexOutOfBoundsException {
+                          E key) throws IndexOutOfBoundsException {
 
         if (index < 0 || index > size()) {
             throw new IndexOutOfBoundsException();
@@ -77,7 +86,7 @@ public class OrderedHashSet extends HashSet implements HsqlList, Set {
             return add(key);
         }
 
-        Object[] array = new Object[size()];
+        E[] array = (E[]) new Object[size()];
 
         toArray(array);
         super.clear();
@@ -95,37 +104,30 @@ public class OrderedHashSet extends HashSet implements HsqlList, Set {
         return true;
     }
 
-    public Object set(int index, Object key) throws IndexOutOfBoundsException {
+    public E set(int index, E key) throws IndexOutOfBoundsException {
         throw new IndexOutOfBoundsException();
     }
 
-    public void add(int index, Object key) throws IndexOutOfBoundsException {
+    public void add(int index, E key) throws IndexOutOfBoundsException {
         throw new IndexOutOfBoundsException();
     }
 
-    public Object get(int index) throws IndexOutOfBoundsException {
+    public E get(int index) throws IndexOutOfBoundsException {
 
         checkRange(index);
 
-        return objectKeyTable[index];
+        return (E) objectKeyTable[index];
     }
 
-    public void toArray(Object[] array) {
+    public void toArray(E[] array) {
         System.arraycopy(super.objectKeyTable, 0, array, 0, array.length);
     }
 
-    public void addAll(OrderedHashSet other) {
-
-        for (int i = 0, size = other.size(); i < size; i++) {
-            add(other.get(i));
-        }
-    }
-
-    public int getIndex(Object key) {
+    public int getIndex(E key) {
         return getLookup(key);
     }
 
-    public int getLargestIndex(OrderedHashSet other) {
+    public int getLargestIndex(OrderedHashSet<E> other) {
 
         int max = -1;
 
@@ -140,7 +142,7 @@ public class OrderedHashSet extends HashSet implements HsqlList, Set {
         return max;
     }
 
-    public int getSmallestIndex(OrderedHashSet other) {
+    public int getSmallestIndex(OrderedHashSet<E> other) {
 
         int min = -1;
 
@@ -157,12 +159,12 @@ public class OrderedHashSet extends HashSet implements HsqlList, Set {
         return min;
     }
 
-    public int getCommonElementCount(Set other) {
+    public int getCommonElementCount(Set<E> other) {
 
         int count = 0;
 
         for (int i = 0, size = size(); i < size; i++) {
-            if (other.contains(objectKeyTable[i])) {
+            if (other.contains((E) objectKeyTable[i])) {
                 count++;
             }
         }
@@ -170,15 +172,15 @@ public class OrderedHashSet extends HashSet implements HsqlList, Set {
         return count;
     }
 
-    public static OrderedHashSet addAll(OrderedHashSet first,
-                                        OrderedHashSet second) {
+    public static <E> OrderedHashSet<E> addAll(OrderedHashSet<E> first,
+                                        OrderedHashSet<E> second) {
 
         if (second == null) {
             return first;
         }
 
         if (first == null) {
-            first = new OrderedHashSet();
+            first = new OrderedHashSet<E>();
         }
 
         first.addAll(second);
@@ -186,14 +188,14 @@ public class OrderedHashSet extends HashSet implements HsqlList, Set {
         return first;
     }
 
-    public static OrderedHashSet add(OrderedHashSet first, Object value) {
+    public static <E> OrderedHashSet<E> add(OrderedHashSet<E> first, E value) {
 
         if (value == null) {
             return first;
         }
 
         if (first == null) {
-            first = new OrderedHashSet();
+            first = new OrderedHashSet<E>();
         }
 
         first.add(value);

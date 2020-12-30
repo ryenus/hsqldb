@@ -43,5 +43,5 @@ public interface Set<E> extends Collection<E> {
      * This method returns the Object that is already in the set and is
      * equal to the argument o.
      */
-    Object get(E o);
+    E get(E o);
 }

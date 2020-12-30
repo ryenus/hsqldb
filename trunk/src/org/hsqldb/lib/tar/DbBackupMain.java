@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,30 +36,30 @@ import java.io.IOException;
 
 public class DbBackupMain {
 
-/**
- * Command line invocation to create, examine, or extract HSQLDB database
- * backup tar archives.
- * <P>
- * This class stores tar entries as relative files without specifying
- * parent directories, in what is commonly referred to as <I>tar bomb</I>
- * format.
- * The set of files is small, with known extensions, and the potential
- * inconvenience of messing up the user's current directory is more than
- * compensated by making it easier for the user to restore to a new
- * database URL location at a peer level to the original.
- * <P>
- * Automatically calculates buffer sizes based on the largest component
- * file (for "save" mode) or tar file size (for other modes).
- * <P>
- * Run<PRE><CODE>
- *     java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackupMain
- * </CODE></PRE> for syntax help.
- *
- * @param sa The arguments
- * @throws IOException on read-write error
- * @throws TarMalformatException on tar file problems
- *
- */
+    /**
+     * Command line invocation to create, examine, or extract HSQLDB database
+     * backup tar archives.
+     * <P>
+     * This class stores tar entries as relative files without specifying
+     * parent directories, in what is commonly referred to as <I>tar bomb</I>
+     * format.
+     * The set of files is small, with known extensions, and the potential
+     * inconvenience of messing up the user's current directory is more than
+     * compensated by making it easier for the user to restore to a new
+     * database URL location at a peer level to the original.
+     * <P>
+     * Automatically calculates buffer sizes based on the largest component
+     * file (for "save" mode) or tar file size (for other modes).
+     * <P>
+     * Run<PRE><CODE>
+     *     java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackupMain
+     * </CODE></PRE> for syntax help.
+     *
+     * @param sa The arguments
+     * @throws IOException on read-write error
+     * @throws TarMalformatException on tar file problems
+     *
+     */
     public static void main(String[] sa)
     throws IOException, TarMalformatException {
 

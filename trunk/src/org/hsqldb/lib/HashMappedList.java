@@ -31,6 +31,8 @@
 
 package org.hsqldb.lib;
 
+import java.lang.reflect.Array;
+
 /**
  * Implementation of an Map which maintains the user-defined order of the keys.
  * Key/value pairs can be accessed by index or by key. Iterators return the
@@ -42,7 +44,7 @@ package org.hsqldb.lib;
  * @version 2.5.2
  * @since 1.7.2
  */
-public class HashMappedList extends HashMap {
+public class HashMappedList<K, V> extends HashMap<K, V> {
 
     public HashMappedList() {
         this(8);
@@ -55,14 +57,14 @@ public class HashMappedList extends HashMap {
         isList = true;
     }
 
-    public Object get(int index) throws IndexOutOfBoundsException {
+    public V get(int index) throws IndexOutOfBoundsException {
 
         checkRange(index);
 
-        return objectValueTable[index];
+        return (V) objectValueTable[index];
     }
 
-    public Object remove(Object key) {
+    public V remove(Object key) {
 
         int lookup = getLookup(key);
 
@@ -70,21 +72,21 @@ public class HashMappedList extends HashMap {
             return null;
         }
 
-        Object returnValue = super.remove(key);
+        V returnValue = (V) super.remove(key);
 
         removeRow(lookup);
 
         return returnValue;
     }
 
-    public Object remove(int index) throws IndexOutOfBoundsException {
+    public V remove(int index) throws IndexOutOfBoundsException {
 
         checkRange(index);
 
-        return remove(objectKeyTable[index]);
+        return (V) remove(objectKeyTable[index]);
     }
 
-    public boolean add(Object key, Object value) {
+    public boolean add(K key, V value) {
 
         int lookup = getLookup(key);
 
@@ -97,24 +99,24 @@ public class HashMappedList extends HashMap {
         return true;
     }
 
-    public Object put(Object key, Object value) {
-        return super.put(key, value);
+    public V put(K key, V value) {
+        return (V) super.put(key, value);
     }
 
-    public Object set(int index,
-                      Object value) throws IndexOutOfBoundsException {
+    public V set(int index,
+                      V value) throws IndexOutOfBoundsException {
 
         checkRange(index);
 
-        Object returnValue = objectKeyTable[index];
+        V returnValue = (V) objectValueTable[index];
 
-        objectKeyTable[index] = value;
+        objectValueTable[index] = value;
 
         return returnValue;
     }
 
-    public boolean insert(int index, Object key,
-                          Object value) throws IndexOutOfBoundsException {
+    public boolean insert(int index, K key,
+                          V value) throws IndexOutOfBoundsException {
 
         if (index < 0 || index > size()) {
             throw new IndexOutOfBoundsException();
@@ -130,7 +132,7 @@ public class HashMappedList extends HashMap {
             return add(key, value);
         }
 
-        HashMappedList hm = new HashMappedList(size());
+        HashMappedList<K, V> hm = new HashMappedList<K, V>(size());
 
         for (int i = index; i < size(); i++) {
             hm.add(getKey(i), get(i));
@@ -147,8 +149,8 @@ public class HashMappedList extends HashMap {
         return true;
     }
 
-    public boolean set(int index, Object key,
-                       Object value) throws IndexOutOfBoundsException {
+    public boolean set(int index, K key,
+                       V value) throws IndexOutOfBoundsException {
 
         checkRange(index);
 
@@ -163,20 +165,20 @@ public class HashMappedList extends HashMap {
     }
 
     public boolean setKey(int index,
-                          Object key) throws IndexOutOfBoundsException {
+                          K key) throws IndexOutOfBoundsException {
 
         checkRange(index);
 
-        Object value = objectValueTable[index];
+        V value = (V) objectValueTable[index];
 
         return set(index, key, value);
     }
 
     public boolean setValue(int index,
-                            Object value) throws IndexOutOfBoundsException {
+                            V value) throws IndexOutOfBoundsException {
 
         boolean result;
-        Object  existing = objectValueTable[index];
+        V       existing = (V) objectValueTable[index];
 
         if (value == null) {
             result = existing != null;
@@ -189,43 +191,43 @@ public class HashMappedList extends HashMap {
         return result;
     }
 
-    public Object getKey(int index) throws IndexOutOfBoundsException {
+    public K getKey(int index) throws IndexOutOfBoundsException {
 
         checkRange(index);
 
-        return objectKeyTable[index];
+        return (K) objectKeyTable[index];
     }
 
-    public int getIndex(Object key) {
+    public int getIndex(K key) {
         return getLookup(key);
     }
 
-    public Object[] toValuesArray(Object[] a) {
+    public V[] toValuesArray(V[] array) {
 
-        int size = size();
+        int elementCount = size();
 
-        if (a == null || a.length < size) {
-            a = new Object[size];
+        if (array.length < elementCount) {
+            array = (V[]) Array.newInstance(array.getClass().getComponentType(),
+                                        elementCount);
         }
 
-        System.arraycopy(objectValueTable, 0, a, 0, size);
+        System.arraycopy(objectValueTable, 0, array, 0, elementCount);
 
-        return a;
+        return array;
     }
 
-    public Object[] toKeysArray(Object[] a) {
+    public K[] toKeysArray(K[] array) {
 
-        int size = size();
+        int elementCount = size();
 
-        if (a == null || a.length < size) {
-            a = new Object[size];
+        if (array.length < elementCount) {
+            array = (K[]) Array.newInstance(array.getClass().getComponentType(),
+                                        elementCount);
         }
 
-        if (size > 0) {
-            System.arraycopy(objectKeyTable, 0, a, 0, size);
-        }
+        System.arraycopy(objectKeyTable, 0, array, 0, elementCount);
 
-        return a;
+        return array;
     }
 
     private void checkRange(int i) {

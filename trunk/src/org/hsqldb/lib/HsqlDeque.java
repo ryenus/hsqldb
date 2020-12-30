@@ -31,6 +31,7 @@
 
 package org.hsqldb.lib;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
@@ -43,21 +44,21 @@ import java.util.NoSuchElementException;
  * but does not shrink when it gets empty.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.9
+ * @version 2.5.2
  * @since 1.7.0
  */
-public class HsqlDeque extends BaseList implements HsqlList {
+public class HsqlDeque<E> extends BaseList<E> implements HsqlList<E> {
 
-    private Object[] list;
-    private int      firstindex = 0;    // index of first list element
-    private int      endindex   = 0;    // index of last list element + 1
+    private E[] list;
+    private int firstindex = 0;    // index of first list element
+    private int endindex   = 0;    // index of last list element + 1
 
     // can grow to fill list
     // if elementCount == 0 then firstindex == endindex
-    private static final int DEFAULT_INITIAL_CAPACITY = 10;
+    private static final int DEFAULT_INITIAL_CAPACITY = 16;
 
     public HsqlDeque() {
-        list = new Object[DEFAULT_INITIAL_CAPACITY];
+        list = (E[]) new Object[DEFAULT_INITIAL_CAPACITY];
     }
 
     public int size() {
@@ -68,7 +69,7 @@ public class HsqlDeque extends BaseList implements HsqlList {
         return elementCount == 0;
     }
 
-    public Object getFirst() throws NoSuchElementException {
+    public E getFirst() throws NoSuchElementException {
 
         if (elementCount == 0) {
             throw new NoSuchElementException();
@@ -77,7 +78,7 @@ public class HsqlDeque extends BaseList implements HsqlList {
         return list[firstindex];
     }
 
-    public Object getLast() throws NoSuchElementException {
+    public E getLast() throws NoSuchElementException {
 
         if (elementCount == 0) {
             throw new NoSuchElementException();
@@ -86,14 +87,14 @@ public class HsqlDeque extends BaseList implements HsqlList {
         return list[endindex - 1];
     }
 
-    public Object get(int i) throws IndexOutOfBoundsException {
+    public E get(int i) throws IndexOutOfBoundsException {
 
         int index = getInternalIndex(i);
 
         return list[index];
     }
 
-    public void add(int i, Object o) throws IndexOutOfBoundsException {
+    public void add(int i, E o) throws IndexOutOfBoundsException {
 
         if (i == elementCount) {
             add(o);
@@ -122,23 +123,23 @@ public class HsqlDeque extends BaseList implements HsqlList {
         elementCount++;
     }
 
-    public Object set(int i, Object o) throws IndexOutOfBoundsException {
+    public E set(int i, E o) throws IndexOutOfBoundsException {
 
-        int    index  = getInternalIndex(i);
-        Object result = list[index];
+        int index  = getInternalIndex(i);
+        E   result = list[index];
 
         list[index] = o;
 
         return result;
     }
 
-    public Object removeFirst() throws NoSuchElementException {
+    public E removeFirst() throws NoSuchElementException {
 
         if (elementCount == 0) {
             throw new NoSuchElementException();
         }
 
-        Object o = list[firstindex];
+        E o = list[firstindex];
 
         list[firstindex] = null;
 
@@ -154,7 +155,7 @@ public class HsqlDeque extends BaseList implements HsqlList {
         return o;
     }
 
-    public Object removeLast() throws NoSuchElementException {
+    public E removeLast() throws NoSuchElementException {
 
         if (elementCount == 0) {
             throw new NoSuchElementException();
@@ -162,7 +163,7 @@ public class HsqlDeque extends BaseList implements HsqlList {
 
         endindex--;
 
-        Object o = list[endindex];
+        E o = list[endindex];
 
         list[endindex] = null;
 
@@ -177,16 +178,7 @@ public class HsqlDeque extends BaseList implements HsqlList {
         return o;
     }
 
-/*
-    public Object remove(int i){
-        return get(i);
-    }
-
-    public void add(int i, Object o) {
-
-    }
-*/
-    public boolean add(Object o) {
+    public boolean add(E o) {
 
         resetCapacity();
 
@@ -202,11 +194,11 @@ public class HsqlDeque extends BaseList implements HsqlList {
         return true;
     }
 
-    public boolean addLast(Object o) {
-        return add(o);
+    public void addLast(E o) {
+        add(o);
     }
 
-    public boolean addFirst(Object o) {
+    public void addFirst(E o) {
 
         resetCapacity();
 
@@ -223,8 +215,6 @@ public class HsqlDeque extends BaseList implements HsqlList {
         list[firstindex] = o;
 
         elementCount++;
-
-        return true;
     }
 
     public void clear() {
@@ -259,10 +249,10 @@ public class HsqlDeque extends BaseList implements HsqlList {
         return -1;
     }
 
-    public Object remove(int index) {
+    public E remove(int index) {
 
-        int    target = getInternalIndex(index);
-        Object value  = list[target];
+        int target = getInternalIndex(index);
+        E   value  = list[target];
 
         if (target == firstindex) {
             list[firstindex] = null;
@@ -337,10 +327,15 @@ public class HsqlDeque extends BaseList implements HsqlList {
             endindex = list.length + endindex;
         }
 
-        list = newList;
+        list = (E[]) newList;
     }
 
-    public void toArray(Object[] array) {
+    public E[] toArray(E[] array) {
+
+        if (array.length < elementCount) {
+            array = (E[]) Array.newInstance(array.getClass().getComponentType(),
+                                        elementCount);
+        }
 
         int tempCount = list.length - firstindex;
 
@@ -352,8 +347,8 @@ public class HsqlDeque extends BaseList implements HsqlList {
 
         if (endindex <= firstindex) {
             System.arraycopy(list, 0, array, tempCount, endindex);
-
-            endindex = list.length + endindex;
         }
+
+        return array;
     }
 }
