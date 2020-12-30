@@ -180,9 +180,6 @@ public class FrameworkLogger {
         jdkToLog4jLevels.put(Level.FINER,
                              log4jToLevel.invoke(null,
                                  new Object[]{ "DEBUG" }));
-        jdkToLog4jLevels.put(Level.WARNING,
-                             log4jToLevel.invoke(null,
-                                 new Object[]{ "ERROR" }));
         jdkToLog4jLevels.put(Level.SEVERE,
                              log4jToLevel.invoke(null,
                                  new Object[]{ "FATAL" }));
