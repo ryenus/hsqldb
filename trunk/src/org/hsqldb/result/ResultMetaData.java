@@ -32,6 +32,7 @@
 package org.hsqldb.result;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.hsqldb.ColumnBase;
 import org.hsqldb.error.Error;
@@ -555,24 +556,12 @@ public final class ResultMetaData {
             return false;
         }
 
-        if (a.columnLabels != b.columnLabels) {
-            if (a.columnLabels == null || b.columnLabels == null) {
-                return false;
-            }
-
-            if (!ArrayUtil.areEqual(a.columnLabels, b.columnLabels)) {
-                return false;
-            }
+        if (!Arrays.equals(a.columnLabels, b.columnLabels)) {
+            return false;
         }
 
-        if (a.colIndexes != b.colIndexes) {
-            if (a.columnLabels == null || b.columnLabels == null) {
-                return false;
-            }
-
-            if (!ArrayUtil.areEqual(a.colIndexes, b.colIndexes)) {
-                return false;
-            }
+        if (!Arrays.equals(a.colIndexes, b.colIndexes)) {
+            return false;
         }
 
         return true;

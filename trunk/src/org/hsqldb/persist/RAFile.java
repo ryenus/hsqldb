@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2020, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import org.hsqldb.lib.HsqlByteArrayOutputStream;
  * CACHED table storage.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.5.2
  * @since  1.7.2
  */
 final class RAFile implements RandomAccessInterface {
@@ -62,7 +62,7 @@ final class RAFile implements RandomAccessInterface {
     static final int DATA_FILE_TEXT   = 5;
 
     //
-    static final int  bufferScale = 12;
+    static final int  bufferScale = 13;
     static final int  bufferSize  = 1 << bufferScale;
     static final long bufferMask  = 0xffffffffffffffffL << bufferScale;
 
@@ -96,8 +96,7 @@ final class RAFile implements RandomAccessInterface {
         if (type == DATA_FILE_JAR) {
             return new RAFileInJar(name);
         } else if (type == DATA_FILE_TEXT) {
-            return new RAFile(database.logger, name, readonly, false,
-                                   true);
+            return new RAFile(database.logger, name, readonly, false, true);
         } else if (type == DATA_FILE_RAF) {
             return new RAFile(database.logger, name, readonly, true, false);
         } else {
@@ -184,29 +183,22 @@ final class RAFile implements RandomAccessInterface {
 
     public int read() throws IOException {
 
-        try {
-            if (seekPosition >= fileLength) {
-                return -1;
-            }
-
-            if (seekPosition < bufferOffset
-                    || seekPosition >= bufferOffset + buffer.length) {
-                readIntoBuffer();
-            } else {
-                cacheHit++;
-            }
-
-            int val = buffer[(int) (seekPosition - bufferOffset)] & 0xff;
-
-            seekPosition++;
-
-            return val;
-        } catch (IOException e) {
-            resetPointer();
-            logger.logWarningEvent("read failed", e);
-
-            throw e;
+        if (seekPosition >= fileLength) {
+            return -1;
         }
+
+        if (seekPosition < bufferOffset
+                || seekPosition >= bufferOffset + buffer.length) {
+            readIntoBuffer();
+        } else {
+            cacheHit++;
+        }
+
+        int val = buffer[(int) (seekPosition - bufferOffset)] & 0xff;
+
+        seekPosition++;
+
+        return val;
     }
 
     public long readLong() throws IOException {
@@ -429,8 +421,7 @@ final class RAFile implements RandomAccessInterface {
         try {
             seekPosition = 0;
             fileLength   = length();
-
-            readIntoBuffer();
+            bufferOffset = -buffer.length; // invalid buffer
         } catch (Throwable e) {}
     }
 }

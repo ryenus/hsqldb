@@ -43,7 +43,7 @@ import java.nio.charset.Charset;
  * Handles invariants, runtime and methods
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.5.2
  */
 public final class JavaSystem {
 
@@ -64,8 +64,8 @@ public final class JavaSystem {
             javaVersion = Integer.parseInt(version);
         } catch (Throwable t) {
 
-            // unknow future version - default to last known
-            javaVersion = 12;
+            // unknow future version - default to last widely used
+            javaVersion = 11;
         }
     }
 
