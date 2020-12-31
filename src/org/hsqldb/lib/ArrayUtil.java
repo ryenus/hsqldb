@@ -299,49 +299,6 @@ public final class ArrayUtil {
     }
 
     /**
-     * Returns true if arra and arrb contain the same integers in the same
-     * order. This implies the arrays are of the same length.
-     */
-    public static boolean areEqual(Object[] arra, Object[] arrb) {
-
-        if (arra.length == arrb.length) {
-            for (int i = 0; i < arra.length; i++) {
-                if (arra[i] != arrb[i]) {
-                    if (arra[i] == null || arrb[i] == null) {
-                        return false;
-                    }
-                    if (!arra[i].equals(arrb[i])) {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns true if arra and arrb contain the same integers in the same
-     * order. This implies the arrays are of the same length.
-     */
-    public static boolean areEqual(int[] arra, int[] arrb) {
-
-        if (arra.length == arrb.length) {
-            for (int i = 0; i < arra.length; i++) {
-                if (arra[i] != arrb[i]) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Returns true if arra and arrb contain the same set of integers, not
      * necessarily in the same order. This implies the arrays are of the same
      * length.
@@ -480,6 +437,7 @@ public final class ArrayUtil {
      * <p>
      * e.g.
      * <table>
+     * <caption>Example</caption>
      * <tr><td colspan="3">The arrays</td></tr>
      * <tr><td>int []arra</td><td>=</td><td>{2,11,5,8}</td></tr>
      * <tr><td>int []arrb</td><td>=</td><td>{20,8,10,11,28,12}</td></tr>
@@ -1372,10 +1330,9 @@ public final class ArrayUtil {
 
         for (int i = 0, j = 0, counter = 0;
                 i < source.length && j < dest.length; i++, j++) {
-            int adjustPos = -1;
 
             if (counter < colindex.length) {
-                adjustPos = colindex[counter];
+                int adjustPos = colindex[counter];
 
                 if (adjust > 0) {
                     if (adjustPos == j) {
@@ -1646,10 +1603,9 @@ public final class ArrayUtil {
 
         int low  = 0;
         int high = array.length;
-        int mid  = 0;
 
         while (low < high) {
-            mid = (low + high) >>> 1;
+            int mid = (low + high) >>> 1;
 
             if (ch < array[mid]) {
                 high = mid;
@@ -1695,7 +1651,6 @@ public final class ArrayUtil {
      */
     public static boolean containsAny(Object[] arra, Object[] arrb) {
 
-        mainLoop:
         for (int i = 0; i < arrb.length; i++) {
             for (int j = 0; j < arra.length; j++) {
                 if (arrb[i] == arra[j] || arrb[i].equals(arra[j])) {
