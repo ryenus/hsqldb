@@ -58,7 +58,7 @@ import org.hsqldb.persist.RowStoreAVLDisk;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -1418,8 +1418,13 @@ public class StatementCommand extends Statement {
                             break;
 
                         case Tokens.END :
+                            if (session == targetSession) {
+                                return Result.updateZeroResult;
+                            }
+
                             session.database.txManager.resetSession(session,
-                                    targetSession, Long.MAX_VALUE,
+                                    targetSession,
+                                    targetSession.statementStartTimestamp,
                                     TransactionManager.resetSessionStatement);
                             break;
                     }

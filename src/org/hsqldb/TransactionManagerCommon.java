@@ -51,7 +51,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 2.0.0
  */
 class TransactionManagerCommon {
@@ -979,12 +979,9 @@ class TransactionManagerCommon {
                     break;
 
                 case TransactionManager.resetSessionStatement :
-                    if (session == targetSession) {
-                        break;
-                    }
 
                     if (statementTimestamp
-                            < targetSession.statementStartTimestamp) {
+                            != targetSession.statementStartTimestamp) {
                         break;
                     }
 

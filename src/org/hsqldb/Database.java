@@ -39,7 +39,6 @@ import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlTimer;
-import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
@@ -61,7 +60,7 @@ import org.hsqldb.types.Collation;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.9.0
  */
 public class Database {
@@ -874,20 +873,34 @@ public class Database {
         }
     }
 
+    /**
+     * Sessions running a statement with timeout are added to the list. The first
+     * session starts the runner. Sessions are not removed until closed.<p>
+     *
+     * The runner is called at second intervals. It handles the countdown for
+     * each session currently running a statement with timeout. If timeout
+     * is reached, the runner aborts the statement.<p>
+     *
+     * No lock is needed for read access to the array list as the runner thread
+     * is the exclusive reader as well as the exclusive thread that removes
+     * closed sessions.
+     */
     static class TimeoutRunner implements Runnable {
 
-        private Object timerTask;
-        OrderedHashSet sessionList;
+        private Object        timerTask;
+        private HsqlArrayList sessionList;
+        int                   abortCount;
 
         public void run() {
 
             try {
-                for (int i = sessionList.size() - 1; i >= 0; i--) {
+                for (int i = 0; i < sessionList.size(); i++) {
                     Session session = (Session) sessionList.get(i);
 
                     if (session.isClosed()) {
                         synchronized (this) {
                             sessionList.remove(i);
+                            i--;
                         }
 
                         continue;
@@ -896,9 +909,7 @@ public class Database {
                     boolean result = session.timeoutManager.checkTimeout();
 
                     if (result) {
-                        synchronized (this) {
-                            sessionList.remove(i);
-                        }
+                        abortCount++;
                     }
                 }
             } catch (Throwable e) {
@@ -936,7 +947,7 @@ public class Database {
 
         private void start() {
 
-            sessionList = new OrderedHashSet();
+            sessionList = new HsqlArrayList(128);
             timerTask = DatabaseManager.getTimer().schedulePeriodicallyAfter(0,
                     1000, this, true);
         }
