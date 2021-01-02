@@ -2005,7 +2005,7 @@ public class Session implements SessionInterface {
         if (result.getType() == ResultConstants.SQLCANCEL) {
             if (result.getSessionRandomID() == randomId) {
                 database.txManager.resetSession(
-                    null, this, Long.MAX_VALUE,
+                    this, this, statementStartTimestamp,
                     TransactionManager.resetSessionStatement);
             }
         }
@@ -2327,41 +2327,47 @@ public class Session implements SessionInterface {
     // timeouts
     class TimeoutManager {
 
-        AtomicInteger currentTimeout = new AtomicInteger();
-        volatile long checkTimestamp;
+        AtomicInteger    currentTimeout = new AtomicInteger();
+        volatile long    checkTimestamp;
+        volatile boolean hasTimeout = false;
 
         void startTimeout(int timeout) {
-
-            currentTimeout.set(timeout);
 
             if (timeout == 0) {
                 return;
             }
 
-            checkTimestamp = Session.this.statementStartTimestamp;
+            hasTimeout = true;
+
+            currentTimeout.set(timeout);
+
+            checkTimestamp = statementStartTimestamp;
 
             database.timeoutRunner.addSession(Session.this);
         }
 
-        boolean endTimeout() {
+        void endTimeout() {
 
-            currentTimeout.set(0);
+            if (hasTimeout) {
+                currentTimeout.set(0);
 
-            return true;
+                checkTimestamp = 0;
+                hasTimeout     = false;
+            }
         }
 
         public boolean checkTimeout() {
 
-            if (currentTimeout.get() == 0) {
-                return true;
+            if (!hasTimeout || checkTimestamp != statementStartTimestamp) {
+                return false;
             }
 
             int result = currentTimeout.decrementAndGet();
 
-            if (result <= 0) {
+            if (result < 0) {
                 currentTimeout.set(0);
                 database.txManager.resetSession(
-                    null, Session.this, checkTimestamp,
+                    Session.this, Session.this, checkTimestamp,
                     TransactionManager.resetSessionStatement);
 
                 return true;

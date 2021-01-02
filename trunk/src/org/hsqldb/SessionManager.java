@@ -36,17 +36,19 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.rights.User;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Container that maintains a map of session id's to Session objects.
  * Responsible for managing opening and closing of sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.5.2
  * @since 1.7.2
  */
 public class SessionManager {
 
-    long                   sessionIdCount = 0;
+    AtomicLong             sessionIdCount = new AtomicLong();
     private LongKeyHashMap sessionMap     = new LongKeyHashMap();
     private Session        sysSession;
     private Session        sysLobSession;
@@ -66,10 +68,10 @@ public class SessionManager {
 
         User sysUser = db.getUserManager().getSysUser();
 
-        sysSession = new Session(db, sysUser, false, false, sessionIdCount++,
-                                 null, 0);
+        sysSession = new Session(db, sysUser, false, false,
+                                 sessionIdCount.getAndIncrement(), null, 0);
         sysLobSession = new Session(db, sysUser, true, false,
-                                    sessionIdCount++, null, 0);
+                                    sessionIdCount.getAndIncrement(), null, 0);
     }
 
     /*
@@ -103,26 +105,24 @@ public class SessionManager {
                                            String zoneString,
                                            int timeZoneSeconds) {
 
-        Session s = new Session(db, user, autoCommit, readonly,
-                                sessionIdCount, zoneString, timeZoneSeconds);
+        long sessionId = sessionIdCount.getAndIncrement();
+        Session s = new Session(db, user, autoCommit, readonly, sessionId,
+                                zoneString, timeZoneSeconds);
 
-        sessionMap.put(sessionIdCount, s);
-
-        sessionIdCount++;
+        sessionMap.put(sessionId, s);
 
         return s;
     }
 
     public synchronized Session newSessionForLog(Database db) {
 
+        long sessionId = sessionIdCount.getAndIncrement();
         Session s = new Session(db, db.getUserManager().getSysUser(), false,
-                                false, sessionIdCount, null, 0);
+                                false, sessionId, null, 0);
 
         s.isProcessingLog = true;
 
-        sessionMap.put(sessionIdCount, s);
-
-        sessionIdCount++;
+        sessionMap.put(sessionId, s);
 
         return s;
     }
@@ -168,24 +168,24 @@ public class SessionManager {
      */
     synchronized public Session newSysSession() {
 
+        long sessionId = sessionIdCount.getAndIncrement();
         Session session = new Session(sysSession.database,
                                       sysSession.getUser(), false, false,
-                                      sessionIdCount, null, 0);
+                                      sessionId, null, 0);
 
         session.currentSchema =
             sysSession.database.schemaManager.getDefaultSchemaHsqlName();
 
-        sessionMap.put(sessionIdCount, session);
-
-        sessionIdCount++;
+        sessionMap.put(sessionId, session);
 
         return session;
     }
 
     synchronized public Session newSysSession(HsqlName schema, User user) {
 
+        long sessionId = sessionIdCount.getAndIncrement();
         Session session = new Session(sysSession.database, user, false, false,
-                                      0, null, 0);
+                                      sessionId, null, 0);
 
         session.currentSchema = schema;
 
