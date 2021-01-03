@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -337,7 +337,7 @@ public class Logger implements EventLogInterface {
         logsStatements = true;
         loggingEnabled = propLogData && !database.isFilesReadOnly();
 
-        if (database.getNameString().length() == 0) {
+        if (database.getNameString().isEmpty()) {
             database.setDatabaseName(newUniqueName());
         }
 
@@ -735,7 +735,7 @@ public class Logger implements EventLogInterface {
 
         String name = database.getNameString();
 
-        if (name.length() == 0) {
+        if (name.isEmpty()) {
 
             // The database unique name is set up at different times
             // depending on upgraded / exiting / new databases.

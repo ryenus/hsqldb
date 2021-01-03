@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -129,7 +129,7 @@ public class LineGroupReader {
             line = line.substring(0, StringUtil.rightTrimSize(line));
 
             //if the line is blank or a comment, then ignore it
-            if (line.length() == 0 || isIgnoredLine(line)) {
+            if (line.isEmpty() || isIgnoredLine(line)) {
                 continue;
             }
 

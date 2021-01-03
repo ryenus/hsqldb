@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -156,7 +156,7 @@ public class RowOutputBinary extends RowOutputBase {
 
         writeInt(0);
 
-        if (s != null && s.length() != 0) {
+        if (s != null && !s.isEmpty()) {
             StringConverter.stringToUTFBytes(s, this);
             writeIntData(count - temp - INT_STORE_SIZE, temp);
         }

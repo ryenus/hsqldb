@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -767,11 +767,11 @@ public class LobManager {
             int aOffset = 0;
 
             if (aLength == 0) {
-                return b.length() == 0 ? 0
-                                       : -1;
+                return b.isEmpty() ? 0
+                                   : -1;
             }
 
-            if (b.length() == 0) {
+            if (b.isEmpty()) {
                 return 1;
             }
 
