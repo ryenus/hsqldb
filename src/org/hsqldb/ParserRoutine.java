@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -289,7 +289,8 @@ public class ParserRoutine extends ParserTable {
 
         exprList.toArray(updateExpressions);
         resolveUpdateExpressions(table, RangeGroup.emptyGroup, columnMap,
-                                 targets, updateExpressions, rangeGroups, null);
+                                 targets, updateExpressions, rangeGroups,
+                                 null);
 
         StatementDMQL cs = new StatementSet(session, targets, table,
                                             rangeGroups[0].getRangeVariables(),
