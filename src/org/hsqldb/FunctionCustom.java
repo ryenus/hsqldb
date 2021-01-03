@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1766,7 +1766,7 @@ public class FunctionCustom extends FunctionSQL {
                     arg = (String) data[0];
                 }
 
-                if (arg.length() == 0) {
+                if (arg.isEmpty()) {
                     return null;
                 }
 
@@ -2050,7 +2050,7 @@ public class FunctionCustom extends FunctionSQL {
                 StringBuilder sb      = new StringBuilder();
                 int           start   = 0;
 
-                if (find.length() == 0) {
+                if (find.isEmpty()) {
                     return string;
                 }
 
@@ -2258,7 +2258,7 @@ public class FunctionCustom extends FunctionSQL {
                 if (nodes[2] != null) {
                     pad = nodes[2].dataType.convertToString(data[2]);
 
-                    if (pad.length() == 0) {
+                    if (pad.isEmpty()) {
                         pad = " ";
                     }
                 }

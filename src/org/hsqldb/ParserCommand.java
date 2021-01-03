@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2309,7 +2309,7 @@ public class ParserCommand extends ParserDDL {
         path = readQuotedString();
         path = path.trim();
 
-        if (path.length() == 0) {
+        if (path.isEmpty()) {
             throw unexpectedToken(path);
         }
 

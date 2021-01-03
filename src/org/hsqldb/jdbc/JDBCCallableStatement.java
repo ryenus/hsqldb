@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -5047,7 +5047,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
                 name = names[i];
 
                 // PRE:  should never happen in practice
-                if (name == null || name.length() == 0) {
+                if (name == null || name.isEmpty()) {
                     continue;    // throw?
                 }
                 parameterNameMap.put(name, i);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -741,7 +741,7 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        if (sql == null || sql.length() == 0 || sql.indexOf('{') == -1) {
+        if (sql == null || sql.isEmpty() || sql.indexOf('{') == -1) {
             return sql;
         }
 

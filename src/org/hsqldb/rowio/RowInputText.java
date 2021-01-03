@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -275,7 +275,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         s = s.trim();
 
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return null;
         }
 
@@ -298,7 +298,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         s = s.trim();
 
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return null;
         }
 
@@ -321,7 +321,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         s = s.trim();
 
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return null;
         }
 
@@ -344,7 +344,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         s = s.trim();
 
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return null;
         }
 
@@ -365,7 +365,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         s = s.trim();
 
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return null;
         }
 
@@ -386,7 +386,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         s = s.trim();
 
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return null;
         }
 
@@ -403,7 +403,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         s = s.trim();
 
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return null;
         }
 
@@ -420,7 +420,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         s = s.trim();
 
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return null;
         }
 
@@ -437,7 +437,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         s = s.trim();
 
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return null;
         }
 
@@ -454,7 +454,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         s = s.trim();
 
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return null;
         }
 
@@ -472,7 +472,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         s = s.trim();
 
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return null;
         }
 
@@ -546,7 +546,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         s = s.trim();
 
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return null;
         }
 
@@ -565,7 +565,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         s = s.trim();
 
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return null;
         }
 

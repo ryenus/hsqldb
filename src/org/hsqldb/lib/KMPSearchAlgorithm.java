@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -389,7 +389,7 @@ public class KMPSearchAlgorithm {
     public static int search(final String source, final String pattern,
                              int[] table, final int start) {
 
-        if (source == null || pattern == null || pattern.length() == 0) {
+        if (source == null || pattern == null || pattern.isEmpty()) {
             return -1;
         }
 

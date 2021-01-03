@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -6015,7 +6015,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         StringBuilder sb    = new StringBuilder();
         boolean       isStr = (val instanceof String);
 
-        if (isStr && ((String) val).length() == 0) {
+        if (isStr && ((String) val).isEmpty()) {
             return sb.append(" AND ").append(id).append(" IS NULL").toString();
         }
 
@@ -6149,7 +6149,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *        requires a corresponding IS NULL predicate
      */
     private static boolean wantsIsNull(String s) {
-        return (s != null && s.length() == 0);
+        return (s != null && s.isEmpty());
     }
 
     private void setCurrentProperties() throws SQLException {
@@ -6218,7 +6218,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
     private String translateSchema(String schemaName) throws SQLException {
 
         if (useSchemaDefault && schemaName != null
-                && schemaName.length() == 0) {
+                && schemaName.isEmpty()) {
             final String result = getDatabaseDefaultSchema();
 
             if (result != null) {
@@ -6251,7 +6251,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
     private String translateCatalog(String catalogName) throws SQLException {
 
         if (useSchemaDefault && catalogName != null
-                && catalogName.length() == 0) {
+                && catalogName.isEmpty()) {
             String result = getDatabaseDefaultCatalog();
 
             if (result != null) {

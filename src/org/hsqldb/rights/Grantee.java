@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1119,7 +1119,7 @@ public class Grantee implements SchemaObject {
         HsqlArrayList list       = new HsqlArrayList();
         String        roleString = roleMapToString(roles);
 
-        if (roleString.length() != 0) {
+        if (!roleString.isEmpty()) {
             StringBuilder sb = new StringBuilder(128);
 
             sb.append(Tokens.T_GRANT).append(' ').append(roleString);

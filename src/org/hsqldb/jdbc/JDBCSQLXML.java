@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2305,7 +2305,7 @@ public class JDBCSQLXML implements SQLXML {
 
             Element element;
 
-            if ((uri == null) || (uri.length() == 0)) {
+            if ((uri == null) || (uri.isEmpty())) {
                 element = getDocument().createElement(qName);
             } else {
                 element = getDocument().createElementNS(uri, qName);
@@ -2317,7 +2317,7 @@ public class JDBCSQLXML implements SQLXML {
                     String attrQName = atts.getQName(i);
                     String attrValue = atts.getValue(i);
 
-                    if ((attrURI == null) || (attrURI.length() == 0)) {
+                    if ((attrURI == null) || attrURI.isEmpty()) {
                         element.setAttribute(attrQName, attrValue);
                     } else {
                         element.setAttributeNS(attrURI, attrQName, attrValue);
