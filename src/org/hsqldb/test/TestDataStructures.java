@@ -451,7 +451,7 @@ public class TestDataStructures extends TestCase {
         }
 
         System.out.println(
-            sw.currentElapsedTimeToMessage("time HsqlArrayLsit"));
+            sw.currentElapsedTimeToMessage("time HsqlArrayList"));
         sw.zero();
 
         for (int i = 0; i < TEST_RUNS; i++) {
