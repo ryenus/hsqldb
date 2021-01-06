@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,13 +37,13 @@ import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
+
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -87,7 +87,6 @@ implements ActionListener, ItemListener {
     private JPasswordField    mPassword;
     private String[][]        connTypes;
     private Hashtable         settings;
-    private JButton           okCancel, clear;
     private JComboBox mSettingName =
         new JComboBox(loadRecentConnectionSettings());
     private static ConnectionSetting currentConnectionSetting = null;
@@ -169,7 +168,7 @@ implements ActionListener, ItemListener {
         controls.add(mName);
 
         // (weconsultants@users) New code
-        clear = new JButton("Clear Names");
+        JButton clear = new JButton("Clear Names");
 
         clear.setActionCommand("Clear");
         clear.addActionListener(this);
@@ -217,7 +216,7 @@ implements ActionListener, ItemListener {
         buttons.add(Box.createHorizontalGlue());
         buttons.add(Box.createHorizontalStrut(10));
 
-        okCancel = new JButton("     Ok      ");
+        JButton okCancel = new JButton("     Ok      ");
 
         okCancel.setActionCommand("ConnectOk");
         okCancel.addActionListener(this);
@@ -284,10 +283,7 @@ implements ActionListener, ItemListener {
     }
 
     private static JLabel createLabel(String s) {
-
-        JLabel l = new JLabel(s);
-
-        return l;
+        return new JLabel(s);
     }
 
     // (weconsultants@users) New code

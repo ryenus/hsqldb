@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2020, The HSQL Development Group
+ * Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,7 +90,7 @@ import java.util.ArrayList;
 // fredt@users 20190515 - enhancements
 
 /**
- * Modifies the source code to support different JDK or profile settings. <p>
+ * Modifies the source code to support different JDK or profile settings.
  * <pre>
  * Usage: java CodeSwitcher paths|{--pathlist=listfile} [{+|-}label...] [+][-]
  * If no labels are specified then all used

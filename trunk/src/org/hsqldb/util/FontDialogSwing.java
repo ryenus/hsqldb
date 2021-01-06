@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,16 +57,12 @@ class FontDialogSwing extends JDialog {
 
     private static boolean      isRunning   = false;
     private static final String BACKGROUND  = "Background";
-    private static String       defaultFont = "Dialog";
     private static final String FOREGROUND  = "Foreground";
     private static JButton      bgColorButton;
     private static JCheckBox    ckbbold;
-    private static JButton      closeButton;
     private static JButton      fgColorButton;
     private static JComboBox    fontsComboBox;
 
-    //  weconsultants@users 20050215 - Added for Compatbilty fix for JDK 1.3
-    private static JComboBox      fontSizesComboBox;
     private static final String[] fontSizes = {
         "8", "9", "10", "11", "12", "13", "14", "16", "18", "24", "36"
     };
@@ -75,7 +71,7 @@ class FontDialogSwing extends JDialog {
     //  private static JSpinner           spinnerFontSizes;
     //  private static SpinnerNumberModel spinnerModelSizes;
     private static DatabaseManagerSwing fOwner;
-    private static JFrame frame =
+    private static final JFrame frame =
         new JFrame("DataBaseManagerSwing Font Selection Dialog");
     private static JCheckBox ckbitalic;
 
@@ -145,9 +141,8 @@ class FontDialogSwing extends JDialog {
                 }
             });
 
-            closeButton =
-                new JButton("Close",
-                            new ImageIcon(CommonSwing.getIcon("Close")));
+            JButton closeButton = new JButton("Close",
+                    new ImageIcon(CommonSwing.getIcon("Close")));
 
             closeButton.putClientProperty("is3DEnabled", Boolean.TRUE);
             closeButton.addActionListener(new ActionListener() {
@@ -169,6 +164,7 @@ class FontDialogSwing extends JDialog {
             fontsComboBox.setPreferredSize(fontsComboBoxDimension);
             fontsComboBox.setMaximumSize(fontsComboBoxDimension);
             fontsComboBox.setEditable(false);
+            String defaultFont = "Dialog";
             fontsComboBox.setSelectedItem(defaultFont);
             fontsComboBox.addActionListener(new ActionListener() {
 
@@ -178,7 +174,8 @@ class FontDialogSwing extends JDialog {
             });
 
             // weconsultants@users 20050215 - Added for Compatbilty fix for  JDK 1.3
-            fontSizesComboBox = new JComboBox(fontSizes);
+            //  weconsultants@users 20050215 - Added for Compatbilty fix for JDK 1.3
+            JComboBox fontSizesComboBox = new JComboBox(fontSizes);
 
             Dimension spinnerDimension = new Dimension(45, 25);
 

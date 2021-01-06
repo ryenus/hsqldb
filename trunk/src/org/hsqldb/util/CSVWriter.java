@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,6 @@ class CSVWriter {
 
     private String             newline = System.getProperty("line.separator");
     private OutputStreamWriter writer  = null;
-    private int                nbrCols = 0;
     private int                nbrRows = 0;
 
     /**
@@ -78,7 +77,7 @@ class CSVWriter {
      */
     public void writeHeader(String[] header) throws IOException {
 
-        this.nbrCols = header.length;
+        int nbrCols = header.length;
 
         doWriteData(header);
     }

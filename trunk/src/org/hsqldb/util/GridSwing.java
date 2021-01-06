@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package org.hsqldb.util;
 import java.util.ArrayList;
 
 import java.awt.Component;
+import java.util.Arrays;
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
@@ -152,13 +153,7 @@ class GridSwing extends AbstractTableModel {
      * Set the name of the column headings.
      */
     public void setHead(Object[] h) {
-
-        headers = new Object[h.length];
-
-        // System.arraycopy(h, 0, headers, 0, h.length);
-        for (int i = 0; i < h.length; i++) {
-            headers[i] = h[i];
-        }
+        headers = Arrays.copyOf(h, h.length);
     }
 
     /**
@@ -171,11 +166,6 @@ class GridSwing extends AbstractTableModel {
         // System.arraycopy(r, 0, row, 0, r.length);
         for (int i = 0; i < r.length; i++) {
             row[i] = r[i];
-
-            if (row[i] == null) {
-
-//                row[i] = "(null)";
-            }
         }
 
         rows.add(row);
@@ -201,11 +191,11 @@ class GridSwing extends AbstractTableModel {
     public static void autoSizeTableColumns(JTable table) {
 
         TableModel  model        = table.getModel();
-        TableColumn column       = null;
-        Component   comp         = null;
-        int         headerWidth  = 0;
-        int         maxCellWidth = Integer.MIN_VALUE;
-        int         cellWidth    = 0;
+        TableColumn column;
+        Component   comp;
+        int         headerWidth;
+        int         maxCellWidth;
+        int         cellWidth;
         TableCellRenderer headerRenderer =
             table.getTableHeader().getDefaultRenderer();
 
