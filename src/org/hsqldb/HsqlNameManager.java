@@ -266,7 +266,7 @@ public final class HsqlNameManager {
             return autoColumnNames[i];
         }
 
-        return new HsqlName(staticManager, "C_" + (i + 1),
+        return new HsqlName(staticManager, "C" + (i + 1),
                             SchemaObject.COLUMN, false);
     }
 
