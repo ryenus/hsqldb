@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2020, The HSQL Development Group
+ * Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -107,7 +107,6 @@ class Tree extends Panel {
     // height / width
     private int iWidth, iHeight;
     private int iFirstRow;
-    private int iTreeWidth, iTreeHeight;
     private int iX, iY;
 
     // data
@@ -217,10 +216,10 @@ class Tree extends Panel {
 
     void adjustScroll() {
 
-        iTreeHeight = iRowHeight * (iRowCount + 1);
+        int iTreeHeight = iRowHeight * (iRowCount + 1);
 
         // correct would be iMaxTextLength + iMaxIndent*iIndentWidth
-        iTreeWidth = iMaxTextLength * 2;
+        int iTreeWidth = iMaxTextLength * 2;
 
         sbHoriz.setValues(iX, iWidth, 0, iTreeWidth);
 

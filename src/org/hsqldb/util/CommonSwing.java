@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,12 +56,13 @@ import javax.swing.UIManager;
  */
 final class CommonSwing {
 
-    protected static String messagerHeader = "Database Manager Swing Error";
-    protected static String Native         = "Native";
-    protected static String Java           = "Java";
-    protected static String Motif          = "Motif";
-    protected static String plaf           = "plaf";
-    protected static String GTK            = "GTK";
+    protected static final String messagerHeader =
+        "Database Manager Swing Error";
+    protected static final String Native = "Native";
+    protected static final String Java   = "Java";
+    protected static final String Motif  = "Motif";
+    protected static String       plaf   = "plaf";
+    protected static String       GTK    = "GTK";
 
     // (ulrivo): An actual Image.
     static Image getIcon(String target) {
@@ -136,8 +137,8 @@ final class CommonSwing {
 
         JOptionPane.showOptionDialog(null, exceptionMsg, messagerHeader,
                                      JOptionPane.DEFAULT_OPTION,
-                                     JOptionPane.ERROR_MESSAGE, null,
-                                     options, options[0]);
+                                     JOptionPane.ERROR_MESSAGE, null, options,
+                                     options[0]);
 
         if (!quiet) {
             exceptionMsg.printStackTrace();

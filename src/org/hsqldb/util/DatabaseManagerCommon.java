@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2020, The HSQL Development Group
+ * Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,7 +97,7 @@ import java.util.Random;
  */
 final class DatabaseManagerCommon {
 
-    private static Random rRandom    = new Random(100);
+    private static final Random rRandom    = new Random(100);
     static String[]       selectHelp = {
         "SELECT * FROM ",
 

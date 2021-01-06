@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -111,16 +112,16 @@ import javax.swing.tree.TreePath;
 // weconsultants@users 20041109 - version 1.8.0 - reengineering and enhancements:
 //      Added: Goodies 'Look and Feel'.
 //      Added: a Font Changer(Font Type\Style).
-//      Added: a Color Changer (foreground\bckground).
+//      Added: a Color Changer (foreground\background).
 //      Added: RowCounts for each JTree table nodes.
 //      Added: OneTouchExpandable attribute to JSplitPanes.
-//      Moved: setFramePositon code to a CommonSwing.setFramePositon() Method.
+//      Moved: setFramePosition code to a CommonSwing.setFramePositon() Method.
 //      Added: call to new method to handle exception processing (CommonSwing.errorMessage());
 //      Added: Added a new pane added at the bottom of the Frame. (Status Icon and StatusLine).
-//      Added: 2 Methods (setStatusMessage()), one overrides the other. One to change the ruung status
+//      Added: 2 Methods (setStatusMessage()), one overrides the other. One to change the running status
 //             another to allow a message to be posted without changing the Status Icon if needed.
 //      Added: Added a customCursor for the current wait cursor
-//      Added: Ability to switch the current LAF while runing (Native,Java or Motif)
+//      Added: Ability to switch the current LAF while running (Native,Java or Motif)
 // unsaved@users 2005xxxx - improvements and bug fixes
 // fredt@users - version 2.5.0 - removed deprecated
 // fredt@users - version 2.5.1 - enhancements
@@ -163,7 +164,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
      * be reserved for single-letter switches which can be mixed like
      * "-u -r -l" = "-url".  -blaine
      */
-    private static String homedir  = null;
+    private static String homedir;
     private boolean       isOracle = false;    // Need some workarounds for Oracle
 
     static {
@@ -171,7 +172,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     }
 
     ArrayList<JMenuItem>        localActionList = new ArrayList<JMenuItem>();
-    private JFrame              jframe          = null;
+    private JFrame              jframe;
     private static final String DEFAULT_RCFILE  = homedir + "/dbmanager.rc";
     private static boolean      TT_AVAILABLE    = false;
 
@@ -201,7 +202,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                            + "to your class path."));
     private static final String ABOUT_TEXT =
         "$Revision$ of DatabaseManagerSwing\n\n"
-        + "Copyright (c) 2001-2020, The HSQL Development Group.\n"
+        + "Copyright (c) 2001-2021, The HSQL Development Group.\n"
         + "http://hsqldb.org  (Utilities Guide available at this site).\n\n\n"
         + "You may use and redistribute according to the HSQLDB\n"
         + "license documented in the source code and at the web\n"
@@ -212,7 +213,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     static final String    NULL_STR   = "[null]";
     static int             iMaxRecent = 24;
     Connection             cConn;
-    Connection             rowConn;    // holds the connetion for getting table row counts
+    Connection             rowConn;    // holds the connection for getting table row counts
     DatabaseMetaData       dMeta;
     Statement              sStatement;
     JMenu                  mRecent;
@@ -220,7 +221,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     int                    iRecent;
     JTextArea              txtCommand;
     JScrollPane            txtCommandScroll;
-    JButton                butExecute;
     JTree                  tTree;
     JScrollPane            tScrollPane;
     DefaultTreeModel       treeModel;
@@ -250,14 +250,11 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
     /** Value of this variable only retained if huge input script read in. */
     String          sqlScriptBuffer = null;
-    JToolBar        jtoolbar;
     private boolean showSchemas  = true;
     private boolean showTooltips = true;
     private boolean autoRefresh  = true;
     private boolean gridFormat   = true;
 
-    // Added: (weconsultants@users)
-    static DatabaseManagerSwing refForFontDialogSwing;
     boolean                     displayRowCounts = false;
     boolean                     showSys          = false;
     boolean                     showIndexDetails = true;
@@ -305,7 +302,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     Cursor        txtCommandCursor;
     Cursor        txtResultCursor;
     HashMap<AbstractButton,String> tipMap = new HashMap<AbstractButton,String>();
-    private JMenu mnuSchemas = new JMenu("Schemas");
+    private final JMenu mnuSchemas = new JMenu("Schemas");
 
     /**
      * Wait Cursor
@@ -314,66 +311,19 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     // Changed: (weconsultants@users): commonted out the, out of the box, cursor to use a custom cursor
     private final Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
 
-    //getToolkit().createCustomCursor(CommonSwing.getIcon("SystemCursor"),
-    //                                new Point(4, 4), "HourGlass cursor");
     // (ulrivo): variables set by arguments from the commandline
-    static String  defDriver   = "org.hsqldb.jdbc.JDBCDriver";
-    static String  defURL      = "jdbc:hsqldb:mem:.";
-    static String  defUser     = "SA";
-    static String  defPassword = "";
-    static String  defScript;
+
     static String  defDirectory;
     private String schemaFilter = null;
 
     public DatabaseManagerSwing() {
-        jframe = new JFrame("HSQLDB DatabaseManager");
+        jframe = new JFrame("HyperSQL Database Manager");
         fMain  = jframe;
     }
 
     public DatabaseManagerSwing(JFrame frameIn) {
         jframe = frameIn;
         fMain  = jframe;
-    }
-
-    public void init() {
-
-        javax.swing.AbstractButton btn;
-
-        fMain = this;
-
-        main();
-
-        for (int i = 0; i < localActionList.size(); i++) {
-            btn = localActionList.get(i);
-
-            btn.setEnabled(false);
-        }
-
-        Connection c    = null;
-        boolean    auto = false;
-
-
-        try {
-            setWaiting("Initializing");
-
-            //insertTestData();
-            //updateAutoCommitBox();
-            c = (auto
-                 ? ConnectionDialogSwing.createConnection(defDriver, defURL,
-                     defUser, defPassword)
-                 : ConnectionDialogSwing.createConnection(jframe, "Connect"));
-        } catch (Exception e) {
-
-            //  Added: (weconsultants@users)
-            CommonSwing.errorMessage(e);
-        } finally {
-            setWaiting(null);
-        }
-
-        if (c != null) {
-            connect(c);
-        }
-
     }
 
     /**
@@ -386,11 +336,15 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         System.getProperties().put("sun.java2d.noddraw", "true");
 
         // (ulrivo): read all arguments from the command line
-        String  currentArg;
-        String  lowerArg;
-        String  urlid        = null;
-        String  rcFile       = null;
-        boolean autoConnect  = false;
+        String currentArg;
+        String lowerArg;
+        String urlid = null;
+        String rcFile = null;
+        String defDriver = "org.hsqldb.jdbc.JDBCDriver";
+        String defURL = "jdbc:hsqldb:mem:.";
+        String defUser = "SA";
+        String defPassword = "";
+        boolean autoConnect = false;
         boolean urlidConnect = false;
 
         bMustExit = true;
@@ -434,7 +388,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             } else if (lowerArg.equals("-dir")) {
                 defDirectory = arg[i];
             } else if (lowerArg.equals("-script")) {
-                defScript = arg[i];
+                // dropped script processing
             } else if (lowerArg.equals("-noexit")) {
                 bMustExit = false;
 
@@ -450,7 +404,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                  * determine that there was an invocation problem).
                  */
                 throw new IllegalArgumentException(
-                    "invalid argrument " + currentArg + " try:  java... "
+                    "invalid argument " + currentArg + " try:  java... "
                     + DatabaseManagerSwing.class.getName() + " --help");
 
                 // No reason to localize, since the main syntax message is
@@ -458,11 +412,8 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             }
         }
 
-        DatabaseManagerSwing m =
-            new DatabaseManagerSwing(new JFrame("HSQL Database Manager"));
+        DatabaseManagerSwing m = new DatabaseManagerSwing();
 
-        // Added: (weconsultants@users): Need databaseManagerSwing for later Reference
-        refForFontDialogSwing = m;
 
         m.main();
 
@@ -485,8 +436,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                         "You must specify an 'urlid' to use an RC file");
                 }
 
-                autoConnect = true;
-
                 String rcfilepath = (rcFile == null) ? DEFAULT_RCFILE
                                                      : rcFile;
                 RCData rcdata     = new RCData(new File(rcfilepath), urlid);
@@ -508,8 +457,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             m.connect(c);
         }
 
-        // Added: (weconsultants@users): For preloadng FontDialogSwing
-        FontDialogSwing.creatFontDialog(refForFontDialogSwing);
         m.start();
     }
 
@@ -612,10 +559,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
             //  Added: (weconsultants@users)
             CommonSwing.errorMessage(e);
         }
-    }
-
-    public void setMustExit(boolean b) {
-        bMustExit = b;
     }
 
     private DBMPrefs prefs = null;
@@ -838,52 +781,9 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         // Modified: (weconsultants@users) Changed from deprecated show()
         ((Component) fMain).setVisible(true);
 
-        // (ulrivo): load query from command line
-        if (defScript != null) {
-            if (defDirectory != null) {
-                defScript = defDirectory + File.separator + defScript;
-            }
 
-            // if insert stmet is thousands of records...skip showing it
-            // as text.  Too huge.
-            sqlScriptBuffer = DatabaseManagerCommon.readFile(defScript);
-
-            if (4096 <= sqlScriptBuffer.length()) {
-                int eoThirdLine = sqlScriptBuffer.indexOf('\n');
-
-                if (eoThirdLine > 0) {
-                    eoThirdLine = sqlScriptBuffer.indexOf('\n',
-                                                          eoThirdLine + 1);
-                }
-
-                if (eoThirdLine > 0) {
-                    eoThirdLine = sqlScriptBuffer.indexOf('\n',
-                                                          eoThirdLine + 1);
-                }
-
-                if (eoThirdLine < 1) {
-                    eoThirdLine = 100;
-                }
-
-                txtCommand.setText(
-                    "............... Script File loaded: " + defScript
-                    + " ..................... \n"
-                    + "............... Click Execute or Clear "
-                    + "...................\n"
-                    + sqlScriptBuffer.substring(0, eoThirdLine + 1)
-                    + "..........................................."
-                    + "..............................\n"
-                    + "............................................."
-                    + "............................\n");
-                txtCommand.setEnabled(false);
-            } else {
-                txtCommand.setText(sqlScriptBuffer);
-
-                sqlScriptBuffer = null;
-
-                txtCommand.setEnabled(true);
-            }
-        }
+        // Added: (weconsultants@users): For preloadng FontDialogSwing
+        FontDialogSwing.creatFontDialog(this);
 
         // This must be done AFTER all tip texts are put into the map
         resetTooltips();
@@ -964,8 +864,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         }
     }
 
-    Thread dummyThread = new Thread("dummy");
-
     public void actionPerformed(ActionEvent ev) {
 
         String s = ev.getActionCommand();
@@ -1011,7 +909,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
             txtCommand.setText(sRecent[i]);
         } else if (s.equals("Connect...")) {
-            Connection newCon = null;
+            Connection newCon;
 
             try {
                 setWaiting("Connecting");
@@ -1156,7 +1054,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         } else if (s.equals("Set Fonts")) {
 
             // Added: (weconsultants@users)
-            FontDialogSwing.creatFontDialog(refForFontDialogSwing);
+            FontDialogSwing.creatFontDialog(this);
         } else if (s.equals(AUTOCOMMIT_BOX_TEXT)) {
             try {
                 cConn.setAutoCommit(boxAutoCommit.isSelected());
@@ -1419,14 +1317,14 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                                                     : 0));
     }
 
-    private Runnable enableButtonRunnable = new Runnable() {
+    private final Runnable enableButtonRunnable = new Runnable() {
 
         public void run() {
             jbuttonClear.setEnabled(true);
             jbuttonExecute.setEnabled(true);
         }
     };
-    private Runnable disableButtonRunnable = new Runnable() {
+    private final Runnable disableButtonRunnable = new Runnable() {
 
         public void run() {
             jbuttonClear.setEnabled(false);
@@ -1435,7 +1333,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     };
     private Thread           buttonUpdaterThread = null;
     private static final int BUTTON_CHECK_PERIOD = 500;
-    private Runnable         buttonUpdater       = new Runnable() {
+    private final Runnable         buttonUpdater       = new Runnable() {
 
         public void run() {
 
@@ -1484,7 +1382,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         buttonUpdaterThread = null;
     }
 
-    private Runnable treeRefreshRunnable = new Runnable() {
+    private final Runnable treeRefreshRunnable = new Runnable() {
 
         public void run() {
 
@@ -1545,7 +1443,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     private void executeSQL() {
 
         String[] g   = new String[1];
-        String   sql = null;
+        String   sql;
 
         try {
             lTime = System.nanoTime();
@@ -2092,7 +1990,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     DefaultMutableTreeNode childNode =
                         (DefaultMutableTreeNode) treePath
                             .getLastPathComponent();
-                    String  childName = null;
+                    String  childName;
                     boolean isChar;
 
                     if (childNode.getChildCount() > 0) {
@@ -2130,7 +2028,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     DefaultMutableTreeNode childNode =
                         (DefaultMutableTreeNode) treePath
                             .getLastPathComponent();
-                    String  childName = null;
+                    String  childName;
                     boolean isChar;
 
                     if (childNode.getChildCount() > 0) {
@@ -2156,7 +2054,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                 String      columns = "";
                 String      values  = " ";
                 String      comma   = "";
-                String      quote   = "";
+                String      quote;
 
                 // build a string that includes all the columns that need to
                 // be added, with a parenthesied list of commas, suitable for
@@ -2177,7 +2075,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
                     DefaultMutableTreeNode childNode =
                         (DefaultMutableTreeNode) o;
-                    String childName = null;
+                    String childName;
 
                     if (childNode.getChildCount() == 0) {
                         continue;
@@ -2371,9 +2269,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     };
 
     static {
-        for (int i = 0; i < oracleSysSchemas.length; i++) {
-            oracleSysUsers.add(oracleSysSchemas[i]);
-        }
+        Collections.addAll(oracleSysUsers, oracleSysSchemas);
     }
 
     /**
@@ -2582,8 +2478,6 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     } finally {
                         if (ind != null) {
                             ind.close();
-
-                            ind = null;
                         }
                     }
                 }
@@ -2647,9 +2541,9 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         }
     }
 
-    // Added: (weconsultants@users) Needed to aggragate counts per table in jTree
+    // Added: (weconsultants@users) Needed to aggregate counts per table in jTree
     protected int[] getRowCounts(ArrayList inTable,
-                                 ArrayList inSchema) throws Exception {
+                                 ArrayList inSchema) {
 
         if (!displayRowCounts) {
             return (null);
@@ -2789,11 +2683,11 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
     void resetTooltips() {
 
-        Iterator   it = tipMap.keySet().iterator();
+        Iterator<AbstractButton>   it = tipMap.keySet().iterator();
         JComponent component;
 
         while (it.hasNext()) {
-            component = (JComponent) it.next();
+            component = it.next();
 
             component.setToolTipText(showTooltips
                                      ? tipMap.get(component)
@@ -2894,8 +2788,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
         public DBMPrefs(boolean isApplet) throws IOException {
 
-            if (isApplet) {}
-            else {
+            if (!isApplet) {
                 if (homedir == null) {
                     throw new IOException(
                         "Skipping preferences since do not know home dir");
@@ -2911,9 +2804,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
             String tmpString;
 
-            if (prefsFile == null) {
-
-            } else {
+            if (prefsFile != null) {
 
                 // LOAD PREFERENCES FROM LOCAL PREFERENCES FILE
                 if (!prefsFile.exists()) {

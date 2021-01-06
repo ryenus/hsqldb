@@ -125,7 +125,7 @@ public class RCData {
         }
 
         // System.err.println("Using RC file '" + file + "'");
-        StringTokenizer tokenizer = null;
+        StringTokenizer tokenizer;
         boolean         loadingStanza   = false;
         String          s;
         String[]        tokens;
@@ -367,7 +367,7 @@ public class RCData {
             sysProps.put("javax.net.ssl.trustStore", curTrustStore);
         }
 
-        String urlString = null;
+        String urlString;
         if (url == null) {
             throw new MalformedURLException(
               "url string is required to establish a connection, but is null"
