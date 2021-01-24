@@ -288,12 +288,14 @@ public class ParserDML extends ParserDQL {
                         }
 
                         // DYNAMIC_PARAM and PARAMETER expressions may have wider values
-                        if (e.dataType == null || colType.typeDataGroup != e
-                                .dataType.typeDataGroup || colType
-                                .isArrayType()) {
-                            rowArgs[i] =
-                                ExpressionOp.getCastExpression(session, e,
-                                                               colType);
+                        if (e.opType != OpTypes.DEFAULT) {
+                            if (e.dataType == null || colType
+                                    .typeDataGroup != e.dataType
+                                    .typeDataGroup || colType.isArrayType()) {
+                                rowArgs[i] =
+                                    ExpressionOp.getCastExpression(session, e,
+                                                                   colType);
+                            }
                         }
                     }
                 }
@@ -1332,10 +1334,14 @@ public class ParserDML extends ParserDQL {
                     }
 
                     // DYNAMIC_PARAM and PARAMETER expressions may have wider values
-                    if (e.dataType == null || colType.typeDataGroup != e
-                            .dataType.typeDataGroup || colType.isArrayType()) {
-                        rowArgs[i] = ExpressionOp.getCastExpression(session,
-                                e, colType);
+                    if (e.opType != OpTypes.DEFAULT) {
+                        if (e.dataType == null || colType.typeDataGroup != e
+                                .dataType.typeDataGroup || colType
+                                .isArrayType()) {
+                            rowArgs[i] =
+                                ExpressionOp.getCastExpression(session, e,
+                                                               colType);
+                        }
                     }
                 }
             }
