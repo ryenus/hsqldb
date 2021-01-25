@@ -65,8 +65,9 @@ import org.hsqldb.jdbc.JDBCBlobFile.OutputStreamAdapter;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.InOutUtil;
+import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.List;
 
 /**
  * <!-- start Release-specific documentation -->
@@ -824,12 +825,11 @@ public class JDBCClobFile implements java.sql.Clob {
 
         m_closed = true;
 
-        final HsqlList streams = m_streams;
+        final List streams = m_streams;
 
         m_streams = null;
 
-        for (org.hsqldb.lib.Iterator itr =
-                streams.iterator(); itr.hasNext(); ) {
+        for (Iterator itr = streams.iterator(); itr.hasNext(); ) {
             final Object stream = itr.next();
 
             closeSafely(stream);
@@ -952,7 +952,7 @@ public class JDBCClobFile implements java.sql.Clob {
     private CharsetEncoder m_encoder;
     private boolean        m_fixedWidthCharset;
     private int            m_maxCharWidth;
-    private HsqlList       m_streams = new HsqlArrayList();
+    private List           m_streams = new HsqlArrayList();
 
     /**
      * Convenience constructor for {@link

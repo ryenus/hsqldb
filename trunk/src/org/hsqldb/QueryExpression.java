@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,8 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.List;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.Set;
@@ -83,7 +83,7 @@ public class QueryExpression implements RangeGroup {
     boolean                isFullOrder;
 
     //
-    HsqlList unresolvedExpressions;
+    List unresolvedExpressions;
 
     //
     boolean isReferencesResolved;
@@ -386,7 +386,7 @@ public class QueryExpression implements RangeGroup {
         sortAndSlice.prepare(0);
     }
 
-    private void addUnresolvedExpressions(HsqlList expressions) {
+    private void addUnresolvedExpressions(List expressions) {
 
         if (expressions == null) {
             return;
@@ -862,7 +862,7 @@ public class QueryExpression implements RangeGroup {
         return sb.toString();
     }
 
-    public HsqlList getUnresolvedExpressions() {
+    public List getUnresolvedExpressions() {
         return unresolvedExpressions;
     }
 
@@ -966,7 +966,7 @@ public class QueryExpression implements RangeGroup {
         }
     }
 
-    public HashMappedList getColumns() {
+    public OrderedHashMap getColumns() {
 
         TableDerived table = (TableDerived) getResultTable();
 
@@ -987,7 +987,7 @@ public class QueryExpression implements RangeGroup {
     /**
      * Used in views after full type resolution
      */
-    public void setTableColumnNames(HashMappedList list) {
+    public void setTableColumnNames(OrderedHashMap list) {
 
         if (resultTable != null) {
             ((TableDerived) resultTable).columnList = list;
@@ -1020,7 +1020,7 @@ public class QueryExpression implements RangeGroup {
     void createResultTable(Session session) {
 
         HsqlName       tableName;
-        HashMappedList columnList;
+        OrderedHashMap columnList;
         int            tableType;
 
         tableName = session.database.nameManager.getSubqueryTableName();
@@ -1069,16 +1069,16 @@ public class QueryExpression implements RangeGroup {
         leftQueryExpression.setReturningResultSet();
     }
 
-    private HashMappedList getUnionColumns() {
+    private OrderedHashMap getUnionColumns() {
 
         if (unionCorresponding || leftQueryExpression == null) {
-            HashMappedList columns = ((TableDerived) resultTable).columnList;
-            HashMappedList list    = new HashMappedList();
+            OrderedHashMap columns = ((TableDerived) resultTable).columnList;
+            OrderedHashMap list    = new OrderedHashMap();
 
             for (int i = 0; i < unionColumnMap.length; i++) {
                 ColumnSchema column =
                     (ColumnSchema) columns.get(unionColumnMap[i]);
-                String name = (String) columns.getKey(unionColumnMap[i]);
+                String name = (String) columns.getKeyAt(unionColumnMap[i]);
 
                 list.add(name, column);
             }
@@ -1095,7 +1095,7 @@ public class QueryExpression implements RangeGroup {
             return leftQueryExpression.getResultColumnNames();
         }
 
-        HashMappedList list = ((TableDerived) resultTable).columnList;
+        OrderedHashMap list = ((TableDerived) resultTable).columnList;
         HsqlName[]     resultColumnNames = new HsqlName[list.size()];
 
         for (int i = 0; i < resultColumnNames.length; i++) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,17 +31,17 @@
 
 package org.hsqldb.lib;
 
+/**
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.6.0
+ * @since 2.0.0
+ */
 public class ArrayListIdentity<E> extends HsqlArrayList<E> {
 
-    @Override
-    public int indexOf(Object o) {
+    public ArrayListIdentity() {
+        super();
 
-        for (int i = 0; i < elementCount; i++) {
-            if (elementData[i] == o) {
-                return i;
-            }
-        }
-
-        return -1;
+        comparator = ObjectComparator.identityComparator;
     }
 }

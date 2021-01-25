@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,8 @@ import java.util.NoSuchElementException;
  */
 abstract class BaseList<E> {
 
+    protected ObjectComparator comparator = ObjectComparator.defaultComparator;
+
     protected int elementCount;
 
     public abstract E get(int index);
@@ -57,8 +59,7 @@ abstract class BaseList<E> {
         for (int i = 0, size = size(); i < size; i++) {
             Object current = get(i);
 
-            if (current == element ||
-                (current != null && current.equals(element))) {
+            if (comparator.equals(current, element)) {
                 return true;
             }
         }
@@ -70,8 +71,7 @@ abstract class BaseList<E> {
         for (int i = 0, size = size(); i < size; i++) {
             Object current = get(i);
 
-            if (current == element ||
-                (current != null && current.equals(element))) {
+            if (comparator.equals(current, element)) {
                 remove(i);
 
                 return true;
@@ -86,8 +86,7 @@ abstract class BaseList<E> {
         for (int i = 0, size = size(); i < size; i++) {
             Object current = get(i);
 
-            if (current == element ||
-                (current != null && current.equals(element))) {
+            if (comparator.equals(current, element)) {
                 return i;
             }
         }
@@ -126,7 +125,6 @@ abstract class BaseList<E> {
     }
 
     /** Returns a string representation */
-    @Override
     public String toString() {
 
         StringBuilder sb = new StringBuilder(32 + elementCount * 3);

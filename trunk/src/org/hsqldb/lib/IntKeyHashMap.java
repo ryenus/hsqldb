@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,15 +34,17 @@ package org.hsqldb.lib;
 import org.hsqldb.map.BaseHashMap;
 
 /**
+ * A Map of int primitives to Object values.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.6.0
  * @since 1.7.2
  */
-public class IntKeyHashMap extends BaseHashMap {
+public class IntKeyHashMap<V> extends BaseHashMap implements Map<Integer, V> {
 
-    Set        keySet;
-    Collection values;
+    private Set<Integer>           keySet;
+    private Collection<V>          values;
+    private Set<Entry<Integer, V>> entries;
 
     public IntKeyHashMap() {
         this(8);
@@ -53,61 +55,132 @@ public class IntKeyHashMap extends BaseHashMap {
               BaseHashMap.objectKeyOrValue, false);
     }
 
-    public Object get(int key) {
+    public boolean containsKey(Object key) {
 
-        int lookup = getLookup(key);
+        if (key instanceof Integer) {
 
-        if (lookup != -1) {
-            return objectValueTable[lookup];
+            int intKey = ((Integer) key).intValue();
+
+            return containsKey(intKey);
         }
 
-        return null;
-    }
+        if (key == null) {
+            throw new NullPointerException();
+        }
 
-    public Object put(int key, Object value) {
-        return super.addOrRemove(key, value, null, false);
-    }
-
-    public boolean containsValue(Object value) {
-        return super.containsValue(value);
-    }
-
-    public Object remove(int key) {
-        return super.addOrRemove(key, null, null, true);
+        return false;
     }
 
     public boolean containsKey(int key) {
         return super.containsKey(key);
     }
 
-    public int capacity() {
-        return super.capacity();
+    public boolean containsValue(Object value) {
+        return super.containsValue(value);
+    }
+
+    public V get(Object key) {
+
+        if (key instanceof Integer) {
+
+            int intKey = ((Integer) key).intValue();
+
+            return get(intKey);
+        }
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return null;
+    }
+
+    public V get(int key) {
+
+        int lookup = getLookup(key);
+
+        if (lookup != -1) {
+            return (V) objectValueTable[lookup];
+        }
+
+        return null;
+    }
+
+    public V put(Integer key, V value) {
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        int intKey = ((Integer) key).intValue();
+
+        return put(intKey, value);
+    }
+
+    public V put(int key, V value) {
+        return (V) super.addOrUpdate(key, 0, null, value);
+    }
+
+    public V remove(Object key) {
+        if (key instanceof Integer) {
+
+            int intKey = ((Integer) key).intValue();
+
+            return remove(intKey);
+        }
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return null;
+    }
+
+    public V remove(int key) {
+        return (V) super.remove(key, 0, null, null, false, false);
+    }
+
+    public void putAll(Map<? extends Integer, ? extends V> other) {
+        Iterator<? extends Integer> it = other.keySet().iterator();
+
+        while (it.hasNext()) {
+            Integer key = it.next();
+
+            if (key == null) {
+                continue;
+            }
+
+            int intKey = key.intValue();
+
+            put(intKey, (V) other.get(key));
+        }
     }
 
     public void putAll(IntKeyHashMap other) {
 
-        Iterator it = other.keySet().iterator();
+        PrimitiveIterator it = (PrimitiveIterator) other.keySet().iterator();
 
         while (it.hasNext()) {
             int key = it.nextInt();
 
-            put(key, other.get(key));
+            put(key, (V) other.get(key));
         }
     }
 
-    public void valuesToArray(Object[] array) {
-
-        Iterator it = values().iterator();
-        int      i  = 0;
-
-        while (it.hasNext()) {
-            array[i] = it.next();
-
-            i++;
-        }
+    public int[] keysToArray(int[] array) {
+        return toIntArray(array, true);
     }
 
-    public Set keySet() {
+    public Object[] valuesToArray() {
+
+        return toArray(false);
+    }
+
+    public <T> T[] valuesToArray(T[] array) {
+        return toArray(array, false);
+    }
+
+    public Set<Integer> keySet() {
 
         if (keySet == null) {
             keySet = new KeySet();
@@ -116,7 +189,7 @@ public class IntKeyHashMap extends BaseHashMap {
         return keySet;
     }
 
-    public Collection values() {
+    public Collection<V> values() {
 
         if (values == null) {
             values = new Values();
@@ -125,9 +198,46 @@ public class IntKeyHashMap extends BaseHashMap {
         return values;
     }
 
-    class KeySet implements Set {
+    public Set<Entry<Integer, V>> entrySet() {
+        if (entries == null) {
+            entries = new EntrySet();
+        }
 
-        public Iterator iterator() {
+        return entries;
+    }
+
+    private class EntrySet extends AbstractReadOnlyCollection<Map.Entry<Integer, V>> implements Set<Map.Entry<Integer, V>> {
+
+        public Iterator<Entry<Integer, V>> iterator() {
+            return IntKeyHashMap.this.new EntrySetIterator();
+        }
+
+        public int size() {
+            return IntKeyHashMap.this.size();
+        }
+
+        public boolean isEmpty() {
+            return size() == 0;
+        }
+    }
+
+    private class EntrySetIterator extends BaseHashIterator{
+
+        EntrySetIterator() {
+            super(true);
+        }
+
+        public Entry<Integer, V> next() {
+            Integer key   = super.nextInt();
+            V value       = (V) objectValueTable[lookup];
+
+            return new MapEntry(key, value);
+        }
+    }
+
+    private class KeySet<Integer> extends AbstractReadOnlyCollection<Integer> implements Set<Integer> {
+
+        public PrimitiveIterator<Integer> iterator() {
             return IntKeyHashMap.this.new BaseHashIterator(true);
         }
 
@@ -135,38 +245,14 @@ public class IntKeyHashMap extends BaseHashMap {
             return IntKeyHashMap.this.size();
         }
 
-        public boolean contains(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Object get(Object key) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean add(Object value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean addAll(Collection c) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
         public boolean isEmpty() {
             return size() == 0;
         }
-
-        public void clear() {
-            IntKeyHashMap.this.clear();
-        }
     }
 
-    class Values implements Collection {
+    private class Values<V> extends AbstractReadOnlyCollection<V> {
 
-        public Iterator iterator() {
+        public Iterator<V> iterator() {
             return IntKeyHashMap.this.new BaseHashIterator(false);
         }
 
@@ -174,28 +260,16 @@ public class IntKeyHashMap extends BaseHashMap {
             return IntKeyHashMap.this.size();
         }
 
-        public boolean contains(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean add(Object value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean addAll(Collection c) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
         public boolean isEmpty() {
             return size() == 0;
         }
 
-        public void clear() {
-            IntKeyHashMap.this.clear();
+        public Object[] toArray() {
+            return IntKeyHashMap.this.toArray(false);
+        }
+
+        public <T> T[] toArray(T[] array) {
+            return IntKeyHashMap.this.toArray(array, false);
         }
     }
 }

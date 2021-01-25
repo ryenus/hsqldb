@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,12 +38,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.HashMappedList;
+import org.hsqldb.lib.FilteredIterator;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.MultiValueHashMap;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.FilteredIterator;
 import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rights.Grantee;
@@ -55,14 +55,14 @@ import org.hsqldb.types.Type;
  * Manages all SCHEMA related database objects
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.8.0
  */
 public class SchemaManager {
 
     Database          database;
     HsqlName          defaultSchemaHsqlName;
-    HashMappedList    schemaMap        = new HashMappedList();
+    OrderedHashMap    schemaMap        = new OrderedHashMap();
     MultiValueHashMap referenceMap     = new MultiValueHashMap();
     int               defaultTableType = TableBase.MEMORY_TABLE;
     long              schemaChangeTimestamp;
@@ -287,7 +287,7 @@ public class SchemaManager {
         try {
             String[] array = new String[schemaMap.size()];
 
-            schemaMap.toKeysArray(array);
+            schemaMap.keysToArray(array);
 
             return array;
         } finally {
@@ -302,7 +302,7 @@ public class SchemaManager {
         try {
             Schema[] objects = new Schema[schemaMap.size()];
 
-            schemaMap.toValuesArray(objects);
+            schemaMap.valuesToArray(objects);
 
             return objects;
         } finally {
@@ -514,7 +514,7 @@ public class SchemaManager {
                     continue;
                 }
 
-                HashMappedList current = getTables(name);
+                OrderedHashMap current = getTables(name);
 
                 alltables.addAll(current.values());
             }
@@ -525,7 +525,7 @@ public class SchemaManager {
         }
     }
 
-    public HashMappedList getTables(String schema) {
+    public OrderedHashMap getTables(String schema) {
 
         readLock.lock();
 
@@ -590,7 +590,7 @@ public class SchemaManager {
 
                     names.add(database.getCatalogName());
 
-                    HashMappedList list = getTables(name.name);
+                    OrderedHashMap list = getTables(name.name);
 
                     for (int i = 0; i < list.size(); i++) {
                         names.add(((SchemaObject) list.get(i)).getName());
@@ -1699,7 +1699,7 @@ public class SchemaManager {
 
         try {
             OrderedHashSet set = new OrderedHashSet();
-            Iterator       it  = referenceMap.get(object);
+            Iterator       it  = referenceMap.getValuesIterator(object);
 
             while (it.hasNext()) {
                 HsqlName name = (HsqlName) it.next();
@@ -1719,7 +1719,7 @@ public class SchemaManager {
 
         try {
             OrderedHashSet set = new OrderedHashSet();
-            Iterator       it  = referenceMap.get(table);
+            Iterator       it  = referenceMap.getValuesIterator(table);
 
             while (it.hasNext()) {
                 HsqlName       name       = (HsqlName) it.next();
@@ -1731,7 +1731,7 @@ public class SchemaManager {
                 }
             }
 
-            it = referenceMap.get(column);
+            it = referenceMap.getValuesIterator(column);
 
             while (it.hasNext()) {
                 HsqlName name = (HsqlName) it.next();
@@ -1763,7 +1763,7 @@ public class SchemaManager {
 
         try {
             OrderedHashSet newSet = new OrderedHashSet();
-            Iterator       it     = referenceMap.get(object);
+            Iterator       it     = referenceMap.getValuesIterator(object);
 
             while (it.hasNext()) {
                 HsqlName name  = (HsqlName) it.next();
@@ -1820,7 +1820,7 @@ public class SchemaManager {
                 continue;
             }
 
-            Iterator it = referenceMap.get(name);
+            Iterator it = referenceMap.getValuesIterator(name);
 
             while (it.hasNext()) {
                 map.put(name, it.next());
@@ -2154,18 +2154,13 @@ public class SchemaManager {
                     while (it.hasNext()) {
                         HsqlName ref = (HsqlName) it.next();
 
-                        if (ref.type == SchemaObject.COLUMN) {
-                            it.remove();
+                        if (ref.type != SchemaObject.COLUMN) {
+                            throw Error.error(
+                                ErrorCode.X_42502,
+                                ref.getSchemaQualifiedStatementName());
                         }
                     }
 
-                    if (!set.isEmpty()) {
-                        HsqlName objectName = (HsqlName) set.get(0);
-
-                        throw Error.error(
-                            ErrorCode.X_42502,
-                            objectName.getSchemaQualifiedStatementName());
-                    }
                     break;
             }
 
@@ -2756,7 +2751,7 @@ public class SchemaManager {
             Type.SQL_BOOLEAN
         };
         HsqlName       tableName = database.nameManager.getSubqueryTableName();
-        HashMappedList columnList = new HashMappedList();
+        OrderedHashMap columnList = new OrderedHashMap();
 
         for (int i = 0; i < columnTypes.length; i++) {
             HsqlName name = HsqlNameManager.getAutoColumnName(i + 1);

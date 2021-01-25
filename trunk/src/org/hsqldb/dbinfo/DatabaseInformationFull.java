@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,6 @@ import org.hsqldb.Constraint;
 import org.hsqldb.Database;
 import org.hsqldb.Expression;
 import org.hsqldb.ExpressionColumn;
-import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
@@ -60,10 +59,10 @@ import org.hsqldb.View;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.FileUtil;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LineGroupReader;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.lib.WrapperIterator;
@@ -121,7 +120,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
     static final String resourceFileName =
         "/org/hsqldb/resources/information-schema.sql";
-    static final HashMappedList statementMap =
+    static final OrderedHashMap statementMap =
         LineGroupReader.getStatementMap(resourceFileName);
 
     /**

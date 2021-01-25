@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,8 @@ import java.util.Vector;
 
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlDeque;
-import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.StopWatch;
 
 import junit.framework.TestCase;
@@ -365,7 +365,7 @@ public class TestDataStructures extends TestCase {
     }
 
     /** Tells whether the given list contains the same data as the vector */
-    private boolean equalsVector(HsqlList list, Vector vector) {
+    private boolean equalsVector(List list, Vector vector) {
 
         if (list.size() != vector.size()) {
             return false;
@@ -429,7 +429,7 @@ public class TestDataStructures extends TestCase {
 
         randomGenerator = new Random(System.currentTimeMillis());
 
-        int           TEST_RUNS     = 100000;
+        int           TEST_RUNS     = 1000000;
         int           LOOP_COUNT    = 1000;
         HsqlArrayList arrayList     = new HsqlArrayList(TEST_RUNS);
         ArrayList     utilArrayList = new ArrayList(TEST_RUNS);

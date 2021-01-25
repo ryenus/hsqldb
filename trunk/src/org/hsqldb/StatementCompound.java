@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.result.Result;
@@ -63,10 +63,10 @@ public class StatementCompound extends Statement implements RangeGroup {
     //
     ColumnSchema[]    variables      = ColumnSchema.emptyArray;
     StatementCursor[] cursors        = StatementCursor.emptyArray;
-    HashMappedList    scopeVariables = new HashMappedList();
+    OrderedHashMap    scopeVariables = new OrderedHashMap();
     RangeVariable[]   rangeVariables = RangeVariable.emptyArray;
     Table[]           tables         = Table.emptyArray;
-    HashMappedList    scopeTables;
+    OrderedHashMap    scopeTables;
 
     //
     int variablesOffset;
@@ -813,11 +813,11 @@ public class StatementCompound extends Statement implements RangeGroup {
     //
     private void setVariables() {
 
-        HashMappedList list = new HashMappedList();
+        OrderedHashMap list = new OrderedHashMap();
 
         if (parent != null && parent.scopeVariables != null) {
             for (int i = 0; i < parent.scopeVariables.size(); i++) {
-                list.add(parent.scopeVariables.getKey(i),
+                list.add(parent.scopeVariables.getKeyAt(i),
                          parent.scopeVariables.get(i));
             }
         }
@@ -890,11 +890,11 @@ public class StatementCompound extends Statement implements RangeGroup {
             return;
         }
 
-        HashMappedList list = new HashMappedList();
+        OrderedHashMap list = new OrderedHashMap();
 
         if (parent != null && parent.scopeTables != null) {
             for (int i = 0; i < parent.scopeTables.size(); i++) {
-                list.add(parent.scopeTables.getKey(i),
+                list.add(parent.scopeTables.getKeyAt(i),
                          parent.scopeTables.get(i));
             }
         }

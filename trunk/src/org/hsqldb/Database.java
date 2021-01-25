@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,9 +36,9 @@ import org.hsqldb.dbinfo.DatabaseInformation;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FrameworkLogger;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlTimer;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
@@ -724,7 +724,7 @@ public class Database {
 
         list.add(collation.getDatabaseCollationSQL());
 
-        HashMappedList lobTables =
+        OrderedHashMap lobTables =
             schemaManager.getTables(SqlInvariants.LOBS_SCHEMA);
 
         for (int i = 0; i < lobTables.size(); i++) {

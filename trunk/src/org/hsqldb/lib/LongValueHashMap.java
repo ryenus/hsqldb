@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,25 +33,29 @@ package org.hsqldb.lib;
 
 import java.util.NoSuchElementException;
 
+import org.hsqldb.lib.Map.Entry;
 import org.hsqldb.map.BaseHashMap;
 
 /**
+ * A Map of Object keys to long primitives.<p>
+ *
  * This class does not store null keys.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.9.0
  */
-public class LongValueHashMap extends BaseHashMap {
+public class LongValueHashMap<K> extends BaseHashMap {
 
-    Set keySet;
+    private Set<K>              keySet;
+    private Collection<Long>    values;
+    private Set<Entry<K, Long>> entries;
 
     public LongValueHashMap() {
         this(8);
     }
 
-    public LongValueHashMap(int initialCapacity)
-    throws IllegalArgumentException {
+    public LongValueHashMap(int initialCapacity) throws IllegalArgumentException {
         super(initialCapacity, BaseHashMap.objectKeyOrValue,
               BaseHashMap.longKeyOrValue, false);
     }
@@ -60,13 +64,13 @@ public class LongValueHashMap extends BaseHashMap {
 
         this(initialCapacity);
 
-        setComparator(comparator);
+        this.comparator = comparator;
     }
 
     public long get(Object key) throws NoSuchElementException {
 
         if (key == null) {
-            throw new NoSuchElementException();
+            throw new NullPointerException();
         }
 
         int lookup = getLookup(key);
@@ -81,7 +85,7 @@ public class LongValueHashMap extends BaseHashMap {
     public long get(Object key, int defaultValue) {
 
         if (key == null) {
-            throw new NoSuchElementException();
+            throw new NullPointerException();
         }
 
         int lookup = getLookup(key);
@@ -96,7 +100,7 @@ public class LongValueHashMap extends BaseHashMap {
     public boolean get(Object key, long[] value) {
 
         if (key == null) {
-            throw new NoSuchElementException();
+            throw new NullPointerException();
         }
 
         int lookup = getLookup(key);
@@ -128,87 +132,35 @@ public class LongValueHashMap extends BaseHashMap {
     public boolean put(Object key, long value) {
 
         if (key == null) {
-            throw new NoSuchElementException();
+            throw new NullPointerException();
         }
 
         int oldSize = size();
 
-        super.addOrRemove(0, value, key, null, false);
+        super.addOrUpdate(0, value, key, null);
 
         return oldSize != size();
     }
 
     public boolean remove(Object key) {
 
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
         int oldSize = size();
 
-        super.addOrRemove(0, 0, key, null, true);
+        super.remove(0, 0, key, null, false, false);
 
         return oldSize != size();
     }
 
     public boolean containsKey(Object key) {
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
         return super.containsKey(key);
-    }
-
-    public Set keySet() {
-
-        if (keySet == null) {
-            keySet = new KeySet();
-        }
-
-        return keySet;
-    }
-
-    class KeySet implements Set {
-
-        public Iterator iterator() {
-            return LongValueHashMap.this.new BaseHashIterator(true);
-        }
-
-        public int size() {
-            return LongValueHashMap.this.size();
-        }
-
-        public boolean contains(Object o) {
-            return containsKey(o);
-        }
-
-        public Object get(Object key) {
-
-            int lookup = LongValueHashMap.this.getLookup(key);
-
-            if (lookup < 0) {
-                return null;
-            } else {
-                return LongValueHashMap.this.objectKeyTable[lookup];
-            }
-        }
-
-        public boolean add(Object value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean addAll(Collection c) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-
-            int oldSize = size();
-
-            LongValueHashMap.this.remove(o);
-
-            return size() != oldSize;
-        }
-
-        public boolean isEmpty() {
-            return size() == 0;
-        }
-
-        public void clear() {
-            LongValueHashMap.this.clear();
-        }
     }
 
     public void putAll(LongValueHashMap t) {
@@ -219,6 +171,103 @@ public class LongValueHashMap extends BaseHashMap {
             Object key = it.next();
 
             put(key, t.get(key));
+        }
+    }
+
+    public Set<K> keySet() {
+
+        if (keySet == null) {
+            keySet = new KeySet();
+        }
+
+        return keySet;
+    }
+
+    public Collection<Long> values() {
+
+        if (values == null) {
+            values = new Values();
+        }
+
+        return values;
+    }
+
+    public Set<Entry<K, Long>> entrySet() {
+        if (entries == null) {
+            entries = new EntrySet();
+        }
+
+        return entries;
+    }
+
+    private class EntrySet extends AbstractReadOnlyCollection<Entry<K, Long>> implements Set<Entry<K, Long>> {
+
+        public Iterator<Entry<K, Long>> iterator() {
+            return LongValueHashMap.this.new EntrySetIterator();
+        }
+
+        public int size() {
+            return LongValueHashMap.this.size();
+        }
+
+        public boolean isEmpty() {
+            return size() == 0;
+        }
+    }
+
+    private class EntrySetIterator extends BaseHashIterator{
+
+        EntrySetIterator() {
+            super(true);
+        }
+
+        public Entry<K, Long> next() {
+            K    key   = (K) super.next();
+            Long value = longValueTable[lookup];
+
+            return new MapEntry(key, value);
+        }
+    }
+
+    private class KeySet<K> extends AbstractReadOnlyCollection<K> implements Set<K> {
+
+        public Iterator<K> iterator() {
+            return LongValueHashMap.this.new BaseHashIterator(true);
+        }
+
+        public int size() {
+            return LongValueHashMap.this.size();
+        }
+
+        public boolean contains(Object key) {
+            return containsKey(key);
+        }
+
+        public boolean isEmpty() {
+            return size() == 0;
+        }
+
+        public Object[] toArray() {
+            return LongValueHashMap.this.toArray(true);
+        }
+
+        public <T> T[] toArray(T[] array) {
+            return LongValueHashMap.this.toArray(array, true);
+        }
+    }
+
+    private class Values<Long> extends AbstractReadOnlyCollection<Long> {
+
+        public PrimitiveIterator<Long> iterator() {
+            return LongValueHashMap.this.new BaseHashIterator(false);
+        }
+
+        public int size() {
+            return LongValueHashMap.this.size();
+        }
+
+        public boolean isEmpty() {
+            return size() == 0;
         }
     }
 }

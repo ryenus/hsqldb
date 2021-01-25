@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@ import org.hsqldb.ColumnSchema;
 import org.hsqldb.Row;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.ClobData;
@@ -141,7 +141,7 @@ implements RowOutputInterface {
      *  This method is called directly to write data for a delete statement.
      */
     public void writeData(int l, Type[] types, Object[] data,
-                          HashMappedList cols, int[] primaryKeys) {
+                          OrderedHashMap cols, int[] primaryKeys) {
 
         boolean hasPK = primaryKeys != null && primaryKeys.length != 0;
         int     limit = hasPK ? primaryKeys.length

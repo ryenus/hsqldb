@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,10 +39,10 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMap;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.List;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.OrderedLongHashSet;
@@ -124,7 +124,7 @@ public class RangeVariable {
     boolean isViewSubquery;
 
     // for variable and parameter lists
-    HashMappedList variables;
+    OrderedHashMap variables;
 
     // variable, parameter, table
     int rangeType;
@@ -132,7 +132,7 @@ public class RangeVariable {
     //
     boolean isGenerated;
 
-    public RangeVariable(HashMappedList variables, SimpleName rangeName,
+    public RangeVariable(OrderedHashMap variables, SimpleName rangeName,
                          boolean isVariable, int rangeType) {
 
         this.variables   = variables;
@@ -852,7 +852,7 @@ public class RangeVariable {
                 rangeGroup, rangeGroups.length, 1);
 
         if (dataExpression != null) {
-            HsqlList unresolved =
+            List unresolved =
                 dataExpression.resolveColumnReferences(session,
                     RangeGroup.emptyGroup, rangeGroups, null);
 
@@ -868,7 +868,7 @@ public class RangeVariable {
         if (queryExpression != null) {
             queryExpression.resolveReferences(session, rangeGroups);
 
-            HsqlList unresolved = queryExpression.getUnresolvedExpressions();
+            List unresolved = queryExpression.getUnresolvedExpressions();
 
             unresolved = Expression.resolveColumnSet(session,
                     RangeVariable.emptyArray, RangeGroup.emptyArray,

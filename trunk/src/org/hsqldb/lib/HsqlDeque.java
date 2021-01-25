@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,19 +35,24 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
-// fredt@users 20020130 - patch 1.7.0 by fredt - new class
-
 /**
- * jdk 1.1 compatible minimal implementation of a list object suitable for
- * stack, queue and deque usage patterns backed by an Object[].
- * The memory footprint of the HsqlDeque doubles when it gets full
+ * A List<E> that also implements Deque<E> and Queue<E> and methods for
+ * usage as stack.<p>
+ *
+ * When used as Queue<E>, elements are added to the end of the List (tail), and
+ * retrieved from the start of the List (head).<p>
+ *
+ * When used as a stack, elements are added to and retrieved from the start of
+ * the List (head) using {@code push()} and {@code pop()} methods.<p>
+ *
+ * Data is stored in an Object[] that doubles in size when the List gets full
  * but does not shrink when it gets empty.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
- * @since 1.7.0
+ * @version 2.6.0
+ * @since 1.7.0, 20020130
  */
-public class HsqlDeque<E> extends BaseList<E> implements HsqlList<E> {
+public class HsqlDeque<E> extends BaseList<E> implements List<E> {
 
     private E[] list;
     private int firstindex = 0;    // index of first list element
@@ -67,6 +72,41 @@ public class HsqlDeque<E> extends BaseList<E> implements HsqlList<E> {
 
     public boolean isEmpty() {
         return elementCount == 0;
+    }
+
+    public boolean offer(E e) {
+        return add(e); }
+
+    public E remove() {
+        return removeFirst();
+    }
+
+    public E poll() {
+        if(elementCount == 0) {
+            return null;
+        }
+
+        return removeFirst();
+    }
+
+    public E element() {
+        return getFirst();
+    }
+
+    public E peek() {
+        if(elementCount == 0) {
+            return null;
+        }
+
+        return getFirst();
+    }
+
+    public void push(E e) {
+        addFirst(e);
+    }
+
+    public E pop() {
+        return removeFirst();
     }
 
     public E getFirst() throws NoSuchElementException {
@@ -178,6 +218,68 @@ public class HsqlDeque<E> extends BaseList<E> implements HsqlList<E> {
         return o;
     }
 
+    public E peekFirst() {
+        return getFirst();
+    }
+
+    public E peekLast() {
+        return getLast();
+    }
+
+    public boolean offerFirst(E e) {
+        addFirst(e);
+        return true;
+    }
+
+    public boolean offerLast(E e) {
+        addLast(e);
+        return true;
+    }
+
+    public E pollFirst() {
+        if (elementCount == 0) {
+            return null;
+        }
+
+        return removeFirst();
+    }
+
+    public E pollLast() {
+        if (elementCount == 0) {
+            return null;
+        }
+
+        return removeLast();
+    }
+
+    public boolean removeFirstOccurrence(Object o) {
+        int index = indexOf(o);
+
+        if (index < 1) {
+            return false;
+        }
+
+        remove(index);
+
+        return true;
+    }
+
+    public boolean removeLastOccurrence(Object o) {
+        int index = lastIndexOf(o);
+
+        if (index < 1) {
+            return false;
+        }
+
+        remove(index);
+
+        return true;
+    }
+
+    public Iterator<E> descendingIterator() {
+        throw new UnsupportedOperationException();
+    }
+
     public boolean add(E o) {
 
         resetCapacity();
@@ -241,13 +343,35 @@ public class HsqlDeque<E> extends BaseList<E> implements HsqlList<E> {
                 return i;
             }
 
-            if (value != null && value.equals(list[index])) {
+            if (value != null && comparator.equals(value, list[index])) {
                 return i;
             }
         }
 
         return -1;
     }
+
+    public int lastIndexOf(Object value) {
+
+        for (int i = elementCount - 1; i >= 0; i--) {
+            int index = firstindex + i;
+
+            if (index < 0) {
+                index += list.length;
+            }
+
+            if (list[index] == value) {
+                return i;
+            }
+
+            if (value != null && comparator.equals(value, list[index])) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
 
     public E remove(int index) {
 
@@ -330,10 +454,10 @@ public class HsqlDeque<E> extends BaseList<E> implements HsqlList<E> {
         list = (E[]) newList;
     }
 
-    public E[] toArray(E[] array) {
+    public <T> T[] toArray(T[] array) {
 
         if (array.length < elementCount) {
-            array = (E[]) Array.newInstance(array.getClass().getComponentType(),
+            array = (T[]) Array.newInstance(array.getClass().getComponentType(),
                                         elementCount);
         }
 
@@ -350,5 +474,32 @@ public class HsqlDeque<E> extends BaseList<E> implements HsqlList<E> {
         }
 
         return array;
+    }
+
+    public Object[] toArray() {
+
+        Object[] newArray = new Object[elementCount];
+
+        return toArray(newArray);
+    }
+
+    public List<E> subList(int fromIndex, int toIndex) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean containsAll(Collection c) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean removeAll(Collection c) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean retainAll(Collection c) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean addAll(int index, Collection c) {
+        throw new UnsupportedOperationException();
     }
 }

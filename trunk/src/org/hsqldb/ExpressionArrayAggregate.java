@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.List;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.RowType;
@@ -168,11 +168,11 @@ public class ExpressionArrayAggregate extends Expression {
         return sb.toString();
     }
 
-    public HsqlList resolveColumnReferences(Session session,
+    public List resolveColumnReferences(Session session,
             RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            HsqlList unresolvedSet, boolean acceptsSequences) {
+            List unresolvedSet, boolean acceptsSequences) {
 
-        HsqlList conditionSet = condition.resolveColumnReferences(session,
+        List conditionSet = condition.resolveColumnReferences(session,
             rangeGroup, rangeCount, rangeGroups, null, false);
 
         if (conditionSet != null) {

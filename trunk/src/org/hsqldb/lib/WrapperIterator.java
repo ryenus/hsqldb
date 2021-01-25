@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,10 +41,10 @@ import java.util.NoSuchElementException;
  *  Based on similar Enumerator code by campbell-burnet@users
  *
  * @author fred@users
- * @version 1.9.0
+ * @version 2.6.0
  * @since HSQLDB 1.7.2
  */
-public class WrapperIterator implements Iterator {
+public class WrapperIterator<E> implements Iterator<E> {
 
     private static final Object[] emptyelements = new Object[0];
     private Object[]              elements;
@@ -52,8 +52,8 @@ public class WrapperIterator implements Iterator {
 
     // chained iterators
     private boolean  chained;
-    private Iterator it1;
-    private Iterator it2;
+    private Iterator<E> it1;
+    private Iterator<E> it2;
 
     /** return only not null elements */
     private boolean notNull;
@@ -97,7 +97,7 @@ public class WrapperIterator implements Iterator {
      * Constructor for a chained iterator that returns the elements of the two
      * specified iterators.
      */
-    public WrapperIterator(Iterator it1, Iterator it2) {
+    public WrapperIterator(Iterator<E> it1, Iterator<E> it2) {
 
         this.it1 = it1;
         this.it2 = it2;
@@ -161,7 +161,7 @@ public class WrapperIterator implements Iterator {
      * @return the next element
      * @throws NoSuchElementException if there is no next element
      */
-    public Object next() {
+    public E next() {
 
         // for chained iterators
         if (chained) {
@@ -190,7 +190,7 @@ public class WrapperIterator implements Iterator {
 
         // for other iterators
         if (hasNext()) {
-            return elements[i++];
+            return (E) elements[i++];
         }
 
         throw new NoSuchElementException();

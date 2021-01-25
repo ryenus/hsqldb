@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.map.BaseHashMap;
  * This class does not store null keys.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.7.2
  */
 public class HashSet<E> extends BaseHashMap implements Set<E> {
@@ -51,32 +51,22 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
               BaseHashMap.noKeyOrValue, false);
     }
 
-    public HashSet(ObjectComparator<E> comparator)
-    throws IllegalArgumentException {
-
-        super(8, BaseHashMap.objectKeyOrValue, BaseHashMap.noKeyOrValue,
-              false);
-
-        setComparator(comparator);
-    }
-
     public HashSet(int initialCapacity,
                    ObjectComparator comparator)
                    throws IllegalArgumentException {
 
-        super(initialCapacity, BaseHashMap.objectKeyOrValue,
-              BaseHashMap.noKeyOrValue, false);
+        this(initialCapacity);
 
-        setComparator(comparator);
+        this.comparator = comparator;
     }
 
     public boolean contains(Object key) {
         return super.containsKey(key);
     }
 
-    public boolean containsAll(Collection<E> col) {
+    public boolean containsAll(Collection<?> col) {
 
-        Iterator<E> it = col.iterator();
+        Iterator<?> it = col.iterator();
 
         while (it.hasNext()) {
             if (contains(it.next())) {
@@ -91,6 +81,10 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
 
     public E getOrAdd(E key) {
 
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
         E value = get(key);
 
         if (value == null) {
@@ -104,6 +98,10 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
 
     public E get(E key) {
 
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
         int lookup = getLookup(key);
 
         if (lookup < 0) {
@@ -115,12 +113,11 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
 
     /** returns true if added */
     public boolean add(E key) {
+        if (key == null) {
+            throw new NullPointerException();
+        }
 
-        int count = size();
-
-        super.addOrRemove(0, 0, key, null, false);
-
-        return count != size();
+        return (Boolean) super.addOrUpdate(0, 0, key, null);
     }
 
     /** returns true if any added */
@@ -162,13 +159,18 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
 
     /** returns true if removed */
     public boolean remove(Object key) {
-        return super.removeObject(key, false) != null;
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return (Boolean) super.remove(0, 0, key, null, false, false);
     }
 
     /** returns true if all were removed */
-    public boolean removeAll(Collection<? extends E> c) {
+    public boolean removeAll(Collection<?> c) {
 
-        Iterator<? extends E> it = c.iterator();
+        Iterator<?> it = c.iterator();
         boolean  result = true;
 
         while (it.hasNext()) {
@@ -178,15 +180,20 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         return result;
     }
 
-    public void intersect(Set<E> c) {
+    public boolean retainAll(Collection<?> c) {
 
-        Iterator<E> it = iterator();
+        boolean changed = false;
+
+        Iterator<?> it = iterator();
 
         while (it.hasNext()) {
             if (!c.contains(it.next())) {
                 it.remove();
+                changed = true;
             }
         }
+
+        return changed;
     }
 
     /** returns true if all were removed */
@@ -216,26 +223,12 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         return count;
     }
 
-    public void toArray(E[] a) {
-
-        Iterator<E> it = iterator();
-
-        for (int i = 0; it.hasNext(); i++) {
-            a[i] = it.next();
-        }
+    public <T> T[] toArray(T[] a) {
+        return toArray(a, true);
     }
 
-    public E[] toArray() {
-
-        if (isEmpty()) {
-            return (E[]) emptyObjectArray;
-        }
-
-        E[] array = (E[]) new Object[size()];
-
-        toArray(array);
-
-        return array;
+    public Object[] toArray() {
+        return toArray(true);
     }
 
     public Iterator<E> iterator() {

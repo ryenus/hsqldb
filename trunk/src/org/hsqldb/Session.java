@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -153,7 +153,7 @@ public class Session implements SessionInterface {
 
     //
     public Object special;
-
+    public int sessionTxId;
     /**
      * Constructs a new Session object.
      *
@@ -769,8 +769,8 @@ public class Session implements SessionInterface {
         }
 
         while (sessionContext.savepoints.size() > index) {
-            sessionContext.savepoints.remove(sessionContext.savepoints.size()
-                                             - 1);
+            sessionContext.savepoints.removeEntry(
+                sessionContext.savepoints.size() - 1);
             sessionContext.savepointTimestamps.removeLast();
         }
     }

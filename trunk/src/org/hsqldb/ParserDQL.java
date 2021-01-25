@@ -37,11 +37,11 @@ import org.hsqldb.QueryExpression.RecursiveQuerySettings;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.LongDeque;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntKeyHashMap;
 import org.hsqldb.map.BitMap;
@@ -2913,7 +2913,6 @@ public class ParserDQL extends ParserBase {
                                          token.namePrefix);
 
                 getRecordedToken().setExpression(e);
-
                 read();
 
                 return e;
@@ -5469,7 +5468,7 @@ public class ParserDQL extends ParserBase {
     private TableDerived prepareSubqueryTable(Expression e,
             HsqlName[] colNames) {
 
-        HsqlList unresolved = e.resolveColumnReferences(session,
+        List unresolved = e.resolveColumnReferences(session,
             RangeGroup.emptyGroup, compileContext.getOuterRanges(), null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
@@ -7492,16 +7491,17 @@ public class ParserDQL extends ParserBase {
         private void rewindRangeVariables(int position) {
 
             for (int i = rangeVariables.size() - 1; i >= 0; i--) {
-                int rangePos = rangeVariables.getKey(i, -1);
+                int rangePos = rangeVariables.getKeyAt(i, -1);
 
                 if (rangePos > position) {
-                    rangeVariables.removeKeyAndValue(i);
+                    rangeVariables.removeEntry(i);
                 }
             }
 
             if (rangeVariables.size() > 0) {
-                RangeVariable range = (RangeVariable) rangeVariables.getValue(
-                    rangeVariables.size() - 1);
+                RangeVariable range =
+                    (RangeVariable) rangeVariables.getValueAt(
+                        rangeVariables.size() - 1);
 
                 rangeVarIndex = range.rangePosition + 1;
             } else {
@@ -7606,7 +7606,7 @@ public class ParserDQL extends ParserBase {
 
             for (int i = 0; i < rangeVariables.size(); i++) {
                 RangeVariable range =
-                    (RangeVariable) rangeVariables.getValue(i);
+                    (RangeVariable) rangeVariables.getValueAt(i);
 
                 if (range.rangeType != RangeVariable.PLACEHOLDER_RANGE) {
                     list.add(range);
@@ -7682,11 +7682,11 @@ public class ParserDQL extends ParserBase {
                 namedSubqueries.setSize(subqueryDepth + 1);
             }
 
-            HashMappedList set =
-                (HashMappedList) namedSubqueries.get(subqueryDepth);
+            OrderedHashMap set =
+                (OrderedHashMap) namedSubqueries.get(subqueryDepth);
 
             if (set == null) {
-                set = new HashMappedList();
+                set = new OrderedHashMap();
 
                 namedSubqueries.set(subqueryDepth, set);
             }
@@ -7696,8 +7696,8 @@ public class ParserDQL extends ParserBase {
 
             if (namedSubqueries != null) {
                 if (namedSubqueries.size() > subqueryDepth) {
-                    HashMappedList set =
-                        (HashMappedList) namedSubqueries.get(subqueryDepth);
+                    OrderedHashMap set =
+                        (OrderedHashMap) namedSubqueries.get(subqueryDepth);
 
                     if (set != null) {
                         set.clear();
@@ -7710,8 +7710,8 @@ public class ParserDQL extends ParserBase {
 
             initSubqueryNames();
 
-            HashMappedList set =
-                (HashMappedList) namedSubqueries.get(subqueryDepth);
+            OrderedHashMap set =
+                (OrderedHashMap) namedSubqueries.get(subqueryDepth);
             boolean added = set.add(name, null);
 
             if (!added) {
@@ -7721,8 +7721,8 @@ public class ParserDQL extends ParserBase {
 
         private void registerSubquery(String name, TableDerived td) {
 
-            HashMappedList set =
-                (HashMappedList) namedSubqueries.get(subqueryDepth);
+            OrderedHashMap set =
+                (OrderedHashMap) namedSubqueries.get(subqueryDepth);
 
             set.put(name, td);
         }
@@ -7757,7 +7757,7 @@ public class ParserDQL extends ParserBase {
                     continue;
                 }
 
-                HashMappedList set = (HashMappedList) namedSubqueries.get(i);
+                OrderedHashMap set = (OrderedHashMap) namedSubqueries.get(i);
 
                 if (set == null) {
                     continue;
@@ -7826,7 +7826,7 @@ public class ParserDQL extends ParserBase {
 
             for (int i = 0; i < rangeVariables.size(); i++) {
                 RangeVariable range =
-                    (RangeVariable) rangeVariables.getValue(i);
+                    (RangeVariable) rangeVariables.getValueAt(i);
 
                 if (range.isViewSubquery) {
                     continue;

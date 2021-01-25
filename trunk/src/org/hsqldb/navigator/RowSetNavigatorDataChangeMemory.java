@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -104,15 +104,15 @@ implements RowSetNavigatorDataChange {
     }
 
     public Row getCurrentRow() {
-        return (Row) list.getValueByIndex(currentPos);
+        return (Row) list.getValueAt(currentPos);
     }
 
     public Object[] getCurrentChangedData() {
-        return (Object[]) list.getSecondValueByIndex(currentPos);
+        return (Object[]) list.getSecondValueAt(currentPos);
     }
 
     public int[] getCurrentChangedColumns() {
-        return (int[]) list.getThirdValueByIndex(currentPos);
+        return (int[]) list.getThirdValueAt(currentPos);
     }
 
     // reading and writing
@@ -129,19 +129,19 @@ implements RowSetNavigatorDataChange {
         int lookup = list.getLookup(row.getId());
 
         if (lookup == -1) {
-            list.put(row.getId(), row, null);
+            list.put(row.getId(), row);
 
             size++;
 
             return true;
         } else {
-            if (list.getSecondValueByIndex(lookup) != null) {
+            if (list.getSecondValueAt(lookup) != null) {
                 if (session.database.sqlEnforceTDCD) {
                     throw Error.error(ErrorCode.X_27000);
                 }
 
-                list.setSecondValueByIndex(lookup, null);
-                list.setThirdValueByIndex(lookup, null);
+                list.setSecondValueAt(lookup, null);
+                list.setThirdValueAt(lookup, null);
 
                 return true;
             }
@@ -158,8 +158,8 @@ implements RowSetNavigatorDataChange {
             return false;
         }
 
-        list.put(row.getId(), row, data);
-        list.setThirdValueByIndex(lookup, columnMap);
+        list.setSecondValueAt(lookup, data);
+        list.setThirdValueAt(lookup, columnMap);
 
         return true;
     }
@@ -171,16 +171,17 @@ implements RowSetNavigatorDataChange {
         int  lookup = list.getLookup(rowId);
 
         if (lookup == -1) {
-            list.put(rowId, row, data);
-            list.setThirdValueByIndex(size, columnMap);
+            list.put(rowId, row);
+            list.setSecondValueAt(size, data);
+            list.setThirdValueAt(size, columnMap);
 
             size++;
 
             return data;
         } else {
-            Object[] rowData = ((Row) list.getFirstByLookup(lookup)).getData();
+            Object[] rowData = ((Row) list.getValueAt(lookup)).getData();
             Object[] currentData =
-                (Object[]) list.getSecondValueByIndex(lookup);
+                (Object[]) list.getSecondValueAt(lookup);
 
             if (currentData == null) {
                 if (session.database.sqlEnforceTDCD) {
@@ -205,11 +206,11 @@ implements RowSetNavigatorDataChange {
                 }
             }
 
-            int[] currentMap = (int[]) list.getThirdValueByIndex(lookup);
+            int[] currentMap = (int[]) list.getThirdValueAt(lookup);
 
             currentMap = ArrayUtil.union(currentMap, columnMap);
 
-            list.setThirdValueByIndex(lookup, currentMap);
+            list.setThirdValueAt(lookup, currentMap);
 
             return currentData;
         }
@@ -223,7 +224,7 @@ implements RowSetNavigatorDataChange {
             return false;
         }
 
-        Object[] currentData = (Object[]) list.getSecondValueByIndex(lookup);
+        Object[] currentData = (Object[]) list.getSecondValueAt(lookup);
 
         return currentData == null;
     }
@@ -240,14 +241,14 @@ implements RowSetNavigatorDataChange {
 
         outerloop:
         for (int i = 0; i < size; i++) {
-            Row oldRow = (Row) list.getValueByIndex(i);
+            Row oldRow = (Row) list.getValueAt(i);
 
             if (oldRow.getTable() != row.getTable()) {
                 continue;
             }
 
             Type[]   types = row.getTable().getColumnTypes();
-            Object[] data  = (Object[]) list.getSecondValueByIndex(i);
+            Object[] data  = (Object[]) list.getSecondValueAt(i);
 
             for (int j = 0; j < keys.length; j++) {
                 int pos = keys[j];

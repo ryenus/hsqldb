@@ -40,12 +40,12 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.List;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.Set;
@@ -591,7 +591,7 @@ public class QuerySpecification extends QueryExpression {
                                                rangeGroups, acceptsSequences);
 
             if (!isGrouped && !isDistinctSelect) {
-                HsqlList list = exprColumns[i].collectAllSubqueries(null);
+                List list = exprColumns[i].collectAllSubqueries(null);
 
                 if (list != null) {
                     isMergeable = false;
@@ -746,7 +746,7 @@ public class QuerySpecification extends QueryExpression {
             return;
         }
 
-        HsqlList list = expression.resolveColumnReferences(session, this,
+        List list = expression.resolveColumnReferences(session, this,
             count, rangeGroups, null, withSequences);
 
         if (list != null) {
@@ -756,7 +756,7 @@ public class QuerySpecification extends QueryExpression {
 
                 if (e.isSelfAggregate()) {
                     for (int j = 0; j < e.nodes.length; j++) {
-                        HsqlList colList = e.nodes[j].resolveColumnReferences(
+                        List colList = e.nodes[j].resolveColumnReferences(
                             session, this, count, RangeGroup.emptyArray, null,
                             false);
 
@@ -839,7 +839,7 @@ public class QuerySpecification extends QueryExpression {
 
         for (int i = rangeVariableList.size() - 1; i >= 0; i--) {
             RangeVariable  range = (RangeVariable) rangeVariableList.get(i);
-            HashMappedList columnList = range.rangeTable.columnList;
+            OrderedHashMap columnList = range.rangeTable.columnList;
 
             for (int j = 0; j < columnList.size(); j++) {
                 ColumnSchema column       = (ColumnSchema) columnList.get(j);
@@ -1514,7 +1514,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    boolean resolveForGroupBy(HsqlList unresolvedSet) {
+    boolean resolveForGroupBy(List unresolvedSet) {
 
         for (int i = indexLimitVisible;
                 i < indexLimitVisible + groupByColumnCount; i++) {
@@ -1843,7 +1843,7 @@ public class QuerySpecification extends QueryExpression {
             while (groupsIterator.hasNext()) {
                 navigator.resetRowMap();
 
-                HsqlList set = (HsqlList) groupsIterator.next();
+                List set = (List) groupsIterator.next();
 
                 session.sessionContext.setGroup(set);
 
@@ -2118,7 +2118,7 @@ public class QuerySpecification extends QueryExpression {
         int tableType = persistenceScope == TableBase.SCOPE_STATEMENT
                         ? TableBase.SYSTEM_SUBQUERY
                         : TableBase.RESULT_TABLE;
-        HashMappedList columnList = new HashMappedList();
+        OrderedHashMap columnList = new OrderedHashMap();
 
         for (int i = 0; i < indexLimitVisible; i++) {
             Expression e          = exprColumns[i];

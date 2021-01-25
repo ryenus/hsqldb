@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,52 +34,46 @@ package org.hsqldb.lib;
 import org.hsqldb.map.BaseHashMap;
 
 /**
- * Stores multiple values per key.
+ * A Map<K,V> of Object keys to Object values which stores multiple values per
+ * key. The getValuesIterator(K key) method returns an iterator covering the
+ * values associated with the given key. The get(K key) method returns the first
+ * value (if any) associated with the key.<p>
+ *
  * This class does not store null keys.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.6.0
  * @since 1.9.0
  */
-public class MultiValueHashMap extends BaseHashMap {
+public class MultiValueHashMap<K, V> extends BaseHashMap implements Map<K, V>{
 
-    Set        keySet;
-    Collection values;
-    Iterator   valueIterator;
+    private Set<K>           keySet;
+    private Collection<V>    values;
+    private Set<Entry<K, V>> entries;
 
     public MultiValueHashMap() {
         this(8);
     }
 
-    public MultiValueHashMap(int initialCapacity)
-    throws IllegalArgumentException {
+    public MultiValueHashMap(int initialCapacity) throws IllegalArgumentException {
 
         super(initialCapacity, BaseHashMap.objectKeyOrValue,
               BaseHashMap.objectKeyOrValue, false);
-
-        super.multiValueTable = new boolean[super.objectValueTable.length];
+        this.isMultiValue = true;
     }
 
-    public Iterator get(Object key) {
+    public MultiValueHashMap(int initialCapacity, ObjectComparator comparator) throws IllegalArgumentException {
 
-        int hash = key.hashCode();
-
-        return super.getValuesIterator(key, hash);
-    }
-
-    public Object put(Object key, Object value) {
-        return super.addOrRemoveMultiVal(0, 0, key, value, false, false);
-    }
-
-    public Object remove(Object key) {
-        return super.addOrRemoveMultiVal(0, 0, key, null, true, false);
-    }
-
-    public Object remove(Object key, Object value) {
-        return super.addOrRemoveMultiVal(0, 0, key, value, false, true);
+        this(initialCapacity);
+        this.comparator = comparator;
     }
 
     public boolean containsKey(Object key) {
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
         return super.containsKey(key);
     }
 
@@ -87,25 +81,145 @@ public class MultiValueHashMap extends BaseHashMap {
         return super.containsValue(value);
     }
 
-    public int valueCount(Object key) {
+    /**
+     * Returns one of the values associated with the given key.
+     *
+     * @param key the key
+     * @return any value associated with the key, or null if none
+     */
+    public V get(Object key) {
 
-        int hash = key.hashCode();
+        if (key == null) {
+            throw new NullPointerException();
+        }
 
-        return super.valueCount(key, hash);
+        int hash   = comparator.hashCode(key);
+        int lookup = getLookup(key, hash);
+
+        if (lookup != -1) {
+            return (V) objectValueTable[lookup];
+        }
+
+        return null;
     }
 
-    public void putAll(HashMap t) {
+    /**
+     * Returns an iterator on all values associated with the key.
+     *
+     * @param key the key
+     * @return iterator on value associated with the key
+     */
+    public Iterator<V> getValuesIterator(Object key) {
 
-        Iterator it = t.keySet.iterator();
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return super.getMultiValuesIterator(key);
+    }
+
+    public V put(K key, V value) {
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        boolean added = super.addMultiVal(0, 0, key, value);
+
+        return added ? null : value;
+    }
+
+    /**
+     * Removes all values associated with the key.
+     *
+     * @param key the key
+     * @return any value associated with the key, or null if none
+     */
+    public V remove(Object key) {
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return (V) super.removeMultiVal(0, 0, key, null, false);
+    }
+
+    /**
+     * Removes the spacific value associated with the key.
+     *
+     * @param key the key
+     * @param value the value
+     * @return the value associated with the key, or null if none
+     */
+    public boolean remove(Object key, Object value) {
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        Object result = super.removeMultiVal(0, 0, key, value, true);
+
+        return result != null;
+    }
+
+    /**
+     * Counts the values associated with the key.
+     *
+     * @param key the key
+     * @return the count
+     */
+    public int valueCount(Object key) {
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        int hash = comparator.hashCode(key);
+
+        return super.multiValueElementCount(key);
+    }
+
+    public void putAll(Map<? extends K, ? extends V> m) {
+
+        Iterator<? extends K> it = m.keySet().iterator();
 
         while (it.hasNext()) {
-            Object key = it.next();
+            K key = it.next();
 
-            put(key, t.get(key));
+            if (key == null) {
+                continue;
+            }
+
+            put(key, m.get(key));
         }
     }
 
-    public Set keySet() {
+    public void putAll(MultiValueHashMap<K, V> m) {
+
+        Iterator<K> it = m.keySet().iterator();
+
+        while (it.hasNext()) {
+            K key = it.next();
+
+            Iterator<V> valueSet = m.getValuesIterator(key);
+
+            while(valueSet.hasNext()) {
+                V value = valueSet.next();
+                put(key, value);
+
+            }
+        }
+    }
+
+    public <T> T[] keysToArray(T[] array) {
+        return toArray(array, true);
+    }
+
+    public <T> T[] valuesToArray(T[] array) {
+        return toArray(array, false);
+    }
+
+    public Set<K> keySet() {
 
         if (keySet == null) {
             keySet = new KeySet();
@@ -114,7 +228,7 @@ public class MultiValueHashMap extends BaseHashMap {
         return keySet;
     }
 
-    public Collection values() {
+    public Collection<V> values() {
 
         if (values == null) {
             values = new Values();
@@ -123,53 +237,73 @@ public class MultiValueHashMap extends BaseHashMap {
         return values;
     }
 
-    class KeySet implements Set {
+    public Set<Entry<K, V>> entrySet() {
+        if (entries == null) {
+            entries = new EntrySet();
+        }
 
-        public Iterator iterator() {
-            return MultiValueHashMap.this.new MultiValueKeyIterator();
+        return entries;
+    }
+
+    private class EntrySet extends AbstractReadOnlyCollection<Entry<K, V>> implements Set<Map.Entry<K, V>> {
+
+        public Iterator<Entry<K, V>> iterator() {
+            return MultiValueHashMap.this.new EntrySetIterator();
         }
 
         public int size() {
             return MultiValueHashMap.this.size();
         }
 
-        public boolean contains(Object o) {
-            return containsKey(o);
+        public boolean isEmpty() {
+            return size() == 0;
+        }
+    }
+
+    private class EntrySetIterator extends BaseHashIterator{
+
+        EntrySetIterator() {
+            super(true);
         }
 
-        public Object get(Object key) {
-            throw new UnsupportedOperationException();
+        public Entry<K, V> next() {
+            K key   = (K) super.next();
+            V value = (V) objectValueTable[lookup];
+
+            return new MapEntry(key, value);
+        }
+    }
+
+    private class KeySet<K> extends AbstractReadOnlyCollection<K> implements Set<K> {
+
+        public Iterator<K> iterator() {
+            return MultiValueHashMap.this.new MultiValueKeyIterator();
         }
 
-        public boolean add(Object value) {
-            throw new UnsupportedOperationException();
+        public int size() {
+            return MultiValueHashMap.this.multiValueKeyCount();
         }
 
-        public boolean addAll(Collection c) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-
-            int oldSize = size();
-
-            MultiValueHashMap.this.remove(o);
-
-            return size() != oldSize;
+        public boolean contains(Object key) {
+            return containsKey(key);
         }
 
         public boolean isEmpty() {
             return size() == 0;
         }
 
-        public void clear() {
-            MultiValueHashMap.this.clear();
+        public Object[] toArray() {
+            return MultiValueHashMap.this.toArray(true);
+        }
+
+        public <T> T[] toArray(T[] array) {
+            return MultiValueHashMap.this.multiValueKeysToArray(array);
         }
     }
 
-    class Values implements Collection {
+    private class Values<V> extends AbstractReadOnlyCollection<V> {
 
-        public Iterator iterator() {
+        public Iterator<V> iterator() {
             return MultiValueHashMap.this.new BaseHashIterator(false);
         }
 
@@ -177,28 +311,16 @@ public class MultiValueHashMap extends BaseHashMap {
             return MultiValueHashMap.this.size();
         }
 
-        public boolean contains(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean add(Object value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean addAll(Collection c) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
         public boolean isEmpty() {
             return size() == 0;
         }
 
-        public void clear() {
-            MultiValueHashMap.this.clear();
+        public Object[] toArray() {
+            return MultiValueHashMap.this.toArray(false);
+        }
+
+        public <T> T[] toArray(T[] array) {
+            return MultiValueHashMap.this.toArray(array, false);
         }
     }
 }

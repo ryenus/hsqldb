@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,12 @@ package org.hsqldb.lib;
 import org.hsqldb.map.BaseHashMap;
 
 /**
+ * A list which is also a set of long primitives which maintains the insertion
+ * order of the elements and allows access by index. Iterators return the keys
+ * or values in the index order.<p>
+ *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class OrderedLongHashSet extends BaseHashMap {
@@ -61,30 +65,41 @@ public class OrderedLongHashSet extends BaseHashMap {
 
         int oldSize = size();
 
-        super.addOrRemove(key, 0, null, null, false);
+        super.addOrUpdate(key, 0, null, null);
 
         return oldSize != size();
     }
 
-    public boolean remove(long key) {
+    public boolean insert(int index,
+                          long key) throws IndexOutOfBoundsException {
 
-        int oldSize = size();
-
-        super.addOrRemove(key, 0, null, null, true);
-
-        boolean result = oldSize != size();
-
-        if (result) {
-            long[] array = toArray();
-
-            super.clear();
-
-            for (int i = 0; i < array.length; i++) {
-                add(array[i]);
-            }
+        if (index < 0 || index > size()) {
+            throw new IndexOutOfBoundsException();
         }
 
-        return result;
+        if (contains(key)) {
+            return false;
+        }
+
+        if (index < size()) {
+            super.insertRow(index);
+        }
+
+        return add(key);
+    }
+
+    public boolean remove(long key) {
+
+        return (Boolean) super.remove(key, 0, null, null, false, true);
+    }
+
+    public void removeEntry(int index) throws IndexOutOfBoundsException {
+
+        checkRange(index);
+
+        long key = longKeyTable[index];
+
+        super.remove(key, 0, null, null, false, true);
     }
 
     public long get(int index) {
@@ -124,13 +139,14 @@ public class OrderedLongHashSet extends BaseHashMap {
         return i;
     }
 
-    public boolean addAll(Collection col) {
+    public boolean addAll(OrderedLongHashSet col) {
 
-        int      oldSize = size();
-        Iterator it      = col.iterator();
+        int oldSize = size();
 
-        while (it.hasNext()) {
-            add(it.nextLong());
+        for (int i = 0; i < oldSize; i++) {
+            long val = col.longValueTable[i];
+
+            add(val);
         }
 
         return oldSize != size();
@@ -138,7 +154,7 @@ public class OrderedLongHashSet extends BaseHashMap {
 
     public long[] toArray() {
 
-        int   lookup = -1;
+        int    lookup = -1;
         long[] array  = new long[size()];
 
         for (int i = 0; i < array.length; i++) {

@@ -318,7 +318,7 @@ public class Grantee implements SchemaObject {
             }
         }
 
-        Iterator it = directRightsMap.get(name);
+        Iterator it = directRightsMap.getValuesIterator(name);
 
         while (it.hasNext()) {
             Right existing = (Right) it.next();
@@ -373,7 +373,7 @@ public class Grantee implements SchemaObject {
             name = ((Routine) object).getSpecificName();
         }
 
-        Iterator it       = directRightsMap.get(name);
+        Iterator it       = directRightsMap.getValuesIterator(name);
         Right    existing = null;
 
         while (it.hasNext()) {
@@ -431,7 +431,7 @@ public class Grantee implements SchemaObject {
      */
     void updateRightsForNewColumn(HsqlName tableName, HsqlName columnName) {
 
-        Iterator it       = directRightsMap.get(tableName);
+        Iterator it       = directRightsMap.getValuesIterator(tableName);
         Right    existing = null;
 
         while (it.hasNext()) {
@@ -451,7 +451,7 @@ public class Grantee implements SchemaObject {
      */
     void updateRightsForNewColumn(HsqlName tableName) {
 
-        Iterator it       = grantedRightsMap.get(tableName);
+        Iterator it       = grantedRightsMap.getValuesIterator(tableName);
         Right    existing = null;
 
         while (it.hasNext()) {
@@ -513,7 +513,7 @@ public class Grantee implements SchemaObject {
             name = ((Routine) object).getSpecificName();
         }
 
-        Iterator rights = directRightsMap.get(name);
+        Iterator rights = directRightsMap.getValuesIterator(name);
 
         if (rights.hasNext()) {
             OrderedHashSet set = new OrderedHashSet();
@@ -536,7 +536,7 @@ public class Grantee implements SchemaObject {
             name = ((Routine) object).getSpecificName();
         }
 
-        Iterator rights = grantedRightsMap.get(name);
+        Iterator rights = grantedRightsMap.getValuesIterator(name);
 
         if (rights.hasNext()) {
             OrderedHashSet set = new OrderedHashSet();
@@ -997,7 +997,7 @@ public class Grantee implements SchemaObject {
 
         while (it.hasNext()) {
             Object   key      = it.next();
-            Iterator values   = map.get(key);
+            Iterator values   = map.getValuesIterator(key);
             Right    existing = (Right) fullRightsMap.get(key);
 
             while (values.hasNext()) {
@@ -1133,7 +1133,7 @@ public class Grantee implements SchemaObject {
 
         while (dbObjects.hasNext()) {
             Object   nameObject = dbObjects.next();
-            Iterator rights     = rightsMap.get(nameObject);
+            Iterator rights     = rightsMap.getValuesIterator(nameObject);
 
             while (rights.hasNext()) {
                 Right         right    = (Right) rights.next();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -652,7 +652,7 @@ class TransactionManagerCommon {
                 session.tempSet.add(holder);
             }
 
-            Iterator it = tableReadLocks.get(name);
+            Iterator it = tableReadLocks.getValuesIterator(name);
 
             while (it.hasNext()) {
                 holder = (Session) it.next();
@@ -804,7 +804,7 @@ class TransactionManagerCommon {
                 return false;
             }
 
-            Iterator it = tableReadLocks.get(name);
+            Iterator it = tableReadLocks.getValuesIterator(name);
 
             while (it.hasNext()) {
                 holder = (Session) it.next();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.sql.DriverManager;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.hsqldb.DatabaseManager;
@@ -60,8 +61,6 @@ import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.resources.ResourceBundleHandler;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
-
-import java.util.Properties;
 
 // fredt@users 20020215 - patch 1.7.0
 // methods reorganised to use new HsqlProperties class
@@ -234,7 +233,7 @@ import java.util.Properties;
  * is started as part of a larger framework. <p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.0
  * @since 1.7.2
  */
 public class Server implements HsqlSocketRequestHandler, Notified {

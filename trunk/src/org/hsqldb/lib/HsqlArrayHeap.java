@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,10 +39,10 @@ import java.util.Comparator;
  * is non-blocking, dynamically resizing and thread-safe.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.6.0
  * @since 1.7.2
  */
-public class HsqlArrayHeap implements HsqlHeap {
+public class HsqlArrayHeap<E> implements HsqlHeap<E> {
 
 // --------------------------------- members -----------------------------------
     protected Comparator oc;
@@ -59,7 +59,7 @@ public class HsqlArrayHeap implements HsqlHeap {
      *      or comparator is null
      */
     public HsqlArrayHeap(int capacity,
-                         Comparator comparator)
+                         Comparator<E> comparator)
                          throws IllegalArgumentException {
 
         if (capacity <= 0) {
@@ -91,8 +91,7 @@ public class HsqlArrayHeap implements HsqlHeap {
         count = 0;
     }
 
-    public synchronized void add(Object o)
-    throws RuntimeException {
+    public synchronized boolean add(E o) {
 
         int ci;    // current index
         int pi;    // parent index
@@ -102,7 +101,7 @@ public class HsqlArrayHeap implements HsqlHeap {
         }
 
         if (isFull()) {
-            throw new RuntimeException("full");
+            return false;
         }
 
         if (count >= heap.length) {
@@ -133,6 +132,8 @@ public class HsqlArrayHeap implements HsqlHeap {
         } while (true);
 
         heap[ci] = o;
+
+        return true;
     }
 
     public synchronized boolean isEmpty() {
@@ -145,25 +146,25 @@ public class HsqlArrayHeap implements HsqlHeap {
         return count == Integer.MAX_VALUE;
     }
 
-    public synchronized Object peek() {
-        return heap[0];
+    public synchronized E peek() {
+        return (E) heap[0];
     }
 
-    public synchronized Object remove() {
+    public synchronized E remove() {
 
         int    ci;     // current index
         int    li;     // left index
         int    ri;     // right index
         int    chi;    // child index
-        Object co;
-        Object ro;
+        E co;
+        E ro;
 
         if (count == 0) {
             return null;
         }
 
         ci = 0;
-        ro = heap[ci];
+        ro = (E) heap[ci];
 
         count--;
 
@@ -173,7 +174,7 @@ public class HsqlArrayHeap implements HsqlHeap {
             return ro;
         }
 
-        co          = heap[count];
+        co          = (E) heap[count];
         heap[count] = null;
 
         do {

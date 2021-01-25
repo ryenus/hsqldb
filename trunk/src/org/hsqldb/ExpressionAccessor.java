@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.List;
 import org.hsqldb.types.Type;
 
 /**
@@ -58,9 +58,9 @@ public class ExpressionAccessor extends Expression {
         return nodes[LEFT].getColumn();
     }
 
-    public HsqlList resolveColumnReferences(Session session,
+    public List resolveColumnReferences(Session session,
             RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            HsqlList unresolvedSet, boolean acceptsSequences) {
+            List unresolvedSet, boolean acceptsSequences) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == null) {

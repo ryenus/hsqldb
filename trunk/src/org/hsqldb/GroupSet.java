@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@ package org.hsqldb;
 import java.util.Arrays;
 
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.OrderedHashSet;
 
 /**
@@ -66,7 +66,7 @@ public class GroupSet {
         return sets.iterator();
     }
 
-    public int isGrouped(HsqlList current, Expression e) {
+    public int isGrouped(List current, Expression e) {
 
         int count = 0;
 
@@ -95,7 +95,7 @@ public class GroupSet {
 
         outerloop:
         while (it.hasNext()) {
-            HsqlList set = (HsqlList) it.next();
+            List set = (List) it.next();
 
             if (set.isEmpty()) {
                 if (isDistinctGroups) {
@@ -110,7 +110,7 @@ public class GroupSet {
                     newSet.addAll(set);
 
                     for (int i = 0; i < sets.size(); i++) {
-                        HsqlList current = (HsqlList) sets.get(i);
+                        List current = (List) sets.get(i);
 
                         if (current.size() == newSet.size()) {
                             if (newSet.containsAll(current)) {

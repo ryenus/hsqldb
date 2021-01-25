@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,44 +31,61 @@
 
 package org.hsqldb.lib;
 
+import java.util.ListIterator;
+
+
 /**
- * Implementation of an ordered Set which maintains the inserted order of
- * elements and allows access by index. Iterators return the
- * elements in the index order.
+ * A list which is also a Set which maintains the inserted order of elements and
+ * allows access by index. Iterators return the elements in the index order.<p>
  *
  * This class does not store null elements.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.9.0
  */
-public class OrderedHashSet<E> extends HashSet<E> implements HsqlList<E>, Set<E> {
+public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
 
     public OrderedHashSet() {
-
         super(8);
 
-        isList = true;
+        this.isList = true;
     }
 
-    public OrderedHashSet(ObjectComparator<E> comparator) {
+    public OrderedHashSet(int initialCapacity) {
+        super(initialCapacity);
 
-        super(8);
+        this.isList = true;
+    }
 
-        isList = true;
+    public OrderedHashSet(int initialCapacity, ObjectComparator<E> comparator) {
+        super(initialCapacity, comparator);
 
-        setComparator(comparator);
+        this.isList = true;
     }
 
     public boolean remove(Object key) {
-        return super.removeObject(key, true) != null;
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return (Boolean) super.remove(0, 0, key, null, false, true);
     }
 
-    public E remove(int index) throws IndexOutOfBoundsException {
+    public E remove(int index) {
 
         checkRange(index);
 
-        return (E) super.removeObject(objectKeyTable[index], true);
+        E key = (E)objectKeyTable[index];
+
+        super.remove(0, 0, key, null, false, true);
+
+        return key;
+    }
+
+    public void removeEntry(int index) throws IndexOutOfBoundsException {
+        remove(index);
     }
 
     public boolean insert(int index,
@@ -82,49 +99,69 @@ public class OrderedHashSet<E> extends HashSet<E> implements HsqlList<E>, Set<E>
             return false;
         }
 
-        if (index == size()) {
-            return add(key);
+        if (index < size()) {
+            super.insertRow(index);
         }
 
-        E[] array = (E[]) new Object[size()];
+        return add(key);
+    }
 
-        toArray(array);
-        super.clear();
-
-        for (int i = 0; i < index; i++) {
-            add(array[i]);
+    public E set(int index, E key) {
+        if (key == null) {
+            throw new NullPointerException();
         }
+
+        checkRange(index);
+
+        if (contains(key) && getIndex(key) != index) {
+            throw new IllegalArgumentException();
+        }
+
+        E oldKey = (E) objectKeyTable[index];
+
+        super.remove(0, 0, oldKey, null, false, false);
 
         add(key);
 
-        for (int i = index; i < array.length; i++) {
-            add(array[i]);
+        return oldKey;
+    }
+
+    public void add(int index, E key) {
+        boolean result = insert(index, key);
+
+        if (!result) {
+            throw new IllegalArgumentException();
         }
-
-        return true;
     }
 
-    public E set(int index, E key) throws IndexOutOfBoundsException {
-        throw new IndexOutOfBoundsException();
-    }
-
-    public void add(int index, E key) throws IndexOutOfBoundsException {
-        throw new IndexOutOfBoundsException();
-    }
-
-    public E get(int index) throws IndexOutOfBoundsException {
+    public E get(int index) {
 
         checkRange(index);
 
         return (E) objectKeyTable[index];
     }
 
-    public void toArray(E[] array) {
-        System.arraycopy(super.objectKeyTable, 0, array, 0, array.length);
+    public Object[] toArray() {
+        Object[] array = new Object[size()];
+        return toArray(array);
     }
 
-    public int getIndex(E key) {
+    public <T> T[] toArray(T[] array) {
+        System.arraycopy(super.objectKeyTable, 0, array, 0, array.length);
+
+        return array;
+    }
+
+    public int indexOf(Object key) {
         return getLookup(key);
+    }
+
+    public int getIndex(Object key) {
+        return getLookup(key);
+    }
+
+    public int lastIndexOf(Object o) {
+        return indexOf(o);
     }
 
     public int getLargestIndex(OrderedHashSet<E> other) {
@@ -132,7 +169,7 @@ public class OrderedHashSet<E> extends HashSet<E> implements HsqlList<E>, Set<E>
         int max = -1;
 
         for (int i = 0, size = other.size(); i < size; i++) {
-            int index = getIndex(other.get(i));
+            int index = indexOf(other.get(i));
 
             if (index > max) {
                 max = index;
@@ -147,7 +184,7 @@ public class OrderedHashSet<E> extends HashSet<E> implements HsqlList<E>, Set<E>
         int min = -1;
 
         for (int i = 0, size = other.size(); i < size; i++) {
-            int index = getIndex(other.get(i));
+            int index = indexOf(other.get(i));
 
             if (index != -1) {
                 if (min == -1 || index < min) {

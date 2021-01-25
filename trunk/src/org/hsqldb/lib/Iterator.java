@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,23 +31,21 @@
 
 package org.hsqldb.lib;
 
-import java.util.NoSuchElementException;
-
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.7.2
  */
 public interface Iterator<E> {
 
     boolean hasNext();
 
-    E next() throws NoSuchElementException;
+    E next();
 
-    int nextInt() throws NoSuchElementException;
+    int nextInt();
 
-    long nextLong() throws NoSuchElementException;
+    long nextLong();
 
-    void remove() throws NoSuchElementException;
+    void remove();
 }

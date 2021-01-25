@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -101,7 +101,7 @@ public final class StatementManager {
     StatementManager(Database database) {
 
         this.database = database;
-        statementSet  = new HashSet(new StatementComparator());
+        statementSet  = new HashSet(32, new StatementComparator());
         csidMap       = new LongKeyHashMap();
         next_cs_id    = 0;
     }

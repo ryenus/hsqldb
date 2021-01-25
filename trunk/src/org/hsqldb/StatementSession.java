@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.List;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.User;
@@ -96,7 +96,7 @@ public class StatementSession extends Statement {
         switch (type) {
 
             case StatementTypes.SET_TIME_ZONE :
-                HsqlList unresolved = e.resolveColumnReferences(session,
+                List unresolved = e.resolveColumnReferences(session,
                     RangeGroup.emptyGroup, RangeGroup.emptyArray, null);
 
                 ExpressionColumn.checkColumnsResolved(unresolved);

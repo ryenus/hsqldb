@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,9 +34,9 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.WrapperIterator;
@@ -85,9 +85,9 @@ public final class Schema implements SchemaObject {
     SchemaObjectSet  referenceLookup;
     SchemaObjectSet  conditionLookup;
     SchemaObjectSet  moduleLookup;
-    HashMappedList   tableList;
-    HashMappedList   sequenceList;
-    HashMappedList   referenceList;
+    OrderedHashMap   tableList;
+    OrderedHashMap   sequenceList;
+    OrderedHashMap   referenceList;
     long             changeTimestamp;
 
     public Schema(HsqlName name, Grantee owner) {
@@ -109,9 +109,9 @@ public final class Schema implements SchemaObject {
         referenceLookup = new SchemaObjectSet(SchemaObject.REFERENCE);
         conditionLookup = new SchemaObjectSet(SchemaObject.EXCEPTION);
         moduleLookup    = new SchemaObjectSet(SchemaObject.MODULE);
-        tableList       = (HashMappedList) tableLookup.map;
-        sequenceList    = (HashMappedList) sequenceLookup.map;
-        referenceList   = (HashMappedList) referenceLookup.map;
+        tableList       = (OrderedHashMap) tableLookup.map;
+        sequenceList    = (OrderedHashMap) sequenceLookup.map;
+        referenceList   = (OrderedHashMap) referenceLookup.map;
         name.owner      = owner;
     }
 

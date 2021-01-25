@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,14 +36,15 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.IndexAVLCheck;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.persist.DataFileCache;
 import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.persist.RowStoreAVLDisk;
 import org.hsqldb.persist.ScriptLoader;
 import org.hsqldb.persist.TableSpaceManager;
 import org.hsqldb.result.Result;
@@ -52,7 +53,6 @@ import org.hsqldb.rights.User;
 import org.hsqldb.scriptio.ScriptWriterText;
 import org.hsqldb.scriptio.ScriptWriterTextColumnNames;
 import org.hsqldb.types.TimestampData;
-import org.hsqldb.persist.RowStoreAVLDisk;
 
 /**
  * Implementation of Statement for SQL commands.<p>
@@ -1486,12 +1486,12 @@ public class StatementCommand extends Statement {
                 // ensure schema existence
                 session.database.schemaManager.getSchemaHsqlName(name.name);
 
-                HashMappedList list =
+                OrderedHashMap list =
                     session.database.schemaManager.getTables(name.name);
 
                 tables = new Table[list.size()];
 
-                list.toValuesArray(tables);
+                list.valuesToArray(tables);
                 StatementSchema.checkSchemaUpdateAuthorisation(session, name);
 
                 if (!noCheck) {

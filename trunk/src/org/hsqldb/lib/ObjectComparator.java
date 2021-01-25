@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,4 +38,40 @@ public interface ObjectComparator<T> {
     int hashCode(T a);
 
     long longKey(T a);
+
+    ObjectComparator defaultComparator = new DefaultComparator();
+
+    ObjectComparator identityComparator = new IdentityComparator();
+
+    class IdentityComparator implements ObjectComparator {
+
+        public boolean equals(Object a, Object b) {
+            return a == b;
+        }
+
+        public int hashCode(Object a) {
+            return 0;
+        }
+
+        public long longKey(Object a) {
+            return 0L;
+        }
+    }
+
+    class DefaultComparator implements ObjectComparator {
+
+        public boolean equals(Object a, Object b) {
+            return a == b || (a != null && a.equals(b));
+        }
+
+        public int hashCode(Object a) {
+            return a == null ? 0 :
+                               a.hashCode();
+        }
+
+        public long longKey(Object a) {
+            return 0L;
+        }
+    }
+
 }

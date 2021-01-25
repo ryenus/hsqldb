@@ -50,9 +50,9 @@ import org.hsqldb.Statement;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.LineGroupReader;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
@@ -250,7 +250,7 @@ public class LobManager {
 
         sysLobSession = database.sessionManager.getSysLobSession();
 
-        HashMappedList map = LineGroupReader.getStatementMap(resourceFileName);
+        OrderedHashMap map = LineGroupReader.getStatementMap(resourceFileName);
         String         sql = (String) map.get("/*lob_schema_definition*/");
         Statement      statement = sysLobSession.compileStatement(sql);
         Result         result    = statement.execute(sysLobSession);

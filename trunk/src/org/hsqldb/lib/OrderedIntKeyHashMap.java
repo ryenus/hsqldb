@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,33 +31,29 @@
 
 package org.hsqldb.lib;
 
-import org.hsqldb.map.BaseHashMap;
-
 /**
+ * A Map of int primitives to Object values which maintains the insertion order
+ * of the key/value pairs and allows access by index. Iterators return the keys
+ * or values in the index order.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.6.0
  * @since 2.0.0
  */
-public class OrderedIntKeyHashMap extends BaseHashMap {
-
-    Set        keySet;
-    Collection values;
+public class OrderedIntKeyHashMap<V> extends IntKeyHashMap<V> implements Map<Integer, V> {
 
     public OrderedIntKeyHashMap() {
         this(8);
     }
 
-    public OrderedIntKeyHashMap(int initialCapacity)
-    throws IllegalArgumentException {
+    public OrderedIntKeyHashMap(int initialCapacity) throws IllegalArgumentException {
 
-        super(initialCapacity, BaseHashMap.intKeyOrValue,
-              BaseHashMap.objectKeyOrValue, false);
+        super(initialCapacity);
 
         isList = true;
     }
 
-    public int getKey(int lookup, int def) {
+    public int getKeyAt(int lookup, int def) {
 
         if (lookup >= 0 && lookup < size()) {
             return this.intKeyTable[lookup];
@@ -66,169 +62,89 @@ public class OrderedIntKeyHashMap extends BaseHashMap {
         return def;
     }
 
-    public Object getValue(int lookup) {
-
-        if (lookup >= 0 && lookup < size()) {
-            return this.objectValueTable[lookup];
-        }
-
-        return null;
-    }
-
-    public Object get(int key) {
-
-        int lookup = getLookup(key);
-
-        if (lookup != -1) {
-            return objectValueTable[lookup];
-        }
-
-        return null;
-    }
-
-    public Object put(int key, Object value) {
-        return super.addOrRemove(key, value, null, false);
-    }
-
-    public boolean containsValue(Object value) {
-        return super.containsValue(value);
-    }
-
-    public Object remove(int key) {
-
-        int lookup = getLookup(key);
-
-        if (lookup < 0) {
-            return null;
-        }
-
-        Object returnValue = super.addOrRemove(key, null, null, true);
-
-        removeRow(lookup);
-
-        return returnValue;
-    }
-
-    public Object removeKeyAndValue(int index)
-    throws IndexOutOfBoundsException {
+    public Object getValueAt(int index) {
 
         checkRange(index);
 
-        return remove(intKeyTable[index]);
+        return this.objectValueTable[index];
     }
 
-    public boolean containsKey(int key) {
-        return super.containsKey(key);
+    public Object setValueAt(int index, Object value) {
+
+        checkRange(index);
+
+        Object oldValue = objectValueTable[index];
+
+        objectValueTable[index] = value;
+
+        return oldValue;
     }
 
-    public void valuesToArray(Object[] array) {
+    public boolean set(int index, int key, V value) throws IndexOutOfBoundsException {
 
-        Iterator it = values().iterator();
-        int      i  = 0;
+        checkRange(index);
 
-        while (it.hasNext()) {
-            array[i] = it.next();
-
-            i++;
+        if (keySet().contains(key) && getIndex(key) != index) {
+            return false;
         }
+        super.remove(intKeyTable[index], 0, null, null, false, false);
+        put(key, value);
+
+        return true;
     }
 
-    public Set keySet() {
+    public boolean insert(int index, int key, V value) throws IndexOutOfBoundsException {
 
-        if (keySet == null) {
-            keySet = new KeySet();
+        if (index < 0 || index > size()) {
+            throw new IndexOutOfBoundsException();
         }
 
-        return keySet;
+
+        int lookup = getLookup(key);
+
+        if (lookup >= 0) {
+            return false;
+        }
+
+        if (index < size()) {
+            super.insertRow(index);
+        }
+
+        super.put(key, value);
+
+        return true;
     }
 
-    public Collection values() {
+    public boolean setKeyAt(int index, int key) throws IndexOutOfBoundsException {
 
-        if (values == null) {
-            values = new Values();
-        }
+        checkRange(index);
 
-        return values;
+        V value = (V) objectValueTable[index];
+
+        return set(index, key, value);
+    }
+
+    public int getIndex(int key) {
+        return getLookup(key);
+    }
+
+    public V remove(int key) {
+        return (V) super.remove(key, 0, null, null, false, true);
+    }
+
+    public void removeEntry(int index) throws IndexOutOfBoundsException {
+
+        checkRange(index);
+
+        int key = intKeyTable[index];
+
+        super.remove(key, 0, null, null, false, true);
     }
 
     private void checkRange(int i) {
 
         if (i < 0 || i >= size()) {
             throw new IndexOutOfBoundsException();
-        }
-    }
-
-    class KeySet implements Set {
-
-        public Iterator iterator() {
-            return OrderedIntKeyHashMap.this.new BaseHashIterator(true);
-        }
-
-        public int size() {
-            return OrderedIntKeyHashMap.this.size();
-        }
-
-        public boolean contains(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Object get(Object key) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean add(Object value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean addAll(Collection c) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean isEmpty() {
-            return size() == 0;
-        }
-
-        public void clear() {
-            OrderedIntKeyHashMap.this.clear();
-        }
-    }
-
-    class Values implements Collection {
-
-        public Iterator iterator() {
-            return OrderedIntKeyHashMap.this.new BaseHashIterator(false);
-        }
-
-        public int size() {
-            return OrderedIntKeyHashMap.this.size();
-        }
-
-        public boolean contains(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean add(Object value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean addAll(Collection c) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean isEmpty() {
-            return size() == 0;
-        }
-
-        public void clear() {
-            OrderedIntKeyHashMap.this.clear();
         }
     }
 }

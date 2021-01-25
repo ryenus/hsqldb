@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,23 +36,86 @@ import java.util.NoSuchElementException;
 import org.hsqldb.map.BaseHashMap;
 
 /**
+ * A Map of int primitive keys to int primitive values.<p>
+ *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.6.0
  * @since 1.7.2
  */
-public class IntKeyIntValueHashMap extends BaseHashMap {
+public class IntKeyIntValueHashMap extends BaseHashMap implements Map<Integer, Integer> {
 
-    private Set        keySet;
-    private Collection values;
+    private Set<Integer>                 keySet;
+    private Collection<Integer>          values;
+    private Set<Entry<Integer, Integer>> entries;
 
     public IntKeyIntValueHashMap() {
         this(8);
     }
 
-    public IntKeyIntValueHashMap(int initialCapacity)
-    throws IllegalArgumentException {
+    public IntKeyIntValueHashMap(int initialCapacity) throws IllegalArgumentException {
         super(initialCapacity, BaseHashMap.intKeyOrValue,
               BaseHashMap.intKeyOrValue, false);
+    }
+
+    public boolean containsKey(Object key) {
+
+        if (key instanceof Integer) {
+
+            int intKey = ((Integer) key).intValue();
+
+            return super.containsKey(intKey);
+        }
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return false;
+    }
+
+    public boolean containsKey(int key) {
+        return super.containsKey(key);
+    }
+
+    public boolean containsValue(Object value) {
+        if (value instanceof Integer) {
+
+            int intValue = ((Integer) value).intValue();
+
+            return super.containsValue(intValue);
+        }
+
+        if (value == null) {
+            throw new NullPointerException();
+        }
+
+        return false;
+    }
+
+    public boolean containsValue(int value) {
+        return super.containsValue(value);
+    }
+
+    public Integer get(Object key) {
+
+        if (key instanceof Integer) {
+
+            int intKey = ((Integer) key).intValue();
+
+            try {
+                int intVal = get(intKey);
+
+                return Integer.valueOf(intVal);
+            } catch (NoSuchElementException e) {
+                return null;
+            }
+        }
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return null;
     }
 
     public int get(int key) throws NoSuchElementException {
@@ -90,26 +153,90 @@ public class IntKeyIntValueHashMap extends BaseHashMap {
         return false;
     }
 
+    public Integer put(Integer key, Integer value) {
+
+        if (key == null || value == null) {
+            throw new NullPointerException();
+        }
+
+        int oldSize = size();
+
+        super.addOrUpdate(key, value, null, null);
+
+        if (oldSize == size()) {
+            return null;
+        } else {
+            return value;
+        }
+    }
+
     public boolean put(int key, int value) {
 
         int oldSize = size();
 
-        super.addOrRemove(key, value, null, null, false);
+        super.addOrUpdate(key, value, null, null);
 
         return oldSize != size();
+    }
+
+    public Integer remove(Object key) {
+        if (key instanceof Integer) {
+
+            int intKey = ((Integer) key).intValue();
+
+            return (Integer) super.remove(intKey, 0, null, null, false, false);
+        }
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return null;
     }
 
     public boolean remove(int key) {
 
-        int oldSize = size();
+        Integer value = (Integer) super.remove(key, 0, null, null, false, false);
 
-        super.addOrRemove(key, 0, null, null, true);
-
-        return oldSize != size();
+        return value == null ? false : true;
     }
 
-    public Set keySet() {
+    public void putAll(Map<? extends Integer, ? extends Integer> other) {
 
+        Iterator<? extends Integer> it = other.keySet().iterator();
+
+        while (it.hasNext()) {
+            Integer key      = it.next();
+            int     intKey   = key.intValue();
+            Integer value    = other.get(key);
+            int     intValue = value.intValue();
+
+            put(intKey, intValue);
+        }
+    }
+
+    public void putAll(IntKeyIntValueHashMap other) {
+
+        PrimitiveIterator it = (PrimitiveIterator) other.keySet().iterator();
+
+        while (it.hasNext()) {
+
+            int key   = it.nextInt();
+            int value = other.get(key);
+
+            put(key, value);
+        }
+    }
+
+    public int[] keysToArray(int[] array) {
+        return toIntArray(array, true);
+    }
+
+    public int[] valuesToArray(int[] array) {
+        return toIntArray(array, false);
+    }
+
+    public Set<Integer> keySet() {
         if (keySet == null) {
             keySet = new KeySet();
         }
@@ -117,7 +244,7 @@ public class IntKeyIntValueHashMap extends BaseHashMap {
         return keySet;
     }
 
-    public Collection values() {
+    public Collection<Integer> values() {
 
         if (values == null) {
             values = new Values();
@@ -126,9 +253,46 @@ public class IntKeyIntValueHashMap extends BaseHashMap {
         return values;
     }
 
-    class KeySet implements Set {
+    public Set<Map.Entry<Integer, Integer>> entrySet() {
+        if (entries == null) {
+            entries = new EntrySet();
+        }
 
-        public Iterator iterator() {
+        return entries;
+    }
+
+    private class EntrySet extends AbstractReadOnlyCollection<Map.Entry<Integer, Integer>> implements Set<Map.Entry<Integer, Integer>> {
+
+        public Iterator<Map.Entry<Integer, Integer>> iterator() {
+            return IntKeyIntValueHashMap.this.new EntrySetIterator();
+        }
+
+        public int size() {
+            return IntKeyIntValueHashMap.this.size();
+        }
+
+        public boolean isEmpty() {
+            return size() == 0;
+        }
+    }
+
+    private class EntrySetIterator extends BaseHashIterator{
+
+        EntrySetIterator() {
+            super(true);
+        }
+
+        public Entry<Integer, Integer> next() {
+            Integer key   = super.nextInt();
+            Integer value = intValueTable[lookup];
+
+            return new MapEntry(key, value);
+        }
+    }
+
+    private class KeySet<Integer> extends AbstractReadOnlyCollection<Integer> implements Set<Integer> {
+
+        public PrimitiveIterator<Integer> iterator() {
             return IntKeyIntValueHashMap.this.new BaseHashIterator(true);
         }
 
@@ -136,38 +300,14 @@ public class IntKeyIntValueHashMap extends BaseHashMap {
             return IntKeyIntValueHashMap.this.size();
         }
 
-        public boolean contains(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Object get(Object key) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean add(Object value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean addAll(Collection c) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
         public boolean isEmpty() {
             return size() == 0;
         }
-
-        public void clear() {
-            IntKeyIntValueHashMap.this.clear();
-        }
     }
 
-    class Values implements Collection {
+    private class Values<Integer> extends AbstractReadOnlyCollection<Integer> {
 
-        public Iterator iterator() {
+        public PrimitiveIterator<Integer> iterator() {
             return IntKeyIntValueHashMap.this.new BaseHashIterator(false);
         }
 
@@ -175,28 +315,8 @@ public class IntKeyIntValueHashMap extends BaseHashMap {
             return IntKeyIntValueHashMap.this.size();
         }
 
-        public boolean contains(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean add(Object value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean addAll(Collection c) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
         public boolean isEmpty() {
             return size() == 0;
-        }
-
-        public void clear() {
-            IntKeyIntValueHashMap.this.clear();
         }
     }
 }
