@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayListIdentity;
-import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.List;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.map.ValuePool;
@@ -61,7 +61,7 @@ public class ExpressionColumn extends Expression {
         HsqlNameManager.getSimpleName("ROWNUM", false);
 
     //
-    public static final HashMappedList diagnosticsList = new HashMappedList();
+    public static final OrderedHashMap diagnosticsList = new OrderedHashMap();
     static final String[] diagnosticsVariableTokens    = new String[] {
         Tokens.T_NUMBER, Tokens.T_MORE, Tokens.T_ROW_COUNT
     };
@@ -400,9 +400,9 @@ public class ExpressionColumn extends Expression {
         return rangeVariable;
     }
 
-    public HsqlList resolveColumnReferences(Session session,
+    public List resolveColumnReferences(Session session,
             RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            HsqlList unresolvedSet, boolean acceptsSequences) {
+            List unresolvedSet, boolean acceptsSequences) {
 
         switch (opType) {
 
@@ -990,7 +990,7 @@ public class ExpressionColumn extends Expression {
         return "";
     }
 
-    static void checkColumnsResolved(HsqlList set) {
+    static void checkColumnsResolved(List set) {
 
         if (set != null && !set.isEmpty()) {
             Expression e = (Expression) set.get(0);
@@ -1300,7 +1300,7 @@ public class ExpressionColumn extends Expression {
         return isParam;
     }
 
-    void getJoinRangeVariables(RangeVariable[] ranges, HsqlList list) {
+    void getJoinRangeVariables(RangeVariable[] ranges, List list) {
 
         if (opType == OpTypes.COLUMN) {
             for (int i = 0; i < ranges.length; i++) {

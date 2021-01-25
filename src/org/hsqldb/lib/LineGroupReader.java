@@ -156,9 +156,9 @@ public class LineGroupReader {
      * Returns a map/list which contains the first line of each line group
      * as key and the rest of the lines as a String value.
      */
-    public HashMappedList getAsMap() {
+    public OrderedHashMap getAsMap() {
 
-        HashMappedList map = new HashMappedList();
+        OrderedHashMap map = new OrderedHashMap();
 
         while (true) {
             HsqlArrayList list = getNextSection();
@@ -230,9 +230,9 @@ public class LineGroupReader {
         return sb.toString();
     }
 
-    public static HashMappedList getStatementMap(final String path) {
+    public static OrderedHashMap getStatementMap(final String path) {
 
-        HashMappedList  statementMap;
+        OrderedHashMap  statementMap;
         String[]        starters = new String[]{ "/*" };
         LineGroupReader lg       = getGroupReader(path, starters);
 

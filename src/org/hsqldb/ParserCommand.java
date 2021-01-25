@@ -36,7 +36,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.IndexStats;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -2225,7 +2225,7 @@ public class ParserCommand extends ParserDDL {
         } else {
             e = XreadIntervalValueExpression();
 
-            HsqlList unresolved = e.resolveColumnReferences(session,
+            List unresolved = e.resolveColumnReferences(session,
                 RangeGroup.emptyGroup, RangeGroup.emptyArray, null);
 
             ExpressionColumn.checkColumnsResolved(unresolved);

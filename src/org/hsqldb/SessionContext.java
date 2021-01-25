@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,11 +35,11 @@ import org.hsqldb.RangeGroup.RangeGroupSimple;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.LongDeque;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowSetNavigatorDataChange;
@@ -64,7 +64,7 @@ public class SessionContext {
     int            currentMaxRows;
 
     //
-    HashMappedList  sessionVariables;
+    OrderedHashMap  sessionVariables;
     RangeVariable[] sessionVariablesRange;
     RangeGroup[]    sessionVariableRangeGroups;
 
@@ -81,7 +81,7 @@ public class SessionContext {
 
     //
     Number         lastIdentity = ValuePool.INTEGER_0;
-    HashMappedList savepoints;
+    OrderedHashMap savepoints;
     LongDeque      savepointTimestamps;
 
     // range variable data
@@ -89,11 +89,11 @@ public class SessionContext {
 
     // grouping sets data
     GroupSet groupSet;
-    HsqlList currentGroup;
+    List currentGroup;
 
     // session tables
-    HashMappedList sessionTables;
-    HashMappedList popSessionTables;
+    OrderedHashMap sessionTables;
+    OrderedHashMap popSessionTables;
 
     //
     public Statement currentStatement;
@@ -121,9 +121,9 @@ public class SessionContext {
         diagnosticsVariables =
             new Object[ExpressionColumn.diagnosticsVariableTokens.length];
         rangeIterators        = new RangeIterator[8];
-        savepoints            = new HashMappedList(4);
+        savepoints            = new OrderedHashMap(4);
         savepointTimestamps   = new LongDeque();
-        sessionVariables      = new HashMappedList();
+        sessionVariables      = new OrderedHashMap();
         sessionVariablesRange = new RangeVariable[1];
         sessionVariablesRange[0] = new RangeVariable(sessionVariables, null,
                 true, RangeVariable.VARIALBE_RANGE);
@@ -178,7 +178,7 @@ public class SessionContext {
         diagnosticsVariables =
             new Object[ExpressionColumn.diagnosticsVariableTokens.length];
         rangeIterators      = new RangeIterator[8];
-        savepoints          = new HashMappedList(4);
+        savepoints          = new OrderedHashMap(4);
         savepointTimestamps = new LongDeque();
         isAutoCommit        = Boolean.FALSE;
         currentMaxRows      = 0;
@@ -203,7 +203,7 @@ public class SessionContext {
         isAutoCommit         = (Boolean) stack.remove(stack.size() - 1);
         lastIdentity         = (Number) stack.remove(stack.size() - 1);
         savepointTimestamps  = (LongDeque) stack.remove(stack.size() - 1);
-        savepoints           = (HashMappedList) stack.remove(stack.size() - 1);
+        savepoints           = (OrderedHashMap) stack.remove(stack.size() - 1);
         rangeIterators = (RangeIterator[]) stack.remove(stack.size() - 1);
         routineCursors       = (Result[]) stack.remove(stack.size() - 1);
         routineVariables     = (Object[]) stack.remove(stack.size() - 1);
@@ -332,7 +332,7 @@ public class SessionContext {
         groupSet = set;
     }
 
-    public void setGroup(HsqlList group) {
+    public void setGroup(List group) {
         currentGroup = group;
     }
 
@@ -368,7 +368,7 @@ public class SessionContext {
 
     public void pushRoutineTables() {
         popSessionTables = sessionTables;
-        sessionTables    = new HashMappedList();
+        sessionTables    = new OrderedHashMap();
     }
 
     public void popRoutineTables() {
@@ -381,7 +381,7 @@ public class SessionContext {
     public void addSessionTable(Table table) {
 
         if (sessionTables == null) {
-            sessionTables = new HashMappedList();
+            sessionTables = new OrderedHashMap();
         }
 
         if (sessionTables.containsKey(table.getName().name)) {

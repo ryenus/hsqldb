@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,15 +36,14 @@ import java.util.NoSuchElementException;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.0
  * @since 2.5.1
  */
-public class FilteredIterator<E> implements Iterator {
+public class FilteredIterator<E> implements Iterator<E> {
 
-    final Iterator<E> it;
-    final Filter<E> filter;
-
-    E nextValue;
+    private final Iterator<E> it;
+    private final Filter<E>   filter;
+    private       E           nextValue;
 
     public FilteredIterator (Iterator<E> iterator, Filter<E> filter ) {
         this.it = iterator;

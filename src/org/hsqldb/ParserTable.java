@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,8 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.types.BinaryData;
@@ -133,7 +133,7 @@ public class ParserTable extends ParserDML {
         readTableOnCommitClause(table);
 
         if (database.sqlSyntaxMys) {
-            HashMappedList list = super.readPropertyValuePairs(true, false);
+            OrderedHashMap list = super.readPropertyValuePairs(true, false);
 
             if (list != null) {
                 Token value = (Token) list.get(Tokens.T_COMMENT);

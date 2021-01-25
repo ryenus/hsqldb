@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,9 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMap;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 
 /**
@@ -73,7 +73,7 @@ public class SchemaObjectSet {
             case SchemaObject.REFERENCE :
             case SchemaObject.EXCEPTION :
             case SchemaObject.MODULE :
-                map = new HashMappedList();
+                map = new OrderedHashMap();
                 break;
 
             case SchemaObject.CONSTRAINT :
@@ -251,7 +251,7 @@ public class SchemaObjectSet {
             case SchemaObject.REFERENCE :
             case SchemaObject.EXCEPTION :
             case SchemaObject.MODULE : {
-                int i = ((HashMappedList) map).getIndex(name.name);
+                int i = ((OrderedHashMap) map).getIndex(name.name);
 
                 if (i == -1) {
                     int code = getGetErrorCode(name.type);
@@ -260,15 +260,15 @@ public class SchemaObjectSet {
                 }
 
                 SchemaObject object =
-                    (SchemaObject) ((HashMappedList) map).get(i);
+                    (SchemaObject) ((OrderedHashMap) map).get(i);
 
                 object.getName().rename(newName);
-                ((HashMappedList) map).setKey(i, newName.name);
+                ((OrderedHashMap) map).setKeyAt(i, newName.name);
 
                 break;
             }
             case SchemaObject.SPECIFIC_ROUTINE : {
-                int i = ((HashMappedList) map).getIndex(name.name);
+                int i = ((OrderedHashMap) map).getIndex(name.name);
 
                 if (i == -1) {
                     int code = getGetErrorCode(name.type);
@@ -276,10 +276,10 @@ public class SchemaObjectSet {
                     throw Error.error(code, name.name);
                 }
 
-                Routine routine = (Routine) ((HashMappedList) map).get(i);
+                Routine routine = (Routine) ((OrderedHashMap) map).get(i);
 
                 routine.getSpecificName().rename(newName);
-                ((HashMappedList) map).setKey(i, newName.name);
+                ((OrderedHashMap) map).setKeyAt(i, newName.name);
 
                 break;
             }
@@ -431,7 +431,7 @@ public class SchemaObjectSet {
                 OrderedHashSet unresolved) {
 
         // HashMap lists are not persisted with this method
-        if (!(map instanceof HashMappedList)) {
+        if (!(map instanceof OrderedHashMap)) {
             return;
         }
 

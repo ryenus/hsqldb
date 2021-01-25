@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ package org.hsqldb.lib;
  * circular queue implementation with automatic capacity expansion.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.0.1
+ * @version 2.6.0
  * @since 1.7.2
  */
 public class HsqlTaskQueue {
@@ -70,7 +70,7 @@ public class HsqlTaskQueue {
         taskRunnerThread = null;
     }
 
-    protected final HsqlDeque queue = new HsqlDeque();
+    protected final HsqlDeque<Runnable> queue = new HsqlDeque<Runnable>();
 
     protected class TaskRunner implements Runnable {
 
@@ -81,7 +81,7 @@ public class HsqlTaskQueue {
             try {
                 while (!isShutdown) {
                     synchronized (queue) {
-                        task = (Runnable) queue.getFirst();
+                        task = queue.poll();
                     }
 
                     if (task == SHUTDOWNTASK) {
@@ -127,7 +127,7 @@ public class HsqlTaskQueue {
 
         if (!isShutdown) {
             synchronized (queue) {
-                queue.addLast(command);
+                queue.add(command);
             }
 
             restart();
@@ -138,7 +138,7 @@ public class HsqlTaskQueue {
 
         if (!isShutdown) {
             synchronized (queue) {
-                queue.addLast(SHUTDOWNTASK);
+                queue.add(SHUTDOWNTASK);
             }
         }
     }
@@ -149,7 +149,7 @@ public class HsqlTaskQueue {
 
         synchronized (queue) {
             queue.clear();
-            queue.addLast(SHUTDOWNTASK);
+            queue.add(SHUTDOWNTASK);
         }
     }
 
@@ -163,7 +163,7 @@ public class HsqlTaskQueue {
 
         synchronized (queue) {
             queue.clear();
-            queue.addLast(SHUTDOWNTASK);
+            queue.add(SHUTDOWNTASK);
         }
     }
 }

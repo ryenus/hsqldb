@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1827,7 +1827,7 @@ public final class ArrayUtil {
     }
 
     /**
-     * returns the largest value that is a power of 2 and larger or equal to value
+     * returns the smallest value that is a power of 2 and larger or equal to value
      */
     public static long getBinaryNormalisedCeiling(long value) {
 

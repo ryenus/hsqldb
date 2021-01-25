@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,23 +37,28 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.hsqldb.map.BaseHashMap;
 
 /**
+ * A Map of long primitives to Object values.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.9.0
  */
-public class LongKeyHashMap extends BaseHashMap {
+public class LongKeyHashMap<V> extends BaseHashMap implements Map<Long, V> {
 
     ReentrantReadWriteLock           lock = new ReentrantReadWriteLock(true);
     ReentrantReadWriteLock.ReadLock  readLock  = lock.readLock();
     ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
 
+    //
+    private Set<Long>           keySet;
+    private Collection<V>       values;
+    private Set<Entry<Long, V>> entries;
+
     public LongKeyHashMap() {
         this(16);
     }
 
-    public LongKeyHashMap(int initialCapacity)
-    throws IllegalArgumentException {
+    public LongKeyHashMap(int initialCapacity) throws IllegalArgumentException {
         super(initialCapacity, BaseHashMap.longKeyOrValue,
               BaseHashMap.objectKeyOrValue, false);
     }
@@ -66,31 +71,30 @@ public class LongKeyHashMap extends BaseHashMap {
         return writeLock;
     }
 
-    public Object get(long key) {
+    public boolean containsKey(Object key) {
+
+        if (key instanceof Long) {
+
+            long longKey = ((Long) key).longValue();
+
+            return containsKey(longKey);
+        }
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return false;
+    }
+
+    public boolean containsKey(long key) {
 
         readLock.lock();
 
         try {
-            int lookup = getLookup(key);
-
-            if (lookup == -1) {
-                return null;
-            }
-
-            return objectValueTable[lookup];
+            return super.containsKey(key);
         } finally {
             readLock.unlock();
-        }
-    }
-
-    public Object put(long key, Object value) {
-
-        writeLock.lock();
-
-        try {
-            return super.addOrRemove(key, 0, null, value, false);
-        } finally {
-            writeLock.unlock();
         }
     }
 
@@ -105,25 +109,84 @@ public class LongKeyHashMap extends BaseHashMap {
         }
     }
 
-    public Object remove(long key) {
+    public V get(Object key) {
+
+        if (key instanceof Long) {
+
+            long longKey = ((Long) key).longValue();
+
+            return get(longKey);
+        }
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return null;
+    }
+
+    public V get(long key) {
+
+        readLock.lock();
+
+        try {
+            int lookup = getLookup(key);
+
+            if (lookup == -1) {
+                return null;
+            }
+
+            return (V) objectValueTable[lookup];
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    public V put(Long key, V value) {
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        long longKey = ((Long) key).longValue();
+
+        return put(longKey, value);
+    }
+
+    public V put(long key, V value) {
 
         writeLock.lock();
 
         try {
-            return super.addOrRemove(key, 0, null, null, true);
+            return (V) super.addOrUpdate(key, 0, null, value);
         } finally {
             writeLock.unlock();
         }
     }
 
-    public boolean containsKey(long key) {
+    public V remove(Object key) {
+        if (key instanceof Long) {
 
-        readLock.lock();
+            long longKey = ((Long) key).longValue();
+
+            return remove(longKey);
+        }
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return null;
+    }
+
+    public V remove(long key) {
+
+        writeLock.lock();
 
         try {
-            return super.containsKey(key);
+            return (V) super.remove(key, 0, null, null, false, false);
         } finally {
-            readLock.unlock();
+            writeLock.unlock();
         }
     }
 
@@ -160,76 +223,131 @@ public class LongKeyHashMap extends BaseHashMap {
         }
     }
 
-    public void putAll(LongKeyHashMap other) {
+    public void putAll(Map<? extends Long, ? extends V> other) {
+        Iterator<? extends Long> it = other.keySet().iterator();
 
         writeLock.lock();
 
         try {
-            Iterator it = other.keySet().iterator();
-
             while (it.hasNext()) {
-                long key = it.nextLong();
+                Long key = it.next();
+                long longKey = key.longValue();
 
-                put(key, other.get(key));
+                put(longKey, (V) other.get(key));
             }
         } finally {
             writeLock.unlock();
         }
     }
 
-    public Object[] toArray() {
+    public void putAll(LongKeyHashMap other) {
 
-        readLock.lock();
+        writeLock.lock();
 
         try {
-            if (isEmpty()) {
-                return emptyObjectArray;
-            }
-
-            Object[] array = new Object[size()];
-            int      i     = 0;
-            Iterator it    = LongKeyHashMap.this.new BaseHashIterator(false);
+            PrimitiveIterator it = (PrimitiveIterator) other.keySet().iterator();
 
             while (it.hasNext()) {
-                array[i++] = it.next();
-            }
+                long key = it.nextLong();
 
-            return array;
+                put(key, (V) other.get(key));
+            }
         } finally {
-            readLock.unlock();
+            writeLock.unlock();
         }
     }
 
-    public int getOrderedMatchCount(int[] array) {
-
-        int i = 0;
+    public long[] keysToArray(long[] array) {
 
         readLock.lock();
 
         try {
-            for (; i < array.length; i++) {
-                if (!super.containsKey(array[i])) {
-                    break;
-                }
-            }
+            return toLongArray(array, true);
         } finally {
             readLock.unlock();
         }
-
-        return i;
     }
 
-    public Set keySet() {
-        return new KeySet();
+    public Object[] valuesToArray() {
+
+        readLock.lock();
+
+        try {
+            return toArray(false);
+        } finally {
+            readLock.unlock();
+        }
     }
 
-    public Collection values() {
-        return new Values();
+    public <T> T[] valuesToArray(T[] array) {
+
+        readLock.lock();
+
+        try {
+            return toArray(array, false);
+        } finally {
+            readLock.unlock();
+        }
     }
 
-    class KeySet implements Set {
+    public Set<Long> keySet() {
 
-        public Iterator iterator() {
+        if (keySet == null) {
+            keySet = new KeySet();
+        }
+
+        return keySet;
+    }
+
+    public Collection<V> values() {
+
+        if (values == null) {
+            values = new Values();
+        }
+
+        return values;
+    }
+
+    public Set<Map.Entry<Long, V>> entrySet() {
+        if (entries == null) {
+            entries = new EntrySet();
+        }
+
+        return entries;
+    }
+
+    private class EntrySet extends AbstractReadOnlyCollection<Map.Entry<Long, V>> implements Set<Map.Entry<Long, V>> {
+
+        public Iterator<Entry<Long, V>> iterator() {
+            return LongKeyHashMap.this.new EntrySetIterator();
+        }
+
+        public int size() {
+            return LongKeyHashMap.this.size();
+        }
+
+        public boolean isEmpty() {
+            return size() == 0;
+        }
+    }
+
+    private class EntrySetIterator extends BaseHashIterator{
+
+        EntrySetIterator() {
+            super(true);
+        }
+
+        public Entry<Long, V> next() {
+            Long key   = super.nextLong();
+            V    value = (V) objectValueTable[lookup];
+
+            return new MapEntry(key, value);
+        }
+    }
+
+    private class KeySet<Long> extends AbstractReadOnlyCollection<Long> implements Set<Long> {
+
+        public PrimitiveIterator<Long> iterator() {
             return LongKeyHashMap.this.new BaseHashIterator(true);
         }
 
@@ -237,38 +355,14 @@ public class LongKeyHashMap extends BaseHashMap {
             return LongKeyHashMap.this.size();
         }
 
-        public boolean contains(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Object get(Object key) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean add(Object value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean addAll(Collection c) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
         public boolean isEmpty() {
             return size() == 0;
         }
-
-        public void clear() {
-            LongKeyHashMap.this.clear();
-        }
     }
 
-    class Values implements Collection {
+    private class Values<V> extends AbstractReadOnlyCollection<V> {
 
-        public Iterator iterator() {
+        public Iterator<V> iterator() {
             return LongKeyHashMap.this.new BaseHashIterator(false);
         }
 
@@ -276,28 +370,16 @@ public class LongKeyHashMap extends BaseHashMap {
             return LongKeyHashMap.this.size();
         }
 
-        public boolean contains(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean add(Object value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean addAll(Collection c) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
         public boolean isEmpty() {
             return size() == 0;
         }
 
-        public void clear() {
-            LongKeyHashMap.this.clear();
+        public Object[] toArray() {
+            return LongKeyHashMap.this.toArray(false);
+        }
+
+        public <T> T[] toArray(T[] a) {
+            return LongKeyHashMap.this.toArray(a, false);
         }
     }
 }

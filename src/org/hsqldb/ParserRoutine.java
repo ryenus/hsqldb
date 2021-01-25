@@ -37,7 +37,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
@@ -2430,7 +2430,7 @@ public class ParserRoutine extends ParserTable {
 
             readThis(Tokens.CLOSEBRACKET);
 
-            HsqlList unresolved = condition.resolveColumnReferences(session,
+            List unresolved = condition.resolveColumnReferences(session,
                 rangeGroups[0], rangeGroups, null);
 
             ExpressionColumn.checkColumnsResolved(unresolved);

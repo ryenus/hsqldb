@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 package org.hsqldb.lib;
 
 /**
- * Provides the base HSQLDB interface for Heap ADT implementations. <p>
+ * Provides the HSQLDB interface for Heap ADT implementations. <p>
  *
  * In this context, a Heap is simply a collection-like ADT that allows addition
  * of elements and provides a way to remove the least element, given some
@@ -45,13 +45,16 @@ package org.hsqldb.lib;
 
  * This in turn provides the basis for an efficient implementation of ADTs such
  * PriorityQueue, since Heap operations using the typical implementation are,
- * in theory, guaranteed to be O(log n).
+ * in theory, guaranteed to be O(log n).<p>
+ *
+ * This interface represents a pure queue with the same basic queue methods
+ * as (@code java.util.Queue) but without all the extra methods.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 1.7.2
+ * @version 2.6.0
  * @since 1.7.2
  */
-public interface HsqlHeap {
+public interface HsqlHeap<E> {
 
     /**
      * Removes all of the elements from this Heap.
@@ -78,21 +81,21 @@ public interface HsqlHeap {
      *      dictates that this Heap is not currently accepting additions
      *      or that this Heap is currently full (optional)
      */
-    void add(Object o) throws RuntimeException;
+    boolean add(E o);
 
     /**
      * Retrieves the least element from this Heap, without removing it.
      *
      * @return the least element from this Heap
      */
-    Object peek();
+    E peek();
 
     /**
      * Retrieves the least element from this Heap, removing it in the process.
      *
      * @return the least element from this Heap
      */
-    Object remove();
+    E remove();
 
     /**
      * Retrieves the number of elements currently in this Heap.

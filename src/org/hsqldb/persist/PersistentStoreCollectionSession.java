@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -337,13 +337,13 @@ implements PersistentStoreCollection {
             rowStoreListStack = new HsqlDeque();
         }
 
-        Object[] array = rowStoreMapStatement.toArray();
+        Object[] array = rowStoreMapStatement.valuesToArray();
 
         rowStoreListStack.add(array);
         rowStoreMapStatement.clear();
 
         if (isRoutine) {
-            array = rowStoreMapRoutine.toArray();
+            array = rowStoreMapRoutine.valuesToArray();
 
             rowStoreListStack.add(array);
             rowStoreMapRoutine.clear();

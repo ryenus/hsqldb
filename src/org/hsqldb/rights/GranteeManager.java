@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,10 +46,10 @@ import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.Collection;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.lib.StringConverter;
@@ -97,13 +97,13 @@ public class GranteeManager {
      * Map of grantee-String-to-Grantee-objects.<p>
      * Keys include all USER and ROLE names
      */
-    private HashMappedList map = new HashMappedList();
+    private OrderedHashMap map = new OrderedHashMap();
 
     /**
      * Map of role-Strings-to-Grantee-object.<p>
      * Keys include all ROLES names
      */
-    private HashMappedList roleMap = new HashMappedList();
+    private OrderedHashMap roleMap = new OrderedHashMap();
 
     /**
      * Used only to pass the SchemaManager to Grantees for checking

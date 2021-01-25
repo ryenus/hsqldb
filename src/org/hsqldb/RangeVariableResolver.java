@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,9 +40,9 @@ import org.hsqldb.index.Index.IndexUse;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
@@ -53,7 +53,7 @@ import org.hsqldb.persist.PersistentStore;
  * processing and which indexes are used for table access.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.3
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class RangeVariableResolver {
@@ -274,7 +274,7 @@ public class RangeVariableResolver {
      * Divides AND and OR conditions and assigns
      */
     static Expression decomposeAndConditions(Session session, Expression e,
-            HsqlList conditions) {
+            List conditions) {
 
         if (e == null) {
             return Expression.EXPR_TRUE;
@@ -325,8 +325,7 @@ public class RangeVariableResolver {
     /**
      * Divides AND and OR conditions and adds to list
      */
-    static Expression decomposeOrConditions(Expression e,
-            HsqlList conditions) {
+    static Expression decomposeOrConditions(Expression e, List conditions) {
 
         if (e == null) {
             return Expression.EXPR_FALSE;
@@ -487,7 +486,7 @@ public class RangeVariableResolver {
 
                 while (keyIt.hasNext()) {
                     Object   key = keyIt.next();
-                    Iterator it  = tempMultiMap.get(key);
+                    Iterator it  = tempMultiMap.getValuesIterator(key);
 
                     tempSet.clear();
 
@@ -516,7 +515,7 @@ public class RangeVariableResolver {
                     Expression e1  = (Expression) tempMap.get(key);
 
                     if (e1 != null) {
-                        Iterator it = tempMultiMap.get(key);
+                        Iterator it = tempMultiMap.getValuesIterator(key);
 
                         while (it.hasNext()) {
                             Expression e2 = (Expression) it.next();
@@ -532,8 +531,8 @@ public class RangeVariableResolver {
         }
     }
 
-    void moveConditions(HsqlList[] lists, int rangeStart, int rangeLimit,
-                        HsqlList list, int listIndex) {
+    void moveConditions(List[] lists, int rangeStart, int rangeLimit,
+                        List list, int listIndex) {
 
         for (int j = 0; j < list.size(); j++) {
             Expression e = (Expression) list.get(j);
@@ -562,7 +561,7 @@ public class RangeVariableResolver {
         }
     }
 
-    void closeJoinChain(HsqlList[] array, Expression e1, Expression e2) {
+    void closeJoinChain(List[] array, Expression e1, Expression e2) {
 
         int idx1  = rangeVarSet.getIndex(e1.getRangeVariable());
         int idx2  = rangeVarSet.getIndex(e2.getRangeVariable());
@@ -850,8 +849,7 @@ public class RangeVariableResolver {
      * Parameter first indicates the first range variable to which condition
      * can be assigned
      */
-    void assignToJoinLists(Expression e, HsqlList[] expressionLists,
-                           int first) {
+    void assignToJoinLists(Expression e, List[] expressionLists, int first) {
 
         if (e == null) {
             return;
@@ -932,7 +930,7 @@ public class RangeVariableResolver {
     }
 
     void assignToRangeVariable(RangeVariableConditions conditions,
-                               HsqlList exprList) {
+                               List exprList) {
 
         for (int j = 0, size = exprList.size(); j < size; j++) {
             Expression e = (Expression) exprList.get(j);
@@ -941,8 +939,7 @@ public class RangeVariableResolver {
         }
     }
 
-    private void collectIndexableColumns(RangeVariable range,
-                                         HsqlList exprList) {
+    private void collectIndexableColumns(RangeVariable range, List exprList) {
 
         colIndexSetEqual.clear();
         colIndexSetOther.clear();
@@ -979,7 +976,7 @@ public class RangeVariableResolver {
      */
     void assignToRangeVariable(RangeVariable rangeVar,
                                RangeVariableConditions conditions,
-                               int rangeVarIndex, HsqlList exprList) {
+                               int rangeVarIndex, List exprList) {
 
         if (exprList.isEmpty()) {
             return;
@@ -989,7 +986,7 @@ public class RangeVariableResolver {
     }
 
     private void setIndexConditions(RangeVariableConditions conditions,
-                                    HsqlList exprList, int rangeVarIndex,
+                                    List exprList, int rangeVarIndex,
                                     boolean includeOr) {
 
         boolean hasIndex;
@@ -1278,7 +1275,7 @@ public class RangeVariableResolver {
     }
 
     private void setEqualityConditions(RangeVariableConditions conditions,
-                                       HsqlList exprList, int rangeVarIndex) {
+                                       List exprList, int rangeVarIndex) {
 
         Index index = null;
 
@@ -1384,8 +1381,7 @@ public class RangeVariableResolver {
     }
 
     private void setNonEqualityConditions(RangeVariableConditions conditions,
-                                          HsqlList exprList,
-                                          int rangeVarIndex) {
+                                          List exprList, int rangeVarIndex) {
 
         if (colIndexSetOther.isEmpty()) {
             return;

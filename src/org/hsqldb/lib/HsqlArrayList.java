@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,10 +41,10 @@ import java.util.Comparator;
  * Intended as an asynchronous alternative to Vector.
  *
  * @author dnordahl@users
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.7.0
  */
-public class HsqlArrayList<E> extends BaseList<E> implements HsqlList<E> {
+public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
 
 //fredt@users
 /*
@@ -194,7 +194,7 @@ public class HsqlArrayList<E> extends BaseList<E> implements HsqlList<E> {
         }
 
         for (int i = 0; i < elementCount; i++) {
-            if (o.equals(elementData[i])) {
+            if (comparator.equals(o, elementData[i])) {
                 return i;
             }
         }
@@ -231,7 +231,6 @@ public class HsqlArrayList<E> extends BaseList<E> implements HsqlList<E> {
     }
 
     /** Replaces the element at given position */
-    @SuppressWarnings( "unchecked" )
     public E set(int index, E element) {
 
         if (index >= elementCount) {
@@ -293,7 +292,6 @@ public class HsqlArrayList<E> extends BaseList<E> implements HsqlList<E> {
         resize(elementCount);
     }
 
-    // fredt@users
     public void clear() {
 
         if (minimizeOnClear && reserveElementData != null) {
@@ -349,14 +347,6 @@ public class HsqlArrayList<E> extends BaseList<E> implements HsqlList<E> {
     }
 
     /**
-     * Copies elements of the list from start to limit to array. The array must
-     * be large enough.
-     */
-    public void toArraySlice(E[] array, int start, int limit) {
-        System.arraycopy(elementData, start, array, 0, limit - start);
-    }
-
-    /**
      * Copies all elements of the list to a[].<p>
      *
      * If a[] is too small, a new array or the same type is
@@ -368,16 +358,28 @@ public class HsqlArrayList<E> extends BaseList<E> implements HsqlList<E> {
      * Differs from the implementation in java.util.ArrayList in the second
      * aspect.
      */
-    public E[] toArray(E[] array) {
+    public <T> T[] toArray(T[] array) {
 
         if (array.length < elementCount) {
-            array = (E[]) Array.newInstance(array.getClass().getComponentType(),
+            array = (T[]) Array.newInstance(array.getClass().getComponentType(),
                                         elementCount);
         }
 
         System.arraycopy(elementData, 0, array, 0, elementCount);
 
         return array;
+    }
+
+    /**
+     * Copies elements of the list from start to limit to array. The array must
+     * be large enough.
+     */
+    public void toArraySlice(E[] array, int start, int limit) {
+        System.arraycopy(elementData, start, array, 0, limit - start);
+    }
+
+    public E[] getArray() {
+        return elementData;
     }
 
     public void sort(Comparator<? super E> c) {
@@ -389,7 +391,24 @@ public class HsqlArrayList<E> extends BaseList<E> implements HsqlList<E> {
         ArraySort.sort(elementData, elementCount, c);
     }
 
-    public E[] getArray() {
-        return elementData;
+    public int lastIndexOf(Object o) {
+
+        if (o == null) {
+            for (int i = elementCount - 1; i >= 0; i--) {
+                if (elementData[i] == null) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        for (int i = elementCount - 1; i >= 0; i--) {
+            if (comparator.equals(o, elementData[i])) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 }

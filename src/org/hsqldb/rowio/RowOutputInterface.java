@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2019, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 package org.hsqldb.rowio;
 
 import org.hsqldb.Row;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.types.Type;
 
 /**
@@ -76,7 +76,7 @@ public interface RowOutputInterface extends Cloneable {
 
     void writeData(Row row, Type[] types);
 
-    void writeData(int l, Type[] types, Object[] data, HashMappedList cols,
+    void writeData(int l, Type[] types, Object[] data, OrderedHashMap cols,
                    int[] primarykeys);
 
     int getSize(Row row);

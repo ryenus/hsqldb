@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.map.ValuePool;
@@ -48,7 +48,7 @@ import org.hsqldb.types.Type;
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -217,7 +217,7 @@ public class ParserDML extends ParserDQL {
                     table.getColumnCheckList(insertColumnMap);
                 insertExpressions = XreadContextuallyTypedTable(colCount);
 
-                HsqlList unresolved =
+                List unresolved =
                     insertExpressions.resolveColumnReferences(session,
                         RangeGroup.emptyGroup, rangeGroups, null);
 
@@ -830,7 +830,7 @@ public class ParserDML extends ParserDQL {
             RangeGroup rangeGroup) {
 
         Expression condition = XreadBooleanValueExpression();
-        HsqlList unresolved = condition.resolveColumnReferences(session,
+        List unresolved = condition.resolveColumnReferences(session,
             rangeGroup, rangeGroups, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
@@ -853,8 +853,8 @@ public class ParserDML extends ParserDQL {
                                   RangeGroup[] rangeGroups,
                                   RangeVariable valuesRange) {
 
-        HsqlList unresolved           = null;
-        int      enforcedDefaultIndex = -1;
+        List unresolved           = null;
+        int  enforcedDefaultIndex = -1;
 
         if (targetTable.hasIdentityColumn()
                 && targetTable.identitySequence.isAlways()) {
@@ -1280,7 +1280,7 @@ public class ParserDML extends ParserDQL {
                                      null);
         }
 
-        HsqlList unresolved = null;
+        List unresolved = null;
 
         unresolved = mergeCondition.resolveColumnReferences(session,
                 fullRangeGroup, rangeGroups, null);
@@ -1514,7 +1514,7 @@ public class ParserDML extends ParserDQL {
         }
 
         Expression expression = XreadValueExpression();
-        HsqlList unresolved = expression.resolveColumnReferences(session,
+        List unresolved = expression.resolveColumnReferences(session,
             RangeGroup.emptyGroup, rangeGroups, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
@@ -1566,7 +1566,7 @@ public class ParserDML extends ParserDQL {
 
         compileContext.addProcedureCall(routine);
 
-        HsqlList unresolved = null;
+        List unresolved = null;
 
         for (int i = 0; i < arguments.length; i++) {
             Expression e = arguments[i];
@@ -1607,7 +1607,7 @@ public class ParserDML extends ParserDQL {
     void resolveReferencesAndTypes(RangeGroup rangeGroup,
                                    RangeGroup[] rangeGroups, Expression e) {
 
-        HsqlList unresolved = e.resolveColumnReferences(session, rangeGroup,
+        List unresolved = e.resolveColumnReferences(session, rangeGroup,
             rangeGroup.getRangeVariables().length, rangeGroups, null, false);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
@@ -1620,7 +1620,7 @@ public class ParserDML extends ParserDQL {
     void resolveOuterReferencesAndTypes(RangeGroup[] rangeGroups,
                                         Expression e) {
 
-        HsqlList unresolved = e.resolveColumnReferences(session,
+        List unresolved = e.resolveColumnReferences(session,
             RangeGroup.emptyGroup, rangeGroups, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);

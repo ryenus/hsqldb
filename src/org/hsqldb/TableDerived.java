@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HashMappedList;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.navigator.RowSetNavigatorDataTable;
@@ -88,7 +88,7 @@ public class TableDerived extends Table {
     }
 
     public TableDerived(Database database, HsqlName name, int type,
-                        Type[] columnTypes, HashMappedList columnList,
+                        Type[] columnTypes, OrderedHashMap columnList,
                         int[] pkColumns) {
 
         this(database, name, type);
@@ -300,7 +300,7 @@ public class TableDerived extends Table {
                 throw Error.error(ErrorCode.X_42593);
             }
 
-            HashMappedList newColumnList = new HashMappedList();
+            OrderedHashMap newColumnList = new OrderedHashMap();
 
             for (int i = 0; i < columnCount; i++) {
                 ColumnSchema col = (ColumnSchema) columnList.get(i);

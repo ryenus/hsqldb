@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.Set;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.Type;
@@ -139,7 +139,7 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         period.setRangeVariable(range);
 
         Expression right = nodes[RIGHT];
-        HsqlList unresolved = right.resolveColumnReferences(session,
+        List unresolved = right.resolveColumnReferences(session,
             RangeGroup.emptyGroup, rangeGroups, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
@@ -147,9 +147,9 @@ public class ExpressionPeriodOp extends ExpressionLogical {
         transform();
     }
 
-    public HsqlList resolveColumnReferences(Session session,
+    public List resolveColumnReferences(Session session,
             RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            HsqlList unresolvedSet, boolean acceptsSequences) {
+            List unresolvedSet, boolean acceptsSequences) {
 
         // special treatment of column or period for CONTAINS
         if (opType == OpTypes.RANGE_CONTAINS) {

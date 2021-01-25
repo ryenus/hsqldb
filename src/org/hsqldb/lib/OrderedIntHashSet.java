@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,29 +34,30 @@ package org.hsqldb.lib;
 import org.hsqldb.map.BaseHashMap;
 
 /**
+ * A list which is also a set of int primitives which maintains the insertion
+ * order of the elements and allows access by index. Iterators return the keys
+ * in the index order.<p>
+ *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.6.0
  * @since 1.9.0
  */
-public class OrderedIntHashSet extends BaseHashMap {
+public class OrderedIntHashSet extends IntHashSet {
 
     public OrderedIntHashSet() {
         this(8);
     }
 
-    public OrderedIntHashSet(int initialCapacity)
-    throws IllegalArgumentException {
+    public OrderedIntHashSet(int initialCapacity) throws IllegalArgumentException {
 
-        super(initialCapacity, BaseHashMap.intKeyOrValue,
-              BaseHashMap.noKeyOrValue, false);
+        super(initialCapacity);
 
         isList = true;
     }
 
     public OrderedIntHashSet(int[] elements) {
 
-        super(elements.length, BaseHashMap.intKeyOrValue,
-              BaseHashMap.noKeyOrValue, false);
+        super(elements.length);
 
         isList = true;
 
@@ -65,8 +66,7 @@ public class OrderedIntHashSet extends BaseHashMap {
 
     public OrderedIntHashSet(int[] elementsA, int[] elementsB) {
 
-        super(elementsA.length + elementsB.length, BaseHashMap.intKeyOrValue,
-              BaseHashMap.noKeyOrValue, false);
+        super(elementsA.length + elementsB.length);
 
         isList = true;
 
@@ -74,38 +74,34 @@ public class OrderedIntHashSet extends BaseHashMap {
         addAll(elementsB);
     }
 
-    public boolean contains(int key) {
-        return super.containsKey(key);
-    }
+    public boolean insert(int index,
+                          int key) throws IndexOutOfBoundsException {
 
-    public boolean add(int key) {
+        if (index < 0 || index > size()) {
+            throw new IndexOutOfBoundsException();
+        }
 
-        int oldSize = size();
+        if (contains(key)) {
+            return false;
+        }
 
-        super.addOrRemove(key, 0, null, null, false);
+        if (index < size()) {
+            super.insertRow(index);
+        }
 
-        return oldSize != size();
+        return add(key);
     }
 
     public boolean remove(int key) {
+        return (Boolean) super.remove(key, 0, null, null, false, true);
+    }
 
-        int oldSize = size();
+    public void removeEntry(int index) throws IndexOutOfBoundsException {
+        checkRange(index);
 
-        super.addOrRemove(key, 0, null, null, true);
+        int key = intKeyTable[index];
 
-        boolean result = oldSize != size();
-
-        if (result) {
-            int[] array = toArray();
-
-            super.clear();
-
-            for (int i = 0; i < array.length; i++) {
-                add(array[i]);
-            }
-        }
-
-        return result;
+        super.remove(key, 0, null, null, false, true);
     }
 
     public int get(int index) {
@@ -117,19 +113,6 @@ public class OrderedIntHashSet extends BaseHashMap {
 
     public int getIndex(int value) {
         return getLookup(value);
-    }
-
-    public int getStartMatchCount(int[] array) {
-
-        int i = 0;
-
-        for (; i < array.length; i++) {
-            if (!super.containsKey(array[i])) {
-                break;
-            }
-        }
-
-        return i;
     }
 
     public int getOrderedStartMatchCount(int[] array) {
@@ -145,18 +128,6 @@ public class OrderedIntHashSet extends BaseHashMap {
         return i;
     }
 
-    public boolean addAll(Collection col) {
-
-        int      oldSize = size();
-        Iterator it      = col.iterator();
-
-        while (it.hasNext()) {
-            add(it.nextInt());
-        }
-
-        return oldSize != size();
-    }
-
     public boolean addAll(OrderedIntHashSet set) {
 
         int oldSize = size();
@@ -169,33 +140,6 @@ public class OrderedIntHashSet extends BaseHashMap {
         }
 
         return oldSize != size();
-    }
-
-    public boolean addAll(int[] elements) {
-
-        int oldSize = size();
-
-        for (int i = 0; i < elements.length; i++) {
-            add(elements[i]);
-        }
-
-        return oldSize != size();
-    }
-
-    public int[] toArray() {
-
-        int   lookup = -1;
-        int[] array  = new int[size()];
-
-        for (int i = 0; i < array.length; i++) {
-            lookup = super.nextLookup(lookup);
-
-            int value = intKeyTable[lookup];
-
-            array[i] = value;
-        }
-
-        return array;
     }
 
     private void checkRange(int i) {

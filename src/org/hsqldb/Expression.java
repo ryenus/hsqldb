@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.Set;
@@ -931,18 +931,18 @@ public class Expression implements Cloneable {
     /**
      * resolve tables and collect unresolved column expressions
      */
-    public HsqlList resolveColumnReferences(Session session,
+    public List resolveColumnReferences(Session session,
             RangeGroup rangeGroup, RangeGroup[] rangeGroups,
-            HsqlList unresolvedSet) {
+            List unresolvedSet) {
 
         return resolveColumnReferences(session, rangeGroup,
                                        rangeGroup.getRangeVariables().length,
                                        rangeGroups, unresolvedSet, true);
     }
 
-    public HsqlList resolveColumnReferences(Session session,
+    public List resolveColumnReferences(Session session,
             RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            HsqlList unresolvedSet, boolean acceptsSequences) {
+            List unresolvedSet, boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -1661,7 +1661,7 @@ public class Expression implements Cloneable {
 
         boolean        nonDeterministic = false;
         OrderedHashSet set              = new OrderedHashSet();
-        HsqlList unresolved = resolveColumnReferences(session, rangeGroup,
+        List unresolved = resolveColumnReferences(session, rangeGroup,
             RangeGroup.emptyArray, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
@@ -1990,7 +1990,7 @@ public class Expression implements Cloneable {
 
         RangeGroup ranges = new RangeGroupSimple(table.getDefaultRanges(),
             false);
-        HsqlList set = resolveColumnReferences(session, ranges,
+        List set = resolveColumnReferences(session, ranges,
                                                RangeGroup.emptyArray, null);
 
         if (set != null && !set.isEmpty()) {
@@ -2016,18 +2016,18 @@ public class Expression implements Cloneable {
         }
     }
 
-    static HsqlList resolveColumnSet(Session session,
+    static List resolveColumnSet(Session session,
                                      RangeVariable[] rangeVars,
                                      RangeGroup[] rangeGroups,
-                                     HsqlList sourceSet) {
+                                     List sourceSet) {
         return resolveColumnSet(session, rangeVars, rangeVars.length,
                                 rangeGroups, sourceSet, null);
     }
 
-    static HsqlList resolveColumnSet(Session session,
+    static List resolveColumnSet(Session session,
                                      RangeVariable[] rangeVars,
                                      int rangeCount, RangeGroup[] rangeGroups,
-                                     HsqlList sourceSet, HsqlList targetSet) {
+                                     List sourceSet, List targetSet) {
 
         if (sourceSet == null) {
             return targetSet;
@@ -2050,7 +2050,7 @@ public class Expression implements Cloneable {
         return false;
     }
 
-    void getJoinRangeVariables(RangeVariable[] ranges, HsqlList list) {}
+    void getJoinRangeVariables(RangeVariable[] ranges, List list) {}
 
     double costFactor(Session session, RangeVariable range, int operation) {
         return Index.minimumSelectivity;

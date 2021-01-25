@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,8 +42,8 @@ import org.hsqldb.SqlInvariants;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.result.Result;
 
 /**
@@ -71,7 +71,7 @@ public final class UserManager {
      * User object is kept in the list because it's needed by MetaData
      * routines via "listVisibleUsers(x, true)".
      */
-    private HashMappedList userList;
+    private OrderedHashMap userList;
     private GranteeManager granteeManager;
 
     /**
@@ -88,7 +88,7 @@ public final class UserManager {
      */
     public UserManager(Database database) {
         granteeManager = database.getGranteeManager();
-        userList       = new HashMappedList();
+        userList       = new OrderedHashMap();
     }
 
     /**
@@ -310,7 +310,7 @@ public final class UserManager {
      * Retrieves this object's set of User objects as
      *  an associative list.
      */
-    public HashMappedList getUsers() {
+    public OrderedHashMap getUsers() {
         return userList;
     }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import java.util.Arrays;
  * as a node and their contents is not significant.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.6.0
  * @since 1.7.2
  */
 public class HashIndex {
@@ -276,4 +276,41 @@ public class HashIndex {
 
         return true;
     }
+
+
+    /**
+     * Insert a node.
+     *
+     * @param lookup the node to remove
+     * @return true if node found in unlinked state
+     */
+    public boolean insertEmptyNode(int lookup) {
+
+        for (int i = 0; i < newNodePointer; i++) {
+            if (linkTable[i] >= lookup) {
+                linkTable[i]++;
+            }
+        }
+
+        for (int i = 0; i < hashTable.length; i++) {
+            if (hashTable[i] >= lookup) {
+                hashTable[i]++;
+            }
+        }
+
+        System.arraycopy(linkTable, lookup, linkTable, lookup + 1,
+                         newNodePointer - lookup);
+
+        newNodePointer++;
+
+        if (reclaimedNodePointer >= lookup) {
+            reclaimedNodePointer++;
+        }
+
+        linkTable[lookup]    = reclaimedNodePointer;
+        reclaimedNodePointer = lookup;
+
+        return true;
+    }
+
 }

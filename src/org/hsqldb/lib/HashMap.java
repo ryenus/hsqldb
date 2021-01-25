@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,19 +31,22 @@
 
 package org.hsqldb.lib;
 
+import org.hsqldb.lib.Map.Entry;
+
 import org.hsqldb.map.BaseHashMap;
 
 /**
  * This class does not store null keys.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.7.2
  */
-public class HashMap<K, V> extends BaseHashMap {
+public class HashMap<K, V> extends BaseHashMap implements Map<K, V> {
 
-    Set        keySet;
-    Collection values;
+    private Set<K>           keySet;
+    private Collection<V>    values;
+    private Set<Entry<K, V>> entries;
 
     public HashMap() {
         this(8);
@@ -54,9 +57,32 @@ public class HashMap<K, V> extends BaseHashMap {
               BaseHashMap.objectKeyOrValue, false);
     }
 
+    public HashMap(int initialCapacity, ObjectComparator comparator) throws IllegalArgumentException {
+        this(initialCapacity);
+
+        this.comparator = comparator;
+    }
+
+    public boolean containsKey(Object key) {
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return super.containsKey(key);
+    }
+
+    public boolean containsValue(Object value) {
+        return super.containsValue(value);
+    }
+
     public V get(Object key) {
 
-        int hash   = key.hashCode();
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        int hash   = comparator.hashCode(key);
         int lookup = getLookup(key, hash);
 
         if (lookup != -1) {
@@ -67,54 +93,64 @@ public class HashMap<K, V> extends BaseHashMap {
     }
 
     public V put(K key, V value) {
-        return (V) super.addOrRemove(0, 0, (K) key, (V) value, false);
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return (V) super.addOrUpdate(0, 0, key, value);
     }
 
     public V remove(Object key) {
-        return (V) super.removeObject((K)key, false);
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        return (V) super.remove(0, 0, key, null, false, false);
     }
 
-    public boolean containsKey(Object key) {
-        return super.containsKey(key);
+    /**
+     * Removes the spacific key, value pair.
+     *
+     * @param key the key
+     * @param value the value
+     * @return the value associated with the key, or null if none
+     */
+
+    public boolean remove(Object key, Object value) {
+
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        Object result = super.remove(0, 0, key, value, true, false);
+
+        return result != null;
     }
 
-    public boolean containsValue(Object value) {
-        return super.containsValue(value);
-    }
 
-    public void putAll(HashMap<? extends K, ? extends V> t) {
+    public void putAll(Map<? extends K, ? extends V> m) {
 
-        Iterator<? extends K> it = t.keySet().iterator();
+        Iterator<? extends K> it = m.keySet().iterator();
 
         while (it.hasNext()) {
             K key = it.next();
 
-            put(key, t.get(key));
+            if (key == null) {
+                continue;
+            }
+
+            put(key, m.get(key));
         }
     }
 
-    public void valuesToArray(V[] array) {
-
-        Iterator<V> it = values().iterator();
-        int      i  = 0;
-
-        while (it.hasNext()) {
-            array[i] = it.next();
-
-            i++;
-        }
+    public <T> T[] keysToArray(T[] array) {
+        return toArray(array, true);
     }
 
-    public void keysToArray(K[] array) {
-
-        Iterator<K> it = keySet().iterator();
-        int      i  = 0;
-
-        while (it.hasNext()) {
-            array[i] = it.next();
-
-            i++;
-        }
+    public <T> T[] valuesToArray(T[] array) {
+        return toArray(array, false);
     }
 
     public Set<K> keySet() {
@@ -135,9 +171,46 @@ public class HashMap<K, V> extends BaseHashMap {
         return values;
     }
 
-    class KeySet implements Set<K> {
+    public Set<Entry<K, V>> entrySet() {
+        if (entries == null) {
+            entries = new EntrySet();
+        }
 
-        public Iterator iterator() {
+        return entries;
+    }
+
+    private class EntrySet extends AbstractReadOnlyCollection<Entry<K, V>> implements Set<Entry<K, V>> {
+
+        public Iterator<Entry<K, V>> iterator() {
+            return HashMap.this.new EntrySetIterator();
+        }
+
+        public int size() {
+            return HashMap.this.size();
+        }
+
+        public boolean isEmpty() {
+            return size() == 0;
+        }
+    }
+
+    private class EntrySetIterator extends BaseHashIterator{
+
+        EntrySetIterator() {
+            super(true);
+        }
+
+        public Entry<K, V> next() {
+            K key   = (K) super.next();
+            V value = (V) objectValueTable[lookup];
+
+            return new MapEntry(key, value);
+        }
+    }
+
+    private class KeySet<K> extends AbstractReadOnlyCollection<K> implements Set<K> {
+
+        public Iterator<K> iterator() {
             return HashMap.this.new BaseHashIterator(true);
         }
 
@@ -149,41 +222,22 @@ public class HashMap<K, V> extends BaseHashMap {
             return containsKey(key);
         }
 
-        public K get(K key) {
-
-            int lookup = HashMap.this.getLookup(key, key.hashCode());
-
-            if (lookup < 0) {
-                return null;
-            } else {
-                return (K) HashMap.this.objectKeyTable[lookup];
-            }
-        }
-
-        public boolean add(K key) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean addAll(Collection<? extends K> c) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
         public boolean isEmpty() {
             return size() == 0;
         }
 
-        public void clear() {
-            HashMap.this.clear();
+        public Object[] toArray() {
+            return HashMap.this.toArray(true);
+        }
+
+        public <T> T[] toArray(T[] array) {
+            return HashMap.this.toArray(array, true);
         }
     }
 
-    class Values implements Collection<V> {
+    private class Values<V> extends AbstractReadOnlyCollection<V> {
 
-        public Iterator iterator() {
+        public Iterator<V> iterator() {
             return HashMap.this.new BaseHashIterator(false);
         }
 
@@ -191,28 +245,16 @@ public class HashMap<K, V> extends BaseHashMap {
             return HashMap.this.size();
         }
 
-        public boolean contains(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean add(V value) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean addAll(Collection<? extends V> c) {
-            throw new UnsupportedOperationException();
-        }
-
-        public boolean remove(Object o) {
-            throw new UnsupportedOperationException();
-        }
-
         public boolean isEmpty() {
             return size() == 0;
         }
 
-        public void clear() {
-            HashMap.this.clear();
+        public Object[] toArray() {
+            return HashMap.this.toArray(false);
+        }
+
+        public <T> T[] toArray(T[] array) {
+            return HashMap.this.toArray(array, false);
         }
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,8 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.Index.IndexUse;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.Set;
@@ -54,7 +54,6 @@ import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.trigger.Trigger;
-import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.Collation;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.TimestampData;
@@ -76,7 +75,7 @@ public class Table extends TableBase implements SchemaObject {
     protected long     changeTimestamp;
 
     //
-    public HashMappedList columnList;              // columns in table
+    public OrderedHashMap columnList;              // columns in table
     int                   identityColumn;          // -1 means no such column
     NumberSequence        identitySequence;        // next value of identity column
 
@@ -217,7 +216,7 @@ public class Table extends TableBase implements SchemaObject {
         // type may have changed above for CACHED tables
         tableType         = type;
         identityColumn    = -1;
-        columnList        = new HashMappedList();
+        columnList        = new OrderedHashMap();
         indexList         = Index.emptyArray;
         constraintList    = Constraint.emptyArray;
         fkConstraints     = Constraint.emptyArray;
@@ -1954,7 +1953,7 @@ public class Table extends TableBase implements SchemaObject {
         return cols;
     }
 
-    int[] getColumnIndexes(HashMappedList list) {
+    int[] getColumnIndexes(OrderedHashMap list) {
 
         int[] cols = new int[list.size()];
 
@@ -2321,7 +2320,7 @@ public class Table extends TableBase implements SchemaObject {
         String oldname = column.getName().name;
         int    i       = getColumnIndex(oldname);
 
-        columnList.setKey(i, newName);
+        columnList.setKeyAt(i, newName);
         column.getName().rename(newName, isquoted);
     }
 
@@ -2334,7 +2333,7 @@ public class Table extends TableBase implements SchemaObject {
             throw Error.error(ErrorCode.X_42504);
         }
 
-        columnList.setKey(i, newName.name);
+        columnList.setKeyAt(i, newName.name);
         column.getName().rename(newName);
     }
 

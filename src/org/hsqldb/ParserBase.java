@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,9 +37,9 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
+import org.hsqldb.lib.OrderedHashMap;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
@@ -930,10 +930,10 @@ public class ParserBase {
      * read list of comma separated prop = value pairs as tokens
      * optionalEquals, requireEquals for use of '='
      */
-    HashMappedList readPropertyValuePairs(boolean optionalEquals,
+    OrderedHashMap readPropertyValuePairs(boolean optionalEquals,
                                           boolean requireEquals) {
 
-        HashMappedList list = null;
+        OrderedHashMap list = null;
         String         prop;
         Token          value;
         int            pos;
@@ -975,7 +975,7 @@ public class ParserBase {
             value = token.duplicate();
 
             if (list == null) {
-                list = new HashMappedList();
+                list = new OrderedHashMap();
             }
 
             list.put(prop, value);

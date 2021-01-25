@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ package org.hsqldb;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
-import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.List;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
@@ -2313,7 +2313,7 @@ public class ExpressionLogical extends Expression {
         return false;
     }
 
-    void getJoinRangeVariables(RangeVariable[] ranges, HsqlList list) {
+    void getJoinRangeVariables(RangeVariable[] ranges, List list) {
 
         for (int i = 0; i < nodes.length; i++) {
             nodes[i].getJoinRangeVariables(ranges, list);
