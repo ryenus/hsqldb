@@ -162,6 +162,11 @@ public class TestDatabaseMetaData extends TestBase {
             }
 
             rs.close();
+
+            if (i != 1) {
+                System.out.println("expected table t_1 count of 1 but was " + i);
+            }
+
             assertEquals("expected table t_1 count of 1", 1, i);
 
             // test various methods

@@ -45,7 +45,7 @@ import org.hsqldb.lib.StopWatch;
 import junit.framework.TestCase;
 
 /**
- * Randomly excutes methods on the HsqlList data structures and compares the
+ * Randomly excutes methods on the Hsql List data structures and compares the
  * results with equivalent calls on the java vector class.
  *
  * @author dnordahl@users

@@ -111,7 +111,7 @@ public class SetFunctionValueAggregate implements SetFunction {
                 distinctValues = new HashSet(32, comparator);
             } else {
                 comparator     = null;
-                distinctValues = new HashSet();
+                distinctValues = new HashSet(32);
             }
         } else {
             comparator = null;
