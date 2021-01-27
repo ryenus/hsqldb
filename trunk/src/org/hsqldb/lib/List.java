@@ -38,7 +38,7 @@ package org.hsqldb.lib;
  * @version 2.5.2
  * @since 1.7.2
  */
-public interface List<E> extends  Collection<E> {
+public interface List<E> extends Collection<E> {
 
     void add(int index, E element);
 

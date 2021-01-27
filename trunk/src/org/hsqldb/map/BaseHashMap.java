@@ -254,7 +254,8 @@ public class BaseHashMap {
 
     protected int getLookup(long key) {
 
-        int lookup = hashIndex.getLookup((int) key);
+        int hash   = (int) (key >>> 32 ^ key);
+        int lookup = hashIndex.getLookup(hash);
 
         for (; lookup >= 0; lookup = hashIndex.getNextLookup(lookup)) {
             long current = longKeyTable[lookup];
@@ -269,7 +270,8 @@ public class BaseHashMap {
 
     protected int getObjectLookup(long key) {
 
-        int  lookup = hashIndex.getLookup((int) key);
+        int  hash   = (int) (key >>> 32 ^ key);
+        int  lookup = hashIndex.getLookup(hash);
         long tempKey;
 
         for (; lookup >= 0; lookup = hashIndex.getNextLookup(lookup)) {
@@ -364,7 +366,7 @@ public class BaseHashMap {
     protected Object addOrUpdate(long longKey, long longValue,
                                  Object objectKey, Object objectValue) {
 
-        int hash = (int) longKey;
+        int hash;
 
         if (isObjectKey) {
             if (objectKey == null) {
@@ -372,6 +374,8 @@ public class BaseHashMap {
             }
 
             hash = comparator.hashCode(objectKey);
+        } else {
+            hash = (int) (longKey >>> 32 ^ longKey);
         }
 
         int     index       = hashIndex.getHashIndex(hash);
@@ -522,7 +526,7 @@ public class BaseHashMap {
                             Object objectValue, boolean matchValue,
                             boolean removeRow) {
 
-        int hash = (int) longKey;
+        int hash;
 
         if (isObjectKey) {
             if (objectKey == null) {
@@ -530,6 +534,8 @@ public class BaseHashMap {
             }
 
             hash = comparator.hashCode(objectKey);
+        } else {
+            hash = (int) (longKey >>> 32 ^ longKey);
         }
 
         int    index       = hashIndex.getHashIndex(hash);
@@ -640,13 +646,13 @@ public class BaseHashMap {
     }
 
     /**
-     * Single method for adding or removing key / values in multi-value maps.
+     * Single method for adding key / values in multi-value maps.
      * Values for each key are clustered.
      */
     protected boolean addMultiVal(long longKey, long longValue,
                                   Object objectKey, Object objectValue) {
 
-        int hash = (int) longKey;
+        int hash;
 
         if (isObjectKey) {
             if (objectKey == null) {
@@ -654,6 +660,8 @@ public class BaseHashMap {
             }
 
             hash = comparator.hashCode(objectKey);
+        } else {
+            hash = (int) (longKey >>> 32 ^ longKey);
         }
 
         int     index      = hashIndex.getHashIndex(hash);
@@ -756,7 +764,7 @@ public class BaseHashMap {
     }
 
     /**
-     * Single method for adding or removing key / values in multi-value maps.
+     * Single method for removing key / values in multi-value maps.
      */
     protected Object removeMultiVal(long longKey, long longValue,
                                     Object objectKey, Object objectValue,
@@ -892,10 +900,10 @@ public class BaseHashMap {
      * For object sets using long key attribute of object for equality and
      * hash. Used in org.hsqldb.persist.Cache
      */
-    protected Object addOrRemoveObject(Object object, long longKey,
+    protected Object addOrRemoveObject(long longKey, Object object,
                                        boolean remove) {
 
-        int    hash        = (int) longKey;
+        int    hash        = (int) (longKey >>> 32 ^ longKey);
         int    index       = hashIndex.getHashIndex(hash);
         int    lookup      = hashIndex.getLookup(hash);
         int    lastLookup  = -1;
@@ -941,7 +949,7 @@ public class BaseHashMap {
 
         if (hashIndex.elementCount >= threshold) {
             if (reset()) {
-                return addOrRemoveObject(object, longKey, remove);
+                return addOrRemoveObject(longKey, object, remove);
             } else {
                 throw new NoSuchElementException("BaseHashMap");
             }
@@ -1994,5 +2002,54 @@ public class BaseHashMap {
         public int getLookup() {
             return lookup;
         }
+    }
+
+    public BaseHashMap clone() {
+
+        BaseHashMap copy = null;
+
+        try {
+            copy = (BaseHashMap) super.clone();
+        } catch (CloneNotSupportedException e) {}
+
+        copy.hashIndex = hashIndex.clone();
+
+        if (intKeyTable != null) {
+            copy.intKeyTable = intKeyTable.clone();
+        }
+
+        if (objectKeyTable != null) {
+            copy.objectKeyTable = objectKeyTable.clone();
+        }
+
+        if (longKeyTable != null) {
+            copy.longKeyTable = longKeyTable.clone();
+        }
+
+        if (intValueTable != null) {
+            copy.intValueTable = intValueTable.clone();
+        }
+
+        if (objectValueTable != null) {
+            copy.objectValueTable = objectValueTable.clone();
+        }
+
+        if (longValueTable != null) {
+            copy.longValueTable = longValueTable.clone();
+        }
+
+        if (accessTable != null) {
+            copy.accessTable = accessTable.clone();
+        }
+
+        if (objectValueTable2 != null) {
+            copy.objectValueTable2 = objectValueTable2.clone();
+        }
+
+        return copy;
+    }
+
+    BaseHashMap duplicate() {
+        return null;
     }
 }

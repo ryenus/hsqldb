@@ -134,8 +134,8 @@ public class TestHashStructures extends TestCase {
 
         boolean failed   = false;
         int     testSize = 33;
-        org.hsqldb.lib.HashMappedList hMap =
-            new org.hsqldb.lib.HashMappedList();
+        org.hsqldb.lib.OrderedHashMap hMap =
+            new org.hsqldb.lib.OrderedHashMap();
         java.util.HashMap uMap = new java.util.HashMap();
 
         try {

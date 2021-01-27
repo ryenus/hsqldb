@@ -277,7 +277,6 @@ public class HashIndex {
         return true;
     }
 
-
     /**
      * Insert a node.
      *
@@ -313,4 +312,17 @@ public class HashIndex {
         return true;
     }
 
+    public HashIndex clone() {
+
+        HashIndex copy = null;
+
+        try {
+            copy = (HashIndex) super.clone();
+        } catch (CloneNotSupportedException e) {}
+
+        copy.hashTable = hashTable.clone();
+        copy.linkTable = linkTable.clone();
+
+        return copy;
+    }
 }

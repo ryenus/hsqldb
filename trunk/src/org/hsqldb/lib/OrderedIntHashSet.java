@@ -31,8 +31,6 @@
 
 package org.hsqldb.lib;
 
-import org.hsqldb.map.BaseHashMap;
-
 /**
  * A list which is also a set of int primitives which maintains the insertion
  * order of the elements and allows access by index. Iterators return the keys

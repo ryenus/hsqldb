@@ -119,6 +119,7 @@ public class TestDateTime extends TestBase {
 
         selectStatement = connection.prepareStatement(SELECT_DATE);
 
+        // try with setDate()
         selectStatement.setDate(1, selectDate);
 
         results = selectStatement.executeQuery();
@@ -126,6 +127,16 @@ public class TestDateTime extends TestBase {
         // Get the date from the database
         assertTrue("The inserted date is not in the database.",
                           results.next());
+
+        // try with setObject()
+        selectStatement.setObject(1, selectDate);
+
+        results = selectStatement.executeQuery();
+
+        // Get the date from the database
+        assertTrue("The inserted date is not in the database.",
+                          results.next());
+
 
         retrievedDate   = results.getDate(1);
         deleteStatement = connection.prepareStatement(DELETE_DATE);

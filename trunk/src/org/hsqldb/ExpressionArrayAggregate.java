@@ -230,7 +230,7 @@ public class ExpressionArrayAggregate extends Expression {
             case OpTypes.ARRAY_AGG :
                 arrayDataType =
                     new ArrayType(rowDataType,
-                                  ArrayType.defaultArrayCardinality);
+                                  ArrayType.defaultLargeArrayCardinality);
                 dataType = new ArrayType(exprType,
                                          ArrayType.defaultArrayCardinality);
                 break;
@@ -238,14 +238,14 @@ public class ExpressionArrayAggregate extends Expression {
             case OpTypes.GROUP_CONCAT :
                 arrayDataType =
                     new ArrayType(rowDataType,
-                                  ArrayType.defaultArrayCardinality);
+                                  ArrayType.defaultLargeArrayCardinality);
                 dataType = Type.SQL_VARCHAR_DEFAULT;
                 break;
 
             case OpTypes.MEDIAN :
                 arrayDataType =
                     new ArrayType(nodeDataTypes[0],
-                                  ArrayType.defaultArrayCardinality);
+                                  ArrayType.defaultLargeArrayCardinality);
                 dataType = ExpressionAggregate.getType(session,
                                                        OpTypes.MEDIAN,
                                                        exprType);
@@ -427,7 +427,7 @@ public class ExpressionArrayAggregate extends Expression {
     }
 
     public boolean hasCondition() {
-        return condition != null && !condition.isTrue();
+        return !condition.isTrue();
     }
 
     public void setCondition(ExpressionLogical e) {
@@ -439,9 +439,7 @@ public class ExpressionArrayAggregate extends Expression {
         ExpressionArrayAggregate e =
             (ExpressionArrayAggregate) super.duplicate();
 
-        if (condition != null) {
-            e.condition = condition.duplicate();
-        }
+        e.condition = condition.duplicate();
 
         return e;
     }

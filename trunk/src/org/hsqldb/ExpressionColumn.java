@@ -1135,8 +1135,10 @@ public class ExpressionColumn extends Expression {
                 }
 
                 for (int i = 0; i < length; i++) {
-                    if (columns[i] instanceof ExpressionColumn) {
-                        if (equals(columns[i])) {
+                    Expression e = (Expression) columns[i];
+
+                    if (e instanceof ExpressionColumn) {
+                        if (equals(e)) {
                             if (matchIndex < 0) {
                                 matchIndex = i;
                             } else if (session.database.sqlEnforceRefs) {
@@ -1147,9 +1149,8 @@ public class ExpressionColumn extends Expression {
                         }
 
                         if (tableName == null && schema == null
-                                && columnName
-                                    .equals(((ExpressionColumn) columns[i])
-                                        .columnName)) {
+                                && columnName.equals(
+                                    ((ExpressionColumn) e).columnName)) {
                             if (matchIndex < 0) {
                                 matchIndex = i;
                             } else if (session.database.sqlEnforceRefs) {

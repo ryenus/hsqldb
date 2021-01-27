@@ -201,7 +201,7 @@ public class Cache extends BaseHashMap {
 
     private void putNoCheck(CachedObject row) {
 
-        Object existing = addOrRemoveObject(row, row.getPos(), false);
+        Object existing = addOrRemoveObject(row.getPos(), row, false);
 
         if (existing != null) {
             dataFileCache.logSevereEvent("existing object in Cache.put() "
@@ -219,7 +219,7 @@ public class Cache extends BaseHashMap {
      */
     CachedObject release(long pos) {
 
-        CachedObject r = (CachedObject) addOrRemoveObject(null, pos, true);
+        CachedObject r = (CachedObject) addOrRemoveObject(pos, null, true);
 
         if (r == null) {
             return null;
