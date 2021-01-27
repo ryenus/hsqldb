@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
  * Parser for SQL table definition
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class ParserTable extends ParserDML {
@@ -568,7 +568,8 @@ public class ParserTable extends ParserDML {
         return columnList;
     }
 
-    StatementSchema compileCreateTableAsSubqueryDefinition(Table table, boolean ifNotExists) {
+    StatementSchema compileCreateTableAsSubqueryDefinition(Table table,
+            boolean ifNotExists) {
 
         HsqlName[]      readName        = null;
         boolean         withData        = true;
@@ -1034,10 +1035,11 @@ public class ParserTable extends ParserDML {
         Expression generateExpr    = null;
         int sysPeriodType =
             SchemaObject.PeriodSystemColumnType.PERIOD_ROW_NONE;
-        boolean        isNullable  = true;
-        Expression     defaultExpr = null;
-        Type           typeObject  = null;
-        NumberSequence sequence    = null;
+        boolean           isNullable    = true;
+        Expression        defaultExpr   = null;
+        ExpressionLogical colConstraint = null;
+        Type              typeObject    = null;
+        NumberSequence    sequence      = null;
 
         switch (token.tokenType) {
 
@@ -1106,6 +1108,31 @@ public class ParserTable extends ParserDML {
                 }
 
                 typeObject = readTypeDefinition(true, true);
+
+                if (database.sqlSyntaxMys && typeObject.isDomainType()
+                        && typeObject.getName().name.equals(Tokens.T_ENUM)) {
+                    typeObject.userTypeModifier = null;
+
+                    HsqlName constName = database.nameManager.newAutoName("CT",
+                        table.getSchemaName(), table.getName(),
+                        SchemaObject.CONSTRAINT);
+                    Constraint c =
+                        new Constraint(constName, null,
+                                       SchemaObject.ConstraintTypes.CHECK);
+
+                    constraintList.add(c);
+                    readThis(Tokens.OPENBRACKET);
+
+                    Expression left  = new ExpressionColumn(hsqlName.name);
+                    Expression right = super.XreadInValueListConstructor(1);
+
+                    readThis(Tokens.CLOSEBRACKET);
+
+                    colConstraint = new ExpressionLogical(OpTypes.IN, left,
+                                                          right);
+                    colConstraint.noOptimisation = true;
+                    c.check                      = colConstraint;
+                }
             }
         }
 
@@ -1283,29 +1310,8 @@ public class ParserTable extends ParserDML {
         ColumnSchema column = new ColumnSchema(hsqlName, typeObject,
                                                isNullable, false, defaultExpr);
 
-        if (database.sqlSyntaxMys && typeObject.isDomainType()
-                && typeObject.getName().name.equals("ENUM")) {
-            typeObject.userTypeModifier = null;
-
-            HsqlName constName = database.nameManager.newAutoName("CT",
-                table.getSchemaName(), table.getName(),
-                SchemaObject.CONSTRAINT);
-            Constraint c = new Constraint(constName, null,
-                                          SchemaObject.ConstraintTypes.CHECK);
-
-            constraintList.add(c);
-            readThis(Tokens.OPENBRACKET);
-
-            Expression left  = new ExpressionColumn(column);
-            Expression right = super.XreadInValueListConstructor(1);
-
-            readThis(Tokens.CLOSEBRACKET);
-
-            ExpressionLogical in = new ExpressionLogical(OpTypes.IN, left,
-                right);
-
-            in.noOptimisation = true;
-            c.check           = in;
+        if (colConstraint != null) {
+            colConstraint.setLeftNode(new ExpressionColumn(column));
         }
 
         column.setGeneratingExpression(generateExpr);
@@ -2015,6 +2021,7 @@ public class ParserTable extends ParserDML {
 
         if (database.sqlSyntaxOra || database.sqlSyntaxPgs) {
             e = XreadAllTypesCommonValueExpression(false);
+
             if (e != null) {
                 if (e.getType() == OpTypes.ROW_SUBQUERY) {
                     TableDerived t = (TableDerived) e.getTable();

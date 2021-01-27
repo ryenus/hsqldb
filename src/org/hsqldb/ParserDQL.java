@@ -66,7 +66,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -118,15 +118,16 @@ public class ParserDQL extends ParserBase {
 
     Type readTypeDefinition(boolean allowCollation, boolean includeUserTypes) {
 
-        int     typeNumber     = Integer.MIN_VALUE;
-        boolean hasLength      = false;
-        boolean hasScale       = false;
-        boolean isCharacter    = false;
-        boolean isIgnoreCase   = false;
-        boolean readByteOrChar = false;
-        boolean enforceSize    = database.sqlEnforceSize;
-        long    length         = 0;
-        int     scale          = 0;
+        int     typeNumber       = Integer.MIN_VALUE;
+        boolean hasLength        = false;
+        boolean hasScale         = false;
+        boolean isCharacter      = false;
+        boolean isIgnoreCase     = false;
+        boolean readByteOrChar   = false;
+        boolean enforceSize      = database.sqlEnforceSize;
+        boolean acceptsPrecision = true;
+        long    length           = 0;
+        int     scale            = 0;
 
         checkIsIdentifier();
 
@@ -296,27 +297,29 @@ public class ParserDQL extends ParserBase {
                         return readMysEnum();
 
                     case Tokens.TINYTEXT :
-                        typeNumber     = Types.VARCHAR;
-                        readByteOrChar = true;
+                        typeNumber       = Types.VARCHAR;
+                        acceptsPrecision = false;
                         break;
 
                     case Tokens.TEXT :
-                        typeNumber     = Types.LONGVARCHAR;
-                        readByteOrChar = true;
+                        typeNumber = Types.LONGVARCHAR;
+                        acceptsPrecision = false;
                         break;
 
                     case Tokens.MEDIUMTEXT :
                     case Tokens.LONGTEXT :
-                        typeNumber     = Types.LONGVARCHAR;
-                        readByteOrChar = true;
+                        typeNumber = Types.LONGVARCHAR;
+                        acceptsPrecision = false;
                         break;
 
                     case Tokens.TINYBLOB :
                         typeNumber = Types.VARBINARY;
+                        acceptsPrecision = false;
                         break;
 
                     case Tokens.MEDIUMBLOB :
                     case Tokens.LONGBLOB :
+                        acceptsPrecision = false;
                         typeNumber = Types.LONGVARBINARY;
                         break;
                 }
@@ -385,14 +388,17 @@ public class ParserDQL extends ParserBase {
             length = DTIType.defaultTimestampFractionPrecision;
         }
 
-        if (Types.requiresPrecision(typeNumber)
-                && token.tokenType != Tokens.OPENBRACKET && enforceSize
-                && !session.isProcessingScript()) {
-            throw Error.error(ErrorCode.X_42599,
-                              Type.getDefaultType(typeNumber).getNameString());
-        }
+        acceptsPrecision &= Types.acceptsPrecision(typeNumber);
 
-        boolean acceptsPrecision = Types.acceptsPrecision(typeNumber);
+        if (acceptsPrecision && enforceSize
+                && Types.requiresPrecision(typeNumber)) {
+            if (token.tokenType != Tokens.OPENBRACKET
+                    && !session.isProcessingScript()) {
+                throw Error.error(
+                    ErrorCode.X_42599,
+                    Type.getDefaultType(typeNumber).getNameString());
+            }
+        }
 
         if (database.sqlSyntaxMys) {
             switch (typeNumber) {
