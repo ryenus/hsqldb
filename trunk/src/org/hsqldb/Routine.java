@@ -386,7 +386,11 @@ public class Routine implements SchemaObject, RangeGroup, Cloneable {
             ? HsqlNameManager.getAutoNoNameColumnString(parameterList.size())
             : name.name;
 
-        parameterList.add(paramName, param);
+        boolean result = parameterList.add(paramName, param);
+
+        if (!result) {
+            throw Error.error(ErrorCode.X_42614);
+        }
     }
 
     public void setLanguage(int lang) {

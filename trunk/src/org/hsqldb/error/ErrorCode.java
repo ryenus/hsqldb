@@ -35,7 +35,7 @@ package org.hsqldb.error;
  * SQL error codes.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.6.0
  * @since 1.9.0
  */
 public interface ErrorCode {
@@ -628,6 +628,7 @@ public interface ErrorCode {
     int X_42611 = 5611;                            // type incompatible with declared return type
     int X_42612 = 5612;                            // SQL exception already used
     int X_42613 = 5613;                            // wildcard character * not allowed in routine, view or trigger definition
+    int X_42614 = 5614;                            // duplicate parameter name
 
     // with check option violation - 200x
     int X_44000 = 5700;                            // with check option violation
