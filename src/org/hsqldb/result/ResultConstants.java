@@ -40,7 +40,7 @@ import org.hsqldb.StatementTypes;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @since 2.5.2
+ * @since 2.6.0
  * @version 1.7.2
  */
 

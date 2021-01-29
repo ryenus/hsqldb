@@ -39,7 +39,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 2.0.0
  */
 public class TransactionManager2PL extends TransactionManagerCommon

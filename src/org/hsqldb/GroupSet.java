@@ -47,7 +47,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * added support for GROUPING SETS, ROLLUP, CUBE and GROUPING functionality.
  *
  * @author Nicholas Quek (kocolipy@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 2.5.1
  */
 public class GroupSet {

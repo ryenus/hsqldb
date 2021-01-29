@@ -48,7 +48,7 @@ import org.hsqldb.rights.Grantee;
  * Base class for type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.9.0
  */
 public abstract class Type implements SchemaObject, Cloneable {

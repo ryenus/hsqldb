@@ -462,7 +462,7 @@ import org.hsqldb.types.Type;
  * </div> <!-- end release-specific documentation -->
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since HSQLDB 1.9.0
  * @see JDBCDriver
  * @see JDBCStatement

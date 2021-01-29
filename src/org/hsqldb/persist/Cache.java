@@ -52,7 +52,7 @@ import org.hsqldb.map.BaseHashMap;
  * to DataFileCache.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.8.0
  */
 public class Cache extends BaseHashMap {

@@ -43,7 +43,7 @@ import org.hsqldb.lib.IntKeyIntValueHashMap;
  * Common elements for Type instances for DATETIME and INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.9.0
  */
 public abstract class DTIType extends Type {

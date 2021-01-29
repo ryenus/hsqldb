@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2010-2020 Fred Toussi. Permission is granted to
+      <para>Copyright 2010-2021 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -3596,7 +3596,7 @@ DIRECT SALES (null) (null)  3778500
       <para>HyperSQL limits recursion to 256 rounds. If this is exceeded, an
       error is raised.</para>
 
-      <para>From version 2.5.2, HyperSQL extends recursive query processing by
+      <para>From version 2.6.0, HyperSQL extends recursive query processing by
       allowing the use of RECURSIVE_TABLE to reference the current general
       result of the <literal>&lt;query expression&gt;</literal>. This table
       name can be used in subqueries with an IN predicate in order to reduce

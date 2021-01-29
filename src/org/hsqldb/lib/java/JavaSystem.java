@@ -43,7 +43,7 @@ import java.nio.charset.Charset;
  * Handles invariants, runtime and methods
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  */
 public final class JavaSystem {
 

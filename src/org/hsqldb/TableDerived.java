@@ -48,7 +48,7 @@ import org.hsqldb.types.Type;
  * Table with data derived from a query expression.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class TableDerived extends Table {

@@ -35,7 +35,7 @@ package org.hsqldb.lib;
  * Interface for List collections. Updated for generics fredt@users.
  *
  * @author dnordahl@users
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.7.2
  */
 public interface List<E> extends Collection<E> {
