@@ -1,4 +1,14 @@
-24 June 2021 - version 2.5.1
+22 February 2021 - version 2.6.0
+-- version 2.6.0 marks the 20th anniversary of HyperSQL
+-- version 2.6.0 main jar contains the module org.hsqldb and can be used as a Java module
+-- version 2.6.0 jar requires JRE 11 or later - tested up to Java 15
+-- version 2.6.0 alternative jar requires JRE 8 or later
+-- version 2.3.9 jar can be compiled with Java 6 (or 7) for JRE 6 and 7 and fully compatible with 2.6.0 except for the new JDBC features
+-- added support for RECURSIVE_TABLE pseudotable in WITH RECURSIVE queries
+-- added extensive features to the collection classes in org.hsqldb.lib (maps, lists, queues etc.) which can also be used in user apps
+-- improved MySQL syntax support for ENUM
+-- fixed several minor issues
+24 June 2020 - version 2.5.1
 -- version 2.5.1 jar requires JRE 8 or later - tested up to Java 14
 -- version 2.5.1 can be compiled with Java 9 or later as org.hsqldb Java module jar
 -- version 2.3.8 jar can be compiled with Java 6 (or 7) for JRE 6 and 7 and fully compatible with 2.5.1 except for the new JDBC features
