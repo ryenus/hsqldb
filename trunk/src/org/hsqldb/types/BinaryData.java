@@ -45,7 +45,7 @@ import org.hsqldb.lib.ArrayUtil;
  * A Binary object instance always wraps a non-null byte[] object.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.7.2
  */
 public class BinaryData implements BlobData {

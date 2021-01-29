@@ -1,4 +1,4 @@
--- author Fred Toussi (fredt@users dot sourceforge.net) version 2.5.2
+-- author Fred Toussi (fredt@users dot sourceforge.net) version 2.6.0
 
 /*lob_schema_definition*/
 CREATE SCHEMA SYSTEM_LOBS AUTHORIZATION DBA

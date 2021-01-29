@@ -149,7 +149,7 @@ import javax.swing.tree.TreePath;
  *
  * @author dmarshall@users
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.7.0
  */
 public class DatabaseManagerSwing extends JFrame

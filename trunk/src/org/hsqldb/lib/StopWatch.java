@@ -43,7 +43,7 @@ package org.hsqldb.lib;
  * Nanosecond support added by fredt@users
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.7.2
  */
 public class StopWatch {

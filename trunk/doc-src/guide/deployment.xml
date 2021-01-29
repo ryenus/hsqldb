@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2020 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2021 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -939,7 +939,7 @@
       the suggestions in the appropriate sections below. If you need to
       specify a specific version, follow the instructions in the
       range-versioning section but change the version range specifications to
-      literal versions like <literal>2.5.2</literal>.</para>
+      literal versions like <literal>2.6.0</literal>.</para>
     </section>
 
     <section xml:id="dec_maven_range_version">

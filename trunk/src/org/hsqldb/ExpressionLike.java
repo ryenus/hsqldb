@@ -43,7 +43,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.9.0
  */
 public final class ExpressionLike extends ExpressionLogical {

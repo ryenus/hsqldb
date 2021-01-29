@@ -63,7 +63,7 @@ import org.hsqldb.types.Type;
  * Holds the data structures and methods for creation of a named database table.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {

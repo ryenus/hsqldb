@@ -49,7 +49,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator using a table as the data store.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class RowSetNavigatorDataTable extends RowSetNavigatorData {

@@ -60,7 +60,7 @@
     example</para>
 
     <para><programlisting>  CREATE TABLE "ALL" ("AND" INT, "WHEN" INT)
-  SELECT "AND" FROM "ALL" WHERE "WHEN" = 2020
+  SELECT "AND" FROM "ALL" WHERE "WHEN" = 2021
 </programlisting></para>
 
     <simpara>ABS • ALL • ALLOCATE • ALTER • AND • ANY • ARE • ARRAY • AS •

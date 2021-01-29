@@ -51,7 +51,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 2.0.0
  */
 class TransactionManagerCommon {

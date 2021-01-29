@@ -38,7 +38,7 @@ import java.util.Arrays;
  * Collection of static methods for operations on arrays
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.7.2
  */
 public final class ArrayUtil {

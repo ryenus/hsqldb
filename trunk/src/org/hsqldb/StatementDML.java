@@ -55,7 +55,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.2
+ * @version 2.6.0
  * @since 1.9.0
  */
 
