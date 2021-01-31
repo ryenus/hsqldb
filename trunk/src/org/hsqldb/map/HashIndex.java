@@ -103,6 +103,14 @@ public class HashIndex {
         modified             = false;
     }
 
+    public int getElementCount() {
+        return elementCount;
+    }
+
+    public int getLimitPointer() {
+        return newNodePointer;
+    }
+
     /**
      * Reset the index as empty.
      */
