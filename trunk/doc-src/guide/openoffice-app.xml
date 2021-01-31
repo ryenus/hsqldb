@@ -67,7 +67,7 @@
     own application, rather than OpenOffice.</simpara>
 
     <simpara>HyperSQ version 1.8.0 is included in OOo, ApacheOpenOffice and
-    LibreOffice. You can simply replace the jar with a HyperSQL version 2.5
+    LibreOffice. You can simply replace the jar with a HyperSQL version 2.6
     jar to use the latest capabilities with external databases. It is not yet
     possible to create and use embedded databases with this version.</simpara>
 
@@ -111,5 +111,29 @@
     are files such as .script, .data, etc. Just rename these files into
     mydb.script, mydb.data, etc. You can now open the mydb database directly
     with HyperSQL as an embedded database or as a server instance.</simpara>
+  </section>
+
+  <section xml:id="ooa_db_files_convert">
+    <title>OpenOffice / LibreOffice Extensions for HyperSQL</title>
+
+    <simpara>In 2021, two new OOo and LO extensions are developed and
+    maintained on GitHub by the developer prrvchr. These extensions make it
+    easy to use the latest version of HSQLDB 2.x with the latest versions of
+    the Base program. One extension simply adds and loads the HSQLDB 2.x jar,
+    ready for use. It also allows updating the jar to the latest version. The
+    second extension extracts the database from the .odb file in the same
+    directory and connects to the extracted database files.</simpara>
+
+    <simpara>The simple driver: <link
+    xlink:href="https://prrvchr.github.io/HsqlDBDriverOOo/">https://prrvchr.github.io/HsqlDBDriverOOo/</link>
+    </simpara>
+
+    <simpara>The driver that extracts the files: <link
+    xlink:href="https://prrvchr.github.io/HsqlDBembeddedOOo/">https://prrvchr.github.io/HsqlDBembeddedOOo/</link>
+    </simpara>
+
+    <simpara>The extensions are easy to use, with clear visual instructions on
+    how to add the extensions to the Office suite and how to create and open
+    databases. </simpara>
   </section>
 </appendix>

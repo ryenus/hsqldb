@@ -58,14 +58,15 @@
   <section xml:id="bga_overview">
     <title>Purpose</title>
 
-    <simpara>From version 2.4.0, the <filename>hsqldb.jar</filename> file
-    supplied in the zip release package is tested and built with Java 8. The
-    code is also tested extensively with Java 6 as well as the latest Java
-    versions. If you want to run with a Java 6 JVM, or build a Java 11 module,
-    or use an alternative jar (<filename>hsqldb-min.jar</filename>, etc.), you
-    must build the desired jar with a JDK. You can also find official jars
-    built with Java 6 and Java 11 in major maven repositories as well as
-    downloads from hsqldb.org.</simpara>
+    <simpara>From version 2.6.0, the <filename>hsqldb.jar</filename> file
+    supplied in the lib directory of the zip release package is tested and
+    built with Java 11. An separate jar for Java 8 is also supplied in the
+    same directory. The code is also tested extensively with Java 6-8 as well
+    as the latest Java versions. If you want to run with a Java 6 JVM, or use
+    an alternative jar (<filename>hsqldb-min.jar</filename>, etc.), you must
+    build the desired jar with a JDK. You can also find official jars built
+    with Java 6 and Java 11 in major maven repositories as well as downloads
+    from hsqldb.org.</simpara>
 
     <simpara>The Gradle task / Ant target <literal>explainjars</literal>
     reports the versions of Java and Ant actually used.</simpara>
@@ -381,7 +382,7 @@
     <simpara>The Ant build.xml can be used with most IDEs to build the Jar
     targets. All HyperSQL source files are supplied ready to compile. It is
     therefore possible to compile the sources without using Ant direcly. If
-    compilation with Java 1.6 is required, you should run the Ant switchtojdk6
+    compilation with Java 6 is required, you should run the Ant switchtojdk6
     target before compiling to modify the files that have code blocks specific
     to Java 8 or above (these are listed in the jdkcodeswitch.list
     file).</simpara>
