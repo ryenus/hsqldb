@@ -322,12 +322,12 @@ public class TestUtil {
         if (pSection instanceof DisplaySection
                 || pSection instanceof WaitSection
                 || pSection instanceof ProceedSection) {
-            String s = pSection.getResultString();
+            String resultString = pSection.getResultString();
 
-            if (s != null) {
+            if (resultString != null) {
 
                 // May or may not want to report line number for these sections?
-                System.out.println(pSection.getResultString());
+                System.out.println(resultString);
             }
         }
 
@@ -335,7 +335,19 @@ public class TestUtil {
             return;    // Do not run test method for DisplaySections.
         }
 
-        if (!pSection.test(stat)) {
+        boolean testResult = pSection.test(stat);
+
+        if (pSection instanceof ResultSetOutputParsedSection) {
+            if (!pSection.getActualResultString().isEmpty()) {
+                System.out.println("Section starting at " + scriptName + ':'
+                                   + line + " displayed a result: "
+                                   + pSection.getTestResultString());
+
+                return;
+            }
+        }
+
+        if (!testResult) {
             System.out.println("Section starting at " + scriptName + ':'
                                + line + " returned an unexpected result: "
                                + pSection.getTestResultString());
@@ -515,11 +527,14 @@ abstract class ParsedSection {
             //Otherwise it will be discarded, and the offset (between the array and the vector)
             //set to 1.
             if (s.length() == 3) {
-                lines = new String[linesArray.size() -1];
+                lines = new String[linesArray.size() - 1];
+
                 linesArray.toArraySlice(lines, 1, linesArray.size());
             } else {
-                lines    = new String[linesArray.size()];
+                lines = new String[linesArray.size()];
+
                 linesArray.toArray(lines);
+
                 lines[0] = lines[0].substring(3);
             }
 
@@ -550,6 +565,7 @@ abstract class ParsedSection {
             } while (k >= 0);
         } else {
             lines = new String[linesArray.size()];
+
             linesArray.toArray(lines);
 
             for (k = 0; k < lines.length; k++) {
@@ -687,6 +703,32 @@ abstract class ParsedSection {
 
         return false;
     }
+
+    String[] resultSetToArray(ResultSet results) throws SQLException {
+
+        HsqlArrayList list     = new HsqlArrayList();
+        StringBuilder printVal = new StringBuilder();
+
+        while (results.next()) {
+            for (int j = 0; j < results.getMetaData().getColumnCount(); j++) {
+                if (j != 0) {
+                    printVal.append(',');
+                }
+
+                printVal.append(results.getString(j + 1));
+            }
+
+            printVal.append(LS);
+            list.add(printVal.toString());
+            printVal.setLength(0);
+        }
+
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
+    }
 }
 
 /** Represents a ParsedSection for a ResultSet test */
@@ -718,8 +760,7 @@ class ResultSetParsedSection extends ParsedSection {
 
     protected String getResultString() {
 
-        StringBuilder printVal     = new StringBuilder();
-        String[]      expectedRows = getExpectedRows();
+        StringBuilder printVal = new StringBuilder();
 
         for (int i = 0; i < expectedRows.length; i++) {
             printVal.append(expectedRows[i]).append(LS);
@@ -730,8 +771,7 @@ class ResultSetParsedSection extends ParsedSection {
 
     protected String getActualResultString() {
 
-        StringBuilder printVal   = new StringBuilder();
-        String[]      actualRows = getActualRows();
+        StringBuilder printVal = new StringBuilder();
 
         if (actualRows == null) {
             return "no result";
@@ -745,6 +785,8 @@ class ResultSetParsedSection extends ParsedSection {
     }
 
     protected boolean test(Statement aStatement) {
+
+        ResultSet     results  = null;
 
         try {
             try {
@@ -765,7 +807,7 @@ class ResultSetParsedSection extends ParsedSection {
 
             //iterate over the ResultSet
             HsqlArrayList list     = new HsqlArrayList(new String[1][], 0);
-            ResultSet     results  = aStatement.getResultSet();
+            results  = aStatement.getResultSet();
             int           colCount = results.getMetaData().getColumnCount();
 
             while (results.next()) {
@@ -777,8 +819,6 @@ class ResultSetParsedSection extends ParsedSection {
 
                 list.add(row);
             }
-
-            results.close();
 
             actualRows = new String[list.size()];
 
@@ -797,8 +837,7 @@ class ResultSetParsedSection extends ParsedSection {
                 actualRows[i] = sb.toString();
             }
 
-            String[] expectedRows = getExpectedRows();
-            int      count        = 0;
+            int count = 0;
 
             for (; count < list.size(); count++) {
                 if (count < expectedRows.length) {
@@ -863,13 +902,22 @@ class ResultSetParsedSection extends ParsedSection {
                                     break;
                                 }
                             } else if (!actual.equals(expectedFields[i])) {
+                                String actualS = actual;
+
+                                if (results.getMetaData().getColumnClassName(
+                                        i).equals("java.lang.String")) {
+                                    actualS =
+                                        StringConverter.toQuotedString(actualS,
+                                                                       '\'',
+                                                                       true);
+                                }
 
                                 //then the results are different
                                 message = "Expected row " + (count + 1)
                                           + " of the ResultSet to contain:"
                                           + LS + expectedRows[count] + LS
                                           + "but field " + j + " contained "
-                                          + actual;
+                                          + actualS;
 
                                 break;
                             }
@@ -903,17 +951,15 @@ class ResultSetParsedSection extends ParsedSection {
             message = x.toString();
 
             return false;
+        } finally {
+            if (results != null) {
+                try {
+                    results.close();
+                } catch (SQLException e) {}
+            }
         }
 
         return message == null;
-    }
-
-    private String[] getExpectedRows() {
-        return expectedRows;
-    }
-
-    private String[] getActualRows() {
-        return actualRows;
     }
 }
 
@@ -921,7 +967,7 @@ class ResultSetParsedSection extends ParsedSection {
 class ResultSetOutputParsedSection extends ParsedSection {
 
     private String   delim = System.getProperty("TestUtilFieldDelimiter", ",");
-    private String[] expectedRows = null;
+    private String[] actualRows = new String[]{};
 
     /**
      * constructs a new instance of ResultSetParsedSection, interpreting
@@ -936,6 +982,17 @@ class ResultSetOutputParsedSection extends ParsedSection {
 
     protected String getResultString() {
         return "";
+    }
+
+    protected String getActualResultString() {
+
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < actualRows.length; i++) {
+            result.append(actualRows[i]);
+        }
+
+        return result.toString();
     }
 
     protected boolean test(Statement aStatement) {
@@ -958,23 +1015,11 @@ class ResultSetOutputParsedSection extends ParsedSection {
             }
 
             //iterate over the ResultSet
-            ResultSet     results  = aStatement.getResultSet();
-            StringBuilder printVal = new StringBuilder();
+            ResultSet results = aStatement.getResultSet();
 
-            while (results.next()) {
-                for (int j = 0; j < results.getMetaData().getColumnCount();
-                        j++) {
-                    if (j != 0) {
-                        printVal.append(',');
-                    }
+            actualRows = this.resultSetToArray(results);
 
-                    printVal.append(results.getString(j + 1));
-                }
-
-                printVal.append(LS);
-            }
-
-            throw new Exception(printVal.toString());
+            return true;
         } catch (Exception x) {
             message = x.toString();
 
@@ -982,8 +1027,31 @@ class ResultSetOutputParsedSection extends ParsedSection {
         }
     }
 
-    private String[] getExpectedRows() {
-        return expectedRows;
+    protected String getTestResultString() {
+
+        StringBuilder b = new StringBuilder();
+
+        b.append(LS + "******" + LS);
+        b.append("Type: ");
+        b.append(getType()).append(LS);
+        b.append("SQL: ").append(getSql()).append(LS);
+
+        if (message != null) {
+            b.append("expected results:").append(LS);
+            b.append(getResultString()).append(LS);
+
+            //check to see if the message field has been populated
+            if (getMessage() != null) {
+                b.append(LS + "message:").append(LS);
+                b.append(getMessage()).append(LS);
+            }
+        }
+
+        b.append("actual results:").append(LS);
+        b.append(getActualResultString());
+        b.append(LS + "******" + LS);
+
+        return b.toString();
     }
 }
 
@@ -1062,6 +1130,7 @@ class WaitSection extends ParsedSection {
         /* Can't user the super constructor, since it does funny things when
          * constructing the SQL Buffer, which we don't need. */
         lines = new String[linesArray.size()];
+
         linesArray.toArray(lines);
 
         int    closeCmd = lines[0].indexOf("*/");
@@ -1155,6 +1224,7 @@ class ProceedSection extends ParsedSection {
         /* Can't use the super constructor, since it does funny things when
          * constructing the SQL Buffer, which we don't need. */
         lines = new String[linesArray.size()];
+
         linesArray.toArray(lines);
 
         int    closeCmd = lines[0].indexOf("*/");
@@ -1401,6 +1471,7 @@ class DisplaySection extends ParsedSection {
         /* Can't user the super constructor, since it does funny things when
          * constructing the SQL Buffer, which we don't need. */
         lines = new String[sectionLines.size()];
+
         sectionLines.toArray(lines);
 
         int firstSlash = lines[0].indexOf('/');
