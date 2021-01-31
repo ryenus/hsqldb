@@ -3396,7 +3396,7 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       comprise elements such as GROUPING SETS, ROLLUP, CUBE and the empty
       grouping set. These syntax elements are expanded and then simplified
       into a list of parenthesized column elements, which result in multiple
-      grouping operations. HyperSQL version 2.5.1 supports all the syntax
+      grouping operations. HyperSQL supports all the syntax
       listed above. The example below uses ROLLUP for grouping.</para>
 
       <informalexample>
