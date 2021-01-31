@@ -51,6 +51,7 @@ import org.hsqldb.lib.LineGroupReader;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.StringComparator;
 import org.hsqldb.lib.StringUtil;
+import org.hsqldb.lib.StringConverter;
 
 /**
  * Utility class providing methodes for submitting test statements or
@@ -172,7 +173,7 @@ public class TestUtil {
         }
     }
 
-    static void testScript(Connection aConnection, String aPath) {
+    public static void testScript(Connection aConnection, String aPath) {
 
         /*
          * This is a legacy wrapper method which purposefully inherits the sins
