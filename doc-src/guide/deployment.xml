@@ -597,18 +597,18 @@
       <primary>upgrading</primary>
     </indexterm>
 
-    <para>HSQLDB version 2.5.1 and later can open databases created with
+    <para>HSQLDB version 2.6.0 and later can open databases created with
     version 2.0 and above. It will not open databases created with older
     versions. It is a good idea to perform SHUTDOWN COMPACT after the
     upgrade.</para>
 
-    <para>Downgrading is also possible. Once a database is upgraded to 2.5.1,
+    <para>Downgrading is also possible. Once a database is upgraded to 2.6.0,
     you need to perform SHUTDOWN SCRIPT before you open it with previous 2.x.x
     versions of HyperSQL.</para>
 
     <para>To upgrade an old database created with version 1.8.x, you can use
     HSQLDB version 2.3.x to 2.5.0 to open the database and perform SHUTDOWN
-    SCRIPT. You can then open the database with version 2.5.1 or later.</para>
+    SCRIPT. You can then open the database with version 2.6.0 or later.</para>
 
     <para>If the 1.8.x database script format is set to BINARY or COMPRESSED
     (ZIPPED), you must open the database with version 1.8.x and issue the SET

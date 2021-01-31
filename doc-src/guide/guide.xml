@@ -17,7 +17,7 @@
   <info>
     <title>HyperSQL User Guide</title>
 
-    <subtitle>HyperSQL Database Engine 2.5.1</subtitle>
+    <subtitle>HyperSQL Database Engine 2.6.0</subtitle>
 
     <authorgroup>
       <editor>
@@ -86,7 +86,7 @@
     released in 2010, was a complete rewrite of most parts of the database
     engine.</para>
 
-    <para>This documentation covers HyperSQL version 2.5.1. This documentation
+    <para>This documentation covers HyperSQL version 2.6.0. This documentation
     is regularly improved and updated. The latest, updated version can be
     found at http://hsqldb.org/doc/2.0/</para>
 

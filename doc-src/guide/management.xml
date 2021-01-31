@@ -503,7 +503,7 @@
     written to a script and applied to a replica. See the PERFORM SCRIPT
     statement in this chapter. The timestamp used for export is the timestamp
     at the point of last synchronization. For example, if the first EXPORT
-    occurs at TIMESTAMP '2021-10-01 10:10:10' and the script is later imported
+    occurs at TIMESTAMP '2020-10-01 10:10:10' and the script is later imported
     into the replica, the second EXPORT should use that timestamp. This
     ensures old histories that have already been exported are not exported
     again. The import will skip duplicates and there is no harm in exporting
