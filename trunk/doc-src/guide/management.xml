@@ -1176,7 +1176,7 @@
     effect on the normal operation of HyperSQL. The effects of these
     statements are also discussed in different chapters.</para>
 
-    <section xml:id="mtc_system_operations">
+    <section xml:id="mtc_system_operation_statements">
       <title>System Operations</title>
 
       <para>These statements perform a system level action.</para>
