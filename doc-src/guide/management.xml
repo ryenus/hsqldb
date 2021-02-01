@@ -102,7 +102,7 @@
         </itemizedlist></para>
     </section>
 
-    <section>
+    <section xml:id="mtc_database_types">
       <title>Database Types</title>
 
       <para>There are three types of database, <glossterm>mem:</glossterm>,
@@ -135,7 +135,7 @@
         delete rows in TEMP tables.</para>
       </section>
 
-      <section>
+      <section xml:id="mtc_res_readonly_databases">
         <title>RES and Files Readonly Databases</title>
 
         <para>There is another option which allows MEMORY tables to be
@@ -403,7 +403,7 @@
       systems are generally reliable in this respect.</para>
     </section>
 
-    <section>
+    <section xml:id="mtc_system_operations">
       <title>System Operations</title>
 
       <para>A database is opened when the first connection is successfully
@@ -451,7 +451,7 @@
     </section>
   </section>
 
-  <section>
+  <section xml:id="mtc_system_versioned_tables">
     <title>Temporal System-Versioned Tables</title>
 
     <indexterm significance="preferred" type="sql">
@@ -591,7 +591,7 @@
     common space.</para>
   </section>
 
-  <section>
+  <section xml:id="mtc_checking_tables_indexes">
     <title>Checking Database Tables and Indexes</title>
 
     <para><indexterm significance="preferred">
@@ -1377,7 +1377,7 @@
       statement.</simpara>
     </section>
 
-    <section>
+    <section xml:id="mtc_data_management_statements">
       <title>Data Management Statements</title>
 
       <para>These statements allow data to be transferred in bulk from one

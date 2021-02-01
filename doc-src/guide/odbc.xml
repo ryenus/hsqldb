@@ -48,7 +48,7 @@
     </keywordset>
   </info>
 
-  <section>
+  <section xml:id="odbc_overview">
     <title>Overview</title>
 
     <para>Support for ODBC access to HyperSQL servers was introduced in HSQLDB
@@ -65,7 +65,7 @@
     applications may not work.</para>
   </section>
 
-  <section xml:id="unix_install-sect">
+  <section xml:id="odbc_unix_install-sect">
     <title>Unix / Linux Installation</title>
 
     <simpara>Install unixODBC and PostgreSQL psqlodbc RPM or package. See
@@ -96,7 +96,7 @@
     in the <filename>unixODBC</filename> subdirectory.</para>
   </section>
 
-  <section xml:id="windows_config-sect">
+  <section xml:id="odbc_windows_config-sect">
     <title>Windows Installation</title>
 
     <simpara>Download and install PostgreSQL ODBC software. We tested with
@@ -136,7 +136,7 @@
       </mediaobject></para>
   </section>
 
-  <section xml:id="settings-sect">
+  <section xml:id="odbc_settings-sect">
     <title>Settings</title>
 
     <simpara>This section applies to both UNIX and Windows. The setting
@@ -439,7 +439,7 @@
     </variablelist>
   </section>
 
-  <section xml:id="samples-sect">
+  <section xml:id="odbc_samples-sect">
     <title>Samples</title>
 
     <simpara>The HyperSQL Engine distribution contains these same ODBC client
@@ -468,7 +468,7 @@
     </itemizedlist>
   </section>
 
-  <section xml:id="table-sect">
+  <section xml:id="odbc_table-sect">
     <title>Table of Settings</title>
 
     <simpara>See the above section for descriptions and usage details. This
