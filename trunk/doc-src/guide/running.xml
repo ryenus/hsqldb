@@ -49,7 +49,7 @@
     </legalnotice>
   </info>
 
-  <section>
+  <section xml:id="rgc_introduction">
     <title>Introduction</title>
 
     <para>HyperSQL Database (HSQLDB) is a modern relational database system.

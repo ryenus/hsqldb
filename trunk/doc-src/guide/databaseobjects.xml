@@ -781,7 +781,7 @@
       schema.</para>
     </section>
 
-    <section>
+    <section xml:id="dbc_synonyms">
       <title>Synonyms</title>
 
       <para>Synonyms are user-defined names that refer to other schema

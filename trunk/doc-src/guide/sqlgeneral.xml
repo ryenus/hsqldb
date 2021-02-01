@@ -106,7 +106,7 @@
     <para>The following sections list the keywords that start various SQL
     statements grouped by their function.</para>
 
-    <section>
+    <section xml:id="sgc_definition_statements">
       <title>Definition Statements (DDL and others)</title>
 
       <para>Definition statements create, modify, or remove database objects.
@@ -159,7 +159,7 @@
       variables.</para>
     </section>
 
-    <section>
+    <section xml:id="sgc_dml_statements">
       <title>Data Manipulation Statements (DML)</title>
 
       <para>Data manipulation statements add, update, or delete data in tables
@@ -189,7 +189,7 @@
       using the data given in the statement.</para>
     </section>
 
-    <section>
+    <section xml:id="sgc_dql_statements">
       <title>Data Query Statements (DQL)</title>
 
       <para>Data query statements retrieve and combine data from tables and
@@ -219,7 +219,7 @@
       statement, including the indexes used to access the tables.</para>
     </section>
 
-    <section>
+    <section xml:id="sgc_call_statement">
       <title>Calling User Defined Procedures and Functions</title>
 
       <para>CALL</para>
@@ -231,7 +231,7 @@
       chapter.</para>
     </section>
 
-    <section>
+    <section xml:id="sgc_property_setting_statements">
       <title>Setting Properties for the Database and the Session</title>
 
       <para>SET</para>
@@ -244,7 +244,7 @@
       xlink:href="#sessions-chapt"/> chapter.</para>
     </section>
 
-    <section>
+    <section xml:id="sgc_general_operation_statements">
       <title>General Operations on Database</title>
 
       <para>General operations on the database include backup, checkpoint, and
@@ -277,7 +277,7 @@
       <para>Shuts down the database after saving all the changes.</para>
     </section>
 
-    <section>
+    <section xml:id="sgc_transaction_statements">
       <title>Transaction Statements</title>
 
       <para>These statements are used in a session to start, end or control
@@ -327,7 +327,7 @@
       <para>Ends the current session.</para>
     </section>
 
-    <section>
+    <section xml:id="sgc_comments_in_statements">
       <title>Comments in Statements</title>
 
       <para>Any SQL statement can include comments. The comments are stripped

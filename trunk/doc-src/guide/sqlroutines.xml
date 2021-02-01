@@ -45,7 +45,7 @@
     </legalnotice>
   </info>
 
-  <section>
+  <section xml:id="src_overview">
     <title>Overview</title>
 
     <para>SQL-invoked routines are functions and procedures called from SQL.
@@ -2310,7 +2310,7 @@
       <literal>GRANT EXECUTE ON myroutine TO PUBLIC</literal>.</para>
     </section>
 
-    <section>
+    <section xml:id="src_warning">
       <title>Warning</title>
 
       <para>The definition of SQL/JRT routines referencing the user's Java

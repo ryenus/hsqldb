@@ -2764,7 +2764,7 @@
         &lt;transition table name&gt; | &lt;query name&gt;</literal></para>
       </section>
 
-      <section>
+      <section xml:id="dac_system_time_period">
         <title>System Time Period</title>
 
         <para>The <literal>&lt;query system time period
