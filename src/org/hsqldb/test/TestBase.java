@@ -39,7 +39,6 @@ import java.sql.SQLException;
 import org.hsqldb.Database;
 import org.hsqldb.server.Server;
 import org.hsqldb.server.WebServer;
-import org.hsqldb.test.TestConnectionSettings.*;
 
 import junit.framework.TestCase;
 import junit.framework.TestResult;
@@ -76,14 +75,15 @@ import junit.framework.TestResult;
  */
 public abstract class TestBase extends TestCase {
 
-    static TestConnectionSettings settings = new TestConnectionSettingsMem();
-    String                        serverProps;
-    final String                  url;
-    final String                  user     = "sa";
-    final String                  password = "";
-    Server                        server;
-    final boolean                 isNetwork;
-    final boolean                 isHTTP;    // Set false to test HSQL protocol, true to test HTTP, in which case you can use isUseTestServlet to target either HSQL's webserver, or the Servlet server-mode
+    static TestConnectionSettings settings =
+        new TestConnectionSettings.TestConnectionSettingsMem();
+    String        serverProps;
+    final String  url;
+    final String  user     = "sa";
+    final String  password = "";
+    Server        server;
+    final boolean isNetwork;
+    final boolean isHTTP;    // Set false to test HSQL protocol, true to test HTTP, in which case you can use isUseTestServlet to target either HSQL's webserver, or the Servlet server-mode
     final boolean isServlet;
 
     public TestBase(String name) {
