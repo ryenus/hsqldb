@@ -36,11 +36,11 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 /**
- * A List<E> that also implements Deque<E> and Queue<E> and methods for
- * usage as stack.<p>
+ * A {@code List<E>} that also implements {@code Deque<E>} and {@code Queue<E>}
+ * and methods for usage as stack.<p>
  *
- * When used as Queue<E>, elements are added to the end of the List (tail), and
- * retrieved from the start of the List (head).<p>
+ * When used as {@code Queue<E>}, elements are added to the end of
+ * the List (tail), and retrieved from the start of the List (head).<p>
  *
  * When used as a stack, elements are added to and retrieved from the start of
  * the List (head) using {@code push()} and {@code pop()} methods.<p>

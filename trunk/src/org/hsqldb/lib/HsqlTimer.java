@@ -264,8 +264,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      *
      * After this call, the timer has permanently entered the shutdown state;
      * attempting to schedule any new task or directly restart this timer will
-     * result in an  IllegalStateException. <p>
-     *
+     * result in an  IllegalStateException.
      */
     public synchronized void shutdown() {
 

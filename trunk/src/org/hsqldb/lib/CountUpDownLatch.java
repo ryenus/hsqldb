@@ -78,7 +78,6 @@ public class CountUpDownLatch {
      * If the current {@code count} is already zero, then this method returns
      * immediately.
      * <p>
-     * <p>
      * If the current {@code count} is greater than zero, then the current
      * thread becomes disabled for thread scheduling purposes and lies dormant
      * until either:
@@ -109,10 +108,8 @@ public class CountUpDownLatch {
      * unless the thread is {@linkplain Thread#interrupt interrupted}, or the
      * specified waiting time elapses.
      * <p>
-     * <p>
      * If the current {@code count} is zero, then this method returns
      * immediately with the value {@code true}.
-     * <p>
      * <p>
      * If the current {@code count} is greater than zero, then the current
      * thread becomes disabled for thread scheduling purposes and lies dormant

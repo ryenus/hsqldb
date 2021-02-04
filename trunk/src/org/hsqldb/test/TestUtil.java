@@ -50,8 +50,8 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.LineGroupReader;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.StringComparator;
-import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.lib.StringUtil;
 
 /**
  * Utility class providing methodes for submitting test statements or

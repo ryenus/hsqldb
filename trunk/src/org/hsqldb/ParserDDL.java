@@ -2949,6 +2949,8 @@ public class ParserDDL extends ParserRoutine {
                         if (token.tokenType == Tokens.OPENBRACKET) {
                             columnSet = readColumnNames(false);
                         }
+
+                    // fall through
                     case Tokens.DELETE :
                         if (right == null) {
                             right = new Right();
