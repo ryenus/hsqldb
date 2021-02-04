@@ -2207,6 +2207,9 @@ public class FunctionCustom extends FunctionSQL {
 
                         return list.toArray();
                     }
+                    default : {
+                        throw Error.runtimeError(ErrorCode.U_S0500, "FunctionCustom");
+                    }
                 }
             }
             case FUNC_CRYPT_KEY : {

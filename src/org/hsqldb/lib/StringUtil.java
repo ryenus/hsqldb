@@ -199,7 +199,7 @@ public class StringUtil {
 
     /**
      * Builds a CSV list from the specified String[], separator string and
-     * quote string. <p>
+     * quote string.
      *
      * <ul>
      * <li>All arguments are assumed to be non-null.
@@ -234,8 +234,8 @@ public class StringUtil {
     }
 
     /**
-     * Builds a CSV list from the specified int[], <code>separator</code>
-     * <code>String</code> and <code>quote</code> <code>String</code>. <p>
+     * Builds a CSV list from the specified int[], separator
+     * String and quote String.
      *
      * <ul>
      * <li>All arguments are assumed to be non-null.
@@ -287,7 +287,7 @@ public class StringUtil {
 
     /**
      * Builds a CSV list from the specified String[][], separator string and
-     * quote string. <p>
+     * quote string.
      *
      * <ul>
      * <li>All arguments are assumed to be non-null.

@@ -105,7 +105,24 @@ public class ParserRoutine extends ParserTable {
 
         variableNames.toArray(variables);
 
-        targetTypes = new Type[variables.length];
+        targetTypes = getTypesArray(variables);
+
+        select.setReturningResult();
+        select.resolve(session, rangeGroups, targetTypes);
+
+        if (select.getColumnCount() != variables.length) {
+            throw Error.error(ErrorCode.X_42564, Tokens.T_INTO);
+        }
+
+        Statement statement = new StatementSet(session, variables, select,
+                                               columnMap, compileContext);
+
+        return statement;
+    }
+
+    Type[] getTypesArray(Expression[] variables) {
+
+        Type[] targetTypes = new Type[variables.length];
 
         for (int i = 0; i < variables.length; i++) {
             if (variables[i].getColumn().getParameterMode()
@@ -119,17 +136,7 @@ public class ParserRoutine extends ParserTable {
             targetTypes[i] = variables[i].getDataType();
         }
 
-        select.setReturningResult();
-        select.resolve(session, rangeGroups, targetTypes);
-
-        if (select.getColumnCount() != variables.length) {
-            throw Error.error(ErrorCode.X_42564, Tokens.T_INTO);
-        }
-
-        Statement statement = new StatementSet(session, variables, select,
-                                               columnMap, compileContext);
-
-        return statement;
+        return targetTypes;
     }
 
     /**

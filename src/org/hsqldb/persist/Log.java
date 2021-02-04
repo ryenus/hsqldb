@@ -136,6 +136,8 @@ public class Log {
 
             case HsqlDatabaseProperties.FILES_MODIFIED_NEW_DATA :
                 renameNewDataFile();
+
+            // fall through
             case HsqlDatabaseProperties.FILES_MODIFIED_NEW :
                 database.logger.logInfoEvent("open start - state new files");
                 deleteBackupFile();
