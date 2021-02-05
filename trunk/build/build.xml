@@ -1090,7 +1090,7 @@ optimizations) manually.
 
     <!-- See comments at top of "build-docbook.xml" about doc.target property -->
     <target name="gen-docs" description="Generate Docbook documents for project"
-          depends="validate-docs, -prep-images, -gen-docs-setup">
+          depends="prepare-verbatim, validate-docs, -prep-images, -gen-docs-setup">
       <!-- These doc-skip properties can be simplified once we require Ant 1.8 -->
       <condition property="_genskip-guide" value="DUMMY">
         <equals arg1="guide" arg2="${doc.target}"/>
