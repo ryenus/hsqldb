@@ -1030,6 +1030,32 @@ examples:
     *************************************************************-->
   <!-- See the file doc-src/readme-docauthors.txt for details about out DocBook
        build system.  -->
+
+    <!-- files copied for docs -->
+    <fileset id='verbatimfiles' dir="${basedir}/"
+        includes='
+        sample/**,
+        src/org/hsqldb/sample/SqlFileEmbedder.java,
+        src/org/hsqldb/sample/Testdb.java,
+        src/org/hsqldb/sample/TriggerSample.java,
+        src/org/hsqldb/server/Servlet.java,
+        src/org/hsqldb/server/WebServer.java,
+        src/org/hsqldb/test/TestBase.java,
+        src/org/hsqldb/trigger/Trigger.java,
+        testrun/sqltool/sqljrt.sql,
+        testrun/sqltool/sqlpsm.sql
+            '/>
+
+    <target name='prepare-verbatim'
+                description='Copy varbatim the files needed for docs'>
+      <mkdir dir="${basedir}/doc-src/verbatim"/>
+
+      <copy todir='${basedir}/doc-src/verbatim/' preservelastmodified='true'>
+        <fileset refid='verbatimfiles'/>
+      </copy>
+    </target>
+
+
     <import file="build-docbook.xml"/>
 
     <target name="-prep-images">
