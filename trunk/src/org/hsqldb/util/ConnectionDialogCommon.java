@@ -256,6 +256,8 @@ final class ConnectionDialogCommon {
 
                 recentSettings = new File(homedir, fileName);
 
+                recentSettings.renameTo(new File(homedir, fileName + ".old"));
+
                 if (!recentSettings.exists()) {
 
 //                    recentSettings.createNewFile();
@@ -303,7 +305,9 @@ final class ConnectionDialogCommon {
                 return;
             }
 
-            recentSettings.delete();
+            File backup = new File(homedir, fileName + ".backup");
+
+            recentSettings.renameTo(backup);
 
             recentSettings = null;
         } catch (Throwable t) {}

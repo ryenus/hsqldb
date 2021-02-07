@@ -32,6 +32,7 @@
 package org.hsqldb.lib;
 
 /**
+ * Marker interface for iterators supporting nextInt or nextLong methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.6.0

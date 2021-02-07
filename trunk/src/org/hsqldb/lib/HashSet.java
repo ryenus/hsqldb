@@ -111,7 +111,12 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         }
     }
 
-    /** returns true if added */
+    /**
+     * returns true if element is added
+     *
+     * @param key the element
+     * @return true if added
+     */
     public boolean add(E key) {
         if (key == null) {
             throw new NullPointerException();
@@ -120,7 +125,11 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         return (Boolean) super.addOrUpdate(0, 0, key, null);
     }
 
-    /** returns true if any added */
+    /** returns true if any  element is added
+     *
+     * @param c the Collection to add
+     * @return true if any element is added
+     */
     public boolean addAll(Collection<? extends E> c) {
 
         boolean               changed = false;
@@ -133,7 +142,11 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         return changed;
     }
 
-    /** returns true if any added */
+    /** returns true if any element is added
+    *
+    * @param keys the array of elements to add
+    * @return true if any element is added
+    */
     public boolean addAll(E[] keys) {
 
         boolean changed = false;
@@ -145,7 +158,14 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         return changed;
     }
 
-    /** returns true if any added */
+    /**
+     * returns true if any added
+     *
+     * @param keys array of keys to add
+     * @param start first index to add
+     * @param limit limit of index to add
+     * @return true if any element was added
+     */
     public boolean addAll(E[] keys, int start, int limit) {
 
         boolean changed = false;
@@ -157,7 +177,12 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         return changed;
     }
 
-    /** returns true if removed */
+    /**
+     * returns true if removed
+     *
+     * @param key Object to remove
+     * @return true if removed
+     */
     public boolean remove(Object key) {
 
         if (key == null) {
@@ -167,7 +192,12 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         return (Boolean) super.remove(0, 0, key, null, false, false);
     }
 
-    /** returns true if all were removed */
+    /**
+     * returns true if all were removed
+     *
+     * @param c Collection of elements to remove
+     * @return true if all removed
+     */
     public boolean removeAll(Collection<?> c) {
 
         Iterator<?> it = c.iterator();
@@ -196,7 +226,12 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         return changed;
     }
 
-    /** returns true if all were removed */
+    /**
+     * returns true if all were removed
+     *
+     * @param keys E[]
+     * @return boolean
+     */
     public boolean removeAll(E[] keys) {
 
         boolean result = true;
@@ -238,6 +273,8 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
     /**
      * Returns a String like "[Drei, zwei, Eins]", exactly like
      * java.util.HashSet.
+     *
+     * @return String representation
      */
     public String toString() {
 

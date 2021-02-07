@@ -57,6 +57,8 @@ import org.hsqldb.lib.InOutUtil;
 import org.hsqldb.lib.KMPSearchAlgorithm;
 
 /**
+ * A client-side file-based implementation of Blob.
+ *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
  * <h1>HSQLDB-Specific Information:</h1> <p>

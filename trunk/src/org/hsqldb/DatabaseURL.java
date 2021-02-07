@@ -75,9 +75,10 @@ public final class DatabaseURL {
     /**
      * Parses the url into components that are returned in a properties object.
      *
-     * <p> The following components are isolated:
+     * The following components are isolated:<p>
      *
-     * <ul> url: the original url
+     * url: the original url
+     * <ul>
      *
      * <li> connection_type: a static string that indicate the protocol. If the
      * url does not begin with a valid protocol, null is returned by this method

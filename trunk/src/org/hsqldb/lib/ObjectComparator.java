@@ -60,6 +60,9 @@ public interface ObjectComparator<T> {
 
     ObjectComparator identityComparator = new IdentityComparator();
 
+    /**
+     * Comparator that uses identity for Object equality.
+     */
     class IdentityComparator implements ObjectComparator {
 
         public boolean equals(Object a, Object b) {
@@ -76,6 +79,9 @@ public interface ObjectComparator<T> {
         }
     }
 
+    /**
+     * Comparator that uses the equals and hash code methods of Objects.
+     */
     class DefaultComparator implements ObjectComparator {
 
         public boolean equals(Object a, Object b) {

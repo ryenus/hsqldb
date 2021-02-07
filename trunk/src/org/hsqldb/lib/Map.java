@@ -63,6 +63,9 @@ public interface Map<K,V> {
 
     Set<Map.Entry<K, V>> entrySet();
 
+    /**
+     * Interface for a key - value pair.
+     */
     interface Entry<K,V> {
 
         K getKey();

@@ -35,7 +35,7 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 /**
- * Maintains an ordered  integer->integer lookup table, consisting of two
+ * Maintains an ordered  {@code integer->integer} lookup table, consisting of two
  * columns, one for keys, the other for values. Equal keys are allowed.
  *
  * The table is sorted on either the key or value column, depending on the calls to

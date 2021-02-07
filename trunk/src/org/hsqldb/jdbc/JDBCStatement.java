@@ -71,7 +71,7 @@ import org.hsqldb.result.ResultProperties;
 
 /**
  * <!-- start generic documentation -->
- * <P>The object used for executing a static SQL statement
+ * The object used for executing a static SQL statement
  * and returning the results it produces.
  * <P>
  * By default, only one <code>ResultSet</code> object per <code>Statement</code>

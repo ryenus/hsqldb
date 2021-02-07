@@ -30,6 +30,6 @@
 
 
 /**
- * Shared classes used by other HyperSQL classes.
+ * Contains shared classes used by other HyperSQL classes.
  */
 package org.hsqldb.lib;

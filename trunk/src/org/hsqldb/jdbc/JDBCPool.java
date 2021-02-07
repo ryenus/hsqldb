@@ -54,6 +54,9 @@ import org.hsqldb.jdbc.pool.JDBCPooledConnection;
 import org.hsqldb.jdbc.pool.JDBCPooledDataSource;
 
 /**
+ *
+ * A fast connection pool.
+ *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
  * <h1>HSQLDB-Specific Information:</h1> <p>

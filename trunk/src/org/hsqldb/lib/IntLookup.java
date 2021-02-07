@@ -34,6 +34,7 @@ package org.hsqldb.lib;
 import java.util.NoSuchElementException;
 
 /**
+ * Interface for int to int lookup.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.3.0
