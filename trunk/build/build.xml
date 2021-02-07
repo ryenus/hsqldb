@@ -814,24 +814,7 @@ examples:
         org/hsqldb/auth/LdapAuthBeanTester.java
             '/>
 
-
-    <target name="-doclink-11" if="ant.java.iscjava09">
-      <property name="jse.doc.link"
-                value="https://docs.oracle.com/en/java/javase/11/docs/api/"/>
-    </target>
-
-    <target name="-doclink-08" depends="-doclink-11" if="ant.java.iscjava08">
-                        <!-- TODO: update to final release api docs url when available -->
-      <property name="jse.doc.link"
-                value="http://docs.oracle.com/javase/8/docs/api/"/>
-    </target>
-
-    <target name="-doclink-06" depends="-doclink-08">
-      <property name="jse.doc.link"
-                  value="http://docs.oracle.com/javase/6/docs/api/"/>
-    </target>
-
-    <target name="javadoc" depends="-prepare-javadoc, switches, -clone-shared-sources, -set-jvmvars, -doclink-06"
+    <target name="javadoc" depends="-prepare-javadoc, switches, -clone-shared-sources, -set-jvmvars"
             description="Create javadoc for the distribution package">
       <!-- TODO:  Find out why JDBCDriver class is listed twice in the class
            list pane, but only when All Classes selected
@@ -845,7 +828,8 @@ examples:
            version="false"
            use="true"
            public="true"
-           failonerror="true"
+           failonerror="false"
+           verbose="false"
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2021 HSQL Development Group.&lt;/i&gt;">
@@ -855,9 +839,15 @@ examples:
              <pathelement location="${junit38.lib}"/>
            </classpath>
            <packageset dir="${swsrc}">
-               <include name='org/hsqldb/jdbc'/>
-           </packageset>
-           <link href="${jse.doc.link}"/>
+              <include name='org.hsqldb/auth'/>
+              <include name='org/hsqldb/jdbc'/>
+              <include name='org/hsqldb/jdbc/pool'/>
+              <include name='org/hsqldb/lib'/>
+              <include name='org/hsqldb/lib/tar'/>
+              <include name='org/hsqldb/server'/>
+              <include name='org/hsqldb/trigger'/>
+              <include name='org.hsqldb/util'/>		   		  
+		   </packageset>
            <tag name="todo" enabled="false"/>
            <tag name="revised" enabled="false"/>
            <tag name="jboss.xmbean" enabled="false"/>
@@ -871,7 +861,7 @@ examples:
     </target>
 
     <target name="javadocdev"
-            depends="-prepare-javadoc, switches, -clone-shared-sources,-set-jvmvars,-doclink-06"
+            depends="-prepare-javadoc, switches, -clone-shared-sources,-set-jvmvars"
             description="Create javadoc for all HSQLDB code-base classes">
       <!-- Since our preprocessor package compilatoin depends on the
            env-specific ant runtime lib via includeAntRuntime=true, Javadoc
@@ -901,7 +891,6 @@ examples:
              <pathelement location="${junit38.lib}"/>
              <pathelement location="${servletapi.lib}"/>
            </classpath>
-           <link href="${jse.doc.link}"/>
            <link href="${junit.doc.link}"/>
            <tag name="todo"/>
            <tag name="revised"/>
