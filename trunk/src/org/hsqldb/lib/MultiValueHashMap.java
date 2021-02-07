@@ -34,7 +34,7 @@ package org.hsqldb.lib;
 import org.hsqldb.map.BaseHashMap;
 
 /**
- * A Map<K,V> of Object keys to Object values which stores multiple values per
+ * A Map of Object keys to Object values which stores multiple values per
  * key. The getValuesIterator(K key) method returns an iterator covering the
  * values associated with the given key. The get(K key) method returns the first
  * value (if any) associated with the key.<p>

@@ -280,6 +280,8 @@ public class ClosableCharArrayWriter extends Writer {
      * characters, then it may be resized to become more space efficient.
      * Calling this method may, but is not required to, affect the value
      * returned by a subsequent call to the {@link #capacity()} method.
+     *
+     * @throws IOException if this writer has been {@link #free() freed}.
      */
     public synchronized void trimToSize() throws IOException {
 

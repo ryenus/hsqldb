@@ -32,7 +32,7 @@
 package org.hsqldb.lib;
 
 /**
- * Interface for collections of mapped key, value pairs.
+ * Interface for collections of mapped key - value pairs.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.6.0

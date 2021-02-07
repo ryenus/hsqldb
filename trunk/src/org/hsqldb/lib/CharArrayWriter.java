@@ -183,10 +183,7 @@ public class CharArrayWriter {
 
         count = newPos;
     }
-    /**
-     * Converts input data to a string.
-     * @return the string.
-     */
+
     public String toString() {
         return new String(buffer, 0, count);
     }

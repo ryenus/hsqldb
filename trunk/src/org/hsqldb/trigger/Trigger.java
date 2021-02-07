@@ -35,49 +35,59 @@ import org.hsqldb.HsqlException;
 
 // fredt@users 20030727 - signature altered to support update triggers
 // fredt@users 20190327 - moved to own package
-/*
-
-Contents of row1[] and row2[] in each type of trigger.
-
-AFTER INSERT
- - row1[] contains single String object = "Statement-level".
-
-AFTER UPDATE
- - row1[] contains single String object = "Statement-level".
-
-AFTER DELETE
- - row1[] contains single String object = "Statement-level".
-
-BEFORE INSERT FOR EACH ROW
- - row2[] contains data about to be inserted and this can
-be modified within the trigger such that modified data gets written to the
-database.
-
-AFTER INSERT FOR EACH ROW
- - row2[] contains data just inserted into the table.
-
-BEFORE UPDATE FOR EACH ROW
- - row1[] contains currently stored data and not the data that is about to be
-updated.
-
- - row2[] contains the data that is about to be updated.
-
-AFTER UPDATE FOR EACH ROW
- - row1[] contains old stored data.
- - row2[] contains the new data.
-
-BEFORE DELETE FOR EACH ROW
- - row1[] contains row data about to be deleted.
-
-AFTER DELETE FOR EACH ROW
- - row1[] contains row data that has been deleted.
-
-List compiled by Andrew Knight (quozzbat@users)
-*/
 
 /**
  * The interface an HSQLDB TRIGGER must implement. The user-supplied class that
- * implements this must have a default constructor.
+ * implements this must have a default constructor.<p>
+ *
+ * Contents of oldRow[] and newRow[] in each type of trigger.
+ *
+ * <ul>
+ * <li>
+ * AFTER INSERT
+ * oldRow[] contains single String object = "Statement-level".
+ * </li>
+ * <li>
+ * AFTER UPDATE
+ * oldRow[] contains single String object = "Statement-level".
+ * </li>
+ * <li>
+ * AFTER DELETE
+ * oldRow[] contains single String object = "Statement-level".
+ * </li>
+ * <li>
+ * BEFORE INSERT FOR EACH ROW
+ * newRow[] contains data about to be inserted and this can
+ * be modified within the trigger such that modified data gets written to the
+ * database.
+ * </li>
+ * <li>
+ * AFTER INSERT FOR EACH ROW
+ * newRow[] contains data just inserted into the table.
+ * </li>
+ * <li>
+ * BEFORE UPDATE FOR EACH ROW
+ * oldRow1[] contains currently stored data and not the data that is about to be
+ * updated.
+ * </li>
+ * <li>
+ * newRow[] contains the data that is about to be updated.
+ * </li>
+ * <li>
+ * AFTER UPDATE FOR EACH ROW
+ * oldRow1[] contains old stored data.
+ * newRow[] contains the new data.
+ * </li>
+ * <li>
+ * BEFORE DELETE FOR EACH ROW
+ * oldRow1[] contains row data about to be deleted.
+ * </li>
+ * <li>
+ * AFTER DELETE FOR EACH ROW
+ * oldRow1[] contains row data that has been deleted.
+ * </li>
+ * </ul>
+ * (List compiled by Andrew Knight quozzbat@users)
  *
  * @author Peter Hudson (peterhudson@users dot sourceforge.net)
  * @version 1.9.0

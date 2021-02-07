@@ -47,9 +47,15 @@ import java.util.Comparator;
 public final class ArraySort {
 
     /**
-     * Returns the index of the lowest element == the given search target,
-     * or when not found, a negative value -(insert position + 1)
+     * Returns the index of the lowest element == the given search target, or
+     * when not found, a negative value -(insert position + 1)
+     *
      * @return index or a negative value if not found
+     * @param array Object[]
+     * @param start int
+     * @param limit int
+     * @param value Object
+     * @param c Comparator
      */
     public static int searchFirst(Object[] array, int start, int limit,
                                   Object value, Comparator c) {

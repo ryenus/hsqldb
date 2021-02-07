@@ -542,7 +542,11 @@ public class FileUtil implements FileAccess {
         }
 
         /**
-         * Accepts all main files as well as ".new" and ".old" versions.
+         * Accepts all HSQLDB main persistence files as well as ".new" and ".old" versions.
+         *
+         * @param dir the directory
+         * @param name file name
+         * @return true if an accepted file
          */
         public boolean accept(File dir, String name) {
 

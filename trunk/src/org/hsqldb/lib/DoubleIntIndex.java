@@ -109,9 +109,9 @@ public class DoubleIntIndex implements LongLookup {
     }
 
     /**
-     * Modifies an existing pair.
+     * Modifies an existing pair at the given index.
      * @param i the index
-     * @param key the key
+     * @param key the new key
      */
     public void setKey(int i, int key) {
 
@@ -127,9 +127,9 @@ public class DoubleIntIndex implements LongLookup {
     }
 
     /**
-     * Modifies an existing pair.
+     * Modifies an existing pair at the given index.
      * @param i the index
-     * @param value the value
+     * @param value the new value
      */
     public void setValue(int i, int value) {
 
@@ -145,9 +145,9 @@ public class DoubleIntIndex implements LongLookup {
     }
 
     /**
-     * Modifies an existing pair.
+     * Modifies an existing pair at the given index.
      * @param i the index
-     * @param value the value
+     * @param value the new value
      */
     public void setLongValue(int i, long value) {
 
@@ -365,7 +365,10 @@ public class DoubleIntIndex implements LongLookup {
     }
 
     /**
-     * must be sorted on key
+     * Removes the (unique) key and its value. Must be sorted on key.
+     *
+     * @param key the key to remove
+     * @return true or false depending on success
      */
     public boolean removeKey(int key) {
 
@@ -395,7 +398,12 @@ public class DoubleIntIndex implements LongLookup {
     }
 
     /**
-     * must be sorted on key
+     * Updates the value if key is present, or adds the key/value paire.
+     * Must be sorted on key.
+     *
+     * @param key the key to add or find
+     * @param value the value to add or update
+     * @return true or false depending on success
      */
     public boolean addOrReplaceUnique(int key, int value) {
 
@@ -440,6 +448,10 @@ public class DoubleIntIndex implements LongLookup {
     /**
      * Used for values as counters. Adds the value to the existing value for the
      * key. Or adds the key - value pair.
+     *
+     * @param key the key to update or add
+     * @param value the count to add
+     * @return the new count for the key
      */
     public int addCount(int key, int value) {
 
@@ -740,9 +752,11 @@ public class DoubleIntIndex implements LongLookup {
     }
 
     /**
-     * Returns the index of the lowest element >= the given search target,
-     * or count
-     *     @return the index
+     * Returns the index of the lowest element >= the given search target, or
+     * count.
+     *
+     * @return the index or count.
+     * @param fullCompare ignored
      */
     private int binarySlotSearch(boolean fullCompare) {
 
@@ -1114,8 +1128,11 @@ public class DoubleIntIndex implements LongLookup {
     }
 
     /**
-     * push key, value pair
+     * push key - value pair
+     *
      * @return boolean true if successful
+     * @param key the key
+     * @param value the value
      */
     boolean push(int key, int value) {
         return addUnsorted(key, value);

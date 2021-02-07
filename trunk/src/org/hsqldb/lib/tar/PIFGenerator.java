@@ -39,7 +39,7 @@ import java.nio.charset.Charset;
 import java.util.Date;
 
 /**
- * Encapsulates Pax Interchange Format key/value pairs.
+ * Encapsulates Pax Interchange Format key-value pairs.
  */
 public class PIFGenerator extends ByteArrayOutputStream {
 
@@ -100,11 +100,15 @@ public class PIFGenerator extends ByteArrayOutputStream {
     }
 
     /**
-     * Convenience wrapper for addRecord(String, String).
-     * N.b. this writes values exactly as either "true" or "false".
+     * Convenience wrapper for addRecord(String, String). N.b. this writes
+     * values exactly as either "true" or "false".
      *
      * @see #addRecord(String, String)
      * @see Boolean#toString(boolean)
+     * @param key String
+     * @param b boolean value
+     * @throws TarMalformatException
+     * @throws IOException
      */
     public void addRecord(String key,
                           boolean b)
@@ -116,6 +120,10 @@ public class PIFGenerator extends ByteArrayOutputStream {
      * Convenience wrapper for addRecord(String, String).
      *
      * @see #addRecord(String, String)
+     * @param key String
+     * @param i int value
+     * @throws TarMalformatException
+     * @throws IOException
      */
     public void addRecord(String key,
                           int i) throws TarMalformatException, IOException {
@@ -126,6 +134,10 @@ public class PIFGenerator extends ByteArrayOutputStream {
      * Convenience wrapper for addRecord(String, String).
      *
      * @see #addRecord(String, String)
+     * @param key String
+     * @param l long value
+     * @throws TarMalformatException
+     * @throws IOException
      */
     public void addRecord(String key,
                           long l) throws TarMalformatException, IOException {
@@ -135,6 +147,11 @@ public class PIFGenerator extends ByteArrayOutputStream {
     /**
      * I guess the "initial length" field is supposed to be in units of
      * characters, not bytes?
+     *
+     * @param key String
+     * @param value String
+     * @throws TarMalformatException
+     * @throws IOException
      */
     public void addRecord(String key,
                           String value)

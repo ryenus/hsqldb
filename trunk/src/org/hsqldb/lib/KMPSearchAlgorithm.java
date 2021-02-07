@@ -243,6 +243,7 @@ public class KMPSearchAlgorithm {
      * @param table computed from the pattern that optimizes the search
      *        If null, automatically computed.
      * @param start position in source at which to start the search
+     * @return zero-based offset of first match; -1 if no match found.
      */
     public static int search(final byte[] source, final byte[] pattern,
                              int[] table, final int start) {
@@ -316,6 +317,7 @@ public class KMPSearchAlgorithm {
      * @param table computed from the pattern that optimizes the search
      *        If null, automatically computed.
      * @param start position in source at which to start the search
+     * @return zero-based offset of first match; -1 if no match found.
      */
     public static int search(final char[] source, final char[] pattern,
                              int[] table, final int start) {
@@ -385,6 +387,7 @@ public class KMPSearchAlgorithm {
      * @param pattern to be matched
      * @param table computed from the pattern that optimizes the search
      * @param start position in source at which to start the search
+     * @return zero-based offset of first match; -1 if no match found.
      */
     public static int search(final String source, final String pattern,
                              int[] table, final int start) {

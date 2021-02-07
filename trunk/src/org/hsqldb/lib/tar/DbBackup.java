@@ -81,9 +81,11 @@ public class DbBackup {
 
     /**
      * Instantiate a DbBackup instance for creating a Database Instance backup.
+     * Much validation is deferred until the write() method, to prevent problems
+     * with files changing between the constructor and the write call.
      *
-     * Much validation is deferred until the write() method, to prevent
-     * problems with files changing between the constructor and the write call.
+     * @param archiveFile File
+     * @param dbPath String
      */
     public DbBackup(File archiveFile, String dbPath) {
 
@@ -108,6 +110,10 @@ public class DbBackup {
 
     /**
      * Used for SCRIPT backup
+     *
+     * @param archiveFile File
+     * @param dbPath String
+     * @param script boolean
      */
     public DbBackup(File archiveFile, String dbPath, boolean script) {
 
@@ -127,6 +133,9 @@ public class DbBackup {
 
     /**
      * Overrides file with stream.
+     *
+     * @param fileExtension String
+     * @param is InputStreamInterface
      */
     public void setStream(String fileExtension, InputStreamInterface is) {
 
@@ -151,21 +160,21 @@ public class DbBackup {
     }
 
     /**
-     * Defaults to false.
+     * Defaults to false. If false, then attempts to write a tar file that
+     * already exist will abort.
      *
-     * If false, then attempts to write a tar file that already exist will
-     * abort.
+     * @param overWrite boolean
      */
     public void setOverWrite(boolean overWrite) {
         this.overWrite = overWrite;
     }
 
     /**
-     * Defaults to true.
+     * Defaults to true. If true, then the write() method will validate that the
+     * database is closed, and it will verify that no DB file changes between
+     * when we start writing the tar, and when we finish.
      *
-     * If true, then the write() method will validate that the database is
-     * closed, and it will verify that no DB file changes between when we
-     * start writing the tar, and when we finish.
+     * @param abortUponModify boolean
      */
     public void setAbortUponModify(boolean abortUponModify) {
         this.abortUponModify = abortUponModify;
@@ -180,15 +189,14 @@ public class DbBackup {
     }
 
     /**
-     * This method always backs up the .properties and .script files.
-     * It will back up all of .backup, .data, and .log which exist.
+     * This method always backs up the .properties and .script files. It will
+     * back up all of .backup, .data, and .log which exist.<p>
      *
      * If abortUponModify is set, no tar file will be created, and this
      * method will throw.
      *
      * @throws IOException for any of many possible I/O problems
-     * @throws IllegalStateException only if abortUponModify is set, and
-     *                               database is open or is modified.
+     * @throws TarMalformatException
      */
     public void write() throws IOException, TarMalformatException {
 
@@ -386,7 +394,7 @@ public class DbBackup {
      * needs to be read or written, and default and typical JVM constraints.
      * <P>
      * <B>Algorithm details:</B>
-     * </P> <P>
+     * <P>
      * Minimum system I want support is a J2SE system with 256M physical
      * RAM.  This system can hold a 61 MB byte array (real 1024^2 M).
      * (61MB with Java 1.6, 62MB with Java 1.4).
@@ -398,20 +406,20 @@ public class DbBackup {
      * This allows 20 MB for us to use.  User can easily use more than this
      * by raising JVM settings and/or getting more PRAM or VRAM.
      * Therefore, ceiling = 20MB = 20 MB / .5 Kb = 40 k blocks
-     * </P> <P>
+     * <P>
      * We make the conservative simplification that each data file contains
      * just one huge data entry component.  This is a good estimation, since in
      * most cases, the contents of the single largest file will be many orders
      * of magnitude larger than the other files and the single block entry
      * headers.
-     * </P> <P>
+     * <P>
      * We aim for reading or writing these biggest file with 10 reads/writes.
      * In the case of READING Gzip files, there will actually be many more
      * reads than this, but that's the price you pay for smaller file size.
-     * </P>
      *
      * @param files  Null array elements are permitted.  They will just be
      *               skipped by the algorithm.
+     * @return block value
      */
     static protected int generateBufferBlockValue(File[] files) {
 
@@ -446,6 +454,8 @@ public class DbBackup {
      * Convenience wrapper for generateBufferBlockValue(File[]).
      *
      * @see #generateBufferBlockValue(File[])
+     * @param file File
+     * @return int
      */
     static protected int generateBufferBlockValue(File file) {
         return generateBufferBlockValue(new File[]{ file });

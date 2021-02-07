@@ -78,6 +78,7 @@ public class WrapperIterator<E> implements Iterator<E> {
      * Constructor for not-null elements of specified array.
      *
      * @param elements the array of objects to iterate
+     * @param notNull boolean
      */
     public WrapperIterator(Object[] elements, boolean notNull) {
         this.elements = elements;
@@ -96,6 +97,9 @@ public class WrapperIterator<E> implements Iterator<E> {
     /**
      * Constructor for a chained iterator that returns the elements of the two
      * specified iterators.
+     *
+     * @param it1 Iterator
+     * @param it2 Iterator
      */
     public WrapperIterator(Iterator<E> it1, Iterator<E> it2) {
 

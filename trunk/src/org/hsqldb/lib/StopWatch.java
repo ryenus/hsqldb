@@ -70,7 +70,11 @@ public class StopWatch {
         this(true);
     }
 
-    /** Creates, zeros, and starts a new StopWatch */
+    /**
+     * Creates, zeros, and starts a new StopWatch
+     *
+     * @param start boolean
+     */
     public StopWatch(boolean start) {
 
         if (start) {

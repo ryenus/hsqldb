@@ -34,7 +34,7 @@ package org.hsqldb.lib;
 import org.hsqldb.lib.Map.Entry;
 
 /**
- * A key, value pair.
+ * A key - value pair.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.6.0

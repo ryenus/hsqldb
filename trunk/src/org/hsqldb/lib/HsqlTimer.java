@@ -101,7 +101,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      *
      * @param a the first Task
      * @param b the second Task
-     * @return 0 if equal, < 0 if a < b, > 0 if a > b
+     * @return {@code 0 if equal, < 0 if a < b, > 0 if a > b}
      */
     public int compare(final Object a, final Object b) {
 
@@ -217,7 +217,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @param date time at which to execute the specified Runnable
      * @param runnable the Runnable to execute
      * @throws IllegalArgumentException if date or runnable is null, or
-     *      period is <= 0
+     *      period is {@code <= 0}
      */
     public Object schedulePeriodicallyAt(final Date date, final long period,
                                          final Runnable runnable,
@@ -244,7 +244,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @param relative if true, fixed rate scheduling else fixed delay scheduling
      * @param delay in milliseconds
      * @param runnable the Runnable to execute.
-     * @throws IllegalArgumentException if runnable is null or period is <= 0
+     * @throws IllegalArgumentException if runnable is null or period is {@code <= 0}
      */
     public Object schedulePeriodicallyAfter(final long delay,
             final long period, final Runnable runnable,
