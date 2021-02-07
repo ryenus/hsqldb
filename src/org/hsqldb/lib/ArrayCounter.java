@@ -43,17 +43,24 @@ public final class ArrayCounter {
 
     /**
      * Returns an int[] array of length segments containing the distribution
-     * count of the elements in unsorted int[] array with values between min
-     * and max (range). Values outside the min-max range are ignored<p>
+     * count of the elements in unsorted int[] array with values between min and
+     * max (range). Values outside the min-max range are ignored
      *
-     * A usage example is determining the count of people of each age group
+     * <p> A usage example is determining the count of people of each age group
      * in a large int[] array containing the age of each person. Called with
-     * (array, 16,0,79), it will return an int[16] with the first element
-     * the count of people aged 0-4, the second element the count of those
-     * aged 5-9, and so on. People above the age of 79 are excluded. If the
-     * range is not a multiple of segments, the last segment will be cover a
-     * smaller sub-range than the rest.
+     * (array, 16,0,79), it will return an int[16] with the first element the
+     * count of people aged 0-4, the second element the count of those aged 5-9,
+     * and so on. People above the age of 79 are excluded. If the range is not a
+     * multiple of segments, the last segment will be cover a smaller sub-range
+     * than the rest.
      *
+     * @param array int[]
+     * @param elementCount int
+     * @param segments int
+     * @param interval int
+     * @param start int
+     * @param limit int
+     * @return int[]
      */
     public static int[] countSegments(int[] array, int elementCount,
                                       int segments, int interval, int start,
@@ -87,15 +94,22 @@ public final class ArrayCounter {
      * range (1,array.length), finds the value in the range (start,limit) of the
      * largest element (rank) where the count of all smaller elements in that
      * range is less than or equals target. Parameter margin indicates the
-     * margin of error in target<p>
+     * margin of error in target
      *
-     * In statistics, this can be used to calculate a median or quartile value.
-     * A usage example applied to an array of age values is to determine
-     * the maximum age of a given number of people. With the example array
-     * given in countSegments, rank(array, c, 6000, 18, 65, 0) will return an age
+     * <p> In statistics, this can be used to calculate a median or quartile
+     * value. A usage example applied to an array of age values is to determine
+     * the maximum age of a given number of people. With the example array given
+     * in countSegments, rank(array, c, 6000, 18, 65, 0) will return an age
      * value between 18-64 (inclusive) and the count of all people aged between
      * 18 and the returned value(exclusive) will be less than or equal to 6000.
      *
+     * @param array int[]
+     * @param elements int
+     * @param target int
+     * @param start int
+     * @param limit int
+     * @param margin int
+     * @return int
      */
     public static int rank(int[] array, int elements, int target, int start,
                            int limit, int margin) {
@@ -135,6 +149,11 @@ public final class ArrayCounter {
      * Helper method to calculate the span of the sub-interval. Simply returns
      * the ceiling of ((limit - start) / segments) and accounts for invalid
      * start and limit combinations.
+     *
+     * @param segments int
+     * @param start int
+     * @param limit int
+     * @return int
      */
     static int calcInterval(int segments, int start, int limit) {
 

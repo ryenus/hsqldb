@@ -48,7 +48,7 @@ package org.hsqldb.lib;
  * in theory, guaranteed to be O(log n).<p>
  *
  * This interface represents a pure queue with the same basic queue methods
- * as (@code java.util.Queue) but without all the extra methods.
+ * as {@code java.util.Queue} but without all the extra methods.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.6.0
@@ -63,11 +63,15 @@ public interface HsqlHeap<E> {
 
     /**
      * Retrieves whether this Heap is empty.
+     *
+     * @return boolean
      */
     boolean isEmpty();
 
     /**
      * Retrieves whether this Heap is full.
+     *
+     * @return boolean
      */
     boolean isFull();
 
@@ -77,9 +81,10 @@ public interface HsqlHeap<E> {
      * @param o The element to add
      * @throws IllegalArgumentException if the implementation does
      *      not accept elements of the supplied type (optional)
-     * throws RuntimeException if the implementation
+     * @throws RuntimeException if the implementation
      *      dictates that this Heap is not currently accepting additions
      *      or that this Heap is currently full (optional)
+     * @return boolean
      */
     boolean add(E o);
 

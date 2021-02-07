@@ -29,13 +29,13 @@
  */
 
 
-package org.hsqldb.lib;
-
 /**
- * Marker interface for a Collection that is a Set of values.
+ * Contains the DbBackupMain class, for offline backing up HyperSQL databases.<p>
  *
- * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
- * @since 1.7.2
+ * See <a href="../../../../../guide/management-chapt.html#mtc_backup" target="guide">
+ * the database offline backup section of the HyperSQL User Guide</a><p>
+ *
+ * Also contains support classes for handling files in tar and pax format.
+
  */
-public interface Set<E> extends Collection<E> {}
+package org.hsqldb.lib.tar;

@@ -32,6 +32,7 @@
 package org.hsqldb.lib;
 
 /**
+ * A basic collection of values.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.6.0

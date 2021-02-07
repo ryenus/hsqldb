@@ -29,13 +29,7 @@
  */
 
 
-package org.hsqldb.lib;
-
 /**
- * Marker interface for a Collection that is a Set of values.
- *
- * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
- * @since 1.7.2
+ * Contains the HyperSQL engine classes.
  */
-public interface Set<E> extends Collection<E> {}
+package org.hsqldb;

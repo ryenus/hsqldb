@@ -52,11 +52,13 @@ public class HsqlArrayHeap<E> implements HsqlHeap<E> {
 // ------------------------------ constructors ---------------------------------
 
     /**
-     * Creates a new HsqlArrayHeap with the given initial capacity, using
-     * the specified ObjectComparator to maintain the heap invariant.
+     * Creates a new HsqlArrayHeap with the given initial capacity, using the
+     * specified ObjectComparator to maintain the heap invariant.
      *
-     * @exception IllegalArgumentException if capacity less or equal to zero
-     *      or comparator is null
+     * @throws IllegalArgumentException if capacity less or equal to zero or
+     *   comparator is null
+     * @param capacity int
+     * @param comparator Comparator
      */
     public HsqlArrayHeap(int capacity,
                          Comparator<E> comparator)

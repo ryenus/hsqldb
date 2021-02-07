@@ -124,7 +124,6 @@ abstract class BaseList<E> {
         return elementCount == 0;
     }
 
-    /** Returns a string representation */
     public String toString() {
 
         StringBuilder sb = new StringBuilder(32 + elementCount * 3);

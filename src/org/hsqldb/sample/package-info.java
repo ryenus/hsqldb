@@ -29,13 +29,10 @@
  */
 
 
-package org.hsqldb.lib;
-
 /**
- * Marker interface for a Collection that is a Set of values.
+ * Contains examples for hooking into HyperSQL from your own Java code.<p>
  *
- * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
- * @since 1.7.2
+ * Other examples may be found in the {@code sample} subdirectory of
+ * your HyperSQL distribution
  */
-public interface Set<E> extends Collection<E> {}
+package org.hsqldb.sample;

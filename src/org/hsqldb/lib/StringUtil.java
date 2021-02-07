@@ -48,6 +48,11 @@ public class StringUtil {
      * length matches the given precision, otherwise trims the right digits.
      * Then if maxSize is smaller than precision, trims the right digits to
      * maxSize. Negative values are treated as positive
+     *
+     * @param value long
+     * @param precision int
+     * @param maxSize int
+     * @return String
      */
     public static String toZeroPaddedString(long value, int precision,
             int maxSize) {
@@ -324,7 +329,7 @@ public class StringUtil {
     }
 
     /**
-     * Checks if text is empty (characters <= space)
+     * Checks if text is empty ({@code characters <= space})
      * @return boolean true if text is null or empty, false otherwise
      * @param s java.lang.String
      */

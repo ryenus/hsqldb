@@ -31,6 +31,23 @@
 
 package org.hsqldb.lib;
 
+/**
+ * Interface for equality comparison.<p>
+ *
+ * The equals and hashCode methods of this interace are used instead of
+ * the methods of the compared Objects.<p>
+ *
+ * The DefaultComparator implmentation calls the Object's methods.<p>
+ *
+ * The IdentityComparator implementation uses {@code ==} instead of the equals
+ * method of the Object.<p>
+ *
+ * Updated for generics fredt@users.
+ *
+ * @author fredt@users
+ * @version 2.6.0
+ * @since 2.0
+ */
 public interface ObjectComparator<T> {
 
     boolean equals(T a, T b);

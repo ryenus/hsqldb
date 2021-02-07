@@ -90,8 +90,10 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
     }
 
     /**
-     * Creates a new instance of HsqlArrayList that minimizes the size when
-     * empty
+     * Creates a new instance of HsqlArrayList that minimizes the size when empty
+     *
+     * @param initialCapacity int
+     * @param minimize boolean
      */
     @SuppressWarnings( "unchecked" )
     public HsqlArrayList(int initialCapacity, boolean minimize) {
@@ -105,7 +107,11 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         minimizeOnClear = minimize;
     }
 
-    /** Creates a new instance with the given initial capacity */
+    /**
+     * Creates a new instance with the given initial capacity
+     *
+     * @param initialCapacity int
+     */
     @SuppressWarnings( "unchecked" )
     public HsqlArrayList(int initialCapacity) {
 
@@ -122,7 +128,12 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         elementData = (E[]) new Object[initialCapacity];
     }
 
-    /** Inserts an element at the given index */
+    /**
+     * Inserts an element at the given index
+     *
+     * @param index int
+     * @param element E
+     */
     public void add(int index, E element) {
 
 //        reporter.updateCounter++;
@@ -150,7 +161,12 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         elementCount++;
     }
 
-    /** Appends an element to the end of the list */
+    /**
+     * Appends an element to the end of the list
+     *
+     * @param element E
+     * @return boolean
+     */
     @Override
     public boolean add(E element) {
 
@@ -166,7 +182,12 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         return true;
     }
 
-    /** Gets the element at given position */
+    /**
+     * Gets the element at given position
+     *
+     * @param index int
+     * @return E
+     */
     @Override
     public E get(int index) {
 
@@ -179,7 +200,12 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         return elementData[index];
     }
 
-    /** returns the index of given object or -1 if not found */
+    /**
+     * returns the index of given object or -1 if not found
+     *
+     * @param o Object
+     * @return int
+     */
     @Override
     public int indexOf(Object o) {
 
@@ -202,7 +228,12 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         return -1;
     }
 
-    /** Removes and returns the element at given position */
+    /**
+     * Removes and returns the element at given position
+     *
+     * @param index int
+     * @return E
+     */
     @Override
     public E remove(int index) {
 
@@ -230,7 +261,13 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         return removedObj;
     }
 
-    /** Replaces the element at given position */
+    /**
+     * Replaces the element at given position
+     *
+     * @param index int
+     * @param element E
+     * @return E
+     */
     public E set(int index, E element) {
 
         if (index >= elementCount) {
@@ -246,7 +283,11 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
         return replacedObj;
     }
 
-    /** Returns the number of elements in the array list */
+    /**
+     * Returns the number of elements in the array list
+     *
+     * @return int
+     */
     @Override
     public final int size() {
         return elementCount;
@@ -311,6 +352,8 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
 
     /**
      * Increase or reduce the size, setting discarded or added elements to null.
+     *
+     * @param newSize int
      */
     public void setSize(int newSize) {
 
@@ -347,16 +390,18 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
     }
 
     /**
-     * Copies all elements of the list to a[].<p>
+     * Copies all elements of the list to a[].
      *
-     * If a[] is too small, a new array or the same type is
-     * returned.<p>
+     * <p> If a[] is too small, a new array or the same type is returned.
      *
-     * If a[] is larger, only the list elements are copied and no
-     * other change is made to the array.<p>
+     * <p> If a[] is larger, only the list elements are copied and no other
+     * change is made to the array.
      *
-     * Differs from the implementation in java.util.ArrayList in the second
+     * <p> Differs from the implementation in java.util.ArrayList in the second
      * aspect.
+     * @param <T> type of array element
+     * @param array T[]
+     * @return T[]
      */
     public <T> T[] toArray(T[] array) {
 
@@ -373,6 +418,10 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
     /**
      * Copies elements of the list from start to limit to array. The array must
      * be large enough.
+     *
+     * @param array E[]
+     * @param start int
+     * @param limit int
      */
     public void toArraySlice(E[] array, int start, int limit) {
         System.arraycopy(elementData, start, array, 0, limit - start);

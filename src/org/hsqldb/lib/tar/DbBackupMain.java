@@ -34,6 +34,14 @@ package org.hsqldb.lib.tar;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * This class is used for offline backup of HyperSQL databases.<p>
+ *
+ * See <a href="../../../../../guide/management-chapt.html#mtc_backup" target="guide">
+ * the database offline backup section of the HyperSQL User Guide</a><p>
+ *
+ * Contains only the main method.
+ */
 public class DbBackupMain {
 
     /**

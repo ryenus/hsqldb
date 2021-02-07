@@ -32,6 +32,8 @@
 package org.hsqldb.lib;
 
 /**
+ * Extends HsqlArrayList. All search methods use Object identity for equality
+ * comparison.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.6.0
