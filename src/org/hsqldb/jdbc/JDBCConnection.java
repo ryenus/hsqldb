@@ -107,7 +107,7 @@ import org.hsqldb.types.Type;
 /**
  * <!-- start generic documentation -->
  *
- * <P>A connection (session) with a specific
+ * A connection (session) with a specific
  * database. SQL statements are executed and results are returned
  * within the context of a connection.
  * <P>

@@ -390,15 +390,16 @@ public class HsqlArrayList<E> extends BaseList<E> implements List<E> {
     }
 
     /**
-     * Copies all elements of the list to a[].
+     * Copies all elements of the list to a[].<p>
      *
-     * <p> If a[] is too small, a new array or the same type is returned.
+     * If a[] is too small, a new array or the same type is returned.<p>
      *
-     * <p> If a[] is larger, only the list elements are copied and no other
-     * change is made to the array.
+     * If a[] is larger, only the list elements are copied and no other
+     * change is made to the array.<p>
      *
-     * <p> Differs from the implementation in java.util.ArrayList in the second
+     * Differs from the implementation in java.util.ArrayList in the second
      * aspect.
+     *
      * @param <T> type of array element
      * @param array T[]
      * @return T[]

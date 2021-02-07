@@ -229,7 +229,7 @@ public class CountUpDownLatch {
      * Updates {@code count} to the requested {@code newCount}, returning
      * {@code true} on transition to zero.
      * <p>
-     * If {@code newCount} is zero and the current }@code count is zero}, no
+     * If {@code newCount} is zero and the current {@code count} is zero, no
      * action occurs and false is returned immediately. immediately;
      *
      * @param newCount to which to update {@code count}; must be non-negative.
@@ -396,7 +396,7 @@ public class CountUpDownLatch {
         }
 
         /**
-         * by {@code amount}.
+         * Counts down by {@code amount}.
          *
          * @param amount by which to decrement the {@code count}
          * @return true if {#code count} transitioned to zero.
@@ -428,7 +428,7 @@ public class CountUpDownLatch {
         }
 
         /**
-         * by one.
+         * Counts up by one.
          *
          * @return true if count transitioned to zero
          * @throws ArithmeticException when the operation would otherwise cause
@@ -455,7 +455,7 @@ public class CountUpDownLatch {
         }
 
         /**
-         * by {@code amount}.
+         * Counts up by {@code amount}.
          *
          * @param amount by which to increment {@code count}
          * @return true if count transitioned from zero to a new value

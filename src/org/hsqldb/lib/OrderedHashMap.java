@@ -53,6 +53,13 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
         this.isList = true;
     }
 
+    /**
+     * Returns the key stored in the entry at index position.
+     *
+     * @param index the index of the entry
+     * @throws IndexOutOfBoundsException for invalid argument
+     * @return the value stored in the entry
+     */
     public K getKeyAt(int index) throws IndexOutOfBoundsException {
 
         checkRange(index);
@@ -60,6 +67,13 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
         return (K) objectKeyTable[index];
     }
 
+    /**
+     * Returns the value stored in the entry at index position.
+     *
+     * @param index the index of the entry
+     * @throws IndexOutOfBoundsException for invalid argument
+     * @return the value stored in the entry
+     */
     public V getValueAt(int index) throws IndexOutOfBoundsException {
 
         checkRange(index);
@@ -68,7 +82,11 @@ public class OrderedHashMap<K, V> extends HashMap<K, V> {
     }
 
     /**
-     * Same as getValueAt(index)
+     * Same as getValueAt(index).
+     *
+     * @param index the index of the entry
+     * @throws IndexOutOfBoundsException for invalid argument
+     * @return the value stored in the entry
      */
     public V get(int index) throws IndexOutOfBoundsException {
 

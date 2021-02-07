@@ -34,6 +34,7 @@ package org.hsqldb.lib;
 import java.util.NoSuchElementException;
 
 /**
+ * Interface for long to long lookup.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.5.1

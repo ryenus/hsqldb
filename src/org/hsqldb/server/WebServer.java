@@ -43,7 +43,7 @@ import org.hsqldb.resources.ResourceBundleHandler;
 // campbell-burnet@users 20030510 - patch 1.7.2 - general lint removal
 
 /**
- *  The HSQLDB HTTP protocol network database server. <p>
+ *  The HyperSQL http: and https: protocol network database server. <p>
  *
  *  WebServer has two distinct functions:<p>
  *

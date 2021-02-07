@@ -70,6 +70,8 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.List;
 
 /**
+ * A client-side file-based implementation of Clob.
+ *
  * <!-- start Release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
  * <h1>HSQLDB-Specific Information:</h1> <p>

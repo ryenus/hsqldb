@@ -37,7 +37,7 @@ import org.hsqldb.HsqlException;
 // fredt@users 20190327 - moved to own package
 
 /**
- * The interface an HSQLDB TRIGGER must implement. The user-supplied class that
+ * The interface a HyperSQL TRIGGER must implement. The user-supplied class that
  * implements this must have a default constructor.<p>
  *
  * Contents of oldRow[] and newRow[] in each type of trigger.

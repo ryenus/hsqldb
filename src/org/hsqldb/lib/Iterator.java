@@ -32,6 +32,7 @@
 package org.hsqldb.lib;
 
 /**
+ * Interface for HyperSQL iterators.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.6.0

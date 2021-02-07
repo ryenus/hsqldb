@@ -35,7 +35,7 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 /**
- * Maintains an ordered  long->long lookup table, consisting of two
+ * Maintains an ordered  {@code long->long} lookup table, consisting of two
  * columns, one for keys, the other for values. Equal keys are allowed.<p>
  *
  * The table is sorted on key column.<p>

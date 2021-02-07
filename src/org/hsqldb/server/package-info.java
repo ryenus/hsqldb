@@ -30,6 +30,6 @@
 
 
 /**
- * The HyperSQL network listener classes.
+ * Contains the HyperSQL network listener classes.
  */
 package org.hsqldb.server;

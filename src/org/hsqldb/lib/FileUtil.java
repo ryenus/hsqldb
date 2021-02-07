@@ -189,6 +189,9 @@ public class FileUtil implements FileAccess {
 
     /**
      * Delete the named file
+     *
+     * @param filename String
+     * @return true if deleted
      */
     public boolean delete(String filename) {
         return new File(filename).delete();
@@ -215,6 +218,9 @@ public class FileUtil implements FileAccess {
 
     /**
      * Return true or false based on whether the named file exists.
+     *
+     * @param filename String
+     * @return true if exists
      */
     public boolean exists(String filename) {
         return new File(filename).exists();
@@ -232,10 +238,12 @@ public class FileUtil implements FileAccess {
 
     /**
      * Rename the file with oldname to newname. If a file with newname already
-     * exists, it is deleted before the renaming operation proceeds.
+     * exists, it is deleted before the renaming operation proceeds. If a file
+     * with oldname does not exist, no file will exist after the operation.
      *
-     * If a file with oldname does not exist, no file will exist after the
-     * operation.
+     * @param oldname String
+     * @param newname String
+     * @return true if successful
      */
     private boolean renameWithOverwrite(String oldname, String newname) {
 
@@ -269,44 +277,48 @@ public class FileUtil implements FileAccess {
     }
 
     /**
-     * Retrieves the canonical file for the given file, in a
-     * JDK 1.1 complaint way.
+     * Retrieves the canonical file for the given file, in a JDK 1.1 compliant
+     * way.
      *
      * @param f the File for which to retrieve the absolute File
      * @return the canonical File
+     * @throws IOException on error
      */
     public File canonicalFile(File f) throws IOException {
         return new File(f.getCanonicalPath());
     }
 
     /**
-     * Retrieves the canonical file for the given path, in a
-     * JDK 1.1 complaint way.
+     * Retrieves the canonical file for the given path, in a JDK 1.1 compliant
+     * way.
      *
      * @param path the path for which to retrieve the canonical File
      * @return the canonical File
+     * @throws IOException on error
      */
     public File canonicalFile(String path) throws IOException {
         return new File(new File(path).getCanonicalPath());
     }
 
     /**
-     * Retrieves the canonical path for the given File, in a
-     * JDK 1.1 complaint way.
+     * Retrieves the canonical path for the given File, in a JDK 1.1 compliant
+     * way.
      *
      * @param f the File for which to retrieve the canonical path
      * @return the canonical path
+     * @throws IOException on error
      */
     public String canonicalPath(File f) throws IOException {
         return f.getCanonicalPath();
     }
 
     /**
-     * Retrieves the canonical path for the given path, in a
-     * JDK 1.1 complaint way.
+     * Retrieves the canonical path for the given path, in a JDK 1.1 compliant
+     * way.
      *
      * @param path the path for which to retrieve the canonical path
      * @return the canonical path
+     * @throws IOException on error
      */
     public String canonicalPath(String path) throws IOException {
         return new File(path).getCanonicalPath();
@@ -439,7 +451,9 @@ public class FileUtil implements FileAccess {
      * currently exist for a database. The list includes current database files
      * as well as ".new", and ".old" versions of the files, plus any app logs.
      *
-     * @param dbNamePath full path or name of database (without a file extension)
+     * @param dbNamePath full path or name of database (without a file
+     *   extension)
+     * @return File[]
      */
     public static File[] getDatabaseFileList(String dbNamePath) {
 
@@ -452,7 +466,9 @@ public class FileUtil implements FileAccess {
      * Returns a list of existing main files for a database. The list excludes
      * non-essential files.
      *
-     * @param dbNamePath full path or name of database (without a file extension)
+     * @param dbNamePath full path or name of database (without a file
+     *   extension)
+     * @return File[]
      */
     public static File[] getDatabaseMainFileList(String dbNamePath) {
 

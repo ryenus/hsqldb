@@ -34,6 +34,7 @@ package org.hsqldb.lib;
 import java.util.NoSuchElementException;
 
 /**
+ * An iterator with an added filter.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.6.0
