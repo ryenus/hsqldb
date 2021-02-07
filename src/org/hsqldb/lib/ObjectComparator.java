@@ -50,7 +50,8 @@ public interface ObjectComparator<T> {
         }
 
         public int hashCode(Object a) {
-            return 0;
+            return a == null ? 0 :
+                    a.hashCode();
         }
 
         public long longKey(Object a) {
