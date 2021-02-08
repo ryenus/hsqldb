@@ -77,7 +77,7 @@ import org.hsqldb.result.ResultConstants;
 // unnecessary and could cause deadlock
 
 /**
- * The HSQLDB HSQL protocol network database server. <p>
+ * The HyperSQL hsql: and hsqls: protocol network database server. <p>
  *
  * A Server object acts as a network database server and is one way of using
  * the client-server mode of HSQLDB Database Engine. Instances of this

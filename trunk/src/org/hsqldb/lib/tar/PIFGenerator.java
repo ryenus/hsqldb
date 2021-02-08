@@ -107,8 +107,8 @@ public class PIFGenerator extends ByteArrayOutputStream {
      * @see Boolean#toString(boolean)
      * @param key String
      * @param b boolean value
-     * @throws TarMalformatException
-     * @throws IOException
+     * @throws TarMalformatException if there is a problem writing the tar file
+     * @throws IOException if there is an IO problem
      */
     public void addRecord(String key,
                           boolean b)
@@ -122,8 +122,8 @@ public class PIFGenerator extends ByteArrayOutputStream {
      * @see #addRecord(String, String)
      * @param key String
      * @param i int value
-     * @throws TarMalformatException
-     * @throws IOException
+     * @throws TarMalformatException if there is a problem writing the tar file
+     * @throws IOException  IOException if there is an IO problem
      */
     public void addRecord(String key,
                           int i) throws TarMalformatException, IOException {
@@ -136,8 +136,8 @@ public class PIFGenerator extends ByteArrayOutputStream {
      * @see #addRecord(String, String)
      * @param key String
      * @param l long value
-     * @throws TarMalformatException
-     * @throws IOException
+     * @throws TarMalformatException if there is a problem writing the tar file
+     * @throws IOException if there is an IO problem
      */
     public void addRecord(String key,
                           long l) throws TarMalformatException, IOException {
@@ -150,8 +150,8 @@ public class PIFGenerator extends ByteArrayOutputStream {
      *
      * @param key String
      * @param value String
-     * @throws TarMalformatException
-     * @throws IOException
+     * @throws TarMalformatException if there is a problem writing the tar file
+     * @throws IOException if there is an IO problem
      */
     public void addRecord(String key,
                           String value)
