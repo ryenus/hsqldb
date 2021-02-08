@@ -29,4 +29,7 @@
  */
 
 
+/**
+ * Contains the HyperSQL utility classes.
+ */
 package org.hsqldb.util;

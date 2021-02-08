@@ -80,7 +80,7 @@ public class FileUtil implements FileAccess {
     throws IOException {
 
         try {
-            return new FileInputStream(new File(streamName));
+            return new FileInputStream(streamName);
         } catch (Throwable e) {
             throw JavaSystem.toIOException(e);
         }
@@ -159,12 +159,12 @@ public class FileUtil implements FileAccess {
 
     public OutputStream openOutputStreamElement(String streamName)
     throws IOException {
-        return new FileOutputStream(new File(streamName), false);
+        return new FileOutputStream(streamName, false);
     }
 
     public OutputStream openOutputStreamElementAppend(String streamName)
     throws IOException {
-        return new FileOutputStream(new File(streamName), true);
+        return new FileOutputStream(streamName, true);
     }
 
     // end of FileAccess implementation

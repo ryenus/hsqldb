@@ -42,7 +42,7 @@ import org.hsqldb.lib.InputStreamInterface;
 import org.hsqldb.lib.InputStreamWrapper;
 
 /**
- * Works with tar archives containing HSQLDB database instance backups.
+ * Works with tar archives containing HyperSQL database instance backups.
  * Viz, creating, examining, or extracting these archives.
  * <P>
  * This class provides OO Tar backup-creation control.
@@ -196,7 +196,7 @@ public class DbBackup {
      * method will throw.
      *
      * @throws IOException for any of many possible I/O problems
-     * @throws TarMalformatException
+     * @throws TarMalformatException if there is a problem writin the tar file
      */
     public void write() throws IOException, TarMalformatException {
 

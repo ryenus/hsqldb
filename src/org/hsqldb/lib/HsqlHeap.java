@@ -32,7 +32,7 @@
 package org.hsqldb.lib;
 
 /**
- * Provides the HSQLDB interface for Heap ADT implementations. <p>
+ * Provides the HyperSQL interface for Heap ADT implementations. <p>
  *
  * In this context, a Heap is simply a collection-like ADT that allows addition
  * of elements and provides a way to remove the least element, given some
