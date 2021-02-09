@@ -247,7 +247,8 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     ServerProperties serverProperties;
 
 //
-    HashSet serverConnSet;
+    HashSet      serverConnSet;
+    final Object serverConnSetSync = new Object();
 
 //  As of HSQLDB 1.9.0, the following arrays are used starting from 0.
 //  The indexes do not correspond to the user-specified indexes.
@@ -397,7 +398,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
         printWithThread("signalCloseAllServerConnections() entered");
 
-        synchronized (serverConnSet) {
+        synchronized (serverConnSetSync) {
 
             // snapshot
             array = new ServerConnection[serverConnSet.size()];
@@ -1008,10 +1009,9 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     }
 
     /**
-     * Sets whether server thread is a daemon. Used before starting.
-     * The default is false.
+     * No-op as deprecated.
      *
-     * @param daemon if true, start the thread as a daemon thread
+     * @param daemon ignored
      */
     public void setDaemon(boolean daemon) {
 
@@ -1280,7 +1280,7 @@ public class Server implements HsqlSocketRequestHandler, Notified {
             }
         }
 
-        synchronized (serverConnSet) {
+        synchronized (serverConnSetSync) {
             array = new ServerConnection[serverConnSet.size()];
 
             serverConnSet.toArray(array);
@@ -2009,7 +2009,6 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     private void run() {
 
         StopWatch   sw;
-        ThreadGroup tg;
         String      tgName;
 
         printWithThread("run() entered");
@@ -2037,11 +2036,8 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
         tgName = "HSQLDB Connections @"
                  + Integer.toString(this.hashCode(), 16);
-        tg = new ThreadGroup(tgName);
 
-        tg.setDaemon(false);
-
-        serverConnectionThreadGroup = tg;
+        serverConnectionThreadGroup = new ThreadGroup(tgName);
 
         // Mount the databases this server is supposed to host.
         // This may take some time if the databases are not all
@@ -2182,28 +2178,15 @@ public class Server implements HsqlSocketRequestHandler, Notified {
         // Be nice and let applications exit if there are no
         // running connection threads - wait at most 100 ms per active thread
         if (serverConnectionThreadGroup != null) {
-            if (!serverConnectionThreadGroup.isDestroyed()) {
-                int count = serverConnectionThreadGroup.activeCount();
+            int count = serverConnectionThreadGroup.activeCount();
 
-                for (; count > 0
-                        && serverConnectionThreadGroup.activeCount() > 0;
-                        count--) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (Exception e) {
-
-                        // e.getMessage();
-                    }
-                }
-
+            for (; count > 0 && serverConnectionThreadGroup.activeCount() > 0;
+                    count--) {
                 try {
-                    serverConnectionThreadGroup.destroy();
-                    printWithThread(serverConnectionThreadGroup.getName()
-                                    + " destroyed");
-                } catch (Throwable t) {
-                    printWithThread(serverConnectionThreadGroup.getName()
-                                    + " not destroyed");
-                    printWithThread(t.toString());
+                    Thread.sleep(100);
+                } catch (Exception e) {
+
+                    // e.getMessage();
                 }
             }
 
@@ -2296,9 +2279,9 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     }
 
     /**
-     * Creates and starts a new Server.  <p>
+     * Creates and starts a new Server.<p>
      *
-     * Allows starting a Server via the command line interface. <p>
+     * Allows starting a Server via the command line interface.<p>
      *
      * @param args the command line arguments for the Server instance
      */

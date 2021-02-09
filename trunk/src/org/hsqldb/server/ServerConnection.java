@@ -122,7 +122,7 @@ import org.hsqldb.types.Type;
  *
  * @author Blaine Simpson (unsaved@users dot sourceforge.net
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.0
  * @since 1.6.2
  */
 class ServerConnection implements Runnable {
@@ -198,7 +198,7 @@ class ServerConnection implements Runnable {
         this.server  = server;
         this.mThread = mCurrentThread.getAndIncrement();
 
-        synchronized (server.serverConnSet) {
+        synchronized (server.serverConnSetSync) {
             server.serverConnSet.add(this);
         }
     }
@@ -246,7 +246,7 @@ class ServerConnection implements Runnable {
             socket = null;
         }
 
-        synchronized (server.serverConnSet) {
+        synchronized (server.serverConnSetSync) {
             server.serverConnSet.remove(this);
         }
 
