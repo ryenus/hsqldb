@@ -68,7 +68,7 @@ import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class LobManager {
@@ -123,7 +123,7 @@ public class LobManager {
     Lock          writeLock = lock.writeLock();
 
     // LOBS columns
-    private interface LOBS {
+    interface LOBS {
 
         int BLOCK_ADDR   = 0;
         int BLOCK_COUNT  = 1;
@@ -549,6 +549,10 @@ public class LobManager {
 
     public long getUsageChanged() {
         return usageChanged;
+    }
+
+    public void setUsageChanged() {
+        usageChanged += lobBlockSize;
     }
 
     public Result deleteUnusedLobs() {

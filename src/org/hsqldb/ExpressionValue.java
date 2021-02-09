@@ -40,7 +40,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class ExpressionValue extends Expression {
@@ -101,7 +101,7 @@ public class ExpressionValue extends Expression {
         }
     }
 
-    Object getValue(Session session, Type type) {
+    public Object getValue(Session session, Type type) {
 
         if (dataType == type || valueData == null) {
             return valueData;

@@ -575,14 +575,15 @@ public class FrameworkLogger {
             jdkLogger.logp(level, c, m, message);
         } else {
             try {
-                log4jLogMethod.invoke(log4jLogger,
-                                      callerFqcnAvailable ? new Object[] {
+                Object[] args = callerFqcnAvailable ? new Object[] {
                     FrameworkLogger.class.getName(),
                     jdkToLog4jLevels.get(level), message, null
                 }
-                                                          : new Object[] {
-       jdkToLog4jLevels.get(level), message, null
-   });
+                                                    : new Object[] {
+                    jdkToLog4jLevels.get(level), message, null
+                };
+
+                log4jLogMethod.invoke(log4jLogger, args);
 
                 // Test where SqlFile correct here.
             } catch (Exception e) {

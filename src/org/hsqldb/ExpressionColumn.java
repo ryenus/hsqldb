@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Implementation of column, variable, parameter, etc. access operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class ExpressionColumn extends Expression {
@@ -990,7 +990,7 @@ public class ExpressionColumn extends Expression {
         return "";
     }
 
-    static void checkColumnsResolved(List set) {
+    public static void checkColumnsResolved(List set) {
 
         if (set != null && !set.isEmpty()) {
             Expression e = (Expression) set.get(0);
