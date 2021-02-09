@@ -171,7 +171,7 @@ public class CountUpDownLatch {
      * @throws ArithmeticException      when the operation would otherwise cause
      *                                  a silent numeric overflow, resulting in
      *                                  a negative {@code count}.
-     * @throws IllegalArgumentException if {@code amount is less than one}
+     * @throws IllegalArgumentException if {@code amount} is less than one.
      */
     public boolean countUp(int amount) {
         return sync.countUp(amount);

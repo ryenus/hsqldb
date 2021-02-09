@@ -139,7 +139,7 @@ class TransferSQLText extends DataAccessPoint {
         }
     }
 
-    void close() throws DataAccessPointException {
+    void close() {
 
         if (WTextWrite != null) {
             try {
@@ -294,8 +294,7 @@ class TransferSQLText extends DataAccessPoint {
     }
 
     String translateTypes(String CreateLine, TransferTable TTable,
-                          DataAccessPoint Dest)
-                          throws DataAccessPointException {
+                          DataAccessPoint Dest) {
 
         String    translatedLine = "";
         JDBCTypes JDBCT          = new JDBCTypes();

@@ -176,7 +176,7 @@ public class StatementExpression extends StatementDMQL {
 
     public void resolve(Session session) {}
 
-    String describeImpl(Session session) throws Exception {
+    String describeImpl(Session session) {
         return getSQL();
     }
 

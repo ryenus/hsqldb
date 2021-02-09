@@ -1062,7 +1062,7 @@ public class LockFile {
      */
     private void openRAF()
     throws LockFile.UnexpectedFileNotFoundException,
-           LockFile.FileSecurityException, LockFile.UnexpectedFileIOException {
+           LockFile.FileSecurityException {
 
         try {
             raf = new RandomAccessFile(file, "rw");

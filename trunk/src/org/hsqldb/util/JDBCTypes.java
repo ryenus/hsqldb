@@ -137,7 +137,7 @@ class JDBCTypes {
         return (String) hStringJDBCtypes.get(Integer.valueOf(type));
     }
 
-    public int toInt(String type) throws Exception {
+    public int toInt(String type) {
 
         Integer tempInteger = (Integer) hIntJDBCtypes.get(type);
 

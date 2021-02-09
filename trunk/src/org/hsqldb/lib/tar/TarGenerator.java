@@ -444,7 +444,7 @@ public class TarGenerator {
         public TarEntrySupplicant(String path, InputStreamInterface is,
                                   TarFileOutputStream tarStream,
                                   long paxThreshold)
-                throws FileNotFoundException, TarMalformatException {
+                throws TarMalformatException {
 
             // Must use an expression-embedded ternary here to satisfy compiler
             // that this() call be first statement in constructor.

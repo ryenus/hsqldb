@@ -71,7 +71,7 @@ public interface ObjectComparator<T> {
 
         public int hashCode(Object a) {
             return a == null ? 0 :
-                    a.hashCode();
+                               a.hashCode();
         }
 
         public long longKey(Object a) {

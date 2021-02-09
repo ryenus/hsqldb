@@ -76,7 +76,7 @@ public class RowAVLDiskData extends RowAVL {
      *  the Nodes is made separetly.
      */
     public RowAVLDiskData(RowStoreAVLDiskData store, TableBase t,
-                          RowInputInterface in) throws IOException {
+                          RowInputInterface in) {
 
         super(t, (Object[]) null);
 

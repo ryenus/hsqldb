@@ -238,8 +238,10 @@ public class FileUtil implements FileAccess {
 
     /**
      * Rename the file with oldname to newname. If a file with newname already
-     * exists, it is deleted before the renaming operation proceeds. If a file
-     * with oldname does not exist, no file will exist after the operation.
+     * exists, it is deleted before the renaming operation proceeds.<p>
+     *
+     * If a file with oldname does not exist, no file will exist after the
+     * operation.
      *
      * @param oldname String
      * @param newname String
@@ -492,10 +494,10 @@ public class FileUtil implements FileAccess {
 
     static class DatabaseFilenameFilter implements FilenameFilter {
 
-        String[]        suffixes      = new String[] {
+        String[] suffixes      = new String[] {
             ".backup", ".properties", ".script", ".data", ".log", ".lobs"
         };
-        String[]        extraSuffixes = new String[] {
+        String[] extraSuffixes = new String[] {
             ".lck", ".sql.log", ".app.log"
         };
         private String  dbName;

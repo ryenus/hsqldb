@@ -881,7 +881,7 @@ class TransferDb extends DataAccessPoint {
         //}
     }
 
-    void close() throws DataAccessPointException {
+    void close() {
 
         if (srcStatement != null) {
             try {
@@ -901,9 +901,7 @@ class TransferDb extends DataAccessPoint {
     }
 
     private void transferRow(TransferResultSet r, PreparedStatement p,
-                             int len,
-                             int[] types)
-                             throws DataAccessPointException, SQLException {
+                             int len, int[] types) throws SQLException {
 
         for (int i = 1; i <= len; i++) {
             int    t = types[i];

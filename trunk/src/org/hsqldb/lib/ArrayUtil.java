@@ -250,7 +250,7 @@ public final class ArrayUtil {
     }
 
     /**
-     * Find index of value in small array.
+     * Finds index of value in small array.
      *
      * @param array int[]
      * @param value int
@@ -268,7 +268,7 @@ public final class ArrayUtil {
     }
 
     /**
-     * Find index of value in the first count elements of small array.
+     * Finds index of value in the first count elements of small array.
      *
      * @param array int[]
      * @param count int
@@ -342,9 +342,12 @@ public final class ArrayUtil {
 
     /**
      * For full == true returns true if arra and arrb are identical (have the
-     * same length and contain the same integers in the same sequence). For full
-     * == false returns the result of haveEqualArrays(arra,arrb,count) For full
-     * == true, the array lengths must be the same as count
+     * same length and contain the same integers in the same sequence).<p>
+     *
+     * For full == false returns the result
+     * of haveEqualArrays(arra,arrb,count)<p>
+     *
+     * For full == true, the array lengths must be the same as count
      *
      * @param arra int[]
      * @param arrb int[]
@@ -918,6 +921,8 @@ public final class ArrayUtil {
     /**
      * Returns true if all indexes and no other positions are true in arrb. arra
      * must have no duplicates.
+     *
+     * arra must have no duplicates.
      *
      * @param arra int[]
      * @param arrb boolean[]

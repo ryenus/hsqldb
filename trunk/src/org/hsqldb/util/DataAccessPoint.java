@@ -109,7 +109,7 @@ class DataAccessPoint implements Serializable {
         throw new DataAccessPointException("Nothing to Parse");
     }
 
-    void close() throws DataAccessPointException {}
+    void close() {}
 
     void beginDataTransfer() throws DataAccessPointException {
 

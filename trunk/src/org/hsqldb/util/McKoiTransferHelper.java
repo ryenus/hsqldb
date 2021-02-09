@@ -49,7 +49,7 @@ class McKoiTransferHelper extends TransferHelper {
 
     String fixupColumnDefRead(TransferTable t, ResultSetMetaData meta,
                               String columnType, ResultSet columnDesc,
-                              int columnIndex) throws SQLException {
+                              int columnIndex) {
 
         String CompareString = "UNIQUEKEY(\'" + t.Stmts.sDestTable + "\'";
 
@@ -68,7 +68,7 @@ class McKoiTransferHelper extends TransferHelper {
 
     String fixupColumnDefWrite(TransferTable t, ResultSetMetaData meta,
                                String columnType, ResultSet columnDesc,
-                               int columnIndex) throws SQLException {
+                               int columnIndex) {
 
         if (columnType.equals("SERIAL")) {
             columnType = "INTEGER DEFAULT UNIQUEKEY (\'"

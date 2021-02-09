@@ -280,8 +280,6 @@ public class ClosableCharArrayWriter extends Writer {
      * characters, then it may be resized to become more space efficient.
      * Calling this method may, but is not required to, affect the value
      * returned by a subsequent call to the {@link #capacity()} method.
-     *
-     * @throws IOException if this writer has been {@link #free() freed}.
      */
     public synchronized void trimToSize() throws IOException {
 
@@ -316,9 +314,8 @@ public class ClosableCharArrayWriter extends Writer {
      * @return the value of the {@code count} field, which is the number
      *      of valid characters accumulated in this writer.
      * @see #count
-     * @throws java.io.IOException never
      */
-    public synchronized int size() throws IOException {
+    public synchronized int size() {
         return count;
     }
 
@@ -387,11 +384,9 @@ public class ClosableCharArrayWriter extends Writer {
      * Closes this object for further writing. <p>
      *
      * Other operations may continue to succeed until after the first invocation
-     * of {@link #free() free()}. <p>
-     *
-     * @throws java.io.IOException if an I/O error occurs (default: never)
+     * of {@link #free() free()}.
      */
-    public synchronized void close() throws IOException {
+    public synchronized void close() {
         closed = true;
     }
 
@@ -404,12 +399,9 @@ public class ClosableCharArrayWriter extends Writer {
 
     /**
      * Closes this object and releases the underlying buffer for
-     * garbage collection. <p>
-     *
-     * @throws java.io.IOException if an I/O error occurs while closing
-     *      this writer (default: never).
+     * garbage collection.
      */
-    public synchronized void free() throws IOException {
+    public synchronized void free() {
 
         closed = true;
         freed  = true;

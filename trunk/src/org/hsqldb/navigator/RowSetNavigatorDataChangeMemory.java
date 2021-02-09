@@ -116,11 +116,9 @@ implements RowSetNavigatorDataChange {
     }
 
     // reading and writing
-    public void write(RowOutputInterface out,
-                      ResultMetaData meta) throws IOException {}
+    public void write(RowOutputInterface out, ResultMetaData meta) {}
 
-    public void read(RowInputInterface in,
-                     ResultMetaData meta) throws IOException {}
+    public void read(RowInputInterface in, ResultMetaData meta) {}
 
     public void endMainDataSet() {}
 

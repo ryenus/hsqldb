@@ -402,7 +402,7 @@ public final class ResultMetaData {
         }
     }
 
-    Type readDataTypeSimple(RowInputInterface in) throws IOException {
+    Type readDataTypeSimple(RowInputInterface in) {
 
         int     typeCode = in.readType();
         boolean isArray  = typeCode == Types.SQL_ARRAY;
@@ -416,7 +416,7 @@ public final class ResultMetaData {
         return Type.getDefaultType(typeCode);
     }
 
-    Type readDataType(RowInputInterface in) throws IOException {
+    Type readDataType(RowInputInterface in) {
 
         int     typeCode = in.readType();
         boolean isArray  = typeCode == Types.SQL_ARRAY;
@@ -458,7 +458,7 @@ public final class ResultMetaData {
         }
     }
 
-    void write(RowOutputInterface out) throws IOException {
+    void write(RowOutputInterface out) {
 
         out.writeInt(type);
         out.writeInt(columnCount);
