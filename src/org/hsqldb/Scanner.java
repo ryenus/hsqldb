@@ -1489,7 +1489,7 @@ public class Scanner {
                 if (charAt(currentPosition + 1) == ':') {
                     currentPosition   += 2;
                     token.tokenString = Tokens.T_DOUBLE_COLON;
-                    token.tokenType   = Tokens.COLON;
+                    token.tokenType   = Tokens.DOUBLE_COLON_OP;
                     token.isDelimiter = true;
 
                     return;

@@ -563,7 +563,7 @@ public abstract class StatementDMQL extends Statement {
     /**
      * Provides the toString() implementation.
      */
-    String describeImpl(Session session) throws Exception {
+    String describeImpl(Session session) {
 
         StringBuilder sb     = new StringBuilder();
         int           blanks = 0;

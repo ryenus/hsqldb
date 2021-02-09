@@ -171,7 +171,7 @@ public class ClientConnectionHTTP extends ClientConnection {
         return result;
     }
 
-    protected void handshake() throws IOException {
+    protected void handshake() {
 
         // We depend on the HTTP wrappings to assure end-to-end handshaking
     }

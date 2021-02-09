@@ -50,14 +50,13 @@ public class ReadWriteLockDummy implements ReadWriteLock {
 
         public void lock() {}
 
-        public void lockInterruptibly() throws InterruptedException {}
+        public void lockInterruptibly() {}
 
         public boolean tryLock() {
             return false;
         }
 
-        public boolean tryLock(long time,
-                               TimeUnit unit) throws InterruptedException {
+        public boolean tryLock(long time, TimeUnit unit) {
             return false;
         }
 

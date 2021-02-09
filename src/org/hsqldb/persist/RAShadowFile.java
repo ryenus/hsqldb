@@ -295,11 +295,11 @@ public class RAShadowFile {
             return count;
         }
 
-        public long skip(long count) throws IOException {
+        public long skip(long count) {
             return 0;
         }
 
-        public int available() throws IOException {
+        public int available() {
             return 0;
         }
 

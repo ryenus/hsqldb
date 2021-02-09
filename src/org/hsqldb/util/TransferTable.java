@@ -121,7 +121,7 @@ class TransferTable implements Serializable {
         }
     }
 
-    void setDest(String _Schema, DataAccessPoint dest) throws Exception {
+    void setDest(String _Schema, DataAccessPoint dest) {
 
         destDb = dest;
 
@@ -298,7 +298,7 @@ class TransferTable implements Serializable {
         }
     }
 
-    void transferData(int iMaxRows) throws Exception, SQLException {
+    void transferData(int iMaxRows) throws Exception {
 
         if (destDb.helper.needTransferTransaction()) {
             try {
@@ -453,7 +453,7 @@ class TransferTable implements Serializable {
         }
     }
 
-    private void initTypes() throws SQLException {
+    private void initTypes() {
 
         if (hTypes != null) {
             return;

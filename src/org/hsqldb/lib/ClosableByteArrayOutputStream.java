@@ -279,9 +279,8 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * @return the value of the {@code count} field, which is the number
      *      of valid bytes in this output stream.
      * @see #count
-     * @throws java.io.IOException never
      */
-    public synchronized int size() throws IOException {
+    public synchronized int size() {
         return count;
     }
 
@@ -370,11 +369,9 @@ public class ClosableByteArrayOutputStream extends OutputStream {
      * Closes this object for further writing. <p>
      *
      * Other operations may continue to succeed until after the first invocation
-     * of {@link #free() free()}. <p>
-     *
-     * @throws java.io.IOException if an I/O error occurs (default: never)
+     * of {@link #free() free()}.
      */
-    public synchronized void close() throws IOException {
+    public synchronized void close() {
         closed = true;
     }
 
@@ -388,12 +385,9 @@ public class ClosableByteArrayOutputStream extends OutputStream {
 
     /**
      * Closes this object and releases the underlying buffer for
-     * garbage collection. <p>
-     *
-     * @throws java.io.IOException if an I/O error occurs while closing
-     *      this stream (default: never).
+     * garbage collection.
      */
-    public synchronized void free() throws IOException {
+    public synchronized void free() {
 
         closed = true;
         freed  = true;

@@ -362,7 +362,7 @@ public class Expression implements Cloneable {
     /**
      * Set the data type
      */
-    void setDataType(Session session, Type type) {
+    public void setDataType(Session session, Type type) {
 
         if (opType == OpTypes.VALUE) {
             valueData = type.convertToType(session, valueData, dataType);
@@ -734,7 +734,7 @@ public class Expression implements Cloneable {
         return isDistinctAggregate;
     }
 
-    void setAggregate() {
+    public void setAggregate() {
         hasAggregate = true;
     }
 
@@ -775,7 +775,7 @@ public class Expression implements Cloneable {
     /**
      * Returns the left node
      */
-    Expression getLeftNode() {
+    public Expression getLeftNode() {
         return nodes.length > 0 ? nodes[LEFT]
                                 : null;
     }
@@ -783,7 +783,7 @@ public class Expression implements Cloneable {
     /**
      * Returns the right node
      */
-    Expression getRightNode() {
+    public Expression getRightNode() {
         return nodes.length > 1 ? nodes[RIGHT]
                                 : null;
     }
@@ -792,7 +792,7 @@ public class Expression implements Cloneable {
         nodes[LEFT] = e;
     }
 
-    void setRightNode(Expression e) {
+    public void setRightNode(Expression e) {
         nodes[RIGHT] = e;
     }
 
@@ -1360,14 +1360,14 @@ public class Expression implements Cloneable {
     /**
      * Returns the column index in the table
      */
-    int getColumnIndex() {
+    public int getColumnIndex() {
         return columnIndex;
     }
 
     /**
      * Returns the data type
      */
-    Type getDataType() {
+    public Type getDataType() {
         return dataType;
     }
 
@@ -1435,7 +1435,7 @@ public class Expression implements Cloneable {
         }
     }
 
-    Object getValue(Session session, Type type) {
+    public Object getValue(Session session, Type type) {
 
         Object o = getValue(session);
 
@@ -1890,9 +1890,8 @@ public class Expression implements Cloneable {
      * collect all expressions of a set of expression types appearing anywhere
      * in a select statement and its subselects, etc.
      */
-    OrderedHashSet collectAllExpressions(OrderedHashSet set,
-                                         OrderedIntHashSet typeSet,
-                                         OrderedIntHashSet stopAtTypeSet) {
+    public OrderedHashSet collectAllExpressions(OrderedHashSet set,
+            OrderedIntHashSet typeSet, OrderedIntHashSet stopAtTypeSet) {
 
         if (stopAtTypeSet.contains(opType)) {
             return set;

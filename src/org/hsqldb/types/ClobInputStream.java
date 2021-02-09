@@ -142,7 +142,7 @@ public final class ClobInputStream extends Reader {
         return (int) avail;
     }
 
-    public void close() throws IOException {
+    public void close() {
         isClosed = true;
     }
 

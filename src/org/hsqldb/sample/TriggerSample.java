@@ -323,8 +323,7 @@ public class TriggerSample implements Trigger {
     }
 
     public static String getTriggerDDL(String trn, int typ, String tab,
-                                       int qs,
-                                       String impl) throws SQLException {
+                                       int qs, String impl) {
 
         StringBuilder sb = new StringBuilder();
 

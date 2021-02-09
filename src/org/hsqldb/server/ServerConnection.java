@@ -2010,7 +2010,7 @@ class ServerConnection implements Runnable {
 
     class OdbcInResultProcessor implements InResultProcessor {
 
-        public void receiveConnection(int type) throws CleanExit, IOException {
+        public void receiveConnection(int type) throws IOException {
             ServerConnection.this.odbcConnect(type);
         }
 

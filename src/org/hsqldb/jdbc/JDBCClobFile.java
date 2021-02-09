@@ -170,8 +170,6 @@ public class JDBCClobFile implements java.sql.Clob {
             InOutUtil.copy(reader, writer, length);
 
             return writer.toString();
-        } catch (SQLException ex) {
-            throw ex;
         } catch (IOException ex) {
             throw JDBCUtil.sqlException(ex);
         } finally {

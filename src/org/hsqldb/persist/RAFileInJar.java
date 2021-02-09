@@ -71,7 +71,7 @@ final class RAFileInJar implements RandomAccessInterface {
         resetStream();
     }
 
-    public long length() throws IOException {
+    public long length() {
         return fileLength;
     }
 
@@ -80,11 +80,11 @@ final class RAFileInJar implements RandomAccessInterface {
      * first in that case. Reported by bohgammer@users in Open Disucssion
      * Forum.
      */
-    public void seek(long position) throws IOException {
+    public void seek(long position) {
         seekPosition = position;
     }
 
-    public long getFilePointer() throws IOException {
+    public long getFilePointer() {
         return seekPosition;
     }
 
@@ -184,11 +184,11 @@ final class RAFileInJar implements RandomAccessInterface {
         }
     }
 
-    public void write(byte[] b, int off, int len) throws IOException {}
+    public void write(byte[] b, int off, int len) {}
 
-    public void writeInt(int i) throws IOException {}
+    public void writeInt(int i) {}
 
-    public void writeLong(long i) throws IOException {}
+    public void writeLong(long i) {}
 
     public void close() throws IOException {
         file.close();

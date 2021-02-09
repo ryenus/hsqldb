@@ -313,14 +313,14 @@ public class ExpressionPeriodOp extends ExpressionLogical {
                     b = new ExpressionLogical(OpTypes.GREATER_EQUAL,
                                               left.getRightNode(),
                                               right.getRightNode());
-                    c = new ExpressionLogical(OpTypes.AND, a, b);
                 } else {
                     a = new ExpressionLogical(OpTypes.SMALLER_EQUAL,
                                               left.getLeftNode(), right);
                     b = new ExpressionLogical(OpTypes.GREATER,
                                               left.getRightNode(), right);
-                    c = new ExpressionLogical(OpTypes.AND, a, b);
                 }
+
+                c = new ExpressionLogical(OpTypes.AND, a, b);
                 break;
 
             case OpTypes.RANGE_EQUALS :

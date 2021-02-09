@@ -195,11 +195,11 @@ implements DataInput {
         return Double.longBitsToDouble(readLong());
     }
 
-    public int skipBytes(int n) throws IOException {
+    public int skipBytes(int n) {
         return (int) skip(n);
     }
 
-    public String readLine() throws IOException {
+    public String readLine() {
 
         /* @todo: this will probably be useful */
         throw new java.lang.UnsupportedOperationException("not implemented");
@@ -278,5 +278,5 @@ implements DataInput {
         pos = mark;
     }
 
-    public void close() throws IOException {}
+    public void close() {}
 }

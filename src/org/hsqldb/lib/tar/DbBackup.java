@@ -80,7 +80,8 @@ public class DbBackup {
     boolean[]              ignoreList;
 
     /**
-     * Instantiate a DbBackup instance for creating a Database Instance backup.
+     * Instantiate a DbBackup instance for creating a Database Instance backup.<p>
+     *
      * Much validation is deferred until the write() method, to prevent problems
      * with files changing between the constructor and the write call.
      *
@@ -160,8 +161,10 @@ public class DbBackup {
     }
 
     /**
-     * Defaults to false. If false, then attempts to write a tar file that
-     * already exist will abort.
+     * Defaults to false.<p>
+     *
+     * If arg is false, then attempts to write a tar file that already exist
+     * will abort.
      *
      * @param overWrite boolean
      */
@@ -170,9 +173,11 @@ public class DbBackup {
     }
 
     /**
-     * Defaults to true. If true, then the write() method will validate that the
-     * database is closed, and it will verify that no DB file changes between
-     * when we start writing the tar, and when we finish.
+     * Defaults to true.<p>
+     *
+     * If true, then the write() method will validate that the database is
+     * closed, and it will verify that no DB file changes between when we
+     * start writing the tar, and when we finish.
      *
      * @param abortUponModify boolean
      */

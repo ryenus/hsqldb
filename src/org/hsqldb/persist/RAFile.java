@@ -150,7 +150,7 @@ final class RAFile implements RandomAccessInterface {
         seekPosition = position;
     }
 
-    public long getFilePointer() throws IOException {
+    public long getFilePointer() {
         return seekPosition;
     }
 
@@ -361,7 +361,7 @@ final class RAFile implements RandomAccessInterface {
         }
     }
 
-    private int writeToBuffer(byte[] b, int off, int len) throws IOException {
+    private int writeToBuffer(byte[] b, int off, int len) {
 
         int count = ArrayUtil.copyBytes(seekPosition - off, b, off, len,
                                         bufferOffset, buffer, buffer.length);

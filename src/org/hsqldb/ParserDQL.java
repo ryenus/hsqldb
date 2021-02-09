@@ -302,25 +302,25 @@ public class ParserDQL extends ParserBase {
                         break;
 
                     case Tokens.TEXT :
-                        typeNumber = Types.LONGVARCHAR;
+                        typeNumber       = Types.LONGVARCHAR;
                         acceptsPrecision = false;
                         break;
 
                     case Tokens.MEDIUMTEXT :
                     case Tokens.LONGTEXT :
-                        typeNumber = Types.LONGVARCHAR;
+                        typeNumber       = Types.LONGVARCHAR;
                         acceptsPrecision = false;
                         break;
 
                     case Tokens.TINYBLOB :
-                        typeNumber = Types.VARBINARY;
+                        typeNumber       = Types.VARBINARY;
                         acceptsPrecision = false;
                         break;
 
                     case Tokens.MEDIUMBLOB :
                     case Tokens.LONGBLOB :
+                        typeNumber       = Types.LONGVARBINARY;
                         acceptsPrecision = false;
-                        typeNumber = Types.LONGVARBINARY;
                         break;
                 }
             }
@@ -1568,15 +1568,13 @@ public class ParserDQL extends ParserBase {
 
                         left  = true;
                         right = true;
-
-                        break;
                     } else {
                         rewind(position);
 
                         end = true;
-
-                        break;
                     }
+                    break;
+
                 case Tokens.LEFT :
                     read();
                     readIfThis(Tokens.OUTER);
@@ -4279,17 +4277,15 @@ public class ParserDQL extends ParserBase {
             e = XreadBooleanValueExpression();
 
             readThis(Tokens.CLOSEBRACKET);
-
-            return e;
         } else {
             e = XreadSimpleValueExpressionPrimary();
 
             if (e != null) {
                 e = XreadArrayElementReference(e);
             }
-
-            return e;
         }
+
+        return e;
     }
 
     Expression XreadPredicate() {
@@ -5388,14 +5384,12 @@ public class ParserDQL extends ParserBase {
                         throw Error.error(ErrorCode.X_42564);
                     }
                 }
-
-                return e;
             } else {
                 e = new Expression(OpTypes.ROW, new Expression[]{ e });
                 e = new Expression(OpTypes.VALUELIST, new Expression[]{ e });
-
-                return e;
             }
+
+            return e;
         }
 
         if (e.getType() != OpTypes.ROW) {

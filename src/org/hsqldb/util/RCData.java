@@ -334,8 +334,7 @@ public class RCData {
      * @throws SQLException on database access error
      */
     public Connection getConnection(String curDriverIn, String curTrustStoreIn)
-                                    throws ClassNotFoundException,
-                                           MalformedURLException,
+                                    throws MalformedURLException,
                                            SQLException {
 
         // Local vars to satisfy compiler warnings

@@ -57,7 +57,7 @@ public class HsqlSocketFactory {
      * External construction disabled.  New factory instances are retrieved
      * through the newHsqlSocketFactory method instead.
      */
-    protected HsqlSocketFactory() throws Exception {}
+    protected HsqlSocketFactory() {}
 
 // ------------------------- factory builder method ----------------------------
 

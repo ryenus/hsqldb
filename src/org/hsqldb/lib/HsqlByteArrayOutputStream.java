@@ -221,7 +221,7 @@ implements DataOutput {
     /**
      * does nothing
      */
-    public void flush() throws java.io.IOException {}
+    public void flush() {}
 
     // methods that extend java.io.OutputStream
     public void write(int b) {
@@ -247,7 +247,7 @@ implements DataOutput {
         return new String(buffer, 0, count);
     }
 
-    public void close() throws IOException {}
+    public void close() {}
 
     // additional public methods not in similar java.util classes
     public void writeNoCheck(int b) {

@@ -1441,7 +1441,6 @@ public class ParserTable extends ParserDML {
                                                  token.tokenString, false,
                                                  SchemaObject.PERIOD);
 
-            read();
         } else {
             periodType = SchemaObject.PeriodType.PERIOD_APPLICATION;
 
@@ -1456,8 +1455,8 @@ public class ParserTable extends ParserDML {
                                                  isDelimitedIdentifier(),
                                                  SchemaObject.PERIOD);
 
-            read();
         }
+        read();
 
         periodName.parent = table.getName();
 

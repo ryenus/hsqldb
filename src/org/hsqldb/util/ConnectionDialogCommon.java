@@ -234,7 +234,7 @@ final class ConnectionDialogCommon {
      * Adds the new settings name if it does not nexist, or overwrites the old one.
      */
     static void addToRecentConnectionSettings(Hashtable settings,
-            ConnectionSetting newSetting) throws IOException {
+            ConnectionSetting newSetting) {
         settings.put(newSetting.getName(), newSetting);
         ConnectionDialogCommon.storeRecentConnectionSettings(settings);
     }

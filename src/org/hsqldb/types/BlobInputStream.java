@@ -123,7 +123,7 @@ public class BlobInputStream extends InputStream {
         return (int) avail;
     }
 
-    public void close() throws IOException {
+    public void close() {
         isClosed = true;
     }
 
