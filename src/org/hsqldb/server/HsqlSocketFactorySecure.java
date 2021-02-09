@@ -56,7 +56,7 @@ import org.hsqldb.lib.StringConverter;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.5.0
+ * @version 2.6.0
  * @since 1.7.2
  */
 public final class HsqlSocketFactorySecure extends HsqlSocketFactory
@@ -281,8 +281,7 @@ implements HandshakeCompletedListener {
      *      underlying factory
      * @return the underlying javax.net.ssl.SSLServerSocketFactory
      */
-    protected SSLServerSocketFactory getServerSocketFactoryImpl()
-    throws Exception {
+    protected SSLServerSocketFactory getServerSocketFactoryImpl() {
 
         Object factory;
 
@@ -305,7 +304,7 @@ implements HandshakeCompletedListener {
      *      underlying factory
      * @return the underlying javax.net.ssl.SSLSocketFactory
      */
-    protected SSLSocketFactory getSocketFactoryImpl() throws Exception {
+    protected SSLSocketFactory getSocketFactoryImpl() {
 
         Object factory;
 
@@ -353,7 +352,7 @@ implements HandshakeCompletedListener {
         }
 
         certificate = (X509Certificate) chain[0];
-        principal   = certificate.getSubjectDN();
+        principal   = certificate.getSubjectX500Principal();
         DN          = String.valueOf(principal);
         start       = DN.indexOf("CN=");
 
