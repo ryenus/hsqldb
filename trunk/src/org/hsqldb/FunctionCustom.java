@@ -947,7 +947,7 @@ public class FunctionCustom extends FunctionSQL {
                                               0);
 
             case FUNC_DBTIMEZONE : {
-                TimestampData timestamp = session.getSystemTimestamp(true,
+                TimestampData timestamp = Session.getSystemTimestamp(true,
                     false);
                 IntervalSecondData zone =
                     new IntervalSecondData(timestamp.getZone(), 0);
@@ -1412,7 +1412,8 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
-                return java.util.Base64.getEncoder().encodeToString(val.getBytes());
+                return java.util.Base64.getEncoder().encodeToString(
+                    val.getBytes());
 
 //#else
 /*
@@ -2208,7 +2209,8 @@ public class FunctionCustom extends FunctionSQL {
                         return list.toArray();
                     }
                     default : {
-                        throw Error.runtimeError(ErrorCode.U_S0500, "FunctionCustom");
+                        throw Error.runtimeError(ErrorCode.U_S0500,
+                                                 "FunctionCustom");
                     }
                 }
             }
@@ -2499,14 +2501,14 @@ public class FunctionCustom extends FunctionSQL {
                         data[0], Type.SQL_TIMESTAMP_WITH_TIME_ZONE, 0, 0);
             }
             case FUNC_SYSDATE : {
-                TimestampData timestamp = session.getSystemTimestamp(false,
+                TimestampData timestamp = Session.getSystemTimestamp(false,
                     false);
 
                 return Type.SQL_TIMESTAMP_NO_FRACTION.convertToType(session,
                         timestamp, Type.SQL_TIMESTAMP);
             }
             case FUNC_SYSTIMESTAMP : {
-                return session.getSystemTimestamp(true, false);
+                return Session.getSystemTimestamp(true, false);
             }
             case FUNC_TO_DSINTERVAL : {
                 if (data[0] == null) {
