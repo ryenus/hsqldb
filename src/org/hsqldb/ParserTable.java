@@ -1440,7 +1440,6 @@ public class ParserTable extends ParserDML {
                 database.nameManager.newHsqlName(table.getName().schema,
                                                  token.tokenString, false,
                                                  SchemaObject.PERIOD);
-
         } else {
             periodType = SchemaObject.PeriodType.PERIOD_APPLICATION;
 
@@ -1454,8 +1453,8 @@ public class ParserTable extends ParserDML {
                                                  token.tokenString,
                                                  isDelimitedIdentifier(),
                                                  SchemaObject.PERIOD);
-
         }
+
         read();
 
         periodName.parent = table.getName();
@@ -2297,10 +2296,7 @@ public class ParserTable extends ParserDML {
         read();
 
         indexHsqlName = readNewSchemaObjectName(SchemaObject.INDEX, true);
-
-        HsqlName tableSchema = table.getSchemaName();
-
-        indexHsqlName.schema = tableSchema;
+        indexHsqlName.schema = table.getSchemaName();
         indexHsqlName.parent = table.getName();
         indexHsqlName.schema = table.getSchemaName();
 

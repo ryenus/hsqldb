@@ -755,10 +755,9 @@ public class ParserDQL extends ParserBase {
         HsqlName name = database.nameManager.newHsqlName("ENUM", false,
             SchemaObject.DOMAIN);
         Type t = Type.getType(Types.SQL_VARCHAR, null, null, 32, 0);
-        UserTypeModifier m = new UserTypeModifier(name, SchemaObject.DOMAIN,
-            t);
 
-        t.userTypeModifier = m;
+        t.userTypeModifier = new UserTypeModifier(name, SchemaObject.DOMAIN,
+                t);
 
         return t;
     }

@@ -1234,10 +1234,8 @@ public class ParserDDL extends ParserRoutine {
 
         readIfThis(Tokens.FINAL);
 
-        UserTypeModifier userTypeModifier = new UserTypeModifier(name,
-            SchemaObject.TYPE, type);
-
-        type.userTypeModifier = userTypeModifier;
+        type.userTypeModifier = new UserTypeModifier(name, SchemaObject.TYPE,
+                type);
 
         String     sql            = getLastPart();
         Object[]   args           = new Object[]{ type };
@@ -1426,9 +1424,7 @@ public class ParserDDL extends ParserRoutine {
             }
 
             if (readIfThis(Tokens.COMMENT)) {
-                String comment = readQuotedString();
-
-                indexHsqlName.comment = comment;
+                indexHsqlName.comment = readQuotedString();
             }
         }
 
