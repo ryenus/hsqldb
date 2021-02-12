@@ -264,11 +264,7 @@ class Like implements Cloneable {
             }
         }
 
-        if (j != jLen) {
-            return false;
-        }
-
-        return true;
+        return j == jLen;
     }
 
     void setPattern(Session session, Object pattern, Object escape,

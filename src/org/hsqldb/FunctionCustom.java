@@ -144,67 +144,71 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_RADIANS                  = 130;
     private static final int FUNC_RAND                     = 131;
     private static final int FUNC_RAWTOHEX                 = 132;
-    private static final int FUNC_REGEXP_MATCHES           = 133;
-    private static final int FUNC_REGEXP_REPLACE           = 134;
-    private static final int FUNC_REGEXP_SUBSTRING         = 135;
-    private static final int FUNC_REGEXP_SUBSTRING_ARRAY   = 136;
-    private static final int FUNC_REPEAT                   = 137;
-    private static final int FUNC_REPLACE                  = 138;
-    private static final int FUNC_REVERSE                  = 139;
-    private static final int FUNC_RIGHT                    = 140;
-    private static final int FUNC_ROUND                    = 141;
-    private static final int FUNC_ROUNDMAGIC               = 142;
-    private static final int FUNC_RPAD                     = 143;
-    private static final int FUNC_RTRIM                    = 144;
-    private static final int FUNC_SECONDS_MIDNIGHT         = 145;
-    private static final int FUNC_SEQUENCE_ARRAY           = 146;
-    private static final int FUNC_SESSION_ID               = 147;
-    private static final int FUNC_SESSION_ISOLATION_LEVEL  = 148;
-    private static final int FUNC_SESSION_TIMEZONE         = 149;
-    private static final int FUNC_SESSIONTIMEZONE          = 150;
-    private static final int FUNC_SIGN                     = 151;
-    private static final int FUNC_SIN                      = 152;
-    private static final int FUNC_SINH                     = 153;
-    private static final int FUNC_SOUNDEX                  = 154;
-    private static final int FUNC_SORT_ARRAY               = 155;
-    private static final int FUNC_SPACE                    = 156;
-    private static final int FUNC_SUBSTR                   = 157;
-    private static final int FUNC_SYS_EXTRACT_UTC          = 158;
-    private static final int FUNC_SYS_GUID                 = 159;
-    private static final int FUNC_SYSDATE                  = 160;
-    private static final int FUNC_SYSTIMESTAMP             = 161;
-    private static final int FUNC_TAN                      = 162;
-    private static final int FUNC_TANH                     = 163;
-    private static final int FUNC_TIMESTAMP                = 164;
-    private static final int FUNC_TIMESTAMP_WITH_ZONE      = 165;
-    private static final int FUNC_TIMESTAMPADD             = 166;
-    private static final int FUNC_TIMESTAMPDIFF            = 167;
-    private static final int FUNC_TIMEZONE                 = 168;
-    private static final int FUNC_TO_BASE64                = 169;
-    private static final int FUNC_TO_CHAR                  = 170;
-    private static final int FUNC_TO_DATE                  = 171;
-    private static final int FUNC_TO_DSINTERVAL            = 172;
-    private static final int FUNC_TO_YMINTERVAL            = 173;
-    private static final int FUNC_TO_NUMBER                = 174;
-    private static final int FUNC_TO_TIMESTAMP             = 175;
-    private static final int FUNC_TO_TIMESTAMP_TZ          = 176;
-    private static final int FUNC_TRANSACTION_CONTROL      = 177;
-    private static final int FUNC_TRANSACTION_ID           = 178;
-    private static final int FUNC_TRANSACTION_SIZE         = 179;
-    private static final int FUNC_TRANSACTION_UTC          = 180;
-    private static final int FUNC_TRANSLATE                = 181;
-    private static final int FUNC_TRUNC                    = 182;
-    private static final int FUNC_TRUNCATE                 = 183;
-    private static final int FUNC_UNHEX                    = 184;
-    private static final int FUNC_UNISTR                   = 185;
-    private static final int FUNC_UUID                     = 186;
-    private static final int FUNC_UNIX_TIMESTAMP           = 187;
-    private static final int FUNC_UNIX_MILLIS              = 188;
-    private static final int FUNC_DATEPART                 = 189;
-    private static final int FUNC_DATENAME                 = 190;
-    private static final int FUNC_NANVL                    = 191;
-    private static final int FUNC_SQLCODE                  = 192;
-    private static final int FUNC_SQLERRM                  = 193;
+    private static final int FUNC_REGEXP_COUNT             = 133;
+    private static final int FUNC_REGEXP_INSTR             = 134;
+    private static final int FUNC_REGEXP_LIKE              = 135;
+    private static final int FUNC_REGEXP_MATCHES           = 136;
+    private static final int FUNC_REGEXP_REPLACE           = 137;
+    private static final int FUNC_REGEXP_SUBSTR            = 138;
+    private static final int FUNC_REGEXP_SUBSTRING         = 139;
+    private static final int FUNC_REGEXP_SUBSTRING_ARRAY   = 140;
+    private static final int FUNC_REPEAT                   = 141;
+    private static final int FUNC_REPLACE                  = 142;
+    private static final int FUNC_REVERSE                  = 143;
+    private static final int FUNC_RIGHT                    = 144;
+    private static final int FUNC_ROUND                    = 145;
+    private static final int FUNC_ROUNDMAGIC               = 146;
+    private static final int FUNC_RPAD                     = 147;
+    private static final int FUNC_RTRIM                    = 148;
+    private static final int FUNC_SECONDS_MIDNIGHT         = 149;
+    private static final int FUNC_SEQUENCE_ARRAY           = 150;
+    private static final int FUNC_SESSION_ID               = 151;
+    private static final int FUNC_SESSION_ISOLATION_LEVEL  = 152;
+    private static final int FUNC_SESSION_TIMEZONE         = 153;
+    private static final int FUNC_SESSIONTIMEZONE          = 154;
+    private static final int FUNC_SIGN                     = 155;
+    private static final int FUNC_SIN                      = 156;
+    private static final int FUNC_SINH                     = 157;
+    private static final int FUNC_SOUNDEX                  = 158;
+    private static final int FUNC_SORT_ARRAY               = 159;
+    private static final int FUNC_SPACE                    = 160;
+    private static final int FUNC_SUBSTR                   = 161;
+    private static final int FUNC_SYS_EXTRACT_UTC          = 162;
+    private static final int FUNC_SYS_GUID                 = 163;
+    private static final int FUNC_SYSDATE                  = 164;
+    private static final int FUNC_SYSTIMESTAMP             = 165;
+    private static final int FUNC_TAN                      = 166;
+    private static final int FUNC_TANH                     = 167;
+    private static final int FUNC_TIMESTAMP                = 168;
+    private static final int FUNC_TIMESTAMP_WITH_ZONE      = 169;
+    private static final int FUNC_TIMESTAMPADD             = 170;
+    private static final int FUNC_TIMESTAMPDIFF            = 171;
+    private static final int FUNC_TIMEZONE                 = 172;
+    private static final int FUNC_TO_BASE64                = 173;
+    private static final int FUNC_TO_CHAR                  = 174;
+    private static final int FUNC_TO_DATE                  = 175;
+    private static final int FUNC_TO_DSINTERVAL            = 176;
+    private static final int FUNC_TO_YMINTERVAL            = 177;
+    private static final int FUNC_TO_NUMBER                = 178;
+    private static final int FUNC_TO_TIMESTAMP             = 179;
+    private static final int FUNC_TO_TIMESTAMP_TZ          = 180;
+    private static final int FUNC_TRANSACTION_CONTROL      = 181;
+    private static final int FUNC_TRANSACTION_ID           = 182;
+    private static final int FUNC_TRANSACTION_SIZE         = 183;
+    private static final int FUNC_TRANSACTION_UTC          = 184;
+    private static final int FUNC_TRANSLATE                = 185;
+    private static final int FUNC_TRUNC                    = 186;
+    private static final int FUNC_TRUNCATE                 = 187;
+    private static final int FUNC_UNHEX                    = 188;
+    private static final int FUNC_UNISTR                   = 189;
+    private static final int FUNC_UUID                     = 190;
+    private static final int FUNC_UNIX_TIMESTAMP           = 191;
+    private static final int FUNC_UNIX_MILLIS              = 192;
+    private static final int FUNC_DATEPART                 = 193;
+    private static final int FUNC_DATENAME                 = 194;
+    private static final int FUNC_NANVL                    = 195;
+    private static final int FUNC_SQLCODE                  = 196;
+    private static final int FUNC_SQLERRM                  = 197;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -329,8 +333,12 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.RADIANS, FUNC_RADIANS);
         customRegularFuncMap.put(Tokens.RAND, FUNC_RAND);
         customRegularFuncMap.put(Tokens.RAWTOHEX, FUNC_RAWTOHEX);
+        customRegularFuncMap.put(Tokens.REGEXP_COUNT, FUNC_REGEXP_COUNT);
+        customRegularFuncMap.put(Tokens.REGEXP_INSTR, FUNC_REGEXP_INSTR);
+        customRegularFuncMap.put(Tokens.REGEXP_LIKE, FUNC_REGEXP_LIKE);
         customRegularFuncMap.put(Tokens.REGEXP_MATCHES, FUNC_REGEXP_MATCHES);
         customRegularFuncMap.put(Tokens.REGEXP_REPLACE, FUNC_REGEXP_REPLACE);
+        customRegularFuncMap.put(Tokens.REGEXP_SUBSTR, FUNC_REGEXP_SUBSTR);
         customRegularFuncMap.put(Tokens.REGEXP_SUBSTRING, FUNC_REGEXP_SUBSTRING);
         customRegularFuncMap.put(Tokens.REGEXP_SUBSTRING_ARRAY, FUNC_REGEXP_SUBSTRING_ARRAY);
         customRegularFuncMap.put(Tokens.REPEAT, FUNC_REPEAT);
@@ -625,6 +633,10 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_NEXT_DAY :
             case FUNC_NUMTODSINTERVAL :
             case FUNC_NUMTOYMINTERVAL :
+            case FUNC_REGEXP_COUNT :
+            case FUNC_REGEXP_INSTR :
+            case FUNC_REGEXP_LIKE :
+            case FUNC_REGEXP_SUBSTR :
             case FUNC_REGEXP_MATCHES :
             case FUNC_REGEXP_SUBSTRING :
             case FUNC_REGEXP_SUBSTRING_ARRAY :
@@ -703,10 +715,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_REGEXP_REPLACE :
                 parseList = new short[] {
                     Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.COMMA,
                     Tokens.QUESTION, Tokens.CLOSEBRACKET
                 };
                 break;
@@ -2164,6 +2173,10 @@ public class FunctionCustom extends FunctionSQL {
 
                 return result;
             }
+            case FUNC_REGEXP_COUNT :
+            case FUNC_REGEXP_INSTR :
+            case FUNC_REGEXP_LIKE :
+            case FUNC_REGEXP_SUBSTR :
             case FUNC_REGEXP_MATCHES :
             case FUNC_REGEXP_SUBSTRING :
             case FUNC_REGEXP_SUBSTRING_ARRAY : {
@@ -2185,19 +2198,39 @@ public class FunctionCustom extends FunctionSQL {
 
                 switch (funcType) {
 
+                    case FUNC_REGEXP_LIKE :
                     case FUNC_REGEXP_MATCHES : {
                         boolean match = matcher.matches();
 
                         return Boolean.valueOf(match);
                     }
+                    case FUNC_REGEXP_INSTR : {
+                        boolean match = matcher.find();
+
+                        if (match) {
+                            return Integer.valueOf(matcher.start() + 1);
+                        }
+
+                        return ValuePool.INTEGER_0;
+                    }
+                    case FUNC_REGEXP_SUBSTR :
                     case FUNC_REGEXP_SUBSTRING : {
                         boolean match = matcher.find();
 
                         if (match) {
                             return matcher.group();
-                        } else {
-                            return null;
                         }
+
+                        return null;
+                    }
+                    case FUNC_REGEXP_COUNT : {
+                        int count = 0;
+
+                        while (matcher.find()) {
+                            count++;
+                        }
+
+                        return Integer.valueOf(count);
                     }
                     case FUNC_REGEXP_SUBSTRING_ARRAY : {
                         HsqlArrayList list = new HsqlArrayList();
@@ -2299,8 +2332,8 @@ public class FunctionCustom extends FunctionSQL {
                         return null;
                     }
 
-                    ((Number) Type.SQL_INTEGER.convertToType(session, data[2],
-                            nodes[2].dataType)).intValue();
+                    start = ((Number) Type.SQL_INTEGER.convertToType(session,
+                            data[2], nodes[2].dataType)).intValue();
                 }
 
                 if (start < 1) {
@@ -2388,9 +2421,9 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
-                Double d = Type.SQL_DOUBLE.toDouble(data[0]);
+                double d = NumberType.toDouble(data[0]);
 
-                if (Double.isNaN(d.doubleValue())) {
+                if (Double.isNaN(d)) {
                     return dataType.convertToType(session, data[1],
                                                   nodes[1].dataType);
                 }
@@ -3644,6 +3677,10 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
             // fall through
+            case FUNC_REGEXP_COUNT :
+            case FUNC_REGEXP_INSTR :
+            case FUNC_REGEXP_LIKE :
+            case FUNC_REGEXP_SUBSTR :
             case FUNC_REGEXP_MATCHES :
             case FUNC_REGEXP_SUBSTRING :
             case FUNC_REGEXP_SUBSTRING_ARRAY : {
@@ -3669,6 +3706,12 @@ public class FunctionCustom extends FunctionSQL {
 
                 switch (funcType) {
 
+                    case FUNC_REGEXP_COUNT :
+                    case FUNC_REGEXP_INSTR :
+                        dataType = Type.SQL_INTEGER;
+                        break;
+
+                    case FUNC_REGEXP_LIKE :
                     case FUNC_REGEXP_MATCHES :
                         dataType = Type.SQL_BOOLEAN;
                         break;
@@ -3677,6 +3720,7 @@ public class FunctionCustom extends FunctionSQL {
                         dataType = Type.SQL_VARCHAR_DEFAULT;
                         break;
 
+                    case FUNC_REGEXP_SUBSTR :
                     case FUNC_REGEXP_SUBSTRING :
                         dataType = Type.SQL_VARCHAR_DEFAULT;
                         break;
@@ -4269,6 +4313,9 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_DIFFERENCE :
             case FUNC_LEFT :
             case FUNC_RIGHT :
+            case FUNC_REGEXP_COUNT :
+            case FUNC_REGEXP_INSTR :
+            case FUNC_REGEXP_LIKE :
             case FUNC_REGEXP_MATCHES :
             case FUNC_REGEXP_SUBSTRING :
             case FUNC_REGEXP_SUBSTRING_ARRAY :

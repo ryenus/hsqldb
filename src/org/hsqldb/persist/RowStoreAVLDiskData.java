@@ -130,15 +130,11 @@ public class RowStoreAVLDiskData extends RowStoreAVL {
 
     public CachedObject get(RowInputInterface in) {
 
-        try {
-            RowAVLDiskData row = new RowAVLDiskData(this, table, in);
+        RowAVLDiskData row = new RowAVLDiskData(this, table, in);
 
-            cache.cache.put(row);
+        cache.cache.put(row);
 
-            return row;
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.TEXT_FILE_IO, e);
-        }
+        return row;
     }
 
     public CachedObject get(CachedObject object, RowInputInterface in) {
