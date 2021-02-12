@@ -31,8 +31,6 @@
 
 package org.hsqldb;
 
-import java.io.IOException;
-
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.index.NodeAVLDiskLarge;
 import org.hsqldb.persist.PersistentStore;

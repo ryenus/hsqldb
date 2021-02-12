@@ -135,11 +135,7 @@ public final class SqlInvariants {
 
     public static boolean isLobsSchemaName(String name) {
 
-        if (SqlInvariants.LOBS_SCHEMA.equals(name)) {
-            return true;
-        }
-
-        return false;
+        return SqlInvariants.LOBS_SCHEMA.equals(name);
     }
 
     public static boolean isSchemaNameSystem(HsqlName name) {

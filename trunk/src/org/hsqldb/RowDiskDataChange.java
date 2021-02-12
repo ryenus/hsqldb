@@ -31,8 +31,6 @@
 
 package org.hsqldb;
 
-import java.io.IOException;
-
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowInputInterface;

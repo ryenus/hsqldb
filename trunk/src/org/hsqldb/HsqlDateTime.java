@@ -42,7 +42,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.StringUtil;
-import org.hsqldb.types.DTIType;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Types;
 

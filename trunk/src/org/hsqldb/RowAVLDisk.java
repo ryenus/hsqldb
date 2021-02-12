@@ -70,8 +70,6 @@
 
 package org.hsqldb;
 
-import java.io.IOException;
-
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.NodeAVL;

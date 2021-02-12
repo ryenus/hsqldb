@@ -31,13 +31,11 @@
 
 package org.hsqldb;
 
-import java.io.IOException;
-
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.persist.RowStoreAVLDiskData;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.persist.RowStoreAVLDiskData;
 
 // fredt@users 20021205 - path 1.7.2 - enhancements
 // fredt@users 20021215 - doc 1.7.2 - javadoc comments
