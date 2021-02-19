@@ -411,10 +411,10 @@ class DatabaseInformationMain extends DatabaseInformation {
      * assigned to current Session object's User. <p>
      *
      * @return true if the table is accessible, else false
-     * @param table the table for which to check accessibility
+     * @param object the schmea object for which to check accessibility
      */
-    protected final boolean isAccessibleTable(Session session, Table table) {
-        return session.getGrantee().isAccessible(table);
+    private final boolean isAccessible(Session session, SchemaObject object) {
+        return session.getGrantee().isAccessible(object);
     }
 
     /**
@@ -709,7 +709,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             table = (Table) tables.next();
 
             /* @todo - requires access to the actual columns */
-            if (table.isView() || !isAccessibleTable(session, table)) {
+            if (table.isView() || !isAccessible(session, table)) {
                 continue;
             }
 
@@ -912,8 +912,11 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            /* @todo - requires access to the actual columns */
-            if (!isAccessibleTable(session, table)) {
+            /* requires access to the actual columns */
+            OrderedHashSet colNameSet =
+                session.getGrantee().getColumnsForAllPrivileges(table);
+
+            if (!isAccessible(session, table)) {
                 continue;
             }
 
@@ -927,6 +930,10 @@ class DatabaseInformationMain extends DatabaseInformation {
             for (int i = 0; i < columnCount; i++) {
                 ColumnSchema column = table.getColumn(i);
                 Type         type   = column.getDataType();
+
+                if (!colNameSet.contains(column.getName())) {
+                    continue;
+                }
 
                 if (translateTTI) {
                     if (type.isIntervalType()) {
@@ -1143,7 +1150,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (table.isView() || !isAccessibleTable(session, table)) {
+            if (table.isView() || !isAccessible(session, table)) {
                 continue;
             }
 
@@ -1155,7 +1162,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
                 if (constraint.getConstraintType() == SchemaObject
                         .ConstraintTypes
-                        .FOREIGN_KEY && isAccessibleTable(session, constraint
+                        .FOREIGN_KEY && isAccessible(session, constraint
                             .getRef())) {
                     fkConstraintsList.add(constraint);
                 }
@@ -1335,7 +1342,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (table.isView() || !isAccessibleTable(session, table)) {
+            if (table.isView() || !isAccessible(session, table)) {
                 continue;
             }
 
@@ -1486,7 +1493,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (table.isView() || !isAccessibleTable(session, table)
+            if (table.isView() || !isAccessible(session, table)
                     || !table.hasPrimaryKey()) {
                 continue;
             }
@@ -1677,7 +1684,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (routines.hasNext()) {
             routineSchema = (RoutineSchema) routines.next();
 
-            if (!session.getGrantee().isAccessible(routineSchema)) {
+            if (!isAccessible(session, routineSchema)) {
                 continue;
             }
 
@@ -1767,7 +1774,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
     /**
      * Retrieves a <code>Table</code> object describing the accessible
-     * routines defined within this database.
+     * routines (both functions and procedures) defined within this database.<p>
      *
      * Each row is a procedure description with the following
      * columns: <p>
@@ -1788,10 +1795,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *                             fully qualified Java Method name
      *                             and signature.
      * // HSQLDB extension
-     * ORIGIN            VARCHAR   {ALIAS |
-     *                             [BUILTIN | USER DEFINED] ROUTINE |
-     *                             [BUILTIN | USER DEFINED] TRIGGER |
-     *                              ...}
+     * FUNCTION_RETURN   INTEGER   { Returns Value = 1 | Returns Table = 2)
+     *
      * </pre> <p>
      *
      * @return a <code>Table</code> object describing the accessible
@@ -1823,6 +1828,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             // JDBC 4.0
             // ----------------------------------------------------------------
             addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);        // 8
+            addColumn(t, "FUNCTION_TYPE", Type.SQL_INTEGER);      // 9
 
             // ----------------------------------------------------------------
             // order: PROCEDURE_CAT, PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME
@@ -1847,6 +1853,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int remarks           = 6;
         final int procedure_type    = 7;
         final int specific_name     = 8;
+        final int function_type     = 9;
 
         //
         Iterator it = database.schemaManager.databaseObjectIterator(
@@ -1856,6 +1863,10 @@ class DatabaseInformationMain extends DatabaseInformation {
             Routine  routine = (Routine) it.next();
             Object[] row     = t.getEmptyRowData();
 
+            if (!isAccessible(session, routine)) {
+                continue;
+            }
+
             row[procedure_catalog] = row[procedure_catalog] =
                 database.getCatalogName().name;
             row[procedure_schema] = routine.getSchemaName().name;
@@ -1864,6 +1875,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[procedure_type] = routine.isProcedure() ? ValuePool.INTEGER_1
                                                         : ValuePool.INTEGER_2;
             row[specific_name]    = routine.getSpecificName().name;
+            row[function_type] = routine.returnsTable() ? ValuePool.INTEGER_2
+                                                        : ValuePool.INTEGER_1;
 
             t.insertSys(session, store, row);
         }
@@ -2203,17 +2216,20 @@ class DatabaseInformationMain extends DatabaseInformation {
         Object[] row;
 
         // Initialization
-        String[] schemas = database.schemaManager.getSchemaNamesArray();
-        String defschema =
-            database.schemaManager.getDefaultSchemaHsqlName().name;
+        SchemaObject[] schemas = database.schemaManager.getAllSchemas();
+        HsqlName defschema = database.schemaManager.getDefaultSchemaHsqlName();
 
         // Do it.
         for (int i = 0; i < schemas.length; i++) {
             row = t.getEmptyRowData();
 
-            String schema = schemas[i];
+            HsqlName schema = schemas[i].getName();
 
-            row[0] = schema;
+            if (!session.getGrantee().hasSchemaUpdateOrGrantRights(schema)) {
+                continue;
+            }
+
+            row[0] = schema.getNameString();
             row[1] = database.getCatalogName().name;
             row[2] = schema.equals(defschema) ? Boolean.TRUE
                                               : Boolean.FALSE;
@@ -2337,7 +2353,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (!isAccessibleTable(session, table)) {
+            if (!isAccessible(session, table)) {
                 continue;
             }
 
@@ -3225,7 +3241,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (it.hasNext()) {
             sequence = (NumberSequence) it.next();
 
-            if (!session.getGrantee().isAccessible(sequence)) {
+            if (!isAccessible(session, sequence)) {
                 continue;
             }
 
@@ -3330,7 +3346,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (it.hasNext()) {
             sequence = (NumberSequence) it.next();
 
-            if (!session.getGrantee().isAccessible(sequence)) {
+            if (!isAccessible(session, sequence)) {
                 continue;
             }
 
@@ -3559,7 +3575,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (!isAccessibleTable(session, table)) {
+            if (!isAccessible(session, table)) {
                 continue;
             }
 

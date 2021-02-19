@@ -37,7 +37,6 @@ import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
 import java.sql.SQLException;
 
-import org.hsqldb.FunctionCustom;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
@@ -225,7 +224,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.6.0
  * @since HSQLDB 1.9.0
  * @see org.hsqldb.dbinfo.DatabaseInformation
  */
@@ -2821,14 +2820,20 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             String catalog, String schemaPattern,
             String procedureNamePattern) throws SQLException {
 
+        String baseSelect = "select " +
+            "procedure_cat, procedure_schem, procedure_name, " +
+            "col_4, col_5, col_6, remarks, procedure_type, specific_name " +
+            "from information_schema.system_procedures " +
+            "where procedure_type = 1 ";
+
         if (wantsIsNull(procedureNamePattern)) {
-            return executeSelect("SYSTEM_PROCEDURES", "0=1");
+            return execute(baseSelect + "and 1=0");
         }
         catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
-        StringBuilder select =
-            toQueryPrefix("SYSTEM_PROCEDURES").append(and("PROCEDURE_CAT",
+        StringBuilder select = new StringBuilder(baseSelect);
+            select.append(and("PROCEDURE_CAT",
                 "=", catalog)).append(and("PROCEDURE_SCHEM", "LIKE",
                     schemaPattern)).append(and("PROCEDURE_NAME", "LIKE",
                         procedureNamePattern));
@@ -5499,22 +5504,22 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             String catalog, String schemaPattern,
             String functionNamePattern) throws SQLException {
 
-        StringBuilder sb = new StringBuilder(256);
-
-        sb.append("select ").append(
-            "sp.procedure_cat as FUNCTION_CAT,").append(
-            "sp.procedure_schem as FUNCTION_SCHEM,").append(
-            "sp.procedure_name as FUNCTION_NAME,").append(
-            "sp.remarks as REMARKS,").append("1 as FUNCTION_TYPE,").append(
-            "sp.specific_name as SPECIFIC_NAME ").append(
-            "from information_schema.system_procedures sp ").append(
-            "where sp.procedure_type = 2 ");
+        String baseSelect = "select " +
+            "sp.procedure_cat as FUNCTION_CAT," +
+            "sp.procedure_schem as FUNCTION_SCHEM," +
+            "sp.procedure_name as FUNCTION_NAME," +
+            "sp.remarks as REMARKS," +
+            "sp.function_type as FUNCTION_TYPE," +
+            "sp.specific_name as SPECIFIC_NAME " +
+            "from information_schema.system_procedures sp " +
+            "where sp.procedure_type = 2 ";
 
         if (wantsIsNull(functionNamePattern)) {
-            return execute(sb.append("and 1=0").toString());
+            return execute(baseSelect + "and 1=0");
         }
         schemaPattern = translateSchema(schemaPattern);
 
+        StringBuilder sb = new StringBuilder(baseSelect);
         sb.append(and("sp.procedure_cat", "=",
                       catalog)).append(and("sp.procedure_schem", "LIKE",
                           schemaPattern)).append(and("sp.procedure_name",

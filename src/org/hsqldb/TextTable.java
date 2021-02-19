@@ -48,7 +48,7 @@ import org.hsqldb.rowio.RowInputInterface;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.0
  */
 public class TextTable extends Table {
 
@@ -244,7 +244,7 @@ public class TextTable extends Table {
             //
         } else {
             session.getGrantee().checkSchemaUpdateOrGrantRights(
-                getSchemaName().name);
+                getSchemaName());
         }
 
         dataSourceNew = dataSourceNew.trim();

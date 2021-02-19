@@ -153,7 +153,7 @@ public class Session implements SessionInterface {
 
     //
     public Object special;
-    public int sessionTxId;
+
     /**
      * Constructs a new Session object.
      *
@@ -2328,7 +2328,7 @@ public class Session implements SessionInterface {
     class TimeoutManager {
 
         AtomicInteger    currentTimeout = new AtomicInteger();
-        volatile long    checkTimestamp;
+        volatile long    checkTimestampSCN;
         volatile boolean hasTimeout = false;
 
         void startTimeout(int timeout) {
@@ -2340,8 +2340,7 @@ public class Session implements SessionInterface {
             hasTimeout = true;
 
             currentTimeout.set(timeout);
-
-            checkTimestamp = statementStartTimestamp;
+            checkTimestampSCN = statementStartTimestamp;
 
             database.timeoutRunner.addSession(Session.this);
         }
@@ -2351,14 +2350,14 @@ public class Session implements SessionInterface {
             if (hasTimeout) {
                 currentTimeout.set(0);
 
-                checkTimestamp = 0;
-                hasTimeout     = false;
+                checkTimestampSCN = 0;
+                hasTimeout        = false;
             }
         }
 
         public boolean checkTimeout() {
 
-            if (!hasTimeout || checkTimestamp != statementStartTimestamp) {
+            if (!hasTimeout || checkTimestampSCN != statementStartTimestamp) {
                 return false;
             }
 
@@ -2367,7 +2366,7 @@ public class Session implements SessionInterface {
             if (result < 0) {
                 currentTimeout.set(0);
                 database.txManager.resetSession(
-                    Session.this, Session.this, checkTimestamp,
+                    Session.this, Session.this, checkTimestampSCN,
                     TransactionManager.resetSessionStatement);
 
                 return true;
