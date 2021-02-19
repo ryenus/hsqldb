@@ -3348,7 +3348,7 @@ public class ParserDDL extends ParserRoutine {
             throw Error.error(ErrorCode.X_42505, schema.name);
         }
 
-        session.getGrantee().checkSchemaUpdateOrGrantRights(schema.name);
+        session.getGrantee().checkSchemaUpdateOrGrantRights(schema);
         session.checkDDLWrite();
     }
 

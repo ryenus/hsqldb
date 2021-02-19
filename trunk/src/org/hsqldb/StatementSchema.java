@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for DDL statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class StatementSchema extends Statement {
@@ -1773,7 +1773,7 @@ public class StatementSchema extends Statement {
             throw Error.error(ErrorCode.X_42505, schema.name);
         }
 
-        session.getGrantee().checkSchemaUpdateOrGrantRights(schema.name);
+        session.getGrantee().checkSchemaUpdateOrGrantRights(schema);
         session.checkDDLWrite();
     }
 

@@ -1783,7 +1783,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (table.isView() || !isAccessibleTable(session, table)) {
+            if (table.isView() || !session.getGrantee().isAccessible(table)) {
                 continue;
             }
 
@@ -1880,7 +1880,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 continue;
             }
 
-            if (!session.getGrantee().isAccessible(table.getName())) {
+            if (!session.getGrantee().isAccessible(table)) {
                 continue;
             }
 
@@ -5349,7 +5349,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (tables.hasNext()) {
             table = (Table) tables.next();
 
-            if (table.isView() || !isAccessibleTable(session, table)) {
+            if (table.isView() || !session.getGrantee().isAccessible(table)) {
                 continue;
             }
 
@@ -5501,7 +5501,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[constraint_schema]  = constraint.getSchemaName().name;
                 row[constraint_name]    = constraint.getName().name;
 
-                if (isAccessibleTable(session, constraint.getMain())) {
+                if (session.getGrantee().isAccessible(constraint.getMain())) {
                     row[unique_constraint_catalog] =
                         database.getCatalogName().name;
                     row[unique_constraint_schema] = uniqueName.schema.name;
@@ -7260,8 +7260,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         for (int i = 0; i < schemas.length; i++) {
             schema = schemas[i];
 
-            if (!user.hasSchemaUpdateOrGrantRights(
-                    schema.getName().getNameString())) {
+            if (!user.hasSchemaUpdateOrGrantRights(schema.getName())) {
                 continue;
             }
 
@@ -9734,7 +9733,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 continue;
             }
 
-            if (!isAccessibleTable(session, table)) {
+            if (!session.getGrantee().isAccessible(table)) {
                 continue;
             }
 

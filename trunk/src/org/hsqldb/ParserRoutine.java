@@ -2567,7 +2567,7 @@ public class ParserRoutine extends ParserTable {
                 throw Error.error(ErrorCode.X_42505);
             }
         } else {
-            session.getGrantee().checkSchemaUpdateOrGrantRights(schema.name);
+            session.getGrantee().checkSchemaUpdateOrGrantRights(schema);
         }
 
         session.checkDDLWrite();

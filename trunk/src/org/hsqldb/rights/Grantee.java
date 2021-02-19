@@ -72,7 +72,7 @@ import org.hsqldb.types.Type;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.5.1
+ * @version 2.6.0
  * @since 1.8.0
  */
 public class Grantee implements SchemaObject {
@@ -697,10 +697,10 @@ public class Grantee implements SchemaObject {
      * Checks if this object can modify schema objects or grant access rights
      * to them.
      */
-    public void checkSchemaUpdateOrGrantRights(String schemaName) {
+    public void checkSchemaUpdateOrGrantRights(HsqlName schemaName) {
 
         if (!hasSchemaUpdateOrGrantRights(schemaName)) {
-            throw Error.error(ErrorCode.X_42501, schemaName);
+            throw Error.error(ErrorCode.X_42501, schemaName.name);
         }
     }
 
@@ -708,7 +708,7 @@ public class Grantee implements SchemaObject {
      * Checks if this object can modify schema objects or grant access rights
      * to them.
      */
-    public boolean hasSchemaUpdateOrGrantRights(String schemaName) {
+    public boolean hasSchemaUpdateOrGrantRights(HsqlName schemaName) {
 
         // If a DBA
         if (isAdmin()) {
@@ -716,7 +716,8 @@ public class Grantee implements SchemaObject {
         }
 
         Grantee schemaOwner =
-            granteeManager.database.schemaManager.toSchemaOwner(schemaName);
+            granteeManager.database.schemaManager.toSchemaOwner(
+                schemaName.name);
 
         // If owner of Schema
         if (schemaOwner == this) {
@@ -928,10 +929,8 @@ public class Grantee implements SchemaObject {
     /**
      * Method used with all Grantee objects to set the full set of rights
      * according to those inherited form ROLE Grantee objects and those
-     * granted to the object itself.
-     */
-
-    /*
+     * granted to the object itself.<p>
+     *
      * @todo -- see if this is correct and the currentRole.fullRightsMap
      * is always updated prior to being added to this.fullRightsMap
      */
