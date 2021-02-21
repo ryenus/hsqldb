@@ -535,6 +535,45 @@
     expr&gt;</literal> is translated into two hex digits. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>REGEXP_COUNT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">REGEXP_COUNT</emphasis></simpara>
+
+    <para><literal>REGEXP_COUNT ( &lt;char value expr&gt;, &lt;regular
+    expression&gt; ) </literal></para>
+
+    <para>Returns as an INTEGER value the number of regions of the
+    <literal>&lt;char value expr&gt;</literal> that match the
+    <literal>&lt;regular expression&gt;</literal>. The <literal>&lt;regular
+    expression&gt;</literal> is defined according to Java language regular
+    expression rules. Returns 0 if no match is found. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>REGEXP_INSTR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">REGEXP_INSTR</emphasis></simpara>
+
+    <para><literal>REGEXP_INSTR ( &lt;char value expr&gt;, &lt;regular
+    expression&gt; ) </literal></para>
+
+    <para>Returns as an INTEGER value the starting position of the first
+    region of the <literal>&lt;char value expr&gt;</literal> that matches the
+    <literal>&lt;regular expression&gt;</literal>. The <literal>&lt;regular
+    expression&gt;</literal> is defined according to Java language regular
+    expression rules. Returns 0 if no match is found. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>REGEXP_LIKE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">REGEXP_LIKE</emphasis></simpara>
+
+    <para><literal>REGEXP_LIKE ( &lt;char value expr&gt;, &lt;regular
+    expression&gt; ) </literal></para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>REGEXP_MATCHES function</primary>
     </indexterm>
 
@@ -562,6 +601,15 @@
     <literal>&lt;char value expr 3&gt;</literal>. The <literal>&lt;regular
     expression&gt;</literal> is defined according to Java language regular
     expression rules. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>REGEXP_SUBSTR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">REGEXP_SUBSTR</emphasis></simpara>
+
+    <para><literal>REGEXP_SUBSTR ( &lt;char value expr&gt;, &lt;regular
+    expression&gt; ) </literal></para>
 
     <indexterm significance="preferred" type="sql">
       <primary>REGEXP_SUBSTRING function</primary>
