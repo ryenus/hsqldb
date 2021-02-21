@@ -30,6 +30,9 @@
 
 
 /**
- * Contains the HyperSQL utility classes.
+ * Contains the HyperSQL utility classes.<p>
+ *
+ * The {@code DatabaseManagerSwing} is a GUI application for accessing HyperSQL
+ * databases.
  */
 package org.hsqldb.util;

@@ -30,6 +30,10 @@
 
 
 /**
- * Contains the interface for Java language database triggers.
+ * Contains the {@code Trigger} interface for Java language database triggers.
+ * <p>
+ *
+ * The CREATE TRIGGER statement can specify a user-defined class that implements
+ * the {@code Trigger} interface.
  */
 package org.hsqldb.trigger;
