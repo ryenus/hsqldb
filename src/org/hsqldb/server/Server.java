@@ -42,6 +42,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
+import org.hsqldb.Database;
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.HsqlDateTime.SystemTimeString;
@@ -2008,8 +2009,8 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      */
     private void run() {
 
-        StopWatch   sw;
-        String      tgName;
+        StopWatch sw;
+        String    tgName;
 
         printWithThread("run() entered");
         print("Initiating startup sequence...");
@@ -2036,7 +2037,6 @@ public class Server implements HsqlSocketRequestHandler, Notified {
 
         tgName = "HSQLDB Connections @"
                  + Integer.toString(this.hashCode(), 16);
-
         serverConnectionThreadGroup = new ThreadGroup(tgName);
 
         // Mount the databases this server is supposed to host.
@@ -2102,14 +2102,20 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      * The shutdownMode must be one of:
      *
      * <ul>
-     * <li>org.hsqldb.Database.CLOSEMODE_IMMEDIATELY
-     * <li>org.hsqldb.Database.CLOSEMODE_NORMAL
-     * <li>org.hsqldb.Database.CLOSEMODE_COMPACT
-     * <li>org.hsqldb.Database.CLOSEMODE_SCRIPT
+     * <li>org.hsqldb.Database.CLOSEMODE_IMMEDIATELY = 1
+     * <li>org.hsqldb.Database.CLOSEMODE_NORMAL = 2
+     * <li>org.hsqldb.Database.CLOSEMODE_COMPACT = 3
+     * <li>org.hsqldb.Database.CLOSEMODE_SCRIPT = 4
      * </ul>
-     * @param shutdownMode a value between 0-4, usually 0 or 1.
+     * @param shutdownMode a value between 1-4, usually 2 for NORMAL.
      */
     public void shutdownCatalogs(int shutdownMode) {
+
+        if (shutdownMode < Database.CLOSEMODE_IMMEDIATELY
+                || shutdownMode > Database.CLOSEMODE_SCRIPT) {
+            throw new IllegalArgumentException("must be between 1 and 4");
+        }
+
         DatabaseManager.shutdownDatabases(this, shutdownMode);
     }
 
@@ -2122,14 +2128,19 @@ public class Server implements HsqlSocketRequestHandler, Notified {
      * The shutdownMode must be one of:
      *
      * <ul>
-     * <li>org.hsqldb.Database.CLOSEMODE_IMMEDIATELY
-     * <li>org.hsqldb.Database.CLOSEMODE_NORMAL
-     * <li>org.hsqldb.Database.CLOSEMODE_COMPACT
-     * <li>org.hsqldb.Database.CLOSEMODE_SCRIPT
+     * <li>org.hsqldb.Database.CLOSEMODE_IMMEDIATELY = 1
+     * <li>org.hsqldb.Database.CLOSEMODE_NORMAL = 2
+     * <li>org.hsqldb.Database.CLOSEMODE_COMPACT = 3
+     * <li>org.hsqldb.Database.CLOSEMODE_SCRIPT = 4
      * </ul>
-     * @param shutdownMode a value between 0-4, usually 0 or 1.
+     * @param shutdownMode a value between 1-4, usually 2 for NORMAL.
      */
     public void shutdownWithCatalogs(int shutdownMode) {
+
+        if (shutdownMode < Database.CLOSEMODE_IMMEDIATELY
+                || shutdownMode > Database.CLOSEMODE_SCRIPT) {
+            throw new IllegalArgumentException("must be between 1 and 4");
+        }
 
         // If an unchecked exception is thrown, isShuttingDown will be left true,
         // which is good from a security standpoint.

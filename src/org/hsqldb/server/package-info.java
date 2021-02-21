@@ -30,6 +30,10 @@
 
 
 /**
- * Contains the HyperSQL network listener classes.
+ * Contains the HyperSQL network listener classes.<p>
+ *
+ * The {@code Server} class is the standard server.<p>
+ * The {@code WebServer} class is the alternative server which uses the HTTP
+ * protocol.
  */
 package org.hsqldb.server;
