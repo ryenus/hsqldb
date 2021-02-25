@@ -2445,6 +2445,25 @@ public class ParserDQL extends ParserBase {
                 return new ExpressionArrayAggregate(type, distinct, e, sort,
                                                     separator);
             }
+            case OpTypes.STRING_AGG : {
+                readThis(Tokens.COMMA);
+                checkIsQuotedString();
+
+                separator = (String) token.tokenValue;
+
+                read();
+
+                if (token.tokenType == Tokens.ORDER) {
+                    read();
+                    readThis(Tokens.BY);
+
+                    sort = XreadOrderBy();
+                }
+
+                return new ExpressionArrayAggregate(OpTypes.GROUP_CONCAT,
+                                                    distinct, e, sort,
+                                                    separator);
+            }
             case OpTypes.MEDIAN : {
                 return new ExpressionArrayAggregate(type, distinct, e, sort,
                                                     separator);
@@ -3047,6 +3066,7 @@ public class ParserDQL extends ParserBase {
             case Tokens.VAR_POP :
             case Tokens.VAR_SAMP :
             case Tokens.GROUP_CONCAT :
+            case Tokens.STRING_AGG :
             case Tokens.ARRAY_AGG :
             case Tokens.MEDIAN :
                 e = readAggregateFunctionOrNull();    // general set function

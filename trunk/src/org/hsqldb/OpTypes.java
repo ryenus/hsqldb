@@ -37,7 +37,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Enumerate expression operation types<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.0
  * @since 1.9.0
  */
 public interface OpTypes {
@@ -125,20 +125,21 @@ public interface OpTypes {
         VAR_SAMP                   = 84,
         ARRAY_AGG                  = 85,
         GROUP_CONCAT               = 86,
-        PREFIX                     = 87,
-        MEDIAN                     = 88,
-        CONCAT_WS                  = 89,
-        CAST                       = 90,     // other operations
-        ZONE_MODIFIER              = 91,
-        CASEWHEN                   = 92,
-        ORDER_BY                   = 93,
-        LIMIT                      = 94,
-        ALTERNATIVE                = 95,
-        MULTICOLUMN                = 96,
-        USER_AGGREGATE             = 98,
-        ARRAY_ACCESS               = 99,
-        ARRAY_SUBQUERY             = 100,
-        GROUPING                   = 101;    // grouping function
+        STRING_AGG                 = 87,
+        PREFIX                     = 88,
+        MEDIAN                     = 89,
+        CONCAT_WS                  = 90,
+        CAST                       = 91,    // other operations
+        ZONE_MODIFIER              = 92,
+        CASEWHEN                   = 93,
+        ORDER_BY                   = 94,
+        LIMIT                      = 95,
+        ALTERNATIVE                = 96,
+        MULTICOLUMN                = 98,
+        USER_AGGREGATE             = 99,
+        ARRAY_ACCESS               = 100,
+        ARRAY_SUBQUERY             = 101,
+        GROUPING                   = 102;    // grouping function
     //J-
     int[] aggOpTypes = new int[] {
 
@@ -156,6 +157,7 @@ public interface OpTypes {
         OpTypes.ARRAY_AGG,
         OpTypes.USER_AGGREGATE,
         OpTypes.GROUP_CONCAT,
+        OpTypes.STRING_AGG,
         OpTypes.MEDIAN,
         OpTypes.GROUPING,
     };
