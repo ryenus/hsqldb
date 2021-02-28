@@ -56,7 +56,7 @@ SERVICE=hsqldb
 # This block only used by chkconfig systems (incl. SuSE Linux).
 # chkconfig: 345 87 13
 # description: HyperSQL Database, A High Performance Java Database Server
-# pidfile: /var/run/hsqldb.pid
+# pidfile: /run/hsqldb.pid
 # config: /etc/sysconfig/hsqldb
 
 # This block only used by insserv systems (incl. SuSE Linux).
@@ -181,7 +181,7 @@ case "`uname`" in
     ;;
     Linux)
         LOGFILE=/var/log/${SERVICE}.log
-        PIDFILE=/var/run/${SERVICE}.pid
+        PIDFILE=/run/${SERVICE}.pid
     ;;
     FreeBSD)
         LOGFILE=/var/log/${SERVICE}.log
