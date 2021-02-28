@@ -579,7 +579,7 @@ public class TableWorks {
 
         Index newIndex = database.logger.newIndex(index.getName(),
             index.getPersistenceId(), table, columns, modeFlags, modeFlags,
-            colTypes, false, false, false, false);
+            colTypes, false, false, index.isConstraint(), index.isForward());
 
         newIndex.setPosition(position);
 

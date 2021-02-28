@@ -341,35 +341,6 @@ public final class ArrayUtil {
     }
 
     /**
-     * For full == true returns true if arra and arrb are identical (have the
-     * same length and contain the same integers in the same sequence).<p>
-     *
-     * For full == false returns the result
-     * of haveEqualArrays(arra,arrb,count)<p>
-     *
-     * For full == true, the array lengths must be the same as count
-     *
-     * @param arra int[]
-     * @param arrb int[]
-     * @param count int
-     * @param full boolean
-     * @return boolean
-     */
-    public static boolean areEqual(int[] arra, int[] arrb, int count,
-                                   boolean full) {
-
-        if (ArrayUtil.haveEqualArrays(arra, arrb, count)) {
-            if (full) {
-                return arra.length == arrb.length && count == arra.length;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Returns true if the first count elements of arra and arrb are identical
      * sets of integers (not necessarily in the same order).
      *
@@ -485,7 +456,7 @@ public final class ArrayUtil {
      *
      * Used to find the overlap between two arrays of column indexes.
      * Ordering of the result arrays will be the same as in array
-     * a. The method assumes that each index is only listed
+     * arra. The method assumes that each index is only listed
      * once in the two input arrays.
      * <p>
      * e.g.
@@ -498,8 +469,8 @@ public final class ArrayUtil {
      * <tr><td>int []arrc</td><td>=</td><td>{11,8}</td></tr>
      * </table>
      *
-     * @param arra int[]; first column indexes
-     * @param arrb int[]; second column indexes
+     * @param arra int[] first column indexes
+     * @param arrb int[] second column indexes
      * @return int[] common indexes or <code>null</code> if there is no overlap.
      */
     public static int[] commonElements(int[] arra, int[] arrb) {
@@ -528,17 +499,17 @@ public final class ArrayUtil {
      * Returns the number of elements shared between the two arrays containing
      * sets.<p>
      *
-     * Return the number of elements shared by two column index arrays.
+     * Returns the number of elements shared by two column index arrays.
      * This method assumes that each of these arrays contains a set (each
      * element index is listed only once in each index array). Otherwise the
      * returned number will NOT represent the number of unique column indexes
      * shared by both index array.
      *
-     * @param arra int[]; first array of column indexes.
+     * @param arra int[] first array of column indexes.
      *
-     * @param arrb int[]; second array of column indexes
+     * @param arrb int[] second array of column indexes
      *
-     * @return int; number of elements shared by <code>a</code> and <code>b</code>
+     * @return int number of elements shared by <code>arra</code> and <code>arrb</code>
      */
     public static int countCommonElements(int[] arra, int[] arrb) {
 
@@ -705,36 +676,61 @@ public final class ArrayUtil {
 
     /**
      * Returns an array that contains all the elements of the two arrays.
+     * Each array contains a set.
+     *
+     * @param arra int[] containing unique vlaues
+     * @param arrb int[] containing unique values
+     * @return int[]
+     */
+    public static int[] union(int[] arra, int[] arrb) {
+
+        int commonSize  = ArrayUtil.countCommonElements(arra, arrb);
+
+        if (commonSize == arrb.length) {
+            return arra;
+        }
+
+        if (commonSize == arra.length) {
+            return arrb;
+        }
+
+        int   newSize = arra.length + arrb.length - commonSize;
+        int[] arrn    = Arrays.copyOf(arra, newSize);
+        int   pos     = arra.length;
+
+            mainloop:
+            for (int i = 0; i < arrb.length; i++) {
+                for (int j = 0; j < arra.length; j++) {
+                    if (arrb[i] == arra[j]) {
+                        continue mainloop;
+                    }
+                }
+
+                arrn[pos++] = arrb[i];
+            }
+
+            return arrn;
+    }
+
+    /**
+     * Returns an array that contains all the elements of the two arrays.
      *
      * @param arra int[]
      * @param arrb int[]
      * @return int[]
      */
-    public static int[] union(int[] arra, int[] arrb) {
+    public static int[] concat(int[] arra, int[] arrb) {
+        int newSize = arra.length + arrb.length;
 
-        int newSize = arra.length + arrb.length
-                      - ArrayUtil.countCommonElements(arra, arrb);
+        int[] arrn = Arrays.copyOf(arra, newSize);
+        int   pos  = arra.length;
 
-        if (newSize > arra.length && newSize > arrb.length) {
-            int[] arrn = (int[]) ArrayUtil.resizeArray(arrb, newSize);
-            int   pos  = arrb.length;
-
-            mainloop:
-            for (int i = 0; i < arra.length; i++) {
-                for (int j = 0; j < arrb.length; j++) {
-                    if (arra[i] == arrb[j]) {
-                        continue mainloop;
-                    }
-                }
-
-                arrn[pos++] = arra[i];
-            }
-
-            return arrn;
+        for (int i = 0; i < arrb.length; i++) {
+            arrn[pos++] = arrb[i];
         }
 
-        return arra.length > arrb.length ? arra
-                                         : arrb;
+        return arrn;
+
     }
 
     /**

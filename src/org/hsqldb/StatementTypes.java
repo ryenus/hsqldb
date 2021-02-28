@@ -35,7 +35,7 @@ package org.hsqldb;
  * Codes based on SQL Standards for different types of statement.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.6.0
  * @since 1.9.0
  */
 public interface StatementTypes {
@@ -264,6 +264,7 @@ public interface StatementTypes {
     int ALTER_COLUMN_DROP_EXPRESSION = 1142;
     int ALTER_COLUMN_DROP_GENERATED  = 1143;
     int ALTER_COLUMN_TYPE_IDENTITY   = 1144;
+    int ALTER_CONSTRAINT             = 1145;
 
     //
     int CREATE_REFERENCE = 1146;

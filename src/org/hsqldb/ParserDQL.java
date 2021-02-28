@@ -3065,9 +3065,9 @@ public class ParserDQL extends ParserBase {
             case Tokens.STDDEV_SAMP :
             case Tokens.VAR_POP :
             case Tokens.VAR_SAMP :
+            case Tokens.ARRAY_AGG :
             case Tokens.GROUP_CONCAT :
             case Tokens.STRING_AGG :
-            case Tokens.ARRAY_AGG :
             case Tokens.MEDIAN :
                 e = readAggregateFunctionOrNull();    // general set function
 
