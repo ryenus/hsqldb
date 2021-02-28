@@ -38,6 +38,7 @@ import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.List;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.map.ValuePool;
 import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
@@ -50,7 +51,7 @@ import org.hsqldb.types.Type;
  * by the constraint.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.0
  * @since 1.6.0
  */
 public final class Constraint implements SchemaObject {
@@ -260,6 +261,18 @@ public final class Constraint implements SchemaObject {
         }
     }
 
+    public void extendFKIndexColumns(Session session, int[] colIndexExt) {
+
+        int[]      newIndexCols = ArrayUtil.concat(core.refCols, colIndexExt);
+        TableWorks tableWorks   = new TableWorks(session, getRef());
+
+        tableWorks.alterIndex(core.refIndex, newIndexCols);
+
+        core.addedRefCols = colIndexExt;
+        isForward         = true;
+        core.refIndex = core.refTable.getIndex(core.refIndex.getPosition());
+    }
+
     public int getType() {
         return SchemaObject.CONSTRAINT;
     }
@@ -365,6 +378,7 @@ public final class Constraint implements SchemaObject {
                         getRef().getName().getSchemaQualifiedStatementName());
                     sb.append(' ').append(Tokens.T_ADD).append(' ');
                 }
+
                 getFKStatement(sb);
                 break;
 
@@ -389,6 +403,25 @@ public final class Constraint implements SchemaObject {
         }
 
         return sb.toString();
+    }
+
+    public String getAlterSQL() {
+
+        if (core.addedRefCols.length > 0) {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append(Tokens.T_ALTER).append(' ').append(
+                Tokens.T_CONSTRAINT).append(' ');
+            sb.append(name.getSchemaQualifiedStatementName());
+            sb.append(' ').append(Tokens.T_INDEX).append(' ').append(
+                Tokens.T_ADD).append(' ');
+            sb.append(getRef().getColumnListSQL(core.addedRefCols,
+                                                core.addedRefCols.length));
+
+            return sb.toString();
+        }
+
+        return "";
     }
 
     public long getChangeTimestamp() {
@@ -1048,6 +1081,68 @@ public final class Constraint implements SchemaObject {
                 throw Error.error(null, ErrorCode.X_23513,
                                   ErrorCode.CONSTRAINT, info);
             }
+        }
+    }
+
+    /**
+     * This class consists of the data structure for a Constraint. This
+     * structure is shared between two Constraint Objects that together form a
+     * foreign key constraint. This simplifies structural modifications to a
+     * table. When changes to the column indexes are applied to the table's
+     * Constraint Objects, they are reflected in the Constraint Objects of any
+     * other table that shares a foreign key constraint with the modified
+     * table.
+     *
+     * @author Fred Toussi (fredt@users dot sourceforge.net)
+     * @version 1.9.0
+     * @since 1.7.1
+     */
+    static class ConstraintCore {
+
+        // refName and mainName are for foreign keys only
+        HsqlName refName;
+        HsqlName mainName;
+        HsqlName uniqueName;
+        HsqlName refTableName;
+        HsqlName mainTableName;
+
+        // Main is the sole table in a UNIQUE or PRIMARY constraint
+        // Or the table that is referenced by FOREIGN KEY ... REFERENCES
+        Table mainTable;
+        int[] mainCols;
+        Index mainIndex;
+
+        // Ref is the table that has a reference to the main table
+        Table   refTable;
+        int[]   refCols;
+        int[]   addedRefCols = ValuePool.emptyIntArray;
+        Index   refIndex;
+        int     deleteAction;
+        int     updateAction;
+        boolean hasUpdateAction;
+        boolean hasDeleteAction;
+        int     matchType;
+
+        //
+        ConstraintCore duplicate() {
+
+            ConstraintCore copy = new ConstraintCore();
+
+            copy.refName      = refName;
+            copy.mainName     = mainName;
+            copy.uniqueName   = uniqueName;
+            copy.mainTable    = mainTable;
+            copy.mainCols     = mainCols;
+            copy.mainIndex    = mainIndex;
+            copy.refTable     = refTable;
+            copy.refCols      = refCols;
+            copy.addedRefCols = addedRefCols;
+            copy.refIndex     = refIndex;
+            copy.deleteAction = deleteAction;
+            copy.updateAction = updateAction;
+            copy.matchType    = matchType;
+
+            return copy;
         }
     }
 }

@@ -643,6 +643,17 @@ public class SchemaObjectSet {
 
                     break;
                 }
+                case SchemaObject.CONSTRAINT : {
+                    list.add(object.getSQL());
+
+                    String added = ((Constraint) object).getAlterSQL();
+
+                    if (!added.isEmpty()) {
+                        list.add(added);
+                    }
+
+                    break;
+                }
                 default :
                     list.add(object.getSQL());
             }

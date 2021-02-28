@@ -517,7 +517,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @exception SQLException if a database access error occurs
      */
     public String getDriverVersion() throws SQLException {
-        return HsqlDatabaseProperties.THIS_VERSION;
+        return THIS_VERSION;
     }
 
     /**
@@ -5926,6 +5926,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
 */
 
 //#endif JAVA8
+
+    public static final String THIS_VERSION = HsqlDatabaseProperties.THIS_VERSION;
 
     /**
      * Constructs a new <code>JDBCDatabaseMetaData</code> object using the

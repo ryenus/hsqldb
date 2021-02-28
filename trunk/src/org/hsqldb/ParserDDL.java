@@ -302,6 +302,10 @@ public class ParserDDL extends ParserRoutine {
                 Constraint constraint =
                     (Constraint) readSchemaObjectName(SchemaObject.CONSTRAINT);
 
+                if (readIfThis(Tokens.INDEX)) {
+                    return compileAlterFKIndex(constraint);
+                }
+
                 readThis(Tokens.RENAME);
                 readThis(Tokens.TO);
 
@@ -372,6 +376,40 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(sql, StatementTypes.ALTER_INDEX, args,
+                                   null, writeLockNames);
+    }
+
+    Statement compileAlterFKIndex(Constraint constraint) {
+
+        if (constraint.getConstraintType()
+                != SchemaObject.ConstraintTypes.FOREIGN_KEY) {
+            throw Error.error(ErrorCode.X_0A001);
+        }
+
+        if (constraint.getName().isReservedName()) {
+            throw Error.error(ErrorCode.X_28502);
+        }
+
+        readThis(Tokens.ADD);
+
+        Table table        = constraint.getRef();
+        int[] newColumns   = readColumnList(table, true);
+        int[] constColumns = constraint.getMainColumns();
+        int   common = ArrayUtil.countCommonElements(constColumns, newColumns);
+
+        if (common > 0) {
+            throw Error.error(ErrorCode.X_0A001);
+        }
+
+        String     sql            = getLastPart();
+        Object[]   args           = new Object[] {
+            table, newColumns, constraint.getName()
+        };
+        HsqlName[] writeLockNames = new HsqlName[] {
+            database.getCatalogName(), table.getName()
+        };
+
+        return new StatementSchema(sql, StatementTypes.ALTER_CONSTRAINT, args,
                                    null, writeLockNames);
     }
 

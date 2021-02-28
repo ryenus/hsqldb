@@ -100,6 +100,7 @@ public class StatementSchema extends Statement {
                 break;
 
             case StatementTypes.ALTER_DOMAIN :
+            case StatementTypes.ALTER_CONSTRAINT :
             case StatementTypes.ALTER_INDEX :
             case StatementTypes.ALTER_ROUTINE :
             case StatementTypes.ALTER_SEQUENCE :
@@ -359,7 +360,7 @@ public class StatementSchema extends Statement {
 
                     if (ifExists) {
                         object = schemaManager.findUserTable(name.name,
-                                name.schema.name);
+                                                             name.schema.name);
 
                         if (object == null) {
                             return Result.updateZeroResult;
@@ -421,6 +422,24 @@ public class StatementSchema extends Statement {
                         default :
                             schemaManager.renameSchemaObject(name, newName);
                     }
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.ALTER_CONSTRAINT : {
+                Table      table      = (Table) arguments[0];
+                int[]      newColumns = (int[]) arguments[1];
+                HsqlName   name       = (HsqlName) arguments[2];
+                Constraint constraint;
+
+                try {
+                    constraint =
+                        (Constraint) session.database.schemaManager
+                            .getSchemaObject(name);
+
+                    constraint.extendFKIndexColumns(session, newColumns);
 
                     break;
                 } catch (HsqlException e) {
