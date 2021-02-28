@@ -562,7 +562,7 @@ examples:
       <antcall target="-compile-mdescriptor" inheritrefs="true">
         <param name="module.name" value="org.hsqldb.min"/>
       </antcall>
-      <jar jarfile="lib/hsqldbmin.jar">
+      <jar jarfile="lib/hsqldbmin.jar" duplicate='preserve'>
         <metainf dir="doc" includes="*_lic.txt"/>
         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
         <manifest>
@@ -643,7 +643,7 @@ examples:
 
     <target name="dbmanswing" depends="-swing, -lib, -prep-license-files"
             description="Build the dbmanagerswing.jar">
-      <jar jarfile="lib/dbmanagerswing.jar" compress="true" filesonly="true">
+      <jar jarfile="lib/dbmanagerswing.jar" duplicate='preserve' filesonly="true">
         <metainf dir="doc" includes="*_lic.txt"/>
         <manifest>
           <attribute name='Specification-Title' value='${hsqldb.title}'/>
@@ -691,7 +691,7 @@ examples:
       <antcall target="-compile-mdescriptor" inheritrefs="true">
         <param name="module.name" value="org.hsqldb.sqltool"/>
       </antcall>
-      <jar jarfile="lib/sqltool.jar" filesonly="true">
+      <jar jarfile="lib/sqltool.jar" duplicate='preserve' filesonly="true">
         <metainf dir="doc" includes="*hsqldb_lic.txt"/>
         <manifest>
           <attribute name='Specification-Title' value='${hsqldb.title}'/>
