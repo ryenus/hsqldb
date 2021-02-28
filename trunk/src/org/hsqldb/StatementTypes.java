@@ -264,11 +264,12 @@ public interface StatementTypes {
     int ALTER_COLUMN_DROP_EXPRESSION = 1142;
     int ALTER_COLUMN_DROP_GENERATED  = 1143;
     int ALTER_COLUMN_TYPE_IDENTITY   = 1144;
-    int ALTER_CONSTRAINT             = 1145;
+    int ALTER_COLUMN_PROPERTIES      = 1145;
+    int ALTER_CONSTRAINT             = 1146;
 
     //
-    int CREATE_REFERENCE = 1146;
-    int DROP_REFERENCE   = 1147;
+    int CREATE_REFERENCE = 1147;
+    int DROP_REFERENCE   = 1148;
 
     //
     int EXPLAIN_REFERENCES       = 1150;
