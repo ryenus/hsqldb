@@ -1045,7 +1045,7 @@ public class StatementCommand extends Statement {
                         result = IndexAVLCheck.checkAllTables(session, type);
                     } else {
                         table = session.database.schemaManager.getUserTable(
-                            tableName.name, tableName.schema.name);
+                            tableName);
                         result = IndexAVLCheck.checkTable(session, table,
                                                           type);
                     }
@@ -1059,8 +1059,7 @@ public class StatementCommand extends Statement {
                 try {
                     HsqlName name = (HsqlName) arguments[0];
                     Table table =
-                        session.database.schemaManager.getUserTable(name.name,
-                            name.schema.name);
+                        session.database.schemaManager.getUserTable(name);
 
                     session.checkAdmin();
                     session.checkDDLWrite();
@@ -1111,8 +1110,7 @@ public class StatementCommand extends Statement {
                     HsqlName name    = (HsqlName) arguments[0];
                     int      spaceid = ((Integer) arguments[1]).intValue();
                     Table table =
-                        session.database.schemaManager.getUserTable(name.name,
-                            name.schema.name);
+                        session.database.schemaManager.getUserTable(name);
 
                     if (!session.isProcessingScript()) {
                         return Result.updateZeroResult;
@@ -1152,8 +1150,7 @@ public class StatementCommand extends Statement {
                     HsqlName name     = (HsqlName) arguments[0];
                     int[]    colIndex = (int[]) arguments[1];
                     Table table =
-                        session.database.schemaManager.getUserTable(name.name,
-                            name.schema.name);
+                        session.database.schemaManager.getUserTable(name);
 
                     StatementSchema.checkSchemaUpdateAuthorisation(session,
                             table.getSchemaName());
@@ -1185,8 +1182,7 @@ public class StatementCommand extends Statement {
                     String   value = (String) arguments[1];
                     Integer  type  = (Integer) arguments[2];
                     Table table =
-                        session.database.schemaManager.getUserTable(name.name,
-                            name.schema.name);
+                        session.database.schemaManager.getUserTable(name);
 
                     if (session.isProcessingScript()) {
                         table.setIndexRoots(session, value);
@@ -1201,8 +1197,7 @@ public class StatementCommand extends Statement {
                 try {
                     HsqlName name = (HsqlName) arguments[0];
                     Table table =
-                        session.database.schemaManager.getUserTable(name.name,
-                            name.schema.name);
+                        session.database.schemaManager.getUserTable(name);
                     boolean mode = ((Boolean) arguments[1]).booleanValue();
 
                     StatementSchema.checkSchemaUpdateAuthorisation(session,
@@ -1217,11 +1212,15 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_TABLE_SOURCE :
             case StatementTypes.SET_TABLE_SOURCE_HEADER : {
+                HsqlName name     = (HsqlName) arguments[0];
+                Boolean  mode     = (Boolean) arguments[1];
+                String   source   = (String) arguments[2];
+                Boolean  isDesc   = (Boolean) arguments[3];
+                Boolean  isHeader = (Boolean) arguments[4];
+                Table    table    = null;
+
                 try {
-                    HsqlName name = (HsqlName) arguments[0];
-                    Table table =
-                        session.database.schemaManager.getUserTable(name.name,
-                            name.schema.name);
+                    table = session.database.schemaManager.getUserTable(name);
 
                     StatementSchema.checkSchemaUpdateAuthorisation(session,
                             table.getSchemaName());
@@ -1232,10 +1231,8 @@ public class StatementCommand extends Statement {
                         return Result.newErrorResult(e, sql);
                     }
 
-                    if (arguments[1] != null) {
-                        boolean mode = ((Boolean) arguments[1]).booleanValue();
-
-                        if (mode) {
+                    if (mode != null) {
+                        if (mode.booleanValue()) {
                             ((TextTable) table).connect(session);
                         } else {
                             ((TextTable) table).disconnect();
@@ -1247,15 +1244,11 @@ public class StatementCommand extends Statement {
                         return Result.updateZeroResult;
                     }
 
-                    String  source   = (String) arguments[2];
-                    boolean isDesc   = ((Boolean) arguments[3]).booleanValue();
-                    boolean isHeader = ((Boolean) arguments[4]).booleanValue();
-
-                    if (isHeader) {
+                    if (isHeader.booleanValue()) {
                         ((TextTable) table).setHeader(source);
                     } else {
-                        ((TextTable) table).setDataSource(session, source,
-                                                          isDesc, false);
+                        ((TextTable) table).setDataSource(
+                            session, source, isDesc.booleanValue(), false);
                     }
 
                     return Result.updateZeroResult;
@@ -1270,6 +1263,8 @@ public class StatementCommand extends Statement {
                         session.addWarning((HsqlException) e);
                         session.database.logger.logWarningEvent(
                             "Problem processing SET TABLE SOURCE", e);
+                        ((TextTable) table).setDataSource(
+                            source, isDesc.booleanValue());
 
                         return Result.updateZeroResult;
                     } else {
@@ -1284,8 +1279,7 @@ public class StatementCommand extends Statement {
 
                     //
                     Table table =
-                        session.database.schemaManager.getUserTable(name.name,
-                            name.schema.name);
+                        session.database.schemaManager.getUserTable(name);
 
                     if (table.getTableType() == type) {
                         return Result.updateZeroResult;

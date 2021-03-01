@@ -781,8 +781,7 @@ public class ParserDDL extends ParserRoutine {
             t = (Table) database.schemaManager.findUserTable(name.name,
                     name.schema.name);
         } else {
-            t = database.schemaManager.getUserTable(name.name,
-                    name.schema.name);
+            t = database.schemaManager.getUserTable(name);
         }
 
         if (t != null) {
@@ -1914,9 +1913,7 @@ public class ParserDDL extends ParserRoutine {
         Constraint     c             = readFKReferences(table, name, set);
         HsqlName       mainTableName = c.getMainTableName();
 
-        c.core.mainTable =
-            database.schemaManager.getUserTable(mainTableName.name,
-                mainTableName.schema.name);
+        c.core.mainTable = database.schemaManager.getUserTable(mainTableName);
 
         c.setColumnsIndexes(table);
 

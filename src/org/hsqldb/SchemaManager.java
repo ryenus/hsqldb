@@ -1468,7 +1468,7 @@ public class SchemaManager {
         writeLock.lock();
 
         try {
-            Table t = getUserTable(name.parent.name, name.parent.schema.name);
+            Table      t  = getUserTable(name.parent);
             TableWorks tw = new TableWorks(session, t);
 
             tw.dropIndex(name.name);
@@ -1485,7 +1485,7 @@ public class SchemaManager {
         writeLock.lock();
 
         try {
-            Table t = getUserTable(name.parent.name, name.parent.schema.name);
+            Table      t  = getUserTable(name.parent);
             TableWorks tw = new TableWorks(session, t);
 
             tw.dropConstraint(name.name, cascade);
@@ -2160,7 +2160,6 @@ public class SchemaManager {
                                 ref.getSchemaQualifiedStatementName());
                         }
                     }
-
                     break;
             }
 

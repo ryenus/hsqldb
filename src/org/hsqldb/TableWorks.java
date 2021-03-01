@@ -247,9 +247,8 @@ public class TableWorks {
         database.schemaManager.addSchemaObject(c);
         setNewTableInSchema(tn);
 
-        Table mainTable = database.schemaManager.getUserTable(
-            c.core.mainTable.getName().name,
-            c.core.mainTable.getSchemaName().name);
+        Table mainTable =
+            database.schemaManager.getUserTable(c.core.mainTable.getName());
 
         mainTable.addConstraint(new Constraint(mainName, c));
         updateConstraints(tn, emptySet);

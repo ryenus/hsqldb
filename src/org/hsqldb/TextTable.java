@@ -89,7 +89,7 @@ public class TextTable extends Table {
     private void connect(Session session, boolean withReadOnlyData) {
 
         // Open new cache:
-        if ((dataSource.length() == 0) || isConnected) {
+        if (dataSource.isEmpty() || isConnected) {
 
             // nothing to do
             return;
@@ -262,6 +262,11 @@ public class TextTable extends Table {
 
     public String getDataSource() {
         return dataSource;
+    }
+
+    public void setDataSource(String source, boolean desc) {
+        dataSource = source;
+        isReversed = desc;
     }
 
     public boolean isDescDataSource() {
