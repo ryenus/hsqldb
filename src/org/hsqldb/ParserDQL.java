@@ -2337,17 +2337,17 @@ public class ParserDQL extends ParserBase {
 
     private void readFilterClause(Expression e) {
 
-        ExpressionLogical condition = XreadFilterExpressionOrNull();
+        Expression condition = XreadFilterExpressionOrNull();
 
         if (condition != null) {
             e.setCondition(condition);
         }
     }
 
-    ExpressionLogical XreadFilterExpressionOrNull() {
+    Expression XreadFilterExpressionOrNull() {
 
-        int               position  = getPosition();
-        ExpressionLogical condition = null;
+        int        position  = getPosition();
+        Expression condition = null;
 
         if (token.tokenType == Tokens.FILTER) {
             read();
@@ -2361,7 +2361,7 @@ public class ParserDQL extends ParserBase {
             readThis(Tokens.OPENBRACKET);
             readThis(Tokens.WHERE);
 
-            condition = (ExpressionLogical) XreadBooleanValueExpression();
+            condition = XreadBooleanValueExpression();
 
             readThis(Tokens.CLOSEBRACKET);
         }

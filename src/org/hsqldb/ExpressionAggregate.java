@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
  * Implementation of aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class ExpressionAggregate extends Expression {
@@ -459,7 +459,7 @@ public class ExpressionAggregate extends Expression {
         return !nodes[RIGHT].isTrue();
     }
 
-    public void setCondition(ExpressionLogical e) {
+    public void setCondition(Expression e) {
         nodes[RIGHT] = e;
     }
 }
