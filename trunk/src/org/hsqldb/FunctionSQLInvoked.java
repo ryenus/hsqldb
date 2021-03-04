@@ -44,7 +44,7 @@ import org.hsqldb.types.Type;
  * Implementation of SQL-invoked user-defined function calls - PSM and JRT
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class FunctionSQLInvoked extends Expression {
@@ -321,7 +321,7 @@ public class FunctionSQLInvoked extends Expression {
         return condition != null && !condition.isTrue();
     }
 
-    public void setCondition(ExpressionLogical e) {
+    public void setCondition(Expression e) {
         condition = e;
     }
 }

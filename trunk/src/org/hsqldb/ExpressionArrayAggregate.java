@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of array aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.0
  * @since 2.0.1
  */
 public class ExpressionArrayAggregate extends Expression {
@@ -430,7 +430,7 @@ public class ExpressionArrayAggregate extends Expression {
         return !condition.isTrue();
     }
 
-    public void setCondition(ExpressionLogical e) {
+    public void setCondition(Expression e) {
         condition = e;
     }
 

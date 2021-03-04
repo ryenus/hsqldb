@@ -2992,9 +2992,8 @@ public class ParserDDL extends ParserRoutine {
                         isTable = true;
 
                         if (grant && tokenType != Tokens.REFERENCES) {
-                            Recorder recorder = startRecording();
-                            ExpressionLogical filter =
-                                XreadFilterExpressionOrNull();
+                            Recorder   recorder = startRecording();
+                            Expression filter = XreadFilterExpressionOrNull();
 
                             if (filter != null) {
                                 String sql = recorder.getSQL();
@@ -3178,8 +3177,8 @@ public class ParserDDL extends ParserRoutine {
 
         if (grant) {
             if (objectType == SchemaObject.TABLE && !isFilter) {
-                Recorder          recorder = startRecording();
-                ExpressionLogical filter   = XreadFilterExpressionOrNull();
+                Recorder   recorder = startRecording();
+                Expression filter   = XreadFilterExpressionOrNull();
 
                 if (filter != null) {
                     String sql = recorder.getSQL();
