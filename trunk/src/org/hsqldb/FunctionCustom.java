@@ -715,7 +715,10 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_REGEXP_REPLACE :
                 parseList = new short[] {
                     Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
                     Tokens.QUESTION, Tokens.CLOSEBRACKET
                 };
                 break;
@@ -2139,6 +2142,18 @@ public class FunctionCustom extends FunctionSQL {
                 boolean isFixed        = nodes[1].getType() == OpTypes.VALUE;
                 int     start          = 1;
                 int     count          = 0;
+
+                if (nodes[2] == null) {
+                    replace = "";
+                }
+
+                if (nodes[3] != null) {
+                    start = ((Number) data[3]).intValue();
+
+                    if (start < 1) {
+                        throw Error.error(ErrorCode.X_22003);
+                    }
+                }
 
                 if (nodes[4] != null) {
                     count = ((Number) data[4]).intValue();
@@ -3672,11 +3687,6 @@ public class FunctionCustom extends FunctionSQL {
                 break;
             }
             case FUNC_REGEXP_REPLACE :
-                if (nodes[2] == null) {
-                    nodes[2] = new ExpressionValue("", Type.SQL_VARCHAR);
-                }
-
-            // fall through
             case FUNC_REGEXP_COUNT :
             case FUNC_REGEXP_INSTR :
             case FUNC_REGEXP_LIKE :
@@ -4237,17 +4247,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_UNIX_MILLIS :
             case FUNC_UNIX_TIMESTAMP :
             case FUNC_UUID :
-            case FUNC_RAND : {
-                StringBuilder sb = new StringBuilder(name).append('(');
-
-                if (nodes[0] != null) {
-                    sb.append(nodes[0].getSQL());
-                }
-
-                sb.append(')');
-
-                return sb.toString();
-            }
+            case FUNC_RAND :
             case FUNC_LOAD_FILE :
             case FUNC_ROUND :
             case FUNC_TIMESTAMP :
@@ -4257,19 +4257,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TO_TIMESTAMP_TZ :
             case FUNC_TRUNC :
             case FUNC_TRUNCATE :
-            case FUNC_TO_CHAR : {
-                StringBuilder sb = new StringBuilder(name).append('(');
-
-                sb.append(nodes[0].getSQL());
-
-                if (nodes.length > 1 && nodes[1] != null) {
-                    sb.append(',').append(nodes[1].getSQL());
-                }
-
-                sb.append(')');
-
-                return sb.toString();
-            }
+            case FUNC_TO_CHAR :
             case FUNC_ACOS :
             case FUNC_ASCII :
             case FUNC_ASCIISTR :
@@ -4299,10 +4287,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TO_BASE64 :
             case FUNC_HEXTORAW :
             case FUNC_RAWTOHEX :
-            case FUNC_LOB_ID : {
-                return new StringBuilder(name).append('(').append(
-                    nodes[0].getSQL()).append(')').toString();
-            }
+            case FUNC_LOB_ID :
             case FUNC_ATAN2 :
             case FUNC_BITAND :
             case FUNC_BITANDNOT :
@@ -4319,28 +4304,10 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_REGEXP_MATCHES :
             case FUNC_REGEXP_SUBSTRING :
             case FUNC_REGEXP_SUBSTRING_ARRAY :
-            case FUNC_REPEAT : {
-                return new StringBuilder(name).append('(').append(
-                    nodes[0].getSQL()).append(Tokens.T_COMMA).append(
-                    nodes[1].getSQL()).append(')').toString();
-            }
-            case FUNC_DIAGNOSTICS : {
-                StringBuilder sb = new StringBuilder(name).append('(');
-
-                //exprSubType == ExpressionColumn.idx_row_count
-                sb.append(Tokens.T_ROW_COUNT);
-                sb.append(')');
-
-                return sb.toString();
-            }
+            case FUNC_REPEAT :
             case FUNC_SEQUENCE_ARRAY :
             case FUNC_REGEXP_REPLACE :
-            case FUNC_REPLACE : {
-                return new StringBuilder(name).append('(').append(
-                    nodes[0].getSQL()).append(Tokens.T_COMMA).append(
-                    nodes[1].getSQL()).append(Tokens.T_COMMA).append(
-                    nodes[2].getSQL()).append(')').toString();
-            }
+            case FUNC_REPLACE :
             case FUNC_ADD_MONTHS :
             case FUNC_DATENAME :
             case FUNC_DATEPART :
@@ -4360,6 +4327,15 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TRANSLATE :
                 return getSQLSimple();
 
+            case FUNC_DIAGNOSTICS : {
+                StringBuilder sb = new StringBuilder(name).append('(');
+
+                //exprSubType == ExpressionColumn.idx_row_count
+                sb.append(Tokens.T_ROW_COUNT);
+                sb.append(')');
+
+                return sb.toString();
+            }
             default :
                 return super.getSQL();
         }
