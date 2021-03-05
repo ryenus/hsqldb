@@ -310,7 +310,6 @@ public class TestPreparedStatements extends TestCase {
 
         assertTrue(result1.next());
         assertTrue(result1.next());
-
 /*
         String select2 = "SELECT name FROM testusers WHERE name IN (CAST(? AS VARCHAR(10) ARRAY))";
         PreparedStatement preparedStatement2 = con.prepareStatement(select2,

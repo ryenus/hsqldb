@@ -3393,10 +3393,6 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_BITNOT :
             case FUNC_BITOR :
             case FUNC_BITXOR : {
-                if (nodes[0].dataType == null) {
-                    nodes[0].dataType = nodes[1].dataType;
-                }
-
                 if (funcType == FUNC_BITNOT) {
                     if (nodes[0].dataType == null) {
                         nodes[0].dataType = Type.SQL_INTEGER;
@@ -3404,6 +3400,10 @@ public class FunctionCustom extends FunctionSQL {
 
                     dataType = nodes[0].dataType;
                 } else {
+                    if (nodes[0].dataType == null) {
+                        nodes[0].dataType = nodes[1].dataType;
+                    }
+
                     dataType = nodes[0].dataType;
 
                     if (nodes[1].dataType == null) {

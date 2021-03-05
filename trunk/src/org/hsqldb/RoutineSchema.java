@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.5.1
+ * @version 2.6.0
  * @since 1.9.0
  */
 public class RoutineSchema implements SchemaObject {
@@ -223,7 +223,11 @@ public class RoutineSchema implements SchemaObject {
                     sb.append(Tokens.T_COMMA);
                 }
 
-                sb.append(types[i].getNameString());
+                if (types[i] == null) {
+                    sb.append("null");
+                } else {
+                    sb.append(types[i].getNameString());
+                }
             }
 
             sb.append(Tokens.T_CLOSEBRACKET);
