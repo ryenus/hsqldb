@@ -184,12 +184,13 @@
         <section>
         <title>Platforms and SqlTool versions covered</title>
           <simpara>
-            SqlTool runs on any Java 1.5 or later platform.
+            SqlTool runs on any Java 11 or later platform.
             I know that SqlTool works well with Sun and OpenJDK JVMs.
             I haven't run other vendors' JVMs in years (IBM, JRockit, etc.).
             As my use with OpenJDK proves that I don't depend on Sun-specific
-            classes, I expect it to work well with other (1.5-compatible) Java
-            implementations.
+            classes, I expect it to work well with other Java
+            implementations. A version of the jar compiled with JDK 8 is also
+            included.
         </simpara> <simpara>
             SqlTool no longer writes any files without being explicitly
             instructed to.
@@ -235,7 +236,7 @@
             <footnote label='1' xml:id='samplelocFn'><simpara>
             To reduce the time I will need to spend maintaining this document,
             in this chapter I am giving the path to the
-            <filename>sample</filename> directory as it is in HyperSQL 2.0.x
+            <filename>sample</filename> directory as it is in HyperSQL 2.x
             distributions, namely, <filename>HSQLDB_HOME/sample</filename>.
             Users of HSQLDB before 2.0.x should translate these sample
             directory paths
@@ -250,7 +251,7 @@
               of SQL scripts.
               For this revision of this document, this list consists of
               script-impacting changes made to SqlTool
-              <emphasis>after</emphasis> the final 2.3.3 HyperSQL release.
+              <emphasis>after</emphasis> the 2.3.3 HyperSQL release.
             </simpara>
             <itemizedlist>
                 <listitem><simpara>
@@ -290,7 +291,7 @@
             </itemizedlist>
         </section>
         <section><title>New Features</title>
-          <subtitle>Since HyperSQL 2.3.3 final</subtitle>
+          <subtitle>Since HyperSQL 2.3.3</subtitle>
             <simpara>To reduce duplication, new features are listed in the
               <link xlink:href="#sqltool_functional_changes-sect"
               endterm="functional_changes-title"/> section are not repeated
@@ -589,7 +590,7 @@
             <filename xlink:href="#SqlFileEmbedder.java-link">
               src/org/hsqldb/sample/SqlFileEmbedder.java</filename>
             in the HyperSQL distribution provides an example for this latter
-            strategy. 
+            strategy.
           </emphasis>
         </simpara>
       </section>
@@ -896,7 +897,7 @@
         <simpara>
           If you just want to be able to run SqlTool (interactively or
           non-interactively) on a PC, and have no need for documentation, then
-          it's usually easiest to just copy 
+          it's usually easiest to just copy
           <filename>sqltool.jar</filename> and <filename>hsqldb.jar</filename>
           to the PCs (plus JDBC driver jars for any other target databases).
           If you want to minimize what you distribute, then build and
@@ -1981,7 +1982,7 @@
                 block of code (up to the paired <literal>* end if</literal>
                 statement is executed.
                 If the expression is false, then the same code block is skipped.
-                Run <literal>* ? control</literal> for details, including 
+                Run <literal>* ? control</literal> for details, including
                 the optional <literal>* else</literal> statement, a short-cut
                 <emphasis>inline if statement</emphasis>, and several other
                 branching statements.
@@ -1989,7 +1990,7 @@
         </variablelist>
         <simpara>
           This list here includes only a sampling of some
-          <emphasis>essential</emphasis> PL Commands, but 
+          <emphasis>essential</emphasis> PL Commands, but
           <emphasis role='bold'>there are many other useful PL Commands
           which you can list by running <literal>* ?</literal></emphasis>.
         </simpara> <simpara>
@@ -2037,7 +2038,7 @@
             What we use is
             <link xlink:href='#sqltool_raw-sect' endterm='raw-title'/>.
             This works great both interactively and non-interactively, and it
-            supports 
+            supports
             <link xlink:href='#sqltool_chunk-sect' endterm='chunk-title'/>
             without having to format your SQL in a special way.
             A great application of this is to put multi-line macro and
@@ -2692,7 +2693,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
                 other work to do).
                 If you are in HTML mode and you are finished writing the file
                 (i.e. you will not append to it again later), then close it
-                with <literal>\oc</literal> instead, to 
+                with <literal>\oc</literal> instead, to
             </simpara></step> <step><simpara>
                 If you turned HTML mode on before and want to turn it off now,
                 run <literal>\h false</literal>.
@@ -3033,7 +3034,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
                 inside of SQL statements unless at least one PL user variable
                 has been set.
                 Therefore, if executing portable SQL scripts (and by default),
-                SqlTool will not expand 
+                SqlTool will not expand
                 <literal>${varname}</literal>s inside of SQL statements.
               </simpara></listitem></varlistentry>
               <varlistentry><term>PL User Variables</term><listitem><simpara>
@@ -3260,7 +3261,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
                   </simpara></listitem> <listitem><simpara>
                     Inside of logical expressions (like inside of
                     <literal>if</literal> and <literal>while</literal> commands),
-                    reference variables like <literal>*VARNAME</literal>, i.e. 
+                    reference variables like <literal>*VARNAME</literal>, i.e.
                     without the curly brace, and don't worry about a construct like
                     <literal>${:VARNAME}</literal> because it is legal to compare
                     unset variables (all unset variables are equal to one another).
@@ -3350,7 +3351,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
 At startup ? is equal to empty string.  See between A and B:  AB
 sql> * if (A*{?}B == AB) \p ? is the empty string
 ? is the empty string
-sql> 
+sql>
 sql> CREATE TABLE t(i INTEGER, vc VARCHAR(20));
 sql> INSERT INTO t VALUES(1, 'one');
 1 row updated.
@@ -3373,7 +3374,7 @@ Listing all 'set' variables (any var not seen is unset and equal to null).
 The outermost parentheses are not part of the values.
     ?: (two)
     res: (1)
-sql> 
+sql>
 sql> INSERT INTO t VALUES (3, null);
 1 row updated.
 sql> *res ~
@@ -3387,7 +3388,7 @@ sql> * listvalues ? res
 Listing all 'set' variables (any var not seen is unset and equal to null).
 The outermost parentheses are not part of the values.
     ?: ([null])
-sql> 
+sql>
 sql> -- This will prevent SqlTool from aborting when we run a bad SQL statement:
 sql> \c true
 Continue-on-error is set to true.
@@ -4529,7 +4530,7 @@ SELECT * FROM t
           Conflicting with the name, CSV files do not need to use comma as the
           column delimiter, and the tab character is a common alternative.
           Since CSV importing and exporting is implemented as a sub-case of DSV
-          import and exporting, everything in the 
+          import and exporting, everything in the
           <link xlink:href='#sqltool_dsv-sect' endterm='dsv-title'/>
           section applies, and CSV users should definitely read that section.
         </simpara> <simpara>
@@ -4628,7 +4629,7 @@ SELECT * FROM t
           in your HyperSQL distribution or source code repository.
           Just run <filename>runtests</filename> in that directory to
           execute all of the tests (except for non-Windows, non-UNIX, non-MacOS
-          users, who must invoke 
+          users, who must invoke
           <literal>../../build/gradlew</literal> directly).
           Read the file <filename>README.txt</filename> to find out all
           about file naming conventions so that you can write your own
