@@ -58,11 +58,11 @@
     supports the complete set of the classic features, together with optional
     features such as stored procedures and triggers.</para>
 
-    <para>HyperSQL version 2.6 is compatible with Java 11 or later and
+    <para>HyperSQL version 2.6.0 is compatible with Java 11 or later and
     supports the Java module system. A version of the HSQLDB jar compiled with
-    JDK 8 is also included in the download zip package. Versions of the jar
-    compiled with JDK 6 are also available. Those versions are numbered 2.3.9
-    to distinguish the JDBC API capability differences.</para>
+    JDK 8 is also included in the download zip package. A version of the jar
+    compiled with JDK 6 is also available at hsqldb.org, numbered 2.3.9 to
+    distinguish the JDBC API capability differences.</para>
 
     <para>HyperSQL is used for development, testing and deployment of database
     applications.</para>
@@ -71,19 +71,18 @@
     HyperSQL. There are several other distinctive features. HyperSQL can
     provide database access within the user's application process, within an
     application server, or as a separate server process. HyperSQL can run
-    entirely in memory using dedicated fast memory structures as opposed to
-    ram disk. HyperSQL can use disk persistence in a flexible way, with
-    reliable crash-recovery. HyperSQL is the only open-source relational
-    database management system with a high-performance dedicated lob storage
-    system, suitable for gigabytes of lob data. It is also the only relational
-    database that can create and access large comma delimited files as SQL
-    tables. HyperSQL supports three live switchable transaction control
-    models, including fully multi-threaded MVCC, and is suitable for high
-    performance transaction processing applications. HyperSQL is also suitable
-    for business intelligence, ETL and other applications that process large
-    data sets. HyperSQL has a wide range of enterprise deployment options,
-    such as XA transactions, connection pooling data sources and remote
-    authentication.</para>
+    entirely in memory using a fast memory structure. HyperSQL can use disk
+    persistence in a flexible way, with reliable crash-recovery. HyperSQL is
+    the only open-source relational database management system with a
+    high-performance dedicated lob storage system, suitable for gigabytes of
+    lob data. It is also the only relational database that can create and
+    access large comma delimited files as SQL tables. HyperSQL supports three
+    live switchable transaction control models, including fully multi-threaded
+    MVCC, and is suitable for high performance transaction processing
+    applications. HyperSQL is also suitable for business intelligence, ETL and
+    other applications that process large data sets. HyperSQL has a wide range
+    of enterprise deployment options, such as XA transactions, connection
+    pooling data sources and remote authentication.</para>
 
     <para>New SQL syntax compatibility modes have been added to HyperSQL.
     These modes allow a high degree of compatibility with several other
@@ -96,9 +95,9 @@
     <para>An ODBC driver is also available as a separate download.</para>
 
     <para>This guide covers the database engine features, SQL syntax and
-    different modes of operation. The Server, JDBC interfaces, pooling and XA
+    different modes of operation. The JDBC interfaces, pooling and XA
     components are documented in the JavaDoc. Utilities such as SqlTool and
-    DatabaseManager are covered in a separate Utilities Guide.</para>
+    DatabaseManagerSwing are covered in a separate Utilities Guide.</para>
   </section>
 
   <section xml:id="rgc_hsqldb_jar">
@@ -128,8 +127,8 @@
     database engine that has a JDBC driver.</para>
 
     <para>An additional jar, sqltool.jar, contains Sql Tool, a command line
-    database access tool. This is a command line database access tool that can
-    be used with other database engines as well.</para>
+    database access tool that can also be used with other database
+    engines.</para>
   </section>
 
   <section xml:id="rgc_access_tools">
@@ -150,11 +149,7 @@
     <screen> java -cp hsqldb.jar org.hsqldb.util.DatabaseManagerSwing</screen>
 
     <itemizedlist>
-      <title>Main classes for the HSQLDB tools</title>
-
-      <listitem>
-        <para><classname>org.hsqldb.util.DatabaseManager</classname></para>
-      </listitem>
+      <title>Main class for the HSQLDB tools</title>
 
       <listitem>
         <para><classname>org.hsqldb.util.DatabaseManagerSwing</classname></para>
@@ -187,7 +182,7 @@
       </listitem>
 
       <listitem>
-        <para><glossterm>file:</glossterm> stored in filesystem files</para>
+        <para><glossterm>file:</glossterm> stored in file system</para>
       </listitem>
 
       <listitem>
@@ -196,38 +191,38 @@
       </listitem>
     </itemizedlist>
 
-    <para>All-in-memory, <glossterm>mem:</glossterm> catalogs can be used for
+    <para>All-in-memory <glossterm>mem:</glossterm> catalogs can be used for
     test data or as sophisticated caches for an application. These databases
     do not have any files.</para>
 
     <para>A <glossterm>file</glossterm>: catalog consists of between 2 to 6
     files, all named the same but with different extensions, located in the
-    same directory. For example, the database named "test" consists of the
+    same directory. For example, the database named "testdb" consists of the
     following files:</para>
 
     <itemizedlist>
       <listitem>
-        <para><filename>test.properties</filename></para>
+        <para><filename>testdb.properties</filename></para>
       </listitem>
 
       <listitem>
-        <para><filename>test.script</filename></para>
+        <para><filename>testdb.script</filename></para>
       </listitem>
 
       <listitem>
-        <para><filename>test.log</filename></para>
+        <para><filename>testdb.log</filename></para>
       </listitem>
 
       <listitem>
-        <para><filename>test.data</filename></para>
+        <para><filename>testdb.data</filename></para>
       </listitem>
 
       <listitem>
-        <para><filename>test.backup</filename></para>
+        <para><filename>testdb.backup</filename></para>
       </listitem>
 
       <listitem>
-        <para><filename>test.lobs</filename></para>
+        <para><filename>testdb.lobs</filename></para>
       </listitem>
     </itemizedlist>
 
@@ -237,17 +232,17 @@
     the database. The data file contains the data for cached tables and the
     backup file is used to revert to the last known consistent state of the
     data file. All these files are essential and should never be deleted. For
-    some catalogs, the <filename>test.data</filename> and
-    <filename>test.backup</filename> files will not be present. In addition to
-    those files, a HyperSQL database may link to any formatted text files,
+    some catalogs, the <filename>testdb.data</filename> and
+    <filename>testdb.backup</filename> files will not be present. In addition
+    to those files, a HyperSQL database may link to any formatted text files,
     such as CSV lists, anywhere on the disk.</para>
 
-    <para>While the "test" catalog is open, a <filename>test.log</filename>
-    file is used to write the changes made to data. This file is removed at a
-    normal SHUTDOWN. Otherwise (with abnormal shutdown) this file is used at
-    the next startup to redo the changes. A <filename>test.lck </filename>file
-    is also used to record the fact that the database is open. This is deleted
-    at a normal SHUTDOWN.</para>
+    <para>While the "testdb" catalog is open, a
+    <filename>testdb.log</filename> file is used to write the changes made to
+    data. This file is removed at a normal SHUTDOWN. Otherwise (with abnormal
+    shutdown) this file is used at the next startup to redo the changes. A
+    <filename>testdb.lck </filename>file is also used to record the fact that
+    the database is open. This is deleted at a normal SHUTDOWN.</para>
 
     <note>
       <para>When the engine closes the database at a shutdown, it creates
@@ -255,9 +250,9 @@
       renames to those listed above. These files should not be deleted by the
       user. At the time of the next startup, all such files will be renamed or
       deleted by the database engine. In some circumstances, a
-      <filename>test.data.xxx.old</filename> is created and deleted afterwards
-      by the database engine. The user can delete these
-      <filename>test.data.xxx.old</filename> files.</para>
+      <filename>testdb.data.xxx.old</filename> is created and deleted
+      afterwards by the database engine. The user can delete these
+      <filename>testdb.data.xxx.old</filename> files.</para>
     </note>
 
     <para>A <glossterm>res:</glossterm> catalog consists of the files for a
@@ -326,11 +321,11 @@
     <programlisting> Connection c = DriverManager.getConnection("jdbc:hsqldb:res:org.my.path.resdb", "SA", "");</programlisting>
 
     <para>The first time <glossterm>in-process</glossterm> connection is made
-    to a database, some general data structures are initialised and a few
-    helper threads are started. After this, creation of connections and calls
-    to JDBC methods of the connections execute as if they are part of the Java
+    to a database, some general data structures are initialised and a helper
+    thread is started. After this, creation of connections and calls to JDBC
+    methods of the connections execute as if they are part of the Java
     application that is making the calls. When the SQL command "SHUTDOWN" is
-    executed, the global structures and helper threads for the database are
+    executed, the global structures and helper thread for the database are
     destroyed.</para>
 
     <para>Note that only one Java process at a time can make
@@ -390,7 +385,10 @@
       </informalexample>
 
       <para>The command line argument <literal>--help</literal> can be used to
-      get a list of available arguments.</para>
+      get a list of available arguments. Connections are made using an hsql:
+      URL.</para>
+
+      <programlisting> Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "SA", "");</programlisting>
     </section>
 
     <section xml:id="rgc_http_server">
@@ -405,14 +403,17 @@
       small general-purpose web server for static pages.</para>
 
       <para>To run an HTTP server, replace the main class for the server in
-      the example command line above with the following:</para>
+      the example command line above with WebServer:</para>
 
       <informalexample>
-        <screen> org.hsqldb.server.WebServer</screen>
+        <screen> java -cp ../lib/hsqldb.jar org.hsqldb.server.WebServer --database.0 file:mydb --dbname.0 xdb</screen>
       </informalexample>
 
       <para>The command line argument <literal>--help</literal> can be used to
-      get a list of available arguments.</para>
+      get a list of available arguments. Connections are made using an httpl:
+      URL.</para>
+
+      <programlisting> Connection c = DriverManager.getConnection("jdbc:hsqldb:http://localhost/xdb", "SA", "");</programlisting>
     </section>
 
     <section xml:id="rgc_http_servlet">
@@ -435,7 +436,8 @@
       <para>Please note that you do not normally use this mode if you are
       using the database engine in an application server. In this situation,
       connections to a catalog are usually made
-      <glossterm>in-process</glossterm>, or using a separate Server</para>
+      <glossterm>in-process</glossterm>, or using the hsql: protocol to an
+      HSQL Server</para>
     </section>
 
     <section xml:id="rgc_connecting_db">

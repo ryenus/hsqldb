@@ -582,10 +582,11 @@
     <para><literal>REGEXP_MATCHES ( &lt;char value expr&gt;, &lt;regular
     expression&gt; ) </literal></para>
 
-    <para>Returns true if the <literal>&lt;char value expr&gt;</literal>
-    matches the <literal>&lt;regular expression&gt;</literal> as a whole. The
-    <literal>&lt;regular expression&gt;</literal> is defined according to Java
-    language regular expression rules. (HyperSQL)</para>
+    <para>Both functions return true if the <literal>&lt;char value
+    expr&gt;</literal> matches the <literal>&lt;regular
+    expression&gt;</literal> as a whole. The <literal>&lt;regular
+    expression&gt;</literal> is defined according to Java language regular
+    expression rules. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>REGEXP_REPLACE function</primary>
@@ -593,14 +594,24 @@
 
     <simpara><emphasis role="bold">REGEXP_REPLACE</emphasis></simpara>
 
-    <para><literal>REGEXP_REPLACE ( &lt;char value expr 1&gt;, &lt;regular
-    expression&gt;, &lt;char value expr 3&gt; ) </literal></para>
+    <para><literal>REGEXP_REPLACE ( &lt;char value expr&gt;, &lt;regular
+    expression&gt; [, &lt;replace char value expr&gt; [, &lt;start
+    position&gt; [, &lt;replace count&gt; [, &lt;options&gt;]]]] )
+    </literal></para>
 
     <para>Replaces <literal>&lt;char value expr 1&gt;</literal> regions that
     match the <literal>&lt;regular expression&gt;</literal> with
-    <literal>&lt;char value expr 3&gt;</literal>. The <literal>&lt;regular
-    expression&gt;</literal> is defined according to Java language regular
-    expression rules. (HyperSQL)</para>
+    <literal>&lt;replace char value expr&gt;</literal>. This last parameter is
+    optional and defaults to the empty string. The rest of the parameters are
+    also optional. The <literal>&lt;start position&gt;</literal> parameter is
+    not implemented and must be 1 if used. The <literal>&lt;replace
+    count&gt;</literal> parameter is 0 by default, which means replace all
+    occurrences, or it can be 1, which means replace only the first
+    occurrence. The <literal>&lt;options&gt;</literal> parameter is a string
+    which can contain: 'i' for case-insensitive compare, 'c' for Unicode case,
+    'n' for the '.' also to match any line terminator, and 'm' for multi-line
+    matches. The <literal>&lt;regular expression&gt;</literal> is defined
+    according to Java language regular expression rules. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>REGEXP_SUBSTR function</primary>
@@ -620,8 +631,8 @@
     <para><literal>REGEXP_SUBSTRING ( &lt;char value expr&gt;, &lt;regular
     expression&gt; ) </literal></para>
 
-    <para>Returns the first region in the <literal>&lt;char value
-    expr&gt;</literal> that matches the <literal>&lt;regular
+    <para>Both functions return the first region in the <literal>&lt;char
+    value expr&gt;</literal> that matches the <literal>&lt;regular
     expression&gt;</literal>. The <literal>&lt;regular
     expression&gt;</literal> is defined according to Java language regular
     expression rules. (HyperSQL)</para>

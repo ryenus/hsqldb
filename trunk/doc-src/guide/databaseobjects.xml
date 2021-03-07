@@ -3177,7 +3177,7 @@
     </section>
 
     <section xml:id="dbc_other_object_creation">
-      <title>Other Schema Object Creation</title>
+      <title>Other Schema Objects Creation and Alteration</title>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE SYNONYM</primary>
@@ -3261,6 +3261,25 @@
       <simpara>Redefine an index with a new column list. This statement is
       more efficient than dropping an existing index and creating a new
       one.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER CONSTRAINT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER CONSTRAINT</emphasis></simpara>
+
+      <simpara><emphasis>alter foreign key constraint
+      definition</emphasis></simpara>
+
+      <simpara><literal>&lt;alter constraint definition&gt; ::= ALTER
+      CONSTRAINT &lt;constraint name&gt; INDEX ADD &lt;left paren&gt;
+      &lt;extra column list&gt; &lt;right paren&gt;</literal></simpara>
+
+      <simpara>Add extra columns to the index of a FOREIGN KEY constraint.
+      Only the index is extended over the extra columns and the FOREIGN KEY
+      does not change. If the statement is used again, the previous extra
+      columns of the index are replaced with the new extra columns. The
+      FOREIGN KEY must have a user-defined name.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE TYPE</primary>

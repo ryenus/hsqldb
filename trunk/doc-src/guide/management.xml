@@ -323,6 +323,267 @@
     </section>
   </section>
 
+  <section xml:id="sgc_index_speed">
+    <title>Indexes and Query Speed</title>
+
+    <para>HyperSQL supports PRIMARY KEY, UNIQUE and FOREIGN KEY constraints,
+    which can span multiple columns.</para>
+
+    <para>The engine creates indexes internally to support PRIMARY KEY, UNIQUE
+    and FOREIGN KEY constraints: a unique index is created for each PRIMARY
+    KEY or UNIQUE constraint; a non-unique index is created for each FOREIGN
+    KEY constraint.</para>
+
+    <para>From version 2.6.0, you can extend the non-unique index for a
+    FORIEGN KEY constraint to cover extra columns. For example, if you have a
+    FOREIGN KEY constraint defined on
+    <literal>INVOICES(CUSTOMER_ID)</literal>, you can add an extra column such
+    as <literal>INVOICE_DATE</literal> to the FOREIGN KEY index. This speeds
+    up queries with conditions such as: <literal>WHERE customer_id = 456 and
+    invoice_date = '2020-02-02</literal>. See the ALTER CONSTRAINT statement
+    for syntax.</para>
+
+    <para>HyperSQL allows you to define indexes on single or multiple columns
+    with the CREATE INDEX statement. You should not create duplicate indexes
+    on the same column sets covered by constraints. This will result in
+    unnecessary memory and speed overheads. See the discussion on memory use
+    in the <link endterm="deployment-title" xlink:arcrole=""
+    xlink:href="#deployment-chapt"/> chapter for more information.</para>
+
+    <para>Indexes are crucial for adequate query speed. When range or equality
+    conditions are used e.g. <literal>SELECT ... WHERE acol &gt; 10 AND bcol =
+    0</literal>, an index should exist on one of the columns that has a
+    condition. In this example, the <literal>bcol</literal> column is the best
+    candidate. HyperSQL always uses the best condition and index. If there are
+    two indexes, one on acol, and another on bcol, it will choose the index on
+    bcol.</para>
+
+    <para>Queries always return results whether indexes exist or not, but they
+    return much faster when an index exists. As a rule of thumb, HSQLDB is
+    capable of internal processing of queries at around 1,000,000 rows per
+    second. Any query that runs into several seconds is clearly accessing many
+    thousands of rows. The query should be checked and indexes should be added
+    to the relevant columns of the tables if necessary. The <literal>EXPLAIN
+    PLAN FOR &lt;query&gt;</literal> statement can be used to see which
+    indexes are used to process the query.</para>
+
+    <para>When executing a DELETE or UPDATE statement, the engine needs to
+    find the rows that are to be deleted or updated. If there is an index on
+    one of the columns in the WHERE clause, it is often possible to start
+    directly from the first candidate row. Otherwise all the rows of the table
+    have to be examined.</para>
+
+    <para>Indexes are even more important in joins between multiple tables.
+    <literal>SELECT ... FROM t1 JOIN t2 ON t1.c1 = t2.c2 </literal> is
+    performed by taking rows of t1 one by one and finding a matching row in
+    t2. If there is no index on t2.c2, then for each row of t1 all the rows of
+    t2 must be checked. Whereas with an index on t2.c2, a matching row can be
+    found in a fraction of the time. If the query also has a condition on t1,
+    e.g., <literal>SELECT ... FROM t1 JOIN t2 ON t1.c1 = t2.c2 WHERE t1.c3 =
+    4</literal> then an index on t1.c3 would eliminate the need for checking
+    all the rows of t1 one by one, and will reduce query time to less than a
+    millisecond per returned row. </para>
+
+    <para>So if t1 and t2 each contain 10,000 rows, the query without indexes
+    involves checking 100,000,000 row combinations. With an index on t2.c2,
+    this is reduced to 10,000 row checks and index lookups. With the
+    additional index on t2.c2, only about 4 rows are checked to get the first
+    result row.</para>
+
+    <para>Note that in HSQLDB an index on multiple columns can be used
+    internally as an index on the first column in the list. For example:
+    <literal>CONSTRAINT name1 UNIQUE (c1, c2, c3) </literal> means there is
+    the equivalent of <literal>CREATE INDEX name2 ON atable(c1);</literal>. So
+    you do not need to specify an extra index if you need one on the first
+    column of the list.</para>
+
+    <para>In HyperSQL, a multi-column index will speed up queries that contain
+    joins or values on the first n columns of the index. You need NOT declare
+    additional individual indexes on those columns unless you use queries that
+    search only on a subset of the columns, excluding the first column. For
+    example, rows of a table that has a PRIMARY KEY or UNIQUE constraint on
+    three columns or simply an ordinary index on those columns can be found
+    efficiently when values for all three columns, or the first two columns,
+    or the first column, are specified in the WHERE clause. For example,
+    <literal>SELECT ... FROM t1 WHERE t1.c1 = 4 AND t1.c2 = 6 AND t1.c3 = 8
+    </literal>will use an index on <literal>t1(c1,c2,c3)</literal> if it
+    exists.</para>
+
+    <para>A multi-column index will not speed up queries on the second or
+    third column only. The first column must be specified in the JOIN .. ON or
+    WHERE conditions.</para>
+
+    <para>Sometimes query speed depends on the order of the tables in the JOIN
+    .. ON or FROM clauses. For example, the second query below should be
+    faster with large tables (provided there is an index on
+    <literal>TB.COL3</literal>). The reason is that <literal>TB.COL3</literal>
+    can be evaluated by index lookup and reduce the matching rows if it
+    applies to the first table:</para>
+
+    <informalexample>
+      <programlisting> -- TB is a very large table with only a few rows where TB.COL3 = 4
+
+ SELECT * FROM TA JOIN TB ON TA.COL1 = TB.COL2 AND TB.COL3 = 4;
+ SELECT * FROM TB JOIN TA ON TA.COL1 = TB.COL2 AND TB.COL3 = 4;</programlisting>
+    </informalexample>
+
+    <para>The general rule is to put first the table that has a narrowing
+    condition on one of its columns. In certain cases, HyperSQL reorders the
+    joined tables if it is obvious that this will introduce a narrowing
+    condition. This is discussed in the next section.</para>
+
+    <para>HyperSQL features automatic, on-the-fly indexes for views and
+    subselects that are used in a query.</para>
+
+    <para>Indexes are used when a LIKE condition searches from the start of
+    the string.</para>
+
+    <para>Indexes are used for ORDER BY clauses if the same index is used for
+    selection and ordering of rows. It is also possible to force the use of
+    index for ORDER BY.</para>
+  </section>
+
+  <section xml:id="sgc_query_opt">
+    <title>Query Processing and Optimisation</title>
+
+    <para>HyperSQL performs "cost-base optimisation" to changes the order of
+    tables in a query in order to optimise processing. It computes and
+    compares the approximate time (cost) it takes to execute the query with
+    different table orders and chooses the one with the least costs. This
+    happens only when one of the tables has a narrowing condition and
+    reordering does not change the result of the query.</para>
+
+    <section xml:id="sgc_indexes_cond">
+      <title>Indexes and Conditions</title>
+
+      <para>HyperSQL optimises queries to use indexes, for all types of range
+      and equality conditions, including IS NULL and NOT NULL conditions.
+      Conditions can be in join or WHERE clauses, including all types of
+      joins.</para>
+
+      <para>In addition, HyperSQL will use an index (if one exists) for IN
+      conditions, whether constants, variable, or subqueries are used on the
+      right-hand side of the IN predicate. Multicolumn IN conditions can also
+      use an index.</para>
+
+      <para>HyperSQL can always use indexes when several conditions are
+      combined with the AND operator, choosing a condition which can use an
+      index. This now extended to all equality conditions on multiple columns
+      that are part of an index.</para>
+
+      <para>HyperSQL will also use indexes when several conditions are
+      combined with the OR operator and each condition can use an index (each
+      condition may use a different index). For example, if a huge table has
+      two separate columns for first name and last name, and each of these
+      columns has an index, a query such as the following example will use the
+      indexes and complete in a short time:</para>
+
+      <informalexample>
+        <programlisting> -- TC is a very large table
+
+ SELECT * FROM TC WHERE TC.FIRSTNAME = 'John' OR TC.LASTNAME = 'Smith' OR TC.LASTNAME = 'Williams'
+</programlisting>
+      </informalexample>
+
+      <para>Each subquery is considered a separate SELECT statement and uses
+      indexes when they are available.</para>
+
+      <para>In each SELECT statement, at least one index per table can be used
+      if there is a query conditions that can use the index. When conditions
+      on a table are combined with the OR operator, and each condition can use
+      an index, multiple indexes per table are used.</para>
+    </section>
+
+    <section xml:id="sgc_indexes_ops">
+      <title>Indexes and Operations</title>
+
+      <para>HyperSQL optimises simple row count queries in the form of
+      <literal>SELECT COUNT(*) FROM &lt;table&gt;</literal> and returns the
+      result immediately (this optimisation does not take place in MVCC
+      mode).</para>
+
+      <para>HyperSQL can use an index on a column for <literal>SELECT
+      MAX(&lt;column&gt;) FROM &lt;table&gt;</literal> and <literal>SELECT
+      MIN(&lt;column&gt;) FROM &lt;table&gt;</literal> queries. There should
+      be an index on the &lt;column&gt; and the query can have a WHERE
+      condition on the same column. In the example below the maximum value for
+      the TB.COL3 below 1000000 is returned.</para>
+
+      <informalexample>
+        <programlisting> SELECT MAX(TB.COL3) FROM TB WHERE TB.COL &lt; 1000000
+</programlisting>
+      </informalexample>
+
+      <para>HyperSQL can use an index for simple queries containing DISTINCT
+      or GROUP BY to avoid checking all the rows of the table. Note that
+      indexes are always used if the query has a condition, regardless of the
+      use of DISTINCT or GROUP BY. This particular optimisation applies to
+      cases in which all the columns in the SELECT list are from the same
+      table and are covered by a single index, and any join or query condition
+      uses this index.</para>
+
+      <para>For example, with the large table below, a DISTINCT or GROUP BY
+      query to return all the last names, can use an the index on the
+      TC.LASTNAME column. Similarly, a GROUP BY query on two columns can use
+      an index that covers the two columns.</para>
+
+      <para><informalexample>
+          <programlisting> -- TC is a very large table
+
+ SELECT DISTINCT LASTNAME FROM TC WHERE TC.LASTNAME &gt; 'F'
+ SELECT STATE, LASTNAME FROM TC GROUP BY STATE, LASTNAME
+</programlisting>
+        </informalexample></para>
+    </section>
+
+    <section xml:id="sgc_indexes_order">
+      <title>Indexes and ORDER BY, OFFSET and LIMIT</title>
+
+      <para>HyperSQL can use an index on an ORDER BY clause if all the columns
+      in ORDER BY are in a single-column or multi-column index (in the exact
+      order). This is important if there is a LIMIT n (or FETCH n ROWS ONLY)
+      clause. In this situation, the use of index allows the query processor
+      to access only the number of rows specified in the LIMIT clause, instead
+      of building the whole result set, which can be huge. This also works for
+      joined tables when the ORDER BY clause is on the columns of the first
+      table in a join. Indexes are used in the same way when ORDER BY ... DESC
+      is specified in the query. Note that unlike some other RDBMS, HyperSQL
+      does not need or create DESC indexes. It can use any ordinary, ascending
+      index for ORDER BY ... DESC.</para>
+
+      <para>If there is an equality or range condition (e.g. EQUALS, GREATER
+      THAN) condition on the columns specified in the ORDER BY clause, the
+      index is still used.</para>
+
+      <para>In the two examples below, the index on TA.COL3 is used and only
+      up to 1000 rows are processed and returned.</para>
+
+      <informalexample>
+        <programlisting> -- TA is a very large table with an index on TA.COL3
+
+ SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL3 &gt; 40000 ORDER BY TA.COL3 LIMIT 1000;
+ SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL3 &gt; 40000 AND TA.COL3 &lt; 100000 ORDER BY TA.COL3 DESC LIMIT 1000;
+</programlisting>
+      </informalexample>
+
+      <para>But if the query contains an equality condition on another indexed
+      column in the table, this may take precedence and no index may be used
+      for ORDER BY. In this case USING INDEX can be added to the end of the
+      query to force the use of the index for the LIMIT operation. In the
+      example below there is an index on TA.COL1 as well as the index on
+      TA.COL3. Normally the index on TA.COL1 is used, but the USING INDEX hint
+      results in the index on TB.COL3 to be used for selecting the first 1000
+      rows.</para>
+
+      <informalexample>
+        <programlisting> -- TA is a very large table with an index on TA.COL3 and a separate index on TA.COL1
+
+ SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL1 = 'SENT' AND TB.COL3 &gt; 40000 ORDER BY TB.COL3 LIMIT 1000 USING INDEX;
+</programlisting>
+      </informalexample>
+    </section>
+  </section>
+
   <section xml:id="mtc_acid_persistence">
     <title>ACID, Persistence and Reliability</title>
 
@@ -2720,8 +2981,8 @@
       <simpara>Before any part of the <literal>.data</literal> file is
       modified, the original contents are stored in the
       <literal>.backup</literal> file. At CHECKPOINT or SHUTDOWN the latest
-      data is fully saved and the <literal>.backup</literal> file is deleted.
-      </simpara>
+      data is fully saved and the <literal>.backup</literal> file is
+      deleted.</simpara>
 
       <simpara>In older versions, this command allowed an alternative method
       of backup that is no longer supported. From version 2.5.1 this command
