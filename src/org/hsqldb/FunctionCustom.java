@@ -2135,11 +2135,10 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 int     flags = FunctionCustom.regexpParams((String) data[5]);
-                Pattern currentPattern = null;
+                Pattern currentPattern;
                 String  source         = (String) data[0];
                 String  matchPattern   = (String) data[1];
                 String  replace        = (String) data[2];
-                boolean isFixed        = nodes[1].getType() == OpTypes.VALUE;
                 int     start          = 1;
                 int     count          = 0;
 
@@ -2150,25 +2149,23 @@ public class FunctionCustom extends FunctionSQL {
                 if (nodes[3] != null) {
                     start = ((Number) data[3]).intValue();
 
-                    if (start < 1) {
+                    if (start < 1 || start >= source.length()) {
                         throw Error.error(ErrorCode.X_22003);
                     }
                 }
 
                 if (nodes[4] != null) {
                     count = ((Number) data[4]).intValue();
+
+                    if (count < 0) {
+                        throw Error.error(ErrorCode.X_22003);
+                    }
                 }
 
-                if (isFixed) {
-                    currentPattern = pattern;
-                }
+                currentPattern = pattern;
 
                 if (currentPattern == null) {
                     currentPattern = Pattern.compile(matchPattern, flags);
-                }
-
-                if (isFixed) {
-                    pattern = currentPattern;
                 }
 
                 Matcher matcher = currentPattern.matcher(source);
@@ -2202,14 +2199,14 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 Pattern currentPattern = pattern;
+                String  source         = (String) data[0];
+                String  matchPattern   = (String) data[1];
 
                 if (currentPattern == null) {
-                    String matchPattern = (String) data[1];
-
                     currentPattern = Pattern.compile(matchPattern);
                 }
 
-                Matcher matcher = currentPattern.matcher((String) data[0]);
+                Matcher matcher = currentPattern.matcher(source);
 
                 switch (funcType) {
 
