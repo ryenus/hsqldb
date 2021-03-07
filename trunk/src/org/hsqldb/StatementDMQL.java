@@ -487,7 +487,7 @@ public abstract class StatementDMQL extends Statement {
         }
 
         if (expr != null) {
-            expr = (ExpressionLogical) expr.duplicate();
+            expr = expr.duplicate();
 
             targetRangeVariables[0].setFilterExpression(session, expr);
 
