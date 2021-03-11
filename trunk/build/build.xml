@@ -514,7 +514,11 @@ examples:
     />
 
     <fileset id='mainaddedclasses' dir='classes'
-        includes='org/hsqldb/server/**' />
+        includes='
+		    org/hsqldb/Server.class
+            org/hsqldb/server/**
+			' 
+	/>
 
     <fileset id='dbmanagerswingclasses' dir='classes'
         includes='
@@ -527,7 +531,8 @@ examples:
             org/hsqldb/util/RCData*
             org/hsqldb/util/*.png
             org/hsqldb/util/*.gif
-            '/>
+            '
+	/>
 
     <fileset id='dbmanagerawtaddedclasses' dir='classes'
         includes='
@@ -541,7 +546,7 @@ examples:
             org/hsqldb/util/ConnectionDialogCommon.class
             org/hsqldb/util/ConnectionDialogSwing.class
             '
-            />
+    />
 
     <fileset id='utilclasses' dir='classes' includes='
             org/hsqldb/util/**
@@ -555,7 +560,8 @@ examples:
             org/hsqldb/cmdline/**/*.text
             org/hsqldb/cmdline/**/*.properties
             org/hsqldb/cmdline/sqltool/**/*.html
-            '/>
+            '
+	/>
 
     <target name="hsqldbmin" depends="classes, -prep-license-files"
             description="Build the hsqldbmin.jar (no servers)">
