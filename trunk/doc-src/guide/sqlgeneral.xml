@@ -144,8 +144,8 @@
 
       <para>COMMENT ON</para>
 
-      <para>Followed by the same keyword as CREATE, the keyword is used to add
-      a text comment to TABLE, VIEW, COLUMN, ROUTINE, and TRIGGER
+      <para>Followed by the same keywords as CREATE, the keyword is used to
+      add a text comment to TABLE, VIEW, COLUMN, ROUTINE, and TRIGGER
       objects.</para>
 
       <para>EXPLAIN REFERENCES</para>
@@ -340,6 +340,21 @@
       They start with <literal>/*</literal> and end with
       <literal>*/</literal>.</para>
     </section>
+
+    <section xml:id="sgc_statements_in_routines">
+      <title>Statements in SQL Routines</title>
+
+      <para>The body of user-defined SQL procedures and functions
+      (collectively called routines) may contain several other types of
+      statements and keywords in addition to DML and DQL statements. These
+      include: BEGIN and END for blocks; FOR, WHILE and REPEAT loops; IF, ELSE
+      and ELSEIF blocks; SIGNAL and RESIGNAL statements for handling
+      exceptions.</para>
+
+      <para>These statements are covered in detail in the <link
+      endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"/>
+      chapter.</para>
+    </section>
   </section>
 
   <section xml:id="sgc_data_tables">
@@ -437,9 +452,9 @@
       can be used.</para>
 
       <para>When the session commits, the contents of all temporary tables are
-      cleared by default. If the table definition statement includes ON COMMIT
-      PRESERVE ROWS, then the contents are kept when a commit takes
-      place.</para>
+      cleared by default. If the table definition statement includes
+      <literal>ON COMMIT PRESERVE ROWS</literal>, then the contents are kept
+      when a commit takes place.</para>
 
       <para>The rows in temporary tables are stored in memory by default. If
       the <literal>hsqldb.result_max_memory_rows</literal> property has been
@@ -552,7 +567,7 @@
       </listitem>
     </itemizedlist>
 
-    <para>HyperSQL 2.5 has several compatibility modes which allow the type
+    <para>HyperSQL 2.6 has several compatibility modes which allow the type
     names that are used by other RDBMS to be accepted and translated into the
     closest SQL Standard type. For example, the type TEXT, supported by MySQL
     and PostgreSQL is translated in these compatibility modes.</para>
@@ -1903,8 +1918,8 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
       cardinality&gt;</literal> is not used, the default value is 1024. The
       size of the array cannot be extended beyond maximum cardinality.</para>
 
-      <para>In the example below, the table contains a column of integer
-      arrays and a column of varchar arrays. The VARCHAR array has an explicit
+      <para>In the example below, the table contains a column of INTEGER
+      arrays and a column of VARCHAR arrays. The VARCHAR array has an explicit
       maximum size of 10, which means each array can have between 0 and 10
       elements. The INTEGER array has the default maximum size of 1024. The
       scores column has a default clause with an empty array. The default
@@ -1952,22 +1967,50 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 </programlisting>
       </informalexample>
 
-      <para>When using a PreparedStatement with an ARRAY parameter, an object
-      of the type java.sql.Array must be used to set the parameter. The
-      <classname>org.hsqldb.jdbc.JDBCArrayBasic</classname> class can be used
-      for constructing a java.sql.Array object in the user's application. Code
-      fragment below:</para>
+      <para>When using a PreparedStatement with an ARRAY parameter, a Java
+      array or a <literal>java.sql.Array</literal> object may be used to set
+      the parameter.</para>
+
+      <para>In the example below prepared statements for INSERT and UPDATE
+      with array parameters are used.</para>
 
       <informalexample>
-        <programlisting> String sql = "UPDATE t SET names = ? WHERE id = ?";
- PreparedStatement ps = connection.prepareStatement(sql)
+        <programlisting>  // create
+ String create = "CREATE TABLE t (id INT PRIMARY KEY, scores INT ARRAY DEFAULT ARRAY[], names VARCHAR(20) ARRAY[10])";
+ Statement st = connection.createStatement();
+ st.execute(create);
+
+ // insert
+ String insert = "INSERT INTO t VALUES ?, ?, ?";
+ PreparedStatement ps = connection.prepareStatement(insert);
+ Object[] numbers = new Object[]{17, 19};
  Object[] data = new Object[]{"one", "two"};
- // default types defined in org.hsqldb.types.Type can be used
- org.hsqldb.types.Type type = org.hsqldb.types.Type.SQL_VARCHAR_DEFAULT;
- JDBCArrayBasic array = new JDBCArrayBasic(data, type);
- ps.setArray(1, array);
- ps.setInt(2, 1000);
- ps.executeUpdate();
+ ps.setInt(1, 10);
+ ps.setObject(2, numbers);
+ ps.setObject(3, data);
+ ps.execute();
+
+ // update
+ String update_a = "UPDATE t SET names = ? WHERE id = ?";
+ ps = connection.prepareStatement(update_a);
+ data = new Object[]{"I", "II", "III", "IV"};
+ ps.setObject(1, data);
+ ps.setInt(2, 10);
+ ps.executeUpdate();        
+
+</programlisting>
+      </informalexample>
+
+      <para>In the example below, a <literal>java.sql.Array</literal> is used
+      for the update, using the same data as above:</para>
+
+      <informalexample>
+        <programlisting>data = new Object[]{"I", "II", "III", "IV"};
+Array array = connection.createArrayOf("VARCHAR", data);
+ps.setArray(1, array);
+ps.setInt(2, 10);
+ps.executeUpdate();        
+
 </programlisting>
       </informalexample>
 
@@ -2158,13 +2201,13 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
       <para><emphasis>COMPARISON</emphasis></para>
 
-      <para>Arrays can be compared for equality, but they cannot be compared
-      for ordering a list of values or for range comparison. Array expressions
-      are therefore not allowed in an ORDER BY clause, or in a comparison
-      expression such as GREATER THAN. It is possible to define a UNIQUE
-      constraint on a column of ARRAY type. Two arrays are equal if they have
-      the same length and the values at each index position are either equal
-      or both NULL.</para>
+      <para>Arrays can be compared for equality. It is possible to define a
+      UNIQUE constraint on a column of ARRAY type. Two arrays are equal if
+      they have the same length and the values at each index position are
+      either equal or both NULL. Array expressions cannot be used in a
+      comparison expression such as GREATER THAN but they can be used in an
+      ORDER BY clause. For example, it is possible to add <literal>ORDER BY
+      ORDER</literal> to the above SELECT statement,</para>
 
       <para><emphasis>USER DEFINED FUNCTIONS and PROCEDURES</emphasis></para>
 
