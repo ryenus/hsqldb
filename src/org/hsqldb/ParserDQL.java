@@ -7677,7 +7677,9 @@ public class ParserDQL extends ParserBase {
                 FunctionSQLInvoked function =
                     (FunctionSQLInvoked) usedRoutines.get(i);
 
-                set.add(function.routine);
+                if (function.routine != null) {
+                    set.add(function.routine);
+                }
             }
 
             if (callProcedure != null) {
