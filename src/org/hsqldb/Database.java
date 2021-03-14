@@ -844,8 +844,10 @@ public class Database {
                 // ignore exceptions
                 // may be InterruptedException or IOException
             } finally {
-                sysSession.commit(false);
-                sysSession.close();
+                try {
+                    sysSession.commit(false);
+                    sysSession.close();
+                } catch (Throwable t) {}
 
                 waiting = false;
             }
@@ -880,10 +882,6 @@ public class Database {
      * The runner is called at second intervals. It handles the countdown for
      * each session currently running a statement with timeout. If timeout
      * is reached, the runner aborts the statement.<p>
-     *
-     * No lock is needed for read access to the array list as the runner thread
-     * is the exclusive reader as well as the exclusive thread that removes
-     * closed sessions.
      */
     static class TimeoutRunner implements Runnable {
 
@@ -894,22 +892,23 @@ public class Database {
         public void run() {
 
             try {
-                for (int i = 0; i < sessionList.size(); i++) {
-                    Session session = (Session) sessionList.get(i);
+                synchronized (this) {
+                    for (int i = 0; i < sessionList.size(); i++) {
+                        Session session = (Session) sessionList.get(i);
 
-                    if (session.isClosed()) {
-                        synchronized (this) {
+                        if (session.isClosed()) {
                             sessionList.remove(i);
+
                             i--;
+
+                            continue;
                         }
 
-                        continue;
-                    }
+                        boolean result = session.timeoutManager.checkTimeout();
 
-                    boolean result = session.timeoutManager.checkTimeout();
-
-                    if (result) {
-                        abortCount++;
+                        if (result) {
+                            abortCount++;
+                        }
                     }
                 }
             } catch (Throwable e) {
@@ -927,7 +926,6 @@ public class Database {
                 }
 
                 HsqlTimer.cancel(timerTask);
-                sessionList.clear();
 
                 timerTask   = null;
                 sessionList = null;
