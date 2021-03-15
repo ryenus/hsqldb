@@ -2883,6 +2883,7 @@ public class ParserDQL extends ParserBase {
 
                 switch (token.tokenType) {
 
+                    case Tokens.WITH :
                     case Tokens.TABLE :
                     case Tokens.VALUES :
                     case Tokens.SELECT :

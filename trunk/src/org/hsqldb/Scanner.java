@@ -228,7 +228,6 @@ public class Scanner {
         limit                = sqlString.length();
         hasNonSpaceSeparator = false;
         eolPosition          = -1;
-        lineNumber           = 1;
 
         token.reset();
 
@@ -321,7 +320,7 @@ public class Scanner {
     }
 
     public int getLineNumber() {
-        return lineNumber;
+        return Scanner.countEndOfLines(sqlString, tokenPosition) + 1;
     }
 
     int getTokenPosition() {
@@ -1253,8 +1252,6 @@ public class Scanner {
                 hasNonSpaceSeparator = true;
                 result               = true;
 
-                setLineNumber(c);
-
                 continue;
             }
 
@@ -1264,32 +1261,13 @@ public class Scanner {
         return result;
     }
 
-    private void setLineNumber(int c) {
-
-        if (c == '\r' || c == '\n') {
-            if (currentPosition == eolPosition + 1) {
-                if (c == '\n' && eolCode != c) {
-
-                    //
-                } else {
-                    lineNumber++;
-                }
-            } else {
-                lineNumber++;
-            }
-
-            eolPosition = currentPosition;
-            eolCode     = c;
-        }
-    }
-
-    private static int countEndOfLines(String s) {
+    private static int countEndOfLines(String s, int toPosition) {
 
         int eolPos    = -2;
         int eolCode   = 0;
         int lineCount = 0;
 
-        for (int i = 0; i < s.length(); i++) {
+        for (int i = 0; i < toPosition; i++) {
             int c = s.charAt(i);
 
             if (c == '\r' || c == '\n') {
@@ -1878,7 +1856,6 @@ public class Scanner {
         String comment = sqlString.substring(currentPosition + 2, pos);
 
         currentPosition = pos + 2;
-        lineNumber      += countEndOfLines(comment);
 
         return true;
     }
@@ -1899,7 +1876,6 @@ public class Scanner {
         token.tokenString = sqlString.substring(currentPosition + 2, pos);
         token.tokenType   = Tokens.X_REMARK;
         token.isDelimiter = true;
-        lineNumber        += countEndOfLines(token.tokenString);
 
         return true;
     }
