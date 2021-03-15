@@ -406,7 +406,7 @@ class Like implements Cloneable {
         }
 
         if (found) {
-            prefix = ((String) pattern).substring(0, prefixLength);
+            prefix = String.valueOf(cLike, 0, prefixLength);
         }
     }
 
