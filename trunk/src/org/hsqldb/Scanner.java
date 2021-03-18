@@ -187,9 +187,6 @@ public class Scanner {
 
     //
     private boolean hasNonSpaceSeparator;
-    private int     eolPosition;
-    private int     lineNumber;
-    private int     eolCode;
 
     //
     private static final int maxPooledStringLength =
@@ -227,7 +224,6 @@ public class Scanner {
         tokenPosition        = 0;
         limit                = sqlString.length();
         hasNonSpaceSeparator = false;
-        eolPosition          = -1;
 
         token.reset();
 

@@ -236,8 +236,17 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
     public void removeAll() {
 
+        if (cache.spaceManager.isMultiSpace()) {
+            if (tableSpace.isDefaultSpace()) {
+                LongLookup pointerLookup = getPointerList();
+
+                removeDefaultSpaces(pointerLookup);
+            } else {
+                cache.spaceManager.freeTableSpace(tableSpace.getSpaceID());
+            }
+        }
+
         elementCount.set(0);
-        cache.spaceManager.freeTableSpace(tableSpace.getSpaceID());
         ArrayUtil.fillArray(accessorList, null);
     }
 

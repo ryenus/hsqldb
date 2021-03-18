@@ -1095,6 +1095,10 @@ public class StatementCommand extends Statement {
                         return Result.updateZeroResult;
                     }
 
+                    if (!dataSpace.isMultiSpace()) {
+                        return Result.updateZeroResult;
+                    }
+
                     RowStoreAVLDisk store =
                         (RowStoreAVLDisk) table.getRowStore(session);
 
@@ -1280,8 +1284,10 @@ public class StatementCommand extends Statement {
                     //
                     Table table =
                         session.database.schemaManager.getUserTable(name);
+                    int             oldType  = table.getTableType();
+                    PersistentStore oldStore = table.getRowStore(session);
 
-                    if (table.getTableType() == type) {
+                    if (oldType == type) {
                         return Result.updateZeroResult;
                     }
 
@@ -1295,6 +1301,7 @@ public class StatementCommand extends Statement {
                         throw Error.error(ErrorCode.GENERAL_IO_ERROR);
                     }
 
+                    oldStore.removeAll();
                     session.database.schemaManager.setSchemaChangeTimestamp();
 
                     if (name.schema == SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
