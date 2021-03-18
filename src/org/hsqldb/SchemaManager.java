@@ -492,8 +492,7 @@ public class SchemaManager {
 
     /**
      *  Returns an HsqlArrayList containing references to all non-system
-     *  tables and views. This includes all tables and views registered with
-     *  this Database.
+     *  tables and views of the given type.
      */
     public HsqlArrayList getAllTables(boolean withLobTables) {
 
@@ -2600,7 +2599,7 @@ public class SchemaManager {
         readLock.lock();
 
         try {
-            HsqlArrayList tableList = getAllTables(false);
+            HsqlArrayList tableList = getAllTables(true);
             HsqlArrayList list      = new HsqlArrayList();
 
             for (int i = 0; i < tableList.size(); i++) {
