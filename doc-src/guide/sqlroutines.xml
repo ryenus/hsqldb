@@ -211,21 +211,16 @@
     <simpara><emphasis>returns clause</emphasis></simpara>
 
     <para>The <literal>&lt;returns clause&gt;</literal> specifies the type of
-    the return value of a function (not a procedure). For all SQL/PSM
-    functions and ordinary SQL/JRT functions, this is simply a type definition
-    which can be a built-in type, a DOMAIN type or a DISTINCT type, or
-    alternatively, a TABLE definition. For example, RETURNS INTEGER.</para>
+    the return value of a function (not a procedure). For all SQL/PSM and
+    SQL/JRT functions, this is usually a type definition which can be a
+    built-in type, a DOMAIN type or a DISTINCT type. For example, RETURNS
+    INTEGER.</para>
 
-    <para>For a SQL/JRT function, it is possible to define a
-    <literal>&lt;returns table type&gt;</literal> for a Java method that
-    returns a <classname>java.sql.ResultSet</classname> object. Such SQL/JRT
-    functions are called <glossterm>table functions</glossterm>. Table
-    functions are used differently from normal functions. A table function can
-    be used in an SQL query expression exactly where a normal table or view is
-    allowed. At the time of invocation, the Java method is called and the
-    returned ResultSet is transformed into an SQL table. The column types of
-    the declared TABLE must match those of the ResultSet, otherwise an
-    exception is raised at the time of invocation.</para>
+    <para>The return type can alternatively be a TABLE definition. Functions
+    that return a table are called <glossterm>table functions</glossterm>.
+    Table functions are used differently from normal functions. A table
+    function can be used in an SQL query expression exactly where a normal
+    table or view is allowed.</para>
 
     <para>If a <literal>&lt;returns table type&gt;</literal> is defined for an
     SQL/PSM function, the following expression is used inside the function to
@@ -2036,10 +2031,14 @@
     raised.</para>
 
     <para>When the function is specified as RETURNS TABLE(...) the static Java
-    method should return a JDBCResultSet instance. For an example of how to
-    construct a <classname>JDBCResultSet</classname> for this purpose, see the
-    source code for the <classname>org.hsqldb.jdbc.JDBCArray</classname>
-    class.</para>
+    method should return a <classname>java.sql.ResultSet</classname> object.
+    For an example of how to construct a
+    <classname>org.hsqldb.jdbc.JDBCResultSet</classname> for this purpose, see
+    the source code for the <classname>org.hsqldb.jdbc.JDBCArray</classname>
+    class. At the time of invocation, the Java method is called and the
+    returned <literal>ResultSet</literal> is transformed into an SQL table.
+    The column types of the declared TABLE must match those of the ResultSet,
+    otherwise an exception is raised at the time of invocation.</para>
 
     <section xml:id="src_jrt_polymorphis">
       <title>Polymorphism</title>
