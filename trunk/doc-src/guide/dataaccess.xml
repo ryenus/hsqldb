@@ -343,8 +343,8 @@
       <classname>java.sql.ResultSet</classname> that are used for setting
       values in new and updated rows in updatable ResultSet objects.</para>
 
-      <para>When the Java 8 version of HyperSQL jar is used, the setObject()
-      methods of <classname>PreparedStatement</classname> and
+      <para>The setObject() methods of
+      <classname>PreparedStatement</classname> and
       <classname>CallableStatement</classname> also accept objects of the new
       types introduced in Java 8 and listed below under JDBC Returned Values.
       The new Java 8 method, <methodname>getObject(int columnIndex,
@@ -408,21 +408,21 @@
       <para>Array objects are returned as instances of
       <classname>java.sql.Array</classname>.</para>
 
-      <para>When the Java 8 version of HyperSQL jar is used, the methods added
-      in Java 8 become available and the behaviour of the
+      <para>When the standard version of HyperSQL jar is used, the methods
+      added in Java 8 are available and the behaviour of the
       <methodname>getObject(int columnIndex)</methodname> method for
       retrieving TIMESTAMP WITH TIME ZONE values changes. With Java 7 and
       older, this method returns a <classname>java.sql.Timestamp</classname>
-      object. With Java 8 it returns a
+      object. With Java 8 or later, it returns a
       <classname>java.time.OffsetDateTime</classname> object which contains
       the time zone offset value as well as the other fields of the
       TIMESTAMP.</para>
 
       <para>A new method, <methodname>getObject(int columnIndex,
-      Class&lt;T&gt; type)</methodname> is available in Java 8. With this
-      method, you specify the required return type. The common types such as
-      String, Integer, byte[] are supported, as well as new types that can be
-      used for DATE, TIME, TIMESTAMP, and INTERVAL values. The table below
+      Class&lt;T&gt; type)</methodname> is available in Java 8 and later. With
+      this method, you specify the required return type. The common types such
+      as String, Integer, byte[] are supported, as well as new types that can
+      be used for DATE, TIME, TIMESTAMP, and INTERVAL values. The table below
       shows which Java classes are the most appropriate for the specified SQL
       TYPES. In addition, you can use these Java types for values of SQL type
       that are not fully matched. For example,
@@ -3396,8 +3396,8 @@ SELECT firstname, lastname, a.c FROM customer, LATERAL(SELECT SUM(total) FROM in
       comprise elements such as GROUPING SETS, ROLLUP, CUBE and the empty
       grouping set. These syntax elements are expanded and then simplified
       into a list of parenthesized column elements, which result in multiple
-      grouping operations. HyperSQL supports all the syntax
-      listed above. The example below uses ROLLUP for grouping.</para>
+      grouping operations. HyperSQL supports all the syntax listed above. The
+      example below uses ROLLUP for grouping.</para>
 
       <informalexample>
         <programlisting> SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) AS S
@@ -3597,10 +3597,11 @@ DIRECT SALES (null) (null)  3778500
       error is raised.</para>
 
       <para>From version 2.6.0, HyperSQL extends recursive query processing by
-      allowing the use of RECURSIVE_TABLE to reference the current general
-      result of the <literal>&lt;query expression&gt;</literal>. This table
-      name can be used in subqueries with an IN predicate in order to reduce
-      and limit the new result created in each iteration. </para>
+      allowing the use of <literal>RECURSIVE_TABLE</literal> to reference the
+      current general result of the <literal>&lt;query
+      expression&gt;</literal>. This table name can be used in subqueries with
+      an IN predicate in order to reduce and limit the new result created in
+      each iteration.</para>
 
       <para>A trivial example of a recursive query is given below. Note the
       first column GEN. For example, if each row of the table represents a
@@ -4120,8 +4121,8 @@ DIRECT SALES (null) (null)  3778500
       </informalexample>
 
       <simpara>An array can be inserted into a column of the array type by
-      using literals, by specifying a parameter in a prepared statement or an
-      existing array returned by query expression. The last example below
+      using literals, by specifying a parameter in a prepared statement, or by
+      an existing array returned by a query expression. The last example below
       inserts an array.</simpara>
 
       <simpara>The rows that are inserted into the table are checked against

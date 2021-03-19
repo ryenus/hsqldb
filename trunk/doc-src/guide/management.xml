@@ -546,10 +546,11 @@
       to access only the number of rows specified in the LIMIT clause, instead
       of building the whole result set, which can be huge. This also works for
       joined tables when the ORDER BY clause is on the columns of the first
-      table in a join. Indexes are used in the same way when ORDER BY ... DESC
-      is specified in the query. Note that unlike some other RDBMS, HyperSQL
-      does not need or create DESC indexes. It can use any ordinary, ascending
-      index for ORDER BY ... DESC.</para>
+      table in a join. Indexes are used in the same way when <literal>ORDER BY
+      ... DESC</literal> is specified in the query. Note that unlike some
+      other RDBMS, HyperSQL does not need or create DESC indexes. It can use
+      any ordinary, ascending index for <literal>ORDER BY ...
+      DESC</literal>.</para>
 
       <para>If there is an equality or range condition (e.g. EQUALS, GREATER
       THAN) condition on the columns specified in the ORDER BY clause, the
@@ -566,19 +567,24 @@
 </programlisting>
       </informalexample>
 
-      <para>But if the query contains an equality condition on another indexed
-      column in the table, this may take precedence and no index may be used
-      for ORDER BY. In this case USING INDEX can be added to the end of the
-      query to force the use of the index for the LIMIT operation. In the
-      example below there is an index on TA.COL1 as well as the index on
-      TA.COL3. Normally the index on TA.COL1 is used, but the USING INDEX hint
-      results in the index on TB.COL3 to be used for selecting the first 1000
-      rows.</para>
+      <para>But if the query contains a condition on another indexed column in
+      the table, this may take precedence and no index may be used for ORDER
+      BY. In this case USING INDEX can be added to the end of the query to
+      force the use of the index for the LIMIT operation.</para>
+
+      <para>In the example below there is an index on TA.COL1 as well as the
+      index on TA.COL3. Normally the index on TA.COL1 is used, but the USING
+      INDEX hint results in the index on TB.COL3 to be used for selecting the
+      first 1000 rows. Supposing there are 10 million rows in the table and 1
+      million rows have <literal>COL1 = 'SENT'</literal>, when the index on
+      COL1 is used, one million rows are read before ORDER BY and LIMIT are
+      applied. But with the USING INDEX approximately about 10 times the 1000
+      rows are read and filtered until the 1000 row target is reached.</para>
 
       <informalexample>
         <programlisting> -- TA is a very large table with an index on TA.COL3 and a separate index on TA.COL1
 
- SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL1 = 'SENT' AND TB.COL3 &gt; 40000 ORDER BY TB.COL3 LIMIT 1000 USING INDEX;
+ SELECT * FROM TA JOIN TB ON TA.COL2 = TB.COL1 WHERE TA.COL1 = 'SENT' ORDER BY TA.COL3 LIMIT 1000 USING INDEX;
 </programlisting>
       </informalexample>
     </section>
@@ -743,14 +749,19 @@
       </listitem>
 
       <listitem>
+        <para>Time travel queries allow views of the data at any point in the
+        past, as well as views of the changes over a given period.</para>
+      </listitem>
+
+      <listitem>
         <para>Replicated distributed databases with system versioning on all
         tables allow changes to data to be synchronized between the
         replicas.</para>
       </listitem>
     </orderedlist>
 
-    <para>All DML statements that modify the table data see the current rows
-    of the table only. SELECT statements can include a FOR SYSTEM_TIME clause
+    <para>All DML statements that modify the table data see only the current
+    rows of the table. SELECT statements can include a FOR SYSTEM_TIME clause
     to access historic data in a given timestamp range. This is discussed in
     <link endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/>
     chapter.</para>
@@ -759,16 +770,6 @@
     special form of the TRUNCATE statement. This is covered in the <link
     endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/>
     chapter.</para>
-
-    <para>For replicated databases, data changes after a point of time can be
-    written to a script and applied to a replica. See the PERFORM SCRIPT
-    statement in this chapter. The timestamp used for export is the timestamp
-    at the point of last synchronization. For example, if the first EXPORT
-    occurs at TIMESTAMP '2020-10-01 10:10:10' and the script is later imported
-    into the replica, the second EXPORT should use that timestamp. This
-    ensures old histories that have already been exported are not exported
-    again. The import will skip duplicates and there is no harm in exporting
-    from an earlier timestamp, except it will take longer to import.</para>
 
     <para>An example of a system-versioned table follows:</para>
 
@@ -787,13 +788,61 @@
     </example>
   </section>
 
+  <section xml:id="mtc_replicated_databases">
+    <title>Replicated Databases</title>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>replicated databases</primary>
+    </indexterm>
+
+    <para>Replicated databases are databases with multiple copies in different
+    locations that contain the same table structure and data. With
+    system-versioned tables, a set of replicas can be synchronized. </para>
+
+    <para>Data changes to a replica after a point of time can be written to a
+    script. The script can then be applied to another replica. See the syntax
+    details of PERFORM SCRIPT statement in this chapter. The timestamp used
+    for export is the timestamp at the point of last synchronization. For
+    example, if the first EXPORT occurs at TIMESTAMP '2020-10-01 10:10:10' and
+    the script is later imported into the replica, the second EXPORT should
+    use that timestamp to ensures old histories that have already been
+    exported are not exported again. The import will skip duplicates and there
+    is no harm in exporting from an earlier timestamp, except it will take
+    longer to import.</para>
+
+    <informalexample>
+      <programlisting> -- on one replica, the changes from the given UTC timestamp are exported to a file 
+ PERFORM EXPORT SCRIPT FOR DATABASE VERSIONING DATA FROM '2021-03-21 08:00:00' TO '/data/diff_file'
+  
+ -- on another replica, the diff file is imported and the changes are merged into the database
+ PERFORM IMPORT SCRIPT VERSIONING DATA FROM '/data/diff_file'
+</programlisting>
+    </informalexample>
+
+    <para>Synchronization of tables with BLOB and CLOB columns is not
+    currently possible as the export script does not contain the LOB data.
+    This may be supported in a future version.</para>
+
+    <para>For a replica set where only one replica is updated and the others
+    are only read, this method of replication has no conflict. For replica
+    sets where each replica is updated, the database schema and usage must
+    account for this. During import, when there is a conflicts, the
+    conflicting change is not applied and is instead written to another file
+    to be reviewed.</para>
+  </section>
+
   <section xml:id="tspace_usage">
     <title>Using Table Spaces</title>
 
+    <indexterm significance="preferred" type="sql">
+      <primary>table spaces</primary>
+    </indexterm>
+
     <para>Data for all CACHED tables is stored in the <literal>.data</literal>
-    file. With a new optional setting, HyperSQL 2.5 and later allocates
-    separate blocks of the data file to different CACHED tables. This method
-    has the following advantages:</para>
+    file. With a new recommended setting, HyperSQL 2.5 and later allocates
+    separate blocks of the data file to different CACHED tables. This is
+    recommended for all databases with a data file larger than a few
+    megabytes. This method has the following advantages:</para>
 
     <itemizedlist>
       <listitem>
@@ -807,8 +856,9 @@
       </listitem>
 
       <listitem>
-        <para>When many rows are updated over a long period, the disk space
-        occupied by the old versions of the rows is eventually freed.</para>
+        <para>When many rows are updated or deleted over a long period, the
+        disk space occupied by the old versions of the rows is eventually
+        freed.</para>
       </listitem>
     </itemizedlist>
 
@@ -828,28 +878,41 @@
     <para>If either of the above statements is executed again after the first
     time, it does not change any settings.</para>
 
-    <para>It is better to set any table that is known to grow larger than
-    several hundred rows its own space before any data is stored.</para>
+    <para>It is better to set any table that is known to grow larger than a
+    few thousand rows its own space before any data is stored.</para>
 
-    <para>If the above commands are executed when there are already some rows
-    in any CACHED table, the change does not happen immediately. In this case,
-    the table spaces are created only when CHCKPOINT DEFRAG, SHUTDOWN COMPACT
-    or SHUTDOWN SCRIPT is executed.</para>
+    <para>A database with table spaces uses a minimum of 4 to 6 megabytes for
+    its data structures to keep track of file space use. The size overhead is
+    then about half a percent of the size of the <code>.data</code> file as it
+    grows larger.</para>
 
-    <para>The size of the file block is 2MB when the hsqldb.cache_file_scale
-    is the default 32 (the size doubles as the scale doubles). It is possible
-    to reduce the block size to 1MB for databases that contain many small
-    tables that use their own, dedicated spaces. The statement <literal>SET
-    FILES SPACE 1</literal> can be executed instead of <literal>SET FILES
-    SPACE TRUE</literal> for a reduced block size.</para>
+    <para>The size of the file block is 2MB when the
+    <code>hsqldb.cache_file_scale</code> is the default 32 (the size doubles
+    as the scale doubles). It is possible to reduce the block size to 1MB for
+    databases that contain many small tables that use their own, dedicated
+    spaces. The statement <literal>SET FILES SPACE 1</literal> can be executed
+    instead of <literal>SET FILES SPACE TRUE</literal> for a reduced block
+    size.</para>
 
-    <para>As the table grows in size, more blocks are allocated to the table.
-    These blocks are allocated from the freed file blocks if there is any
-    available. The INFORMATION_SCHEMA.SYSTEM_TABLESTATS provides information
-    on the space usage of table spaces. In this table, the SPACE_ID column
-    contains the space id for the table. The value 1 is used for the space
-    allocated to directory structures. The value 7 is for tables that use the
-    common space.</para>
+    <para>As the tables grow in size, more blocks are allocated to their
+    spaces. These blocks are allocated from the freed file blocks if there are
+    any available. The INFORMATION_SCHEMA.SYSTEM_TABLESTATS provides
+    information on the space usage of table spaces. In this table, the
+    SPACE_ID column contains the space id for the table. The value 1 is used
+    for the space allocated by the system to its data structures. The value 7
+    is for tables that use the common space.</para>
+
+    <para>Conversion of existing databases to use table spaces is simple. If
+    the <code>SET FILES SPACE TRUE</code> command is executed when there are
+    already some rows in any CACHED table, the change does not happen
+    immediately. In this case, the table spaces are created only when
+    CHCKPOINT DEFRAG, SHUTDOWN COMPACT or SHUTDOWN SCRIPT is executed. Among
+    these commands, CHECKPOINT DEFRAG will also automatically allocate a
+    separate space to each table that is larger than a certain size.</para>
+
+    <para>In a database with table spaces, the <code>SET TABLE &lt;table
+    name&gt; NEW SPACE</code> command immediately applies a separate space to
+    the table. </para>
   </section>
 
   <section xml:id="mtc_checking_tables_indexes">
