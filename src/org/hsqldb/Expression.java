@@ -394,15 +394,13 @@ public class Expression implements Cloneable {
             case OpTypes.VALUE :
                 return equals(valueData, other.valueData);
 
-            case OpTypes.ARRAY :
-
-            //
             case OpTypes.ARRAY_SUBQUERY :
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
                 return table.queryExpression.isEquivalent(
                     other.table.queryExpression);
 
+            case OpTypes.ARRAY :
             default :
                 return equals(nodes, other.nodes);
         }
@@ -932,8 +930,9 @@ public class Expression implements Cloneable {
      * resolve tables and collect unresolved column expressions
      */
     public List resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, RangeGroup[] rangeGroups,
-            List unresolvedSet) {
+                                        RangeGroup rangeGroup,
+                                        RangeGroup[] rangeGroups,
+                                        List unresolvedSet) {
 
         return resolveColumnReferences(session, rangeGroup,
                                        rangeGroup.getRangeVariables().length,
@@ -941,8 +940,10 @@ public class Expression implements Cloneable {
     }
 
     public List resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            List unresolvedSet, boolean acceptsSequences) {
+                                        RangeGroup rangeGroup, int rangeCount,
+                                        RangeGroup[] rangeGroups,
+                                        List unresolvedSet,
+                                        boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -1990,7 +1991,7 @@ public class Expression implements Cloneable {
         RangeGroup ranges = new RangeGroupSimple(table.getDefaultRanges(),
             false);
         List set = resolveColumnReferences(session, ranges,
-                                               RangeGroup.emptyArray, null);
+                                           RangeGroup.emptyArray, null);
 
         if (set != null && !set.isEmpty()) {
             Expression e = (Expression) set.get(0);
@@ -2015,18 +2016,15 @@ public class Expression implements Cloneable {
         }
     }
 
-    static List resolveColumnSet(Session session,
-                                     RangeVariable[] rangeVars,
-                                     RangeGroup[] rangeGroups,
-                                     List sourceSet) {
+    static List resolveColumnSet(Session session, RangeVariable[] rangeVars,
+                                 RangeGroup[] rangeGroups, List sourceSet) {
         return resolveColumnSet(session, rangeVars, rangeVars.length,
                                 rangeGroups, sourceSet, null);
     }
 
-    static List resolveColumnSet(Session session,
-                                     RangeVariable[] rangeVars,
-                                     int rangeCount, RangeGroup[] rangeGroups,
-                                     List sourceSet, List targetSet) {
+    static List resolveColumnSet(Session session, RangeVariable[] rangeVars,
+                                 int rangeCount, RangeGroup[] rangeGroups,
+                                 List sourceSet, List targetSet) {
 
         if (sourceSet == null) {
             return targetSet;
