@@ -567,6 +567,7 @@ public class LobManager {
             long           limitLobID = Long.MAX_VALUE;
             ResultMetaData meta = deleteUnusedLobs.getParametersMetaData();
             Object[]       params     = new Object[meta.getColumnCount()];
+            int            deleteCount = 0;
 
             params[0] = Long.valueOf(limitLobID);
 
@@ -579,9 +580,9 @@ public class LobManager {
             }
 
             if (params[1] != null) {
-                int total = ((Number) params[1]).intValue();
+                deleteCount = ((Number) params[1]).intValue();
 
-                if (total < 1) {
+                if (deleteCount < 1) {
                     return Result.updateZeroResult;
                 }
             }
@@ -634,7 +635,7 @@ public class LobManager {
                     "lob file reported smaller than usage");
             }
 
-            return Result.updateOneResult;
+            return Result.newUpdateCountResult(deleteCount);
         } finally {
             writeLock.unlock();
         }

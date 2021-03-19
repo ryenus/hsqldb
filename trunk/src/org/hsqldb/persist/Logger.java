@@ -45,7 +45,6 @@ import org.hsqldb.NumberSequence;
 import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
-import org.hsqldb.SqlInvariants;
 import org.hsqldb.Statement;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
@@ -86,7 +85,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.0
  * @since 1.7.0
  */
 public class Logger implements EventLogInterface {
@@ -996,7 +995,13 @@ public class Logger implements EventLogInterface {
                 checkpointInternal(session, defrag);
 
                 if (lobs) {
-                    database.lobManager.deleteUnusedLobs();
+                    Result result = database.lobManager.deleteUnusedLobs();
+
+                    if (log != null && result.getUpdateCount() > 0) {
+                        log.synchLog();
+                        logDetailEvent("Deleted unused LOBs, count: "
+                                       + result.getUpdateCount());
+                    }
                 }
             }
         } finally {

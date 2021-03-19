@@ -893,7 +893,7 @@ public class DataFileCache {
 
                         if (j > 0) {
                             logInfoEvent(dataFileName
-                                         + " getFromFile out of mem " + pos);
+                                         + " getFromFile out of mem, pos: " + pos);
 
                             HsqlException ex =
                                 Error.error(ErrorCode.OUT_OF_MEMORY, t);
