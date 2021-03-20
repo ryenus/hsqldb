@@ -961,7 +961,9 @@ public class StatementCommand extends Statement {
                 TimestampData    timestamp = (TimestampData) arguments[5];
 
                 try {
-                    session.checkAdmin();
+                    if (!session.getGrantee().canPerformScriptOps()) {
+                        throw Error.error(ErrorCode.X_42507);
+                    }
 
                     if (name == null) {
                         return session.database.getScript(false);
@@ -1027,6 +1029,10 @@ public class StatementCommand extends Statement {
                     String  pathName     = (String) arguments[0];
                     int     mode         = ((Integer) arguments[1]).intValue();
                     Boolean isVersioning = (Boolean) arguments[2];
+
+                    if (!session.getGrantee().canPerformScriptOps()) {
+                        throw Error.error(ErrorCode.X_42507);
+                    }
 
                     return ScriptLoader.loadScriptData(
                         session, pathName, mode, isVersioning.booleanValue());
