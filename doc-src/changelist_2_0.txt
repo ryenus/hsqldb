@@ -1,16 +1,22 @@
 21 March 2021 - version 2.6.0
 -- version 2.6.0 marks the 20th anniversary of HyperSQL
+-- On this occasion, the maintainer would like to thank core developers Blaine Simpson, Campbell Burnet and Robert Preston for their contribution over many years, 
+--    and all developers and users who contributed code, made useful suggestions, or reported issues.
 -- version 2.6.0 main jar contains the module org.hsqldb and can be used as a Java module
 -- version 2.6.0 jar requires JRE 11 or later - tested up to Java 16 RC
 -- version 2.6.0 alternative jar requires JRE 8 or later
 -- version 2.3.9 jar can be compiled with Java 6 (or 7) for JRE 6 and 7 and fully compatible with 2.6.0 except for the new JDBC features
+-- The DatabaseManager class is no longer included in the Jars. Use DatabaseManagerSwing instead. 
 -- added support for additional REGEXP_ functions.
 -- added support for adding extra columns to FOREIGN KEY indexes; see ALTER CONSTRAINT in the Guide
 -- added support for RECURSIVE_TABLE in WITH RECURSIVE queries
+-- added system role SCRIPT_OPS for export / import of database structure and data
 -- added extensive features to the collection classes in org.hsqldb.lib (maps, lists, queues etc.) which can also be used in user apps
 -- improved MySQL syntax support for ENUM
 -- fixed a number of regression in 2.5.1, e.g. use of MODULE for LOCAL TEMPORARY tables, truncated microsecond precision of java.sql.Timestamp values
 -- fixed several minor issues
+-- removed all use of Java (up to JDK 16) deprecated methods
+-- revamped Ant and Gradle builds, now updated to latest Gradle
 
 24 June 2020 - version 2.5.1
 -- version 2.5.1 jar requires JRE 8 or later - tested up to Java 14
@@ -25,7 +31,7 @@
 -- changed behaviour of WITH RECURSIVE with UNION ALL for compatibility with other systems
 -- improved role-based, row-level data access control with more complex filter expressions that can be applied to separate actions
 -- improved MySQL syntax support in the ON DUPLICATE KEY UPDATE clause
--- improved loading of text files with null or empty fields into TEXT tables with coloumns defined as NOT NULL with DEFAULT 
+-- improved loading of text files with null or empty fields into TEXT tables with columns defined as NOT NULL with DEFAULT 
 -- many minor enhancements
 -- fixed issue with ALTER COLUMN data type modification between SMALLINT and INTEGER in CACHED tables
 -- fixed an issue (regression) in some server shutdown cases
@@ -48,9 +54,9 @@
 -- improved reporting of line number in compile error messages for routines
 -- improved syntax compatibility modes
 -- fixed issue with formatting of some TIMESTAMP nanoseconds returned by the TO_TIMESTAMP function
--- fixed issue with TIMESTAMPIFF with TIMESTAMP WITH TIME ZONE
+-- fixed issue with TIMESTAMPDIFF with TIMESTAMP WITH TIME ZONE
 -- fixed issue with IN (UNNEST(NUMERIC ARRAY))
--- fixed issue with transaction size repoted in INFORMATION_SCHEMA.SYSTEM_SESSIONS 
+-- fixed issue with transaction size reported in INFORMATION_SCHEMA.SYSTEM_SESSIONS 
 -- fixed issue with storing plus or minus infinity DOUBLE values
 -- fixed issue with CREATE DOMAIN ... COLLATE not persisting
 -- fixed issue with CREATE TYPE with custom COLLATION
@@ -71,7 +77,7 @@
 -- fixed issue with some SELECT ... INTO in routines
 -- fixed issue with parsing some TEXT TABLE source files
 -- fixed issue with auto-generated identity values in MERGE statements
--- fixed issue for WITH named non-resursive subqueries in routines
+-- fixed issue for WITH named non-recursive subqueries in routines
 -- fixed issue with some WITH recursive queries
 -- fixed issue with duplicate values in UNNEST used with IN predicates
 -- fixed issue with WHEN clause in Java TRIGGER declarations
