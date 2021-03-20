@@ -418,7 +418,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * For 1D arrays, returns: <p>
      *
      * <pre>
-     * BaseType Character 	 Type            Interpretation
+     * BaseType Character    Type            Interpretation
      *
      * B                        byte            signed byte
      * C                        char            Unicode character
@@ -426,9 +426,9 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * F                        float           single-precision floating-point value
      * I                        int             integer
      * J                        long            long integer
-     * L                        reference 	  an instance of class
+     * L                        reference     an instance of class
      * S                        short           signed short
-     * Z                        boolean 	  true or false
+     * Z                        boolean       true or false
      * </pre>
      *
      * for multi-arrays, returns 'N' (n-dimensional). <p>

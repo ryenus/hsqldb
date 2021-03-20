@@ -151,7 +151,7 @@ public class ScriptIterator implements Iterator {
      *
      * @return the next available SQL segment
      * @throws java.util.NoSuchElementException if there is
-     * 	    no available SQL segment
+     *      no available SQL segment
      */
     public Object next() throws NoSuchElementException {
         String out = null;

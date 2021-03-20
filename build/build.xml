@@ -515,10 +515,10 @@ examples:
 
     <fileset id='mainaddedclasses' dir='classes'
         includes='
-		    org/hsqldb/Server.class
+            org/hsqldb/Server.class
             org/hsqldb/server/**
-			' 
-	/>
+            '
+    />
 
     <fileset id='dbmanagerswingclasses' dir='classes'
         includes='
@@ -532,7 +532,7 @@ examples:
             org/hsqldb/util/*.png
             org/hsqldb/util/*.gif
             '
-	/>
+    />
 
     <fileset id='dbmanagerawtaddedclasses' dir='classes'
         includes='
@@ -561,7 +561,7 @@ examples:
             org/hsqldb/cmdline/**/*.properties
             org/hsqldb/cmdline/sqltool/**/*.html
             '
-	/>
+    />
 
     <target name="hsqldbmin" depends="classes, -prep-license-files"
             description="Build the hsqldbmin.jar (no servers)">
@@ -852,8 +852,8 @@ examples:
               <include name='org/hsqldb/lib/tar'/>
               <include name='org/hsqldb/server'/>
               <include name='org/hsqldb/trigger'/>
-              <include name='org.hsqldb/util'/>		   		  
-		   </packageset>
+              <include name='org.hsqldb/util'/>
+           </packageset>
            <tag name="todo" enabled="false"/>
            <tag name="revised" enabled="false"/>
            <tag name="jboss.xmbean" enabled="false"/>
