@@ -382,7 +382,7 @@
     e.g., <literal>SELECT ... FROM t1 JOIN t2 ON t1.c1 = t2.c2 WHERE t1.c3 =
     4</literal> then an index on t1.c3 would eliminate the need for checking
     all the rows of t1 one by one, and will reduce query time to less than a
-    millisecond per returned row. </para>
+    millisecond per returned row.</para>
 
     <para>So if t1 and t2 each contain 10,000 rows, the query without indexes
     involves checking 100,000,000 row combinations. With an index on t2.c2,
@@ -797,7 +797,7 @@
 
     <para>Replicated databases are databases with multiple copies in different
     locations that contain the same table structure and data. With
-    system-versioned tables, a set of replicas can be synchronized. </para>
+    system-versioned tables, a set of replicas can be synchronized.</para>
 
     <para>Data changes to a replica after a point of time can be written to a
     script. The script can then be applied to another replica. See the syntax
@@ -912,7 +912,7 @@
 
     <para>In a database with table spaces, the <code>SET TABLE &lt;table
     name&gt; NEW SPACE</code> command immediately applies a separate space to
-    the table. </para>
+    the table.</para>
   </section>
 
   <section xml:id="mtc_checking_tables_indexes">
@@ -1752,7 +1752,7 @@
       primary key as those without are not exported. UTC timestamps are used
       to allow synchronization across time zones.</simpara>
 
-      <simpara>Only a user with the DBA role can execute this
+      <simpara>Only a user with the SCRIPT_OPS role can execute this
       statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -1796,7 +1796,7 @@
       this case, the changes for the row are not applied and are written to
       the <literal>.reject</literal> file.</simpara>
 
-      <simpara>Only a user with the DBA role can execute this
+      <simpara>Only a user with the SCRIPT_OPS role can execute this
       statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
