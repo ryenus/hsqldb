@@ -143,6 +143,22 @@
       as a different string.</para>
 
       <indexterm significance="preferred" type="sql">
+        <primary>SYS USER</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SYS User</emphasis></simpara>
+
+      <simpara><emphasis>the SYS user (HyperSQL-specific)</emphasis></simpara>
+
+      <simpara>This user is automatically created with a new database and has
+      the DBA role. This user name and its password are defined in the
+      connection properties when connecting to the new database to create the
+      database. As this user, it is possible to change the password, create
+      other users and created new schema objects. The initial SYS user can be
+      dropped by another user that has the DBA role. As a result, there is
+      always at least one SYS user in the database.</simpara>
+
+      <indexterm significance="preferred" type="sql">
         <primary>PUBLIC ROLE</primary>
       </indexterm>
 
@@ -152,8 +168,9 @@
 
       <simpara>The role that is assigned to all authorizations (roles and
       users) in the database. This role has access rights to all objects in
-      the INFORMATION_SCHEMA. Any roles or rights granted to this role, are in
-      effect granted to all users of the database.</simpara>
+      the INFORMATION_SCHEMA with limited visibility. Any roles or rights
+      granted to this role, are in effect granted to all users of the
+      database.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>_SYSTEM ROLE</primary>
@@ -165,7 +182,7 @@
 
       <simpara>This role is the authorization for the pre-defined (system)
       objects in the database, including the INFORMATION_SCHEMA. This role
-      cannot be assigned to any authorization.</simpara>
+      cannot be assigned to any authorization (user or role).</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DBA ROLE</primary>
@@ -211,20 +228,17 @@
       authorizations.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>SYS USER</primary>
+        <primary>SCRIPT_OPS</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">SYS User</emphasis></simpara>
+      <simpara><emphasis role="bold">SCRIPT_OPS</emphasis></simpara>
 
-      <simpara><emphasis>the SYS user (HyperSQL-specific)</emphasis></simpara>
+      <simpara><emphasis>the SCRIPT_OPS role
+      (HyperSQL-specific)</emphasis></simpara>
 
-      <simpara>This user is automatically created with a new database and has
-      the DBA role. This user name and its password are defined in the
-      connection properties when connecting to the new database to create the
-      database. As this user, it is possible to change the password, create
-      other users and created new schema objects. The initial SYS user can be
-      dropped by another user that has the DBA role. As a result, there is
-      always at least one SYS user in the database.</simpara>
+      <simpara>A user that has this role, can execute the PERFORM EXPORT
+      SCRIPT and PERFORM IMPORT SCRIPT statements. The DBA authorization has
+      this role and can grant it to other authorizations.</simpara>
     </section>
 
     <section xml:id="acc_listing">
