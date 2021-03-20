@@ -1,6 +1,6 @@
 21 March 2021 - version 2.6.0
--- version 2.6.0 marks the 20th anniversary of HyperSQL
--- On this occasion, the maintainer would like to thank core developers Blaine Simpson, Campbell Burnet and Robert Preston for their contribution over many years, 
+-- Version 2.6.0 marks the 20th anniversary of HyperSQL.
+-- The project maintainer would like to thank core developers Blaine Simpson, Campbell Burnet and Robert Preston for their contribution over many years, 
 --    and all developers and users who contributed code, made useful suggestions, or reported issues.
 -- version 2.6.0 main jar contains the module org.hsqldb and can be used as a Java module
 -- version 2.6.0 jar requires JRE 11 or later - tested up to Java 16 RC
