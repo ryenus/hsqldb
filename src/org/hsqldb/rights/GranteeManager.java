@@ -65,7 +65,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.5.1
+ * @version 2.6.0
  * @since 1.8.0
  * @see Grantee
  */
@@ -142,6 +142,11 @@ public class GranteeManager {
     Grantee changeAuthRole;
 
     /**
+     * The role for script operations rights.
+     */
+    Grantee scriptOpsRole;
+
+    /**
      * Construct the GranteeManager for a Database. Construct special Grantee
      * objects for _SYSTEM, PUBLIC and DBA, and add them to the Grantee map.
      *
@@ -181,6 +186,13 @@ public class GranteeManager {
                 SchemaObject.GRANTEE));
 
         changeAuthRole = getRole(SqlInvariants.CHANGE_AUTH_ROLE_NAME);
+
+        addRole(
+            this.database.nameManager.newHsqlName(
+                SqlInvariants.SCRIPT_OPS_ROLE_NAME, false,
+                SchemaObject.GRANTEE));
+
+        scriptOpsRole = getRole(SqlInvariants.SCRIPT_OPS_ROLE_NAME);
     }
 
     static final IntValueHashMap rightsStringLookup = new IntValueHashMap(7);
@@ -757,7 +769,8 @@ public class GranteeManager {
         return name.equals(SqlInvariants.SYSTEM_AUTHORIZATION_NAME)
                || name.equals(SqlInvariants.DBA_ADMIN_ROLE_NAME)
                || name.equals(SqlInvariants.SCHEMA_CREATE_ROLE_NAME)
-               || name.equals(SqlInvariants.CHANGE_AUTH_ROLE_NAME);
+               || name.equals(SqlInvariants.CHANGE_AUTH_ROLE_NAME)
+               || name.equals(SqlInvariants.SCRIPT_OPS_ROLE_NAME);
     }
 
     public static boolean isReserved(String name) {
@@ -766,6 +779,7 @@ public class GranteeManager {
                || name.equals(SqlInvariants.DBA_ADMIN_ROLE_NAME)
                || name.equals(SqlInvariants.SCHEMA_CREATE_ROLE_NAME)
                || name.equals(SqlInvariants.CHANGE_AUTH_ROLE_NAME)
+               || name.equals(SqlInvariants.SCRIPT_OPS_ROLE_NAME)
                || name.equals(SqlInvariants.PUBLIC_ROLE_NAME);
     }
 

@@ -39,7 +39,7 @@ import org.hsqldb.error.ErrorCode;
  * Invariant schema objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.1
+ * @version 2.6.0
  * @since 1.9.0
  */
 public final class SqlInvariants {
@@ -58,6 +58,9 @@ public final class SqlInvariants {
 
     /** The role name allowing switching authorisation for users. */
     public static final String CHANGE_AUTH_ROLE_NAME = "CHANGE_AUTHORIZATION";
+
+    /** The role name allowing script operations for users. */
+    public static final String SCRIPT_OPS_ROLE_NAME = "SCRIPT_OPS";
 
     //
     public static final String SYSTEM_SUBQUERY = "SYSTEM_SUBQUERY";

@@ -808,6 +808,13 @@ public class Grantee implements SchemaObject {
     }
 
     /**
+     * Returns true if this Grantee can change to a different user.
+     */
+    public boolean canPerformScriptOps() {
+        return isAdmin || hasRole(granteeManager.scriptOpsRole);
+    }
+
+    /**
      * Returns true if this grantee object is for the PUBLIC role.
      */
     public boolean isPublic() {
