@@ -29,7 +29,7 @@
  *         DBMS VERSION in "../src/org/hsqldb/resources/information-schema.sql".
  *      4: Update property 'hsqldb.version' in file 'build.xml'.
  *         For now it is conditional upon the build JDK.
- *      5: Execute task/target 'refresh-verbatim' to update code in our docs.
+ *      5: (obsolete step) Execute task/target 'refresh-verbatim' to update code in our docs.
  *      6: Execute task/target 'update-readme' to substitute updated variables
  *         into some doc file(s).
  *      7: Double-check file "../readme.txt".
