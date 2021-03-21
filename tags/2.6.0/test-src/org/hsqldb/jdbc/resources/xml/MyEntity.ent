@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : MyEntity.ent
+    Created on : December 21, 2005, 2:12 AM CST
+    Author     : boucherb@users
+    Description: Test JDBCSQLXML
+-->
+<description>Testing JDBCSQLXML<![CDATA[<unparsed> <> stuff %apos;]]>></description>

@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+<!--
+$Id$
+-->
+
+<!-- N.b. the clean targets, even 'clean-all', do not clean the "dist"
+     subdirectory.
+
+     IMPORTANT!  This build file may not be invoked directly with Ant any more.
+     Instead, use the file "build-dist.gradle" with Gradle, and that will pull
+     in this file.  Like this:
+     
+         gradlew -b build-dist.gradle...
+-->
+<project name="hsqldb-dist" default="dist" basedir="..">
+<!--  See file "build-dist.gradle" for distribution-building instructions.  -->
+
+  <import file="build.xml"/>
+
+  <target name="state-check"
+          description="Verifies that the current directory + Ant build env. are acceptable for building a distribution">
+    <available property="_svn.exists" file=".svn"/>
+    <fail if="_svn.exists"
+          message="You need to 'export' the project to build distro"/>
+
+    <condition property="_label.ok">
+      <equals arg1="${hsqldb.version}" arg2="${build.label}"/>
+    </condition>
+    <fail unless="_label.ok">Ant properties 'build.label' and 'hsqldb.version' must be equal.
+(${build.label}) vs. (${hsqldb.version})
+I suggest setting the value(s) in a "build.properties" file.</fail>
+    <condition property="_vendor.ok">
+      <equals arg1="${hsqldb.vendor}" arg2="${build.vendor}"/>
+    </condition>
+    <fail unless="_vendor.ok">Ant properties 'build.vendor' and 'hsqldb.vendor' must be equal.
+(${build.vendor}) vs. (${hsqldb.vendor})
+I suggest setting the value(s) in an external properties file and using the Ant
+"-propertyfile" switch.</fail>
+
+    <copy file="doc-src/readme-template.txt" tofile="tmp/readme-generated.txt"
+          overwrite="true">
+      <filterchain>
+        <expandproperties/>
+        <tokenfilter>
+          <!-- Intention is to strip out timestamps, since their values
+               would cause false positives for our file comparison below.  -->
+          <replaceregex pattern="\b20\d\d\S+\d" flags="g"/>
+        </tokenfilter>
+      </filterchain>
+    </copy>
+    <copy file="readme.txt" tofile="tmp/readme-svn.txt" overwrite="true">
+      <filterchain>
+        <tokenfilter>
+          <!-- Intention is to strip out timeestamps, since their values
+               would cause false positives for our file comparison below.  -->
+          <replaceregex pattern="\b20\d\d\S+\d" flags="g"/>
+        </tokenfilter>
+      </filterchain>
+    </copy>
+    <condition property="_readme.ok">
+      <filesmatch textfile="true"
+                  file1="tmp/readme-svn.txt" file2="tmp/readme-generated.txt"/>
+    </condition>
+    <fail unless="_readme.ok">The 'readme.txt' file in your Subversion export contains the wrong product
+version.  You should verify this.  If the version is indeed wrong, you should
+abort this export, commit an updated 'readme.txt' from a work area, then retag
+and re-export.</fail>
+  </target>
+
+  <target name="dist"
+          depends="state-check, clean-all, javadoc, gen-docs, sqltool, hsqldb"
+          description="Build joint binary + source distribution zip package">
+    <mkdir dir="dist"/>
+    <property name="app.basedir" value="hsqldb-${hsqldb.version}"/>
+
+    <!-- Enforce platform-independent EOL policies on items that will be
+         packed.  Generated docs and everything under classes/ already
+         have EOLs enforced.
+         To make maintenance easier, please order by srcdir, and put that
+         attribute first.  Much easier to find what you are interested this
+         way.
+    -->
+    <fixcrlf srcdir="."
+             preservelastmodified='true' eol="crlf" includes="*.txt"/>
+    <fixcrlf srcdir="." preservelastmodified='true' eol="lf" includes="*.html"/>
+    <fixcrlf srcdir="bin" preservelastmodified='true' eol="crlf"
+             includes="**/*.txt, **/*.bat, **/*.cmd"/>
+    <fixcrlf srcdir="bin" preservelastmodified='true' eol="lf"
+             encoding="UTF-8" includes="**/*.sh, **/*.bash, **/*.html"/>
+    <fixcrlf srcdir="build" preservelastmodified='true' eol="crlf"
+             includes="**/*.txt, **/*.bat, **/*.cmd"/>
+    <fixcrlf srcdir="build" preservelastmodified='true' eol="lf"
+             encoding="ISO-8859-1" includes="**/*.properties"/>
+    <fixcrlf srcdir="build" preservelastmodified='true' eol="lf"
+             encoding="UTF-8"
+             includes="**/*.xml, **/*.list, **/*.gradle, **/*.groovy"/>
+    <!-- Docbook or XSLT adds &#13;s on Windows.  Remove them. -->
+    <replace dir="doc" includes="*/*.html" token="&amp;#13;"/>
+    <fixcrlf srcdir="sample" preservelastmodified='true' eol="lf"
+             encoding="UTF-8" excludes="**/*.txt, **/*.properties"/>
+    <fixcrlf srcdir="sample" preservelastmodified='true' eol="crlf"
+             includes="**/*.txt"/>
+    <fixcrlf srcdir="sample" preservelastmodified='true' eol="lf"
+             encoding="ISO-8859-1" includes="**/*.properties"/>
+    <fixcrlf srcdir="src"
+             preservelastmodified='true' eol="lf" encoding="ISO-8859-1"
+             includes="**/*.properties, **/*.text"/>
+    <fixcrlf srcdir="src" preservelastmodified='true' eol="lf" encoding="UTF-8"
+             includes="**/*.flex, **/*.html, **/*.java"/>
+    <fixcrlf srcdir="stylesheets" preservelastmodified='true' eol="lf"
+             encoding="UTF-8"/>
+    <!-- Exclusing test-src from distros, for now
+    <fixcrlf srcdir="test-src"
+             preservelastmodified='true' eol="lf" encoding="ISO-8859-1"
+             includes="**/*.properties"/>
+    <fixcrlf srcdir="test-src" preservelastmodified='true' eol="lf"
+             encoding="UTF-8"
+             includes="**/*.java, **/*.dtd, **/*.ent, **/*.exp, **/*.inc,
+                       **/*.sql, **/*.src, **/*.xml"/>
+    -->
+
+    <fixcrlf srcdir="testrun" preservelastmodified='true' eol="crlf"
+             includes="**/*.txt"/>
+    <!-- NOTE:  The file testrun/hsqldb/TestSelf.txt has something in it that
+         causes any Ant filter (on UNIX) to corrupt an umlauted character.
+         The problem is not with the umlauted character, but is the side-effect
+         of something else in the file.  I can pull the umlauted "Zürich"
+         string out of that file and put it into its own UTF-8 file, and Ant
+         can filter that just fine. -->
+    <fixcrlf srcdir="testrun"
+             preservelastmodified='true' eol="lf" encoding="UTF-8"
+             includes="**/*.sql, **/*.dsv, **/*.isql, **/*.nsql, **/*.inter,
+                       **/*.bash, **/*.gradle, **/*.groovy"
+             />
+
+    <!-- This is a wasteful work-around to get Ant to zip the file with a
+         different name than "hsqldb-osgi.jar" -->
+	<!-- 
+    <copy file="lib/hsqldb-osgi.jar" tofile="tmp/hsqldb.jar"/>
+	-->
+    <mkdir dir="data"/>
+    <zip destfile="dist/${app.basedir}.zip">
+      <zipfileset prefix="${app.basedir}/hsqldb" dir="."
+                  includes="**/*.cmd, **/*.bat, **/*.bash, **/*.sh, **/*.pl,
+                            **/*.php, **/*.init, **/*.py, build/gradlew,
+                            build/gradle-gui, **/*.groovy"
+                  filemode="0755"
+                  excludes="**/.*/**, build/local**, test-src/**, doc-src/**,
+                            *gradled*, build/gradle-app.setting,
+                            classes/**, dist/**, local*/**, tmp/**"/>
+      <zipfileset prefix="${app.basedir}/hsqldb" dir="."
+                  excludes="**/.*/**, **/*.cmd, **/*.bat, **/*.bash, **/*.sh,
+                  test-src/**, **/*.pl, **/*.php, **/*.init, **/*.py, lib/**
+                  build/build.properties, build/local**, build/ivysettings.xml,
+                  classes/**, dist/**, local*/**, tmp/**, doc-src/**,
+                  build/ivysettings.xml, stylesheets/rng-catalog.xml,
+                  build/gradle-gui, **/*.groovy,
+                  build/gradlew, *gradled*, build/gradle-app.setting"/>
+      <zipfileset prefix="${app.basedir}/hsqldb/doc-src" dir="doc-src"
+                  includes="changelist_2_0.txt,hsqldb_lic.txt,hypersonic_lic.txt"/>
+      <zipfileset prefix="${app.basedir}/hsqldb/lib" dir="lib"
+                  includes="sqltool.jar, servlet*.zip"/>
+      <zipfileset prefix="${app.basedir}/hsqldb/lib" dir="lib"
+                  includes="hsqldb*.jar"/>
+    </zip>
+    <!-- Don't leave "tmp/hsqldb.jar" lying around, because it has a
+         misleading name and it is redundant. -->
+	<!-- 
+    <delete file="tmp/hsqldb.jar"/>
+	-->
+  </target>
+</project>

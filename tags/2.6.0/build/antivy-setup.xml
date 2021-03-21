@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+  Copyright (c) 2010, The HSQL Development Group. All rights reserved.
+  Released under the HSQL license, available at http://hsqldb.org
+-->
+<project name="hsqldb-antivy-setup">
+  <target name="ivy-setup" depends="-ivy-setup"/>
+
+  <target name="-ivy-setup" unless="-ivy.is.setup">
+    <fail>An Ant target that you have invoked, directly or indirectly, has been changed
+to reply upon Gradle.
+Please rerun your Ant command as a Gradle command, using 'gradlew' in place of
+'ant'.</fail>
+  </target>
+</project>

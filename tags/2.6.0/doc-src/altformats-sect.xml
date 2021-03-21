@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!-- This file is included into docbook source files.  -->
+<!-- $Id$ -->
+
+<!DOCTYPE section [
+  <!ENTITY % dummy24 SYSTEM "entities/global.ent"> %dummy24;
+]>
+
+<section xmlns="http://docbook.org/ns/docbook" version="5.0"
+         xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="altformats-sect">
+  <title>Available formats for this document</title>
+  <simpara>This document is available in several formats.</simpara>
+  <simpara>
+      You may be reading this document right now at &distro_baseurl;, or in
+      a distribution somewhere else.
+      I hereby call the document distribution from which you are reading 
+      this, your <emphasis>current distro</emphasis>.
+  </simpara>
+  <simpara>
+      &distro_baseurl; hosts the latest production versions of all available formats.
+      If you want a different format of the same <emphasis>version</emphasis>
+      of the document you are reading now, then you should try your
+      current distro.
+      If you want the latest production version, you should try &distro_baseurl;.
+  </simpara>
+  <simpara>
+      Sometimes, distributions other than &distro_baseurl; do not host all
+      available formats.
+      So, if you can't access the format that you want in your current
+      distro, you have no choice but to use the newest production version at 
+      &distro_baseurl;.
+  </simpara>
+
+  <para>
+    <table xml:id="altformats-tbl" frame="all" tocentry="1">
+      <title>Available formats of this document</title>
+      <!-- <tgroup cols="3" align="left" colsep="1" rowsep="1"> -->
+      <tgroup cols="3" align="left">
+        <colspec colwidth="3cm"/>
+        <colspec colwidth="4cm"/>
+        <colspec/>
+      <thead><row>
+          <entry>format</entry>
+          <entry>your distro</entry>
+          <entry>at &distro_baseurl;</entry>
+      </row></thead>
+      <tbody>
+      <row>
+          <entry>
+              Chunked HTML
+          </entry><entry>
+              <link xlink:href="index.html"/>
+          </entry><entry>
+          <link xlink:href="&distro_baseurl;/&doc_basename;/"/>
+          </entry>
+      </row><row>
+          <entry>
+              All-in-one HTML
+          </entry><entry>
+              <link xlink:href="&doc_basename;.html"/>
+          </entry><entry>
+        <link xlink:href="&distro_baseurl;/&doc_basename;/&doc_basename;.html"/>
+          </entry>
+      </row><row>
+          <entry>
+              PDF
+          </entry><entry>
+              <link xlink:href="&doc_basename;.pdf"/>
+          </entry><entry>
+          <link xlink:href="&distro_baseurl;/&doc_basename;/&doc_basename;.pdf"/>
+          </entry>
+      </row>
+      </tbody>
+      </tgroup>
+    </table>
+    If you are reading this document now with a standalone PDF reader,
+    <guilabel>your distro</guilabel> links may not work.
+  </para>
+</section>
