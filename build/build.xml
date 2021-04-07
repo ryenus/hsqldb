@@ -132,7 +132,7 @@ examples:
       <delete dir="classes/modules/org.hsqldb.min" includes="**/*"/>
     </target>
 
-    <target name="-prepare-javadoc">
+    <target name="-prepare-javadoc" depends="switches">
       <delete dir="doc/apidocs"/>
       <!-- Must be vigilant about cleaning up from previous runs, since this
            same directory is used for both public API spec, and the full
@@ -145,6 +145,10 @@ examples:
              Add a fixcrlf if we add non-binary files to doc-src/apidocs. -->
         <fileset dir="doc-src/apidocs"/>
       </copy>
+      <copy todir="${swsrc}">
+          <fileset dir="src/modules/org.hsqldb/"/>
+      </copy>
+        <delete file="${swsrc}org/hsqldb/server/Servlet.java"/>
     </target>
 
     <target name="reinit"
@@ -820,11 +824,8 @@ examples:
         org/hsqldb/auth/LdapAuthBeanTester.java
             '/>
 
-    <target name="javadoc" depends="-prepare-javadoc, switches, -clone-shared-sources, -set-jvmvars"
+    <target name="javadoc" depends="-prepare-javadoc, -clone-shared-sources, -set-jvmvars"
             description="Create javadoc for the distribution package">
-      <!-- TODO:  Find out why JDBCDriver class is listed twice in the class
-           list pane, but only when All Classes selected
-           only listed once if jdbc package is selected). -->
       <javadoc
            destdir="doc/apidocs"
            stylesheetfile="doc-src/apidocs/javadoc.css"
@@ -867,7 +868,7 @@ examples:
     </target>
 
     <target name="javadocdev"
-            depends="-prepare-javadoc, switches, -clone-shared-sources,-set-jvmvars"
+            depends="-prepare-javadoc, -clone-shared-sources,-set-jvmvars"
             description="Create javadoc for all HSQLDB code-base classes">
       <!-- Since our preprocessor package compilatoin depends on the
            env-specific ant runtime lib via includeAntRuntime=true, Javadoc

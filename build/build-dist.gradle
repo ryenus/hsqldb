@@ -35,7 +35,7 @@
  *      7: Double-check file "../readme.txt".
  *         May or may not need to be updated manually.
  *      8: Commit all of the work above.
- *      9: add or update build.properties with the publication date e.g. "doc.pubtime=2021-06-29".
+ *      9: add or update build.properties with the publication date e.g. "doc.pubtime=2021-03-21".
  *     10: Verify that docs build successfully.  E.g. "gradlew -i regen-docs"
  *     11: Make a release tag.
  *
