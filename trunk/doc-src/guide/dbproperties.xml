@@ -108,9 +108,18 @@
             <entry nameend="c3" namest="c1"><para>Lowercase, single-word
             identifier creates the in-memory database when the first
             connection is made. Subsequent use of the same Connection URL
-            connects to the existing DB.</para> <para>The old form for the
-            URL, <literal>jdbc:hsqldb:.</literal> creates or connects to the
-            same database as the new form for the URL,
+            connects to the existing DB. Multiple in-memory databases can be
+            created with different database names. For example, first
+            connections to <literal>jdbc:hsqldb:mem:db1</literal>,
+            <literal>jdbc:hsqldb:mem:db2</literal>, and
+            <literal>jdbc:hsqldb:mem:accounts</literal> create three
+            completely separate databases in the Java virtual machine. A
+            second connection to <literal>jdbc:hsqldb:mem:accounts</literal>
+            connects to the database created by the first connection. A
+            database stays in memory until the SQL command, SHUTDOWN is
+            executed.</para><para>The old form for the URL,
+            <literal>jdbc:hsqldb:.</literal> creates or connects to the same
+            database as the new form for the URL,
             <literal>jdbc:hsqldb:mem:.</literal></para></entry>
           </row>
         </tbody>
@@ -158,12 +167,16 @@
             <entry nameend="c3" namest="c1"><para>The file path specifies the
             database files. It should consist of a relative or absolute path
             to the directory containing the database files, followed by a '/'
-            and the database name. In the above examples the first one refers
-            to a set of mydb.* files in the directory where the
+            and the database name. In the above examples the first one,
+            <literal>jdbc:hsqldb:file:accounts</literal> refers to a set of
+            <literal>accounts.*</literal> files in the directory where the
             <literal>java</literal> command for running the application was
             issued. The second and third examples refer to absolute paths on
-            the host machine: For example, files named accounts.* in the
-            directory /opt/db for the accounts database.</para></entry>
+            the host machine: For example,
+            <literal>jdbc:hsqldb:file:/opt/db/accounts</literal> refers to
+            files named <literal>accounts.*</literal> in the directory
+            <literal>/opt/db</literal> which contain the accounts
+            database.</para></entry>
           </row>
         </tbody>
       </tgroup>
@@ -203,11 +216,11 @@
           </row>
 
           <row>
-            <entry nameend="c3" namest="c1">Database files can be loaded from
-            one of the jars specified as part of the <literal>Java</literal>
-            command the same way as resource files are accessed in Java
-            programs. The <literal>/adirectory</literal> above stands for a
-            directory in one of the jars.</entry>
+            <entry nameend="c3" namest="c1"><para>Database files can be loaded
+            from one of the jars specified as part of the
+            <literal>Java</literal> command the same way as resource files are
+            accessed in Java programs. The <literal>/adirectory</literal>
+            above stands for a directory in one of the jars.</para></entry>
           </row>
         </tbody>
       </tgroup>
@@ -254,7 +267,7 @@
               </simplelist></entry>
 
             <entry><simplelist type="vert">
-                <member><literal>/an_alias</literal></member>
+                <member><literal>/accounts</literal></member>
 
                 <member><literal>/enrolments</literal></member>
 
@@ -269,12 +282,16 @@
             alias is a lowercase string defined in the
             <filename>server.properties</filename> file to refer to an actual
             database on the file system of the server or a transient,
-            in-memory database on the server. The following example lines in
+            in-memory database on the server. The alias for a database can
+            have a different name to its memory or file name. The lines in
             <filename>server.properties</filename> or
             <filename>webserver.properties</filename> define the database
             aliases listed above and accessible to clients to refer to
-            different file and in-memory databases.</para> <para>The old form
-            for the server URL, e.g.,
+            different file and in-memory databases. In the example below, the
+            <literal>file:</literal> database named <literal>mydb</literal> is
+            made accessible with the alias
+            <literal>enrolments</literal>.</para><para><literal>server.database.1=file:/opt/db/mydb</literal></para><para><literal>server.dbname.1=enrolments</literal></para><para>The
+            old form for the server URL, e.g.,
             <literal>jdbc:hsqldb:hsql//localhost</literal> connects to the
             same database as the new form for the URL,
             <literal>jdbc:hsqldb:hsql//localhost/</literal> where the alias is
@@ -286,15 +303,7 @@
   </section>
 
   <section xml:id="dpc_variables_url">
-    <title>Variables In Connection URL</title>
-
-    <para>Two types of variables are allowed for file: database URL's:
-    properties for individual connections, and Properties for the whole
-    database. The database properties have an effect only if used for the
-    first connection to the database (the connection which opens the
-    database). When running a server, these variables are not used on the
-    connection URL but can be appended to the database path URL in
-    server.properties or the server command line.</para>
+    <title>Variables in Connection URL</title>
 
     <para>If the database part of a file: database begins with
     <literal>~/</literal> or <literal>~\</literal> the tilde character is
@@ -319,6 +328,29 @@
     <programlisting> jdbc:hsqldb:file:${mydbpath}</programlisting>
   </section>
 
+  <section>
+    <title>Connection Properties</title>
+
+    <para>There are two types of connection properties: properties for
+    individual connections, and Properties for the whole database.</para>
+
+    <para>The properties for individual connections apply only to the
+    connection that uses them and can be different for different connections.
+    These properties can be used when connecting to in-process and server
+    databases.</para>
+
+    <para>The properties for the database apply to the whole database. These
+    properties have an effect only if used for the first connection to an
+    <glossterm>in-process</glossterm> <glossterm>file:</glossterm> or
+    <glossterm>mem:</glossterm> database. For the connection that creates a
+    new database all the user-defined database properties can be specified as
+    URL properties.</para>
+
+    <para>When running a server, these properties are not used on the
+    connection URL but can be appended to the database path URL in
+    <literal>server.properties</literal> or the server command line.</para>
+  </section>
+
   <section xml:id="dpc_connection_props">
     <title>Properties for Individual Connections</title>
 
@@ -327,13 +359,10 @@
     <property>password</property> are always required. The following optional
     properties can also be used.</para>
 
-    <para>Connection properties are specified either by establishing the
-    connection via the method call below, or the property can be appended to
-    the full Connection URL. Some of the other properties can be used for any
-    connection, including connection to a Server but the others have an effect
-    only with the first connection to a file: or mem: database, or when
-    appended to the database path URL in server.properties or the server
-    command line.</para>
+    <para>Connection properties are specified either by using a Java
+    Properties object when establishing the connection via the JDBC method
+    call below. Alternatively the property can be appended to the full
+    Connection URL.</para>
 
     <programlisting> DriverManager.getConnection (String url, Properties info);</programlisting>
 
@@ -368,7 +397,7 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>Standard property. This
-            property is case sensitive. Example below:</para><programlisting> jdbc:hsqldb:file:enrolments;user=aUserName;ifexists=true</programlisting></entry>
+            property is case sensitive. Example below:</para><programlisting> jdbc:hsqldb:file:enrolments;user=aUserName;password=pass</programlisting></entry>
           </row>
 
           <row>
@@ -387,6 +416,72 @@
             name and password appear at the end of the URL string, prefixed
             respectively with the question mark and the
             ampersand:</para><programlisting> jdbc:hsqldb:file:enrolments;create=false?user=aUserName&amp;password=3xLVz</programlisting></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Creating New Database</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>ifexists</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>connect only if database already exists</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Has an effect only with
+            <glossterm>mem:</glossterm> and <glossterm>file:</glossterm>
+            database. When true, will not create a new database if one does
+            not already exist for the URL.</para><para>When the property is
+            false (the default), a new <glossterm>mem:</glossterm> or
+            <glossterm>file:</glossterm> database will be created if it does
+            not exist.</para><para>Setting the property to true is useful when
+            troubleshooting as no database is created if the URL is malformed.
+            Example below:</para><programlisting> jdbc:hsqldb:file:accounts;ifexists=true</programlisting></entry>
+          </row>
+
+          <row>
+            <entry><property>create</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>create the database if it does not exist</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Similar to the ifexists
+            property, but with opposite meaning.</para><para>Has an effect
+            only with <glossterm>mem:</glossterm> and
+            <glossterm>file:</glossterm> databases. When false, will not
+            create a new database if one does not already exist for the
+            URL.</para><para>When the property is true (the default), a new
+            <glossterm>mem:</glossterm> or <glossterm>file:</glossterm>
+            database will be created if it does not exist.</para><para>Setting
+            the property to true is useful when troubleshooting as no database
+            is created if the URL is malformed. Example
+            below:</para><programlisting> jdbc:hsqldb:file:enrolments;create=false</programlisting></entry>
           </row>
         </tbody>
       </tgroup>
@@ -584,72 +679,6 @@
     </table>
 
     <table frame="all" pgwide="1" tocentry="1">
-      <title>Creating New Database</title>
-
-      <tgroup align="left" cols="3">
-        <colspec colname="c1" colwidth="6.5cm"/>
-
-        <colspec colname="c2" colwidth="1.5cm"/>
-
-        <colspec colname="c3"/>
-
-        <thead>
-          <row>
-            <entry>Name</entry>
-
-            <entry>Default</entry>
-
-            <entry>Description</entry>
-          </row>
-        </thead>
-
-        <tbody valign="top">
-          <row>
-            <entry><property>ifexists</property></entry>
-
-            <entry><literal>false</literal></entry>
-
-            <entry>connect only if database already exists</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>Has an effect only with
-            <glossterm>mem:</glossterm> and <glossterm>file:</glossterm>
-            database. When true, will not create a new database if one does
-            not already exist for the URL.</para><para>When the property is
-            false (the default), a new <glossterm>mem:</glossterm> or
-            <glossterm>file:</glossterm> database will be created if it does
-            not exist.</para><para>Setting the property to true is useful when
-            troubleshooting as no database is created if the URL is malformed.
-            Example below:</para><programlisting> jdbc:hsqldb:file:enrolments;ifexists=true</programlisting></entry>
-          </row>
-
-          <row>
-            <entry><property>create</property></entry>
-
-            <entry><literal>true</literal></entry>
-
-            <entry>create the database if it does not exist</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>Similar to the ifexists
-            property, but with opposite meaning.</para><para>Has an effect
-            only with <glossterm>mem:</glossterm> and
-            <glossterm>file:</glossterm> databases. When false, will not
-            create a new database if one does not already exist for the
-            URL.</para><para>When the property is true (the default), a new
-            <glossterm>mem:</glossterm> or <glossterm>file:</glossterm>
-            database will be created if it does not exist.</para><para>Setting
-            the property to true is useful when troubleshooting as no database
-            is created if the URL is malformed. Example
-            below:</para><programlisting> jdbc:hsqldb:file:enrolments;create=false</programlisting></entry>
-          </row>
-        </tbody>
-      </tgroup>
-    </table>
-
-    <table frame="all" pgwide="1" tocentry="1">
       <title>Automatic Shutdown</title>
 
       <tgroup align="left" cols="3">
@@ -697,19 +726,14 @@
             the automatic shutdown happens in a background thread and the
             Connection.close() call returns before the shutdown is complete.
             This may cause an issue if the shutdown takes a long time to save
-            the data and the user application (or unit test) immediately reopens the
-            database while this is happening. In these contexts, use an
-            explicit SHUTDOWN as an SQL statement.</para><programlisting> jdbc:hsqldb:file:enrolments;shutdown=true</programlisting></entry>
+            the data and the user application (or unit test) immediately
+            reopens the database while this is happening. In these contexts,
+            use an explicit SHUTDOWN as an SQL
+            statement.</para><programlisting> jdbc:hsqldb:file:enrolments;shutdown=true</programlisting></entry>
           </row>
         </tbody>
       </tgroup>
     </table>
-
-    <para>In addition, when the first connection to an
-    <glossterm>in-process</glossterm> <glossterm>file:</glossterm> or
-    <glossterm>mem:</glossterm> database creates a new database all the
-    user-defined database properties can be specified as URL properties. See
-    the next section for details.</para>
   </section>
 
   <section xml:id="dpc_db_props_url">
@@ -718,7 +742,7 @@
     <para>Each database has several default settings (properties) that are
     listed in the <link endterm="management-title"
     xlink:href="#management-chapt"/> chapter. These properties can be changed
-    via SQL commands after a connection is made to the database. It is
+    via SQL commands after a connection is made to the database. It is also
     possible to specify most of these properties in the connection properties
     or as part of the URL string when the first connection is made to a new
     <glossterm>file:</glossterm> or <glossterm>mem:</glossterm> database. This

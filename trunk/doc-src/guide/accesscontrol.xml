@@ -356,8 +356,8 @@
       <para>As mentioned above, a USER or ROLE that does not own a schema can
       be granted access to individual columns of a table in the schema.
       HyperSQL adds a feature that is not part of the SQL Standard to allow
-      this access to be granted only for certain rows of a table, based on a
-      FILTER condition.</para>
+      this access to be granted to a ROLE only for certain rows of a table,
+      based on a FILTER condition.</para>
 
       <para>When the GRANT statement contains a FILTER condition, the
       condition is applied to each row of the table that a SELECT, INSERT,
@@ -367,11 +367,12 @@
 
       <para>The following is an example of this usage. The table INFO has a
       column that determines the geographic region for each row of data and
-      another column that holds the expiration date for this row. While the
-      owner of the schema can access and change the data in all the rows of
-      this table, each group of ordinary users is only allowed to access the
-      data for a certain region. Some among each group are only allowed to
-      access the rows before the expiration date.</para>
+      another column that holds the expiration date for this row. The owner of
+      the schema can access and change the data in all the rows of this table.
+      A group of ordinary users with the <literal>eu_admin</literal> role is
+      only allowed to access the data for a certain region. Another group with
+      the <literal>eu_user</literal> role is only allowed to access the rows
+      before the expiration date. </para>
 
       <para><informalexample>
           <programlisting>CREATE TABLE info(id INT PRIMARY KEY, info VARCHAR(100), region VARCHAR(32) NOT NULL, expires DATE NOT NULL)
@@ -383,6 +384,8 @@ CREATE ROLE eu_admin
 CREATE ROLE eu_user
 GRANT SELECT FILTER (WHERE region = 'European Union') ON TABLE info TO eu_admin
 GRANT SELECT FILTER (WHERE region = 'European Union' AND expires &gt; CURRENT_DATE) ON TABLE info TO eu_user
+GRANT eu_admin TO peter, wendy
+GRANT eu_user TO emma, john
 </programlisting>
         </informalexample></para>
 
@@ -660,14 +663,14 @@ GRANT SELECT FILTER (WHERE EXTRACT(HOUR FROM CURRENT_TIMESTAMP) BETWEEN 9 AND 17
     <literal>&lt;grantee&gt;</literal> objects.</simpara>
 
     <simpara><literal>&lt;privileges&gt; ::= &lt;object privileges&gt; ON
-    &lt;object name&gt;</literal></simpara>
+    &lt;object name&gt; [ &lt;filter clause&gt; ]</literal></simpara>
 
     <simpara><literal>&lt;object privileges&gt; ::= ALL PRIVILEGES |
     &lt;action&gt; [ &lt;filter clause&gt; ] [ { &lt;comma&gt; &lt;action&gt;
     }... ]</literal></simpara>
 
-    <simpara><literal>&lt;action&gt; ::= SELECT | SELECT &lt;left paren&gt;
-    &lt;privilege column list&gt; &lt;right paren&gt; | DELETE | INSERT [
+    <simpara><literal>&lt;action&gt; ::= SELECT [ &lt;left paren&gt;
+    &lt;privilege column list&gt; &lt;right paren&gt; ] | DELETE | INSERT [
     &lt;left paren&gt; &lt;privilege column list&gt; &lt;right paren&gt; ] |
     UPDATE [ &lt;left paren&gt; &lt;privilege column list&gt; &lt;right
     paren&gt; ] | REFERENCES [ &lt;left paren&gt; &lt;privilege column
@@ -693,16 +696,22 @@ GRANT SELECT FILTER (WHERE EXTRACT(HOUR FROM CURRENT_TIMESTAMP) BETWEEN 9 AND 17
 
     <simpara>The <literal>&lt;object privileges&gt;</literal> that can be used
     depend on the type of the <literal>&lt;object name&gt;</literal>. These
-    are discussed in the previous section. For a table, if
+    are discussed in the previous section. For a table or view, if
     <literal>&lt;privilege column list&gt;</literal> is not specified, then
     the privilege is granted on the table, which includes all of its columns
     and any column that may be added to it in the future. For routines, the
     name of the routine can be specified in two ways, either as the generic
-    name as the specific name. HyperSQL allows referencing all overloaded
-    versions of a routine at the same time, using its name. This differs from
-    the SQL Standard which requires the use of <literal>&lt;specific routine
-    designator&gt;</literal> to grant privileges separately on each different
-    signature of the routine.</simpara>
+    name, or as the specific name for a signature. HyperSQL allows referencing
+    the generic name which covers all overloaded versions of a routine at the
+    same time. This is an extension to the SQL Standard which requires the use
+    of <literal>&lt;specific routine designator&gt;</literal> to grant
+    privileges separately on each different signature of the
+    routine.</simpara>
+
+    <simpara>The <literal>&lt;filter clause&gt;</literal> can be specified
+    after the <literal>&lt;object name&gt;</literal> to limit access for all
+    the granted privileges, or it can be used after individual privileges.
+    </simpara>
 
     <simpara>Each <literal>&lt;grantee&gt;</literal> is the name of a role or
     a user. Examples of GRANT statement are given below:</simpara>
@@ -710,14 +719,15 @@ GRANT SELECT FILTER (WHERE EXTRACT(HOUR FROM CURRENT_TIMESTAMP) BETWEEN 9 AND 17
     <informalexample>
       <programlisting> GRANT ALL ON SEQUENCE aSequence TO roleOrUser 
  GRANT SELECT ON aTable TO roleOrUser  
- GRANT SELECT, UPDATE FILTER(WHERE aColumn &gt; 2) ON aTABLE TO roleOrUser1, roleOrUser2
- GRANT SELECT(columnA, columnB), UPDATE(columnA, columnB) ON TABLE aTable TO roleOrUser
+ GRANT SELECT, UPDATE FILTER(WHERE aColumn &gt; 2) ON aTABLE TO role1 -- filter only for update
+ GRANT SELECT, UPDATE ON aTable FILTER(WHERE aColumn &gt; 2) TO role2 -- filter for both select and update
+ GRANT SELECT(columnA, columnB), UPDATE(columnA, columnB) ON TABLE aTable TO user1, role1, role2
  GRANT EXECUTE ON SPECIFIC ROUTINE aroutine_1234 TO roleOrUser
 </programlisting>
     </informalexample>
 
     <simpara>As mentioned in the general discussion, it is better to define a
-    role for the collection of all the privileges required by an application.
+    role for a collection of all the privileges required by an application.
     This role is then granted to any user. If further changes are made to the
     privileges of this role, they are automatically reflected in all the users
     that have the role. Fine-grained privileges (those with a FILTER clause)
