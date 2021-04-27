@@ -370,6 +370,29 @@
     <glossterm>mem:</glossterm> database with no automatic persistence, or a
     file-based, persistent <glossterm>file:</glossterm> database.</para>
 
+    <section>
+      <title>Case Sensitivity</title>
+
+      <para>Standard SQL is not case sensitive, except when names of objects
+      are enclosed in double-quotes. SQL keywords can be written in any case;
+      for example, <literal>sElect</literal>, <literal>SELECT</literal> and
+      <literal>select</literal> are all allowed and converted to uppercase.
+      Identifiers, such as names of tables, columns and other objects defined
+      by the user, are also converted to uppercase. For example,
+      <literal>myTable</literal>, <literal>MyTable</literal> and
+      <literal>MYTABLE</literal> all refer to the same table and are stored in
+      the database in the case-normal form, which is all uppercase for
+      unquoted identifiers. When the name of an object is enclosed in double
+      quotes when it is created, the exact name is used as the case-normal
+      form and it must be referenced with the exact same double-quoted string.
+      For example, <literal>"myTable"</literal> and
+      <literal>"MYTABLE"</literal> are different tables. When the
+      double-quoted name is all-uppercase, it can be referenced in any case;
+      <literal>"MYTABLE"</literal> is the same as <literal>myTable</literal>
+      and <literal>MyTable</literal> because they are all converted to
+      <literal>MYTABLE</literal>. </para>
+    </section>
+
     <section xml:id="sgc_persist_tables">
       <title>Persistent Tables</title>
 
@@ -467,10 +490,9 @@
   <section xml:id="sgc_data_type_guide">
     <title>Short Guide to Data Types</title>
 
-    <para>Most other RDBMS do not conform to the SQL Standard in all areas,
-    including data types, but they are gradually moving towards Standard
-    conformance. When switching from another SQL dialect, the following should
-    be considered:</para>
+    <para>The SQL Standard is strongly typed and completely type-safe. It
+    supports the following basic types, which are all supported by
+    HyperSQL.</para>
 
     <itemizedlist>
       <listitem>
@@ -571,6 +593,183 @@
     names that are used by other RDBMS to be accepted and translated into the
     closest SQL Standard type. For example, the type TEXT, supported by MySQL
     and PostgreSQL is translated in these compatibility modes.</para>
+
+    <table>
+      <title>List of SQL types</title>
+
+      <tgroup cols="2">
+        <colspec align="left" colwidth="300*"/>
+
+        <colspec colwidth="700*"/>
+
+        <thead>
+          <row>
+            <entry align="left">Type</entry>
+
+            <entry align="left">Description</entry>
+          </row>
+        </thead>
+
+        <tbody>
+          <row>
+            <entry>TINYINT, SMALLINT, INT or INTEGER, BIGNIT</entry>
+
+            <entry>binary number types with 8, 16, 32, 64 bit precision
+            respectively</entry>
+          </row>
+
+          <row>
+            <entry>DOUBLE or FLOAT</entry>
+
+            <entry>64 bit precision floating point number</entry>
+          </row>
+
+          <row>
+            <entry>DECIMAL(P,S), DEC(P,S) or NUMERIC(P,S)</entry>
+
+            <entry>identical types for fixed precision number (*)</entry>
+          </row>
+
+          <row>
+            <entry>BOOLEAN</entry>
+
+            <entry>boolean type supports TRUE, FALSE and UNKNOWN</entry>
+          </row>
+
+          <row>
+            <entry>CHAR(L) or CHARACTER(L)</entry>
+
+            <entry>fixed-length UTF-16 string type - padded with space to
+            length L (**)</entry>
+          </row>
+
+          <row>
+            <entry>VARCHCHAR(L) or CHARACTER VARYING(L)</entry>
+
+            <entry>variable-length UTF-16 string type (***)</entry>
+          </row>
+
+          <row>
+            <entry>CLOB(L)</entry>
+
+            <entry>variable-length UTF-16 long string type (***)</entry>
+          </row>
+
+          <row>
+            <entry>LONGVARCHAR(L)</entry>
+
+            <entry>a non-standard synonym for VARCHAR(L) (***)</entry>
+          </row>
+
+          <row>
+            <entry>BINARY(L)</entry>
+
+            <entry>fixed-length binary string type - padded with zero to
+            length L (**) </entry>
+          </row>
+
+          <row>
+            <entry>VARBINARY(L) or BINARY VARYING(L)</entry>
+
+            <entry>variable-length binary string type (***)</entry>
+          </row>
+
+          <row>
+            <entry>BLOB(L)</entry>
+
+            <entry>variable length binary string type (***)</entry>
+          </row>
+
+          <row>
+            <entry>LONGVARBINARY(L)</entry>
+
+            <entry>a non-standard synonym for VARBINARY(L) (***)</entry>
+          </row>
+
+          <row>
+            <entry>BIT(L)</entry>
+
+            <entry>fixed-length bit map - padded with 0 to length L - maximum
+            value of L is 1024</entry>
+          </row>
+
+          <row>
+            <entry>BIT VARYING(L)</entry>
+
+            <entry>variable-length bit map - maximum value of L is
+            1024</entry>
+          </row>
+
+          <row>
+            <entry>UUID</entry>
+
+            <entry>16 byte fixed binary type represented as UUID
+            string</entry>
+          </row>
+
+          <row>
+            <entry>DATE</entry>
+
+            <entry>date</entry>
+          </row>
+
+          <row>
+            <entry>TIME(S)</entry>
+
+            <entry>time of day (****)</entry>
+          </row>
+
+          <row>
+            <entry>TIME(S) WITH TIME ZONE</entry>
+
+            <entry>time of day with zone displacement value (****)</entry>
+          </row>
+
+          <row>
+            <entry>TIMESTAMP(S)</entry>
+
+            <entry>date with time of day (****)</entry>
+          </row>
+
+          <row>
+            <entry>TIMESTAMP(S) WITH TIME ZONE</entry>
+
+            <entry>timestamp with zone displacement value (****)</entry>
+          </row>
+
+          <row>
+            <entry>INTERVAL</entry>
+
+            <entry>date or time interval - has many variants</entry>
+          </row>
+
+          <row>
+            <entry>OTHER</entry>
+
+            <entry>non-standard type for Java serializable object</entry>
+          </row>
+
+          <row>
+            <entry>ARRAY</entry>
+
+            <entry>array of a base type</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>In the table above: (*) The parameters are optional. P is used for
+    maximum precision and S for scale of DECIMAL and NUMERIC. If only P is
+    used, S defaults to 0. If none is used, P defaults to 128 and S defaults
+    to 0. The maximum value of each parameter is unlimited. (**) The parameter
+    L is used for fixed length. If not used, it defaults to 1. (***) The
+    parameter L is used for maximum length. It is required for VARCHAR(L) and
+    VARBINARY(L) but is optional for the other types. If not used, it defaults
+    to 1G for BLOB or CLOB, and 16M for the LONGVARCHAR and LONGVARBINARY. The
+    maximum value of the parameter is unlimited for CLOB and BLOB. It is 2 *
+    1024 *1024 *1024 for other string types. (****) The parameter S is
+    optional and indicates sub-second fraction precision of time (0 to 9).
+    When not used, it defaults to 6.</para>
   </section>
 
   <section xml:id="sgc_types_ops">
@@ -602,10 +801,11 @@
     the exact type of the argument and the return value is determined at
     compile time.</para>
 
-    <para>When a statement is prepared, using a JDBC PreparedStatement object,
-    it is compiled by the engine and the type of the columns of its ResultSet
-    and / or its parameters are accessible through the methods of
-    PreparedStatement.</para>
+    <para>When a statement is prepared, using a JDBC
+    <literal>PreparedStatement</literal> object, it is compiled by the engine
+    and the type of the columns of its ResultSet and / or its parameters are
+    accessible through the methods of
+    <literal>PreparedStatement</literal>.</para>
 
     <section xml:id="sgc_numeric_types">
       <title>Numeric Types</title>
@@ -645,7 +845,7 @@
       point, while DECIMAL(10) means 10 digits without a decimal point. The
       bit-precision of FLOAT can be defined but it is ignored and the default
       bit-precision of 64 is used. The default precision of NUMERIC and
-      DECIMAL (when not defined) is 100.</para>
+      DECIMAL (when not defined) is 128.</para>
 
       <para>Note: If a database has been set to ignore type precision limits
       with the SET DATABASE SQL SIZE FALSE command, then a type definition of
@@ -690,7 +890,8 @@
       you can use the <methodname>getObject()</methodname> method, then cast
       the result to <classname>java.lang.Number</classname> and use the
       <methodname>intValue()</methodname> or
-      <methodname>longValue()</methodname> methods on the result.</para>
+      <methodname>longValue()</methodname> if the value is not an instance of
+      <literal>java.math.BigDecimal</literal>.</para>
 
       <para>When the result of an expression is stored in a column of a
       database table, it has to fit in the target column, otherwise an error
@@ -770,8 +971,8 @@
       <simpara><literal>&lt;exact numeric type&gt; ::= NUMERIC [ &lt;left
       paren&gt; &lt;precision&gt; [ &lt;comma&gt; &lt;scale&gt; ] &lt;right
       paren&gt; ] | { DECIMAL | DEC } [ &lt;left paren&gt; &lt;precision&gt; [
-      &lt;comma&gt; &lt;scale&gt; ] &lt;right paren&gt; ] | SMALLINT | INTEGER
-      | INT | BIGINT</literal></simpara>
+      &lt;comma&gt; &lt;scale&gt; ] &lt;right paren&gt; ] | TINYINT | SMALLINT
+      | INTEGER | INT | BIGINT</literal></simpara>
 
       <simpara><literal>&lt;approximate numeric type&gt; ::= FLOAT [ &lt;left
       paren&gt; &lt;precision&gt; &lt;right paren&gt; ] | REAL | DOUBLE
@@ -956,8 +1157,8 @@
       type is converted to a CHARACTER type, the hyphens are inserted in the
       required positions. Java UUID objects can be used with
       <literal>java.sql.PreparedStatement</literal> to insert values of this
-      type. The getObject() method of ResultSet returns the Java object for
-      UUID column data.</para>
+      type. The <literal>getObject()</literal> method of ResultSet returns the
+      Java object for UUID column data.</para>
 
       <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
       paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
@@ -1185,7 +1386,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
       <para>String types, including all BIT, BINARY and CHAR string types plus
       CLOB and BLOB, are generally defined with a length. If no length is
       specified for BIT, BINARY and CHAR, the default length is 1. For CLOB
-      and BLOB an implementation defined length of 1M is used.</para>
+      and BLOB an implementation defined length of 1G is used.</para>
 
       <para>TIME and TIMESTAMP types can be defined with a fractional second
       precision between 0 and 9. INTERVAL type definition may have precision
@@ -2207,7 +2408,7 @@ ps.executeUpdate();
       either equal or both NULL. Array expressions cannot be used in a
       comparison expression such as GREATER THAN but they can be used in an
       ORDER BY clause. For example, it is possible to add <literal>ORDER BY
-      ORDER</literal> to the above SELECT statement,</para>
+      ORDERS</literal> to the above SELECT statement,</para>
 
       <para><emphasis>USER DEFINED FUNCTIONS and PROCEDURES</emphasis></para>
 
