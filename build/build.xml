@@ -521,6 +521,7 @@ examples:
         includes='
             org/hsqldb/Server.class
             org/hsqldb/server/**
+            org/hsqldb/util/MainInvoker.class
             '
     />
 
@@ -544,7 +545,6 @@ examples:
             org/hsqldb/util/ConnectionDialog*
             org/hsqldb/util/Grid.class
             org/hsqldb/util/Tree.class
-            org/hsqldb/util/MainInvoker.class
             '
         excludes='
             org/hsqldb/util/ConnectionDialogCommon.class
@@ -792,38 +792,6 @@ examples:
       </jar>
     </target>
 
-    <fileset id='javadocsources' dir='${swsrc}'
-        includes='
-        org/hsqldb/jdbc/JDBCDriver.java,
-        org/hsqldb/jdbc/pool/JDBCPooledConnection.java,
-        org/hsqldb/jdbc/pool/JDBCPooledDataSource.java,
-        org/hsqldb/jdbc/pool/JDBCXAConnection.java,
-        org/hsqldb/jdbc/pool/JDBCXAConnectionWrapper.java,
-        org/hsqldb/jdbc/pool/JDBCXADataSource.java,
-        org/hsqldb/jdbc/pool/JDBCXAResource.java,
-        org/hsqldb/jdbc/pool/JDBCXID.java,
-        org/hsqldb/trigger/Trigger.java,
-        org/hsqldb/server/Server.java,
-        org/hsqldb/server/WebServer.java,
-        org/hsqldb/server/ServerAcl.java,
-        org/hsqldb/sample/TriggerSample.java,
-        org/hsqldb/sample/SqlFileEmbedder.java,
-        org/hsqldb/lib/FrameworkLogger.java,
-        org/hsqldb/util/RCData.java,
-        org/hsqldb/lib/tar/DbBackup.java,
-        org/hsqldb/lib/tar/DbBackupMain.java,
-        org/hsqldb/test/TestScriptRunner.java,
-        org/hsqldb/cmdline/SqlFile.java,
-        org/hsqldb/util/MainInvoker.java,
-        org/hsqldb/cmdline/SqlTool.java,
-        org/hsqldb/auth/AuthBeanMultiplexer.java,
-        org/hsqldb/auth/AuthFunctionBean.java,
-        org/hsqldb/auth/JaasAuthBean.java,
-        org/hsqldb/auth/HsqldbSlaveAuthBean.java,
-        org/hsqldb/auth/LdapAuthBean.java,
-        org/hsqldb/auth/LdapAuthBeanTester.java
-            '/>
-
     <target name="javadoc" depends="-prepare-javadoc, -clone-shared-sources, -set-jvmvars"
             description="Create javadoc for the distribution package">
       <javadoc
@@ -840,20 +808,19 @@ examples:
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2021 HSQL Development Group.&lt;/i&gt;">
-          <sourcefiles id="javadocsources"/>
            <classpath>
              <pathelement location="${servletapi.lib}"/>
              <pathelement location="${junit38.lib}"/>
            </classpath>
            <packageset dir="${swsrc}">
-              <include name='org.hsqldb/auth'/>
+              <include name='org/hsqldb/auth'/>
               <include name='org/hsqldb/jdbc'/>
               <include name='org/hsqldb/jdbc/pool'/>
               <include name='org/hsqldb/lib'/>
               <include name='org/hsqldb/lib/tar'/>
               <include name='org/hsqldb/server'/>
               <include name='org/hsqldb/trigger'/>
-              <include name='org.hsqldb/util'/>
+              <include name='org/hsqldb/util'/>
            </packageset>
            <tag name="todo" enabled="false"/>
            <tag name="revised" enabled="false"/>
