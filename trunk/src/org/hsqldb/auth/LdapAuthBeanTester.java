@@ -37,6 +37,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
 
+/**
+ * Tests the settings for LdapAuthBean.
+ */
 public class LdapAuthBeanTester {
 
     /**
