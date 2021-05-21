@@ -746,8 +746,8 @@ public class QuerySpecification extends QueryExpression {
             return;
         }
 
-        List list = expression.resolveColumnReferences(session, this,
-            count, rangeGroups, null, withSequences);
+        List list = expression.resolveColumnReferences(session, this, count,
+            rangeGroups, null, withSequences);
 
         if (list != null) {
             for (int i = 0; i < list.size(); i++) {
@@ -1550,31 +1550,31 @@ public class QuerySpecification extends QueryExpression {
     /**
      * Returns the result of executing this Select.
      *
-     * @param maxrows may be 0 to indicate no limit on the number of rows.
+     * @param maxRows may be 0 to indicate no limit on the number of rows.
      * Positive values limit the size of the result set.
      * @return the result of executing this Select
      */
-    Result getResult(Session session, int maxrows) {
+    Result getResult(Session session, int maxRows) {
 
-//todo single row
-        Result r = getSingleResult(session, maxrows);
+        RowSetNavigatorData navigator = new RowSetNavigatorData(session, this);
+        int[] limits = sortAndSlice.getLimits(session, this, maxRows);
+        int                 skipCount  = 0;
+        int                 limitCount = limits[2];
 
-        r.getNavigator().reset();
-
-        return r;
+        if (sortAndSlice.skipFullResult) {
+            skipCount  = limits[0];
+            limitCount = limits[1];
     }
 
-    private Result getSingleResult(Session session, int maxRows) {
+        Result r = buildResult(session, navigator, skipCount, limitCount);
 
-        int[] limits = sortAndSlice.getLimits(session, this, maxRows);
-        Result              r         = buildResult(session, limits);
-        RowSetNavigatorData navigator = (RowSetNavigatorData) r.getNavigator();
+        navigator = (RowSetNavigatorData) r.getNavigator();
 
         if (isDistinctSelect) {
             navigator.removeDuplicates();
         }
 
-        if (sortAndSlice.hasOrder()) {
+        if (sortAndSlice.hasOrder() && !sortAndSlice.skipSort) {
             navigator.sortOrder();
         }
 
@@ -1583,14 +1583,16 @@ public class QuerySpecification extends QueryExpression {
             navigator.trim(limits[0], limits[1]);
         }
 
+        r.getNavigator().reset();
+
         return r;
     }
 
-    private Result buildResult(Session session, int[] limits) {
+    private Result buildResult(Session session, RowSetNavigatorData navigator,
+                               int skipCount, int limitCount) {
 
-        RowSetNavigatorData navigator = new RowSetNavigatorData(session, this);
         Result              result        = Result.newResult(navigator);
-        boolean             resultGrouped = isGrouped && !isSimpleDistinct;
+        boolean isResultGrouped = isGrouped && !isSimpleDistinct;
 
         result.metaData = resultMetaData;
 
@@ -1598,42 +1600,24 @@ public class QuerySpecification extends QueryExpression {
             result.rsProperties = ResultProperties.updatablePropsValue;
         }
 
-        int skipCount  = 0;
-        int limitCount = limits[2];
-
-        if (sortAndSlice.skipFullResult) {
-            skipCount  = limits[0];
-            limitCount = limits[1];
-        }
-
-        if (this.isSimpleCount) {
-            Object[] data  = new Object[indexLimitData];
-            Table    table = rangeVariables[0].getTable();
-
-            table.materialise(session);
-
-            PersistentStore store = table.getRowStore(session);
-            long            count = store.elementCount(session);
-
-            data[indexStartAggregates] = ValuePool.getLong(count);
-
-            navigator.add(data);
-            navigator.reset();
-            session.sessionContext.setRangeIterator(navigator);
-
-            if (navigator.next()) {
-                data = navigator.getCurrent();
-
-                for (int i = 0; i < indexStartAggregates; i++) {
-                    data[i] = exprColumns[i].getValue(session);
-                }
-            }
-
-            session.sessionContext.unsetRangeIterator(navigator);
+        if (isSimpleCount) {
+            getSimpleCountResult(session, navigator);
 
             return result;
         }
 
+        if (limitCount == 0) {
+            return result;
+            }
+
+        if (isGroupingSets) {
+            session.sessionContext.setGroup(null);
+        }
+
+        int memoryRowLimit =
+            (!isAggregated && !isSingleMemoryTable && !isGroupingSets)
+            ? session.resultMaxMemoryRows
+            : 0;
         int fullJoinIndex = 0;
         RangeIterator[] rangeIterators =
             new RangeIterator[rangeVariables.length];
@@ -1686,10 +1670,6 @@ public class QuerySpecification extends QueryExpression {
                 continue;
             }
 
-            if (limitCount == 0) {
-                break;
-            }
-
             session.sessionData.startRowProcessing();
 
             Object[] data  = new Object[indexLimitData];
@@ -1728,7 +1708,7 @@ public class QuerySpecification extends QueryExpression {
 
             Object[] groupData = null;
 
-            if (isAggregated || resultGrouped) {
+            if (isAggregated || isResultGrouped) {
                 groupData = navigator.getGroupData(data);
 
                 if (groupData != null) {
@@ -1758,15 +1738,16 @@ public class QuerySpecification extends QueryExpression {
 
             int rowCount = navigator.getSize();
 
-            if (rowCount == session.resultMaxMemoryRows && !isAggregated
-                    && !isSingleMemoryTable && !isGroupingSets) {
+            if (rowCount == memoryRowLimit) {
                 navigator = new RowSetNavigatorDataTable(session, this,
                         navigator);
 
                 result.setNavigator(navigator);
+
+                memoryRowLimit = 0;
             }
 
-            if (isAggregated || resultGrouped) {
+            if (isAggregated || isResultGrouped) {
                 if (!sortAndSlice.isGenerated) {
                     continue;
                 }
@@ -1887,7 +1868,7 @@ public class QuerySpecification extends QueryExpression {
         navigator.reset();
 
         if (isAggregated) {
-            if (!resultGrouped && navigator.getSize() == 0) {
+            if (!isResultGrouped && navigator.getSize() == 0) {
                 Object[] data = new Object[exprColumns.length];
 
                 for (int i = 0; i < indexStartAggregates; i++) {
@@ -1941,6 +1922,34 @@ public class QuerySpecification extends QueryExpression {
         session.sessionContext.unsetRangeIterator(navigator);
 
         return result;
+    }
+
+    private void getSimpleCountResult(Session session,
+                                      RowSetNavigatorData navigator) {
+
+        Object[] data  = new Object[indexLimitData];
+        Table    table = rangeVariables[0].getTable();
+
+        table.materialise(session);
+
+        PersistentStore store = table.getRowStore(session);
+        long            count = store.elementCount(session);
+
+        data[indexStartAggregates] = ValuePool.getLong(count);
+
+        navigator.add(data);
+        navigator.reset();
+        session.sessionContext.setRangeIterator(navigator);
+
+        if (navigator.next()) {
+            data = navigator.getCurrent();
+
+            for (int i = 0; i < indexStartAggregates; i++) {
+                data[i] = exprColumns[i].getValue(session);
+            }
+        }
+
+        session.sessionContext.unsetRangeIterator(navigator);
     }
 
     void setReferenceableColumns() {

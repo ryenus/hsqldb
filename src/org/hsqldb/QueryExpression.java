@@ -74,7 +74,7 @@ public class QueryExpression implements RangeGroup {
     int                    columnCount;
     QueryExpression        leftQueryExpression;
     QueryExpression        rightQueryExpression;
-    SortAndSlice           sortAndSlice;
+    public SortAndSlice    sortAndSlice;
     private int            unionType;
     private boolean        unionCorresponding;
     private OrderedHashSet unionCorrespondingColumns;

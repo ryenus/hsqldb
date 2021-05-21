@@ -1907,7 +1907,7 @@ public class ParserDQL extends ParserBase {
             }
 
             if (database.sqlSyntaxPgs || database.sqlSyntaxMys) {
-                sortAndSlice.setZeroLimit();
+                sortAndSlice.setZeroLimitIsZero();
             }
         } else if (token.tokenType == Tokens.FETCH) {
             read();

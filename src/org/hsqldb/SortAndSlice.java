@@ -48,7 +48,7 @@ import org.hsqldb.types.Type;
  */
 public final class SortAndSlice {
 
-    static final SortAndSlice noSort        = new SortAndSlice();
+    public static final SortAndSlice noSort        = new SortAndSlice();
     static final int[]        defaultLimits = new int[] {
         0, Integer.MAX_VALUE, Integer.MAX_VALUE
     };
@@ -64,8 +64,8 @@ public final class SortAndSlice {
     ExpressionOp       limitCondition;
     public int         columnCount;
     boolean            hasNullsLast;
-    boolean            strictLimit;
-    boolean            zeroLimit;
+    boolean            noZeroLimit;
+    boolean            zeroLimitIsZero;
     boolean            usingIndex;
     boolean            descendingSort;
     public boolean     skipSort       = false;    // true when result can be used as is
@@ -103,11 +103,11 @@ public final class SortAndSlice {
     }
 
     public void setStrictLimit() {
-        strictLimit = true;
+        noZeroLimit = true;
     }
 
-    public void setZeroLimit() {
-        zeroLimit = true;
+    public void setZeroLimitIsZero() {
+        zeroLimitIsZero = true;
     }
 
     public void setUsingIndex() {
@@ -417,11 +417,11 @@ public final class SortAndSlice {
                     (Integer) limitCondition.getRightNode().getValue(session);
 
                 if (value == null || value.intValue() < 0
-                        || (strictLimit && value.intValue() == 0)) {
+                        || (noZeroLimit && value.intValue() == 0)) {
                     throw Error.error(ErrorCode.X_2201W);
                 }
 
-                if (value.intValue() == 0 && !zeroLimit) {
+                if (value.intValue() == 0 && !zeroLimitIsZero) {
                     limitRows = Integer.MAX_VALUE;
                 } else {
                     limitRows = value.intValue();
