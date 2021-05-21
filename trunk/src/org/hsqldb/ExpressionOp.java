@@ -559,6 +559,10 @@ public class ExpressionOp extends Expression {
             dataType = nodes[RIGHT].dataType;
 
             if (!nodes[RIGHT].dataType.equals(nodes[LEFT].dataType)) {
+                if (dataType.isCharacterType()) {
+                    dataType = Type.SQL_VARCHAR_DEFAULT;
+                }
+
                 nodes[LEFT] = new ExpressionOp(nodes[LEFT], dataType);
             }
         } else {

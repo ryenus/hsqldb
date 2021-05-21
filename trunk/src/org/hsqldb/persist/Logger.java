@@ -107,7 +107,6 @@ public class Logger implements EventLogInterface {
     boolean         propNioDataFile;
     long            propNioMaxSize    = 256 * 1024 * 1024L;
     int             propMaxFreeBlocks = 512;
-    int             propMinReuse      = 0;
     private int     propCacheMaxRows;
     private long    propCacheMaxSize;
     int             propDataFileDefragLimit;
@@ -603,10 +602,6 @@ public class Logger implements EventLogInterface {
             HsqlDatabaseProperties.runtime_gc_interval);
         propRefIntegrity = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_ref_integrity);
-
-        setCacheMinReuseSize(
-            database.databaseProperties.getIntegerProperty(
-                HsqlDatabaseProperties.hsqldb_min_reuse));
     }
 
 // fredt@users 20020130 - patch 495484 by campbell-burnet@users
@@ -1117,10 +1112,6 @@ public class Logger implements EventLogInterface {
 
     public long getCacheSize() {
         return propCacheMaxSize;
-    }
-
-    public void setCacheMinReuseSize(int value) {
-        propMinReuse = ArrayUtil.getTwoPowerFloor(value);
     }
 
     public void setDataFileScale(int value) {
@@ -1667,14 +1658,6 @@ public class Logger implements EventLogInterface {
 
         if (HsqlDatabaseProperties.jdbc_translate_tti_types.equals(name)) {
             return String.valueOf(database.sqlTranslateTTI);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_min_reuse.equals(name)) {
-            return String.valueOf(propMinReuse);
-        }
-
-        if (HsqlDatabaseProperties.sql_sys_index_names.equals(name)) {
-            return String.valueOf(database.sqlSysIndexNames);
         }
 
 /*

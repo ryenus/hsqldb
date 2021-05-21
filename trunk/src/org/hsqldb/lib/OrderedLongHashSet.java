@@ -168,6 +168,10 @@ public class OrderedLongHashSet extends BaseHashMap {
         return array;
     }
 
+    public PrimitiveIterator<Long> iterator() {
+        return new BaseHashIterator(true);
+    }
+
     private void checkRange(int i) {
 
         if (i < 0 || i >= size()) {
