@@ -308,6 +308,16 @@ public final class ArrayUtil {
         return -1;
     }
 
+    public static int find(char[] array, int value) {
+
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == value) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
     /**
      * Finds the first element of the array that is not equal to the given value.
      *

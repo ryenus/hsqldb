@@ -4341,13 +4341,18 @@ public class FunctionCustom extends FunctionSQL {
     private String getSQLSimple() {
 
         StringBuilder sb = new StringBuilder(name).append('(');
+        boolean       added = false;
 
         for (int i = 0; i < nodes.length; i++) {
-            if (i > 0) {
+            if (nodes[i] != null) {
+                if (added) {
                 sb.append(',');
             }
 
             sb.append(nodes[i].getSQL());
+
+                added = true;
+            }
         }
 
         sb.append(')');
