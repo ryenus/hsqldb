@@ -81,11 +81,15 @@ implements Comparator<Object[]> {
     Index idIndex;
 
     //
+    final SortAndSlice sortAndSlice;
+
+    //
     TreeMap<Object[], Integer> groupMap;
     LongKeyHashMap             idMap;
 
-    RowSetNavigatorData(Session session) {
+    RowSetNavigatorData(Session session, SortAndSlice sortAndSlice) {
         this.session = session;
+        this.sortAndSlice = sortAndSlice;
     }
 
     public RowSetNavigatorData(Session session, QuerySpecification select) {
@@ -97,6 +101,7 @@ implements Comparator<Object[]> {
         mainIndex          = select.mainIndex;
         fullIndex          = select.fullIndex;
         orderIndex         = select.orderIndex;
+        sortAndSlice       = select.sortAndSlice;
 
         if (select.isGrouped) {
             mainIndex = select.groupIndex;
@@ -116,11 +121,13 @@ implements Comparator<Object[]> {
         fullIndex          = queryExpression.fullIndex;
         orderIndex         = queryExpression.orderIndex;
         visibleColumnCount = queryExpression.getColumnCount();
+        sortAndSlice       = queryExpression.sortAndSlice;
     }
 
     public RowSetNavigatorData(Session session, RowSetNavigator navigator) {
 
         this.session = session;
+        sortAndSlice = SortAndSlice.noSort;
 
         setCapacity(navigator.size);
 
@@ -207,7 +214,7 @@ implements Comparator<Object[]> {
     }
 
     void insertAdjusted(Object[] data, int[] columnMap) {
-        projectData(data, columnMap);
+        data = projectData(data, columnMap);
         insert(data);
     }
 

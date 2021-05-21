@@ -63,7 +63,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public RowSetNavigatorDataTable(Session session,
                                     QuerySpecification select) {
 
-        super(session);
+        super(session, select.sortAndSlice);
 
         rangePosition      = select.resultRangePosition;
         visibleColumnCount = select.indexLimitVisible;
@@ -98,7 +98,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public RowSetNavigatorDataTable(Session session,
                                     QueryExpression queryExpression) {
 
-        super(session);
+        super(session, queryExpression.sortAndSlice);
 
         table              = queryExpression.resultTable.duplicate();
         visibleColumnCount = table.getColumnCount();
@@ -110,14 +110,14 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
     public RowSetNavigatorDataTable(Session session, Table table) {
 
-        super(session);
+        super(session, SortAndSlice.noSort);
 
         this.table         = table;
         visibleColumnCount = table.getColumnCount();
         mainIndex          = table.getPrimaryIndex();
         fullIndex          = table.getFullIndex(session);
         store              = table.getRowStore(session);
-        this.size          = (int) store.elementCount();
+        size               = (int) store.elementCount();
 
         reset();
     }
