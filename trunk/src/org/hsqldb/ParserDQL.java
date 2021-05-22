@@ -66,7 +66,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -3547,7 +3547,8 @@ public class ParserDQL extends ParserBase {
             return;
         }
 
-        if (OpTypes.subqueryAggregateExpressionSet.contains(e.opType)) {
+        if (OpTypes.GROUPING == e.opType
+                || OpTypes.subqueryAggregateExpressionSet.contains(e.opType)) {
             throw Error.error(
                 ErrorCode.X_42572,
                 "aggregate functions / subqueries are not allowed in GROUP BY");
