@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class Expression implements Cloneable {
@@ -200,6 +200,7 @@ public class Expression implements Cloneable {
             case OpTypes.ALTERNATIVE :
             case OpTypes.CASEWHEN :
             case OpTypes.CAST :
+            case OpTypes.CONVERT :
                 return ddl;
         }
 

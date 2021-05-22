@@ -49,7 +49,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class ExpressionOp extends Expression {
@@ -198,6 +198,24 @@ public class ExpressionOp extends Expression {
         return new ExpressionOp(e, dataType);
     }
 
+    public static Expression getConvertExpression(Session session,
+            Expression e, Type dataType) {
+
+        if (e.getType() == OpTypes.VALUE) {
+            Object value = dataType.convertToType(session,
+                                                  e.getValue(session),
+                                                  e.getDataType());
+
+            return new ExpressionValue(value, dataType);
+        }
+
+        Expression c = new ExpressionOp(e, dataType);
+
+        c.opType = OpTypes.CONVERT;
+
+        return c;
+    }
+
     public String getSQL() {
 
         StringBuilder sb    = new StringBuilder(64);
@@ -230,6 +248,10 @@ public class ExpressionOp extends Expression {
                 sb.append(left).append(' ').append(Tokens.T_AS).append(' ');
                 sb.append(dataType.getTypeDefinition());
                 sb.append(')');
+                break;
+
+            case OpTypes.CONVERT :
+                sb.append(left);
                 break;
 
             case OpTypes.CASEWHEN :
@@ -329,6 +351,12 @@ public class ExpressionOp extends Expression {
                 sb.append(' ');
                 break;
 
+            case OpTypes.CONVERT :
+                sb.append(Tokens.T_CONVERT).append(' ');
+                sb.append(dataType.getTypeDefinition());
+                sb.append(' ');
+                break;
+
             case OpTypes.CASEWHEN :
                 sb.append(Tokens.T_CASEWHEN).append(' ');
                 break;
@@ -356,8 +384,10 @@ public class ExpressionOp extends Expression {
     }
 
     public List resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            List unresolvedSet, boolean acceptsSequences) {
+                                        RangeGroup rangeGroup, int rangeCount,
+                                        RangeGroup[] rangeGroups,
+                                        List unresolvedSet,
+                                        boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -418,7 +448,8 @@ public class ExpressionOp extends Expression {
 
                 break;
             }
-            case OpTypes.CAST : {
+            case OpTypes.CAST :
+            case OpTypes.CONVERT : {
                 Expression node     = nodes[LEFT];
                 Type       nodeType = node.dataType;
 
@@ -857,6 +888,24 @@ public class ExpressionOp extends Expression {
                     dataType.castToType(session,
                                         nodes[LEFT].getValue(session),
                                         nodes[LEFT].dataType);
+
+                if (dataType.userTypeModifier != null) {
+                    Constraint[] constraints =
+                        dataType.userTypeModifier.getConstraints();
+
+                    for (int i = 0; i < constraints.length; i++) {
+                        constraints[i].checkCheckConstraint(session, null,
+                                                            null, value);
+                    }
+                }
+
+                return value;
+            }
+            case OpTypes.CONVERT : {
+                Object value =
+                    dataType.convertToType(session,
+                                           nodes[LEFT].getValue(session),
+                                           nodes[LEFT].dataType);
 
                 if (dataType.userTypeModifier != null) {
                     Constraint[] constraints =

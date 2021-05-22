@@ -48,7 +48,7 @@ import org.hsqldb.types.Type;
  * Parser for DML statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class ParserDML extends ParserDQL {
@@ -289,12 +289,11 @@ public class ParserDML extends ParserDQL {
 
                         // DYNAMIC_PARAM and PARAMETER expressions may have wider values
                         if (e.opType != OpTypes.DEFAULT) {
-                            if (e.dataType == null || colType
-                                    .typeDataGroup != e.dataType
-                                    .typeDataGroup || colType.isArrayType()) {
-                                rowArgs[i] =
-                                    ExpressionOp.getCastExpression(session, e,
-                                                                   colType);
+                            if (e.dataType == null || colType.isArrayType()
+                                    || colType.typeDataGroup
+                                       != e.dataType.typeDataGroup) {
+                                rowArgs[i] = ExpressionOp.getConvertExpression(
+                                    session, e, colType);
                             }
                         }
                     }
