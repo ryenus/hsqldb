@@ -53,7 +53,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class RowSetNavigatorData extends RowSetNavigator

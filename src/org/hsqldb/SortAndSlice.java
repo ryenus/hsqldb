@@ -43,7 +43,7 @@ import org.hsqldb.types.Type;
  * Implementation of ORDER BY and LIMIT properties of query expressions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.9.0
  */
 public final class SortAndSlice {
