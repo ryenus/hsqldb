@@ -787,7 +787,7 @@ public final class Constraint implements SchemaObject {
      * inserting a row into the child table.
      */
     void checkInsert(Session session, Table table, Object[] data,
-                     boolean isNew) {
+                     Object[] oldData) {
 
         switch (constType) {
 
@@ -815,9 +815,20 @@ public final class Constraint implements SchemaObject {
                     }
 
                     // core.matchType == OpTypes.MATCH_FULL
-                } else if (core.mainIndex.existsParent(session, store, data,
-                                                       core.refCols)) {
-                    return;
+                } else {
+                    if (oldData != null) {
+                        int c = core.refIndex.compareRow(session, data,
+                                                          oldData);
+
+                        if (c == 0) {
+                            return;
+                        }
+                    }
+
+                    if (core.mainIndex.existsParent(session, store, data,
+                                                    core.refCols)) {
+                        return;
+                    }
                 }
 
                 throw getException(data);
@@ -978,7 +989,7 @@ public final class Constraint implements SchemaObject {
         while (it.next()) {
             Object[] rowData = it.getCurrent();
 
-            checkInsert(session, table, rowData, false);
+            checkInsert(session, table, rowData, null);
         }
     }
 
