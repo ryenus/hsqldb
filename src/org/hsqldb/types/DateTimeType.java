@@ -770,6 +770,10 @@ public final class DateTimeType extends DTIType {
                         return convertToTypeLimits(session, a);
 
                     case Types.SQL_TIMESTAMP : {
+                        if (!(a instanceof TimestampData)) {
+                            throw Error.error(ErrorCode.X_42561);
+                        }
+
                         TimestampData ts = (TimestampData) a;
                         long seconds = ts.getSeconds()
                                        - session.getZoneSeconds();
@@ -779,6 +783,10 @@ public final class DateTimeType extends DTIType {
                                                  session.getZoneSeconds());
                     }
                     case Types.SQL_DATE : {
+                        if (!(a instanceof TimestampData)) {
+                            throw Error.error(ErrorCode.X_42561);
+                        }
+
                         TimestampData ts = (TimestampData) a;
 
                         return new TimestampData(ts.getSeconds(), 0,

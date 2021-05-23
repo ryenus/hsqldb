@@ -1582,7 +1582,7 @@ public class StatementDML extends StatementDMQL {
 
         for (int i = 0, size = table.checkConstraints.length; i < size; i++) {
             table.checkConstraints[i].checkInsert(session, table, newData,
-                                                  oldData == null);
+                                                  oldData);
         }
 
         if (!session.database.isReferentialIntegrity()) {
@@ -1590,16 +1590,16 @@ public class StatementDML extends StatementDMQL {
         }
 
         for (int i = 0, size = table.fkConstraints.length; i < size; i++) {
-            boolean    check = oldData == null;
-            Constraint c     = table.fkConstraints[i];
+            boolean    check     = oldData == null;
+            Constraint c         = table.fkConstraints[i];
+            int[]      fkColumns = c.getRefColumns();
 
             if (!check) {
-                check = ArrayUtil.haveCommonElement(c.getRefColumns(),
-                                                    updatedColumns);
+                check = ArrayUtil.haveCommonElement(fkColumns, updatedColumns);
             }
 
             if (check) {
-                c.checkInsert(session, table, newData, oldData == null);
+                c.checkInsert(session, table, newData, oldData);
             }
         }
     }
