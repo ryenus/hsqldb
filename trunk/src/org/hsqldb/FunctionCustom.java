@@ -2136,11 +2136,11 @@ public class FunctionCustom extends FunctionSQL {
 
                 int     flags = FunctionCustom.regexpParams((String) data[5]);
                 Pattern currentPattern;
-                String  source         = (String) data[0];
-                String  matchPattern   = (String) data[1];
-                String  replace        = (String) data[2];
-                int     start          = 1;
-                int     count          = 0;
+                String  source       = (String) data[0];
+                String  matchPattern = (String) data[1];
+                String  replace      = (String) data[2];
+                int     start        = 1;
+                int     count        = 0;
 
                 if (nodes[2] == null) {
                     replace = "";
@@ -4340,16 +4340,16 @@ public class FunctionCustom extends FunctionSQL {
 
     private String getSQLSimple() {
 
-        StringBuilder sb = new StringBuilder(name).append('(');
+        StringBuilder sb    = new StringBuilder(name).append('(');
         boolean       added = false;
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
                 if (added) {
-                sb.append(',');
-            }
+                    sb.append(',');
+                }
 
-            sb.append(nodes[i].getSQL());
+                sb.append(nodes[i].getSQL());
 
                 added = true;
             }

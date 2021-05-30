@@ -49,7 +49,7 @@ import org.hsqldb.types.Type;
 public final class SortAndSlice {
 
     public static final SortAndSlice noSort        = new SortAndSlice();
-    static final int[]        defaultLimits = new int[] {
+    static final int[]               defaultLimits = new int[] {
         0, Integer.MAX_VALUE, Integer.MAX_VALUE
     };
 

@@ -129,7 +129,7 @@ public interface OpTypes {
         PREFIX                     = 88,
         MEDIAN                     = 89,
         CONCAT_WS                  = 90,
-        CAST                       = 91,    // other operations
+        CAST                       = 91,     // other operations
         CONVERT                    = 92,
         ZONE_MODIFIER              = 93,
         CASEWHEN                   = 94,

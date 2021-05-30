@@ -1564,7 +1564,7 @@ public class QuerySpecification extends QueryExpression {
         if (sortAndSlice.skipFullResult) {
             skipCount  = limits[0];
             limitCount = limits[1];
-    }
+        }
 
         Result r = buildResult(session, navigator, skipCount, limitCount);
 
@@ -1591,7 +1591,7 @@ public class QuerySpecification extends QueryExpression {
     private Result buildResult(Session session, RowSetNavigatorData navigator,
                                int skipCount, int limitCount) {
 
-        Result              result        = Result.newResult(navigator);
+        Result  result          = Result.newResult(navigator);
         boolean isResultGrouped = isGrouped && !isSimpleDistinct;
 
         result.metaData = resultMetaData;
@@ -1608,7 +1608,7 @@ public class QuerySpecification extends QueryExpression {
 
         if (limitCount == 0) {
             return result;
-            }
+        }
 
         if (isGroupingSets) {
             session.sessionContext.setGroup(null);

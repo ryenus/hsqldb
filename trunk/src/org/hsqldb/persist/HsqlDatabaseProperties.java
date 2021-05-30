@@ -310,7 +310,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String textdb_qc           = "textdb.qc";
     public static final String textdb_null_def     = "textdb.null_def";
 
-    //
+    // obsolete property from version 2.5.1
     public static final String hsqldb_min_reuse = "hsqldb.min_reuse";
 
     static {
