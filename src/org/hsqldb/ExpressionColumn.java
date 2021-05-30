@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Implementation of column, variable, parameter, etc. access operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class ExpressionColumn extends Expression {
@@ -950,7 +950,7 @@ public class ExpressionColumn extends Expression {
 
             case OpTypes.DYNAMIC_PARAM :
                 sb.append("DYNAMIC PARAM: ");
-                sb.append(", TYPE = ").append(dataType.getNameString());
+                sb.append(", TYPE = ").append(dataType.getDefinition());
                 break;
 
             case OpTypes.SEQUENCE :
