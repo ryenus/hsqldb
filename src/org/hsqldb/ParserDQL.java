@@ -3782,7 +3782,8 @@ public class ParserDQL extends ParserBase {
         Expression e         = XreadCharacterPrimary();
         Collation  collation = readCollateClauseOrNull();
 
-        while (token.tokenType == Tokens.CONCAT_OP) {
+        while (token.tokenType == Tokens.CONCAT_OP
+                || token.tokenType == Tokens.PLUS_OP) {
             read();
 
             Expression a = e;
