@@ -43,7 +43,7 @@ import java.nio.charset.Charset;
  * Handles invariants, runtime and methods
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  */
 public final class JavaSystem {
 
@@ -135,25 +135,5 @@ public final class JavaSystem {
         }
 
         return new IOException(t);
-    }
-
-    static final BigDecimal BD_1  = BigDecimal.valueOf(1L);
-    static final BigDecimal MBD_1 = BigDecimal.valueOf(-1L);
-
-    public static int precision(BigDecimal o) {
-
-        if (o == null) {
-            return 0;
-        }
-
-        int precision;
-
-        if (o.compareTo(BD_1) < 0 && o.compareTo(MBD_1) > 0) {
-            precision = o.scale();
-        } else {
-            precision = o.precision();
-        }
-
-        return precision;
     }
 }

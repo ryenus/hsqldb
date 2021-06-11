@@ -48,7 +48,7 @@ import org.hsqldb.map.ValuePool;
  * Type subclass for all NUMBER types.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.1
  * @since 1.9.0
  */
 public final class NumberType extends Type {
@@ -62,6 +62,7 @@ public final class NumberType extends Type {
     public static final int defaultNumericScale          = 32;
     public static final int maxNumericPrecision          = Integer.MAX_VALUE;
     static final int        bigintSquareNumericPrecision = 40;
+    static final int        decimalLiteralPrecision      = 24;
 
     //
     public static final int TINYINT_WIDTH  = 8;
@@ -793,7 +794,7 @@ public final class NumberType extends Type {
                     dec = dec.setScale(scale, RoundingMode.HALF_DOWN);
                 }
 
-                int p = JavaSystem.precision(dec);
+                int p = precision(dec);
 
                 if (p > precision) {
                     throw Error.error(ErrorCode.X_22003);
@@ -824,7 +825,7 @@ public final class NumberType extends Type {
                         dec = dec.setScale(scale, RoundingMode.HALF_DOWN);
                     }
 
-                    if (JavaSystem.precision(dec) > precision) {
+                    if (precision(dec) > precision) {
                         throw Error.error(ErrorCode.X_22003);
                     }
 
@@ -1399,7 +1400,7 @@ public final class NumberType extends Type {
 
                     BigDecimal dec = convertToDecimal(o);
                     int        s   = dec.scale();
-                    int        p   = JavaSystem.precision(dec);
+                    int        p   = precision(dec);
 
                     if (s < 0) {
                         p -= s;
@@ -2024,6 +2025,39 @@ public final class NumberType extends Type {
         }
 
         return Double.compare(value1, value2);
+    }
+
+
+    static final BigDecimal BD_1  = BigDecimal.valueOf(1L);
+    static final BigDecimal MBD_1 = BigDecimal.valueOf(-1L);
+
+    public static int precision(BigDecimal o) {
+
+        if (o == null) {
+            return 0;
+        }
+
+        int precision;
+
+        if (o.compareTo(BD_1) < 0 && o.compareTo(MBD_1) > 0) {
+            precision = o.scale();
+        } else {
+            precision = o.precision();
+        }
+
+        return precision;
+    }
+
+    public static NumberType getNumberTypeForLiteral(BigDecimal value) {
+
+        int precision = precision(value);
+        int scale     = value.scale();
+
+        if (precision < decimalLiteralPrecision) {
+            precision = decimalLiteralPrecision;
+        }
+
+        return new NumberType(Types.SQL_DECIMAL, precision, scale);
     }
 
     public static NumberType getNumberType(int type, long precision,
