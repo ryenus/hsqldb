@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  * Scans for SQL tokens.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class Scanner {
@@ -1153,8 +1153,7 @@ public class Scanner {
                     BigDecimal decimal = new BigDecimal(token.tokenString);
 
                     token.tokenValue = decimal;
-                    token.dataType = NumberType.getNumberType(Types.NUMERIC,
-                            JavaSystem.precision(decimal), decimal.scale());
+                    token.dataType = NumberType.getNumberTypeForLiteral(decimal);
                 } catch (Exception e2) {
                     token.tokenType   = Tokens.X_MALFORMED_NUMERIC;
                     token.isMalformed = true;
