@@ -48,7 +48,7 @@ import org.hsqldb.types.Types;
  * Metadata for a result set.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.8.0
  */
 public final class ResultMetaData {
@@ -146,23 +146,24 @@ public final class ResultMetaData {
         return md;
     }
 
-    public static ResultMetaData newDoubleColumnMetaData(String colNameA,
-            String colNameB) {
+    public static ResultMetaData newMetaData(String[] colNames,
+            Type[] colTypes) {
 
-        ResultMetaData md = ResultMetaData.newResultMetaData(2);
+        ResultMetaData md = newResultMetaData(colTypes, null, colTypes.length,
+                                              colTypes.length);
 
-        md.columns[0] = new ColumnBase(null, null, null, colNameA);
+        for (int i = 0; i < colNames.length; i++) {
+            ColumnBase col = new ColumnBase(null, null, null, colNames[i]);
 
-        md.columns[0].setType(Type.SQL_VARCHAR_DEFAULT);
+            col.setType(colTypes[i]);
 
-        md.columns[1] = new ColumnBase(null, null, null, colNameB);
+            md.columns[i] = col;
+        }
 
-        md.columns[1].setType(Type.SQL_VARCHAR_DEFAULT);
         md.prepareData();
 
         return md;
     }
-
     public static ResultMetaData newResultMetaData(Type[] types,
             int[] baseColumnIndexes, int colCount, int extColCount) {
 
