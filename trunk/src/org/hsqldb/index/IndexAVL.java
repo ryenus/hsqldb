@@ -1466,8 +1466,10 @@ public class IndexAVL implements Index {
             break;
         }
 
+        c = node;
+
         while (true) {
-            c = next(session, store, node, 0);
+            c = next(store, c);
 
             if (c == null) {
                 break;
