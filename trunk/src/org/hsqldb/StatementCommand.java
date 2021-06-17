@@ -53,12 +53,13 @@ import org.hsqldb.rights.User;
 import org.hsqldb.scriptio.ScriptWriterText;
 import org.hsqldb.scriptio.ScriptWriterTextColumnNames;
 import org.hsqldb.types.TimestampData;
+import org.hsqldb.types.Type;
 
 /**
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -301,8 +302,13 @@ public class StatementCommand extends Statement {
                         name, set);
                 }
 
-                Result result = Result.newDoubleColumnResult("OBJCT_TYPE",
-                    "OBJECT_NAME");
+                String[] names  = new String[] {
+                    "OBJCT_TYPE", "OBJECT_NAME"
+                };
+                Type[]   types  = new Type[] {
+                    Type.SQL_VARCHAR_DEFAULT, Type.SQL_VARCHAR_DEFAULT
+                };
+                Result   result = Result.newMultiColumnResult(names, types);
 
                 for (int i = 0; i < set.size(); i++) {
                     HsqlName current = (HsqlName) set.get(i);

@@ -255,7 +255,7 @@ public class Result {
 
     public static Result newResult(Session session, int mode,
                                    DataInputStream dataInput,
-                                   RowInputInterface in) throws IOException {
+                                   RowInputInterface in) {
 
         try {
             if (mode == ResultConstants.LARGE_OBJECT_OP) {
@@ -851,13 +851,12 @@ public class Result {
         return result;
     }
 
-    public static Result newDoubleColumnResult(String colNameA,
-            String colNameB) {
+    public static Result newMultiColumnResult(String[] names,
+            Type[] types) {
 
-        Result result = newResult(ResultConstants.DATA);
+        Result   result = newResult(ResultConstants.DATA);
 
-        result.metaData = ResultMetaData.newDoubleColumnMetaData(colNameA,
-                colNameB);
+        result.metaData  = ResultMetaData.newMetaData(names, types);
         result.navigator = new RowSetNavigatorClient(8);
 
         return result;
@@ -1624,15 +1623,6 @@ public class Result {
 
             initialiseNavigator().add(s);
         }
-    }
-
-    public void addRow(String[] sql) {
-
-        if (sql == null) {
-            return;
-        }
-
-        initialiseNavigator().add(sql);
     }
 
     private static Object[] readSimple(RowInputInterface in,

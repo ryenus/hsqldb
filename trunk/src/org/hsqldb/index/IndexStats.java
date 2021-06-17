@@ -32,15 +32,17 @@
 package org.hsqldb.index;
 
 import org.hsqldb.Table;
+import org.hsqldb.TypeInvariants;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
+import org.hsqldb.types.Type;
 
 /**
  * Holds results of index check
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.1
  * @since 2.5.1
  */
 public class IndexStats {
@@ -68,68 +70,77 @@ public class IndexStats {
 
     public static Result newEmptyResult() {
 
-        Result result = Result.newDoubleColumnResult("TABLE_OR_INDEX_NAME",
-            "INFO");
+        String[] names = new String[] {
+            "TABLE_NAME", "INDEX_NAME", "INFO"
+        };
+        Type[]   types = new Type[] {
+            Type.SQL_VARCHAR_DEFAULT, TypeInvariants.SQL_IDENTIFIER,
+            Type.SQL_VARCHAR_DEFAULT
+        };
+        Result result = Result.newMultiColumnResult(names, types);
 
         return result;
     }
 
     public void addTableStats(Result result) {
 
-        String[] data = new String[] {
-            "TABLE "
-            + ((Table) index.getTable()).getName()
+        Object[] data = new Object[] {
+            ((Table) index.getTable()).getName()
                 .getSchemaQualifiedStatementName(),
-            "rows " + store.elementCount()
+            "", "rows " + store.elementCount()
         };
 
-        result.addRow(data);
+        result.navigator.add(data);
     }
 
     public void addStats(Result result) {
 
         {
-            String[] data = new String[] {
+            Object[] data = new Object[] {
+                ((Table) index.getTable()).getName()
+                    .getSchemaQualifiedStatementName(),
                 index.getName().getStatementName(),
                 "readable rows " + goodRowCount
             };
 
-            result.addRow(data);
+            result.navigator.add(data);
         }
 
         if (errorCount != 0) {
-            String[] data = new String[] {
-                "", "error rows " + errorCount
+            Object[] data = new Object[] {
+                "", "", "error rows " + errorCount
             };
 
-            result.addRow(data);
+            result.navigator.add(data);
         }
 
         if (loopCount != 0) {
-            String[] data = new String[] {
-                "", "loop rows " + loopCount
+            Object[] data = new Object[] {
+                "", "", "loop rows " + loopCount
             };
 
-            result.addRow(data);
+            result.navigator.add(data);
         }
 
         for (int i = 0; i < unorderedList.size(); i++) {
-            String[] data = new String[] {
-                "", (String) unorderedList.get(i)
+            Object[] data = new Object[] {
+                "", "", (Object) unorderedList.get(i)
             };
 
-            result.addRow(data);
+            result.navigator.add(data);
         }
     }
 
     public void addReindexedStats(Result result) {
 
         {
-            String[] data = new String[] {
+            Object[] data = new Object[] {
+                ((Table) index.getTable()).getName()
+                    .getSchemaQualifiedStatementName(),
                 index.getName().getStatementName(), "reindexed"
             };
 
-            result.addRow(data);
+            result.navigator.add(data);
         }
     }
 }
