@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2021, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,6 @@ package org.hsqldb.map;
 
 import java.util.Arrays;
 
-import org.hsqldb.lib.ArrayUtil;
-
 /**
  * Implementation of a bit map of any size. The map is initialised with
  * the given size with no bits set. The map is fixed length depending on
@@ -43,7 +41,7 @@ import org.hsqldb.lib.ArrayUtil;
  * Static methods to manipulate int, byte and byte[] values as bit maps.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.6.1
  * @since 1.8.0
 */
 public class BitMap {
@@ -77,7 +75,7 @@ public class BitMap {
 
     public BitMap duplicate() {
 
-        BitMap newMap = new BitMap((int[]) ArrayUtil.duplicateArray(this.map));
+        BitMap newMap = new BitMap(Arrays.copyOf(this.map, this.map.length));
 
         newMap.canChangeSize = this.canChangeSize;
         newMap.initialSize   = this.initialSize;

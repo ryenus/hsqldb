@@ -112,7 +112,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -1735,7 +1735,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "ORDINAL_POSITION", CARDINAL_NUMBER);
             addColumn(t, "CARDINALITY", CARDINAL_NUMBER);
             addColumn(t, "ALLOCATED_ROWS", CARDINAL_NUMBER);
-            addColumn(t, "USED_SPACE", CARDINAL_NUMBER);
             addColumn(t, "ALLOCATED_SPACE", CARDINAL_NUMBER);
             addColumn(t, "SPACE_ID", CARDINAL_NUMBER);
             addColumn(t, "BASE_SPACE", CARDINAL_NUMBER);
@@ -1748,7 +1747,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 SchemaObject.INDEX);
 
             t.createPrimaryKeyConstraint(name, new int[] {
-                0, 1, 2, 4
+                0, 1, 2, 5
             }, false);
 
             return t;

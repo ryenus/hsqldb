@@ -34,6 +34,7 @@ package org.hsqldb.types;
 import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 import org.hsqldb.SessionInterface;
 import org.hsqldb.error.Error;
@@ -45,7 +46,7 @@ import org.hsqldb.lib.ArrayUtil;
  * A Binary object instance always wraps a non-null byte[] object.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.7.2
  */
 public class BinaryData implements BlobData {
@@ -84,7 +85,7 @@ public class BinaryData implements BlobData {
     public BinaryData(byte[] data, boolean clone) {
 
         if (clone) {
-            data = (byte[]) ArrayUtil.duplicateArray(data);
+            data = Arrays.copyOf(data, data.length);
         }
 
         this.data      = data;
