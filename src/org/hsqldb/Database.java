@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.Session.TimeoutManager;
 import org.hsqldb.dbinfo.DatabaseInformation;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -60,7 +61,7 @@ import org.hsqldb.types.Collation;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class Database {
@@ -886,25 +887,26 @@ public class Database {
     static class TimeoutRunner implements Runnable {
 
         private Object        timerTask;
-        private HsqlArrayList sessionList;
+        private HsqlArrayList timeoutList;
         int                   abortCount;
 
         public void run() {
 
             try {
                 synchronized (this) {
-                    for (int i = 0; i < sessionList.size(); i++) {
-                        Session session = (Session) sessionList.get(i);
+                    for (int i = 0; i < timeoutList.size(); i++) {
+                        TimeoutManager timeOut =
+                            (TimeoutManager) timeoutList.get(i);
 
-                        if (session.isClosed()) {
-                            sessionList.remove(i);
+                        if (timeOut.isClosed()) {
+                            timeoutList.remove(i);
 
                             i--;
 
                             continue;
                         }
 
-                        boolean result = session.timeoutManager.checkTimeout();
+                        boolean result = timeOut.checkTimeout();
 
                         if (result) {
                             abortCount++;
@@ -928,25 +930,25 @@ public class Database {
                 HsqlTimer.cancel(timerTask);
 
                 timerTask   = null;
-                sessionList = null;
+                timeoutList = null;
             }
         }
 
-        public void addSession(Session session) {
+        public void addSession(TimeoutManager timeout) {
 
             synchronized (this) {
                 if (timerTask == null) {
                     start();
                 }
 
-                sessionList.add(session);
+                timeoutList.add(timeout);
             }
         }
 
         private void start() {
 
-            sessionList = new HsqlArrayList(128);
-            timerTask = DatabaseManager.getTimer().schedulePeriodicallyAfter(0,
+            timeoutList = new HsqlArrayList();
+            timerTask = DatabaseManager.getTimer().schedulePeriodicallyAfter(1000,
                     1000, this, true);
         }
     }

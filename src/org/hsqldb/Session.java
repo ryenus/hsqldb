@@ -75,7 +75,7 @@ import org.hsqldb.types.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -2327,9 +2327,8 @@ public class Session implements SessionInterface {
     // timeouts
     class TimeoutManager {
 
-        AtomicInteger    currentTimeout = new AtomicInteger();
-        volatile long    checkTimestampSCN;
-        volatile boolean hasTimeout = false;
+        volatile int  currentTimeout;
+        volatile long checkTimestampSCN;
 
         void startTimeout(int timeout) {
 
@@ -2337,34 +2336,35 @@ public class Session implements SessionInterface {
                 return;
             }
 
-            hasTimeout = true;
+            boolean add = checkTimestampSCN == 0;
 
-            currentTimeout.set(timeout);
+            currentTimeout    = timeout + 1;
             checkTimestampSCN = statementStartTimestamp;
 
-            database.timeoutRunner.addSession(Session.this);
+            if (add) {
+                database.timeoutRunner.addSession(this);
+            }
         }
 
         void endTimeout() {
-
-            if (hasTimeout) {
-                currentTimeout.set(0);
-
-                checkTimestampSCN = 0;
-                hasTimeout        = false;
-            }
+            currentTimeout = 0;
         }
 
         public boolean checkTimeout() {
 
-            if (!hasTimeout || checkTimestampSCN != statementStartTimestamp) {
+            if (currentTimeout == 0) {
                 return false;
             }
 
-            int result = currentTimeout.decrementAndGet();
+            if (checkTimestampSCN != statementStartTimestamp) {
+                return false;
+            }
 
-            if (result < 0) {
-                currentTimeout.set(0);
+            currentTimeout--;
+
+            if (currentTimeout <= 0) {
+                currentTimeout = 0;
+
                 database.txManager.resetSession(
                     Session.this, Session.this, checkTimestampSCN,
                     TransactionManager.resetSessionStatement);
@@ -2373,6 +2373,10 @@ public class Session implements SessionInterface {
             }
 
             return false;
+        }
+
+        public boolean isClosed() {
+            return Session.this.isClosed;
         }
     }
 }
