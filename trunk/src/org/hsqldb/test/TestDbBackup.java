@@ -52,9 +52,8 @@ public class TestDbBackup extends TestCase {
 
     public TestDbBackup() throws IOException, SQLException {}
 
-    static protected File baseDir =
-        new File(System.getProperty("java.io.tmpdir"),
-                 "TestDbBackup-" + System.getProperty("user.name"));
+    static protected File baseDir = new File("TestDbBackup-"
+        + System.currentTimeMillis());
 
     static {
         try {
@@ -124,8 +123,11 @@ public class TestDbBackup extends TestCase {
             if (children[i].isDirectory()) {
                 rmR(children[i]);
             } else if (!children[i].delete()) {
-                throw new IOException("Failed to remove '"
-                                      + children[i].getAbsolutePath() + "'");
+                if (!children[i].delete()) {
+                    throw new IOException("Failed to remove '"
+                                          + children[i].getAbsolutePath()
+                                          + "'");
+                }
             }
         }
 
@@ -382,10 +384,14 @@ public class TestDbBackup extends TestCase {
             setupConn("db1");
 
             try {
-                DbBackupMain.main(new String[] {
-                    "--save", baseDir.getAbsolutePath() + "/mainOpen.tar",
-                    baseDir.getAbsolutePath() + "/db1/dbfile"
-                });
+                String backupPath = baseDir.getAbsolutePath()
+                                    + "/mainOpen.tar";
+                String   dbPath = baseDir.getAbsolutePath() + "/db1/dbfile";
+                String[] args   = new String[] {
+                    "--save", backupPath, dbPath
+                };
+
+                DbBackupMain.main(args);
             } catch (IllegalStateException ioe) {
                 return;
             }
