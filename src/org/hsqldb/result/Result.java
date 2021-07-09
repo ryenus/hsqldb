@@ -69,7 +69,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class Result {
@@ -499,8 +499,7 @@ public class Result {
                 result.queryTimeout = in.readShort();
 
                 Statement statement =
-                    session.statementManager.getStatement(session,
-                        result.statementID);
+                    session.statementManager.getStatement(result.statementID);
 
                 if (statement == null) {
 
