@@ -197,7 +197,7 @@ public class Session implements SessionInterface {
         resetSchema();
 
         sessionData      = new SessionData(database, this);
-        statementManager = new StatementManager(database);
+        statementManager = new StatementManager(this);
         timeoutManager   = new TimeoutManager();
     }
 
@@ -981,7 +981,7 @@ public class Session implements SessionInterface {
                            < database.schemaManager.schemaChangeTimestamp) {
                     long csid = cmd.getStatementID();
 
-                    cs = statementManager.getStatement(this, csid);
+                    cs = statementManager.getStatement(csid);
 
                     cmd.setStatement(cs);
 
@@ -1030,7 +1030,7 @@ public class Session implements SessionInterface {
                 Statement cs;
 
                 try {
-                    cs = statementManager.compile(this, cmd);
+                    cs = statementManager.compile(cmd);
                 } catch (Throwable t) {
                     String errorString = cmd.getMainString();
 
@@ -1474,7 +1474,7 @@ public class Session implements SessionInterface {
                 || cs.compileTimestamp
                    < database.schemaManager.schemaChangeTimestamp) {
             csid = cmd.getStatementID();
-            cs   = statementManager.getStatement(this, csid);
+            cs   = statementManager.getStatement(csid);
 
             if (cs == null) {
 

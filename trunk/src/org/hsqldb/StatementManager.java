@@ -69,19 +69,19 @@ import org.hsqldb.result.ResultMetaData;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.7.2
  */
 public final class StatementManager {
 
-    /**
-     * The Database for which this object is managing
-     * CompiledStatement objects.
-     */
+    /** The Database for which this is managing CompiledStatement objects. */
     private Database database;
 
+    /** The Session for which this is managing CompiledStatement objects */
+    private Session session;
+
     /** Set: Compiled statement wrapper for Statement object. */
-    private HashSet<StatementWrapper>  statementSet;
+    private HashSet<StatementWrapper> statementSet;
 
     /** Map: Compiled statement id (int) => wrapper for Statement object. */
     private LongKeyHashMap csidMap;
@@ -98,9 +98,10 @@ public final class StatementManager {
      * @param database the Database instance for which this object is to
      *      manage compiled statement objects.
      */
-    StatementManager(Database database) {
+    StatementManager(Session session) {
 
-        this.database = database;
+        this.session  = session;
+        this.database = session.database;
         statementSet  = new HashSet(32, new StatementComparator());
         csidMap       = new LongKeyHashMap();
         next_cs_id    = 0;
@@ -109,7 +110,7 @@ public final class StatementManager {
     /**
      * Clears all internal data structures, removing any references to compiled statements.
      */
-    synchronized void reset() {
+    void reset() {
 
         statementSet.clear();
         csidMap.clear();
@@ -130,7 +131,7 @@ public final class StatementManager {
     }
 
     /**
-     * Returns an existing tatement object with the given
+     * Returns an existing statement object with the given
      * statement identifier. Returns null if the CompiledStatement object
      * has expired and cannot be recompiled
      *
@@ -138,7 +139,7 @@ public final class StatementManager {
      * @param csid the identifier of the requested CompiledStatement object
      * @return the requested CompiledStatement object
      */
-    public synchronized Statement getStatement(Session session, long csid) {
+    public Statement getStatement(long csid) {
 
         StatementWrapper sw = (StatementWrapper) csidMap.get(csid);
 
@@ -146,14 +147,19 @@ public final class StatementManager {
             return null;
         }
 
+        return getStatement(sw);
+    }
+
+    private Statement getStatement(StatementWrapper sw) {
+
         Statement statement = sw.statement;
 
         if (statement.getCompileTimestamp()
                 < database.schemaManager.getSchemaChangeTimestamp()) {
-            Statement newStatement = recompileStatement(session, statement);
+            Statement newStatement = recompileStatement(statement);
 
             if (newStatement == null) {
-                removeStatement(csid);
+                removeStatement(statement.getID());
 
                 return null;
             }
@@ -178,17 +184,19 @@ public final class StatementManager {
      * @param statement the old expired statement
      * @return the requested CompiledStatement object
      */
-    public synchronized Statement getStatement(Session session,
-            Statement statement) {
+    public Statement getStatement(Statement statement) {
 
-        long             csid = statement.getID();
-        StatementWrapper sw   = (StatementWrapper) csidMap.get(csid);
+        long csid = statement.getID();
 
-        if (sw != null) {
-            return getStatement(session, csid);
+        if (csid != 0) {
+            StatementWrapper sw = (StatementWrapper) csidMap.get(csid);
+
+            if (sw != null) {
+                return getStatement(sw);
+            }
         }
 
-        return recompileStatement(session, statement);
+        return recompileStatement(statement);
     }
 
     /**
@@ -199,7 +207,7 @@ public final class StatementManager {
      * @param cs the old expired statement
      * @return the new Statement object
      */
-    private Statement recompileStatement(Session session, Statement cs) {
+    private Statement recompileStatement(Statement cs) {
 
         HsqlName  oldSchema = session.getCurrentSchemaHsqlName();
         Statement newStatement;
@@ -277,7 +285,7 @@ public final class StatementManager {
      *
      * @param csid the compiled statement identifier
      */
-    synchronized void freeStatement(long csid) {
+    void freeStatement(long csid) {
 
         StatementWrapper sw = (StatementWrapper) csidMap.get(csid);
 
@@ -297,7 +305,7 @@ public final class StatementManager {
      *
      * @param csid the compiled statement identifier
      */
-    synchronized void removeStatement(long csid) {
+    private void removeStatement(long csid) {
 
         if (csid <= 0) {
 
@@ -319,7 +327,7 @@ public final class StatementManager {
      * @param cmd the Result holding the SQL
      * @return CompiledStatement
      */
-    synchronized Statement compile(Session session, Result cmd) {
+    Statement compile(Result cmd) {
 
         StatementWrapper newWrapper = new StatementWrapper();
 

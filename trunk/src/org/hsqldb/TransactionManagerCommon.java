@@ -246,7 +246,7 @@ class TransactionManagerCommon {
 
         if (cs.getCompileTimestamp()
                 < database.schemaManager.getSchemaChangeTimestamp()) {
-            cs = session.statementManager.getStatement(session, cs);
+            cs = session.statementManager.getStatement(cs);
             session.sessionContext.currentStatement = cs;
         }
 
