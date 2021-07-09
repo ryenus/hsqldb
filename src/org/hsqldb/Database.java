@@ -948,7 +948,8 @@ public class Database {
         private void start() {
 
             timeoutList = new HsqlArrayList();
-            timerTask = DatabaseManager.getTimer().schedulePeriodicallyAfter(1000,
+            timerTask =
+                DatabaseManager.getTimer().schedulePeriodicallyAfter(1000,
                     1000, this, true);
         }
     }
