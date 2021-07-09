@@ -239,7 +239,8 @@ public class BaseHashMap {
 
     protected int getLookup(int key) {
 
-        int lookup = hashIndex.getLookup(key);
+        int hash   = (int) ((long) key >>> 32 ^ key);
+        int lookup = hashIndex.getLookup(hash);
 
         for (; lookup >= 0; lookup = hashIndex.getNextLookup(lookup)) {
             int current = intKeyTable[lookup];
@@ -1012,8 +1013,9 @@ public class BaseHashMap {
 
         hashIndex.reset((int) (newCapacity * loadFactor), newCapacity);
 
-        hasZeroKey   = false;
-        zeroKeyIndex = -1;
+        hasZeroKey           = false;
+        zeroKeyIndex         = -1;
+        zeroOrNullValueCount = 0;
         threshold    = newCapacity;
 
         for (int lookup = -1;
@@ -1396,9 +1398,10 @@ public class BaseHashMap {
                 accessCount.set(0);
             }
 
-            accessMin    = 0;
-            hasZeroKey   = false;
-            zeroKeyIndex = -1;
+            accessMin            = 0;
+            hasZeroKey           = false;
+            zeroKeyIndex         = -1;
+            zeroOrNullValueCount = 0;
 
             clearElementArrays(0, hashIndex.newNodePointer);
             hashIndex.clear();
