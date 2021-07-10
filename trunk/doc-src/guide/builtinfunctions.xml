@@ -1803,8 +1803,8 @@
       <para>This function returns a BIGINT value. With no parameter, it
       returns the number of seconds since 1970-01-01. With a DATE or TIMESTAMP
       parameter, it converts the argument into number of seconds since
-      1970-01-01. The TIMESTAMP ( &lt;num value expression&gt; function
-      returns a TIMESTAMP from a Unix timestamp. (HyperSQL)</para>
+      1970-01-01. See also the TIMESTAMP ( &lt;num value expression&gt;)
+      function to return a TIMESTAMP from a Unix timestamp. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>WEEK function</primary>
@@ -2214,9 +2214,9 @@
 
       <simpara><emphasis role="bold">TIMESTAMP</emphasis></simpara>
 
-      <para>TIMESTAMP ( &lt;num value expr&gt; )</para>
+      <para><literal>TIMESTAMP ( &lt;num value expr&gt; )</literal></para>
 
-      <para>TIMESTAMP ( &lt;char value expr&gt; )</para>
+      <para><literal>TIMESTAMP ( &lt;char value expr&gt; )</literal></para>
 
       <para><literal>TIMESTAMP ( &lt;char value expr&gt;, &lt;char value
       expr&gt; )</literal></para>
@@ -2233,9 +2233,11 @@
       <para>When the single argument is a formatted date or timestamp string,
       it is translated to a TIMESTAMP.</para>
 
-      <para>When two arguments are used, the first argument is the date part
-      and the second argument is the time part of the returned TIMESTAMP
-      value. An example, including the result, is given below:</para>
+      <para>When two arguments are used, the first argument is the DATE part
+      and the second argument is the TIME part of the returned TIMESTAMP
+      value. The types of the arguments can be DATE and TIME respectively, or
+      they can be any character string type. An example, including the result,
+      is given below:</para>
 
       <informalexample>
         <programlisting> TIMESTAMP ( '2008-11-22', '20:30:40' )
