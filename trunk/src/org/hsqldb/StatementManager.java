@@ -74,29 +74,29 @@ import org.hsqldb.result.ResultMetaData;
  */
 public final class StatementManager {
 
-    /** The Database for which this is managing CompiledStatement objects. */
+    /** The Database for which this is managing Statement objects. */
     private Database database;
 
-    /** The Session for which this is managing CompiledStatement objects */
+    /** The Session for which this is managing Statement objects */
     private Session session;
 
-    /** Set: Compiled statement wrapper for Statement object. */
+    /** Set of wrappers for Statement object. */
     private HashSet<StatementWrapper> statementSet;
 
-    /** Map: Compiled statement id (int) => wrapper for Statement object. */
+    /** Map: Statement id (int) => wrapper for Statement object. */
     private LongKeyHashMap csidMap;
 
     /**
-     * Monotonically increasing counter used to assign unique ids to compiled
-     * statements.
+     * Monotonically increasing counter used to assign unique ids to
+     * Statement objects.
      */
     private long next_cs_id;
 
     /**
-     * Constructs a new instance of <code>CompiledStatementManager</code>.
+     * Constructs a new instance of <code>StatementManager</code>.
      *
-     * @param database the Database instance for which this object is to
-     *      manage compiled statement objects.
+     * @param session the session instance for which this object is to
+     *      manage Statement objects.
      */
     StatementManager(Session session) {
 
@@ -108,7 +108,7 @@ public final class StatementManager {
     }
 
     /**
-     * Clears all internal data structures, removing any references to compiled statements.
+     * Clears all internal data structures, removing any references to Statements.
      */
     void reset() {
 
@@ -119,9 +119,9 @@ public final class StatementManager {
     }
 
     /**
-     * Retrieves the next compiled statement identifier in the sequence.
+     * Retrieves the next Statement identifier in the sequence.
      *
-     * @return the next compiled statement identifier in the sequence.
+     * @return the next Statement identifier in the sequence.
      */
     private long nextID() {
 
@@ -131,13 +131,12 @@ public final class StatementManager {
     }
 
     /**
-     * Returns an existing statement object with the given
-     * statement identifier. Returns null if the CompiledStatement object
+     * Returns an existing Statement object with the given
+     * statement identifier. Returns null if the Statement object
      * has expired and cannot be recompiled
      *
-     * @param session the session
-     * @param csid the identifier of the requested CompiledStatement object
-     * @return the requested CompiledStatement object
+     * @param csid the identifier of the requested Statement object
+     * @return the requested Statement object
      */
     public Statement getStatement(long csid) {
 
@@ -180,9 +179,8 @@ public final class StatementManager {
      *
      * Used by transaction manager for all statements, prepared or not prepred.
      *
-     * @param session the session
      * @param statement the old expired statement
-     * @return the requested CompiledStatement object
+     * @return the requested Statement object
      */
     public Statement getStatement(Statement statement) {
 
@@ -200,10 +198,9 @@ public final class StatementManager {
     }
 
     /**
-     * Returns an up-to-date compiled statement using the SQL and settings of
-     * the original. Returns null if the new statement is invalid.
+     * Returns an up-to-date Statement using the SQL and settings of
+     * the original. Returns null if the SQL cannot be compiled.
      *
-     * @param session the session
      * @param cs the old expired statement
      * @return the new Statement object
      */
@@ -258,7 +255,7 @@ public final class StatementManager {
     }
 
     /**
-     * Registers a compiled statement to be managed.
+     * Registers a Statement to be managed.
      *
      * @param wrapper the wrapper for the Statement to add
      * @return The statement id assigned to the Statement object
@@ -283,7 +280,7 @@ public final class StatementManager {
      * statement is not linked with any other PreparedStatement, it is
      * removed from management.
      *
-     * @param csid the compiled statement identifier
+     * @param csid the Statement identifier
      */
     void freeStatement(long csid) {
 
@@ -303,7 +300,7 @@ public final class StatementManager {
     /**
      * Removes an invalidated Statement.
      *
-     * @param csid the compiled statement identifier
+     * @param csid the Statement identifier
      */
     private void removeStatement(long csid) {
 
@@ -323,9 +320,8 @@ public final class StatementManager {
     /**
      * Compiles an SQL statement and returns a Statement Object
      *
-     * @param session the session
      * @param cmd the Result holding the SQL
-     * @return CompiledStatement
+     * @return Statement
      */
     Statement compile(Result cmd) {
 
