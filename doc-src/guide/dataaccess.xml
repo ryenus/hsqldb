@@ -3859,12 +3859,13 @@ DIRECT SALES (null) (null)  3778500
     </section>
 
     <section xml:id="dac_explain_plan">
-      <title>Indexes Used in SELECT Statements</title>
+      <title>Indexes Used in SELECT and DML Statements</title>
 
       <para>A query expression, for example a SELECT statement, uses indexes
       for efficient data retrieval. The EXPLAIN PLAN statement lists the
-      indexes used, together with other useful information about the
-      query.</para>
+      indexes used, together with other useful information about the query.
+      EXPLAIN PLAN can also be used for data manipulation statements such as
+      UPDATE.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>EXPLAIN PLAN</primary>
