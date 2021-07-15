@@ -59,6 +59,8 @@ public final class JavaSystem {
 
             if (version.startsWith("1.")) {
                 version = version.substring(2);
+            } else if (version.startsWith("0.")) {
+                version = "6";
             }
 
             javaVersion = Integer.parseInt(version);
@@ -101,28 +103,41 @@ public final class JavaSystem {
                     java.nio.ByteBuffer.class);
 
                 invokeCleaner.invoke(unsafe, buffer);
-            } catch (Throwable t) {
-                return t;
-            }
-        } else {
-            try {
-                Method cleanerMethod = buffer.getClass().getMethod("cleaner");
 
-                cleanerMethod.setAccessible(true);
-
-                Object cleaner     = cleanerMethod.invoke(buffer);
-                Method cleanMethod = cleaner.getClass().getMethod("clean");
-
-                cleanMethod.invoke(cleaner);
-            } catch (NoSuchMethodException e) {
-                // no cleaner
-                return e;
-            } catch (InvocationTargetException e) {
-                // means we're not dealing with a Sun JVM?
+                return null;
+            } catch (NoSuchMethodException e) {}
+            catch (NoSuchFieldException e) {}
+            catch (IllegalAccessException e) {}
+            catch (ClassNotFoundException e) {}
+            catch (InvocationTargetException e) {
                 return e;
             } catch (Throwable t) {
                 return t;
             }
+
+            //on any reflection error we assume that we made a mistake guessing the java version
+            //and try the old code instead
+        }
+
+        try {
+            Method cleanerMethod = buffer.getClass().getMethod("cleaner");
+
+            cleanerMethod.setAccessible(true);
+
+            Object cleaner     = cleanerMethod.invoke(buffer);
+            Method cleanMethod = cleaner.getClass().getMethod("clean");
+
+            cleanMethod.invoke(cleaner);
+        } catch (NoSuchMethodException e) {
+
+            // no cleaner
+            return e;
+        } catch (InvocationTargetException e) {
+
+            // means we're not dealing with a Sun JVM?
+            return e;
+        } catch (Throwable t) {
+            return t;
         }
 
         return null;
