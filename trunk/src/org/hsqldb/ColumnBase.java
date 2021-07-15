@@ -31,13 +31,16 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.types.Type;
+
+import java.util.Locale;
 
 /**
  * Base implementation of variables, columns of result or table.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.3.4
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class ColumnBase {
@@ -50,26 +53,54 @@ public class ColumnBase {
     private boolean   isSearchable;
     protected byte    parameterMode;
     protected boolean isIdentity;
-    protected byte    nullability = SchemaObject.Nullability.NULLABLE;
+    protected byte    nullability;
     protected Type    dataType;
 
-    ColumnBase() {}
+    ColumnBase() {
+        this.nullability = SchemaObject.Nullability.NULLABLE;
+    }
 
     public ColumnBase(String catalog, String schema, String table,
                       String name) {
 
-        this.catalog = catalog;
-        this.schema  = schema;
-        this.table   = table;
-        this.name    = name;
+        this.catalog     = catalog;
+        this.schema      = schema;
+        this.table       = table;
+        this.name        = name;
+        this.nullability = SchemaObject.Nullability.NULLABLE;
     }
 
-    public ColumnBase(String catalog, ColumnSchema other) {
+    public ColumnBase(HsqlName catalog, ColumnSchema other, boolean toLower) {
 
-        this.catalog      = catalog;
-        this.schema       = other.getSchemaNameString();
-        this.table        = other.getTableNameString();
-        this.name         = other.getNameString();
+        this.catalog = catalog.name;
+        this.schema  = other.getSchemaNameString();
+        this.table   = other.getTableNameString();
+        this.name    = other.getNameString();
+
+        if (toLower) {
+            if (!catalog.isNameQuoted) {
+                this.catalog = catalog.name.toLowerCase(Locale.ENGLISH);
+            }
+
+            HsqlName name = other.getName();
+
+            if (!name.isNameQuoted) {
+                this.name = name.name.toLowerCase(Locale.ENGLISH);
+            }
+
+            name = name.parent;
+
+            if (name != null && !name.isNameQuoted) {
+                this.table = name.name.toLowerCase(Locale.ENGLISH);
+            }
+
+            name = name.schema;
+
+            if (name != null && !name.isNameQuoted) {
+                this.schema = name.name.toLowerCase(Locale.ENGLISH);
+            }
+        }
+
         this.nullability  = other.getNullability();
         this.isIdentity   = other.isIdentity();
         this.isSearchable = other.isSearchable();

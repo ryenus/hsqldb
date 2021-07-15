@@ -112,6 +112,7 @@ public class QueryExpression implements RangeGroup {
     boolean          isCorrelated;
     boolean          isTable;
     boolean          isValueList;
+    boolean          lowerCaseResultIdentifier;
     public TableBase resultTable;
     public Index     mainIndex;
     public Index     fullIndex;
@@ -1192,6 +1193,10 @@ public class QueryExpression implements RangeGroup {
     }
 
     public void setAsExists() {}
+
+    public void setLowerCaseResultIdentifer() {
+        lowerCaseResultIdentifier = true;
+    }
 
     static class RecursiveQuerySettings {
 

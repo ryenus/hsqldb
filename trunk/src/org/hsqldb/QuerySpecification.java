@@ -60,6 +60,8 @@ import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
+import java.util.Locale;
+
 /**
  * Implementation of an SQL query specification, including SELECT.
  *
@@ -2009,14 +2011,24 @@ public class QuerySpecification extends QueryExpression {
             if (tableColumn == null) {
                 column = new ColumnBase();
             } else {
-                column = new ColumnBase(session.database.getCatalogName().name,
-                                        tableColumn);
+                column = new ColumnBase(session.database.getCatalogName(),
+                                        tableColumn, lowerCaseResultIdentifier);
             }
 
             column.setType(e.getDataType());
 
+            SimpleName alias    = e.getSimpleName();
+            String     colLabel = alias == null ? ""
+                                                : alias.name;
+
+            if (lowerCaseResultIdentifier) {
+                if (!alias.isNameQuoted) {
+                    colLabel = colLabel.toLowerCase(Locale.ENGLISH);
+                }
+            }
+
             resultMetaData.columns[i]      = column;
-            resultMetaData.columnLabels[i] = e.getAlias();
+            resultMetaData.columnLabels[i] = colLabel;
         }
     }
 
