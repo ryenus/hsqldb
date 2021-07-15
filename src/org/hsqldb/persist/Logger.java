@@ -531,6 +531,9 @@ public class Logger implements EventLogInterface {
             HsqlDatabaseProperties.sql_syntax_pgs);
         database.sqlSysIndexNames = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_sys_index_names);
+        database.sqlLowerCaseIdentifier =
+            database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.sql_lowercase_ident);
 
         if (database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_compare_in_locale)) {
@@ -1979,6 +1982,17 @@ public class Logger implements EventLogInterface {
             sb.append(Tokens.T_IGNORECASE).append(' ');
             sb.append(database.sqlIgnoreCase ? Tokens.T_TRUE
                                              : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
+        if (database.sqlLowerCaseIdentifier) {
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_LOWER).append(' ');
+            sb.append(Tokens.T_CASE).append(' ');
+            sb.append(Tokens.T_IDENTIFIER).append(' ');
+            sb.append(database.sqlLowerCaseIdentifier ? Tokens.T_TRUE
+                                                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }

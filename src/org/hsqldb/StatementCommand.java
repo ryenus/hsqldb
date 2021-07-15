@@ -803,6 +803,9 @@ public class StatementCommand extends Statement {
                 } else if (HsqlDatabaseProperties.sql_sys_index_names.equals(
                         property)) {
                     session.database.setSysIndexNames(mode);
+                } else if (HsqlDatabaseProperties.sql_lowercase_ident.equals(
+                        property)) {
+                    session.database.setLowerCaseIndentifer(mode);
                 }
 
                 return Result.updateZeroResult;

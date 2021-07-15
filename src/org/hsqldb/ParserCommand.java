@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -1427,6 +1427,15 @@ public class ParserCommand extends ParserDDL {
 
                         flag     = processTrueOrFalseObject();
                         property = HsqlDatabaseProperties.sql_longvar_is_lob;
+                        break;
+
+                    case Tokens.LOWER :
+                        read();
+                        readThis(Tokens.CASE);
+                        readThis(Tokens.IDENTIFIER);
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_lowercase_ident;
                         break;
 
                     case Tokens.IGNORECASE :

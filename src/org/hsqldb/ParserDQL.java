@@ -7309,6 +7309,10 @@ public class ParserDQL extends ParserBase {
         }
 
         queryExpression.setReturningResult();
+
+        if (database.sqlLowerCaseIdentifier && !isRoutine ) {
+            queryExpression.setLowerCaseResultIdentifer();
+        }
         queryExpression.resolve(session, rangeGroups, null);
 
         StatementQuery cs = isRoutine

@@ -116,6 +116,7 @@ public class Database {
     public boolean                sqlRegularNames        = true;
     public boolean                sqlTranslateTTI        = true;
     public boolean                sqlUniqueNulls         = true;
+    public boolean                sqlLowerCaseIdentifier = false;
     public boolean                sqlSyntaxDb2           = false;
     public boolean                sqlSyntaxMss           = false;
     public boolean                sqlSyntaxMys           = false;
@@ -561,6 +562,10 @@ public class Database {
 
     public void setSysIndexNames(boolean mode) {
         sqlSysIndexNames = mode;
+    }
+
+    public void setLowerCaseIndentifer(boolean mode) {
+        this.sqlLowerCaseIdentifier = mode;
     }
 
     public void setSyntaxDb2(boolean mode) {

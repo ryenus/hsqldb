@@ -159,7 +159,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final int    MAJOR                = 2,
                                MINOR                = 6,
                                REVISION             = 1;
-*/
 
 //#else
 /*
@@ -294,6 +293,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_ignore_case     = "sql.ignore_case";
     public static final String sql_live_object     = "sql.live_object";
     public static final String sql_sys_index_names = "sql.sys_index_names";
+    public static final String sql_lowercase_ident = "sql.lowercase_ident";
 
     //
     public static final String textdb_cache_scale = "textdb.cache_scale";
@@ -509,6 +509,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           false));
         dbMeta.put(sql_sys_index_names,
                    HsqlProperties.getMeta(sql_sys_index_names, SQL_PROPERTY,
+                                          false));
+        dbMeta.put(sql_lowercase_ident,
+                   HsqlProperties.getMeta(sql_lowercase_ident, SQL_PROPERTY,
                                           false));
         dbMeta.put(hsqldb_files_space,
                    HsqlProperties.getMeta(hsqldb_files_space, SQL_PROPERTY, 0,
