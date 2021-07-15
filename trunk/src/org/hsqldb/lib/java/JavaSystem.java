@@ -115,8 +115,8 @@ public final class JavaSystem {
                 return t;
             }
 
-            //on any reflection error we assume that we made a mistake guessing the java version
-            //and try the old code instead
+            // on any reflection error we assume that we made a mistake guessing the java version
+            // and try the old code instead
         }
 
         try {
@@ -128,11 +128,10 @@ public final class JavaSystem {
             Method cleanMethod = cleaner.getClass().getMethod("clean");
 
             cleanMethod.invoke(cleaner);
-        } catch (NoSuchMethodException e) {
-
-            // no cleaner
-            return e;
-        } catch (InvocationTargetException e) {
+            return null;
+        } catch (NoSuchMethodException e) {}
+        catch (IllegalAccessException e) {}
+        catch (InvocationTargetException e) {
 
             // means we're not dealing with a Sun JVM?
             return e;
@@ -140,7 +139,18 @@ public final class JavaSystem {
             return t;
         }
 
-        return null;
+        // try another fallback on any reflection error
+        // this is specific to older Android version 4 or older and works for java.nio.DirectByteBuffer and java.nio.MappedByteBufferAdapter
+        try {
+            Method freeMethod = buffer.getClass().getMethod("free");
+
+            freeMethod.setAccessible(true);
+
+            freeMethod.invoke(buffer);
+            return null;
+        } catch (Throwable t) {
+            return t;
+        }
     }
 
     public static IOException toIOException(Throwable t) {
