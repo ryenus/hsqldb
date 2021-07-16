@@ -39,6 +39,6 @@ dependencies {
          It is also added to the XSLT CLASSPATH only to add the XInclude
          settings file to the CLASSPATH.  Needed by Xalan during XSLT.
     */
-  bndJar('biz.aQute:bnd:0.0.384')
+  bndJar('biz.aQute.bnd:biz.aQute.bnd:5.3.0')	
   bndJar('de.jflex:jflex:1.4.3')
 }

@@ -148,7 +148,7 @@ examples:
       <copy todir="${swsrc}">
           <fileset dir="src/modules/org.hsqldb/"/>
       </copy>
-        <delete file="${swsrc}org/hsqldb/server/Servlet.java"/>
+      <delete file="${swsrc}org/hsqldb/server/Servlet.java"/>
     </target>
 
     <target name="reinit"
@@ -1151,9 +1151,9 @@ optimizations) manually.
         <sysproperty key="build.description" value="${description}"/>
         <sysproperty key="hsqldb.title" value="${hsqldb.title}"/>
         <arg value="wrap"/>
-        <arg value="-output"/>
+        <arg value="--output"/>
         <arg value="hsqldb-osgi.jar"/>
-        <arg value="-properties"/>
+        <arg value="--properties"/>
         <arg file="build/hsqldb.bnd"/>
         <arg value="hsqldb.jar"/>
       </java>
