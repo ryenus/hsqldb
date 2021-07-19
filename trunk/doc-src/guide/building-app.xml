@@ -58,15 +58,15 @@
   <section xml:id="bga_overview">
     <title>Purpose</title>
 
-    <simpara>From version 2.6.0, the <filename>hsqldb.jar</filename> file
-    supplied in the lib directory of the zip release package is tested and
-    built with Java 11. An separate jar for Java 8 is also supplied in the
-    same directory. The code is also tested extensively with Java 6-8 as well
-    as the latest Java versions. If you want to run with a Java 6 JVM, or use
-    an alternative jar (<filename>hsqldb-min.jar</filename>, etc.), you must
-    build the desired jar with a JDK. You can also find official jars built
-    with Java 6 and Java 11 in major maven repositories as well as downloads
-    from hsqldb.org.</simpara>
+    <simpara>The <filename>hsqldb.jar</filename> file supplied in the lib
+    directory of the zip release package is tested and built with Java 11. An
+    separate jar for Java 8 is also supplied in the same directory. The code
+    is also tested extensively with Java 6-8 as well as the latest Java
+    versions. If you want to run with a Java 6 JVM, or use an alternative jar
+    (<filename>hsqldb-min.jar</filename>, etc.), you must build the desired
+    jar with a JDK or download from hsqldb.org. You can also find official
+    jars built with Java 8 and Java 11 in major maven repositories as well as
+    downloads from hsqldb.org.</simpara>
 
     <simpara>The Gradle task / Ant target <literal>explainjars</literal>
     reports the versions of Java and Ant actually used.</simpara>

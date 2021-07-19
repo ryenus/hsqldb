@@ -128,6 +128,15 @@
         </listitem>
 
         <listitem>
+          <para>The case of unquoted identifiers is non-standard in
+          PostgreSQL, which stores these identifiers in lowercase instead of
+          uppercase. Use SET DATABASE SQL LOWER CASE IDENTIFIER or the URL
+          property <literal>sql.lowercase_ident=true</literal> to change the
+          case of unquoted identifiers (table names and column names) to
+          lowercase in ResultSetMetaData.</para>
+        </listitem>
+
+        <listitem>
           <para>Use <literal>SET DATABASE TRANSACTION CONTROL MVCC</literal>
           if your application is multi-user.</para>
         </listitem>
@@ -197,7 +206,7 @@
     <section xml:id="coc_compatibility_mysql">
       <title>MySQL Compatibility</title>
 
-      <para>HyperSQL version 2.5 is highly compatible with MySQL and supports
+      <para>HyperSQL version 2.6 is highly compatible with MySQL and supports
       most of its non-standard syntax. The latest versions of MySQL have
       introduced better Standard compatibility but some of these features have
       to be turned on via properties. You should therefore check the current
@@ -249,6 +258,16 @@
           <para>Use <literal>SET DATABASE SQL SYNTAX MYS TRUE</literal> or the
           equivalent URL property <literal>sql.syntax_mys=true</literal> to
           enable support for MySQL features.</para>
+        </listitem>
+
+        <listitem>
+          <para>The case of unquoted identifiers is non-standard in MySQL,
+          which stores these identifiers in the original case but compares
+          them regardless of case. If you use lower-case unquoted identifiers
+          in MySQL, use SET DATABASE SQL LOWER CASE IDENTIFIER or the URL
+          property <literal>sql.lowercase_ident=true</literal> to change the
+          case of unquoted identifiers (table names and column names) to
+          lowercase in ResultSetMetaData.</para>
         </listitem>
 
         <listitem>
@@ -624,7 +643,7 @@
         </listitem>
 
         <listitem>
-          <para>HyperSQL 2.5 supports several datetime functions in MSS
+          <para>HyperSQL 2.6 supports several datetime functions in MSS
           compatibility mode. These include DATEPART, DATENAME, EOMONTH and
           compatible DATEADD and DATEDIFF behaviour.</para>
         </listitem>

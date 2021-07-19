@@ -2770,6 +2770,37 @@
       <literal>sql.ignore_case</literal>.</simpara>
 
       <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL LOWER CASE IDENTIFIER</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE SQL LOWER CASE
+      IDENTIFIER</emphasis></simpara>
+
+      <simpara><emphasis>set database sql lower case
+      identifier</emphasis></simpara>
+
+      <simpara><literal>&lt;set database sql lower case identifier&gt; ::= SET
+      DATABASE SQL LOWER CASE IDENTIFIER { TRUE | FALSE }</literal></simpara>
+
+      <simpara>This property is <literal>FALSE</literal> by default and should
+      only be used in special circumstances where additional compatibility
+      MySQL or PostgreSQL is required.</simpara>
+
+      <simpara>When the property is <literal>TRUE</literal>, the names of
+      column, tables and schemas are returned from JDBC ResultSetMetaData
+      methods in lowercase instead of uppercase if the database objects where
+      created as unquoted identifiers. Quoted identifier names are still
+      returned in the original case.</simpara>
+
+      <simpara>The property is <literal>FALSE</literal> by default.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.lowercase_ident</literal>.</simpara>
+
+      <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE LIVE OBJECT</primary>
       </indexterm>
 
