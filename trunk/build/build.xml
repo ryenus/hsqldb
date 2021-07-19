@@ -27,7 +27,7 @@
 
     <property file='build/build.properties'/>
 
-    <condition property="hsqldb.version" value="2.6.0">
+    <condition property="hsqldb.version" value="2.6.1">
       <available classname="java.sql.JDBCType"/>
     </condition>
     <!-- hsqldb.version is set only once - if it is set above for Java 8 and greater, the next line is a no-op -->
@@ -179,7 +179,7 @@ examples:
     <target name="clean-all" depends="-clean, -clean-switch-branch, clean-docs"
             description="Same as clean but delete the jar and doc files as well">
       <delete>
-        <fileset dir="lib" includes="sqltool*.jar, hsqldb.jar, testsuite.jar"/>
+        <fileset dir="lib" includes="sqltool.jar, hsqldb.jar, testsuite.jar"/>
       </delete>
     </target>
 
@@ -298,7 +298,7 @@ examples:
       </javac>
     </target>
 
-    <target name="classes-servlet" description="compiles Servlet class">
+    <target name="classes-servlet" description="compiles Servlet class" unless="ant.java.iscjava09">
       <!-- 'unless' above should be removed once learn how to include in named module-->
       <available property='_servlet_available' classpath='${servletapi.lib}'
                  classname='javax.servlet.ServletException'/>
@@ -792,6 +792,14 @@ examples:
       </jar>
     </target>
 
+    <!-- We use this target to create hsqldb-jdk8.jar and sqltool-jdk8.jar for the zip distro -->
+    <target name="jdk8jars" depends="osgi, sqltool"
+            description="Build hsqldb-osgi.jar and sqltool.jar for jdk 8 targets and rename"
+            if="ant.java.iscjava08" unless="ant.java.iscjava09">
+        <move file="lib/hsqldb-osgi.jar" tofile="lib/hsqldb-jdk8.jar"/>
+        <move file="lib/sqltool.jar" tofile="lib/sqltool-jdk8.jar"/>
+    </target>
+
     <target name="javadoc" depends="-prepare-javadoc, -clone-shared-sources, -set-jvmvars"
             description="Create javadoc for the distribution package">
       <javadoc
@@ -1157,5 +1165,6 @@ optimizations) manually.
         <arg file="build/hsqldb.bnd"/>
         <arg value="hsqldb.jar"/>
       </java>
+      <delete file="lib/hsqldb.jar"/>
     </target>
 </project>
