@@ -1,3 +1,10 @@
+21 July 2021 - version 2.6.1
+-- version 2.6.0 is a bug fix release
+-- added sql.lowercase_ident property for extra compatibility with PostgreSQL and MySQL unquoted identifier names
+-- fixed an issue with performance of large updates in mvcc transaction mode
+-- fixed an issue with query timeout settings
+-- fixed a number of minor issues and regression
+
 21 March 2021 - version 2.6.0
 -- Version 2.6.0 marks the 20th anniversary of HyperSQL.
 -- The project maintainer would like to thank core developers Blaine Simpson, Campbell Burnet and Robert Preston for their contribution over many years, 
