@@ -68,7 +68,7 @@ and re-export.</fail>
   </target>
 
   <target name="dist"
-          depends="state-check, clean-all, javadoc, gen-docs, sqltool, hsqldb"
+          depends="state-check, clean-all, javadoc, gen-docs, sqltool, osgi"
           description="Build joint binary + source distribution zip package">
     <mkdir dir="dist"/>
     <property name="app.basedir" value="hsqldb-${hsqldb.version}"/>
@@ -133,11 +133,8 @@ and re-export.</fail>
                        **/*.bash, **/*.gradle, **/*.groovy"
              />
 
-    <!-- This is a wasteful work-around to get Ant to zip the file with a
-         different name than "hsqldb-osgi.jar" -->
-	<!-- 
-    <copy file="lib/hsqldb-osgi.jar" tofile="tmp/hsqldb.jar"/>
-	-->
+    <move file="lib/hsqldb-osgi.jar" tofile="lib/hsqldb.jar"/>
+
     <mkdir dir="data"/>
     <zip destfile="dist/${app.basedir}.zip">
       <zipfileset prefix="${app.basedir}/hsqldb" dir="."
@@ -159,14 +156,9 @@ and re-export.</fail>
       <zipfileset prefix="${app.basedir}/hsqldb/doc-src" dir="doc-src"
                   includes="changelist_2_0.txt,hsqldb_lic.txt,hypersonic_lic.txt"/>
       <zipfileset prefix="${app.basedir}/hsqldb/lib" dir="lib"
-                  includes="sqltool.jar, servlet*.zip"/>
+                  includes="sqltool*.jar, servlet*.zip"/>
       <zipfileset prefix="${app.basedir}/hsqldb/lib" dir="lib"
                   includes="hsqldb*.jar"/>
     </zip>
-    <!-- Don't leave "tmp/hsqldb.jar" lying around, because it has a
-         misleading name and it is redundant. -->
-	<!-- 
-    <delete file="tmp/hsqldb.jar"/>
-	-->
   </target>
 </project>
