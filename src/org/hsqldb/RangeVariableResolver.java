@@ -53,7 +53,7 @@ import org.hsqldb.persist.PersistentStore;
  * processing and which indexes are used for table access.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class RangeVariableResolver {
@@ -892,14 +892,12 @@ public class RangeVariableResolver {
                 conditions = rangeVariables[i].joinConditions[0];
 
                 joinExpressions[i].addAll(whereExpressions[i]);
-                assignToRangeVariable(rangeVariables[i], conditions, i,
-                                      joinExpressions[i]);
+                setIndexConditions(conditions, joinExpressions[i], i, true);
                 assignToRangeVariable(conditions, joinExpressions[i]);
             } else {
                 conditions = rangeVariables[i].joinConditions[0];
 
-                assignToRangeVariable(rangeVariables[i], conditions, i,
-                                      joinExpressions[i]);
+                setIndexConditions(conditions, joinExpressions[i], i, true);
 
                 conditions = rangeVariables[i].joinConditions[0];
 
@@ -920,8 +918,8 @@ public class RangeVariableResolver {
                 }
 
                 if (!hasIndex) {
-                    assignToRangeVariable(rangeVariables[i], conditions, i,
-                                          whereExpressions[i]);
+                    setIndexConditions(conditions, whereExpressions[i], i,
+                                       true);
                 }
 
                 assignToRangeVariable(conditions, whereExpressions[i]);
@@ -974,22 +972,15 @@ public class RangeVariableResolver {
     /**
      * Assigns a set of conditions to a range variable.
      */
-    void assignToRangeVariable(RangeVariable rangeVar,
-                               RangeVariableConditions conditions,
-                               int rangeVarIndex, List exprList) {
-
-        if (exprList.isEmpty()) {
-            return;
-        }
-
-        setIndexConditions(conditions, exprList, rangeVarIndex, true);
-    }
-
     private void setIndexConditions(RangeVariableConditions conditions,
                                     List exprList, int rangeVarIndex,
                                     boolean includeOr) {
 
         boolean hasIndex;
+
+        if (exprList.isEmpty()) {
+            return;
+        }
 
         colIndexSetEqual.clear();
         colIndexSetOther.clear();
@@ -1189,6 +1180,7 @@ public class RangeVariableResolver {
                 }
             } else {
                 conditions.addCondition(e);
+                exprList.set(i, null);
             }
         }
     }

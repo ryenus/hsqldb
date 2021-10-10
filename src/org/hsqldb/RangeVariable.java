@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * Metadata for range variables, including conditions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class RangeVariable {
@@ -746,6 +746,23 @@ public class RangeVariable {
         return set;
     }
 
+    OrderedHashSet collectRangeVariables(RangeVariable[] rangeVars,
+                                         OrderedHashSet set) {
+
+        QueryExpression queryExpression = rangeTable.getQueryExpression();
+        Expression      dataExpression  = rangeTable.getDataExpression();
+
+        if (queryExpression != null) {
+            set = queryExpression.collectRangeVariables(rangeVars, set);
+        }
+
+        if (dataExpression != null) {
+            set = dataExpression.collectRangeVariables(rangeVars, set);
+        }
+
+        return set;
+    }
+
     public OrderedHashSet collectAllExpressions(OrderedHashSet set,
             OrderedIntHashSet typeSet, OrderedIntHashSet stopAtTypeSet) {
 
@@ -852,9 +869,8 @@ public class RangeVariable {
                 rangeGroup, rangeGroups.length, 1);
 
         if (dataExpression != null) {
-            List unresolved =
-                dataExpression.resolveColumnReferences(session,
-                    RangeGroup.emptyGroup, rangeGroups, null);
+            List unresolved = dataExpression.resolveColumnReferences(session,
+                RangeGroup.emptyGroup, rangeGroups, null);
 
             unresolved = Expression.resolveColumnSet(session,
                     RangeVariable.emptyArray, RangeGroup.emptyArray,
