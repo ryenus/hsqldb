@@ -31,6 +31,8 @@
 
 package org.hsqldb;
 
+import java.util.Locale;
+
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
@@ -59,8 +61,6 @@ import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
-
-import java.util.Locale;
 
 /**
  * Implementation of an SQL query specification, including SELECT.
@@ -992,6 +992,10 @@ public class QuerySpecification extends QueryExpression {
 
         if (queryCondition != null) {
             set = queryCondition.collectRangeVariables(rangeVars, set);
+        }
+
+        for (int i = 0; i < rangeVariables.length; i++) {
+            set = rangeVariables[i].collectRangeVariables(rangeVars, set);
         }
 
         return set;
@@ -2012,7 +2016,8 @@ public class QuerySpecification extends QueryExpression {
                 column = new ColumnBase();
             } else {
                 column = new ColumnBase(session.database.getCatalogName(),
-                                        tableColumn, lowerCaseResultIdentifier);
+                                        tableColumn,
+                                        lowerCaseResultIdentifier);
             }
 
             column.setType(e.getDataType());

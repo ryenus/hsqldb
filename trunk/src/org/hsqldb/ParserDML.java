@@ -1338,7 +1338,7 @@ public class ParserDML extends ParserDQL {
                                 .dataType.typeDataGroup || colType
                                 .isArrayType()) {
                             rowArgs[i] =
-                                ExpressionOp.getCastExpression(session, e,
+                                ExpressionOp.getConvertExpression(session, e,
                                                                colType);
                         }
                     }
