@@ -86,9 +86,9 @@
     released in 2010, was a complete rewrite of most parts of the database
     engine.</para>
 
-    <para>This documentation covers HyperSQL version 2.6.1. This documentation
-    is regularly improved and updated. The latest, updated version can be
-    found at http://hsqldb.org/doc/2.0/</para>
+    <para>This documentation covers HyperSQL version 2.6.1 and has been
+    regularly improved and updated. The latest, updated version can be found
+    at http://hsqldb.org/doc/2.0/</para>
 
     <para>If you notice any mistakes in this document, or if you have problems
     with the procedures themselves, please use the HSQLDB support facilities
