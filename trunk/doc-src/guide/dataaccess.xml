@@ -2435,9 +2435,9 @@
       <simpara><literal>&lt;constraint check time&gt; ::= INITIALLY DEFERRED |
       INITIALLY IMMEDIATE</literal></simpara>
 
-      <simpara>Specify the name of a constraint and its characteristics. This
-      is an optional element of CONSTRAINT definition, not yet supported by
-      HyperSQL.</simpara>
+      <simpara>Specify the name of a constraint and its characteristics. The
+      deferrable characteristic is an optional element of CONSTRAINT
+      definition, not yet supported by HyperSQL.</simpara>
     </section>
   </section>
 
