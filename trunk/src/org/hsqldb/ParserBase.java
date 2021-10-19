@@ -49,13 +49,13 @@ import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.1
  * @since 1.9.0
  */
 public class ParserBase {
 
-    protected Scanner  scanner;
-    protected Token    token;
+    protected Scanner scanner;
+    protected Token   token;
 
     //
     protected int           partPosition;
@@ -248,8 +248,10 @@ public class ParserBase {
         String tokenString = token1.tokenString;
 
         if (token2 != null) {
-            tokenString += " " + token2.tokenString;
+            tokenString += token2.tokenString;
         }
+
+        tokenString += " ";
 
         scanner.replaceToken(tokenString);
 
