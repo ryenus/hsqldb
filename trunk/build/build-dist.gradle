@@ -40,9 +40,8 @@
  *     11: Make a release tag.
  *
  *   USAGE:
- *       1: Set up your desired build environment (JAVA_HOME set, etc.).
- *       2: Do a Subversion export with the release tag to a NEW directory
- *       3: If you don't have a .properties file set up for this purpose
+ *       1: Do a Subversion export with the release tag to a NEW directory
+ *       2: If you don't have a .properties file set up for this purpose
  *          already, then make one outside of this work area with a distinctive
  *          name (for auditing and so you can archive it and/or re-use it for
  *          future distribution builds), then copy it to "build.properties"
@@ -51,10 +50,15 @@
  *          "dbimage.path".  (See following section about optional properties).
  *          Set property "doc.pubtime" to the current date/time in
  *          format like 2019-01-27 18:55:44.
- *       4: Run
- *              gradlew -i -b build-dist.gradle  # Gradle users
+ *       3: For additional Java 8 jars (hsqldb-jdk8.jar and sqltool-jdk8.jar),
+            set JAVA_HOME to JDK8 and run
+ *              gradlew jdk8jars
  *          from the build directory.
- *       5: If you used a properties file shared with other environments,
+ *       4: Set up your desired build environment (JAVA_HOME set to JDK11, etc.).
+ *       5: Run
+ *              gradlew -i -b build-dist.gradle
+ *          from the build directory.
+ *       6: If you used a properties file shared with other environments,
  *          then comment out distribution-specific build properties, including
  *          "doc.pubtime" (otherwise future document builds will label
  *          incorrectly).
