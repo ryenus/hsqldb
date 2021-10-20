@@ -1,0 +1,15 @@
+<!-- $Id$ -->
+
+<!-- Dummy value definitions.
+     These settings are fine for GUI editors and Validation, but this file
+     should definitely be overridden with a catalog for generating
+     production-ready output documents.
+-->
+
+<!-- These entities are "project global", in that the entities may be used in
+     any document of the project.  The value of doc_basename will certainly vary
+     for each document, and distro_baseurl may. -->
+<!ENTITY doc_basename "doc_basename_DEFAULTVAL">
+<!ENTITY distro_baseurl "distro_baseurl_DEFAULTVAL">
+<!ENTITY timestamp "timestamp_DEFAULTVAL">
+<!-- distro_baseurl is the canonical download source for the doc -->

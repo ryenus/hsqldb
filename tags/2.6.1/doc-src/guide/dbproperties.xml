@@ -1,0 +1,3620 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+<!DOCTYPE book [
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
+]>
+<chapter version="5.0" xml:id="dbproperties-chapt"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns4="http://www.w3.org/2000/svg"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <!-- We declare the default namespace + those for prefixes xlink: and xi: in
+       the root element, so we can use them anywhere in this file. -->
+
+  <title xml:id="dbproperties-title">Properties</title>
+
+  <info>
+    <authorgroup>
+      <author>
+        <personname><firstname>Fred</firstname><surname>Toussi</surname></personname>
+
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </author>
+    </authorgroup>
+
+    <releaseinfo>$Revision$</releaseinfo>
+
+    <pubdate>&timestamp;</pubdate>
+
+    <keywordset>
+      <keyword>HSQLDB</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>SQL</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2002-2021 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
+    </legalnotice>
+  </info>
+
+  <section xml:id="dpc_connection_url">
+    <title>Connection URL</title>
+
+    <para>The normal method of accessing a HyperSQL catalog is via the JDBC
+    Connection interface. An introduction to different methods of providing
+    database services and accessing them can be found in the <link
+    endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"/> chapter.
+    Details and examples of how to connect via JDBC are provided in our
+    JavaDoc for <classname
+    xlink:href="#JDBCConnection.html-link">JDBCConnection</classname>.</para>
+
+    <para>A uniform method is used to distinguish between different types of
+    connection. The common driver identifier is
+    <literal>jdbc:hsqldb:</literal> followed by a protocol identifier
+    (<glossterm>mem:</glossterm> <glossterm>file:</glossterm>
+    <glossterm>res:</glossterm> <glossterm>hsql:</glossterm>
+    <glossterm>http:</glossterm> <glossterm>hsqls:</glossterm>
+    <glossterm>https:</glossterm>) then followed by host and port identifiers
+    in the case of servers, then followed by database identifier. Additional
+    property / value pairs can be appended to the end of the URL, separated
+    with semicolons.</para>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Memory Database URL</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1"/>
+
+        <colspec colname="c2"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Driver and Protocol</entry>
+
+            <entry>Host and Port Example</entry>
+
+            <entry>Database Example</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><simplelist type="vert">
+                <member><literal>jdbc:hsqldb:mem:</literal></member>
+              </simplelist></entry>
+
+            <entry>not available</entry>
+
+            <entry><simplelist type="vert">
+                <member><literal>accounts</literal></member>
+              </simplelist></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Lowercase, single-word
+            identifier creates the in-memory database when the first
+            connection is made. Subsequent use of the same Connection URL
+            connects to the existing DB. Multiple in-memory databases can be
+            created with different database names. For example, first
+            connections to <literal>jdbc:hsqldb:mem:db1</literal>,
+            <literal>jdbc:hsqldb:mem:db2</literal>, and
+            <literal>jdbc:hsqldb:mem:accounts</literal> create three
+            completely separate databases in the Java virtual machine. A
+            second connection to <literal>jdbc:hsqldb:mem:accounts</literal>
+            connects to the database created by the first connection. A
+            database stays in memory until the SQL command, SHUTDOWN is
+            executed.</para><para>The old form for the URL,
+            <literal>jdbc:hsqldb:.</literal> creates or connects to the same
+            database as the new form for the URL,
+            <literal>jdbc:hsqldb:mem:.</literal></para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>File Database URL</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1"/>
+
+        <colspec colname="c2"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Driver and Protocol</entry>
+
+            <entry>Host and Port Example</entry>
+
+            <entry>Database Example</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><simplelist type="vert">
+                <member><literal>jdbc:hsqldb:file:</literal></member>
+              </simplelist></entry>
+
+            <entry>not available</entry>
+
+            <entry><simplelist type="vert">
+                <member><literal>accounts</literal></member>
+
+                <member><literal>/opt/db/accounts</literal></member>
+
+                <member><literal>C:/data/mydb</literal></member>
+              </simplelist></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The file path specifies the
+            database files. It should consist of a relative or absolute path
+            to the directory containing the database files, followed by a '/'
+            and the database name. In the above examples the first one,
+            <literal>jdbc:hsqldb:file:accounts</literal> refers to a set of
+            <literal>accounts.*</literal> files in the directory where the
+            <literal>java</literal> command for running the application was
+            issued. The second and third examples refer to absolute paths on
+            the host machine: For example,
+            <literal>jdbc:hsqldb:file:/opt/db/accounts</literal> refers to
+            files named <literal>accounts.*</literal> in the directory
+            <literal>/opt/db</literal> which contain the accounts
+            database.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Resource Database URL</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1"/>
+
+        <colspec colname="c2"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Driver and Protocol</entry>
+
+            <entry>Host and Port Example</entry>
+
+            <entry>Database Example</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><simplelist type="vert">
+                <member><literal>jdbc:hsqldb:res:</literal></member>
+              </simplelist></entry>
+
+            <entry>not available</entry>
+
+            <entry><simplelist type="vert">
+                <member><literal>/adirectory/dbname</literal></member>
+              </simplelist></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Database files can be loaded
+            from one of the jars specified as part of the
+            <literal>Java</literal> command the same way as resource files are
+            accessed in Java programs. The <literal>/adirectory</literal>
+            above stands for a directory in one of the jars.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Server Database URL</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1"/>
+
+        <colspec colname="c2"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Driver and Protocol</entry>
+
+            <entry>Host and Port Example</entry>
+
+            <entry>Database Example</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><simplelist type="vert">
+                <member><literal>jdbc:hsqldb:hsql:</literal></member>
+
+                <member><literal>jdbc:hsqldb:hsqls:</literal></member>
+
+                <member><literal>jdbc:hsqldb:http:</literal></member>
+
+                <member><literal>jdbc:hsqldb:https:</literal></member>
+              </simplelist></entry>
+
+            <entry><simplelist type="vert">
+                <member><literal>//localhost</literal></member>
+
+                <member><literal>//192.0.0.10:9500</literal></member>
+
+                <member><literal>//dbserver.somedomain.com</literal></member>
+              </simplelist></entry>
+
+            <entry><simplelist type="vert">
+                <member><literal>/accounts</literal></member>
+
+                <member><literal>/enrolments</literal></member>
+
+                <member><literal>/quickdb</literal></member>
+              </simplelist></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The host and port specify
+            the IP address or host name of the server and an optional port
+            number. The database to connect to is specified by an alias. This
+            alias is a lowercase string defined in the
+            <filename>server.properties</filename> file to refer to an actual
+            database on the file system of the server or a transient,
+            in-memory database on the server. The alias for a database can
+            have a different name to its memory or file name. The lines in
+            <filename>server.properties</filename> or
+            <filename>webserver.properties</filename> define the database
+            aliases listed above and accessible to clients to refer to
+            different file and in-memory databases. In the example below, the
+            <literal>file:</literal> database named <literal>mydb</literal> is
+            made accessible with the alias
+            <literal>enrolments</literal>.</para><para><literal>server.database.1=file:/opt/db/mydb</literal></para><para><literal>server.dbname.1=enrolments</literal></para><para>The
+            old form for the server URL, e.g.,
+            <literal>jdbc:hsqldb:hsql//localhost</literal> connects to the
+            same database as the new form for the URL,
+            <literal>jdbc:hsqldb:hsql//localhost/</literal> where the alias is
+            a zero length string.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section xml:id="dpc_variables_url">
+    <title>Variables in Connection URL</title>
+
+    <para>If the database part of a file: database begins with
+    <literal>~/</literal> or <literal>~\</literal> the tilde character is
+    replaced with the value of the system property
+    <literal>"user.home"</literal> resulting in the database being created or
+    accessed in this directory, or one of its subdirectories. In the examples
+    below, the database files for <literal>mydb</literal> and
+    <literal>filedb</literal> are located in the user's home directory.</para>
+
+    <programlisting> jdbc:hsqldb:file:~/mydb
+ jdbc:hsqldb:file:~/filedb;shutdown=true
+</programlisting>
+
+    <para>If the database URL contains a string in the form of
+    <literal>${propname}</literal> then the sequence of characters is replaced
+    with the system property with the given name. For example, you can use
+    this in the URL of a database that is used in a web application and define
+    the system property, "propname" in the web application properties. In the
+    example below, the string <literal>${mydbpath}</literal> is replaced with
+    the value of the property, <literal>mydbpath</literal></para>
+
+    <programlisting> jdbc:hsqldb:file:${mydbpath}</programlisting>
+  </section>
+
+  <section>
+    <title>Connection Properties</title>
+
+    <para>There are two types of connection properties: properties for
+    individual connections, and Properties for the whole database.</para>
+
+    <para>The properties for individual connections apply only to the
+    connection that uses them and can be different for different connections.
+    These properties can be used when connecting to in-process and server
+    databases.</para>
+
+    <para>The properties for the database apply to the whole database. These
+    properties have an effect only if used for the first connection to an
+    <glossterm>in-process</glossterm> <glossterm>file:</glossterm> or
+    <glossterm>mem:</glossterm> database. For the connection that creates a
+    new database all the user-defined database properties can be specified as
+    URL properties.</para>
+
+    <para>When running a server, these properties are not used on the
+    connection URL but can be appended to the database path URL in
+    <literal>server.properties</literal> or the server command line.</para>
+  </section>
+
+  <section xml:id="dpc_connection_props">
+    <title>Properties for Individual Connections</title>
+
+    <para>Each JDBC Connection to a database can specify connection
+    properties. The properties <property>user</property> and
+    <property>password</property> are always required. The following optional
+    properties can also be used.</para>
+
+    <para>Connection properties are specified either by using a Java
+    Properties object when establishing the connection via the JDBC method
+    call below. Alternatively the property can be appended to the full
+    Connection URL.</para>
+
+    <programlisting> DriverManager.getConnection (String url, Properties info);</programlisting>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>User and Password</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>user</property></entry>
+
+            <entry><literal>SA</literal></entry>
+
+            <entry>user name</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Standard property. This
+            property is case sensitive. Example below:</para><programlisting> jdbc:hsqldb:file:enrolments;user=aUserName;password=pass</programlisting></entry>
+          </row>
+
+          <row>
+            <entry><property>password</property></entry>
+
+            <entry><literal>empty string</literal></entry>
+
+            <entry>password for the user</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Standard property. This
+            property is case sensitive. Example below:</para><programlisting> jdbc:hsqldb:file:enrolments;user=aUserName;password=3xLVz</programlisting><para>For
+            compatibility with other engines, a non-standard form of
+            specifying user and password is also supported. In this form, user
+            name and password appear at the end of the URL string, prefixed
+            respectively with the question mark and the
+            ampersand:</para><programlisting> jdbc:hsqldb:file:enrolments;create=false?user=aUserName&amp;password=3xLVz</programlisting></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Creating New Database</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>ifexists</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>connect only if database already exists</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Has an effect only with
+            <glossterm>mem:</glossterm> and <glossterm>file:</glossterm>
+            database. When true, will not create a new database if one does
+            not already exist for the URL.</para><para>When the property is
+            false (the default), a new <glossterm>mem:</glossterm> or
+            <glossterm>file:</glossterm> database will be created if it does
+            not exist.</para><para>Setting the property to true is useful when
+            troubleshooting as no database is created if the URL is malformed.
+            Example below:</para><programlisting> jdbc:hsqldb:file:accounts;ifexists=true</programlisting></entry>
+          </row>
+
+          <row>
+            <entry><property>create</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>create the database if it does not exist</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Similar to the ifexists
+            property, but with opposite meaning.</para><para>Has an effect
+            only with <glossterm>mem:</glossterm> and
+            <glossterm>file:</glossterm> databases. When false, will not
+            create a new database if one does not already exist for the
+            URL.</para><para>When the property is true (the default), a new
+            <glossterm>mem:</glossterm> or <glossterm>file:</glossterm>
+            database will be created if it does not exist.</para><para>Setting
+            the property to true is useful when troubleshooting as no database
+            is created if the URL is malformed. Example
+            below:</para><programlisting> jdbc:hsqldb:file:enrolments;create=false</programlisting></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Closing old ResultSet when Statement is reused</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="7cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>close_result</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>closing the old result set when a new ResultSet is created
+            by a Statement</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property is used for
+            compatibility with the JDBC specification. When true (the JDBC
+            specification), a <classname>ResultSet</classname> that was
+            previously returned by executing a
+            <classname>Statement</classname> or
+            <classname>PreparedStatement</classname> is closed as soon as the
+            <classname>Statement</classname> is executed
+            again.</para><para>The default is false as previous versions of
+            HSQLDB did not close old result set. The user application should
+            close old result sets when they are no longer needed and should
+            not rely on auto-closing side effect of executing the
+            Statement.</para><para>The default is false. When the property is
+            true, the old <classname>ResultSet</classname> is closed when a
+            <classname>Statement</classname> is re-executed. Example
+            below:</para><programlisting> jdbc:hsqldb:hsql://localhost/enrolments;close_result=true</programlisting><para>When
+            a <classname>ResultSet</classname> is used inside a user-defined
+            stored procedure, the default, false, is always used for this
+            property.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Column Names in JDBC ResultSet</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="7cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>get_column_name</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>column name in ResultSet</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property is used for
+            compatibility with other JDBC driver implementations. When true
+            (the default), <methodname>ResultSet.getColumnName(int
+            c)</methodname> returns the underlying column name. This property
+            can be specified differently for different connections to the same
+            database.</para><para>The default is true. When the property is
+            false, the above method returns the same value as
+            <methodname>ResultSet.getColumnLabel(int column)</methodname>
+            Example below:</para><programlisting> jdbc:hsqldb:hsql://localhost/enrolments;get_column_name=false</programlisting><para>When
+            a <classname>ResultSet</classname> is used inside a user-defined
+            stored procedure, the default, true, is always used for this
+            property.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>In-memory LOBs from JDBC ResultSet</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="7cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>memory_lobs</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>lobs retrieved in full from server by ResultSet</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property can be set to
+            retrieve lobs as fully in-memory objects by the JDBC driver. When
+            false (the default), <methodname>ResultSet</methodname> methods
+            for streaming BLOB and CLOB retrieve large lobs in chunks in order
+            to limit memory use on the client. When true, the lob is returned
+            fully as soon as it is streamed. This property can be specified
+            differently for different connections to the same
+            database.</para><para>The default is false.</para><programlisting> jdbc:hsqldb:hsql://localhost/enrolments;memory_lobs=true</programlisting></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Empty batch in JDBC PreparedStatement</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="7cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>allow_empty_batch</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>executeBatch with empty batch</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property is used for
+            compatibility with other JDBC driver implementations such as the
+            PostgreSQL driver. By default
+            <methodname>PreparedStatement.executeBatch()</methodname> throws
+            an exception if addBatch() has not been called at all. Setting
+            this property to true ignores the empty batch and returns an empty
+            int[]. This property can be specified differently for different
+            connections to the same database.</para><para>The default is
+            false. Example below:</para><programlisting> jdbc:hsqldb:hsql://localhost/enrolments;allow_empty_batch=true</programlisting><para>When
+            a <classname>PreparedStatement</classname> is used inside a
+            user-defined stored procedure, the default, false, is always used
+            for this property.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Automatic Shutdown</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>shutdown</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>shut down the database when the last connection is
+            closed</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Has an effect only with
+            <glossterm>mem:</glossterm> and <glossterm>file:</glossterm>
+            databases. If this property is <literal>true</literal>, when the
+            last connection to a database is closed, the database is
+            automatically shut down. The property takes effect only when the
+            first connection is made to the database. This means the
+            connection that opens the database. It has no effect if used with
+            subsequent connections.</para><para>This command has two uses. One
+            is for test suites, where connections to the database are made
+            from one JVM context, immediately followed by another context. The
+            other use is for applications where it is not easy to configure
+            the environment to shutdown the database. Examples reported by
+            users include web application servers, where the closing of the
+            last connection coincides with the web app being shut down. Note
+            the automatic shutdown happens in a background thread and the
+            Connection.close() call returns before the shutdown is complete.
+            This may cause an issue if the shutdown takes a long time to save
+            the data and the user application (or unit test) immediately
+            reopens the database while this is happening. In these contexts,
+            use an explicit SHUTDOWN as an SQL
+            statement.</para><programlisting> jdbc:hsqldb:file:enrolments;shutdown=true</programlisting></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section xml:id="dpc_db_props_url">
+    <title>Properties for the Database</title>
+
+    <para>Each database has several default settings (properties) that are
+    listed in the <link endterm="management-title"
+    xlink:href="#management-chapt"/> chapter. These properties can be changed
+    via SQL commands after a connection is made to the database. It is also
+    possible to specify most of these properties in the connection properties
+    or as part of the URL string when the first connection is made to a new
+    <glossterm>file:</glossterm> or <glossterm>mem:</glossterm> database. This
+    allows the properties to be set without using any SQL commands. The
+    corresponding SQL command is given for each property. For a server, these
+    properties can be appended to the database path URL in server.properties
+    or the server command line.</para>
+
+    <para>Note the preferred method of setting database properties is by using
+    a set of SQL statements. These statements can be used both for a new
+    database or an existing database, unlike URL properties that are generally
+    effective for new databases only.</para>
+
+    <para>If the properties are used for connection to an existing database,
+    they are ignored.</para>
+
+    <para>The exceptions are the following property settings that are allowed
+    for the first connection to an existing database (the connection which
+    reopens the database): <literal>readonly=true</literal>,
+    <literal>files_readonly=true</literal>,
+    <literal>hsqldb.lock_file=false</literal>,
+    <literal>hsqldb.sqllog=1-3</literal>,
+    <literal>hsqldb.applog=1-3</literal>. These specific property / value
+    pairs override the existing database properties. For example a normal
+    database is opened as readonly, or the lock file is not created, or the
+    sql log level is set to a value between 1 and 3.</para>
+
+    <para>Properties for database encryption and compressed .script file are
+    also required on the first connection to an existing database.</para>
+
+    <para>Management of properties has changed since version 1.8. The old SET
+    PROPERTY statement does not change a property and is ignored. The
+    statement is retained to simplify application upgrades.</para>
+
+    <para>In the example URL below, two properties are set for the first
+    connection to a new database.</para>
+
+    <programlisting> jdbc:hsqldb:file:enrolments;hsqldb.cache_rows=10000;hsqldb.nio_data_file=false</programlisting>
+
+    <para>In the table below, database properties that can be used as part of
+    the URL or in connection properties are listed. For each property that can
+    also be set with an SQL statement, the statement is also given. These
+    statements are described more extensively in the <link
+    endterm="management-title" xlink:href="#management-chapt"/>
+    chapter.</para>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Validity Check Property</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>check_props</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>checks the validity of the database properties</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>If the property is true,
+            every database property that is specified on the URL or in
+            connection properties is checked and if it is not used correctly,
+            an error is returned.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <section xml:id="dpc_sql_conformance">
+      <title>SQL Conformance Properties</title>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Execution of Multiple SQL Statements etc.</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.restrict_exec</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>preventS execution of multiple, concatenated SQL
+              statements</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              true, prevents execution of multiple, concatenated statements
+              via <methodname>Statement.execute()</methodname> and other
+              methods of <classname>java.sql.Statement</classname>. It also
+              prevents the use of
+              <methodname>Statement.executeQuery()</methodname> for any DDL or
+              DML statement.</para><para>Legacy applications may contain such
+              statements, for example "<code>INSERT INTO T1 VALUES 1, 2,
+              3;DELETE FROM T2 WHERE C1 = 9</code>"; therefore the default is
+              false. Statements that are prepared with
+              <classname>java.sql.PreparedStatement</classname> have been
+              limited to single statements since HyperSQL 2.0.</para><para>It
+              is recommended to set this property to TRUE and use single
+              execution of statements.</para><para><programlisting>SET DATABASE SQL RESTRICT EXEC { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>SQL Keyword Use as Identifier</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.enforce_names</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>enforcing SQL keywords</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              true, prevents SQL keywords being used for database object names
+              such as columns and tables.</para><para><programlisting>SET DATABASE SQL NAMES { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>SQL Keyword Starting with the Underscore or Containing Dollar
+        Characters</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.regular_names</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>enforcing SQL keywords</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              true, prevents database object names such as columns and tables
+              beginning with the underscore or containing the dollar
+              character.</para><para><programlisting>SET DATABASE SQL REGULAR NAMES { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Reference to Columns Names</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.enforce_refs</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>enforcing column reference disambiguation</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              true, causes an error when an SQL statement (usually a select
+              statement) contains column references that can be resolved by
+              more than one table name or alias. In effect forces such column
+              references to have a table name or table alias
+              qualifier.</para><para><programlisting>SET DATABASE SQL REFERENCES { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>String Size Declaration</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.enforce_size</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>size enforcement of string columns</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>Conforms to SQL standards
+              for size and precision of data types. When true, all VARCHAR
+              column type declarations require a size. When the property is
+              false and there is no size in the declaration, a default size is
+              used. Note that all other types accept a declaration without a
+              size, which is interpreted as a default
+              size.</para><para><programlisting>SET DATABASE SQL SIZE { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Type Enforcement in Comparison and Assignment</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.enforce_types</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>enforcing type compatibility</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              true, causes an error when an SQL statements contains
+              comparisons or assignments that are non-standard due to type
+              mismatch. Most illegal comparisons and assignments will cause an
+              exception regardless of this setting. This setting applies to a
+              small number of comparisons and assignments that are possible,
+              but not standard conformant, and were allowed in previous
+              versions of HSQLDB.</para><para><programlisting>SET DATABASE SQL TYPES { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Foreign Key Triggered Data Change</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.enforce_tdc_delete</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>enforcing triggered data change violation for
+              deletes</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The ON DELETE and ON
+              UPDATE clauses of constraints cause data changes in rows in
+              different tables or the same table. When there are multiple
+              constraints, a row may be updated by one constraint and deleted
+              by another constraint in the same operation. This is not allowed
+              by default. Changing this property to false allows such
+              violations of the Standard to pass without an exception. Used
+              for porting from database engines that do not enforce the
+              constraints.</para><para><programlisting>SET DATABASE SQL TDC DELETE { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"/>
+            </row>
+
+            <row>
+              <entry><property>sql.enforce_tdc_update</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>enforcing triggered data change violation for
+              updates</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The ON DELETE and ON
+              UPDATE clauses of foreign key constraints cause data changes in
+              rows in different tables or the same table. With multiple
+              constraint, a field may be updated by two constraints and set to
+              different values. This is not allowed by default. Changing this
+              property to false allows such violations of the Standard to pass
+              without an exception. Used for porting from database engines
+              that do not enforce the constraints
+              properly.</para><para><programlisting>SET DATABASE SQL TDC UPDATE { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Use of LOB for LONGVAR Types</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.longvar_is_lob</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>translating longvarchar and longvarbinary to lob</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              true, causes type declarations using LONGVARCHAR and
+              LONGVARBINARY to be translated to CLOB and BLOB respectively. By
+              default, they are translated to VARCHAR and
+              VARBINARY.</para><para><programlisting>SET DATABASE SQL LONGVAR IS LOB { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Type of string literals in CASE WHEN</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.char_literal</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>result of CASE WHEN with strings of different
+              lengths</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              false, sets the type of all string literal to VARCHAR, as
+              opposed to CHARACTER. This results in strings not being padded
+              with spaces by CASE WHEN
+              expressions.</para><para><programlisting>SET DATABASE SQL CHARACTER LITERAL { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Concatenation with NULL</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.concat_nulls</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>behaviour of concatenation involving one null</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              false, causes the concatenation of a null and a not null value
+              to return the not null value. By default, it returns
+              null.</para><para><programlisting>SET DATABASE SQL CONCAT NULLS { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>NULL in Multi-Column UNIQUE Constraints</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.unique_nulls</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>behaviour of multi-column UNIQUE constraints with null
+              values</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              false, causes multi-column unique constrains to be more
+              restrictive for value sets that contain a mix of null and not
+              null values.</para><para><programlisting>SET DATABASE SQL UNIQUE NULLS { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Truncation or Rounding in Type Conversion</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.convert_trunc</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>behaviour of type conversion from DOUBLE to integral
+              types</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              false, causes type conversions from DOUBLE to any integral type
+              to use rounding. By default truncation is
+              used.</para><para><programlisting>SET DATABASE SQL CONVERT TRUNCATE { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Decimal Scale of Division and AVG Values</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.avg_scale</property></entry>
+
+              <entry><literal>0</literal></entry>
+
+              <entry>decimal scale of values returned by division and the AVG
+              and MEDIAN aggregate functions</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>By default, the result of
+              a division or an AVG or MEDIAN aggregate has the same type and
+              scale as the aggregated value. For INTEGER types, the scale is
+              0. When this property is set to a value other than the default
+              0, then the scale is used if it is greater than the scale of the
+              divisor or aggregated value. This property does not affect
+              DOUBLE values. Values between 0 - 10 can be used for this
+              property.</para><para><programlisting>SET DATABASE SQL AVG SCALE &lt;numeric value&gt;</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Support for NaN values</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.double_nan</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>behaviour of expressions returning DOUBLE NaN</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              false, causes division of DOUBLE values by Zero to return a
+              Double.NaN value. By default an exception is
+              thrown.</para><para><programlisting>SET DATABASE SQL DOUBLE NAN { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Sort order of NULL values</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.nulls_first</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>ordering of NULL values</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>By default, nulls appear
+              before not-null values when a result set is ordered without
+              specifying NULLS FIRST or NULLS LAST. This property, when set
+              false, causes nulls to appear by default after not-null values
+              in result sets with ORDER BY</para><para><programlisting>SET DATABASE SQL NULLS FIRST { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Sort order of NULL values with DESC</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.nulls_order</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>ordering of NULL values when DESC is used</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>By default, when an ORDER
+              BY clause that does not specify NULLS FIRST or NULLS LAST is
+              used, nulls are ordered according to the
+              <literal>sql.nulls_first</literal> setting even when DESC is
+              used after ORDER BY. This property, when set false, causes nulls
+              to appear in the opposite position when DESC is
+              used.</para><para><programlisting>SET DATABASE SQL NULLS ORDER { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>String Comparison with Padding</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.pad_space</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>ordering of strings with trailing spaces</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>By default, when two
+              strings are compared, the shorter string is padded with spaces
+              before comparison. When this property is set false, no padding
+              takes place before comparison. Without padding, the shorter
+              string is never equal to the longer one.</para><para>Before
+              version 2.0, HSQLDB used NO PAD comparison. If you need the old
+              behaviour, use this property when opening an older
+              database.</para><para><programlisting>SET DATABASE COLLATION &lt;collation name&gt; [ NO PAD | PAD SPACE ]</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Default Locale Language Collation</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.compare_in_locale</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>use the default locale language collation</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>When this property is set
+              true, the language of the default locale of the JVM is used as
+              the default collation. This is applied to new databases only.
+              </para><para><programlisting>SET DATABASE COLLATION &lt;collation name&gt; </programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Case-Insensitive Varchar columns</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.ignore_case</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>case-insensitive VARCHAR</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>When this property is set
+              true, all VARCHAR declarations in CREATE TABLE and other
+              statements are assigned an Upper Case Comparison collation,
+              SQL_TEXT_UCC. This is designed for compatibility with some
+              databases that use case-insensitive comparison. It is better to
+              specify the collation selectively for specific columns that
+              require it.</para><para><programlisting>SET DATABASE COLLATION SQL_TEXT_UCC</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Lowercase column identifiers in ResultSet</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.lowercase_ident</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>use lowercase for unquoted column names in
+              ResultSetMetaData</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>When this property is set
+              true, the ResultSetMetaData will report the names of columns,
+              their table and their schema in lowercase instead of uppercase
+              when the names where not created as quoted identifiers. This
+              setting is useful for limited compatibility with PostgreSQL and
+              MySQL which have non-standard identifier
+              cases.</para><para><programlisting>SET DATABASE SQL LOWER CASE IDENTIFIER</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Storage of Live Java Objects</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.live_object</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>storage of Java Objects in OTHER columns with or without
+              serialization</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>By default when Java
+              Objects are stored in a column of type OTHER, the objects are
+              serialized. Setting this property to true results in the Object
+              to be stored without serialization. This option is available in
+              mem: database only.</para><para><programlisting>SET DATABASE LIVE OBJECT</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Names of System Indexes Used for Constraints</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.sys_index_names</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>name of system generated indexes for constraints</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>HSQLDB automatically
+              creates a system index for each PRIMARY KEY, UNIQUE and FOREIGN
+              KEY constraint. By default the names of those indexes are
+              generated the system as a string beginning with SYS_. When the
+              setting is changed to true, the names will be the same as the
+              constraint names.</para><para><programlisting>SET DATABASE SQL SYS INDEX NAMES { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>DB2 Style Syntax</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.syntax_db2</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>support for DB2 style syntax</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              true, allows compatibility with some aspects of this dialect.
+              <programlisting>SET DATABASE SQL SYNTAX DB2 { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>MSSQL Style Syntax</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.syntax_mss</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>support for MS SQL Server style syntax</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              true, switches the arguments of the CONVERT function and also
+              allow compatibility with some other aspects of this dialect.
+              <programlisting>SET DATABASE SQL SYNTAX MSS { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>MySQL Style Syntax</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.syntax_mys</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>support for MySQL style syntax</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              true, enables support for TEXT and AUTO_INCREMENT types and also
+              allow compatibility with many other aspects of this
+              dialect.</para><para><programlisting>SET DATABASE SQL SYNTAX MYS { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Oracle Style Syntax</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.syntax_ora</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>support for Oracle style syntax</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              true, enables support for non-standard types. It also enables
+              DUAL, ROWNUM, NEXTVAL and CURRVAL syntax and and also allow
+              compatibility with some other aspects of this
+              dialect.</para><para><programlisting>SET DATABASE SQL SYNTAX ORA { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>PostgreSQL Style Syntax</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.syntax_pgs</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>support for PostgreSQL style syntax</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property, when set
+              true, enables support for TEXT and SERIAL types. It also enables
+              NEXTVAL, CURRVAL and LASTVAL syntax and also allow compatibility
+              with some other aspects of this dialect.<programlisting>SET DATABASE SQL SYNTAX PGS { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+
+    <section xml:id="dpc_db_operations">
+      <title>Database Operations Properties</title>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Default Table Type</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.default_table_type</property></entry>
+
+              <entry><literal>memory</literal></entry>
+
+              <entry>type of table created with unqualified CREATE
+              TABLE</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The CREATE TABLE command
+              results in a MEMORY table by default. Setting the value
+              <literal>cached</literal> for this property will result in a
+              cached table by default. The qualified forms such as CREATE
+              MEMORY TABLE or CREATE CACHED TABLE are not affected at all by
+              this property.</para><para><programlisting>SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Transaction Control Mode</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.tx</property></entry>
+
+              <entry><literal>locks</literal></entry>
+
+              <entry>database transaction control mode</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>Indicates the transaction
+              control mode for the database. The values,
+              <literal>locks</literal>, <literal>mvlocks</literal> and
+              <literal>mvcc</literal> are
+              allowed.</para><para><programlisting>SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Default Isolation Level for Sessions</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.tx_level</property></entry>
+
+              <entry><literal>read_commited</literal></entry>
+
+              <entry>database default transaction isolation level</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>Indicates the default
+              transaction isolation level for each new session. The values,
+              <literal>read_committed</literal> and
+              <literal>serializable</literal> are allowed. Individual sessions
+              can change their isolation level.</para><para><programlisting>SET DATABASE DEFAULT ISOLATION LEVEL { READ COMMITTED | SERIALIZABLE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Transaction Rollback in Deadlock</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.tx_conflict_rollback</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>effect of deadlock or other conflicts on
+              transaction</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>When a transaction
+              deadlock or other unresolvable conflict is about to happen, the
+              current transaction is rolled back and an exception is raised.
+              When this property is set false, the transaction is not rolled
+              back. Only the latest action that would cause the conflict is
+              undone and an error is returned. The property should not be
+              changed unless the application can quickly perform an
+              alternative statement and complete the transaction. It is
+              provided for compatibility with other database engines which do
+              not roll back the transaction upon
+              deadlock.</para><para><programlisting>SET DATABASE TRANSACTION ROLLBACK ON CONFLICT { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Transaction Rollback on Interrupt</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.tx_interrupt_rollback</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>effect of Thread interrupt on transaction</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>In an in-process database,
+              when a thread in the user's application is executing an SQL
+              statement and it is interrupted, the interrupt is cleared by
+              HyperSQL. You can set this property to true to force a rollback
+              of the transaction (only if the interrupt is detected). With
+              this setting the interrupt is not
+              cleared.</para><para><programlisting>SET DATABASE TRANSACTION ROLLBACK ON INTERRUPT { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Time Zone and Interval Types</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.translate_tti_types</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>usage of type codes for advanced datetime and interval
+              types</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>If the property is true,
+              the TIME / TIMESTAMP WITH TIME ZONE types and INTERVAL types are
+              represented in JDBC methods of
+              <classname>ResultSetMetaData</classname> and
+              <classname>DatabaseMetaData</classname> as JDBC datetime types
+              without time zone and the VARCHAR type respectively. The
+              original type names are preserved.</para><para><programlisting>SET DATABASE SQL TRANSLATE TTI TYPES { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+
+    <section xml:id="dpc_db_file_mem">
+      <title>Database File and Memory Properties</title>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Opening Database as Read Only</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>readonly</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>readonly database - is used to open an existing
+              <glossterm>file:</glossterm> database</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property is a special
+              property that can be added manually to the .properties file, or
+              included in the URL or connection properties. When this property
+              is true, the database becomes readonly. This can be used with an
+              existing database to open it for readonly
+              operation.</para><para><programlisting>this property cannot be set with an SQL statement - it can be used in the .properties file</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Opening Database Without Modifying the Files</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>files_readonly</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>readonly files database - is used to open an existing
+              <glossterm>file:</glossterm> database</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property is used
+              similarly to the hsqldb.readonly property. When this property is
+              true, CACHED and TEXT tables are readonly but memory tables are
+              not. Any change to the data is not persisted to database
+              files.</para><para><programlisting>this property cannot be set with an SQL statement - it can be used in the .properties file</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Huge database files and tables</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.large_data</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>enable huge database files - can also be used to open an
+              existing <glossterm>file:</glossterm> database</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>By default, up to 2
+              billion rows can be stored in all disk-based CACHED tables.
+              Setting this property to true increases the limit to 256 billion
+              rows. This property is used as a connection
+              property.</para><para><programlisting>this property cannot be set with an SQL statement - it can be used as a connection property for the connection that opens the database</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Event Logging</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.applog</property></entry>
+
+              <entry><literal>0</literal></entry>
+
+              <entry>application logging level - can also be used when opening
+              an existing <glossterm>file:</glossterm> database</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The default level 0
+              indicates no logging. Level 1 results in minimal logging,
+              including any failures. Level 2 indicates all events, including
+              ordinary events. LEVEL 3 adds details of some of the normal
+              operations. The events are logged in a file ending with
+              ".app.log".</para><para><programlisting>SET DATABASE EVENT LOG LEVEL { 0 | 1 | 2 | 3}</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>SQL Logging</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.sqllog</property></entry>
+
+              <entry><literal>0</literal></entry>
+
+              <entry>sql logging level - can also be used when opening an
+              existing <glossterm>file:</glossterm> database</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The default level 0
+              indicates no logging. Level 1 logs only commits and rollbacks.
+              Level 2 logs all the SQL statements executed, together with
+              their parameter values. Long statements and parameter values are
+              truncated. Level 3 is similar to Level 2 but does not truncate
+              long statements and values. The events are logged in a file
+              ending with ".sql.log". This property applies to existing file:
+              databases as well as new databases.</para><para><programlisting>SET DATABASE EVENT LOG SQL LEVEL { 0 | 1 | 2 | 3}</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Temporary Result Rows in Memory</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.result_max_memory_rows</property></entry>
+
+              <entry><literal>0</literal></entry>
+
+              <entry>storage of temporary results and tables in memory or on
+              disk</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property can be set
+              to specify how many rows of each results or temporary table are
+              stored in memory before the table is written to disk. The
+              default is zero and means data is always stored in memory. If
+              this setting is used, it should be set above
+              1000.</para><para><programlisting>SET DATABASE DEFAULT RESULT MEMORY ROWS &lt;numeric value&gt;</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Unused Space Recovery</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.cache_free_count</property></entry>
+
+              <entry><literal>512</literal></entry>
+
+              <entry>maximum number of unused space recovery - can also be
+              used when opening an existing <glossterm>file:</glossterm>
+              database</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The default indicates 512
+              unused spaces are kept for later use. The value can range
+              between 0 - 8096. </para><para>When rows are deleted, the space
+              is recovered and kept for reuse for new rows. If too many rows
+              are deleted, the smaller recovered spaces are lost and the
+              largest ones are retained for later use. Normally there is no
+              need to set this property.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Rows Cached In Memory</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.cache_rows</property></entry>
+
+              <entry><literal>50000</literal></entry>
+
+              <entry>maximum number of rows in memory cache</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>Indicates the maximum
+              number of rows of cached tables that are held in
+              memory.</para><para>The value can range between 100- 4 million.
+              If the value is set via SET FILES CACHE ROWS then it becomes
+              effective after the next database
+              SHUTDOWN.</para><para><programlisting>SET FILES CACHE ROWS &lt;numeric value&gt;</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Size of Rows Cached in Memory</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.cache_size</property></entry>
+
+              <entry><literal>10000</literal></entry>
+
+              <entry>memory cache size</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>Indicates the total size
+              (in kilobytes) of rows in the memory cache used with cached
+              tables. This size is calculated as the binary size of the rows,
+              for example an INTEGER is 4 bytes. The actual memory size used
+              by the objects is 2 to 4 times this value. This depends on the
+              types of objects in database rows, for example with binary
+              objects the factor is less than 2, with character strings, the
+              factor is just over 2 and with date and timestamp objects the
+              factor is over 3.</para><para>The value can range between 100 KB
+              - 4 GB. The default is 10,000, representing 10,000 kilobytes. If
+              the value is set via SET FILES then it becomes effective after
+              the next database SHUTDOWN or
+              CHECKPOINT.</para><para><programlisting>SET FILES CACHE SIZE &lt;numeric value&gt;</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Size Scale of Disk Table Storage</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.cache_file_scale</property></entry>
+
+              <entry><literal>32</literal></entry>
+
+              <entry>unit used for storage of rows in the .data file</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The default value
+              corresponds to a maximum size of 64 GB for the .data file. This
+              can be increased to 64, 128, 256, 512, or 1024 resulting in up
+              to 2 TB GB storage. Settings below 32 in older databases are
+              preserved until a SHUTDOWN COMPACT.</para><para><programlisting>SET FILES SCALE &lt;numeric value&gt;</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Size Scale of LOB Storage</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.lob_file_scale</property></entry>
+
+              <entry><literal>32</literal></entry>
+
+              <entry>unit used for storage of lobs in the .lobs file</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The default value
+              represents units of 32KB. When the average size of individual
+              lobs in the database is smaller, a smaller unit can be used to
+              reduce the overall size of the .lobs file. Values 1, 2, 4, 8,
+              16, 32 can be used.</para><para><programlisting>SET FILES LOB SCALE &lt;numeric value&gt;</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Compression of BLOB and CLOB data</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.lob_compressed</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>use of compression for storage of blobs and clobs</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The default value is
+              false, indicating no compression. When the value is true at the
+              time of creation of a new database, blobs and clobs are stored
+              as compressed parts.</para><para><programlisting>SET FILES LOB COMPRESSED { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Internal Backup of Database Files</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.inc_backup</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>incremental backup of data file</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>As the contents of the
+              .data file are modified during database operation, the original
+              contents are backed up gradually. This allows fast checkpoint
+              and shutdown.</para><para>With HSQLDB up to version 2.5.0 it was
+              possible to set the property false in order to have the .data
+              file backed up entirely at the time of checkpoint and
+              shutdown.</para><para>From version 2.5.1, this property has no
+              effect and backup is always
+              incremental.</para><para><programlisting>SET FILES BACKUP INCREMENT { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Use of Lock File</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.lock_file</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>use of lock file - can also be used with an existing
+              <glossterm>file:</glossterm> database</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>By default, a lock file is
+              created for each file database that is opened for read and
+              write. This property can be specified with the value false to
+              prevent the lock file from being created. This usage is not
+              recommended but may be desirable when flash type storage is
+              used. This property applies to existing file: databases as well
+              as new databases.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Logging Data Change Statements</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.log_data</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>logging data change</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property can be set
+              to <literal>false</literal> when database recovery in the event
+              of an unexpected crash is not necessary. A database that is used
+              as a temporary cache is an example. Regardless of the value of
+              this property, if there is a proper shutdown of the database,
+              all the changed data is stored. A checkpoint or shutdown still
+              rewrites the <literal>.script</literal> file and saves the
+              <literal>.backup</literal> file according to the other
+              settings.</para><para><programlisting>SET FILES LOG  { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Automatic Checkpoint Frequency</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.log_size</property></entry>
+
+              <entry><literal>50</literal></entry>
+
+              <entry>size of log when checkpoint is performed</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The value is the size (in
+              megabytes) that the <literal>.log</literal> file can reach
+              before an automatic checkpoint occurs. A checkpoint rewrites the
+              <literal>.script</literal> file and clears the
+              <literal>.log</literal> file.</para><para><programlisting>SET FILES LOG SIZE &lt;numeric value&gt;</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Automatic Defrag at Checkpoint</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.defrag_limit</property></entry>
+
+              <entry><literal>0</literal></entry>
+
+              <entry>percentage of unused space causing a defrag at
+              checkpoint</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>When a checkpoint is
+              performed, the percentage of wasted space in the .data file is
+              calculated. If the wasted space is above the specified limit, a
+              defrag operation is performed. The default is 0, which means no
+              automatic checkpoint. The numeric value must be between 0 and
+              100 and is interpreted as a percentage of the current size of
+              the .data file. Positive values less than 25 are converted to
+              25.</para><para><programlisting>SET FILES DEFRAG &lt;numeric value&gt;</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Compression of the .script file</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.script_format</property></entry>
+
+              <entry><literal>0</literal></entry>
+
+              <entry>compressed .script file</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>If the property is set
+              with the value 3, the .script file is stored in compressed
+              format. This is useful for large script files. The .script is no
+              longer readable when the
+              <literal>hsqldb.script_format=3</literal> has been
+              used.</para><para><programlisting>This property cannot be set with an SQL statement</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Logging Data Change Statements Frequency</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.write_delay</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>write delay performing fsync of log file entries</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>If the property is true,
+              the default WRITE DELAY property of the database is used, which
+              is 500 milliseconds. If the property is false, the WRITE DELAY
+              is set to 0 seconds. The log is written to file regardless of
+              this property. The property controls the fsync that forces the
+              written log to be persisted to disk. The SQL command for this
+              property allows more precise control over the
+              property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Logging Data Change Statements Frequency</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.write_delay_millis</property></entry>
+
+              <entry><literal>500</literal></entry>
+
+              <entry>write delay for performing fsync of log file
+              entries</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>If the property is used,
+              the WRITE DELAY property of the database is set the given value
+              in milliseconds. The property controls the fsync that forces the
+              written log to be persisted to disk. The SQL command for this
+              property allows the same level of control over the
+              property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Use of NIO for Disk Table Storage</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.nio_data_file</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>use of nio access methods for the .data file</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>Setting this property to
+              <literal>false</literal> will avoid the use of nio access
+              methods, resulting in somewhat reduced speed. If the data file
+              is larger than <literal>hsqldb.nio_max_size</literal> (default
+              256MB) when it is first opened (or when its size is increased),
+              nio access methods are not used. Also, if the file gets larger
+              than the amount of available computer memory that needs to be
+              allocated for nio access, non-nio access methods are
+              used.</para><para><programlisting>SET FILES NIO { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Use of NIO for Disk Table Storage</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.nio_max_size</property></entry>
+
+              <entry><literal>256</literal></entry>
+
+              <entry>nio buffer size limit</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The maximum size of .data
+              file in mega bytes that can use the nio access method. When the
+              file gets larger than this limit, non-nio access methods are
+              used. Values 64, 128, 256, 512, 1024, and larger multiples of
+              512 can be used. The default is
+              256MB.</para><para><programlisting>SET FILES NIO SIZE &lt;numeric value&gt;</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Recovery Log Processing</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.full_log_replay</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>recovery log processing</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The .log file is processed
+              during recovery after a forced shutdown. Out of memory
+              conditions always abort the startup. Any other exception stops
+              the processing of the .log file and by default, continues the
+              startup process. If this property is true, the startup process
+              is stopped if any exception occurs. Exceptions are usually
+              caused by incomplete lines of SQL statements near the end of the
+              .log file, which were not fully synced to disk when an abnormal
+              shutdown occurred.</para><para><programlisting>This property cannot be set with an SQL statement</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Default Properties for TEXT Tables</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>textdb.*</property></entry>
+
+              <entry><literal>0</literal></entry>
+
+              <entry>default properties for new text tables</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>Properties that override
+              the database engine defaults for newly created text tables.
+              Settings in the text table <literal>SET &lt;tablename&gt; SOURCE
+              &lt;source string&gt; </literal>command override both the engine
+              defaults and the database properties defaults. Individual
+              <property>textdb.*</property> properties are listed in the <link
+              endterm="texttables-title" xlink:href="#texttables-chapt"/>
+              chapter.</para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Forcing Garbage Collection</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>runtime.gc_interval</property></entry>
+
+              <entry><literal>0</literal></entry>
+
+              <entry>forced garbage collection</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>No-op setting previously
+              used to forces garbage collection each time a set number of
+              result set row or cache row objects are created. This setting
+              has no effect in version 2.5.0 or
+              later,</para><para><programlisting>SET DATABASE GC &lt;numeric value&gt;</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+
+    <section xml:id="dpc_crypt_props">
+      <title>Crypt Properties</title>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Crypt Property For LOBs</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>crypt_lobs</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>encryption of lobs</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>With encrypted databases,
+              if this property is true, the contents of the .lobs file are
+              also encrypted. HyperSQL versions prior to 2.3.0 did not support
+              encrypted lobs. Encrypted databases created with those versions
+              must be opened with crypt_lobs=false on the URL when they
+              contain lobs.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Cipher Key for Encrypted Database</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>crypt_key</property></entry>
+
+              <entry><literal>none</literal></entry>
+
+              <entry>encryption</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The cipher key for an
+              encrypted database.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Cipher Initialization Vector for Encrypted Database</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>crypt_iv</property></entry>
+
+              <entry><literal>none</literal></entry>
+
+              <entry>encryption</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The initialization vector
+              for an encrypted database. Optional feature introduced in
+              version 2.5.0.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Crypt Provider Encrypted Database</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>crypt_provider</property></entry>
+
+              <entry><literal>none</literal></entry>
+
+              <entry>encryption</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The fully-qualified class
+              name of the cryptography provider. This property is not used for
+              the default security provider.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Cipher Specification for Encrypted Database</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>crypt_type</property></entry>
+
+              <entry><literal>none</literal></entry>
+
+              <entry>encryption</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The cipher
+              specification.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <para>When connecting to an <glossterm>in-process</glossterm> database
+      creates a new database, or opens an existing database (i.e. it is the
+      first connection made to the database by the application), all the
+      user-defined database properties listed in this section can be specified
+      as URL properties.</para>
+
+      <simpara>When HyperSQL is used with OpenOffice.org as an external
+      database, the property "default_schema=true" must be set on the URL,
+      otherwise the program will not operate correctly as it does with its
+      built-in hsqldb instance.</simpara>
+    </section>
+  </section>
+
+  <section xml:id="dpc_system_props">
+    <title>System Properties</title>
+
+    <para>A few system properties are used by HyperSQL. These are set on the
+    Java command line or by calling System.setProperty() from the user's
+    program. They are not valid as URL or connection properties.</para>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Logging Framework</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>hsqldb.reconfig_logging</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>configuring the framework logging</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Setting this system property
+            false avoids reconfiguring the framework logging system such as
+            Log4J or java.util.Logging. If the property does not exist or is
+            true, reconfiguration takes place.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Text Tables</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>textdb.allow_full_path</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>text table file locations</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Setting this system property
+            true allows text table sources and files to be opened on all
+            available paths. It also allows pure <glossterm>mem:</glossterm>
+            databases to open such files. By default, only the database
+            directory and its subdirectories are allowed. See the Text Tables
+            chapter.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Java Functions</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>hsqldb.method_class_names</property></entry>
+
+            <entry><literal>none</literal></entry>
+
+            <entry>allowed Java classes</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property needs to be
+            set with the names (including wildcards) of Java classes that can
+            be used for routines based on Java static methods. See the SQL
+            Invoked Routines chapter.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+</chapter>

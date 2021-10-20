@@ -1,0 +1,57 @@
+<ivy-module version="2.0">
+  <!-- $Id$ -->
+  <info organisation="hsqldb" module="docbook"/>
+  <configurations defaultconf="fop">
+    <conf name="xcsdeRngvalJar" transitive="false"
+          description="Single XCSDE RELAX NG XML Validator jar file"/>
+    <conf name="xcsdeRngvalDeps" transitive="true"
+          description="Dependecies of XCSDE RELAX NG XML Validator Jar file"
+          extends="xcsdeRngvalJar"/>
+    <conf name="xalan" description="Xalan Xslt" transitive="false"
+          extends="xcsdeRngvalJar"/>
+    <conf name="fop" description="FOP" transitive="false"/>
+    <conf name="bndJar" transitive="false"
+          description="aQute Bundle Tool Library jar file"/>
+    <conf name="jflexJar" transitive="false"
+          description="JFlex Library jar file"/>
+  </configurations>
+  <dependencies defaultconfmapping="*->default">
+    <dependency name="fop" org="org.apache.xmlgraphics" rev="1.0"/>
+    <dependency name="xmlgraphics-commons" org="org.apache.xmlgraphics"
+                rev="1.4"/>
+    <dependency name="avalon-framework-api" org="org.apache.avalon.framework"
+                rev="4.3.1"/>
+    <dependency name="avalon-framework-impl" org="org.apache.avalon.framework"
+                rev="4.3.1"/>
+    <dependency name="batik-svg-dom" org="org.apache.xmlgraphics" rev="1.7"/>
+    <dependency name="batik-bridge" org="org.apache.xmlgraphics" rev="1.7"/>
+    <dependency name="batik-util" org="org.apache.xmlgraphics" rev="1.7"/>
+    <dependency name="batik-dom" org="org.apache.xmlgraphics" rev="1.7"/>
+    <dependency name="batik-css" org="org.apache.xmlgraphics" rev="1.7"/>
+    <dependency name="batik-awt-util" org="org.apache.xmlgraphics" rev="1.7"/>
+    <dependency name="batik-gvt" org="org.apache.xmlgraphics" rev="1.7"/>
+    <dependency name="batik-transcoder" org="org.apache.xmlgraphics" rev="1.7"/>
+    <dependency name="batik-extension" org="org.apache.xmlgraphics" rev="1.7"/>
+    <dependency name="batik-ext" org="org.apache.xmlgraphics"
+                rev="1.7" conf="fop"/>
+    <dependency name="commons-io" org="commons-io" rev="2.1"/>
+    <dependency name="commons-logging" org="commons-logging" rev="1.1.1"/>
+    <dependency name="xalan" org="xalan" rev="2.7.1" conf="xalan"/>
+    <dependency name="serializer" org="xalan" rev="2.7.1" conf="xalan"/>
+    <dependency name="docbook-xsl-xalan" org="net.sf.docbook" rev="1.0.0"
+                conf="xalan"/>
+    <dependency name="xml-apis" org="xml-apis" rev="1.0.b2" conf="xalan"/>
+    <dependency name="xercesImpl" org="xerces" rev="2.10.0"
+                conf="xalan"/>
+    <dependency name="xcsde-rngval" rev="0.1.0" org="com.admc"
+                conf="xcsdeRngvalJar"/>
+    <!-- conf extending gets this xcsdeRngvalJar into the xcsdeRngvalDeps and
+         into xalan.
+         Primary purpose of this jar is for the admc MSV validator.
+         It is also added to the XSLT CLASSPATH only to add the XInclude
+         settings file to the CLASSPATH.  Needed by Xalan during XSLT.
+    -->
+    <dependency name="biz.aQute.bnd" org="biz.aQute.bnd" rev="5.3.0" conf="bndJar"/>
+    <dependency name="jflex" org="de.jflex" rev="1.4.3" conf="jflexJar"/>
+  </dependencies>
+</ivy-module>
