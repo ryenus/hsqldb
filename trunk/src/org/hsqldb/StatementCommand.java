@@ -59,7 +59,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -1316,7 +1316,6 @@ public class StatementCommand extends Statement {
                         throw Error.error(ErrorCode.GENERAL_IO_ERROR);
                     }
 
-                    oldStore.removeAll();
                     session.database.schemaManager.setSchemaChangeTimestamp();
 
                     if (name.schema == SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
