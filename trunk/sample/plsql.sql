@@ -27,19 +27,12 @@ INSERT INTO T1 VALUES(2, 4);
 
 /* Above is plain SQL; below is the PL/SQL program. */
 DECLARE
-
     a NUMBER;
-
     b NUMBER;
-
 BEGIN
-
     SELECT e,f INTO a,b FROM T1 WHERE e>1;
-
     INSERT INTO T1 VALUES(b,a);
-
 END;
-
 .;
 /** The statement on the previous line, ".;" is SqlTool specific.
  *  This command says to save the input up to this point to the
