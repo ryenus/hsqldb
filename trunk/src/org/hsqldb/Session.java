@@ -37,7 +37,6 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
@@ -75,7 +74,7 @@ import org.hsqldb.types.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.6.2
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -453,15 +452,12 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_40502);
         }
 
-        getTransactionUTC();
         database.txManager.addDeleteAction(this, table, store, row,
                                            changedColumns);
     }
 
     void addInsertAction(Table table, PersistentStore store, Row row,
                          int[] changedColumns) {
-
-        getTransactionUTC();
 
 //        tempActionHistory.add("add insert to transaction " + actionTimestamp);
         database.txManager.addInsertAction(this, table, store, row,
