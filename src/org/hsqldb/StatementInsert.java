@@ -47,7 +47,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for INSERT statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public class StatementInsert extends StatementDML {
@@ -141,6 +141,8 @@ public class StatementInsert extends StatementDML {
         Result          resultOut = null;
         PersistentStore store     = baseTable.getRowStore(session);
         int             count     = 0;
+
+        session.getTransactionUTC();
 
         if (isSimpleInsert) {
             Type[] colTypes = baseTable.getColumnTypes();

@@ -31,10 +31,10 @@
 
 package org.hsqldb.persist;
 
+import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.LongLookup;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.lib.DoubleIntIndex;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)

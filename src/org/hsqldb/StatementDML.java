@@ -55,7 +55,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 
@@ -209,6 +209,8 @@ public class StatementDML extends StatementDMQL {
 
         Result result = null;
         int    limit  = Integer.MAX_VALUE;
+
+        session.getTransactionUTC();
 
         if (sortAndSlice != null) {
             int[] limits = sortAndSlice.getLimits(session, null,
