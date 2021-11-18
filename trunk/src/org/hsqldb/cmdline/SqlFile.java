@@ -3435,6 +3435,12 @@ public class SqlFile {
                             ? "authorizations" : "system_authorizations")
                             + "\nWHERE authorization_type = 'ROLE'\n"
                             + "ORDER BY authorization_name");
+                    } else if (dbProductName.indexOf("PostgreSQL") > -1) {
+                        statement = shared.jdbcConn.createStatement();
+
+                        statement.execute(
+                            "SELECT rolname FROM pg_catalog.pg_roles\n"
+                            + "ORDER BY rolname");
                     } else if (dbProductName.indexOf(
                             "Adaptive Server Enterprise") > -1) {
                         // This is the basic Sybase server.  Sybase also has
@@ -3559,13 +3565,11 @@ public class SqlFile {
 
                 case 'i' :
 
-                    // Some databases require to specify table, some don't.
-                    /*
+                    // Most databases require to specify table, some don't.
                     if (filter == null) {
                         throw new BadSpecial("You must specify the index's "
                                 + "table as argument to \\di");
                     }
-                     */
                     String table = null;
 
                     if (filter != null) {
