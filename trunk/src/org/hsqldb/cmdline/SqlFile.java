@@ -3272,7 +3272,8 @@ public class SqlFile {
         "SYS", "SYSTEM", "OUTLN", "DBSNMP", "OUTLN", "MDSYS", "ORDSYS",
         "ORDPLUGINS", "CTXSYS", "DSSYS", "PERFSTAT", "WKPROXY", "WKSYS",
         "WMSYS", "XDB", "ANONYMOUS", "ODM", "ODM_MTR", "OLAPSYS", "TRACESVR",
-        "REPADMIN"
+        "REPADMIN", "APPQOSSYS", "AUDSYS", "DBSFWUSER", "GSMADMIN_INTERNAL",
+        "RDSADMIN"
     };
 
     public String getCurrentSchema() throws BadSpecial, SqlToolError {
@@ -3556,12 +3557,12 @@ public class SqlFile {
                     break;
 
                 case 't' :
-                    excludeSysSchemas = (dbProductName.indexOf("Oracle")
-                                         > -1);
+                    excludeSysSchemas = dbProductName.indexOf("Oracle") > -1;
                     types[0] = "TABLE";
                     break;
 
                 case 'v' :
+                    excludeSysSchemas = dbProductName.indexOf("Oracle") > -1;
                     types[0] = "VIEW";
                     break;
 
@@ -4112,7 +4113,6 @@ public class SqlFile {
                             for (String oracleSysSchema : oracleSysSchemas)
                                 if (val.equals(oracleSysSchema)) {
                                     filteredOut = true;
-
                                     break;
                                 }
 
