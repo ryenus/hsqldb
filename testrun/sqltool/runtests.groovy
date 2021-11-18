@@ -1,4 +1,4 @@
-#!/local/groovy/bin/groovy
+#!/usr/bin/env groovy
 /*
  * $Id$
  * Distribution is permitted under the terms of the HSQLDB license.
