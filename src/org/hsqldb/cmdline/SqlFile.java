@@ -3420,6 +3420,11 @@ public class SqlFile {
                             + "information_schema."
                             + ((minorVersion> 8 || majorVersion > 1)
                             ? "sequences" : "system_sequences") + narrower);
+                    } else if (dbProductName.indexOf("Oracle") > -1) {
+                        statement = shared.jdbcConn.createStatement();
+                        statement.execute(
+                          "SELECT sequence_name, sequence_owner from\n"
+                          + "sys.all_sequences ORDER BY sequence_name");
                     } else {
                         types[0] = "SEQUENCE";
                     }
@@ -3441,6 +3446,14 @@ public class SqlFile {
                         statement.execute(
                             "SELECT rolname FROM pg_catalog.pg_roles\n"
                             + "ORDER BY rolname");
+                    } else if (dbProductName.indexOf("Redshift") > -1) {
+                        // Difficult call here.
+                        // Redshift pg_role table is not readable admins, so
+                        // useless.  Report groups instead, because it's useful.
+                        statement = shared.jdbcConn.createStatement();
+                        statement.execute(
+                            "SELECT groname FROM pg_catalog.pg_group\n"
+                            + "ORDER BY groname");
                     } else if (dbProductName.indexOf(
                             "Adaptive Server Enterprise") > -1) {
                         // This is the basic Sybase server.  Sybase also has
@@ -3451,6 +3464,16 @@ public class SqlFile {
 
                         statement.execute(
                             "SELECT name FROM syssrvroles ORDER BY name");
+                    } else if (dbProductName.indexOf("Oracle") > -1) {
+                        statement = shared.jdbcConn.createStatement();
+
+                        try {
+                            statement.execute(
+                                "SELECT role FROM sys.dba_roles ORDER BY role");
+                        } catch (SQLException se) {
+                            throw new BadSpecial(
+                              "You do not database privileges to list roles");
+                        }
                     } else if (dbProductName.indexOf(
                             "Apache Derby") > -1) {
                         throw new BadSpecial(
@@ -3476,7 +3499,8 @@ public class SqlFile {
                         statement.execute(
                             "SELECT username, created FROM all_users "
                             + "ORDER BY username");
-                    } else if (dbProductName.indexOf("PostgreSQL") > -1) {
+                    } else if (dbProductName.indexOf("PostgreSQL") > -1
+                    || dbProductName.indexOf("Redshift") > -1) {
                         statement = shared.jdbcConn.createStatement();
 
                         statement.execute(
