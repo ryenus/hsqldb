@@ -160,6 +160,7 @@ urlid localhost-sa
 #url jdbc:mysql://hostname/dbname
 #username root
 #password asecret
+# Alternatively, you can access MySQL using jdbc:mariadb URLs and driver.
 
 # Note that "databases" in SQL Server and Sybase are traditionally used for
 # the same purpose as "schemas" with more SQL-compliant databases.
@@ -223,8 +224,8 @@ urlid localhost-sa
 # Derby's ij.
 
 # Maria DB
-# You can access Maria DBs using jdbc:mysql URLs and the MySQL driver, but
-# here is the native one:
+# With current versions, the MySQL driver does not work to access a Maria
+# database (though the inverse works).
 # Driver jar files are of format like "mariadb-java-client*.jar"
 # Port defaults to 3306
 #urlid maria
