@@ -3,6 +3,8 @@
 # This is a sample RC configuration file used by SqlTool, DatabaseManager,
 # and any other program that uses the org.hsqldb.lib.RCData class.
 # See the documentation for SqlTool for various ways to use this file.
+# This is not a Java Properties file. It uses a custom format with stanzas,
+# similar to .netrc files.
 
 # If you have the least concerns about security, then secure access to
 # your RC file.
@@ -40,6 +42,41 @@
 #    liberal patterns, and override settings later in the file with more
 #    specific (or exact) patterns.
 
+# Since service discovery works great in all JREs for many years now, I
+# have removed all 'driver' specifications here.  JRE discover will
+# automatically resolve the driver class based on the JDBC URL format.
+# Most people use default ports, so I have removed port specification from
+# examples except for Microsoft's Sql Server driver where you can't depend
+# on a default port.
+# In all cases, to specify a non-default port, insert colon and port number
+# after the hostname or ip address in the JDBC URL, like
+# jdbc:hsqldb:hsql://localhost:9977 or
+# jdbc:sqlserver://hostname.admc.com:1433;databaseName=dbname
+
+# Amazon Aurora instances are access from JDBC exactly the same as the
+# non-Aurora RDS counterpart.
+
+# For using any database engine other than HyperSQL, you must add the
+# JDBC jar file and the SqlTool jar to your CLASSPATH then run a command like:
+#     java org.hsqldb.util.SqlTool...
+# I.e., the "-jar" switch doesn't support modified classpath.
+# (See SqlTool manual for how to do same thing using Java modules.)
+# To oversimplify for non-developers, the two most common methods to set
+# CLASSPATH for an executable tool like SqlTool are to either use the java
+# "-cp" switch or set environmental variable CLASSPATH.
+# Windows users can use graphical UI or CLI "set".  Unix shell users must
+# "export" in addition to assigning.
+#
+# All JDBC jar files used in these examples are available from Maven
+# repositories.  You can also get them from vendor web sites or with product
+# bundles (especially database distributions).
+# Most databases provide multiple variants.  Most people will want a type 4
+# driver supporting your connection mechanism (most commonly TCP/IP service,
+# but also database file access and others) and your client JRE version.
+# By convention the variants are distinguished in segments of the jar file
+# name before the final ".jar" .
+
+
 # Global default.  .+ matches all lookups:
 urlid .+ 
 username SA
@@ -53,7 +90,7 @@ url jdbc:hsqldb:mem:memdbid
 # A personal, local, persistent database.
 # Inherits username and password from default setting above.
 urlid personal
-url jdbc:hsqldb:file:${user.home}/db/personal;shutdown=true
+url jdbc:hsqldb:file:${user.home}/db/personal;shutdown=true;ifexist=true
 transiso TRANSACTION_READ_COMMITTED
 # When connecting directly to a file database like this, you should 
 # use the shutdown connection property like this to shut down the DB
@@ -62,36 +99,25 @@ transiso TRANSACTION_READ_COMMITTED
 # This is for a hsqldb Server running with default settings on your local
 # computer (and for which you have not changed the password for "SA").
 # Inherits username and password from default setting above.
+# Default port 9001
 urlid localhost-sa
 url jdbc:hsqldb:hsql://localhost
 
 
 
 # Template for a urlid for an Oracle database.
-# You will need to put the oracle.jdbc.OracleDriver class into your 
-# classpath.
-# In the great majority of cases, you want to use jhe desired version of a
-# file odbc*.jar (previously JDBC distributed as classes12.zip),
-# which you can get from the directory $ORACLE_HOME/jdbc/lib of any
-# Oracle installation compatible with your server.
-# Since you need to add to the classpath, you can't invoke SqlTool with
-# the jar switch, like "java -jar .../sqltool.jar...".
-# Put both the SqlTool jar and odbc*.jar in your classpath (and export!)
-# and run something like "java org.hsqldb.util.SqlTool...".
+# Driver jar files from this century have format like "ojbc*.jar".
+# Default port 1521
+urlid localhost-sa
+# Avoid older drivers because they have quirks.
 # You could use the thick driver instead of the thin, but I know of no reason
 # why any Java app should.
 
 #urlid cardiff2
-#url jdbc:oracle:thin:@aegir.admc.com:1521:TRAFFIC_SID
-# Thin SID URLs must specify both port and SID, there are no defaults.
-# Oracle listens to 1521 by default, so that's what you will usually specify.
-# But can alternatively use global service name (not tnsnames.ora service
-# alias, in which case the port does default to 1521):
-#url jdbc:oracle:thin:@centos.admc.com/tstsid.admc
+# Can identify target database with either SID or global service name.
+#url jdbc:oracle:thin:@//centos.admc.com/tstsid.admc
 #username blaine
-#password secretpassword
-#driver oracle.jdbc.OracleDriver
-
+#password asecret
 
 
 # Template for a TLS-encrypted HSQLDB Server.
@@ -101,6 +127,7 @@ url jdbc:hsqldb:hsql://localhost
 # You only need to set "truststore" if the server cert is not approved by
 # your system default truststore (which a commercial certificate probably
 # would be).
+# Port defaults to 554.
 
 #urlid tls
 #url jdbc:hsqldb:hsqls://db.admc.com:9001/lm2
@@ -110,77 +137,83 @@ url jdbc:hsqldb:hsql://localhost
 
 
 # Template for a Postgresql database
+# Driver jar files are of format like "postgresql-*.jar"
+# Port defaults to 5432.
 #urlid blainedb
 #url jdbc:postgresql://idun.africawork.org/blainedb
 #username blaine
-#password losung1
-#driver org.postgresql.Driver
+#password asecret
+
+# Amazon RedShift (a fork of Postgresql)
+# Driver jar files are of format like "redshift-jdbc*.jar"
+# Port defaults to 5439.
+#urlid redhshift
+#url jdbc:redshift://clustername.hex.us-east-1.redshift.amazonaws.com/dev
+#username awsuser
+#password asecret
 
 # Template for a MySQL database.  MySQL has poor JDBC support.
+# The latest driver jar files are of format like "mysql-jdbc*.jar", but not
+# long ago they were like "mysql-connector-java*.jar".
+# Port defaults to 3306
 #urlid mysql-testdb
-#url jdbc:mysql://hostname:3306/dbname
+#url jdbc:mysql://hostname/dbname
 #username root
-#password hiddenpwd
-#driver com.mysql.jdbc.Driver
+#password asecret
 
 # Note that "databases" in SQL Server and Sybase are traditionally used for
 # the same purpose as "schemas" with more SQL-compliant databases.
 
 # Template for a Microsoft SQL Server database using Microsoft's Driver
-# (I find that the JTDS driver is much more responsive than Microsoft's).
-# Port defaults to 1433.
+# Seems that some versions default to port 1433 and others to 1434.
 # MSDN implies instances are port-specific, so can specify port or instname.
 #urlid msprojsvr
-# url/driver for Current 2011 JDBC Driver for Microsoft SQL Server:
-# Requires just the new sqljdbc4.jar.  (Microsoft just loves back-slashes)
-#url jdbc:sqlserver://hostname\instname;databaseName=dbname
-# OR
+# Driver jar files are of format like "mssql-jdbc-*.jar".
+# Don't use older MS JDBC drivers (like SQL Server 2000 vintage) because they
+# are pitifully incompetent, handling transactions incorrectly.
+# I recommend that you do not use Microsoft's nonstandard format that
+# includes backslashes.
 #url jdbc:sqlserver://hostname;instanceName=instname;databaseName=dbname
-#driver com.microsoft.jdbc.sqlserver.SQLServerDriver
-# See, for example,
-# https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017
-# url/deriver for OLDER JDBC Driver:
-#url jdbc:microsoft:sqlserver://hostname;DatabaseName=DbName;SelectMethod=Cursor
-# The SelectMethod setting is required to do more than one thing on a JDBC
-# session (I guess Microsoft thought nobody would really use Java for 
-# anything other than a "hello world" program).
-# This is for Microsoft's SQL Server 2000 driver (requires mssqlserver.jar
-# and msutil.jar).
-#driver com.microsoft.jdbc.sqlserver.SQLServerDriver
+# with port:
+#url jdbc:sqlserver://hostname:1433;instanceName=instname;databaseName=dbname
 #username myuser
-#password hiddenpwd
+#password asecret
 
 # Template for Microsoft SQL Server database using the JTDS Driver
-# http://jtds.sourceforge.net  Jar file has name like "jtds-1.2.5.jar".
+# Looks like this project is no longer maintained, so you may be better off
+# using the Microsoft driver above.
+# http://jtds.sourceforge.net  Jar file has name like "jtds-1.3.1.jar".
 # Port defaults to 1433.
 # MSDN implies instances are port-specific, so can specify port or instname.
 #urlid nlyte
 #username myuser
-#password hiddenpwd
+#password asecret
 #url jdbc:jtds:sqlserver://myhost/nlyte;instance=MSSQLSERVER
 # Where database is 'nlyte' and instance is 'MSSQLSERVER'.
 # N.b. this is diff. from MS tools and JDBC driver where (depending on which
 # document you read), instance or database X are specified like  HOSTNAME\X.
-#driver net.sourceforge.jtds.jdbc.Driver
 
 # Template for a Sybase database
 #urlid sybase
 #url jdbc:sybase:Tds:hostname:4100/dbname
 #username blaine
-#password hiddenpwd
+#password asecret
 # This is for the jConnect driver (requires jconn3.jar).
-#driver com.sybase.jdbc3.jdbc.SybDriver
 
-# Template for Embedded Derby / Java DB.
-#urlid derby1
-#url jdbc:derby:path/to/derby/directory;create=true
+# Derby / Java DB.
+# Please see the Derby JDBC docs, because they have changed the organization
+# of their driver jar files in recent years.  Combining that with the different
+# database types supported and jar file classpath chaining, and it's not
+# feasible to document it adequately here.
+# I'll just give one example using network service, which works with 10.15.2.0.
+# Put files derbytools*.jar, derbyclient*.jar, derbyshared*.jar into a
+# directory and include the path to the derbytools.jar in your classpath.
+# Port defaults to 1527.
+#url jdbc:derby://server:<port>/databaseName
 #username ${user.name}
 #password any_noauthbydefault
-#driver org.apache.derby.jdbc.EmbeddedDriver
-# The embedded Derby driver requires derby.jar.
-# There'a also the org.apache.derby.jdbc.ClientDriver driver with URL
-# like jdbc:derby://<server>[:<port>]/databaseName, which requires
-# derbyclient.jar.
+# If you get the right classes into classpath, local file URLs are like:
+#url jdbc:derby:path/to/derby/directory
 # You can use \= to commit, since the Derby team decided (why???)
 # not to implement the SQL standard statement "commit"!!
 # Note that SqlTool can not shut down an embedded Derby database properly,
@@ -188,3 +221,13 @@ url jdbc:hsqldb:hsql://localhost
 # However, I've never lost data by shutting it down improperly.
 # Other than not supporting this quirk of Derby, SqlTool is miles ahead of
 # Derby's ij.
+
+# Maria DB
+# You can access Maria DBs using jdbc:mysql URLs and the MySQL driver, but
+# here is the native one:
+# Driver jar files are of format like "mariadb-java-client*.jar"
+# Port defaults to 3306
+#urlid maria
+#url jdbc:mariadb://hostname/db2
+#username blaine
+#password asecret
