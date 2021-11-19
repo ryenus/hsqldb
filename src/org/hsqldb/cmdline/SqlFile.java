@@ -3337,7 +3337,7 @@ public class SqlFile {
         int[]    listSet = null;
         String[] types   = null;
 
-        /* For workaround for \T for Oracle */
+        /* For workaround for \dt for Oracle */
         String[] additionalSchemas = null;
 
         /* This is for specific non-getTable() queries */
@@ -3402,6 +3402,17 @@ public class SqlFile {
                           + "WHERE table_schema IN ('information_schema', "
                           + "'mysql', 'performance_schema', 'sys')\n"
                           + "ORDER BY table_schema, table_name");
+                    } else if (dbProductName.indexOf("SQL Server") > -1) {
+                        // for \dS we SHOULD query x.sys.tables for x in
+                        // master, msdb, rdsadmin, tempdb, but I'm not up
+                        // for assembling 4 queries now.
+                        // Until fixed, this is precisely same as \dt.
+                        statement = shared.jdbcConn.createStatement();
+                        statement.execute("SELECT schemas.name AS 'SCHEMA', "
+                          + "tables.name AS 'TABLE'\n"
+                          + "FROM sys.tables, sys.schemas\n"
+                          + "WHERE tables.schema_id = schemas.schema_id\n"
+                          + "ORDER BY schemas.name, tables.name");
                     } else {
                         types[0] = "SYSTEM TABLE";
                     }
@@ -3444,6 +3455,13 @@ public class SqlFile {
                           + "information_schema.columns\n"
                           + "WHERE extra like '%auto_increment%'\n"
                           + "ORDER BY table_schema, table_name, column_name");
+                    } else if (dbProductName.indexOf("SQL Server") > -1) {
+                        statement = shared.jdbcConn.createStatement();
+                        statement.execute("SELECT schemas.name AS 'SCHEMA', "
+                          + "sequences.name AS SEQUENCE\n"
+                          + "FROM sys.sequences, sys.schemas\n"
+                          + "WHERE sequences.schema_id = schemas.schema_id\n"
+                          + "ORDER BY schemas.name, sequences.name");
                     } else {
                         types[0] = "SEQUENCE";
                     }
@@ -3593,6 +3611,14 @@ public class SqlFile {
                           + "WHERE table_schema NOT IN ('information_schema', "
                           + "'mysql', 'performance_schema', 'sys')\n"
                           + "ORDER BY table_schema, table_name");
+                    } else if (dbProductName.indexOf("SQL Server") > -1) {
+                        // Best we can do is list all tables in current db
+                        statement = shared.jdbcConn.createStatement();
+                        statement.execute("SELECT schemas.name AS 'SCHEMA', "
+                          + "tables.name AS 'TABLE'\n"
+                          + "FROM sys.tables, sys.schemas\n"
+                          + "WHERE tables.schema_id = schemas.schema_id\n"
+                          + "ORDER BY schemas.name, tables.name");
                     } else {
                         excludeSysSchemas = dbProductName.indexOf("Oracle") > -1;
                         types[0] = "TABLE";
@@ -3610,6 +3636,14 @@ public class SqlFile {
                           + "WHERE table_schema NOT IN ('information_schema', "
                           + "'mysql', 'performance_schema', 'sys')\n"
                           + "ORDER BY table_schema, table_name");
+                    } else if (dbProductName.indexOf("SQL Server") > -1) {
+                        // Best we can do is list all views in current db
+                        statement = shared.jdbcConn.createStatement();
+                        statement.execute("SELECT schemas.name AS 'SCHEMA', "
+                          + "views.name AS 'VIEW'\n"
+                          + "FROM sys.views, sys.schemas\n"
+                          + "WHERE views.schema_id = schemas.schema_id\n"
+                          + "ORDER BY schemas.name, views.name");
                     } else {
                         excludeSysSchemas = dbProductName.indexOf("Oracle") > -1;
                         types[0] = "VIEW";
