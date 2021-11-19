@@ -3393,7 +3393,8 @@ public class SqlFile {
                         types[0]          = "TABLE";
                         schema            = "SYS";
                         additionalSchemas = oracleSysSchemas;
-                    } else if (dbProductName.indexOf("MySQL") > -1) {
+                    } else if (dbProductName.indexOf("MySQL") > -1
+                    || dbProductName.indexOf("MariaDB") > -1) {
                         statement = shared.jdbcConn.createStatement();
                         statement.execute(
                           "SELECT table_schema, table_name\n"
@@ -3435,7 +3436,8 @@ public class SqlFile {
                         statement.execute(
                           "SELECT sequence_name, sequence_owner FROM\n"
                           + "sys.all_sequences ORDER BY sequence_name");
-                    } else if (dbProductName.indexOf("MySQL") > -1) {
+                    } else if (dbProductName.indexOf("MySQL") > -1
+                    || dbProductName.indexOf("MariaDB") > -1) {
                         statement = shared.jdbcConn.createStatement();
                         statement.execute(
                           "SELECT table_schema, table_name, column_name FROM\n"
@@ -3515,7 +3517,8 @@ public class SqlFile {
                         statement.execute(
                             "SELECT username, created FROM all_users "
                             + "ORDER BY username");
-                    } else if (dbProductName.indexOf("MySQL") > -1) {
+                    } else if (dbProductName.indexOf("MySQL") > -1
+                    || dbProductName.indexOf("MariaDB") > -1) {
                         statement = shared.jdbcConn.createStatement();
                         statement.execute(
                             "SELECT host, user FROM mysql.user\n"
@@ -3577,7 +3580,8 @@ public class SqlFile {
                     break;
 
                 case 't' :
-                    if (dbProductName.indexOf("MySQL") > -1) {
+                    if (dbProductName.indexOf("MySQL") > -1
+                    || dbProductName.indexOf("MariaDB") > -1) {
                         /*
                         statement = shared.jdbcConn.createStatement();
                         statement.execute("show tables");
@@ -3596,7 +3600,8 @@ public class SqlFile {
                     break;
 
                 case 'v' :
-                    if (dbProductName.indexOf("MySQL") > -1) {
+                    if (dbProductName.indexOf("MySQL") > -1
+                    || dbProductName.indexOf("MariaDB") > -1) {
                         statement = shared.jdbcConn.createStatement();
                         statement.execute(
                           "SELECT table_schema AS DATABASE_NAME, "
