@@ -3382,6 +3382,7 @@ public class SqlFile {
             switch (c) {
                 case '*' :
                     types = null;
+                    // Filtering not working on this for MySQL
                     break;
 
                 case 'S' :
@@ -3392,6 +3393,14 @@ public class SqlFile {
                         types[0]          = "TABLE";
                         schema            = "SYS";
                         additionalSchemas = oracleSysSchemas;
+                    } else if (dbProductName.indexOf("MySQL") > -1) {
+                        statement = shared.jdbcConn.createStatement();
+                        statement.execute(
+                          "SELECT table_schema, table_name\n"
+                          + "FROM information_schema.tables\n"
+                          + "WHERE table_schema IN ('information_schema', "
+                          + "'mysql', 'performance_schema', 'sys')\n"
+                          + "ORDER BY table_schema, table_name");
                     } else {
                         types[0] = "SYSTEM TABLE";
                     }
@@ -3424,8 +3433,15 @@ public class SqlFile {
                     } else if (dbProductName.indexOf("Oracle") > -1) {
                         statement = shared.jdbcConn.createStatement();
                         statement.execute(
-                          "SELECT sequence_name, sequence_owner from\n"
+                          "SELECT sequence_name, sequence_owner FROM\n"
                           + "sys.all_sequences ORDER BY sequence_name");
+                    } else if (dbProductName.indexOf("MySQL") > -1) {
+                        statement = shared.jdbcConn.createStatement();
+                        statement.execute(
+                          "SELECT table_schema, table_name, column_name FROM\n"
+                          + "information_schema.columns\n"
+                          + "WHERE extra like '%auto_increment%'\n"
+                          + "ORDER BY table_schema, table_name, column_name");
                     } else {
                         types[0] = "SEQUENCE";
                     }
@@ -3496,10 +3512,14 @@ public class SqlFile {
                             + "ORDER BY user_name");
                     } else if (dbProductName.indexOf("Oracle") > -1) {
                         statement = shared.jdbcConn.createStatement();
-
                         statement.execute(
                             "SELECT username, created FROM all_users "
                             + "ORDER BY username");
+                    } else if (dbProductName.indexOf("MySQL") > -1) {
+                        statement = shared.jdbcConn.createStatement();
+                        statement.execute(
+                            "SELECT host, user FROM mysql.user\n"
+                            + "ORDER BY user,host");
                     } else if (dbProductName.indexOf("PostgreSQL") > -1
                     || dbProductName.indexOf("Redshift") > -1) {
                         statement = shared.jdbcConn.createStatement();
@@ -3557,13 +3577,38 @@ public class SqlFile {
                     break;
 
                 case 't' :
-                    excludeSysSchemas = dbProductName.indexOf("Oracle") > -1;
-                    types[0] = "TABLE";
+                    if (dbProductName.indexOf("MySQL") > -1) {
+                        /*
+                        statement = shared.jdbcConn.createStatement();
+                        statement.execute("show tables");
+                        */
+                        statement = shared.jdbcConn.createStatement();
+                        statement.execute(
+                          "SELECT table_schema AS DATABASE_NAME, table_name\n"
+                          + "FROM information_schema.tables\n"
+                          + "WHERE table_schema NOT IN ('information_schema', "
+                          + "'mysql', 'performance_schema', 'sys')\n"
+                          + "ORDER BY table_schema, table_name");
+                    } else {
+                        excludeSysSchemas = dbProductName.indexOf("Oracle") > -1;
+                        types[0] = "TABLE";
+                    }
                     break;
 
                 case 'v' :
-                    excludeSysSchemas = dbProductName.indexOf("Oracle") > -1;
-                    types[0] = "VIEW";
+                    if (dbProductName.indexOf("MySQL") > -1) {
+                        statement = shared.jdbcConn.createStatement();
+                        statement.execute(
+                          "SELECT table_schema AS DATABASE_NAME, "
+                          + "table_name AS VIEW_NAME\n"
+                          + "FROM information_schema.views\n"
+                          + "WHERE table_schema NOT IN ('information_schema', "
+                          + "'mysql', 'performance_schema', 'sys')\n"
+                          + "ORDER BY table_schema, table_name");
+                    } else {
+                        excludeSysSchemas = dbProductName.indexOf("Oracle") > -1;
+                        types[0] = "VIEW";
+                    }
                     break;
 
                 case 'c' :
