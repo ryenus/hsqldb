@@ -53,7 +53,7 @@ import org.hsqldb.persist.PersistentStore;
  * processing and which indexes are used for table access.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public class RangeVariableResolver {
@@ -741,7 +741,7 @@ public class RangeVariableResolver {
                 continue;
             }
 
-            for (int i = 0; i < starts.size(); i++) {
+            for (int i = 0; i < newRanges.length; i++) {
                 Table table = newRanges[i].rangeTable;
 
                 collectIndexableColumns(newRanges[i], starts);
