@@ -49,7 +49,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator using a table as the data store.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public class RowSetNavigatorDataTable extends RowSetNavigatorData {
@@ -162,6 +162,14 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public void add(Object[] data) {
 
         try {
+            if (table.getDataColumnCount() > data.length) {
+                Object[] d = table.getEmptyRowData();
+
+                ArrayUtil.copyArray(data, d, data.length);
+
+                data = d;
+            }
+
             Row row = (Row) store.getNewCachedObject((Session) session, data,
                 false);
 
