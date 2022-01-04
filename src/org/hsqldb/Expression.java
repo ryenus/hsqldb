@@ -62,7 +62,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public class Expression implements Cloneable {
@@ -1289,15 +1289,19 @@ public class Expression implements Cloneable {
             }
 
             for (int i = 0; i < nodes.length; i++) {
-                if (nodes[i].nodes[j].isUnresolvedParam()) {
-                    nodes[i].nodes[j].dataType = nodeDataTypes[j];
+                Expression node = nodes[i];
+
+                if (node.nodes[j].isUnresolvedParam()) {
+                    node.nodes[j].dataType = nodeDataTypes[j];
+                    node.nodeDataTypes[j]  = node.nodes[j].dataType;
 
                     continue;
                 }
 
-                if (nodes[i].nodes[j].opType == OpTypes.VALUE) {
-                    if (nodes[i].nodes[j].valueData == null) {
-                        nodes[i].nodes[j].dataType = nodeDataTypes[j];
+                if (node.nodes[j].opType == OpTypes.VALUE) {
+                    if (node.nodes[j].valueData == null) {
+                        node.nodes[j].dataType = nodeDataTypes[j];
+                        node.nodeDataTypes[j]  = node.nodes[j].dataType;
                     }
                 }
             }
