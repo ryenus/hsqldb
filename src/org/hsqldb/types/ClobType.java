@@ -144,8 +144,8 @@ public final class ClobType extends CharacterType {
         if (b instanceof String) {
             long lobId = ((ClobData) a).getId();
 
-            return session.database.lobManager.compare(collation,
-                    lobId, (String) b);
+            return session.database.lobManager.compare(collation, lobId,
+                    (String) b);
         }
 
         return session.database.lobManager.compare(collation, (ClobData) a,

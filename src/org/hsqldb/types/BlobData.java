@@ -68,7 +68,8 @@ public interface BlobData extends LobData {
 
     void setBytes(SessionInterface session, long pos, byte[] bytes);
 
-    void setBytes(SessionInterface session, long pos, BlobData b, long offset, long length);
+    void setBytes(SessionInterface session, long pos, BlobData b, long offset,
+                  long length);
 
     void setBinaryStream(SessionInterface session, long pos, InputStream in);
 

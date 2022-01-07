@@ -47,7 +47,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Sub-class of Result for communicating Blob and Clob operations.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public final class ResultLob extends Result {
@@ -105,7 +105,7 @@ public final class ResultLob extends Result {
     }
 
     public static ResultLob newLobGetBytesRequest(long id, long offset,
-            int length) {
+            long length) {
 
         ResultLob result = new ResultLob();
 
@@ -118,7 +118,7 @@ public final class ResultLob extends Result {
     }
 
     public static ResultLob newLobGetCharsRequest(long id, long offset,
-            int length) {
+            long length) {
 
         ResultLob result = new ResultLob();
 

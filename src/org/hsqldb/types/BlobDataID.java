@@ -155,7 +155,6 @@ public class BlobDataID implements BlobData {
         Result    resultIn  = session.execute(resultOut);
 
         if (resultIn.isError()) {
-
             throw resultIn.getException();
         }
 

@@ -76,7 +76,7 @@ import org.hsqldb.lib.StringConverter;
  *
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public class BinaryType extends Type {
@@ -339,15 +339,14 @@ public class BinaryType extends Type {
                             return 1;
                         }
                     }
-
                 } else {
                     for (int i = data1.length; i < data2.length; i++) {
                         if (data2[i] != 0) {
                             return -1;
                         }
                     }
-
                 }
+
                 return 0;
             }
 
@@ -608,38 +607,21 @@ public class BinaryType extends Type {
     public BlobData substring(SessionInterface session, BlobData data,
                               long offset, long length, boolean hasLength) {
 
-        long end;
-        long dataLength = data.length(session);
-
-        if (hasLength) {
-            end = offset + length;
-        } else {
-            end = dataLength > offset ? dataLength
-                                      : offset;
-        }
-
-        if (offset > end) {
+        if (length < 0) {
             throw Error.error(ErrorCode.X_22011);
         }
 
-        if (end < 0) {
+        long dataLength = data.length(session);
+        LongPair segment = CharacterType.substringParams(dataLength, offset,
+            length, hasLength);
 
-            // return zero length data
-            offset = 0;
-            end    = 0;
+        offset = segment.a;
+        length = segment.b;
+
+        if (length > Integer.MAX_VALUE) {
+            throw Error.error(ErrorCode.X_22001);
         }
 
-        if (offset < 0) {
-            offset = 0;
-        }
-
-        if (end > dataLength) {
-            end = dataLength;
-        }
-
-        length = end - offset;
-
-        // change method signature to take long
         byte[] bytes = data.getBytes(session, offset, (int) length);
 
         return new BinaryData(bytes, false);

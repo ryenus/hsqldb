@@ -101,7 +101,6 @@ public class ClobDataID implements ClobData {
             length = (int) (clobLength - pos);
         }
 
-
         char[] chars = getChars(session, pos, length);
 
         return new String(chars);
