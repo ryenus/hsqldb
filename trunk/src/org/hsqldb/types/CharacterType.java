@@ -47,7 +47,7 @@ import org.hsqldb.lib.StringUtil;
  * Type subclass for CHARACTER, VARCHAR, etc.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.6.2
  * @since 1.9.0
  */
 public class CharacterType extends Type {
@@ -281,7 +281,6 @@ public class CharacterType extends Type {
             case Types.OTHER :
                 throw Error.error(ErrorCode.X_42562);
             default :
-
                 /*
                  * @todo - this seems to be allowed in SQL-92 (is in NIST)
                  * but is disallowed in SQL:2003
@@ -838,66 +837,64 @@ public class CharacterType extends Type {
         }
     }
 
+    /**
+     * length must not be negative
+     */
+    public static LongPair substringParams(long dataLength, long start,
+                                           long length, boolean hasLength) {
+
+        long end;
+
+        if (hasLength) {
+            end = start + length;
+        } else {
+            end = Math.max(dataLength, start);
+        }
+
+        // trim
+        if (start >= dataLength || end < 0) {
+            start  = 0;
+            length = 0;
+        } else {
+            start  = Math.max(start, 0);
+            end    = Math.min(end, dataLength);
+            length = end - start;
+        }
+
+        return new LongPair(start, length);
+    }
+
     public Object substring(SessionInterface session, Object data,
                             long offset, long length, boolean hasLength,
                             boolean trailing) {
 
-        long end;
+        if (length < 0) {
+            throw Error.error(ErrorCode.X_22011);
+        }
+
         long dataLength = typeCode == Types.SQL_CLOB
                           ? ((ClobData) data).length(session)
                           : ((String) data).length();
 
         if (trailing) {
-            end = dataLength;
-
             if (length > dataLength) {
                 offset = 0;
             } else {
                 offset = dataLength - length;
             }
-        } else if (hasLength) {
-            end = offset + length;
         } else {
-            end = dataLength > offset ? dataLength
-                                      : offset;
+            LongPair segment = substringParams(dataLength, offset, length,
+                                               hasLength);
+
+            offset = segment.a;
+            length = segment.b;
         }
-
-        if (end < offset) {
-            throw Error.error(ErrorCode.X_22011);
-        }
-
-        if (end < 0) {
-
-            // return zero length data
-            offset = 0;
-            end    = 0;
-        }
-
-        if (offset < 0) {
-            offset = 0;
-        }
-
-        if (end > dataLength) {
-            end = dataLength;
-        }
-
-        length = end - offset;
 
         if (data instanceof String) {
             return ((String) data).substring((int) offset,
                                              (int) (offset + length));
         } else if (data instanceof ClobData) {
-            ClobData clob = session.createClob(length);
-
-            if (length > Integer.MAX_VALUE) {
-                throw Error.error(ErrorCode.X_22001);
-            }
-
-            /* @todo - change to support long strings */
-            String result = ((ClobData) data).getSubString(session, offset,
-                (int) length);
-
-            clob.setString(session, 0, result);
+            ClobData clob = ((ClobData) data).getClob(session, offset, length);
 
             return clob;
         } else {

@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL standard function calls
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.2
  * @since 1.9.0
  */
 public class FunctionSQL extends Expression {
@@ -909,6 +909,10 @@ public class FunctionSQL extends Expression {
                     return null;
                 }
 
+                if (nodes[2] != null && data[2] == null) {
+                    return null;
+                }
+
                 Object value;
 
                 value = Type.SQL_BIGINT.convertToType(session, data[1],
@@ -918,10 +922,6 @@ public class FunctionSQL extends Expression {
                 long length = 0;
 
                 if (nodes[2] != null) {
-                    if (data[2] == null) {
-                        return null;
-                    }
-
                     value = Type.SQL_BIGINT.convertToType(session, data[2],
                                                           nodes[2].dataType);
                     length = ((Number) value).longValue();
@@ -1027,7 +1027,7 @@ public class FunctionSQL extends Expression {
                     length = ((Number) value).longValue();
                 }
 
-                return ((CharacterType) dataType).overlay(null, data[0],
+                return ((CharacterType) dataType).overlay(session, data[0],
                         data[1], offset, length, nodes[3] != null);
             }
             /*
