@@ -1912,14 +1912,22 @@ public class ParserDQL extends ParserBase {
         } else if (token.tokenType == Tokens.FETCH) {
             read();
 
+            boolean first = false;
+
             if (token.tokenType == Tokens.FIRST
                     || token.tokenType == Tokens.NEXT) {
+                first = true;
+
                 read();
             }
 
             e2 = XreadSimpleValueSpecificationOrNull();
 
             if (e2 == null) {
+                if (!first) {
+                    throw super.unexpectedTokenRequire(Tokens.T_FIRST);
+                }
+
                 e2 = new ExpressionValue(ValuePool.INTEGER_1,
                                          Type.SQL_INTEGER);
             }
