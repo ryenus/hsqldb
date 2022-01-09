@@ -877,18 +877,14 @@ public class CharacterType extends Type {
                           : ((String) data).length();
 
         if (trailing) {
-            if (length > dataLength) {
-                offset = 0;
-            } else {
-                offset = dataLength - length;
-            }
-        } else {
-            LongPair segment = substringParams(dataLength, offset, length,
-                                               hasLength);
-
-            offset = segment.a;
-            length = segment.b;
+            offset = dataLength - offset;
         }
+
+        LongPair segment = substringParams(dataLength, offset, length,
+                                           hasLength);
+
+        offset = segment.a;
+        length = segment.b;
 
         if (data instanceof String) {
             return ((String) data).substring((int) offset,

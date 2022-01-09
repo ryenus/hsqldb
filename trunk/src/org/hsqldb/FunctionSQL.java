@@ -905,6 +905,10 @@ public class FunctionSQL extends Expression {
                                     Type.SQL_INTEGER);
             }
             case FUNC_SUBSTRING_CHAR : {
+                long    length    = 0;
+                boolean hasLength = false;
+                boolean trailing  = false;
+
                 if (data[0] == null || data[1] == null) {
                     return null;
                 }
@@ -918,10 +922,10 @@ public class FunctionSQL extends Expression {
                 value = Type.SQL_BIGINT.convertToType(session, data[1],
                                                       nodes[1].dataType);
 
-                long offset = ((Number) value).longValue() - 1;
-                long length = 0;
+                long offset = ((Number) value).longValue();
 
                 if (nodes[2] != null) {
+                    hasLength = true;
                     value = Type.SQL_BIGINT.convertToType(session, data[2],
                                                           nodes[2].dataType);
                     length = ((Number) value).longValue();
@@ -934,8 +938,21 @@ public class FunctionSQL extends Expression {
                     // not clear what the rules on USING OCTECTS are with UTF
                 }
 
+                if (session.database.sqlSyntaxOra) {
+                    if (name == Tokens.T_SUBSTR) {
+                        if (offset == 0) {
+                            offset = 1;
+                        } else if (offset < 0) {
+                            offset   = -offset + 1;
+                            trailing = true;
+                        }
+                    }
+                }
+
+                offset--;
+
                 return ((CharacterType) dataType).substring(session, data[0],
-                        offset, length, nodes[2] != null, false);
+                        offset, length, hasLength, trailing);
             }
             /*
             case FUNCTION_SUBSTRING_REG_EXPR :

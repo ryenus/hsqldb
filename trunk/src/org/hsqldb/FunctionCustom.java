@@ -77,7 +77,7 @@ import org.hsqldb.types.Types;
  * Some functions are translated into equivalent SQL Standard functions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public class FunctionCustom extends FunctionSQL {
@@ -448,6 +448,7 @@ public class FunctionCustom extends FunctionSQL {
                 FunctionSQL function = new FunctionSQL(id);
 
                 function.parseList = tripleParamList;
+                function.name      = Tokens.T_SUBSTR;
 
                 return function;
             }
@@ -2092,10 +2093,20 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                int count = ((Number) data[1]).intValue();
+                int     start     = 0;
+                int     count     = ((Number) data[1]).intValue();
+                boolean hasLength = true;
+                boolean trailing  = false;
+
+                if (funcType == FUNC_RIGHT) {
+                    start     = count;
+                    count     = 0;
+                    hasLength = false;
+                    trailing  = true;
+                }
 
                 return ((CharacterType) dataType).substring(session, data[0],
-                        0, count, true, funcType == FUNC_RIGHT);
+                        start, count, hasLength, trailing);
             }
             case FUNC_SPACE : {
                 if (data[0] == null) {
