@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -452,13 +452,20 @@ public class BinaryType extends Type {
             b = new BinaryData(bytes, false);
         }
 
-        if (b.length(session) > precision
-                && b.nonZeroLength(session) > precision) {
-            if (!cast) {
-                throw Error.error(ErrorCode.X_22001);
+        if (b.length(session) > precision) {
+            if (!cast && session instanceof Session) {
+                if (!((Session) session).database.sqlTruncateTrailing) {
+                    throw Error.error(ErrorCode.X_22001);
+                }
             }
 
-            session.addWarning(Error.error(ErrorCode.W_01004));
+            if (b.nonZeroLength(session) > precision) {
+                if (!cast) {
+                    throw Error.error(ErrorCode.X_22001);
+                }
+
+                session.addWarning(Error.error(ErrorCode.W_01004));
+            }
         }
 
         switch (typeCode) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -772,6 +772,9 @@ public class StatementCommand extends Statement {
                 } else if (HsqlDatabaseProperties.sql_convert_trunc.equals(
                         property)) {
                     session.database.setConvertTrunc(mode);
+                } else if (HsqlDatabaseProperties.sql_truncate_trailing.equals(
+                        property)) {
+                    session.database.setTruncateTrailing(mode);
                 } else if (HsqlDatabaseProperties.sql_avg_scale.equals(
                         property)) {
                     session.database.setAvgScale(value);

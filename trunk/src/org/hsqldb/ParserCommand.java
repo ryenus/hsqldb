@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -1282,80 +1282,12 @@ public class ParserCommand extends ParserDDL {
 
                 switch (token.tokenType) {
 
-                    case Tokens.RESTRICT :
+                    case Tokens.AVG :
                         read();
-                        readThis(Tokens.EXEC);
+                        readThis(Tokens.SCALE);
 
-                        property = HsqlDatabaseProperties.sql_restrict_exec;
-                        flag     = processTrueOrFalseObject();
-                        break;
-
-                    case Tokens.LIVE :
-                        read();
-                        readThis(Tokens.OBJECT);
-
-                        property = HsqlDatabaseProperties.sql_live_object;
-                        flag     = processTrueOrFalseObject();
-                        break;
-
-                    case Tokens.NAMES :
-                        read();
-
-                        property = HsqlDatabaseProperties.sql_enforce_names;
-                        flag     = processTrueOrFalseObject();
-                        break;
-
-                    case Tokens.REGULAR :
-                        read();
-                        readThis(Tokens.NAMES);
-
-                        property = HsqlDatabaseProperties.sql_regular_names;
-                        flag     = processTrueOrFalseObject();
-                        break;
-
-                    case Tokens.REFERENCES :
-                        read();
-
-                        flag     = processTrueOrFalseObject();
-                        property = HsqlDatabaseProperties.sql_enforce_refs;
-                        break;
-
-                    case Tokens.SIZE :
-                        read();
-
-                        flag     = processTrueOrFalseObject();
-                        property = HsqlDatabaseProperties.sql_enforce_size;
-                        break;
-
-                    case Tokens.TYPES :
-                        read();
-
-                        flag     = processTrueOrFalseObject();
-                        property = HsqlDatabaseProperties.sql_enforce_types;
-                        break;
-
-                    case Tokens.TDC :
-                        read();
-
-                        if (readIfThis(Tokens.DELETE)) {
-                            property = HsqlDatabaseProperties.sql_enforce_tdcd;
-                        } else {
-                            readThis(Tokens.UPDATE);
-
-                            property = HsqlDatabaseProperties.sql_enforce_tdcu;
-                        }
-
-                        flag = processTrueOrFalseObject();
-                        break;
-
-                    case Tokens.TRANSLATE :
-                        read();
-                        readThis(Tokens.TTI);
-                        readThis(Tokens.TYPES);
-
-                        flag = processTrueOrFalseObject();
-                        property =
-                            HsqlDatabaseProperties.jdbc_translate_tti_types;
+                        value    = readIntegerObject();
+                        property = HsqlDatabaseProperties.sql_avg_scale;
                         break;
 
                     case Tokens.CHARACTER :
@@ -1374,28 +1306,6 @@ public class ParserCommand extends ParserDDL {
                         property = HsqlDatabaseProperties.sql_concat_nulls;
                         break;
 
-                    case Tokens.NULLS :
-                        read();
-
-                        if (readIfThis(Tokens.FIRST)) {
-                            property = HsqlDatabaseProperties.sql_nulls_first;
-                        } else {
-                            readThis(Tokens.ORDER);
-
-                            property = HsqlDatabaseProperties.sql_nulls_order;
-                        }
-
-                        flag = processTrueOrFalseObject();
-                        break;
-
-                    case Tokens.UNIQUE :
-                        read();
-                        readThis(Tokens.NULLS);
-
-                        flag     = processTrueOrFalseObject();
-                        property = HsqlDatabaseProperties.sql_unique_nulls;
-                        break;
-
                     case Tokens.CONVERT :
                         read();
                         readThis(Tokens.TRUNCATE);
@@ -1404,20 +1314,27 @@ public class ParserCommand extends ParserDDL {
                         property = HsqlDatabaseProperties.sql_convert_trunc;
                         break;
 
-                    case Tokens.AVG :
-                        read();
-                        readThis(Tokens.SCALE);
-
-                        value    = readIntegerObject();
-                        property = HsqlDatabaseProperties.sql_avg_scale;
-                        break;
-
                     case Tokens.DOUBLE :
                         read();
                         readThis(Tokens.NAN);
 
                         flag     = processTrueOrFalseObject();
                         property = HsqlDatabaseProperties.sql_double_nan;
+                        break;
+
+                    case Tokens.IGNORECASE :
+                        read();
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_ignore_case;
+                        break;
+
+                    case Tokens.LIVE :
+                        read();
+                        readThis(Tokens.OBJECT);
+
+                        property = HsqlDatabaseProperties.sql_live_object;
+                        flag     = processTrueOrFalseObject();
                         break;
 
                     case Tokens.LONGVAR :
@@ -1438,11 +1355,64 @@ public class ParserCommand extends ParserDDL {
                         property = HsqlDatabaseProperties.sql_lowercase_ident;
                         break;
 
-                    case Tokens.IGNORECASE :
+                    case Tokens.NAMES :
+                        read();
+
+                        property = HsqlDatabaseProperties.sql_enforce_names;
+                        flag     = processTrueOrFalseObject();
+                        break;
+
+                    case Tokens.NULLS :
+                        read();
+
+                        if (readIfThis(Tokens.FIRST)) {
+                            property = HsqlDatabaseProperties.sql_nulls_first;
+                        } else {
+                            readThis(Tokens.ORDER);
+
+                            property = HsqlDatabaseProperties.sql_nulls_order;
+                        }
+
+                        flag = processTrueOrFalseObject();
+                        break;
+
+                    case Tokens.REGULAR :
+                        read();
+                        readThis(Tokens.NAMES);
+
+                        property = HsqlDatabaseProperties.sql_regular_names;
+                        flag     = processTrueOrFalseObject();
+                        break;
+
+                    case Tokens.REFERENCES :
                         read();
 
                         flag     = processTrueOrFalseObject();
-                        property = HsqlDatabaseProperties.sql_ignore_case;
+                        property = HsqlDatabaseProperties.sql_enforce_refs;
+                        break;
+
+                    case Tokens.RESTRICT :
+                        read();
+                        readThis(Tokens.EXEC);
+
+                        property = HsqlDatabaseProperties.sql_restrict_exec;
+                        flag     = processTrueOrFalseObject();
+                        break;
+
+                    case Tokens.SIZE :
+                        read();
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_enforce_size;
+                        break;
+
+                    case Tokens.SYS :
+                        read();
+                        readThis(Tokens.INDEX);
+                        readThis(Tokens.NAMES);
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_sys_index_names;
                         break;
 
                     case Tokens.SYNTAX :
@@ -1475,16 +1445,54 @@ public class ParserCommand extends ParserDDL {
                         flag = processTrueOrFalseObject();
                         break;
 
-                    case Tokens.SYS : {
+                    case Tokens.TDC :
                         read();
-                        readThis(Tokens.INDEX);
-                        readThis(Tokens.NAMES);
+
+                        if (readIfThis(Tokens.DELETE)) {
+                            property = HsqlDatabaseProperties.sql_enforce_tdcd;
+                        } else {
+                            readThis(Tokens.UPDATE);
+
+                            property = HsqlDatabaseProperties.sql_enforce_tdcu;
+                        }
+
+                        flag = processTrueOrFalseObject();
+                        break;
+
+                    case Tokens.TRANSLATE :
+                        read();
+                        readThis(Tokens.TTI);
+                        readThis(Tokens.TYPES);
+
+                        flag = processTrueOrFalseObject();
+                        property =
+                            HsqlDatabaseProperties.jdbc_translate_tti_types;
+                        break;
+
+                    case Tokens.TRUNCATE :
+                        read();
+                        readThis(Tokens.TRAILING);
+
+                        flag = processTrueOrFalseObject();
+                        property =
+                            HsqlDatabaseProperties.sql_truncate_trailing;
+                        break;
+
+                    case Tokens.TYPES :
+                        read();
 
                         flag     = processTrueOrFalseObject();
-                        property = HsqlDatabaseProperties.sql_sys_index_names;
-
+                        property = HsqlDatabaseProperties.sql_enforce_types;
                         break;
-                    }
+
+                    case Tokens.UNIQUE :
+                        read();
+                        readThis(Tokens.NULLS);
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_unique_nulls;
+                        break;
+
                     default :
                         throw unexpectedToken();
                 }

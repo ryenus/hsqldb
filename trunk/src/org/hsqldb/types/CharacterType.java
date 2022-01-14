@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -416,19 +416,31 @@ public class CharacterType extends Type {
 
         switch (typeCode) {
 
-            case Types.SQL_CHAR : {
+            case Types.SQL_CHAR :
+            case Types.SQL_VARCHAR : {
                 int slen = ((String) a).length();
 
-                if (slen == precision) {
-                    return a;
-                }
-
                 if (slen > precision) {
+                    if (session instanceof Session) {
+                        if (!((Session) session).database
+                                .sqlTruncateTrailing) {
+                            throw Error.error(ErrorCode.X_22001);
+                        }
+                    }
+
                     if (getRightTrimSize((String) a, ' ') <= precision) {
                         return ((String) a).substring(0, (int) precision);
                     } else {
                         throw Error.error(ErrorCode.X_22001);
                     }
+                }
+
+                if (typeCode == Types.SQL_VARCHAR) {
+                    return a;
+                }
+
+                if (slen == precision) {
+                    return a;
                 }
 
                 char[] b = new char[(int) precision];
@@ -440,19 +452,6 @@ public class CharacterType extends Type {
                 }
 
                 return new String(b);
-            }
-            case Types.SQL_VARCHAR : {
-                int slen = ((String) a).length();
-
-                if (slen > precision) {
-                    if (getRightTrimSize((String) a, ' ') <= precision) {
-                        return ((String) a).substring(0, (int) precision);
-                    } else {
-                        throw Error.error(ErrorCode.X_22001);
-                    }
-                }
-
-                return a;
             }
             case Types.SQL_CLOB : {
                 ClobData clob = (ClobData) a;
@@ -651,7 +650,7 @@ public class CharacterType extends Type {
         } else if (a instanceof java.util.UUID) {
             s = a.toString();
         } else {
-            s = convertJavaTimeObject(session, a);
+            s = convertJavaTimeObject(a);
 
             if (s == null) {
                 throw Error.error(ErrorCode.X_42561);
@@ -662,7 +661,7 @@ public class CharacterType extends Type {
     }
 
 //#ifdef JAVA8
-    String convertJavaTimeObject(SessionInterface session, Object a) {
+    String convertJavaTimeObject(Object a) {
 
         switch(a.getClass().getName()){
             case "java.time.LocalDate":
@@ -679,7 +678,7 @@ public class CharacterType extends Type {
 
 //#else
 /*
-    String convertJavaTimeObject(SessionInterface session, Object a) {
+    String convertJavaTimeObject(Object a) {
         return null;
     }
 */
