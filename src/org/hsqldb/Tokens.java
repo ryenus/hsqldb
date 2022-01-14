@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Defines and enumerates reserved and non-reserved SQL keywords.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.6.2
  * @since 1.7.2
  */
 public class Tokens {
@@ -348,7 +348,7 @@ public class Tokens {
     public static final String T_TIMEZONE_HOUR     = "TIMEZONE_HOUR";
     public static final String T_TIMEZONE_MINUTE   = "TIMEZONE_MINUTE";
     public static final String T_TO                = "TO";
-    static final String        T_TRAILING          = "TRAILING";
+    public static final String T_TRAILING          = "TRAILING";
     public static final String T_TRANSLATE         = "TRANSLATE";
     static final String        T_TRANSLATE_REGEX   = "TRANSLATE_REGEX";
     static final String        T_TRANSLATION       = "TRANSLATION";

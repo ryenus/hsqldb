@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.6.2
  * @since 1.7.0
  */
 public class Logger implements EventLogInterface {
@@ -511,6 +511,9 @@ public class Logger implements EventLogInterface {
         database.sqlConvertTruncate =
             database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_convert_trunc);
+        database.sqlTruncateTrailing =
+            database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.sql_truncate_trailing);
         database.sqlAvgScale = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.sql_avg_scale);
         database.sqlDoubleNaN = database.databaseProperties.isPropertyTrue(
@@ -1575,6 +1578,10 @@ public class Logger implements EventLogInterface {
             return String.valueOf(database.sqlConvertTruncate);
         }
 
+        if (HsqlDatabaseProperties.sql_truncate_trailing.equals(name)) {
+            return String.valueOf(database.sqlTruncateTrailing);
+        }
+
         if (HsqlDatabaseProperties.sql_double_nan.equals(name)) {
             return String.valueOf(database.sqlDoubleNaN);
         }
@@ -1966,6 +1973,15 @@ public class Logger implements EventLogInterface {
         list.add(sb.toString());
         sb.setLength(0);
 
+        if (database.sqlIgnoreCase) {
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_IGNORECASE).append(' ');
+            sb.append(database.sqlIgnoreCase ? Tokens.T_TRUE
+                                             : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
         if (database.sqlLongvarIsLob) {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_LONGVAR).append(' ');
@@ -1977,15 +1993,6 @@ public class Logger implements EventLogInterface {
             sb.setLength(0);
         }
 
-        if (database.sqlIgnoreCase) {
-            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
-            sb.append(Tokens.T_IGNORECASE).append(' ');
-            sb.append(database.sqlIgnoreCase ? Tokens.T_TRUE
-                                             : Tokens.T_FALSE);
-            list.add(sb.toString());
-            sb.setLength(0);
-        }
-
         if (database.sqlLowerCaseIdentifier) {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_LOWER).append(' ');
@@ -1993,6 +2000,16 @@ public class Logger implements EventLogInterface {
             sb.append(Tokens.T_IDENTIFIER).append(' ');
             sb.append(database.sqlLowerCaseIdentifier ? Tokens.T_TRUE
                                                       : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
+        if (!database.sqlTruncateTrailing) {
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_TRUNCATE).append(' ');
+            sb.append(Tokens.T_TRAILING).append(' ');
+            sb.append(database.sqlTruncateTrailing ? Tokens.T_TRUE
+                      : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }

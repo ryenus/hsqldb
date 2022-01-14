@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -229,7 +229,7 @@ import java.sql.SQLType;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.2
  * @since 1.9.0
  * @see JDBCConnection#prepareStatement
  * @see JDBCResultSet
@@ -4488,17 +4488,21 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
             case Types.SQL_VARCHAR : {
                 if (o instanceof String) {
                     break;
-                } else {
-                    try {
-                        o = outType.convertToDefaultType(session, o);
+                }
 
-                        break;
-                    } catch (HsqlException e) {
-                        throw JDBCUtil.sqlException(e);
-                    }
+                try {
+                    o = outType.convertToDefaultType(session, o);
+
+                    break;
+                } catch (HsqlException e) {
+                    throw JDBCUtil.sqlException(e);
                 }
             }
             case Types.SQL_CHAR : {
+                if (o instanceof String) {
+                    break;
+                }
+
                 if (outType.precision == 1) {
                     if (o instanceof Character) {
                         o = new String(new char[] {

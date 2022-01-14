@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ import org.hsqldb.types.Collation;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public class Database {
@@ -110,18 +110,19 @@ public class Database {
     public boolean                sqlIgnoreCase          = false;
     public boolean                sqlLiveObject          = false;
     public boolean                sqlLongvarIsLob        = false;
+    public boolean                sqlLowerCaseIdentifier = false;
     public boolean                sqlNullsFirst          = true;
     public boolean                sqlNullsOrder          = true;
-    public boolean                sqlSysIndexNames       = false;
     public boolean                sqlRegularNames        = true;
-    public boolean                sqlTranslateTTI        = true;
-    public boolean                sqlUniqueNulls         = true;
-    public boolean                sqlLowerCaseIdentifier = false;
     public boolean                sqlSyntaxDb2           = false;
     public boolean                sqlSyntaxMss           = false;
     public boolean                sqlSyntaxMys           = false;
     public boolean                sqlSyntaxOra           = false;
     public boolean                sqlSyntaxPgs           = false;
+    public boolean                sqlSysIndexNames       = false;
+    public boolean                sqlTranslateTTI        = true;
+    public boolean                sqlTruncateTrailing    = true;
+    public boolean                sqlUniqueNulls         = true;
     public int                    recoveryMode           = 0;
     private boolean               isReferentialIntegrity = true;
     public HsqlDatabaseProperties databaseProperties;
@@ -542,6 +543,10 @@ public class Database {
 
     public void setConvertTrunc(boolean mode) {
         sqlConvertTruncate = mode;
+    }
+
+    public void setTruncateTrailing(boolean mode) {
+        sqlTruncateTrailing = mode;
     }
 
     public void setDoubleNaN(boolean mode) {
