@@ -281,7 +281,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_nulls_order       = "sql.nulls_order";
     public static final String sql_unique_nulls      = "sql.unique_nulls";
     public static final String sql_convert_trunc     = "sql.convert_trunc";
-    public static final String sql_truncate_trailing = "sql.truncate_space";
+    public static final String sql_truncate_trailing = "sql.truncate_trailing";
     public static final String sql_avg_scale         = "sql.avg_scale";
     public static final String sql_double_nan        = "sql.double_nan";
     public static final String sql_syntax_db2        = "sql.syntax_db2";
