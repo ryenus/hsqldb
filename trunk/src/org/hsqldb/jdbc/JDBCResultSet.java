@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -909,11 +909,21 @@ public class JDBCResultSet implements ResultSet {
     public java.io.InputStream getAsciiStream(
             int columnIndex) throws SQLException {
 
-        String s = getString(columnIndex);
+        Object o = getColumnValue(columnIndex);
 
-        if (s == null) {
+        if (o == null) {
             return null;
         }
+
+        if (o instanceof ClobDataID) {
+            JDBCClobClient clob = new JDBCClobClient(session, (ClobDataID) o);
+
+            return clob.getAsciiStream();
+        } else if (o instanceof Clob) {
+            return ((Clob) o).getAsciiStream();
+        }
+
+        String s = getString(columnIndex);
 
         try {
             return new ByteArrayInputStream(s.getBytes(JavaSystem.CS_US_ASCII));
@@ -1016,10 +1026,7 @@ public class JDBCResultSet implements ResultSet {
     public java.io.InputStream getBinaryStream(
             int columnIndex) throws SQLException {
 
-        checkColumn(columnIndex);
-
-        Type   sourceType = resultMetaData.columnTypes[columnIndex - 1];
-        Object o          = getColumnInType(columnIndex, sourceType);
+        Object o = getColumnValue(columnIndex);
 
         if (o == null) {
             return null;

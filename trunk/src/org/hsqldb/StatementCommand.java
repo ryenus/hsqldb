@@ -772,7 +772,7 @@ public class StatementCommand extends Statement {
                 } else if (HsqlDatabaseProperties.sql_convert_trunc.equals(
                         property)) {
                     session.database.setConvertTrunc(mode);
-                } else if (HsqlDatabaseProperties.sql_truncate_trailing.equals(
+                } else if (HsqlDatabaseProperties.sql_trunc_trailing.equals(
                         property)) {
                     session.database.setTruncateTrailing(mode);
                 } else if (HsqlDatabaseProperties.sql_avg_scale.equals(

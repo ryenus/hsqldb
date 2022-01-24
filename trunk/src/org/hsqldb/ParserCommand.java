@@ -1406,15 +1406,6 @@ public class ParserCommand extends ParserDDL {
                         property = HsqlDatabaseProperties.sql_enforce_size;
                         break;
 
-                    case Tokens.SYS :
-                        read();
-                        readThis(Tokens.INDEX);
-                        readThis(Tokens.NAMES);
-
-                        flag     = processTrueOrFalseObject();
-                        property = HsqlDatabaseProperties.sql_sys_index_names;
-                        break;
-
                     case Tokens.SYNTAX :
                         read();
 
@@ -1443,6 +1434,15 @@ public class ParserCommand extends ParserDDL {
                         }
 
                         flag = processTrueOrFalseObject();
+                        break;
+
+                    case Tokens.SYS :
+                        read();
+                        readThis(Tokens.INDEX);
+                        readThis(Tokens.NAMES);
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_sys_index_names;
                         break;
 
                     case Tokens.TDC :
@@ -1475,7 +1475,7 @@ public class ParserCommand extends ParserDDL {
 
                         flag = processTrueOrFalseObject();
                         property =
-                            HsqlDatabaseProperties.sql_truncate_trailing;
+                            HsqlDatabaseProperties.sql_trunc_trailing;
                         break;
 
                     case Tokens.TYPES :
