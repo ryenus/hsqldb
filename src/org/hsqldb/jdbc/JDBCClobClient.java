@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,17 +37,10 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CoderResult;
-import java.nio.charset.CodingErrorAction;
 import java.nio.charset.IllegalCharsetNameException;
 import java.sql.Clob;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
@@ -61,8 +54,8 @@ import org.hsqldb.types.ClobInputStream;
  * Instances of this class are returned by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
- * @since  JDK 1.2, HSQLDB 1.9.0
+ * @version 2.6.2
+ * @since HSQLDB 1.9.0
  */
 public class JDBCClobClient implements Clob {
 
@@ -81,154 +74,56 @@ public class JDBCClobClient implements Clob {
 
         return new InputStream() {
 
-            private final byte[] oneChar = new byte[1];
-            private boolean      m_closed;
 
-            // better size than 8192 for network connections.
-            private CharBuffer m_charBuffer =
-                (CharBuffer) CharBuffer.allocate(64 * 1024).flip();
-            private ByteBuffer m_byteBuffer = ByteBuffer.allocate(1024);
-            private Charset    m_charset    = charsetForName("US-ASCII");
-            private CharsetEncoder m_encoder =
-                m_charset.newEncoder().onMalformedInput(
-                    CodingErrorAction.REPLACE).onUnmappableCharacter(
-                    CodingErrorAction.REPLACE);
-            private Reader m_reader = clob.getCharacterStream(session);
+            private Reader reader = clob.getCharacterStream(session);
 
             public int read() throws IOException {
 
-                if (isEOF()) {
+                int c = reader.read();
+
+                if (c < 0) {
                     return -1;
                 }
 
-                synchronized (oneChar) {
-                    int charsRead = read(oneChar, 0, 1);
-
-                    return charsRead == 1 ? oneChar[0]
-                                          : -1;
-                }
+                return c & 0xff;
             }
 
             public int read(byte[] b, int off, int len) throws IOException {
 
-                checkClosed();
-
-                if (isEOF()) {
-                    return -1;
+                if (b == null) {
+                    throw new NullPointerException();
                 }
 
-                final CharBuffer cb = m_charBuffer;
+                if (off < 0 || len < 0 || len > b.length - off) {
+                    throw new IndexOutOfBoundsException();
+                }
 
-                //
-                int charsRead;
-                int bytesRead;
+                if (len == 0) {
+                    return 0;
+                }
 
-                if (cb.remaining() == 0) {
-                    cb.clear();
+                int bytesRead = 0;
 
-                    charsRead = m_reader.read(cb);
+                for (int i = 0; i < len; i++) {
+                    int c = reader.read();
 
-                    cb.flip();
-
-                    if (charsRead < 0) {
-                        setEOF();
-
-                        return -1;
-                    } else if (charsRead == 0) {
-                        return 0;
+                    if (c < 0) {
+                        break;
                     }
+
+                    b[off + i] = (byte) c;
+
+                    bytesRead++;
                 }
-
-                final ByteBuffer bb = (m_byteBuffer.capacity() < len)
-                                      ? ByteBuffer.allocate(len)
-                                      : m_byteBuffer;
-
-                // Since ASCII is single-byte, restrict encoder character consumption
-                // to at most 'len' characters' to produce at most len ASCII
-                // characters
-                int cbLimit    = cb.limit();
-                int cbPosition = cb.position();
-
-                cb.limit(cbPosition + len);
-                bb.clear();
-
-                int         bbPosition = bb.position();
-                CoderResult result     = m_encoder.encode(cb, bb, false);
-
-                if (bbPosition == bb.position() && result.isUnderflow()) {
-
-                    // surrogate character time
-                    cb.limit(cb.limit() + 1);
-                    m_encoder.encode(cb, bb, false);
-                }
-
-                // Restore the old limit so the buffer gets topped up
-                // when required.
-                cb.limit(cbLimit);
-                bb.flip();
-
-                bytesRead = bb.limit();
-
-                if (bytesRead == 0) {
-                    setEOF();
-
-                    return -1;
-                }
-
-                m_byteBuffer = bb;
-
-                bb.get(b, off, bytesRead);
 
                 return bytesRead;
             }
 
             public void close() throws IOException {
 
-                boolean isClosed = m_closed;
-
-                if (!isClosed) {
-                    m_closed     = true;
-                    m_charBuffer = null;
-                    m_charset    = null;
-                    m_encoder    = null;
-
-                    try {
-                        m_reader.close();
-                    } catch (Exception ex) {}
-                }
-            }
-
-            private boolean isEOF() {
-
-                final Reader reader = m_reader;
-
-                return (reader == null);
-            }
-
-            private void setEOF() {
-
-                final Reader reader = m_reader;
-
-                if (reader != null) {
                     try {
                         reader.close();
-                    } catch (IOException iOException) {}
-                }
-
-                m_reader = null;
-            }
-
-            private void checkClosed() throws IOException {
-
-                if (JDBCClobClient.this.isClosed()) {
-                    try {
-                        this.close();
                     } catch (Exception ex) {}
-                }
-
-                if (m_closed) {
-                    throw new IOException("The stream is closed.");
-                }
             }
         };
     }
@@ -358,6 +253,10 @@ public class JDBCClobClient implements Clob {
             }
         }
 
+        if (!isInLimits(Integer.MAX_VALUE, 0, searchstr.length())) {
+            throw JDBCUtil.outOfRangeArgument();
+        }
+
         return position(searchstr.getSubString(1, (int) searchstr.length()),
                         start);
     }
@@ -376,117 +275,41 @@ public class JDBCClobClient implements Clob {
     public synchronized OutputStream setAsciiStream(final long pos)
     throws SQLException {
 
-        checkClosed();
-
-        if (pos < 1) {
-            throw JDBCUtil.outOfRangeArgument("pos: " + pos);
-        }
-
-        if (!isWritable) {
-            throw JDBCUtil.notUpdatableColumn();
-        }
-
-        startUpdate();
-
         return new OutputStream() {
 
-            private long    m_position = pos - 1;
-            private Charset m_charset  = charsetForName("US-ASCII");
-            private CharsetDecoder m_decoder =
-                m_charset.newDecoder().onMalformedInput(
-                    CodingErrorAction.REPLACE).onUnmappableCharacter(
-                    CodingErrorAction.REPLACE);
-            private CharBuffer   m_charBuffer = CharBuffer.allocate(64 * 1024);
-            private ByteBuffer   m_byteBuffer = ByteBuffer.allocate(1024);
-            private final byte[] oneByte      = new byte[1];
-            private boolean      m_closed;
+            Writer writer = setCharacterStream(pos);
 
             public void write(int b) throws IOException {
-
-                synchronized (oneByte) {
-                    oneByte[0] = (byte) b;
-
-                    this.write(oneByte, 0, 1);
-                }
+                writer.write(b);
             }
 
             public void write(byte[] b, int off, int len) throws IOException {
 
-                checkClosed();
 
-                final ByteBuffer bb = (m_byteBuffer.capacity() < len)
-                                      ? ByteBuffer.allocate(len)
-                                      : m_byteBuffer;
-
-                if (m_charBuffer.remaining() < len) {
-                    flush0();
+                if (b == null) {
+                    throw new NullPointerException();
                 }
 
-                final CharBuffer cb = m_charBuffer.capacity() < len
-                                      ? CharBuffer.allocate(len)
-                                      : m_charBuffer;
-
-                bb.clear();
-                bb.put(b, off, len);
-                bb.flip();
-                m_decoder.decode(bb, cb, false);
-
-                if (cb.remaining() == 0) {
-                    flush();
+                if (off < 0 || len < 0 || len > b.length - off) {
+                    throw new IndexOutOfBoundsException();
                 }
-            }
 
-            public void flush() throws IOException {
-                checkClosed();
-                flush0();
+                if (len == 0) {
+                    return;
+                }
+
+
+                char[] charArray = new char[len];
+
+                for (int i = 0; i < len; i++) {
+                    charArray[i] = (char) b[off + i];
+                }
+
+                writer.write(charArray, 0, len);
             }
 
             public void close() throws IOException {
-
-                if (!m_closed) {
-                    try {
-                        flush0();
-                    } finally {
-                        m_closed     = true;
-                        m_byteBuffer = null;
-                        m_charBuffer = null;
-                        m_charset    = null;
-                        m_decoder    = null;
-                    }
-                }
-            }
-
-            private void checkClosed() throws IOException {
-
-                if (JDBCClobClient.this.isClosed()) {
-                    try {
-                        close();
-                    } catch (Exception ex) {}
-                }
-
-                if (m_closed) {
-                    throw new IOException("The stream is closed.");
-                }
-            }
-
-            private void flush0() throws IOException {
-
-                final CharBuffer cb = m_charBuffer;
-
-                cb.flip();
-
-                final char[] chars = new char[cb.length()];
-
-                cb.get(chars);
-                cb.clear();
-
-                try {
-                    clob.setChars(session, m_position, chars, 0, chars.length);
-                } catch (Exception e) {
-                    throw new IOException(e.toString());
-                }
-
-                m_position += chars.length;
+                writer.close();
             }
         };
     }
@@ -764,23 +587,5 @@ public class JDBCClobClient implements Clob {
     static boolean isInLimits(long fullLength, long pos, long len) {
         return fullLength >= 0 && pos >= 0 && len >= 0
                && pos <= fullLength - len;
-    }
-
-    protected static Charset charsetForName(final String charsetName)
-    throws SQLException {
-
-        String csn = charsetName;
-
-        if (csn == null) {
-            csn = Charset.defaultCharset().name();
-        }
-
-        try {
-            if (Charset.isSupported(csn)) {
-                return Charset.forName(csn);
-            }
-        } catch (IllegalCharsetNameException x) {}
-
-        throw JDBCUtil.sqlException(new UnsupportedEncodingException(csn));
     }
 }

@@ -625,13 +625,17 @@ public class BinaryType extends Type {
         offset = segment.a;
         length = segment.b;
 
-        if (length > Integer.MAX_VALUE) {
-            throw Error.error(ErrorCode.X_22001);
+        if (data instanceof BinaryData) {
+            byte[] bytes = data.getBytes(session, offset, (int) length);
+
+            return new BinaryData(bytes, false);
+        } else if (data instanceof BlobData) {
+            BlobData blob = ((BlobData) data).getBlob(session, offset, length);
+
+            return blob;
+        } else {
+            throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
         }
-
-        byte[] bytes = data.getBytes(session, offset, (int) length);
-
-        return new BinaryData(bytes, false);
     }
 
     int getRightTrimSize(BlobData data) {

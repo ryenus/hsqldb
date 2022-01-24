@@ -513,7 +513,7 @@ public class Logger implements EventLogInterface {
                 HsqlDatabaseProperties.sql_convert_trunc);
         database.sqlTruncateTrailing =
             database.databaseProperties.isPropertyTrue(
-                HsqlDatabaseProperties.sql_truncate_trailing);
+                HsqlDatabaseProperties.sql_trunc_trailing);
         database.sqlAvgScale = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.sql_avg_scale);
         database.sqlDoubleNaN = database.databaseProperties.isPropertyTrue(
@@ -1578,7 +1578,7 @@ public class Logger implements EventLogInterface {
             return String.valueOf(database.sqlConvertTruncate);
         }
 
-        if (HsqlDatabaseProperties.sql_truncate_trailing.equals(name)) {
+        if (HsqlDatabaseProperties.sql_trunc_trailing.equals(name)) {
             return String.valueOf(database.sqlTruncateTrailing);
         }
 
@@ -1668,6 +1668,10 @@ public class Logger implements EventLogInterface {
 
         if (HsqlDatabaseProperties.jdbc_translate_tti_types.equals(name)) {
             return String.valueOf(database.sqlTranslateTTI);
+        }
+
+        if (HsqlDatabaseProperties.sql_sys_index_names.equals(name)) {
+            return String.valueOf(database.sqlSysIndexNames);
         }
 
 /*

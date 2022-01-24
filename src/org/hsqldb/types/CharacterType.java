@@ -650,7 +650,7 @@ public class CharacterType extends Type {
         } else if (a instanceof java.util.UUID) {
             s = a.toString();
         } else {
-            s = convertJavaTimeObject(a);
+            s = convertJavaDateTimeObject(a);
 
             if (s == null) {
                 throw Error.error(ErrorCode.X_42561);
@@ -661,7 +661,7 @@ public class CharacterType extends Type {
     }
 
 //#ifdef JAVA8
-    String convertJavaTimeObject(Object a) {
+    String convertJavaDateTimeObject(Object a) {
 
         switch(a.getClass().getName()){
             case "java.time.LocalDate":
@@ -678,7 +678,7 @@ public class CharacterType extends Type {
 
 //#else
 /*
-    String convertJavaTimeObject(Object a) {
+    String convertJavaDateTimeObject(Object a) {
         return null;
     }
 */
