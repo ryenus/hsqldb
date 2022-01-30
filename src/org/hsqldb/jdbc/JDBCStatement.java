@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,7 +103,7 @@ import org.hsqldb.result.ResultProperties;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.2
  * @since HSQLDB 1.9.0
  * @see JDBCConnection#createStatement
  * @see JDBCResultSet
@@ -1589,7 +1589,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
      * @throws SQLException if a database access error occurs
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized boolean isClosed() throws SQLException {
+    public synchronized boolean isClosed() {
         return isClosed;
     }
 
@@ -2083,4 +2083,9 @@ public class JDBCStatement extends JDBCStatementBase implements Statement,
             getMoreResults();
         }
     }
+
+    public int getResultSetScrollability() {
+        return ResultProperties.getJDBCScrollability(rsProperties);
+    }
+
 }
