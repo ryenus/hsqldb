@@ -4957,10 +4957,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
         return statementID;
     }
 
-    public boolean IsRowCount() {
-        return statementRetType == StatementTypes.RETURN_COUNT;
-    }
-
     public boolean isRowCount() {
         return statementRetType == StatementTypes.RETURN_COUNT;
     }

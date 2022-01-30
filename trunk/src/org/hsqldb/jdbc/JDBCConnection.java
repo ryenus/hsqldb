@@ -3724,7 +3724,10 @@ public class JDBCConnection implements Connection {
     }
 
     public HsqlProperties getConnProperties() {
-        return connProperties;
+        HsqlProperties props = new HsqlProperties();
+
+        props.addProperties(connProperties);
+        return props;
     }
 
     public String getDefaultCollationName() {
