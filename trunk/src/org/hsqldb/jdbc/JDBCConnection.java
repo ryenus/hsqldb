@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -462,7 +462,7 @@ import org.hsqldb.types.Type;
  * </div> <!-- end release-specific documentation -->
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.2
  * @since HSQLDB 1.9.0
  * @see JDBCDriver
  * @see JDBCStatement
@@ -3566,7 +3566,7 @@ public class JDBCConnection implements Connection {
      *      constructed
      * @throws SQLException if this connection is closed
      */
-    synchronized String getURL() throws SQLException {
+    synchronized public String getURL() throws SQLException {
 
         checkClosed();
 
@@ -3713,5 +3713,21 @@ public class JDBCConnection implements Connection {
         }
 
         return i;
+    }
+
+    public boolean isInternal() {
+        return isInternal;
+    }
+
+    public boolean isNetwork() {
+        return isNetConn;
+    }
+
+    public HsqlProperties getConnProperties() {
+        return connProperties;
+    }
+
+    public String getDefaultCollationName() {
+        return null;
     }
 }

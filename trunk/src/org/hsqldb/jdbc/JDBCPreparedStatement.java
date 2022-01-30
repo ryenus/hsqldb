@@ -2284,7 +2284,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * @return true if this <code>Statement</code> object is closed; false if it is still open
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public synchronized boolean isClosed() {
+    public boolean isClosed() {
         return isClosed;
     }
 
@@ -4948,4 +4948,28 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
 
     /** The session attribute of the connection */
     protected SessionInterface session;
+
+    public String getSQL() {
+        return sql;
+    }
+
+    public long getStatementID() {
+        return statementID;
+    }
+
+    public boolean IsRowCount() {
+        return statementRetType == StatementTypes.RETURN_COUNT;
+    }
+
+    public boolean isRowCount() {
+        return statementRetType == StatementTypes.RETURN_COUNT;
+    }
+
+    public JDBCResultSetMetaData getResultSetMetaData() {
+        return resultSetMetaData;
+    }
+
+    public ResultMetaData getParameterMetaDataDirect() {
+        return parameterMetaData;
+    }
 }
