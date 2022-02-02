@@ -1,2 +1,2 @@
 call setenv.cmd
-ant clean sqltool
+call ant clean sqltool
