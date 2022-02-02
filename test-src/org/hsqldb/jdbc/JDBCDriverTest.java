@@ -54,17 +54,17 @@ public class JDBCDriverTest extends BaseDriverTestCase {
 
     @Override
     protected int getExpectedMajorVersion() {
-        return getIntProperty("driver.major.version", 2);
+        return getIntProperty("dbmd.driver.major.version", 2);
     }
 
     @Override
     protected int getExpectedMinorVersion() {
-        return getIntProperty("driver.minor.version", 3);
+        return getIntProperty("dbmd.driver.minor.version", 3);
     }
 
     @Override
     protected boolean getExpectedJdbcCompliant() {
-        return getBooleanProperty("driver.jdbc.compliant", true);
+        return getBooleanProperty("dbmd.driver.jdbc.compliant", true);
     }
 
     public static Test suite() {

@@ -121,10 +121,10 @@ public abstract class BaseDriverTestCase extends BaseJdbcTestCase {
     @OfMethod(value = "getMinorVersion()")
     public void testGetMinorVersion() throws Exception {
         final Driver driver = newDriver();
-        final int expResult = getExpectedMinorVersion();
-        final int result = driver.getMinorVersion();
+        final int expected = getExpectedMinorVersion();
+        final int actual = driver.getMinorVersion();
 
-        assertEquals(expResult, result);
+        assertEquals(expected, actual);
     }
 
     @OfMethod(value = "getPropertyInfo()")

@@ -76,18 +76,22 @@ public class JDBCSavepointTest extends BaseJdbcTestCase {
         Connection conn = super.newConnection();
         Savepoint sp = null;
         int id;
-
+        
+        conn.setAutoCommit(true);
         assertEquals(true, conn.getAutoCommit());
 
         try {
             sp = conn.setSavepoint();
             id = sp.getSavepointId();
-            fail("Allowed setSavepoint()/getSavepointId() while autocommit == true");
+            String msg = "Allowed setSavepoint()/getSavepointId() "
+                    + "while autocommit == true: " + id;
+            fail(msg);
         } catch (SQLException ex) {
             // ex.printStackTrace();
         }
 
         conn.setAutoCommit(false);
+        assertEquals(false, conn.getAutoCommit());
 
         try {
             sp = conn.setSavepoint();

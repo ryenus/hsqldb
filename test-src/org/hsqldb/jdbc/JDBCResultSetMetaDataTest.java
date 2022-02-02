@@ -37,6 +37,8 @@ import org.hsqldb.testbase.ForSubject;
 /**
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
+ * @since 1.7.x
+ * @version 2.6.x
  */
 @ForSubject(JDBCResultSetMetaData.class)
 public class JDBCResultSetMetaDataTest extends BaseResultSetMetaDataTestCase {
@@ -45,11 +47,13 @@ public class JDBCResultSetMetaDataTest extends BaseResultSetMetaDataTestCase {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         this.executeScript("setup-all_types-table.sql");
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }

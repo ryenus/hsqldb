@@ -31,6 +31,10 @@
 package org.hsqldb.jdbc.testbase;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Statement;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.IntKeyHashMap;
@@ -369,4 +373,6 @@ public abstract class BaseJdbcTestCase extends BaseTestCase {
     protected BaseJdbcTestCase() {
         super();
     }
+
+    
 }

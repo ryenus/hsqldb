@@ -48,19 +48,19 @@ import org.hsqldb.testbase.OfMethod;
  * {@link #getSQLTypeCode(int)} and {@link #getSQLTypeName(int)}. <p>
  *
  * In order to automate exhaustive combinatoric testing, concrete subclasses
- * must also provide a <tt>public static TestCase suite()</tt> method that
+ * must also provide a {@code public static TestCase suite()} method that
  * delegates to createTestSuite(java.lang.Class), passing their own
  * Class and the supported type count (one greater than the maximum
  * valid index than can be passed to the concrete implementation of
  * {@link #getSQLTypeCode(int)} or  {@link #getSQLTypeName(int)}.  <p>
  *
- * Finally, for each supported conversion, there must be a <tt>'true'</tt>
- * valued entry in either the <tt>/org/hsqldb/resources/test.properties</tt>
- * or the <tt>/org/hsqldb/resources/test-dbmd-convert.properties</tt> resource
+ * Finally, for each supported conversion, there must be a {@code 'true'}
+ * valued entry in either the {@code /org/hsqldb/resources/test.properties}
+ * or the {@code /org/hsqldb/resources/test-dbmd-convert.properties} resource
  * (in that order of precedence) whose key matches the output of
  * {@link #translatePropertyKey(java.lang.String)} when the input value is of
- * the form  <tt>'dbmd.supports.convert.to.${target-type-name}.from.${source-type-name}'</tt>
- * where <tt>${target-type-name}</tt> and <tt>${source-type-name}</tt> are values
+ * the form  {@code 'dbmd.supports.convert.to.${target-type-name}.from.${source-type-name}'}
+ * where {@code ${target-type-name}} and {@code ${source-type-name}} are values
  * returned from invocation of {@link #getSQLTypeName(int)}
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
@@ -86,7 +86,9 @@ public abstract class BaseDatabaseMetaDataSupportsConvertTestCase extends BaseJd
     protected BaseDatabaseMetaDataSupportsConvertTestCase(
             final int toIndex,
             final int fromIndex) {
-        setName(computeTestName(toIndex, fromIndex));
+        // Stupid compiler trick
+        BaseJdbcTestCase tc = this;
+        tc.setName(computeTestName(toIndex, fromIndex));
 
         m_toIndex = toIndex;
         m_fromIndex = fromIndex;
@@ -133,6 +135,7 @@ public abstract class BaseDatabaseMetaDataSupportsConvertTestCase extends BaseJd
             return newConnection().getMetaData();
         } else {
             if (s_dbmd == null) {
+                // Sorry - try with resources: Java 7+ only
                 Connection conn = newConnection();
                 s_dbmd = conn.getMetaData();
                 conn.close();
@@ -187,6 +190,7 @@ public abstract class BaseDatabaseMetaDataSupportsConvertTestCase extends BaseJd
             }
 
             throw new RuntimeException(t.toString(), t);
+            // Sorry - Multicatch: Java 7+ only
         } catch (IllegalArgumentException e) {
             throw new RuntimeException(e.toString(), e);
         } catch (IllegalAccessException e) {

@@ -31,11 +31,16 @@
 
 package org.hsqldb.jdbc.pool;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import javax.naming.Reference;
 import javax.sql.XAConnection;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.hsqldb.jdbc.JDBCDataSourceFactory;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
@@ -82,15 +87,19 @@ public class JDBCXADataSourceTest extends BaseJdbcTestCase {
 
     /**
      * Test of getXAConnection method, of class JDBCXADataSource.
+     * @throws java.lang.Exception
      */
     @OfMethod("getXAConnection()")
     public void testGetXAConnection_0args() throws Exception {
         JDBCXADataSource testSubject = newTestSubject();
         XAConnection xaConnection = testSubject.getXAConnection();
 
-        stubTestResult();
+        assertNotNull(xaConnection);
+        Connection connection = xaConnection.getConnection();
+        assertNotNull(connection);
+        assertEquals(this.getUrl(), connection.getMetaData().getURL());
+        assertEquals(this.getUser(), connection.getMetaData().getUserName());
     }
-
     /**
      * Test of getXAConnection method, of class JDBCXADataSource.
      */
@@ -99,7 +108,11 @@ public class JDBCXADataSourceTest extends BaseJdbcTestCase {
         JDBCXADataSource testSubject = newTestSubject();
         XAConnection xaConnection = testSubject.getXAConnection(getUser(), getPassword());
 
-        stubTestResult();
+        assertNotNull(xaConnection);
+        Connection connection = xaConnection.getConnection();
+        assertNotNull(connection);
+        assertEquals(this.getUrl(), connection.getMetaData().getURL());
+        assertEquals(this.getUser(), connection.getMetaData().getUserName());
     }
 
     /**
@@ -109,8 +122,15 @@ public class JDBCXADataSourceTest extends BaseJdbcTestCase {
     public void testGetReference() throws Exception {
         JDBCXADataSource testSubject = newTestSubject();
         Reference reference = testSubject.getReference();
+        
+        assertEquals(JDBCXADataSource.class.getName(), reference.getClassName());
+        assertEquals(JDBCDataSourceFactory.class.getName(), reference.getFactoryClassName());
 
-        stubTestResult();
+        assertEquals(testSubject.getDatabase(), reference.get("database").getContent());
+        assertEquals(testSubject.getUser(), reference.get("user").getContent());
+        assertEquals(""+testSubject.getLoginTimeout(), reference.get("loginTimeout").getContent());
+        assertEquals("", reference.get("password").getContent());
+        
     }
 
     /**
@@ -119,8 +139,11 @@ public class JDBCXADataSourceTest extends BaseJdbcTestCase {
     @OfMethod("addResource(javax.transaction.xa.Xid,org.hsqldb.jdbc.pool.JDBCXAResource)")
     public void testAddResource() throws Exception {
         JDBCXADataSource testSubject = newTestSubject();
+        
+        Xid xid = JDBCXID.getUniqueXid((int)Thread.currentThread().getId());
 
-        //testSubject.addResource(null, null);
+
+        //testSubject.addResource(xid, resource);
 
         stubTestResult();
     }
