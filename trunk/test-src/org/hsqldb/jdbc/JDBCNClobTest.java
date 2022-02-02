@@ -37,14 +37,19 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+import java.sql.Connection;
+import java.sql.NClob;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
 /**
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
+@ForSubject(JDBCNClob.class)
 public class JDBCNClobTest extends BaseJdbcTestCase {
 
     public JDBCNClobTest(String testName) {
@@ -63,13 +68,13 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
 
     public static Test suite() {
         TestSuite suite = new TestSuite(JDBCNClobTest.class);
-
         return suite;
     }
 
     /**
      * Test of length method, of class org.hsqldb.jdbc.jdbcNClob.
      */
+    @OfMethod("length()")
     public void testLength() throws Exception {
         JDBCNClob nclob = new JDBCNClob("Test");
         long expResult  = "Test".length();
@@ -81,6 +86,7 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
     /**
      * Test of getSubString method, of class org.hsqldb.jdbc.jdbcNClob.
      */
+    @OfMethod("getSubString(int,int)")
     public void testGetSubString() throws Exception {
         JDBCNClob nclob  = new JDBCNClob("Test");
         String    result = nclob.getSubString(2, 2);
@@ -91,6 +97,7 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
     /**
      * Test of getCharacterStream method, of class org.hsqldb.jdbc.jdbcNClob.
      */
+    @OfMethod("getCharacterStream()")
     public void testGetCharacterStream() throws Exception {
         JDBCNClob nclob     = new JDBCNClob("Test");
         Reader    expResult = new StringReader("Test");
@@ -207,9 +214,11 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
      * Test of truncate method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testTruncate() throws Exception {
-        JDBCNClob nclob = new JDBCNClob("Test");
+        Connection conn = this.newConnection();
+        NClob nclob = this.connectionFactory().createNClob(conn);
 
         try {
+            nclob.setString(1, "Test");
             nclob.truncate(2);
             assertEquals(2L, nclob.length());
         } catch (Exception e) {

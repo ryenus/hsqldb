@@ -63,14 +63,15 @@ public class JDBCBlobClientTest extends BaseBlobTestCase {
         stmt.execute("create table blob_client_test(id int, blob_value blob)");
         stmt.execute("insert into blob_client_test(id ,blob_value) values(1, null)");
 
-        Blob blob = conn.createBlob();
-        PreparedStatement pstmt = connectionFactory().prepareStatement("update blob_client_test set blob_value = ?", conn);
+        Blob blob = connectionFactory().createBlob(conn);
+        PreparedStatement pstmt = connectionFactory().prepareStatement(
+                "update blob_client_test set blob_value = ? where id = 1", conn);
 
         pstmt.setBlob(1, blob);
-
         pstmt.execute();
-
-        ResultSet rs = stmt.executeQuery("select blob_value from blob_client_test where id = 1 ");
+        
+        ResultSet rs = connectionFactory().executeQuery(
+                "select blob_value from blob_client_test where id = 1", stmt);
 
         rs.next();
 

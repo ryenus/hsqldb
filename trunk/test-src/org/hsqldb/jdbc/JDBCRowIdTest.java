@@ -28,14 +28,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package org.hsqldb.jdbc;
 
 import java.sql.RowId;
 import java.util.Arrays;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.lib.StringConverter;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
@@ -44,12 +42,97 @@ import org.hsqldb.testbase.OfMethod;
  * Test of class org.hsqldb.jdbc.jdbcRowId.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
+ * @since 1.7.x
+ * @version 2.6.x
  */
-@ForSubject(RowId.class)
+@ForSubject(JDBCRowId.class)
 public class JDBCRowIdTest extends BaseJdbcTestCase {
 
-    public JDBCRowIdTest(String testName) {
+    public static final String ROW_ID_CHARS = "02b7abfe";
+    public static final byte[] ROW_ID_BYTES = {
+        (byte) 0x02, 
+        (byte) 0xb7, 
+        (byte) 0xab, 
+        (byte) 0xfe};
+
+    public static void main(final String[] argList) {
+
+        junit.textui.TestRunner.run(suite());
+    }
+
+    public static RowId newRowId(final String s) throws Exception {
+        return new JDBCRowId(s);
+    }
+
+    public static RowId newRowId(final byte[] b) throws Exception {
+        return new JDBCRowId(b);
+    }
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite(JDBCRowIdTest.class);
+
+        return suite;
+    }
+
+    public JDBCRowIdTest(final String testName) {
         super(testName);
+    }
+
+    /**
+     * Test of equals method, of interface java.sql.RowId.
+     *
+     * @throws java.lang.Exception
+     */
+    @OfMethod("equals(java.lang.Object)")
+    public void testEquals() throws Exception {
+        final RowId id1 = newRowId(ROW_ID_CHARS);
+        final RowId id2 = newRowId(ROW_ID_BYTES);
+        final boolean expResult = true;
+        final boolean result = id1.equals(id2);
+
+        assertEquals(expResult, result);
+    }
+
+    /**
+     * Test of getBytes method, of interface java.sql.RowId.
+     *
+     * @throws java.lang.Exception
+     */
+    @OfMethod("getBytes()")
+    public void testGetBytes() throws Exception {
+        final byte[] expResult = ROW_ID_BYTES;
+        final byte[] result = newRowId(ROW_ID_CHARS).getBytes();
+
+        assertJavaArrayEquals(expResult, result);
+    }
+
+    /**
+     * Test of hashCode method, of interface java.sql.RowId.
+     *
+     * @throws java.lang.Exception
+     */
+    @OfMethod("hashCode()")
+    public void testHashCode() throws Exception {
+        final byte[] bytes = ROW_ID_BYTES;
+        final RowId rid = newRowId(ROW_ID_CHARS);
+        final int expResult = Arrays.hashCode(bytes);
+        final int result = rid.hashCode();
+
+        assertEquals(expResult, result);
+    }
+
+    /**
+     * Test of toString method, of interface java.sql.RowId.
+     *
+     * @throws java.lang.Exception
+     */
+    @OfMethod("toString()")
+    public void testToString() throws Exception {
+        RowId rid = newRowId(ROW_ID_CHARS);
+        String expResult = ROW_ID_CHARS;
+        String result = rid.toString();
+
+        assertEquals(expResult, result);
     }
 
     @Override
@@ -60,74 +143,6 @@ public class JDBCRowIdTest extends BaseJdbcTestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(JDBCRowIdTest.class);
-
-        return suite;
-    }
-
-    public RowId newRowId(String s) throws Exception {
-        return new JDBCRowId(s);
-    }
-
-    public RowId newRowId(byte[] b) throws Exception {
-        return new JDBCRowId(b);
-    }
-
-    /**
-     * Test of equals method, of interface java.sql.RowId.
-     */
-    @OfMethod("equals(java.lang.Object")
-    public void testEquals() throws Exception {
-        RowId id1         = newRowId("02b7abfe");
-        RowId id2         = newRowId(StringConverter.hexStringToByteArray("02b7abfe"));
-        boolean expResult = true;
-        boolean result    = id1.equals(id2);
-
-        assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of getBytes method, of interface java.sql.RowId.
-     */
-    @OfMethod("getBytes()")
-    public void testGetBytes() throws Exception {
-        byte[] expResult = StringConverter.hexStringToByteArray("02b7abfe");
-        byte[] result    = newRowId("02b7abfe").getBytes();
-
-        assertJavaArrayEquals(expResult, result);
-    }
-
-    /**
-     * Test of toString method, of interface java.sql.RowId.
-     */
-    @OfMethod("toString()")
-    public void testToString() throws Exception {
-        RowId  rid       = newRowId("02b7abfe");
-        String expResult = "02b7abfe";
-        String result    = rid.toString();
-
-        assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of hashCode method, of interface java.sql.RowId.
-     */
-    @OfMethod("hashCode()")
-    public void testHashCode() throws Exception {
-        byte[] bytes  = StringConverter.hexStringToByteArray("02b7abfe");
-        RowId  rid    = newRowId("02b7abfe");
-        int expResult = Arrays.hashCode(bytes);
-        int result    = rid.hashCode();
-
-        assertEquals(expResult, result);
-    }
-
-    public static void main(java.lang.String[] argList) {
-
-        junit.textui.TestRunner.run(suite());
     }
 
 }

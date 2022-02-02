@@ -32,6 +32,7 @@
 package org.hsqldb.jdbc.testbase;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,7 +70,7 @@ import org.hsqldb.resources.ResourceBundleHandler;
  * </li>
  * </ul><p>
  *
- * Class values that begin with one of the &lt;digit&gt;s '0', '1', '2', '3',
+ * Class values that begin with one of the {@code <digit>}s '0', '1', '2', '3',
  * or '4' or one of the &lt;simple Latin upper case letter*gt;s 'A', 'B', 'C',
  * 'D', 'E', 'F', 'G', or 'H' are returned only for conditions defined in
  * ISO/IEC 9075 or in any other International Standard. The range of such
@@ -79,13 +80,13 @@ import org.hsqldb.resources.ResourceBundleHandler;
  * with one of those 13 characters are returned only for conditions defined in
  * ISO/IEC 9075 or some other International Standard. The range of such class
  * values are called <em>standard-defined classes</em>. Subclass values
- * associated with such classes that begin with one of the &lt;digit&gt;s '5',
+ * associated with such classes that begin with one of the {@code <digit>}s '5',
  * '6', '7', '8', or '9' or one of the &lt;simple Latin upper case letter&gt;s
  * 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
  * 'X', 'Y', or 'Z' are reserved for implementation-specified conditions and are
  * called implementation-defined subclasses. <p>
  *
- * Class values that begin with one of the &lt;digit&gt;s '5', '6', '7', '8',
+ * Class values that begin with one of the {@code <digit>}s '5', '6', '7', '8',
  * or '9' or one of the &lt;simple Latin upper case letter&gt;s 'I', 'J', 'K',
  * 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', or 'Z'
  * are reserved for implementation-specified exception conditions and are called
@@ -139,6 +140,29 @@ import org.hsqldb.resources.ResourceBundleHandler;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 public abstract class SqlState implements Serializable {
+    
+    static class ParsedSqlState extends SqlState {
+        
+        public ParsedSqlState(String p_sqlStateClass, String p_sqlStateSubclass) {
+            super(p_sqlStateClass, p_sqlStateSubclass);
+        }
+        
+    }
+    
+    public static SqlState forException(final SQLException ex) {
+        if (ex == null) {
+            throw new NullPointerException("ex must not be null");
+        }
+        
+        final String sqlState = ex.getSQLState();
+        
+        Routine.checkSqlState(sqlState);
+        
+        final String sqlClass = sqlState.substring(0,2);
+        final String sqlSubclass = sqlState.substring(2);
+        
+        return new ParsedSqlState(sqlClass, sqlSubclass);
+    }
 
     private static final long serialVersionUID = 1L;
     /**
@@ -174,15 +198,15 @@ public abstract class SqlState implements Serializable {
      */
     public transient final String Class;
     /**
-     * <tt>true</tt> if {@link #Class} begins with one of the
-     * &lt;digit&gt;s '0', '1', '2', '3', or '4' or one of the
+     * {@code true} if {@link #Class} begins with one of the
+     * {@code <digit>}s '0', '1', '2', '3', or '4' or one of the
      * &lt;simple Latin upper case letter*gt;s 'A', 'B', 'C',
      * 'D', 'E', 'F', 'G', or 'H'.
      */
     public transient final boolean ClassIsStandardDefined;
     /**
-     * <tt>true</tt> if {@link #Class} begins with one of the
-     * &lt;digit&gt;s '5', '6', '7', '8', or '9' or one of the
+     * {@code true} if {@link #Class} begins with one of the
+     * {@code <digit>}s '5', '6', '7', '8', or '9' or one of the
      * &lt;simple Latin upper case letter&gt;s 'I', 'J', 'K',
      * 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
      * 'W', 'X', 'Y', or 'Z'.
@@ -203,25 +227,25 @@ public abstract class SqlState implements Serializable {
      */
     public final String Subclass;
     /**
-     * <tt>true</tt> if {@link #Class} begins with one of the
-     * &lt;digit&gt;s '0', '1', '2', '3', or '4' or one of the
-     * &lt;simple Latin upper case letter*gt;s 'A', 'B', 'C',
+     * {@code true} if {@link #Class} begins with one of the
+     * {@code <digit>}s '0', '1', '2', '3', or '4' or one of the
+     * {@code <simple Latin upper case letter>}s 'A', 'B', 'C',
      * 'D', 'E', 'F', 'G', or 'H' and {@link #Subclass} begins
-     * with one of the &lt;digit&gt;s '0', '1', '2', '3', or '4'
+     * with one of the {@code <digit>}s '0', '1', '2', '3', or '4'
      * or one of the &lt;simple Latin upper case letter*gt;s 'A',
      * 'B', 'C', 'D', 'E', 'F', 'G', or 'H'
      */
     public transient final boolean SubclassIsStandardDefined;
     /**
-     * <tt>true</tt> if {@link #Subclass} begins with one of the
-     * &lt;digit&gt;s '5', '6', '7', '8', or '9' or one of the
-     * &lt;simple Latin upper case letter&gt;s 'I', 'J', 'K',
+     * {@code true} if {@link #Subclass} begins with one of the
+     * {@code <digit>}s '5', '6', '7', '8', or '9' or one of the
+     * {@code <simple Latin upper case letter>}s 'I', 'J', 'K',
      * 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
      * 'W', 'X', 'Y', or 'Z'
      */
     public transient final boolean SubclassIsImplementationDefined;
     /**
-     * <tt>true</tt> if {@link #Subclass} equals
+     * {@code true} if {@link #Subclass} equals
      * {@link Constant.SqlStateSubclass#NoSubclass}.
      */
     public transient final boolean IsNoSubclass;
@@ -230,14 +254,14 @@ public abstract class SqlState implements Serializable {
      */
     public final String Value;
     /**
-     * <tt>true</tt> if {@link #ClassIsStandardDefined} is <tt>true</tt> and
-     * {@link #SubclassIsStandardDefined} is <tt>true</tt>.
+     * {@code true} if {@link #ClassIsStandardDefined} is {@code true} and
+     * {@link #SubclassIsStandardDefined} is {@code true}.
      */
     public transient final boolean ValueDenotesStandardSpecifiedCondition;
     /**
-     * <tt>true</tt> if {@link #ClassIsImplemenationDefined} is <tt>true</tt>
-     * or {@link #ClassIsStandardDefined} is <tt>true</tt>  and
-     * {@link #SubclassIsImplementationDefined} is <tt>true</tt>.
+     * {@code true} if {@link #ClassIsImplemenationDefined} is {@code true}
+     * or {@link #ClassIsStandardDefined} is {@code true}  and
+     * {@link #SubclassIsImplementationDefined} is {@code true}.
      */
     public transient final boolean ValueDenotesImplementationSpecifiedCondition;
     @SuppressWarnings("CollectionWithoutInitialCapacity")
@@ -246,17 +270,16 @@ public abstract class SqlState implements Serializable {
 
     /**
      * Constructs a new SqlState from the given
-     * <tt>sqlStateCategory</tt>, <tt>sqlStateClass</tt> and
-     * <tt>sqlStateSubclass</tt>.<p>
+     * {@code sqlStateCategory}, {@code sqlStateClass} and
+     * {@code sqlStateSubclass}.
      *
      * @param sqlStateClass of the SQLSTATE
      * @param sqlStateSubclass of the SQLSTATE
      * @throws IllegalArgumentException
-     *         if <tt>sqlStateClass</tt> is null, its length is not 2,
+     *         if {@code sqlStateClass} is null, its length is not 2,
      *         or it contains a character not in [1..9][A..Z]; if
-     *         <tt>sqlStateSubclass</tt>
+     *         {@code sqlStateSubclass}
      */
-    @SuppressWarnings("LeakingThisInConstructor")
     public SqlState(
             final String sqlStateClass,
             final String sqlStateSubclass) {
@@ -568,6 +591,10 @@ public abstract class SqlState implements Serializable {
         public static final int SQLSTATE_SUBCONDITION_BUNDLE_ID =
                 ResourceBundleHandler.getBundleHandle("sqlstate-subcondition",
                 SqlState.class.getClassLoader());
+        
+        public static final int SQLSTATE_MAPPING_BUNDLE_ID =
+                ResourceBundleHandler.getBundleHandle("sqlstate-mapping",
+                SqlState.class.getClassLoader());
 
         public interface SqlStateCategory {
 
@@ -815,8 +842,8 @@ public abstract class SqlState implements Serializable {
         }
     }
 
-    static final class Routine {
-
+    public static final class Routine {
+        
         public static String conditionForSqlStateClass(final String sqlStateClass) {
             return ResourceBundleHandler.getString(Constant.SQLSTATE_CONDITION_BUNDLE_ID,
                     sqlStateClass);
@@ -860,8 +887,8 @@ public abstract class SqlState implements Serializable {
         /**
          *
          * @param sqlState string
-         * @throws IllegalArgumentException if <tt>sqlstate</tt> is null or
-         *  <tt>sqlstate</tt> length is not 5
+         * @throws IllegalArgumentException if {@code sqlstate} is null or
+         *  {@code sqlstate} length is not 5
          */
         public static void checkSqlState(final String sqlState) {
             if (sqlState == null) {

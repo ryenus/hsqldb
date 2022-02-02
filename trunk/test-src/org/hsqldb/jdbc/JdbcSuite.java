@@ -39,6 +39,8 @@ import junit.framework.TestSuite;
  * Base test case for HSQLDB JDBC 4 test suite.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
+ * @since 1.7.x
+ * @version 2.6.x
  */
 public class JdbcSuite extends TestCase {
 
@@ -67,6 +69,7 @@ public class JdbcSuite extends TestCase {
      */
     public static Test suite() {
         TestSuite suite = new TestSuite("JdbcSuite");
+        suite.addTest(HsqldbExtensionsToJDBCStatementTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCArrayTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCBlobClientTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCBlobFileTest.suite());
@@ -87,6 +90,7 @@ public class JdbcSuite extends TestCase {
         suite.addTest(org.hsqldb.jdbc.JDBCDriverTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCNClobTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCParameterMetaDataTest.suite());
+        suite.addTest(org.hsqldb.jdbc.JDBCPoolTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCPreparedStatementTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCResultSetMetaDataTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCResultSetTest.suite());

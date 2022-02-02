@@ -27,92 +27,46 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hsqldb.jdbc;
 
 import java.sql.Connection;
-import java.sql.SQLWarning;
+import java.sql.SQLException;
 import java.sql.Statement;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import org.hsqldb.jdbc.testbase.BaseCreateOrPrepareStatementCoreTestCase;
 import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.jdbc.testbase.ResultSetConcurrency;
+import org.hsqldb.jdbc.testbase.ResultSetHoldability;
+import org.hsqldb.jdbc.testbase.ResultSetType;
 
 /**
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(JDBCConnection.class)
-public class JDBCConnectionPrepareStatementTest extends BaseJdbcTestCase {
-    protected static String computeTestName(
-            int typeIndex,
-            int concurrencyIndex) {
-        String typeName = s_rstype[typeIndex][0];
-        String concurName = s_rsconcurrency[concurrencyIndex][0];
-
-        return "testPrepareStatement_"
-                + typeName
-                + "_"
-                + concurName;
-    }
-
-    protected static String computeTestName(
-            int typeIndex,
-            int concurrencyIndex,
-            int holdabilityIndex) {
-        String typeName = s_rstype[typeIndex][0];
-        String concurName = s_rsconcurrency[concurrencyIndex][0];
-        String holdName = s_rsholdability[holdabilityIndex][0];
-
-        return "testPrepareStatement_"
-                + typeName
-                + "_"
-                + concurName
-                + "_"
-                + holdName;
-    }
-
-    protected final int m_holdabilityIndex;
-    protected final int m_concurrencyIndex;
-    protected final int m_typeIndex;
-    protected final boolean m_holdabilitySpecified;
+public class JDBCConnectionPrepareStatementTest extends BaseCreateOrPrepareStatementCoreTestCase {
 
     public JDBCConnectionPrepareStatementTest(
-            int typeIndex,
-            int concurrencyIndex,
-            int holdabilityIndex) {
-        super(computeTestName(typeIndex, concurrencyIndex, holdabilityIndex));
+            ResultSetType type,
+            ResultSetConcurrency concurrency,
+            ResultSetHoldability holdability) {
+        super(type, concurrency, holdability, "testPrepareStatement");
 
-        m_typeIndex = typeIndex;
-        m_concurrencyIndex = concurrencyIndex;
-        m_holdabilityIndex = holdabilityIndex;
-        m_holdabilitySpecified = true;
-    }
-
-    public JDBCConnectionPrepareStatementTest(
-            int typeIndex,
-            int concurrencyIndex) {
-        super(computeTestName(typeIndex, concurrencyIndex));
-
-        m_typeIndex = typeIndex;
-        m_concurrencyIndex = concurrencyIndex;
-        m_holdabilityIndex = Integer.MIN_VALUE;
-        m_holdabilitySpecified = false;
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite("JDBCConnectionPrepareStatementTest");
+        TestSuite suite = new TestSuite(
+                JDBCConnectionPrepareStatementTest.class.getSimpleName());
 
-        for(int i = 0; i < s_rstype.length; i++) {
-            for (int j = 0; j < s_rsconcurrency.length; j++) {
-                suite.addTest(new JDBCConnectionPrepareStatementTest(i, j));
-            }
-        }
-
-        for(int i = 0; i < s_rstype.length; i++) {
-            for (int j = 0; j < s_rsconcurrency.length; j++) {
-                for (int k = 0; k < s_rsholdability.length; k++)
-                    suite.addTest(new JDBCConnectionPrepareStatementTest(i, j, k));
+        for (ResultSetType type : ResultSetType.definedValues()) {
+            for (ResultSetConcurrency concurrency 
+                    : ResultSetConcurrency.definedValues()) {
+                for (ResultSetHoldability holdability 
+                        : ResultSetHoldability.values()) {
+                    suite.addTest(new JDBCConnectionPrepareStatementTest(
+                            type, concurrency, holdability));
+                }
             }
         }
 
@@ -124,63 +78,29 @@ public class JDBCConnectionPrepareStatementTest extends BaseJdbcTestCase {
         junit.textui.TestRunner.run(suite());
     }
 
-    protected int getResultSetType() throws Exception {
-        return getFieldValue(s_rstype[m_typeIndex][1]);
-    }
-
-    protected int getResultSetConcurrency() throws Exception {
-        return getFieldValue(s_rsconcurrency[m_concurrencyIndex][1]);
-    }
-
-    protected int getResultSetHoldability() throws Exception {
-        return getFieldValue(s_rsholdability[m_holdabilityIndex][1]);
-    }
-
+    @Override
     protected String getSql() {
         return "call 1;";
     }
 
     @Override
-    protected void runTest() throws Throwable {
-        final int type        = getResultSetType();
-        final int concurrency = getResultSetConcurrency();
-        final int holdability = m_holdabilitySpecified
-                ? getResultSetHoldability()
-                : Integer.MIN_VALUE;
+    protected Statement materializeStatement(final Connection conn,
+            final ResultSetType type, final ResultSetConcurrency concurrency,
+            final ResultSetHoldability holdability) throws SQLException {
         final String sql = getSql();
-
-        final Connection conn = newConnection();
-        final Statement stmt = m_holdabilitySpecified
-                ? conn.prepareStatement(sql, type, concurrency, holdability)
-                : conn.prepareStatement(sql, type, concurrency);
-
-        connectionFactory().registerStatement(stmt);
-
-        SQLWarning warning = conn.getWarnings();
-
-        int rsType = stmt.getResultSetType();
-        int rsConcurrency = stmt.getResultSetConcurrency();
-        int rsHoldability = stmt.getResultSetHoldability();
-        if(warning == null) {
-            assertEquals(
-                    "ResultSet Type",
-                    type, rsType
-                    );
-            assertEquals(
-                    "ResultSet Concurrency",
-                    concurrency,
-                    rsConcurrency );
-            if(m_holdabilitySpecified) {
-                assertEquals(
-                        "ResultSet Holdability",
-                        holdability,
-                        rsHoldability);
+        Statement stmt;
+        if (type.isDefined() && concurrency.isDefined()) {
+            if (holdability.isDefined()) {
+                stmt = conn.prepareStatement(sql, type.value(),
+                        concurrency.value(), holdability.value());
+            } else {
+                stmt = conn.prepareStatement(sql, type.value(),
+                        concurrency.value());
             }
         } else {
-            while(warning != null) {
-                printWarning(warning);
-                warning = warning.getNextWarning();
-            }
+            stmt = conn.prepareStatement(sql);
         }
+
+        return stmt;
     }
 }

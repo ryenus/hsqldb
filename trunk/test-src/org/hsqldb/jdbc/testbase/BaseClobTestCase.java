@@ -11,6 +11,7 @@ import java.io.Writer;
 import java.net.URL;
 
 import java.sql.Clob;
+import java.sql.SQLException;
 
 import org.hsqldb.jdbc.JDBCClob;
 import org.hsqldb.lib.InOutUtil;
@@ -348,6 +349,7 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
     }
 
     @OfMethod("position(java.lang.String,long)")
+    //@SuppressWarnings("CallToPrintStackTrace")
     public void testPostionInResource() throws Exception {
         Clob clob = newClobFromResource("/org/hsqldb/jdbc/resources/sql/TestSelf.txt");
 
@@ -359,7 +361,7 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
         for (int i = 0; i < 200; i++) {
             try {
                 position = clob.position(pattern, i+1);
-            } catch (Exception ex) {
+            } catch (SQLException ex) {
                 ex.printStackTrace();
                 fail(ex.toString());
             }
