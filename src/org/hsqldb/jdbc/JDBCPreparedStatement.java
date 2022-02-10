@@ -2284,7 +2284,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements
      * @return true if this <code>Statement</code> object is closed; false if it is still open
      * @since JDK 1.6, HSQLDB 2.0
      */
-    public boolean isClosed() {
+    public synchronized boolean isClosed() {
         return isClosed;
     }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
-<!-- author fredt@users.sourceforge.net 2001 - 2021 -->
-<!-- additional targets 2004-2021: blaine (dot) simpson (at) admc (dot) com -->
+<!-- author fredt@users.sourceforge.net 2001-2022 -->
+<!-- additional targets 2004-2022: blaine (dot) simpson (at) admc (dot) com -->
 <project name="hsqldb" default="help" basedir="../">
   <!--  To see what build properties you can change, see the property elements
         below.
@@ -27,7 +27,7 @@
 
     <property file='build/build.properties'/>
 
-    <condition property="hsqldb.version" value="2.6.1">
+    <condition property="hsqldb.version" value="2.6.2">
       <available classname="java.sql.JDBCType"/>
     </condition>
     <!-- hsqldb.version is set only once - if it is set above for Java 8 and greater, the next line is a no-op -->
@@ -48,6 +48,7 @@
 
     <!-- "switch.inplace" can be set in build.properties for in-place switching of source files-->
     <property name="tmpsrc" value="${basedir}/tmp/switchedsrc/"/>
+    <property name="modinfosrc" value="${basedir}/modinfo-src/"/>
     <condition property="swsrc" value="${basedir}/src/" else="${tmpsrc}">
       <istrue value="${switch.inplace}"/>
     </condition>
@@ -124,12 +125,7 @@ examples:
 
     <target name="-prepare" depends="-set-jvmvars">
       <mkdir dir="classes" />
-      <mkdir dir="classes/modules/org.hsqldb" />
-      <delete dir="classes/modules/org.hsqldb" includes="**/*"/>
-      <mkdir dir="classes/modules/org.hsqldb.sqltool" />
-      <delete dir="classes/modules/org.hsqldb.sqltool" includes="**/*"/>
-      <mkdir dir="classes/modules/org.hsqldb.min" />
-      <delete dir="classes/modules/org.hsqldb.min" includes="**/*"/>
+      <mkdir dir="${swsrc}" />
     </target>
 
     <target name="-prepare-javadoc" depends="switches">
@@ -146,7 +142,7 @@ examples:
         <fileset dir="doc-src/apidocs"/>
       </copy>
       <copy todir="${swsrc}">
-          <fileset dir="src/modules/org.hsqldb/"/>
+          <fileset dir="modinfo-src/org.hsqldb/"/>
       </copy>
       <delete file="${swsrc}org/hsqldb/server/Servlet.java"/>
     </target>
@@ -489,6 +485,10 @@ examples:
 
     <fileset id='empty.fileset' dir='z:y:w:/nosuch' erroronmissingdir="false"/>
 
+    <fileset id='modinfoclass' dir='classes'
+        includes='module-info.class'
+    />
+
     <fileset id='minclasses' dir='classes'
         includes='
             org/hsqldb/*.class
@@ -586,7 +586,7 @@ examples:
           <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='minclasses' />
-        <fileset dir="classes/modules/org.hsqldb.min"/>
+        <fileset refid='modinfoclass'/>
       </jar>
     </target>
 
@@ -616,12 +616,11 @@ examples:
       <antcall target="-compile-mdescriptor" inheritrefs="true">
         <param name="module.name" value="org.hsqldb"/>
       </antcall>
-      <condition property="fileset.ref" value="empty.fileset">
+      <condition property="filesetawt.ref" value="empty.fileset">
         <isset property="ant.java.iscjava09"/>
       </condition>
-      <property name="fileset.ref" value="dbmanagerawtaddedclasses"/>
+      <property name="filesetawt.ref" value="dbmanagerawtaddedclasses"/>
 
-      <property name="hsqldb.module.dir" value="classes/modules/org.hsqldb"/>
       <jar jarfile="lib/hsqldb.jar" duplicate='preserve'>
         <metainf dir="doc" includes="*_lic.txt"/>
         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
@@ -639,8 +638,8 @@ examples:
         <fileset refid='mainaddedclasses' />
         <fileset refid='dbmanagerswingclasses' />
 
-        <fileset refid='${fileset.ref}' />
-        <fileset dir='${hsqldb.module.dir}'/>
+        <fileset refid='${filesetawt.ref}' />
+        <fileset refid='modinfoclass'/>
       </jar>
 
       <!-- Ant jar task doesn't support -e / -Main-Class switch! -->
@@ -671,16 +670,21 @@ examples:
     </target>
 
     <target name="-compile-mdescriptor" if="ant.java.iscjava09">
-      <fail unless='module.name'
+        <fail unless='module.name'
             message="Target '-compile-mdescriptor' called when prop 'module.name'not set"/>
-      <mkdir dir='classes/modules/${module.name}'/>
-      <javac srcdir="${swsrc}/modules/${module.name}"
+        <copy todir="${swsrc}"
+              file="${modinfosrc}${module.name}/module-info.java"/>
+
+        <javac srcdir="${swsrc}"
              sourcepath="${swsrc}"
              includeantruntime="false"
              encoding="${javac.encoding}"
-             destdir="classes/modules/${module.name}"
+             destdir="classes"
              debug="${build.debug}"
-      />
+        >
+
+          <include name="module-info.java"/>
+        </javac>
     </target>
 
     <target name="-set-jar.exec.path">
@@ -716,7 +720,7 @@ examples:
         </manifest>
         <fileset refid='sqltoolclasses'/>
         <fileset refid='sqltoolres'/>
-        <fileset dir="classes/modules/org.hsqldb.sqltool"/>
+        <fileset refid='mainaddedclasses' />
       </jar>
 
       <!-- Ant jar task doesn't support -e switch! -->
@@ -815,7 +819,7 @@ examples:
            verbose="false"
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
-           bottom="&lt;i&gt;Copyright &#169; 2001 - 2021 HSQL Development Group.&lt;/i&gt;">
+           bottom="&lt;i&gt;Copyright &#169; 2001 - 2022 HSQL Development Group.&lt;/i&gt;">
            <classpath>
              <pathelement location="${servletapi.lib}"/>
              <pathelement location="${junit38.lib}"/>
@@ -862,7 +866,7 @@ examples:
            failonerror="true"
            windowtitle="${hsqldb.title} ${hsqldb.version} Product Dev. API"
            doctitle="${hsqldb.title} ${hsqldb.version} Product"
-           bottom="&lt;i&gt;Copyright &#169; 2001 - 2021 HSQL Development Group.&lt;/i&gt;">
+           bottom="&lt;i&gt;Copyright &#169; 2001 - 2022 HSQL Development Group.&lt;/i&gt;">
            <fileset dir="${swsrc}" includes="org/**/*.java"/>
            <!-- Fileset is really good for maintenance and control purposes,
                 but it makes the generator produce an incredible amount of
