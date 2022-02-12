@@ -313,12 +313,11 @@ public class RCData {
      * Gets a JDBC Connection using the data of this RCData object.
      *
      * @return New JDBC Connection
-     * @throws ClassNotFoundException on class not found
      * @throws SQLException on database access error
      * @throws MalformedURLException on malformed URL
      */
     public Connection getConnection()
-    throws ClassNotFoundException, SQLException, MalformedURLException {
+    throws SQLException, MalformedURLException {
         return getConnection(null, null);
     }
 
@@ -329,7 +328,6 @@ public class RCData {
      * @param curDriverIn driver
      * @param curTrustStoreIn trusted store
      * @return New JDBC Connection
-     * @throws ClassNotFoundException on class not found
      * @throws MalformedURLException on malformed URL
      * @throws SQLException on database access error
      */
