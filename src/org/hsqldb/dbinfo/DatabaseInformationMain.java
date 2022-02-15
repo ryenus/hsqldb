@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -143,7 +143,7 @@ import org.hsqldb.types.Types;
  * (fredt@users) <p>
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.2
  * @since 1.7.2
  */
 class DatabaseInformationMain extends DatabaseInformation {
@@ -3062,13 +3062,13 @@ class DatabaseInformationMain extends DatabaseInformation {
                     Right right          = (Right) rights.get(j);
                     Right grantableRight = right.getGrantableRights();
 
-                    for (int k = 0; k < Right.privilegeTypes.length; k++) {
+                    for (int k = 0; k < Right.tablePrivilegeTypes.length; k++) {
                         OrderedHashSet columnList =
                             right.getColumnsForPrivilege(
-                                table, Right.privilegeTypes[k]);
+                                table, Right.tablePrivilegeTypes[k]);
                         OrderedHashSet grantableList =
                             grantableRight.getColumnsForPrivilege(table,
-                                Right.privilegeTypes[k]);
+                                Right.tablePrivilegeTypes[k]);
 
                         for (int l = 0; l < columnList.size(); l++) {
                             HsqlName fullName = ((HsqlName) columnList.get(l));
@@ -3080,7 +3080,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                             row[table_schema]   = tableSchema;
                             row[table_name]     = tableName;
                             row[column_name]    = fullName.name;
-                            row[privilege_type] = Right.privilegeNames[k];
+                            row[privilege_type] = Right.tablePrivilegeNames[k];
                             row[is_grantable] =
                                 right.getGrantee() == table.getOwner()
                                 || grantableList.contains(fullName) ? "YES"
@@ -3489,12 +3489,12 @@ class DatabaseInformationMain extends DatabaseInformation {
                     Right right          = (Right) rights.get(j);
                     Right grantableRight = right.getGrantableRights();
 
-                    for (int k = 0; k < Right.privilegeTypes.length; k++) {
-                        if (!right.canAccessFully(Right.privilegeTypes[k])) {
+                    for (int k = 0; k < Right.tablePrivilegeTypes.length; k++) {
+                        if (!right.canAccessFully(Right.tablePrivilegeTypes[k])) {
                             continue;
                         }
 
-                        privilege           = Right.privilegeNames[k];
+                        privilege           = Right.tablePrivilegeNames[k];
                         row                 = t.getEmptyRowData();
                         row[grantor] = right.getGrantor().getName().name;
                         row[grantee] = right.getGrantee().getName().name;
@@ -3505,7 +3505,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                         row[is_grantable] =
                             right.getGrantee() == table.getOwner()
                             || grantableRight.canAccessFully(
-                                Right.privilegeTypes[k]) ? "YES"
+                                Right.tablePrivilegeTypes[k]) ? "YES"
                                                          : "NO";
                         row[with_hierarchy] = "NO";
 
