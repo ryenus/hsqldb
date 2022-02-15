@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for DDL statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.2
  * @since 1.9.0
  */
 public class StatementSchema extends Statement {
@@ -1829,6 +1829,10 @@ public class StatementSchema extends Statement {
     }
 
     void setSchemaName(Session session, HsqlName parent, HsqlName name) {
+
+        if (name.type == SchemaObject.SCHEMA) {
+            return;
+        }
 
         if (name.schema == null) {
             name.schema = schemaName == null

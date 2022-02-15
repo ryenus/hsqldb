@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@ import org.hsqldb.lib.List;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.map.ValuePool;
+import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.Right;
@@ -2983,10 +2984,6 @@ public class ParserDDL extends ParserRoutine {
 
                     // fall through
                     case Tokens.DELETE :
-                        if (right == null) {
-                            right = new Right();
-                        }
-
                         right.set(rightType, columnSet);
 
                         isTable = true;
@@ -3007,10 +3004,6 @@ public class ParserDDL extends ParserRoutine {
                         break;
 
                     case Tokens.TRIGGER :
-                        if (right == null) {
-                            right = new Right();
-                        }
-
                         right.set(rightType, null);
 
                         isTable = true;
@@ -3160,6 +3153,39 @@ public class ParserDDL extends ParserRoutine {
                 readThis(Tokens.SET);
 
                 objectType = SchemaObject.CHARSET;
+                break;
+
+            case Tokens.ALL :
+                read();
+
+                if (readIfThis("SEQUENCES")) {
+                    if (!isUsage && !isAll) {
+                        throw unexpectedToken("SEQUENCES");
+                    }
+
+                    right = new Right();
+
+                    right.set(GrantConstants.USAGE, null);
+                } else if (readIfThis("ROUTINES")) {
+                    if (!isExec && !isAll) {
+                        throw unexpectedToken("ROUTINES");
+                    }
+
+                    right = new Right();
+
+                    right.set(GrantConstants.EXECUTE, null);
+                } else {
+                    if (!isTable && !isAll) {
+                        throw unexpectedToken();
+                    }
+
+                    readThis("TABLES");
+                }
+
+                readThis(Tokens.IN);
+                readThis(Tokens.SCHEMA);
+
+                objectType = SchemaObject.SCHEMA;
                 break;
 
             case Tokens.TABLE :
@@ -3543,7 +3569,7 @@ public class ParserDDL extends ParserRoutine {
      * Retrieves boolean value corresponding to the next token.
      *
      * @return   true if next token is "TRUE"; false if next token is "FALSE"
-     * @throws  HsqlException if the next token is neither "TRUE" or "FALSE"
+     * @throws  HsqlException if the next token is neither "TRUE" nor "FALSE"
      */
     boolean processTrueOrFalse() {
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.lib.OrderedHashSet;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.5.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public final class Right {
@@ -55,9 +55,11 @@ public final class Right {
     boolean        isFullSelect;
     boolean        isFullInsert;
     boolean        isFullUpdate;
+    boolean        isFullDelete;
     boolean        isFullReferences;
     boolean        isFullTrigger;
-    boolean        isFullDelete;
+    boolean        isFullExecute;    // used only in temporary Right object
+    boolean        isFullUsage;      // ditto
     OrderedHashSet selectColumnSet;
     OrderedHashSet insertColumnSet;
     OrderedHashSet updateColumnSet;
@@ -86,11 +88,11 @@ public final class Right {
         fullRights.grantor = GranteeManager.systemAuthorisation;
     }
 
-    public static final String[] privilegeNames = {
+    public static final String[] tablePrivilegeNames = {
         Tokens.T_SELECT, Tokens.T_INSERT, Tokens.T_UPDATE, Tokens.T_DELETE,
         Tokens.T_REFERENCES, Tokens.T_TRIGGER
     };
-    public static final int[] privilegeTypes = {
+    public static final int[] tablePrivilegeTypes = {
         GrantConstants.SELECT, GrantConstants.INSERT, GrantConstants.UPDATE,
         GrantConstants.DELETE, GrantConstants.REFERENCES,
         GrantConstants.TRIGGER
@@ -121,7 +123,7 @@ public final class Right {
                                        : grantableRights;
     }
 
-    public Right duplicate() {
+    Right duplicate() {
 
         Right right = new Right();
 
@@ -194,7 +196,7 @@ public final class Right {
     /**
      * Supports column level GRANT
      */
-    public void add(Right right) {
+    void add(Right right) {
 
         if (isFull) {
             return;
@@ -275,7 +277,7 @@ public final class Right {
     /**
      * supports column level REVOKE
      */
-    public void remove(SchemaObject object, Right right) {
+    void remove(SchemaObject object, Right right) {
 
         if (right.isFull) {
             clear();
@@ -400,7 +402,7 @@ public final class Right {
     /**
      * supports column level GRANT / REVOKE
      */
-    public boolean isEmpty() {
+    boolean isEmpty() {
 
         if (isFull || isFullSelect || isFullInsert || isFullUpdate
                 || isFullReferences || isFullDelete) {
@@ -461,8 +463,7 @@ public final class Right {
         return set;
     }
 
-    // construction
-    public boolean contains(Right right) {
+    boolean contains(Right right) {
 
         if (isFull) {
             return true;
@@ -579,9 +580,10 @@ public final class Right {
         return true;
     }
 
-    static boolean containsRights(boolean isFull, OrderedHashSet columnSet,
-                                  OrderedHashSet otherColumnSet,
-                                  boolean otherIsFull) {
+    private static boolean containsRights(boolean isFull,
+                                          OrderedHashSet columnSet,
+                                          OrderedHashSet otherColumnSet,
+                                          boolean otherIsFull) {
 
         if (isFull) {
             return true;
@@ -698,7 +700,7 @@ public final class Right {
         }
     }
 
-    public boolean canAccesssNonSelect() {
+    boolean canAccesssNonSelect() {
 
         if (isFull) {
             return true;
@@ -723,7 +725,7 @@ public final class Right {
     /**
      * Supports column level rights
      */
-    public boolean canAccess(int action) {
+    boolean canAccess(int action) {
 
         if (isFull) {
             return true;
@@ -778,7 +780,7 @@ public final class Right {
         }
     }
 
-    public boolean canAccess(Table table, int[] columnMap) {
+    boolean canAccess(Table table, int[] columnMap) {
 
         if (isFull) {
             return true;
@@ -847,7 +849,7 @@ public final class Right {
         };
     }
 
-    public boolean hasFilter() {
+    boolean hasFilter() {
         return selectFilter != null || deleteFilter != null
                || insertFilter != null || updateFilter != null;
     }
@@ -971,7 +973,7 @@ public final class Right {
         buf.append(')');
     }
 
-    public void addNewColumn(HsqlName name) {
+    void addNewColumn(HsqlName name) {
 
         if (selectColumnSet != null) {
             selectColumnSet.add(name);
@@ -1096,6 +1098,14 @@ public final class Right {
                 }
 
                 triggerColumnSet = set;
+                break;
+
+            case GrantConstants.EXECUTE :
+                isFullExecute = true;
+                break;
+
+            case GrantConstants.USAGE :
+                isFullUsage = true;
                 break;
 
             default :
