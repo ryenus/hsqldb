@@ -11,9 +11,20 @@
 --   r <string>   ResultSet expected with <string> result in first row/column
 --   u <count>    Update count <count> expected
 --   e            Exception must occur
-
+--   see TestUtil code for more details on tags
 --
 set database transaction control locks
+
+-- demonstration of codes used
+/*d* Some demo lines
+/*c1*/select * from information_schema.tables limit 1
+/*r
+ PUBLIC*/select table_catalog from information_schema.tables limit 1
+/*e*/select '''
+/*d* Next section dumps one line of result
+/*o*/select * from information_schema.tables limit 1
+/*C1*/select * from information_schema.tables limit 1
+
 -- Miscelaneous tests by fredt
 -- bug #897591
 /*rgood*/CALL CASEWHEN(CURTIME() BETWEEN CAST('00:00:00'  AS  TIME) AND CAST('23:59:59'  AS TIME), 'good', 'bad')

@@ -73,7 +73,7 @@
 /*s*/DROP user sa2 CASCADE;
 /*s*/DROP user sa3 CASCADE;
 
-/*U0*/ Workaround for bug where DDL will not Commit
+-- Workaround for bug where DDL will not Commit
 /*s*/CREATE TABLE bug_workaround (i int);
 /*s*/INSERT INTO bug_workaround VALUES(1);
 /*u0*/SHUTDOWN;

@@ -677,26 +677,27 @@ abstract class ParsedSection {
          * (note that UPPERCASE codes, while valid are only processed if the
          * system property IgnoreCodeCase has been set to true)
          *
-         * 'u' - update
-         * 'c' - count
+         * ' ' - not a test
+         * 'd' - display this line verbatim
+         * 'o' - dump result set
          * 'e' - exception
-         * 'r' - results
+         * 's' - silent
+         * 'c' - count number of lines in result set
+         * 'r' - result set
+         * 'u' - update count
          * 'w' - wait
          * 'p' - proceed
-         * 's' - silent
-         * 'd' - display   (No reason to use upper-case).
-         * ' ' - not a test
          */
         switch (aCode) {
 
             case ' ' :
-            case 'r' :
+            case 'd' :
             case 'o' :
             case 'e' :
-            case 'c' :
-            case 'u' :
             case 's' :
-            case 'd' :
+            case 'c' :
+            case 'r' :
+            case 'u' :
             case 'w' :
             case 'p' :
                 return true;
