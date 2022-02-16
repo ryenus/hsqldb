@@ -69,7 +69,7 @@ GRANT ALL ON bsch.bt TO blaine;
 /*e*/GRANT UPDATE ON SEQUENCE public.ps8 TO public;
 SET SCHEMA public;
 
-/*U*/These two are just workarounds for a DELAY 0 BUG:
+/*d*/following 2 lines are just workarounds for a DELAY 0 BUG:
 UPDATE public.pt SET i = 1;
 COMMIT;
 
@@ -83,8 +83,9 @@ SET SCHEMA public;
 /*c1*/SELECT i, next value for ps1 FROM pt;
 SET SCHEMA bsch;
 /*c1*/SELECT i, next value for public.ps2 FROM public.pt;
+
 -- Don't own - previously threw error but now adds a warning
-/*E*/GRANT ALL ON SEQUENCE public.ps2 TO PUBLIC;
+GRANT ALL ON SEQUENCE public.ps2 TO PUBLIC;
 /*u0*/GRANT ALL ON SEQUENCE bsch.bs5 TO PUBLIC;
 -- By virtue of schema ownership
 /*c1*/SELECT i, next value for bs2 FROM bt;

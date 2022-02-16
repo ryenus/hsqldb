@@ -35,7 +35,7 @@
 /*s*/DROP USER u1;
 /*s*/DROP SCHEMA schema1 CASCADE;
 
-/*U0*/ Workaround for bug where DDL will not Commit
+/*d*/ the following lines are workaround for old bug where DDL will not Commit
 /*s*/CREATE TABLE bug_workaround (i int);
 /*s*/INSERT INTO bug_workaround VALUES(1);
 /*u0*/SHUTDOWN;

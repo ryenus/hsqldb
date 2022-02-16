@@ -1,5 +1,5 @@
 -- First with a table grant
-
+SET SESSION AUTHORIZATION 'SA'
 /*s*/DROP USER peon1;
 /*s*/DROP USER peon2;
 /*s*/DROP USER peon3;
@@ -228,7 +228,7 @@ CONNECT USER sa PASSWORD "";
 /*s*/DROP ROLE r1 CASCADE;
 /*s*/DROP ROLE r2 CASCADE;
 /*s*/DROP ROLE r3 CASCADE;
-/*U0*/ Workaround for bug where DDL will not Commit
+/*d*/ Workaround for bug where DDL will not Commit
 /*s*/CREATE TABLE bug_workaround (i int);
 /*s*/INSERT INTO bug_workaround VALUES(1);
 /*u0*/SHUTDOWN;
