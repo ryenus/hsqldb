@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,12 +54,12 @@ import org.hsqldb.rights.Grantee;
  *
  * @author Frand Schoenheit (frank.schoenheit@sun dot com)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.2
  * @since 1.8.0
  */
 public class Collation implements SchemaObject {
 
-    static String               defaultCollationName = "SQL_TEXT";
+    public static String        defaultCollationName = "SQL_TEXT";
     static String defaultIgnoreCaseCollationName     = "SQL_TEXT_UCC";
     public static final HashMap nameToJavaName       = new HashMap(101);
     public static final HashMap dbNameToJavaName     = new HashMap(101);

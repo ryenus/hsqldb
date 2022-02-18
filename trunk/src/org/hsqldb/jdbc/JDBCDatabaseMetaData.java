@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -224,7 +224,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.2
  * @since HSQLDB 1.9.0
  * @see org.hsqldb.dbinfo.DatabaseInformation
  */
@@ -6183,6 +6183,28 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
 
         rs.close();
     }
+
+    /**
+     * Returns the name of the default schema for database.
+     */
+    public String getDatabaseDefaultCollation() {
+
+        String value = null;
+        try {
+            ResultSet rs = executeSelect("SYSTEM_PROPERTIES",
+                "PROPERTY_NAME = 'sql.default_collation'");
+
+            if (rs.next()) {
+                value = rs.getString(4);
+            }
+
+            rs.close();
+        } catch (Exception e) {
+        }
+
+        return value;
+    }
+
     /**
      * Returns the name of the default schema for database.
      */
