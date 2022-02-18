@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,8 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.hsqldb.jdbc.JDBCDatabaseMetaData;
 
 public class TestDatabaseMetaData extends TestBase {
 
@@ -218,31 +220,49 @@ public class TestDatabaseMetaData extends TestBase {
 
         Connection conn = newConnection();
         int        updateCount;
+        ResultSet  result = null;
+        String     s = "";
 
         try {
-            TestUtil.testScript(conn, "testrun/hsqldb/TestSelf.txt");
+            TestUtil.testScript(conn, "testrun/hsqldb/TestSelf01Function.txt");
+            TestUtil.testScript(conn, "testrun/hsqldb/TestSelf01Procedure.txt");
 
             DatabaseMetaData dbmeta = conn.getMetaData();
 
             dbmeta.allProceduresAreCallable();
-            dbmeta.getBestRowIdentifier(null, null, "T_1",
+            result = dbmeta.getBestRowIdentifier(null, null, "T_1",
                                         DatabaseMetaData.bestRowTransaction,
                                         true);
-            dbmeta.getCatalogs();
-            dbmeta.getColumnPrivileges(null, "PUBLIC", "T_1", "%");
-            dbmeta.getColumns("PUBLIC", "PUBLIC", "T_1", "%");
-            dbmeta.getCrossReference(null, null, "T_1", null, null, "T_1");
-            dbmeta.getExportedKeys(null, null, "T_1");
-            dbmeta.getFunctionColumns(null, "%", "%", "%");
-            dbmeta.getFunctions(null, "%", "%");
-            dbmeta.getImportedKeys("PUBLIC", "PUBLIC", "T_1");
-            dbmeta.getIndexInfo("PUBLIC", "PUBLIC", "T1", true, true);
-            dbmeta.getPrimaryKeys("PUBLIC", "PUBLIC", "T_1");
-            dbmeta.getProcedureColumns(null, null, "%", "%");
-            dbmeta.getProcedures("PUBLIC", "%", "%");
-            dbmeta.getSchemas(null, "#");
-            dbmeta.getTablePrivileges(null, "%", "%");
-            dbmeta.getUDTs(null, "%", "%", new int[]{ Types.DISTINCT });
+            result = dbmeta.getCatalogs();
+            result = dbmeta.getColumnPrivileges(null, "PUBLIC", "T_1", "%");
+
+            while(result.next()) {
+                s = result.getString(3);
+            }
+            result = dbmeta.getColumns("PUBLIC", "PUBLIC", "T_1", "%");
+            result = dbmeta.getCrossReference(null, null, "T_1", null, null, "T_1");
+            result = dbmeta.getExportedKeys(null, null, "T_1");
+            result = dbmeta.getFunctionColumns(null, "%", "%", "%");
+            result = dbmeta.getFunctions(null, "%", "%");
+
+            while(result.next()) {
+                s = result.getString(3);
+            }
+
+            result = dbmeta.getImportedKeys("PUBLIC", "PUBLIC", "T_1");
+            result = dbmeta.getIndexInfo("PUBLIC", "PUBLIC", "T1", true, true);
+            result = dbmeta.getPrimaryKeys("PUBLIC", "PUBLIC", "T_1");
+            result = dbmeta.getProcedureColumns(null, null, "%", "%");
+            result = dbmeta.getProcedures("PUBLIC", "%", "%");
+
+            while(result.next()) {
+                s = result.getString(3);
+                s = result.getString(9);
+            }
+
+            result = dbmeta.getSchemas(null, "#");
+            result = dbmeta.getTablePrivileges(null, "%", "%");
+            result = dbmeta.getUDTs(null, "%", "%", new int[]{ Types.DISTINCT });
         } catch (Exception e) {
             assertTrue("unable to prepare or execute DDL", false);
         } finally {
@@ -265,6 +285,8 @@ public class TestDatabaseMetaData extends TestBase {
             int txIsolation = dbmeta.getDefaultTransactionIsolation();
             String           userName   = dbmeta.getUserName();
             boolean          isReadOnly = dbmeta.isReadOnly();
+            String           collation  = ((JDBCDatabaseMetaData) dbmeta).getDatabaseDefaultCollation();
+            assertEquals("SQL_TEXT", collation);
         } catch (Exception e) {
             assertTrue("unable to prepare or execute DDL", false);
         } finally {
