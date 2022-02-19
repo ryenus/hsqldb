@@ -5103,18 +5103,17 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             String catalog, String schemaPattern, String typeNamePattern,
             String attributeNamePattern) throws SQLException {
 
-        StringBuilder select = toQueryPrefixNoSelect(
-            "SELECT TABLE_NAME AS TYPE_CAT, TABLE_NAME AS TYPE_SCHME, TABLE_NAME AS TYPE_NAME, "
-            + "TABLE_NAME AS ATTR_NAME, CAST(0 AS INTEGER) AS DATA_TYPE, TABLE_NAME AS ATTR_TYPE_NAME, "
-            + "CAST(0 AS INTEGER) AS ATTR_SIZE, CAST(0 AS INTEGER) AS DECIMAL_DIGITS, "
-            + "CAST(0 AS INTEGER) AS NUM_PREC_RADIX, CAST(0 AS INTEGER) AS NULLABLE, "
-            + "'' AS REMARK, '' AS ATTR_DEF, CAST(0 AS INTEGER) AS SQL_DATA_TYPE, "
-            + "CAST(0 AS INTEGER) AS SQL_DATETIME_SUB, CAST(0 AS INTEGER) AS CHAR_OCTECT_LENGTH, "
-            + "CAST(0 AS INTEGER) AS ORDINAL_POSITION, '' AS NULLABLE, "
-            + "'' AS SCOPE_CATALOG, '' AS SCOPE_SCHEMA, '' AS SCOPE_TABLE, "
-            + "CAST(0 AS SMALLINT) AS SCOPE_DATA_TYPE "
-            + "FROM INFORMATION_SCHEMA.TABLES ").append(
-                and("TABLE_NAME", "=", ""));
+        if (wantsIsNull(typeNamePattern)
+                || wantsIsNull(attributeNamePattern)) {
+            return executeSelect("SYSTEM_UDTATTRIBUTES", "0=1");
+        }
+        schemaPattern = translateSchema(schemaPattern);
+
+        StringBuilder select = toQueryPrefix("SYSTEM_UDTATTRIBUTES").append(
+            and("TYPE_CAT", "=", catalog)).append(
+            and("TYPE_SCHEM", "LIKE", schemaPattern)).append(
+            and("TYPE_NAME", "LIKE", typeNamePattern)).append(
+            and("ATTR_NAME", "LIKE", attributeNamePattern));
 
         return execute(select.toString());
     }
@@ -6185,7 +6184,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
     }
 
     /**
-     * Returns the name of the default schema for database.
+     * Returns the name of the default collation for database.
      */
     public String getDatabaseDefaultCollation() {
 

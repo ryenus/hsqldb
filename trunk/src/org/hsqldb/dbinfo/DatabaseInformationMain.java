@@ -341,6 +341,9 @@ class DatabaseInformationMain extends DatabaseInformation {
             case SYSTEM_USERS :
                 return SYSTEM_USERS(session, store);
 
+            case SYSTEM_UDTATTRIBUTES :
+                return SYSTEM_UDTATTRIBUTES(session, store);
+
             case SYSTEM_UDTS :
                 return SYSTEM_UDTS(session, store);
 
@@ -2647,6 +2650,91 @@ class DatabaseInformationMain extends DatabaseInformation {
         row             = t.getEmptyRowData();
         row[itype_name] = "DISTINCT";
         row[idata_type] = ValuePool.getInt(Types.DISTINCT);
+
+        return t;
+    }
+
+    /**
+     * Retrieves a <code>Table</code> object describing the accessible
+     * attributes of the accessible user-defined type (UDT) objects
+     * defined within this database. <p>
+     *
+     * This description does not contain inherited attributes. <p>
+     *
+     * Each row is a user-defined type attributes description with the
+     * following columns:
+     *
+     * <pre class="SqlCodeExample">
+     * TYPE_CAT          VARCHAR   type catalog
+     * TYPE_SCHEM        VARCHAR   type schema
+     * TYPE_NAME         VARCHAR   type name
+     * ATTR_NAME         VARCHAR   attribute name
+     * DATA_TYPE         SMALLINT  attribute's SQL type from DITypes
+     * ATTR_TYPE_NAME    VARCHAR   UDT: fully qualified type name
+     *                            REF: fully qualified type name of target type of
+     *                            the reference type.
+     * ATTR_SIZE         INTEGER   column size.
+     *                            char or date types => maximum number of characters;
+     *                            numeric or decimal types => precision.
+     * DECIMAL_DIGITS    INTEGER   # of fractional digits (scale) of number type
+     * NUM_PREC_RADIX    INTEGER   Radix of number type
+     * NULLABLE          INTEGER   whether NULL is allowed
+     * REMARKS           VARCHAR   comment describing attribute
+     * ATTR_DEF          VARCHAR   default attribute value
+     * SQL_DATA_TYPE     INTEGER   expected value of SQL CLI SQL_DESC_TYPE in the SQLDA
+     * SQL_DATETIME_SUB  INTEGER   DATETIME/INTERVAL => datetime/interval subcode
+     * CHAR_OCTET_LENGTH INTEGER   for char types:  max bytes in column
+     * ORDINAL_POSITION  INTEGER   index of column in table (starting at 1)
+     * IS_NULLABLE       VARCHAR   "NO" => strictly no NULL values;
+     *                             "YES" => maybe NULL values;
+     *                             "" => unknown.
+     * SCOPE_CATALOG     VARCHAR   catalog of REF attribute scope table or NULL
+     * SCOPE_SCHEMA      VARCHAR   schema of REF attribute scope table or NULL
+     * SCOPE_TABLE       VARCHAR   name of REF attribute scope table or NULL
+     * SOURCE_DATA_TYPE  SMALLINT  For DISTINCT or user-generated REF DATA_TYPE:
+     *                            source SQL type from DITypes
+     *                            For other DATA_TYPE values:  NULL
+     * </pre>
+     *
+     * <B>Note:</B> Currently, neither the HSQLDB engine or the JDBC driver
+     * support UDTs, so an empty table is returned. <p>
+     * @return a <code>Table</code> object describing the accessible
+     *        attrubutes of the accessible user-defined type
+     *        (UDT) objects defined within this database
+     * @throws HsqlException if an error occurs while producing the table
+     */
+    Table SYSTEM_UDTATTRIBUTES(Session session, PersistentStore store) {
+
+        Table t = sysTables[SYSTEM_UDTATTRIBUTES];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[SYSTEM_UDTATTRIBUTES]);
+
+            addColumn(t, "TYPE_CAT", SQL_IDENTIFIER);
+            addColumn(t, "TYPE_SCHEM", SQL_IDENTIFIER);
+            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);             // not null
+            addColumn(t, "ATTR_NAME", SQL_IDENTIFIER);             // not null
+            addColumn(t, "DATA_TYPE", Type.SQL_SMALLINT);          // not null
+            addColumn(t, "ATTR_TYPE_NAME", SQL_IDENTIFIER);        // not null
+            addColumn(t, "ATTR_SIZE", Type.SQL_INTEGER);
+            addColumn(t, "DECIMAL_DIGITS", Type.SQL_INTEGER);
+            addColumn(t, "NUM_PREC_RADIX", Type.SQL_INTEGER);
+            addColumn(t, "NULLABLE", Type.SQL_INTEGER);
+            addColumn(t, "REMARKS", CHARACTER_DATA);
+            addColumn(t, "ATTR_DEF", CHARACTER_DATA);
+            addColumn(t, "SQL_DATA_TYPE", Type.SQL_INTEGER);
+            addColumn(t, "SQL_DATETIME_SUB", Type.SQL_INTEGER);
+            addColumn(t, "CHAR_OCTET_LENGTH", Type.SQL_INTEGER);
+            addColumn(t, "ORDINAL_POSITION", Type.SQL_INTEGER);    // not null
+            addColumn(t, "IS_NULLABLE", YES_OR_NO);                // not null
+            addColumn(t, "SCOPE_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "SCOPE_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "SCOPE_TABLE", SQL_IDENTIFIER);
+            addColumn(t, "SOURCE_DATA_TYPE", Type.SQL_SMALLINT);
+            t.createPrimaryKey();
+
+            return t;
+        }
 
         return t;
     }
