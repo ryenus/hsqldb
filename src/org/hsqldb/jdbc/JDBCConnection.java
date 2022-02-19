@@ -3729,8 +3729,4 @@ public class JDBCConnection implements Connection {
         props.addProperties(connProperties);
         return props;
     }
-
-    public String getDefaultCollationName() {
-        return null;
-    }
 }

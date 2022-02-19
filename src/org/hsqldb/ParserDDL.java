@@ -57,7 +57,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.6.2
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
