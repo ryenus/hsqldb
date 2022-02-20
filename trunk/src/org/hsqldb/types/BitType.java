@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import org.hsqldb.map.BitMap;
  * string<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public final class BitType extends BinaryType {
@@ -444,19 +444,19 @@ public final class BitType extends BinaryType {
 
             case Types.SQL_BIT : {
                 if (otherType.typeCode == typeCode) {
-                    return precision == otherType.precision ? 0
-                                                            : -1;
+                    return precision == otherType.precision ? ReType.keep
+                                                            : ReType.change;
                 }
 
-                return -1;
+                return ReType.change;
             }
             case Types.SQL_BIT_VARYING : {
                 return otherType.isBitType()
-                       && precision >= otherType.precision ? 0
-                                                           : -1;
+                       && precision >= otherType.precision ? ReType.keep
+                                                           : ReType.change;
             }
             default :
-                return -1;
+                return ReType.change;
         }
     }
 

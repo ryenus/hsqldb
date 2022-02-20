@@ -1313,7 +1313,7 @@ public class StatementCommand extends Statement {
                             table.getSchemaName());
 
                     TableWorks tw     = new TableWorks(session, table);
-                    boolean    result = tw.setTableType(session, type);
+                    boolean    result = tw.setTableType(type);
 
                     if (!result) {
                         throw Error.error(ErrorCode.GENERAL_IO_ERROR);

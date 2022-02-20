@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ import org.hsqldb.lib.StringConverter;
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public final class DateTimeType extends DTIType {
@@ -1381,12 +1381,12 @@ public final class DateTimeType extends DTIType {
     public int canMoveFrom(Type otherType) {
 
         if (otherType == this) {
-            return 0;
+            return ReType.keep;
         }
 
         if (typeCode == otherType.typeCode) {
-            return scale >= otherType.scale ? 0
-                                            : -1;
+            return scale >= otherType.scale ? ReType.keep
+                                            : ReType.change;
         }
 
         return -1;
