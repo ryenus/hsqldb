@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * existing table which may result in a new Table object
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.2
  * @since 1.7.0
  */
 public class TableWorks {
@@ -1160,27 +1160,27 @@ public class TableWorks {
             throw Error.error(ErrorCode.X_42525);
         }
 
-        if (checkData == 0) {
+        if (checkData == Type.ReType.keep) {
             if (newCol.isIdentity()) {
                 if (!(oldCol.isIdentity() || !oldCol.isNullable()
                         || oldCol.isPrimaryKey())) {
-                    checkData = 1;
+                    checkData = Type.ReType.check;
                 }
             }
 
             if (newType.isDomainType()
                     && newType.userTypeModifier.getConstraints().length > 0) {
-                checkData = 1;
+                checkData = Type.ReType.check;
             }
         }
 
-        if (checkData == 1) {
+        if (checkData == Type.ReType.check) {
             checkConvertColDataType(oldCol, newCol);
 
-            checkData = 0;
+            checkData = Type.ReType.keep;
         }
 
-        if (checkData == 0) {
+        if (checkData == Type.ReType.keep) {
 
             // size of some types may be increased
             // default expressions can change
@@ -1351,11 +1351,10 @@ public class TableWorks {
     /**
      * Changes the type of a table
      *
-     * @param session Session
      * @param newType int
      * @return boolean
      */
-    public boolean setTableType(Session session, int newType) {
+    public boolean setTableType(int newType) {
 
         int currentType = table.getTableType();
 

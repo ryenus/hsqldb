@@ -545,46 +545,46 @@ public class BinaryType extends Type {
     public int canMoveFrom(Type otherType) {
 
         if (otherType.isBitType() || otherType.isCharacterType()) {
-            return -1;
+            return ReType.change;
         }
 
         switch (typeCode) {
 
             case Types.SQL_VARBINARY : {
                 if (otherType.typeCode == typeCode) {
-                    return precision >= otherType.precision ? 0
-                                                            : 1;
+                    return precision >= otherType.precision ? ReType.keep
+                                                            : ReType.check;
                 }
 
                 if (otherType.typeCode == Types.SQL_BINARY) {
-                    return precision >= otherType.precision ? 0
-                                                            : -1;
+                    return precision >= otherType.precision ? ReType.keep
+                                                            : ReType.change;
                 }
 
                 if (otherType.typeCode == Types.SQL_GUID) {
-                    return precision >= otherType.precision ? 0
-                                                            : -1;
+                    return precision >= otherType.precision ? ReType.keep
+                                                            : ReType.change;
                 }
 
                 break;
             }
             case Types.SQL_BINARY : {
                 if (otherType.typeCode == typeCode) {
-                    return precision == otherType.precision ? 0
-                                                            : -1;
+                    return precision == otherType.precision ? ReType.keep
+                                                            : ReType.change;
                 }
 
                 if (otherType.typeCode == Types.SQL_GUID) {
-                    return precision == otherType.precision ? 0
-                                                            : -1;
+                    return precision == otherType.precision ? ReType.keep
+                                                            : ReType.change;
                 }
 
                 break;
             }
             case Types.SQL_BLOB : {
                 if (otherType.typeCode == typeCode) {
-                    return precision >= otherType.precision ? 0
-                                                            : -1;
+                    return precision >= otherType.precision ? ReType.keep
+                                                            : ReType.change;
                 }
 
                 break;
@@ -592,7 +592,7 @@ public class BinaryType extends Type {
             default :
         }
 
-        return -1;
+        return ReType.change;
     }
 
     public long position(SessionInterface session, BlobData data,

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,13 @@ import org.hsqldb.rights.Grantee;
  * @since 1.9.0
  */
 public abstract class Type implements SchemaObject, Cloneable {
+
+    public interface ReType {
+
+        int keep   = 0;     // only metadata change is required
+        int check  = 1;     // range check is also required
+        int change = -1;    // data conversion is required
+    }
 
     public static final Type[] emptyArray = new Type[]{};
 
@@ -343,10 +350,10 @@ public abstract class Type implements SchemaObject, Cloneable {
     public int canMoveFrom(Type otherType) {
 
         if (otherType == this) {
-            return 0;
+            return ReType.keep;
         }
 
-        return -1;
+        return ReType.change;
     }
 
     public boolean canBeAssignedFrom(Type otherType) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import org.hsqldb.lib.ArrayUtil;
  * Type subclass for various types of INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.2
  * @since 1.9.0
  */
 public final class IntervalType extends DTIType {
@@ -789,36 +789,36 @@ public final class IntervalType extends DTIType {
     public int canMoveFrom(Type otherType) {
 
         if (otherType == this) {
-            return 0;
+            return ReType.keep;
         }
 
         if (typeCode == otherType.typeCode) {
-            return scale >= otherType.scale ? 0
-                                            : -1;
+            return scale >= otherType.scale ? ReType.keep
+                                            : ReType.change;
         }
 
         if (!otherType.isIntervalType()) {
-            return -1;
+            return ReType.change;
         }
 
         if (isYearMonth == ((IntervalType) otherType).isYearMonth) {
             if (scale < otherType.scale) {
-                return -1;
+                return ReType.change;
             }
 
             if (endPartIndex >= ((IntervalType) otherType).endPartIndex) {
                 if (precision >= otherType.precision) {
                     if (startPartIndex
                             <= ((IntervalType) otherType).startPartIndex) {
-                        return 0;
+                        return ReType.keep;
                     }
                 }
 
-                return 1;
+                return ReType.check;
             }
         }
 
-        return -1;
+        return ReType.change;
     }
 
     public int compareToTypeRange(Object o) {

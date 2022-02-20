@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.lib.StringConverter;
  * Cast to CHARACTER types converts to a hexadecimal UUID string.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.6.2
  * @since 2.3.4
  */
 public class BinaryUUIDType extends BinaryType {
@@ -346,22 +346,22 @@ public class BinaryUUIDType extends BinaryType {
     public int canMoveFrom(Type otherType) {
 
         if (otherType == this) {
-            return 0;
+            return ReType.keep;
         }
 
         switch (otherType.typeCode) {
 
             case Types.SQL_GUID :
-                return 0;
+                return ReType.keep;
 
             case Types.SQL_VARBINARY :
             case Types.SQL_BINARY :
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
-                return -1;
+                return ReType.change;
 
             default :
-                return -1;
+                return ReType.change;
         }
     }
 
