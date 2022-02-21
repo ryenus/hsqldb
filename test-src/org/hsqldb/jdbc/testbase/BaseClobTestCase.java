@@ -224,7 +224,7 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
     @OfMethod("getAsciiStream()")
     public void testGetAsciiStream() throws Exception {
         StringBuffer sb = new StringBuffer();
-        for (int i = Character.MIN_VALUE; i <= Character.MAX_VALUE; i++) {
+        for (int i = 0; i <= Byte.MAX_VALUE; i++) {
             sb.append((char) i);
         }
         String testVal = sb.toString();
