@@ -103,7 +103,8 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         System.out.println("connectionClosed");
         ConnectionEvent event = null;
         JDBCPool instance = new JDBCPool();
-        instance.connectionClosed(event);
+        // event cannot be null
+        // instance.connectionClosed(event);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
@@ -115,7 +116,8 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         System.out.println("connectionErrorOccurred");
         ConnectionEvent event = null;
         JDBCPool instance = new JDBCPool();
-        instance.connectionErrorOccurred(event);
+        // event cannot be null
+        // instance.connectionErrorOccurred(event);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
@@ -237,8 +239,8 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         System.out.println("getParentLogger");
         JDBCPool instance = new JDBCPool();
         Logger expResult = null;
-        Logger result = instance.getParentLogger();
-        assertEquals(expResult, result);
+        // Logger result = instance.getParentLogger();
+        // assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }

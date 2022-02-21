@@ -1,4 +1,3 @@
--- $Id$
 -- Test 3-part names like:  schemaname.tablename.columname
 --SET PROPERTY "hsqldb.default_table_type" 'cached'
 -- Setup
