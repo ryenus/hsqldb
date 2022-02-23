@@ -37,7 +37,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2009-2021 Fred Toussi. Permission is granted to
+      <para>Copyright 2009-2022 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -121,9 +121,9 @@
 
     <para>A new HyperSQL catalog contains an empty schema called PUBLIC. By
     default, this schema is the initial schema when a new session is started.
-    New schemas and schema objects can be defined and used in the PUBLIC
-    schema, as well as any new schema that is created by the user. You can
-    rename the PUBLIC schema.</para>
+    Additional schemas can be defined. Schema objects can be defined and used
+    in the PUBLIC schema, as well as any new schema that is created by the
+    user. You can rename the PUBLIC schema.</para>
 
     <para>HyperSQL allows all schemas to be dropped, except the schema that is
     the default initial schema for new sessions (by default, the PUBLIC

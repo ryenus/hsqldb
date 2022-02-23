@@ -41,7 +41,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2021 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2022 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -1037,6 +1037,47 @@
               used. Note that all other types accept a declaration without a
               size, which is interpreted as a default
               size.</para><para><programlisting>SET DATABASE SQL SIZE { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Truncation of trailing spaces from string</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.truncate_trailing</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>truncation of long strings with trailing spaces</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>When a string that is
+              longer than the maximum size of a column is inserted, the
+              default behaviour is to remove any trailing spaces until the
+              length of the string equals the maximum size of the column. When
+              this property is set to false, long strings are always rejected
+              and an exception is raised.</para><para><programlisting>SET DATABASE SQL TRUNCATE TRAILING { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
