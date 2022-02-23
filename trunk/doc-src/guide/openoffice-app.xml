@@ -116,7 +116,7 @@
   <section xml:id="ooa_extensions">
     <title>OpenOffice / LibreOffice Extensions for HyperSQL</title>
 
-    <simpara>In 2021, two new OOo and LO extensions are developed and
+    <simpara>Since 2021, two new OOo and LO extensions are developed and
     maintained on GitHub by the developer prrvchr. These extensions make it
     easy to use the latest version of HSQLDB 2.x with the latest versions of
     the Base program. One extension simply adds and loads the HSQLDB 2.x jar,
