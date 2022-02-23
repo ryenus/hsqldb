@@ -21,7 +21,7 @@
    <!-- D E F A U L T  B U I L D  P R O P E R T I E S                        -->
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <property name="test.suite.version"
-             value="2.6.1"/>
+             value="2.6.2"/>
 
    <property name="test.suite.title"
              value="HSQLDB Test Suite"/>
