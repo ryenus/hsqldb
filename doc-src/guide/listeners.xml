@@ -838,7 +838,7 @@ Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;fil
 
       <para>If you are using a private server certificate, make sure to also
       set the trust store filepath for relevant urlids in your RC file, as
-      explained in the sample <link xlink:href="#hsqldb.cfg-link">config
+      explained in the sample <link xlink:href="#hsqldb.conf-link">config
       file</link>.</para>
     </section>
   </section>

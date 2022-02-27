@@ -130,12 +130,12 @@
       </simpara> <simpara>
       <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/util/MainInvoker.java"/>
       </simpara>
-    </listitem> <listitem xml:id="hsqldb.cfg-link">
+    </listitem> <listitem xml:id="hsqldb.conf-link">
       <simpara>
         Local:
-        <link xlink:href="../verbatim/sample/hsqldb.cfg"/>
+        <link xlink:href="../verbatim/sample/hsqldb.conf"/>
       </simpara> <simpara>
-        <link xlink:href="&distro_baseurl;/verbatim/sample/hsqldb.cfg"/>
+        <link xlink:href="&distro_baseurl;/verbatim/sample/hsqldb.conf"/>
       </simpara>
     </listitem> <listitem xml:id="acl.txt-link">
       <simpara>
