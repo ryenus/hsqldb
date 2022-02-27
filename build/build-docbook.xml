@@ -462,7 +462,8 @@ file.</echo>
     <fail unless="doc.name"
           message="Ant property 'doc.name' is required by target 'validate'."/>
     <pathconvert property="msvjar.file" refid="xcsde-rngval-jar.cpref"/>
-    <java fork="true" failonerror="true" dir="doc-src/${doc.name}"
+    <java fork="true" dir="doc-src/${doc.name}"
+          outputproperty="out" errorproperty="err" resultproperty="exec.val"
           classpath="${msvjar.file}" classpathref="xcsde-rngval-deps.cpref"
           classname="com.admc.xml.ResolvingSchematronDriver">
       <sysproperty key="xml.catalog.verbosity"
@@ -479,6 +480,14 @@ file.</echo>
       <arg value="${dbxirng.url}"/>
       <arg value="${doc.name}.xml"/>
     </java>
+    <condition property="_do-abort" value="DUMMY">
+      <not> <equals arg1="0" arg2="${exec.val}"/> </not>
+    </condition>
+    <fail if="_do-abort">Exiting due to Schematron JVM exit value ${exec.val}.
+JVM stdout: ---------------------------------------------------
+${out}
+JVM stderr: ---------------------------------------------------
+${err}</fail>
   </target>
 
   <target name="refresh-verbatim"
