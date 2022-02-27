@@ -617,14 +617,14 @@
           <simpara>Look at the comment towards the top of the init script
           which lists recommended locations for the configuration file for
           various UNIX platforms. Copy the sample config file <filename
-          xlink:href="#hsqldb.cfg-link">sample/hsqldb.cfg</filename> to one of
+          xlink:href="#hsqldb.conf-link">sample/hsqldb.conf</filename> to one of
           the listed locations (your choice). Edit the config file according
           to the instructions in it. For our example, you will set the value
           of <varname>URLIDS</varname> to <literal>localhostdb1</literal>,
           since that is the urlid name that we used in the
           <filename>sqltool.rc</filename> file.</simpara>
 
-          <programlisting><xi:include href="../verbatim/sample/hsqldb.cfg"
+          <programlisting><xi:include href="../verbatim/sample/hsqldb.conf"
               parse="text"/></programlisting>
 
           <simpara><emphasis role="bold">Verify that the init script
@@ -745,7 +745,7 @@
     <filename>/sample/hsqldb.init</filename> over top of of your init script
     (wherever it runs from). Then update your old config file according to the
     instructions in the new config file template at
-    <filename>sample/hsqldb.cfg</filename>. You will have to change very few
+    <filename>sample/hsqldb.conf</filename>. You will have to change very few
     settings. If you are upgrading from a pre-2.0 installation to a post-2.0
     installation, you will need to (1) add the setting
     <varname>URLIDS</varname>, as described above and in the inline comments,
