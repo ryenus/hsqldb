@@ -1,4 +1,4 @@
--- author Fred Toussi (fredt@users dot sourceforge.net) version 2.6.2
+-- author Fred Toussi (fredt@users dot sourceforge.net) version 2.7.0
 /*system_procedures*/
 SELECT ROUTINE_CATALOG AS PROCEDURE_CAT, ROUTINE_SCHEMA AS PROCEDURE_SCHEM,
 ROUTINE_NAME AS PROCEDURE_NAME, 0, 0, 0,
@@ -531,7 +531,13 @@ VALUES
 ('T652', 'SQL-dynamic statements in SQL routines', '', '', 'NO', NULL, ''),
 ('T653', 'SQL-schema statements in external routines', '', '', 'NO', NULL, ''),
 ('T654', 'SQL-dynamic statements in external routines', '', '', 'YES', NULL, ''),
-('T655', 'Cyclically dependent routines', '', '', 'YES', NULL, '');
+('T655', 'Cyclically dependent routines', '', '', 'YES', NULL, ''),
+('T811', 'Basic SQL/JSON constructor functions', '', '', 'YES', NULL, ''),
+('T812', 'SQL/JSON: JSON_OBJECTAGG with no <JSON key uniqueness constraint', '', '', 'YES', NULL, ''),
+('T813', 'SQL/JSON: JSON_ARRAYAGG with ORDER BY', '', '', 'YES', NULL, ''),
+('T814', 'Colon in JSON_OBJECT or JSON_OBJECTAGG', '', '', 'YES', NULL, ''),
+('T830', 'Enforcing unique keys in SQL/JSON constructor functions', '', '', 'YES', NULL, '');
+
 /*sql_packages*/
 VALUES
 ( 'PKG001', 'Enhanced datetime facilities','YES', CAST(NULL AS CHARACTER), '' ),

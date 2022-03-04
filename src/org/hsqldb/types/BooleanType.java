@@ -43,7 +43,7 @@ import org.hsqldb.map.BitMap;
  * Type implementation for BOOLEAN.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since 1.9.0
  */
 public final class BooleanType extends Type {
@@ -281,6 +281,20 @@ public final class BooleanType extends Type {
         return ((Boolean) a).booleanValue() ? Tokens.T_TRUE
                                             : Tokens.T_FALSE;
     }
+
+    public void convertToJSON(Object a, StringBuilder sb) {
+
+        if (a == null) {
+            sb.append("null");
+
+            return;
+        }
+
+        String val = ((Boolean) a).toString();
+
+        sb.append(val);
+    }
+
 
     public boolean canConvertFrom(Type otherType) {
 

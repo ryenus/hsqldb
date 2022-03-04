@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.error.ErrorCode;
  * Class for ROW type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.7.0
  * @since 2.0.0
  */
 public class RowType extends Type {
@@ -244,6 +244,29 @@ public class RowType extends Type {
         sb.append(')');
 
         return sb.toString();
+    }
+
+    public void convertToJSON(Object a, StringBuilder sb) {
+
+        Object[] array = (Object[]) a;
+
+        if (a == null) {
+            sb.append("null");
+
+            return;
+        }
+
+        sb.append('{');
+
+        for (int i = 0; i < array.length; i++) {
+            if (i > 0) {
+                sb.append(',');
+            }
+
+            dataTypes[i].convertToJSON(array[i], sb);
+        }
+
+        sb.append('}');
     }
 
     public boolean canConvertFrom(Type otherType) {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of array aggregate operations
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 2.0.1
  */
 public class ExpressionArrayAggregate extends Expression {
@@ -55,7 +55,8 @@ public class ExpressionArrayAggregate extends Expression {
     SortAndSlice distinctSort;
     String       separator = ",";
     ArrayType    arrayDataType;
-    Type         exprType;
+    Type         exprDataType;
+    int          exprOpType;    // original opType, may change during resolution
     Expression   condition = Expression.EXPR_TRUE;
 
     ExpressionArrayAggregate(int type, boolean distinct, Expression e,
@@ -65,15 +66,10 @@ public class ExpressionArrayAggregate extends Expression {
 
         this.isDistinctAggregate = distinct;
         this.sort                = sort;
+        this.exprOpType          = e.opType;
 
         if (separator != null) {
             this.separator = separator;
-        }
-
-        if (type == OpTypes.MEDIAN) {
-            nodes = new Expression[]{ e };
-
-            return;
         }
 
         if (sort == null) {
@@ -169,8 +165,10 @@ public class ExpressionArrayAggregate extends Expression {
     }
 
     public List resolveColumnReferences(Session session,
-            RangeGroup rangeGroup, int rangeCount, RangeGroup[] rangeGroups,
-            List unresolvedSet, boolean acceptsSequences) {
+                                        RangeGroup rangeGroup, int rangeCount,
+                                        RangeGroup[] rangeGroups,
+                                        List unresolvedSet,
+                                        boolean acceptsSequences) {
 
         List conditionSet = condition.resolveColumnReferences(session,
             rangeGroup, rangeCount, rangeGroups, null, false);
@@ -213,13 +211,13 @@ public class ExpressionArrayAggregate extends Expression {
             }
         }
 
-        exprType = nodes[nodes.length - 1].dataType;
+        exprDataType = nodes[nodes.length - 1].dataType;
 
-        if (exprType.isLobType()) {
+        if (exprDataType.isLobType()) {
             throw Error.error(ErrorCode.X_42534);
         }
 
-        if (exprType.isArrayType()) {
+        if (exprDataType.isArrayType()) {
             throw Error.error(ErrorCode.X_42534);
         }
 
@@ -231,7 +229,7 @@ public class ExpressionArrayAggregate extends Expression {
                 arrayDataType =
                     new ArrayType(rowDataType,
                                   ArrayType.defaultLargeArrayCardinality);
-                dataType = new ArrayType(exprType,
+                dataType = new ArrayType(exprDataType,
                                          ArrayType.defaultArrayCardinality);
                 break;
 
@@ -248,7 +246,7 @@ public class ExpressionArrayAggregate extends Expression {
                                   ArrayType.defaultLargeArrayCardinality);
                 dataType = ExpressionAggregate.getType(session,
                                                        OpTypes.MEDIAN,
-                                                       exprType);
+                                                       exprDataType);
                 break;
         }
 
@@ -381,7 +379,7 @@ public class ExpressionArrayAggregate extends Expression {
                     Object   value = row[row.length - 1];
                     String string =
                         (String) Type.SQL_VARCHAR.convertToType(session,
-                            value, exprType);
+                            value, exprDataType);
 
                     sb.append(string);
                 }
@@ -415,7 +413,7 @@ public class ExpressionArrayAggregate extends Expression {
                     value = DateTimeType.changeZoneToUTC(value);
                 }
 
-                return dataType.convertToType(session, value, exprType);
+                return dataType.convertToType(session, value, exprDataType);
             }
         }
 

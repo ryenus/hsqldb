@@ -341,6 +341,19 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public abstract String convertToSQLString(Object a);
 
+    public void convertToJSON(Object a, StringBuilder sb) {
+
+        if (a == null) {
+            sb.append("null");
+
+            return;
+        }
+
+        String val = convertToString(a);
+
+        sb.append(val);
+    }
+
     public abstract boolean canConvertFrom(Type otherType);
 
     /**
@@ -638,6 +651,8 @@ public abstract class Type implements SchemaObject, Cloneable {
     public static final CharacterType SQL_VARCHAR_DEFAULT =
         new CharacterType(Types.SQL_VARCHAR,
                           CharacterType.defaultVarcharPrecision);
+    public static final CharacterType SQL_VARCHAR_LONG =
+        new CharacterType(Types.SQL_VARCHAR, ClobType.defaultShortClobSize);
     public static final ClobType SQL_CLOB =
         new ClobType(ClobType.defaultClobSize);
 
