@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class ParserBase {
@@ -403,10 +403,14 @@ public class ParserBase {
 
     void checkIsQuotedString() {
 
-        if (token.tokenType != Tokens.X_VALUE
-                || !token.dataType.isCharacterType()) {
+        if (!isQuotedString()) {
             throw unexpectedToken();
         }
+    }
+
+    boolean isQuotedString() {
+        return token.tokenType == Tokens.X_VALUE
+               && token.dataType.isCharacterType();
     }
 
     void checkIsThis(int type) {

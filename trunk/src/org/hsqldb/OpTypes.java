@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  * Enumerate expression operation types<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.7.0
  * @since 1.9.0
  */
 public interface OpTypes {
@@ -140,7 +140,8 @@ public interface OpTypes {
         USER_AGGREGATE             = 100,
         ARRAY_ACCESS               = 101,
         ARRAY_SUBQUERY             = 102,
-        GROUPING                   = 103;    // grouping function
+        JSON_FUNCTION              = 103,
+        GROUPING                   = 104;    // grouping function
     //J-
     int[] aggOpTypes = new int[] {
 

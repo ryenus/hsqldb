@@ -56,7 +56,7 @@ import org.hsqldb.map.BitMap;
  * string<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since 1.9.0
  */
 public final class BitType extends BinaryType {
@@ -428,6 +428,20 @@ public final class BitType extends BinaryType {
             ((BinaryData) a).getBytes(),
             (int) ((BinaryData) a).bitLength(null));
     }
+
+    public void convertToJSON(Object a, StringBuilder sb) {
+
+        if (a == null) {
+            sb.append("null");
+
+            return;
+        }
+
+        sb.append('"');
+        sb.append(convertToString(a));
+        sb.append('"');
+    }
+
 
     public boolean canConvertFrom(Type otherType) {
 

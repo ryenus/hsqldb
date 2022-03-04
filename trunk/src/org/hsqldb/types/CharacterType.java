@@ -47,7 +47,7 @@ import org.hsqldb.lib.StringUtil;
  * Type subclass for CHARACTER, VARCHAR, etc.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class CharacterType extends Type {
@@ -730,6 +730,17 @@ public class CharacterType extends Type {
         String s = convertToString(a);
 
         return StringConverter.toQuotedString(s, '\'', true);
+    }
+
+    public void convertToJSON(Object a, StringBuilder sb) {
+
+        if (a == null) {
+            sb.append("null");
+
+            return;
+        }
+
+        StringConverter.toJSONString((String) a, sb);
     }
 
     public boolean canConvertFrom(Type otherType) {

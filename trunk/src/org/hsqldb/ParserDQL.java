@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -3244,6 +3244,26 @@ public class ParserDQL extends ParserBase {
 
                 return new ExpressionColumn(groupingElements);
             }
+            case Tokens.JSON_ARRAY : {
+                read();
+
+                return readJSONArray();
+            }
+            case Tokens.JSON_ARRAYAGG : {
+                read();
+
+                return readJSONArrayAgg();
+            }
+            case Tokens.JSON_OBJECT : {
+                read();
+
+                return readJSONObject();
+            }
+            case Tokens.JSON_OBJECTAGG : {
+                read();
+
+                return readJSONObjectAgg();
+            }
             default :
                 if (isCoreReservedKey()) {
                     throw unexpectedToken();
@@ -3257,6 +3277,341 @@ public class ParserDQL extends ParserBase {
         }
 
         return e;
+    }
+
+    Expression readJSONArray() {
+
+        readThis(Tokens.OPENBRACKET);
+
+        HsqlArrayList list       = new HsqlArrayList();
+        Expression    qe         = null;
+        boolean       nullOnNull = true;
+        Type          dataType   = Type.SQL_VARCHAR_LONG;
+        int           position   = getPosition();
+
+        loop:
+        while (true) {
+            Expression value;
+
+            switch (token.tokenType) {
+
+                case Tokens.ABSENT :
+                case Tokens.NULL :
+                case Tokens.CLOSEBRACKET :
+                    break loop;
+
+                case Tokens.COMMA :
+                    if (list.size() == 0) {
+                        throw unexpectedToken();
+                    }
+
+                    read();
+            }
+
+            try {
+                value = XreadValueExpression();
+
+                list.add(value);
+            } catch (HsqlException e) {
+                if (list.size() > 0) {
+                    throw e;
+                }
+
+                rewind(position);
+
+                break loop;
+            }
+        }
+
+        if (list.size() == 0) {
+            if (token.tokenType != Tokens.CLOSEBRACKET) {
+                TableDerived td =
+                    XreadSubqueryTableBody(OpTypes.TABLE_SUBQUERY);
+
+                qe = new Expression(OpTypes.ARRAY_SUBQUERY, td);
+            }
+        }
+
+        switch (token.tokenType) {
+
+            case Tokens.ABSENT : {
+                read();
+                readThis(Tokens.ON);
+                readThis(Tokens.NULL);
+
+                nullOnNull = false;
+
+                break;
+            }
+            case Tokens.NULL : {
+                read();
+                readThis(Tokens.ON);
+                readThis(Tokens.NULL);
+
+                break;
+            }
+        }
+
+        if (readIfThis(Tokens.RETURNING)) {
+            dataType = readTypeDefinition(false, true);
+        }
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        if (qe == null) {
+            return new ExpressionJSON.ExpressionJSONArrayFromValues(list,
+                    nullOnNull, dataType);
+        } else {
+            return new ExpressionJSON.ExpressionJSONArrayFromQuery(qe,
+                    nullOnNull, dataType);
+        }
+    }
+
+    Expression readJSONArrayAgg() {
+
+        boolean                  nullOnNull = false;
+        Type                     dataType   = Type.SQL_VARCHAR_LONG;
+        Expression               valueExpr;
+        ExpressionArrayAggregate arrayAgg;
+        SortAndSlice             sort = null;
+
+        readThis(Tokens.OPENBRACKET);
+
+        valueExpr = XreadValueExpression();
+
+        if (token.tokenType == Tokens.ORDER) {
+            read();
+            readThis(Tokens.BY);
+
+            sort = XreadOrderBy();
+        }
+
+        arrayAgg = new ExpressionArrayAggregate(OpTypes.ARRAY_AGG, false,
+                valueExpr, sort, null);
+
+        switch (token.tokenType) {
+
+            case Tokens.ABSENT : {
+                read();
+                readThis(Tokens.ON);
+                readThis(Tokens.NULL);
+
+                break;
+            }
+            case Tokens.NULL : {
+                read();
+                readThis(Tokens.ON);
+                readThis(Tokens.NULL);
+
+                nullOnNull = true;
+
+                break;
+            }
+        }
+
+        if (readIfThis(Tokens.RETURNING)) {
+            dataType = readTypeDefinition(false, true);
+        }
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        return new ExpressionJSON.ExpressionJSONArrayAgg(arrayAgg, nullOnNull,
+                dataType);
+    }
+
+    Expression readJSONObject() {
+
+        readThis(Tokens.OPENBRACKET);
+
+        OrderedHashMap map        = new OrderedHashMap();
+        boolean        nullOnNull = true;
+        boolean        uniqueKeys = false;
+        Type           dataType   = Type.SQL_VARCHAR_LONG;
+
+        loop:
+        while (true) {
+            Expression nameExpr;
+            Expression valueExpr;
+            boolean    isKey = false;
+
+            switch (token.tokenType) {
+
+                case Tokens.ABSENT :
+                case Tokens.NULL :
+                case Tokens.WITH :
+                case Tokens.WITHOUT :
+                case Tokens.CLOSEBRACKET :
+                    break loop;
+
+                case Tokens.COMMA :
+                    if (map.size() == 0) {
+                        throw unexpectedToken();
+                    }
+
+                    read();
+            }
+
+            if (readIfThis(Tokens.KEY)) {
+                isKey = true;
+            }
+
+            int position = getPosition();
+
+            nameExpr = XreadCharacterValueExpression();
+
+            if (nameExpr.opType == OpTypes.JSON_FUNCTION) {
+                rewind(position);
+
+                throw unexpectedToken();
+            }
+
+            if (!readIfThis(Tokens.VALUE)) {
+                if (isKey) {
+                    throw unexpectedToken();
+                }
+
+                readThis(Tokens.COLON);
+            }
+
+            valueExpr = XreadValueExpression();
+
+            map.put(nameExpr, valueExpr);
+        }
+
+        switch (token.tokenType) {
+
+            case Tokens.ABSENT : {
+                read();
+                readThis(Tokens.ON);
+                readThis(Tokens.NULL);
+
+                nullOnNull = false;
+
+                break;
+            }
+            case Tokens.NULL : {
+                read();
+                readThis(Tokens.ON);
+                readThis(Tokens.NULL);
+
+                break;
+            }
+        }
+
+        switch (token.tokenType) {
+
+            case Tokens.WITH : {
+                read();
+                readThis(Tokens.UNIQUE);
+                readIfThis(Tokens.KEY_TYPE);
+
+                uniqueKeys = true;
+
+                break;
+            }
+            case Tokens.WITHOUT : {
+                read();
+                readThis(Tokens.UNIQUE);
+                readIfThis(Tokens.KEY_TYPE);
+
+                break;
+            }
+            case Tokens.COMMA : {
+                if (map.size() == 0) {
+                    throw unexpectedToken();
+                }
+
+                read();
+            }
+        }
+
+        if (readIfThis(Tokens.RETURNING)) {
+            dataType = readTypeDefinition(false, true);
+        }
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        return new ExpressionJSON.ExpressionJSONObject(map, nullOnNull,
+                uniqueKeys, dataType);
+    }
+
+    Expression readJSONObjectAgg() {
+
+        readThis(Tokens.OPENBRACKET);
+
+        boolean                  nullOnNull = true;
+        boolean                  uniqueKeys = false;
+        Type                     dataType   = Type.SQL_VARCHAR_LONG;
+        Expression               nameExpr;
+        Expression               valueExpr;
+        ExpressionArrayAggregate arrayAggName;
+        ExpressionArrayAggregate arrayAggValue;
+        int                      position = getPosition();
+
+        nameExpr = XreadCharacterValueExpression();
+
+        if (nameExpr.opType == OpTypes.JSON_FUNCTION) {
+            rewind(position);
+
+            throw unexpectedToken();
+        }
+
+        readThis(Tokens.COLON);
+
+        valueExpr = XreadValueExpression();
+        arrayAggName = new ExpressionArrayAggregate(OpTypes.ARRAY_AGG, false,
+                nameExpr, null, null);
+        arrayAggValue = new ExpressionArrayAggregate(OpTypes.ARRAY_AGG, false,
+                valueExpr, null, null);
+
+        switch (token.tokenType) {
+
+            case Tokens.ABSENT : {
+                read();
+                readThis(Tokens.ON);
+                readThis(Tokens.NULL);
+
+                nullOnNull = false;
+
+                break;
+            }
+            case Tokens.NULL : {
+                read();
+                readThis(Tokens.ON);
+                readThis(Tokens.NULL);
+
+                break;
+            }
+        }
+
+        switch (token.tokenType) {
+
+            case Tokens.WITH : {
+                read();
+                readThis(Tokens.UNIQUE);
+                readIfThis(Tokens.KEY_TYPE);
+
+                uniqueKeys = true;
+
+                break;
+            }
+            case Tokens.WITHOUT : {
+                read();
+                readThis(Tokens.UNIQUE);
+                readIfThis(Tokens.KEY_TYPE);
+
+                break;
+            }
+        }
+
+        if (readIfThis(Tokens.RETURNING)) {
+            dataType = readTypeDefinition(false, true);
+        }
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        return new ExpressionJSON.ExpressionJSONObjectAgg(arrayAggName,
+                arrayAggValue, nullOnNull, uniqueKeys, dataType);
     }
 
     Expression readNextvalFunction() {
@@ -7318,9 +7673,10 @@ public class ParserDQL extends ParserBase {
 
         queryExpression.setReturningResult();
 
-        if (database.sqlLowerCaseIdentifier && !isRoutine ) {
+        if (database.sqlLowerCaseIdentifier && !isRoutine) {
             queryExpression.setLowerCaseResultIdentifer();
         }
+
         queryExpression.resolve(session, rangeGroups, null);
 
         StatementQuery cs = isRoutine
