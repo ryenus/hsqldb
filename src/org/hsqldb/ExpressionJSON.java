@@ -41,7 +41,7 @@ import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.Type;
 
 /**
- * JSON fucntions
+ * JSON functions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.7.0
