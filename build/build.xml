@@ -368,12 +368,12 @@ examples:
     </target>
 
     <target name="-preprocessor">
-      <!-- This javac is dependent upon default attr. includeAntRuntime=true -->
+      <!-- This javac is no longer dependent upon default attr. includeAntRuntime=true -->
+	  <!-- Ant resolver and preprocessor moved to trunk/integration/ant/prepocessor/src -->
       <javac srcdir="src"
              encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
-             classpath="${ant.home}/lib/ant.jar"
       >
         <include name="org/hsqldb/util/preprocessor/**"/>
       </javac>
