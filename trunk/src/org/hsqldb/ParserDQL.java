@@ -3332,28 +3332,10 @@ public class ParserDQL extends ParserBase {
             }
         }
 
-        switch (token.tokenType) {
-
-            case Tokens.ABSENT : {
-                read();
-                readThis(Tokens.ON);
-                readThis(Tokens.NULL);
-
-                nullOnNull = false;
-
-                break;
-            }
-            case Tokens.NULL : {
-                read();
-                readThis(Tokens.ON);
-                readThis(Tokens.NULL);
-
-                break;
-            }
-        }
+        nullOnNull = readJSONNullClause(nullOnNull);
 
         if (readIfThis(Tokens.RETURNING)) {
-            dataType = readTypeDefinition(false, true);
+            dataType = readJSONReturningClause();
         }
 
         readThis(Tokens.CLOSEBRACKET);
@@ -3388,29 +3370,10 @@ public class ParserDQL extends ParserBase {
 
         arrayAgg = new ExpressionArrayAggregate(OpTypes.ARRAY_AGG, false,
                 valueExpr, sort, null);
-
-        switch (token.tokenType) {
-
-            case Tokens.ABSENT : {
-                read();
-                readThis(Tokens.ON);
-                readThis(Tokens.NULL);
-
-                break;
-            }
-            case Tokens.NULL : {
-                read();
-                readThis(Tokens.ON);
-                readThis(Tokens.NULL);
-
-                nullOnNull = true;
-
-                break;
-            }
-        }
+        nullOnNull = readJSONNullClause(nullOnNull);
 
         if (readIfThis(Tokens.RETURNING)) {
-            dataType = readTypeDefinition(false, true);
+            dataType = readJSONReturningClause();
         }
 
         readThis(Tokens.CLOSEBRACKET);
@@ -3478,55 +3441,11 @@ public class ParserDQL extends ParserBase {
             map.put(nameExpr, valueExpr);
         }
 
-        switch (token.tokenType) {
-
-            case Tokens.ABSENT : {
-                read();
-                readThis(Tokens.ON);
-                readThis(Tokens.NULL);
-
-                nullOnNull = false;
-
-                break;
-            }
-            case Tokens.NULL : {
-                read();
-                readThis(Tokens.ON);
-                readThis(Tokens.NULL);
-
-                break;
-            }
-        }
-
-        switch (token.tokenType) {
-
-            case Tokens.WITH : {
-                read();
-                readThis(Tokens.UNIQUE);
-                readIfThis(Tokens.KEY_TYPE);
-
-                uniqueKeys = true;
-
-                break;
-            }
-            case Tokens.WITHOUT : {
-                read();
-                readThis(Tokens.UNIQUE);
-                readIfThis(Tokens.KEY_TYPE);
-
-                break;
-            }
-            case Tokens.COMMA : {
-                if (map.size() == 0) {
-                    throw unexpectedToken();
-                }
-
-                read();
-            }
-        }
+        nullOnNull = readJSONNullClause(nullOnNull);
+        uniqueKeys = readJSONUniqueClause(uniqueKeys);
 
         if (readIfThis(Tokens.RETURNING)) {
-            dataType = readTypeDefinition(false, true);
+            dataType = readJSONReturningClause();
         }
 
         readThis(Tokens.CLOSEBRACKET);
@@ -3563,6 +3482,22 @@ public class ParserDQL extends ParserBase {
                 nameExpr, null, null);
         arrayAggValue = new ExpressionArrayAggregate(OpTypes.ARRAY_AGG, false,
                 valueExpr, null, null);
+        nullOnNull = readJSONNullClause(nullOnNull);
+        uniqueKeys = readJSONUniqueClause(uniqueKeys);
+
+        if (readIfThis(Tokens.RETURNING)) {
+            dataType = readJSONReturningClause();
+        }
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        return new ExpressionJSON.ExpressionJSONObjectAgg(arrayAggName,
+                arrayAggValue, nullOnNull, uniqueKeys, dataType);
+    }
+
+    boolean readJSONNullClause(boolean defaultValue) {
+
+        boolean nullOnNull = defaultValue;
 
         switch (token.tokenType) {
 
@@ -3580,16 +3515,25 @@ public class ParserDQL extends ParserBase {
                 readThis(Tokens.ON);
                 readThis(Tokens.NULL);
 
+                nullOnNull = true;
+
                 break;
             }
         }
+
+        return nullOnNull;
+    }
+
+    boolean readJSONUniqueClause(boolean defaultValue) {
+
+        boolean uniqueKeys = defaultValue;
 
         switch (token.tokenType) {
 
             case Tokens.WITH : {
                 read();
                 readThis(Tokens.UNIQUE);
-                readIfThis(Tokens.KEY_TYPE);
+                readIfThis(Tokens.KEYS);
 
                 uniqueKeys = true;
 
@@ -3598,20 +3542,30 @@ public class ParserDQL extends ParserBase {
             case Tokens.WITHOUT : {
                 read();
                 readThis(Tokens.UNIQUE);
-                readIfThis(Tokens.KEY_TYPE);
+                readIfThis(Tokens.KEYS);
+
+                uniqueKeys = false;
 
                 break;
             }
         }
 
-        if (readIfThis(Tokens.RETURNING)) {
-            dataType = readTypeDefinition(false, true);
+        return uniqueKeys;
+    }
+
+    Type readJSONReturningClause() {
+
+        int  position = getPosition();
+        Type dataType = readTypeDefinition(false, true);
+
+        if (dataType.typeCode == Types.SQL_VARCHAR
+                || dataType.typeCode == Types.SQL_CLOB) {
+            return dataType;
         }
 
-        readThis(Tokens.CLOSEBRACKET);
+        rewind(position);
 
-        return new ExpressionJSON.ExpressionJSONObjectAgg(arrayAggName,
-                arrayAggValue, nullOnNull, uniqueKeys, dataType);
+        throw super.unexpectedTokenRequire("VARCHAR or CLOB");
     }
 
     Expression readNextvalFunction() {
