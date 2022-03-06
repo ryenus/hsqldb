@@ -1,0 +1,1 @@
+package sql2nnn.ISO_IEC_9075_2_SQL_Foundation.F222_INSERT_statement_DEFAULT_VALUES_clause;
