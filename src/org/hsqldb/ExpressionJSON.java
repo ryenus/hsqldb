@@ -49,6 +49,35 @@ import org.hsqldb.types.Type;
  */
 public interface ExpressionJSON {
 
+    public class ExpressionJSONWrapper extends Expression {
+
+        public ExpressionJSONWrapper(Expression expr) {
+
+            super(OpTypes.JSON_FUNCTION);
+
+            nodes = new Expression[]{ expr };
+        }
+
+        public void resolveTypes(Session session, Expression parent) {
+
+            nodes[LEFT].resolveTypes(session, this);
+
+            dataType = nodes[LEFT].dataType;
+        }
+
+        public Object getValue(Session session) {
+            return nodes[LEFT].getValue(session);
+        }
+
+        public String getSQL() {
+            return nodes[LEFT].getSQL();
+        }
+
+        public String describe(Session session, int blanks) {
+            return nodes[LEFT].getSQL();
+        }
+    }
+
     public class ExpressionJSONArrayFromQuery extends Expression {
 
         final Expression exprQuery;
