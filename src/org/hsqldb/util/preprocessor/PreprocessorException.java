@@ -40,6 +40,7 @@ package org.hsqldb.util.preprocessor;
  * @version 1.8.1
  * @since 1.8.1
  */
+@SuppressWarnings("serial")
 public class PreprocessorException extends Exception {
     public PreprocessorException(String message) {
         super(message);

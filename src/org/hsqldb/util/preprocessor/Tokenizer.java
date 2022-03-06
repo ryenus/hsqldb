@@ -34,21 +34,22 @@ package org.hsqldb.util.preprocessor;
 /* $Id$ */
 
 /**
- * Simple preprocessor directive tokenizer.
+ * Simple Preprocessor directive tokenizer.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.8.1
- * @since 1.8.1
+ * @since 2.6.2+
  */
-final class Tokenizer {
+@SuppressWarnings("ClassWithoutLogger")
+public class Tokenizer {
     private final String command;
     private final int    commandLength;
     private int          tokenType;
     private int          startIndex;
     private int          currentIndex;
 
-    Tokenizer(final String cmd) {
-        this.command       = cmd + " ";
+    public Tokenizer(final String cmd) {
+        this.command       = cmd == null || cmd.isEmpty() ? "" : cmd + " ";
         this.commandLength = command.length();
         this.startIndex    = 0;
         this.currentIndex  = 0;
@@ -58,23 +59,14 @@ final class Tokenizer {
     void skipBlanks() {
         final String cmd = this.command;
         final int    len = this.commandLength;
-
-        top:
-            while (currentIndex < len) {
-
-            switch(cmd.charAt(currentIndex)) {
-                case ' '  :
-                case '\t' : {
-                    currentIndex++;
-                    continue top;
-                }
-            }
-
-            break;
-            }
+        int          pos = this.currentIndex;
+        while(pos < len && " \t".indexOf(cmd.charAt(pos)) != -1) {
+            pos++;
+        }
+        this.currentIndex = pos;
     }
 
-    int next() throws PreprocessorException {
+    public int next() throws PreprocessorException {
         skipBlanks();
 
         startIndex = currentIndex;
@@ -145,8 +137,8 @@ final class Tokenizer {
             case Token.XOR :
             case Token.NOT : {
                 currentIndex++;
-
-                return (tokenType = ch);
+                tokenType = ch;
+                return ch;
             }
             case Token.ASSIGN : {
                 currentIndex++;
@@ -197,8 +189,10 @@ final class Tokenizer {
                 if (currentIndex < len && cmd.charAt(currentIndex) == ch) {
                     currentIndex++;
                 }
+                
+                tokenType = ch;
 
-                return (tokenType = ch);
+                return ch;
             }
             default : {
                 throw new PreprocessorException("Syntax error: " +
@@ -207,39 +201,39 @@ final class Tokenizer {
         }
     }
 
-    int getTokenType() {
+    public int getTokenType() {
         return tokenType;
     }
 
-    boolean isToken(final int type) {
+    public boolean isToken(final int type) {
         return (this.tokenType == type);
     }
 
-    String getIdent() {
+    public String getIdent() {
         return isToken(Token.EOI) ? null
                 : this.command.substring(startIndex, currentIndex);
     }
 
-    Number getNumber() {
+    public Number getNumber() {
         return (isToken(Token.EOI)) ? null
                 : new Double(Double.parseDouble(this.command.
                 substring(startIndex, currentIndex)));
     }
 
-    String getString() {
+    public String getString() {
         return isToken(Token.EOI) ? null
                 : this.command.substring(startIndex + 1, currentIndex - 1);
     }
 
-    int getStartIndex() {
+    public int getStartIndex() {
         return this.startIndex;
     }
 
-    int currentIndex() {
+    public int currentIndex() {
         return this.currentIndex;
     }
 
-    String getSource() {
+    public String getSource() {
         return this.command;
     }
 }

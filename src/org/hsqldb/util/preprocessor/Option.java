@@ -98,4 +98,15 @@ public class Option {
     public static int setVerbose(int options, boolean verbose) {
         return (verbose) ? (options | VERBOSE) : (options & ~VERBOSE);
     }
+    
+    public static String toOptionsString(int options) {
+        Object[] values = {
+            isBackup(options),
+            isFilter(options), 
+            isIndent(options), 
+            isTestOnly(options), 
+            isVerbose(options)};
+        
+        return String.format("backup: %s, filter: %s, indent: %s, testOnly: %s, verbose: %s", values);
+    }
 }
