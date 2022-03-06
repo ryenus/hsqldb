@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.util.preprocessor;
 
 import java.io.BufferedReader;
@@ -42,165 +40,354 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.util.Vector;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
-/* $Id$ */
-
+/*
+ * $Id$
+ */
 /**
  * Simple line-oriented text document ADT.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 1.8.1
+ * @version 2.6.2+
  * @since 1.8.1
  */
-class Document {
-    Vector lines = new Vector();
+@SuppressWarnings("ClassWithoutLogger")
+public class Document {
 
-    Document() {}
-
-    Document(Document source) {
-        this.appendDocument(source);
+    /**
+     * for the given character set name.
+     *
+     * @param charsetName to test; {@code null} returns {@code false}.
+     * @return {@code true} if supported, else {@code false}.
+     */
+    public static boolean isSupportedCharset(final String charsetName) {
+        return charsetName != null
+                && !charsetName.trim().isEmpty()
+                && Charset.isSupported(charsetName);
     }
 
-    Document addSouceLine(String line) {
+    private final List<String> lines;
+
+    /**
+     * constructs a new, empty instance.
+     */
+    public Document() {
+        this.lines = new ArrayList<>(16);
+    }
+
+    /**
+     * Constructs a new instance that is effectively a copy of {@code source}.
+     *
+     * @param source to copy; may be {@code null}, which is treated like an
+     *               {@code empty} instance.
+     */
+    public Document(final Document source) {
+        this();
+        if (source != null) {
+            final Document target = this;
+            target.appendDocument(source);
+        }
+    }
+
+    /**
+     * to this instance.
+     *
+     * @param line to add; must not be {@code null}.
+     * @return this instance.
+     * @throws IllegalArgumentException if {@code line} is {@code null}.
+     */
+    public Document addSouceLine(final String line) {
         if (line == null) {
             throw new IllegalArgumentException("line: null");
         }
-
-        this.lines.addElement(line);
-
+        this.lines.add(line);
         return this;
     }
 
-    Document appendDocument(Document doc) {
-        if (doc != null) {
-            int    count = doc.size();
-            Vector src   = doc.lines;
-            Vector dst   = this.lines;
-
-            for (int i = 0; i < count; i++) {
-                dst.addElement(src.elementAt(i));
-            }
+    /**
+     * to this instance.
+     *
+     * @param source to append; may be {@code null}, which is treated like an
+     *               {@code empty} instance.
+     * @return this instance
+     */
+    @SuppressWarnings("AccessingNonPublicFieldOfAnotherObject")
+    public Document appendDocument(final Document source) {
+        if (source != null && source.size() > 0) {
+            this.lines.addAll(source.lines);
         }
-
         return this;
     }
 
-    Document clear() {
-        this.lines.removeAllElements();
-
+    /**
+     * this instance, making it {@link #isEmpty() empty}.
+     *
+     * @return this instance.
+     */
+    public Document clear() {
+        this.lines.clear();
         return this;
     }
 
-    boolean contains(String pattern) {
-        Vector lines = this.lines;
-        int    size  = lines.size();
-
+    /**
+     * if at least one line in this instance contains the given sequence.
+     * <p>
+     * <b>Note</b>: each line is tested separately; no test is performed to see
+     * if the sequence spans more than one line.
+     * </p>
+     *
+     * @param sequence to test.
+     * @return {@code true} if the condition holds, else {@code false}.
+     */
+    public boolean contains(final CharSequence sequence) {
+        if (sequence == null) {
+            return false;
+        }
+        final String toFind = sequence.toString();
+        final List<String> list = this.lines;
+        final int size = list.size();
         for (int i = 0; i < size; i++) {
-            if (((String)lines.elementAt(i)).indexOf(pattern) >= 0) {
+            if (-1 < list.get(i).indexOf(toFind, 0)) {
                 return true;
             }
         }
-
         return false;
     }
 
-    Document deleteSourceLine(int index) {
-        this.lines.removeElementAt(index);
-
+    /**
+     * from this instance at the given index.
+     *
+     * @param index at which to remove a line.
+     * @return this instance.
+     * @throws IndexOutOfBoundsException if the index is out of range
+     *                                   ({@code index < 0 || index >= size())}
+     */
+    public Document deleteSourceLine(final int index) {
+        this.lines.remove(index);
         return this;
     }
 
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        } else if (o instanceof Document) {
-            Document other = (Document) o;
-
-            Vector v1 = this.lines;
-            Vector v2 = other.lines;
-
-            if (v1.size() != v2.size()) {
-                return false;
-            }
-
-            for (int i = v1.size() - 1; i >= 0; i--) {
-                if (v1.elementAt(i).equals(v2.elementAt(i))) {
-                    continue;
-                } else {
-                    return false;
-                }
-            }
-
-            return true;
-        } else {
-            return false;
-        }
+    /**
+     * if the given document has effectively the same content as this instance.
+     *
+     * @param document to test; may be {@code null}, which is treated as
+     *                 {@link #isEmpty() empty}.
+     * @return {@code true} if the content of the given {@code document} is
+     *         equal to the content of this instance, as per
+     *         {@link List#equals(Object)}.
+     */
+    @SuppressWarnings("AccessingNonPublicFieldOfAnotherObject")
+    public boolean contentEquals(final Document document) {
+        return (document == this)
+                ? true
+                : document == null
+                        ? this.isEmpty()
+                        : this.lines.equals(document.lines);
     }
 
-    String getSourceLine(int index) {
-        return (String) this.lines.elementAt(index);
+    /**
+     * at the given index.
+     *
+     * @param index at which to retrieve the line.
+     * @return the line at the given index.
+     * @throws IndexOutOfBoundsException if the index is out of range
+     *                                   ({@code index < 0 || index >= size()})
+     */
+    public String getSourceLine(final int index) {
+        return this.lines.get(index);
     }
 
-    Document insertSourceLine(int index, String line) {
+    /**
+     * if this instance contains no lines.
+     *
+     * @return {@code true} if {@link #size()} {@code == 0}, else {@code false}.
+     */
+    public boolean isEmpty() {
+        return this.lines.isEmpty();
+    }
+
+    /**
+     * at the specified index.
+     *
+     * @param index at which the specified line is to be inserted
+     * @param line  to be inserted
+     * @return this instance
+     * @throws NullPointerException      if the specified line is {@code null}.
+     * @throws IndexOutOfBoundsException if the index is out of range
+     *                                   ({@code index < 0 || index >= size()})
+     */
+    public Document insertSourceLine(final int index, final String line) {
         if (line == null) {
             throw new IllegalArgumentException("line: null");
         }
-
-        this.lines.insertElementAt(line, index);
-
+        this.lines.add(index, line);
         return this;
     }
 
-    Document replaceWith(Document source) {
+    /**
+     * as if by invoking {@code this.clear().appendDocument(source)}.
+     *
+     * @param source content used to replace the existing content of this
+     *               instance; may be {@code null}, which is treated as
+     *               {@link #isEmpty() empty}.
+     * @return this instance.
+     */
+    public Document replaceWith(final Document source) {
         return this.clear().appendDocument(source);
     }
 
-    Document setSourceLine(int index, String line) {
+    /**
+     * at the specified index in this instance.
+     *
+     * @param index index of the line to replace
+     * @param line  to be stored at the specified index
+     * @return this instance.
+     * @throws NullPointerException      if the specified line is {@code null}.
+     * @throws IndexOutOfBoundsException if the index is out of range
+     *                                   ({@code index < 0 || index >= size()})
+     */
+    public Document setSourceLine(final int index, final String line) {
         if (line == null) {
             throw new IllegalArgumentException("null");
         }
-
-        this.lines.setElementAt(line, index);
-
+        this.lines.set(index, line);
         return this;
     }
 
-    int size() {
+    /**
+     * of this instance, as the number of lines.
+     *
+     * @return the number of lines in this instance.
+     */
+    public int size() {
         return this.lines.size();
     }
 
 // ------------------------ I/O convenience methods ----------------------------
+    /**
+     * this instance from the given input stream using the given character
+     * encoding.
+     * <p>
+     * <b>Note</b>: it is the responsibility of the caller to close the input
+     * stream.
+     * </p>
+     *
+     * @param inputStream from which to load; must not be {@code null}.
+     * @param encoding    {@code null} for the system default.
+     * @return this object.
+     * @throws IOException              if an I/O error occurs.
+     * @throws IllegalArgumentException if the encoding is not supported.
+     * @throws NullPointerException     if the inputStream is {@code null}.
+     */
+    public Document load(final InputStream inputStream, final String encoding) throws IOException,
+            IllegalArgumentException, NullPointerException {
+        return load((Object) inputStream, encoding);
+    }
 
-    Document load(Object source, String encoding) throws IOException,
-            UnsupportedEncodingException{
+    /**
+     * this instance from the given reader.
+     * <p>
+     * <b>Note</b>: it is the responsibility of the caller to close the reader.
+     * </p>
+     *
+     * @param reader from which to load; must not be {@code null}.
+     * @return this object.
+     * @throws IOException          in an I/O error occurs.
+     * @throws NullPointerException if the reader is {@code null}.
+     */
+    public Document load(final Reader reader) throws IOException,
+            NullPointerException {
+        return load(reader, null);
+    }
+
+    /**
+     * this instance from the given file using the given character encoding.
+     * <p>
+     * <b>Note</b>: the underlying file input stream is closed automatically.
+     * </p>
+     *
+     * @param file     from which to load; {@code null} is treated the empty
+     *                 path.
+     * @param encoding {@code null} for the system default.
+     * @return this object.
+     * @throws IOException              in an I/O error occurs.
+     * @throws IllegalArgumentException if the encoding is not supported.
+     */
+    public Document load(final File file, final String encoding) throws IOException,
+            IllegalArgumentException {
+        return load((Object) (file == null ? new File("") : file), encoding);
+    }
+
+    /**
+     * this instance from the given abstract file path using the given character
+     * encoding.
+     * <p>
+     * <b>Note</b>: the underlying file input stream is closed automatically.
+     * </p>
+     *
+     * @param path     from which to load; {@code null} is treated the empty
+     *                 path.
+     * @param encoding {@code null} for the system default.
+     * @return this object.
+     * @throws IOException              in an I/O error occurs.
+     * @throws IllegalArgumentException if the encoding is not supported.
+     */
+    public Document load(final String path, final String encoding) throws IOException,
+            IllegalArgumentException {
+        return load((Object) (path == null ? "" : path), encoding);
+    }
+
+    /**
+     * this instance from the given source.
+     * <p>
+     * <b>Note</b>: if the source is an InputStream or Reader, it is the
+     * responsibility of the caller to close; otherwise, the underlying file
+     * input stream is closed automatically.
+     * </p>
+     *
+     * @param source   required; by default, must be an instance of an
+     *                 InputStream, Reader, File, or String denoting an
+     *                 abstract file path.
+     * @param encoding optional; ignored if source is a Writer. {@code null} is
+     *                 taken to be {@link Charset#defaultCharset()}.
+     * @return this instance.
+     * @throws IOException              if an I/O error occurs.
+     * @throws NullPointerException     if source is {@code null}.
+     * @throws IllegalArgumentException if the encoding is not supported.
+     */
+    @SuppressWarnings("NestedAssignment")
+    protected Document load(final Object source, final String encoding) throws IOException,
+            NullPointerException,
+            IllegalArgumentException {
+        if (source == null) {
+            throw new NullPointerException("source must not be null.");
+        }
+        Charset charset = (source instanceof Reader || encoding == null)
+                ? Charset.defaultCharset() : null;
+        if (charset == null && isSupportedCharset(encoding)) {
+            charset = Charset.forName(encoding);
+        } else {
+            throw new IllegalArgumentException("encoding: " + encoding);
+        }
         BufferedReader reader = null;
-        boolean        close  = false;
-
+        boolean close = false;
         if (source instanceof InputStream) {
-            InputStream       is  = (InputStream) source;
-            InputStreamReader isr = isEncoding(encoding)
-                    ? new InputStreamReader(is, encoding)
-                    : new InputStreamReader(is);
-
+            final InputStream is = (InputStream) source;
+            final InputStreamReader isr = new InputStreamReader(is, charset);
             reader = new BufferedReader(isr);
         } else if (source instanceof File) {
-            InputStream       is  = new FileInputStream((File) source);
-            InputStreamReader isr = isEncoding(encoding)
-                    ? new InputStreamReader(is, encoding)
-                    : new InputStreamReader(is);
-
-            close  = true;
+            final InputStream fis = new FileInputStream((File) source);
+            final InputStreamReader isr = new InputStreamReader(fis, charset);
+            close = true;
             reader = new BufferedReader(isr);
         } else if (source instanceof String) {
-            InputStream       is  = new FileInputStream((String) source);
-            InputStreamReader isr = isEncoding(encoding)
-                    ? new InputStreamReader(is, encoding)
-                    : new InputStreamReader(is);
-
-            close  = true;
+            final InputStream fis = new FileInputStream((String) source);
+            final InputStreamReader isr = new InputStreamReader(fis, charset);
+            close = true;
             reader = new BufferedReader(isr);
         } else if (source instanceof BufferedReader) {
             reader = (BufferedReader) source;
@@ -209,84 +396,156 @@ class Document {
         } else {
             throw new IOException("unhandled load source: " + source); // NOI18N
         }
-
         clear();
-
         String line;
-        Vector lines = this.lines;
-
+        final List<String> list = this.lines;
         try {
-            while(null != (line = reader.readLine())) {
-                lines.addElement(line);
+            while (null != (line = reader.readLine())) {
+                list.add(line);
             }
         } finally {
             if (close) {
                 try {
                     reader.close();
-                } catch (IOException ex) {}
+                } catch (IOException ex) {
+                }
             }
         }
-
         return this;
     }
 
-    Document save(Object target, String encoding) throws IOException {
+    /**
+     * to the given output stream using the given character encoding.
+     * <p>
+     * <b>Note</b>: it is the responsibility of the caller to close the output
+     * stream.
+     * </p>
+     *
+     * @param outputStream to which to save; must not be {@code null}.
+     * @param encoding     {@code null} for the system default.
+     * @return this object.
+     * @throws IOException              if an I/O error occurs.
+     * @throws IllegalArgumentException if the encoding is not supported.
+     * @throws NullPointerException     if the output stream is {
+     * @null}.
+     */
+    public Document save(final OutputStream outputStream, final String encoding) throws IOException {
+        return save((Object) outputStream, encoding);
+    }
+
+    /**
+     * to the given file using the given character encoding.
+     *
+     * @param file     to which to save; {@code null} is treated as having an
+     *                 empty path
+     * @param encoding {@code null} for the system default.
+     * @return this object.
+     * @throws IOException              if an I/O error occurs.
+     * @throws IllegalArgumentException if the encoding is not supported.
+     */
+    public Document save(final File file, final String encoding) throws IOException,
+            IllegalArgumentException {
+        return save((Object) (file == null ? new File("") : file), encoding);
+    }
+
+    /**
+     * to the given abstract file path using the given character encoding.
+     *
+     * @param path     to which to save; {@code null} is treated as the empty
+     *                 path;
+     * @param encoding {@code null} for the system default.
+     * @return this object.
+     * @throws IOException              if an I/O error occurs.
+     * @throws IllegalArgumentException if the encoding is not supported.
+     */
+    public Document save(final String path, final String encoding) throws IOException,
+            IllegalArgumentException {
+        return save((Object) (path == null ? "" : path), encoding);
+    }
+
+    /**
+     * to the given writer.
+     * <p>
+     * <b>Note</b>: it is the responsibility of the caller to close the writer.
+     * </p>
+     *
+     * @param writer to which to save; must not be {@code null}.
+     * @return this object.
+     * @throws IOException          if an I/O error occurs.
+     * @throws NullPointerException if the writer is {
+     * @null}.
+     */
+    public Document save(final Writer writer) throws IOException {
+        return save(writer, null);
+    }
+
+    /**
+     * this instance to the given target.
+     * <p>
+     * <b>Note</b>: if the target is an OutputStream or Writer, it is the
+     * responsibility of the caller to close; otherwise, the underlying file
+     * output stream is closed automatically.
+     * </p>
+     *
+     * @param target   required; by default, must be an instance of an
+     *                 OutputStream, Writer, File, or String denoting an
+     *                 abstract file path.
+     * @param encoding optional; does not apply to Writer. {@code null} is taken
+     *                 to be {@link Charset#defaultCharset()}.
+     * @return this instance.
+     * @throws IOException          if an I/O error occurs.
+     * @throws NullPointerException if target is {@code null}.
+     */
+    protected Document save(final Object target, final String encoding) throws IOException {
+        if (target == null) {
+            throw new NullPointerException("target must not be null.");
+        }
+        Charset charset = (target instanceof Writer || encoding == null)
+                ? Charset.defaultCharset() : null;
+        if (charset == null && isSupportedCharset(encoding)) {
+            charset = Charset.forName(encoding);
+        } else {
+            throw new IllegalArgumentException("encoding: " + encoding);
+        }
         BufferedWriter writer = null;
-        boolean        close  = false;
-
+        boolean close = false;
         if (target instanceof OutputStream) {
-            OutputStream       os  = (OutputStream) target;
-            OutputStreamWriter osr = isEncoding(encoding)
-                    ? new OutputStreamWriter(os, encoding)
-                    : new OutputStreamWriter(os);
-
-            writer = new BufferedWriter(osr);
+            final OutputStream os = (OutputStream) target;
+            final OutputStreamWriter osw = new OutputStreamWriter(os, charset);
+            writer = new BufferedWriter(osw);
         } else if (target instanceof File) {
-            OutputStream       os  = new FileOutputStream((File) target);
-            OutputStreamWriter osr = isEncoding(encoding)
-                    ? new OutputStreamWriter(os, encoding)
-                    : new OutputStreamWriter(os);
-
-            close  = true;
-            writer = new BufferedWriter(osr);
+            final OutputStream fos = new FileOutputStream((File) target);
+            final OutputStreamWriter osw = new OutputStreamWriter(fos, charset);
+            close = true;
+            writer = new BufferedWriter(osw);
         } else if (target instanceof String) {
-            OutputStream       os  = new FileOutputStream((String) target);
-            OutputStreamWriter osr = isEncoding(encoding)
-                    ? new OutputStreamWriter(os, encoding)
-                    : new OutputStreamWriter(os);
-
-            close  = true;
-            writer = new BufferedWriter(osr);
+            OutputStream fos = new FileOutputStream((String) target);
+            final OutputStreamWriter osw = new OutputStreamWriter(fos, charset);
+            close = true;
+            writer = new BufferedWriter(osw);
         } else if (target instanceof BufferedWriter) {
             writer = (BufferedWriter) target;
         } else if (target instanceof Writer) {
             writer = new BufferedWriter(writer);
         } else {
-            throw new IOException("unhandled save target: " + target); // NOI18N
+            throw new IOException("unhandled save target: " + target);
         }
-
-        Vector lines = this.lines;
-        int    count = lines.size();
-
+        final List<String> list = this.lines;
+        final int count = list.size();
         try {
             for (int i = 0; i < count; i++) {
-                writer.write((String)lines.elementAt(i));
+                writer.write(list.get(i));
                 writer.newLine();
             }
-
             writer.flush();
         } finally {
             if (close) {
                 try {
                     writer.close();
-                } catch (IOException ex) {}
+                } catch (IOException ignored) {
+                }
             }
         }
-
         return this;
-    }
-
-    static boolean isEncoding(String enc) {
-        return enc != null && enc.trim().length() > 0;
     }
 }
