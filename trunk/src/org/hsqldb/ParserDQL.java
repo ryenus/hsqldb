@@ -3386,10 +3386,11 @@ public class ParserDQL extends ParserBase {
 
         readThis(Tokens.OPENBRACKET);
 
-        OrderedHashMap map        = new OrderedHashMap();
-        boolean        nullOnNull = true;
-        boolean        uniqueKeys = false;
-        Type           dataType   = Type.SQL_VARCHAR_LONG;
+        OrderedHashMap map          = new OrderedHashMap();
+        boolean        nullOnNull   = true;
+        boolean        uniqueKeys   = false;
+        Type           dataType     = Type.SQL_VARCHAR_LONG;
+        boolean        hasDuplicate = false;
 
         loop:
         while (true) {
@@ -3438,11 +3439,26 @@ public class ParserDQL extends ParserBase {
 
             valueExpr = XreadValueExpression();
 
-            map.put(nameExpr, valueExpr);
+            if (readIfThis(Tokens.FORMAT)) {
+                readThis(Tokens.JSON);
+
+                valueExpr =
+                    new ExpressionJSON.ExpressionJSONWrapper(valueExpr);
+            }
+
+            Object e = map.put(nameExpr, valueExpr);
+
+            if (e != null) {
+                hasDuplicate = true;
+            }
         }
 
         nullOnNull = readJSONNullClause(nullOnNull);
         uniqueKeys = readJSONUniqueClause(uniqueKeys);
+
+        if (uniqueKeys && hasDuplicate) {
+            throw Error.error(ErrorCode.X_23505);
+        }
 
         if (readIfThis(Tokens.RETURNING)) {
             dataType = readJSONReturningClause();
