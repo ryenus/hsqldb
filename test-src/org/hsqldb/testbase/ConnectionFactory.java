@@ -35,6 +35,7 @@ import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.NClob;
 import java.sql.PreparedStatement;
@@ -44,6 +45,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
+import java.util.ServiceLoader;
+import java.util.stream.StreamSupport;
 
 /**
  * For creating, tracking and closing the
@@ -83,21 +86,21 @@ public final class ConnectionFactory {
         }
     }
     @SuppressWarnings("CollectionWithoutInitialCapacity")
-    private final List<ConnectionRegistration> m_connectionRegistrations = new ArrayList<ConnectionRegistration>();
+    private final List<ConnectionRegistration> m_connectionRegistrations = new ArrayList<>();
     @SuppressWarnings("CollectionWithoutInitialCapacity")
-    private final List<Statement> m_statements = new ArrayList<Statement>();
+    private final List<Statement> m_statements = new ArrayList<>();
     @SuppressWarnings("CollectionWithoutInitialCapacity")
-    private final List<ResultSet> m_resultSets = new ArrayList<ResultSet>();
+    private final List<ResultSet> m_resultSets = new ArrayList<>();
     @SuppressWarnings("CollectionWithoutInitialCapacity")
-    private final List<Blob> m_blobs = new ArrayList<Blob>();
+    private final List<Blob> m_blobs = new ArrayList<>();
     @SuppressWarnings("CollectionWithoutInitialCapacity")
-    private final List<Clob> m_clobs = new ArrayList<Clob>();
+    private final List<Clob> m_clobs = new ArrayList<>();
     @SuppressWarnings("CollectionWithoutInitialCapacity")
-    private final List<Array> m_arrays = new ArrayList<Array>();
+    private final List<Array> m_arrays = new ArrayList<>();
     @SuppressWarnings("CollectionWithoutInitialCapacity")
-    private final List<SQLXML> m_xmls = new ArrayList<SQLXML>();
+    private final List<SQLXML> m_xmls = new ArrayList<>();
     @SuppressWarnings("CollectionWithoutInitialCapacity")
-    private final List<Closeable> m_closeable = new ArrayList<Closeable>();
+    private final List<Closeable> m_closeable = new ArrayList<>();
 
     // </editor-fold>
 
@@ -110,7 +113,7 @@ public final class ConnectionFactory {
 
         void finishedClosingRegisteredObjects(ConnectionFactory source);
     }
-    private final List<ConnectionFactoryEventListener> m_listeners = new ArrayList<ConnectionFactoryEventListener>(2);
+    private final List<ConnectionFactoryEventListener> m_listeners = new ArrayList<>(2);
 
     public void addEventListener(ConnectionFactoryEventListener l) {
         if (!m_listeners.contains(l)) {
@@ -142,7 +145,7 @@ public final class ConnectionFactory {
     }
 
     /**
-     * to be closed at teardown.
+     * to be closed at tear down.
      *
      * @param conn to track for close.
      * @param rollback boolean
@@ -152,7 +155,7 @@ public final class ConnectionFactory {
     }
 
     /**
-     * to be closed at teardown.
+     * to be closed at tear down.
      *
      * @param stmt to track for close.
      */
@@ -197,7 +200,7 @@ public final class ConnectionFactory {
     /**
      * closes all registered JDBC objects.
      */
-    @SuppressWarnings("CallToThreadDumpStack")
+    @SuppressWarnings({"CallToThreadDumpStack", "UseSpecificCatch", "CallToPrintStackTrace"})
     public void closeRegisteredObjects() {
         for (SQLXML xml : m_xmls) {
             if (xml != null) {
@@ -294,23 +297,28 @@ public final class ConnectionFactory {
     /**
      * with the specified driver, url, user and password. <p>
      *
-     * @param driver fully qualified class name of a <tt>java.sql.Driver</tt>.
+     * @param driver fully qualified class name of a {@code java.sql.Driver}.
      * @param url of connection.
      * @param user of connection.
      * @param password of user.
-     * @throws java.lang.Exception when the connection cannot be created.
-     * @return a newly created and registered object.
+     * @throws Exception when the connection cannot be created.
+     * @return a newly created and registered object.  
      */
     public Connection newConnection(
             final String driver,
             final String url,
             final String user,
             final String password) throws Exception {
-        // Not actually needed under JDBC4, as long as
-        // a classpath jar has a compatible META-INF service
-        // entry.  However, its not guaranteed that
-        // every driver tested has a service entry...
-        Class.forName(driver);
+
+        // Test for JDBC 4 presence
+        boolean anyMatch = StreamSupport
+                .stream(ServiceLoader.load(Driver.class).spliterator(), false)
+                .anyMatch(obj -> obj.getClass().getName().equals(driver));
+        
+        if (!anyMatch) {
+            // fall back tlo legacy behaviour
+            Class.forName(driver);
+        }
 
         final Connection conn = DriverManager.getConnection(
                 url,
@@ -365,9 +373,9 @@ public final class ConnectionFactory {
     }
 
     /**
-     * for the given <tt>sql</tt> using the given connection. <p>
+     * for the given {@code sql} using the given connection. <p>
      *
-     * The new statement is registered to be closed at teardown.
+     * The new statement is registered to be closed at tear down.
      *
      * @param sql to prepare.
      * @param conn with which to prepare.
@@ -385,10 +393,11 @@ public final class ConnectionFactory {
     }
 
     /**
-     * for the given <tt>sql</tt> using the given connection. <p>
+     * for the given {@code sql} using the given connection. <p>
      *
-     * The new statement is registered to be closed at teardown.
+     * The new statement is registered to be closed at tear down.
      *
+     * @param sql to prepare,
      * @param conn with which to prepare.
      * @throws java.lang.Exception when the call cannot be prepared.
      * @return the newly prepared and registered object.
@@ -404,9 +413,9 @@ public final class ConnectionFactory {
     }
 
     /**
-     * using the given <tt>sql</tt> and statement object.
+     * using the given {@code sql} and statement object.
      *
-     * The returned <tt>ResultSet</tt> is registered to be closed at teardown.
+     * The returned {@code ResultSet} is registered to be closed at tear down.
      *
      * @param sql to execute.
      * @param stmt against which to execute.
@@ -426,7 +435,7 @@ public final class ConnectionFactory {
     /**
      * using the given statement object.
      *
-     * The returned <tt>ResultSet</tt> is registered to be closed at teardown.
+     * The returned {@code ResultSet} is registered to be closed at teardown.
      *
      * @param stmt to execute.
      * @throws java.lang.Exception when execution fails.
