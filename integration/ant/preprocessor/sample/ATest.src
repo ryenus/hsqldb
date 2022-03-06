@@ -1,0 +1,41 @@
+class ATest {
+//#ifndef jdbc_version
+// jdbc_version was not defined:
+//#else
+//#include Main.inc
+//#endinclude
+//#endif
+//#define jdbc_version 3
+//#include Main.inc
+//#endinclude
+//#define jdbc_version 2
+//#include Main.inc
+//#endinclude
+//#define v1 "happy"
+//#define v2 "sad"
+//#ifdef v1
+String s1 = "v1 was defined";
+    //#ifdef v2
+String s2 = "v2 was defined";
+        //#if (v1 == "happy")
+String s3 = "v1 was \"happy\"";
+            //#if (v2 == "sad")
+String s4 = "v2 was \"sad\"";
+                //#if (v1 <= v2)
+String s5 = "v1 was less than or equal to v2";
+                //#else
+String s5 = "v1 was greater than v2";
+                //#endif (v1 <= v2)
+            //#else
+String s4 = "v2 was not \"sad\"";
+            //#endif (v2 == "sad")
+        //#else
+String s3 = "v2 was not defined or v1 was not \"happy\"";
+        //#endif (v1 == "happy")
+    //#else
+String s2 = "v2 was not defined";
+    //#endif v1
+//#else
+String s1 = "v1 was not defined";
+//#endif v1
+}

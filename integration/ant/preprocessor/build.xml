@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="help" name="hsqldb-base-trunk/integration/ant/preprocessor">
+    <description>Builds the Ant preprocessor integration jar </description>
+    <target name="help" description="Top-level help message">
+        <echo>Ant version: ${ant.version} </echo>
+        <echo><![CDATA[usage:
+ant -help            Display ant help screen
+ant -projecthelp     Display all invocable targets
+ant check            Check the project dependencies
+and clean            Delete the jar and javadoc artifacts.
+ant jar              Build the Ant preprocessor integration jar
+ant javadoc          Build the prjoect javadoc artifacts
+ant sample           Preprocess the sample files]]></echo>
+    </target>
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!-- B U I L D  T I M E S T A M P                                         -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <tstamp>
+        <format property="_tmpstamp"
+                pattern="yyyy/MM/dd-hh:mm:ss"
+                locale="en"/>
+    </tstamp>
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!-- U S E R  B U I L D  P R O P E R T I E S  O V E R R I D E S           -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <property file="${basedir}/build.properties"/>
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!-- D E F A U L T  B U I L D  P R O P E R T I E S                        -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <property name="hsqldb-ant-preprocessor.version"
+              value="2.6.2"/>
+
+    <property name="hsqldb-ant-preprocessor.title"
+              value="HSQLDB Ant preprocessor integration"/>
+
+    <property name="hsqldb-ant-preprocessor.vendor"
+              value="The HSQL Development Group"/>
+
+    <property name="hsqldb-ant-preprocessor.implementation.title"
+              value="Ant preprocessor task and resolver"/>
+
+    <property name="hsqldb-ant-preprocessor.implementation.label"
+              value="private-${_tmpstamp}"/>
+
+    <property name="hsqldb-ant-preprocessor.implementation.vendor"
+              value="${user.name}"/>
+
+    <property name="hsqldb-lib.dir"
+              value="${basedir}/../../../lib" />
+        
+    <property name="hsqldb-ant-preprocessor.src.dir"
+              value="${basedir}/src" />
+   
+    <property name="hsqldb-ant-preprocessor.lib.dir"
+              value="${basedir}/lib" />
+
+    <property name="hsqldb-ant-preprocessor.classes.dir"
+              value="${basedir}/classes" />
+
+    <property name="hsqldb-preprocessor.jar"
+              value="${hsqldb-lib.dir}/preprocessor.jar" />
+
+    <property name="hsqldb-ant-preprocessor.jar"
+              value="${hsqldb-ant-preprocessor.lib.dir}/hsqldb-ant-preprocessor.jar" />
+
+    <property name="build.debug"
+              value="true" />
+
+    <property name="build.optimize"
+              value="false" />
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!-- B U I L D  C L A S S P A T H                                         -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <path id="hsqldb-ant-preprocessor.javac.classpath">
+        <pathelement location="${hsqldb-preprocessor.jar}"/>
+    </path>
+    
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!-- P R E P R O C E S S O R  C L A S S P A T H                           -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <path id="hsqldb-ant-preprocessor.runtime.classpath">
+        <pathelement location="${hsqldb-preprocessor.jar}"/>
+        <pathelement location="${hsqldb-ant-preprocessor.jar}"/>
+    </path>
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!-- S H A R E D  I N I T I A L I Z A T I O N                             -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <target name="-init">
+        <available file=""
+                   type="file"
+                   property="hsqldb-preprocessor.jar.available"/>
+
+        <fail unless='hsqldb-preprocessor.jar.available'
+              message="'The HSQLDB preprocessor.jar' must reside at ${hsqldb-preprocessor.jar}"/>
+
+    </target>
+	
+    <target name="check"
+            description="checks the project dependencies">
+        <pathconvert pathsep="${line.separator}" 
+                     property="check.class.path" 
+                     refid="hsqldb-ant-preprocessor.runtime.classpath"/>
+        <echo><![CDATA[
+Check Status     : SUCCESS - project dependences satisifed.
+Project Name     : ${ant.project.name}
+Project Base     : ${basedir}
+Project Classpath:
+${check.class.path}
+Ant Version      :${ant.version}
+Ant Home         :${ant.home}]]></echo>
+    </target>
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!-- M A K E  A N T  P R E P R O C E S S O R  J A R                       -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <target name="jar"
+            description="Builds classes and creates the hsqldb-ant-preprocessor jar"
+            depends="-init">
+        <mkdir dir="${hsqldb-ant-preprocessor.classes.dir}"/>
+        <mkdir dir="${hsqldb-ant-preprocessor.lib.dir}"/>
+
+        <!-- Compile Classes -->
+        <javac srcdir="${hsqldb-ant-preprocessor.src.dir}"
+               destdir="${hsqldb-ant-preprocessor.classes.dir}"
+               debug="${build.debug}"
+               optimize="${build.optimize}"
+               includeantruntime="true">
+            <classpath refid="hsqldb-ant-preprocessor.javac.classpath"/>
+        </javac>
+
+        <!-- Build Jar -->
+        <jar jarfile="${hsqldb-ant-preprocessor.jar}"
+             basedir="${hsqldb-ant-preprocessor.classes.dir}">
+            <manifest>
+                <attribute name='Specification-Title'
+                           value='${hsqldb-ant-preprocessor.title}'/>
+
+                <attribute name='Specification-Version'
+                           value='${hsqldb-ant-preprocessor.version}'/>
+
+                <attribute name='Specification-Vendor'
+                           value='${hsqldb-ant-preprocessor.vendor}'/>
+
+                <attribute name='Implementation-Title'
+                           value='${hsqldb-ant-preprocessor.implementation.title}'/>
+
+                <attribute name='Implementation-Version'
+                           value='${hsqldb-ant-preprocessor.implementation.label}'/>
+
+                <attribute name='Implementation-Vendor'
+                           value='${hsqldb-ant-preprocessor.implementation.vendor}'/>
+            </manifest>
+        </jar>
+    </target>
+        
+    <target name="javadoc" depends="jar">
+        <javadoc
+            destdir="dist/javadoc"
+            docencoding="UTF-8"
+            charset="UTF-8"
+            author="true"
+            version="true"
+            use="true"
+            public="true"
+            failonerror="false"
+            verbose="false"
+            windowtitle="${hsqldb-ant-preprocessor.title} ${hsqldb-ant-preprocessor.version} API"
+            doctitle="${hsqldb-ant-preprocessor.title} ${hsqldb-ant-preprocessor.version}"
+            bottom="&lt;i&gt;Copyright &#169; 2001 - 2022 HSQL Development Group.&lt;/i&gt;">
+            <classpath>
+                <pathelement location="${hsqldb-preprocessor.jar}"/>
+                <pathelement location="${hsqldb-ant-preprocessor.jar}"/>
+                <pathelement location="${ant.core.lib}"/>
+            </classpath>
+            <packageset dir="${hsqldb-ant-preprocessor.src.dir}">
+                <include name='org/hsqldb/util/preprocessor/ant'/>
+            </packageset>
+        </javadoc>
+    </target>
+    
+    <target name="sample" depends="jar">
+        <taskdef
+            name="preprocess"
+            classname="org.hsqldb.util.preprocessor.ant.PreprocessorAntTask">
+            <classpath refid="hsqldb-ant-preprocessor.runtime.classpath"/>
+        </taskdef>
+ 
+        <preprocess
+            srcdir="${basedir}/sample"
+            targetdir="${basedir}/output"
+            altext=".pre"
+            backup="false"
+            encoding="UTF8"
+            filter="true"
+            indent="false"
+            testonly="true"
+            verbose="true">
+        </preprocess>
+
+    </target>
+
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!-- C L E A N  T E S T  S U I T E                                        -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <target name="clean"
+            description="Deletes all output artifacts">
+        <delete dir="${hsqldb-ant-preprocessor.classes.dir}" />
+        <delete dir="${hsqldb-ant-preprocessor.lib.dir}" />
+    </target>
+</project>
