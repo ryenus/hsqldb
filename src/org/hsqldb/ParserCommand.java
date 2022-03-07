@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -297,18 +297,7 @@ public class ParserCommand extends ParserDDL {
                 break;
 
             case Tokens.EXPLAIN : {
-                int position = getPosition();
-
-                read();
-
-                if (token.tokenType == Tokens.PLAN) {
-                    cs = compileExplainPlan();
-                } else {
-                    cs = compileExplainReferences();
-                }
-
-                cs.setSQL(getLastPart(position));
-
+                cs = compileExplain();
                 break;
             }
             case Tokens.DECLARE :
@@ -1473,9 +1462,8 @@ public class ParserCommand extends ParserDDL {
                         read();
                         readThis(Tokens.TRAILING);
 
-                        flag = processTrueOrFalseObject();
-                        property =
-                            HsqlDatabaseProperties.sql_trunc_trailing;
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_trunc_trailing;
                         break;
 
                     case Tokens.TYPES :
@@ -2497,8 +2485,6 @@ public class ParserCommand extends ParserDDL {
                                             null, names);
             }
             case Tokens.IMPORT : {
-                read();
-
                 return compileImportScript();
             }
             case Tokens.EXPORT : {
@@ -2522,6 +2508,7 @@ public class ParserCommand extends ParserDDL {
         int     mode         = RowInsertInterface.modes.continueOnError;
         Boolean isVersioning = Boolean.FALSE;
 
+        read();
         readThis(Tokens.SCRIPT);
 
         if (token.tokenType == Tokens.VERSIONING) {
@@ -2632,6 +2619,23 @@ public class ParserCommand extends ParserDDL {
 
         String    sql = Tokens.T_DISCONNECT;
         Statement cs  = new StatementSession(StatementTypes.DISCONNECT, null);
+
+        return cs;
+    }
+
+    private Statement compileExplain() {
+        Statement cs;
+        int position = getPosition();
+
+        read();
+
+        if (token.tokenType == Tokens.PLAN) {
+            cs = compileExplainPlan();
+        } else {
+            cs = compileExplainReferences();
+        }
+
+        cs.setSQL(getLastPart(position));
 
         return cs;
     }
