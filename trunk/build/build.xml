@@ -643,11 +643,21 @@ examples:
       </jar>
 
       <!-- Ant jar task doesn't support -e / -Main-Class switch! -->
-      <exec executable="${jar.exec.path}" dir="lib" failonerror="true">
+      <exec executable="${jar.exec.path}" dir="lib"
+            outputproperty="out.1" errorproperty="err.1"
+            resultproperty="exec.val.1">
         <arg value="-ufe"/>
         <arg value="hsqldb.jar"/>
         <arg value="org.hsqldb.util.DatabaseManagerSwing"/>
       </exec>
+      <condition property="_do-abort" value="DUMMY">
+        <not> <equals arg1="0" arg2="${exec.val.1}"/> </not>
+      </condition>
+      <fail if="_do-abort">Exiting due to 'jar' exit value ${exec.val.1}.
+JVM stdout: ---------------------------------------------------
+${out.1}
+JVM stderr: ---------------------------------------------------
+${err.1}</fail>
     </target>
 
     <target name="dbmanswing" depends="-swing, -lib, -prep-license-files"
@@ -724,11 +734,21 @@ examples:
       </jar>
 
       <!-- Ant jar task doesn't support -e switch! -->
-      <exec executable="${jar.exec.path}" dir="lib" failonerror="true">
+      <exec executable="${jar.exec.path}" dir="lib"
+            outputproperty="out.2" errorproperty="err.2"
+            resultproperty="exec.val.2">
         <arg value="-ufe"/>
         <arg value="sqltool.jar"/>
         <arg value="org.hsqldb.cmdline.SqlTool"/>
       </exec>
+      <condition property="_do-abort" value="DUMMY">
+        <not> <equals arg1="0" arg2="${exec.val.2}"/> </not>
+      </condition>
+      <fail if="_do-abort">Exiting due to 'jar' exit value ${exec.val.2}.
+JVM stdout: ---------------------------------------------------
+${out.2}
+JVM stderr: ---------------------------------------------------
+${err.2}</fail>
     </target>
 
     <target name="-clone-shared-sources">
@@ -1156,7 +1176,9 @@ optimizations) manually.
       <!-- Purposefully not using the bndwrap task available for this purpose,
            because the docs don't explain how to use the attributes clearly enough
            to figure out how to use it. -->
-      <java failonerror="true" fork="true" dir="lib" classpath="${bndjar.file}"
+      <java fork="true" dir="lib" classpath="${bndjar.file}"
+            outputproperty="out.0" errorproperty="err.0"
+            resultproperty="exec.val.0"
             classname="aQute.bnd.main.bnd">
         <sysproperty key="hsqldb.version" value="${hsqldb.version}"/>
         <sysproperty key="build.vendor" value="${user.name}"/>
@@ -1169,6 +1191,14 @@ optimizations) manually.
         <arg file="build/hsqldb.bnd"/>
         <arg value="hsqldb.jar"/>
       </java>
+      <condition property="_do-abort" value="DUMMY">
+        <not> <equals arg1="0" arg2="${exec.val.0}"/> </not>
+      </condition>
+      <fail if="_do-abort">Exiting due to BND JVM exit value ${exec.val.0}.
+JVM stdout: ---------------------------------------------------
+${out.0}
+JVM stderr: ---------------------------------------------------
+${err.0}</fail>
       <delete file="lib/hsqldb.jar"/>
     </target>
 </project>
