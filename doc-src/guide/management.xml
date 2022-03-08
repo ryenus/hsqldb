@@ -1756,6 +1756,28 @@
       statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
+        <primary>PERFORM EXPORT DSV</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">EXPORT DSV</emphasis></simpara>
+
+      <simpara><emphasis>export DSV statement</emphasis></simpara>
+
+      <simpara><literal>&lt;export DSV statement&gt; ::= PERFORM EXPORT DATA
+      FFROM TABLE &lt;table name&gt; TO &lt;single-quouted text file source
+      string&gt;</literal></simpara>
+
+      <simpara>Writes the contents of a table as a DSV file, for example as a
+      Comma-Seperated Values (CSV).</simpara>
+
+      <simpara>The destination is defined as a file path together with
+      optional setting as defined for a TEXT table. See the Text Tables
+      chapter for the properties.</simpara>
+
+      <simpara>Only a user with the SCRIPT_OPS role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
         <primary>PERFORM IMPORT SCRIPT</primary>
       </indexterm>
 
@@ -1795,6 +1817,35 @@
       same row has been inserted, updated or deleted in both databases. In
       this case, the changes for the row are not applied and are written to
       the <literal>.reject</literal> file.</simpara>
+
+      <simpara>Only a user with the SCRIPT_OPS role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>PERFORM IMPORT DSV file</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">IMPORT DSV</emphasis></simpara>
+
+      <simpara><emphasis>import DSV statement</emphasis></simpara>
+
+      <simpara><literal>&lt;import DSV statement&gt; ::= PERFORM IMPORT DATA
+      FROM &lt;single-quoted file path&gt; INTO &lt;table name&gt; { CONTINUE
+      | STOP | CHECK } ON ERROR</literal></simpara>
+
+      <simpara>Imports data from a DSV file into a table. The file to be
+      imported may be a file exported with the EXPORT DSV statement listed
+      above, or a file from another source.</simpara>
+
+      <simpara>The { CONTINUE | STOP | CHECK } ON ERROR clause determines the
+      action when an error occurs due to constraint violation. The CHECK
+      option does not insert the data, but checks each INSERT statement in the
+      DSV file for type constraints such as string size limit or row
+      constraints such as NOT NULL. It cannot check for UNIQUE constraints.
+      The STOP option stops the import at the first error. The CONTINUE option
+      writes the rows that cannot be imported, to a file in the same location
+      as the imported script, with the file suffix <literal>.reject</literal>
+      and the timestamp of the import, then continues the import.</simpara>
 
       <simpara>Only a user with the SCRIPT_OPS role can execute this
       statement.</simpara>
@@ -2538,7 +2589,7 @@
       string that is longer than the maximum size of a column is inserted,
       spaces at the end are removed to reduce the length of the string to the
       maximum size of the column. If this is not possible, an exception is
-      raised. </simpara>
+      raised.</simpara>
 
       <simpara>When the property is set to <literal>FALSE</literal>, no
       truncation take place and an exception is always raised. This behaviour
