@@ -298,6 +298,7 @@ public class ParserCommand extends ParserDDL {
 
             case Tokens.EXPLAIN : {
                 cs = compileExplain();
+
                 break;
             }
             case Tokens.DECLARE :
@@ -2432,74 +2433,102 @@ public class ParserCommand extends ParserDDL {
 
         switch (token.tokenType) {
 
-            /*
-             * PERFORM CHECK TABLE <name> INDEX [AND FIX]
-             * PERFORM CHECK ALL TABLE INDEX [AND FIX]
-             */
-            case Tokens.CHECK : {
+            case Tokens.CHECK :
+                return compileCheck();
+
+            case Tokens.IMPORT :
                 read();
 
-                boolean  isAll     = false;
-                HsqlName tableName = null;
-                Integer  type      = Integer.valueOf(IndexStats.checkRows);
-                Integer  number    = Integer.valueOf(-1);
-
-                switch (token.tokenType) {
-
-                    case Tokens.ALL : {
-                        read();
-
-                        isAll = true;
-                    }
-
-                    // fall through
-                    case Tokens.TABLE : {
-                        readThis(Tokens.TABLE);
-
-                        if (isAll) {
-                            readThis(Tokens.INDEX);
-                        } else {
-                            tableName = readTableName().getName();
-
-                            readThis(Tokens.INDEX);
-                        }
-                    }
+                if (token.tokenType == Tokens.SCRIPT) {
+                    return compileImportScript();
+                } else {
+                    return compileImportData();
                 }
+            case Tokens.EXPORT :
+                read();
 
-                if (readIfThis(Tokens.AND)) {
-                    readThis("FIX");
-
-                    type = Integer.valueOf(IndexStats.fixAll);
+                if (token.tokenType == Tokens.SCRIPT) {
+                    return compileScript(true);
+                } else {
+                    return compileExportData();
                 }
-
-                Object[] args = new Object[] {
-                    tableName, type, number
-                };
-                HsqlName[] names =
-                    isAll
-                    ? database.schemaManager.getCatalogAndBaseTableNames()
-                    : database.schemaManager.getCatalogAndBaseTableNames(
-                        tableName);
-
-                return new StatementCommand(StatementTypes.CHECK_INDEX, args,
-                                            null, names);
-            }
-            case Tokens.IMPORT : {
-                return compileImportScript();
-            }
-            case Tokens.EXPORT : {
-                return compileExport();
-            }
             default :
                 throw unexpectedToken();
         }
     }
 
-    private Statement compileExport() {
+    /*
+     * PERFORM CHECK TABLE <name> INDEX [AND FIX]
+     * PERFORM CHECK ALL TABLE INDEX [AND FIX]
+     */
+    private Statement compileCheck() {
 
         read();
 
-        return compileScript(true);
+        boolean  isAll     = false;
+        HsqlName tableName = null;
+        Integer  type      = Integer.valueOf(IndexStats.checkRows);
+        Integer  number    = Integer.valueOf(-1);
+
+        switch (token.tokenType) {
+
+            case Tokens.ALL : {
+                read();
+
+                isAll = true;
+            }
+
+            // fall through
+            case Tokens.TABLE : {
+                readThis(Tokens.TABLE);
+
+                if (isAll) {
+                    readThis(Tokens.INDEX);
+                } else {
+                    tableName = readTableName().getName();
+
+                    readThis(Tokens.INDEX);
+                }
+            }
+        }
+
+        if (readIfThis(Tokens.AND)) {
+            readThis("FIX");
+
+            type = Integer.valueOf(IndexStats.fixAll);
+        }
+
+        Object[] args = new Object[] {
+            tableName, type, number
+        };
+        HsqlName[] names =
+            isAll ? database.schemaManager.getCatalogAndBaseTableNames()
+                  : database.schemaManager.getCatalogAndBaseTableNames(
+                      tableName);
+
+        return new StatementCommand(StatementTypes.CHECK_INDEX, args, null,
+                                    names);
+    }
+
+    private Statement compileExportData() {
+
+        readThis(Tokens.DATA);
+        readThis(Tokens.FROM);
+        readThis(Tokens.TABLE);
+
+        HsqlName tableName = readTableName().getName();
+
+        readThis(Tokens.TO);
+
+        String fileName = readQuotedString();
+        HsqlName[] names =
+            database.schemaManager.getCatalogAndBaseTableNames();
+        Object[] args = new Object[] {
+            tableName, fileName
+        };
+
+        return new StatementCommand(StatementTypes.UNLOAD_DATA, args, null,
+                                    names);
     }
 
     private Statement compileImportScript() {
@@ -2508,7 +2537,6 @@ public class ParserCommand extends ParserDDL {
         int     mode         = RowInsertInterface.modes.continueOnError;
         Boolean isVersioning = Boolean.FALSE;
 
-        read();
         readThis(Tokens.SCRIPT);
 
         if (token.tokenType == Tokens.VERSIONING) {
@@ -2533,6 +2561,28 @@ public class ParserCommand extends ParserDDL {
         };
 
         return new StatementCommand(StatementTypes.LOAD_SCRIPT, args, null,
+                                    names);
+    }
+
+    private Statement compileImportData() {
+
+        readThis(Tokens.DATA);
+        readThis(Tokens.INTO);
+        readThis(Tokens.TABLE);
+
+        HsqlName tableName = readTableName().getName();
+
+        readThis(Tokens.FROM);
+
+        String fileName = readQuotedString();
+        int    mode     = readLoadMode();
+        HsqlName[] names =
+            database.schemaManager.getCatalogAndBaseTableNames();
+        Object[] args = new Object[] {
+            tableName, fileName, Integer.valueOf(mode)
+        };
+
+        return new StatementCommand(StatementTypes.LOAD_DATA, args, null,
                                     names);
     }
 
@@ -2624,8 +2674,9 @@ public class ParserCommand extends ParserDDL {
     }
 
     private Statement compileExplain() {
+
         Statement cs;
-        int position = getPosition();
+        int       position = getPosition();
 
         read();
 

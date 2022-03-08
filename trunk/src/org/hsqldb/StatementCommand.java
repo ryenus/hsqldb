@@ -47,6 +47,7 @@ import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.RowStoreAVLDisk;
 import org.hsqldb.persist.ScriptLoader;
 import org.hsqldb.persist.TableSpaceManager;
+import org.hsqldb.persist.TextFileOps;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rights.User;
@@ -59,7 +60,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -117,6 +118,8 @@ public class StatementCommand extends Statement {
 
                 break;
             }
+            case StatementTypes.UNLOAD_DATA :
+            case StatementTypes.LOAD_DATA :
             case StatementTypes.LOAD_SCRIPT : {
                 group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
                 isLogged = false;
@@ -1048,6 +1051,41 @@ public class StatementCommand extends Statement {
 
                     return ScriptLoader.loadScriptData(
                         session, pathName, mode, isVersioning.booleanValue());
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.LOAD_DATA : {
+                try {
+                    HsqlName tableName = (HsqlName) arguments[0];
+                    String   textprops = (String) arguments[1];
+                    int      mode      = ((Integer) arguments[2]).intValue();
+                    Table table =
+                        session.database.schemaManager.getUserTable(tableName);
+
+                    if (!session.getGrantee().canPerformScriptOps()) {
+                        throw Error.error(ErrorCode.X_42507);
+                    }
+
+                    return TextFileOps.loadTextData(session, textprops,
+                                                          table, mode);
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.UNLOAD_DATA : {
+                try {
+                    HsqlName tableName = (HsqlName) arguments[0];
+                    String   textprops = (String) arguments[1];
+                    Table table =
+                        session.database.schemaManager.getUserTable(tableName);
+
+                    if (!session.getGrantee().canPerformScriptOps()) {
+                        throw Error.error(ErrorCode.X_42507);
+                    }
+
+                    return TextFileOps.unloadTextData(session,
+                            textprops, table);
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
