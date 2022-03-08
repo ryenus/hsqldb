@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ package org.hsqldb;
  * Codes based on SQL Standards for different types of statement.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.9.0
  */
 public interface StatementTypes {
@@ -174,6 +174,9 @@ public interface StatementTypes {
     int SET_PASSTHROUGH             = 133;
     int CREATE_USER_MAPPING         = 134;
 
+	//
+    int LOAD_DATA          = 909;
+    int UNLOAD_DATA        = 910;
     // hsqldb database
     int DATABASE_BACKUP     = 1001;
     int DATABASE_CHECKPOINT = 1002;
