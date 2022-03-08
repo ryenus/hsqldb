@@ -53,12 +53,12 @@
     <title>Introduction</title>
 
     <para>HyperSQL Database (HSQLDB) is a modern relational database system.
-    Version 2.6.1 is the latest release of the all-new version 2 code. Written
+    Version 2.7.0 is the latest release of the all-new version 2 code. Written
     from ground up to follow the international ISO SQL:2016 standard, it
     supports the complete set of the classic features, together with optional
     features such as stored procedures and triggers.</para>
 
-    <para>HyperSQL version 2.6.1 is compatible with Java 11 or later and
+    <para>HyperSQL version 2.7.0 is compatible with Java 11 or later and
     supports the Java module system. A version of the HSQLDB jar compiled with
     JDK 8 is also included in the download zip package. A version of the jar
     compiled with JDK 6 is also available at hsqldb.org, numbered 2.3.9 to

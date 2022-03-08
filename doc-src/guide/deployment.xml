@@ -602,9 +602,9 @@
     versions. It is a good idea to perform SHUTDOWN COMPACT after the
     upgrade.</para>
 
-    <para>Downgrading is also possible. Once a database is upgraded to 2.6.0,
-    you need to perform SHUTDOWN SCRIPT before you open it with previous 2.x.x
-    versions of HyperSQL.</para>
+    <para>Downgrading is also possible. A database created with the current 
+	version can be closed with SHUTDOWN SCRIPT before you open it with 
+	previous 2.x.x versions of HyperSQL.</para>
 
     <para>To upgrade an old database created with version 1.8.x, you can use
     HSQLDB version 2.3.x to 2.5.0 to open the database and perform SHUTDOWN

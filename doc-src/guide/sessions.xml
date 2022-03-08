@@ -174,8 +174,8 @@
       takes precedence over a schema table of the same name. To distinguish a
       session table from schema tables, the pseudo schema name, SESSION can be
       used. The alternative name, MODULE is deprecated and does not work in
-      version 2.5.1 but can be used in version 2.6.0. An example is given
-      below:</para>
+      version 2.5.1 but can be used in version 2.6.0 and later. An example is
+	  given below:</para>
 
       <para><example>
           <title>User-defined Temporary Session Tables</title>
@@ -184,7 +184,7 @@
  INSERT INTO session.buffer SELECT id, firstname || ' ' || lastname FROM customers
  -- do some more work
  DROP TABLE session.buffer
- -- alternative schema name, MODULE can be used in version 2.6.0 but it is deprecated
+ -- alternative schema name, MODULE can be used in version 2.7.0 but it is deprecated
  DROP TABLE module.buffer
 </screen>
         </example>Session tables can be created inside a transaction.
