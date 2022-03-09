@@ -16,6 +16,14 @@
         rephrase the question to yourself as "Can I run 'ant -Dx=...?"
         Do not address questions about property file(s) to the
         hsqldb community.
+
+    Example cross-compile settings for targeting Java 8.
+    This is syntax for inclusion in a build.properties file.
+    Can also set them in the build command with Ant or Gradle -D switches;
+    or an IDE's Ant or Gradle build settings.
+
+ant.build.javac.target=8
+javac.bootcp.override=/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar:/usr/lib/jvm/java-8-openjdk/jre/lib/jce.jar
         -->
 
   <!-- TODO:
