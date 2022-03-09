@@ -118,9 +118,43 @@ examples:
          It is sufficient for this purposes if the test classes used are
          verified to be present in version X and in all newer versions (> X)
          (i.e. that the class is not removed from some higher JVM). -->
-      <available classname="java.net.IDN" property="ant.java.iscjava06"/>
-      <available classname="java.sql.JDBCType" property="ant.java.iscjava08"/>
-      <available classname="java.sql.ShardingKey" property="ant.java.iscjava09"/>
+      <condition property="_crosswithoutbcp"> <and>
+        <isset property="ant.build.javac.target"/>
+        <not> <isset property="javac.bootcp.override"/> </not>
+      </and> </condition>
+      <fail if="_crosswithoutbcp">
+        If cross-compiling, you  must set property 'javac.bootcp.override'
+      </fail>
+      <echo>src originally {${ant.build.javac.source}}</echo>
+      <condition property="ant.build.javac.source"
+                 value="${ant.build.javac.target}">
+        <isset property="ant.build.javac.target"/>
+      </condition>
+      <condition property="ant.java.iscjava06"><and>
+        <available classname="java.net.IDN" property="ant.java.iscjava06"/>
+        <!-- only need to check for EARLIER javac.target values, not later -->
+        <not><matches string="${ant.build.javac.target}"
+                      pattern="^(?:1[.])?(1|2|3|4|5)$"/></not>
+      </and></condition>
+      <condition property="ant.java.iscjava08"><and>
+        <available classname="java.sql.JDBCType" property="ant.java.iscjava08"/>
+        <!-- only need to check for EARLIER javac.target values, not later -->
+        <not><matches string="${ant.build.javac.target}"
+                      pattern="^(?:1[.])?(1|2|3|4|5|6|7)$"/></not>
+      </and></condition>
+      <condition property="ant.java.iscjava09"><and>
+        <available classname="java.sql.ShardingKey" property="ant.java.iscjava09"/>
+        <!-- only need to check for EARLIER javac.target values, not later -->
+        <not><matches string="${ant.build.javac.target}"
+                      pattern="^(?:1[.])?(1|2|3|4|5|6|7|8)$"/></not>
+      </and></condition>
+      <fail if="debug.targetjvm">
+        specified compile target: ${ant.build.javac.target}
+        derived version:  6?${ant.java.iscjava06}  8?${ant.java.iscjava08}  9?${ant.java.iscjava09}
+        src (${ant.build.javac.source})
+        targ (${ant.build.javac.target})
+        bcp (${javac.bootcp.override})
+      </fail>
     </target>
 
     <target name="-prepare" depends="-set-jvmvars">
@@ -181,7 +215,8 @@ examples:
 
     <target name="codeswitcher" depends="-prepare"
             description="uses +-JAVA6 +-JAVA8 etc">
-      <javac destdir="classes" includeantruntime="false">
+        <javac bootclasspath="${javac.bootcp.override}"
+           destdir="classes" includeantruntime="false">
         <src path="src"/>
         <include name="org/hsqldb/util/CodeSwitcher.java"/>
       </javac>
@@ -279,6 +314,7 @@ examples:
     <target name="-lib" depends="switches"
             description="compiles the JVM-independent lib and map classes">
       <javac srcdir="${swsrc}"
+             bootclasspath="${javac.bootcp.override}"
              includeantruntime="false"
              destdir="classes"
              debug="${build.debug}"
@@ -301,6 +337,7 @@ examples:
       <fail unless='_servlet_available'
             message="Place Jar file for Servlet API at '${servletapi.lib}', or set property 'servletapi.lib'"/>
       <javac srcdir="${swsrc}"
+             bootclasspath="${javac.bootcp.override}"
              sourcepath=""
              includeantruntime="false"
              encoding="${javac.encoding}"
@@ -314,6 +351,7 @@ examples:
     <target name="classes" depends="switches,-javajsse"
     description="compiles JVM-independent non-lib/util/cmdline/servlet classes">
       <javac srcdir="${swsrc}"
+             bootclasspath="${javac.bootcp.override}"
              includeantruntime="false"
              encoding="${javac.encoding}"
              destdir="classes"
@@ -354,6 +392,7 @@ examples:
     <target name="-util" depends="-prepare"
             description="compiles the util folder">
       <javac srcdir="${swsrc}"
+             bootclasspath="${javac.bootcp.override}"
              includeantruntime="false"
              encoding="${javac.encoding}"
              destdir="classes"
@@ -369,8 +408,9 @@ examples:
 
     <target name="-preprocessor">
       <!-- This javac is no longer dependent upon default attr. includeAntRuntime=true -->
-	  <!-- Ant resolver and preprocessor moved to trunk/integration/ant/prepocessor/src -->
+      <!-- Ant resolver and preprocessor moved to trunk/integration/ant/prepocessor/src -->
       <javac srcdir="src"
+             bootclasspath="${javac.bootcp.override}"
              encoding="${javac.encoding}"
              destdir="classes"
              debug="${build.debug}"
@@ -385,6 +425,7 @@ examples:
                      -conditionalize-sqlfile-scanner, -sqlfile-scanner">
 
       <javac srcdir="${swsrc}"
+             bootclasspath="${javac.bootcp.override}"
              includeantruntime="false"
              encoding="${javac.encoding}"
              destdir="classes"
@@ -410,6 +451,7 @@ examples:
     <target name="-swing" depends="switches"
             description="compiles the swing based classes in the util folder">
       <javac srcdir="${swsrc}"
+             bootclasspath="${javac.bootcp.override}"
              includeantruntime="false"
              encoding="${javac.encoding}"
              destdir="classes"
@@ -432,6 +474,7 @@ examples:
     <target name="scanner-driver" depends="-cmdline"
             description="Build Scanner Driver.  For SqlTool scanner developers.">
       <javac srcdir="${swsrc}"
+             bootclasspath="${javac.bootcp.override}"
              includeantruntime="false"
              encoding="${javac.encoding}"
              includes="org/hsqldb/test/SqlFileScannerDriver.java"
@@ -443,6 +486,7 @@ examples:
     <target name="test" depends="-requireJunit, classes"
             description="compiles the test package classes">
       <javac srcdir="${swsrc}"
+             bootclasspath="${javac.bootcp.override}"
              includeantruntime="false"
              encoding="${javac.encoding}"
              destdir="classes"
@@ -686,6 +730,7 @@ ${err.1}</fail>
               file="${modinfosrc}${module.name}/module-info.java"/>
 
         <javac srcdir="${swsrc}"
+             bootclasspath="${javac.bootcp.override}"
              sourcepath="${swsrc}"
              includeantruntime="false"
              encoding="${javac.encoding}"
