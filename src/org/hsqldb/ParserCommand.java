@@ -1823,6 +1823,8 @@ public class ParserCommand extends ParserDDL {
         boolean  readonly = false;
         Object[] args     = new Object[2];
 
+        checkIsAny(Tokens.READ, Tokens.ISOLATION, 0, 0);
+
         outerloop:
         while (true) {
             switch (token.tokenType) {
@@ -1855,6 +1857,8 @@ public class ParserCommand extends ParserDDL {
 
                     read();
                     readThis(Tokens.LEVEL);
+                    checkIsAny(Tokens.SERIALIZABLE, Tokens.READ,
+                               Tokens.REPEATABLE, 0);
 
                     switch (token.tokenType) {
 
@@ -1865,7 +1869,7 @@ public class ParserCommand extends ParserDDL {
                             break;
 
                         case Tokens.READ :
-                            read();
+                            readAny(Tokens.COMMITTED, Tokens.UNCOMMITTED, 0,0);
 
                             if (token.tokenType == Tokens.COMMITTED) {
                                 read();
@@ -2119,6 +2123,9 @@ public class ParserCommand extends ParserDDL {
     }
 
     private Statement compileSessionSettings() {
+
+        checkIsAny(Tokens.CHARACTERISTICS, Tokens.AUTHORIZATION,
+                   Tokens.RESULT, Tokens.FEATURE);
 
         switch (token.tokenType) {
 
@@ -2429,7 +2436,7 @@ public class ParserCommand extends ParserDDL {
 
     private Statement compilePerform() {
 
-        read();
+        readAny(Tokens.CHECK, Tokens.EXPORT, Tokens.IMPORT, 0);
 
         switch (token.tokenType) {
 
@@ -2463,7 +2470,7 @@ public class ParserCommand extends ParserDDL {
      */
     private Statement compileCheck() {
 
-        read();
+        readAny(Tokens.ALL, Tokens.TABLE, 0, 0);
 
         boolean  isAll     = false;
         HsqlName tableName = null;
@@ -2590,6 +2597,8 @@ public class ParserCommand extends ParserDDL {
 
         int mode = -1;
 
+        checkIsAny(Tokens.CONTINUE, Tokens.STOP, Tokens.CHECK, 0);
+
         switch (token.tokenType) {
 
             case Tokens.CONTINUE :
@@ -2678,7 +2687,7 @@ public class ParserCommand extends ParserDDL {
         Statement cs;
         int       position = getPosition();
 
-        read();
+        readAny(Tokens.PLAN, Tokens.REFERENCES, 0, 0);
 
         if (token.tokenType == Tokens.PLAN) {
             cs = compileExplainPlan();
@@ -2711,7 +2720,7 @@ public class ParserCommand extends ParserDDL {
         SchemaObject object;
         boolean      referencesFrom = false;
 
-        readThis(Tokens.REFERENCES);
+        readAny(Tokens.TO, Tokens.FROM, 0, 0);
 
         if (!readIfThis(Tokens.TO)) {
             readThis(Tokens.FROM);

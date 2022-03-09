@@ -509,6 +509,39 @@ public class ParserBase {
         return false;
     }
 
+    void readAny(int id1, int id2, int id3, int id4) {
+        read();
+        checkIsAny(id1, id2, id3, id4);
+    }
+
+    void checkIsAny(int id1, int id2, int id3, int id4) {
+
+        if (token.tokenType == id1 || token.tokenType == id2
+                || token.tokenType == id3 || token.tokenType == id4) {
+            return;
+        }
+
+        String required = "";
+
+        if (id1 != 0) {
+            required += Tokens.getKeyword(id1);
+
+            if (id2 != 0) {
+                required += " or " + Tokens.getKeyword(id2);
+            }
+
+            if (id3 != 0) {
+                required += " or " + Tokens.getKeyword(id3);
+            }
+
+            if (id4 != 0) {
+                required += " or " + Tokens.getKeyword(id4);
+            }
+        }
+
+        throw unexpectedTokenRequire(required);
+    }
+
     Integer readIntegerObject() {
 
         int value = readInteger();
