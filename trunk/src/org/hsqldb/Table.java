@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ import org.hsqldb.types.Type;
  * Holds the data structures and methods for creation of a named database table.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.6.1
  */
 public class Table extends TableBase implements SchemaObject {
@@ -2506,8 +2506,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     *  Enforce max field sizes according to SQL column definition.
-     *  SQL92 13.8
+     *  Enforce not null and domain size constraints
      */
     public void enforceRowConstraints(Session session, Object[] data) {
 
@@ -2552,6 +2551,10 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
+    /**
+     *  Enforce max field sizes according to SQL column definition.
+     *  SQL92 13.8
+     */
     public void enforceTypeLimits(Session session, Object[] data) {
 
         int i = 0;
@@ -2567,7 +2570,8 @@ public class Table extends TableBase implements SchemaObject {
                     || code == -ErrorCode.X_22008) {
                 ColumnSchema column = getColumn(i);
                 String[]     info   = new String[] {
-                    "", tableName.statementName, column.getName().statementName
+                    "size limit: " + colTypes[i].precision,
+                    tableName.statementName, column.getName().statementName
                 };
 
                 throw Error.error(e, code, ErrorCode.COLUMN_CONSTRAINT, info);

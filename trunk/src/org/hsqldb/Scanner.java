@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,6 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.CharArrayWriter;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.OrderedIntHashSet;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.BitMap;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.types.BinaryData;
