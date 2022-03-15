@@ -57,7 +57,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -2338,12 +2338,20 @@ public class ParserDDL extends ParserRoutine {
             ColumnSchema column, int columnIndex) {
 
         //ALTER TABLE .. ALTER COLUMN .. SET DEFAULT
-        Type       type = column.getDataType();
-        Expression expr = readDefaultClause(type);
-        String     sql  = getLastPart();
-        Object[]   args = new Object[] {
-            StatementTypes.ALTER_COLUMN_DEFAULT, table, column,
-            Integer.valueOf(columnIndex), expr
+        Type       type          = column.getDataType();
+        Expression expr          = readDefaultClause(type);
+        String     sql           = getLastPart();
+        int        statementType = StatementTypes.ALTER_COLUMN_DEFAULT;
+        Object     argObject     = expr;
+
+        if (expr.opType == OpTypes.SEQUENCE) {
+            statementType = StatementTypes.ALTER_COLUMN_SEQUENCE;
+            argObject     = ((ExpressionColumn) expr).sequence;
+        }
+
+        Object[] args = new Object[] {
+            statementType, table, column, Integer.valueOf(columnIndex),
+            argObject
         };
         HsqlName[] writeLockNames =
             database.schemaManager.getCatalogAndBaseTableNames(
