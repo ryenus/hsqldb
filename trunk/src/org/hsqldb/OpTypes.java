@@ -141,7 +141,8 @@ public interface OpTypes {
         ARRAY_ACCESS               = 101,
         ARRAY_SUBQUERY             = 102,
         JSON_FUNCTION              = 103,
-        GROUPING                   = 104;    // grouping function
+        JSON_SQL_FUNCTION          = 104,
+        GROUPING                   = 105;    // grouping function
     //J-
     int[] aggOpTypes = new int[] {
 
