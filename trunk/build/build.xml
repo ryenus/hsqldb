@@ -783,7 +783,7 @@ ${err.1}</fail>
         </manifest>
         <fileset refid='sqltoolclasses'/>
         <fileset refid='sqltoolres'/>
-        <fileset refid='mainaddedclasses' />
+        <fileset refid='modinfoclass'/>
       </jar>
 
       <!-- Ant jar task doesn't support -e switch! -->
