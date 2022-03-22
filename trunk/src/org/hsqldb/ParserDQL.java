@@ -3281,13 +3281,14 @@ public class ParserDQL extends ParserBase {
 
     Expression readJSONArray() {
 
-        readThis(Tokens.OPENBRACKET);
-
         HsqlArrayList list       = new HsqlArrayList();
         Expression    qe         = null;
         boolean       nullOnNull = true;
         Type          dataType   = Type.SQL_VARCHAR_LONG;
-        int           position   = getPosition();
+
+        readThis(Tokens.OPENBRACKET);
+
+        int position = getPosition();
 
         loop:
         while (true) {
@@ -3384,13 +3385,13 @@ public class ParserDQL extends ParserBase {
 
     Expression readJSONObject() {
 
-        readThis(Tokens.OPENBRACKET);
-
         OrderedHashMap map          = new OrderedHashMap();
         boolean        nullOnNull   = true;
         boolean        uniqueKeys   = false;
         Type           dataType     = Type.SQL_VARCHAR_LONG;
         boolean        hasDuplicate = false;
+
+        readThis(Tokens.OPENBRACKET);
 
         loop:
         while (true) {
@@ -3472,8 +3473,6 @@ public class ParserDQL extends ParserBase {
 
     Expression readJSONObjectAgg() {
 
-        readThis(Tokens.OPENBRACKET);
-
         boolean                  nullOnNull = true;
         boolean                  uniqueKeys = false;
         Type                     dataType   = Type.SQL_VARCHAR_LONG;
@@ -3481,7 +3480,10 @@ public class ParserDQL extends ParserBase {
         Expression               valueExpr;
         ExpressionArrayAggregate arrayAggName;
         ExpressionArrayAggregate arrayAggValue;
-        int                      position = getPosition();
+
+        readThis(Tokens.OPENBRACKET);
+
+        int position = getPosition();
 
         nameExpr = XreadCharacterValueExpression();
 
