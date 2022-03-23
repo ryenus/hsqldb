@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.result.Result;
  * Implementation of Statement for CREATE SCHEMA statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.1.1
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class StatementSchemaDefinition extends StatementSchema {
@@ -125,6 +125,10 @@ public class StatementSchemaDefinition extends StatementSchema {
 
                         cs.isLogged = false;
                         result      = cs.execute(session);
+
+                        if (result.isError()) {
+                            break;
+                        }
 
                         HsqlName name = ((Table) cs.arguments[0]).getName();
                         Table table =
