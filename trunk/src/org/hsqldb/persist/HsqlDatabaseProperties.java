@@ -47,7 +47,7 @@ import org.hsqldb.types.Collation;
  * Manages a .properties file for a database.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
@@ -517,7 +517,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           false));
         dbMeta.put(sql_sys_index_names,
                    HsqlProperties.getMeta(sql_sys_index_names, SQL_PROPERTY,
-                                          false));
+                                          true));
         dbMeta.put(sql_lowercase_ident,
                    HsqlProperties.getMeta(sql_lowercase_ident, SQL_PROPERTY,
                                           false));
