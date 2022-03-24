@@ -113,6 +113,7 @@ public class Database {
     public boolean                sqlLowerCaseIdentifier = false;
     public boolean                sqlNullsFirst          = true;
     public boolean                sqlNullsOrder          = true;
+    public int                    sqlMaxRecursive        = 256;
     public boolean                sqlRegularNames        = true;
     public boolean                sqlSyntaxDb2           = false;
     public boolean                sqlSyntaxMss           = false;
@@ -555,6 +556,10 @@ public class Database {
 
     public void setAvgScale(int scale) {
         sqlAvgScale = scale;
+    }
+
+    public void setMaxRecursive(int value) {
+        sqlMaxRecursive = value;
     }
 
     public void setLongVarIsLob(boolean mode) {

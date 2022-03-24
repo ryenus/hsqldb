@@ -516,6 +516,8 @@ public class Logger implements EventLogInterface {
                 HsqlDatabaseProperties.sql_trunc_trailing);
         database.sqlAvgScale = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.sql_avg_scale);
+        database.sqlMaxRecursive = database.databaseProperties.getIntegerProperty(
+            HsqlDatabaseProperties.sql_max_recursive);
         database.sqlDoubleNaN = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_double_nan);
         database.sqlLongvarIsLob = database.databaseProperties.isPropertyTrue(
@@ -1566,6 +1568,10 @@ public class Logger implements EventLogInterface {
             return String.valueOf(database.sqlAvgScale);
         }
 
+        if (HsqlDatabaseProperties.sql_max_recursive.equals(name)) {
+            return String.valueOf(database.sqlMaxRecursive);
+        }
+
         if (HsqlDatabaseProperties.sql_char_literal.equals(name)) {
             return String.valueOf(database.sqlCharLiteral);
         }
@@ -1972,6 +1978,15 @@ public class Logger implements EventLogInterface {
         sb.append(Tokens.T_SCALE).append(' ');
         sb.append(database.sqlAvgScale);
         list.add(sb.toString());
+
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_MAX).append(' ');
+        sb.append(Tokens.T_RECURSIVE).append(' ');
+        sb.append(database.sqlMaxRecursive);
+        list.add(sb.toString());
+
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_DOUBLE).append(' ');

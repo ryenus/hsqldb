@@ -781,6 +781,9 @@ public class StatementCommand extends Statement {
                 } else if (HsqlDatabaseProperties.sql_avg_scale.equals(
                         property)) {
                     session.database.setAvgScale(value);
+                } else if (HsqlDatabaseProperties.sql_max_recursive.equals(
+                        property)) {
+                    session.database.setMaxRecursive(value);
                 } else if (HsqlDatabaseProperties.sql_double_nan.equals(
                         property)) {
                     session.database.setDoubleNaN(mode);

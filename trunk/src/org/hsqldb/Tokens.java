@@ -220,7 +220,7 @@ public class Tokens {
     public static final String T_LOOP              = "LOOP";
     public static final String T_LOWER             = "LOWER";
     static final String        T_MATCH             = "MATCH";
-    static final String        T_MAX               = "MAX";
+    public static final String T_MAX               = "MAX";
     static final String        T_MAX_CARDINALITY   = "MAX_CARDINALITY";
     static final String        T_MEMBER            = "MEMBER";
     static final String        T_MERGE             = "MERGE";
@@ -281,7 +281,7 @@ public class Tokens {
     static final String        T_RANK              = "RANK";
     static final String        T_READS             = "READS";
     public static final String T_REAL              = "REAL";
-    static final String        T_RECURSIVE         = "RECURSIVE";
+    public static final String T_RECURSIVE         = "RECURSIVE";
     static final String        T_REF               = "REF";
     public static final String T_REFERENCES        = "REFERENCES";
     static final String        T_REFERENCING       = "REFERENCING";

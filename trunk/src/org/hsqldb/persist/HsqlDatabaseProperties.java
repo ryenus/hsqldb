@@ -283,6 +283,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_convert_trunc     = "sql.convert_trunc";
     public static final String sql_trunc_trailing    = "sql.truncate_trailing";
     public static final String sql_avg_scale         = "sql.avg_scale";
+    public static final String sql_max_recursive     = "sql.max_recursive";
     public static final String sql_double_nan        = "sql.double_nan";
     public static final String sql_syntax_db2        = "sql.syntax_db2";
     public static final String sql_syntax_mss        = "sql.syntax_mss";
@@ -484,6 +485,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_avg_scale,
                    HsqlProperties.getMeta(sql_avg_scale, SQL_PROPERTY, 0, 0,
                                           10));
+        dbMeta.put(sql_max_recursive,
+                   HsqlProperties.getMeta(sql_max_recursive, SQL_PROPERTY, 0,
+                                          0, 256));
         dbMeta.put(sql_double_nan,
                    HsqlProperties.getMeta(sql_double_nan, SQL_PROPERTY, true));
         dbMeta.put(sql_syntax_db2,
