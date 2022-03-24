@@ -378,6 +378,7 @@ public class ParserCommand extends ParserDDL {
 
         if (extended) {
             readThis(Tokens.FOR);
+            checkIsAny(Tokens.DATABASE, Tokens.TABLE, 0, 0);
 
             if (readIfThis(Tokens.DATABASE)) {
                 switch (token.tokenType) {
@@ -1345,6 +1346,14 @@ public class ParserCommand extends ParserDDL {
                         property = HsqlDatabaseProperties.sql_lowercase_ident;
                         break;
 
+                    case Tokens.MAX :
+                        read();
+                        readThis(Tokens.RECURSIVE);
+
+                        value    = readIntegerObject();
+                        property = HsqlDatabaseProperties.sql_max_recursive;
+                        break;
+
                     case Tokens.NAMES :
                         read();
 
@@ -1869,7 +1878,8 @@ public class ParserCommand extends ParserDDL {
                             break;
 
                         case Tokens.READ :
-                            readAny(Tokens.COMMITTED, Tokens.UNCOMMITTED, 0,0);
+                            readAny(Tokens.COMMITTED, Tokens.UNCOMMITTED, 0,
+                                    0);
 
                             if (token.tokenType == Tokens.COMMITTED) {
                                 read();
