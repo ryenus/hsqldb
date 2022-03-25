@@ -52,6 +52,7 @@ import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Calendar;
 import java.util.Map;
+import java.util.GregorianCalendar;
 import java.util.Properties;
 // import java.util.logging.Level;
 // import java.util.logging.Logger;
@@ -72,7 +73,6 @@ import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.Type;
-
 
 /* $Id$ */
 
@@ -462,7 +462,7 @@ import org.hsqldb.types.Type;
  * </div> <!-- end release-specific documentation -->
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since HSQLDB 1.9.0
  * @see JDBCDriver
  * @see JDBCStatement
@@ -3426,7 +3426,7 @@ public class JDBCConnection implements Connection {
             password = "";
         }
 
-        Calendar cal         = Calendar.getInstance();
+        Calendar cal         = new GregorianCalendar();
         int      zoneSeconds = HsqlDateTime.getZoneSeconds(cal);
 
         try {
