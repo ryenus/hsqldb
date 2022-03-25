@@ -55,7 +55,7 @@ import org.hsqldb.types.ClobInputStream;
  * Instances of this class are returned by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since HSQLDB 1.9.0
  */
 public class JDBCClobClient implements Clob {
@@ -63,6 +63,10 @@ public class JDBCClobClient implements Clob {
     /**
      * Retrieves the <code>CLOB</code> value designated by this
      * <code>Clob</code> object as an ascii stream.
+     *
+     * The ascii stream consists of the low ordre bytes of UTF-16 characters
+     * in the clob. The question mark character is returnd for UTF-16 characters
+     * beyond the range of 8-bit ASCII.
      *
      * @return a <code>java.io.InputStream</code> object containing the
      *   <code>CLOB</code> data
@@ -75,7 +79,6 @@ public class JDBCClobClient implements Clob {
 
         return new InputStream() {
 
-
             private Reader reader = clob.getCharacterStream(session);
 
             public int read() throws IOException {
@@ -86,7 +89,8 @@ public class JDBCClobClient implements Clob {
                     return -1;
                 }
 
-                return c & 0xff;
+                return c < 256 ? c & 0xff
+                               : '?';
             }
 
             public int read(byte[] b, int off, int len) throws IOException {
@@ -122,9 +126,9 @@ public class JDBCClobClient implements Clob {
 
             public void close() throws IOException {
 
-                    try {
-                        reader.close();
-                    } catch (Exception ex) {}
+                try {
+                    reader.close();
+                } catch (Exception ex) {}
             }
         };
     }
@@ -267,6 +271,9 @@ public class JDBCClobClient implements Clob {
      * <code>CLOB</code> value that this <code>Clob</code> object represents,
      * starting at position <code>pos</code>.
      *
+     * The bytes written to the OutputStream are stored verbatim in the clob as
+     * the low order bytes of UTF-16 characters.
+     *
      * @param pos the position at which to start writing to this
      *   <code>CLOB</code> object
      * @return the stream to which ASCII encoded characters can be written
@@ -281,11 +288,10 @@ public class JDBCClobClient implements Clob {
             Writer writer = setCharacterStream(pos);
 
             public void write(int b) throws IOException {
-                writer.write(b);
+                writer.write(b & 0xff);
             }
 
             public void write(byte[] b, int off, int len) throws IOException {
-
 
                 if (b == null) {
                     throw new NullPointerException();
@@ -298,7 +304,6 @@ public class JDBCClobClient implements Clob {
                 if (len == 0) {
                     return;
                 }
-
 
                 char[] charArray = new char[len];
 

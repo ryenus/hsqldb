@@ -393,13 +393,13 @@ public class Tokens {
     public static final String T_COMMA          = ",";
     static final String        T_CIRCUMFLEX     = "^";
     public static final String T_CLOSEBRACKET   = ")";
-    static final String        T_COLON          = ":";
+    public static final String T_COLON          = ":";
     static final String        T_CONCAT_OP      = "||";
     public static final String T_DIVIDE_OP      = "/";
     static final String        T_EQUALS_OP      = "=";
     static final String        T_GREATER_OP     = ">";
     static final String        T_GREATER_EQUALS = ">=";
-    static final String        T_LEFTBRACE      = "{";
+    public static final String T_LEFTBRACE      = "{";
     public static final String T_LEFTBRACKET    = "[";
     static final String        T_LESS_OP        = "<";
     static final String        T_LESS_EQUALS    = "<=";
@@ -1887,16 +1887,16 @@ public class Tokens {
     //
     static final int        ASTERISK         = 921;
     static final int        CLOSEBRACKET     = 922;
-    static final int        COLON            = 923;
-    static final int        COMMA            = 924;
+    public static final int COLON            = 923;
+    public static final int COMMA            = 924;
     static final int        CONCAT_OP        = 925;
     static final int        DIVIDE_OP        = 926;
     static final int        DOUBLE_COLON_OP  = 927;
     static final int        DOUBLE_PERIOD_OP = 928;
     static final int        GREATER_OP       = 929;
     static final int        GREATER_EQUALS   = 930;
-    static final int        LEFTBRACE        = 931;
-    static final int        LEFTBRACKET      = 932;
+    public static final int LEFTBRACE        = 931;
+    public static final int LEFTBRACKET      = 932;
     static final int        LESS_OP          = 933;
     static final int        LESS_EQUALS      = 934;
     public static final int MINUS_OP         = 935;
@@ -1905,8 +1905,8 @@ public class Tokens {
     static final int        PLUS_OP          = 938;
     static final int        QUESTION         = 939;
     static final int        RIGHT_ARROW_OP   = 940;
-    static final int        RIGHTBRACE       = 941;
-    static final int        RIGHTBRACKET     = 942;
+    public static final int RIGHTBRACE       = 941;
+    public static final int RIGHTBRACKET     = 942;
     static final int        SEMICOLON        = 943;
 
     //
