@@ -50,7 +50,7 @@ import org.hsqldb.types.Types;
  * existing table which may result in a new Table object
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since 1.7.0
  */
 public class TableWorks {

@@ -46,7 +46,7 @@ import org.hsqldb.lib.OrderedHashSet;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.6.2
+ * @version 2.7.0
  * @since 1.9.0
  */
 public final class Right {

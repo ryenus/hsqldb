@@ -65,7 +65,7 @@ import org.hsqldb.types.Type;
  * object.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since JDK 1.4, HSQLDB 1.7.2
  */
 public class JDBCParameterMetaData implements ParameterMetaData,

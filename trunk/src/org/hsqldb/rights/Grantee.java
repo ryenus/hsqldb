@@ -72,7 +72,7 @@ import org.hsqldb.types.Type;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.6.2
+ * @version 2.7.0
  * @since 1.8.0
  */
 public class Grantee implements SchemaObject {
