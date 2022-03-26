@@ -27,69 +27,94 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.hsqldb.jdbc;
+package org.hsqldb.jdbc.scripted;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.testbase.BaseScriptedTestCase;
 import org.hsqldb.testbase.HsqldbEmbeddedDatabaseDeleter;
+import org.hsqldb.testbase.ResourceCollector;
+import org.hsqldb.testbase.StreamUtil;
 
 /**
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
-public class ScriptedTest extends BaseScriptedTestCase {
+public class Sql2nnnScriptsTest extends BaseScriptedTestCase {
 
-    private static final ScriptedTest instance = new ScriptedTest();
+    private static final Sql2nnnScriptsTest instance = new Sql2nnnScriptsTest();
 
-    private HsqldbEmbeddedDatabaseDeleter m_deleter = new HsqldbEmbeddedDatabaseDeleter(getUrl());
+    private static final String URL = "jdbc:hsqldb:file:sql2nnn-test/";
 
-    private ScriptedTest() {
+    private static final Logger LOG = Logger.getLogger(Sql2nnnScriptsTest.class.getName());
+
+    private Sql2nnnScriptsTest() {
         super();
     }
 
-    public ScriptedTest(String script) {
+    public Sql2nnnScriptsTest(String script) {
         super(script);
+
     }
 
     @Override
     public String getUrl() {
-        return "jdbc:hsqldb:file:scripted-test";
+        return URL;
     }
 
     @Override
     protected void preTearDown() throws Exception {
         super.preTearDown();
-        this.connectionFactory().addEventListener(m_deleter);
     }
 
     @Override
     protected void postTearDown() throws Exception {
         super.postTearDown();
-        this.connectionFactory().removeEventListener(m_deleter);
     }
 
     public static Test suite() {
+        final boolean success = HsqldbEmbeddedDatabaseDeleter.deleteDatabase(URL);
+
+        if (success) {
+            LOG.log(Level.INFO, "Database deletion succeeded for: {0}", URL);
+        } else {
+            LOG.log(Level.SEVERE, "Database deletion failed for: {0}", URL);
+        }
+
         return instance.getSuite();
     }
 
-    @SuppressWarnings("CallToThreadDumpStack")
     protected Test getSuite() {
-        TestSuite suite = new TestSuite("ScriptTest");
-
+        final TestSuite suite = new TestSuite(Sql2nnnScriptsTest.class.getSimpleName());
         try {
 
-            String[] resources = getResoucesInPackage(
-                    "org.hsqldb.jdbc.resources.sql");
+            URL location = StreamUtil.streamOf(getClass().getClassLoader().getResources("sql2nnn/")).findFirst().orElse(null);
 
-            for (int i = 0; i < resources.length; i++) {
-                suite.addTest(new ScriptedTest(resources[i]));
+            Pattern nameMatcher = Pattern.compile("^.*\\.sql", Pattern.CASE_INSENSITIVE);
+
+            ResourceCollector rc = new ResourceCollector(nameMatcher);
+            List<String> resources = new ArrayList<>();
+            try {
+                rc.collectResources(location, resources);
+            } catch (IOException | URISyntaxException ex) {
+                Logger.getLogger(Sql2nnnScriptsTest.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
 
+            //resources.forEach(resource -> suite.addTest(new TestSelfScriptsTest(resource)));
+
+            return suite;
+        } catch (IOException ex) {
+            Logger.getLogger(Sql2nnnScriptsTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         return suite;
     }
 
