@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -893,7 +893,8 @@ public class DataFileCache {
 
                         if (j > 0) {
                             logInfoEvent(dataFileName
-                                         + " getFromFile out of mem, pos: " + pos);
+                                         + " getFromFile out of mem, pos: "
+                                         + pos);
 
                             HsqlException ex =
                                 Error.error(ErrorCode.OUT_OF_MEMORY, t);

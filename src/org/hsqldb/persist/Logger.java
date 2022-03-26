@@ -85,7 +85,7 @@ import org.hsqldb.types.Type;
  *  storage.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since 1.7.0
  */
 public class Logger implements EventLogInterface {

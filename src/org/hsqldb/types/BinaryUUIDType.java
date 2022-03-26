@@ -52,7 +52,7 @@ import org.hsqldb.lib.StringConverter;
  * Cast to CHARACTER types converts to a hexadecimal UUID string.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since 2.3.4
  */
 public class BinaryUUIDType extends BinaryType {

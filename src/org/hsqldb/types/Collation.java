@@ -54,7 +54,7 @@ import org.hsqldb.rights.Grantee;
  *
  * @author Frand Schoenheit (frank.schoenheit@sun dot com)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.2
+ * @version 2.7.0
  * @since 1.8.0
  */
 public class Collation implements SchemaObject {
