@@ -404,7 +404,7 @@ public class ParserBase {
     void checkIsQuotedString() {
 
         if (!isQuotedString()) {
-            throw unexpectedToken();
+            throw this.unexpectedTokenRequire("a quoted string");
         }
     }
 
@@ -454,11 +454,7 @@ public class ParserBase {
 
     String readQuotedString() {
 
-        checkIsValue();
-
-        if (!token.dataType.isCharacterType()) {
-            throw Error.error(ErrorCode.X_42563);
-        }
+        checkIsQuotedString();
 
         String value = token.tokenString;
 
