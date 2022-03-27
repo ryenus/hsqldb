@@ -2454,7 +2454,7 @@ public class ParserCommand extends ParserDDL {
                 return compileCheck();
 
             case Tokens.IMPORT :
-                read();
+                readAny(Tokens.SCRIPT, Tokens.DATA, 0, 0);
 
                 if (token.tokenType == Tokens.SCRIPT) {
                     return compileImportScript();
@@ -2462,7 +2462,7 @@ public class ParserCommand extends ParserDDL {
                     return compileImportData();
                 }
             case Tokens.EXPORT :
-                read();
+                readAny(Tokens.SCRIPT, Tokens.DATA, 0, 0);
 
                 if (token.tokenType == Tokens.SCRIPT) {
                     return compileScript(true);
@@ -2555,6 +2555,7 @@ public class ParserCommand extends ParserDDL {
         Boolean isVersioning = Boolean.FALSE;
 
         readThis(Tokens.SCRIPT);
+        checkIsAny(Tokens.VERSIONING, Tokens.DATA, 0, 0);
 
         if (token.tokenType == Tokens.VERSIONING) {
             readThis(Tokens.VERSIONING);
