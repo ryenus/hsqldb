@@ -516,8 +516,9 @@ public class Logger implements EventLogInterface {
                 HsqlDatabaseProperties.sql_trunc_trailing);
         database.sqlAvgScale = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.sql_avg_scale);
-        database.sqlMaxRecursive = database.databaseProperties.getIntegerProperty(
-            HsqlDatabaseProperties.sql_max_recursive);
+        database.sqlMaxRecursive =
+            database.databaseProperties.getIntegerProperty(
+                HsqlDatabaseProperties.sql_max_recursive);
         database.sqlDoubleNaN = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_double_nan);
         database.sqlLongvarIsLob = database.databaseProperties.isPropertyTrue(
@@ -581,13 +582,11 @@ public class Logger implements EventLogInterface {
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_cache_file_scale));
 
-        // linked with FILES SCALE
-        int fileSpace = database.databaseProperties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_files_space, 0);
+        // linked with above FILES SCALE
+        boolean fileSpace = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.hsqldb_files_space);
 
-        if (fileSpace != 0) {
-            setDataFileSpace(fileSpace);
-        }
+        setDataFileSpace(fileSpace);
 
         propDataFileDefragLimit =
             database.databaseProperties.getIntegerProperty(
@@ -1142,7 +1141,7 @@ public class Logger implements EventLogInterface {
         propDataFileScale = value;
 
         if (propDataFileSpace > 0) {
-            propDataFileSpace = propDataFileScale / 16;    // reduce if too large
+            propDataFileSpace = propDataFileScale / 16;    // change to default
         }
     }
 
@@ -1978,7 +1977,6 @@ public class Logger implements EventLogInterface {
         sb.append(Tokens.T_SCALE).append(' ');
         sb.append(database.sqlAvgScale);
         list.add(sb.toString());
-
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
@@ -1986,7 +1984,6 @@ public class Logger implements EventLogInterface {
         sb.append(Tokens.T_RECURSIVE).append(' ');
         sb.append(database.sqlMaxRecursive);
         list.add(sb.toString());
-
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_DOUBLE).append(' ');
@@ -2032,7 +2029,7 @@ public class Logger implements EventLogInterface {
             sb.append(Tokens.T_TRUNCATE).append(' ');
             sb.append(Tokens.T_TRAILING).append(' ');
             sb.append(database.sqlTruncateTrailing ? Tokens.T_TRUE
-                      : Tokens.T_FALSE);
+                                                   : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
         }

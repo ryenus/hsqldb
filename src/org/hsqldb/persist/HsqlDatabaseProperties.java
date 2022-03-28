@@ -486,8 +486,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    HsqlProperties.getMeta(sql_avg_scale, SQL_PROPERTY, 0, 0,
                                           10));
         dbMeta.put(sql_max_recursive,
-                   HsqlProperties.getMeta(sql_max_recursive, SQL_PROPERTY, 256,
-                                          64, 1024 * 1024));
+                   HsqlProperties.getMeta(sql_max_recursive, SQL_PROPERTY,
+                                          256, 64, 1024 * 1024));
         dbMeta.put(sql_double_nan,
                    HsqlProperties.getMeta(sql_double_nan, SQL_PROPERTY, true));
         dbMeta.put(sql_syntax_db2,
@@ -526,10 +526,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    HsqlProperties.getMeta(sql_lowercase_ident, SQL_PROPERTY,
                                           false));
         dbMeta.put(hsqldb_files_space,
-                   HsqlProperties.getMeta(hsqldb_files_space, SQL_PROPERTY, 0,
-                                          new int[] {
-            0, 1, 2, 4, 8, 16, 32, 64
-        }));
+                   HsqlProperties.getMeta(hsqldb_files_space, SQL_PROPERTY,
+                                          false));
 
         // integral defaults for user-defined props - sets
         dbMeta.put(hsqldb_write_delay_millis,
