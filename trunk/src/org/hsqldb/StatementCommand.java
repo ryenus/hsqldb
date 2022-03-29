@@ -575,6 +575,11 @@ public class StatementCommand extends Statement {
                     } else {
                         int value = ((Integer) arguments[0]).intValue();
 
+                        value =
+                            session.database.getProperties()
+                                .getPropertyWithinRange(HsqlDatabaseProperties
+                                    .hsqldb_nio_max_size, value);
+
                         session.database.logger.setNioMaxSize(value);
                     }
 
@@ -602,6 +607,12 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
+
+                    value =
+                        session.database.getProperties()
+                            .getPropertyWithinRange(HsqlDatabaseProperties
+                                .hsqldb_log_size, value);
+
                     session.database.logger.setLogSize(value);
 
                     return Result.updateZeroResult;
@@ -638,6 +649,11 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_FILES_WRITE_DELAY : {
                 try {
                     int value = ((Integer) arguments[0]).intValue();
+
+                    value =
+                        session.database.getProperties()
+                            .getPropertyWithinRange(HsqlDatabaseProperties
+                                .hsqldb_write_delay_millis, value);
 
                     session.checkAdmin();
                     session.checkDDLWrite();
@@ -780,9 +796,19 @@ public class StatementCommand extends Statement {
                     session.database.setTruncateTrailing(mode);
                 } else if (HsqlDatabaseProperties.sql_avg_scale.equals(
                         property)) {
+                    value =
+                        session.database.getProperties()
+                            .getPropertyWithinRange(HsqlDatabaseProperties
+                                .sql_avg_scale, value);
+
                     session.database.setAvgScale(value);
                 } else if (HsqlDatabaseProperties.sql_max_recursive.equals(
                         property)) {
+                    value =
+                        session.database.getProperties()
+                            .getPropertyWithinRange(HsqlDatabaseProperties
+                                .sql_max_recursive, value);
+
                     session.database.setMaxRecursive(value);
                 } else if (HsqlDatabaseProperties.sql_double_nan.equals(
                         property)) {
@@ -928,6 +954,11 @@ public class StatementCommand extends Statement {
                 int size = ((Integer) arguments[0]).intValue();
 
                 session.checkAdmin();
+
+                size = session.database.getProperties().getPropertyWithinRange(
+                    HsqlDatabaseProperties.hsqldb_result_max_memory_rows,
+                    size);
+
                 session.database.setResultMaxMemoryRows(size);
 
                 return Result.updateZeroResult;
@@ -1070,8 +1101,8 @@ public class StatementCommand extends Statement {
                         throw Error.error(ErrorCode.X_42507);
                     }
 
-                    return TextFileOps.loadTextData(session, textprops,
-                                                          table, mode);
+                    return TextFileOps.loadTextData(session, textprops, table,
+                                                    mode);
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -1087,8 +1118,8 @@ public class StatementCommand extends Statement {
                         throw Error.error(ErrorCode.X_42507);
                     }
 
-                    return TextFileOps.unloadTextData(session,
-                            textprops, table);
+                    return TextFileOps.unloadTextData(session, textprops,
+                                                      table);
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }

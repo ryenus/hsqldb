@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,6 +72,7 @@ import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.DirectoryBlockCachedObject;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
+import org.hsqldb.persist.HsqlProperties.PropertyMeta;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.TableSpaceManager;
 import org.hsqldb.persist.TextCache;
@@ -904,7 +905,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // First, we want the names and values for
         // all JDBC capabilities constants
-        scope     = "SESSION";
         props     = database.getProperties();
         nameSpace = "database.properties";
 
@@ -912,12 +912,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Iterator it = props.getUserDefinedPropertyData().iterator();
 
         while (it.hasNext()) {
-            Object[] metaData = (Object[]) it.next();
+            PropertyMeta metaData = (PropertyMeta) it.next();
 
+            scope       = "SESSION";
             row         = t.getEmptyRowData();
             row[iscope] = scope;
             row[ins]    = nameSpace;
-            row[iname]  = metaData[HsqlProperties.indexName];
+            row[iname]  = metaData.propName;
             row[ivalue] =
                 database.logger.getValueStringForProperty((String) row[iname]);
 
@@ -925,7 +926,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[ivalue] = props.getPropertyString((String) row[iname]);
             }
 
-            row[iclass] = metaData[HsqlProperties.indexClass];
+            row[iclass] = metaData.propClass;
 
             t.insertSys(session, store, row);
         }
