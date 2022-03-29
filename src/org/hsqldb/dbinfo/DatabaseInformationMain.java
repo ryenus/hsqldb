@@ -56,6 +56,7 @@ import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.map.ValuePool;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
+import org.hsqldb.persist.HsqlProperties.PropertyMeta;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.rights.Grantee;
@@ -1932,15 +1933,13 @@ class DatabaseInformationMain extends DatabaseInformation {
         Iterator  it = HsqlDatabaseProperties.getPropertiesMetaIterator();
 
         while (it.hasNext()) {
-            Object[] meta = (Object[]) it.next();
-            int propType =
-                ((Integer) meta[HsqlProperties.indexType]).intValue();
+            PropertyMeta meta     = (PropertyMeta) it.next();
+            int          propType = meta.propType;
 
             if (propType == HsqlDatabaseProperties.FILE_PROPERTY) {
-                if (HsqlDatabaseProperties.hsqldb_readonly.equals(
-                        meta[HsqlProperties.indexName]) || HsqlDatabaseProperties
-                            .hsqldb_files_readonly.equals(
-                                meta[HsqlProperties.indexName])) {}
+                if (HsqlDatabaseProperties.hsqldb_readonly
+                        .equals(meta.propName) || HsqlDatabaseProperties
+                        .hsqldb_files_readonly.equals(meta.propName)) {}
                 else {
                     continue;
                 }
@@ -1950,9 +1949,9 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             row = t.getEmptyRowData();
 
-            Object def = meta[HsqlProperties.indexDefaultValue];
+            Object def = meta.propDefaultValue;
 
-            row[iname]          = meta[HsqlProperties.indexName];
+            row[iname]          = meta.propName;
             row[imax_len]       = ValuePool.getInt(8);
             row[idefault_value] = def == null ? null
                                               : def.toString();
@@ -3150,7 +3149,8 @@ class DatabaseInformationMain extends DatabaseInformation {
                     Right right          = (Right) rights.get(j);
                     Right grantableRight = right.getGrantableRights();
 
-                    for (int k = 0; k < Right.tablePrivilegeTypes.length; k++) {
+                    for (int k = 0; k < Right.tablePrivilegeTypes.length;
+                            k++) {
                         OrderedHashSet columnList =
                             right.getColumnsForPrivilege(
                                 table, Right.tablePrivilegeTypes[k]);
@@ -3577,8 +3577,10 @@ class DatabaseInformationMain extends DatabaseInformation {
                     Right right          = (Right) rights.get(j);
                     Right grantableRight = right.getGrantableRights();
 
-                    for (int k = 0; k < Right.tablePrivilegeTypes.length; k++) {
-                        if (!right.canAccessFully(Right.tablePrivilegeTypes[k])) {
+                    for (int k = 0; k < Right.tablePrivilegeTypes.length;
+                            k++) {
+                        if (!right.canAccessFully(
+                                Right.tablePrivilegeTypes[k])) {
                             continue;
                         }
 
@@ -3594,7 +3596,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                             right.getGrantee() == table.getOwner()
                             || grantableRight.canAccessFully(
                                 Right.tablePrivilegeTypes[k]) ? "YES"
-                                                         : "NO";
+                                                              : "NO";
                         row[with_hierarchy] = "NO";
 
                         try {

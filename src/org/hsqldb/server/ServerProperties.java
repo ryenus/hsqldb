@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ import org.hsqldb.persist.HsqlProperties;
  * against the set.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class ServerProperties extends HsqlProperties {
@@ -106,7 +106,7 @@ public class ServerProperties extends HsqlProperties {
     static final String sc_default_web_root = ".";
 
     //
-    static final HashMap        meta     = new HashMap();
+    static final HashMap<String, PropertyMeta> serverMeta = new HashMap();
     static final OrderedHashSet prefixes = new OrderedHashSet();
 
     //
@@ -154,8 +154,8 @@ public class ServerProperties extends HsqlProperties {
         Enumeration en = stringProps.propertyNames();
 
         while (en.hasMoreElements()) {
-            String   key      = (String) en.nextElement();
-            Object[] metadata = (Object[]) meta.get(key);
+            String       key      = (String) en.nextElement();
+            PropertyMeta metadata = serverMeta.get(key);
 
             if (metadata == null) {
                 metadata = getPrefixedMetadata(key);
@@ -171,21 +171,19 @@ public class ServerProperties extends HsqlProperties {
 
             String error = null;
 
-            if (((Integer) metadata[indexType]).intValue()
-                    == SYSTEM_PROPERTY) {
+            if (metadata.propType == SYSTEM_PROPERTY) {
                 error = validateSystemProperty(key, metadata);
-            } else if (((Integer) metadata[indexType]).intValue()
-                       == SERVER_MULTI_PROPERTY) {
+            } else if (metadata.propType == SERVER_MULTI_PROPERTY) {
                 error = validateMultiProperty(key, metadata);
             } else {
                 String value = getProperty(key);
 
                 if (value == null) {
-                    if (metadata[indexDefaultValue] == null) {
+                    if (metadata.propDefaultValue == null) {
                         error = "missing value for property: " + key;
                     } else {
                         setProperty(key,
-                                    metadata[indexDefaultValue].toString());
+                                    metadata.propDefaultValue.toString());
                     }
                 } else {
                     error = HsqlProperties.validateProperty(key, value,
@@ -221,13 +219,13 @@ public class ServerProperties extends HsqlProperties {
         initialised = true;
     }
 
-    Object[] getPrefixedMetadata(String key) {
+    PropertyMeta getPrefixedMetadata(String key) {
 
         for (int i = 0; i < prefixes.size(); i++) {
             String prefix = (String) prefixes.get(i);
 
             if (key.startsWith(prefix)) {
-                return (Object[]) meta.get(prefix);
+                return serverMeta.get(prefix);
             }
         }
 
@@ -238,12 +236,12 @@ public class ServerProperties extends HsqlProperties {
      * Checks an alias or database path. Duplicates are checked as duplicate
      * numbering may result from different strings (e.g. 02 and 2).
      */
-    String validateMultiProperty(String key, Object[] meta) {
+    String validateMultiProperty(String key, PropertyMeta meta) {
 
         int    dbNumber;
-        String prefix = (String) meta[indexName];
+        String prefix = meta.propName;
 
-        if (meta[indexName].equals(sc_key_database)) {
+        if (meta.propName.equals(sc_key_database)) {
             if (sc_key_database.equals(key)) {
                 key = key + ".0";
             }
@@ -255,14 +253,14 @@ public class ServerProperties extends HsqlProperties {
             return ("malformed database enumerator: " + key);
         }
 
-        if (meta[indexName].equals(sc_key_dbname)) {
+        if (meta.propName.equals(sc_key_dbname)) {
             String alias    = stringProps.getProperty(key).toLowerCase();
             Object existing = idToAliasMap.put(dbNumber, alias);
 
             if (existing != null) {
                 return "duplicate database enumerator: " + key;
             }
-        } else if (meta[indexName].equals(sc_key_database)) {
+        } else if (meta.propName.equals(sc_key_database)) {
             String path     = stringProps.getProperty(key);
             Object existing = idToPathMap.put(dbNumber, path);
 
@@ -278,9 +276,9 @@ public class ServerProperties extends HsqlProperties {
      * System properties are currently not checked, as different libraries in
      * the environment may need different names?
      */
-    String validateSystemProperty(String key, Object[] meta) {
+    String validateSystemProperty(String key, PropertyMeta meta) {
 
-        String prefix      = (String) meta[indexName];
+        String prefix      = meta.propName;
         String specificKey = key.substring(prefix.length() + 1);
         String value       = stringProps.getProperty(key);
 
@@ -296,34 +294,39 @@ public class ServerProperties extends HsqlProperties {
     static {
 
         // properties with variable suffixes
-        meta.put(sc_key_database,
-                 getMeta(sc_key_database, SERVER_MULTI_PROPERTY, null));
-        meta.put(sc_key_dbname,
-                 getMeta(sc_key_dbname, SERVER_MULTI_PROPERTY, null));
-        meta.put(sc_key_system, getMeta(sc_key_system, SYSTEM_PROPERTY, null));
+        serverMeta.put(sc_key_database,
+                       getMeta(sc_key_database, SERVER_MULTI_PROPERTY, null));
+        serverMeta.put(sc_key_dbname,
+                       getMeta(sc_key_dbname, SERVER_MULTI_PROPERTY, null));
+        serverMeta.put(sc_key_system,
+                       getMeta(sc_key_system, SYSTEM_PROPERTY, null));
 
         // properties with fixed names
-        meta.put(sc_key_silent,
-                 getMeta(sc_key_silent, SERVER_PROPERTY, false));
-        meta.put(sc_key_trace, getMeta(sc_key_trace, SERVER_PROPERTY, false));
-        meta.put(sc_key_tls, getMeta(sc_key_tls, SERVER_PROPERTY, false));
-        meta.put(sc_key_acl, getMeta(sc_key_acl, SERVER_PROPERTY, null));
-        meta.put(sc_key_autorestart_server,
-                 getMeta(sc_key_autorestart_server, SERVER_PROPERTY, false));
-        meta.put(sc_key_remote_open_db,
-                 getMeta(sc_key_remote_open_db, SERVER_PROPERTY, false));
-        meta.put(sc_key_no_system_exit,
-                 getMeta(sc_key_no_system_exit, SERVER_PROPERTY, false));
-        meta.put(sc_key_daemon,
-                 getMeta(sc_key_daemon, SERVER_PROPERTY, false));
-        meta.put(sc_key_address,
-                 getMeta(sc_key_address, SERVER_PROPERTY, null));
-        meta.put(sc_key_port, getMeta(sc_key_port, 0, 9001, 0, 65535));
-        meta.put(sc_key_http_port, getMeta(sc_key_http_port, 0, 80, 0, 65535));
-        meta.put(sc_key_max_connections,
-                 getMeta(sc_key_max_connections, 0, 100, 1, 10000));
-        meta.put(sc_key_max_databases,
-                 getMeta(sc_key_max_databases, 0, 10, 1, 1000));
+        serverMeta.put(sc_key_silent,
+                       getMeta(sc_key_silent, SERVER_PROPERTY, false));
+        serverMeta.put(sc_key_trace,
+                       getMeta(sc_key_trace, SERVER_PROPERTY, false));
+        serverMeta.put(sc_key_tls,
+                       getMeta(sc_key_tls, SERVER_PROPERTY, false));
+        serverMeta.put(sc_key_acl, getMeta(sc_key_acl, SERVER_PROPERTY, null));
+        serverMeta.put(sc_key_autorestart_server,
+                       getMeta(sc_key_autorestart_server, SERVER_PROPERTY,
+                               false));
+        serverMeta.put(sc_key_remote_open_db,
+                       getMeta(sc_key_remote_open_db, SERVER_PROPERTY, false));
+        serverMeta.put(sc_key_no_system_exit,
+                       getMeta(sc_key_no_system_exit, SERVER_PROPERTY, false));
+        serverMeta.put(sc_key_daemon,
+                       getMeta(sc_key_daemon, SERVER_PROPERTY, false));
+        serverMeta.put(sc_key_address,
+                       getMeta(sc_key_address, SERVER_PROPERTY, null));
+        serverMeta.put(sc_key_port, getMeta(sc_key_port, 0, 9001, 0, 65535));
+        serverMeta.put(sc_key_http_port,
+                       getMeta(sc_key_http_port, 0, 80, 0, 65535));
+        serverMeta.put(sc_key_max_connections,
+                       getMeta(sc_key_max_connections, 0, 100, 1, 10000));
+        serverMeta.put(sc_key_max_databases,
+                       getMeta(sc_key_max_databases, 0, 10, 1, 1000));
 
         //
         prefixes.add(sc_key_database);

@@ -1265,14 +1265,10 @@ public class Logger implements EventLogInterface {
 
     public void setNioMaxSize(int value) {
 
-        if (value < 8) {
-            throw Error.error(ErrorCode.X_42556);
-        }
+        value = ArrayUtil.getTwoPowerFloor(value);
 
-        if (!ArrayUtil.isTwoPower(value, 10)) {
-            if (value < 1024 || value % 512 != 0) {
-                throw Error.error(ErrorCode.X_42556);
-            }
+        if (value < 64) {
+            value = 64;
         }
 
         propNioMaxSize = value * 1024L * 1024L;
@@ -1909,15 +1905,13 @@ public class Logger implements EventLogInterface {
             list.add(sb.toString());
         }
 
-        if (database.sqlSysIndexNames) {
-            sb.setLength(0);
-            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
-            sb.append(Tokens.T_SYS).append(' ').append(Tokens.T_INDEX);
-            sb.append(' ').append(Tokens.T_NAMES).append(' ');
-            sb.append(database.sqlSysIndexNames ? Tokens.T_TRUE
-                                                : Tokens.T_FALSE);
-            list.add(sb.toString());
-        }
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_SYS).append(' ').append(Tokens.T_INDEX);
+        sb.append(' ').append(Tokens.T_NAMES).append(' ');
+        sb.append(database.sqlSysIndexNames ? Tokens.T_TRUE
+                                            : Tokens.T_FALSE);
+        list.add(sb.toString());
 
         if (!database.sqlCharLiteral) {
             sb.setLength(0);
@@ -1979,12 +1973,18 @@ public class Logger implements EventLogInterface {
         list.add(sb.toString());
         list.add(sb.toString());
         sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
-        sb.append(Tokens.T_MAX).append(' ');
-        sb.append(Tokens.T_RECURSIVE).append(' ');
-        sb.append(database.sqlMaxRecursive);
-        list.add(sb.toString());
-        sb.setLength(0);
+
+        if (database.sqlMaxRecursive
+                != database.getProperties().getIntegerPropertyDefault(
+                    HsqlDatabaseProperties.sql_max_recursive)) {
+            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+            sb.append(Tokens.T_MAX).append(' ');
+            sb.append(Tokens.T_RECURSIVE).append(' ');
+            sb.append(database.sqlMaxRecursive);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
+
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_DOUBLE).append(' ');
         sb.append(Tokens.T_NAN).append(' ');

@@ -36,6 +36,7 @@ import java.util.Enumeration;
 import org.hsqldb.Database;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
@@ -146,8 +147,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     private static final String MODIFIED_NO_NEW         = "no-new-files";
 
     // allowed property metadata
-    private static final HashMap dbMeta   = new HashMap(67);
-    private static final HashMap textMeta = new HashMap(17);
+    private static final HashMap<String, PropertyMeta> dbMeta   = new HashMap(80);
+    private static final HashMap<String, PropertyMeta> textMeta = new HashMap(20);
 
     // versions
     public static final String VERSION_STRING_1_8_0 = "1.8.0";
@@ -397,7 +398,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    HsqlProperties.getMeta(sql_live_object, SQL_PROPERTY,
                                           false));
         dbMeta.put(tx_timestamp,
-                   HsqlProperties.getMeta(tx_timestamp, SYSTEM_PROPERTY));
+                   HsqlProperties.getMeta(tx_timestamp, SYSTEM_PROPERTY, 0));
 
         // boolean defaults for user defined props
         dbMeta.put(hsqldb_tx_conflict_rollback,
@@ -595,7 +596,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     public HsqlDatabaseProperties(Database db) {
 
-        super(dbMeta, db.getPath(), db.logger.getFileAccess(),
+        super(db.getPath(), db.logger.getFileAccess(),
               db.isFilesInJar());
 
         database = db;
@@ -670,7 +671,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         }
 
         try {
-            HsqlProperties props = new HsqlProperties(dbMeta,
+            HsqlProperties props = new HsqlProperties(
                 database.getPath(), database.logger.getFileAccess(), false);
 
             if (getIntegerProperty(hsqldb_script_format) == 3) {
@@ -737,16 +738,14 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         strict = p.isPropertyTrue(url_check_props, false);
 
         for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
-            String   propertyName  = (String) e.nextElement();
-            String   propertyValue = p.getProperty(propertyName);
-            boolean  valid         = false;
-            boolean  validVal      = false;
-            String   error         = null;
-            Object[] meta          = (Object[]) dbMeta.get(propertyName);
+            String       propertyName  = (String) e.nextElement();
+            String       propertyValue = p.getProperty(propertyName);
+            boolean      valid         = false;
+            boolean      validVal      = false;
+            String       error         = null;
+            PropertyMeta meta = dbMeta.get(propertyName);
 
-            if (meta != null
-                    && ((Integer) meta[HsqlProperties.indexType]).intValue()
-                       == SQL_PROPERTY) {
+            if (meta != null && meta.propType == SQL_PROPERTY) {
                 valid = true;
                 error = HsqlProperties.validateProperty(propertyName,
                         propertyValue, meta);
@@ -767,12 +766,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         }
 
         for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
-            String   propertyName = (String) e.nextElement();
-            Object[] meta         = (Object[]) dbMeta.get(propertyName);
+            String       propertyName = (String) e.nextElement();
+            PropertyMeta meta = dbMeta.get(propertyName);
 
-            if (meta != null
-                    && ((Integer) meta[HsqlProperties.indexType]).intValue()
-                       == SQL_PROPERTY) {
+            if (meta != null && meta.propType == SQL_PROPERTY) {
                 setDatabaseProperty(propertyName, p.getProperty(propertyName));
             }
         }
@@ -781,14 +778,13 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public Set getUserDefinedPropertyData() {
 
         Set      set = new HashSet();
-        Iterator it  = dbMeta.values().iterator();
+        Iterator<PropertyMeta> it  = dbMeta.values().iterator();
 
         while (it.hasNext()) {
-            Object[] row = (Object[]) it.next();
+            PropertyMeta meta = it.next();
 
-            if (((Integer) row[HsqlProperties.indexType]).intValue()
-                    == SQL_PROPERTY) {
-                set.add(row);
+            if (meta.propType == SQL_PROPERTY) {
+                set.add(meta);
             }
         }
 
@@ -797,44 +793,39 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     public boolean isUserDefinedProperty(String key) {
 
-        Object[] row = (Object[]) dbMeta.get(key);
+        PropertyMeta meta = dbMeta.get(key);
 
-        return row != null
-               && ((Integer) row[HsqlProperties.indexType]).intValue()
-                  == SQL_PROPERTY;
+        return meta != null && meta.propType == SQL_PROPERTY;
     }
 
     public boolean isBoolean(String key) {
 
-        Object[] row = (Object[]) dbMeta.get(key);
+        PropertyMeta meta = dbMeta.get(key);
 
-        return row != null && row[HsqlProperties.indexClass].equals("Boolean")
-               && ((Integer) row[HsqlProperties.indexType]).intValue()
-                  == SQL_PROPERTY;
+        return meta != null && meta.propClass.equals("Boolean")
+               && meta.propType == SQL_PROPERTY;
     }
 
     public boolean isIntegral(String key) {
 
-        Object[] row = (Object[]) dbMeta.get(key);
+        PropertyMeta meta = dbMeta.get(key);
 
-        return row != null && row[HsqlProperties.indexClass].equals("Integer")
-               && ((Integer) row[HsqlProperties.indexType]).intValue()
-                  == SQL_PROPERTY;
+        return meta != null && meta.propClass.equals("Integer")
+               && meta.propType == SQL_PROPERTY;
     }
 
     public boolean isString(String key) {
 
-        Object[] row = (Object[]) dbMeta.get(key);
+        PropertyMeta meta = dbMeta.get(key);
 
-        return row != null && row[HsqlProperties.indexClass].equals("String")
-               && ((Integer) row[HsqlProperties.indexType]).intValue()
-                  == SQL_PROPERTY;
+        return meta != null && meta.propClass.equals("String")
+               && meta.propType == SQL_PROPERTY;
     }
 
     public boolean setDatabaseProperty(String key, String value) {
 
-        Object[] meta  = (Object[]) dbMeta.get(key);
-        String   error = HsqlProperties.validateProperty(key, value, meta);
+        PropertyMeta meta  = dbMeta.get(key);
+        String       error = HsqlProperties.validateProperty(key, value, meta);
 
         if (error != null) {
             return false;
@@ -900,9 +891,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 //-----------------------
     public String getProperty(String key) {
 
-        Object[] metaData = (Object[]) dbMeta.get(key);
+        PropertyMeta meta = dbMeta.get(key);
 
-        if (metaData == null) {
+        if (meta == null) {
             throw Error.error(ErrorCode.X_42555, key);
         }
 
@@ -912,16 +903,14 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     /** for all types of property apart from system props */
     public String getPropertyString(String key) {
 
-        Object[] metaData = (Object[]) dbMeta.get(key);
+        PropertyMeta meta = dbMeta.get(key);
 
-        if (metaData == null) {
+        if (meta == null) {
             throw Error.error(ErrorCode.X_42555, key);
         }
 
-        String prop = stringProps.getProperty(key);
-        boolean isSystem =
-            ((Integer) metaData[HsqlProperties.indexType]).intValue()
-            == SYSTEM_PROPERTY;
+        String  prop     = stringProps.getProperty(key);
+        boolean isSystem = meta.propType == SYSTEM_PROPERTY;
 
         if (prop == null && isSystem) {
             try {
@@ -930,7 +919,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         }
 
         if (prop == null) {
-            Object value = metaData[HsqlProperties.indexDefaultValue];
+            Object value = meta.propDefaultValue;
 
             if (value == null) {
                 return null;
@@ -944,19 +933,17 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     public boolean isPropertyTrue(String key) {
 
-        Boolean  value;
-        Object[] metaData = (Object[]) dbMeta.get(key);
+        Boolean      value;
+        PropertyMeta meta = dbMeta.get(key);
 
-        if (metaData == null) {
+        if (meta == null) {
             throw Error.error(ErrorCode.X_42555, key);
         }
 
-        value = (Boolean) metaData[HsqlProperties.indexDefaultValue];
+        value = (Boolean) meta.propDefaultValue;
 
-        String prop = null;
-        boolean isSystem =
-            ((Integer) metaData[HsqlProperties.indexType]).intValue()
-            == SYSTEM_PROPERTY;
+        String  prop     = null;
+        boolean isSystem = meta.propType == SYSTEM_PROPERTY;
 
         if (isSystem) {
             try {
@@ -975,25 +962,25 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     public String getStringPropertyDefault(String key) {
 
-        Object[] metaData = (Object[]) dbMeta.get(key);
+        PropertyMeta meta = dbMeta.get(key);
 
-        if (metaData == null) {
+        if (meta == null) {
             throw Error.error(ErrorCode.X_42555, key);
         }
 
-        return (String) metaData[HsqlProperties.indexDefaultValue];
+        return (String) meta.propDefaultValue;
     }
 
     public String getStringProperty(String key) {
 
-        String   value;
-        Object[] metaData = (Object[]) dbMeta.get(key);
+        String       value;
+        PropertyMeta meta = dbMeta.get(key);
 
-        if (metaData == null) {
+        if (meta == null) {
             throw Error.error(ErrorCode.X_42555, key);
         }
 
-        value = (String) metaData[HsqlProperties.indexDefaultValue];
+        value = (String) meta.propDefaultValue;
 
         String prop = stringProps.getProperty(key);
 
@@ -1006,15 +993,14 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     public int getIntegerProperty(String key) {
 
-        int      value;
-        Object[] metaData = (Object[]) dbMeta.get(key);
+        int          value;
+        PropertyMeta meta = dbMeta.get(key);
 
-        if (metaData == null) {
+        if (meta == null) {
             throw Error.error(ErrorCode.X_42555, key);
         }
 
-        value =
-            ((Integer) metaData[HsqlProperties.indexDefaultValue]).intValue();
+        value = ((Integer) meta.propDefaultValue).intValue();
 
         String prop = stringProps.getProperty(key);
 
@@ -1025,6 +1011,84 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         }
 
         return value;
+    }
+
+    public int getIntegerPropertyDefault(String key) {
+
+        int          value;
+        PropertyMeta meta = dbMeta.get(key);
+
+        if (meta == null) {
+            throw Error.error(ErrorCode.X_42555, key);
+        }
+
+        value = ((Integer) meta.propDefaultValue).intValue();
+
+        return value;
+    }
+
+    public int getPropertyWithinRange(String name, int number) {
+
+        PropertyMeta meta = dbMeta.get(name);
+
+        if (meta == null) {
+            return number;
+        }
+
+        if (meta.propClass.equals("Integer")) {
+            if (meta.propIsRange) {
+                int low  = meta.propRangeLow;
+                int high = meta.propRangeHigh;
+
+                if (number < low) {
+                    return low;
+                } else if (high < number) {
+                    return high;
+                }
+            }
+
+            if (meta.propValues != null) {
+                int[] values = meta.propValues;
+
+                if (ArrayUtil.find(values, number) == -1) {
+                    return values[0];
+                }
+            }
+        }
+
+        return number;
+    }
+
+    public boolean validateProperty(String name, int number) {
+
+        PropertyMeta meta = dbMeta.get(name);
+
+        if (meta == null) {
+            return false;
+        }
+
+        if (meta.propClass.equals("Integer")) {
+            if (meta.propIsRange) {
+                int low  = meta.propRangeLow;
+                int high = meta.propRangeHigh;
+
+                if (number < low || high < number) {
+                    return false;
+                }
+            }
+
+            if (meta.propValues != null) {
+                int[] values = meta.propValues;
+
+                if (ArrayUtil.find(values, number) == -1) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public static Iterator getPropertiesMetaIterator() {
