@@ -401,11 +401,23 @@ public class ParserBase {
         }
     }
 
+    void checkIsIntegral() {
+
+        if (!isIntegral()) {
+            throw unexpectedTokenRequire("an integer");
+        }
+    }
+
     void checkIsQuotedString() {
 
         if (!isQuotedString()) {
-            throw this.unexpectedTokenRequire("a quoted string");
+            throw unexpectedTokenRequire("a quoted string");
         }
+    }
+
+    boolean isIntegral() {
+        return token.tokenType == Tokens.X_VALUE
+               && token.dataType.isIntegralType();
     }
 
     boolean isQuotedString() {
@@ -555,7 +567,7 @@ public class ParserBase {
             read();
         }
 
-        checkIsValue();
+        checkIsIntegral();
 
         if (minus && token.dataType.typeCode == Types.SQL_BIGINT
                 && ((Number) token.tokenValue).longValue()

@@ -487,7 +487,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           10));
         dbMeta.put(sql_max_recursive,
                    HsqlProperties.getMeta(sql_max_recursive, SQL_PROPERTY,
-                                          256, 64, 1024 * 1024));
+                                          256, 16, 1024 * 1024 * 1024));
         dbMeta.put(sql_double_nan,
                    HsqlProperties.getMeta(sql_double_nan, SQL_PROPERTY, true));
         dbMeta.put(sql_syntax_db2,
