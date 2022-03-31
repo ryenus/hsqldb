@@ -382,10 +382,8 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
 
                     if (check) {
-                        value =
-                            session.database.getProperties()
-                                .getPropertyWithinRange(HsqlDatabaseProperties
-                                    .hsqldb_cache_rows, value);
+                        value = HsqlDatabaseProperties.getPropertyWithinRange(
+                            HsqlDatabaseProperties.hsqldb_cache_rows, value);
                     }
 
                     session.database.logger.setCacheMaxRows(value);
@@ -404,10 +402,8 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
 
                     if (check) {
-                        value =
-                            session.database.getProperties()
-                                .getPropertyWithinRange(HsqlDatabaseProperties
-                                    .hsqldb_cache_size, value);
+                        value = HsqlDatabaseProperties.getPropertyWithinRange(
+                            HsqlDatabaseProperties.hsqldb_cache_size, value);
                     }
 
                     session.database.logger.setCacheSize(value);
@@ -533,7 +529,7 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
 
-                    if (!session.database.getProperties().validateProperty(
+                    if (!HsqlDatabaseProperties.validateProperty(
                             HsqlDatabaseProperties.hsqldb_defrag_limit,
                             value)) {
                         throw Error.error(ErrorCode.X_42556);
@@ -575,10 +571,8 @@ public class StatementCommand extends Statement {
                     } else {
                         int value = ((Integer) arguments[0]).intValue();
 
-                        value =
-                            session.database.getProperties()
-                                .getPropertyWithinRange(HsqlDatabaseProperties
-                                    .hsqldb_nio_max_size, value);
+                        value = HsqlDatabaseProperties.getPropertyWithinRange(
+                            HsqlDatabaseProperties.hsqldb_nio_max_size, value);
 
                         session.database.logger.setNioMaxSize(value);
                     }
@@ -608,10 +602,8 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
 
-                    value =
-                        session.database.getProperties()
-                            .getPropertyWithinRange(HsqlDatabaseProperties
-                                .hsqldb_log_size, value);
+                    value = HsqlDatabaseProperties.getPropertyWithinRange(
+                        HsqlDatabaseProperties.hsqldb_log_size, value);
 
                     session.database.logger.setLogSize(value);
 
@@ -650,10 +642,9 @@ public class StatementCommand extends Statement {
                 try {
                     int value = ((Integer) arguments[0]).intValue();
 
-                    value =
-                        session.database.getProperties()
-                            .getPropertyWithinRange(HsqlDatabaseProperties
-                                .hsqldb_write_delay_millis, value);
+                    value = HsqlDatabaseProperties.getPropertyWithinRange(
+                        HsqlDatabaseProperties.hsqldb_write_delay_millis,
+                        value);
 
                     session.checkAdmin();
                     session.checkDDLWrite();
@@ -796,18 +787,14 @@ public class StatementCommand extends Statement {
                     session.database.setTruncateTrailing(mode);
                 } else if (HsqlDatabaseProperties.sql_avg_scale.equals(
                         property)) {
-                    value =
-                        session.database.getProperties()
-                            .getPropertyWithinRange(HsqlDatabaseProperties
-                                .sql_avg_scale, value);
+                    value = HsqlDatabaseProperties.getPropertyWithinRange(
+                        HsqlDatabaseProperties.sql_avg_scale, value);
 
                     session.database.setAvgScale(value);
                 } else if (HsqlDatabaseProperties.sql_max_recursive.equals(
                         property)) {
-                    value =
-                        session.database.getProperties()
-                            .getPropertyWithinRange(HsqlDatabaseProperties
-                                .sql_max_recursive, value);
+                    value = HsqlDatabaseProperties.getPropertyWithinRange(
+                        HsqlDatabaseProperties.sql_max_recursive, value);
 
                     session.database.setMaxRecursive(value);
                 } else if (HsqlDatabaseProperties.sql_double_nan.equals(
@@ -955,7 +942,7 @@ public class StatementCommand extends Statement {
 
                 session.checkAdmin();
 
-                size = session.database.getProperties().getPropertyWithinRange(
+                size = HsqlDatabaseProperties.getPropertyWithinRange(
                     HsqlDatabaseProperties.hsqldb_result_max_memory_rows,
                     size);
 

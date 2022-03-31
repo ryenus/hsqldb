@@ -61,6 +61,7 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.FrameworkLogger;
+import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.InputStreamInterface;
 import org.hsqldb.lib.InputStreamWrapper;
@@ -1405,314 +1406,187 @@ public class Logger implements EventLogInterface {
         throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
     }
 
-    public String getValueStringForProperty(String name) {
-
-        String value = "";
-
-        if (HsqlDatabaseProperties.hsqldb_tx.equals(name)) {
-            switch (database.txManager.getTransactionControl()) {
-
-                case TransactionManager.MVCC :
-                    value = Tokens.T_MVCC.toLowerCase();
-                    break;
-
-                case TransactionManager.MVLOCKS :
-                    value = Tokens.T_MVLOCKS.toLowerCase();
-                    break;
-
-                case TransactionManager.LOCKS :
-                    value = Tokens.T_LOCKS.toLowerCase();
-                    break;
-            }
-
-            return value;
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_tx_level.equals(name)) {
-            switch (database.defaultIsolationLevel) {
-
-                case SessionInterface.TX_READ_COMMITTED :
-                    value = new StringBuilder(Tokens.T_READ).append(
-                        ' ').append(
-                        Tokens.T_COMMITTED).toString().toLowerCase();
-                    break;
-
-                case SessionInterface.TX_SERIALIZABLE :
-                    value = Tokens.T_SERIALIZABLE.toLowerCase();
-                    break;
-            }
-
-            return value;
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_applog.equals(name)) {
-            return String.valueOf(appLog.getLevel());
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_sqllog.equals(name)) {
-            return String.valueOf(sqlLog.getLevel());
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_lob_file_scale.equals(name)) {
-            return String.valueOf(propLobBlockSize / 1024);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_lob_file_compressed.equals(name)) {
-            return String.valueOf(propCompressLobs);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_cache_file_scale.equals(name)) {
-            return String.valueOf(propDataFileScale);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_cache_free_count.equals(name)) {
-            return String.valueOf(propMaxFreeBlocks);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_cache_rows.equals(name)) {
-            return String.valueOf(propCacheMaxRows);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_cache_size.equals(name)) {
-            return String.valueOf(propCacheMaxSize / 1024);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_default_table_type.equals(name)) {
-            return database.schemaManager.getDefaultTableType()
-                   == TableBase.CACHED_TABLE ? Tokens.T_CACHED
-                                             : Tokens.T_MEMORY;
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_defrag_limit.equals(name)) {
-            return String.valueOf(propDataFileDefragLimit);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_files_space.equals(name)) {
-            return String.valueOf(propDataFileSpace);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_files_readonly.equals(name)) {
-            return database.databaseProperties.getPropertyString(
-                HsqlDatabaseProperties.hsqldb_files_readonly);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_large_data.equals(name)) {
-            return String.valueOf(propLargeData);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_lock_file.equals(name)) {
-            return database.databaseProperties.getPropertyString(
-                HsqlDatabaseProperties.hsqldb_lock_file);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_log_data.equals(name)) {
-            return String.valueOf(propLogData);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_log_size.equals(name)) {
-            return String.valueOf(propLogSize);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_nio_data_file.equals(name)) {
-            return String.valueOf(propNioDataFile);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_nio_max_size.equals(name)) {
-            return String.valueOf(propNioMaxSize / (1024 * 1024));
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_script_format.equals(name)) {
-            return ScriptWriterBase.LIST_SCRIPT_FORMATS[propScriptFormat]
-                .toLowerCase();
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_temp_directory.equals(name)) {
-            return tempDirectoryPath;
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_tx_conflict_rollback.equals(name)) {
-            return String.valueOf(database.txConflictRollback);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_tx_interrupt_rollback.equals(name)) {
-            return String.valueOf(database.txInterruptRollback);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_result_max_memory_rows.equals(
-                name)) {
-            return String.valueOf(database.getResultMaxMemoryRows());
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_write_delay.equals(name)) {
-            return String.valueOf(propWriteDelay != 0);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_write_delay_millis.equals(name)) {
-            return String.valueOf(propWriteDelay);
-        }
-
-        if (HsqlDatabaseProperties.hsqldb_digest.equals(name)) {
-            return database.granteeManager.getDigestAlgo();
-        }
-
-        if (HsqlDatabaseProperties.sql_restrict_exec.equals(name)) {
-            return String.valueOf(database.sqlRestrictExec);
-        }
-
-        if (HsqlDatabaseProperties.sql_avg_scale.equals(name)) {
-            return String.valueOf(database.sqlAvgScale);
-        }
-
-        if (HsqlDatabaseProperties.sql_max_recursive.equals(name)) {
-            return String.valueOf(database.sqlMaxRecursive);
-        }
-
-        if (HsqlDatabaseProperties.sql_char_literal.equals(name)) {
-            return String.valueOf(database.sqlCharLiteral);
-        }
-
-        if (HsqlDatabaseProperties.sql_concat_nulls.equals(name)) {
-            return String.valueOf(database.sqlConcatNulls);
-        }
-
-        if (HsqlDatabaseProperties.sql_convert_trunc.equals(name)) {
-            return String.valueOf(database.sqlConvertTruncate);
-        }
-
-        if (HsqlDatabaseProperties.sql_trunc_trailing.equals(name)) {
-            return String.valueOf(database.sqlTruncateTrailing);
-        }
-
-        if (HsqlDatabaseProperties.sql_double_nan.equals(name)) {
-            return String.valueOf(database.sqlDoubleNaN);
-        }
-
-        if (HsqlDatabaseProperties.sql_enforce_names.equals(name)) {
-            return String.valueOf(database.sqlEnforceNames);
-        }
-
-        if (HsqlDatabaseProperties.sql_enforce_refs.equals(name)) {
-            return String.valueOf(database.sqlEnforceRefs);
-        }
-
-        if (HsqlDatabaseProperties.sql_enforce_size.equals(name)) {
-            return String.valueOf(database.sqlEnforceSize);
-        }
-
-        if (HsqlDatabaseProperties.sql_enforce_tdcd.equals(name)) {
-            return String.valueOf(database.sqlEnforceTDCD);
-        }
-
-        if (HsqlDatabaseProperties.sql_enforce_tdcu.equals(name)) {
-            return String.valueOf(database.sqlEnforceTDCU);
-        }
-
-        if (HsqlDatabaseProperties.sql_enforce_types.equals(name)) {
-            return String.valueOf(database.sqlEnforceTypes);
-        }
-
-        if (HsqlDatabaseProperties.sql_ignore_case.equals(name)) {
-            return String.valueOf(database.sqlIgnoreCase);
-        }
-
-        if (HsqlDatabaseProperties.sql_longvar_is_lob.equals(name)) {
-            return String.valueOf(database.sqlLongvarIsLob);
-        }
-
-        if (HsqlDatabaseProperties.sql_nulls_first.equals(name)) {
-            return String.valueOf(database.sqlNullsFirst);
-        }
-
-        if (HsqlDatabaseProperties.sql_nulls_order.equals(name)) {
-            return String.valueOf(database.sqlNullsOrder);
-        }
-
-        if (HsqlDatabaseProperties.sql_default_collation.equals(name)) {
-            return String.valueOf(database.collation.getName().name);
-        }
-
-        if (HsqlDatabaseProperties.sql_pad_space.equals(name)) {
-            return String.valueOf(database.collation.isPadSpace());
-        }
-
-        if (HsqlDatabaseProperties.sql_syntax_db2.equals(name)) {
-            return String.valueOf(database.sqlSyntaxDb2);
-        }
-
-        if (HsqlDatabaseProperties.sql_syntax_mss.equals(name)) {
-            return String.valueOf(database.sqlSyntaxMss);
-        }
-
-        if (HsqlDatabaseProperties.sql_syntax_mys.equals(name)) {
-            return String.valueOf(database.sqlSyntaxMys);
-        }
-
-        if (HsqlDatabaseProperties.sql_syntax_ora.equals(name)) {
-            return String.valueOf(database.sqlSyntaxOra);
-        }
-
-        if (HsqlDatabaseProperties.sql_syntax_pgs.equals(name)) {
-            return String.valueOf(database.sqlSyntaxPgs);
-        }
-
-        if (HsqlDatabaseProperties.sql_ref_integrity.equals(name)) {
-            return String.valueOf(database.isReferentialIntegrity());
-        }
-
-        if (HsqlDatabaseProperties.sql_regular_names.equals(name)) {
-            return String.valueOf(database.sqlRegularNames);
-        }
-
-        if (HsqlDatabaseProperties.sql_unique_nulls.equals(name)) {
-            return String.valueOf(database.sqlUniqueNulls);
-        }
-
-        if (HsqlDatabaseProperties.sql_live_object.equals(name)) {
-            return String.valueOf(database.sqlLiveObject);
-        }
-
-        if (HsqlDatabaseProperties.jdbc_translate_tti_types.equals(name)) {
-            return String.valueOf(database.sqlTranslateTTI);
-        }
-
-        if (HsqlDatabaseProperties.sql_sys_index_names.equals(name)) {
-            return String.valueOf(database.sqlSysIndexNames);
-        }
-
-/*
-        if (HsqlDatabaseProperties.textdb_all_quoted.equals(name)) {
-            return null;
-        }
-
-        if (HsqlDatabaseProperties.textdb_allow_full_path.equals(name)) {
-            return null;
-        }
-
-        if (HsqlDatabaseProperties.textdb_encoding.equals(name)) {
-            return null;
-        }
-
-        if (HsqlDatabaseProperties.textdb_ignore_first.equals(name)) {
-            return null;
-        }
-
-        if (HsqlDatabaseProperties.textdb_quoted.equals(name)) {
-            return null;
-        }
-
-        if (HsqlDatabaseProperties.textdb_fs.equals(name)) {
-            return null;
-        }
-
-        if (HsqlDatabaseProperties.textdb_vs.equals(name)) {
-            return null;
-        }
-
-        if (HsqlDatabaseProperties.textdb_lvs.equals(name)) {
-            return null;
-        }
-*/
-        return null;
+    public HashMap getPropertyValueMap(Session session) {
+
+        HashMap map   = new HashMap();
+        String  value = null;
+
+        map.put(HsqlDatabaseProperties.sql_avg_scale,
+                String.valueOf(database.sqlAvgScale));
+        map.put(HsqlDatabaseProperties.sql_char_literal,
+                String.valueOf(database.sqlCharLiteral));
+        map.put(HsqlDatabaseProperties.sql_concat_nulls,
+                String.valueOf(database.sqlConcatNulls));
+        map.put(HsqlDatabaseProperties.sql_convert_trunc,
+                String.valueOf(database.sqlConvertTruncate));
+        map.put(HsqlDatabaseProperties.sql_default_collation,
+                String.valueOf(database.collation.getName().name));
+        map.put(HsqlDatabaseProperties.sql_trunc_trailing,
+                String.valueOf(database.sqlTruncateTrailing));
+        map.put(HsqlDatabaseProperties.sql_double_nan,
+                String.valueOf(database.sqlDoubleNaN));
+        map.put(HsqlDatabaseProperties.sql_enforce_names,
+                String.valueOf(database.sqlEnforceNames));
+        map.put(HsqlDatabaseProperties.sql_enforce_refs,
+                String.valueOf(database.sqlEnforceRefs));
+        map.put(HsqlDatabaseProperties.sql_enforce_size,
+                String.valueOf(database.sqlEnforceSize));
+        map.put(HsqlDatabaseProperties.sql_enforce_tdcd,
+                String.valueOf(database.sqlEnforceTDCD));
+        map.put(HsqlDatabaseProperties.sql_enforce_tdcu,
+                String.valueOf(database.sqlEnforceTDCU));
+        map.put(HsqlDatabaseProperties.sql_enforce_types,
+                String.valueOf(database.sqlEnforceTypes));
+        map.put(HsqlDatabaseProperties.sql_ignore_case,
+                String.valueOf(database.sqlIgnoreCase));
+        map.put(HsqlDatabaseProperties.sql_live_object,
+                String.valueOf(database.sqlLiveObject));
+        map.put(HsqlDatabaseProperties.sql_longvar_is_lob,
+                String.valueOf(database.sqlLongvarIsLob));
+        map.put(HsqlDatabaseProperties.sql_lowercase_ident,
+                String.valueOf(database.sqlLowerCaseIdentifier));
+        map.put(HsqlDatabaseProperties.sql_max_recursive,
+                String.valueOf(database.sqlMaxRecursive));
+        map.put(HsqlDatabaseProperties.sql_nulls_first,
+                String.valueOf(database.sqlNullsFirst));
+        map.put(HsqlDatabaseProperties.sql_nulls_order,
+                String.valueOf(database.sqlNullsOrder));
+        map.put(HsqlDatabaseProperties.sql_pad_space,
+                String.valueOf(database.collation.isPadSpace()));
+        map.put(HsqlDatabaseProperties.sql_ref_integrity,
+                String.valueOf(database.isReferentialIntegrity()));
+        map.put(HsqlDatabaseProperties.sql_regular_names,
+                String.valueOf(database.sqlRegularNames));
+        map.put(HsqlDatabaseProperties.sql_restrict_exec,
+                String.valueOf(database.sqlRestrictExec));
+        map.put(HsqlDatabaseProperties.sql_syntax_db2,
+                String.valueOf(database.sqlSyntaxDb2));
+        map.put(HsqlDatabaseProperties.sql_syntax_mss,
+                String.valueOf(database.sqlSyntaxMss));
+        map.put(HsqlDatabaseProperties.sql_syntax_mys,
+                String.valueOf(database.sqlSyntaxMys));
+        map.put(HsqlDatabaseProperties.sql_syntax_ora,
+                String.valueOf(database.sqlSyntaxOra));
+        map.put(HsqlDatabaseProperties.sql_syntax_pgs,
+                String.valueOf(database.sqlSyntaxPgs));
+        map.put(HsqlDatabaseProperties.sql_sys_index_names,
+                String.valueOf(database.sqlSysIndexNames));
+        map.put(HsqlDatabaseProperties.sql_unique_nulls,
+                String.valueOf(database.sqlUniqueNulls));
+
+        //
+        map.put(HsqlDatabaseProperties.jdbc_translate_tti_types,
+                String.valueOf(database.sqlTranslateTTI));
+
+        switch (database.txManager.getTransactionControl()) {
+
+            case TransactionManager.MVCC :
+                value = Tokens.T_MVCC;
+                break;
+
+            case TransactionManager.MVLOCKS :
+                value = Tokens.T_MVLOCKS;
+                break;
+
+            case TransactionManager.LOCKS :
+                value = Tokens.T_LOCKS;
+                break;
+        }
+
+        map.put(HsqlDatabaseProperties.hsqldb_tx, value);
+
+        switch (database.defaultIsolationLevel) {
+
+            case SessionInterface.TX_READ_COMMITTED :
+                value = new StringBuilder(Tokens.T_READ).append('_').append(
+                    Tokens.T_COMMITTED).toString();
+                break;
+
+            case SessionInterface.TX_SERIALIZABLE :
+                value = Tokens.T_SERIALIZABLE;
+                break;
+        }
+
+        map.put(HsqlDatabaseProperties.hsqldb_tx_level, value);
+        map.put(
+            HsqlDatabaseProperties.hsqldb_reconfig_logging,
+            System.getProperty(
+                HsqlDatabaseProperties.hsqldb_reconfig_logging));
+
+        if (HsqlDatabaseProperties.methodClassNames != null) {
+            map.put(HsqlDatabaseProperties.hsqldb_method_class_names,
+                    String.valueOf(HsqlDatabaseProperties.methodClassNames));
+        }
+
+        map.put(HsqlDatabaseProperties.hsqldb_applog,
+                String.valueOf(appLog.getLevel()));
+        map.put(HsqlDatabaseProperties.hsqldb_sqllog,
+                String.valueOf(sqlLog.getLevel()));
+        map.put(HsqlDatabaseProperties.hsqldb_lob_file_scale,
+                String.valueOf(propLobBlockSize / 1024));
+        map.put(HsqlDatabaseProperties.hsqldb_lob_file_compressed,
+                String.valueOf(propCompressLobs));
+        map.put(HsqlDatabaseProperties.hsqldb_cache_file_scale,
+                String.valueOf(propDataFileScale));
+        map.put(HsqlDatabaseProperties.hsqldb_cache_free_count,
+                String.valueOf(propMaxFreeBlocks));
+        map.put(HsqlDatabaseProperties.hsqldb_cache_rows,
+                String.valueOf(propCacheMaxRows));
+        map.put(HsqlDatabaseProperties.hsqldb_cache_size,
+                String.valueOf(propCacheMaxSize / 1024));
+        map.put(HsqlDatabaseProperties.hsqldb_default_table_type,
+                database.schemaManager.getDefaultTableType()
+                == TableBase.CACHED_TABLE ? Tokens.T_CACHED
+                                          : Tokens.T_MEMORY);
+        map.put(HsqlDatabaseProperties.hsqldb_defrag_limit,
+                String.valueOf(propDataFileDefragLimit));
+        map.put(HsqlDatabaseProperties.hsqldb_files_space,
+                String.valueOf(propDataFileSpace));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_files_readonly,
+            database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_files_readonly) ? "true"
+                                                              : "false");
+        map.put(HsqlDatabaseProperties.hsqldb_large_data,
+                String.valueOf(propLargeData));
+        map.put(
+            HsqlDatabaseProperties.hsqldb_lock_file,
+            database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_lock_file) ? "true"
+                                                         : "false");
+        map.put(HsqlDatabaseProperties.hsqldb_log_data,
+                String.valueOf(propLogData));
+        map.put(HsqlDatabaseProperties.hsqldb_log_size,
+                String.valueOf(propLogSize));
+        map.put(HsqlDatabaseProperties.hsqldb_nio_data_file,
+                String.valueOf(propNioDataFile));
+        map.put(HsqlDatabaseProperties.hsqldb_nio_max_size,
+                String.valueOf(propNioMaxSize / (1024 * 1024)));
+        map.put(HsqlDatabaseProperties.hsqldb_script_format,
+                ScriptWriterBase.LIST_SCRIPT_FORMATS[propScriptFormat]
+                    .toLowerCase());
+        map.put(HsqlDatabaseProperties.hsqldb_temp_directory,
+                tempDirectoryPath);
+        map.put(HsqlDatabaseProperties.hsqldb_tx_conflict_rollback,
+                String.valueOf(database.txConflictRollback));
+        map.put(HsqlDatabaseProperties.hsqldb_tx_interrupt_rollback,
+                String.valueOf(database.txInterruptRollback));
+        map.put(HsqlDatabaseProperties.hsqldb_result_max_memory_rows,
+                String.valueOf(database.getResultMaxMemoryRows()));
+        map.put(HsqlDatabaseProperties.hsqldb_readonly,
+                database.isReadOnly() ? "true"
+                                      : "false");
+        map.put(HsqlDatabaseProperties.hsqldb_files_readonly,
+                database.isFilesReadOnly() ? "true"
+                                           : "false");
+        map.put(HsqlDatabaseProperties.hsqldb_write_delay,
+                String.valueOf(propWriteDelay != 0));
+        map.put(HsqlDatabaseProperties.hsqldb_write_delay_millis,
+                String.valueOf(propWriteDelay));
+        map.put(HsqlDatabaseProperties.hsqldb_digest,
+                database.granteeManager.getDigestAlgo());
+
+        return map;
     }
 
     public String[] getPropertiesSQL(boolean indexRoots) {
@@ -1722,10 +1596,6 @@ public class Logger implements EventLogInterface {
 
         sb.append("SET DATABASE ").append(Tokens.T_UNIQUE).append(' ');
         sb.append(Tokens.T_NAME).append(' ').append(database.getNameString());
-        list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_GC).append(' ');
-        sb.append(propGC);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_DEFAULT).append(' ');
@@ -1814,7 +1684,7 @@ public class Logger implements EventLogInterface {
         list.add(sb.toString());
         sb.setLength(0);
 
-        String temp = database.getProperties().getStringPropertyDefault(
+        String temp = HsqlDatabaseProperties.getStringPropertyDefault(
             HsqlDatabaseProperties.hsqldb_digest);
 
         if (!temp.equals(database.granteeManager.getDigestAlgo())) {
@@ -1842,16 +1712,13 @@ public class Logger implements EventLogInterface {
                                            : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
-
-        if (database.sqlRestrictExec) {
-            sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
-            sb.append(Tokens.T_RESTRICT).append(' ');
-            sb.append(Tokens.T_EXEC).append(' ');
-            sb.append(database.sqlRestrictExec ? Tokens.T_TRUE
-                                               : Tokens.T_FALSE);
-            list.add(sb.toString());
-            sb.setLength(0);
-        }
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_RESTRICT).append(' ');
+        sb.append(Tokens.T_EXEC).append(' ');
+        sb.append(database.sqlRestrictExec ? Tokens.T_TRUE
+                                           : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
 
         if (!database.sqlRegularNames) {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
@@ -1975,7 +1842,7 @@ public class Logger implements EventLogInterface {
         sb.setLength(0);
 
         if (database.sqlMaxRecursive
-                != database.getProperties().getIntegerPropertyDefault(
+                != HsqlDatabaseProperties.getIntegerPropertyDefault(
                     HsqlDatabaseProperties.sql_max_recursive)) {
             sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
             sb.append(Tokens.T_MAX).append(' ');
