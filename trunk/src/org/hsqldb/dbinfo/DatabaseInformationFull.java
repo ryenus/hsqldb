@@ -59,6 +59,7 @@ import org.hsqldb.View;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.FileUtil;
+import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LineGroupReader;
@@ -113,7 +114,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.7.0
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -811,55 +812,18 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the capabilities
-     * and operating parameter properties for the engine hosting this
-     * database, as well as their applicability in terms of scope and
-     * name space. <p>
+     * Retrieves a <code>Table</code> object describing the operating properties
+     * for this database, as well as their scope.<p>
      *
-     * Reported properties include certain predefined <code>Database</code>
-     * properties file values as well as certain database scope
-     * attributes. <p>
+     * The properties cover those that were set via the JDBC connection
+     * properties or SQL SET statements.<p>
      *
-     * It is intended that all <code>Database</code> attributes and
-     * properties that can be set via the database properties file,
-     * JDBC connection properties or SQL SET/ALTER statements will
-     * eventually be reported here or, where more applicable, in an
-     * ANSI/ISO conforming feature info base table in the definition
-     * schema. <p>
+     * Restricted to SQL properties for non-admin users.<p>
      *
-     * Currently, the database properties reported are:
+     * System property values (Java VM properties) are shown as NULL when not
+     * defined.
      *
-     * <OL>
-     *     <LI>hsqldb.cache_file_scale - the scaling factor used to translate data and index structure file pointers
-     *     <LI>hsqldb.cache_scale - base-2 exponent scaling allowable cache row count
-     *     <LI>hsqldb.cache_size_scale - base-2 exponent scaling allowable cache byte count
-     *     <LI>hsqldb.cache_version -
-     *     <LI>hsqldb.catalogs - whether to report the database catalog (database uri)
-     *     <LI>hsqldb.compatible_version -
-     *     <LI>hsqldb.files_readonly - whether the database is in files_readonly mode
-     *     <LI>hsqldb.gc_interval - # new records forcing gc ({0|NULL}=>never)
-     *     <LI>hsqldb.max_nio_scale - scale factor for cache nio mapped buffers
-     *     <LI>hsqldb.nio_data_file - whether cache uses nio mapped buffers
-     *     <LI>hsqldb.original_version -
-     *     <LI>sql.enforce_strict_size - column length specifications enforced strictly (raise exception on overflow)?
-     *     <LI>textdb.all_quoted - default policy regarding whether to quote all character field values
-     *     <LI>textdb.cache_scale - base-2 exponent scaling allowable cache row count
-     *     <LI>textdb.cache_size_scale - base-2 exponent scaling allowable cache byte count
-     *     <LI>textdb.encoding - default TEXT table file encoding
-     *     <LI>textdb.fs - default field separator
-     *     <LI>textdb.vs - default varchar field separator
-     *     <LI>textdb.lvs - default long varchar field separator
-     *     <LI>textdb.ignore_first - default policy regarding whether to ignore the first line
-     *     <LI>textdb.quoted - default policy regarding treatment character field values that _may_ require quoting
-     *     <LI>IGNORECASE - create table VARCHAR_IGNORECASE?
-     *     <LI>LOGSIZSE - # bytes to which REDO log grows before auto-checkpoint
-     *     <LI>REFERENTIAL_INTEGITY - currently enforcing referential integrity?
-     *     <LI>SCRIPTFORMAT - 0 : TEXT, 1 : BINARY, ...
-     *     <LI>WRITEDELAY - does REDO log currently use buffered write strategy?
-     * </OL> <p>
-     *
-     * @return table describing database and session operating parameters
-     *      and capabilities
+     * @return table describing database operating parameters
      */
     Table SYSTEM_PROPERTIES(Session session, PersistentStore store) {
 
@@ -900,30 +864,52 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         String nameSpace;
 
         // intermediate holders
-        Object[]               row;
-        HsqlDatabaseProperties props;
-
-        // First, we want the names and values for
-        // all JDBC capabilities constants
-        props     = database.getProperties();
-        nameSpace = "database.properties";
-
-        // boolean properties
-        Iterator it = props.getUserDefinedPropertyData().iterator();
+        Object[] row;
+        boolean  restrict   = !session.isAdmin();
+        Iterator it         = HsqlDatabaseProperties.getUserDefinedProperties();
+        HashMap  nameToProp = database.logger.getPropertyValueMap(session);
 
         while (it.hasNext()) {
             PropertyMeta metaData = (PropertyMeta) it.next();
 
-            scope       = "SESSION";
+            if (restrict
+                    && metaData.propType != HsqlDatabaseProperties.SQL_PROP) {
+                continue;
+            }
+
+            switch (metaData.propType) {
+
+                case HsqlDatabaseProperties.SYSTEM_PROP :
+                    scope = "SYSTEM";
+                    break;
+
+                case HsqlDatabaseProperties.FILES_PROP :
+                    scope = "FILES";
+                    break;
+
+                case HsqlDatabaseProperties.DB_PROP :
+                    scope = "DATABASE";
+                    break;
+
+                case HsqlDatabaseProperties.SQL_PROP :
+                    scope = "SQL";
+                    break;
+
+                default :
+                    scope = "";
+            }
+
+            nameSpace   = "database.properties";
             row         = t.getEmptyRowData();
             row[iscope] = scope;
             row[ins]    = nameSpace;
             row[iname]  = metaData.propName;
-            row[ivalue] =
-                database.logger.getValueStringForProperty((String) row[iname]);
+            row[ivalue] = nameToProp.get(metaData.propName);
 
-            if (row[ivalue] == null) {
-                row[ivalue] = props.getPropertyString((String) row[iname]);
+            if (row[ivalue] == null
+                    && metaData.propType
+                       != HsqlDatabaseProperties.SYSTEM_PROP) {
+                row[ivalue] = String.valueOf(metaData.propDefaultValue);
             }
 
             row[iclass] = metaData.propClass;

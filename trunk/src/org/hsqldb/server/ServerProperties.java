@@ -155,13 +155,13 @@ public class ServerProperties extends HsqlProperties {
 
         while (en.hasMoreElements()) {
             String       key      = (String) en.nextElement();
-            PropertyMeta metadata = serverMeta.get(key);
+            PropertyMeta meta = serverMeta.get(key);
 
-            if (metadata == null) {
-                metadata = getPrefixedMetadata(key);
+            if (meta == null) {
+                meta = getPrefixedMetadata(key);
             }
 
-            if (metadata == null) {
+            if (meta == null) {
                 String error = "unsupported property: " + key;
 
                 super.addError(ANY_ERROR, error);
@@ -171,23 +171,23 @@ public class ServerProperties extends HsqlProperties {
 
             String error = null;
 
-            if (metadata.propType == SYSTEM_PROPERTY) {
-                error = validateSystemProperty(key, metadata);
-            } else if (metadata.propType == SERVER_MULTI_PROPERTY) {
-                error = validateMultiProperty(key, metadata);
+            if (meta.propType == SYSTEM_PROPERTY) {
+                error = validateSystemProperty(key, meta);
+            } else if (meta.propType == SERVER_MULTI_PROPERTY) {
+                error = validateMultiProperty(key, meta);
             } else {
                 String value = getProperty(key);
 
                 if (value == null) {
-                    if (metadata.propDefaultValue == null) {
+                    if (meta.propDefaultValue == null) {
                         error = "missing value for property: " + key;
                     } else {
                         setProperty(key,
-                                    metadata.propDefaultValue.toString());
+                                    meta.propDefaultValue.toString());
                     }
                 } else {
                     error = HsqlProperties.validateProperty(key, value,
-                            metadata);
+                            meta);
                 }
             }
 
@@ -294,39 +294,24 @@ public class ServerProperties extends HsqlProperties {
     static {
 
         // properties with variable suffixes
-        serverMeta.put(sc_key_database,
-                       getMeta(sc_key_database, SERVER_MULTI_PROPERTY, null));
-        serverMeta.put(sc_key_dbname,
-                       getMeta(sc_key_dbname, SERVER_MULTI_PROPERTY, null));
-        serverMeta.put(sc_key_system,
-                       getMeta(sc_key_system, SYSTEM_PROPERTY, null));
+        serverMeta.put(sc_key_database, newMeta(sc_key_database, SERVER_MULTI_PROPERTY, null));
+        serverMeta.put(sc_key_dbname, newMeta(sc_key_dbname, SERVER_MULTI_PROPERTY, null));
+        serverMeta.put(sc_key_system, newMeta(sc_key_system, SYSTEM_PROPERTY, null));
 
         // properties with fixed names
-        serverMeta.put(sc_key_silent,
-                       getMeta(sc_key_silent, SERVER_PROPERTY, false));
-        serverMeta.put(sc_key_trace,
-                       getMeta(sc_key_trace, SERVER_PROPERTY, false));
-        serverMeta.put(sc_key_tls,
-                       getMeta(sc_key_tls, SERVER_PROPERTY, false));
-        serverMeta.put(sc_key_acl, getMeta(sc_key_acl, SERVER_PROPERTY, null));
-        serverMeta.put(sc_key_autorestart_server,
-                       getMeta(sc_key_autorestart_server, SERVER_PROPERTY,
-                               false));
-        serverMeta.put(sc_key_remote_open_db,
-                       getMeta(sc_key_remote_open_db, SERVER_PROPERTY, false));
-        serverMeta.put(sc_key_no_system_exit,
-                       getMeta(sc_key_no_system_exit, SERVER_PROPERTY, false));
-        serverMeta.put(sc_key_daemon,
-                       getMeta(sc_key_daemon, SERVER_PROPERTY, false));
-        serverMeta.put(sc_key_address,
-                       getMeta(sc_key_address, SERVER_PROPERTY, null));
-        serverMeta.put(sc_key_port, getMeta(sc_key_port, 0, 9001, 0, 65535));
-        serverMeta.put(sc_key_http_port,
-                       getMeta(sc_key_http_port, 0, 80, 0, 65535));
-        serverMeta.put(sc_key_max_connections,
-                       getMeta(sc_key_max_connections, 0, 100, 1, 10000));
-        serverMeta.put(sc_key_max_databases,
-                       getMeta(sc_key_max_databases, 0, 10, 1, 1000));
+        serverMeta.put(sc_key_silent, newMeta(sc_key_silent, SERVER_PROPERTY, false));
+        serverMeta.put(sc_key_trace, newMeta(sc_key_trace, SERVER_PROPERTY, false));
+        serverMeta.put(sc_key_tls, newMeta(sc_key_tls, SERVER_PROPERTY, false));
+        serverMeta.put(sc_key_acl, newMeta(sc_key_acl, SERVER_PROPERTY, null));
+        serverMeta.put(sc_key_autorestart_server, newMeta(sc_key_autorestart_server, SERVER_PROPERTY, false));
+        serverMeta.put(sc_key_remote_open_db, newMeta(sc_key_remote_open_db, SERVER_PROPERTY, false));
+        serverMeta.put(sc_key_no_system_exit, newMeta(sc_key_no_system_exit, SERVER_PROPERTY, false));
+        serverMeta.put(sc_key_daemon, newMeta(sc_key_daemon, SERVER_PROPERTY, false));
+        serverMeta.put(sc_key_address, newMeta(sc_key_address, SERVER_PROPERTY, null));
+        serverMeta.put(sc_key_port, newMeta(sc_key_port, 0, 9001, 0, 65535));
+        serverMeta.put(sc_key_http_port, newMeta(sc_key_http_port, 0, 80, 0, 65535));
+        serverMeta.put(sc_key_max_connections, newMeta(sc_key_max_connections, 0, 100, 1, 10000));
+        serverMeta.put(sc_key_max_databases, newMeta(sc_key_max_databases, 0, 10, 1, 1000));
 
         //
         prefixes.add(sc_key_database);

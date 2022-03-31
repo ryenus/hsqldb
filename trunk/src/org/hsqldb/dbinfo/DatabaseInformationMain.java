@@ -1930,21 +1930,27 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int imax_len       = 1;
         final int idefault_value = 2;
         final int idescription   = 3;
-        Iterator  it = HsqlDatabaseProperties.getPropertiesMetaIterator();
+        Iterator  it = HsqlDatabaseProperties.getUserDefinedProperties();
 
         while (it.hasNext()) {
             PropertyMeta meta     = (PropertyMeta) it.next();
             int          propType = meta.propType;
 
-            if (propType == HsqlDatabaseProperties.FILE_PROPERTY) {
-                if (HsqlDatabaseProperties.hsqldb_readonly
-                        .equals(meta.propName) || HsqlDatabaseProperties
-                        .hsqldb_files_readonly.equals(meta.propName)) {}
-                else {
+            switch (propType) {
+
+                case HsqlDatabaseProperties.FILES_PROP :
+                    if (HsqlDatabaseProperties.hsqldb_readonly
+                            .equals(meta.propName) || HsqlDatabaseProperties
+                            .hsqldb_files_readonly.equals(meta.propName)) {
+                        break;
+                    }
+
                     continue;
-                }
-            } else if (propType != HsqlDatabaseProperties.SQL_PROPERTY) {
-                continue;
+                case HsqlDatabaseProperties.SQL_PROP :
+                    break;
+
+                default :
+                    continue;
             }
 
             row = t.getEmptyRowData();
@@ -1952,7 +1958,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             Object def = meta.propDefaultValue;
 
             row[iname]          = meta.propName;
-            row[imax_len]       = ValuePool.getInt(8);
+            row[imax_len]       = ValuePool.getInt(16);
             row[idefault_value] = def == null ? null
                                               : def.toString();
             row[idescription]   = "see HyperSQL guide";

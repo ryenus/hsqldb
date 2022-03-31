@@ -44,7 +44,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
-import org.hsqldb.lib.HashMap;
 import org.hsqldb.map.ValuePool;
 
 /**
@@ -402,74 +401,75 @@ public class HsqlProperties {
 
     public void validate() {}
 
-    public static PropertyMeta getMeta(String name, int type, long defaultVal) {
+    public static PropertyMeta newMeta(String name, int type,
+                                       long defaultVal) {
 
-        PropertyMeta row = new PropertyMeta();
+        PropertyMeta meta = new PropertyMeta();
 
-        row.propName         = name;
-        row.propType         = type;
-        row.propClass        = "Long";
-        row.propDefaultValue = Long.valueOf(defaultVal);
+        meta.propName         = name;
+        meta.propType         = type;
+        meta.propClass        = "Long";
+        meta.propDefaultValue = Long.valueOf(defaultVal);
 
-        return row;
+        return meta;
     }
 
-    public static PropertyMeta getMeta(String name, int type,
+    public static PropertyMeta newMeta(String name, int type,
                                        String defaultValue) {
 
-        PropertyMeta row = new PropertyMeta();
+        PropertyMeta meta = new PropertyMeta();
 
-        row.propName         = name;
-        row.propType         = type;
-        row.propClass        = "String";
-        row.propDefaultValue = defaultValue;
+        meta.propName         = name;
+        meta.propType         = type;
+        meta.propClass        = "String";
+        meta.propDefaultValue = defaultValue;
 
-        return row;
+        return meta;
     }
 
-    public static PropertyMeta getMeta(String name, int type,
+    public static PropertyMeta newMeta(String name, int type,
                                        boolean defaultValue) {
 
-        PropertyMeta row = new PropertyMeta();
+        PropertyMeta meta = new PropertyMeta();
 
-        row.propName         = name;
-        row.propType         = type;
-        row.propClass        = "Boolean";
-        row.propDefaultValue = defaultValue ? Boolean.TRUE
+        meta.propName         = name;
+        meta.propType         = type;
+        meta.propClass        = "Boolean";
+        meta.propDefaultValue = defaultValue ? Boolean.TRUE
                                              : Boolean.FALSE;
 
-        return row;
+        return meta;
     }
 
-    public static PropertyMeta getMeta(String name, int type,
+    public static PropertyMeta newMeta(String name, int type,
                                        int defaultValue, int[] values) {
 
-        PropertyMeta row = new PropertyMeta();
+        PropertyMeta meta = new PropertyMeta();
 
-        row.propName         = name;
-        row.propType         = type;
-        row.propClass        = "Integer";
-        row.propDefaultValue = ValuePool.getInt(defaultValue);
-        row.propValues       = values;
+        meta.propName         = name;
+        meta.propType         = type;
+        meta.propClass        = "Integer";
+        meta.propDefaultValue = ValuePool.getInt(defaultValue);
+        meta.propValues       = values;
 
-        return row;
+        return meta;
     }
 
-    public static PropertyMeta getMeta(String name, int type,
+    public static PropertyMeta newMeta(String name, int type,
                                        int defaultValue, int rangeLow,
                                        int rangeHigh) {
 
-        PropertyMeta row = new PropertyMeta();
+        PropertyMeta meta = new PropertyMeta();
 
-        row.propName         = name;
-        row.propType         = type;
-        row.propClass        = "Integer";
-        row.propDefaultValue = ValuePool.getInt(defaultValue);
-        row.propIsRange      = true;
-        row.propRangeLow     = rangeLow;
-        row.propRangeHigh    = rangeHigh;
+        meta.propName         = name;
+        meta.propType         = type;
+        meta.propClass        = "Integer";
+        meta.propDefaultValue = ValuePool.getInt(defaultValue);
+        meta.propIsRange      = true;
+        meta.propRangeLow     = rangeLow;
+        meta.propRangeHigh    = rangeHigh;
 
-        return row;
+        return meta;
     }
 
     /**
