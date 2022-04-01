@@ -1534,10 +1534,24 @@ public class Logger implements EventLogInterface {
                 String.valueOf(propCacheMaxRows));
         map.put(HsqlDatabaseProperties.hsqldb_cache_size,
                 String.valueOf(propCacheMaxSize / 1024));
-        map.put(HsqlDatabaseProperties.hsqldb_default_table_type,
-                database.schemaManager.getDefaultTableType()
-                == TableBase.CACHED_TABLE ? Tokens.T_CACHED
-                                          : Tokens.T_MEMORY);
+
+        {
+            String prop;
+
+            switch (database.schemaManager.getDefaultTableType()) {
+
+                case TableBase.CACHED_TABLE :
+                    prop = Tokens.T_CACHED;
+                    break;
+
+                case TableBase.MEMORY_TABLE :
+                default :
+                    prop = Tokens.T_MEMORY;
+            }
+
+            map.put(HsqlDatabaseProperties.hsqldb_default_table_type, prop);
+        }
+
         map.put(HsqlDatabaseProperties.hsqldb_defrag_limit,
                 String.valueOf(propDataFileDefragLimit));
         map.put(HsqlDatabaseProperties.hsqldb_files_space,

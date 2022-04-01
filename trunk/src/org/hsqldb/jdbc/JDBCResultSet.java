@@ -294,7 +294,7 @@ import java.time.ZoneOffset;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class JDBCResultSet implements ResultSet {
@@ -7689,11 +7689,7 @@ public class JDBCResultSet implements ResultSet {
 
         if (conn != null) {
             translateTTIType = conn.isTranslateTTIType;
-
-            if (conn.connProperties != null) {
-                memoryLobs = conn.connProperties.isPropertyTrue(
-                    HsqlDatabaseProperties.url_memory_lobs, false);
-            }
+            memoryLobs       = conn.isMemoryLobs;
         }
     }
 

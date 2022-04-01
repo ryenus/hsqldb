@@ -5942,9 +5942,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         // PRE: is non-null and not closed
         connection       = c;
         useSchemaDefault = c.isInternal ? false
-                                        : c.connProperties
-                                        .isPropertyTrue(HsqlDatabaseProperties
-                                            .url_default_schema);
+                                        : c.isDefaultSchema;
     }
 
     /**

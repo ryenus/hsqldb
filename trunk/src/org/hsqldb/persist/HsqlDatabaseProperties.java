@@ -136,6 +136,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final int FILES_PROP  = 1;
     public static final int DB_PROP     = 2;
     public static final int SQL_PROP    = 3;
+    public static final int URL_PROP    = 4;
 
     // db files modified
     public static final int FILES_NOT_MODIFIED      = 0;
@@ -154,12 +155,15 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     // allowed property metadata
     private static final HashMap<String, PropertyMeta> dbMeta = new HashMap(128);
     private static final HashMap<String, PropertyMeta> textMeta = new HashMap(16);
-    private static final HashSet<String>               excludeMeta = new HashSet();
+    private static final HashSet<String>               excludedMeta = new HashSet();
+    private static final HashMap<String, PropertyMeta> urlUserConnMeta = new HashMap();
+
     // versions
     public static final String VERSION_STRING_1_8_0 = "1.8.0";
     public static final String PRODUCT_NAME         = "HSQL Database Engine";
 
 //#ifdef JAVA8
+
     public static final String THIS_VERSION      = "2.7.0";
     public static final String THIS_FULL_VERSION = "2.7.0";
     public static final int    MAJOR             = 2,
@@ -322,253 +326,226 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_cache_version = "hsqldb.cache_version";
 
     static {
-        excludeMeta.add(hsqldb_min_reuse);
-        excludeMeta.add(hsqldb_cache_version);
-        excludeMeta.add(runtime_gc_interval);
-        excludeMeta.add(hsqldb_inc_backup);
-        excludeMeta.add(tx_timestamp);
-        excludeMeta.add(hsqldb_version);
-        excludeMeta.add(hsqldb_modified);
-        excludeMeta.add(hsqldb_full_log_replay);
-        excludeMeta.add(sql_compare_in_locale);
-        dbMeta.put(hsqldb_method_class_names,
-                   HsqlProperties.newMeta(hsqldb_method_class_names,
-                                          SYSTEM_PROP, ""));
-        dbMeta.put(hsqldb_reconfig_logging,
-                   HsqlProperties.newMeta(hsqldb_reconfig_logging,
-                                          SYSTEM_PROP, false));
+        // properties that are not displayed to user, including obsolete props
+        excludedMeta.add(hsqldb_min_reuse);
+        excludedMeta.add(hsqldb_cache_version);
+        excludedMeta.add(runtime_gc_interval);
+        excludedMeta.add(hsqldb_inc_backup);
+        excludedMeta.add(tx_timestamp);
+        excludedMeta.add(hsqldb_version);
+        excludedMeta.add(hsqldb_modified);
+        excludedMeta.add(hsqldb_full_log_replay);
+        excludedMeta.add(sql_compare_in_locale);
+
+        // url properties which apply to a new connection to an open database
+        urlUserConnMeta.put(url_default_schema,
+                            newMeta(url_default_schema, URL_PROP, false));
+        urlUserConnMeta.put(url_check_props,
+                            newMeta(url_check_props, URL_PROP, false));
+        urlUserConnMeta.put(url_get_column_name,
+                            newMeta(url_get_column_name, URL_PROP, true));
+        urlUserConnMeta.put(url_close_result,
+                            newMeta(url_close_result, URL_PROP, false));
+        urlUserConnMeta.put(url_allow_empty_batch,
+                            newMeta(url_allow_empty_batch, URL_PROP, false));
+        urlUserConnMeta.put(url_memory_lobs,
+                            newMeta(url_memory_lobs, URL_PROP, false));
 
         // text table defaults
         textMeta.put(textdb_allow_full_path,
-                     HsqlProperties.newMeta(textdb_allow_full_path,
-                                            SYSTEM_PROP, true));
+                     newMeta(textdb_allow_full_path, SYSTEM_PROP, true));
         textMeta.put(textdb_quoted,
-                     HsqlProperties.newMeta(textdb_quoted, SQL_PROP, true));
+                     newMeta(textdb_quoted, SQL_PROP, true));
         textMeta.put(textdb_all_quoted,
-                     HsqlProperties.newMeta(textdb_all_quoted, SQL_PROP,
-                                            false));
+                     newMeta(textdb_all_quoted, SQL_PROP, false));
         textMeta.put(textdb_ignore_first,
-                     HsqlProperties.newMeta(textdb_ignore_first, SQL_PROP,
-                                            false));
+                     newMeta(textdb_ignore_first, SQL_PROP, false));
         textMeta.put(textdb_null_def,
-                     HsqlProperties.newMeta(textdb_null_def, SQL_PROP, false));
-        textMeta.put(textdb_fs,
-                     HsqlProperties.newMeta(textdb_fs, SQL_PROP, ","));
-        textMeta.put(textdb_vs,
-                     HsqlProperties.newMeta(textdb_vs, SQL_PROP, null));
-        textMeta.put(textdb_lvs,
-                     HsqlProperties.newMeta(textdb_lvs, SQL_PROP, null));
-        textMeta.put(textdb_qc,
-                     HsqlProperties.newMeta(textdb_qc, SQL_PROP, "\""));
+                     newMeta(textdb_null_def, SQL_PROP, false));
+        textMeta.put(textdb_fs, newMeta(textdb_fs, SQL_PROP, ","));
+        textMeta.put(textdb_vs, newMeta(textdb_vs, SQL_PROP, null));
+        textMeta.put(textdb_lvs, newMeta(textdb_lvs, SQL_PROP, null));
+        textMeta.put(textdb_qc, newMeta(textdb_qc, SQL_PROP, "\""));
         textMeta.put(textdb_encoding,
-                     HsqlProperties.newMeta(textdb_encoding, SQL_PROP,
-                                            "ISO-8859-1"));
+                     newMeta(textdb_encoding, SQL_PROP, "ISO-8859-1"));
         textMeta.put(textdb_cache_scale,
-                     HsqlProperties.newMeta(textdb_cache_scale, DB_PROP, 10,
-                                            8, 16));
+                     newMeta(textdb_cache_scale, DB_PROP, 10, 8, 16));
         textMeta.put(textdb_cache_size_scale,
-                     HsqlProperties.newMeta(textdb_cache_size_scale, DB_PROP,
-                                            10, 6, 20));
+                     newMeta(textdb_cache_size_scale, DB_PROP, 10, 6, 20));
         textMeta.put(textdb_cache_rows,
-                     HsqlProperties.newMeta(textdb_cache_rows, DB_PROP, 1000,
-                                            100, 1000000));
+                     newMeta(textdb_cache_rows, DB_PROP, 1000, 100, 1000000));
         textMeta.put(textdb_cache_size,
-                     HsqlProperties.newMeta(textdb_cache_size, DB_PROP, 100,
-                                            10, 1000000));
+                     newMeta(textdb_cache_size, DB_PROP, 100, 10, 1000000));
         dbMeta.putAll(textMeta);
+
+        // system props
+        dbMeta.put(hsqldb_method_class_names,
+                   newMeta(hsqldb_method_class_names, SYSTEM_PROP, ""));
+        dbMeta.put(hsqldb_reconfig_logging,
+                   newMeta(hsqldb_reconfig_logging, SYSTEM_PROP, false));
 
         // string defaults for protected props
         dbMeta.put(hsqldb_version,
-                   HsqlProperties.newMeta(hsqldb_version, FILES_PROP, null));
+                   newMeta(hsqldb_version, FILES_PROP, null));
         dbMeta.put(hsqldb_modified,
-                   HsqlProperties.newMeta(hsqldb_modified, FILES_PROP, null));
+                   newMeta(hsqldb_modified, FILES_PROP, null));
         dbMeta.put(hsqldb_cache_version,
-                   HsqlProperties.newMeta(hsqldb_cache_version, FILES_PROP,
-                                          null));
+                   newMeta(hsqldb_cache_version, FILES_PROP, null));
 
         // boolean defaults for protected props
         dbMeta.put(hsqldb_readonly,
-                   HsqlProperties.newMeta(hsqldb_readonly, FILES_PROP, false));
+                   newMeta(hsqldb_readonly, FILES_PROP, false));
         dbMeta.put(hsqldb_files_readonly,
-                   HsqlProperties.newMeta(hsqldb_files_readonly, FILES_PROP,
-                                          false));
+                   newMeta(hsqldb_files_readonly, FILES_PROP, false));
 
         // string defaults for user defined props
         dbMeta.put(hsqldb_tx,
-                   HsqlProperties.newMeta(hsqldb_tx, SQL_PROP, "LOCKS"));
+                   newMeta(hsqldb_tx, SQL_PROP, "LOCKS"));
         dbMeta.put(hsqldb_tx_level,
-                   HsqlProperties.newMeta(hsqldb_tx_level, SQL_PROP,
-                                          "READ_COMMITTED"));
+                   newMeta(hsqldb_tx_level, SQL_PROP, "READ_COMMITTED"));
         dbMeta.put(hsqldb_temp_directory,
-                   HsqlProperties.newMeta(hsqldb_temp_directory, DB_PROP,
-                                          null));
+                   newMeta(hsqldb_temp_directory, DB_PROP, null));
         dbMeta.put(hsqldb_default_table_type,
-                   HsqlProperties.newMeta(hsqldb_default_table_type, SQL_PROP,
-                                          "MEMORY"));
+                   newMeta(hsqldb_default_table_type, SQL_PROP, "MEMORY"));
         dbMeta.put(hsqldb_digest,
-                   HsqlProperties.newMeta(hsqldb_digest, DB_PROP, "MD5"));
+                   newMeta(hsqldb_digest, DB_PROP, "MD5"));
         dbMeta.put(sql_live_object,
-                   HsqlProperties.newMeta(sql_live_object, DB_PROP, false));
+                   newMeta(sql_live_object, DB_PROP, false));
         dbMeta.put(tx_timestamp,
-                   HsqlProperties.newMeta(tx_timestamp, DB_PROP, 0));
+                   newMeta(tx_timestamp, DB_PROP, 0));
 
         // boolean defaults for user defined props
         dbMeta.put(hsqldb_tx_conflict_rollback,
-                   HsqlProperties.newMeta(hsqldb_tx_conflict_rollback,
-                                          SQL_PROP, true));
+                   newMeta(hsqldb_tx_conflict_rollback, SQL_PROP, true));
         dbMeta.put(hsqldb_tx_interrupt_rollback,
-                   HsqlProperties.newMeta(hsqldb_tx_interrupt_rollback,
-                                          SQL_PROP, false));
+                   newMeta(hsqldb_tx_interrupt_rollback, SQL_PROP, false));
         dbMeta.put(jdbc_translate_tti_types,
-                   HsqlProperties.newMeta(jdbc_translate_tti_types, SQL_PROP,
-                                          true));
+                   newMeta(jdbc_translate_tti_types, SQL_PROP, true));
         dbMeta.put(hsqldb_inc_backup,
-                   HsqlProperties.newMeta(hsqldb_inc_backup, DB_PROP, true));
+                   newMeta(hsqldb_inc_backup, DB_PROP, true));
         dbMeta.put(hsqldb_lock_file,
-                   HsqlProperties.newMeta(hsqldb_lock_file, DB_PROP, true));
+                   newMeta(hsqldb_lock_file, DB_PROP, true));
         dbMeta.put(hsqldb_log_data,
-                   HsqlProperties.newMeta(hsqldb_log_data, DB_PROP, true));
+                   newMeta(hsqldb_log_data, DB_PROP, true));
         dbMeta.put(hsqldb_nio_data_file,
-                   HsqlProperties.newMeta(hsqldb_nio_data_file, DB_PROP, true));
+                   newMeta(hsqldb_nio_data_file, DB_PROP, true));
         dbMeta.put(hsqldb_full_log_replay,
-                   HsqlProperties.newMeta(hsqldb_full_log_replay, DB_PROP,
-                                          false));
+                   newMeta(hsqldb_full_log_replay, DB_PROP, false));
         dbMeta.put(hsqldb_write_delay,
-                   HsqlProperties.newMeta(hsqldb_write_delay, DB_PROP, true));
+                   newMeta(hsqldb_write_delay, DB_PROP, true));
         dbMeta.put(hsqldb_large_data,
-                   HsqlProperties.newMeta(hsqldb_large_data, DB_PROP, false));
+                   newMeta(hsqldb_large_data, DB_PROP, false));
         dbMeta.put(sql_ref_integrity,
-                   HsqlProperties.newMeta(sql_ref_integrity, SQL_PROP, true));
+                   newMeta(sql_ref_integrity, SQL_PROP, true));
         dbMeta.put(sql_restrict_exec,
-                   HsqlProperties.newMeta(sql_restrict_exec, SQL_PROP, false));
+                   newMeta(sql_restrict_exec, SQL_PROP, false));
 
         // SQL reserved words not allowed as some identifiers
         dbMeta.put(sql_enforce_names,
-                   HsqlProperties.newMeta(sql_enforce_names, SQL_PROP, false));
+                   newMeta(sql_enforce_names, SQL_PROP, false));
         dbMeta.put(sql_regular_names,
-                   HsqlProperties.newMeta(sql_regular_names, SQL_PROP, true));
+                   newMeta(sql_regular_names, SQL_PROP, true));
         dbMeta.put(sql_enforce_refs,
-                   HsqlProperties.newMeta(sql_enforce_refs, SQL_PROP, false));
+                   newMeta(sql_enforce_refs, SQL_PROP, false));
 
         // char padding to size and exception if data is too long
         dbMeta.put(sql_enforce_size,
-                   HsqlProperties.newMeta(sql_enforce_size, SQL_PROP, true));
+                   newMeta(sql_enforce_size, SQL_PROP, true));
         dbMeta.put(sql_enforce_types,
-                   HsqlProperties.newMeta(sql_enforce_types, SQL_PROP, false));
+                   newMeta(sql_enforce_types, SQL_PROP, false));
         dbMeta.put(sql_enforce_tdcd,
-                   HsqlProperties.newMeta(sql_enforce_tdcd, SQL_PROP, true));
+                   newMeta(sql_enforce_tdcd, SQL_PROP, true));
         dbMeta.put(sql_enforce_tdcu,
-                   HsqlProperties.newMeta(sql_enforce_tdcu, SQL_PROP, true));
+                   newMeta(sql_enforce_tdcu, SQL_PROP, true));
         dbMeta.put(sql_char_literal,
-                   HsqlProperties.newMeta(sql_char_literal, SQL_PROP, true));
+                   newMeta(sql_char_literal, SQL_PROP, true));
         dbMeta.put(sql_concat_nulls,
-                   HsqlProperties.newMeta(sql_concat_nulls, SQL_PROP, true));
+                   newMeta(sql_concat_nulls, SQL_PROP, true));
         dbMeta.put(sql_nulls_first,
-                   HsqlProperties.newMeta(sql_nulls_first, SQL_PROP, true));
+                   newMeta(sql_nulls_first, SQL_PROP, true));
         dbMeta.put(sql_nulls_order,
-                   HsqlProperties.newMeta(sql_nulls_order, SQL_PROP, true));
+                   newMeta(sql_nulls_order, SQL_PROP, true));
         dbMeta.put(sql_unique_nulls,
-                   HsqlProperties.newMeta(sql_unique_nulls, SQL_PROP, true));
+                   newMeta(sql_unique_nulls, SQL_PROP, true));
         dbMeta.put(sql_convert_trunc,
-                   HsqlProperties.newMeta(sql_convert_trunc, SQL_PROP, true));
+                   newMeta(sql_convert_trunc, SQL_PROP, true));
         dbMeta.put(sql_trunc_trailing,
-                   HsqlProperties.newMeta(sql_trunc_trailing, SQL_PROP, true));
+                   newMeta(sql_trunc_trailing, SQL_PROP, true));
         dbMeta.put(sql_avg_scale,
-                   HsqlProperties.newMeta(sql_avg_scale, SQL_PROP, 0, 0, 10));
+                   newMeta(sql_avg_scale, SQL_PROP, 0, 0, 10));
         dbMeta.put(sql_max_recursive,
-                   HsqlProperties.newMeta(sql_max_recursive, SQL_PROP, 256,
-                                          16, 1024 * 1024 * 1024));
-        dbMeta.put(sql_double_nan,
-                   HsqlProperties.newMeta(sql_double_nan, SQL_PROP, true));
-        dbMeta.put(sql_syntax_db2,
-                   HsqlProperties.newMeta(sql_syntax_db2, SQL_PROP, false));
-        dbMeta.put(sql_syntax_mss,
-                   HsqlProperties.newMeta(sql_syntax_mss, SQL_PROP, false));
-        dbMeta.put(sql_syntax_mys,
-                   HsqlProperties.newMeta(sql_syntax_mys, SQL_PROP, false));
-        dbMeta.put(sql_syntax_ora,
-                   HsqlProperties.newMeta(sql_syntax_ora, SQL_PROP, false));
-        dbMeta.put(sql_syntax_pgs,
-                   HsqlProperties.newMeta(sql_syntax_pgs, SQL_PROP, false));
+                   newMeta(sql_max_recursive, SQL_PROP, 256, 16,
+                           1024 * 1024 * 1024));
+        dbMeta.put(sql_double_nan, newMeta(sql_double_nan, SQL_PROP, true));
+        dbMeta.put(sql_syntax_db2, newMeta(sql_syntax_db2, SQL_PROP, false));
+        dbMeta.put(sql_syntax_mss, newMeta(sql_syntax_mss, SQL_PROP, false));
+        dbMeta.put(sql_syntax_mys, newMeta(sql_syntax_mys, SQL_PROP, false));
+        dbMeta.put(sql_syntax_ora, newMeta(sql_syntax_ora, SQL_PROP, false));
+        dbMeta.put(sql_syntax_pgs, newMeta(sql_syntax_pgs, SQL_PROP, false));
         dbMeta.put(sql_compare_in_locale,
-                   HsqlProperties.newMeta(sql_compare_in_locale, SQL_PROP,
-                                          false));
+                   newMeta(sql_compare_in_locale, SQL_PROP, false));
         dbMeta.put(sql_longvar_is_lob,
-                   HsqlProperties.newMeta(sql_longvar_is_lob, SQL_PROP,
-                                          false));
+                   newMeta(sql_longvar_is_lob, SQL_PROP, false));
         dbMeta.put(sql_default_collation,
-                   HsqlProperties.newMeta(sql_default_collation, SQL_PROP,
-                                          Collation.defaultCollationName));
+                   newMeta(sql_default_collation, SQL_PROP,
+                           Collation.defaultCollationName));
         dbMeta.put(sql_pad_space,
-                   HsqlProperties.newMeta(sql_pad_space, SQL_PROP, true));
+                   newMeta(sql_pad_space, SQL_PROP, true));
         dbMeta.put(sql_ignore_case,
-                   HsqlProperties.newMeta(sql_ignore_case, SQL_PROP, false));
+                   newMeta(sql_ignore_case, SQL_PROP, false));
         dbMeta.put(sql_sys_index_names,
-                   HsqlProperties.newMeta(sql_sys_index_names, SQL_PROP,
-                                          true));
+                   newMeta(sql_sys_index_names, SQL_PROP, true));
         dbMeta.put(sql_lowercase_ident,
-                   HsqlProperties.newMeta(sql_lowercase_ident, SQL_PROP,
-                                          false));
+                   newMeta(sql_lowercase_ident, SQL_PROP, false));
         dbMeta.put(hsqldb_files_space,
-                   HsqlProperties.newMeta(hsqldb_files_space, DB_PROP, false));
+                   newMeta(hsqldb_files_space, DB_PROP, false));
 
         // integral defaults for user-defined props - sets
         dbMeta.put(hsqldb_write_delay_millis,
-                   HsqlProperties.newMeta(hsqldb_write_delay_millis, DB_PROP,
-                                          500, 0, 10000));
+                   newMeta(hsqldb_write_delay_millis, DB_PROP, 500, 0, 10000));
         dbMeta.put(hsqldb_applog,
-                   HsqlProperties.newMeta(hsqldb_applog, DB_PROP, 0, 0, 3));
+                   newMeta(hsqldb_applog, DB_PROP, 0, 0, 3));
         dbMeta.put(hsqldb_sqllog,
-                   HsqlProperties.newMeta(hsqldb_sqllog, DB_PROP, 0, 0, 4));
+                   newMeta(hsqldb_sqllog, DB_PROP, 0, 0, 4));
         dbMeta.put(hsqldb_script_format,
-                   HsqlProperties.newMeta(hsqldb_script_format, DB_PROP, 0,
-                                          new int[] {
+                   newMeta(hsqldb_script_format, DB_PROP, 0, new int[] {
             0, 1, 3
         }));
         dbMeta.put(hsqldb_lob_file_scale,
-                   HsqlProperties.newMeta(hsqldb_lob_file_scale, DB_PROP, 32,
-                                          new int[] {
+                   newMeta(hsqldb_lob_file_scale, DB_PROP, 32, new int[] {
             1, 2, 4, 8, 16, 32
         }));
         dbMeta.put(hsqldb_lob_file_compressed,
-                   HsqlProperties.newMeta(hsqldb_lob_file_compressed,
-                                          DB_PROP, false));
+                   newMeta(hsqldb_lob_file_compressed, DB_PROP, false));
 
         // this property is normally 8 - or 1 for old databases from early versions
         dbMeta.put(hsqldb_cache_file_scale,
-                   HsqlProperties.newMeta(hsqldb_cache_file_scale, DB_PROP,
-                                          32, new int[] {
+                   newMeta(hsqldb_cache_file_scale, DB_PROP, 32, new int[] {
             1, 8, 16, 32, 64, 128, 256, 512, 1024
         }));
 
         // integral defaults for user defined props - ranges
         dbMeta.put(hsqldb_log_size,
-                   HsqlProperties.newMeta(hsqldb_log_size, DB_PROP, 50, 0,
-                                          4 * 1024));
+                   newMeta(hsqldb_log_size, DB_PROP, 50, 0, 4 * 1024));
         dbMeta.put(hsqldb_defrag_limit,
-                   HsqlProperties.newMeta(hsqldb_defrag_limit, DB_PROP, 0, 0,
-                                          100));
+                   newMeta(hsqldb_defrag_limit, DB_PROP, 0, 0, 100));
         dbMeta.put(runtime_gc_interval,
-                   HsqlProperties.newMeta(runtime_gc_interval, DB_PROP, 0, 0,
-                                          1000000));
+                   newMeta(runtime_gc_interval, DB_PROP, 0, 0, 1000000));
         dbMeta.put(hsqldb_cache_size,
-                   HsqlProperties.newMeta(hsqldb_cache_size, DB_PROP, 10000,
-                                          100, 4 * 1024 * 1024));
+                   newMeta(hsqldb_cache_size, DB_PROP, 10000, 100,
+                           4 * 1024 * 1024));
         dbMeta.put(hsqldb_cache_rows,
-                   HsqlProperties.newMeta(hsqldb_cache_rows, DB_PROP, 50000,
-                                          100, 4 * 1024 * 1024));
+                   newMeta(hsqldb_cache_rows, DB_PROP, 50000, 100,
+                           4 * 1024 * 1024));
         dbMeta.put(hsqldb_cache_free_count,
-                   HsqlProperties.newMeta(hsqldb_cache_free_count, DB_PROP,
-                                          512, 0, 4096));
+                   newMeta(hsqldb_cache_free_count, DB_PROP, 512, 0, 4096));
         dbMeta.put(hsqldb_result_max_memory_rows,
-                   HsqlProperties.newMeta(hsqldb_result_max_memory_rows,
-                                          DB_PROP, 0, 0, 4 * 1024 * 1024));
+                   newMeta(hsqldb_result_max_memory_rows, DB_PROP, 0, 0,
+                           4 * 1024 * 1024));
         dbMeta.put(hsqldb_nio_max_size,
-                   HsqlProperties.newMeta(hsqldb_nio_max_size, DB_PROP, 256,
-                                          64, 262144));
+                   newMeta(hsqldb_nio_max_size, DB_PROP, 256, 64, 262144));
         dbMeta.put(hsqldb_min_reuse,
-                   HsqlProperties.newMeta(hsqldb_min_reuse, DB_PROP, 0, 0,
-                                          1024 * 1024));
+                   newMeta(hsqldb_min_reuse, DB_PROP, 0, 0, 1024 * 1024));
     }
 
     private Database database;
@@ -725,8 +702,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
             if (meta != null && meta.propType == SQL_PROP) {
                 valid = true;
-                error = HsqlProperties.validateProperty(propertyName,
-                        propertyValue, meta);
+                error = validateProperty(propertyName, propertyValue, meta);
                 validVal = error == null;
             }
 
@@ -789,7 +765,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                 while (it.hasNext()) {
                     current = it.next();
 
-                    if (!excludeMeta.contains(current.propName)) {
+                    if (!excludedMeta.contains(current.propName)) {
                         return true;
                     }
                 }
@@ -804,7 +780,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public boolean setDatabaseProperty(String key, String value) {
 
         PropertyMeta meta  = dbMeta.get(key);
-        String       error = HsqlProperties.validateProperty(key, value, meta);
+        String       error = validateProperty(key, value, meta);
 
         if (error != null) {
             return false;
@@ -1043,8 +1019,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         return false;
     }
 
-    public static Iterator<PropertyMeta> getPropertiesMetaIterator() {
-        return dbMeta.values().iterator();
+    public static Iterator<PropertyMeta> getUrlUserConnectionProperties() {
+        return urlUserConnMeta.values().iterator();
     }
 
     public String getClientPropertiesAsString() {
