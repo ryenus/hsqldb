@@ -1889,7 +1889,7 @@ implements PreparedStatement {
         checkStatementType(StatementTypes.RETURN_COUNT);
 
         if (!isBatch) {
-            if (connection.isEmptyBatchAllowed) {
+            if (connection.isAllowEmptyBatch) {
                 return new int[]{};
             }
 

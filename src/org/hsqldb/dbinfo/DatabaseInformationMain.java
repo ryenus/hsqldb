@@ -1930,35 +1930,18 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int imax_len       = 1;
         final int idefault_value = 2;
         final int idescription   = 3;
-        Iterator  it = HsqlDatabaseProperties.getUserDefinedProperties();
+        Iterator  it = HsqlDatabaseProperties.getUrlUserConnectionProperties();
 
         while (it.hasNext()) {
             PropertyMeta meta     = (PropertyMeta) it.next();
             int          propType = meta.propType;
-
-            switch (propType) {
-
-                case HsqlDatabaseProperties.FILES_PROP :
-                    if (HsqlDatabaseProperties.hsqldb_readonly
-                            .equals(meta.propName) || HsqlDatabaseProperties
-                            .hsqldb_files_readonly.equals(meta.propName)) {
-                        break;
-                    }
-
-                    continue;
-                case HsqlDatabaseProperties.SQL_PROP :
-                    break;
-
-                default :
-                    continue;
-            }
 
             row = t.getEmptyRowData();
 
             Object def = meta.propDefaultValue;
 
             row[iname]          = meta.propName;
-            row[imax_len]       = ValuePool.getInt(16);
+            row[imax_len]       = ValuePool.getInt(8);
             row[idefault_value] = def == null ? null
                                               : def.toString();
             row[idescription]   = "see HyperSQL guide";
