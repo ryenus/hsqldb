@@ -107,7 +107,7 @@ import org.hsqldb.persist.HsqlProperties;
  * <hr>
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.7.0
  * @since HSQLDB 1.9.0
  * </div> <!-- end release-specific documentation -->
  *
@@ -115,6 +115,11 @@ import org.hsqldb.persist.HsqlProperties;
  */
 public class JDBCDriver implements Driver {
 
+
+    /**
+     * name of loginTimeout property, can not change
+     */
+    static final String conn_loginTimeout = "loginTimeout";
     /**
      * Default constructor
      */
@@ -259,7 +264,7 @@ public class JDBCDriver implements Driver {
         long timeout = 0;
 
         if (info != null) {
-            timeout = HsqlProperties.getIntegerProperty(info, "loginTimeout", 0);
+            timeout = HsqlProperties.getIntegerProperty(info, conn_loginTimeout, 0);
         }
 
         props.addProperties(info);
