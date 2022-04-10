@@ -206,7 +206,7 @@
     <section xml:id="coc_compatibility_mysql">
       <title>MySQL Compatibility</title>
 
-      <para>HyperSQL version 2.6 is highly compatible with MySQL and supports
+      <para>HyperSQL version 2.7 is highly compatible with MySQL and supports
       most of its non-standard syntax. The latest versions of MySQL have
       introduced better Standard compatibility but some of these features have
       to be turned on via properties. You should therefore check the current
@@ -643,7 +643,7 @@
         </listitem>
 
         <listitem>
-          <para>HyperSQL 2.6 supports several datetime functions in MSS
+          <para>HyperSQL 2.7 supports several datetime functions in MSS
           compatibility mode. These include DATEPART, DATENAME, EOMONTH and
           compatible DATEADD and DATEDIFF behaviour.</para>
         </listitem>

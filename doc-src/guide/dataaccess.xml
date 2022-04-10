@@ -3596,7 +3596,7 @@ DIRECT SALES (null) (null)  3778500
       <para>HyperSQL limits recursion to 256 rounds. If this is exceeded, an
       error is raised.</para>
 
-      <para>From version 2.6.0, HyperSQL extends recursive query processing by
+      <para>From version 2.6, HyperSQL extends recursive query processing by
       allowing the use of <literal>RECURSIVE_TABLE</literal> to reference the
       current general result of the <literal>&lt;query
       expression&gt;</literal>. This table name can be used in subqueries with

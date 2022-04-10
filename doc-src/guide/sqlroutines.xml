@@ -49,7 +49,7 @@
     <title>Overview</title>
 
     <para>SQL-invoked routines are functions and procedures called from SQL.
-    HyperSQL 2.6 supports routines conforming to two parts of the SQL
+    HyperSQL 2.7 supports routines conforming to two parts of the SQL
     Standard. Routines written in the SQL language are supported in
     conformance to SQL/PSM (Persistent Stored Modules) specification. Routines
     written in Java are supported in broad conformance to SQL/JRT
