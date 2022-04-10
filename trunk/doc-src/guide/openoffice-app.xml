@@ -67,7 +67,7 @@
     own application, rather than OpenOffice.</simpara>
 
     <simpara>HyperSQ version 1.8.0 is included in OOo, ApacheOpenOffice and
-    LibreOffice. You can simply replace the jar with a HyperSQL version 2.6
+    LibreOffice. You can simply replace the jar with a HyperSQL version 2.7
     jar to use the latest capabilities with external databases. It is not yet
     possible to create and use embedded databases with this version.</simpara>
 
@@ -97,8 +97,8 @@
     the PUBLIC schema. This limitation will hopefully disappear in the future
     versions of OOo.</simpara>
 
-    <simpara>There will hopefully be a HyperSQLDB 2.x jar in the future
-    versions of OpenOffice.</simpara>
+    <simpara>There will hopefully be a HyperSQL 2.x jar in future versions of
+	OpenOffice.</simpara>
   </section>
 
   <section xml:id="ooa_db_files_convert">

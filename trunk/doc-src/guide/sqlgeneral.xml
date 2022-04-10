@@ -589,7 +589,7 @@
       </listitem>
     </itemizedlist>
 
-    <para>HyperSQL 2.6 has several compatibility modes which allow the type
+    <para>HyperSQL 2.7 has several compatibility modes which allow the type
     names that are used by other RDBMS to be accepted and translated into the
     closest SQL Standard type. For example, the type TEXT, supported by MySQL
     and PostgreSQL is translated in these compatibility modes.</para>
@@ -1740,7 +1740,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <simpara><emphasis role="bold">Java 8 Extensions</emphasis></simpara>
 
     <para>JAVA 8 introduced new type codes for TIMESTAMP WITH TIME ZONE and
-    TIME WITH TIME ZONE. HSQLDB 2.4.0 and later when compiled with JDK8
+    TIME WITH TIME ZONE. HyperSQL (except the jars compiled with JDK 1.6)
     supports this in <classname>ResultSet</classname>,
     <classname>PreparedStatement</classname> and
     <classname>CallableStatement</classname>.</para>
@@ -1787,7 +1787,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <simpara><emphasis role="bold">Non-Standard
     Extensions</emphasis></simpara>
 
-    <para>HyperSQL version 2.5 supports some extensions to the SQL standard
+    <para>HyperSQL version 2.7 supports some extensions to the SQL standard
     treatment of datetime and interval types. For example, the Standard
     expression to add a number of days to a date has an explicit INTERVAL
     value but HSQLDB also allows an integer to be used without specifying DAY.
@@ -2049,8 +2049,8 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <simpara><emphasis role="bold">Java 8 Extensions</emphasis></simpara>
 
-    <para>JAVA 8 does not have SQL type codes for INTERVAL types. HSQLDB 2.4.0
-    and later, when compiled with JDK8 or later, supports
+    <para>JAVA 8 does not have SQL type codes for INTERVAL types. HyperSQL
+    (except the jars compiled with JDK 1.6) supports
     <classname>java.time</classname> types for INTERVAL types in
     <classname>ResultSet</classname>, <classname>PreparedStatement</classname>
     and <classname>CallableStatement</classname>.</para>

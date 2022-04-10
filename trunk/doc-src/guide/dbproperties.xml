@@ -55,9 +55,9 @@
     <para>The normal method of accessing a HyperSQL catalog is via the JDBC
     Connection interface. An introduction to different methods of providing
     database services and accessing them can be found in the <link
-    endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"/> chapter.
-    Details and examples of how to connect via JDBC are provided in our
-    JavaDoc for <classname
+    endterm="sqlgeneral-title" xlink:href="#running-chapt"/> chapter. Details
+    and examples of how to connect via JDBC are provided in our JavaDoc for
+    <classname
     xlink:href="#JDBCConnection.html-link">JDBCConnection</classname>.</para>
 
     <para>A uniform method is used to distinguish between different types of
@@ -332,7 +332,7 @@
     <title>Connection Properties</title>
 
     <para>There are two types of connection properties: properties for
-    individual connections, and Properties for the whole database.</para>
+    individual connections, and properties for the whole database.</para>
 
     <para>The properties for individual connections apply only to the
     connection that uses them and can be different for different connections.
@@ -346,9 +346,16 @@
     new database all the user-defined database properties can be specified as
     URL properties.</para>
 
+    <para>A few of the properties for the database can be applied to an
+    existing database when the database is reopened after a shutdown.</para>
+
     <para>When running a server, these properties are not used on the
     connection URL but can be appended to the database path URL in
     <literal>server.properties</literal> or the server command line.</para>
+
+    <para>Almost all properties for the database listed in this chapter have
+    corresponding SQL statements which can be used after connecting to the
+    database. The SQL statement for each property is listed here.</para>
   </section>
 
   <section xml:id="dpc_connection_props">
@@ -416,72 +423,6 @@
             name and password appear at the end of the URL string, prefixed
             respectively with the question mark and the
             ampersand:</para><programlisting> jdbc:hsqldb:file:enrolments;create=false?user=aUserName&amp;password=3xLVz</programlisting></entry>
-          </row>
-        </tbody>
-      </tgroup>
-    </table>
-
-    <table frame="all" pgwide="1" tocentry="1">
-      <title>Creating New Database</title>
-
-      <tgroup align="left" cols="3">
-        <colspec colname="c1" colwidth="6.5cm"/>
-
-        <colspec colname="c2" colwidth="1.5cm"/>
-
-        <colspec colname="c3"/>
-
-        <thead>
-          <row>
-            <entry>Name</entry>
-
-            <entry>Default</entry>
-
-            <entry>Description</entry>
-          </row>
-        </thead>
-
-        <tbody valign="top">
-          <row>
-            <entry><property>ifexists</property></entry>
-
-            <entry><literal>false</literal></entry>
-
-            <entry>connect only if database already exists</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>Has an effect only with
-            <glossterm>mem:</glossterm> and <glossterm>file:</glossterm>
-            database. When true, will not create a new database if one does
-            not already exist for the URL.</para><para>When the property is
-            false (the default), a new <glossterm>mem:</glossterm> or
-            <glossterm>file:</glossterm> database will be created if it does
-            not exist.</para><para>Setting the property to true is useful when
-            troubleshooting as no database is created if the URL is malformed.
-            Example below:</para><programlisting> jdbc:hsqldb:file:accounts;ifexists=true</programlisting></entry>
-          </row>
-
-          <row>
-            <entry><property>create</property></entry>
-
-            <entry><literal>true</literal></entry>
-
-            <entry>create the database if it does not exist</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>Similar to the ifexists
-            property, but with opposite meaning.</para><para>Has an effect
-            only with <glossterm>mem:</glossterm> and
-            <glossterm>file:</glossterm> databases. When false, will not
-            create a new database if one does not already exist for the
-            URL.</para><para>When the property is true (the default), a new
-            <glossterm>mem:</glossterm> or <glossterm>file:</glossterm>
-            database will be created if it does not exist.</para><para>Setting
-            the property to true is useful when troubleshooting as no database
-            is created if the URL is malformed. Example
-            below:</para><programlisting> jdbc:hsqldb:file:enrolments;create=false</programlisting></entry>
           </row>
         </tbody>
       </tgroup>
@@ -756,7 +697,7 @@
     database or an existing database, unlike URL properties that are generally
     effective for new databases only.</para>
 
-    <para>If the properties are used for connection to an existing database,
+    <para>If these properties are used for connection to an existing database,
     they are ignored.</para>
 
     <para>The exceptions are the following property settings that are allowed
@@ -823,6 +764,72 @@
             every database property that is specified on the URL or in
             connection properties is checked and if it is not used correctly,
             an error is returned.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Creating New Database Check Property</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>ifexists</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>connect only if database already exists</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Has an effect only with
+            <glossterm>mem:</glossterm> and <glossterm>file:</glossterm>
+            database. When true, will not create a new database if one does
+            not already exist for the URL.</para><para>When the property is
+            false (the default), a new <glossterm>mem:</glossterm> or
+            <glossterm>file:</glossterm> database will be created if it does
+            not exist.</para><para>Setting the property to true is useful when
+            troubleshooting as no database is created if the URL is malformed.
+            Example below:</para><programlisting> jdbc:hsqldb:file:accounts;ifexists=true</programlisting></entry>
+          </row>
+
+          <row>
+            <entry><property>create</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>create the database if it does not exist</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Similar to the ifexists
+            property, but with opposite meaning.</para><para>Has an effect
+            only with <glossterm>mem:</glossterm> and
+            <glossterm>file:</glossterm> databases. When false, will not
+            create a new database if one does not already exist for the
+            URL.</para><para>When the property is true (the default), a new
+            <glossterm>mem:</glossterm> or <glossterm>file:</glossterm>
+            database will be created if it does not exist.</para><para>Setting
+            the property to true is useful when troubleshooting as no database
+            is created if the URL is malformed. Example
+            below:</para><programlisting> jdbc:hsqldb:file:enrolments;create=false</programlisting></entry>
           </row>
         </tbody>
       </tgroup>
@@ -1793,7 +1800,7 @@
             <row>
               <entry><property>sql.sys_index_names</property></entry>
 
-              <entry><literal>false</literal></entry>
+              <entry><literal>true</literal></entry>
 
               <entry>name of system generated indexes for constraints</entry>
             </row>
@@ -1801,10 +1808,12 @@
             <row>
               <entry nameend="c3" namest="c1"><para>HSQLDB automatically
               creates a system index for each PRIMARY KEY, UNIQUE and FOREIGN
-              KEY constraint. By default the names of those indexes are
-              generated the system as a string beginning with SYS_. When the
-              setting is changed to true, the names will be the same as the
-              constraint names.</para><para><programlisting>SET DATABASE SQL SYS INDEX NAMES { TRUE | FALSE }</programlisting></para></entry>
+              KEY constraint. When the setting is changed to true, the names
+              will be the same as the constraint names.When this property is
+              false, the names of those indexes are generated the system as a
+              string beginning with SYS_. </para><para>The default value for
+              this property was false before version
+              2.7.0.</para><para><programlisting>SET DATABASE SQL SYS INDEX NAMES { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -2000,6 +2009,47 @@
               true, enables support for TEXT and SERIAL types. It also enables
               NEXTVAL, CURRVAL and LASTVAL syntax and also allow compatibility
               with some other aspects of this dialect.<programlisting>SET DATABASE SQL SYNTAX PGS { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Maximum Iterations of Recursive Queries</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>sql.max_recursive</property></entry>
+
+              <entry><literal>256</literal></entry>
+
+              <entry>maximum number of iterations of a recursive query</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>Recursive queries
+              terminate if they are not completed when the maximum number of
+              iterations is reached. This is to avoid long-running queries
+              that may never actually finish.</para><para>The default value is
+              fine for most use-cases. You can change the default if you need
+              to.</para><para><programlisting>SET DATABASE SQL MAX RECURSIVE &lt;count&gt;</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -2246,18 +2296,61 @@
 
               <entry><literal>true</literal></entry>
 
-              <entry>usage of type codes for advanced datetime and interval
-              types</entry>
+              <entry>usage of type codes for advanced interval types</entry>
             </row>
 
             <row>
               <entry nameend="c3" namest="c1"><para>If the property is true,
-              the TIME / TIMESTAMP WITH TIME ZONE types and INTERVAL types are
-              represented in JDBC methods of
+              the NTERVAL types are represented in JDBC methods of
               <classname>ResultSetMetaData</classname> and
-              <classname>DatabaseMetaData</classname> as JDBC datetime types
-              without time zone and the VARCHAR type respectively. The
-              original type names are preserved.</para><para><programlisting>SET DATABASE SQL TRANSLATE TTI TYPES { TRUE | FALSE }</programlisting></para></entry>
+              <classname>DatabaseMetaData</classname> as the VARCHAR type. The
+              original type names are preserved.</para><para>JDBC does not
+              have direct support for names and codes of INTERVAL types. From
+              Java 8, getting and setting INTERVAL values is possible via
+              getObject() and setObject() methods of ResultSet and
+              PreparedStatement.</para><para><programlisting>SET DATABASE SQL TRANSLATE TTI TYPES { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Temporary Result Rows in Memory</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.result_max_memory_rows</property></entry>
+
+              <entry><literal>0</literal></entry>
+
+              <entry>storage of temporary results and tables in memory or on
+              disk</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>This property can be set
+              to specify how many rows of each results or temporary table are
+              stored in memory before the table is written to disk. The
+              default is zero and means data is always stored in memory. If
+              this setting is used, it should be set above
+              1000.</para><para><programlisting>SET DATABASE DEFAULT RESULT MEMORY ROWS &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -2351,47 +2444,6 @@
       </table>
 
       <table frame="all" pgwide="1" tocentry="1">
-        <title>Huge database files and tables</title>
-
-        <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm"/>
-
-          <colspec colname="c2" colwidth="1.5cm"/>
-
-          <colspec colname="c3"/>
-
-          <thead>
-            <row>
-              <entry>Name</entry>
-
-              <entry>Default</entry>
-
-              <entry>Description</entry>
-            </row>
-          </thead>
-
-          <tbody valign="top">
-            <row>
-              <entry><property>hsqldb.large_data</property></entry>
-
-              <entry><literal>false</literal></entry>
-
-              <entry>enable huge database files - can also be used to open an
-              existing <glossterm>file:</glossterm> database</entry>
-            </row>
-
-            <row>
-              <entry nameend="c3" namest="c1"><para>By default, up to 2
-              billion rows can be stored in all disk-based CACHED tables.
-              Setting this property to true increases the limit to 256 billion
-              rows. This property is used as a connection
-              property.</para><para><programlisting>this property cannot be set with an SQL statement - it can be used as a connection property for the connection that opens the database</programlisting></para></entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-
-      <table frame="all" pgwide="1" tocentry="1">
         <title>Event Logging</title>
 
         <tgroup align="left" cols="3">
@@ -2478,7 +2530,7 @@
       </table>
 
       <table frame="all" pgwide="1" tocentry="1">
-        <title>Temporary Result Rows in Memory</title>
+        <title>Table Spaces for Cached Tables</title>
 
         <tgroup align="left" cols="3">
           <colspec colname="c1" colwidth="6.5cm"/>
@@ -2499,21 +2551,190 @@
 
           <tbody valign="top">
             <row>
-              <entry><property>hsqldb.result_max_memory_rows</property></entry>
+              <entry><property>hsqldb.files_space</property></entry>
 
-              <entry><literal>0</literal></entry>
+              <entry><literal>false</literal></entry>
 
-              <entry>storage of temporary results and tables in memory or on
-              disk</entry>
+              <entry>use of separate table spaces for each CACHED
+              table</entry>
             </row>
 
             <row>
-              <entry nameend="c3" namest="c1"><para>This property can be set
-              to specify how many rows of each results or temporary table are
-              stored in memory before the table is written to disk. The
-              default is zero and means data is always stored in memory. If
-              this setting is used, it should be set above
-              1000.</para><para><programlisting>SET DATABASE DEFAULT RESULT MEMORY ROWS &lt;numeric value&gt;</programlisting></para></entry>
+              <entry nameend="c3" namest="c1"><para>The default value is
+              false, indicating table space management is not used. When the
+              value is true at the time of creation of a new database, the
+              directory structures are created inside the .data file and table
+              space support is enabled</para><para><programlisting>SET FILES SPACE { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Huge database files and tables</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.large_data</property></entry>
+
+              <entry><literal>false</literal></entry>
+
+              <entry>enable huge database files - can also be used to open an
+              existing <glossterm>file:</glossterm> database</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>By default, up to 2
+              billion rows can be stored in all disk-based CACHED tables.
+              Setting this property to true increases the limit to 256 billion
+              rows. This property is used as a connection
+              property.</para><para><programlisting>this property cannot be set with an SQL statement - it can be used as a connection property for the connection that opens the database</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Use of NIO for Disk Table Storage</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.nio_data_file</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>use of nio access methods for the .data file</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>Setting this property to
+              <literal>false</literal> will avoid the use of nio access
+              methods, resulting in somewhat reduced speed. If the data file
+              is larger than <literal>hsqldb.nio_max_size</literal> (default
+              256MB) when it is first opened (or when its size is increased),
+              nio access methods are not used. Also, if the file gets larger
+              than the amount of available computer memory that needs to be
+              allocated for nio access, non-nio access methods are
+              used.</para><para><programlisting>SET FILES NIO { TRUE | FALSE }</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Use of NIO for Disk Table Storage</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.nio_max_size</property></entry>
+
+              <entry><literal>256</literal></entry>
+
+              <entry>nio buffer size limit</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>The maximum size of .data
+              file in mega bytes that can use the nio access method. When the
+              file gets larger than this limit, non-nio access methods are
+              used. Values 64, 128, 256, 512, 1024, and larger multiples of
+              512 can be used. The default is
+              256MB.</para><para><programlisting>SET FILES NIO SIZE &lt;numeric value&gt;</programlisting></para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <table frame="all" pgwide="1" tocentry="1">
+        <title>Internal Backup of the .data File</title>
+
+        <tgroup align="left" cols="3">
+          <colspec colname="c1" colwidth="6.5cm"/>
+
+          <colspec colname="c2" colwidth="1.5cm"/>
+
+          <colspec colname="c3"/>
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody valign="top">
+            <row>
+              <entry><property>hsqldb.inc_backup</property></entry>
+
+              <entry><literal>true</literal></entry>
+
+              <entry>incremental backup of data file - NOW OBSOLETE</entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"><para>As the contents of the
+              .data file are modified during database operation, the original
+              contents are backed up gradually. This allows fast checkpoint
+              and shutdown.</para><para>With HSQLDB up to version 2.5.0 it was
+              possible to set the property false in order to have the .data
+              file backed up entirely at the time of checkpoint and
+              shutdown.</para><para>From version 2.5.1, this property has no
+              effect and backup is always
+              incremental.</para><para><programlisting>SET FILES BACKUP INCREMENT { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -2557,7 +2778,10 @@
               is recovered and kept for reuse for new rows. If too many rows
               are deleted, the smaller recovered spaces are lost and the
               largest ones are retained for later use. Normally there is no
-              need to set this property.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+              need to set this property.</para><para>When table space
+              management is turned on (see hsqldb.files_space property) this
+              property has little effect as unused spaces are always
+              recovered.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -2766,50 +2990,6 @@
               false, indicating no compression. When the value is true at the
               time of creation of a new database, blobs and clobs are stored
               as compressed parts.</para><para><programlisting>SET FILES LOB COMPRESSED { TRUE | FALSE }</programlisting></para></entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-
-      <table frame="all" pgwide="1" tocentry="1">
-        <title>Internal Backup of Database Files</title>
-
-        <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm"/>
-
-          <colspec colname="c2" colwidth="1.5cm"/>
-
-          <colspec colname="c3"/>
-
-          <thead>
-            <row>
-              <entry>Name</entry>
-
-              <entry>Default</entry>
-
-              <entry>Description</entry>
-            </row>
-          </thead>
-
-          <tbody valign="top">
-            <row>
-              <entry><property>hsqldb.inc_backup</property></entry>
-
-              <entry><literal>true</literal></entry>
-
-              <entry>incremental backup of data file</entry>
-            </row>
-
-            <row>
-              <entry nameend="c3" namest="c1"><para>As the contents of the
-              .data file are modified during database operation, the original
-              contents are backed up gradually. This allows fast checkpoint
-              and shutdown.</para><para>With HSQLDB up to version 2.5.0 it was
-              possible to set the property false in order to have the .data
-              file backed up entirely at the time of checkpoint and
-              shutdown.</para><para>From version 2.5.1, this property has no
-              effect and backup is always
-              incremental.</para><para><programlisting>SET FILES BACKUP INCREMENT { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -3113,91 +3293,6 @@
       </table>
 
       <table frame="all" pgwide="1" tocentry="1">
-        <title>Use of NIO for Disk Table Storage</title>
-
-        <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm"/>
-
-          <colspec colname="c2" colwidth="1.5cm"/>
-
-          <colspec colname="c3"/>
-
-          <thead>
-            <row>
-              <entry>Name</entry>
-
-              <entry>Default</entry>
-
-              <entry>Description</entry>
-            </row>
-          </thead>
-
-          <tbody valign="top">
-            <row>
-              <entry><property>hsqldb.nio_data_file</property></entry>
-
-              <entry><literal>true</literal></entry>
-
-              <entry>use of nio access methods for the .data file</entry>
-            </row>
-
-            <row>
-              <entry nameend="c3" namest="c1"><para>Setting this property to
-              <literal>false</literal> will avoid the use of nio access
-              methods, resulting in somewhat reduced speed. If the data file
-              is larger than <literal>hsqldb.nio_max_size</literal> (default
-              256MB) when it is first opened (or when its size is increased),
-              nio access methods are not used. Also, if the file gets larger
-              than the amount of available computer memory that needs to be
-              allocated for nio access, non-nio access methods are
-              used.</para><para><programlisting>SET FILES NIO { TRUE | FALSE }</programlisting></para></entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-
-      <table frame="all" pgwide="1" tocentry="1">
-        <title>Use of NIO for Disk Table Storage</title>
-
-        <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm"/>
-
-          <colspec colname="c2" colwidth="1.5cm"/>
-
-          <colspec colname="c3"/>
-
-          <thead>
-            <row>
-              <entry>Name</entry>
-
-              <entry>Default</entry>
-
-              <entry>Description</entry>
-            </row>
-          </thead>
-
-          <tbody valign="top">
-            <row>
-              <entry><property>hsqldb.nio_max_size</property></entry>
-
-              <entry><literal>256</literal></entry>
-
-              <entry>nio buffer size limit</entry>
-            </row>
-
-            <row>
-              <entry nameend="c3" namest="c1"><para>The maximum size of .data
-              file in mega bytes that can use the nio access method. When the
-              file gets larger than this limit, non-nio access methods are
-              used. Values 64, 128, 256, 512, 1024, and larger multiples of
-              512 can be used. The default is
-              256MB.</para><para><programlisting>SET FILES NIO SIZE &lt;numeric value&gt;</programlisting></para></entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-
-      <table frame="all" pgwide="1" tocentry="1">
         <title>Recovery Log Processing</title>
 
         <tgroup align="left" cols="3">
@@ -3310,14 +3405,14 @@
 
               <entry><literal>0</literal></entry>
 
-              <entry>forced garbage collection</entry>
+              <entry>forced garbage collection - NOW OBSOLETE</entry>
             </row>
 
             <row>
               <entry nameend="c3" namest="c1"><para>No-op setting previously
               used to forces garbage collection each time a set number of
               result set row or cache row objects are created. This setting
-              has no effect in version 2.5.0 or
+              has no effect in version 2.5 or
               later,</para><para><programlisting>SET DATABASE GC &lt;numeric value&gt;</programlisting></para></entry>
             </row>
           </tbody>

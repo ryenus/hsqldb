@@ -334,14 +334,13 @@
     KEY or UNIQUE constraint; a non-unique index is created for each FOREIGN
     KEY constraint.</para>
 
-    <para>From version 2.6.0, you can extend the non-unique index for a
-    FORIEGN KEY constraint to cover extra columns. For example, if you have a
-    FOREIGN KEY constraint defined on
-    <literal>INVOICES(CUSTOMER_ID)</literal>, you can add an extra column such
-    as <literal>INVOICE_DATE</literal> to the FOREIGN KEY index. This speeds
-    up queries with conditions such as: <literal>WHERE customer_id = 456 and
-    invoice_date = '2020-02-02</literal>. See the ALTER CONSTRAINT statement
-    for syntax.</para>
+    <para>From version 2.6, you can extend the non-unique index for a FORIEGN
+    KEY constraint to cover extra columns. For example, if you have a FOREIGN
+    KEY constraint defined on <literal>INVOICES(CUSTOMER_ID)</literal>, you
+    can add an extra column such as <literal>INVOICE_DATE</literal> to the
+    FOREIGN KEY index. This speeds up queries with conditions such as:
+    <literal>WHERE customer_id = 456 and invoice_date = '2020-02-02</literal>.
+    See the ALTER CONSTRAINT statement for syntax.</para>
 
     <para>HyperSQL allows you to define indexes on single or multiple columns
     with the CREATE INDEX statement. You should not create duplicate indexes
@@ -867,6 +866,12 @@
 
     <para><literal>SET FILES SPACE TRUE </literal></para>
 
+    <para>The alternative is to include the corresponding connection property
+    on the JDBC connection URL that creates the database. For example:</para>
+
+    <para><literal>jdbc:hsqldb:file:&lt;database
+    path&gt;;hsqldb.files_space=true</literal></para>
+
     <para>Then the statement below should be executed for each CACHED table
     that will have its own space:</para>
 
@@ -906,13 +911,13 @@
     the <code>SET FILES SPACE TRUE</code> command is executed when there are
     already some rows in any CACHED table, the change does not happen
     immediately. In this case, the table spaces are created only when
-    CHCKPOINT DEFRAG, SHUTDOWN COMPACT or SHUTDOWN SCRIPT is executed. Among
+    CHECKPOINT DEFRAG, SHUTDOWN COMPACT, or SHUTDOWN SCRIPT is executed. Among
     these commands, CHECKPOINT DEFRAG will also automatically allocate a
     separate space to each table that is larger than a certain size.</para>
 
-    <para>In a database with table spaces, the <code>SET TABLE &lt;table
-    name&gt; NEW SPACE</code> command immediately applies a separate space to
-    the table.</para>
+    <para>In a database with table spaces enabled, the <code>SET TABLE
+    &lt;table name&gt; NEW SPACE</code> command immediately applies a separate
+    space to the table, whether it is empty or has data..</para>
   </section>
 
   <section xml:id="mtc_checking_tables_indexes">
@@ -922,9 +927,9 @@
         <primary>check table</primary>
       </indexterm></para>
 
-    <para>From version 2.5.1, the integrity of the indexes and table data can
-    be checked with a command. This applies to CACHED tables only. Individual
-    tables or all tables can be checked.</para>
+    <para>The integrity of the indexes and table data can be checked with a
+    statement. This applies to CACHED tables only. Individual tables or all
+    tables can be checked.</para>
 
     <informalexample>
       <programlisting> PERFORM CHECK TABLE PUBLIC.CUSTOMER INDEX [ AND FIX ]</programlisting>
@@ -1155,8 +1160,8 @@
 
       <para>The files that are encrypted include the
       <literal>.script</literal>, <literal>.data</literal>,
-      <literal>.backup</literal> and <literal>.log</literal> files. In version
-      2.5 and later, the <literal>.lobs</literal> file is also encrypted by
+      <literal>.backup</literal> and <literal>.log</literal> files. From
+      version 2.5, the <literal>.lobs</literal> file is also encrypted by
       default and the blobs and clobs are both compressed and encrypted. You
       can override this with the property <literal>crypt_lobs=false</literal>
       on the URL. Earlier versions of HSQLDB did not support encrypted lobs,
@@ -1247,7 +1252,7 @@
       be enabled with the <literal>SET DATABASE EVENT LOG SQL LEVEL</literal>
       statement, described in this chapter. As all the executed statements are
       logged, there is a small impact on speed. So you should only use this
-      for debugging. Two levels of SQL logging are supported.</para>
+      for debugging. Three levels of SQL logging are supported.</para>
     </section>
 
     <section xml:id="mtc_internal_event_monitoring">
@@ -2049,7 +2054,7 @@
       <example>
         <title>SQL Log Example</title>
 
-        <screen> 2012-11-29 10:40:40.250 10 INSERT INTO TEST_CLOB VALUES (1,'Ut wisi enim ad minim veniam, quis nostrud exerci') 
+        <screen> 2012-11-29 10:40:40.250 10 INSERT INTO TEST_CLOB VALUES (1,'Ut enim ad minima veniam, quis nostrum exercitationem ...') 
  2012-11-29 10:40:40.250 1 INSERT INTO SYSTEM_LOBS.LOB_IDS VALUES(?, ?, ?, ?) (1,49,0,40)
  2012-11-29 10:40:40.250 1 COMMIT 
  2012-11-29 10:40:40.265 1 CALL SYSTEM_LOBS.ALLOC_BLOCKS(?, ?, ?) (1,0,1)
@@ -2068,9 +2073,9 @@
       <simpara><literal>&lt;set database gc statement&gt; ::= SET DATABASE GC
       &lt;unsigned integer literal&gt;</literal></simpara>
 
-      <simpara>In previous versions an optional property which forced calls to
-      <literal>System.gc() </literal>after the specified number of row
-      operations. This has no effect from version 2.5.0.</simpara>
+      <simpara>In previous versions, an optional property which forced calls
+      to <literal>System.gc() </literal>after the specified number of row
+      operations. This has no effect from version 2.5.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
