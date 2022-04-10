@@ -55,8 +55,8 @@
     <para>The normal method of accessing a HyperSQL catalog is via the JDBC
     Connection interface. An introduction to different methods of providing
     database services and accessing them can be found in the <link
-    endterm="sqlgeneral-title" xlink:href="#running-chapt"/> chapter. Details
-    and examples of how to connect via JDBC are provided in our JavaDoc for
+    endterm="running-title" xlink:href="#running-chapt"/> chapter. Details and
+    examples of how to connect via JDBC are provided in our JavaDoc for
     <classname
     xlink:href="#JDBCConnection.html-link">JDBCConnection</classname>.</para>
 
