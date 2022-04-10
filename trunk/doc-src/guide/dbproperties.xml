@@ -1808,11 +1808,13 @@
             <row>
               <entry nameend="c3" namest="c1"><para>HSQLDB automatically
               creates a system index for each PRIMARY KEY, UNIQUE and FOREIGN
-              KEY constraint. When the setting is changed to true, the names
-              will be the same as the constraint names.When this property is
-              false, the names of those indexes are generated the system as a
-              string beginning with SYS_. </para><para>The default value for
-              this property was false before version
+              KEY constraint. If a constraint is not defined with a name, the
+              system generates a name. By default, the names of these indexes
+              will be the same as the constraint names. This helps associating
+              the index name with the user-defined constraint name. When this
+              property is false, the names of those indexes are generated the
+              system as a string beginning with SYS_. </para><para>The default
+              value for this property was false before version
               2.7.0.</para><para><programlisting>SET DATABASE SQL SYS INDEX NAMES { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
@@ -2301,7 +2303,7 @@
 
             <row>
               <entry nameend="c3" namest="c1"><para>If the property is true,
-              the NTERVAL types are represented in JDBC methods of
+              the INTERVAL types are represented in JDBC methods of
               <classname>ResultSetMetaData</classname> and
               <classname>DatabaseMetaData</classname> as the VARCHAR type. The
               original type names are preserved.</para><para>JDBC does not
@@ -2729,7 +2731,7 @@
               <entry nameend="c3" namest="c1"><para>As the contents of the
               .data file are modified during database operation, the original
               contents are backed up gradually. This allows fast checkpoint
-              and shutdown.</para><para>With HSQLDB up to version 2.5.0 it was
+              and shutdown.</para><para>With HSQLDB up to version 2.5 it was
               possible to set the property false in order to have the .data
               file backed up entirely at the time of checkpoint and
               shutdown.</para><para>From version 2.5.1, this property has no
