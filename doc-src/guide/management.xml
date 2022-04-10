@@ -339,8 +339,9 @@
     KEY constraint defined on <literal>INVOICES(CUSTOMER_ID)</literal>, you
     can add an extra column such as <literal>INVOICE_DATE</literal> to the
     FOREIGN KEY index. This speeds up queries with conditions such as:
-    <literal>WHERE customer_id = 456 and invoice_date = '2020-02-02</literal>.
-    See the ALTER CONSTRAINT statement for syntax.</para>
+    <literal>WHERE customer_id = 456 and invoice_date =
+    '2020-02-02'</literal>. See the ALTER CONSTRAINT statement for
+    syntax.</para>
 
     <para>HyperSQL allows you to define indexes on single or multiple columns
     with the CREATE INDEX statement. You should not create duplicate indexes
