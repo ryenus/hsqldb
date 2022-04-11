@@ -31,6 +31,8 @@
 
 package org.hsqldb;
 
+import java.util.TimeZone;
+
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session.TimeoutManager;
 import org.hsqldb.dbinfo.DatabaseInformation;
@@ -391,7 +393,7 @@ public class Database {
      * Throws if username or password is invalid.
      */
     synchronized Session connect(String username, String password,
-                                 String zoneString, int timeZoneSeconds) {
+                                 TimeZone zone) {
 
         if (getState() != DATABASE_ONLINE) {
             throw Error.error(ErrorCode.X_08001);
@@ -403,7 +405,7 @@ public class Database {
 
         User user = userManager.getUser(username, password);
         Session session = sessionManager.newSession(this, user,
-            databaseReadOnly, true, zoneString, timeZoneSeconds);
+            databaseReadOnly, true, zone);
 
         return session;
     }

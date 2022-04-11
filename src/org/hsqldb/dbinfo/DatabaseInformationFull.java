@@ -866,7 +866,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         // intermediate holders
         Object[] row;
         boolean  restrict   = !session.isAdmin();
-        Iterator it         = HsqlDatabaseProperties.getUserDefinedProperties();
+        Iterator it = HsqlDatabaseProperties.getUserDefinedProperties();
         HashMap  nameToProp = database.logger.getPropertyValueMap(session);
 
         while (it.hasNext()) {
@@ -982,8 +982,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         row    = t.getEmptyRowData();
         row[0] = "CONNECTED";
 
-        TimestampData ts =
-            TimestampData.fromMillisecondsGMT(session.getConnectTime());
+        TimestampData ts = session.getConnectTimestamp();
 
         row[1] = Type.SQL_TIMESTAMP_WITH_TIME_ZONE.convertToString(ts);
 
@@ -1178,7 +1177,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             s              = sessions[i];
             row            = t.getEmptyRowData();
             row[isid]      = ValuePool.getLong(s.getId());
-            row[ict] = TimestampData.fromMillisecondsGMT(s.getConnectTime());
+            row[ict]       = s.getConnectTimestamp();
             row[iuname]    = s.getUsername();
             row[iis_admin] = s.isAdmin() ? Boolean.TRUE
                                          : Boolean.FALSE;

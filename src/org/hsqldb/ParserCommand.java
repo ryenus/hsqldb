@@ -2241,6 +2241,8 @@ public class ParserCommand extends ParserDDL {
 
         readThis(Tokens.ZONE);
 
+        checkIsAny(Tokens.LOCAL, Tokens.INTERVAL, 0, 0);
+
         if (token.tokenType == Tokens.LOCAL) {
             read();
 

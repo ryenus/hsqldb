@@ -7235,7 +7235,7 @@ public class JDBCResultSet implements ResultSet {
             return null;
         }
 
-        int s = v.getSeconds() + v.getZone();
+        int s = v.getSeconds();
 
         s = DateTimeType.normaliseTime(s);
 

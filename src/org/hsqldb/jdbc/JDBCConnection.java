@@ -51,11 +51,11 @@ import java.sql.SQLXML;
 import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Struct;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.GregorianCalendar;
 import java.util.Properties;
+import java.util.TimeZone;
+
 // import java.util.logging.Level;
 // import java.util.logging.Logger;
 import org.hsqldb.ClientConnection;
@@ -3331,6 +3331,8 @@ public class JDBCConnection implements Connection {
 
 //---------------------- internal implementation ---------------------------
 // -------------------------- Common Attributes ------------------------------
+    /** Shared, reused local TimeZone which should not be modified*/
+    TimeZone timeZone = TimeZone.getDefault();
 
     /** Initial holdability */
     int rsHoldability = JDBCResultSet.HOLD_CURSORS_OVER_COMMIT;
@@ -3449,9 +3451,6 @@ public class JDBCConnection implements Connection {
             password = "";
         }
 
-        Calendar cal         = new GregorianCalendar();
-        int      zoneSeconds = HsqlDateTime.getZoneSeconds(cal);
-
         try {
             if (DatabaseURL.isInProcessDatabaseType(connType)) {
                 /*
@@ -3460,16 +3459,18 @@ public class JDBCConnection implements Connection {
                  * from the jdbc package - we might make it dynamic
                  */
                 sessionProxy = DatabaseManager.newSession(connType, database,
-                        user, password, props, null, zoneSeconds);
+                        user, password, props, timeZone);
             } else if (DatabaseURL.S_HSQL.equals(connType)
                        || DatabaseURL.S_HSQLS.equals(connType)) {
                 sessionProxy = new ClientConnection(host, port, path,
-                        database, isTLS, isTLSWrapper, user, password, zoneSeconds);
+                                                    database, isTLS,
+                                                    isTLSWrapper, user,
+                                                    password, timeZone);
                 isNetConn = true;
             } else if (DatabaseURL.S_HTTP.equals(connType)
                        || DatabaseURL.S_HTTPS.equals(connType)) {
                 sessionProxy = new ClientConnectionHTTP(host, port, path,
-                        database, isTLS, isTLSWrapper, user, password, zoneSeconds);
+                        database, isTLS, isTLSWrapper, user, password, timeZone);
                 isNetConn = true;
             } else {    // alias: type not yet implemented
                 throw JDBCUtil.invalidArgument(connType);

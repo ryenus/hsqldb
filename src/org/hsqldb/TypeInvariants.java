@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2020, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Information Schema types.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class TypeInvariants {
@@ -90,7 +90,7 @@ public class TypeInvariants {
         name = HsqlNameManager.newInfoSchemaObjectName("TIME_STAMP", false,
                 SchemaObject.DOMAIN);
         TIME_STAMP = new DateTimeType(Types.SQL_TIMESTAMP,
-                                      Types.SQL_TIMESTAMP, 6);
+                                      Types.SQL_TIMESTAMP_WITH_TIME_ZONE, 6);
         TIME_STAMP.userTypeModifier = new UserTypeModifier(name,
                 SchemaObject.DOMAIN, TIME_STAMP);
 
