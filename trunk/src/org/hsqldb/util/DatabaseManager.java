@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 
 package org.hsqldb.util;
 
-import java.applet.Applet;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -43,6 +42,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;

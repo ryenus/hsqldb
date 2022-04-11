@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,8 @@ import org.hsqldb.lib.IntKeyIntValueHashMap;
  */
 public abstract class DTIType extends Type {
 
+    public static final int secondsInDay = 60 * 60 * 24;
+
     public static final byte[] yearToSecondSeparators       = {
         '-', '-', ' ', ':', ':', '.'
     };
@@ -71,7 +73,7 @@ public abstract class DTIType extends Type {
         1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10,
         1
     };
-    public static final int timezoneSecondsLimit = 14 * 60 * 60;
+    public static final int timezoneSecondsLimit = 18 * 60 * 60;
     static final int[]      intervalParts        = {
         Types.SQL_INTERVAL_YEAR, Types.SQL_INTERVAL_MONTH,
         Types.SQL_INTERVAL_DAY, Types.SQL_INTERVAL_HOUR,

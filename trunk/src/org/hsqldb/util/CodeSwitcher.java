@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2021, The HSQL Development Group
+ * Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -341,7 +341,7 @@ public class CodeSwitcher {
                 if (line.startsWith("//#")) {
                     if (line.startsWith("//#ifdef ")) {
                         if (state != 0) {
-                            printError("'#ifdef' not allowed inside '#ifdef'");
+                            printError("'#ifdef' not allowed inside '#ifdef' at line " + i);
 
                             return false;
                         }

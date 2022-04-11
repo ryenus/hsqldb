@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,7 +130,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
     public ClientConnection(String host, int port, String path,
                             String database, boolean isTLS,
                             boolean isTLSWrapper, String user,
-                            String password, int timeZoneSeconds) {
+                            String password, TimeZone timeZone) {
 
         this.host         = host;
         this.port         = port;
@@ -138,14 +138,14 @@ public class ClientConnection implements SessionInterface, Cloneable {
         this.database     = database;
         this.isTLS        = isTLS;
         this.isTLSWrapper = isTLSWrapper;
-        this.zoneSeconds  = timeZoneSeconds;
-        this.zoneString   = TimeZone.getDefault().getID();
+        this.zoneSeconds  = timeZone.getOffset(System.currentTimeMillis()) / 1000;
+        this.zoneString   = timeZone.getID();
 
         initStructures();
         initConnection(host, port, isTLS);
 
         Result login = Result.newConnectionAttemptRequest(user, password,
-            database, zoneString, timeZoneSeconds);
+            database, zoneString, zoneSeconds);
         Result resultIn = execute(login);
 
         if (resultIn.isError()) {

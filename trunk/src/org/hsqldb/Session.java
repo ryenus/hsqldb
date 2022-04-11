@@ -65,6 +65,7 @@ import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.User;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
+import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
@@ -117,15 +118,15 @@ public class Session implements SessionInterface {
     TimeoutManager          timeoutManager;
 
     // current settings
-    final String       zoneString;
-    final int          sessionTimeZoneSeconds;
-    int                timeZoneSeconds;
-    boolean            isNetwork;
-    private int        sessionMaxRows;
-    int                sessionOptimization = 8;
-    private final long sessionId;
-    private boolean    ignoreCase;
-    private final long connectTime = System.currentTimeMillis();
+    final TimeZone              timeZone;
+    TimeZone                    currentTimeZone;
+    final String                zoneString;
+    boolean                     isNetwork;
+    private int                 sessionMaxRows;
+    int                         sessionOptimization = 8;
+    private final long          sessionId;
+    private boolean             ignoreCase;
+    private final TimestampData connectTimestamp;
 
     // internal connection
     private JDBCConnection intConnection;
@@ -155,34 +156,34 @@ public class Session implements SessionInterface {
 
     /**
      * Constructs a new Session object.
-     *
      * @param  db the database to which this represents a connection
      * @param  user the initial user
      * @param  autocommit the initial autocommit value
      * @param  readonly the initial readonly value
      * @param  id the session identifier, as known to the database
+     * @param  zone the TimeZone
      */
     Session(Database db, User user, boolean autocommit, boolean readonly,
-            long id, String zoneString, int timeZoneSeconds) {
+            long id, TimeZone zone) {
 
-        sessionId                   = id;
-        database                    = db;
-        this.user                   = user;
-        this.sessionUser            = user;
-        this.zoneString             = zoneString;
-        this.sessionTimeZoneSeconds = timeZoneSeconds;
-        this.timeZoneSeconds        = timeZoneSeconds;
-        rowActionList               = new HsqlArrayList(128, true);
-        waitedSessions              = new OrderedHashSet();
-        waitingSessions             = new OrderedHashSet();
-        tempSet                     = new OrderedHashSet();
-        actionSet                   = new OrderedHashSet();
-        isolationLevelDefault       = database.defaultIsolationLevel;
-        ignoreCase                  = database.sqlIgnoreCase;
-        isolationLevel              = isolationLevelDefault;
-        txConflictRollback          = database.txConflictRollback;
-        txInterruptRollback         = database.txInterruptRollback;
-        isReadOnlyDefault           = readonly;
+        this.database         = db;
+        this.sessionUser      = user;
+        this.user             = user;
+        this.sessionId        = id;
+        this.timeZone         = zone;
+        this.currentTimeZone  = zone;
+        this.zoneString       = zone.getID();
+        rowActionList         = new HsqlArrayList(128, true);
+        waitedSessions        = new OrderedHashSet();
+        waitingSessions       = new OrderedHashSet();
+        tempSet               = new OrderedHashSet();
+        actionSet             = new OrderedHashSet();
+        isolationLevelDefault = database.defaultIsolationLevel;
+        ignoreCase            = database.sqlIgnoreCase;
+        isolationLevel        = isolationLevelDefault;
+        txConflictRollback    = database.txConflictRollback;
+        txInterruptRollback   = database.txInterruptRollback;
+        isReadOnlyDefault     = readonly;
         isReadOnlyIsolation = isolationLevel
                               == SessionInterface.TX_READ_UNCOMMITTED;
         sessionContext              = new SessionContext(this);
@@ -191,13 +192,14 @@ public class Session implements SessionInterface {
         sessionContext.isReadOnly   = isReadOnlyDefault ? Boolean.TRUE
                                                         : Boolean.FALSE;
         parser                      = new ParserCommand(this, new Scanner());
+        sessionData                 = new SessionData(database, this);
+        statementManager            = new StatementManager(this);
+        timeoutManager              = new TimeoutManager();
 
         setResultMemoryRowCount(database.getResultMaxMemoryRows());
         resetSchema();
 
-        sessionData      = new SessionData(database, this);
-        statementManager = new StatementManager(this);
-        timeoutManager   = new TimeoutManager();
+        connectTimestamp = getCurrentTimestamp();
     }
 
     void resetSchema() {
@@ -679,7 +681,7 @@ public class Session implements SessionInterface {
         user = sessionUser;
 
         resetSchema();
-        setZoneSeconds(sessionTimeZoneSeconds);
+        resetTimeZone();
 
         sessionMaxRows = 0;
         ignoreCase     = database.sqlIgnoreCase;
@@ -903,8 +905,8 @@ public class Session implements SessionInterface {
      *
      * @return the value
      */
-    public long getConnectTime() {
-        return connectTime;
+    public TimestampData getConnectTimestamp() {
+        return connectTimestamp;
     }
 
     /**
@@ -1628,38 +1630,57 @@ public class Session implements SessionInterface {
     }
 
 // session DATETIME functions
-    long                  currentTimestampSCN;
-    long                  currentMillis;
+    long                  currentTimestampSCN = -1;    // initialise to invalid val
+    private TimestampData transactionUTC;
+    boolean               transactionUTCSet;
     private TimestampData currentDate;
     private TimestampData currentTimestamp;
     private TimestampData localTimestamp;
-    private TimestampData transactionUTC;
-    boolean               transactionUTCSet;
     private TimeData      currentTime;
     private TimeData      localTime;
 
     /**
-     * Returns the current date, unchanged for the duration of the current
+     * Returns the current date/time, unchanged for the duration of the current
      * execution unit (statement).<p>
      *
-     * SQL standards require that CURRENT_DATE, CURRENT_TIME and
-     * CURRENT_TIMESTAMP are all evaluated at the same point of
-     * time in the duration of each SQL statement, no matter how long the
-     * SQL statement takes to complete.<p>
+     * SQL standards require that CURRENT_DATE, CURRENT_TIME,
+     * CURRENT_TIMESTAMP, LOCALTIME, and LOCALTIMESTAMP are all evaluated at
+     * the same point of time in the duration of each SQL statement, no matter
+     * how long the SQL statement takes to complete.<p>
      *
      * When this method or a corresponding method for CURRENT_TIME or
      * CURRENT_TIMESTAMP is first called in the scope of a system change
-     * number, currentMillis is set to the current system time. All further
-     * CURRENT_XXXX calls in this scope will use this millisecond value.
+     * number, currentTimestamp is set to the current system time. All further
+     * CURRENT_XXXX and LOCALXXXX calls in this scope will use this base point
+     * of time.
+     *
      * (fredt@users)
      */
+    synchronized TimestampData getCurrentTimestamp() {
+
+        resetCurrentTimestamp();
+
+        return currentTimestamp;
+    }
+
+    synchronized TimestampData getLocalTimestamp() {
+
+        resetCurrentTimestamp();
+
+        if (localTimestamp == null) {
+            localTimestamp =
+                DateTimeType.toLocalTimestampValue(currentTimestamp);
+        }
+
+        return localTimestamp;
+    }
+
     public synchronized TimestampData getCurrentDate() {
 
         resetCurrentTimestamp();
 
         if (currentDate == null) {
-            currentDate = (TimestampData) Type.SQL_DATE.getValue(this,
-                    currentMillis / 1000, 0, getZoneSeconds());
+            currentDate = DateTimeType.toCurrentDateValue(currentTimestamp);
         }
 
         return currentDate;
@@ -1669,108 +1690,112 @@ public class Session implements SessionInterface {
      * Returns the current time, unchanged for the duration of the current
      * execution unit (statement)
      */
-    synchronized TimeData getCurrentTime(boolean withZone) {
+    synchronized TimeData getCurrentTime() {
 
         resetCurrentTimestamp();
 
-        if (withZone) {
-            if (currentTime == null) {
-                int seconds =
-                    (int) (HsqlDateTime.getNormalisedTime(
-                        getCalendarGMT(), currentMillis)) / 1000;
-                int nanos = (int) (currentMillis % 1000) * 1000000;
-
-                currentTime = new TimeData(seconds, nanos, getZoneSeconds());
-            }
-
-            return currentTime;
-        } else {
-            if (localTime == null) {
-                int seconds =
-                    (int) (HsqlDateTime.getNormalisedTime(
-                        getCalendarGMT(),
-                        currentMillis + getZoneSeconds() * 1000L)) / 1000;
-                int nanos = (int) (currentMillis % 1000) * 1000000;
-
-                localTime = new TimeData(seconds, nanos, 0);
-            }
-
-            return localTime;
+        if (currentTime == null) {
+            currentTime =
+                DateTimeType.toCurrentTimeWithZoneValue(currentTimestamp);
         }
+
+        return currentTime;
     }
 
-    /**
-     * Returns the current timestamp, unchanged for the duration of the current
-     * execution unit (statement)
-     */
-    synchronized TimestampData getCurrentTimestamp(boolean withZone) {
+    synchronized TimeData getLocalTime() {
 
         resetCurrentTimestamp();
 
-        if (withZone) {
-            if (currentTimestamp == null) {
-                int nanos = (int) (currentMillis % 1000) * 1000000;
+        if (localTime == null) {
+            localTime = DateTimeType.toCurrentTimeValue(currentTimestamp);
+        }
 
-                currentTimestamp = new TimestampData((currentMillis / 1000),
-                                                     nanos, getZoneSeconds());
-            }
+        return localTime;
+    }
 
-            return currentTimestamp;
-        } else {
-            if (localTimestamp == null) {
-                int nanos = (int) (currentMillis % 1000) * 1000000;
+    private void resetCurrentTimestamp() {
 
-                localTimestamp = new TimestampData(currentMillis / 1000
-                                                   + getZoneSeconds(), nanos,
-                                                       0);
-            }
+        if (currentTimestampSCN != actionTimestamp) {
 
-            return localTimestamp;
+            currentTimestampSCN = actionTimestamp;
+            currentTimestamp =
+                DateTimeType.getTimestampWithZone(currentTimeZone);
+            currentDate    = null;
+            localTimestamp = null;
+            currentTime    = null;
+            localTime      = null;
         }
     }
 
-    static TimestampData getSystemTimestamp(boolean withZone, boolean utc) {
-
-        long millis  = System.currentTimeMillis();
-        long seconds = millis / 1000;
-        int  nanos   = (int) (millis % 1000) * 1000000;
-        int  offset  = 0;
-
-        if (!utc) {
-            TimeZone zone = TimeZone.getDefault();
-
-            offset = zone.getOffset(millis) / 1000;
-
-            if (!withZone) {
-                seconds += offset;
-                offset  = 0;
-            }
-        }
-
-        return new TimestampData(seconds, nanos, offset);
-    }
 
     TimestampData getTransactionUTC() {
 
         if (!transactionUTCSet) {
-            transactionUTC    = getSystemTimestamp(true, true);
+            transactionUTC    = DateTimeType.getSystemTimestampUTC();
             transactionUTCSet = true;
         }
 
         return transactionUTC;
     }
 
-    private void resetCurrentTimestamp() {
+    // session calendars
+    private Calendar calendar;
+    private Calendar calendarGMT;
 
-        if (currentTimestampSCN != actionTimestamp) {
-            currentTimestampSCN = actionTimestamp;
-            currentMillis       = System.currentTimeMillis();
-            currentDate         = null;
-            currentTimestamp    = null;
-            localTimestamp      = null;
-            currentTime         = null;
-            localTime           = null;
+    public int getZoneSeconds() {
+        return currentTimestamp.getZone();
+    }
+
+    public void resetTimeZone() {
+
+        currentTimeZone = timeZone;
+
+        if (calendar != null) {
+            calendar.setTimeZone(currentTimeZone);
         }
+    }
+
+    public void setZoneSeconds(int seconds) {
+
+        currentTimeZone = (TimeZone) timeZone.clone();
+
+        currentTimeZone.setRawOffset(seconds * 1000);
+
+        if (calendar != null) {
+            calendar.setTimeZone(currentTimeZone);
+        }
+    }
+
+    public Calendar getCalendar() {
+
+        if (calendar == null) {
+            calendar = new GregorianCalendar(currentTimeZone);
+        }
+
+        return calendar;
+    }
+
+    public Calendar getCalendarGMT() {
+
+        if (calendarGMT == null) {
+            calendarGMT = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+
+            calendarGMT.setFirstDayOfWeek(Calendar.MONDAY);
+            calendarGMT.setMinimalDaysInFirstWeek(4);
+        }
+
+        return calendarGMT;
+    }
+
+    public SimpleDateFormat getSimpleDateFormatGMT() {
+
+        if (simpleDateFormatGMT == null) {
+            simpleDateFormatGMT = new SimpleDateFormat("MMMM", Locale.ENGLISH);
+
+            simpleDateFormatGMT.setCalendar(getCalendarGMT());
+        }
+
+        return simpleDateFormatGMT;
     }
 
     private Result getAttributesResult(int id) {
@@ -2122,56 +2147,6 @@ public class Session implements SessionInterface {
         if (sqlWarnings != null) {
             sqlWarnings.clear();
         }
-    }
-
-    // session zone
-    private Calendar calendar;
-    private Calendar calendarGMT;
-
-    public int getZoneSeconds() {
-        return timeZoneSeconds;
-    }
-
-    public void setZoneSeconds(int seconds) {
-        timeZoneSeconds = seconds;
-    }
-
-    public Calendar getCalendar() {
-
-        if (calendar == null) {
-            if (zoneString == null) {
-                calendar = new GregorianCalendar();
-            } else {
-                TimeZone zone = TimeZone.getTimeZone(zoneString);
-
-                calendar = new GregorianCalendar(zone);
-            }
-        }
-
-        return calendar;
-    }
-
-    public Calendar getCalendarGMT() {
-
-        if (calendarGMT == null) {
-            calendarGMT = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-
-            calendarGMT.setFirstDayOfWeek(Calendar.MONDAY);
-            calendarGMT.setMinimalDaysInFirstWeek(4);
-        }
-
-        return calendarGMT;
-    }
-
-    public SimpleDateFormat getSimpleDateFormatGMT() {
-
-        if (simpleDateFormatGMT == null) {
-            simpleDateFormatGMT = new SimpleDateFormat("MMMM", Locale.ENGLISH);
-
-            simpleDateFormatGMT.setCalendar(getCalendarGMT());
-        }
-
-        return simpleDateFormatGMT;
     }
 
     // services

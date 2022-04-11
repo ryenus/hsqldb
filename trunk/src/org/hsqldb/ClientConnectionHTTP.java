@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.TimeZone;
 
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
@@ -46,7 +47,7 @@ import org.hsqldb.result.Result;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.7.0
  * @since 1.7.2
  */
 public class ClientConnectionHTTP extends ClientConnection {
@@ -60,9 +61,9 @@ public class ClientConnectionHTTP extends ClientConnection {
     public ClientConnectionHTTP(String host, int port, String path,
                                 String database, boolean isTLS,
                                 boolean isTLSWrapper, String user,
-                                String password, int timeZoneSeconds) {
+                                String password, TimeZone timeZone) {
         super(host, port, path, database, isTLS, isTLSWrapper, user, password,
-              timeZoneSeconds);
+              timeZone);
     }
 
     public ClientConnectionHTTP(ClientConnectionHTTP other) {

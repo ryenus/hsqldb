@@ -956,12 +956,11 @@ public class FunctionCustom extends FunctionSQL {
                 return new IntervalSecondData(session.getZoneSeconds(), 0);
 
             case FUNC_SESSION_TIMEZONE :
-                return new IntervalSecondData(session.sessionTimeZoneSeconds,
-                                              0);
+                return new IntervalSecondData(session.getZoneSeconds(), 0);
 
             case FUNC_DBTIMEZONE : {
-                TimestampData timestamp = Session.getSystemTimestamp(true,
-                    false);
+                TimestampData timestamp =
+                    DateTimeType.getSystemTimestampWithZone();
                 IntervalSecondData zone =
                     new IntervalSecondData(timestamp.getZone(), 0);
 
@@ -1585,7 +1584,7 @@ public class FunctionCustom extends FunctionSQL {
                 TimestampData ts;
 
                 if (nodes[0] == null) {
-                    ts = session.getCurrentTimestamp(true);
+                    ts = session.getCurrentTimestamp();
                 } else {
                     if (data[0] == null) {
                         return null;
@@ -1602,7 +1601,7 @@ public class FunctionCustom extends FunctionSQL {
                 TimestampData ts;
 
                 if (nodes[0] == null) {
-                    ts = session.getCurrentTimestamp(true);
+                    ts = session.getCurrentTimestamp();
                 } else {
                     if (data[0] == null) {
                         return null;
@@ -2544,7 +2543,7 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_SESSIONTIMEZONE : {
                 IntervalSecondData zone =
-                    new IntervalSecondData(session.sessionTimeZoneSeconds, 0);
+                    new IntervalSecondData(session.getZoneSeconds(), 0);
 
                 return Type.SQL_INTERVAL_HOUR_TO_MINUTE.convertToString(zone);
             }
@@ -2557,14 +2556,13 @@ public class FunctionCustom extends FunctionSQL {
                         data[0], Type.SQL_TIMESTAMP_WITH_TIME_ZONE, 0, 0);
             }
             case FUNC_SYSDATE : {
-                TimestampData timestamp = Session.getSystemTimestamp(false,
-                    false);
+                TimestampData timestamp = DateTimeType.getSysDateTimestamp();
 
                 return Type.SQL_TIMESTAMP_NO_FRACTION.convertToType(session,
                         timestamp, Type.SQL_TIMESTAMP);
             }
             case FUNC_SYSTIMESTAMP : {
-                return Session.getSystemTimestamp(true, false);
+                return DateTimeType.getSystemTimestampWithZone();
             }
             case FUNC_TO_DSINTERVAL : {
                 if (data[0] == null) {

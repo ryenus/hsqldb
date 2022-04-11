@@ -1183,26 +1183,26 @@ public class FunctionSQL extends Expression {
             case FUNC_CURRENT_DATE :
                 if (session.database.sqlSyntaxOra) {
                     return dataType.convertToTypeLimits(
-                        session, session.getCurrentTimestamp(false));
+                        session, session.getLocalTimestamp());
                 }
 
                 return session.getCurrentDate();
 
             case FUNC_CURRENT_TIME :
                 return dataType.convertToTypeLimits(
-                    session, session.getCurrentTime(true));
+                    session, session.getCurrentTime());
 
             case FUNC_CURRENT_TIMESTAMP :
                 return dataType.convertToTypeLimits(
-                    session, session.getCurrentTimestamp(true));
+                    session, session.getCurrentTimestamp());
 
             case FUNC_LOCALTIME :
                 return dataType.convertToTypeLimits(
-                    session, session.getCurrentTime(false));
+                    session, session.getLocalTime());
 
             case FUNC_LOCALTIMESTAMP :
                 return dataType.convertToTypeLimits(
-                    session, session.getCurrentTimestamp(false));
+                    session, session.getLocalTimestamp());
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionSQL");
