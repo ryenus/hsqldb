@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+ 
+
 package org.hsqldb.util.preprocessor;
 
 import java.io.File;
@@ -162,7 +164,7 @@ import java.util.Stack;
  * <p>
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 1.8.1
+ * @version 2.7.0
  * @since 1.8.1
  */
 public class Preprocessor {
@@ -661,8 +663,8 @@ public class Preprocessor {
                 log("resolved properties: " + path);
             }
         }
-        
-        
+
+
 
         File file = this.toCanonicalOrAbsoluteFile(path);
 
@@ -675,11 +677,11 @@ public class Preprocessor {
         } catch (IOException ex) {
             path = file.getAbsolutePath();
         }
-        
+
         if (Option.isVerbose(options)) {
             log("resolved path: " + path);
         }
-        
+
         return path;
     }
 
