@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2021, The HSQL Development Group
+ * Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,6 +73,7 @@ package org.hsqldb.server;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.TimeZone;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -130,7 +131,7 @@ import org.hsqldb.rowio.RowOutputBinary;
  * calls are supported.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.6.2
  */
 public class Servlet extends HttpServlet {
@@ -268,8 +269,7 @@ public class Servlet extends HttpServlet {
                                                    resultIn.getMainString(),
                                                    resultIn.getSubString(),
                                                    new HsqlProperties(),
-                                                   resultIn.getZoneString(),
-                                                   resultIn.getUpdateCount());
+                                                   TimeZone.getDefault());
                     resultOut =
                         Result.newConnectionAcknowledgeResponse(session);
                 } catch (HsqlException e) {
