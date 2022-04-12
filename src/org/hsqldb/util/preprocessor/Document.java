@@ -27,6 +27,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+
 package org.hsqldb.util.preprocessor;
 
 import java.io.BufferedReader;
@@ -52,7 +54,7 @@ import java.util.List;
  * Simple line-oriented text document ADT.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.6.2+
+ * @version 2.7.0
  * @since 1.8.1
  */
 @SuppressWarnings("ClassWithoutLogger")

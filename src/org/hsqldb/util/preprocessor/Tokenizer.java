@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2007, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ package org.hsqldb.util.preprocessor;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 1.8.1
- * @since 2.6.2+
+ * @since 2.7.0
  */
 @SuppressWarnings("ClassWithoutLogger")
 public class Tokenizer {
@@ -189,7 +189,7 @@ public class Tokenizer {
                 if (currentIndex < len && cmd.charAt(currentIndex) == ch) {
                     currentIndex++;
                 }
-                
+
                 tokenType = ch;
 
                 return ch;
