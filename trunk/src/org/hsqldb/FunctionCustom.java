@@ -2462,7 +2462,7 @@ public class FunctionCustom extends FunctionSQL {
                         .convertToDefaultType(session, data[1]);
                 IntervalSecondData zone2 =
                     (IntervalSecondData) Type.SQL_INTERVAL_HOUR_TO_MINUTE
-                        .convertToDefaultType(session, data[1]);
+                        .convertToDefaultType(session, data[2]);
                 Object val =
                     Type.SQL_TIMESTAMP_WITH_TIME_ZONE.changeZone(session,
                         data[0], Type.SQL_TIMESTAMP, (int) zone2.getSeconds(),

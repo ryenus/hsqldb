@@ -1716,7 +1716,6 @@ public class Session implements SessionInterface {
     private void resetCurrentTimestamp() {
 
         if (currentTimestampSCN != actionTimestamp) {
-
             currentTimestampSCN = actionTimestamp;
             currentTimestamp =
                 DateTimeType.getTimestampWithZone(currentTimeZone);
@@ -1726,7 +1725,6 @@ public class Session implements SessionInterface {
             localTime      = null;
         }
     }
-
 
     TimestampData getTransactionUTC() {
 
@@ -1755,15 +1753,14 @@ public class Session implements SessionInterface {
         }
     }
 
-    public void setZoneSeconds(int seconds) {
-
-        currentTimeZone = (TimeZone) timeZone.clone();
-
-        currentTimeZone.setRawOffset(seconds * 1000);
+    public void setTimeZone(TimeZone zone) {
+        currentTimeZone = zone;
 
         if (calendar != null) {
             calendar.setTimeZone(currentTimeZone);
         }
+
+        resetCurrentTimestamp();
     }
 
     public Calendar getCalendar() {
