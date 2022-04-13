@@ -31,6 +31,8 @@
 
 package org.hsqldb;
 
+import java.util.TimeZone;
+
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
@@ -49,7 +51,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for SQL session statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.0
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class StatementSession extends Statement {
@@ -485,11 +487,20 @@ public class StatementSession extends Statement {
                     }
                 }
 
-                long seconds = ((IntervalSecondData) value).getSeconds();
+                IntervalSecondData interval = (IntervalSecondData) value;
+                long               seconds  = interval.getSeconds();
 
                 if (-DTIType.timezoneSecondsLimit <= seconds
                         && seconds <= DTIType.timezoneSecondsLimit) {
-                    session.setZoneSeconds((int) seconds);
+                    String i =
+                        Type.SQL_INTERVAL_HOUR_TO_MINUTE.convertToString(
+                            interval);
+                    String   sign       = seconds < 0 ? ""
+                                                      : "+";
+                    String   zoneString = "GMT" + sign + i;
+                    TimeZone zone       = TimeZone.getTimeZone(zoneString);
+
+                    session.setTimeZone(zone);
 
                     return Result.updateZeroResult;
                 }

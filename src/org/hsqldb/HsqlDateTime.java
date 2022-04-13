@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -195,21 +195,21 @@ public class HsqlDateTime {
         return convertMillisFromCalendar(tempCalGMT, calendar, millis);
     }
 
-    public static long convertMillisFromCalendar(Calendar clendarGMT,
-            Calendar calendar, long millis) {
+    public static long convertMillisFromCalendar(Calendar targetClendar,
+            Calendar sourceCalendar, long millis) {
 
-        synchronized (clendarGMT) {
-            synchronized (calendar) {
-                clendarGMT.clear();
-                calendar.setTimeInMillis(millis);
-                clendarGMT.set(calendar.get(Calendar.YEAR),
-                               calendar.get(Calendar.MONTH),
-                               calendar.get(Calendar.DAY_OF_MONTH),
-                               calendar.get(Calendar.HOUR_OF_DAY),
-                               calendar.get(Calendar.MINUTE),
-                               calendar.get(Calendar.SECOND));
+        synchronized (targetClendar) {
+            synchronized (sourceCalendar) {
+                targetClendar.clear();
+                sourceCalendar.setTimeInMillis(millis);
+                targetClendar.set(sourceCalendar.get(Calendar.YEAR),
+                               sourceCalendar.get(Calendar.MONTH),
+                               sourceCalendar.get(Calendar.DAY_OF_MONTH),
+                               sourceCalendar.get(Calendar.HOUR_OF_DAY),
+                               sourceCalendar.get(Calendar.MINUTE),
+                               sourceCalendar.get(Calendar.SECOND));
 
-                return clendarGMT.getTimeInMillis();
+                return targetClendar.getTimeInMillis();
             }
         }
     }
