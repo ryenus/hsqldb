@@ -2535,6 +2535,8 @@ public class ParserCommand extends ParserDDL {
         readThis(Tokens.FROM);
         readThis(Tokens.TABLE);
 
+        checkIsThis(Tokens.X_IDENTIFIER);
+
         HsqlName tableName = readTableName().getName();
 
         readThis(Tokens.TO);

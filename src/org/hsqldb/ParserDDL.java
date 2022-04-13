@@ -1064,7 +1064,7 @@ public class ParserDDL extends ParserRoutine {
         boolean  ifNot = readIfNotExists();
         HsqlName name  = readNewSchemaObjectName(SchemaObject.TABLE, false);
 
-        name.schema = SqlInvariants.SYSTEM_SCHEMA_HSQLNAME;
+        name.schema = SqlInvariants.SESSION_SCHEMA_HSQLNAME;
 
         Table           table = new Table(database, name, tableType);
         StatementSchema cs;

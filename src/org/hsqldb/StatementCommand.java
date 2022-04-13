@@ -1082,7 +1082,14 @@ public class StatementCommand extends Statement {
                     String   textprops = (String) arguments[1];
                     int      mode      = ((Integer) arguments[2]).intValue();
                     Table table =
-                        session.database.schemaManager.getUserTable(tableName);
+                        session.database.schemaManager.findTable(session,
+                            tableName.name, tableName.schema.name, null);
+
+                    if (table == null) {
+                        throw Error.error(
+                            ErrorCode.X_42501,
+                            tableName.getSchemaQualifiedStatementName());
+                    }
 
                     if (!session.getGrantee().canPerformScriptOps()) {
                         throw Error.error(ErrorCode.X_42507);
@@ -1099,7 +1106,14 @@ public class StatementCommand extends Statement {
                     HsqlName tableName = (HsqlName) arguments[0];
                     String   textprops = (String) arguments[1];
                     Table table =
-                        session.database.schemaManager.getUserTable(tableName);
+                        session.database.schemaManager.findTable(session,
+                            tableName.name, tableName.schema.name, null);
+
+                    if (table == null) {
+                        throw Error.error(
+                            ErrorCode.X_42501,
+                            tableName.getSchemaQualifiedStatementName());
+                    }
 
                     if (!session.getGrantee().canPerformScriptOps()) {
                         throw Error.error(ErrorCode.X_42507);

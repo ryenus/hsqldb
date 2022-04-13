@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -416,6 +416,11 @@ public abstract class StatementDMQL extends Statement {
             }
 
             if (range.rangeTable.getSchemaName()
+                    == SqlInvariants.SESSION_SCHEMA_HSQLNAME) {
+                continue;
+            }
+
+            if (range.rangeTable.getSchemaName()
                     == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
                 continue;
             }
@@ -503,19 +508,6 @@ public abstract class StatementDMQL extends Statement {
                 }
             }
         }
-    }
-
-    Result getWriteAccessResult(Session session) {
-
-        try {
-            if (targetTable != null && !targetTable.isTemp()) {
-                session.checkReadWrite();
-            }
-        } catch (HsqlException e) {
-            return Result.newErrorResult(e);
-        }
-
-        return null;
     }
 
     /**
