@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.8.0
  * @see Grantee
  */
@@ -88,6 +88,7 @@ public class GranteeManager {
             SqlInvariants.SYSTEM_SCHEMA_HSQLNAME);
 
         SqlInvariants.INFORMATION_SCHEMA_HSQLNAME.owner = systemAuthorisation;
+        SqlInvariants.SESSION_SCHEMA_HSQLNAME.owner     = systemAuthorisation;
         SqlInvariants.SYSTEM_SCHEMA_HSQLNAME.owner      = systemAuthorisation;
         SqlInvariants.LOBS_SCHEMA_HSQLNAME.owner        = systemAuthorisation;
         SqlInvariants.SQLJ_SCHEMA_HSQLNAME.owner        = systemAuthorisation;

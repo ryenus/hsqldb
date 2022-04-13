@@ -8202,17 +8202,23 @@ public class ParserDQL extends ParserBase {
 
                 HsqlName name = range.rangeTable.getName();
 
-                if (name.schema != SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
-                    set.add(name);
+                if (name.type == SchemaObject.TRANSITION) {
                     set.addAll(range.getColumnNames());
 
-                    if (range.periodCondition != null) {
-                        if (range.periodCondition.isSystemVersionCondition()) {
-                            set.add(range.rangeTable.systemPeriod.getName());
-                        }
+                    continue;
+                }
+
+                if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
+                    continue;
+                }
+
+                set.add(name);
+                set.addAll(range.getColumnNames());
+
+                if (range.periodCondition != null) {
+                    if (range.periodCondition.isSystemVersionCondition()) {
+                        set.add(range.rangeTable.systemPeriod.getName());
                     }
-                } else if (name.type == SchemaObject.TRANSITION) {
-                    set.addAll(range.getColumnNames());
                 }
             }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import org.hsqldb.error.ErrorCode;
  * Invariant schema objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.9.0
  */
 public final class SqlInvariants {
@@ -68,6 +68,7 @@ public final class SqlInvariants {
     /** The role name reserved for the special PUBLIC pseudo-user. */
     public static final String   PUBLIC_ROLE_NAME     = "PUBLIC";
     public static final String   DEFAULT_CATALOG_NAME = "PUBLIC";
+    public static final String   SESSION_SCHEMA       = "SESSION";
     public static final String   SYSTEM_SCHEMA        = "SYSTEM_SCHEMA";
     public static final String   LOBS_SCHEMA          = "SYSTEM_LOBS";
     public static final String   DEFINITION_SCHEMA    = "DEFINITION_SCHEMA";
@@ -80,6 +81,7 @@ public final class SqlInvariants {
     public static final String   DUMMY                = "DUMMY";
     public static final String   IDX                  = "IDX";
     public static final HsqlName INFORMATION_SCHEMA_HSQLNAME;
+    public static final HsqlName SESSION_SCHEMA_HSQLNAME;
     public static final HsqlName SYSTEM_SCHEMA_HSQLNAME;
     public static final HsqlName LOBS_SCHEMA_HSQLNAME;
     public static final HsqlName SQLJ_SCHEMA_HSQLNAME;
@@ -92,6 +94,9 @@ public final class SqlInvariants {
     static {
         INFORMATION_SCHEMA_HSQLNAME =
             HsqlNameManager.newSystemObjectName(INFORMATION_SCHEMA,
+                SchemaObject.SCHEMA);
+        SESSION_SCHEMA_HSQLNAME =
+            HsqlNameManager.newSystemObjectName(SESSION_SCHEMA,
                 SchemaObject.SCHEMA);
         SYSTEM_SCHEMA_HSQLNAME =
             HsqlNameManager.newSystemObjectName(SYSTEM_SCHEMA,
@@ -137,7 +142,6 @@ public final class SqlInvariants {
     }
 
     public static boolean isLobsSchemaName(String name) {
-
         return SqlInvariants.LOBS_SCHEMA.equals(name);
     }
 
