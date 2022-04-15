@@ -108,12 +108,9 @@ public class StatementSession extends Statement {
                     e.setDataType(session, Type.SQL_INTERVAL_HOUR_TO_MINUTE);
                 }
 
-                if (e.dataType.isCharacterType()) {
-                    e = new ExpressionOp(e, Type.SQL_INTERVAL_HOUR_TO_MINUTE);
-                    expressions[0] = e;
-                }
-
-                if (e.dataType.typeCode != Types.SQL_INTERVAL_HOUR_TO_MINUTE) {
+                if (e.dataType.isCharacterType()) {}
+                else if (e.dataType.typeCode
+                         != Types.SQL_INTERVAL_HOUR_TO_MINUTE) {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
@@ -487,17 +484,26 @@ public class StatementSession extends Statement {
                     }
                 }
 
-                IntervalSecondData interval = (IntervalSecondData) value;
-                long               seconds  = interval.getSeconds();
+                if (value instanceof IntervalSecondData) {
+                    IntervalSecondData interval = (IntervalSecondData) value;
+                    long               seconds  = interval.getSeconds();
 
-                if (-DTIType.timezoneSecondsLimit <= seconds
-                        && seconds <= DTIType.timezoneSecondsLimit) {
-                    String i =
-                        Type.SQL_INTERVAL_HOUR_TO_MINUTE.convertToString(
-                            interval);
-                    String   sign       = seconds < 0 ? ""
-                                                      : "+";
-                    String   zoneString = "GMT" + sign + i;
+                    if (-DTIType.timezoneSecondsLimit <= seconds
+                            && seconds <= DTIType.timezoneSecondsLimit) {
+                        String i =
+                            Type.SQL_INTERVAL_HOUR_TO_MINUTE.convertToString(
+                                interval);
+                        String   sign       = seconds < 0 ? ""
+                                                          : "+";
+                        String   zoneString = "GMT" + sign + i;
+                        TimeZone zone       = TimeZone.getTimeZone(zoneString);
+
+                        session.setTimeZone(zone);
+
+                        return Result.updateZeroResult;
+                    }
+                } else if (value instanceof String) {
+                    String   zoneString = (String) value;
                     TimeZone zone       = TimeZone.getTimeZone(zoneString);
 
                     session.setTimeZone(zone);
