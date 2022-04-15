@@ -7213,60 +7213,25 @@ public class JDBCResultSet implements ResultSet {
 
 //#endif JAVA8
 
-
-//#ifdef JAVA8
     private Object getTimestampWithZone(int columnIndex) throws SQLException {
-        TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
+        TimestampData v = (TimestampData) getColumnInType(columnIndex,
+            Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
 
         if (v == null) {
             return null;
         }
-
-        ZoneOffset    z   = ZoneOffset.ofTotalSeconds(v.getZone());
-        LocalDateTime ldt = LocalDateTime.ofEpochSecond(v.getSeconds(), v.getNanos(), z);
-
-        return OffsetDateTime.of(ldt, z);
+        return Type.SQL_TIMESTAMP_WITH_TIME_ZONE.convertSQLToJava(session, v);
     }
 
     private Object getTimeWithZone(int columnIndex) throws SQLException {
-        TimeData v = (TimeData) getColumnInType(columnIndex, Type.SQL_TIME_WITH_TIME_ZONE);
+        TimeData v = (TimeData) getColumnInType(columnIndex,
+            Type.SQL_TIME_WITH_TIME_ZONE);
 
         if (v == null) {
             return null;
         }
-
-        int s = v.getSeconds();
-
-        s = DateTimeType.normaliseTime(s);
-
-        ZoneOffset z  = ZoneOffset.ofTotalSeconds(v.getZone());
-        LocalTime  lt = LocalTime.ofNanoOfDay(s * 1000000000L + v.getNanos());
-
-        return OffsetTime.of(lt, z);
+        return Type.SQL_TIME_WITH_TIME_ZONE.convertSQLToJava(session, v);
     }
-
-//#else
-/*
-    private Object getTimestampWithZone(int columnIndex) throws SQLException {
-        TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
-
-        if (v == null) {
-            return null;
-        }
-        return Type.SQL_TIMESTAMP.convertSQLToJava(session, v);
-    }
-
-    private Object getTimeWithZone(int columnIndex) throws SQLException {
-        TimeData v = (TimeData) getColumnInType(columnIndex, Type.SQL_TIME_WITH_TIME_ZONE);
-
-        if (v == null) {
-            return null;
-        }
-        return Type.SQL_TIME.convertSQLToJava(session, v);
-    }
-*/
-//#endif JAVA8
-
 
 //------------------------ Internal Implementation -----------------------------
 

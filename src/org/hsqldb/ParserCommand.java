@@ -2240,29 +2240,49 @@ public class ParserCommand extends ParserDDL {
         Expression e;
 
         readThis(Tokens.ZONE);
+        checkIsAny(Tokens.LOCAL, Tokens.INTERVAL,
+                   Tokens.X_DELIMITED_IDENTIFIER, 0);
 
-        checkIsAny(Tokens.LOCAL, Tokens.INTERVAL, 0, 0);
+        switch (token.tokenType) {
 
-        if (token.tokenType == Tokens.LOCAL) {
-            read();
+            case Tokens.LOCAL : {
+                read();
 
-            e = new ExpressionValue(null, Type.SQL_INTERVAL_HOUR_TO_MINUTE);
-        } else {
-            e = XreadIntervalValueExpression();
+                e = new ExpressionValue(null,
+                                        Type.SQL_INTERVAL_HOUR_TO_MINUTE);
 
-            List unresolved = e.resolveColumnReferences(session,
-                RangeGroup.emptyGroup, RangeGroup.emptyArray, null);
-
-            ExpressionColumn.checkColumnsResolved(unresolved);
-            e.resolveTypes(session, null);
-
-            if (e.dataType == null) {
-                throw Error.error(ErrorCode.X_42563);
+                break;
             }
+            case Tokens.INTERVAL : {
+                e = XreadIntervalValueExpression();
 
-            if (e.dataType.typeCode != Types.SQL_INTERVAL_HOUR_TO_MINUTE) {
-                throw Error.error(ErrorCode.X_42563);
+                List unresolved = e.resolveColumnReferences(session,
+                    RangeGroup.emptyGroup, RangeGroup.emptyArray, null);
+
+                ExpressionColumn.checkColumnsResolved(unresolved);
+                e.resolveTypes(session, null);
+
+                if (e.dataType == null) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                if (e.dataType.typeCode != Types.SQL_INTERVAL_HOUR_TO_MINUTE) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                break;
             }
+            case Tokens.X_DELIMITED_IDENTIFIER : {
+                String zoneString = token.tokenString;
+
+                e = new ExpressionValue(zoneString, Type.SQL_VARCHAR);
+
+                read();
+
+                break;
+            }
+            default :
+                throw unexpectedToken();
         }
 
         return new StatementSession(session, compileContext,
@@ -2534,7 +2554,6 @@ public class ParserCommand extends ParserDDL {
         readThis(Tokens.DATA);
         readThis(Tokens.FROM);
         readThis(Tokens.TABLE);
-
         checkIsThis(Tokens.X_IDENTIFIER);
 
         HsqlName tableName = readTableName().getName();
