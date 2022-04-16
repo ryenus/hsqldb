@@ -2630,7 +2630,7 @@ public class ParserDQL extends ParserBase {
             case Tokens.COLON :
                 read();
 
-                if (token.tokenType == Tokens.X_VALUE) {
+                if (isIntegral()) {
                     int pos = readInteger();
                     ExpressionColumn p =
                         new ExpressionColumn(OpTypes.DYNAMIC_PARAM, pos);
@@ -2638,29 +2638,23 @@ public class ParserDQL extends ParserBase {
                     compileContext.addParameter(p, getPosition());
 
                     return p;
-                } else if (token.tokenType == Tokens.X_DELIMITED_IDENTIFIER
-                           || token.tokenType == Tokens.X_IDENTIFIER) {
-                    if (token.namePrefix == null) {
-                        int pos = compileContext.parameters.size();
-                        ExpressionColumn p =
-                            new ExpressionColumn(OpTypes.DYNAMIC_PARAM, pos);
+                } else if (isUndelimitedSimpleName()) {
+                    int pos = compileContext.parameters.size();
+                    ExpressionColumn p =
+                        new ExpressionColumn(OpTypes.DYNAMIC_PARAM, pos);
 
-                        compileContext.addParameter(p, getPosition());
+                    compileContext.addParameter(p, getPosition());
 
-                        Token newToken = new Token();
+                    Token newToken = new Token();
 
-                        newToken.tokenType = Tokens.X_VALUE;
-                        newToken.dataType  = Type.SQL_INTEGER;
-                        newToken.tokenString =
-                            String.valueOf(p.parameterIndex);
+                    newToken.tokenType   = Tokens.X_VALUE;
+                    newToken.dataType    = Type.SQL_INTEGER;
+                    newToken.tokenString = String.valueOf(p.parameterIndex);
 
-                        replaceToken(newToken, null);
-                        read();
+                    replaceToken(newToken, null);
+                    read();
 
-                        return p;
-                    } else {
-                        throw unexpectedToken(Tokens.T_COLON);
-                    }
+                    return p;
                 } else {
                     throw unexpectedToken(Tokens.T_COLON);
                 }
