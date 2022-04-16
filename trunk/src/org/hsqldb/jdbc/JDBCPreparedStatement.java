@@ -618,7 +618,7 @@ implements PreparedStatement {
      */
     public synchronized void setTime(int parameterIndex,
                                      Time x) throws SQLException {
-        setTime(parameterIndex, x, null);
+        setParameter(parameterIndex, x);
     }
 
     /**
@@ -648,7 +648,7 @@ implements PreparedStatement {
      */
     public synchronized void setTimestamp(int parameterIndex,
                                           Timestamp x) throws SQLException {
-        setTimestamp(parameterIndex, x, null);
+        setParameter(parameterIndex, x);
     }
 
     /* @todo 1.9.0 - implement streaming */
@@ -1681,7 +1681,6 @@ implements PreparedStatement {
         switch (outType.typeCode) {
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-
                 zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
                 seconds    = millis / 1000;
 
