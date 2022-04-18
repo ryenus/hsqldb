@@ -221,7 +221,7 @@ import org.hsqldb.types.Type;
  * For more information on server configuration regarding mounting multiple
  * databases and assigning them <b>&lt;alias&gt;</b> values, please read the
  * Java API documentation for {@link org.hsqldb.server.Server Server} and related
- * chapters in the general documentation, especially the <em>Advanced Users
+ * chapters in the general documentation, especially the <em>HyperSQL User
  * Guide</em>.
  *
  * <hr>
@@ -362,13 +362,10 @@ import org.hsqldb.types.Type;
  *      Please read your OS file system documentation.
  * </ol> <p>
  *
- * <b>Note:</b> Versions of HSQLDB previous to 1.7.0 did not support creating
+ * <b>Note:</b>HSQLDB creates
  * directories along the file path specified in the persistent, in-process mode
  * database connection <b>&lt;url&gt;</b> form, in the case that they did
- * not already exist.  Starting with HSQLDB 1.7.0, directories <i>will</i>
- * be created if they do not already exist., but only if HSQLDB is built under
- * a version of the compiler greater than JDK 1.1.x.
- *
+ * not already exist.
  * <hr>
  *
  * <b>res: protocol Connections:</b><p>
@@ -436,7 +433,7 @@ import org.hsqldb.types.Type;
  *
  * For more information about HSQLDB file structure, various database modes
  * and other attributes such as those controlled through the HSQLDB properties
- * files, please read the general documentation, especially the Advanced Users
+ * files, please read the general documentation, especially the HyperSQL User
  * Guide. <p>
  *
  * <b>JDBC 4.0 Notes:</b><p>
@@ -444,7 +441,7 @@ import org.hsqldb.types.Type;
  * Starting with JDBC 4.0 (JDK 1.6), the <code>DriverManager</code> methods
  * <code>getConnection</code> and <code>getDrivers</code> have been
  * enhanced to support the Java Standard Edition Service Provider mechanism.
- * When built under a Java runtime that supports JDBC 4.0, HSQLDB distribution
+ * HSQLDB distribution
  * jars containing the Driver implementation also include the file
  * <code>META-INF/services/java.sql.Driver</code>. This file contains the fully
  * qualified class name ('org.hsqldb.jdbc.JDBCDriver') of the HSQLDB implementation
