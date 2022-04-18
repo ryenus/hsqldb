@@ -2,7 +2,7 @@ $Id$
 
 BUILDING
 
-You need JDK 1.8 or later and Ant 9.x or later.
+You need JDK 11 and Ant 10.x or later.
 
 Run "ant gen-docs" from the build subdirectory.
 Error messages should be self-explanatory.
