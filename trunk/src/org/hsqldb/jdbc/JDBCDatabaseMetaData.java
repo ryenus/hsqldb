@@ -173,20 +173,11 @@ import org.hsqldb.types.Type;
  * standard-defined full-name INFORMATION_SCHEMA views. <p>
  *
  * However, just as CATALOG semantics and handling are still considered to be
- * implementation defined by the most recent SQL standard (SQL:2008), so is the
+ * implementation defined by the most recent SQL standard (SQL:2011), so is the
  * HSQLDB CATALOG concept still in the process of being defined and refined in
  * HSQLDB 2.x. and beyond.<p>
  *
- * Previous to HSQLDB 2.x, there were, at various points in time, experimental
- * features provided to turn on pseudo catalog (and before that, pseudo-schema)
- * reporting in the system tables, using the database properties
- * 'hsqldb.catalogs' and 'hsqldb.schemas', respectively.<p>
- *
- * However, once the engine fully supported the SQL SCHEMA concept, the
- * experimental 'hsqldb.schemas' * database property was retired. <p>
- *
- * Similarly, starting with HSQLDB 2.x, the 'hsqldb.catalogs' database property
- * has been retired and replaced with the convention that, from the perspective
+ * Similarly, starting with HSQLDB 2.x, from the perspective
  * of SQL identification, an HSQLDB JDBC URL connects to a single HSQLDB
  * database instance which consists of a single, default CATALOG
  * named PUBLIC in which each SCHEMA instance of the database resides. The name of

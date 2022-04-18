@@ -246,11 +246,14 @@ import java.time.ZoneOffset;
  * String ninthRowValue = rs.<b>getString</b>(<span class="JavaNumericLiteral">1</span>);
  * </pre>
  *
- * Note: An HSQLDB <code>ResultSet</code> object persists, even after its
+ * Note: An HSQLDB <code>ResultSet</code> object persists if it is not
+ * explicitly closed, even after its
  * connection is closed.  This is regardless of the operational mode of
  * the {@link org.hsqldb.Database Database} from which it came.  That is, they
  * persist whether originating from a <code>Server</code>,
- * <code>WebServer</code> or in-process mode <code>Database.</code>
+ * <code>WebServer</code> or in-process mode <code>Database</code>. A connection
+ * opened with the property setting <code>close_result=true </code> closes
+ * any remaining open results when the connection is closed.
  * <p>
  *
  * From HSQLDB 2.0, there is full support for updatable result sets.
