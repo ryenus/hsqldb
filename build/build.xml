@@ -35,7 +35,7 @@ javac.bootcp.override=/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar:/usr/lib/jvm/ja
 
     <property file='build/build.properties'/>
 
-    <condition property="hsqldb.version" value="2.6.2">
+    <condition property="hsqldb.version" value="2.7.0">
       <available classname="java.sql.JDBCType"/>
     </condition>
     <!-- hsqldb.version is set only once - if it is set above for Java 8 and greater, the next line is a no-op -->
