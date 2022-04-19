@@ -98,7 +98,7 @@
     versions of OOo.</simpara>
 
     <simpara>There will hopefully be a HyperSQL 2.x jar in future versions of
-	OpenOffice.</simpara>
+    OpenOffice.</simpara>
   </section>
 
   <section xml:id="ooa_db_files_convert">
@@ -125,15 +125,13 @@
     directory and connects to the extracted database files.</simpara>
 
     <simpara>The simple driver: <link
-    xlink:href="https://prrvchr.github.io/HsqlDBDriverOOo/">https://prrvchr.github.io/HsqlDBDriverOOo/</link>
-    </simpara>
+    xlink:href="https://prrvchr.github.io/jdbcDriverOOo/">https://prrvchr.github.io/jdbcDriverOOo/</link></simpara>
 
     <simpara>The driver that extracts the files: <link
-    xlink:href="https://prrvchr.github.io/HsqlDBembeddedOOo/">https://prrvchr.github.io/HsqlDBembeddedOOo/</link>
-    </simpara>
+    xlink:href="https://prrvchr.github.io/HsqlDBembeddedOOo/">https://prrvchr.github.io/HsqlDBembeddedOOo/</link></simpara>
 
     <simpara>The extensions are easy to use, with clear visual instructions on
     how to add the extensions to the Office suite and how to create and open
-    databases. </simpara>
+    databases.</simpara>
   </section>
 </appendix>

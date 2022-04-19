@@ -675,6 +675,47 @@
         </tbody>
       </tgroup>
     </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>OpenOffice and Libre Office usage</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="7cm"/>
+
+        <colspec colname="c2" colwidth="1.5cm"/>
+
+        <colspec colname="c3"/>
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>default_schema</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>OpenOffice and LibreOffice connections</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>When HyperSQL is used with
+            OpenOffice.org as an external database, the property
+            "default_schema=true" must be set on the URL, otherwise the
+            program will not operate correctly as it does with its built-in
+            hsqldb instance.</para><para>The default is
+            false.</para><programlisting> jdbc:hsqldb:hsql://localhost/enrolments;default_schema=true</programlisting></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
   </section>
 
   <section xml:id="dpc_db_props_url">
@@ -691,6 +732,12 @@
     corresponding SQL command is given for each property. For a server, these
     properties can be appended to the database path URL in server.properties
     or the server command line.</para>
+
+    <para>When connecting to an <glossterm>in-process</glossterm> database
+    creates a new database, or opens an existing database (i.e. it is the
+    first connection made to the database by the application), all the
+    user-defined database properties listed in this section can be specified
+    as URL properties.</para>
 
     <para>Note the preferred method of setting database properties is by using
     a set of SQL statements. These statements can be used both for a new
@@ -3074,11 +3121,10 @@
               to <literal>false</literal> when database recovery in the event
               of an unexpected crash is not necessary. A database that is used
               as a temporary cache is an example. Regardless of the value of
-              this property, if there is a proper shutdown of the database,
-              all the changed data is stored. A checkpoint or shutdown still
-              rewrites the <literal>.script</literal> file and saves the
-              <literal>.backup</literal> file according to the other
-              settings.</para><para><programlisting>SET FILES LOG  { TRUE | FALSE }</programlisting></para></entry>
+              this property, a checkpoint or shutdown still writes the
+              <literal>.script</literal> file and saves the
+              <literal>.data</literal> file in full, therefore persisting all
+              the changes.</para><para><programlisting>SET FILES LOG  { TRUE | FALSE }</programlisting></para></entry>
             </row>
           </tbody>
         </tgroup>
@@ -3615,17 +3661,6 @@
           </tbody>
         </tgroup>
       </table>
-
-      <para>When connecting to an <glossterm>in-process</glossterm> database
-      creates a new database, or opens an existing database (i.e. it is the
-      first connection made to the database by the application), all the
-      user-defined database properties listed in this section can be specified
-      as URL properties.</para>
-
-      <simpara>When HyperSQL is used with OpenOffice.org as an external
-      database, the property "default_schema=true" must be set on the URL,
-      otherwise the program will not operate correctly as it does with its
-      built-in hsqldb instance.</simpara>
     </section>
   </section>
 
