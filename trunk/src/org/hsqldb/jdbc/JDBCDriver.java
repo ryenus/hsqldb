@@ -513,8 +513,7 @@ public class JDBCDriver implements Driver {
     /**
      * As a separate instance of this class is registered with DriverManager
      * for each class loader, the threadConnection is not declared as static.
-     * The registered instance is kept to allow access to the its
-     * threadConnection.
+     * The registered instance is kept to allow access to its threadConnection.
      *
      */
 

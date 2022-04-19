@@ -5452,7 +5452,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * <code>FUNCTION_NAME</code> and
      * <code>SPECIFIC_ NAME</code>.
      *
-     * <P>Each function description has the the following columns:
+     * <P>Each function description has the following columns:
      *  <OL>
      *  <LI><B>FUNCTION_CAT</B> String {@code =>} function catalog (may be <code>null</code>)
      *  <LI><B>FUNCTION_SCHEM</B> String {@code =>} function schema (may be <code>null</code>)

@@ -641,7 +641,7 @@ public class JDBCSQLXML implements SQLXML {
 
     /**
      * This method closes this object and releases the resources that it held.
-     * The SQL XML object becomes invalid and neither readable or writable
+     * The SQL XML object becomes invalid and neither readable nor writable
      * when this method is called.<p>
      *
      * After <code>free</code> has been called, any attempt to invoke a

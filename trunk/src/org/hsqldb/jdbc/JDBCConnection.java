@@ -122,7 +122,7 @@ import org.hsqldb.types.Type;
  *  should use the appropriate <code>Connection</code> method such as
  *  <code>setAutoCommit</code> or <code>setTransactionIsolation</code>.
  *  Applications should not invoke SQL commands directly to change the connection's
- *   configuration when there is a JDBC method available.  By default a <code>Connection</code> object is in
+ *   configuration when there is a JDBC method available. By default, a <code>Connection</code> object is in
  * auto-commit mode, which means that it automatically commits changes
  * after executing each statement. If auto-commit mode has been
  * disabled, the method <code>commit</code> must be called explicitly in
@@ -1056,7 +1056,7 @@ public class JDBCConnection implements Connection {
      *
      * </div> <!-- end release-specific documentation -->
      *
-     * @exception SQLException SQLException if a database access error occurs
+     * @exception SQLException if a database access error occurs
      */
     public synchronized void close() throws SQLException {
 
@@ -1213,7 +1213,7 @@ public class JDBCConnection implements Connection {
      *
      * @return <code>true</code> if this <code>Connection</code> object
      *         is read-only; <code>false</code> otherwise
-     * @exception SQLException SQLException if a database access error occurs
+     * @exception SQLException if a database access error occurs
      * (JDBC4 Clarification:)
      * or this method is called on a closed connection
      */
@@ -1476,7 +1476,7 @@ public class JDBCConnection implements Connection {
      *
      * </div> <!-- end release-specific documentation -->
      *
-     * @exception SQLException SQLException if a database access error occurs
+     * @exception SQLException if a database access error occurs
      * (JDBC4 Clarification:)
      * or this method is called on a closed connection
      */
@@ -1742,7 +1742,7 @@ public class JDBCConnection implements Connection {
      * this <code>Connection</code> object.  The type map will be used for the
      * custom mapping of SQL structured types and distinct types.
      * JDBC4.1[<p>
-     * You must set the the values for the <code>TypeMap</code> prior to
+     * You must set the values for the <code>TypeMap</code> prior to
      * calling <code>setMap</code> as a JDBC driver may create an internal copy
      * of the <code>TypeMap</code>:
      *
@@ -1793,7 +1793,7 @@ public class JDBCConnection implements Connection {
      * Changes the default holdability of <code>ResultSet</code> objects
      * created using this <code>Connection</code> object to the given
      * holdability.  The default holdability of <code>ResultSet</code> objects
-     * can be be determined by invoking
+     * can be determined by invoking
      * {@link DatabaseMetaData#getResultSetHoldability}.
      *
      * <!-- end generic documentation -->
@@ -2731,7 +2731,7 @@ public class JDBCConnection implements Connection {
      *
      * @return true if the connection is valid, false otherwise
      * @exception SQLException if the value supplied for <code>timeout</code>
-     * is less then 0
+     * is less than 0
      * @since JDK 1.6, HSQLDB 2.0
      *
      * @see JDBCDatabaseMetaData#getClientInfoProperties
@@ -2807,7 +2807,7 @@ public class JDBCConnection implements Connection {
      * value in the database until the next time a statement is executed or
      * prepared.  Other than storing the client information in the appropriate
      * place in the database, these methods shall not alter the behavior of
-     * the connection in anyway.  The values supplied to these methods are
+     * the connection in any way.  The values supplied to these methods are
      * used for accounting, diagnostics and debugging purposes only.
      * <p>
      * The driver shall generate a warning if the client info name specified
@@ -3067,7 +3067,7 @@ public class JDBCConnection implements Connection {
      * If the receiver implements the interface then the result is the receiver
      * or a proxy for the receiver. If the receiver is a wrapper
      * and the wrapped object implements the interface then the result is the
-     * wrapped object or a proxy for the wrapped object. Otherwise return the
+     * wrapped object or a proxy for the wrapped object. Otherwise return
      * the result of calling <code>unwrap</code> recursively on the wrapped object
      * or a proxy for that result. If the receiver is not a
      * wrapper and does not implement the interface, then an <code>SQLException</code> is thrown.
@@ -3231,7 +3231,7 @@ public class JDBCConnection implements Connection {
      * JDBC connection is accessible to the administrator thread.
      * The <code>setNetworkTimeout</code> method will cover cases where
      * there is no administrator thread, or it has no access to the
-     * connection. This method is severe in it's effects, and should be
+     * connection. This method is severe in its effects, and should be
      * given a high enough value so it is never triggered before any more
      * normal timeouts, such as transaction timeouts.
      * <p>
@@ -3282,7 +3282,7 @@ public class JDBCConnection implements Connection {
      * JDBC driver will round the value up to the nearest second.  If the
      * timeout period expires before the operation
      * completes, a SQLException will be thrown.
-     * A value of 0 indicates that there is not timeout for database operations.
+     * A value of 0 indicates that there is no timeout for database operations.
      * @throws java.sql.SQLException if a database access error occurs, this
      * method is called on a closed connection,
      * the {@code executor} is {@code null},
