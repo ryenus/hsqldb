@@ -61,7 +61,7 @@ import org.hsqldb.result.ResultConstants;
  *
  * ResultSets may be held over commits and span several transactions.
  *
- * There is no real relation between the current state fo an Statement instance
+ * There is no real relation between the current state fo a Statement instance
  * and the various ResultSets that it may have returned for different queries.
  */
 

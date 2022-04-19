@@ -364,7 +364,7 @@ public class JDBCClob implements Clob {
      * value will be increased to accommodate the extra characters.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
-     * is greater then the length+1 of the <code>CLOB</code> value then the
+     * is greater than the length+1 of the <code>CLOB</code> value then the
      * behavior is undefined. Some JDBC drivers may throw a
      * <code>SQLException</code> while other drivers may support this
      * operation.
@@ -435,7 +435,7 @@ public class JDBCClob implements Clob {
      * value will be increased to accommodate the extra characters.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
-     * is greater then the length+1 of the <code>CLOB</code> value then the
+     * is greater than the length+1 of the <code>CLOB</code> value then the
      * behavior is undefined. Some JDBC drivers may throw a
      * <code>SQLException</code> while other drivers may support this
      * operation.
@@ -685,7 +685,7 @@ public class JDBCClob implements Clob {
      * value will be increased to accommodate the extra characters.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
-     * is greater then the length+1 of the <code>CLOB</code> value then the
+     * is greater than the length+1 of the <code>CLOB</code> value then the
      * behavior is undefined. Some JDBC drivers may throw a
      * <code>SQLException</code> while other drivers may support this
      * operation.
@@ -844,7 +844,7 @@ public class JDBCClob implements Clob {
     //------------------------- JDBC 4.0 -----------------------------------
 
     /**
-     * This method frees the <code>Clob</code> object and releases the resources the resources
+     * This method frees the <code>Clob</code> object and releases the resources
      * that it holds.  The object is invalid once the <code>free</code> method
      * is called.
      * <p>

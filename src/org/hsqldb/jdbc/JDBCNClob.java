@@ -40,7 +40,7 @@ import java.sql.NClob;
  * that stores a Character Large Object using the National Character Set
  *  as a column value in a row of  a database table.
  * <P>The <code>NClob</code> interface extends the <code>Clob</code> interface
- * which provides provides methods for getting the
+ * which provides methods for getting the
  * length of an SQL <code>NCLOB</code> value,
  * for materializing a <code>NCLOB</code> value on the client, and for
  * searching for a substring or <code>NCLOB</code> object within a

@@ -3612,7 +3612,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * because it informs the driver that the parameter value should be sent to
      * the server as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
      * driver may have to do extra work to determine whether the parameter
-     * data should be send to the server as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
+     * data should be sent to the server as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
      * @param parameterName the name of the parameter to be set
      * @param reader An object that contains the data to set the parameter value to.
      * @param length the number of characters in the parameter data.
@@ -3670,7 +3670,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * because it informs the driver that the parameter value should be sent to
      * the server as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
      * driver may have to do extra work to determine whether the parameter
-     * data should be send to the server as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
+     * data should be sent to the server as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
      *
      * @param parameterName the name of the parameter to be set
      * @param reader An object that contains the data to set the parameter value to.
@@ -4357,7 +4357,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * because it informs the driver that the parameter value should be sent to
      * the server as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
      * driver may have to do extra work to determine whether the parameter
-     * data should be send to the server as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
+     * data should be sent to the server as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
      *
      * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
      * it might be more efficient to use a version of
@@ -4383,7 +4383,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * method because it informs the driver that the parameter value should be
      * sent to the server as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
      * the driver may have to do extra work to determine whether the parameter
-     * data should be send to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
+     * data should be sent to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
      *
      * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
      * it might be more efficient to use a version of
@@ -4411,7 +4411,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * because it informs the driver that the parameter value should be sent to
      * the server as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
      * driver may have to do extra work to determine whether the parameter
-     * data should be send to the server as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
+     * data should be sent to the server as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
      * <P><B>Note:</B> Consult your JDBC driver documentation to determine if
      * it might be more efficient to use a version of
      * <code>setNClob</code> which takes a length parameter.
@@ -4884,7 +4884,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * If the JDBC type expected to be returned to this output parameter
      * is specific to this particular database, {@code sqlType}
      * should be {@code JDBCType.OTHER} or a {@code SQLType} that is supported
-     * by the JDBC driver..  The method
+     * by the JDBC driver.  The method
      * {@link #getObject} retrieves the value.
      *<P>
      * The default implementation will throw {@code SQLFeatureNotSupportedException}
@@ -5103,7 +5103,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
     /**
      * Does the specialized work required to free this object's resources and
-     * that of it's parent classes. <p>
+     * that of its parent classes. <p>
      *
      * @throws SQLException if a database access error occurs
      */

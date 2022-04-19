@@ -246,7 +246,7 @@ import java.time.ZoneOffset;
  * String ninthRowValue = rs.<b>getString</b>(<span class="JavaNumericLiteral">1</span>);
  * </pre>
  *
- * Note: An HSQLDB <code>ResultSet</code> object persists if it is not
+ * Note: An HSQLDB <code>ResultSet</code> object stays open if it is not
  * explicitly closed, even after its
  * connection is closed.  This is regardless of the operational mode of
  * the {@link org.hsqldb.Database Database} from which it came.  That is, they
@@ -938,7 +938,7 @@ public class JDBCResultSet implements ResultSet {
     /**
      * <!-- start generic documentation -->
      * Retrieves the value of the designated column in the current row
-     * of this <code>ResultSet</code> object as
+     * of this <code>ResultSet</code> object
      * as a stream of two-byte Unicode characters. The first byte is
      * the high byte; the second byte is the low byte.
      *
@@ -1487,7 +1487,7 @@ public class JDBCResultSet implements ResultSet {
      * <P>In SQL, a result table is retrieved through a cursor that is
      * named. The current row of a result set can be updated or deleted
      * using a positioned update/delete statement that references the
-     * cursor name. To insure that the cursor has the proper isolation
+     * cursor name. To ensure that the cursor has the proper isolation
      * level to support update, the cursor's <code>SELECT</code> statement
      * should be of the form <code>SELECT FOR UPDATE</code>. If
      * <code>FOR UPDATE</code> is omitted, the positioned updates may fail.
@@ -2364,7 +2364,7 @@ public class JDBCResultSet implements ResultSet {
      * <!-- start generic documentation -->
      * Moves the cursor a relative number of rows, either positive or negative.
      * Attempting to move beyond the first/last row in the
-     * result set positions the cursor before/after the
+     * result set positions the cursor before/after
      * the first/last row. Calling <code>relative(0)</code> is valid, but does
      * not change the cursor position.
      *
@@ -4176,7 +4176,7 @@ public class JDBCResultSet implements ResultSet {
      *
      * Only the updater, getter,
      * and <code>insertRow</code> methods may be
-     * called when the cursor is on the insert row.  All of the columns in
+     * called when the cursor is on the insert row. All of the columns in
      * a result set must be given a value each time this method is
      * called before calling <code>insertRow</code>.
      * An updater method must be called before a
@@ -6012,7 +6012,7 @@ public class JDBCResultSet implements ResultSet {
 
     /**
      * Updates the designated column with an ascii stream value, which will have
-     * the specified number of bytes..
+     * the specified number of bytes.
      * The updater methods are used to update column values in the
      * current row or the insert row.  The updater methods do not
      * update the underlying database; instead the <code>updateRow</code> or

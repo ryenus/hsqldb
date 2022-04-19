@@ -291,7 +291,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * value will be increased to accommodate the extra bytes.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
-     * is greater then the length+1 of the <code>BLOB</code> value then the
+     * is greater than the length+1 of the <code>BLOB</code> value then the
      * behavior is undefined. Some JDBC drivers may throw a
      * <code>SQLException</code> while other drivers may support this
      * operation.
@@ -341,7 +341,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * value will be increased to accommodate the extra bytes.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
-     * is greater then the length+1 of the <code>BLOB</code> value then the
+     * is greater than the length+1 of the <code>BLOB</code> value then the
      * behavior is undefined. Some JDBC drivers may throw a
      * <code>SQLException</code> while other drivers may support this
      * operation.
@@ -407,7 +407,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * value will be increased to accommodate the extra bytes.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
-     * is greater then the length+1 of the <code>BLOB</code> value then the
+     * is greater than the length+1 of the <code>BLOB</code> value then the
      * behavior is undefined. Some JDBC drivers may throw a
      * <code>SQLException</code> while other drivers may support this
      * operation.
@@ -483,7 +483,7 @@ public class JDBCBlobFile implements java.sql.Blob {
      * object represents to be <code>len</code> bytes in length.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
-     * is greater then the length+1 of the <code>BLOB</code> value then the
+     * is greater than the length+1 of the <code>BLOB</code> value then the
      * behavior is undefined. Some JDBC drivers may throw a
      * <code>SQLException</code> while other drivers may support this
      * operation.

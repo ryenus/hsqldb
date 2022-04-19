@@ -108,7 +108,7 @@ public final class JDBCRowId implements RowId {
     }
 
     /**
-     * Constructs a new JDBCRowId instance whose internal octet sequence is
+     * Constructs a new JDBCRowId instance whose internal octet sequence
      * is a copy of the octet sequence of the given RowId object. <p>
      *
      * @param id the octet sequence representing the Rowid value
@@ -119,7 +119,7 @@ public final class JDBCRowId implements RowId {
     }
 
     /**
-     * Constructs a new JDBCRowId instance whose internal octet sequence is
+     * Constructs a new JDBCRowId instance whose internal octet sequence
      * is that represented by the given hexadecimal character sequence. <p>
      * @param hex the hexadecimal character sequence from which to derive
      *        the internal octet sequence
