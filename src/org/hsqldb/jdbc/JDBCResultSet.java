@@ -6987,6 +6987,7 @@ public class JDBCResultSet implements ResultSet {
                 if (!sourceType.isIntervalDaySecondType()) {
                     break;
                 }
+                source = getColumnInType(columnIndex, hsqlType);
                 IntervalSecondData v = (IntervalSecondData) source;
                 o = Duration.ofSeconds(v.getSeconds(), v.getNanos());
                 break;
@@ -6997,6 +6998,7 @@ public class JDBCResultSet implements ResultSet {
                 if (!sourceType.isIntervalYearMonthType()) {
                     break;
                 }
+                source = getColumnInType(columnIndex, hsqlType);
                 IntervalMonthData v = (IntervalMonthData) source;
                 int months = v.getMonths();
 

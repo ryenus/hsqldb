@@ -4472,7 +4472,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
-        Object source;
+        Object source = getColumnValue(parameterIndex);
 
         if (wasNullValue) {
             return null;
@@ -5146,6 +5146,20 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 */
 
     /**
+     * Internal get value.
+     */
+    protected Object getColumnValue(int columnIndex) throws SQLException {
+
+        checkGetParameterIndex(columnIndex);
+
+        Object value = parameterValues[columnIndex - 1];
+
+        trackNull(value);
+
+        return value;
+    }
+
+    /**
      * Internal value converter. Similar to its counterpart in JDBCResultSet <p>
      *
      * All trivially successful getXXX methods eventually go through this
@@ -5198,52 +5212,25 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         return value;
     }
 
-//#ifdef JAVA8
     private Object getTimestampWithZone(int columnIndex) throws SQLException {
-        TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
+        TimestampData v = (TimestampData) getColumnInType(columnIndex,
+                Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
 
         if (v == null) {
             return null;
         }
-
-        ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
-        LocalDateTime ldt = LocalDateTime.ofEpochSecond(v.getSeconds(), v.getNanos(), z);
-        return OffsetDateTime.of(ldt, z);
+        return Type.SQL_TIMESTAMP_WITH_TIME_ZONE.convertSQLToJava(session, v);
     }
 
     private Object getTimeWithZone(int columnIndex) throws SQLException {
-        TimeData v = (TimeData) getColumnInType(columnIndex, Type.SQL_TIME_WITH_TIME_ZONE);
+        TimeData v = (TimeData) getColumnInType(columnIndex,
+                Type.SQL_TIME_WITH_TIME_ZONE);
 
         if (v == null) {
             return null;
         }
-
-        ZoneOffset z = ZoneOffset.ofTotalSeconds(v.getZone());
-        LocalTime lt = LocalTime.ofNanoOfDay((v.getSeconds() + v.getZone()) * 1_000_000_000L + v.getNanos());
-        return OffsetTime.of(lt, z);
+        return Type.SQL_TIME_WITH_TIME_ZONE.convertSQLToJava(session, v);
     }
-
-//#else
-/*
-    private Object getTimestampWithZone(int columnIndex) throws SQLException {
-        TimestampData v = (TimestampData) getColumnInType(columnIndex, Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
-
-        if (v == null) {
-            return null;
-        }
-        return Type.SQL_TIMESTAMP.convertSQLToJava(session, v);
-    }
-
-    private Object getTimeWithZone(int columnIndex) throws SQLException {
-        TimeData v = (TimeData) getColumnInType(columnIndex, Type.SQL_TIME_WITH_TIME_ZONE);
-
-        if (v == null) {
-            return null;
-        }
-        return Type.SQL_TIME.convertSQLToJava(session, v);
-    }
-*/
-//#endif JAVA8
 
     private boolean trackNull(Object o) {
         return (wasNullValue = (o == null));
