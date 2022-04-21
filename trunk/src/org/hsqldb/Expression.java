@@ -106,6 +106,9 @@ public class Expression implements Cloneable {
     // for query and value lists, etc
     boolean isCorrelated;
 
+    // for CHECK and GENERATED expressions
+    boolean noOptimisation;
+
     // for COLUMN
     int columnIndex = -1;
 
@@ -1930,6 +1933,17 @@ public class Expression implements Cloneable {
         }
 
         return set;
+    }
+
+    public void setNoOptimisation() {
+
+        noOptimisation = true;
+
+        for (int i = 0; i < nodes.length; i++) {
+            if (nodes[i] != null) {
+                nodes[i].setNoOptimisation();
+            }
+        }
     }
 
     public OrderedHashSet getSubqueries() {

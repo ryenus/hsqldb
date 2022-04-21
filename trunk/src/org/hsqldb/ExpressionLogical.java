@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,12 +47,11 @@ import org.hsqldb.types.Types;
 /**
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class ExpressionLogical extends Expression {
 
-    boolean noOptimisation;
     boolean isQuantified;
     boolean isTerminal;
 
@@ -710,15 +709,23 @@ public class ExpressionLogical extends Expression {
                     } else {
                         Object value = nodes[LEFT].getValue(session);
 
-                        if (value == null || Boolean.FALSE.equals(value)) {
+                        if (Boolean.FALSE.equals(value)) {
                             setAsConstantValue(Boolean.FALSE, parent);
+                        } else if (Boolean.TRUE.equals(value)) {
+                            if (parent != null) {
+                                parent.replaceNode(this, nodes[RIGHT]);
+                            }
                         }
                     }
                 } else if (nodes[RIGHT].opType == OpTypes.VALUE) {
                     Object value = nodes[RIGHT].getValue(session);
 
-                    if (value == null || Boolean.FALSE.equals(value)) {
+                    if (Boolean.FALSE.equals(value)) {
                         setAsConstantValue(Boolean.FALSE, parent);
+                    } else if (Boolean.TRUE.equals(value)) {
+                        if (parent != null) {
+                            parent.replaceNode(this, nodes[LEFT]);
+                        }
                     }
                 }
 
@@ -735,6 +742,10 @@ public class ExpressionLogical extends Expression {
 
                         if (Boolean.TRUE.equals(value)) {
                             setAsConstantValue(Boolean.TRUE, parent);
+                        } else if (Boolean.FALSE.equals(value)) {
+                            if (parent != null) {
+                                parent.replaceNode(this, nodes[RIGHT]);
+                            }
                         }
                     }
                 } else if (nodes[RIGHT].opType == OpTypes.VALUE) {
@@ -742,6 +753,10 @@ public class ExpressionLogical extends Expression {
 
                     if (Boolean.TRUE.equals(value)) {
                         setAsConstantValue(Boolean.TRUE, parent);
+                    } else if (Boolean.FALSE.equals(value)) {
+                        if (parent != null) {
+                            parent.replaceNode(this, nodes[LEFT]);
+                        }
                     }
                 }
 
@@ -797,6 +812,10 @@ public class ExpressionLogical extends Expression {
                             nodes[LEFT] = node;
                             opType      = OpTypes.NOT;
 
+                            if (noOptimisation) {
+                                nodes[LEFT].setNoOptimisation();
+                            }
+
                             resolveTypes(session, parent);
 
                             break;
@@ -843,7 +862,7 @@ public class ExpressionLogical extends Expression {
                 break;
 
             case OpTypes.IN :
-                resolveTypesForIn(session);
+                resolveTypesForAllAny(session);
                 break;
 
             case OpTypes.MATCH_SIMPLE :
@@ -1243,10 +1262,6 @@ public class ExpressionLogical extends Expression {
             nodes[LEFT].nodeDataTypes[i]  = type;
             nodes[LEFT].nodes[i].dataType = type;
         }
-    }
-
-    void resolveTypesForIn(Session session) {
-        resolveTypesForAllAny(session);
     }
 
     public Object getValue(Session session) {
@@ -2453,5 +2468,18 @@ public class ExpressionLogical extends Expression {
         }
 
         return cost;
+    }
+
+    public void setNoOptimisation() {
+
+        super.setNoOptimisation();
+
+        if (opType == OpTypes.EQUAL) {
+            if (exprSubType == OpTypes.ANY_QUANTIFIED) {
+                exprSubType  = 0;
+                opType       = OpTypes.IN;
+                isQuantified = false;
+            }
+        }
     }
 }
