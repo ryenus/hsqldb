@@ -61,7 +61,6 @@ public class ParserBase {
     protected int           partPosition;
     protected HsqlException lastError;
     protected HsqlName      lastSynonym;
-    protected boolean       isCheckOrTriggerCondition;
     protected boolean       isSchemaDefinition;
     protected boolean       isViewDefinition;
     protected boolean       isRecording;
@@ -106,13 +105,12 @@ public class ParserBase {
         scanner.reset(session, sql);
 
         //
-        partPosition              = 0;
-        lastError                 = null;
-        lastSynonym               = null;
-        isCheckOrTriggerCondition = false;
-        isSchemaDefinition        = false;
-        isViewDefinition          = false;
-        isRecording               = false;
+        partPosition       = 0;
+        lastError          = null;
+        lastSynonym        = null;
+        isSchemaDefinition = false;
+        isViewDefinition   = false;
+        isRecording        = false;
 
         recordedStatement.clear();
     }

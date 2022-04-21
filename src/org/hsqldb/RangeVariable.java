@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -693,6 +693,10 @@ public class RangeVariable {
      */
     public Expression getJoinCondition() {
         return joinCondition;
+    }
+
+    public void setJoinCondition(Expression e) {
+        joinCondition = e;
     }
 
     public void addJoinCondition(Expression e) {

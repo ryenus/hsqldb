@@ -4735,8 +4735,7 @@ public class ParserDQL extends ParserBase {
                 return l;
             }
             case Tokens.LIKE : {
-                e                = XreadLikePredicateRightPart(l);
-                e.noOptimisation = isCheckOrTriggerCondition;
+                e = XreadLikePredicateRightPart(l);
 
                 break;
             }
@@ -4746,8 +4745,7 @@ public class ParserDQL extends ParserBase {
                 break;
             }
             case Tokens.IN : {
-                e                = XreadInPredicateRightPart(l);
-                e.noOptimisation = isCheckOrTriggerCondition;
+                e = XreadInPredicateRightPart(l);
 
                 break;
             }
@@ -5012,13 +5010,9 @@ public class ParserDQL extends ParserBase {
 
         ExpressionLogical r;
 
-        if (isCheckOrTriggerCondition) {
-            r = new ExpressionLogical(OpTypes.IN, l, e);
-        } else {
-            r = new ExpressionLogical(OpTypes.EQUAL, l, e);
+        r = new ExpressionLogical(OpTypes.EQUAL, l, e);
 
-            r.setSubType(OpTypes.ANY_QUANTIFIED);
-        }
+        r.setSubType(OpTypes.ANY_QUANTIFIED);
 
         return r;
     }
@@ -5090,7 +5084,7 @@ public class ParserDQL extends ParserBase {
             escape = XreadStringValueExpression();
         }
 
-        return new ExpressionLike(a, b, escape, isCheckOrTriggerCondition);
+        return new ExpressionLike(a, b, escape);
     }
 
     private ExpressionLogical XreadMatchPredicateRightPart(Expression a) {

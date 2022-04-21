@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.types.Types;
  * Parser for SQL table definition
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class ParserTable extends ParserDML {
@@ -1130,8 +1130,10 @@ public class ParserTable extends ParserDML {
 
                     colConstraint = new ExpressionLogical(OpTypes.IN, left,
                                                           right);
-                    colConstraint.noOptimisation = true;
-                    c.check                      = colConstraint;
+
+                    colConstraint.setNoOptimisation();
+
+                    c.check = colConstraint;
                 }
             }
         }
@@ -1830,12 +1832,9 @@ public class ParserTable extends ParserDML {
 
         readThis(Tokens.OPENBRACKET);
 
-        isCheckOrTriggerCondition = true;
-
         Expression condition = XreadBooleanValueExpression();
 
-        isCheckOrTriggerCondition = false;
-
+        condition.setNoOptimisation();
         readThis(Tokens.CLOSEBRACKET);
 
         c.check = condition;
