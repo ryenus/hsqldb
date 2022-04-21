@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,23 +56,23 @@ import java.util.Date;
 public final class HsqlTimer implements Comparator, ThreadFactory {
 
     /** The priority queue for the scheduled tasks. */
-    protected final TaskQueue taskQueue = new TaskQueue(16, this);
+    final TaskQueue taskQueue = new TaskQueue(16, this);
 
     /** The inner runnable that executes tasks in the background thread. */
-    protected final TaskRunner taskRunner = new TaskRunner();
+    final TaskRunner taskRunner = new TaskRunner();
 
     /** The background thread. */
-    protected Thread taskRunnerThread;
+    Thread taskRunnerThread;
 
     /** The factory that produces the background threads. */
-    protected final ThreadFactory threadFactory;
+    final ThreadFactory threadFactory;
 
     /**
      * Whether this timer should disallow all further processing.
      *
      * Once set true, stays true forever.
      */
-    protected volatile boolean isShutdown;
+    volatile boolean isShutdown;
 
     /**
      * Constructs a new HsqlTimer using the default thread factory
@@ -459,7 +459,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      * @param relative if true, use fixed rate else use fixed delay scheduling
      * @return an opaque reference to the internal task
      */
-    protected Task addTask(final long first, final Runnable runnable,
+    Task addTask(final long first, final Runnable runnable,
                            final long period, boolean relative) {
 
         if (this.isShutdown) {
@@ -478,7 +478,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
     }
 
     /** Sets the background thread to null. */
-    protected synchronized void clearThread() {
+    synchronized void clearThread() {
 
         try {
             taskRunnerThread.setContextClassLoader(null);
@@ -493,7 +493,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
      *
      * @return the next task to execute, or null
      */
-    protected Task nextTask() {
+    Task nextTask() {
 
         try {
             while (!this.isShutdown || Thread.interrupted()) {

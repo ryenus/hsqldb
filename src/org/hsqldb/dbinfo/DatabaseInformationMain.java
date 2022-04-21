@@ -2585,8 +2585,8 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             if (type.isBinaryType() || type.isCharacterType()
                     || type.isDateTimeType() || type.isIntervalType()) {
-                row[iliteral_prefix] = "\'";
-                row[iliteral_suffix] = "\'";
+                row[iliteral_prefix] = "'";
+                row[iliteral_suffix] = "'";
             }
 
             if (type.acceptsPrecision() && type.acceptsScale()) {

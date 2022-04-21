@@ -1705,7 +1705,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *        <code>Index</code> objects for each accessible
      *        table defined within this database.
      */
-    final Table SYSTEM_INDEXSTATS(Session session, PersistentStore store) {
+    Table SYSTEM_INDEXSTATS(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_INDEXSTATS];
 
@@ -1816,7 +1816,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *     INDEX_NAME         INFORMATION_SCHEMA.SQL_IDENTIFIER
      * )</pre>
      */
-    final Table SYSTEM_KEY_INDEX_USAGE(Session session,
+    Table SYSTEM_KEY_INDEX_USAGE(Session session,
                                        PersistentStore store) {
 
         Table t = sysTables[SYSTEM_KEY_INDEX_USAGE];

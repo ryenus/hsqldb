@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ public enum DatabaseType {
     DB_FILE("file:"),
     DB_RES("res:");
 
-    private String value;
+    private final String value;
 
     DatabaseType(String value) {
         this.value = value;

@@ -126,7 +126,7 @@ implements ActionListener, WindowListener, KeyListener {
         + (TT_AVAILABLE ? ""
                         : ("\n\nTransferTool classes are not in CLASSPATH.\n"
                            + "To enable the Tools menu, add 'transfer.jar' to your class path."));
-    ;
+
     private static final String ABOUT_TEXT =
         "$Revision$ of DatabaseManager\n\n"
         + "Copyright (c) 1995-2000, The Hypersonic SQL Group.\n"

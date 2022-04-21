@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -564,17 +564,13 @@ class TransferSQLText extends DataAccessPoint {
                     try {
                         while ((Token =
                                 Tokenizer.nextToken()).toUpperCase().equals(
-                                    "INDEX")) {
-                            ;
-                        }
+                                    "INDEX")) {}
 
                         String IndexdropCommand = "DROP INDEX " + Token
                                                   + " ;";
 
                         while ((Token = Tokenizer.nextToken(
-                                " (")).toUpperCase().equals("ON")) {
-                            ;
-                        }
+                                " (")).toUpperCase().equals("ON")) {}
 
                         name = Token;
 
@@ -663,9 +659,7 @@ class TransferSQLText extends DataAccessPoint {
         try {
             Tokenizer = new StringTokenizer(statement);
 
-            while (!Tokenizer.nextToken().toUpperCase().equals("FROM")) {
-                ;
-            }
+            while (!Tokenizer.nextToken().toUpperCase().equals("FROM")) {}
 
             tableName = Tokenizer.nextToken(" ;");
         } catch (NoSuchElementException NSE) {

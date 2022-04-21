@@ -99,7 +99,7 @@ public class SessionManager {
      * @param db the database to which the new Session is initially connected
      * @param user the Session User
      * @param readonly the ReadOnly attribute for the new Session
-     * @param timeZoneSeconds the session time zone second interval
+     * @param zone the session time zone
      * @return Session
      */
     public synchronized Session newSession(Database db, User user,

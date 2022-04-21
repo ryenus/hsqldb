@@ -4567,8 +4567,7 @@ implements PreparedStatement {
 
                 if (outType.precision == 1) {
                     if (o instanceof Character) {
-                        o = new String(new char[]{
-                            ((Character) o).charValue() });
+                        o = String.valueOf(((Character) o).charValue());
 
                         break;
                     } else if (o instanceof Boolean) {

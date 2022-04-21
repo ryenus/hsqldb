@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1999,7 +1999,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                         result    += " WHERE " + quoteObjectName(column);
 
                         if (isChar) {
-                            result += " LIKE \'%%\'";
+                            result += " LIKE '%%'";
                         } else {
                             result += " = ";
                         }
@@ -2037,7 +2037,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                         result    += " WHERE " + quoteObjectName(column);
 
                         if (isChar) {
-                            result += " LIKE \'%%\'";
+                            result += " LIKE '%%'";
                         } else {
                             result += " = ";
                         }
@@ -2087,7 +2087,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                     // in the string.  Makes is more obvious to the user when
                     // they need to use a string
                     if (childName.contains("CHAR")) {
-                        quote = "\'\'";
+                        quote = "''";
                     } else {
                         quote = "";
                     }

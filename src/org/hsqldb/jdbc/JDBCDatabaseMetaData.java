@@ -40,6 +40,7 @@ import java.sql.SQLException;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
+import org.hsqldb.types.BlobType;
 import org.hsqldb.types.Type;
 
 /* $Id$ */
@@ -5805,7 +5806,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      */
 //#ifdef JAVA8
     public long getMaxLogicalLobSize() throws SQLException {
-        return Type.SQL_BLOB.maxBlobPrecision;
+        return BlobType.maxBlobPrecision;
     }
 
 //#endif JAVA8

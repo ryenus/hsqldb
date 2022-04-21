@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ class PostgresTransferHelper extends TransferHelper {
     private static final int HSQLDB     = 1;
     String[][]        Funcs      = {
         {
-            "now()", "\'now\'"
+            "now()", "'now'"
         }
     };
 
@@ -87,7 +87,7 @@ class PostgresTransferHelper extends TransferHelper {
             SeqName = t.Stmts.sDestTable + SeqName;
         }
 
-        String CompareString = "nextval(\'\"" + SeqName + "\"\'";
+        String CompareString = "nextval('\"" + SeqName + "\"'";
 
         if (columnType.contains(CompareString)) {
 
