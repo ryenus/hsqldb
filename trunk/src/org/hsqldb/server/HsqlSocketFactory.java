@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -150,7 +150,7 @@ public class HsqlSocketFactory {
     }
 
 // ------------------------ static utility methods -----------------------------
-    private static HsqlSocketFactory getPlainImpl() throws Exception {
+    private static HsqlSocketFactory getPlainImpl() {
 
         synchronized (HsqlSocketFactory.class) {
             if (plainImpl == null) {

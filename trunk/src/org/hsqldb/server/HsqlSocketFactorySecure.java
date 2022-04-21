@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,22 +65,22 @@ implements HandshakeCompletedListener {
 // --------------------------------- members -----------------------------------
 
     /** The underlying socket factory implementation. */
-    protected Object socketFactory;
+    Object socketFactory;
 
     /** The underlying server socket factory implementation. */
-    protected Object serverSocketFactory;
+    Object serverSocketFactory;
 
     /**
      * Monitor object to guard against concurrent modification
      * of the underlying socket factory implementation member.
      */
-    protected final Object socket_factory_mutex = new Object();
+    final Object socket_factory_mutex = new Object();
 
     /**
      * Monitor object to guard against concurrent modification of
      * the underlying server socket factory implementation member.
      */
-    protected final Object server_socket_factory_mutex = new Object();
+    final Object server_socket_factory_mutex = new Object();
 
 // ------------------------------ constructors ---------------------------------
 
@@ -88,7 +88,7 @@ implements HandshakeCompletedListener {
      * External construction disabled.  New factory instances are retrieved
      * through the newHsqlSocketFactory method instead.
      */
-    protected HsqlSocketFactorySecure() throws Exception {
+    HsqlSocketFactorySecure() {
         super();
     }
 
@@ -281,7 +281,7 @@ implements HandshakeCompletedListener {
      *      underlying factory
      * @return the underlying javax.net.ssl.SSLServerSocketFactory
      */
-    protected SSLServerSocketFactory getServerSocketFactoryImpl() {
+    SSLServerSocketFactory getServerSocketFactoryImpl() {
 
         Object factory;
 
@@ -304,7 +304,7 @@ implements HandshakeCompletedListener {
      *      underlying factory
      * @return the underlying javax.net.ssl.SSLSocketFactory
      */
-    protected SSLSocketFactory getSocketFactoryImpl() {
+    SSLSocketFactory getSocketFactoryImpl() {
 
         Object factory;
 
@@ -330,7 +330,7 @@ implements HandshakeCompletedListener {
      * @param session SSLSession used on the connection to host
      * @throws Exception if the certificate chain cannot be verified
      */
-    protected void verify(String host, SSLSession session) throws Exception {
+    void verify(String host, SSLSession session) throws Exception {
 
         Certificate[]   chain;
         X509Certificate certificate;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,14 +93,14 @@ class HsqldbTransferHelper extends TransferHelper {
 
     String fixupColumnDefRead(String aTableName, ResultSetMetaData meta,
                               String columnType, ResultSet columnDesc,
-                              int columnIndex) throws SQLException {
+                              int columnIndex) {
         return fixupColumnDefRead((TransferTable) null, meta, columnType,
                                   columnDesc, columnIndex);
     }
 
     String fixupColumnDefWrite(String aTableName, ResultSetMetaData meta,
                                String columnType, ResultSet columnDesc,
-                               int columnIndex) throws SQLException {
+                               int columnIndex) {
         return fixupColumnDefWrite((TransferTable) null, meta, columnType,
                                    columnDesc, columnIndex);
     }

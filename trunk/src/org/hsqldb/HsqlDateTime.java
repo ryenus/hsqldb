@@ -702,7 +702,7 @@ public class HsqlDateTime {
                     String s     = javaDateTokens[index];
 
                     // consecutive quoted tokens
-                    if (s.startsWith("\'") && s.endsWith("\'")) {
+                    if (s.startsWith("'") && s.endsWith("'")) {
                         if (limitQuotedToken == sb.length()) {
                             sb.setLength(sb.length() - 1);
 

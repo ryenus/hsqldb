@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,6 @@ public class ConnectionSetting implements java.io.Serializable {
 
     // Constructors
     private ConnectionSetting() {}
-    ;
 
     ConnectionSetting(String name, String driver, String url, String user,
                       String pw) {

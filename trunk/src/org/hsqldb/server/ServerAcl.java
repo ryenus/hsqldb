@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,10 +95,10 @@ public final class ServerAcl {
         }
     }
 
-    protected static final byte[] ALL_SET_4BYTES  = new byte[] {
+    static final byte[] ALL_SET_4BYTES  = new byte[] {
         -1, -1, -1, -1
     };
-    protected static final byte[] ALL_SET_16BYTES = new byte[] {
+    static final byte[] ALL_SET_16BYTES = new byte[] {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
 
@@ -351,7 +351,7 @@ public final class ServerAcl {
         aclEntries   = load();
     }
 
-    synchronized protected void ensureAclsUptodate() {
+    synchronized void ensureAclsUptodate() {
 
         if (lastLoadTime > aclFile.lastModified()) {
             return;
@@ -368,7 +368,7 @@ public final class ServerAcl {
         }
     }
 
-    protected List load() throws IOException, AclFormatException {
+    List load() throws IOException, AclFormatException {
 
         if (!aclFile.exists()) {
             throw new IOException("File '" + aclFile.getAbsolutePath()

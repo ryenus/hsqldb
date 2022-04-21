@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ class McKoiTransferHelper extends TransferHelper {
                               String columnType, ResultSet columnDesc,
                               int columnIndex) {
 
-        String CompareString = "UNIQUEKEY(\'" + t.Stmts.sDestTable + "\'";
+        String CompareString = "UNIQUEKEY('" + t.Stmts.sDestTable + "'";
 
         if (columnType.indexOf(CompareString) > 0) {
 
@@ -71,8 +71,8 @@ class McKoiTransferHelper extends TransferHelper {
                                int columnIndex) {
 
         if (columnType.equals("SERIAL")) {
-            columnType = "INTEGER DEFAULT UNIQUEKEY (\'"
-                         + t.Stmts.sSourceTable + "\')";
+            columnType = "INTEGER DEFAULT UNIQUEKEY ('"
+                         + t.Stmts.sSourceTable + "')";
         }
 
         return (columnType);

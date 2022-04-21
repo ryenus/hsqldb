@@ -223,10 +223,6 @@ public class JDBCDriver implements Driver {
                               DatabaseURL.S_URL_INTERNAL.length())) {
             JDBCConnection conn = threadConnection.get();
 
-            if (conn == null) {
-                return null;
-            }
-
             return conn;
         }
 
