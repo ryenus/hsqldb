@@ -3,7 +3,7 @@
 -- version 2.7.0 alternative jar requires JRE 8 or later
 -- added support for JSON constructor functions
 -- added support for microsecond precision CURRENT_TIMESTAMP and similar functions
--- added support for GRANT and REVOKE on for all objects in a schema
+-- added support for GRANT and REVOKE on all objects in a schema
 -- added support for CSV file data import and export
 -- added SET DATABASE SQL MAX RECURSIVE (sql.max_recursive) setting
 -- changed the default for SET DATABASE SQL SYS INDEX NAMES (sql.sys_index_names) to true
