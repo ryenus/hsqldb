@@ -1852,7 +1852,6 @@ public class Logger implements EventLogInterface {
         sb.append(Tokens.T_SCALE).append(' ');
         sb.append(database.sqlAvgScale);
         list.add(sb.toString());
-        list.add(sb.toString());
         sb.setLength(0);
 
         if (database.sqlMaxRecursive
