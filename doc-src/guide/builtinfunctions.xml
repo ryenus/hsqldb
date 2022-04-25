@@ -1070,12 +1070,13 @@ SWE        {"SWE":"Sweden"}
 
     <simpara><emphasis role="bold">JSON_OBJECTAGG</emphasis></simpara>
 
-    <para><literal>JSON_ARRAYAGG ( &lt;JSON name and value&gt; [&lt;JSON null
+    <para><literal>JSON_OBJECTAGG ( &lt;JSON name and value&gt; [&lt;JSON null
     caluse&gt;] [ { WITH | WITHOUT } UNIQUE [ KEYS] ] )</literal></para>
 
-    <para><literal>JSON_ARRAYAGG</literal> is an aggregate function similar to
-    the <literal>ARRAY_AGG</literal> SQL function, It constructs a JSON object
-    by using keys and values from the aggregated rows. (SQL:2016)</para>
+    <para><literal>JSON_OBJECTAGG</literal> is an aggregate function similar
+    to the <literal>ARRAY_AGG</literal> SQL function, It constructs a JSON
+    object by using keys and values from the aggregated rows.
+    (SQL:2016)</para>
 
     <informalexample>
       <programlisting>-- a JSON object is constructed from multiple rows of the table
