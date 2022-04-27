@@ -1533,6 +1533,12 @@ public final class DateTimeType extends DTIType {
                 } else {
                     return ((TimeData) dateTime).nanos / 1000000;
                 }
+            case Types.DTI_MICROSECOND :
+                if (this.isDateOrTimestampType()) {
+                    return ((TimestampData) dateTime).nanos / 1000;
+                } else {
+                    return ((TimeData) dateTime).nanos / 1000;
+                }
             case Types.DTI_NANOSECOND :
                 if (this.isDateOrTimestampType()) {
                     return ((TimestampData) dateTime).nanos;
