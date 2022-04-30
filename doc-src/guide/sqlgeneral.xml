@@ -72,16 +72,16 @@
     <para>Over 300 words are reserved by the Standard and should not be used
     as table or column names. For example, the word POSITION is reserved as it
     is a function defined by the Standards with a similar role as
-    <methodname>String.indexOf()</methodname> in Java. By default, HyperSQL
-    does not prevent you from using a reserved word if it does not support its
-    use or can distinguish it. For example, CUBE is a reserved word for a
-    feature that is supported by HyperSQL from version 2.5.1. Before this
-    version, CUBE was allowed as a table or column name, but it is no longer
-    allowed. You should avoid using such names as future versions of HyperSQL
-    are likely to support the reserved words and may reject your table
-    definitions or queries. The full list of SQL reserved words is in the
-    appendix <link endterm="lists-title" xlink:href="#lists-app"/> . You can
-    set a property to disallow the use of reserved keywords for names of
+    <methodname>String::indexOf(String)</methodname> in Java. By default,
+    HyperSQL does not prevent you from using a reserved word if it does not
+    support its use or can distinguish it. For example, CUBE is a reserved
+    word for a feature that is supported by HyperSQL from version 2.5.1.
+    Before this version, CUBE was allowed as a table or column name, but it is
+    no longer allowed. You should avoid using such names as future versions of
+    HyperSQL are likely to support the reserved words and may reject your
+    table definitions or queries. The full list of SQL reserved words is in
+    the appendix <link endterm="lists-title" xlink:href="#lists-app"/> . You
+    can set a property to disallow the use of reserved keywords for names of
     tables and other database objects. There are several other user-defined
     properties to control the strict application of the SQL Standard in
     different areas.</para>
@@ -390,7 +390,7 @@
       double-quoted name is all-uppercase, it can be referenced in any case;
       <literal>"MYTABLE"</literal> is the same as <literal>myTable</literal>
       and <literal>MyTable</literal> because they are all converted to
-      <literal>MYTABLE</literal>. </para>
+      <literal>MYTABLE</literal>.</para>
     </section>
 
     <section xml:id="sgc_persist_tables">
@@ -665,7 +665,7 @@
             <entry>BINARY(L)</entry>
 
             <entry>fixed-length binary string type - padded with zero to
-            length L (**) </entry>
+            length L (**)</entry>
           </row>
 
           <row>
@@ -1677,10 +1677,16 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
 
     <para>When an SQL session is started (with a JDBC connection) the local
     time zone of the client JVM (including any seasonal time adjustments such
-    as daylight-saving time) is used as the session time zone displacement.
-    Note that the SQL session time displacement is not changed when a seasonal
-    time adjustment takes place while the session is open. To change the SQL
-    session time zone displacement, use the following commands:</para>
+    as daylight-saving time) is used as the session time zone displacement. In
+    version 2.7.0 a Java Calendar object with the local time zone of the
+    client JVM is created and used. Therefore when a seasonal time adjustment
+    for daylight saving time is made while the session is open, the SQL
+    session zone displacement is changed. In older versions of HyperSQL, the
+    SQL session time displacement was not changed when a seasonal time
+    adjustment took place.</para>
+
+    <para>To change the SQL session time zone displacement, use the following
+    commands:</para>
 
     <simpara><literal>SET TIME ZONE &lt;time
     displacement&gt;</literal></simpara>
@@ -1731,13 +1737,11 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     interface which have a Calendar parameter can be used with a Calendar
     argument to retrieve the values.</para>
 
-    <para>JDBC 4 and JAVA6 has an unfortunate limitation and does not include
-    type codes for SQL datetime types that have a TIME ZONE property.
-    Therefore, for compatibility with database tools that are limited to the
-    JDBC type codes, HyperSQL reports these types by default as datetime types
-    without TIME ZONE.</para>
-
     <simpara><emphasis role="bold">Java 8 Extensions</emphasis></simpara>
+
+    <para>JDBC 4 and JAVA6 did not include type codes for SQL datetime types
+    that have a TIME ZONE property. Therefore, HyperSQL reported these types
+    by default as datetime types without TIME ZONE.</para>
 
     <para>JAVA 8 introduced new type codes for TIMESTAMP WITH TIME ZONE and
     TIME WITH TIME ZONE. HyperSQL (except the jars compiled with JDK 1.6)
@@ -2058,10 +2062,10 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <itemizedlist>
       <listitem>
         <para>The <methodname>getObject(int columnIndex, Class
-        type)</methodname> method on an INTERVAL supports
+        type)</methodname> method on an INTERVAL supports the
         <classname>java.time.Period</classname> type for YEAR and MONTH
-        interval and <classname>java.time.Duration</classname> type for other
-        interval types that cover DAY to SECOND.</para>
+        interval and the <classname>java.time.Duration</classname> type for
+        other interval types that cover DAY to SECOND.</para>
       </listitem>
 
       <listitem>
