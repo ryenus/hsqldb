@@ -1716,12 +1716,13 @@ C1
       value of TIME WITH TIME ZONE type. <literal>LOCALTIME</literal> returns
       a value of TIME type. <literal>CURRENT_TIMESTAMP</literal> returns a
       value of TIMESTAMP WITH TIME ZONE type.
-      <literal>LOCALTIMESTAMP</literal> returns a value of TIMESTAMP type. If
-      the optional <literal>[ ( &lt;time precision&gt; ) ]</literal>
-      or<literal> [ ( &lt;timestamp precision&gt; ) ]</literal> is used, then
-      the returned value has the specified fraction of the second precision.
-      When the functions are used multiple times in a single SQL statement,
-      the returned values represent the same point of time. </para>
+      <literal>LOCALTIMESTAMP</literal> returns a value of TIMESTAMP type. The
+      time zone of the SQL session is used. If the optional <literal>[ (
+      &lt;time precision&gt; ) ]</literal> or<literal> [ ( &lt;timestamp
+      precision&gt; ) ]</literal> is used, then the returned value has the
+      specified fraction of the second precision. When the functions are used
+      multiple times in a single SQL statement, the returned values represent
+      the same point of time. </para>
 
       <para>From version 2.7.0 the functions return values with microsecond
       precision. Previous versions returned values with millisecond precision.
@@ -1941,8 +1942,8 @@ C1
       <para><literal>SECOND ( &lt;datetime value expr&gt; )</literal></para>
 
       <para>This function is equivalent to <literal>EXTRACT ( SECOND FROM ...
-      ) </literal>Returns an integer or decimal in the range of 0 - 59, with
-      the same precision as the &lt;datetime value expr&gt;. (JDBC)</para>
+      ) </literal>Returns a decimal in the range of 0 - 60, with the same
+      precision as the &lt;datetime value expr&gt;. (JDBC)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SECONDS_SINCE_MIDNIGHT function</primary>
@@ -2092,8 +2093,8 @@ C1
       <para><literal>ADD_MONTHS ( &lt;datetime value expr&gt;, &lt;numeric
       value expr&gt;)</literal></para>
 
-      <para>This function is similar but different to simple addition a MONTH
-      interval to a datetime value. The SQL Standard expression,
+      <para>This function is similar but different to simple addition of a
+      MONTH interval to a datetime value. The SQL Standard expression,
       <literal>&lt;datetime value expr&gt; + n MONTH</literal>, when used with
       the last day of a short month such as February, returns a date that has
       the same day of the month in the target month. The
