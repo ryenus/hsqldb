@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.7.2
  *
  */
@@ -365,6 +365,8 @@ public class SetFunctionValueAggregate implements SetFunction {
                     case Types.SQL_INTERVAL_SECOND :
                     case Types.SQL_INTERVAL_MONTH :
                     case Types.SQL_DATE :
+                    case Types.SQL_TIME :
+                    case Types.SQL_TIME_WITH_TIME_ZONE :
                     case Types.SQL_TIMESTAMP :
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
                         addLongGroup(item);

@@ -685,20 +685,18 @@ public final class DateTimeType extends DTIType {
                     }
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
                         TimestampData ts      = (TimestampData) a;
-                        long          seconds = toTimeSeconds(ts.seconds);
+                        int           seconds = toTimeSeconds(ts.seconds);
 
-                        return new TimeData((int) (seconds),
-                                            scaleNanos(ts.nanos), ts.zone);
+                        return new TimeData(seconds, scaleNanos(ts.nanos),
+                                            ts.zone);
                     }
                     case Types.SQL_TIMESTAMP : {
                         TimestampData ts          = (TimestampData) a;
                         int           zoneSeconds = session.getZoneSeconds();
-                        long          seconds     = ts.seconds - zoneSeconds;
+                        int seconds = toTimeSeconds(ts.seconds - zoneSeconds);
 
-                        seconds = toTimeSeconds(seconds);
-
-                        return new TimeData((int) (seconds),
-                                            scaleNanos(ts.nanos), zoneSeconds);
+                        return new TimeData(seconds, scaleNanos(ts.nanos),
+                                            zoneSeconds);
                     }
                     default :
                         throw Error.error(ErrorCode.X_42561);
@@ -707,30 +705,26 @@ public final class DateTimeType extends DTIType {
                 switch (otherType.typeCode) {
 
                     case Types.SQL_TIME_WITH_TIME_ZONE : {
-                        TimeData ti = (TimeData) a;
+                        TimeData ti      = (TimeData) a;
+                        int      seconds = toTimeSeconds(ti.seconds + ti.zone);
 
-                        return new TimeData(ti.seconds + ti.zone,
-                                            scaleNanos(ti.nanos), 0);
+                        return new TimeData(seconds, scaleNanos(ti.nanos));
                     }
                     case Types.SQL_TIME :
                         return convertToTypeLimits(session, a);
 
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-                        TimestampData ts      = (TimestampData) a;
-                        long          seconds = ts.seconds + ts.zone;
+                        TimestampData ts = (TimestampData) a;
+                        int seconds      = toTimeSeconds(ts.seconds + ts.zone);
 
-                        seconds = toTimeSeconds(seconds);
-
-                        return new TimeData((int) (seconds),
-                                            scaleNanos(ts.nanos), 0);
+                        return new TimeData(seconds, scaleNanos(ts.nanos));
                     }
-                    case Types.SQL_TIMESTAMP :
+                    case Types.SQL_TIMESTAMP : {
                         TimestampData ts      = (TimestampData) a;
-                        long          seconds = toTimeSeconds(ts.seconds);
+                        int           seconds = toTimeSeconds(ts.seconds);
 
-                        return new TimeData((int) (seconds),
-                                            scaleNanos(ts.nanos));
-
+                        return new TimeData(seconds, scaleNanos(ts.nanos));
+                    }
                     default :
                         throw Error.error(ErrorCode.X_42561);
                 }
@@ -759,28 +753,23 @@ public final class DateTimeType extends DTIType {
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                         return convertToTypeLimits(session, a);
 
+                    case Types.SQL_DATE :
                     case Types.SQL_TIMESTAMP : {
                         if (!(a instanceof TimestampData)) {
                             throw Error.error(ErrorCode.X_42561);
                         }
 
-                        TimestampData ts          = (TimestampData) a;
-                        int           zoneSeconds = session.getZoneSeconds();
-                        long          seconds     = ts.seconds - zoneSeconds;
+                        TimestampData ts       = (TimestampData) a;
+                        Calendar      calendar = session.getCalendar();
+                        long seconds = HsqlDateTime.convertSecondsFromCalendar(
+                            session.getCalendarGMT(), calendar, ts.seconds);
+                        int zoneSeconds =
+                            calendar.getTimeZone().getOffset(seconds * 1000)
+                            / 1000;
 
                         return new TimestampData(seconds,
                                                  scaleNanos(ts.nanos),
                                                  zoneSeconds);
-                    }
-                    case Types.SQL_DATE : {
-                        if (!(a instanceof TimestampData)) {
-                            throw Error.error(ErrorCode.X_42561);
-                        }
-
-                        TimestampData ts          = (TimestampData) a;
-                        int           zoneSeconds = session.getZoneSeconds();
-
-                        return new TimestampData(ts.seconds, 0, zoneSeconds);
                     }
                     default :
                         throw Error.error(ErrorCode.X_42561);
@@ -1485,19 +1474,9 @@ public final class DateTimeType extends DTIType {
                 break;
 
             case Types.DTI_SECONDS_MIDNIGHT : {
-                if (typeCode == Types.SQL_TIME
-                        || typeCode == Types.SQL_TIME_WITH_TIME_ZONE) {}
-                else {
-                    try {
-                        Type target = withTimeZone
-                                      ? Type.SQL_TIME_WITH_TIME_ZONE
-                                      : Type.SQL_TIME;
+                long seconds = getTotalSeconds(dateTime);
 
-                        dateTime = target.castToType(session, dateTime, this);
-                    } catch (HsqlException e) {}
-                }
-
-                return ((TimeData) dateTime).seconds;
+                return toTimeSeconds(seconds);
             }
             case Types.DTI_TIMEZONE_HOUR :
                 if (typeCode == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
@@ -1550,7 +1529,7 @@ public final class DateTimeType extends DTIType {
                                          "DateTimeType - " + part);
         }
 
-        long millis = getMillis(dateTime);
+        long millis = getMillis(dateTime) + getZoneMillis(dateTime);
 
         return HsqlDateTime.getDateTimePart(session.getCalendarGMT(), millis, calendarPart)
                / divisor + increment;
@@ -1631,6 +1610,20 @@ public final class DateTimeType extends DTIType {
         }
 
         return millis;
+    }
+
+    long getTotalSeconds(Object dateTime) {
+
+        if (typeCode == Types.SQL_TIME
+                || typeCode == Types.SQL_TIME_WITH_TIME_ZONE) {
+            TimeData td = ((TimeData) dateTime);
+
+            return td.seconds + td.zone;
+        } else {
+            TimestampData ts = ((TimestampData) dateTime);
+
+            return ts.seconds + ts.zone;
+        }
     }
 
     public BigDecimal getSecondPart(Session session, Object dateTime) {

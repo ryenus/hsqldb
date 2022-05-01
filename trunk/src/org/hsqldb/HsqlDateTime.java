@@ -59,7 +59,7 @@ import org.hsqldb.types.Types;
  * timezone.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.7.0
  */
 public class HsqlDateTime {
@@ -131,11 +131,12 @@ public class HsqlDateTime {
         }
     }
 
-    public static String getTimestampString(long seconds,
-                                          int nanos, int scale) {
+    public static String getTimestampString(long seconds, int nanos,
+            int scale) {
 
         synchronized (sdfts) {
             sysDate.setTime(seconds * 1000);
+
             String ts = sdfts.format(sysDate);
 
             if (scale > 0) {
@@ -203,13 +204,32 @@ public class HsqlDateTime {
                 targetClendar.clear();
                 sourceCalendar.setTimeInMillis(millis);
                 targetClendar.set(sourceCalendar.get(Calendar.YEAR),
-                               sourceCalendar.get(Calendar.MONTH),
-                               sourceCalendar.get(Calendar.DAY_OF_MONTH),
-                               sourceCalendar.get(Calendar.HOUR_OF_DAY),
-                               sourceCalendar.get(Calendar.MINUTE),
-                               sourceCalendar.get(Calendar.SECOND));
+                                  sourceCalendar.get(Calendar.MONTH),
+                                  sourceCalendar.get(Calendar.DAY_OF_MONTH),
+                                  sourceCalendar.get(Calendar.HOUR_OF_DAY),
+                                  sourceCalendar.get(Calendar.MINUTE),
+                                  sourceCalendar.get(Calendar.SECOND));
 
                 return targetClendar.getTimeInMillis();
+            }
+        }
+    }
+
+    public static long convertSecondsFromCalendar(Calendar sourceCalendar,
+            Calendar targetClendar, long seconds) {
+
+        synchronized (targetClendar) {
+            synchronized (sourceCalendar) {
+                targetClendar.clear();
+                sourceCalendar.setTimeInMillis(seconds * 1000);
+                targetClendar.set(sourceCalendar.get(Calendar.YEAR),
+                                  sourceCalendar.get(Calendar.MONTH),
+                                  sourceCalendar.get(Calendar.DAY_OF_MONTH),
+                                  sourceCalendar.get(Calendar.HOUR_OF_DAY),
+                                  sourceCalendar.get(Calendar.MINUTE),
+                                  sourceCalendar.get(Calendar.SECOND));
+
+                return targetClendar.getTimeInMillis() / 1000;
             }
         }
     }
@@ -313,6 +333,7 @@ public class HsqlDateTime {
                     if (dayWeek == 1) {
                         dayWeek = 8;
                     }
+
                     calendar.add(Calendar.DAY_OF_YEAR, 2 - dayWeek);
                     resetToDate(calendar);
 
