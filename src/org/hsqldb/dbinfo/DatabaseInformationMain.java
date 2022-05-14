@@ -70,8 +70,6 @@ import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
-/* $Id$ */
-
 // fredt@users - 1.7.2 - structural modifications to allow inheritance
 // campbell-burnet@users - 1.7.2 - 20020225
 // - factored out all reusable code into DIXXX support classes
@@ -3582,7 +3580,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                         row[privilege_type] = privilege;
                         row[is_grantable] =
                             right.getGrantee() == table.getOwner()
-                            || grantableRight.canAccessFully(
+                            || grantableRight.canAccess(
                                 Right.tablePrivilegeTypes[k]) ? "YES"
                                                               : "NO";
                         row[with_hierarchy] = "NO";
