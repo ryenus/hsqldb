@@ -889,7 +889,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * <div class="ReleaseSpecificDocumentation">
      * <h1>HSQLDB-Specific Information:</h1> <p>
      *
-     * From 1.7.0, HSQLDB supports this type of
+     * HSQLDB supports this type of
      * <code>ALTER TABLE</code> statement; this method always
      * returns <code>true</code>.
      * </div>
@@ -909,7 +909,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * <div class="ReleaseSpecificDocumentation">
      * <h1>HSQLDB-Specific Information:</h1> <p>
      *
-     * From 1.7.0, HSQLDB supports this type of
+     * HSQLDB supports this type of
      * <code>ALTER TABLE</code> statement; this method always
      * returns <code>true</code>.
      * </div>
@@ -2963,12 +2963,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
-     * (including case) as they are stored in the database. <p>
-     *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is the
-     * org.hsqldb.dbinfo.DatabaseInformationFull class.
+     * (including case) as they are stored in the database.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3499,12 +3494,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
-     * (including case) as they are stored in the database. <p>
-     *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is
-     * the org.hsqldb.dbinfo.DatabaseInformationMain class.
+     * (including case) as they are stored in the database.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3601,12 +3591,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * If the name of a column is defined in the database without double
      * quotes, an all-uppercase name must be specified when calling this
      * method. Otherwise, the name must be specified in the exact case of
-     * the column definition in the database. <p>
-     *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is
-     * the org.hsqldb.dbinfo.DatabaseInformationMain class.
+     * the column definition in the database.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3777,12 +3762,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
-     * (including case) as they are stored in the database. <p>
-     *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is
-     * the org.hsqldb.dbinfo.DatabaseInformationMain class.
+     * (including case) as they are stored in the database.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3892,12 +3872,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
-     * (including case) as they are stored in the database. <p>
-     *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is
-     * the org.hsqldb.dbinfo.DatabaseInformationMain class.
+     * (including case) as they are stored in the database.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4007,12 +3982,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
-     * (including case) as they are stored in the database. <p>
-     *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is
-     * the org.hsqldb.dbinfo.DatabaseInformationMain class.
+     * (including case) as they are stored in the database.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4127,12 +4097,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
-     * (including case) as they are stored in the database. <p>
-     *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is
-     * the org.hsqldb.dbinfo.DatabaseInformationMain class.
+     * (including case) as they are stored in the database.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4253,10 +4218,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * <div class="ReleaseSpecificDocumentation">
      * <h1>HSQLDB-Specific Information:</h1> <p>
      *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is
-     * the org.hsqldb.dbinfo.DatabaseInformationMain class.
+     * This feature is supported.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4321,12 +4283,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * case-sensitive comparison between name (pattern) arguments and the
      * corresponding identifier values as they are stored in the database.
      * Therefore, care must be taken to specify name arguments precisely
-     * (including case) as they are stored in the database. <p>
-     *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is
-     * the org.hsqldb.dbinfo.DatabaseInformationMain class.
+     * (including case) as they are stored in the database.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4772,8 +4729,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * <div class="ReleaseSpecificDocumentation">
      * <h1>HSQLDB-Specific Information:</h1> <p>
      *
-     * Beginning with 1.7.2, this SQL feature is supported
-     * through JDBC as well as SQL. <p>
+     * This SQL feature is supported through JDBC as well as SQL.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -4794,8 +4750,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * <div class="ReleaseSpecificDocumentation">
      * <h1>HSQLDB-Specific Information:</h1> <p>
      *
-     * Starting with 1.7.2, HSQLDB supports JDBC named parameters to
-     * callable statements; this method returns true. <p>
+     * HSQLDB supports JDBC named parameters to
+     * callable statements; this method returns true.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -5857,7 +5813,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * A CSV list representing the SQL IN list to use when generating
      * queries for <code>getBestRowIdentifier</code> when the
      * <code>scope</code> argument is <code>bestRowSession</code>.
-     * @since HSQLDB 1.7.2
      */
     private static final String BRI_SESSION_SCOPE_IN_LIST = "("
         + bestRowSession + ")";
@@ -5866,7 +5821,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * A CSV list representing the SQL IN list to use when generating
      * queries for <code>getBestRowIdentifier</code> when the
      * <code>scope</code> argument is <code>bestRowTemporary</code>.
-     * @since HSQLDB 1.7.2
      */
     private static final String BRI_TEMPORARY_SCOPE_IN_LIST = "("
         + bestRowTemporary + "," + bestRowTransaction + "," + bestRowSession
@@ -5876,7 +5830,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * A CSV list representing the SQL IN list to use when generating
      * queries for <code>getBestRowIdentifier</code> when the
      * <code>scope</code> argument is <code>bestRowTransaction</code>.
-     * @since HSQLDB 1.7.2
      */
     private static final String BRI_TRANSACTION_SCOPE_IN_LIST = "("
         + bestRowTransaction + "," + bestRowSession + ")";
@@ -5885,9 +5838,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * "SELECT * FROM ". <p>
      *
      * This attribute is in support of methods that use SQL SELECT statements to
-     * generate returned <code>ResultSet</code> objects. <p>
-     *
-     * @since HSQLDB 1.7.2
+     * generate returned <code>ResultSet</code> objects.
      */
     private static final String selstar = "SELECT * FROM INFORMATION_SCHEMA.";
 
@@ -5897,12 +5848,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * This attribute is in support of methods that use SQL SELECT statements to
      * generate returned <code>ResultSet</code> objects. <p>
      *
-     * A good optimizer will simply drop this when parsing a condition
+     * The optimizer will simply drop this when parsing a condition
      * expression. And it makes our code much easier to write, since we don't
      * have to check our "WHERE" clause productions as strictly for proper
      * conjunction:  we just stick additional conjunctive predicates on the
-     * end of this and Presto! Everything works :-) <p>
-     * @since HSQLDB 1.7.2
+     * end of this and Presto! Everything works :-)
      */
     private static final String whereTrue = " WHERE TRUE";
 
