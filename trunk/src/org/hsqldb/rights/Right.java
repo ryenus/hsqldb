@@ -666,41 +666,7 @@ public final class Right {
         return isFull || isFullDelete;
     }
 
-    public boolean canAccessFully(int action) {
-
-        if (isFull) {
-            return true;
-        }
-
-        switch (action) {
-
-            case GrantConstants.DELETE :
-                return isFullDelete;
-
-            case GrantConstants.SELECT :
-                return isFullSelect;
-
-            case GrantConstants.INSERT :
-                return isFullInsert;
-
-            case GrantConstants.UPDATE :
-                return isFullUpdate;
-
-            case GrantConstants.REFERENCES :
-                return isFullReferences;
-
-            case GrantConstants.TRIGGER :
-                return isFullTrigger;
-
-            case GrantConstants.EXECUTE :
-                return isFull;
-
-            default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Right");
-        }
-    }
-
-    boolean canAccesssNonSelect() {
+    boolean canAccessNonSelect() {
 
         if (isFull) {
             return true;
@@ -725,7 +691,7 @@ public final class Right {
     /**
      * Supports column level rights
      */
-    boolean canAccess(int action) {
+    public boolean canAccess(int action) {
 
         if (isFull) {
             return true;

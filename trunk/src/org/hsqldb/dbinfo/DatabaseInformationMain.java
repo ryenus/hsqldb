@@ -3568,8 +3568,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
                     for (int k = 0; k < Right.tablePrivilegeTypes.length;
                             k++) {
-                        if (!right.canAccessFully(
-                                Right.tablePrivilegeTypes[k])) {
+                        if (!right.canAccess(Right.tablePrivilegeTypes[k])) {
                             continue;
                         }
 
