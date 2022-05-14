@@ -1816,8 +1816,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *     INDEX_NAME         INFORMATION_SCHEMA.SQL_IDENTIFIER
      * )</pre>
      */
-    Table SYSTEM_KEY_INDEX_USAGE(Session session,
-                                       PersistentStore store) {
+    Table SYSTEM_KEY_INDEX_USAGE(Session session, PersistentStore store) {
 
         Table t = sysTables[SYSTEM_KEY_INDEX_USAGE];
 
@@ -6388,7 +6387,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     Right right          = (Right) rights.get(j);
                     Right grantableRight = right.getGrantableRights();
 
-                    if (!right.canAccessFully(GrantConstants.EXECUTE)) {
+                    if (!right.canAccess(GrantConstants.EXECUTE)) {
                         continue;
                     }
 
@@ -6406,10 +6405,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[routine_name]     = routine.getName().name;
                     row[privilege_type]   = privilege;
                     row[is_grantable] =
-                        right.getGrantee() == routine.getOwner()
-                        || grantableRight.canAccessFully(
-                            GrantConstants.EXECUTE) ? "YES"
-                                                    : "NO";
+                        right.getGrantee() == routine
+                            .getOwner() || grantableRight
+                            .canAccess(GrantConstants.EXECUTE) ? "YES"
+                                                               : "NO";
 
                     try {
                         t.insertSys(session, store, row);

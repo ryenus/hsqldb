@@ -920,7 +920,7 @@ public class Grantee implements SchemaObject {
             return false;
         }
 
-        return right.canAccesssNonSelect();
+        return right.canAccessNonSelect();
     }
 
     public boolean hasColumnRights(SchemaObject table, int[] columnMap) {
