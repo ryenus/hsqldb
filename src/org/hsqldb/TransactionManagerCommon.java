@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 2.0.0
  */
 class TransactionManagerCommon {
@@ -703,8 +703,6 @@ class TransactionManagerCommon {
     void setWaitingSessionTPL(Session session) {
 
         int count = session.tempSet.size();
-
-        assert session.latch.getCount() <= count + 1;
 
         for (int i = 0; i < count; i++) {
             Session current = (Session) session.tempSet.get(i);
