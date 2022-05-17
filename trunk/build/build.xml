@@ -170,7 +170,7 @@ examples:
       <mkdir dir="${swsrc}" />
     </target>
 
-    <target name="-prepare-javadoc" depends="switches">
+    <target name="-prepare-javadoc" depends="-clean-switch-branch, switches">
       <delete dir="doc/apidocs"/>
       <!-- Must be vigilant about cleaning up from previous runs, since this
            same directory is used for both public API spec, and the full
@@ -187,6 +187,25 @@ examples:
           <fileset dir="modinfo-src/org.hsqldb/"/>
       </copy>
       <delete file="${swsrc}org/hsqldb/server/Servlet.java"/>
+    </target>
+
+    <target name="-prepare-javadoc-sqltool" depends="-clean-switch-branch, switches">
+        <delete dir="doc/apidocssqltool"/>
+        <!-- Must be vigilant about cleaning up from previous runs, since this
+             same directory is used for both public API spec, and the full
+             code-base API spec.
+             There is no performance penalty, since the javadoc task regenerates
+             everything each run.
+         -->
+        <copy todir="doc/apidocssqltool">
+            <!-- IMPORTANT:
+                 Add a fixcrlf if we add non-binary files to doc-src/apidocs. -->
+            <fileset dir="doc-src/apidocs"/>
+        </copy>
+        <copy todir="${swsrc}">
+            <fileset dir="modinfo-src/org.hsqldb.sqltool/"/>
+        </copy>
+        <delete file="${swsrc}org/hsqldb/server/Servlet.java"/>
     </target>
 
     <target name="reinit"
@@ -917,6 +936,43 @@ ${err.2}</fail>
       </javadoc>
       <fixcrlf preservelastmodified='true' eol="lf" encoding="UTF-8"
          srcdir="doc/apidocs" includes="**/*.css, **/*.html, **/package-list"/>
+    </target>
+
+    <target name="javadocsqltool" depends="-prepare-javadoc-sqltool, -clone-shared-sources, -set-jvmvars"
+            description="Create javadoc for the sqltool package">
+        <javadoc
+                destdir="doc/apidocssqltool"
+                stylesheetfile="doc-src/apidocs/javadoc.css"
+                docencoding="UTF-8"
+                charset="UTF-8"
+                author="true"
+                version="false"
+                use="true"
+                public="true"
+                failonerror="false"
+                verbose="false"
+                windowtitle="${hsqldb.title} ${hsqldb.version} API"
+                doctitle="${hsqldb.title} ${hsqldb.version}"
+                bottom="&lt;i&gt;Copyright &#169; 2001 - 2022 HSQL Development Group.&lt;/i&gt;">
+            <classpath>
+                <pathelement location="${servletapi.lib}"/>
+                <pathelement location="${junit38.lib}"/>
+            </classpath>
+            <packageset dir="${swsrc}">
+                <include name='org/hsqldb/cmdline'/>
+                <include name='org/hsqldb/libclone'/>
+                <include name='org/hsqldb/utilclone'/>
+            </packageset>
+            <tag name="todo" enabled="false"/>
+            <tag name="revised" enabled="false"/>
+            <tag name="jboss.xmbean" enabled="false"/>
+            <tag name="jmx.mbean" enabled="false"/>
+            <tag name="jmx.managed-attribute" enabled="false"/>
+            <tag name="jmx.managed-operation" enabled="false"/>
+            <tag name="jmx.managed-operation-parameter" enabled="false"/>
+        </javadoc>
+        <fixcrlf preservelastmodified='true' eol="lf" encoding="UTF-8"
+                 srcdir="doc/apidocs" includes="**/*.css, **/*.html, **/package-list"/>
     </target>
 
     <target name="javadocdev"
