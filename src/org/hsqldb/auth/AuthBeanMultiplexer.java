@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,6 +91,8 @@ public class AuthBeanMultiplexer {
      * The given entries are copied, to limit side-effects and concurrency
      * issues.
      * </P>
+     *
+     * @param authFunctionBeanMap Map
      */
     public void setAuthFunctionBeans(
             Map<String, List<AuthFunctionBean>> authFunctionBeanMap) {
@@ -131,7 +133,8 @@ public class AuthBeanMultiplexer {
     /**
      * Wrapper for {@code setAuthFunctionBeans(String, List<AuthFunctionBean>)}
      *
-     * @param c  An open Connection to the desired database.
+     * @param c An open Connection to the desired database.
+     * @param authFunctionBeans List
      * @throws SQLException if failed to obtain unique name from given
      *                      Connection.
      */
@@ -155,6 +158,8 @@ public class AuthBeanMultiplexer {
      *
      * @see #setAuthFunctionBeans(Map)
      * @see #setAuthFunctionBean(String, AuthFunctionBean)
+     * @param dbName String
+     * @param authFunctionBeans List
      */
     public void setAuthFunctionBeans(String dbName,
             List<AuthFunctionBean> authFunctionBeans) {
@@ -179,6 +184,11 @@ public class AuthBeanMultiplexer {
     /**
      * Exactly the same as setAuthFunctionBeans(String, List) other than taking
      * an open Connection to identify the database.
+     *
+     * @param c Connection
+     * @param authFunctionBean AuthFunctionBean
+     * @throws SQLException if failed to obtain unique name from given
+     *   Connection.
      */
     public void setAuthFunctionBean(Connection c,
             AuthFunctionBean authFunctionBean) throws SQLException {
@@ -197,6 +207,8 @@ public class AuthBeanMultiplexer {
      * </P>
      *
      * @see #setAuthFunctionBeans(String, List)
+     * @param dbName String
+     * @param authFunctionBean AuthFunctionBean
      */
     public void setAuthFunctionBean(String dbName,
             AuthFunctionBean authFunctionBean) {
@@ -239,6 +251,9 @@ public class AuthBeanMultiplexer {
      *         Exception.
      * @return Null or java.sql.Array to indicate successful authentication
      *         according to the contract for HyperSQL authentication functions.
+     * @param database String
+     * @param user String
+     * @param password String
      */
     public static java.sql.Array authenticate(
             String database, String user, String password)

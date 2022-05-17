@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,6 +90,8 @@ public class TarFileInputStream {
      * Convenience wrapper to use default readBufferBlocks and compressionType.
      *
      * @see #TarFileInputStream(File, int, int)
+     * @param sourceFile File
+     * @throws IOException on failure
      */
     public TarFileInputStream(File sourceFile) throws IOException {
         this(sourceFile, TarFileOutputStream.Compression.DEFAULT_COMPRESSION);
@@ -99,6 +101,9 @@ public class TarFileInputStream {
      * Convenience wrapper to use default readBufferBlocks.
      *
      * @see #TarFileInputStream(File, int, int)
+     * @param sourceFile File
+     * @param compressionType int
+     * @throws IOException on failure
      */
     public TarFileInputStream(File sourceFile,
                               int compressionType) throws IOException {
@@ -123,6 +128,10 @@ public class TarFileInputStream {
      *
      * @see #close()
      * @see #readNextHeaderBlock()
+     * @param sourceFile File
+     * @param compressionType int
+     * @param readBufferBlocks int
+     * @throws IOException on failure
      */
     public TarFileInputStream(File sourceFile, int compressionType,
                               int readBufferBlocks) throws IOException {
@@ -242,6 +251,8 @@ public class TarFileInputStream {
      * </P>
      *
      * @see #readNextHeaderBlock
+     * @throws IOException on access failure
+     * @throws TarMalformatException if malformed
      */
     public void readBlock() throws IOException, TarMalformatException {
         readBlocks(1);
@@ -250,16 +261,14 @@ public class TarFileInputStream {
     /**
      * readBlock() and readNextHeaderBlock are the methods that USERS of this
      * class should use to read header blocks from the tar file.
-     * <P>
-     * readNextHeaderBlock continues working through the Tar File from the
-     * current point until it finds a block with a non-0 first byte.
-     * </P>
      *
      * @return  True if a header block was read and place at beginning of the
      *          readBuffer array.  False if EOF was encountered without finding
      *          any blocks with first byte != 0.  If false is returned, we have
      *          automatically closed the this TarFileInputStream too.
      * @see #readBlock
+     * @throws IOException on access failure
+     * @throws TarMalformatException if malformed
      */
     public boolean readNextHeaderBlock()
     throws IOException, TarMalformatException {
@@ -293,6 +302,7 @@ public class TarFileInputStream {
      * Implements java.io.Closeable.
      *
      * @see java.io.Closeable
+     * @throws IOException on failure
      */
     public void close() throws IOException {
 

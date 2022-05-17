@@ -329,6 +329,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     /**
      * Run with --help switch for usage instructions.
      *
+     * @param arg arguments
      * @throws IllegalArgumentException for the obvious reason
      */
     public static void main(String[] arg) {
@@ -461,9 +462,11 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
     }
 
     /**
-     * This stuff is all quick, except for the refreshTree().
-     * This unit can be kicked off in main Gui thread.  The refreshTree
-     * will be backgrounded and this method will return.
+     * This stuff is all quick, except for the refreshTree(). This unit can be
+     * kicked off in main Gui thread. The refreshTree will be backgrounded and
+     * this method will return.
+     *
+     * @param c Connection
      */
     public void connect(Connection c) {
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,12 @@ public class ValidatingResourceBundle {
 
     // The following methods are a passthru wrappers for the wrapped RCPRB.
 
-    /** @see RefCapablePropertyResourceBundle#getString(String) */
+    /**
+     *
+     * @see RefCapablePropertyResourceBundle#getString(String)
+     * @param key Enum
+     * @return String
+     */
     public String getString(Enum<?> key) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
@@ -92,7 +97,13 @@ public class ValidatingResourceBundle {
         return wrappedRCPRB.getString(key.toString());
     }
 
-    /** @see RefCapablePropertyResourceBundle#getString(String, String[], int) */
+    /**
+     *
+     * @see RefCapablePropertyResourceBundle#getString(String, String[], int)
+     * @param key Enum
+     * @param strings String[]
+     * @return String
+     */
     public String getString(Enum<?> key, String... strings) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
@@ -102,7 +113,12 @@ public class ValidatingResourceBundle {
                 key.toString(), strings, missingPosValueBehavior);
     }
 
-    /** @see RefCapablePropertyResourceBundle#getExpandedString(String, int) */
+    /**
+     *
+     * @see RefCapablePropertyResourceBundle#getExpandedString(String, int)
+     * @param key Enum
+     * @return String
+     */
     public String getExpandedString(Enum<?> key) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
@@ -111,7 +127,14 @@ public class ValidatingResourceBundle {
         return wrappedRCPRB.getExpandedString(key.toString(), missingPropertyBehavior);
     }
 
-    /** @see RefCapablePropertyResourceBundle#getExpandedString(String, String[], int, int) */
+    /**
+     *
+     * @see RefCapablePropertyResourceBundle#getExpandedString(String,
+     *   String[], int, int)
+     * @param key Enum
+     * @param strings String[]
+     * @return String
+     */
     public String getExpandedString(Enum<?> key, String... strings) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
@@ -125,28 +148,31 @@ public class ValidatingResourceBundle {
     private int missingPosValueBehavior = THROW_BEHAVIOR;
 
     /**
-     * Set behavior for get*String*() method when a referred-to
-     * System Property is not set.  Set to one of
+     * Set behavior for get*String*() method when a referred-to System Property
+     * is not set. Set to one of
      * <UL>
-     *  <LI>RefCapablePropertyResourceBundle.THROW_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBundle.NOOP_BEHAVIOR
-     * </UL>
-     * The first value is the default.
+     * <LI>RefCapablePropertyResourceBundle.THROW_BEHAVIOR
+     * <LI>RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR
+     * <LI>RefCapablePropertyResourceBundle.NOOP_BEHAVIOR
+     * </UL> The first value is the default.
+     *
+     * @param missingPropertyBehavior int
      */
     public void setMissingPropertyBehavior(int missingPropertyBehavior) {
         this.missingPropertyBehavior = missingPropertyBehavior;
     }
+
     /**
-     * Set behavior for get*String(String, String[]) method when a
-     * positional index (like %{4}) is used but no subs value was given for
-     * that index.  Set to one of
+     * Set behavior for get*String(String, String[]) method when a positional
+     * index (like %{4}) is used but no subs value was given for that index. Set
+     * to one of
      * <UL>
-     *  <LI>RefCapablePropertyResourceBundle.THROW_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR
-     *  <LI>RefCapablePropertyResourceBundle.NOOP_BEHAVIOR
-     * </UL>
-     * The first value is the default.
+     * <LI>RefCapablePropertyResourceBundle.THROW_BEHAVIOR
+     * <LI>RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR
+     * <LI>RefCapablePropertyResourceBundle.NOOP_BEHAVIOR
+     * </UL> The first value is the default.
+     *
+     * @param missingPosValueBehavior int
      */
     public void setMissingPosValueBehavior(int missingPosValueBehavior) {
         this.missingPosValueBehavior = missingPosValueBehavior;

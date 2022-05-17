@@ -311,7 +311,6 @@ public class JDBCParameterMetaData implements ParameterMetaData,
      * Creates a new instance of JDBCParameterMetaData. <p>
      *
      * @param metaData A ResultMetaData object describing the statement parameters
-     * @throws SQLException never - reserved for future use
      */
     JDBCParameterMetaData(JDBCConnection conn,
                           ResultMetaData metaData) {

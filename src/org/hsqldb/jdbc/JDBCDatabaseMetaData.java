@@ -5905,14 +5905,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *
      * @param val an object representing the value to use in some conditional
      *      operation, op, between the column identified by the id argument
-     *      and this argument. <p>
+     *      and this argument.
      *
      *      <UL>
-     *          <LI>null causes the empty string to be returned. <p>
+     *          <LI>null causes the empty string to be returned.
      *
      *          <LI>toString().length() == 0 causes the returned expression
      *              to be built so that the IS NULL operation will occur
-     *              against the specified column. <p>
+     *              against the specified column.
      *
      *          <LI>instanceof String causes the returned expression to be
      *              built so that the specified operation will occur between
@@ -5921,7 +5921,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      *              escaped by doubling). If <code>op</code> is "LIKE" and
      *              <code>val</code> does not contain any "%" or "_" wild
      *              card characters, then <code>op</code> is silently
-     *              converted to "=". <p>
+     *              converted to "=".
      *
      *          <LI>!instanceof String causes an expression to built so that
      *              the specified operation will occur between the specified
@@ -6125,6 +6125,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
 
     /**
      * Returns the name of the default collation for database.
+     * @return name of collation
      */
     public String getDatabaseDefaultCollation() {
 

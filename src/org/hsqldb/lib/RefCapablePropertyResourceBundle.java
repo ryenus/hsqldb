@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -192,8 +192,12 @@ public class RefCapablePropertyResourceBundle {
     }
 
     /**
-     * Same as getString(), but expands System Variables specified in
-     * property values like ${sysvarname}.
+     * Same as getString(), but expands System Variables specified in property
+     * values like ${sysvarname}.
+     *
+     * @param key String
+     * @param behavior int
+     * @return String
      */
     public String getExpandedString(String key, int behavior) {
         String s = getString(key);
@@ -239,8 +243,13 @@ public class RefCapablePropertyResourceBundle {
 
     /**
      * Replaces positional substitution patterns of the form %{\d} with
-     * corresponding element of the given subs array.
-     * Note that %{\d} numbers are 1-based, so we lok for subs[x-1].
+     * corresponding element of the given subs array. Note that %{\d} numbers
+     * are 1-based, so we lok for subs[x-1].
+     *
+     * @param s String
+     * @param subs String[]
+     * @param behavior int
+     * @return String
      */
     public String posSubst(String s, String[] subs, int behavior) {
         Matcher matcher  = posPattern.matcher(s);
@@ -296,6 +305,8 @@ public class RefCapablePropertyResourceBundle {
 
     /**
      * Just identifies this RefCapablePropertyResourceBundle instance.
+     *
+     * @return String
      */
     public String toString() {
         return baseName + " for " + language + " / " + country + " / "
@@ -304,11 +315,13 @@ public class RefCapablePropertyResourceBundle {
 
     /**
      * Returns value defined in this RefCapablePropertyResourceBundle's
-     * .properties file, unless that value is empty.
-     * If the value in the .properties file is empty, then this returns
-     * the entire contents of the referenced text file.
+     * .properties file, unless that value is empty. If the value in the
+     * .properties file is empty, then this returns the entire contents of the
+     * referenced text file.
      *
      * @see ResourceBundle#getString(String)
+     * @param key String
+     * @return String
      */
     public String getString(String key) {
         String value = wrappedBundle.getString(key);
@@ -344,16 +357,27 @@ public class RefCapablePropertyResourceBundle {
      * Java).
      *
      * @see ResourceBundle#getBundle(String)
+     * @param baseName String
+     * @param loader ClassLoader
+     * @param loaderClass Class
+     * @return RefCapablePropertyResourceBundle
      */
     public static RefCapablePropertyResourceBundle getBundle(String baseName,
             ClassLoader loader, Class<? extends Enum<?>> loaderClass) {
         return getRef(baseName, ResourceBundle.getBundle(baseName,
                 Locale.getDefault(), loader), loaderClass);
     }
+
     /**
-     * Use exactly like java.util.ResourceBundle.get(String, Locale, ClassLoader).
+     * Use exactly like java.util.ResourceBundle.get(String, Locale,
+     * ClassLoader).
      *
      * @see ResourceBundle#getBundle(String, Locale, ClassLoader)
+     * @param baseName String
+     * @param locale Locale
+     * @param loader ClassLoader
+     * @param loaderClass Class
+     * @return RefCapablePropertyResourceBundle
      */
     public static RefCapablePropertyResourceBundle
             getBundle(String baseName, Locale locale, ClassLoader loader,
@@ -363,8 +387,13 @@ public class RefCapablePropertyResourceBundle {
     }
 
     /**
-     * Return a ref to a new or existing RefCapablePropertyResourceBundle,
-     * or throw a MissingResourceException.
+     * Return a ref to a new or existing RefCapablePropertyResourceBundle, or
+     * throw a MissingResourceException.
+     *
+     * @param baseName String
+     * @param rb ResourceBundle
+     * @param loaderClass Class
+     * @return RefCapablePropertyResourceBundle
      */
     static private RefCapablePropertyResourceBundle getRef(String baseName,
             ResourceBundle rb, Class<? extends Enum<?>> loaderClass) {

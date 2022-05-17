@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,10 @@ public class TarReaderMain {
      * Reads a specified tar file or stdin in order to either list or extract
      * the file tar entries, depending on the first argument being "t" or "x",
      * using default read buffer blocks.
+     *
+     * @param sa arguments
+     * @throws IOException on access failure
+     * @throws TarMalformatException if malformed
      */
     public static void main(String[] sa)
     throws IOException, TarMalformatException {
