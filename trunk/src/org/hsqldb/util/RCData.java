@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,6 +83,7 @@ public class RCData {
         System.err.println("urlid: " + id + ", url: " + url + ", username: "
                            + username + ", password: " + password);
     }
+     * @return string representation
      */
 
     public String toString() {
@@ -421,6 +422,9 @@ public class RCData {
      * Returns a copy of the given String with System property names in the
      * format <code>${system.property}</code> replaced by the corresponding Java
      * System Properties.
+     *
+     * @param inString String
+     * @return formatted string
      */
     public static String expandSysPropVars(String inString) {
 

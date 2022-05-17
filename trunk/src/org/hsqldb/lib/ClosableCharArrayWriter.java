@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -280,6 +280,8 @@ public class ClosableCharArrayWriter extends Writer {
      * characters, then it may be resized to become more space efficient.
      * Calling this method may, but is not required to, affect the value
      * returned by a subsequent call to the {@link #capacity()} method.
+     *
+     * @throws IOException if buffer is freed
      */
     public synchronized void trimToSize() throws IOException {
 

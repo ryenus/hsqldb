@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -226,6 +226,10 @@ public class OdbcUtil {
      * This ID should stick with the table
      * column.  Here, it will change based on user-specified column label.
      * The int has is also being truncated into a short.
+     *
+     * @param colIndex int
+     * @param md ResultMetaData
+     * @return short
      */
     public static short getIdForColumn(int colIndex, ResultMetaData md) {
         if (!md.isTableColumn(colIndex)) {
@@ -241,8 +245,9 @@ public class OdbcUtil {
     }
 
     /**
-     * @param hexChars A String containing an EVEN number of hex
-     *                      characters.
+     *
+     * @param hexChars A String containing an EVEN number of hex characters.
+     * @return String
      */
     public static String hexCharsToOctalOctets(String hexChars) {
         int chars = hexChars.length();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -275,6 +275,10 @@ public class PgType {
      * </P>
      *
      * @throws SQLException if either argument is not acceptable.
+     * @throws RecoverableOdbcFailure for some unsupported features
+     * @param inString String
+     * @param session Session
+     * @return Object
      */
     public Object getParameter(String inString, Session session)
     throws SQLException, RecoverableOdbcFailure {

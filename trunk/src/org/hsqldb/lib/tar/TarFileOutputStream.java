@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,6 +103,8 @@ public class TarFileOutputStream {
      * Convenience wrapper to use default blocksPerRecord and compressionType.
      *
      * @see #TarFileOutputStream(File, int, int)
+     * @param targetFile File
+     * @throws IOException on failure
      */
     public TarFileOutputStream(File targetFile) throws IOException {
         this(targetFile, Compression.DEFAULT_COMPRESSION);
@@ -112,6 +114,9 @@ public class TarFileOutputStream {
      * Convenience wrapper to use default blocksPerRecord.
      *
      * @see #TarFileOutputStream(File, int, int)
+     * @param targetFile File
+     * @param compressionType int
+     * @throws IOException on failure
      */
     public TarFileOutputStream(File targetFile,
                                int compressionType) throws IOException {
@@ -125,6 +130,11 @@ public class TarFileOutputStream {
      * "tar.gz" (and that they match the specified compression type).
      *
      * It also overwrites files without warning (just like FileOutputStream).
+     *
+     * @param targetFile File
+     * @param compressionType int
+     * @param blocksPerRecord int
+     * @throws IOException on failure
      */
     public TarFileOutputStream(File targetFile, int compressionType,
                                int blocksPerRecord) throws IOException {
@@ -189,8 +199,12 @@ public class TarFileOutputStream {
 
     /**
      * This class and subclasses should write to the underlying writeStream
-     * <b>ONLY WITH THIS METHOD</b>.
-     * That way we can be confident that bytesWritten will always be accurate.
+     * <b>ONLY WITH THIS METHOD</b>. That way we can be confident that
+     * bytesWritten will always be accurate.
+     *
+     * @param byteArray byte[]
+     * @param byteCount int
+     * @throws IOException on failure
      */
     public void write(byte[] byteArray, int byteCount) throws IOException {
 
@@ -202,16 +216,21 @@ public class TarFileOutputStream {
     /**
      * The normal way to write file data (as opposed to header data or padding)
      * using this class.
+     *
+     * @param byteCount int
+     * @throws IOException on failure
      */
     public void write(int byteCount) throws IOException {
         write(writeBuffer, byteCount);
     }
 
     /**
-     * Write a user-specified 512-byte block.
-     * For efficiency, write(int) should be used when writing file body content.
+     * Write a user-specified 512-byte block. For efficiency, write(int) should
+     * be used when writing file body content.
      *
      * @see #write(int)
+     * @param block byte[]
+     * @throws IOException on failure
      */
     public void writeBlock(byte[] block) throws IOException {
 
@@ -225,6 +244,9 @@ public class TarFileOutputStream {
 
     /**
      * Writes the specified quantity of zero'd blocks.
+     *
+     * @param blockCount int
+     * @throws IOException on failure
      */
     public void writePadBlocks(int blockCount) throws IOException {
 
@@ -235,6 +257,8 @@ public class TarFileOutputStream {
 
     /**
      * Writes a single zero'd block.
+     *
+     * @throws IOException on failure
      */
     public void writePadBlock() throws IOException {
         writePadBlocks(1);
@@ -264,8 +288,10 @@ public class TarFileOutputStream {
     }
 
     /**
-     * Rounds out the current block to the next block boundary.
-     * If we are currently at a block boundary, nothing is done.
+     * Rounds out the current block to the next block boundary. If we are
+     * currently at a block boundary, nothing is done.
+     *
+     * @throws IOException on failure
      */
     public void padCurrentBlock() throws IOException {
 
@@ -285,6 +311,7 @@ public class TarFileOutputStream {
      * Implements java.io.Flushable.
      *
      * @see java.io.Flushable
+     * @throws IOException on failure
      */
     public void flush() throws IOException {
         writeStream.flush();
@@ -297,6 +324,7 @@ public class TarFileOutputStream {
      * closing it!
      *
      * @see java.io.Closeable
+     * @throws IOException on failure
      */
     public void close() throws IOException {
 
@@ -331,6 +359,7 @@ public class TarFileOutputStream {
      * finish()).
      *
      * @see #close
+     * @throws IOException on failure
      */
     public void finish() throws IOException {
 

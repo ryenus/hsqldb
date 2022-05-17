@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,8 +54,13 @@ public final class InOutUtil {
 
     /**
      * Implementation only supports unix line-end format and is suitable for
-     * processing HTTP and other network protocol communications. Reads and writes
-     * a line of data. Returns the number of bytes read/written.
+     * processing HTTP and other network protocol communications. Reads and
+     * writes a line of data. Returns the number of bytes read/written.
+     *
+     * @param in InputStream
+     * @param out OutputStream
+     * @throws IOException on failure
+     * @return int
      */
     public static int readLine(InputStream in,
                                OutputStream out) throws IOException {
@@ -82,11 +87,12 @@ public final class InOutUtil {
     }
 
     /**
-     * Retrieves the serialized form of the specified <code>Object</code>
-     * as an array of bytes.
+     * Retrieves the serialized form of the specified <code>Object</code> as an
+     * array of bytes.
      *
      * @param s the Object to serialize
-     * @return  a static byte array representing the passed Object
+     * @return a static byte array representing the passed Object
+     * @throws IOException on failure
      */
     public static byte[] serialize(Serializable s) throws IOException {
 
@@ -104,6 +110,8 @@ public final class InOutUtil {
      *
      * @return the Object resulting from deserializing the specified array of bytes
      * @param ba the byte array to deserialize to an Object
+     * @throws IOException on failure
+     * @throws ClassNotFoundException if not found
      */
     public static Serializable deserialize(byte[] ba)
     throws IOException, ClassNotFoundException {
@@ -118,7 +126,12 @@ public final class InOutUtil {
     public static final long DEFAULT_COPY_AMOUNT      = Long.MAX_VALUE;
 
     /**
+     *
      * @see #copy(java.io.InputStream, java.io.OutputStream, long, int)
+     * @param inputStream InputStream
+     * @param outputStream OutputStream
+     * @throws IOException on failure
+     * @return long
      */
     public static long copy(final InputStream inputStream,
                             final OutputStream outputStream)
@@ -128,7 +141,13 @@ public final class InOutUtil {
     }
 
     /**
+     *
      * @see #copy(java.io.InputStream, java.io.OutputStream, long, int)
+     * @param inputStream InputStream
+     * @param outputStream OutputStream
+     * @param amount long
+     * @throws IOException on failure
+     * @return long
      */
     public static long copy(final InputStream inputStream,
                             final OutputStream outputStream,
@@ -190,7 +209,12 @@ public final class InOutUtil {
     }
 
     /**
+     *
      * @see #copy(java.io.Reader, java.io.Writer, long, int)
+     * @param reader Reader
+     * @param writer Writer
+     * @throws IOException on failure
+     * @return long
      */
     public static long copy(final Reader reader,
                             final Writer writer) throws IOException {
@@ -199,7 +223,13 @@ public final class InOutUtil {
     }
 
     /**
+     *
      * @see #copy(java.io.Reader, java.io.Writer, long, int)
+     * @param reader Reader
+     * @param writer Writer
+     * @param amount long
+     * @throws IOException on failure
+     * @return long
      */
     public static long copy(final Reader reader, final Writer writer,
                             final long amount) throws IOException {

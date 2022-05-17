@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,9 +37,12 @@ import java.io.IOException;
 public class TarGeneratorMain {
 
     /**
-     * Creates specified tar file to contain specified files, or stdin,
-     * using default blocks-per-record and replacing tar file if it already
-     * exists.
+     * Creates specified tar file to contain specified files, or stdin, using
+     * default blocks-per-record and replacing tar file if it already exists.
+     *
+     * @param sa arguments
+     * @throws IOException on access failure
+     * @throws TarMalformatException if malformed
      */
     public static void main(String[] sa)
     throws IOException, TarMalformatException {

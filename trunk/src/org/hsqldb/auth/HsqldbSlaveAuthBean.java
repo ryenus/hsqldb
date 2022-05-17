@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,14 +61,18 @@ public class HsqldbSlaveAuthBean implements AuthFunctionBean {
     /**
      * Use this method and setValidationPassword if you want access to the
      * master database to be verified upon instance initialization.
+     *
+     * @param validationUser String
      */
     public void setValidationUser(String validationUser) {
         this.validationUser = validationUser;
     }
 
     /**
-     * Use this method and setValidationUser if you want access to the
-     * master database to be verified upon instance initialization.
+     * Use this method and setValidationUser if you want access to the master
+     * database to be verified upon instance initialization.
+     *
+     * @param validationPassword String
      */
     public void setValidationPassword(String validationPassword) {
         this.validationPassword = validationPassword;
@@ -79,10 +83,10 @@ public class HsqldbSlaveAuthBean implements AuthFunctionBean {
     }
 
     /**
-     * Defaults to true.
+     * Defaults to true. Whether roles and initial schema for the new session
+     * will be determined by what they are for this user in the master database.
      *
-     * Whether roles and initial schema for the new session will be determined
-     * by what they are for this user in the master database.
+     * @param doDelegateRolesSchema boolean
      */
     public void setDelegateRolesSchema(boolean doDelegateRolesSchema) {
         delegateRolesSchema = doDelegateRolesSchema;

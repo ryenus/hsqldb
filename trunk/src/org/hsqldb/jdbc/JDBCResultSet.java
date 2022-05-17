@@ -7273,7 +7273,7 @@ public class JDBCResultSet implements ResultSet {
 
     /**
      * The Statement that generated this result. Null if the result is
-     * from DatabaseMetaData<p>
+     * from DatabaseMetaData
      */
     JDBCStatementBase statement;
 
