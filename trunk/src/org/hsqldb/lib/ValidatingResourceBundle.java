@@ -151,10 +151,11 @@ public class ValidatingResourceBundle {
      * Set behavior for get*String*() method when a referred-to System Property
      * is not set. Set to one of
      * <UL>
-     * <LI>RefCapablePropertyResourceBundle.THROW_BEHAVIOR
-     * <LI>RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR
-     * <LI>RefCapablePropertyResourceBundle.NOOP_BEHAVIOR
-     * </UL> The first value is the default.
+     *  <LI>RefCapablePropertyResourceBundle.THROW_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBundle.NOOP_BEHAVIOR
+     * </UL>
+     * The first value is the default.
      *
      * @param missingPropertyBehavior int
      */
@@ -167,10 +168,11 @@ public class ValidatingResourceBundle {
      * index (like %{4}) is used but no subs value was given for that index. Set
      * to one of
      * <UL>
-     * <LI>RefCapablePropertyResourceBundle.THROW_BEHAVIOR
-     * <LI>RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR
-     * <LI>RefCapablePropertyResourceBundle.NOOP_BEHAVIOR
-     * </UL> The first value is the default.
+     *  <LI>RefCapablePropertyResourceBundle.THROW_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBundle.EMPTYSTRING_BEHAVIOR
+     *  <LI>RefCapablePropertyResourceBundle.NOOP_BEHAVIOR
+     * </UL>
+     * The first value is the default.
      *
      * @param missingPosValueBehavior int
      */
