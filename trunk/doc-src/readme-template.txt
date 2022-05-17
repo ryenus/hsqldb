@@ -1,6 +1,6 @@
 Readme File
 ${timestamp}
-This package contains HyperSQL v. ${hsqldb.version}
+This package contains HyperSQL version ${hsqldb.version}
 
 HyperSQL Database is a relational database management system and a set of tools
 written in Java.
