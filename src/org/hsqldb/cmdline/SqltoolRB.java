@@ -270,7 +270,7 @@ public enum SqltoolRB implements RefCapableRBInterface {
     desturl_nowrite
     ;
 
-    private static ValidatingResourceBundle vrb =
+    private static final ValidatingResourceBundle vrb =
             new ValidatingResourceBundle(
                     SqltoolRB.class.getPackage().getName() + ".sqltool",
                     SqltoolRB.class);

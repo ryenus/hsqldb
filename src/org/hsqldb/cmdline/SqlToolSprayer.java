@@ -164,7 +164,7 @@ public class SqlToolSprayer {
 
         // If all statuses true, then System.exit(0);
         for (int i = 0; i < status.length; i++) {
-            if (status[i] != true) {
+            if (!status[i]) {
                 failedUrlids.add(urlids.get(i));
             }
         }

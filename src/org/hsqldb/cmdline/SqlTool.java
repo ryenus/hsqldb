@@ -75,7 +75,7 @@ import org.hsqldb.cmdline.utilclone.RCData;
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class SqlTool {
-    private static FrameworkLogger logger =
+    private static final FrameworkLogger logger =
             FrameworkLogger.getLog(SqlTool.class);
     public static final String DEFAULT_RCFILE =
         System.getProperty("user.home") + "/sqltool.rc";
@@ -101,7 +101,7 @@ public class SqlTool {
      * The configuration identifier to use when connection parameters are
      * specified on the command line
      */
-    private static String CMDLINE_ID = "cmdline";
+    private static final String CMDLINE_ID = "cmdline";
 
     /** Platform-specific line separator */
     public static final String LS = System.getProperty("line.separator");
@@ -115,7 +115,7 @@ public class SqlTool {
     }
 
     /** Utility object for internal use. */
-    private static BadCmdline bcl = new BadCmdline();
+    private static final BadCmdline bcl = new BadCmdline();
 
     /** For trapping of exceptions inside this class.
      * These are always handled inside this class.
