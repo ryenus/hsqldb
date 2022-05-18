@@ -34,8 +34,6 @@ package org.hsqldb.lib;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
@@ -428,13 +426,7 @@ public class RefCapablePropertyResourceBundle {
                 + ((v == null) ? "" : ("_" + v))
                 + ".text";
         //System.err.println("Seeking " + filePath + " FOR " + baseName);
-        InputStream is = (InputStream) AccessController.doPrivileged(
-            new PrivilegedAction<InputStream>() {
-
-            public InputStream run() {
-                return loaderClass.getResourceAsStream(filePath);
-            }
-        });
+        InputStream is = loaderClass.getResourceAsStream(filePath);
         // N.b.  If were using Class.getRes... instead of ClassLoader.getRes...
         // we would need to prefix the path with "/".
         return (is == null && l != null)
