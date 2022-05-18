@@ -73,7 +73,7 @@ javac.bootcp.override=/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar:/usr/lib/jvm/ja
          build.properties file. -->
     <property name="build.debug" value="false"/>
 
-    <property name="servletapi.lib" value="lib/servlet-2_3-fcs-classfiles.zip"/>
+    <property name="servletapi.lib" value="lib/javax.servlet-api-3.1.0.jar"/>
     <property name="junit38.lib" value="lib/junit.jar"/>
     <property name='jflex.lib' value='lib/JFlex.jar'/>
 
