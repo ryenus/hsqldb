@@ -753,7 +753,10 @@ ${err.1}</fail>
     <target name="-compile-mdescriptor" if="ant.java.iscjava09">
         <fail unless='module.name'
             message="Target '-compile-mdescriptor' called when prop 'module.name'not set"/>
-        <copy todir="${swsrc}"
+        <!-- Ant apparently has a low resolution for distinguishing time
+             differences: -->
+        <sleep seconds="1"/>
+        <copy todir="${swsrc}" overwrite="true"
               file="${modinfosrc}${module.name}/module-info.java"/>
 
         <javac srcdir="${swsrc}"
