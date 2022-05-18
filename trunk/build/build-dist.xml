@@ -68,7 +68,7 @@ and re-export.</fail>
   </target>
 
   <target name="dist"
-          depends="state-check, clean-all, gen-docs, sqltool, osgi, javadoc, javadocsqltool"
+          depends="state-check, clean-all, gen-docs, javadoc, javadocsqltool, osgi, sqltool"
           description="Build joint binary + source distribution zip package">
     <mkdir dir="dist"/>
     <property name="app.basedir" value="hsqldb-${hsqldb.version}"/>
