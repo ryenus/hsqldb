@@ -160,16 +160,16 @@ public class SqlFile {
     private static final int TIMESTAMP_WITH_TIMEZONE = 2014;
 
     private enum Recursion { FILE, IF, WHILE, FOREACH, FOR, FORROWS }
-    private static FrameworkLogger logger =
+    private static final FrameworkLogger logger =
             FrameworkLogger.getLog(SqlFile.class);
     private static final int DEFAULT_HISTORY_SIZE = 40;
     private boolean          executing;
     private boolean          permitEmptySqlStatements;
     private boolean          interactive;
-    private String           primaryPrompt    = "sql> ";
-    private static String    rawPrompt;
+    private final String           primaryPrompt    = "sql> ";
+    private static final String    rawPrompt;
     private static Method    createArrayOfMethod;
-    private String           contPrompt       = "  +> ";
+    private static final String           contPrompt       = "  +> ";
     private boolean          htmlMode;
     private TokenList        history;
     /** Platform-specific line separator */
@@ -181,8 +181,8 @@ public class SqlFile {
     private Reader           reader;
     // Reader serves the auxiliary purpose of null meaning execute()
     // has finished.
-    private String           inputStreamLabel;
-    private URL              atBase;
+    private final String           inputStreamLabel;
+    private final URL        atBase;
     private boolean          dsvTrimAll;
     private boolean          ignoreBangStatus;
     private boolean          allQuoted;
@@ -221,65 +221,65 @@ public class SqlFile {
      * unpredictable wrt whether you get a null capture group vs. no capture.
      * Must always check count!
      */
-    private static Pattern   varPattern = Pattern.compile("\\*?[a-zA-Z]\\w*");
-    private static Pattern   wordAndDotPattern = Pattern.compile("[\\w.]+");
-    private static Pattern   specialPattern =
+    private static final Pattern   varPattern = Pattern.compile("\\*?[a-zA-Z]\\w*");
+    private static final Pattern   wordAndDotPattern = Pattern.compile("[\\w.]+");
+    private static final Pattern   specialPattern =
             Pattern.compile("(\\S+)(?:\\s(.*))?");
-    private static Pattern  plPattern = Pattern.compile("(.*\\S)?\\s*");
-    private static Pattern  mathAsgnPattern = Pattern.compile(
+    private static final Pattern  plPattern = Pattern.compile("(.*\\S)?\\s*");
+    private static final Pattern  mathAsgnPattern = Pattern.compile(
         "\\(\\(\\s*([a-zA-Z]\\w*)\\s*([-+*/%][-+=])\\s*(.+?)?\\s*\\)\\)\\s*");
-    private static Pattern  mathPattern = Pattern.compile(
+    private static final Pattern  mathPattern = Pattern.compile(
             "\\(\\(\\s*([a-zA-Z]\\w*)\\s*=\\s*(.+?)?\\s*\\)\\)\\s*");
-    private static Pattern   foreachPattern =
+    private static final Pattern   foreachPattern =
             Pattern.compile("foreach\\s+(\\S+)\\s*\\(([^)]+)\\)\\s*");
-    private static Pattern   forrowsPattern =
+    private static final Pattern   forrowsPattern =
             Pattern.compile("forrows((?:\\s+[a-zA-Z]\\w*)*)\\s*");
-    private static Pattern   forPattern = Pattern.compile(
+    private static final Pattern   forPattern = Pattern.compile(
         "for\\s+(\\(\\(.+\\)\\))?\\s*(\\([^)]+\\))\\s*(\\(\\(.+\\)\\))\\s*");
-    private static Pattern   ifwhilePattern =
+    private static final Pattern   ifwhilePattern =
             Pattern.compile("\\S+\\s*\\(([^)]*)\\)\\s*");
-    private static Pattern   inlineifPattern =
+    private static final Pattern   inlineifPattern =
             Pattern.compile("(if\\s*\\([^)]*\\))(.*\\S.*)");
-    private static Pattern   varsetPattern =
+    private static final Pattern   varsetPattern =
             Pattern.compile("(\\S+)\\s*([=_~:])(.*)?");
-    private static Pattern   substitutionPattern =
+    private static final Pattern   substitutionPattern =
             Pattern.compile("(\\S)(.+?)\\1(.*?)\\1(.+?)?\\s*");
             // Note that this pattern does not include the leading ":s".
-    private static Pattern   slashHistoryPattern =
+    private static final Pattern   slashHistoryPattern =
             Pattern.compile("\\s*/([^/]+)/\\s*(\\S.*)?");
-    private static Pattern   historyPattern =
+    private static final Pattern   historyPattern =
             Pattern.compile("\\s*(-?\\d+)?\\s*(\\S.*)?");
             // Note that this pattern does not include the leading ":".
     private static Pattern wincmdPattern;
-    private static Pattern useMacroPattern =
+    private static final Pattern useMacroPattern =
             Pattern.compile("(\\w+)(\\s.*[^;])?(;?)");
-    private static Pattern useFnPattern =
+    private static final Pattern useFnPattern =
             Pattern.compile("(\\w+\\()\\s*([^;)]*?)\\s*\\)(.*)");
-    private static Pattern legacyEditMacroPattern =
+    private static final Pattern legacyEditMacroPattern =
             Pattern.compile("(\\w+(?:\\(\\))?)\\s*:(.*)");
-    private static Pattern editMacroPattern =
+    private static final Pattern editMacroPattern =
             Pattern.compile(":\\s(\\w+(?:\\(\\))?)(?:\\s(.*))?");
-    private static Pattern spMacroPattern =
+    private static final Pattern spMacroPattern =
             Pattern.compile("(\\w+(?:\\(\\))?)\\s+([*\\\\])(.*\\S)");
-    private static Pattern sqlMacroPattern =
+    private static final Pattern sqlMacroPattern =
             Pattern.compile("(\\w+(?:\\(\\))?)\\s+(.*\\S)");
-    private static Pattern integerPattern = Pattern.compile("\\d+");
-    private static Pattern nameValPairPattern =
+    private static final Pattern integerPattern = Pattern.compile("\\d+");
+    private static final Pattern nameValPairPattern =
             Pattern.compile("\\s*(\\w+)\\s*=(.*)");
             // Specifically permits 0-length values, but not names.
-    private static Pattern dotPattern = Pattern.compile("(\\w*)\\.(\\w*)");
-    private static Pattern commitOccursPattern =
+    private static final Pattern dotPattern = Pattern.compile("(\\w*)\\.(\\w*)");
+    private static final Pattern commitOccursPattern =
             Pattern.compile("(?is)(?:set\\s+autocommit.*)|(commit\\s*)");
-    private static Pattern logPattern =
+    private static final Pattern logPattern =
         Pattern.compile("(?i)(FINER|WARNING|SEVERE|INFO|FINEST)\\s+(.*\\S)");
-    private static Pattern   arrayPattern =
+    private static final Pattern   arrayPattern =
             Pattern.compile("ARRAY\\s*\\[\\s*(.*\\S)?\\s*\\]");
-    private static Pattern fnParamPat = Pattern.compile("\\*\\{(:)?(\\d+)\\}");
+    private static final Pattern fnParamPat = Pattern.compile("\\*\\{(:)?(\\d+)\\}");
     static final Pattern URL_WITH_PROTO_RE = Pattern.compile("[a-z]{2,}:.+");
 
-    private static Map<String, Pattern> nestingPLCommands =
+    private static final Map<String, Pattern> nestingPLCommands =
             new HashMap<String, Pattern>();
-    private static Map<String, Pattern> inlineNestPLCommands =
+    private static final Map<String, Pattern> inlineNestPLCommands =
             new HashMap<String, Pattern>();
     static {
         nestingPLCommands.put("if", ifwhilePattern);
@@ -311,7 +311,7 @@ public class SqlFile {
 
     private boolean removeEmptyVars() {
         String sysP = System.getProperty("sqltool.REMOVE_EMPTY_VARS");
-        return sysP != null && Boolean.parseBoolean(sysP);
+        return Boolean.parseBoolean(sysP);
     }
 
     /**
@@ -2133,7 +2133,7 @@ public class SqlFile {
                 try {
                     Runtime runtime = Runtime.getRuntime();
                     proc = ((wincmdPattern == null)
-                            ? runtime.exec(extCommand)
+                            ? runtime.exec(extCommand.split("\\s+"))
                             : runtime.exec(genWinArgs(extCommand))
                     );
 
@@ -2642,7 +2642,6 @@ public class SqlFile {
             if (!foreachM.matches())
                 throw new BadSpecial(
                         SqltoolRB.pl_malformat_specific.getString("foreach"));
-            if (foreachM.groupCount() != 2)
             assert foreachM.groupCount() == 2:
                 "Internal assertion failed.  "
                 + "foreach pattern matched, but captured "
@@ -5597,7 +5596,7 @@ public class SqlFile {
             oneCol = true;
             break;
         }
-        if (oneCol == false)
+        if (!oneCol)
             // Difficult call, but I think in any real-world situation, the
             // user will want to know if they are inserting records with no
             // data from their input file.
