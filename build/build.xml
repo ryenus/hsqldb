@@ -186,7 +186,6 @@ examples:
       <copy todir="${swsrc}">
           <fileset dir="modinfo-src/org.hsqldb/"/>
       </copy>
-      <delete file="${swsrc}org/hsqldb/server/Servlet.java"/>
     </target>
 
     <target name="-prepare-javadoc-sqltool" depends="-clean-switch-branch, switches">
@@ -205,7 +204,6 @@ examples:
         <copy todir="${swsrc}">
             <fileset dir="modinfo-src/org.hsqldb.sqltool/"/>
         </copy>
-        <delete file="${swsrc}org/hsqldb/server/Servlet.java"/>
     </target>
 
     <target name="reinit"
@@ -903,6 +901,7 @@ ${err.2}</fail>
 
     <target name="javadoc" depends="-prepare-javadoc, -clone-shared-sources, -set-jvmvars"
             description="Create javadoc for the distribution package">
+      <delete file="${swsrc}org/hsqldb/server/Servlet.java"/>
       <javadoc
            destdir="doc/apidocs"
            stylesheetfile="doc-src/apidocs/javadoc.css"
@@ -917,10 +916,6 @@ ${err.2}</fail>
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2022 HSQL Development Group.&lt;/i&gt;">
-           <classpath>
-             <pathelement location="${servletapi.lib}"/>
-             <pathelement location="${junit38.lib}"/>
-           </classpath>
            <packageset dir="${swsrc}">
               <include name='org/hsqldb/auth'/>
               <include name='org/hsqldb/jdbc'/>
@@ -959,10 +954,6 @@ ${err.2}</fail>
                 windowtitle="${hsqldb.title} ${hsqldb.version} API"
                 doctitle="${hsqldb.title} ${hsqldb.version}"
                 bottom="&lt;i&gt;Copyright &#169; 2001 - 2022 HSQL Development Group.&lt;/i&gt;">
-            <classpath>
-                <pathelement location="${servletapi.lib}"/>
-                <pathelement location="${junit38.lib}"/>
-            </classpath>
             <packageset dir="${swsrc}">
                 <include name='org/hsqldb/cmdline'/>
                 <include name='org/hsqldb/libclone'/>
