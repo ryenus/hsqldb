@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ import org.hsqldb.types.Type;
  * corresponds to ScriptWriterText.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- *  @version 2.6.0
+ *  @version 2.7.0
  *  @since 1.7.2
  */
 public class ScriptReaderText extends ScriptReaderBase {
@@ -96,7 +96,7 @@ public class ScriptReaderText extends ScriptReaderBase {
         }
 
         dataStreamIn = new LineReader(tempStream, JavaSystem.CS_ISO_8859_1);
-        rowIn        = new RowInputTextLog(false);
+        rowIn        = new RowInputTextLog();
     }
 
     public void readAll(Session session) {
