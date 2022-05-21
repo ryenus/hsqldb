@@ -284,7 +284,6 @@ examples:
     </condition>
 
     <target name="-autoswitch" description="switch code to current JVM">
-<echo>PRE</echo>
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
         <arg value="${switchargone}"/>
         <arg value="${switchargtwo}"/>
@@ -294,7 +293,6 @@ examples:
              the path must be relative to run dir (build), not the
              Ant basedir -->
       </java>
-<echo>POST</echo>
       <echo> "${basedir}/build/jdkcodeswitch.list"</echo>
     </target>
 
