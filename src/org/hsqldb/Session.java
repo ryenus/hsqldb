@@ -187,10 +187,8 @@ public class Session implements SessionInterface {
         isReadOnlyIsolation = isolationLevel
                               == SessionInterface.TX_READ_UNCOMMITTED;
         sessionContext              = new SessionContext(this);
-        sessionContext.isAutoCommit = autocommit ? Boolean.TRUE
-                                                 : Boolean.FALSE;
-        sessionContext.isReadOnly   = isReadOnlyDefault ? Boolean.TRUE
-                                                        : Boolean.FALSE;
+        sessionContext.isAutoCommit = autocommit;
+        sessionContext.isReadOnly   = isReadOnlyDefault;
         parser                      = new ParserCommand(this, new Scanner());
         sessionData                 = new SessionData(database, this);
         statementManager            = new StatementManager(this);
@@ -415,7 +413,7 @@ public class Session implements SessionInterface {
      */
     void checkReadWrite() {
 
-        if (sessionContext.isReadOnly.booleanValue() || isReadOnlyIsolation) {
+        if (sessionContext.isReadOnly || isReadOnlyIsolation) {
             throw Error.error(ErrorCode.X_25006);
         }
     }
@@ -494,11 +492,10 @@ public class Session implements SessionInterface {
             return;
         }
 
-        if (sessionContext.isAutoCommit.booleanValue() != autocommit) {
+        if (sessionContext.isAutoCommit != autocommit) {
             commit(false);
 
-            sessionContext.isAutoCommit = autocommit ? Boolean.TRUE
-                                                     : Boolean.FALSE;
+            sessionContext.isAutoCommit = autocommit;
         }
     }
 
@@ -637,8 +634,7 @@ public class Session implements SessionInterface {
         sessionData.closeAllTransactionNavigators();
 
         if (!chain) {
-            sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
-                                                          : Boolean.FALSE;
+            sessionContext.isReadOnly = isReadOnlyDefault;
 
             setIsolation(isolationLevelDefault);
         }
@@ -674,7 +670,7 @@ public class Session implements SessionInterface {
         statementManager.reset();
 
         sessionContext.lastIdentity = ValuePool.INTEGER_0;
-        sessionContext.isAutoCommit = Boolean.TRUE;
+        sessionContext.isAutoCommit = true;
 
         setResultMemoryRowCount(database.getResultMaxMemoryRows());
 
@@ -778,7 +774,7 @@ public class Session implements SessionInterface {
     }
 
     public void setNoSQL() {
-        sessionContext.noSQL = Boolean.TRUE;
+        sessionContext.noSQL = true;
     }
 
     public void setIgnoreCase(boolean mode) {
@@ -804,8 +800,7 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_25001);
         }
 
-        sessionContext.isReadOnly = readonly ? Boolean.TRUE
-                                             : Boolean.FALSE;
+        sessionContext.isReadOnly = readonly;
     }
 
     public synchronized void setReadOnlyDefault(boolean readonly) {
@@ -817,8 +812,7 @@ public class Session implements SessionInterface {
         isReadOnlyDefault = readonly;
 
         if (!isInMidTransaction()) {
-            sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
-                                                          : Boolean.FALSE;
+            sessionContext.isReadOnly = isReadOnlyDefault;
         }
     }
 
@@ -828,7 +822,7 @@ public class Session implements SessionInterface {
      * @return the current value
      */
     public boolean isReadOnly() {
-        return sessionContext.isReadOnly.booleanValue() || isReadOnlyIsolation;
+        return sessionContext.isReadOnly || isReadOnlyIsolation;
     }
 
     public synchronized boolean isReadOnlyDefault() {
@@ -841,7 +835,7 @@ public class Session implements SessionInterface {
      * @return the current value
      */
     public synchronized boolean isAutoCommit() {
-        return sessionContext.isAutoCommit.booleanValue();
+        return sessionContext.isAutoCommit;
     }
 
     public synchronized int getStreamBlockSize() {
@@ -1278,8 +1272,7 @@ public class Session implements SessionInterface {
         }
 
         if (sessionContext.depth > 0) {
-            if (sessionContext.noSQL.booleanValue()
-                    || cs.isAutoCommitStatement()) {
+            if (sessionContext.noSQL || cs.isAutoCommitStatement()) {
                 return Result.newErrorResult(Error.error(ErrorCode.X_46000));
             }
         }
@@ -1754,6 +1747,7 @@ public class Session implements SessionInterface {
     }
 
     public void setTimeZone(TimeZone zone) {
+
         currentTimeZone = zone;
 
         if (calendar != null) {
@@ -1888,8 +1882,7 @@ public class Session implements SessionInterface {
                 return sessionContext.isAutoCommit;
 
             case SessionInterface.INFO_CONNECTION_READONLY :
-                return isReadOnlyDefault ? Boolean.TRUE
-                                         : Boolean.FALSE;
+                return isReadOnlyDefault;
 
             case SessionInterface.INFO_CATALOG :
                 return database.getCatalogName().name;

@@ -1524,8 +1524,8 @@ implements PreparedStatement {
             case Types.SQL_DATE :
             case Types.SQL_TIMESTAMP : {
                 millis =
-                    HsqlDateTime.convertMillisFromCalendar(session.getCalendarGMT(),
-                        calendar, millis);
+                    HsqlDateTime.convertMillisFromCalendar(calendar,
+                        session.getCalendarGMT(), millis);
 
 
                 parameterValues[i] = new TimestampData(millis / 1000);
@@ -1601,8 +1601,8 @@ implements PreparedStatement {
 
             case Types.SQL_TIME : {
                 millis =
-                    HsqlDateTime.convertMillisFromCalendar(session.getCalendarGMT(),
-                        calendar, millis);
+                    HsqlDateTime.convertMillisFromCalendar(calendar,
+                        session.getCalendarGMT(), millis);
                 millis = HsqlDateTime.convertToNormalisedTime(session.getCalendarGMT(),
                         millis);
                 break;
@@ -1696,7 +1696,7 @@ implements PreparedStatement {
             }
             case Types.SQL_TIMESTAMP : {
                 millis = HsqlDateTime.convertMillisFromCalendar(
-                    session.getCalendarGMT(), calendar, millis);
+                    calendar, session.getCalendarGMT(), millis);
 
                 seconds = millis / 1000;
 
@@ -1712,7 +1712,7 @@ implements PreparedStatement {
             }
             case Types.SQL_TIME : {
                 millis = HsqlDateTime.convertMillisFromCalendar(
-                    session.getCalendarGMT(), calendar, millis);
+                    calendar, session.getCalendarGMT(), millis);
 
                 millis =
                     HsqlDateTime.getNormalisedTime(session.getCalendarGMT(),
@@ -1739,7 +1739,7 @@ implements PreparedStatement {
                     HsqlDateTime.getNormalisedDate(session.getCalendarGMT(),
                                                    millis);
                 millis = HsqlDateTime.convertMillisFromCalendar(
-                    session.getCalendarGMT(), calendar, millis);
+                    calendar, session.getCalendarGMT(), millis);
 
                 seconds = millis / 1000;
 
