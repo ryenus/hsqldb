@@ -322,7 +322,6 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.MONTHS_BETWEEN, FUNC_MONTHS_BETWEEN);
         customRegularFuncMap.put(Tokens.NANVL, FUNC_NANVL);
         customRegularFuncMap.put(Tokens.NEWID, FUNC_UUID);
-        customRegularFuncMap.put(Tokens.NEW_TIME, FUNC_NEW_TIME);
         customRegularFuncMap.put(Tokens.NEXT_DAY, FUNC_NEXT_DAY);
         customRegularFuncMap.put(Tokens.NUMTODSINTERVAL, FUNC_NUMTODSINTERVAL);
         customRegularFuncMap.put(Tokens.NUMTOYMINTERVAL, FUNC_NUMTOYMINTERVAL);
@@ -696,7 +695,6 @@ public class FunctionCustom extends FunctionSQL {
                 parseList = doubleParamList;
                 break;
 
-            case FUNC_NEW_TIME :
             case FUNC_SEQUENCE_ARRAY :
             case FUNC_TRANSLATE :
                 parseList = tripleParamList;
@@ -2452,25 +2450,6 @@ public class FunctionCustom extends FunctionSQL {
 
                 return data[0];
 
-            case FUNC_NEW_TIME : {
-                if (data[0] == null || data[1] == null || data[2] == null) {
-                    return null;
-                }
-
-                IntervalSecondData zone1 =
-                    (IntervalSecondData) Type.SQL_INTERVAL_HOUR_TO_MINUTE
-                        .convertToDefaultType(session, data[1]);
-                IntervalSecondData zone2 =
-                    (IntervalSecondData) Type.SQL_INTERVAL_HOUR_TO_MINUTE
-                        .convertToDefaultType(session, data[2]);
-                Object val =
-                    Type.SQL_TIMESTAMP_WITH_TIME_ZONE.changeZone(session,
-                        data[0], Type.SQL_TIMESTAMP, (int) zone2.getSeconds(),
-                        (int) zone1.getSeconds());
-
-                return Type.SQL_TIMESTAMP.convertToType(session, val,
-                        Type.SQL_TIMESTAMP_WITH_TIME_ZONE);
-            }
             case FUNC_NEXT_DAY : {
                 if (data[0] == null || data[1] == null) {
                     return null;
@@ -2553,7 +2532,7 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 return Type.SQL_TIMESTAMP_WITH_TIME_ZONE.changeZone(session,
-                        data[0], Type.SQL_TIMESTAMP_WITH_TIME_ZONE, 0, 0);
+                        data[0], Type.SQL_TIMESTAMP_WITH_TIME_ZONE, 0, false);
             }
             case FUNC_SYSDATE : {
                 TimestampData timestamp = DateTimeType.getSysDateTimestamp();
@@ -3962,22 +3941,6 @@ public class FunctionCustom extends FunctionSQL {
                 dataType = nodes[0].dataType;
                 break;
 
-            case FUNC_NEW_TIME :
-                if (nodes[0].dataType == null) {
-                    nodes[0].dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
-                }
-
-                if (nodes[1].dataType == null) {
-                    nodes[1].dataType = Type.SQL_VARCHAR;
-                }
-
-                if (nodes[2].dataType == null) {
-                    nodes[2].dataType = Type.SQL_VARCHAR;
-                }
-
-                dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
-                break;
-
             case FUNC_NEXT_DAY :
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_TIMESTAMP_NO_FRACTION;
@@ -4323,7 +4286,6 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_MONTHS_BETWEEN :
             case FUNC_NEXT_DAY :
             case FUNC_NANVL :
-            case FUNC_NEW_TIME :
             case FUNC_NUMTODSINTERVAL :
             case FUNC_NUMTOYMINTERVAL :
             case FUNC_SESSIONTIMEZONE :

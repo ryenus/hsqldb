@@ -191,13 +191,8 @@ public class HsqlDateTime {
         }
     }
 
-    public static long convertMillisFromCalendar(Calendar calendar,
-            long millis) {
-        return convertMillisFromCalendar(tempCalGMT, calendar, millis);
-    }
-
-    public static long convertMillisFromCalendar(Calendar targetClendar,
-            Calendar sourceCalendar, long millis) {
+    public static long convertMillisFromCalendar(Calendar sourceCalendar,
+            Calendar targetClendar, long millis) {
 
         synchronized (targetClendar) {
             synchronized (sourceCalendar) {
