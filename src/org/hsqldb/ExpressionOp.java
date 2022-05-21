@@ -49,7 +49,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class ExpressionOp extends Expression {
@@ -140,40 +140,30 @@ public class ExpressionOp extends Expression {
      */
     ExpressionOp(Expression e) {
 
-        super(e.dataType.isDateTimeTypeWithZone() ? OpTypes.CAST
-                                                  : OpTypes.ZONE_MODIFIER);
+        super(OpTypes.CAST);
+
+        nodes       = new Expression[UNARY];
+        nodes[LEFT] = e;
 
         switch (e.dataType.typeCode) {
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
-                nodes                = new Expression[UNARY];
-                nodes[LEFT] = new ExpressionOp(OpTypes.ZONE_MODIFIER, e, null);
-                nodes[LEFT].dataType = e.dataType;
                 dataType = DateTimeType.getDateTimeType(Types.SQL_TIME,
                         e.dataType.scale);
                 break;
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                nodes                = new Expression[UNARY];
-                nodes[LEFT] = new ExpressionOp(OpTypes.ZONE_MODIFIER, e, null);
-                nodes[LEFT].dataType = e.dataType;
                 dataType = DateTimeType.getDateTimeType(Types.SQL_TIMESTAMP,
                         e.dataType.scale);
                 break;
 
             case Types.SQL_TIME :
-                nodes                = new Expression[BINARY];
-                nodes[LEFT]          = e;
-                nodes[LEFT].dataType = e.dataType;
                 dataType =
                     DateTimeType.getDateTimeType(Types.SQL_TIME_WITH_TIME_ZONE,
                                                  e.dataType.scale);
                 break;
 
             case Types.SQL_TIMESTAMP :
-                nodes                = new Expression[BINARY];
-                nodes[LEFT]          = e;
-                nodes[LEFT].dataType = e.dataType;
                 dataType = DateTimeType.getDateTimeType(
                     Types.SQL_TIMESTAMP_WITH_TIME_ZONE, e.dataType.scale);
                 break;
@@ -973,14 +963,18 @@ public class ExpressionOp extends Expression {
                     return null;
                 }
 
-                long zoneSeconds = nodes[RIGHT] == null
-                                   ? session.getZoneSeconds()
-                                   : ((IntervalType) nodes[RIGHT].dataType)
-                                       .getSeconds(rightValue);
+                boolean atLocal     = nodes[RIGHT] == null;
+                long    zoneSeconds = 0;
+
+                if (!atLocal) {
+                    zoneSeconds =
+                        ((IntervalType) nodes[RIGHT].dataType).getSeconds(
+                            rightValue);
+                }
 
                 return ((DateTimeType) dataType).changeZone(session,
                         leftValue, nodes[LEFT].dataType, (int) zoneSeconds,
-                        session.getZoneSeconds());
+                        atLocal);
             }
             case OpTypes.LIMIT :
 

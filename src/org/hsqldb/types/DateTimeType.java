@@ -1135,8 +1135,7 @@ public final class DateTimeType extends DTIType {
 
                 if (withTimeZone) {
                     s = Type.SQL_INTERVAL_HOUR_TO_MINUTE
-                        .intervalSecondToString(((TimestampData) a).zone, 0,
-                                                true);
+                        .intervalSecondToString(ts.zone, 0, true);
                     tss += s;
                 }
 
@@ -1793,9 +1792,7 @@ public final class DateTimeType extends DTIType {
     }
 
     public Object changeZone(Session session, Object a, Type otherType,
-                             int targetZone, int localZone) {
-
-        Calendar calendar = session.getCalendarGMT();
+                             int targetZone, boolean atLocal) {
 
         if (a == null) {
             return null;
@@ -1811,17 +1808,20 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIME_WITH_TIME_ZONE : {
                 TimeData value = (TimeData) a;
 
+                if (atLocal) {
+                    targetZone = session.getZoneSeconds();
+                }
+
                 if (otherType.isDateTimeTypeWithZone()) {
                     if (value.zone != targetZone) {
                         return new TimeData(value.seconds, value.nanos,
                                             targetZone);
                     }
                 } else {
-                    int seconds = value.seconds - localZone;
+                    int localZone = session.getZoneSeconds();
+                    int seconds   = value.seconds - localZone;
 
-                    seconds =
-                        (int) (HsqlDateTime.getNormalisedTime(calendar, seconds * 1000L)
-                               / 1000);
+                    seconds = toTimeSeconds(seconds);
 
                     return new TimeData(seconds, value.nanos, targetZone);
                 }
@@ -1829,11 +1829,19 @@ public final class DateTimeType extends DTIType {
                 break;
             }
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-                TimestampData value   = (TimestampData) a;
-                long          seconds = value.seconds;
+                TimestampData value    = (TimestampData) a;
+                long          seconds  = value.seconds;
+                Calendar      calendar = session.getCalendar();
 
                 if (!otherType.isDateTimeTypeWithZone()) {
-                    seconds -= localZone;
+                    seconds = HsqlDateTime.convertSecondsFromCalendar(
+                        session.getCalendarGMT(), calendar, seconds);
+                }
+
+                if (atLocal) {
+                    targetZone =
+                        calendar.getTimeZone().getOffset(seconds * 1000)
+                        / 1000;
                 }
 
                 if (value.seconds != seconds || value.zone != targetZone) {
@@ -2327,10 +2335,10 @@ public final class DateTimeType extends DTIType {
             s2 = temp;
         }
 
-        s1 = HsqlDateTime.getNormalisedDate(session.getCalendarGMT(), s1);
-        s2 = HsqlDateTime.getNormalisedDate(session.getCalendarGMT(), s2);
-
         Calendar cal = session.getCalendarGMT();
+
+        s1 = HsqlDateTime.getNormalisedDate(cal, s1);
+        s2 = HsqlDateTime.getNormalisedDate(cal, s2);
 
         cal.setTimeInMillis(s1);
 
@@ -2339,16 +2347,9 @@ public final class DateTimeType extends DTIType {
         int day1    = cal.get(Calendar.DAY_OF_MONTH);
 
         cal.set(Calendar.DAY_OF_MONTH, 1);
-
-        long millis = cal.getTimeInMillis();
-
         cal.add(Calendar.MONTH, 1);
-
-        millis = cal.getTimeInMillis();
-
         cal.add(Calendar.DAY_OF_MONTH, -1);
 
-        millis   = cal.getTimeInMillis();
         lastDay1 = cal.get(Calendar.DAY_OF_MONTH);
 
         cal.setTimeInMillis(s2);
@@ -2358,16 +2359,9 @@ public final class DateTimeType extends DTIType {
         int day2    = cal.get(Calendar.DAY_OF_MONTH);
 
         cal.set(Calendar.DAY_OF_MONTH, 1);
-
-        millis = cal.getTimeInMillis();
-
         cal.add(Calendar.MONTH, 1);
-
-        millis = cal.getTimeInMillis();
-
         cal.add(Calendar.DAY_OF_MONTH, -1);
 
-        millis   = cal.getTimeInMillis();
         lastDay2 = cal.get(Calendar.DAY_OF_MONTH);
 
         double months;

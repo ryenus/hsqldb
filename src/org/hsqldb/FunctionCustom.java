@@ -1486,8 +1486,13 @@ public class FunctionCustom extends FunctionSQL {
 
                 if (unary) {
                     if (nodes[0].dataType.isNumberType()) {
-                        return new TimestampData(
-                            ((Number) data[0]).longValue());
+                        Calendar calendar = session.getCalendar();
+                        long seconds =((Number) data[0]).longValue();
+                        calendar.setTimeInMillis(seconds * 1000);
+
+                        int zone = HsqlDateTime.getZoneSeconds(calendar);
+
+                        return new TimestampData(seconds + zone);
                     }
 
                     try {
