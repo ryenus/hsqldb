@@ -62,7 +62,6 @@ import org.hsqldb.ClientConnection;
 import org.hsqldb.ClientConnectionHTTP;
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.error.ErrorCode;

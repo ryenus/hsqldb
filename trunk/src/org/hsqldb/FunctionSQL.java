@@ -545,7 +545,7 @@ public class FunctionSQL extends Expression {
     }
 
     /**
-     * Evaluates and returns this Function in the context of the session.<p>
+     * Evaluates and returns this Function in the context of the session.
      */
     public Object getValue(Session session) {
 
@@ -2154,7 +2154,7 @@ public class FunctionSQL extends Expression {
     }
 
     /**
-     * Returns a String representation of this object. <p>
+     * Returns a String representation of this object.
      */
     public String describe(Session session, int blanks) {
 

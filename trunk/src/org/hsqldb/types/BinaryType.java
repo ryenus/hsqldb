@@ -46,17 +46,16 @@ import org.hsqldb.lib.StringConverter;
  * SQL:2008 Standard  specifies silent truncation of zero bytes at the end of the
  * binary strings used for assignment and concatenation.<p>
  *
- * * A binary string of type BINARY VARYING and BLOB when assigned to a column
+ * A binary string of type BINARY VARYING and BLOB when assigned to a column
  * of similar type but shorter maximum length.<p>
  *
- * * The Second operand of a concatenation when the length of the result exceeds
+ * The Second operand of a concatenation when the length of the result exceeds
  * the maximum implementation-dependent length of BINARY VARYING and BLOB
  * binary strings.<p>
  *
  * The behaviour is similar to trimming of space characters from strings of
  * CHARACTER VARYING and CLOB types.<p>
  *
- * <p>
  * In most real-world use-cases, all the bytes of variable-length binary values
  * stored in a database are significant and should not be discarded.<p>
  *
@@ -72,7 +71,7 @@ import org.hsqldb.lib.StringConverter;
  *
  * As an extension to the Standard, HSQLDB supports cast from CHARACTER types
  * to BINARY. The length of the string must be even and all character
- * must be hexadecimal characters.<p>
+ * must be hexadecimal characters.
  *
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)

@@ -2168,7 +2168,7 @@ public class ParserDQL extends ParserBase {
     }
 
     /**
-     * Creates a RangeVariable from the parse context. <p>
+     * Creates a RangeVariable from the parse context.
      */
     protected RangeVariable readTableOrSubquery() {
 

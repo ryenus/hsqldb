@@ -41,7 +41,6 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.ValuePool;
 
 /**

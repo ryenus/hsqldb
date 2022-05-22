@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 
 package org.hsqldb.persist;
 
-import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -50,7 +49,6 @@ import org.hsqldb.index.Index;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.index.NodeAVLDisk;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.DoubleLongIndex;
 import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.LongLookup;

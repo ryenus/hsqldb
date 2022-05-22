@@ -78,7 +78,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.TimeZone;
 
 import org.hsqldb.ClientConnection;
 import org.hsqldb.ColumnBase;

@@ -233,7 +233,7 @@ public class GranteeManager {
      *  rights checks and tests will fail, since the HsqlName
      *  class implements its {@link HsqlName#hashCode() hashCode} and
      *  {@link HsqlName#equals equals} methods based on pure object
-     *  identity, rather than on attribute values. <p>
+     *  identity, rather than on attribute values.
      */
     public void grant(Session session, OrderedHashSet granteeList,
                       SchemaObject dbObject, Right right, Grantee grantor,
@@ -451,7 +451,7 @@ public class GranteeManager {
      * Revokes the rights represented by the rights argument on
      * the database object identified by the dbobject argument
      * from the User object identified by the name
-     * argument.<p>
+     * argument.
      * @see #grant
      */
     public void revoke(OrderedHashSet granteeList, SchemaObject dbObject,
@@ -520,7 +520,7 @@ public class GranteeManager {
 
     /**
      * Updates all the talbe level rights on a table after the addition of a
-     * column.<p>
+     * column.
      */
     public void updateAddColumn(HsqlName table, HsqlName column) {
 
@@ -660,7 +660,7 @@ public class GranteeManager {
     /**
      * Creates a new Role object under management of this object. <p>
      *
-     *  A set of constraints regarding user creation is imposed: <p>
+     *  A set of constraints regarding user creation is imposed:
      *
      *  <OL>
      *    <LI>Can't create a role with name same as any right.
@@ -788,13 +788,13 @@ public class GranteeManager {
      * Attempts to drop a Role with the specified name
      *  from this object's set. <p>
      *
-     *  A successful drop action consists of: <p>
+     *  A successful drop action consists of:
      *
      *  <UL>
      *
      *    <LI>removing the Grantee object with the specified name
      *        from the set.
-     *  </UL> <p>
+     *  </UL>
      *
      */
     public void dropRole(String name) {

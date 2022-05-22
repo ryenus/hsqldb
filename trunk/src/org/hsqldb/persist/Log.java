@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,7 +112,7 @@ public class Log {
      * When opening a database, the hsqldb.compatible_version property is
      * used to determine if this version of the engine is equal to or greater
      * than the earliest version of the engine capable of opening that
-     * database.<p>
+     * database.
      */
     void open() {
 

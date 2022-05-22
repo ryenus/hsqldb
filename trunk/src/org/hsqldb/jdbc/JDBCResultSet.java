@@ -65,7 +65,6 @@ import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringInputStream;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.navigator.RowSetNavigator;
-import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
@@ -92,10 +91,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.OffsetTime;
 import java.time.Period;
-import java.time.ZoneOffset;
 //#endif JAVA8
 
 
