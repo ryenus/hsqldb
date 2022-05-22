@@ -322,7 +322,7 @@ public class Grantee implements SchemaObject {
      * Grants the specified rights on the specified database object. <p>
      *
      * Keys stored in rightsMap for database tables are their HsqlName
-     * attribute. This allows rights to persist when a table is renamed. <p>
+     * attribute. This allows rights to persist when a table is renamed.
      */
     void grant(HsqlName name, Right right, Grantee grantor,
                boolean withGrant) {
@@ -1125,7 +1125,7 @@ public class Grantee implements SchemaObject {
      * Retrieves the map object that represents the rights that have been
      * granted on database objects.  <p>
      *
-     * The map has keys and values with the following interpretation: <P>
+     * The map has keys and values with the following interpretation:
      *
      * <UL>
      * <LI> The keys are generally (but not limited to) objects having

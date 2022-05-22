@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,6 @@
 
 package org.hsqldb.index;
 
-import org.hsqldb.Table;
-import org.hsqldb.persist.RowStoreAVL;
-import org.hsqldb.result.Result;
-import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.Session;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.Session;
@@ -47,6 +42,8 @@ import org.hsqldb.lib.OrderedLongHashSet;
 import org.hsqldb.map.BitMap;
 import org.hsqldb.persist.DataFileCache;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.persist.RowStoreAVL;
+import org.hsqldb.result.Result;
 import org.hsqldb.rowio.RowInputBinary;
 
 /**

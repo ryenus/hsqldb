@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,9 +30,6 @@
 
 
 package org.hsqldb.lib;
-
-import java.util.ListIterator;
-
 
 /**
  * A list which is also a Set which maintains the inserted order of elements and

@@ -614,7 +614,7 @@ public class Database {
     }
 
     /**
-     *  Closes this Database using the specified mode. <p>
+     *  Closes this Database using the specified mode.
      *
      * <ol>
      *  <LI> closemode -1 performs SHUTDOWN IMMEDIATELY, equivalent
@@ -899,7 +899,7 @@ public class Database {
      *
      * The runner is called at second intervals. It handles the countdown for
      * each session currently running a statement with timeout. If timeout
-     * is reached, the runner aborts the statement.<p>
+     * is reached, the runner aborts the statement.
      */
     static class TimeoutRunner implements Runnable {
 

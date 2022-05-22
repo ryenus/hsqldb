@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,7 +94,7 @@ public final class UserManager {
     /**
      * Creates a new User object under management of this object. <p>
      *
-     *  A set of constraints regarding user creation is imposed: <p>
+     *  A set of constraints regarding user creation is imposed:
      *
      *  <OL>
      *    <LI>If the specified name is null, then an
@@ -165,7 +165,7 @@ public final class UserManager {
      * Attempts to drop a User object with the specified name
      *  from this object's set. <p>
      *
-     *  A successful drop action consists of: <p>
+     *  A successful drop action consists of:
      *
      *  <UL>
      *

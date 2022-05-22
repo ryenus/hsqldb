@@ -57,7 +57,6 @@ import java.util.Map;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SchemaObject;
-import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.result.ResultConstants;
@@ -80,10 +79,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.OffsetTime;
 import java.time.Period;
-import java.time.ZoneOffset;
 
 //#endif JAVA8
 

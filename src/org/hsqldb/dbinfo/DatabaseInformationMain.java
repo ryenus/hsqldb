@@ -368,7 +368,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
     /**
      * One time initialisation of instance attributes
-     * at construction time. <p>
+     * at construction time.
      *
      */
     protected final void init(Session session) {
@@ -500,7 +500,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * Each row describes a single column of the best row identifier column
      * set for a particular table.  Each row has the following
-     * columns: <p>
+     * columns:
      *
      * <pre class="SqlCodeExample">
      * SCOPE          SMALLINT  scope of applicability
@@ -542,7 +542,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * <b>DEFINTIONS:</b>  <p>
      *
-     * <b>Alternate key</b> <p>
+     * <b>Alternate key</b>
      *
      *  <UL>
      *   <LI> An attribute of a table that, by virtue of its having a set of
@@ -552,7 +552,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *        primary key on those same columns.
      *  </UL> <p>
      *
-     * <b>Column set performance ranking</b> <p>
+     * <b>Column set performance ranking</b>
      *
      *  <UL>
      *  <LI> The ranking of the expected average performance w.r.t a subset of
@@ -569,7 +569,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * <b>Rules:</b> <p>
      *
      * Given the above definitions, the rules currently in effect for reporting
-     * best row identifier are as follows, in order of precedence: <p>
+     * best row identifier are as follows, in order of precedence:
      *
      * <OL>
      * <LI> if the table under consideration has a primary key constraint, then
@@ -593,14 +593,14 @@ class DatabaseInformationMain extends DatabaseInformation {
      *      candidate column sets. If there exists a tie for lowest non-zero
      *      count of columns having a not null constraint, then the columns
      *      of the first such encountered candidate set are reported. Each
-     *      row has its IN_KEY column set to FALSE. <p>
+     *      row has its IN_KEY column set to FALSE.
      *
      * <LI> Finally, if the set of candidate column sets in 3.) is the empty,
      *      then no column set is reported for the table under consideration.
      * </OL> <p>
      *
      * The scope reported for a best row identifier column set is determined
-     * thus: <p>
+     * thus:
      *
      * <OL>
      * <LI> if the database containing the table under consideration is in
@@ -773,7 +773,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * visible columns of all accessible tables defined
      * within this database.<p>
      *
-     * Each row is a column description with the following columns: <p>
+     * Each row is a column description with the following columns:
      *
      * <pre class="SqlCodeExample">
      * TABLE_CAT         VARCHAR   table catalog
@@ -806,7 +806,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @return a <code>Table</code> object describing the
      *        visible columns of all accessible
-     *        tables defined within this database.<p>
+     *        tables defined within this database.
      */
     final Table SYSTEM_COLUMNS(Session session, PersistentStore store) {
 
@@ -1027,7 +1027,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * the columns of the referenced tables.<p>
      *
      * Each row is a foreign key column description with the following
-     * columns: <p>
+     * columns:
      *
      * <pre class="SqlCodeExample">
      * PKTABLE_CAT   VARCHAR   referenced table catalog
@@ -1229,7 +1229,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * within this database.<p>
      *
      * Each row is an index column description with the following
-     * columns: <p>
+     * columns:
      *
      * <pre class="SqlCodeExample">
      * TABLE_CAT        VARCHAR   table's catalog
@@ -1420,7 +1420,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * this database. <p>
      *
      * Each row is a PRIMARY KEY column description with the following
-     * columns: <p>
+     * columns:
      *
      * <pre class="SqlCodeExample">
      * TABLE_CAT   VARCHAR   table catalog
@@ -1530,7 +1530,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * routines defined within this database.<p>
      *
      * Each row is a procedure column description with the following
-     * columns: <p>
+     * columns:
      *
      * <pre class="SqlCodeExample">
      * PROCEDURE_CAT   VARCHAR   routine catalog
@@ -1779,7 +1779,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * routines (both functions and procedures) defined within this database.<p>
      *
      * Each row is a procedure description with the following
-     * columns: <p>
+     * columns:
      *
      * <pre class="SqlCodeExample">
      * PROCEDURE_CAT     VARCHAR   catalog in which routine is defined
@@ -2169,7 +2169,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * defined within this database. <p>
      *
      * Each row is a schema description with the following
-     * columns: <p>
+     * columns:
      *
      * <pre class="SqlCodeExample">
      * TABLE_SCHEM      VARCHAR   simple schema name
@@ -2233,7 +2233,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * Retrieves a <code>Table</code> object describing the accessible
      * tables defined within this database. <p>
      *
-     * Each row is a table description with the following columns: <p>
+     * Each row is a table description with the following columns:
      *
      * <pre class="SqlCodeExample">
      * TABLE_CAT                 VARCHAR   table catalog
@@ -2373,7 +2373,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * available in this database. <p>
      *
      * In general, the range of values that may be commonly encountered across
-     * most DBMS implementations is: <p>
+     * most DBMS implementations is:
      *
      * <UL>
      *   <LI><FONT color='#FF00FF'>"TABLE"</FONT>
@@ -2386,7 +2386,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * </UL> <p>
      *
      * As of HSQLDB 1.7.2, the engine supports and thus this method reports
-     * only a subset of the range above: <p>
+     * only a subset of the range above:
      *
      * <UL>
      *   <LI><FONT color='#FF00FF'>"TABLE"</FONT>
@@ -2826,9 +2826,9 @@ class DatabaseInformationMain extends DatabaseInformation {
     /**
      * Retrieves a <code>Table</code> object describing the accessible
      * columns that are automatically updated when any value in a row
-     * is updated. <p>
+     * is updated.<P>
      *
-     * Each row is a version column description with the following columns: <p>
+     * Each row is a version column description with the following columns:
      *
      * <OL>
      * <LI><B>SCOPE</B> <code>SMALLINT</code> => is not used
@@ -3035,7 +3035,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * tables defined within this database.<p>
      *
      * Each row is a column privilege description with the following
-     * columns: <p>
+     * columns:
      *
      * <pre class="SqlCodeExample">
      * TABLE_CAT    VARCHAR   table catalog
@@ -3177,7 +3177,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * The SEQUENCES view has one row for each external sequence
      * generator. <p>
      *
-     * <b>Definition:</b> <p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      *
@@ -3201,26 +3201,26 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * </pre>
      *
-     * <b>DESCRIPTION:</b><p>
+     * <b>DESCRIPTION:</b>
      *
      * <ol>
      * <li> The values of SEQUENCE_CATALOG, SEQUENCE_SCHEMA, and
      *      SEQUENCE_NAME are the catalog name, unqualified schema name,
      *      and qualified identifier, respectively, of the sequence generator
-     *      being described. <p>
+     *      being described.
      *
      * <li> The values of SEQUENCE_CATALOG, SEQUENCE_SCHEMA, SEQUENCE_NAME, and
      *      DTD_IDENTIFIER are the values of OBJECT_CATALOG, OBJECT_SCHEMA,
      *      OBJECT_NAME, and DTD_IDENTIFIER, respectively, of the row in
      *      DATA_TYPE_DESCRIPTOR (not yet implemented) that describes the data
-     *      type of the sequence generator. <p>
+     *      type of the sequence generator.
      *
      * <li> The values of MAXIMUM_VALUE, MINIMUM_VALUE, and INCREMENT are the
      *      character representations of maximum value, minimum value,
      *      and increment, respectively, of the sequence generator being
-     *      described. <p>
+     *      described.
      *
-     * <li> The values of CYCLE_OPTION have the following meanings: <p>
+     * <li> The values of CYCLE_OPTION have the following meanings:
      *
      *      <table border cellpadding="3">
      *          <tr>
@@ -3232,12 +3232,10 @@ class DatabaseInformationMain extends DatabaseInformation {
      *              <td nowrap>The cycle option of the sequence generator is
      *                         NO CYCLE.</td>
      *          </tr>
-     *      </table> <p>
+     *      </table>
      *
      * <li> The value of START_WITH is HSQLDB-specific (not in the SQL 200n
-     *      spec).  <p>
-     *
-     *      It is the character representation of the START WITH value. <p>
+     *      spec). It is the character representation of the START WITH value.
      *
      * <li> The value of NEXT_VALUE is HSQLDB-specific (not in the SQL 200n)<p>
      *      This is the character representation of the value that
@@ -3469,7 +3467,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * The TABLE_PRIVILEGES view has one row for each visible access
      * right for each accessible table defined within this database. <p>
      *
-     * Each row is a table privilege description with the following columns: <p>
+     * Each row is a table privilege description with the following columns:
      *
      * <pre class="SqlCodeExample">
      * GRANTOR      VARCHAR   grantor of access
@@ -3713,7 +3711,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * Retrieves a <code>Table</code> object naming the accessible catalogs
      * defined within this database. <p>
      *
-     * Each row is a catalog name description with the following column: <p>
+     * Each row is a catalog name description with the following column:
      *
      * <pre class="SqlCodeExample">
      * TABLE_CAT   VARCHAR   catalog name

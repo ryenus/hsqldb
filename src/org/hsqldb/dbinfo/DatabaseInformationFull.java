@@ -72,7 +72,6 @@ import org.hsqldb.persist.DataFileCache;
 import org.hsqldb.persist.DataSpaceManager;
 import org.hsqldb.persist.DirectoryBlockCachedObject;
 import org.hsqldb.persist.HsqlDatabaseProperties;
-import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.HsqlProperties.PropertyMeta;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.TableSpaceManager;
@@ -924,7 +923,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * Retrieves a <code>Table</code> object describing attributes
      * for the calling session context.<p>
      *
-     * The rows report the following {key,value} pairs:<p>
+     * The rows report the following {key,value} pairs:
      *
      * <pre class="SqlCodeExample">
      * KEY (VARCHAR)       VALUE (VARCHAR)
@@ -1086,7 +1085,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * sessions. ADMIN users see *all* sessions
      * while non-admin users see only their own session.<p>
      *
-     * Each row is a session state description with the following columns: <p>
+     * Each row is a session state description with the following columns:
      *
      * <pre class="SqlCodeExample">
      * SESSION_ID         BIGINT    session identifier
@@ -1688,7 +1687,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * within this database.<p>
      *
      * Each row is an index column description with the following
-     * columns: <p>
+     * columns:
      *
      * <pre class="SqlCodeExample">
      * TABLE_CATALOG    VARCHAR   table's catalog
@@ -1973,7 +1972,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * Identifies the applicable roles for the current user.<p>
      *
-     * <b>Definition</b><p>
+     * <b>Definition</b>
      *
      * <pre class="SqlCodeExample">
      * CREATE RECURSIVE VIEW APPLICABLE_ROLES ( GRANTEE, ROLE_NAME, IS_GRANTABLE ) AS
@@ -2112,7 +2111,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *  those that may create a schema, or currently own a schema created
      *  through a &lt;schema definition&gt;. <p>
      *
-     *  <b>Definition</b><p>
+     *  <b>Definition</b>
      *
      *  <pre class="SqlCodeExample">
      *  CREATE TABLE AUTHORIZATIONS (
@@ -2127,10 +2126,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *       )
      *  </pre>
      *
-     *  <b>Description</b><p>
+     *  <b>Description</b>
      *
      *  <ol>
-     *  <li> The values of AUTHORIZATION_TYPE have the following meanings:<p>
+     *  <li> The values of AUTHORIZATION_TYPE have the following meanings:
      *
      *  <table border cellpadding="3">
      *       <tr>
@@ -2270,7 +2269,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * contained in an &lt;assertion definition&gt;, a &lt;domain
      * constraint&gt;, or a &lt;table constraint definition&gt;. <p>
      *
-     * <b>Definition:</b> <p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      * CREATE TABLE SYSTEM_CHECK_ROUTINE_USAGE (
@@ -2285,7 +2284,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * )
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The CHECK_ROUTINE_USAGE table has one row for each
@@ -2294,12 +2293,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      invocation&gt;, or a &lt;static method invocation&gt; contained in
      *      an &lt;assertion definition&gt; or in the &lt;check constraint
      *      definition&gt; contained in either a &lt;domain constraint&gt; or a
-     *      &lt;table constraint definition&gt;. <p>
+     *      &lt;table constraint definition&gt;.
      *
      * <li> The values of CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, and
      *      CONSTRAINT_NAME are the catalog name, schema name, and
      *      identifier, respectively, of the assertion or check
-     *      constraint being described. <p>
+     *      constraint being described.
      *
      * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA, and SPECIFIC_NAME
      *      are the catalog name, schema name, and qualified
@@ -2440,7 +2439,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The CHECK_CONSTRAINTS view has one row for each domain
      * constraint, table check constraint, and assertion. <p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      *      CONSTRAINT_CATALOG  VARCHAR NULL,
@@ -2449,17 +2448,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      CHECK_CLAUSE        VARCHAR NOT NULL,
      * </pre>
      *
-     * <b>Description:</b><p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> A constraint is shown in this view if the authorization for the
      *      schema that contains the constraint is the current user or is a role
-     *      assigned to the current user. <p>
+     *      assigned to the current user.
      *
      * <li> The values of CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA and
      *      CONSTRAINT_NAME are the catalog name, schema name,
      *      and identifier, respectively, of the constraint being
-     *      described. <p>
+     *      described.
      *
      * <li> the value of CHECK_CLAUSE is that character representation of
      *      the search condition contained in the check constraint.
@@ -2604,15 +2603,15 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * )
      * </pre>
      *
-     * <b>Description</b><p>
+     * <b>Description</b>
      *
      * <ol>
      *      <li>The values of COLLATION_CATALOG, COLLATION_SCHEMA, and
      *          COLLATION_NAME are the catalog name, schema name,
      *          and identifier, respectively, of the collation being
-     *          described.<p>
+     *          described.
      *
-     *      <li>The values of PAD_ATTRIBUTE have the following meanings:<p>
+     *      <li>The values of PAD_ATTRIBUTE have the following meanings:
      *
      *      <table border cellpadding="3">
      *          <tr>
@@ -2719,7 +2718,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, and
@@ -2835,7 +2834,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of DOMAIN_CATALOG, DOMAIN_SCHEMA and DOMAIN_NAME
@@ -2953,7 +2952,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of UDT_CATALOG, UDT_SCHEMA and UDT_NAME
@@ -3058,7 +3057,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * SQL:2008 VIEW<p>
      * The COLUMNS view has one row for each column of each table or view.
      * The column, its data type characteristics, together with its
-     * IDENTITY or GENERATED characteristics are reported in this view.<p>
+     * IDENTITY or GENERATED characteristics are reported in this view.
      * <ol>
      * <1i> Columns are reported only if the user or one of its roles is
      *      the authorization (owner) of the table, or is granted any privilege
@@ -3388,7 +3387,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, and
@@ -3401,7 +3400,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * <li> The values of CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, and
      *      CONSTRAINT_NAME are the catalog name, schema name,
      *      and identifier, respectively, of the constraint being
-     *      described. <p>
+     *      described.
      *
      * <li> For FOREIGN KEY constraints, the columns of the UNIQUE constraint
      *      in the referenced table are also included in this view.
@@ -3579,7 +3578,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, and
@@ -3705,7 +3704,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * containing / referenced by each PRIMARY KEY, UNIQUE and FOREIGN KEY
      * constraint<p>
      *
-     * <b>Definition:</b> <p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      *      TABLE_CATALOG           VARCHAR
@@ -3716,13 +3715,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      CONSTRAINT_NAME         VARCHAR
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, and
      *      CONSTRAINT_NAME are the catalog name, schema name,
      *       and identifier, respectively, of the constraint being
-     *      described. <p>
+     *      described.
      *
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, and TABLE_NAME are the
      *      catalog name, schema name, and identifier,
@@ -3781,7 +3780,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * The DATA_TYPE_PRIVILEGES view has one row for each use of a data type.
      * Currently this view does not report the DTD_IDENTIFIER column.
-     * <b>Definition:</b> <p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      *      OBJECT_CATALOG      VARCHAR
@@ -3791,12 +3790,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      DTD_IDENTIFIER      VARCHAR
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of OBJECT_CATALOG, OBJECT_SCHEMA, and
      *      OBJECT_NAME are the catalog name, schema name,
-     *       and identifier, respectively, of the object. <p>
+     *       and identifier, respectively, of the object.
      *
      * <li> The value of OBJECT_TYPE is the type of the object, for example
      *      'TABLE'.
@@ -3932,7 +3931,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The DOMAIN_CONSTRAINTS view has one row for each domain
      * constraint. <p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      *      CONSTRAINT_CATALOG  VARCHAR NULL,
@@ -3945,12 +3944,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      INITIALLY_DEFERRED  VARCHAR NOT NULL,
      * </pre>
      *
-     * <b>Description:</b><p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> A constraint is shown in this view if the authorization for the
      *      DOMAIN that contains the constraint is the current user or is a role
-     *      assigned to the current user. <p>
+     *      assigned to the current user.
      *
      * <li> The values of CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA and
      *      CONSTRAINT_NAME are the catalog name, schema name,
@@ -4533,7 +4532,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * Identify the enabled roles for the current SQL-session.<p>
      *
-     * Definition<p>
+     * Definition
      *
      * <pre class="SqlCodeExample">
      * CREATE RECURSIVE VIEW ENABLED_ROLES ( ROLE_NAME ) AS
@@ -4589,7 +4588,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * The JAR_JAR_USAGE view is empty.<p>
+     * The JAR_JAR_USAGE view is empty.
      *
      */
     Table JAR_JAR_USAGE(Session session, PersistentStore store) {
@@ -4635,7 +4634,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * The JARS view is empty.<p>
+     * The JARS view is empty.
      *
      */
     Table JARS(Session session, PersistentStore store) {
@@ -4681,7 +4680,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * defined within this database. <p>
      *
      * Each row is a PRIMARY KEY or UNIQUE column description with the following
-     * columns: <p>
+     * columns:
      *
      * <pre class="SqlCodeExample">
      * CONSTRAINT_CATALOG              VARCHAR NULL,
@@ -4840,7 +4839,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * defined within this database. <p>
      *
      * Each row is a PRIMARY KEY, UNIQUE OR FOREIGN KEY description with the
-     * following columns: <p>
+     * following columns:
      *
      * <pre class="SqlCodeExample">
      * CONSTRAINT_CATALOG              VARCHAR NULL,
@@ -4937,7 +4936,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * The METHOD_SPECIFICATION_PARAMETERS view is not implemented.<p>
+     * The METHOD_SPECIFICATION_PARAMETERS view is not implemented.
      *
      */
     Table METHOD_SPECIFICATION_PARAMETERS(Session session,
@@ -4948,7 +4947,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * The METHOD_SPECIFICATIONS view is not implemented.<p>
+     * The METHOD_SPECIFICATIONS view is not implemented.
      *
      */
     Table METHOD_SPECIFICATIONS(Session session, PersistentStore store) {
@@ -4958,7 +4957,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * The MODULE_COLUMN_USAGE view is not implemented.<p>
+     * The MODULE_COLUMN_USAGE view is not implemented.
      *
      */
     Table MODULE_COLUMN_USAGE(Session session, PersistentStore store) {
@@ -4968,7 +4967,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * The MODULE_PRIVILEGES view is not implemented.<p>
+     * The MODULE_PRIVILEGES view is not implemented.
      *
      */
     Table MODULE_PRIVILEGES(Session session, PersistentStore store) {
@@ -4978,7 +4977,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * The MODULE_TABLE_USAGE view is not implemented.<p>
+     * The MODULE_TABLE_USAGE view is not implemented.
      *
      */
     Table MODULE_TABLE_USAGE(Session session, PersistentStore store) {
@@ -4988,7 +4987,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * The MODULES view is not implemented.<p>
+     * The MODULES view is not implemented.
      *
      */
     Table MODULES(Session session, PersistentStore store) {
@@ -4999,7 +4998,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * SQL:2008 VIEW<p>
      *
      * The PARAMETERS view has one row for each parameter of a user defined
-     * routine.<p>
+     * routine.
      *
      * <pre class="SqlCodeExample">
      *      OBJECT_CATALOG      VARCHAR
@@ -5009,12 +5008,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      DTD_IDENTIFIER      VARCHAR
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of OBJECT_CATALOG, OBJECT_SCHEMA, and
      *      OBJECT_NAME are the catalog name, schema name,
-     *       and identifier, respectively, of the object. <p>
+     *       and identifier, respectively, of the object.
      *
      * <li> The value of OBJECT_TYPE is the type of the object, for example
      *      'TABLE'.
@@ -5256,7 +5255,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2011 VIEW<p>
      *
-     * The PERIODS view has one row for each period defined in a table.<p>
+     * The PERIODS view has one row for each period defined in a table.
      *
      * <pre class="SqlCodeExample">
      *      TABLE_CATALOG      VARCHAR
@@ -5267,12 +5266,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      END_COLUMN_NAME    VARCHAR
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, and
      *      TABLE_NAME are the catalog name, schema name,
-     *       and identifier, respectively, of the table. <p>
+     *       and identifier, respectively, of the table.
      *
      * <li> The value of PERIOD_NAME is the name of the period, either
      *      SYSTE_TIME or an application period.
@@ -5378,7 +5377,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The REFERENTIAL_CONSTRAINTS view has one row for each FOREIGN KEY
      * constraint. <p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      *      CONSTRAINT_CATALOG             VARCHAR ,
@@ -5392,17 +5391,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      DELETE_RULE                    VARCHAR ,
      * </pre>
      *
-     * <b>Description:</b><p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA and
      *      CONSTRAINT_NAME are the catalog name, schema name,
      *      and identifier, respectively, of the constraint being
-     *      described. <p>
+     *      described.
      *
      * <li> The values of UNIQUE_CONSTRAINT_CATALOG, UNIQUE_CONSTRAINT_SCHEMA and
      *      UNIQUE_CONSTRAINT_NAME are the catalog name, schema name,
-     *      and identifier, respectively, of the referenced UNIQUE constraint. <p>
+     *      and identifier, respectively, of the referenced UNIQUE constraint.
      *
      * <li> A constraint is shown in this view if the user has table level
      *      privilege of at lease one of the types, INSERT, UPDATE, DELETE,
@@ -5509,7 +5508,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The ROLE_COLUMN_GRANTS view has one row for each privilege granted to each
      * ROLE on each column. <p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      *      GRANTOR                        VARCHAR ,
@@ -5522,7 +5521,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      IS_GRANTABLE                   VARCHAR ,
      * </pre>
      *
-     * <b>Description:</b><p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of GRANTOR is the grantor of the privilege. The value of
@@ -5531,11 +5530,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA,
      *      TABLE_NAME and COLUMN_NAME are the catalog name, schema name,
      *      table name and column identifier, respectively, of the column grant being
-     *      described. <p>
+     *      described.
      *
      * <li> The value of PRIVILEGE_TYPE is the type of the privilege, including,
      *      'SELECT', 'UPDATE', 'INSERT', 'REFERENCES' and 'TRIGGER'.
-     *      The value IS_GRANTABLE is 'YES' if the privilege is grantable. <p>
+     *      The value IS_GRANTABLE is 'YES' if the privilege is grantable.
      * </ol>
      *
      * @return Table
@@ -5589,7 +5588,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The ROLE_ROUTINE_GRANTS view has one row for each privilege granted to each
      * ROLE on each specific routine. <p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      *      GRANTOR                        VARCHAR ,
@@ -5604,7 +5603,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      IS_GRANTABLE                   VARCHAR ,
      * </pre>
      *
-     * <b>Description:</b><p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of GRANTOR is the grantor of the privilege. The value of
@@ -5613,7 +5612,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA and
      *      SPECIFIC_NAME are the catalog name, schema name,
      *      routine identifier, respectively, of the grant being
-     *      described. <p>
+     *      described.
      *
      * <li> The value of PRIVILEGE_TYPE is the type of the privilege, including
      *      'EXECUTE'.
@@ -5686,7 +5685,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The ROLE_ROUTINE_GRANTS view has one row for each privilege granted to each
      * ROLE on each table. <p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      *      GRANTOR                        VARCHAR ,
@@ -5699,7 +5698,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      WITH_HIERARCHY                 VARCHAR ,
      * </pre>
      *
-     * <b>Description:</b><p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of GRANTOR is the grantor of the privilege. The value of
@@ -5708,7 +5707,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA and
      *      TABLE_NAME are the catalog name, schema name and
      *      table name, respectively, of the table level grant being
-     *      described. <p>
+     *      described.
      *
      * <li> The value of PRIVILEGE_TYPE is the type of the privilege, including,
      *      'DELETE', 'SELECT', 'UPDATE', 'INSERT', 'REFERENCES' and 'TRIGGER'.
@@ -5767,7 +5766,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The ROLE_UDT_GRANT view has one row for each privilege granted to each
      * user defined type. <p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      *      GRANTOR                        VARCHAR ,
@@ -5779,7 +5778,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      IS_GRANTABLE                   VARCHAR ,
      * </pre>
      *
-     * <b>Description:</b><p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of GRANTOR is the grantor of the privilege. The value of
@@ -5788,7 +5787,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * <li> The values of UDT_CATALOG, UDT_SCHEMA and
      *      UDT_NAME are the catalog name, schema name and
      *      table name, respectively, of the table level grant being
-     *      described. <p>
+     *      described.
      *
      * <li> The value of PRIVILEGE_TYPE is the type of the privilege, including,
      *      'USAGE'.
@@ -5841,7 +5840,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The ROLE_USAGE_GRANTS view has one row for each privilege granted to each
      * ROLE on each table. <p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      *      GRANTOR                        VARCHAR ,
@@ -5854,7 +5853,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      IS_GRANTABLE                   VARCHAR ,
      * </pre>
      *
-     * <b>Description:</b><p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of GRANTOR is the grantor of the privilege. The value of
@@ -5863,12 +5862,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * <li> The values of OBJECT_CATALOG, OBJECT_SCHEMA and
      *      OBJECT_NAME are the catalog name, schema name and
      *      table name, respectively, of the object being
-     *      described. <p>
+     *      described.
      * <li> The value of OBJECT_TYPE is they type of object, including 'DOMAIN', 'CHARACTER SET',
      *      'COLLATION', 'TRANSLATION' and 'SEQUENCE'.
      * <li> The value of PRIVILEGE_TYPE is the type of the privilege, including,
      *      'USAGE'.
-     *      The value IS_GRANTABLE is 'YES' if the privilege is grantable. <p>
+     *      The value IS_GRANTABLE is 'YES' if the privilege is grantable.
      * </ol>
      *
      * @return Table
@@ -5935,17 +5934,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA and
      *      SPECIFIC_NAME are the catalog name, schema name,
      *      specific routine identifier, respectively, of the grant being
-     *      described. <p>
+     *      described.
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, and
      *      COLUMN_NAME are the catalog name, schema name,
      *      identifier, and column name, respectively, of a column
-     *      reference in the routine body.<>
+     *      reference in the routine body.
      *
      * <1i> Columns are reported only if the user or one of its roles is
      *      the authorization (owner) of the table.
@@ -6057,17 +6056,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA and
      *      SPECIFIC_NAME are the catalog name, schema name,
-     *      specific routine identifier, respectively. <p>
+     *      specific routine identifier, respectively.
      *
      * <li> The values of JAR_CATALOG, JAR_SCHEMA and JAR_NAME are
      *      the catalog name, schema name,
      *      identifier, and column name, respectively, of a jar
-     *      reference in the routine body.<>
+     *      reference in the routine body.
      *
      * <1i> Currently 'CLASSPATH' is reported for all entries.
      *
@@ -6162,19 +6161,19 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA and
      *      SPECIFIC_NAME are the catalog name, schema name,
-     *      specific routine identifier, respectively, of the routine. <p>
+     *      specific routine identifier, respectively, of the routine.
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA and TABLE_NAME
      *      are the catalog name, schema name and
      *      identifier, respectively, of a TABLE
-     *      reference in the routine body.<>
+     *      reference in the routine body.
      *
      * <li> The value of PERIOD_NAME is the name of the PERIOD of a TABLE
-     *      reference in the routine body.<>
+     *      reference in the routine body.
      *
      * <1i> Periods are reported only if the user or one of its roles is
      *      the authorization (owner) of the TABLE.
@@ -6289,7 +6288,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      IS_GRANTABLE          VARCHAR ,
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of GRANTOR is the grantor of the privilege. The value of
@@ -6297,15 +6296,15 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA and
      *      SPECIFIC_NAME are the catalog name, schema name
-     *      and identifier, respectively, of the specific ROUTINE. <p>
+     *      and identifier, respectively, of the specific ROUTINE.
      *
      * <li> The values of ROUTINE_CATALOG, ROUTINE_SCHEMA and
      *      ROUTINE_NAME are the catalog name, schema name
-     *      and identifier, respectively, of the ROUTINE. <p>
+     *      and identifier, respectively, of the ROUTINE.
      *
      * <li> The value of PRIVILEGE_TYPE is the type of the privilege, including,
      *      'EXECUTE'
-     *      The value IS_GRANTABLE is 'YES' if the privilege is grantable. <p>
+     *      The value IS_GRANTABLE is 'YES' if the privilege is grantable.
      * </ol>
      *
      * @return Table
@@ -6437,13 +6436,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA and
      *      SPECIFIC_NAME are the catalog name, schema name,
      *      specific routine identifier, respectively, of the routine
-     *      which contains the reference. <p>
+     *      which contains the reference.
      * <li> The values of ROUTINE_CATALOG, ROUTINE_SCHEMA and ROUTINE_NAME
      *      are the catalog name, schema name and
      *      identifier, respectively, of the routine that is referenced.<p>
@@ -6544,12 +6543,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA and
      *      SPECIFIC_NAME are the catalog name, schema name,
-     *      specific routine identifier, respectively, of the routine. <p>
+     *      specific routine identifier, respectively, of the routine.
      * <li> The values of SEQUENCE_CATALOG, SEQUENCE_SCHEMA and SEQUENCE_NAME
      *      are the catalog name, schema name and
      *      identifier, respectively, of a SEQUENCE
@@ -6654,12 +6653,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA and
      *      SPECIFIC_NAME are the catalog name, schema name,
-     *      specific routine identifier, respectively, of the routine. <p>
+     *      specific routine identifier, respectively, of the routine.
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA and TABLE_NAME
      *      are the catalog name, schema name and
      *      identifier, respectively, of a TABLE
@@ -6757,7 +6756,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * The ROUTINES view has one row for each PROCEDURE and FUNCTION.<p>
+     * The ROUTINES view has one row for each PROCEDURE and FUNCTION.
      *
      */
     Table ROUTINES(Session session, PersistentStore store) {
@@ -7159,32 +7158,32 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description</b><p>
+     * <b>Description</b>
      *
      * <ol>
      *      <li>The value of CATALOG_NAME is the name of the catalog of the
-     *          schema described by this row.<p>
+     *          schema described by this row.
      *
      *      <li>The value of SCHEMA_NAME is the schema name of
-     *          the schema described by this row.<p>
+     *          the schema described by this row.
      *
      *      <li>The values of SCHEMA_OWNER are the authorization identifiers
-     *          that own the schemata.<p>
+     *          that own the schemata.
      *
      *      <li>The values of DEFAULT_CHARACTER_SET_CATALOG,
      *          DEFAULT_CHARACTER_SET_SCHEMA, and DEFAULT_CHARACTER_SET_NAME
      *          are the catalog name, schema name, and qualified
      *          identifier, respectively, of the default character set for
-     *          columns and domains in the schemata.<p>
+     *          columns and domains in the schemata.
      *
-     *      <li>Case:<p>
+     *      <li>Case:
      *          <ul>
      *              <li>If &lt;schema path specification&gt; was specified in
      *                  the &lt;schema definition&gt; that defined the schema
      *                  described by this row and the character representation
      *                  of the &lt;schema path specification&gt; can be
      *                  represented without truncation, then the value of
-     *                  SQL_PATH is that character representation.<p>
+     *                  SQL_PATH is that character representation.
      *
      *              <li>Otherwise, the value of SQL_PATH is the null value.
      *         </ul>
@@ -7268,8 +7267,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * SQL:2008 VIEW<p>
      *
      * The SQL_FEATURES view lists the individual features of the SQL Standard
-     * supported by HyperSQL.<p>
-     *
+     * supported by HyperSQL.
      */
     Table SQL_FEATURES(Session session, PersistentStore store) {
 
@@ -7311,8 +7309,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * SQL:2008 VIEW<p>
      *
      * The SQL_IMPLEMENTATION_INFO shows some properties and capabilities
-     * of the database engine .<p>
-     *
+     * of the database engine .
      */
     Table SQL_IMPLEMENTATION_INFO(Session session, PersistentStore store) {
 
@@ -7350,8 +7347,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * SQL:2008 VIEW<p>
      *
      * The SQL_PACHAGES view lists the packages of the SQL Standard supported by
-     * HyperSQL.<p>
-     *
+     * HyperSQL.
      */
     Table SQL_PACKAGES(Session session, PersistentStore store) {
 
@@ -7389,8 +7385,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * SQL:2008 VIEW<p>
      *
      * The SQL_PARTS view lists the parts of the SQL Standard supported by
-     * HyperSQL.<p>
-     *
+     * HyperSQL.
      */
     Table SQL_PARTS(Session session, PersistentStore store) {
 
@@ -7427,8 +7422,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * SQL:2008 VIEW<p>
      *
      * The SQL_SIZING view has one row for the maximum size of each built in
-     * type supported by HyperSQL.<p>
-     *
+     * type supported by HyperSQL.
      */
     Table SQL_SIZING(Session session, PersistentStore store) {
 
@@ -7463,8 +7457,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     /**
      * SQL:2008 VIEW<p>
      *
-     * The SQL_SIZING_PROFILES is empty.<p>
-     *
+     * The SQL_SIZING_PROFILES is empty.
      */
     Table SQL_SIZING_PROFILES(Session session, PersistentStore store) {
 
@@ -7499,7 +7492,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * It effectively contains a representation of the table constraint
      * descriptors. <p>
      *
-     * <b>Definition:</b> <p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      * CREATE TABLE SYSTEM_TABLE_CONSTRAINTS (
@@ -7524,7 +7517,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * )
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, and
@@ -7535,9 +7528,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      that defined the constraint did not specify a
      *      &lt;constraint name&gt;, then the values of CONSTRAINT_CATALOG,
      *      CONSTRAINT_SCHEMA, and CONSTRAINT_NAME are
-     *      implementation-defined. <p>
+     *      implementation-defined.
      *
-     * <li> The values of CONSTRAINT_TYPE have the following meanings: <p>
+     * <li> The values of CONSTRAINT_TYPE have the following meanings:
      *  <table border cellpadding="3">
      *  <tr>
      *      <td nowrap>FOREIGN KEY</td>
@@ -7559,14 +7552,14 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      <td nowrap>The constraint being described is a
      *                 check constraint.</td>
      *  </tr>
-     * </table> <p>
+     * </table>
      *
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, and TABLE_NAME are
      *      the catalog name, the schema name, and the
      *      name of the table to which the
-     *      table constraint being described applies. <p>
+     *      table constraint being described applies.
      *
-     * <li> The values of IS_DEFERRABLE have the following meanings: <p>
+     * <li> The values of IS_DEFERRABLE have the following meanings:
      *
      *  <table>
      *      <tr>
@@ -7577,9 +7570,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *          <td nowrap>NO</td>
      *          <td nowrap>The table constraint is not deferrable.</td>
      *      </tr>
-     *  </table> <p>
+     *  </table>
      *
-     * <li> The values of INITIALLY_DEFERRED have the following meanings: <p>
+     * <li> The values of INITIALLY_DEFERRED have the following meanings:
      *
      *  <table>
      *      <tr>
@@ -7716,10 +7709,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * SQL:2008 VIEW<p>
+     * SQL:2008 VIEW
      *
      * The TRANSLATIONS view has one row for each translation between two
-     * character sets.<p>
+     * character sets.
      *
      */
     Table TRANSLATIONS(Session session, PersistentStore store) {
@@ -7774,16 +7767,16 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of TRIGGER_CATALOG, TRIGGER_SCHEMA and
      *      TRIGGER_NAME are the catalog name, schema name and
-     *      identifier, respectively, of the trigger. <p>
+     *      identifier, respectively, of the trigger.
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, and
      *      COLUMN_NAME are the catalog name, schema name,
      *      identifier, and column name, respectively, of a column
-     *      reference in the trigger body.<>
+     *      reference in the trigger body.
      *
      * <1i> Columns are reported only if the user or one of its roles is
      *      the authorization (owner) of the TRIGGER.
@@ -7893,12 +7886,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of TRIGGER_CATALOG, TRIGGER_SCHEMA and TRIGGER_NAME
      *      are the catalog name, schema name and
-     *      identifier, respectively, of the TRIGGER.<p>
+     *      identifier, respectively, of the TRIGGER.
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA and
      *      TABLE_NAME are the catalog name, schema name and
      *      identifier, respectively, of the TABLE
@@ -8024,12 +8017,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of TRIGGER_CATALOG, TRIGGER_SCHEMA and TRIGGER_NAME
      *      are the catalog name, schema name and
-     *      identifier, respectively, of the TRIGGER.<p>
+     *      identifier, respectively, of the TRIGGER.
      * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA and
      *      SPECIFIC_NAME are the catalog name, schema name,
      *      specific routine identifier, respectively, of the routine
@@ -8133,16 +8126,16 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of TRIGGER_CATALOG, TRIGGER_SCHEMA and TRIGGER_NAME
      *      are the catalog name, schema name and
-     *      identifier, respectively, of the TRIGGER.<p>
+     *      identifier, respectively, of the TRIGGER.
      * <li> The values of SEQUENCE_CATALOG, SEQUENCE_SCHEMA and
      *      SEQUENCE_NAME are the catalog name, schema name and
      *      identifier, respectively, of the SEQUENCE
-     *      that is referenced. <p>
+     *      that is referenced.
      *
      * <1i> Referenced sequences are reported only if the user or one of its roles is
      *      the authorization (owner) of the TRIGGER.
@@ -8243,16 +8236,16 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of TRIGGER_CATALOG, TRIGGER_SCHEMA and TRIGGER_NAME
      *      are the catalog name, schema name and
-     *      identifier, respectively, of the TRIGGER.<p>
+     *      identifier, respectively, of the TRIGGER.
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA and
      *      TABLE_NAME are the catalog name, schema name and
      *      identifier, respectively, of the TABLE
-     *      that is referenced. <p>
+     *      that is referenced.
      *
      * <1i> Referenced tables are reported only if the user or one of its roles is
      *      the authorization (owner) of the TRIGGER.
@@ -8364,17 +8357,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of TRIGGER_CATALOG, TRIGGER_SCHEMA and TRIGGER_NAME
      *      are the catalog name, schema name and
-     *      identifier, respectively, of the TRIGGER.<p>
+     *      identifier, respectively, of the TRIGGER.
      * <li> The value of EVENT_MANUPULATION indicates for which action the
      *      trigger is fired: 'INSERT', 'UPDATE' or 'DELETE'.
      * <li> The values of EVENT_OBJECT_CATALOG, EVENT_OBJECT_SCHEMA and
      *      EVENT_OBJECT_NAME are the catalog name, schema name and
-     *      identifier, respectively, of the trigger TABLE. <p>
+     *      identifier, respectively, of the trigger TABLE.
      * <li> The value of ACTION_ORDER indicates the ordinal position of the
      *      trigger is firing event, among all the triggers of the same
      *      ACTION_ORIENTATION and ACTION_TIMING.
@@ -8528,12 +8521,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of TRIGGER_CATALOG, TRIGGER_SCHEMA and TRIGGER_NAME
      *      are the catalog name, schema name and
-     *      identifier, respectively, of the TRIGGER.<p>
+     *      identifier, respectively, of the TRIGGER.
      * <li> The values of EVENT_OBJECT_CATALOG, EVENT_OBJECT_SCHEMA and
      *      EVENT_OBJECT_NAME are the catalog name, schema name and
      *      identifier, respectively, of the COLUMN
@@ -8635,7 +8628,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      IS_GRANTABLE          VARCHAR
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of GRANTOR is the grantor of the privilege. The value of
@@ -8644,11 +8637,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * <li> The values of UDT_CATALOG, UDT_SCHEMA and
      *      UDT_NAME are the catalog name, schema name
      *      and identifier, respectively, of the user defined type
-     *      described. <p>
+     *      described.
      *
      * <li> The value of PRIVILEGE_TYPE is the type of the privilege, including,
      *      'USAGE'
-     *      The value IS_GRANTABLE is 'YES' if the privilege is grantable. <p>
+     *      The value IS_GRANTABLE is 'YES' if the privilege is grantable.
      * </ol>
      *
      * @return Table
@@ -8749,7 +8742,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * It effectively contains a representation of the usage privilege
      * descriptors. <p>
      *
-     * <b>Definition:</b> <p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      * CREATE TABLE SYSTEM_USAGE_PRIVILEGES (
@@ -8771,17 +8764,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      user or role who granted usage privileges on the object of the type
      *      identified by OBJECT_TYPE that is identified by OBJECT_CATALOG,
      *      OBJECT_SCHEMA, and OBJECT_NAME, to the user or role identified by the
-     *      value of GRANTEE for the usage privilege being described. <p>
+     *      value of GRANTEE for the usage privilege being described.
      *
      * <li> The value of GRANTEE is the &lt;authorization identifier&gt; of some
      *      user or role, or PUBLIC to indicate all users, to whom the usage
-     *      privilege being described is granted. <p>
+     *      privilege being described is granted.
      *
      * <li> The values of OBJECT_CATALOG, OBJECT_SCHEMA, and OBJECT_NAME are the
      *      catalog name, schema name, and identifier,
-     *      respectively, of the object to which the privilege applies. <p>
+     *      respectively, of the object to which the privilege applies.
      *
-     * <li> The values of OBJECT_TYPE have the following meanings: <p>
+     * <li> The values of OBJECT_TYPE have the following meanings:
      *
      *      <table border cellpadding="3">
      *          <tr>
@@ -8809,9 +8802,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *              <td nowrap>The object to which the privilege applies is a
      *                         sequence generator.</td>
      *          <tr>
-     *      </table> <p>
+     *      </table>
      *
-     * <li> The values of IS_GRANTABLE have the following meanings: <p>
+     * <li> The values of IS_GRANTABLE have the following meanings:
      *
      *      <table border cellpadding="3">
      *          <tr>
@@ -8824,7 +8817,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *              <td nowrap>The privilege being described was not granted
      *                  WITH GRANT OPTION and is thus not grantable.</td>
      *          <tr>
-     *      </table> <p>
+     *      </table>
      * <ol>
      *
      * @return Table
@@ -8941,7 +8934,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The USER_DEFINED_TYPES view has one row for each user defined type.
      * Only DICTINCT TYPE user defined types are currently supported. <p>
      *
-     * <b>Definition:</b> <p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      *      VIEW_CATALOG    VARCHAR NULL,
@@ -8953,12 +8946,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      COLUMN_NAME     VARCHAR NOT NULL,
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of VIEW_CATALOG, VIEW_SCHEMA, and VIEW_NAME are the
      *      catalog name, schema name, and identifier,
-     *      respectively, of the view being described. <p>
+     *      respectively, of the view being described.
      *
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, and
      *      COLUMN_NAME are the catalog name, schema name,
@@ -9151,7 +9144,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * table that is explicitly or implicitly referenced in the
      * &lt;query expression&gt; of the view being described. <p>
      *
-     * <b>Definition:</b> <p>
+     * <b>Definition:</b>
      *
      * <pre class="SqlCodeExample">
      *      VIEW_CATALOG    VARCHAR NULL,
@@ -9163,12 +9156,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      COLUMN_NAME     VARCHAR NOT NULL,
      * </pre>
      *
-     * <b>Description:</b> <p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of VIEW_CATALOG, VIEW_SCHEMA, and VIEW_NAME are the
      *      catalog name, schema name, and identifier,
-     *      respectively, of the view being described. <p>
+     *      respectively, of the view being described.
      *
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, and
      *      COLUMN_NAME are the catalog name, schema name,
@@ -9285,7 +9278,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The VIEW_PERIOD_USAGE view has one row for each period contained in the
      * &lt;query expression&gt; of a view. <p>
      *
-     * <b>Definition</b><p>
+     * <b>Definition</b>
      *
      * <pre class="SqlCodeExample">
      *      VIEW_CATALOG    VARCHAR NOT NULL,
@@ -9297,12 +9290,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      PERIOD_NAME     VARCHAR NOT NULL,
      * </pre>
      *
-     * <b>Description:</b><p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of VIEW_CATALOG, VIEW_SCHEMA, and VIEW_NAME are the
      *      catalog name, schema name, and identifier,
-     *      respectively, of the view being described. <p>
+     *      respectively, of the view being described.
      *
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, and TABLE_NAME are the
      *      catalog name, schema name, and identifier,
@@ -9408,7 +9401,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * or a &lt;static method invocation&gt; contained in a &lt;view
      * definition&gt;. <p>
      *
-     * <b>Definition</b><p>
+     * <b>Definition</b>
      *
      * <pre class="SqlCodeExample">
      *      TABLE_CATALOG       VARCHAR NULL,
@@ -9419,7 +9412,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      SPECIFIC_NAME       VARCHAR NOT NULL,
      * </pre>
      *
-     * <b>Description</b><p>
+     * <b>Description</b>
      *
      * <ol>
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, and TABLE_NAME are the
@@ -9522,7 +9515,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * by a &lt;table name&gt; simply contained in a &lt;table reference&gt;
      * that is contained in the &lt;query expression&gt; of a view. <p>
      *
-     * <b>Definition</b><p>
+     * <b>Definition</b>
      *
      * <pre class="SqlCodeExample">
      *      VIEW_CATALOG    VARCHAR NULL,
@@ -9533,12 +9526,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      TABLE_NAME      VARCHAR NULL,
      * </pre>
      *
-     * <b>Description:</b><p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The values of VIEW_CATALOG, VIEW_SCHEMA, and VIEW_NAME are the
      *      catalog name, schema name, and identifier,
-     *      respectively, of the view being described. <p>
+     *      respectively, of the view being described.
      *
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA, and TABLE_NAME are the
      *      catalog name, schema name, and identifier,
@@ -9788,25 +9781,25 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      IS_GRANTABLE  VARCHAR     the character representation of the
      * </pre>
      *
-     * <b>Description</b><p>
+     * <b>Description</b>
      *
      * <ol>
      *      <li>The value of ROLE_NAME is the &lt;role name&gt; of some
      *          &lt;role granted&gt; by the &lt;grant role statement&gt; or
-     *          the &lt;role name&gt; of a &lt;role definition&gt;. <p>
+     *          the &lt;role name&gt; of a &lt;role definition&gt;.
      *
      *      <li>The value of GRANTEE is an &lt;authorization identifier&gt;,
      *          possibly PUBLIC, or &lt;role name&gt; specified as a
      *          &lt;grantee&gt; contained in a &lt;grant role statement&gt;,
      *          or the &lt;authorization identifier&gt; of the current
-     *          SQLsession when the &lt;role definition&gt; is executed. <p>
+     *          SQLsession when the &lt;role definition&gt; is executed.
      *
      *      <li>The value of GRANTOR is the &lt;authorization identifier&gt;
      *          of the user or role who granted the role identified by
      *          ROLE_NAME to the user or role identified by the value of
-     *          GRANTEE. <p>
+     *          GRANTEE.
      *
-     *      <li>The values of IS_GRANTABLE have the following meanings:<p>
+     *      <li>The values of IS_GRANTABLE have the following meanings:
      *
      *      <table border cellpadding="3">
      *          <tr>

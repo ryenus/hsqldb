@@ -1,7 +1,7 @@
 /*
  * For work developed by the HSQL Development Group:
  *
- * Copyright (c) 2001-2021, The HSQL Development Group
+ * Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,7 +91,7 @@ class FindFile {
 
     /**
      * Extracts a directory tree and stores it ina HSQLDB database.<br>
-     * Usage:<p>
+     * Usage:
      * <pre>
      * java org.hsqldb.sample.FindFile -init .
      * Re-create database from directory '.'

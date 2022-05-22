@@ -33,7 +33,6 @@ package org.hsqldb.util;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 
 /**
  * Helper class for conversion from a different databases
