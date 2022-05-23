@@ -211,9 +211,7 @@ public final class HsqlNameManager {
     public HsqlName newAutoName(String prefix, HsqlName schema,
                                 HsqlName parent, int type) {
 
-        HsqlName name = newAutoName(prefix, null, schema, parent, type);
-
-        return name;
+        return newAutoName(prefix, null, schema, parent, type);
     }
 
     public HsqlName newConstraintIndexName(HsqlName tableName,

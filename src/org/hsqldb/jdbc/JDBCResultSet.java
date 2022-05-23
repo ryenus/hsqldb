@@ -4359,9 +4359,8 @@ public class JDBCResultSet implements ResultSet {
 
                 byte[] bytes = ((BlobDataID) o).getBytes(session, 0,
                                    (int) length);
-                JDBCBlob b = new JDBCBlob(bytes);
 
-                return b;
+                return new JDBCBlob(bytes);
             }
 
             JDBCBlobClient blob = new JDBCBlobClient(session, (BlobDataID) o);
@@ -4435,9 +4434,8 @@ public class JDBCResultSet implements ResultSet {
 
                 String s = ((ClobDataID) o).getSubString(session, 0,
                                (int) length);
-                JDBCClob c = new JDBCClob(s);
 
-                return c;
+                return new JDBCClob(s);
             }
 
             JDBCClobClient clob = new JDBCClobClient(session, (ClobDataID) o);

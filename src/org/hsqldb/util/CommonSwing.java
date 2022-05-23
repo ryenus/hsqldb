@@ -106,7 +106,7 @@ final class CommonSwing {
     }
 
     // (weconsultants@users: Callable errorMessage method
-    protected static void errorMessage(String errorMessage) {
+    static void errorMessage(String errorMessage) {
 
         /*
          * Display Jpanel Error messages any text Errors. Overloads

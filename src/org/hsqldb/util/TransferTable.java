@@ -146,7 +146,7 @@ class TransferTable implements Serializable {
             } catch (Exception e) {}
         }
 
-        if (Stmts.bTransfer == false) {
+        if (!Stmts.bTransfer) {
             tracer.trace("Table " + Stmts.sSourceTable + " not transfered");
 
             return;
@@ -361,7 +361,7 @@ class TransferTable implements Serializable {
             } catch (Exception e) {}
         }
 
-        if (Stmts.bTransfer == false) {
+        if (!Stmts.bTransfer) {
             tracer.trace("Table " + Stmts.sSourceTable + " not transfered");
 
             return;

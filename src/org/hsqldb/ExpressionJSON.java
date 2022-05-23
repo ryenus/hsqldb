@@ -49,7 +49,7 @@ import org.hsqldb.types.Type;
  */
 public interface ExpressionJSON {
 
-    public class ExpressionJSONWrapper extends Expression {
+    class ExpressionJSONWrapper extends Expression {
 
         public ExpressionJSONWrapper(Expression expr) {
 
@@ -78,7 +78,7 @@ public interface ExpressionJSON {
         }
     }
 
-    public class ExpressionJSONArrayFromQuery extends Expression {
+    class ExpressionJSONArrayFromQuery extends Expression {
 
         final Expression exprQuery;
         final boolean    nullOnNull;
@@ -123,7 +123,7 @@ public interface ExpressionJSON {
         }
     }
 
-    public class ExpressionJSONArrayFromValues extends Expression {
+    class ExpressionJSONArrayFromValues extends Expression {
 
         final HsqlArrayList exprList;
         final boolean       nullOnNull;
@@ -193,7 +193,7 @@ public interface ExpressionJSON {
         }
     }
 
-    public class ExpressionJSONArrayAgg extends Expression {
+    class ExpressionJSONArrayAgg extends Expression {
 
         final boolean isValueJSON;
         final boolean nullOnNull;
@@ -242,7 +242,7 @@ public interface ExpressionJSON {
         }
     }
 
-    public class ExpressionJSONObject extends Expression {
+    class ExpressionJSONObject extends Expression {
 
         final OrderedHashMap exprMap;
         final boolean        nullOnNull;
@@ -342,7 +342,7 @@ public interface ExpressionJSON {
         }
     }
 
-    public class ExpressionJSONObjectAgg extends Expression {
+    class ExpressionJSONObjectAgg extends Expression {
 
         final ExpressionArrayAggregate namesAgg;
         final ExpressionArrayAggregate valuesAgg;

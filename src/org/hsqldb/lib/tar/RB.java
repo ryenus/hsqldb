@@ -117,7 +117,7 @@ public enum RB implements RefCapableRBInterface {
     listing_format,
     ;
 
-    private static ValidatingResourceBundle vrb =
+    private static final ValidatingResourceBundle vrb =
             new ValidatingResourceBundle(
                     RB.class.getPackage().getName() + ".rb", RB.class);
     static {
