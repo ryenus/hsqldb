@@ -837,7 +837,7 @@ public class SqlFile {
                 closeQueryOutputStream();
                 if (autoClose) closeReader();
             } finally {
-                reader = null; // Encourage GC of buffers
+                reader = null; // encourage GC of buffers
             }
         }
     }
@@ -1017,7 +1017,7 @@ public class SqlFile {
                                     } catch (SQLException nse) {
                                         // Purposefully doing nothing
                                     } finally {
-                                        statement = null; // encour. GC
+                                        statement = null; // encourage GC
                                     }
                                 }
                             }
@@ -1975,7 +1975,7 @@ public class SqlFile {
                     if (urlid != null) {
                         shared.jdbcConn = new RCData(new File(
                             SqlTool.DEFAULT_RCFILE), urlid).getConnection();
-                    } else {  // always true acc. to. IntelliJ: if (acct != null) {
+                    } else if (acct != null) { // keep condition for clarity
                         shared.jdbcConn =
                                 DriverManager.getConnection(url, acct, pwd);
                     }
