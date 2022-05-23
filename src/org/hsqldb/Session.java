@@ -499,6 +499,19 @@ public class Session implements SessionInterface {
         }
     }
 
+    public void setAutoCommitRows(int rows) {
+
+        if (isClosed) {
+            return;
+        }
+
+        if (sessionContext.depth > 0) {
+            return;
+        }
+
+        sessionContext.autoCommitRows = rows;
+    }
+
     public void beginAction(Statement cs) {
 
         actionIndex = rowActionList.size();
@@ -1421,20 +1434,31 @@ public class Session implements SessionInterface {
             return handleAbortTransaction();
         }
 
-        if (sessionContext.depth == 0
-                && (sessionContext.isAutoCommit.booleanValue()
-                    || cs.isAutoCommitStatement())) {
-            try {
-                if (r.mode == ResultConstants.ERROR) {
-                    rollbackNoCheck(false);
-                } else {
-                    commit(false);
-                }
-            } catch (Exception e) {
-                sessionContext.currentStatement = null;
+        if (sessionContext.depth == 0) {
+            if (sessionContext.isAutoCommit || cs.isAutoCommitStatement()) {
+                try {
+                    if (r.mode == ResultConstants.ERROR) {
+                        rollbackNoCheck(false);
+                    } else {
+                        commit(false);
+                    }
+                } catch (Exception e) {
+                    sessionContext.currentStatement = null;
 
-                return Result.newErrorResult(Error.error(ErrorCode.X_40001,
-                        e));
+                    return Result.newErrorResult(Error.error(ErrorCode.X_40001,
+                            e));
+                }
+            } else if (sessionContext.autoCommitRows > 0) {
+                if (rowActionList.size() > sessionContext.autoCommitRows) {
+                    try {
+                        commit(false);
+                    } catch (Exception e) {
+                        sessionContext.currentStatement = null;
+
+                        return Result.newErrorResult(
+                            Error.error(ErrorCode.X_40001, e));
+                    }
+                }
             }
         }
 

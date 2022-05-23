@@ -814,13 +814,7 @@ public class ParserCommand extends ParserDDL {
                                             args);
             }
             case Tokens.AUTOCOMMIT : {
-                read();
-
-                Boolean  mode = processTrueOrFalseObject();
-                Object[] args = new Object[]{ mode };
-
-                return new StatementSession(
-                    StatementTypes.SET_SESSION_AUTOCOMMIT, args);
+                return compileSetAutoCommit();
             }
 
             // deprecated
@@ -979,6 +973,44 @@ public class ParserCommand extends ParserDDL {
                     session.sessionContext.sessionVariablesRange);
             }
         }
+    }
+
+    StatementSession compileSetAutoCommit() {
+
+        read();
+
+        boolean mode = false;
+        int     rows = -1;
+
+        switch (token.tokenType) {
+
+            case Tokens.TRUE :
+            case Tokens.FALSE :
+                mode = processTrueOrFalse();
+                break;
+
+            case Tokens.AT :
+                read();
+
+                rows = readInteger();
+
+                if (rows < 0) {
+                    throw Error.error(ErrorCode.X_22003);
+                }
+
+                readThis(Tokens.ROWS);
+                break;
+
+            default :
+                throw unexpectedToken();
+        }
+
+        Object[] args = new Object[] {
+            mode, rows
+        };
+
+        return new StatementSession(StatementTypes.SET_SESSION_AUTOCOMMIT,
+                                    args);
     }
 
     StatementCommand compileSetTable() {
@@ -1612,7 +1644,7 @@ public class ParserCommand extends ParserDDL {
 
         int        type  = 0;
         Boolean    flag  = null;
-        Integer    value = null;
+        Object     value = null;
         Boolean    mode  = null;
         HsqlName[] names = database.schemaManager.getCatalogNameArray();
 
@@ -1757,7 +1789,7 @@ public class ParserCommand extends ParserDDL {
                 readThis(Tokens.PATH);
 
                 type  = StatementTypes.SET_DATABASE_FILES_TEMP_PATH;
-                value = readIntegerObject();
+                value = readQuotedString();
 
                 break;
             }
