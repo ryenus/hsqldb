@@ -92,8 +92,10 @@ public class SqlToolSprayer {
                                                                    : new File(
                                                                        System.getProperty(
                                                                            "sqltoolsprayer.monfile"));
-        ArrayList<String> urlids = new ArrayList<String>();
+        ArrayList<String> urlids = new ArrayList<>();
 
+        // I think false hit from IntelliJ.  Not copying the entire array
+        //noinspection ManualArrayToCollectionCopy
         for (int i = 1; i < sa.length; i++) {
             urlids.add(sa[i]);
         }
@@ -121,8 +123,6 @@ public class SqlToolSprayer {
                 System.err.println("Required file is gone:  " + monitorFile);
                 System.exit(2);
             }
-
-            onefailed = false;
 
             for (int i = 0; i < status.length; i++) {
                 if (status[i]) {
@@ -160,7 +160,7 @@ public class SqlToolSprayer {
             }
         }
 
-        ArrayList<String> failedUrlids = new ArrayList<String>();
+        ArrayList<String> failedUrlids = new ArrayList<>();
 
         // If all statuses true, then System.exit(0);
         for (int i = 0; i < status.length; i++) {
