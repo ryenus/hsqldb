@@ -694,9 +694,15 @@ public class StatementSession extends Statement {
             //
             case StatementTypes.SET_SESSION_AUTOCOMMIT : {
                 boolean mode = ((Boolean) arguments[0]).booleanValue();
+                int     rows = ((Integer) arguments[1]).intValue();
 
                 try {
-                    session.setAutoCommit(mode);
+
+                    if (rows < 0) {
+                        session.setAutoCommit(mode);
+                    } else {
+                        session.setAutoCommitRows(rows);
+                    }
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
