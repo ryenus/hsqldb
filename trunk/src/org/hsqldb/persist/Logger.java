@@ -1515,7 +1515,7 @@ public class Logger implements EventLogInterface {
 
         if (HsqlDatabaseProperties.methodClassNames != null) {
             map.put(HsqlDatabaseProperties.hsqldb_method_class_names,
-                    String.valueOf(HsqlDatabaseProperties.methodClassNames));
+                    HsqlDatabaseProperties.methodClassNames);
         }
 
         map.put(HsqlDatabaseProperties.hsqldb_applog,

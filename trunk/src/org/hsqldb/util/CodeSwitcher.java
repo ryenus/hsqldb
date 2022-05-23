@@ -350,10 +350,10 @@ public class CodeSwitcher {
 
                         String s = line.substring(9);
 
-                        if (vSwitchOn.indexOf(s) != -1) {
+                        if (vSwitchOn.contains(s)) {
                             working   = true;
                             switchoff = false;
-                        } else if (vSwitchOff.indexOf(s) != -1) {
+                        } else if (vSwitchOff.contains(s)) {
                             working = true;
 
                             v.add(++i, "/*");
@@ -361,7 +361,7 @@ public class CodeSwitcher {
                             switchoff = true;
                         }
 
-                        if (vSwitches.indexOf(s) == -1) {
+                        if (!vSwitches.contains(s)) {
                             vSwitches.add(s);
                         }
                     } else if (line.startsWith("//#ifndef ")) {
@@ -376,10 +376,10 @@ public class CodeSwitcher {
 
                         String s = line.substring(10);
 
-                        if (vSwitchOff.indexOf(s) != -1) {
+                        if (vSwitchOff.contains(s)) {
                             working   = true;
                             switchoff = false;
-                        } else if (vSwitchOn.indexOf(s) != -1) {
+                        } else if (vSwitchOn.contains(s)) {
                             working = true;
 
                             v.add(++i, "/*");
@@ -387,7 +387,7 @@ public class CodeSwitcher {
                             switchoff = true;
                         }
 
-                        if (vSwitches.indexOf(s) == -1) {
+                        if (!vSwitches.contains(s)) {
                             vSwitches.add(s);
                         }
                     } else if (line.startsWith("//#else")) {

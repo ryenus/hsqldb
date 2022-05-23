@@ -451,9 +451,7 @@ public class LobManager {
                 return null;
             }
 
-            BlobData blob = new BlobDataID(lobID);
-
-            return blob;
+            return new BlobDataID(lobID);
         } finally {
             writeLock.unlock();
         }
@@ -470,9 +468,7 @@ public class LobManager {
                 return null;
             }
 
-            ClobData clob = new ClobDataID(lobID);
-
-            return clob;
+            return new ClobDataID(lobID);
         } finally {
             writeLock.unlock();
         }

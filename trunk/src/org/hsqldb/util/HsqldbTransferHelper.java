@@ -33,7 +33,6 @@ package org.hsqldb.util;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.Types;
 
 // sqlbob@users 20020325 - patch 1.7.0 - reengineering

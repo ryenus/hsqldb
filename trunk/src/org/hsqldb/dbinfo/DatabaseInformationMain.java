@@ -415,7 +415,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return true if the table is accessible, else false
      * @param object the schmea object for which to check accessibility
      */
-    private final boolean isAccessible(Session session, SchemaObject object) {
+    private boolean isAccessible(Session session, SchemaObject object) {
         return session.getGrantee().isAccessible(object);
     }
 
@@ -427,9 +427,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      */
     protected final Table createBlankTable(HsqlName name) {
 
-        Table table = new Table(database, name, TableBase.INFO_SCHEMA_TABLE);
-
-        return table;
+        return new Table(database, name, TableBase.INFO_SCHEMA_TABLE);
     }
 
     /**
