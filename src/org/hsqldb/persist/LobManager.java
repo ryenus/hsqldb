@@ -42,7 +42,6 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 import org.hsqldb.Database;
-import org.hsqldb.DatabaseType;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
