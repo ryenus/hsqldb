@@ -907,7 +907,7 @@ class ResultSetParsedSection extends ParsedSection {
                                 String actualS = actual;
 
                                 if (results.getMetaData().getColumnClassName(
-                                        i).equals("java.lang.String")) {
+                                        j).equals("java.lang.String")) {
                                     actualS =
                                         StringConverter.toQuotedString(actualS,
                                                                        '\'',
