@@ -44,6 +44,7 @@ module org.hsqldb {
    requires java.naming;
    requires java.sql;
    requires java.xml;
-
+   requires jdk.unsupported
+   
    provides java.sql.Driver with org.hsqldb.jdbc.JDBCDriver;
 }
