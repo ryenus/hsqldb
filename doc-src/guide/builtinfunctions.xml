@@ -942,7 +942,7 @@
     indicates whether NULL values are represented as JSON nulls or are omitted
     from the result. The default behaviour is <literal>ABSENT ON
     NULL</literal> for <literal>JSON_ARRAY</literal>, and <literal>NULL ON
-    NULL</literal> for <literal>JSON_OBJECT</literal>. </para>
+    NULL</literal> for <literal>JSON_OBJECT</literal>.</para>
 
     <para><literal>&lt;JSON null clause&gt; ::= NULL ON NULL | ABSENT ON
     NULL</literal></para>
@@ -1722,7 +1722,7 @@ C1
       precision&gt; ) ]</literal> is used, then the returned value has the
       specified fraction of the second precision. When the functions are used
       multiple times in a single SQL statement, the returned values represent
-      the same point of time. </para>
+      the same point of time.</para>
 
       <para>From version 2.7.0 the functions return values with microsecond
       precision. Previous versions returned values with millisecond precision.
@@ -2150,7 +2150,7 @@ C1
       <para>Returns a number (not an INTERVAL) possibly with a fraction,
       representing the number of months between two days. If both dates have
       the same day of month, or are on the last day of the month, the result
-      is an exact numeric. Otherwise, the fraction is calculated base on 31
+      is an exact numeric. Otherwise, the fraction is calculated based on 31
       days per month. You can cast the resulting value into INTERVAL MONTH and
       use it for datetime arithmetic. (HyperSQL)</para>
 
