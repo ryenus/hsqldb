@@ -1466,8 +1466,8 @@
       <simpara><literal>&lt;time zone&gt; ::= AT &lt;time zone
       specifier&gt;</literal></simpara>
 
-      <simpara><literal>&lt;time zone specifier&gt; ::= LOCAL | TIME ZONE
-      &lt;interval primary&gt;</literal></simpara>
+      <simpara><literal>&lt;time zone specifier&gt; ::= LOCAL | TIME ZONE {
+      &lt;interval primary&gt; | &lt;time zone name&gt; }</literal></simpara>
 
       <simpara>Specify a datetime value. Details are described in the <link
       endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"/>

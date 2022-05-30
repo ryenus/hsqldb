@@ -1,10 +1,11 @@
-28 May 2022 - version 2.7.0
+30 May 2022 - version 2.7.0
 -- version 2.7.0 jar requires JRE 11 or later - tested up to Java 17
 -- version 2.7.0 alternative jar requires JRE 8 or later
 -- added support for JSON constructor functions
 -- added support for microsecond precision CURRENT_TIMESTAMP and similar functions
 -- added support for GRANT and REVOKE on all objects in a schema
 -- added support for CSV file data import and export
+-- added support for regional time zones such as 'America/New_York' in conversions
 -- added SET DATABASE SQL MAX RECURSIVE (sql.max_recursive) setting
 -- changed the default for SET DATABASE SQL SYS INDEX NAMES (sql.sys_index_names) to true
 -- changed the properties reported by JDBC DatabaseMetaDat::getClientInfoProperties() method

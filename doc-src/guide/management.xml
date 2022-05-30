@@ -1770,7 +1770,7 @@
       <simpara><emphasis>export DSV statement</emphasis></simpara>
 
       <simpara><literal>&lt;export DSV statement&gt; ::= PERFORM EXPORT DATA
-      FFROM TABLE &lt;table name&gt; TO &lt;single-quouted text file source
+      FROM TABLE &lt;table name&gt; TO &lt;single-quouted text file source
       string&gt;</literal></simpara>
 
       <simpara>Writes the contents of a table as a DSV file, for example as a

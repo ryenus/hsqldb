@@ -121,6 +121,13 @@
       functions. All these functions are listed in the <link
       endterm="builtinfunctions-title" ns6:href="#builtinfunctions-chapt"/>
       chapter.</para>
+
+      <para>Each session has a time zone, which is the time zone of the JVM in
+      which the connection is made and can be different from the time zone of
+      a server database. Different client / server sessions can therefore have
+      different time zones and display time-zone-sensitive information
+      differently. See the description of the SET TIME ZONE statement below
+      for more detail.</para>
     </section>
 
     <section xml:id="snc_session_vars">
@@ -174,8 +181,8 @@
       takes precedence over a schema table of the same name. To distinguish a
       session table from schema tables, the pseudo schema name, SESSION can be
       used. The alternative name, MODULE is deprecated and does not work in
-      version 2.5.1 but can be used in version 2.6 and later for backward 
-	  compatibility. An example is given below:</para>
+      version 2.5.1 but can be used in version 2.6 and later for backward
+      compatibility. An example is given below:</para>
 
       <para><example>
           <title>User-defined Temporary Session Tables</title>
@@ -943,20 +950,34 @@
     &lt;set time zone value&gt;</literal></simpara>
 
     <simpara><literal>&lt;set time zone value&gt; ::= &lt;interval value
-    expression&gt; | LOCAL</literal></simpara>
+    expression&gt; | &lt;string value expression&gt; |
+    LOCAL</literal></simpara>
 
     <simpara>Set the current default time zone displacement for the current
     SQL-session. When the session starts, the time zone displacement is set to
     the time zone of the client. This command changes the time zone
     displacement. The effect of this lasts for the lifetime of the session. If
     LOCAL is specified, the time zone displacement reverts to the local time
-    zone of the session.</simpara>
+    zone of the session that was in force prior to the use of the
+    command.</simpara>
+
+    <simpara>From version 2.7.0, zone strings indicating geographical regions
+    can be used. These zone often support daylight saving time.</simpara>
+
+    <simpara>This command works fine with in-process databases. When the
+    sessions is for a connection to a server, this command should not
+    generally be used as it only affects the server part of the session. With
+    client / server connections, the only way to specify a session time zone
+    that is different from the local time zone is by setting the JVM time zone
+    prior to connecting to the database.</simpara>
 
     <example>
       <title>Setting Session Time Zone</title>
 
       <screen> SET TIME ZONE LOCAL
  SET TIME ZONE INTERVAL '+6:00' HOUR TO MINUTE
+ SET TIME ZONE '-6:00'
+ SET TIME ZONE 'America/Chicago'
 </screen>
     </example>
 
