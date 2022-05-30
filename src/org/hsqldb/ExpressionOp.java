@@ -461,23 +461,15 @@ public class ExpressionOp extends Expression {
                 }
 
                 if (nodes[RIGHT] != null) {
-                    if (nodes[RIGHT].dataType == null) {
+                    Type rightDataType = nodes[RIGHT].dataType;
+
+                    if (rightDataType == null) {
                         nodes[RIGHT].dataType =
                             Type.SQL_INTERVAL_HOUR_TO_MINUTE;
-                    }
-
-                    if (nodes[RIGHT].dataType.typeCode
-                            != Types.SQL_INTERVAL_HOUR_TO_MINUTE) {
-                        if (nodes[RIGHT].opType == OpTypes.VALUE) {
-                            nodes[RIGHT].valueData =
-                                Type.SQL_INTERVAL_HOUR_TO_MINUTE.castToType(
-                                    session, nodes[RIGHT].valueData,
-                                    nodes[RIGHT].dataType);
-                            nodes[RIGHT].dataType =
-                                Type.SQL_INTERVAL_HOUR_TO_MINUTE;
-                        } else {
-                            throw Error.error(ErrorCode.X_42563);
-                        }
+                    } else if (!rightDataType.isCharacterType()
+                               && rightDataType.typeCode
+                                  != Types.SQL_INTERVAL_HOUR_TO_MINUTE) {
+                        throw Error.error(ErrorCode.X_42563);
                     }
                 }
 
@@ -959,22 +951,36 @@ public class ExpressionOp extends Expression {
                     return null;
                 }
 
-                if (nodes[RIGHT] != null && rightValue == null) {
+                boolean atLocal = nodes[RIGHT] == null;
+
+                if (atLocal) {
+                    return ((DateTimeType) dataType).changeZone(session,
+                            leftValue, nodes[LEFT].dataType, 0, atLocal);
+                }
+
+                if (rightValue == null) {
                     return null;
                 }
 
-                boolean atLocal     = nodes[RIGHT] == null;
-                long    zoneSeconds = 0;
-
-                if (!atLocal) {
-                    zoneSeconds =
-                        ((IntervalType) nodes[RIGHT].dataType).getSeconds(
-                            rightValue);
+                if (nodes[RIGHT].dataType.isCharacterType()) {
+                    if (DateTimeType.zoneIDs.contains(rightValue)) {
+                        return ((DateTimeType) dataType).changeZone(session,
+                                leftValue, nodes[LEFT].dataType,
+                                (String) rightValue);
+                    } else {
+                        rightValue =
+                            Type.SQL_INTERVAL_HOUR_TO_MINUTE
+                                .convertToDefaultType(session, rightValue);
+                    }
                 }
+
+                long zoneSeconds =
+                    ((IntervalType) nodes[RIGHT].dataType).getSeconds(
+                        rightValue);
 
                 return ((DateTimeType) dataType).changeZone(session,
                         leftValue, nodes[LEFT].dataType, (int) zoneSeconds,
-                        atLocal);
+                        false);
             }
             case OpTypes.LIMIT :
 

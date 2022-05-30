@@ -1487,7 +1487,8 @@ public class FunctionCustom extends FunctionSQL {
                 if (unary) {
                     if (nodes[0].dataType.isNumberType()) {
                         Calendar calendar = session.getCalendar();
-                        long seconds =((Number) data[0]).longValue();
+                        long     seconds  = ((Number) data[0]).longValue();
+
                         calendar.setTimeInMillis(seconds * 1000);
 
                         int zone = HsqlDateTime.getZoneSeconds(calendar);
@@ -2417,13 +2418,20 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 TimestampData timestamp = (TimestampData) data[0];
-                IntervalSecondData zone =
-                    (IntervalSecondData) Type.SQL_INTERVAL_HOUR_TO_MINUTE
-                        .convertToDefaultType(session, data[1]);
 
-                return new TimestampData(
-                    timestamp.getSeconds() - zone.getSeconds(),
-                    timestamp.getNanos(), (int) zone.getSeconds());
+                if (DateTimeType.zoneIDs.contains(data[1])) {
+                    return ((DateTimeType) dataType).changeZone(session,
+                            timestamp, (String) data[1]);
+                } else {
+                    IntervalSecondData zone =
+                        (IntervalSecondData) Type.SQL_INTERVAL_HOUR_TO_MINUTE
+                            .convertToDefaultType(session, data[1]);
+
+                    return new TimestampData(
+                        timestamp.getSeconds() + timestamp.getZone()
+                        - zone.getSeconds(), timestamp.getNanos(),
+                                             (int) zone.getSeconds());
+                }
             }
             case FUNC_LAST_DAY : {
                 if (data[0] == null) {
@@ -3891,6 +3899,14 @@ public class FunctionCustom extends FunctionSQL {
 
                 if (nodes[1].dataType == null) {
                     nodes[1].dataType = Type.SQL_VARCHAR;
+                }
+
+                if (!nodes[0].dataType.isTimestampType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                if (!nodes[1].dataType.isCharacterType()) {
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 dataType = Type.SQL_TIMESTAMP_WITH_TIME_ZONE;

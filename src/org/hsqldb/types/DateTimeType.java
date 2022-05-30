@@ -48,6 +48,7 @@ import java.time.temporal.ChronoField;
 //#endif JAVA8
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
@@ -57,9 +58,8 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.StringConverter;
-
-import java.util.TimeZone;
 
 /**
  * Type subclass for DATE, TIME and TIMESTAMP.<p>
@@ -70,8 +70,6 @@ import java.util.TimeZone;
  */
 public final class DateTimeType extends DTIType {
 
-    public final boolean withTimeZone;
-    private final String nameString;
     public static final long epochSeconds =
         HsqlDateTime.getDateSeconds("1-01-01");
     public static final TimestampData epochTimestamp =
@@ -83,6 +81,10 @@ public final class DateTimeType extends DTIType {
 
     // this is used for the lifetime of the JVM - it should not be altered
     public final static TimeZone systemTimeZone = TimeZone.getDefault();
+    public final static HashSet zoneIDs =
+        new HashSet(TimeZone.getAvailableIDs());
+    public final boolean withTimeZone;
+    private final String nameString;
 
     public DateTimeType(int typeGroup, int type, int scale) {
 
@@ -1790,15 +1792,57 @@ public final class DateTimeType extends DTIType {
         return a;
     }
 
+    public Object changeZone(Session session, Object a, String zoneString) {
+
+        TimestampData value       = (TimestampData) a;
+        long          seconds     = value.seconds + value.zone;
+        Calendar      calendar    = session.getCalendar();
+        TimeZone      zone        = TimeZone.getTimeZone(zoneString);
+        TimeZone      sessionZone = calendar.getTimeZone();
+
+        calendar.setTimeZone(zone);
+        seconds =
+            HsqlDateTime.convertSecondsFromCalendar(session.getCalendarGMT(),
+                calendar, seconds);
+
+        int offset = zone.getOffset(seconds * 1000) / 1000;
+
+        calendar.setTimeZone(sessionZone);
+
+        return new TimestampData(seconds, value.nanos, offset);
+    }
+
     public Object changeZone(Session session, Object a, Type otherType,
-                             int targetZone, boolean atLocal) {
+                             String zoneString) {
+
+        TimestampData value    = (TimestampData) a;
+        long          seconds  = value.seconds;
+        Calendar      calendar = session.getCalendar();
+
+        if (!zoneIDs.contains(zoneString)) {
+            throw Error.error(ErrorCode.X_22009, zoneString);
+        }
+
+        if (!otherType.isDateTimeTypeWithZone()) {
+            seconds = HsqlDateTime.convertSecondsFromCalendar(
+                session.getCalendarGMT(), calendar, seconds);
+        }
+
+        TimeZone zone   = TimeZone.getTimeZone(zoneString);
+        int      offset = zone.getOffset(seconds * 1000) / 1000;
+
+        return new TimestampData(seconds, value.nanos, offset);
+    }
+
+    public Object changeZone(Session session, Object a, Type otherType,
+                             int zoneSeconds, boolean atLocal) {
 
         if (a == null) {
             return null;
         }
 
-        if (targetZone > DTIType.timezoneSecondsLimit
-                || -targetZone > DTIType.timezoneSecondsLimit) {
+        if (zoneSeconds > DTIType.timezoneSecondsLimit
+                || -zoneSeconds > DTIType.timezoneSecondsLimit) {
             throw Error.error(ErrorCode.X_22009);
         }
 
@@ -1808,13 +1852,13 @@ public final class DateTimeType extends DTIType {
                 TimeData value = (TimeData) a;
 
                 if (atLocal) {
-                    targetZone = session.getZoneSeconds();
+                    zoneSeconds = session.getZoneSeconds();
                 }
 
                 if (otherType.isDateTimeTypeWithZone()) {
-                    if (value.zone != targetZone) {
+                    if (value.zone != zoneSeconds) {
                         return new TimeData(value.seconds, value.nanos,
-                                            targetZone);
+                                            zoneSeconds);
                     }
                 } else {
                     int localZone = session.getZoneSeconds();
@@ -1822,7 +1866,7 @@ public final class DateTimeType extends DTIType {
 
                     seconds = toTimeSeconds(seconds);
 
-                    return new TimeData(seconds, value.nanos, targetZone);
+                    return new TimeData(seconds, value.nanos, zoneSeconds);
                 }
 
                 break;
@@ -1838,13 +1882,14 @@ public final class DateTimeType extends DTIType {
                 }
 
                 if (atLocal) {
-                    targetZone =
+                    zoneSeconds =
                         calendar.getTimeZone().getOffset(seconds * 1000)
                         / 1000;
                 }
 
-                if (value.seconds != seconds || value.zone != targetZone) {
-                    return new TimestampData(seconds, value.nanos, targetZone);
+                if (value.seconds != seconds || value.zone != zoneSeconds) {
+                    return new TimestampData(seconds, value.nanos,
+                                             zoneSeconds);
                 }
 
                 break;

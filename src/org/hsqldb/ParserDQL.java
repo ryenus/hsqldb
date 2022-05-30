@@ -3678,7 +3678,7 @@ public class ParserDQL extends ParserBase {
                 if (token.tokenType == Tokens.LOCAL) {
                     read();
                 } else if (token.tokenType == Tokens.TIME) {
-                    readThis(Tokens.TIME);
+                    read();
                     readThis(Tokens.ZONE);
 
                     e1 = XreadValueExpressionPrimary();
