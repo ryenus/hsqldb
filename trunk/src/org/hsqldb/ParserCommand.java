@@ -2272,8 +2272,6 @@ public class ParserCommand extends ParserDDL {
         Expression e;
 
         readThis(Tokens.ZONE);
-        checkIsAny(Tokens.LOCAL, Tokens.INTERVAL,
-                   Tokens.X_DELIMITED_IDENTIFIER, 0);
 
         switch (token.tokenType) {
 
@@ -2304,17 +2302,8 @@ public class ParserCommand extends ParserDDL {
 
                 break;
             }
-            case Tokens.X_DELIMITED_IDENTIFIER : {
-                String zoneString = token.tokenString;
-
-                e = new ExpressionValue(zoneString, Type.SQL_VARCHAR);
-
-                read();
-
-                break;
-            }
             default :
-                throw unexpectedToken();
+                e = XreadValueExpression();
         }
 
         return new StatementSession(session, compileContext,

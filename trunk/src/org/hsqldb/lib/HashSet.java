@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import org.hsqldb.map.BaseHashMap;
  * This class does not store null keys.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.7.2
  */
 public class HashSet<E> extends BaseHashMap implements Set<E> {
@@ -58,6 +58,14 @@ public class HashSet<E> extends BaseHashMap implements Set<E> {
         this(initialCapacity);
 
         this.comparator = comparator;
+    }
+
+    public HashSet(Object[] valueList) {
+        this(valueList.length);
+
+        for (int i = 0; i < valueList.length; i++) {
+            add((E) valueList[i]);
+        }
     }
 
     public boolean contains(Object key) {

@@ -38,7 +38,7 @@ package org.hsqldb.lib;
  * This class does not store null elements.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
@@ -59,6 +59,14 @@ public class OrderedHashSet<E> extends HashSet<E> implements List<E>, Set<E> {
         super(initialCapacity, comparator);
 
         this.isList = true;
+    }
+
+    public OrderedHashSet(Object[] valueList) {
+        this(valueList.length);
+
+        for (int i = 0; i < valueList.length; i++) {
+            add((E) valueList[i]);
+        }
     }
 
     public boolean remove(Object key) {

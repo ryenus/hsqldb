@@ -42,6 +42,7 @@ import org.hsqldb.lib.List;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.User;
+import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.Type;
@@ -484,6 +485,22 @@ public class StatementSession extends Statement {
                     }
                 }
 
+                if (value instanceof String) {
+                    String zoneString = (String) value;
+
+                    if (DateTimeType.zoneIDs.contains(zoneString)) {
+                        TimeZone zone = TimeZone.getTimeZone(zoneString);
+
+                        session.setTimeZone(zone);
+
+                        return Result.updateZeroResult;
+                    } else {
+                        value =
+                            Type.SQL_INTERVAL_HOUR_TO_MINUTE
+                                .convertToDefaultType(session, value);
+                    }
+                }
+
                 if (value instanceof IntervalSecondData) {
                     IntervalSecondData interval = (IntervalSecondData) value;
                     long               seconds  = interval.getSeconds();
@@ -502,13 +519,6 @@ public class StatementSession extends Statement {
 
                         return Result.updateZeroResult;
                     }
-                } else if (value instanceof String) {
-                    String   zoneString = (String) value;
-                    TimeZone zone       = TimeZone.getTimeZone(zoneString);
-
-                    session.setTimeZone(zone);
-
-                    return Result.updateZeroResult;
                 }
 
                 return Result.newErrorResult(Error.error(ErrorCode.X_22009),
@@ -697,7 +707,6 @@ public class StatementSession extends Statement {
                 int     rows = ((Integer) arguments[1]).intValue();
 
                 try {
-
                     if (rows < 0) {
                         session.setAutoCommit(mode);
                     } else {
