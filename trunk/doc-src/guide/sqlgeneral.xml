@@ -1538,12 +1538,22 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     the input) and accounting for daylight saving time at that point of
     time.</para>
 
+    <para>From version 2.7.0 it is possible to use regional time zones with AT
+    TIME ZONE. Any zone name used must match exactly a TimeZone id supported
+    by the JVM. These include names such as 'America/New_York'. Some zones
+    include daylight saving time periods which are used when converting the
+    time zone.</para>
+
+    <para>See also the FROM_TZ function which allows you to convert to a time
+    zone without changing the date-time values such as hour and minute.</para>
+
     <para>AT TIME ZONE, modifies the field values of the datetime operand.
     This is done by the following procedure:</para>
 
     <orderedlist>
       <listitem>
-        <para>determine the corresponding datetime at UTC.</para>
+        <para>determine the corresponding datetime at UTC using the session's
+        calendar.</para>
       </listitem>
 
       <listitem>
@@ -1568,12 +1578,14 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     </informalexample>
 
     <para>In the first example above, the session's time zone displacement is
-    -'8:00'. In step 1, time '11:00:00' is converted to UTC, which is time
+    '-8:00'. In step 1, time '11:00:00' is converted to UTC, which is time
     '19:00:00+0:00'. In step 2, this value is expressed as time
-    '14:00:00-5:00'. In the second example, the session's time zone
-    displacement is not considered. In step 1, time is converted to UTC, which
-    is time '07:00:00+0:00', In step 2, this value is expressed as time
-    '02:00:00-5:00'.</para>
+    '14:00:00-5:00' in the target zone. </para>
+
+    <para>In the second example, the session's time zone displacement is not
+    considered. In step 1, time is converted to UTC, which is time
+    '07:00:00+0:00', In step 2, this value is expressed as time
+    '02:00:00-5:00' in the target zone.</para>
 
     <para>Example b:</para>
 
