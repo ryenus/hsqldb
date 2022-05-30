@@ -1619,8 +1619,9 @@ C1
 
       <para><literal>TIMEZONE()</literal></para>
 
-      <para>Returns the current time zone for the session. Returns an INTERVAL
-      HOUR TO MINUTE value. (HyperSQL)</para>
+      <para>Returns the current time zone for the session. This value is the
+      same as SESSION_TIMEZONE if the user has not changed the TIME ZONE of
+      the session. Returns an INTERVAL HOUR TO MINUTE value. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SESSION_TIMEZONE function</primary>
@@ -1630,8 +1631,9 @@ C1
 
       <para><literal>SESSION_TIMEZONE()</literal></para>
 
-      <para>Returns the default time zone for the current session. Returns an
-      INTERVAL HOUR TO MINUTE value. (HyperSQL)</para>
+      <para>Returns the default time zone for the current session. This value
+      is based on the default Java Calendar for the current session. Returns
+      an INTERVAL HOUR TO MINUTE value. (HyperSQL)</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>SESSIONTIMEZONE function</primary>
@@ -2368,6 +2370,34 @@ C1
 
     <section xml:id="bfc_datetime_format">
       <title>Functions to Convert or Format a Datetime</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>FROM_TZ function</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">FROM_TZ</emphasis></simpara>
+
+      <para><literal>FROM_TZ ( &lt;timestamp value expr&gt;, &lt;zone or
+      interval spec string&gt; )</literal></para>
+
+      <para>This function takes the date-time (year, month, day, hour, minute,
+      second, fraction) from the first argument and the time zone from the
+      second argument to construct a TIMESTAMP WITH TIME ZONE value. The
+      output can represent a different point of universal time (UTC) than the
+      input. This is different from the AT TIME ZONE expression which keeps
+      the UTC value and changes the zone. (HyperSQL)</para>
+
+      <informalexample>
+        <programlisting>-- the output shows the same timestamp as the input, but with the time zone of the specified region
+VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00+4:00','America/Chicago')
+ C1                              
+ ------------------------------- 
+ 2022-03-28 11:00:00.000000-5:00 
+
+-- this example has the same output as the previous one
+VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
+</programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>NUMTODSINTERVAL function</primary>

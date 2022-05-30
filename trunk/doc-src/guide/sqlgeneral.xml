@@ -1523,17 +1523,20 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <simpara><emphasis role="bold">Operations on Datetime
     Types</emphasis></simpara>
 
-    <para>The expression <literal>&lt;datetime expression&gt; AT TIME ZONE
-    &lt;time displacement&gt;</literal> evaluates to a datetime value
-    representing exactly the same point of time in the specified
-    <literal>&lt;time displacement&gt;</literal>. The expression, <literal>AT
+    <para>The expression <literal>&lt;datetime expression&gt; AT TIME ZONE {
+    &lt;interval primary&gt; | &lt;time zone name&gt; }</literal> evaluates to
+    a datetime value representing exactly the same point of time in the
+    specified <literal>&lt;time displacement&gt;</literal> or the geographical
+    <literal>&lt;time zone name&gt;</literal>. The expression, <literal>AT
     LOCAL</literal> is equivalent to <literal>AT TIME ZONE &lt;local time
     displacement&gt;</literal>. If <literal>AT TIME ZONE</literal> is used
     with a datetime operand of type WITHOUT TIME ZONE, the operand is first
-    converted to a value of type WITH TIME ZONE at the session’s time
-    displacement, then the specified time zone displacement is set for the
-    value. Therefore, in these cases, the final value depends on the time zone
-    of the session in which the statement was used.</para>
+    converted to a value of type WITH TIME ZONE using the session's calendar,
+    then the specified time zone displacement is set for the value. Therefore,
+    in these cases, the final value depends on the time zone of the session in
+    which the statement was used, calculated at the exact point of time (of
+    the input) and accounting for daylight saving time at that point of
+    time.</para>
 
     <para>AT TIME ZONE, modifies the field values of the datetime operand.
     This is done by the following procedure:</para>
@@ -1552,13 +1555,25 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <para>Example a:</para>
 
     <informalexample>
-      <programlisting> TIME '12:00:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
+      <programlisting> VALUES TIMESTAMP'2022-03-28 11:00:00' AT TIME ZONE INTERVAL '-5:00' HOUR TO MINUTE
+ C1                       
+ ------------------------ 
+ 2022-03-28 14:00:00-5:00 
+
+ VALUES TIMESTAMP'2022-03-28 11:00:00+4:00' AT TIME ZONE 'America/Chicago'
+ C1                       
+ ------------------------ 
+ 2022-03-28 02:00:00-5:00 
 </programlisting>
     </informalexample>
 
-    <para>If the session’s time zone displacement is -'8:00', then in step 1,
-    TIME '12:00:00' is converted to UTC, which is TIME '20:00:00+0:00'. In
-    step 2, this value is expressed as TIME '21:00:00+1:00'.</para>
+    <para>In the first example above, the session's time zone displacement is
+    -'8:00'. In step 1, time '11:00:00' is converted to UTC, which is time
+    '19:00:00+0:00'. In step 2, this value is expressed as time
+    '14:00:00-5:00'. In the second example, the session's time zone
+    displacement is not considered. In step 1, time is converted to UTC, which
+    is time '07:00:00+0:00', In step 2, this value is expressed as time
+    '02:00:00-5:00'.</para>
 
     <para>Example b:</para>
 
