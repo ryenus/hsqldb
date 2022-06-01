@@ -685,10 +685,12 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             String       error         = null;
             PropertyMeta meta          = dbMeta.get(propertyName);
 
-            if (meta != null && meta.propType == SQL_PROP) {
-                valid    = true;
-                error    = validateProperty(propertyName, propertyValue, meta);
-                validVal = error == null;
+            if (meta != null) {
+                if (meta.propType == DB_PROP || meta.propType == SQL_PROP) {
+                    valid = true;
+                    error = validateProperty(propertyName, propertyValue, meta);
+                    validVal = error == null;
+                }
             }
 
             if (propertyName.startsWith("sql.")
@@ -708,8 +710,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             String       propertyName = (String) e.nextElement();
             PropertyMeta meta         = dbMeta.get(propertyName);
 
-            if (meta != null && meta.propType == SQL_PROP) {
-                setDatabaseProperty(propertyName, p.getProperty(propertyName));
+            if (meta != null) {
+                if (meta.propType == DB_PROP || meta.propType == SQL_PROP) {
+                    setDatabaseProperty(propertyName, p.getProperty(propertyName));
+                }
             }
         }
     }
