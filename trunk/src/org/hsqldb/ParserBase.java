@@ -428,6 +428,10 @@ public class ParserBase {
         if (token.tokenType != type) {
             String required = Tokens.getKeyword(type);
 
+            if (required == null) {
+                required = "";
+            }
+
             throw unexpectedTokenRequire(required);
         }
     }
