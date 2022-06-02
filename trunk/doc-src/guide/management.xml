@@ -1841,9 +1841,9 @@
 
       <simpara>Imports data from a DSV file into a table. The file to be
       imported may be a file exported with the EXPORT DSV statement listed
-      above, or a file from another source. The destination is defined as a
-      file path together with optional setting as defined for a TEXT table.
-      See the Text Tables chapter for the properties.</simpara>
+      above, or a file from another source. The source is defined as a file
+      path together with optional setting as defined for a TEXT table. See the
+      Text Tables chapter for the properties.</simpara>
 
       <simpara>The { CONTINUE | STOP | CHECK } ON ERROR clause determines the
       action when an error occurs due to constraint violation. The CHECK
