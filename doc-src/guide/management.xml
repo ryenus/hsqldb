@@ -1836,22 +1836,26 @@
       <simpara><emphasis>import DSV statement</emphasis></simpara>
 
       <simpara><literal>&lt;import DSV statement&gt; ::= PERFORM IMPORT DATA
-      FROM &lt;single-quoted file path&gt; INTO &lt;table name&gt; { CONTINUE
+      INTO &lt;table name&gt; FROM &lt;single-quoted file path&gt; { CONTINUE
       | STOP | CHECK } ON ERROR</literal></simpara>
 
       <simpara>Imports data from a DSV file into a table. The file to be
       imported may be a file exported with the EXPORT DSV statement listed
-      above, or a file from another source.</simpara>
+      above, or a file from another source. The destination is defined as a
+      file path together with optional setting as defined for a TEXT table.
+      See the Text Tables chapter for the properties.</simpara>
 
       <simpara>The { CONTINUE | STOP | CHECK } ON ERROR clause determines the
       action when an error occurs due to constraint violation. The CHECK
-      option does not insert the data, but checks each INSERT statement in the
-      DSV file for type constraints such as string size limit or row
-      constraints such as NOT NULL. It cannot check for UNIQUE constraints.
-      The STOP option stops the import at the first error. The CONTINUE option
-      writes the rows that cannot be imported, to a file in the same location
-      as the imported script, with the file suffix <literal>.reject</literal>
-      and the timestamp of the import, then continues the import.</simpara>
+      option does not insert the data, but checks each line of data in the DSV
+      file for type constraints such as string size limit or row constraints
+      such as NOT NULL. It cannot check for UNIQUE constraints. The STOP
+      option stops the import at the first error. The CONTINUE option writes
+      the rows that cannot be imported, to a file in the same location as the
+      imported script, with the file suffix <literal>.reject</literal> and the
+      timestamp of the import, then continues the import. If there is a
+      malformed line in the DSV file, the import is aborted with an error
+      message, regardless of the ON ERROR option.</simpara>
 
       <simpara>Only a user with the SCRIPT_OPS role can execute this
       statement.</simpara>
