@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.rowio.RowInputText;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.4.1
+ * @version 2.7.0
  * @since 2.2.7
 */
 public class TextFileReader8 implements TextFileReader {
@@ -219,7 +219,7 @@ public class TextFileReader8 implements TextFileReader {
                 try {
                     rowString = buffer.getString();
                 } catch (UnsupportedEncodingException e) {
-                    throw Error.error(ErrorCode.X_S0531);
+                    throw Error.error(ErrorCode.X_S0531, e);
                 }
 
                 ((RowInputText) rowIn).setSource(rowString, position,
@@ -280,7 +280,7 @@ public class TextFileReader8 implements TextFileReader {
                     break;
                 }
             } catch (IOException e) {
-                throw Error.error(ErrorCode.TEXT_FILE);
+                throw Error.error(ErrorCode.TEXT_FILE, e);
             }
 
             switch (c) {
@@ -313,7 +313,7 @@ public class TextFileReader8 implements TextFileReader {
         try {
             header = buffer.getString();
         } catch (UnsupportedEncodingException e) {
-            throw Error.error(ErrorCode.X_S0531);
+            throw Error.error(ErrorCode.X_S0531, e);
         }
 
         position += buffer.getByteSize();

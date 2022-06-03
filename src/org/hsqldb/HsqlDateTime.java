@@ -105,7 +105,7 @@ public class HsqlDateTime {
                 return d.getTime() / 1000;
             }
         } catch (Exception e) {
-            throw Error.error(ErrorCode.X_22007);
+            throw Error.error(ErrorCode.X_22007, e);
         }
     }
 
@@ -127,7 +127,7 @@ public class HsqlDateTime {
                 return d.getTime() / 1000;
             }
         } catch (Exception e) {
-            throw Error.error(ErrorCode.X_22007);
+            throw Error.error(ErrorCode.X_22007, e);
         }
     }
 
@@ -549,7 +549,7 @@ public class HsqlDateTime {
 
             millis = format.parse(string).getTime();
         } catch (Exception e) {
-            throw Error.error(ErrorCode.X_22007, e.toString());
+            throw Error.error(e, ErrorCode.X_22007, e.toString());
         }
 
         if (matchIndex >= 0 && fraction) {
@@ -571,7 +571,7 @@ public class HsqlDateTime {
 
                 nanos *= (1000000 / factor);
             } catch (Exception e) {
-                throw Error.error(ErrorCode.X_22007, e.toString());
+                throw Error.error(e, ErrorCode.X_22007, e.toString());
             }
         }
 
@@ -586,7 +586,7 @@ public class HsqlDateTime {
         try {
             format.applyPattern(javaPattern);
         } catch (Exception e) {
-            throw Error.error(ErrorCode.X_22511);
+            throw Error.error(ErrorCode.X_22511, e);
         }
 
         String result     = format.format(date);

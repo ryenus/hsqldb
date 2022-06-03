@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ import org.hsqldb.types.TimestampData;
  * DatabaseScriptReader and its subclasses read back the data at startup time.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.0
  * @since 1.7.2
  */
 public abstract class ScriptWriterBase implements Runnable {
@@ -247,7 +247,7 @@ public abstract class ScriptWriterBase implements Runnable {
                 isClosed      = true;
             }
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, e);
         }
 
         byteCount = 0;

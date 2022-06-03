@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import java.util.Hashtable;
  * New class based on Hypersonic original
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.7.2
+ * @version 2.7.0
  * @since 1.7.0
  */
 final class ConnectionDialogCommon {
@@ -210,10 +210,10 @@ final class ConnectionDialogCommon {
             // reached end of file -- this is not clean but it works
         } catch (ClassNotFoundException cnfe) {
             throw new IOException("Unrecognized class type "
-                                  + cnfe.getMessage());
+                                  + cnfe.getMessage(), cnfe);
         } catch (ClassCastException cce) {
             throw new IOException("Unrecognized class type "
-                                  + cce.getMessage());
+                                  + cce.getMessage(), cce);
         } catch (Throwable t) {}
         finally {
             if (objStream != null) {

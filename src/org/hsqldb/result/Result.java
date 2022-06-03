@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class Result {
@@ -266,7 +266,7 @@ public class Result {
 
             return result;
         } catch (IOException e) {
-            throw Error.error(ErrorCode.X_08000);
+            throw Error.error(ErrorCode.X_08000, e);
         }
     }
 

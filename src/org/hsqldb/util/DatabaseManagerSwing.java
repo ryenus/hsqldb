@@ -149,7 +149,7 @@ import javax.swing.tree.TreePath;
  *
  * @author dmarshall@users
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.7.0
  */
 public class DatabaseManagerSwing extends JFrame
@@ -202,7 +202,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                            + "to your class path."));
     private static final String ABOUT_TEXT =
         "$Revision$ of DatabaseManagerSwing\n\n"
-        + "Copyright (c) 2001-2021, The HSQL Development Group.\n"
+        + "Copyright (c) 2001-2022, The HSQL Development Group.\n"
         + "http://hsqldb.org  (Utilities Guide available at this site).\n\n\n"
         + "You may use and redistribute according to the HSQLDB\n"
         + "license documented in the source code and at the web\n"
@@ -2824,7 +2824,7 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
                 } catch (IOException ioe) {
                     throw new IOException("Failed to read preferences file '"
                                           + prefsFile + "':  "
-                                          + ioe.getMessage());
+                                          + ioe.getMessage(), ioe);
                 }
 
                 tmpString = props.getProperty("autoRefresh");

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.error.ErrorCode;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.0
  * @since 2.2.6
  */
 public class TextFileSettings {
@@ -277,7 +277,7 @@ public class TextFileSettings {
                 bytesForSpace   = " ".getBytes(charEncoding);
             }
         } catch (UnsupportedEncodingException e) {
-            throw Error.error(ErrorCode.X_S0531);
+            throw Error.error(ErrorCode.X_S0531, e);
         }
     }
 

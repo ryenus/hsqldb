@@ -617,7 +617,7 @@ public class Log {
             dbLogWriter.setWriteDelay(writeDelay);
             dbLogWriter.start();
         } catch (Throwable e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, getLogFileName());
+            throw Error.error(e, ErrorCode.FILE_IO_ERROR, getLogFileName());
         }
     }
 
@@ -694,7 +694,7 @@ public class Log {
             } else if (e instanceof IOException) {
                 throw Error.error(ErrorCode.FILE_IO_ERROR, e);
             } else if (e instanceof OutOfMemoryError) {
-                throw Error.error(ErrorCode.OUT_OF_MEMORY);
+                throw Error.error(ErrorCode.OUT_OF_MEMORY, e);
             } else {
                 throw Error.error(ErrorCode.GENERAL_ERROR, e);
             }

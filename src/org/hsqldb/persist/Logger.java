@@ -2266,9 +2266,9 @@ public class Logger implements EventLogInterface {
             logInfoEvent("Successfully backed up instance '" + instanceName
                          + "' to '" + destPath + "'");
         } catch (IOException ioe) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, ioe.toString());
+            throw Error.error(ioe, ErrorCode.FILE_IO_ERROR, ioe.toString());
         } catch (TarMalformatException tme) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, tme.toString());
+            throw Error.error(tme, ErrorCode.FILE_IO_ERROR, tme.toString());
         } finally {
             if (scriptName != null) {
                 FileUtil.getFileUtil().delete(scriptName);
