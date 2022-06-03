@@ -1349,7 +1349,7 @@ public class StatementCommand extends Statement {
                     return Result.updateZeroResult;
                 } catch (Throwable e) {
                     if (!(e instanceof HsqlException)) {
-                        e = Error.error(ErrorCode.GENERAL_IO_ERROR,
+                        e = Error.error(e, ErrorCode.GENERAL_IO_ERROR,
                                         e.toString());
                     }
 

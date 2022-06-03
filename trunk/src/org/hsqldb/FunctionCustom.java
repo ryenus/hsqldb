@@ -1580,7 +1580,7 @@ public class FunctionCustom extends FunctionSQL {
                                 ((BinaryData) data[0]).getBytes());
                         }
                     } catch (NumberFormatException e) {
-                        throw Error.error(ErrorCode.X_22026);
+                        throw Error.error(ErrorCode.X_22026, e);
                     }
                 }
             }

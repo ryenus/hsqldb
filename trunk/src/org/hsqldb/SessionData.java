@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ import org.hsqldb.types.LobData;
  * Session semi-persistent data structures.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class SessionData {
@@ -600,7 +600,7 @@ public class SessionData {
 
             return clob;
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, e.toString());
+            throw Error.error(e, ErrorCode.FILE_IO_ERROR, e.toString());
         } finally {
             try {
                 if (is != null) {
@@ -626,7 +626,7 @@ public class SessionData {
 
             return blob;
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, e);
         } finally {
             try {
                 if (is != null) {

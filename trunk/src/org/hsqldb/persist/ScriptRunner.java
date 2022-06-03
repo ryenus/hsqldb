@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import org.hsqldb.scriptio.StatementLineTypes;
  * logged to the application log. If memory runs out, an exception is thrown.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.0
  * @since 1.7.2
  */
 public class ScriptRunner {
@@ -246,7 +246,7 @@ public class ScriptRunner {
             // catch out-of-memory errors and terminate
             database.logger.logSevereEvent(error, e);
 
-            throw Error.error(ErrorCode.OUT_OF_MEMORY);
+            throw Error.error(ErrorCode.OUT_OF_MEMORY, e);
         } catch (Throwable t) {
             HsqlException e =
                 Error.error(t, ErrorCode.ERROR_IN_LOG_FILE,

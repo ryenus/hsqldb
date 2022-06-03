@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -638,7 +638,7 @@ public class LockFile {
         try {
             lockFile = LockFile.newLockFile(path + ".lck");
         } catch (LockFile.BaseException e) {
-            throw Error.error(ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
+            throw Error.error(e, ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
                               e.getMessage());
         }
 
@@ -647,7 +647,7 @@ public class LockFile {
         try {
             locked = lockFile.tryLock();
         } catch (LockFile.BaseException e) {
-            throw Error.error(ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
+            throw Error.error(e, ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
                               e.getMessage());
         }
 

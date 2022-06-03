@@ -250,7 +250,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
             return read();
         } catch (Throwable e) {
-            throw Error.error(ErrorCode.X_08006, e.toString());
+            throw Error.error(e, ErrorCode.X_08006, e.toString());
         }
     }
 
@@ -267,7 +267,7 @@ public class ClientConnection implements SessionInterface, Cloneable {
 
             return (RowSetNavigatorClient) result.getNavigator();
         } catch (Throwable e) {
-            throw Error.error(ErrorCode.X_08006, e.toString());
+            throw Error.error(e, ErrorCode.X_08006, e.toString());
         }
     }
 
