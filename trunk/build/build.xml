@@ -153,7 +153,7 @@ examples:
       <mkdir dir="${swsrcmin}" />
       <mkdir dir="${swsrctool}" />
 
-      <condition property='jarqualifier' value='' else='-jdk8'>
+      <condition property='jdk8string' value='' else='-jdk8'>
         <isset property='ant.java.iscjava11'/>
       </condition>
 
@@ -361,7 +361,7 @@ examples:
              destdir="classes"
              debug="${build.debug}"
       >
-        <include name="org/hsqldb/cmdline/**"/>
+        <include name="**/*"/>
       </javac>
       <fixcrlf destdir="classes" preservelastmodified='true' eol="lf"
                encoding="ISO-8859-1" srcdir="src"
@@ -514,8 +514,8 @@ examples:
     />
 
     <target name="hsqldbmin" depends="classes, mdesc-hsqldbmin, -prep-license-files"
-            description="Build the hsqldbmin.jar (no servers)">
-      <jar jarfile="lib/hsqldbmin.jar" duplicate='preserve'>
+            description="Build the hsqldbmin${jdk8string}.jar (no servers)">
+      <jar jarfile="lib/hsqldbmin${jdk8string}.jar" duplicate='preserve'>
         <metainf dir="doc" includes="*_lic.txt"/>
         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
         <manifest>
@@ -534,8 +534,8 @@ examples:
     </target>
 
     <target name="hsqldbmain" depends="classes, -prep-license-files"
-            description="Build the hsqldbmain.jar (no utilities)">
-      <jar jarfile="lib/hsqldbmain.jar" duplicate='preserve'>
+            description="Build the hsqldbmain${jdk8string}.jar (no utilities)">
+      <jar jarfile="lib/hsqldbmain${jdk8string}.jar" duplicate='preserve'>
         <metainf dir="doc" includes="*_lic.txt"/>
         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
         <manifest>
@@ -555,13 +555,13 @@ examples:
 
     <target name="hsqldb"
             depends="classes, -util, -prep-license-files, classes-servlet, -set-jar.exec.path"
-            description="Build the default hsqldb.jar">
+            description="Build the default hsqldb${jdk8string}.jar">
       <condition property="filesetawt.ref" value="empty.fileset">
         <isset property="ant.java.iscjava11"/>
       </condition>
       <property name="filesetawt.ref" value="dbmanagerawtaddedclasses"/>
 
-      <jar jarfile="lib/hsqldb.jar" duplicate='preserve'>
+      <jar jarfile="lib/hsqldb${jdk8string}.jar" duplicate='preserve'>
         <metainf dir="doc" includes="*_lic.txt"/>
         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
         <manifest>
@@ -587,7 +587,7 @@ examples:
             outputproperty="out.1" errorproperty="err.1"
             resultproperty="exec.val.1">
         <arg value="-ufe"/>
-        <arg value="hsqldb.jar"/>
+        <arg value="hsqldb${jdk8string}.jar"/>
         <arg value="org.hsqldb.util.DatabaseManagerSwing"/>
       </exec>
       <condition property="_do-abort" value="DUMMY">
@@ -601,8 +601,8 @@ ${err.1}</fail>
     </target>
 
     <target name="dbmanswing" depends="-swing, -prep-license-files"
-            description="Build the dbmanagerswing.jar">
-      <jar jarfile="lib/dbmanagerswing.jar" duplicate='preserve' filesonly="true">
+            description="Build the dbmanagerswing${jdk8string}.jar">
+      <jar jarfile="lib/dbmanagerswing${jdk8string}.jar" duplicate='preserve' filesonly="true">
         <metainf dir="doc" includes="*_lic.txt"/>
         <manifest>
           <attribute name='Specification-Title' value='${hsqldb.title}'/>
@@ -643,7 +643,7 @@ ${err.1}</fail>
 
     <target name="sqltool"
             depends="-cmdline, -prep-license-files, -set-jar.exec.path"
-            description="Build 'sqltool.jar' file">
+            description="Build 'sqltool${jdk8string}.jar' file">
       <jar jarfile="lib/sqltool.jar" duplicate='preserve' filesonly="true">
         <metainf dir="doc" includes="*hsqldb_lic.txt"/>
         <manifest>
@@ -667,7 +667,7 @@ ${err.1}</fail>
             outputproperty="out.2" errorproperty="err.2"
             resultproperty="exec.val.2">
         <arg value="-ufe"/>
-        <arg value="sqltool.jar"/>
+        <arg value="sqltool${jdk8string}.jar"/>
         <arg value="org.hsqldb.cmdline.SqlTool"/>
       </exec>
       <condition property="_do-abort" value="DUMMY">
@@ -749,8 +749,7 @@ ${err.2}</fail>
     <target name="jdk8jars" depends="osgi, sqltool"
             description="Build hsqldb-osgi.jar and sqltool.jar for jdk 8 targets and rename"
             if="ant.java.iscjava08" unless="ant.java.iscjava11">
-        <move file="lib/hsqldb-osgi.jar" tofile="lib/hsqldb-jdk8.jar"/>
-        <move file="lib/sqltool.jar" tofile="lib/sqltool-jdk8.jar"/>
+        <move file="lib/hsqldb-osgi-jdk8.jar" tofile="lib/hsqldb-jdk8.jar"/>
     </target>
 
     <target name="javadoc" depends="-prepare-javadoc, -set-jvmvars"
@@ -1123,7 +1122,7 @@ optimizations) manually.
     </target>
 
     <target name="osgi" depends="-ivy-setup, hsqldb"
-      description="Generates 'hsqldb-osgi.jar' file with OSGI properties in manifest">
+      description="Generates 'hsqldb-osgi${jdk8string}.jar' file with OSGI properties in manifest">
       <pathconvert property="bndjar.file" refid="bnd-jar.cpref"/>
       <!-- Purposefully not using the bndwrap task available for this purpose,
            because the docs don't explain how to use the attributes clearly enough
@@ -1138,10 +1137,10 @@ optimizations) manually.
         <sysproperty key="hsqldb.title" value="${hsqldb.title}"/>
         <arg value="wrap"/>
         <arg value="--output"/>
-        <arg value="hsqldb-osgi.jar"/>
+        <arg value="hsqldb-osgi${jdk8string}.jar"/>
         <arg value="--properties"/>
         <arg file="build/hsqldb.bnd"/>
-        <arg value="hsqldb.jar"/>
+        <arg value="hsqldb${jdk8string}.jar"/>
       </java>
       <condition property="_do-abort" value="DUMMY">
         <not> <equals arg1="0" arg2="${exec.val.0}"/> </not>
