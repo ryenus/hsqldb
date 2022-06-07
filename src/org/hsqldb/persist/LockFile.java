@@ -65,7 +65,7 @@ import org.hsqldb.lib.StringConverter;
  * the contexts do not share a common parent class loader or do not implement
  * normal parent class loader delegation semantics. <p>
  *
- * <a name="note1"><sup>*</sup></a>
+ * <a><sup>*</sup></a>
  * The only purely in-process global discovery alternative known to the author
  * is to reflect upon objects found while traversing up the Java runtime thread
  * hierarchy.  However, this method is often subject to Java security
@@ -1417,7 +1417,7 @@ public class LockFile {
      * More formally, this method retrieves true if and only if:
      *
      * <pre>
-     * isLocked() && file != null && file.exists() && raf != null
+     * {@code isLocked() && file != null && file.exists() && raf != null}
      * </pre>
      *
      * @return {@code true} if this object holds a valid lock condition on its
