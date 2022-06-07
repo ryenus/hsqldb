@@ -26,20 +26,9 @@ ant.build.javac.target=8
 javac.bootcp.override=/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar:/usr/lib/jvm/java-8-openjdk/jre/lib/jce.jar
         -->
 
-  <!-- TODO:
-        Use multiple class directories (javac dest dirs).
-        Current tactic requires tons of complicated includes and exludes
-        and still often bundles arbitrary extra stuff (determined by what
-        happened to be built previously). Mostly fixed in 2.5.1 and .2
-  -->
-
     <property file='build/build.properties'/>
 
-    <condition property="hsqldb.version" value="2.7.0">
-      <available classname="java.sql.JDBCType"/>
-    </condition>
-    <!-- hsqldb.version is set only once - if it is set above for Java 8 and greater, the next line is a no-op -->
-    <property name="hsqldb.version" value="2.3.9"/>
+    <property name="hsqldb.version" value="2.7.0"/>
 
     <tstamp>
       <format property="timestamp" pattern="yyyy/MM/dd-HH:mm:ss" locale="en"/>
@@ -57,12 +46,11 @@ javac.bootcp.override=/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar:/usr/lib/jvm/ja
     <!-- "switch.inplace" can be set in build.properties for in-place switching of source files-->
     <property name="tmpsrc" value="${basedir}/tmp/switchedsrc/"/>
     <property name="modinfosrc" value="${basedir}/modinfo-src/"/>
-    <condition property="swsrc" value="${basedir}/src/" else="${tmpsrc}">
-      <istrue value="${switch.inplace}"/>
-    </condition>
-
-    <property name="libclonesrc" value="${swsrc}org/hsqldb/cmdline/libclone"/>
-    <property name="utilclonesrc" value="${swsrc}org/hsqldb/cmdline/utilclone"/>
+    <property name="swsrc" value="${tmpsrc}/org.hsqldb/src/main/java/"/>
+    <property name="swsrcmin" value="${tmpsrc}/org.hsqldb.min/src/main/java/"/>
+    <property name="swsrctool" value="${tmpsrc}/org.hsqldb.sqltool/src/main/java/"/>
+    <property name="libclonesrc" value="${swsrctool}org/hsqldb/cmdline/libclone"/>
+    <property name="utilclonesrc" value="${swsrctool}org/hsqldb/cmdline/utilclone"/>
 
     <!-- Hosting Junit 3.8.2 JavaDocs at hsqldb.org since it's not available
          expanded anywhere on Internet that I can find. -->
@@ -138,27 +126,21 @@ examples:
                  value="${ant.build.javac.target}">
         <isset property="ant.build.javac.target"/>
       </condition>
-      <condition property="ant.java.iscjava06"><and>
-        <available classname="java.net.IDN" property="ant.java.iscjava06"/>
-        <!-- only need to check for EARLIER javac.target values, not later -->
-        <not><matches string="${ant.build.javac.target}"
-                      pattern="^(?:1[.])?(1|2|3|4|5)$"/></not>
-      </and></condition>
       <condition property="ant.java.iscjava08"><and>
         <available classname="java.sql.JDBCType" property="ant.java.iscjava08"/>
         <!-- only need to check for EARLIER javac.target values, not later -->
         <not><matches string="${ant.build.javac.target}"
                       pattern="^(?:1[.])?(1|2|3|4|5|6|7)$"/></not>
       </and></condition>
-      <condition property="ant.java.iscjava09"><and>
-        <available classname="java.sql.ShardingKey" property="ant.java.iscjava09"/>
+      <condition property="ant.java.iscjava11"><and>
+        <available classname="java.sql.ShardingKey" property="ant.java.iscjava11"/>
         <!-- only need to check for EARLIER javac.target values, not later -->
         <not><matches string="${ant.build.javac.target}"
                       pattern="^(?:1[.])?(1|2|3|4|5|6|7|8)$"/></not>
       </and></condition>
       <fail if="debug.targetjvm">
         specified compile target: ${ant.build.javac.target}
-        derived version:  6?${ant.java.iscjava06}  8?${ant.java.iscjava08}  9?${ant.java.iscjava09}
+        derived version:  8?${ant.java.iscjava08}  11?${ant.java.iscjava11}
         src (${ant.build.javac.source})
         targ (${ant.build.javac.target})
         bcp (${javac.bootcp.override})
@@ -168,9 +150,16 @@ examples:
     <target name="-prepare" depends="-set-jvmvars">
       <mkdir dir="classes" />
       <mkdir dir="${swsrc}" />
+      <mkdir dir="${swsrcmin}" />
+      <mkdir dir="${swsrctool}" />
+
+      <condition property='jarqualifier' value='' else='-jdk8'>
+        <isset property='ant.java.iscjava11'/>
+      </condition>
+
     </target>
 
-    <target name="-prepare-javadoc" depends="-clean-switch-branch, switches">
+    <target name="-prepare-javadoc" depends="sw-hsqldb">
       <delete dir="doc/apidocs"/>
       <!-- Must be vigilant about cleaning up from previous runs, since this
            same directory is used for both public API spec, and the full
@@ -183,12 +172,9 @@ examples:
              Add a fixcrlf if we add non-binary files to doc-src/apidocs. -->
         <fileset dir="doc-src/apidocs"/>
       </copy>
-      <copy todir="${swsrc}">
-          <fileset dir="modinfo-src/org.hsqldb/"/>
-      </copy>
     </target>
 
-    <target name="-prepare-javadoc-sqltool" depends="-clean-switch-branch, switches">
+    <target name="-prepare-javadoc-sqltool" depends="sw-sqltool">
         <delete dir="doc/apidocssqltool"/>
         <!-- Must be vigilant about cleaning up from previous runs, since this
              same directory is used for both public API spec, and the full
@@ -201,21 +187,9 @@ examples:
                  Add a fixcrlf if we add non-binary files to doc-src/apidocs. -->
             <fileset dir="doc-src/apidocs"/>
         </copy>
-        <copy todir="${swsrc}">
+        <copy todir="${swsrctool}">
             <fileset dir="modinfo-src/org.hsqldb.sqltool/"/>
         </copy>
-    </target>
-
-    <target name="reinit"
-        description="Just like 'clean' target, except overwrites switched source files to prevent need for a complete re-copy">
-        <!-- Beware this will refresh a copy of removed artifacts under swsrc.
-             You must use the real 'clean' target to really purge everything. -->
-      <fail message="Just use 'clean' for inplace-switching setups"
-              if="switch.inplace"/>
-      <delete dir="classes"/>
-      <copy todir='${swsrc}' preservelastmodified='true'>
-        <fileset dir='src' includes='**/*.java'/>
-      </copy>
     </target>
 
     <target name="clean" depends="-clean, -clean-switch-branch"
@@ -238,124 +212,55 @@ examples:
       </delete>
     </target>
 
-    <target name="codeswitcher" depends="-prepare"
-            description="uses +-JAVA6 +-JAVA8 etc">
-        <javac bootclasspath="${javac.bootcp.override}"
-           destdir="classes" includeantruntime="false">
-        <src path="src"/>
-        <include name="org/hsqldb/util/CodeSwitcher.java"/>
-      </javac>
-      <antcall target="-update-switch-branch"/>
+    <target name="sw-sqltool" depends="-prepare">
+        <delete file="classes/module-info.class"/>
+        <delete file="${swsrctool}/module-info.java"/>
+        <mkdir dir='${swsrctool}/org/hsqldb/cmdline'/>
+        <copy todir='${swsrctool}/org/hsqldb/cmdline' preservelastmodified='true'>
+            <fileset dir='src/org/hsqldb/cmdline' includes='**/*'/>
+        </copy>
+        <antcall target="-copy-mdescriptor" inheritrefs="true">
+            <param name="module.name" value="org.hsqldb.sqltool"/>
+        </antcall>
     </target>
 
-    <target name="switchtodeprecatedjdbc" depends="codeswitcher"
-            description="self explanatory">
-      <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-        <arg file="${swsrc}/org/hsqldb/jdbc/JDBCCallableStatement.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/JDBCPreparedStatement.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/JDBCResultSet.java"/>
-        <arg value="+DEPRECATEDJDBC"/>
-      </java>
+    <target name="sw-hsqldb" depends="-prepare">
+        <delete file="classes/module-info.class"/>
+        <delete file="${swsrc}/module-info.java"/>
+        <copy todir='${swsrc}' preservelastmodified='true'>
+            <fileset dir='src' includes='**/*' excludes="org/hsqldb/cmdline/**/*"/>
+        </copy>
+        <antcall target="-copy-mdescriptor" inheritrefs="true">
+            <param name="module.name" value="org.hsqldb"/>
+        </antcall>
     </target>
 
-    <target name="switchoffdeprecatedjdbc" depends="codeswitcher"
-            description="self explanatory">
-      <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-        <arg file="${swsrc}/org/hsqldb/jdbc/JDBCCallableStatement.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/JDBCPreparedStatement.java"/>
-        <arg file="${swsrc}/org/hsqldb/jdbc/JDBCResultSet.java"/>
-        <arg value="-DEPRECATEDJDBC"/>
-      </java>
+    <target name="sw-hsqldbmin" depends="-prepare">
+        <delete file="classes/module-info.class"/>
+        <delete file="${swsrcmin}/module-info.java"/>
+        <copy todir='${swsrc}' preservelastmodified='true'>
+            <fileset dir='src' includes='**/*' excludes="org/hsqldb/cmdline/**/*"/>
+        </copy>
+        <antcall target="-copy-mdescriptor" inheritrefs="true">
+            <param name="module.name" value="org.hsqldb.min"/>
+        </antcall>
     </target>
 
-    <!-- If this should not be called externally, rename to -switches
-         and remove the description attribute -->
-    <target name="switches" depends="codeswitcher, -autoswitch"
-            description="execute code switchers for current JVM version">
+    <target name="mdesc-hsqldbmin" depends="sw-hsqldbmin" if="ant.java.iscjava11" >
+        <javac srcdir="${swsrcmin}"
+               bootclasspath="${javac.bootcp.override}"
+               sourcepath=""
+               includeantruntime="false"
+               encoding="${javac.encoding}"
+               destdir="classes"
+               debug="${build.debug}"
+               classpath="${servletapi.lib}">
+            <include name="module-info.java"/>
+        </javac>
+
     </target>
 
-    <!-- the args for default code switching are set and used -->
-    <condition property="switchargone" value="+JAVA8" else="-JAVA8">
-      <available classname="java.sql.JDBCType"/>
-    </condition>
-
-    <condition property="switchargtwo" value="+JAVA9" else="-JAVA9">
-      <available classname="java.sql.ShardingKey"/>
-    </condition>
-
-    <target name="-autoswitch" description="switch code to current JVM">
-      <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-        <arg value="${switchargone}"/>
-        <arg value="${switchargtwo}"/>
-        <arg value="--pathlist=${basedir}/build/jdkcodeswitch.list"/>
-        <arg value="--basedir=${swsrc}"/>
-        <!-- Since these paths are interpreted by the JVM, not ant,
-             the path must be relative to run dir (build), not the
-             Ant basedir -->
-      </java>
-      <echo> "${basedir}/build/jdkcodeswitch.list"</echo>
-    </target>
-
-    <!-- these are used for checking the correctness of switched code blocks -->
-    <target name="switchtojdk6" depends="codeswitcher"
-            description="self explanatory">
-      <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-        <arg value="-JAVA8"/>
-        <arg value="-JAVA9"/>
-        <arg value="--pathlist=${basedir}/build/jdkcodeswitch.list"/>
-        <arg value="--basedir=${swsrc}"/>
-        <!-- Since these paths are interpreted by the JVM, not ant,
-             the path must be relative to run dir (build), not the
-             Ant basedir -->
-      </java>
-    </target>
-
-    <target name="switchtojdk8" depends="codeswitcher"
-            description="self explanatory" if="ant.java.iscjava08">
-      <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-        <arg value="+JAVA8"/>
-        <arg value="-JAVA9"/>
-        <arg value="--pathlist=jdkcodeswitch.list"/>
-        <arg value="--basedir=${swsrc}"/>
-        <!-- Since these paths are interpreted by the JVM, not ant,
-             the path must be relative to run dir (build), not the
-             Ant basedir -->
-      </java>
-    </target>
-
-    <target name="switchtojdk9" depends="codeswitcher"
-            description="self explanatory" if="ant.java.iscjava09">
-      <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-        <arg value="+JAVA8"/>
-        <arg value="+JAVA9"/>
-        <arg value="--pathlist=jdkcodeswitch.list"/>
-        <arg value="--basedir=${swsrc}"/>
-        <!-- Since these paths are interpreted by the JVM, not ant,
-             the path must be relative to run dir (build), not the
-             Ant basedir -->
-      </java>
-    </target>
-
-    <target name="-lib" depends="switches"
-            description="compiles the JVM-independent lib and map classes">
-      <javac srcdir="${swsrc}"
-             bootclasspath="${javac.bootcp.override}"
-             includeantruntime="false"
-             destdir="classes"
-             debug="${build.debug}"
-             encoding="${javac.encoding}"
-      >
-        <include name="org/hsqldb/map/**"/>
-        <include name="org/hsqldb/lib/**"/>
-        <exclude name="org/hsqldb/lib/AppendableException.java"/>
-        <exclude name="org/hsqldb/lib/RefCapablePropertyResourceBundle.java"/>
-        <exclude name="org/hsqldb/lib/RefCapableRBInterface.java"/>
-        <exclude name="org/hsqldb/lib/ValidatingResourceBundle.java"/>
-        <exclude name="org/hsqldb/lib/tar/**"/>
-      </javac>
-    </target>
-
-    <target name="classes-servlet" description="compiles Servlet class" unless="ant.java.iscjava09">
+    <target name="classes-servlet" description="compiles Servlet class" unless="ant.java.iscjava11">
       <!-- 'unless' above should be removed once learn how to include in named module-->
       <available property='_servlet_available' classpath='${servletapi.lib}'
                  classname='javax.servlet.ServletException'/>
@@ -373,7 +278,7 @@ examples:
       </javac>
     </target>
 
-    <target name="classes" depends="switches,-javajsse"
+    <target name="classes" depends="sw-hsqldb,-javajsse"
     description="compiles JVM-independent non-lib/util/cmdline/servlet classes">
       <javac srcdir="${swsrc}"
              bootclasspath="${javac.bootcp.override}"
@@ -446,10 +351,10 @@ examples:
 
     <!-- compiles the cmdline classes -->
     <target name="-cmdline"
-            depends="-prepare, -update-switch-branch, -clone-shared-sources,
+            depends="-prepare, sw-sqltool, -clone-shared-sources,
                      -conditionalize-sqlfile-scanner, -sqlfile-scanner">
 
-      <javac srcdir="${swsrc}"
+      <javac srcdir="${swsrctool}"
              bootclasspath="${javac.bootcp.override}"
              includeantruntime="false"
              encoding="${javac.encoding}"
@@ -473,7 +378,7 @@ examples:
                value="org.hsqldb.cmdline.libclone"/>
     </target>
 
-    <target name="-swing" depends="switches"
+    <target name="-swing" depends="sw-hsqldb"
             description="compiles the swing based classes in the util folder">
       <javac srcdir="${swsrc}"
              bootclasspath="${javac.bootcp.override}"
@@ -486,6 +391,8 @@ examples:
         <include name="org/hsqldb/util/TableSorter.java"/>
         <include name="org/hsqldb/util/DatabaseManagerCommon.java"/>
         <include name="org/hsqldb/util/ConnectionSetting.java"/>
+        <include name="org/hsqldb/util/CSVWriter.java"/>
+        <include name="org/hsqldb/util/RCData.java"/>
       </javac>
     </target>
 
@@ -508,48 +415,18 @@ examples:
              />
     </target>
 
-    <target name="test" depends="-requireJunit, classes"
-            description="compiles the test package classes">
-      <javac srcdir="${swsrc}"
-             bootclasspath="${javac.bootcp.override}"
-             includeantruntime="false"
-             encoding="${javac.encoding}"
-             destdir="classes"
-             debug="${build.debug}"
-         >
-         <classpath>
-           <pathelement location="${junit38.lib}"/>
-           <pathelement location="lib/dbunit.jar"/>
-         </classpath>
-         <include name="org/hsqldb/test/**"/>
-         <!-- odbc tests require Junit 4.10-->
-         <exclude name="org/hsqldb/test/odbc/**"/>
-         <exclude name="org/hsqldb/test/SqlFileScannerDriver.java"/>
-      </javac>
-    </target>
-
-    <!--jar with (jdkversion-switched) sources, useful for reading/debugging the code from other projects, can be specified via maven too-->
+    <!--jar with sources for hsqldb.jar, useful for reading/debugging the code from other projects, can be specified via maven too-->
     <target name="hsqldbsources" description="builds jar file containing source code"
-            depends="switches">
-        <jar jarfile="lib/hsqldb-sources.jar" basedir="tmp/switchedsrc">
+            depends="sw-hsqldb">
+        <jar jarfile="lib/hsqldb-sources.jar" basedir="${swsrc}">
         </jar>
     </target>
 
-    <target name="hsqldbtest" depends="test, -prep-license-files"
-            description="Build the hsqldbtest.jar (default plus test classes)">
-      <jar jarfile="lib/hsqldbtest.jar" basedir="classes">
-        <metainf dir="doc" includes="*_lic.txt"/>
-        <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
-        <manifest>
-          <attribute name='Specification-Title' value='${hsqldb.title}'/>
-          <attribute name='Specification-Version' value='${hsqldb.version}'/>
-          <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-          <attribute name='Implementation-Title' value='Test runtime'/>
-          <attribute name='Implementation-Version' value='${build.label}'/>
-          <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-        </manifest>
-        <exclude name="org/hsqldb/sample/*"/>
-      </jar>
+    <!--jar with sources for sqltool.jar, useful for reading/debugging the code from other projects, can be specified via maven too-->
+    <target name="sqltoolsources" description="builds jar file containing SqlTool source code"
+            depends="sw-sqltool">
+        <jar jarfile="lib/sqltool-sources.jar" basedir="${swsrctool}">
+        </jar>
     </target>
 
     <fileset id='empty.fileset' dir='z:y:w:/nosuch' erroronmissingdir="false"/>
@@ -636,11 +513,8 @@ examples:
             '
     />
 
-    <target name="hsqldbmin" depends="classes, -prep-license-files"
+    <target name="hsqldbmin" depends="classes, mdesc-hsqldbmin, -prep-license-files"
             description="Build the hsqldbmin.jar (no servers)">
-      <antcall target="-compile-mdescriptor" inheritrefs="true">
-        <param name="module.name" value="org.hsqldb.min"/>
-      </antcall>
       <jar jarfile="lib/hsqldbmin.jar" duplicate='preserve'>
         <metainf dir="doc" includes="*_lic.txt"/>
         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
@@ -682,11 +556,8 @@ examples:
     <target name="hsqldb"
             depends="classes, -util, -prep-license-files, classes-servlet, -set-jar.exec.path"
             description="Build the default hsqldb.jar">
-      <antcall target="-compile-mdescriptor" inheritrefs="true">
-        <param name="module.name" value="org.hsqldb"/>
-      </antcall>
       <condition property="filesetawt.ref" value="empty.fileset">
-        <isset property="ant.java.iscjava09"/>
+        <isset property="ant.java.iscjava11"/>
       </condition>
       <property name="filesetawt.ref" value="dbmanagerawtaddedclasses"/>
 
@@ -729,7 +600,7 @@ JVM stderr: ---------------------------------------------------
 ${err.1}</fail>
     </target>
 
-    <target name="dbmanswing" depends="-swing, -lib, -prep-license-files"
+    <target name="dbmanswing" depends="-swing, -prep-license-files"
             description="Build the dbmanagerswing.jar">
       <jar jarfile="lib/dbmanagerswing.jar" duplicate='preserve' filesonly="true">
         <metainf dir="doc" includes="*_lic.txt"/>
@@ -748,26 +619,14 @@ ${err.1}</fail>
       </jar>
     </target>
 
-    <target name="-compile-mdescriptor" if="ant.java.iscjava09">
+    <target name="-copy-mdescriptor" if="ant.java.iscjava11">
         <fail unless='module.name'
-            message="Target '-compile-mdescriptor' called when prop 'module.name'not set"/>
+              message="Target '-copy-mdescriptor' called when prop 'module.name'not set"/>
         <!-- Ant apparently has a low resolution for distinguishing time
              differences: -->
         <sleep seconds="1"/>
-        <copy todir="${swsrc}" overwrite="true"
+        <copy todir="${tmpsrc}/${module.name}/src/main/java/" overwrite="true"
               file="${modinfosrc}${module.name}/module-info.java"/>
-
-        <javac srcdir="${swsrc}"
-             bootclasspath="${javac.bootcp.override}"
-             sourcepath="${swsrc}"
-             includeantruntime="false"
-             encoding="${javac.encoding}"
-             destdir="classes"
-             debug="${build.debug}"
-        >
-
-          <include name="module-info.java"/>
-        </javac>
     </target>
 
     <target name="-set-jar.exec.path">
@@ -785,9 +644,6 @@ ${err.1}</fail>
     <target name="sqltool"
             depends="-cmdline, -prep-license-files, -set-jar.exec.path"
             description="Build 'sqltool.jar' file">
-      <antcall target="-compile-mdescriptor" inheritrefs="true">
-        <param name="module.name" value="org.hsqldb.sqltool"/>
-      </antcall>
       <jar jarfile="lib/sqltool.jar" duplicate='preserve' filesonly="true">
         <metainf dir="doc" includes="*hsqldb_lic.txt"/>
         <manifest>
@@ -892,13 +748,13 @@ ${err.2}</fail>
     <!-- We use this target to create hsqldb-jdk8.jar and sqltool-jdk8.jar for the zip distro -->
     <target name="jdk8jars" depends="osgi, sqltool"
             description="Build hsqldb-osgi.jar and sqltool.jar for jdk 8 targets and rename"
-            if="ant.java.iscjava08" unless="ant.java.iscjava09">
+            if="ant.java.iscjava08" unless="ant.java.iscjava11">
         <move file="lib/hsqldb-osgi.jar" tofile="lib/hsqldb-jdk8.jar"/>
         <move file="lib/sqltool.jar" tofile="lib/sqltool-jdk8.jar"/>
     </target>
 
-    <target name="javadoc" depends="-prepare-javadoc, -clone-shared-sources, -set-jvmvars"
-            description="Create javadoc for the distribution package">
+    <target name="javadoc" depends="-prepare-javadoc, -set-jvmvars"
+            description="Create javadoc for the org.hsqldb module">
       <delete file="${swsrc}org/hsqldb/server/Servlet.java"/>
       <javadoc
            destdir="doc/apidocs"
@@ -937,7 +793,7 @@ ${err.2}</fail>
     </target>
 
     <target name="javadocsqltool" depends="-prepare-javadoc-sqltool, -clone-shared-sources, -set-jvmvars"
-            description="Create javadoc for the sqltool package">
+            description="Create javadoc for the org.hsqldb.sqltool module">
         <javadoc
                 destdir="doc/apidocssqltool"
                 stylesheetfile="doc-src/apidocs/javadoc.css"
@@ -952,7 +808,7 @@ ${err.2}</fail>
                 windowtitle="${hsqldb.title} ${hsqldb.version} API"
                 doctitle="${hsqldb.title} ${hsqldb.version}"
                 bottom="&lt;i&gt;Copyright &#169; 2001 - 2022 HSQL Development Group.&lt;/i&gt;">
-            <packageset dir="${swsrc}">
+            <packageset dir="${swsrctool}">
                 <include name='org/hsqldb/cmdline'/>
                 <include name='org/hsqldb/libclone'/>
                 <include name='org/hsqldb/utilclone'/>
@@ -1043,7 +899,7 @@ ${err.2}</fail>
         </targetfilelist>
       </dependset>
       -->
-      <copy todir="${swsrc}/org/hsqldb/cmdline/sqltool"
+      <copy todir="${swsrctool}/org/hsqldb/cmdline/sqltool"
             file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
     </target>
 
@@ -1064,19 +920,12 @@ ${err.2}</fail>
     </target>
 
     <target name="-conditionalize-jflex" depends="-set-jvmvars">
-      <!-- JFlex will only run if SqlFileScanner.java does not exist
-           and ant.java.iscjava06 -->
+      <!-- JFlex will only run if SqlFileScanner.java does not exist -->
       <available property="jflex.skip" type="file"
                  file="src/org/hsqldb/cmdline/sqltool/SqlFileScanner.java"/>
-      <condition property="jflex.skip"> <not>
-        <isset property="ant.java.iscjava06"/>
-      </not> </condition>
     </target>
 
     <target name="-conditionalize-sqlfile-scanner" depends="-set-jvmvars">
-      <condition property="-sqlfile-scanner.skip"> <not>
-        <isset property="ant.java.iscjava06"/>
-      </not> </condition>
     </target>
 
     <!-- If called internally, always call the -conditionalize-flex target
