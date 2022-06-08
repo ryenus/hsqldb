@@ -832,7 +832,7 @@ ${err.2}</fail>
            will fail to resolve Ant classes and produce error messages
            accordingly. -->
       <javadoc
-           destdir="doc/apidocs"
+           destdir="doc/apidocsdev"
            docencoding="UTF-8"
            stylesheetfile="doc-src/apidocs/javadoc.css"
            charset="UTF-8"
@@ -845,7 +845,7 @@ ${err.2}</fail>
            windowtitle="${hsqldb.title} ${hsqldb.version} Product Dev. API"
            doctitle="${hsqldb.title} ${hsqldb.version} Product"
            bottom="&lt;i&gt;Copyright &#169; 2001 - 2022 HSQL Development Group.&lt;/i&gt;">
-           <fileset dir="${swsrc}" includes="org/**/*.java"/>
+           <fileset dir="src" includes="org/**/*.java" excludes="org/hsqldb/test/**"/>
            <!-- Fileset is really good for maintenance and control purposes,
                 but it makes the generator produce an incredible amount of
                 output when there are no errors.  The verbose attribute
