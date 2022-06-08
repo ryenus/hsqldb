@@ -428,8 +428,7 @@ public class Document {
      * @return this object.
      * @throws IOException              if an I/O error occurs.
      * @throws IllegalArgumentException if the encoding is not supported.
-     * @throws NullPointerException     if the output stream is {
-     * @null}.
+     * @throws NullPointerException     if the output stream is {@code null}.
      */
     public Document save(final OutputStream outputStream, final String encoding) throws IOException {
         return save((Object) outputStream, encoding);
@@ -474,8 +473,7 @@ public class Document {
      * @param writer to which to save; must not be {@code null}.
      * @return this object.
      * @throws IOException          if an I/O error occurs.
-     * @throws NullPointerException if the writer is {
-     * @null}.
+     * @throws NullPointerException if the writer is {@code null}.
      */
     public Document save(final Writer writer) throws IOException {
         return save(writer, null);

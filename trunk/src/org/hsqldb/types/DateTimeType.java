@@ -2079,8 +2079,7 @@ public final class DateTimeType extends DTIType {
      * The predicate "a OVERLAPS b" applies when both a and b are either period
      * names or period constructors.
      * This predicate returns True if the two periods have at least one time
-     * point in common, i.e, if a[0] < b[1] and
-     * a[1] > b[0]. This predicate is commutative: "a OVERLAPS B" must return
+     * point in common, i.e, if {@code a[0] < b[1] && a[1] > b[0]}. This predicate is commutative: "a OVERLAPS B" must return
      * the same result of "b OVERLAPS a"
      * <p>
      *
@@ -2119,8 +2118,7 @@ public final class DateTimeType extends DTIType {
     /**
      * The predicate "a OVERLAPS b" applies when both a and b are rows.
      * This predicate returns True if the two periods have at least one time
-     * point in common, i.e, if a[0] < b[1] and
-     * a[1] > b[0]. This predicate is commutative: "a OVERLAPS B" must return
+     * point in common, i.e, if {@code a[0] < b[1] && a[1] > b[0]}. This predicate is commutative: "a OVERLAPS B" must return
      * the same result of "b OVERLAPS a"
      * <p>
      * Important: when this method returns, the boundaries of the periods may
@@ -2162,7 +2160,7 @@ public final class DateTimeType extends DTIType {
      * The predicate "a PRECEDES b" applies when both a and b are either period
      * names or period constructors.
      * In this case, the predicate returns True if the end value of a is less
-     * than or equal to the start value of b, i.e., if ae <= as.
+     * than or equal to the start value of b, i.e., if {@code ae <= as}.
      * <p>
      *
      * @param session  The session
@@ -2255,7 +2253,7 @@ public final class DateTimeType extends DTIType {
     /**
      * The predicate "x SUCCEEDS y" applies when both x and y are either period names or period constructors.
      * In this case, the predicate returns True if the start value of x is greater than or equal to the end value of y,
-     * i.e., if xs >= ye.
+     * i.e., if {@code xs >= ye}.
      * <p>
      *
      * @param session The session
@@ -2317,9 +2315,9 @@ public final class DateTimeType extends DTIType {
     /**
      * The predicate "x CONTAINS y" applies when<br>
      * a) both x and y are either period names or period constructors. In this case, the predicate returns True if
-     * x contains every time point in y, i.e., if xs <= ys and xe >= ye.<br>
+     * x contains every time point in y, i.e., if {@code xs <= ys && xe >= ye}.<br>
      * b) x is either a period name or a period constructor and y is a datetime value expression. In this case, the
-     * predicate returns True if x contains y, i.e., if xs <= y and xe > y.
+     * predicate returns True if x contains y, i.e., if {@code xs <= y && xe > y}.
      * <p>
      * The <i>b</i> part of this definition is not supported yet. In order to get the same result, one have to specify
      * a period with the same date time value for the period start and end.

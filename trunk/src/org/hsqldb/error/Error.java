@@ -122,7 +122,7 @@ public final class Error {
      * the add parameters.
      *
      * @param code      main error code
-     * @param subCode   sub error code (if 0 => no subMessage!)
+     * @param subCode   sub error code (if 0 then no subMessage!)
      * @param   add     optional parameters
      *
      * @return an <code>HsqlException</code>

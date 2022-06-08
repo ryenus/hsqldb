@@ -851,7 +851,7 @@ public class BaseHashMap {
     }
 
     /**
-     * type specific method for Object sets or Object->Object maps
+     * type specific method for Object sets or Object to Object maps
      */
     protected Object removeObject(Object objectKey, boolean removeRow) {
 

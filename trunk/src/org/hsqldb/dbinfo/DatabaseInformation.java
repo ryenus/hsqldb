@@ -283,7 +283,7 @@ public class DatabaseInformation {
         "VIEWS",                                                 //
     };
 
-    /** Map: table name => table id */
+    /** Map: table name : table id */
     static final IntValueHashMap sysTableNamesMap;
 
     static {

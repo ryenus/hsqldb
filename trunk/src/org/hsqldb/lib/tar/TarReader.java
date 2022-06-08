@@ -690,7 +690,7 @@ public class TarReader {
 
         /**
          *
-         * @return null or String with length() > 0.
+         * @return null or String with {@code length() > 0}.
          * @param field TarHeaderField
          * @throws TarMalformatException
          */

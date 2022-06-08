@@ -7254,7 +7254,7 @@ public class JDBCResultSet implements ResultSet {
     /** The ResultSetMetaData object for this ResultSet */
     private ResultSetMetaData resultSetMetaData;
 
-    /** Accelerates findColumn; Map<columnName, columnIndex> */
+    /** Accelerates fineColumn {@code Map<columnName, columnIndex>} */
     private IntValueHashMap columnMap;
 
     /** The first warning in the chain. Null if there are no warnings. */

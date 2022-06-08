@@ -50,7 +50,6 @@ import java.util.Stack;
  * scenarios.
  *
  * Supports the following (case-sensitive) directives:
- * <p>
  *
  * <ul>
  * <li>//#def[ine] IDENT (ASSIGN? (STRING | NUMBER | IDENT) )?
@@ -90,13 +89,13 @@ import java.util.Stack;
  * <pre>
  * ASSIGN     : '='
  * EQ         : '=='
- * LT         : '<'
- * LTE        : '<='
- * GT         : '>'
- * GTE        : '>='
+ * LT         : {@code '<'}
+ * LTE        : {@code '<='}
+ * GT         : {@code '>'}
+ * GTE        : {@code '>='}
  * OR         : ('|' | '||')
  * XOR        : '^'
- * AND        : ('&' | '&&')
+ * AND        : {@code ('&' | '&&')}
  * NOT        : '!'
  * DQUOTE     : '"'
  * LPAREN     : '('
@@ -115,12 +114,12 @@ import java.util.Stack;
  * FILEPATH   : NON_SPACE (ANY_UNICODE_CHARACTER* NON_WS)?     -- i.e. trailing SPACE elements are ignored
  * </pre>
  *
- * The lexographic definitions above use the BNF conventions :
+ * The lexicographic definitions above use the BNF conventions :
  *
  * <pre>
- * '?' -> zero or one
- * '*' -> zero or more
- * '+' -> one or more
+ * '?' : zero or one
+ * '*' : zero or more
+ * '+' : one or more
  * </pre>
  *
  * Directives may be arbitrarily indented; there is an option (INDENT) to set

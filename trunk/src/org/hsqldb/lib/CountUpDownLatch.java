@@ -463,7 +463,7 @@ public class CountUpDownLatch {
          *                                  cause a silent numeric overflow,
          *                                  resulting in a negative
          *                                  {@code count}.
-         * @throws IllegalArgumentException if {@code amount is less than one)
+         * @throws IllegalArgumentException if {@code amount is less than one}
          *
          */
         boolean countUp(int amount) {

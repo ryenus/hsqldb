@@ -277,8 +277,6 @@ implements HandshakeCompletedListener {
     /**
      * Retrieves the underlying javax.net.ssl.SSLServerSocketFactory.
      *
-     * @throws Exception if there is a problem retrieving the
-     *      underlying factory
      * @return the underlying javax.net.ssl.SSLServerSocketFactory
      */
     SSLServerSocketFactory getServerSocketFactoryImpl() {
@@ -300,8 +298,6 @@ implements HandshakeCompletedListener {
     /**
      * Retrieves the underlying javax.net.ssl.SSLSocketFactory.
      *
-     * @throws Exception if there is a problem retrieving the
-     *      underlying factory
      * @return the underlying javax.net.ssl.SSLSocketFactory
      */
     SSLSocketFactory getSocketFactoryImpl() {

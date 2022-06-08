@@ -85,7 +85,7 @@ class TransactionManagerCommon {
 
     // functional unit - cached table transactions
 
-    /** Map : rowID -> RowAction */
+    /** Map : rowID maps to: RowAction */
     public LongKeyHashMap rowActionMap;
 
     TransactionManagerCommon(Database database) {

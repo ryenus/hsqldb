@@ -30,7 +30,7 @@
 
 
 /**
- *  * Contains a single static class which handles invariants, runtime and
+ *  Contains a single static class which handles invariants, runtime and
  *  methods in different JDK versions
  */
 package org.hsqldb.lib.java;

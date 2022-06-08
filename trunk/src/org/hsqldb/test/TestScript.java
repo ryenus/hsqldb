@@ -85,8 +85,8 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfSysTables.txt";
 //    String path = "TestTemp.txt";
     public TestScript(String name) {
-        super(name, "jdbc:hsqldb:mem:test", false, false);
-//        super(name, "jdbc:hsqldb:file:test1", false, false);
+        super(name, "jdbc:hsqldb:mem:test");
+//        super(name, "jdbc:hsqldb:file:test1");
     }
 
     public void test() throws java.lang.Exception {

@@ -3889,10 +3889,10 @@ public class ParserDQL extends ParserBase {
     }
 
     /**
-     *     <value expression> ::=
-     *   <common value expression>
-     *   | <boolean value expression>
-     *   | <row value expression>
+     *   value expression ::=
+     *     common value expression
+     *   | boolean value expression
+     *   | row value expression
      *
      */
     Expression XreadValueExpression() {

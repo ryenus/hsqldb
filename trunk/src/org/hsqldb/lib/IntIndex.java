@@ -393,7 +393,7 @@ public class IntIndex {
     }
 
     /**
-     * Returns the index of the lowest element >= the given search target,
+     * Returns the index of the lowest element {@code >=} the given search target,
      * or count
      *     @return the index
      */
@@ -419,7 +419,7 @@ public class IntIndex {
     }
 
     /**
-     * Returns the index of the lowest element > the given search target
+     * Returns the index of the lowest element {@code >} the given search target
      * or count or -1 if target is found
      * @return the index
      */

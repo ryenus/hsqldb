@@ -752,7 +752,7 @@ public class DoubleIntIndex implements LongLookup {
     }
 
     /**
-     * Returns the index of the lowest element >= the given search target, or
+     * Returns the index of the lowest element {@code >=} the given search target, or
      * count.
      *
      * @return the index or count.
@@ -780,7 +780,7 @@ public class DoubleIntIndex implements LongLookup {
     }
 
     /**
-     * Returns the index of the lowest element > the given search target
+     * Returns the index of the lowest element {@code >} the given search target
      * or count or -1 if target is found
      * @return the index
      */
