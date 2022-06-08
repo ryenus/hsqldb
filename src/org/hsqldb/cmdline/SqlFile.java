@@ -5090,7 +5090,7 @@ public class SqlFile {
      * @return boolean
      * @see <a href="http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html">http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html</a>
      *      The table on this page lists the most common SqlTypes, all of which
-     *      must implement toString()</A>
+     *      must implement toString()
      * @see java.sql.Types
      */
     public static boolean canDisplayType(final int i) {

@@ -107,8 +107,8 @@ public class TestDataCube extends TestCase {
         //Channel: Internet
         addRevenueSource("INTERNET", 2009, "GB", "CAMBRIDGE", 10000);
         addRevenueSource("INTERNET", 2009, "GB", "OXFORD", 15000);
-        addRevenueSource("INTERNET", 2009, "US", "STANFORD" ,100000);
-        addRevenueSource("INTERNET", 2009, "US", "NEW YORK" ,175000);
+        addRevenueSource("INTERNET", 2009, "US", "STANFORD", 100000);        
+        addRevenueSource("INTERNET", 2009, "US", "NEW YORK", 175000);
         addRevenueSource("INTERNET", 2010, "GB", "CAMBRIDGE", 20000);
         addRevenueSource("INTERNET", 2010, "GB", "OXFORD", 25000);
         addRevenueSource("INTERNET", 2010, "US", "STANFORD", 200000);
@@ -181,7 +181,7 @@ public class TestDataCube extends TestCase {
      * Tests aggregated selection using the CUBE operator with a <b>GROUP_BY</b> clause.
      * This is a normal use of the CUBE operator acting on one column.
      * The result set will contain two groupings: (CHANNEL), ()
-     **/
+     */
     public void testAggregatedGroupByCube() throws SQLException {
         String sql = "SELECT CHANNEL, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
@@ -205,7 +205,7 @@ public class TestDataCube extends TestCase {
      * The result set will contain eight groupings:
      * (CHANNEL, YEAR, COUNTRY), (CHANNEL, YEAR), (CHANNEL, COUNTRY), (CHANNEL),
      * (YEAR, COUNTRY), (YEAR), (COUNTRY), ()
-     **/
+     */
     public void testAggregatedGroupByCube1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
@@ -301,7 +301,7 @@ public class TestDataCube extends TestCase {
      * Tests aggregated selection using the ROLLUP operator with a <b>GROUP_BY</b> clause.
      * This is a normal use of the ROLLUP operator acting on one column.
      * The result set will contain two groupings: (CHANNEL), ()
-     **/
+     */
     public void testAggregatedGroupByRollup() throws SQLException {
         String sql = "SELECT CHANNEL, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
@@ -324,7 +324,7 @@ public class TestDataCube extends TestCase {
      * The ROLLUP operator acts on several column.
      * The result set will contain four groupings:
      * (CHANNEL, YEAR, COUNTRY), (CHANNEL, YEAR), (CHANNEL), (),
-     **/
+     */
     public void testAggregatedGroupByRollup1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
@@ -396,7 +396,7 @@ public class TestDataCube extends TestCase {
      * Tests aggregated selection using the GROUPING SETS operator with a <b>GROUP_BY</b> clause.
      * This is a trivial use of the GROUPING SETS operator acting on one group.
      * Equivalent to "GROUP BY CHANNEL"
-     **/
+     */
     public void testAggregatedGroupByGS() throws SQLException {
         String sql = "SELECT CHANNEL, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
@@ -416,7 +416,7 @@ public class TestDataCube extends TestCase {
      * The GROUPING SETS operator acts on several groups of dimension 1.
      * The result set will contain three groupings:
      * (CHANNEL), (YEAR), (COUNTRY)
-     **/
+     */
     public void testAggregatedGroupByGS1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
@@ -443,7 +443,7 @@ public class TestDataCube extends TestCase {
      * The GROUPING SETS operator acts on several groups of various dimensions.
      * The result set will contain three groupings:
      * (CHANNEL, YEAR, COUNTRY), (YEAR), (COUNTRY, YEAR), ()
-     **/
+     */
     public void testAggregatedGroupByGS2() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE \n" +
@@ -521,7 +521,7 @@ public class TestDataCube extends TestCase {
      *
      * The ROLLUP operator acts on several column, producing four groupings:
      * (CHANNEL, YEAR, COUNTRY), (CHANNEL, YEAR), (CHANNEL), ()
-     **/
+     */
     public void testAggregatedGrouping() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES), \n" +
                 "GROUPING(CHANNEL) AS CH, GROUPING(YEAR) as YR, GROUPING(COUNTRY) AS CO\n" +
@@ -573,7 +573,7 @@ public class TestDataCube extends TestCase {
      *
      * The CUBE operator acts on several column, producing four groupings:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR), ()
-     **/
+     */
     public void testAggregatedGrouping1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES), GROUPING(CHANNEL, YEAR) " +
                 "FROM REVENUE\n" +
@@ -612,7 +612,7 @@ public class TestDataCube extends TestCase {
      *
      * The CUBE operator acts on several column, producing four groupings:
      * (CHANNEL, COUNTRY), (CHANNEL), (COUNTRY), ()
-     **/
+     */
     public void testAggregatedDecode() throws SQLException {
         String sql = "SELECT DECODE(GROUPING(CHANNEL), 1, 'MULTI-CHANNEL', CHANNEL), DECODE(GROUPING(COUNTRY), 0, COUNTRY, 'MULTI-COUNTRY'), SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -650,7 +650,7 @@ public class TestDataCube extends TestCase {
      *
      * () evaluates to GRAND TOTAL, (CHANNEL) evaluate to the channel used,
      * (COUNTRY) evaluates to the country and (CHANNEL, COUNTRY) evaluates to NULL
-     **/
+     */
     public void testAggregatedDecode1() throws SQLException {
         String sql = "SELECT DECODE(GROUPING(CHANNEL, COUNTRY), 3, 'GRAND TOTAL', 2, COUNTRY, " +
                 "1, CHANNEL, 0, null), SUM(SALES) \n" +
@@ -685,7 +685,7 @@ public class TestDataCube extends TestCase {
      * a GROUPING operator
      *
      * A SQLException should be thrown.
-     **/
+     */
     public void testInvalidGrouping() throws SQLException {
         String sql = "SELECT CHANNEL, COUNTRY, SUM(SALES)\n" +
                 "FROM REVENUE\n" +
@@ -702,7 +702,7 @@ public class TestDataCube extends TestCase {
      *
      * The CUBE operator produces four groupings:
      * (CHANNEL, YEAR, COUNTRY), (CHANNEL), (YEAR, COUNTRY), ()
-     **/
+     */
     public void testAggregatedComposite() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -749,7 +749,7 @@ public class TestDataCube extends TestCase {
      *
      * The ROLLUP operator produces three groupings:
      * (CHANNEL, YEAR, COUNTRY), (CHANNEL, YEAR), ()
-     **/
+     */
     public void testAggregatedComposite1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -792,7 +792,7 @@ public class TestDataCube extends TestCase {
      *
      * The ROLLUP operator produces four groupings:
      * (CHANNEL, YEAR, COUNTRY, PROVINCE), (CHANNEL, YEAR), (COUNTRY, PROVINCE), ()
-     **/
+     */
     public void testAggregatedComposite2() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, PROVINCE, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -862,7 +862,7 @@ public class TestDataCube extends TestCase {
      *
      * Two groupings should be produced:
      * (CHANNEL, YEAR), (CHANNEL, COUNTRY)
-     **/
+     */
     public void testAggregatedConcat() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -888,12 +888,13 @@ public class TestDataCube extends TestCase {
 
         compareResults(sql, expected, "00000");
     }
+
     /**
      * Tests concatenated groupings using GROUPING SETS.
      *
      * Four groupings should be produced:
      * (CHANNEL, COUNTRY), (YEAR, COUNTRY), (CHANNEL, PROVINCE), (YEAR, PROVINCE)
-     **/
+     */
     public void testAggregatedConcat1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, PROVINCE, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -957,7 +958,7 @@ public class TestDataCube extends TestCase {
      *
      * Four groupings should be produced:
      * (CHANNEL, YEAR, COUNTRY), (CHANNEL, YEAR), (CHANNEL, COUNTRY), (CHANNEL)
-     **/
+     */
     public void testAggregatedConcat2() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -1003,13 +1004,14 @@ public class TestDataCube extends TestCase {
 
         compareResults(sql, expected, "00000");
     }
+
     /**
      * Tests concatenated groupings using CUBE and GROUPING SETS.
      *
      * Eight groupings should be produced:
      * (CHANNEL, YEAR, COUNTRY), (CHANNEL, COUNTRY), (YEAR, COUNTRY), (COUNTRY),
      * (CHANNEL, YEAR, PROVINCE), (CHANNEL, PROVINCE), (YEAR, PROVINCE), (PROVINCE)
-     **/
+     */
     public void testAggregatedConcat3() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, PROVINCE, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -1135,7 +1137,7 @@ public class TestDataCube extends TestCase {
      * (CHANNEL, COUNTRY, PROVINCE), (YEAR, COUNTRY, PROVINCE),
      * (CHANNEL, COUNTRY), (YEAR, COUNTRY),
      * (CHANNEL),(YEAR)
-     **/
+     */
     public void testAggregatedConcat4() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, PROVINCE, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -1209,7 +1211,7 @@ public class TestDataCube extends TestCase {
      * (CHANNEL, YEAR, COUNTRY, PROVINCE), (CHANNEL, COUNTRY, PROVINCE), (YEAR, COUNTRY, PROVINCE), (COUNTRY, PROVINCE),
      * (CHANNEL, YEAR, COUNTRY), (CHANNEL, COUNTRY), (YEAR, COUNTRY), (COUNTRY),
      * (CHANNEL, YEAR), (CHANNEL), (YEAR), (),
-     **/
+     */
     public void testAggregatedConcat5() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, PROVINCE, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -1349,12 +1351,13 @@ public class TestDataCube extends TestCase {
     //------------------------------------------------------------
     // NESTED GROUPING TEST
     //------------------------------------------------------------
+
     /**
      * Tests nested groupings using GROUPING SETS within GROUPING SETS.
      *
      * Three groupings should be produced:
      * (CHANNEL), (YEAR), (COUNTRY)
-     **/
+     */
     public void testAggregatedNest() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -1382,7 +1385,7 @@ public class TestDataCube extends TestCase {
      *
      * Five groupings should be produced:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR), (), (COUNTRY)
-     **/
+     */
     public void testAggregatedNest1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -1420,7 +1423,7 @@ public class TestDataCube extends TestCase {
      *
      * Four groupings should be produced:
      * (CHANNEL), (YEAR, COUNTRY), (YEAR), ()
-     **/
+     */
     public void testAggregatedNest2() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -1454,7 +1457,7 @@ public class TestDataCube extends TestCase {
      *
      * Six groupings should be produced:
      * (CHANNEL, YEAR), (CHANNEL), (), (COUNTRY, PROVINCE), (COUNTRY), ()
-     **/
+     */
     public void testAggregatedNest3() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, PROVINCE, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -1500,7 +1503,7 @@ public class TestDataCube extends TestCase {
      * (CHANNEL, YEAR), (CHANNEL), (), (COUNTRY, PROVINCE), (COUNTRY), ()
      *
      * The second empty grouping is eliminated
-     **/
+     */
     public void testDistinctAggregatedNest3() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, PROVINCE, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -1542,7 +1545,7 @@ public class TestDataCube extends TestCase {
      * nested ROLLUP within CUBE
      *
      * A SQLException should be thrown.
-     **/
+     */
     public void testInvalidNesting() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES)\n" +
                 "FROM REVENUE \n" +
@@ -1556,7 +1559,7 @@ public class TestDataCube extends TestCase {
      * nested CUBE within CUBE
      *
      * A SQLException should be thrown.
-     **/
+     */
     public void testInvalidNesting1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES)\n" +
                 "FROM REVENUE \n" +
@@ -1570,7 +1573,7 @@ public class TestDataCube extends TestCase {
      * nested GROUPING SETS within CUBE
      *
      * A SQLException should be thrown.
-     **/
+     */
     public void testInvalidNesting2() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES)\n" +
                 "FROM REVENUE \n" +
@@ -1583,7 +1586,7 @@ public class TestDataCube extends TestCase {
      * nested ROLLUP within ROLLUP
      *
      * A SQLException should be thrown.
-     **/
+     */
     public void testInvalidNesting3() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES)\n" +
                 "FROM REVENUE \n" +
@@ -1597,7 +1600,7 @@ public class TestDataCube extends TestCase {
      * nested CUBE within ROLLUP
      *
      * A SQLException should be thrown.
-     **/
+     */
     public void testInvalidNesting4() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES)\n" +
                 "FROM REVENUE \n" +
@@ -1611,7 +1614,7 @@ public class TestDataCube extends TestCase {
      * nested GROUPING SETS within ROLLUP
      *
      * A SQLException should be thrown.
-     **/
+     */
     public void testInvalidNesting5() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES)\n" +
                 "FROM REVENUE \n" +
@@ -1625,11 +1628,11 @@ public class TestDataCube extends TestCase {
     /**
      * Tests <b>WHERE</b> clause with text fields.
      *
-     * Rows with COUNTRY <> 'GB' will be removed before grouping occurs
+     * Rows with {@code COUNTRY <> 'GB'} will be removed before grouping occurs
      *
      * CUBE will produce four groupings:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR), ()
-     **/
+     */
     public void testAggregatedWhere() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES) as SALES \n" +
                 "FROM REVENUE\n" +
@@ -1662,11 +1665,11 @@ public class TestDataCube extends TestCase {
     /**
      * Tests <b>WHERE</b> clause with numerical fields.
      *
-     * Rows with SALES <= 20000 will be removed before grouping occurs
+     * Rows with {@code SALES <= 20000} will be removed before grouping occurs
      *
      * ROLLUP will produce three groupings:
      * (CHANNEL, YEAR), (CHANNEL), ()
-     **/
+     */
     public void testAggregatedWhere1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES) as SALES \n" +
                 "FROM REVENUE\n" +
@@ -1695,11 +1698,11 @@ public class TestDataCube extends TestCase {
     /**
      * Tests <b>WHERE</b> clause with multiple fields.
      *
-     * Rows with COUNTRY <> 'US' or YEAR = 2009 will be removed before grouping occurs
+     * Rows with {@code COUNTRY <> 'US' or YEAR = 2009} will be removed before grouping occurs
      *
      * CUBE will produce four groupings:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR), ()
-     **/
+     */
     public void testAggregatedWhere2() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES) as SALES \n" +
                 "FROM REVENUE\n" +
@@ -1722,9 +1725,11 @@ public class TestDataCube extends TestCase {
 
         compareResults(sql, expected, "00000");
     }
+
     //------------------------------------------------------------
     // HAVING CLAUSE TEST
     //------------------------------------------------------------
+
     /**
      * Tests <b>HAVING</b> clause with aggregated column and multiple
      * HAVING conditions
@@ -1732,7 +1737,7 @@ public class TestDataCube extends TestCase {
      * ROLLUP will produce four groupings:
      * (CHANNEL, YEAR, COUNTRY), (CHANNEL, YEAR), (CHANNEL), ()
      * which are then filtered by the <B>HAVING</B> condition
-     **/
+     */
     public void testAggregatedHaving() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -1762,7 +1767,7 @@ public class TestDataCube extends TestCase {
      * CUBE will produce four groupings:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR), ()
      * which are then filtered by the <B>HAVING</B> condition
-     **/
+     */
     public void testAggregatedHaving1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES) as SALES \n" +
                 "FROM REVENUE\n" +
@@ -1792,7 +1797,7 @@ public class TestDataCube extends TestCase {
      * CUBE will produce four groupings:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR), ()
      * which are then filtered by the <B>HAVING</B> condition
-     **/
+     */
     public void testAggregatedHaving2() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES) as SALES \n" +
                 "FROM REVENUE\n" +
@@ -1813,12 +1818,13 @@ public class TestDataCube extends TestCase {
     //------------------------------------------------------------
     // ORDER BY CLAUSE TEST
     //------------------------------------------------------------
+
     /**
      * Tests <b>ORDER BY</b> clause
      *
      * CUBE will produce four groupings:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR),()
-     **/
+     */
     public void testAggregatedOrder() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES) as SALES \n" +
                 "FROM REVENUE\n" +
@@ -1853,7 +1859,7 @@ public class TestDataCube extends TestCase {
      *
      * CUBE will produce four groupings:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR),()
-     **/
+     */
     public void testAggregatedOrder1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES) as SALES \n" +
                 "FROM REVENUE\n" +
@@ -1888,7 +1894,7 @@ public class TestDataCube extends TestCase {
      *
      * CUBE will produce four groupings:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR),()
-     **/
+     */
     public void testAggregatedOrder2() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES) as SALES \n" +
                 "FROM REVENUE\n" +
@@ -1917,15 +1923,17 @@ public class TestDataCube extends TestCase {
 
         compareResults(sql, expected, "00000");
     }
+
     //------------------------------------------------------------
     // Miscellaneous columns TEST
     //------------------------------------------------------------
+
     /**
      * Tests the interaction with renamed columns with
      * aggregated selection using the CUBE operator with a <b>GROUP_BY</b> clause.
      * The CUBE operator produces four groupings:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR), ()
-     **/
+     */
     public void testAggregatedRename() throws SQLException {
         String sql = "SELECT CHANNEL as ROUTES, YEAR, SUM(SALES) as SALES\n" +
                 "FROM REVENUE \n" +
@@ -1950,6 +1958,7 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2010), Integer.valueOf(2559000)
         },
         };
+
         compareResults(sql, expected, "00000");
     }
 
@@ -1960,7 +1969,7 @@ public class TestDataCube extends TestCase {
      *
      * The CUBE operator produces four groupings:
      * (CHANNEL, YEAR), (CHANNEL), ()
-     **/
+     */
     public void testAggregatedRename1() throws SQLException {
         String sql = "SELECT CHANNEL as ROUTES, YEAR as CALENDAR, SUM(SALES) as SALES\n" +
                 "FROM REVENUE \n" +
@@ -1991,7 +2000,7 @@ public class TestDataCube extends TestCase {
      *
      * The CUBE operator produces four groupings:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR),()
-     **/
+     */
     public void testAggregatedReorder() throws SQLException {
         String sql = "SELECT YEAR, SUM(SALES) as SALES, CHANNEL\n" +
                 "FROM REVENUE\n" +
@@ -2026,7 +2035,7 @@ public class TestDataCube extends TestCase {
      *
      * The CUBE operator produces four groupings:
      * (YEAR, CHANNEL), (YEAR), (CHANNEL), ()
-     **/
+     */
     public void testAggregatedReorder1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, SUM(SALES) as SALES\n" +
                 "FROM REVENUE \n" +
@@ -2061,7 +2070,7 @@ public class TestDataCube extends TestCase {
      *
      * The ROLLUP operator produces four groupings:
      * (YEAR, CHANNEL), (YEAR), ()
-     **/
+     */
     public void testAggregatedReorder2() throws SQLException {
         String sql = "SELECT CHANNEL as ROUTES, SUM(SALES) as SALES, YEAR AS CALENDAR\n" +
                 "FROM REVENUE \n" +
@@ -2091,7 +2100,7 @@ public class TestDataCube extends TestCase {
      * with a <b>GROUP_BY</b> clause.
      *
      * Not all columns involved in GROUP BY are displayed
-     **/
+     */
     public void testAggregatedMissingColumns() throws SQLException {
         String sql = "SELECT CHANNEL, COUNTRY, SUM(SALES)\n" +
                 "FROM REVENUE \n" +
@@ -2122,7 +2131,7 @@ public class TestDataCube extends TestCase {
      *
      * The ROLLUP operator produces five groupings:
      * (CHANNEL, YEAR), (CHANNEL, YEAR),(CHANNEL, YEAR),(CHANNEL), ()
-     **/
+     */
     public void testAggregatedRepeatedColumns() throws SQLException {
         String sql = "SELECT CHANNEL as ROUTES, YEAR as CALENDAR, SUM(SALES)\n" +
                 "FROM REVENUE \n" +
@@ -2171,7 +2180,7 @@ public class TestDataCube extends TestCase {
      * (CHANNEL, YEAR), (CHANNEL, YEAR),(CHANNEL, YEAR),(CHANNEL), ()
      *
      * The duplicate (CHANNEL, YEAR) groupings are eliminated.
-     **/
+     */
     public void testDistinctAggregatedRepeatedColumns() throws SQLException {
         String sql = "SELECT CHANNEL as ROUTES, YEAR as CALENDAR, SUM(SALES)\n" +
                 "FROM REVENUE \n" +
@@ -2201,7 +2210,7 @@ public class TestDataCube extends TestCase {
      * columns not in the <b>GROUP BY</b> clause
      *
      * A SQLException should be thrown.
-     **/
+     */
     public void testInvalidMissingColumns() throws SQLException {
         String sql = "SELECT CHANNEL, COUNTRY, SUM(SALES)\n" +
                 "FROM REVENUE \n" +
@@ -2213,12 +2222,13 @@ public class TestDataCube extends TestCase {
     //------------------------------------------------------------
     // Aggregate Functions TEST
     //------------------------------------------------------------
+
     /**
      * Tests the data-cube with the MIN aggregate function
      *
      * The CUBE operator produces four groupings:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR), ()
-     **/
+     */
     public void testAggregatedMin() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, MIN(SALES) as SALES \n" +
                 "FROM REVENUE\n" +
@@ -2243,6 +2253,7 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2010), Integer.valueOf(20000)
         },
         };
+
         compareResults(sql, expected, "00000");
     }
 
@@ -2251,7 +2262,7 @@ public class TestDataCube extends TestCase {
      *
      * The CUBE operator produces four groupings:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR), ()
-     **/
+     */
     public void testAggregatedCount() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNT(*) \n" +
                 "FROM REVENUE\n" +
@@ -2276,6 +2287,7 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2010), Integer.valueOf(8)
         },
         };
+
         compareResults(sql, expected, "00000");
     }
 
@@ -2284,7 +2296,7 @@ public class TestDataCube extends TestCase {
      *
      * The CUBE operator produces two groupings:
      * (CHANNEL), ()
-     **/
+     */
     public void testAggregatedAvg() throws SQLException {
         String sql = "SELECT CHANNEL, AVG(SALES), VAR_SAMP(SALES), STDDEV_SAMP(SALES), VAR_POP (SALES), STDDEV_POP(SALES)\n" +
                 "FROM REVENUE\n" +
@@ -2297,14 +2309,16 @@ public class TestDataCube extends TestCase {
                 "DIRECT SALES", Integer.valueOf(472312), 1.7276678125E11, Integer.valueOf(415652), 1.5117093359375E11, 388807
         },
         };
+
         compareResults(sql, expected, "00000");
     }
+
     /**
      * Tests the data-cube without an aggregate function
      *
      * The CUBE operator produces four groupings:
      * (CHANNEL, YEAR), (CHANNEL), (YEAR), ()
-     **/
+     */
     public void testAggregatedMissing() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR \n" +
                 "FROM REVENUE\n" +
@@ -2329,14 +2343,16 @@ public class TestDataCube extends TestCase {
                 null, Integer.valueOf(2010)
         },
         };
+
         compareResults(sql, expected, "00000");
     }
+
     /**
      * Tests an invalid <b>GROUP BY</b> clause that contains
      * an aggregate function
      *
      * A SQLException should be thrown.
-     **/
+     */
     public void testInvalidAggregate() throws SQLException {
         String sql = "SELECT CHANNEL, COUNTRY, SUM(SALES)\n" +
                 "FROM REVENUE\n" +
@@ -2344,13 +2360,15 @@ public class TestDataCube extends TestCase {
         Object[][] expected = new Object[][]{};
         compareResults(sql, expected, "42572");
     }
+
     //------------------------------------------------------------
     // Functions in GROUP BY TEST
     //------------------------------------------------------------
+
     /**
      * Tests the interaction of functions within the GROUP BY clause
      * and datacube operators.
-     **/
+     */
     public void testFunctionGroupBy() throws SQLException {
         String sql = "SELECT CASE WHEN A.SEL=1 THEN A.NAME2 ELSE A.NAME1 END AS NAME,\n" +
                 "  COUNT(A.NAME1) AS COUNTER FROM TEST A \n" +
@@ -2374,6 +2392,7 @@ public class TestDataCube extends TestCase {
         }};
         compareResults(sql, expected, "00000");
     }
+
     public void testFunctionGroupBy1() throws SQLException {
         String sql = "SELECT CASE WHEN A.SEL=1 THEN A.NAME2 ELSE A.NAME1 END AS NAME,\n" +
                 "  COUNT(A.NAME1) AS COUNTER FROM TEST A \n" +
@@ -2403,6 +2422,7 @@ public class TestDataCube extends TestCase {
         }};
         compareResults(sql, expected, "00000");
     }
+
     public void testFunctionGroupBy3() throws SQLException {
         String sql = "SELECT A.SEL, COALESCE(A.NAME1, A.NAME2) AS NAME,\n" +
                 "COUNT(A.SEL) AS COUNTER FROM TEST A \n" +
@@ -2427,10 +2447,10 @@ public class TestDataCube extends TestCase {
         compareResults(sql, expected, "00000");
     }
 
-
     //------------------------------------------------------------
     // Complex Query TEST
     //------------------------------------------------------------
+
     /**
      * Tests the interaction of multiple features
      * Concatenated grouping, nesting and composite columns
@@ -2438,7 +2458,7 @@ public class TestDataCube extends TestCase {
      * Produces seven groupings:
      * (CHANNEL, COUNTRY, PROVINCE), (CHANNEL, COUNTRY), (CHANNEL, PROVINCE), (CHANNEL)
      * (CHANNEL, YEAR, COUNTRY, PROVINCE), (CHANNEL, YEAR), (CHANNEL)
-     **/
+     */
     public void testAggregatedComplex() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, PROVINCE, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -2546,7 +2566,7 @@ public class TestDataCube extends TestCase {
      * (CHANNEL, YEAR, COUNTRY, PROVINCE), (CHANNEL, YEAR), (CHANNEL)
      *
      * The duplicate are eliminated
-     **/
+     */
     public void testDistinctAggregatedComplex() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, PROVINCE, SUM(SALES) \n" +
                 "FROM REVENUE\n" +
@@ -2648,7 +2668,7 @@ public class TestDataCube extends TestCase {
      * Produces Eight groupings:
      * (CHANNEL, YEAR, COUNTRY), (CHANNEL, YEAR), (CHANNEL, COUNTRY), (CHANNEL)
      * (YEAR, COUNTRY), (YEAR), (COUNTRY), ()
-     **/
+     */
     public void testAggregatedComplex1() throws SQLException {
         String sql = "SELECT CHANNEL, YEAR, COUNTRY, SUM(SALES), SUM(LOSSES)\n" +
                 "FROM REVENUE\n" +
@@ -2674,7 +2694,6 @@ public class TestDataCube extends TestCase {
 
         compareResults(sql, expected, "00000");
     }
-
 
     //------------------------------------------------------------
     // Helper methods

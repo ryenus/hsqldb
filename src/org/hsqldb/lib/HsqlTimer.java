@@ -868,7 +868,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
          * {@link #unpark() unpark} or the specified amount of time has
          * elapsed.
          *
-         * Implements the sync & wait(n) half of this queue's availability
+         * Implements the sync and wait(n) half of this queue's availability
          * condition. <p>
          *
          * @param timeout the maximum time to wait in milliseconds.
@@ -947,7 +947,7 @@ public final class HsqlTimer implements Comparator, ThreadFactory {
          * Wakes up a single thread (if any) that is waiting on this queue's
          * {@link #park(long) park} method.
          *
-         * Implements the sync & notify half of this queue's availability
+         * Implements the sync and notify half of this queue's availability
          * condition.
          */
         synchronized void unpark() {

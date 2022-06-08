@@ -5001,7 +5001,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
 // --------------------------- Internal Implementation -------------------------
 
-    /** parameter name => parameter index */
+    /** parameter name maps to parameter index */
     private IntValueHashMap parameterNameMap;
     private boolean         wasNullValue;
 

@@ -6087,7 +6087,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
 
     /**
      * Retrieves whether the JDBC <code>DatabaseMetaData</code> contract
-     * specifies that the argument <code>s</code>code> is filter parameter
+     * specifies that the argument <code>s</code> is filter parameter
      * value that requires a corresponding IS NULL predicate. <p>
      *
      * @param s the filter parameter to test

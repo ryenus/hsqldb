@@ -321,7 +321,7 @@ public final class DoubleLongIndex implements LongLookup {
     }
 
     /**
-     * Returns the index of the lowest element >= the given search target, or
+     * Returns the index of the lowest element {@code >=} the given search target, or
      * count
      *
      * @return the index or count

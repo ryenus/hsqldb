@@ -47,7 +47,7 @@ import org.hsqldb.result.Result;
 import org.hsqldb.rowio.RowInputBinary;
 
 /**
- * Checks indexex for insonsistencies
+ * Checks indexes for inconsistencies
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.5.1

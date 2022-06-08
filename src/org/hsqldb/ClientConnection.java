@@ -65,7 +65,7 @@ import org.hsqldb.types.TimestampData;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.0
  * @since 1.7.2
  */
 public class ClientConnection implements SessionInterface, Cloneable {

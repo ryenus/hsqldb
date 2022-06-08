@@ -153,7 +153,7 @@ public class HashIndex {
     }
 
     /**
-     * This looks from a given node, so the parameter is always > -1.
+     * This looks from a given node, so the parameter is always {@code > -1}.
      *
      * @param lookup A valid node to look from
      * @return either -1 or the next node from this node

@@ -83,7 +83,7 @@ public final class StatementManager {
     /** Set of wrappers for Statement object. */
     private HashSet<StatementWrapper> statementSet;
 
-    /** Map: Statement id (int) => wrapper for Statement object. */
+    /** Map: Statement id (int) maps to: wrapper for Statement object. */
     private LongKeyHashMap csidMap;
 
     /**

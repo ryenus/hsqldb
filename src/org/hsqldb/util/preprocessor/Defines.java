@@ -65,7 +65,7 @@ public class Defines {
      *                       symbols are added.
      * @throws PreprocessorException if the given list contains an illegal
      *                               expression.
-     * @see #defineCSV(String);
+     * @see #defineCSV(String)
      */
     public Defines(final String csvExpressions) throws PreprocessorException {
         this();

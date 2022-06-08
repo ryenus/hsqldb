@@ -63,7 +63,7 @@ public final class ResourceBundleHandler {
     /** The Locale used internally to fetch resource bundles. */
     private static Locale locale = Locale.getDefault();
 
-    /** Map:  Integer object handle => <code>ResourceBundle</code> object. */
+    /** Map:  Integer object handle maps to: <code>ResourceBundle</code> object. */
     private static HashMap bundleHandleMap = new HashMap();
 
     /** List whose elements are <code>ResourceBundle</code> objects */

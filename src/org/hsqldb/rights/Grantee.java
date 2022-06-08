@@ -487,7 +487,7 @@ public class Grantee implements SchemaObject {
     }
 
     /**
-     * Update own table column set rights to include a newly created column.<p?
+     * Update own table column set rights to include a newly created column.
      */
     void updateRightsForNewColumn(HsqlName tableName, HsqlName columnName) {
 
@@ -507,7 +507,7 @@ public class Grantee implements SchemaObject {
     }
 
     /**
-     * Update granted rights to include a newly created column.<p?
+     * Update granted rights to include a newly created column.
      */
     void updateRightsForNewColumn(HsqlName tableName) {
 
@@ -996,10 +996,7 @@ public class Grantee implements SchemaObject {
     /**
      * Method used with all Grantee objects to set the full set of rights
      * according to those inherited form ROLE Grantee objects and those
-     * granted to the object itself.<p>
-     *
-     * @todo -- see if this is correct and the currentRole.fullRightsMap
-     * is always updated prior to being added to this.fullRightsMap
+     * granted to the object itself.
      */
     void updateAllRights() {
 
