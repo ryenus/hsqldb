@@ -111,7 +111,7 @@ examples:
          this target eliminates the redundancy in those methods by making a
          single class-existence-test definitively responsible for determining if
          JVM X is supported.
-         It is sufficient for this purposes if the test classes used are
+         It is sufficient for this purpose if the test classes used are
          verified to be present in version X and in all newer versions (> X)
          (i.e. that the class is not removed from some higher JVM). -->
       <condition property="_crosswithoutbcp"> <and>
@@ -187,9 +187,6 @@ examples:
                  Add a fixcrlf if we add non-binary files to doc-src/apidocs. -->
             <fileset dir="doc-src/apidocs"/>
         </copy>
-        <copy todir="${swsrctool}">
-            <fileset dir="modinfo-src/org.hsqldb.sqltool/"/>
-        </copy>
     </target>
 
     <target name="clean" depends="-clean, -clean-switch-branch"
@@ -219,6 +216,8 @@ examples:
         <copy todir='${swsrctool}/org/hsqldb/cmdline' preservelastmodified='true'>
             <fileset dir='src/org/hsqldb/cmdline' includes='**/*'/>
         </copy>
+        <antcall target="-clone-shared-sources" inheritrefs="true"/>
+
         <antcall target="-copy-mdescriptor" inheritrefs="true">
             <param name="module.name" value="org.hsqldb.sqltool"/>
         </antcall>
@@ -351,7 +350,7 @@ examples:
 
     <!-- compiles the cmdline classes -->
     <target name="-cmdline"
-            depends="-prepare, sw-sqltool, -clone-shared-sources,
+            depends="-prepare, sw-sqltool,
                      -conditionalize-sqlfile-scanner, -sqlfile-scanner">
 
       <javac srcdir="${swsrctool}"
@@ -791,7 +790,7 @@ ${err.2}</fail>
          srcdir="doc/apidocs" includes="**/*.css, **/*.html, **/package-list"/>
     </target>
 
-    <target name="javadocsqltool" depends="-prepare-javadoc-sqltool, -clone-shared-sources, -set-jvmvars"
+    <target name="javadocsqltool" depends="-prepare-javadoc-sqltool, -set-jvmvars"
             description="Create javadoc for the org.hsqldb.sqltool module">
         <javadoc
                 destdir="doc/apidocssqltool"
@@ -821,11 +820,11 @@ ${err.2}</fail>
             <tag name="jmx.managed-operation-parameter" enabled="false"/>
         </javadoc>
         <fixcrlf preservelastmodified='true' eol="lf" encoding="UTF-8"
-                 srcdir="doc/apidocs" includes="**/*.css, **/*.html, **/package-list"/>
+                 srcdir="doc/apidocssqltool" includes="**/*.css, **/*.html, **/package-list"/>
     </target>
 
     <target name="javadocdev"
-            depends="-prepare-javadoc, -clone-shared-sources,-set-jvmvars"
+            depends="-prepare-javadoc,-set-jvmvars"
             description="Create javadoc for all HSQLDB code-base classes">
       <!-- Since our preprocessor package compilatoin depends on the
            env-specific ant runtime lib via includeAntRuntime=true, Javadoc
@@ -1067,7 +1066,7 @@ optimizations) manually.
     <!-- See comments at top of "build-docbook.xml" about doc.target property -->
     <target name="validate-docs" depends="-ivy-setup"
           description="Validate project DocBook source files">
-    <!-- The depends above would be redundant, except that Gradle needs
+    <!-- The 'depends' above would be redundant, except that Gradle needs
          -ivy-setup to execute BEFORE the first antcall executes -->
 
       <!-- These doc-skip properties can be simplified once we require Ant 1.8 -->
