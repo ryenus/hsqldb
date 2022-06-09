@@ -245,14 +245,10 @@ examples:
         </antcall>
     </target>
 
+    <!-- an optional target that uses the same src dir as sw-hsqldb -->
     <target name="sw-hsqldbmin" depends="-prepare">
-        <delete file="classes/module-info.class"/>
         <delete file="${swsrcmin}/module-info.java"/>
-        <copy todir='${swsrc}' preservelastmodified='true'>
-            <fileset dir='src' includes='**/*'
-                     excludes="org/hsqldb/cmdline/**/* org/hsqldb/sample/**/*
-                               org/hsqldb/test/**/*"/>
-        </copy>
+
         <antcall target="-copy-mdescriptor" inheritrefs="true">
             <param name="module.name" value="org.hsqldb.min"/>
         </antcall>
