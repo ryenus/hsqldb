@@ -327,7 +327,7 @@ examples:
                                                - blaine
 
    -->
-    <target name="-util" depends="-prepare"
+    <target name="-util" depends="-prepare, sw-hsqldb"
             description="compiles the util folder">
       <javac srcdir="${swsrc}"
              bootclasspath="${javac.bootcp.override}"
@@ -733,7 +733,7 @@ ${err.2}</fail>
     </target>
 
     <target name="hsqldbutil" depends="-util, -prep-license-files"
-            description="Build the utility hsqldbutil.jar">
+            description="Build the Database Managers jar">
       <jar jarfile="lib/hsqldbutil.jar" compress="true">
         <metainf dir="doc" includes="*_lic.txt"/>
         <manifest>
@@ -744,9 +744,9 @@ ${err.2}</fail>
           value='Utilities runtime, without JDBC driver'/>
           <attribute name='Implementation-Version' value='${build.label}'/>
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-          <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
+          <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
           <attribute name='Class-Path'
-          value='hsqldb-${hsqldb.version}.jar hsqldbmain.jar hsqldb.jar'/>
+          value='hsqldb-${hsqldb.version}.jar hsqldbmain.jar hsqldbmin.jar'/>
           <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='utilclasses'/>
