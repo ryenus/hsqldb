@@ -205,7 +205,7 @@ examples:
     <target name="clean-all" depends="-clean, -clean-switch-branch, clean-docs"
             description="Same as clean but delete the jar and doc files as well">
       <delete>
-        <fileset dir="lib" includes="sqltool.jar, hsqldb.jar, testsuite.jar"/>
+        <fileset dir="lib" includes="sqltool.jar, hsqldb.jar"/>
       </delete>
     </target>
 
@@ -522,7 +522,7 @@ examples:
     />
 
     <target name="hsqldbmin" depends="classes, mdesc-hsqldbmin, -prep-license-files"
-            description="Build the hsqldbmin${jdk8string}.jar (no servers)">
+            description="Build the hsqldbmin.jar (no servers)">
       <jar jarfile="lib/hsqldbmin${jdk8string}.jar" duplicate='preserve'>
         <metainf dir="doc" includes="*_lic.txt"/>
         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
@@ -542,7 +542,7 @@ examples:
     </target>
 
     <target name="hsqldbmain" depends="classes, -prep-license-files"
-            description="Build the hsqldbmain${jdk8string}.jar (no utilities)">
+            description="Build the hsqldbmain.jar (no utilities)">
       <jar jarfile="lib/hsqldbmain${jdk8string}.jar" duplicate='preserve'>
         <metainf dir="doc" includes="*_lic.txt"/>
         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
@@ -563,7 +563,7 @@ examples:
 
     <target name="hsqldb"
             depends="classes, -util, -prep-license-files, classes-servlet, -set-jar.exec.path"
-            description="Build the default hsqldb${jdk8string}.jar">
+            description="Build the default hsqldb.jar">
       <condition property="filesetawt.ref" value="empty.fileset">
         <isset property="ant.java.iscjava11"/>
       </condition>
@@ -609,7 +609,7 @@ ${err.1}</fail>
     </target>
 
     <target name="dbmanswing" depends="-swing, -prep-license-files"
-            description="Build the dbmanagerswing${jdk8string}.jar">
+            description="Build the dbmanagerswing.jar">
       <jar jarfile="lib/dbmanagerswing${jdk8string}.jar" duplicate='preserve' filesonly="true">
         <metainf dir="doc" includes="*_lic.txt"/>
         <manifest>
@@ -621,6 +621,8 @@ ${err.1}</fail>
           <attribute name='Implementation-Version' value='${build.label}'/>
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
+          <attribute name='Class-Path'
+                     value='hsqldb-${hsqldb.version}.jar hsqldb.jar hsqldbmin.jar hsqldbmain.jar'/>
           <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='dbmanagerswingclasses'/>
@@ -651,8 +653,8 @@ ${err.1}</fail>
 
     <target name="sqltool"
             depends="-cmdline, -prep-license-files, -set-jar.exec.path"
-            description="Build 'sqltool${jdk8string}.jar' file">
-      <jar jarfile="lib/sqltool.jar" duplicate='preserve' filesonly="true">
+            description="Build 'sqltool.jar' file">
+      <jar jarfile="lib/sqltool${jdk8string}.jar" duplicate='preserve' filesonly="true">
         <metainf dir="doc" includes="*hsqldb_lic.txt"/>
         <manifest>
           <attribute name='Specification-Title' value='${hsqldb.title}'/>
@@ -662,7 +664,7 @@ ${err.1}</fail>
           <attribute name='Implementation-Version' value='${build.label}'/>
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <attribute name='Class-Path'
-              value='hsqldb-${hsqldb.version}.jar hsqldb.jar hsqldbmain.jar'/>
+              value='hsqldb-${hsqldb.version}.jar hsqldb.jar hsqldbmin.jar hsqldbmain.jar'/>
           <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='sqltoolclasses'/>
@@ -734,7 +736,7 @@ ${err.2}</fail>
 
     <target name="hsqldbutil" depends="-util, -prep-license-files"
             description="Build the Database Managers jar">
-      <jar jarfile="lib/hsqldbutil.jar" compress="true">
+      <jar jarfile="lib/hsqldbutil${jdk8string}.jar" compress="true">
         <metainf dir="doc" includes="*_lic.txt"/>
         <manifest>
           <attribute name='Specification-Title' value='${hsqldb.title}'/>
@@ -746,7 +748,7 @@ ${err.2}</fail>
           <attribute name='Implementation-Vendor' value='${build.vendor}'/>
           <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
           <attribute name='Class-Path'
-          value='hsqldb-${hsqldb.version}.jar hsqldbmain.jar hsqldbmin.jar'/>
+          value='hsqldb-${hsqldb.version}.jar hsqldb.jar hsqldbmin.jar hsqldbmain.jar'/>
           <attribute name='Sealed' value='true'/>
         </manifest>
         <fileset refid='utilclasses'/>
@@ -1159,6 +1161,6 @@ JVM stdout: ---------------------------------------------------
 ${out.0}
 JVM stderr: ---------------------------------------------------
 ${err.0}</fail>
-      <delete file="lib/hsqldb.jar"/>
+      <delete file="lib/hsqldb${jdk8string}.jar"/>
     </target>
 </project>
