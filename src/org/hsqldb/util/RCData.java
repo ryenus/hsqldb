@@ -58,7 +58,6 @@ import java.util.regex.Pattern;
  * @see <A href="../../../../util-guide/sqltool-chapt.html#sqltool_auth-sect"
  *      target="guide">
  *     The RC File section of the HyperSQL Utilities Guide</A>
- * @see org.hsqldb.sample.SqlFileEmbedder
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class RCData {
