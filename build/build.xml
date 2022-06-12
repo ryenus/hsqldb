@@ -205,7 +205,7 @@ examples:
     <target name="clean-all" depends="-clean, -clean-switch-branch, clean-docs"
             description="Same as clean but delete the jar and doc files as well">
       <delete>
-        <fileset dir="lib" includes="sqltool.jar, hsqldb.jar"/>
+        <fileset dir="lib" includes="sqltool.jar, hsqldb.jar, hsqldb-osgi.jar"/>
       </delete>
     </target>
 
