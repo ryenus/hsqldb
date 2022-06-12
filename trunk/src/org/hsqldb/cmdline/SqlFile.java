@@ -149,7 +149,6 @@ import org.hsqldb.cmdline.utilclone.RCData;
  * @see <a href="../../../../util-guide/sqltool-chapt.html" target="guide">
  *     The SqlTool chapter of the
  *     HyperSQL Utilities Guide</a>
- * @see org.hsqldb.sample.SqlFileEmbedder
  * @version $Revision$, $Date$
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
