@@ -68,8 +68,12 @@ and re-export.</fail>
   </target>
 
   <target name="dist"
-          depends="state-check, clean-all, gen-docs, javadoc, javadocsqltool, osgi, sqltool"
+          depends="state-check, clean-all, gen-docs"
           description="Build joint binary + source distribution zip package">
+    <antcall target="javadoc" inheritrefs="true"/>
+    <antcall target="osgi" inheritrefs="true"/>
+    <antcall target="javadocsqltool" inheritrefs="true"/>
+    <antcall target="sqltool" inheritrefs="true"/>
     <mkdir dir="dist"/>
     <property name="app.basedir" value="hsqldb-${hsqldb.version}"/>
 
@@ -156,7 +160,7 @@ and re-export.</fail>
       <zipfileset prefix="${app.basedir}/hsqldb/doc-src" dir="doc-src"
                   includes="changelist_2_0.txt,hsqldb_lic.txt,hypersonic_lic.txt"/>
       <zipfileset prefix="${app.basedir}/hsqldb/lib" dir="lib"
-                  includes="sqltool*.jar, servlet*.zip"/>
+                  includes="sqltool*.jar, javax.servlet-api*.jar"/>
       <zipfileset prefix="${app.basedir}/hsqldb/lib" dir="lib"
                   includes="hsqldb*.jar"/>
     </zip>
