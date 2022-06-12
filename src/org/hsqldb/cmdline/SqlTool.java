@@ -70,7 +70,6 @@ import org.hsqldb.cmdline.utilclone.RCData;
  * @see #main(String[])
  * @see #objectMain(String[])
  * @see SqlFile
- * @see org.hsqldb.sample.SqlFileEmbedder
  * @version $Revision$, $Date$
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
