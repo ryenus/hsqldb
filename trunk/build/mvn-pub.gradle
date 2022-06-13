@@ -236,7 +236,7 @@ sqltoolJar { doLast {
 task sourcesJar(type: Jar, dependsOn:classes) {
      classifier = 'sources'
      //from sourceSets.main.allSource
-     from fileTree(dir: '../src')
+    from fileTree(dir: '../src', exclude: 'org/hsqldb/cmdline/**')
 }
 sourcesJar.description = 'Build sources jar file'
 
@@ -251,7 +251,7 @@ task sqltoolSourcesJar(type: Jar, dependsOn:classes) {
     archiveBaseName = 'sqltool'
     classifier = 'sources'
     //from sourceSets.main.allSource
-    from fileTree(dir: '../src')
+    from fileTree(dir: '../src', include: 'org/hsqldb/cmdline/**')
 }
 sqltoolSourcesJar.description = 'Build Sqltool sources jar file'
 
