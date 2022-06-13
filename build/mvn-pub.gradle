@@ -259,7 +259,7 @@ task sqltoolJavadocJar(type: Jar, dependsOn:javadoc) {
     archiveBaseName = 'sqltool'
     classifier = 'javadoc'
     //from javadoc.destinationDir
-    from fileTree(dir: '../doc/apidocs')
+    from fileTree(dir: '../doc/apidocssqltool')
 }
 sqltoolJavadocJar.description = 'Build Sqltool javadoc jar file'
  
