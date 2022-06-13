@@ -20,7 +20,7 @@
  * by 'build-dist' not by 'mvn-pub'.
  *
  * <PRE><CODE>
- *     gradlew -x sqltool -x osgi -b mvn-pub.gradle
+ *     gradlew -x sqltool -x hsqldb -b mvn-pub.gradle
  * </CODE></PRE>
  *
  * Now, for each alternative, adjust environment and build properties, like
@@ -197,18 +197,18 @@ uploadArchives { doFirst {
 // Funny name is work-around for Gradle sequencing bug
 task zJarDep { doLast {
     if (jar.archivePath.exists() && jar.archivePath.lastModified()
-            < file('../lib/hsqldb-osgi.jar').lastModified()) {
+            < file('../lib/hsqldb.jar').lastModified()) {
         logger.warn "Deleting $jar.archivePath.absolutePath"
         jar.archivePath.delete()
     }
 } }
 
 jar { doLast {
-    File srcFile = file('../lib/hsqldb-osgi.jar')
+    File srcFile = file('../lib/hsqldb.jar')
     jar.archivePath.setBytes(srcFile.bytes)
 } }
 
-jar.dependsOn = [osgi, zJarDep]
+jar.dependsOn = [hsqldb, zJarDep]
 if (project.hasProperty('classifier')) jar.classifier = project.classifier
 
 clean.dependsOn = [prohibitionMap['clean']]
