@@ -4687,13 +4687,7 @@ public class JDBCResultSet implements ResultSet {
             return null;
         }
 
-        long millis = t.getSeconds() * 1000;
-
-        if (cal != null) {
-            millis = HsqlDateTime.convertMillisToCalendar(cal, millis);
-        }
-
-        return new Date(millis);
+        return (Date) Type.SQL_DATE.convertSQLToJava(session, t, cal);
     }
 
     /**
@@ -4743,8 +4737,8 @@ public class JDBCResultSet implements ResultSet {
      * of the returned java.sql.Time object is the UTC of the SQL value without
      * modification. In other words, the Calendar object is not used.</li>
      * <li>If the SQL type of the column is WITHOUT TIME ZONE, then the UTC
-     * value of the returned java.sql.Time is correct for the given Calendar
-     * object.</li>
+     * value of the returned java.sql.Time is correct for the given Calendar's
+     * time zone.</li>
      * <li>If the cal argument is null, it it ignored and the method returns
      * the same Object as the method without the Calendar parameter.</li>
      * </ol>
@@ -4768,18 +4762,7 @@ public class JDBCResultSet implements ResultSet {
             return null;
         }
 
-        long millis = DateTimeType.normaliseTime(t.getSeconds()) * 1000L;
-
-        if (!resultMetaData.columnTypes[--columnIndex]
-                .isDateTimeTypeWithZone()) {
-            Calendar calendar = cal == null ? session.getCalendar()
-                    : cal;
-
-            millis = HsqlDateTime.convertMillisToCalendar(calendar, millis);
-            millis = HsqlDateTime.getNormalisedTime(millis);
-        }
-
-        return new Time(millis);
+        return (Time) Type.SQL_TIME.convertSQLToJava(session, t, cal);
     }
 
     /**
@@ -4802,9 +4785,10 @@ public class JDBCResultSet implements ResultSet {
      * <li>If the SQL type of the column is WITH TIME ZONE, then the UTC value
      * of the returned java.sql.Time object is the UTC of the SQL value without
      * modification. In other words, the Calendar object is not used.</li>
-     * <li>If the SQL type of the column is WITHOUT TIME ZONE, then the UTC
-     * value of the returned java.sql.Time is correct for the given Calendar
-     * object.</li>
+     * <li>If the SQL type of the column is WITHOUT TIME ZONE, then the
+     * UTC value of the returned java.sql.Time will represent the correct
+     * time for the time zone (including daylight saving time) of the given
+     * Calendar. </li>
      * <li>If the cal argument is null, it it ignored and the method returns
      * the same Object as the method without the Calendar parameter.</li>
      * </ol>
@@ -4869,11 +4853,6 @@ public class JDBCResultSet implements ResultSet {
      */
     public Timestamp getTimestamp(int columnIndex,
                                   Calendar cal) throws SQLException {
-
-        if (cal == null) {
-            return getTimestamp(columnIndex);
-        }
-
         TimestampData t = (TimestampData) getColumnInType(columnIndex,
             Type.SQL_TIMESTAMP);
 
@@ -4881,19 +4860,7 @@ public class JDBCResultSet implements ResultSet {
             return null;
         }
 
-        long millis = t.getSeconds() * 1000;
-
-        if (!resultMetaData.columnTypes[columnIndex - 1]
-                .isDateTimeTypeWithZone()) {
-                millis = HsqlDateTime.convertMillisToCalendar(cal,
-                        millis);
-        }
-
-        Timestamp ts = new Timestamp(millis);
-
-        ts.setNanos(t.getNanos());
-
-        return ts;
+        return (Timestamp) Type.SQL_TIMESTAMP.convertSQLToJava(session, t, cal);
     }
 
     /**
@@ -6864,13 +6831,7 @@ public class JDBCResultSet implements ResultSet {
             throw JDBCUtil.nullArgument();
         }
 
-        Type hsqlType = Types.getParameterSQLType(type);
-
-        if (hsqlType == null) {
-            throw JDBCUtil.sqlException(ErrorCode.X_42561);
-        }
-
-        Object source = getColumnValue(columnIndex);
+        final Object source = getColumnValue(columnIndex);
 
         if (wasNullValue) {
             return null;
@@ -6937,42 +6898,69 @@ public class JDBCResultSet implements ResultSet {
                 break;
             }
             case "java.util.UUID": {
-                source = getColumnInType(columnIndex, hsqlType);
-                o = Type.SQL_GUID.convertSQLToJava(session, source);
+                Type columnType = resultMetaData.columnTypes[columnIndex - 1];
+                if (columnType.isUUIDType()) {
+                    o = Type.SQL_GUID.convertSQLToJava(session, source);
+                } else {
+                    Object value = Type.SQL_GUID.convertToTypeJDBC(session,
+                            source, columnType);
+                    o = Type.SQL_GUID.convertSQLToJava(session, value);
+                }
+                break;
+            }
+            case "java.time.Instant": {
+                Type columnType = resultMetaData.columnTypes[columnIndex - 1];
+                if (columnType.isDateOrTimestampType()) {
+                    TimestampData v = (TimestampData) source;
+                    o = ((DateTimeType) columnType).toInstant(session, v);
+                }
                 break;
             }
             case "java.time.LocalDate": {
-                source = getColumnInType(columnIndex, hsqlType);
-                TimestampData v = (TimestampData) source;
-                long millis = v.getMillis();
-                Calendar cal = session.getCalendarGMT();
-                cal.setTimeInMillis(millis);
-                o = LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
+                Type columnType = resultMetaData.columnTypes[columnIndex - 1];
+                if (columnType.isDateOrTimestampType()) {
+                    TimestampData v = (TimestampData) source;
+                    o = ((DateTimeType) columnType).toLocalDate(session, v);
+                }
                 break;
             }
             case "java.time.LocalTime": {
-                source = getColumnInType(columnIndex, hsqlType);
-                TimeData v = (TimeData) source;
-                o = LocalTime.ofNanoOfDay(v.getSeconds() * 1000000000L + v.getNanos());
+                Type columnType = resultMetaData.columnTypes[columnIndex - 1];
+                if (columnType.isTimeType()) {
+                    TimeData v = (TimeData) source;
+                    o = ((DateTimeType) columnType).toLocalTime(session, v);
+                } else if (columnType.isTimestampType()) {
+                    TimestampData v = (TimestampData) source;
+                    o = ((DateTimeType) columnType).toLocalTime(session, v);
+                }
                 break;
             }
             case "java.time.LocalDateTime": {
-                source = getColumnInType(columnIndex, hsqlType);
-                TimestampData v = (TimestampData) source;
-
-                long millis = v.getMillis();
-                int nanos = v.getNanos();
-                Calendar cal = session.getCalendarGMT();
-                cal.setTimeInMillis(millis);
-                o = LocalDateTime.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND ), nanos);
+                Type columnType = resultMetaData.columnTypes[columnIndex - 1];
+                if (columnType.isDateOrTimestampType()) {
+                    TimestampData v = (TimestampData) source;
+                    o = ((DateTimeType) columnType).toLocalDateTime(session, v);
+                }
                 break;
             }
             case "java.time.OffsetTime": {
-                o = getTimeWithZone(columnIndex);
+                Type columnType = resultMetaData.columnTypes[columnIndex - 1];
+                if (columnType.isTimeType()) {
+                    TimeData v = (TimeData) source;
+                    o = ((DateTimeType) columnType).toOffsetTime(session, v);
+                } else if (columnType.isTimestampType()) {
+                    TimestampData v = (TimestampData) source;
+                    o = ((DateTimeType) columnType).toOffsetTime(session, v);
+                }
+
                 break;
             }
             case "java.time.OffsetDateTime": {
-                o = getTimestampWithZone(columnIndex);
+                Type columnType = resultMetaData.columnTypes[columnIndex - 1];
+                if (columnType.isDateOrTimestampType()) {
+                    TimestampData v = (TimestampData) source;
+                    o = ((DateTimeType) columnType).toOffsetDateTime(session, v);
+                }
                 break;
             }
             case "java.time.Duration": {
@@ -6981,7 +6969,6 @@ public class JDBCResultSet implements ResultSet {
                 if (!sourceType.isIntervalDaySecondType()) {
                     break;
                 }
-                source = getColumnInType(columnIndex, hsqlType);
                 IntervalSecondData v = (IntervalSecondData) source;
                 o = Duration.ofSeconds(v.getSeconds(), v.getNanos());
                 break;
@@ -6992,7 +6979,6 @@ public class JDBCResultSet implements ResultSet {
                 if (!sourceType.isIntervalYearMonthType()) {
                     break;
                 }
-                source = getColumnInType(columnIndex, hsqlType);
                 IntervalMonthData v = (IntervalMonthData) source;
                 int months = v.getMonths();
 
@@ -7223,13 +7209,13 @@ public class JDBCResultSet implements ResultSet {
     }
 
     private Object getTimeWithZone(int columnIndex) throws SQLException {
-        TimeData v = (TimeData) getColumnInType(columnIndex,
-            Type.SQL_TIME_WITH_TIME_ZONE);
+        DateTimeType columnType = (DateTimeType) resultMetaData.columnTypes[columnIndex - 1];
+        TimeData v = (TimeData) getColumnValue(columnIndex);
 
         if (v == null) {
             return null;
         }
-        return Type.SQL_TIME_WITH_TIME_ZONE.convertSQLToJava(session, v);
+        return columnType.convertSQLToJava(session, v);
     }
 
 //------------------------ Internal Implementation -----------------------------
@@ -7412,18 +7398,15 @@ public class JDBCResultSet implements ResultSet {
                                      Type targetType) throws SQLException {
 
         Object value = getColumnValue(columnIndex);
-        Type sourceType;
+        Type sourceType = resultMetaData.columnTypes[columnIndex - 1];
 
         if (value == null) {
             return null;
         }
 
-        sourceType = resultMetaData.columnTypes[columnIndex - 1];
-
         if (translateTTIType && targetType.isIntervalType()) {
             targetType = ((IntervalType) targetType).getCharacterType();
         }
-
 
         if (sourceType.typeCode != targetType.typeCode) {
             try {

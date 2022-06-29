@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,6 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
-import org.hsqldb.types.TimestampData;
 
 /**
  * Interface to Session and its remote proxy objects. Used by the
@@ -49,7 +48,7 @@ import org.hsqldb.types.TimestampData;
  * the session level.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.0
  * @since 1.7.2
  */
 public interface SessionInterface {
@@ -140,8 +139,6 @@ public interface SessionInterface {
     Calendar getCalendarGMT();
 
     SimpleDateFormat getSimpleDateFormatGMT();
-
-    TimestampData getCurrentDate();
 
     int getZoneSeconds();
 

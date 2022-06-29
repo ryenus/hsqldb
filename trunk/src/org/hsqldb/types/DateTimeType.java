@@ -657,7 +657,7 @@ public final class DateTimeType extends DTIType {
                         long seconds = ((TimestampData) a).seconds
                                        + ((TimestampData) a).zone;
 
-                        seconds = DateTimeType.toDateSeconds(seconds);
+                        seconds = toDateSeconds(seconds);
 
                         return new TimestampData(seconds);
                     }
@@ -732,24 +732,13 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 switch (otherType.typeCode) {
 
-                    case Types.SQL_TIME_WITH_TIME_ZONE : {
-                        TimeData ti = (TimeData) a;
-                        long seconds = session.getCurrentDate().seconds
-                                       + ti.seconds;
-
-                        return new TimestampData(seconds,
-                                                 scaleNanos(ti.nanos),
-                                                 ti.zone);
-                    }
+                    case Types.SQL_TIME_WITH_TIME_ZONE :
                     case Types.SQL_TIME : {
-                        TimeData ti          = (TimeData) a;
-                        int      zoneSeconds = session.getZoneSeconds();
-                        long seconds = session.getCurrentDate().seconds
-                                       + ti.seconds - zoneSeconds;
+                        TimeData ti = (TimeData) a;
 
-                        return new TimestampData(seconds,
-                                                 scaleNanos(ti.nanos),
-                                                 zoneSeconds);
+                        return convertTimeToTimestamp(session.getCalendar(),
+                                                      ti.seconds + ti.zone,
+                                                      scaleNanos(ti.nanos));
                     }
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                         return convertToTypeLimits(session, a);
@@ -765,8 +754,7 @@ public final class DateTimeType extends DTIType {
                         long seconds = HsqlDateTime.convertSecondsFromCalendar(
                             session.getCalendarGMT(), calendar, ts.seconds);
                         int zoneSeconds =
-                            calendar.getTimeZone().getOffset(seconds * 1000)
-                            / 1000;
+                            getZoneSeconds(seconds, calendar.getTimeZone());
 
                         return new TimestampData(seconds,
                                                  scaleNanos(ts.nanos),
@@ -778,23 +766,13 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP :
                 switch (otherType.typeCode) {
 
-                    case Types.SQL_TIME_WITH_TIME_ZONE : {
-                        TimeData ti          = (TimeData) a;
-                        int      zoneSeconds = session.getZoneSeconds();
-                        long seconds = session.getCurrentDate().seconds
-                                       + ti.seconds - zoneSeconds;
-
-                        return new TimestampData(seconds,
-                                                 scaleNanos(ti.nanos),
-                                                 zoneSeconds);
-                    }
+                    case Types.SQL_TIME_WITH_TIME_ZONE :
                     case Types.SQL_TIME : {
                         TimeData ti = (TimeData) a;
-                        long seconds = session.getCurrentDate().seconds
-                                       + ti.seconds;
 
-                        return new TimestampData(seconds,
-                                                 scaleNanos(ti.nanos));
+                        return convertTimeToTimestamp(session.getCalendar(),
+                                                      ti.seconds + ti.zone,
+                                                      scaleNanos(ti.nanos));
                     }
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
                         TimestampData ts      = (TimestampData) a;
@@ -826,95 +804,98 @@ public final class DateTimeType extends DTIType {
     }
 
     public Object convertJavaToSQL(SessionInterface session, Object a) {
+        return convertJavaToSQL(session, a, null);
+    }
+
+    public Object convertJavaToSQL(SessionInterface session, Object a,
+                                   Calendar calendar) {
 
         if (a == null) {
             return null;
         }
 
-        Calendar calendar       = session.getCalendar();
-        long     seconds        = 0;
-        int      nanos          = 0;
-        int      zoneSeconds    = 0;
-        boolean  hasZone        = false;
-        boolean  isJavaUtilDate = a instanceof java.util.Date;
-        boolean  isTimeObject   = false;
-        boolean  isDateObject   = false;
+        if (calendar == null) {
+            calendar = session.getCalendar();
+        }
 
-        if (isJavaUtilDate) {
-            if (a instanceof java.sql.Time) {
-                isTimeObject = true;
-            } else if (a instanceof java.sql.Date) {
-                isDateObject = true;
-            }
+        long    seconds      = 0;
+        int     nanos        = 0;
+        int     zoneSeconds  = 0;
+        boolean hasZone      = false;
+        boolean isTimeObject = false;
+        boolean isDateObject = false;
 
+        if (a instanceof java.util.Date) {
             long millis = ((java.util.Date) a).getTime();
 
-            if (isDateObject) {
-                millis = HsqlDateTime.getNormalisedDate(calendar, millis);
-            }
-
-            seconds     = millis / 1000;
-            zoneSeconds = calendar.getTimeZone().getOffset(millis) / 1000;
-
-            if (a instanceof java.sql.Timestamp) {
-                nanos = ((java.sql.Timestamp) a).getNanos();
+            if (a instanceof java.sql.Time) {
+                isTimeObject = true;
+                nanos        = (int) (millis % millisInSecond * nanosInMilli);
+            } else if (a instanceof java.sql.Date) {
+                isDateObject = true;
+            } else if (a instanceof java.sql.Timestamp) {
+                nanos  = ((java.sql.Timestamp) a).getNanos();
+                millis -= (nanos / nanosInMilli);
             } else {
-                nanos = (int) (millis % 1000);
+                nanos = (int) (millis % millisInSecond * nanosInMilli);
             }
+
+            seconds     = millis / millisInSecond;
+            zoneSeconds = getZoneSeconds(seconds, calendar.getTimeZone());
 
 //#ifdef JAVA8
         } else if (a instanceof java.time.LocalDate) {
             LocalDate ld = (LocalDate) a;
+
             setDateComponents(calendar, ld);
 
-            long millis = calendar.getTimeInMillis();
-            seconds = millis / 1000;
-            zoneSeconds = calendar.getTimeZone().getOffset(millis) / 1000;
-            nanos = 0;
+            seconds      = calendar.getTimeInMillis() / millisInSecond;
+            zoneSeconds  = getZoneSeconds(seconds, calendar.getTimeZone());
+            nanos        = 0;
             isDateObject = true;
         } else if (a instanceof OffsetDateTime) {
             OffsetDateTime odt = (OffsetDateTime) a;
 
-            seconds = odt.toEpochSecond();
+            seconds     = odt.toEpochSecond();
             zoneSeconds = odt.get(ChronoField.OFFSET_SECONDS);
-            nanos = odt.getNano();
-            hasZone = true;
+            nanos       = odt.getNano();
+            hasZone     = true;
         } else if (a instanceof ZonedDateTime) {
             ZonedDateTime zdt = (ZonedDateTime) a;
-            seconds = zdt.toEpochSecond();
+
+            seconds     = zdt.toEpochSecond();
             zoneSeconds = zdt.get(ChronoField.OFFSET_SECONDS);
-            nanos = zdt.getNano();
-            hasZone = true;
+            nanos       = zdt.getNano();
+            hasZone     = true;
         } else if (a instanceof java.time.LocalDateTime) {
             LocalDateTime ldt = (LocalDateTime) a;
 
             setDateTimeComponents(calendar, ldt);
 
-            long millis = calendar.getTimeInMillis();
-            seconds = millis / 1000;
-            zoneSeconds = calendar.getTimeZone().getOffset(millis) / 1000;
-            nanos = ldt.getNano();
+            seconds     = calendar.getTimeInMillis() / millisInSecond;
+            zoneSeconds = getZoneSeconds(seconds, calendar.getTimeZone());
+            nanos       = ldt.getNano();
         } else if (a instanceof java.time.Instant) {
             Instant ins = (Instant) a;
 
-            long millis;
-            seconds = ins.getEpochSecond();
-            millis = seconds * 1000;
-            zoneSeconds = calendar.getTimeZone().getOffset(millis) / 1000;
-            nanos = ins.getNano();
+            seconds     = ins.getEpochSecond();
+            zoneSeconds = getZoneSeconds(seconds, calendar.getTimeZone());
+            nanos       = ins.getNano();
         } else if (a instanceof java.time.OffsetTime) {
             OffsetTime ot = (OffsetTime) a;
 
-            seconds = ot.toLocalTime().toSecondOfDay();
-            zoneSeconds = ot.get(ChronoField.OFFSET_SECONDS);
-            nanos = ot.getNano();
+            seconds      = ot.toLocalTime().toSecondOfDay();
+            zoneSeconds  = ot.get(ChronoField.OFFSET_SECONDS);
+            seconds      = seconds - zoneSeconds;
+            nanos        = ot.getNano();
             isTimeObject = true;
-            hasZone = true;
+            hasZone      = true;
         } else if (a instanceof java.time.LocalTime) {
             LocalTime lt = (LocalTime) a;
 
-            seconds = lt.toSecondOfDay();
-            nanos  = lt.getNano();
+            seconds      = lt.toSecondOfDay();
+            zoneSeconds  = getZoneSeconds(seconds, calendar.getTimeZone());
+            nanos        = lt.getNano();
             isTimeObject = true;
 
 //#endif JAVA8
@@ -935,8 +916,7 @@ public final class DateTimeType extends DTIType {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                seconds = toTimeSeconds(seconds);
-                nanos   = DateTimeType.normaliseFraction(nanos, scale);
+                nanos = DateTimeType.normaliseFraction(nanos, scale);
 
                 return new TimeData((int) seconds, nanos, zoneSeconds);
             }
@@ -952,16 +932,18 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIMESTAMP :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
                 if (isTimeObject) {
-                    throw Error.error(ErrorCode.X_42561);
+                    return convertTimeToTimestamp(calendar,
+                                                  seconds + zoneSeconds,
+                                                  nanos);
                 }
 
                 nanos = DateTimeType.normaliseFraction(nanos, scale);
 
                 return new TimestampData(seconds, nanos, zoneSeconds);
             }
+            default :
+                throw Error.error(ErrorCode.X_42561);
         }
-
-        throw Error.error(ErrorCode.X_42561);
     }
 
     public Object convertSQLToJavaGMT(SessionInterface session, Object a) {
@@ -972,19 +954,19 @@ public final class DateTimeType extends DTIType {
 
             case Types.SQL_TIME :
             case Types.SQL_TIME_WITH_TIME_ZONE :
-                millis = ((TimeData) a).seconds * 1000L;
-                millis += ((TimeData) a).nanos / 1000000;
+                millis = ((TimeData) a).seconds * millisInSecond;
+                millis += ((TimeData) a).nanos / nanosInMilli;
 
                 return new java.sql.Time(millis);
 
             case Types.SQL_DATE :
-                millis = ((TimestampData) a).seconds * 1000;
+                millis = ((TimestampData) a).seconds * millisInSecond;
 
                 return new java.sql.Date(millis);
 
             case Types.SQL_TIMESTAMP :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                millis = ((TimestampData) a).seconds * 1000;
+                millis = ((TimestampData) a).seconds * millisInSecond;
 
                 java.sql.Timestamp value = new java.sql.Timestamp(millis);
 
@@ -999,31 +981,41 @@ public final class DateTimeType extends DTIType {
 
     public Object convertSQLToJava(SessionInterface session, Object a) {
 
+        Calendar cal = session.getCalendar();
+
+        return convertSQLToJava(session, a, null);
+    }
+
+    public Object convertSQLToJava(SessionInterface session, Object a,
+                                   Calendar cal) {
+
         if (a == null) {
             return null;
+        }
+
+        if (cal == null) {
+            cal = session.getCalendar();
         }
 
         switch (typeCode) {
 
             case Types.SQL_TIME : {
-                Calendar cal = session.getCalendar();
-                long millis = HsqlDateTime.convertMillisToCalendar(cal,
-                    ((TimeData) a).getMillis());
+                TimeData td = ((TimeData) a);
 
-                millis = HsqlDateTime.getNormalisedTime(cal, millis);
+                setTimeComponents(cal, td.seconds);
+
+                long millis = cal.getTimeInMillis() + td.nanos / nanosInMilli;
 
                 return new java.sql.Time(millis);
             }
             case Types.SQL_TIME_WITH_TIME_ZONE : {
 
 //#ifdef JAVA8
-                TimeData   ts   = (TimeData) a;
-                ZoneOffset zone = ZoneOffset.ofTotalSeconds(ts.zone);
-                long millis =
-                    HsqlDateTime.getNormalisedTime((ts.seconds + ts.zone)
-                                                   * 1_000L);
-                long       nanos = millis * 1_000_000L;
-                LocalTime  ldt   = LocalTime.ofNanoOfDay(nanos + ts.nanos);
+                TimeData   ts      = (TimeData) a;
+                ZoneOffset zone    = ZoneOffset.ofTotalSeconds(ts.zone);
+                int        seconds = toTimeSeconds(ts.seconds + ts.zone);
+                long       nanos   = seconds * nanosInSecond;
+                LocalTime  ldt     = LocalTime.ofNanoOfDay(nanos + ts.nanos);
 
                 return OffsetTime.of(ldt, zone);
 
@@ -1037,17 +1029,23 @@ public final class DateTimeType extends DTIType {
 //#endif JAVA8
             }
             case Types.SQL_DATE : {
-                Calendar cal = session.getCalendar();
-                long millis = HsqlDateTime.convertMillisToCalendar(cal,
-                    ((TimestampData) a).getMillis());
+                Calendar calGMT = session.getCalendarGMT();
+                long     millis = ((TimestampData) a).getMillis();
 
-                // millis = HsqlDateTime.getNormalisedDate(cal, millis);
+                HsqlDateTime.convertMillisFromCalendar(calGMT, cal, millis);
+                HsqlDateTime.zeroFromPart(cal, Types.SQL_INTERVAL_DAY);
+
+                millis = cal.getTimeInMillis();
+
                 return new java.sql.Date(millis);
             }
             case Types.SQL_TIMESTAMP : {
-                Calendar cal = session.getCalendar();
-                long millis = HsqlDateTime.convertMillisToCalendar(cal,
-                    ((TimestampData) a).getMillis());
+                Calendar calGMT = session.getCalendarGMT();
+                long     millis = ((TimestampData) a).getMillis();
+
+                millis = HsqlDateTime.convertMillisFromCalendar(calGMT, cal,
+                        millis);
+
                 java.sql.Timestamp value = new java.sql.Timestamp(millis);
 
                 value.setNanos(((TimestampData) a).nanos);
@@ -1077,21 +1075,8 @@ public final class DateTimeType extends DTIType {
 //#endif JAVA8
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
+                throw Error.error(ErrorCode.X_42561);
         }
-    }
-
-    public static int normaliseTime(int seconds) {
-
-        while (seconds < 0) {
-            seconds += 24 * 60 * 60;
-        }
-
-        if (seconds >= 24 * 60 * 60) {
-            seconds %= 24 * 60 * 60;
-        }
-
-        return seconds;
     }
 
     public String convertToString(Object a) {
@@ -1112,7 +1097,7 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_TIME : {
                 TimeData t       = (TimeData) a;
-                int      seconds = normaliseTime(t.seconds + t.zone);
+                int      seconds = toTimeSeconds(t.seconds + t.zone);
 
                 s = intervalSecondToString(seconds, t.nanos, false);
 
@@ -1120,13 +1105,10 @@ public final class DateTimeType extends DTIType {
                     return s;
                 }
 
-                sb = new StringBuilder(s);
-                s = Type.SQL_INTERVAL_HOUR_TO_MINUTE.intervalSecondToString(
-                    ((TimeData) a).zone, 0, true);
+                s += Type.SQL_INTERVAL_HOUR_TO_MINUTE.intervalSecondToString(
+                    t.zone, 0, true);
 
-                sb.append(s);
-
-                return sb.toString();
+                return s;
             }
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP : {
@@ -1344,7 +1326,7 @@ public final class DateTimeType extends DTIType {
     public TimestampData convertFromDouble(Session session, double value) {
 
         long units = (long) value;
-        int  nanos = (int) ((value - units) * limitNanoseconds);
+        int  nanos = (int) ((value - units) * nanosInSecond);
 
         return getDateTimeValue(session, units, nanos);
     }
@@ -1355,7 +1337,7 @@ public final class DateTimeType extends DTIType {
             return null;
         }
 
-        long     millis   = getMillis(a);
+        long     millis   = getTotalMillis(a);
         Calendar calendar = session.getCalendarGMT();
 
         millis = HsqlDateTime.getTruncatedPart(calendar, millis, part);
@@ -1364,17 +1346,16 @@ public final class DateTimeType extends DTIType {
         switch (typeCode) {
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
+            case Types.SQL_TIME : {
                 millis = HsqlDateTime.getNormalisedTime(calendar, millis);
 
-            //fall through
-            case Types.SQL_TIME : {
-                return new TimeData((int) (millis / 1000), 0,
+                return new TimeData((int) (millis / millisInSecond), 0,
                                     ((TimeData) a).zone);
             }
             case Types.SQL_DATE :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP : {
-                return new TimestampData(millis / 1000, 0,
+                return new TimestampData(millis / millisInSecond, 0,
                                          ((TimestampData) a).zone);
             }
             default :
@@ -1389,7 +1370,7 @@ public final class DateTimeType extends DTIType {
             return null;
         }
 
-        long     millis   = getMillis(a);
+        long     millis   = getTotalMillis(a);
         Calendar calendar = session.getCalendarGMT();
 
         millis = HsqlDateTime.getRoundedPart(calendar, millis, part);
@@ -1401,13 +1382,13 @@ public final class DateTimeType extends DTIType {
             case Types.SQL_TIME : {
                 millis = HsqlDateTime.getNormalisedTime(millis);
 
-                return new TimeData((int) (millis / 1000), 0,
+                return new TimeData((int) (millis / millisInSecond), 0,
                                     ((TimeData) a).zone);
             }
             case Types.SQL_DATE :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP : {
-                return new TimestampData(millis / 1000, 0,
+                return new TimestampData(millis / millisInSecond, 0,
                                          ((TimestampData) a).zone);
             }
             default :
@@ -1508,9 +1489,10 @@ public final class DateTimeType extends DTIType {
 
             case Types.DTI_MILLISECOND :
                 if (this.isDateOrTimestampType()) {
-                    return ((TimestampData) dateTime).nanos / 1000000;
+                    return ((TimestampData) dateTime).nanos
+                           / (int) nanosInMilli;
                 } else {
-                    return ((TimeData) dateTime).nanos / 1000000;
+                    return ((TimeData) dateTime).nanos / (int) nanosInMilli;
                 }
             case Types.DTI_MICROSECOND :
                 if (this.isDateOrTimestampType()) {
@@ -1529,10 +1511,27 @@ public final class DateTimeType extends DTIType {
                                          "DateTimeType - " + part);
         }
 
-        long millis = getMillis(dateTime) + getZoneMillis(dateTime);
+        long     millis   = getTotalMillis(dateTime);
+        Calendar calendar = session.getCalendarGMT();
 
-        return HsqlDateTime.getDateTimePart(session.getCalendarGMT(), millis, calendarPart)
-               / divisor + increment;
+        calendar.setTimeInMillis(millis);
+
+        return calendar.get(calendarPart) / divisor + increment;
+    }
+
+    /**
+     * Returns the indicated part of the given millisecond date object.
+     * @param m the millisecond time value from which to extract the indicated part
+     * @param part an integer code corresponding to the desired date part
+     * @return the indicated part of the given <code>java.util.Date</code> object
+     */
+    public static int getDateTimePart(Calendar calendar, long m, int part) {
+
+        synchronized (calendar) {
+            calendar.setTimeInMillis(m);
+
+            return calendar.get(part);
+        }
     }
 
     public Object addMonthsSpecial(Session session, Object dateTime,
@@ -1540,7 +1539,7 @@ public final class DateTimeType extends DTIType {
 
         TimestampData ts     = (TimestampData) dateTime;
         Calendar      cal    = session.getCalendarGMT();
-        long          millis = (ts.seconds + ts.zone) * 1000;
+        long          millis = (ts.seconds + ts.zone) * millisInSecond;
         boolean       lastDay;
 
         HsqlDateTime.setTimeInMillis(cal, millis);
@@ -1561,14 +1560,14 @@ public final class DateTimeType extends DTIType {
 
         millis = cal.getTimeInMillis();
 
-        return new TimestampData(millis / 1000, 0, 0);
+        return new TimestampData(millis / millisInSecond, 0, 0);
     }
 
     public Object getLastDayOfMonth(Session session, Object dateTime) {
 
         TimestampData ts     = (TimestampData) dateTime;
         Calendar      cal    = session.getCalendarGMT();
-        long          millis = (ts.seconds + ts.zone) * 1000;
+        long          millis = (ts.seconds + ts.zone) * millisInSecond;
 
         HsqlDateTime.setTimeInMillis(cal, millis);
         cal.set(Calendar.DAY_OF_MONTH, 1);
@@ -1577,39 +1576,11 @@ public final class DateTimeType extends DTIType {
 
         millis = cal.getTimeInMillis();
 
-        return new TimestampData(millis / 1000, 0, 0);
+        return new TimestampData(millis / millisInSecond, 0, 0);
     }
 
-    long getMillis(Object dateTime) {
-
-        long millis;
-
-        if (typeCode == Types.SQL_TIME
-                || typeCode == Types.SQL_TIME_WITH_TIME_ZONE) {
-            millis =
-                (((TimeData) dateTime).seconds + ((TimeData) dateTime).zone)
-                * 1000L;
-        } else {
-            millis =
-                (((TimestampData) dateTime)
-                    .seconds + ((TimestampData) dateTime).zone) * 1000;
-        }
-
-        return millis;
-    }
-
-    long getZoneMillis(Object dateTime) {
-
-        long millis;
-
-        if (typeCode == Types.SQL_TIME
-                || typeCode == Types.SQL_TIME_WITH_TIME_ZONE) {
-            millis = ((TimeData) dateTime).zone * 1000L;
-        } else {
-            millis = ((TimestampData) dateTime).zone * 1000L;
-        }
-
-        return millis;
+    long getTotalMillis(Object dateTime) {
+        return getTotalSeconds(dateTime) * millisInSecond;
     }
 
     long getTotalSeconds(Object dateTime) {
@@ -1624,6 +1595,19 @@ public final class DateTimeType extends DTIType {
 
             return ts.seconds + ts.zone;
         }
+    }
+
+    long getZoneMillis(Object dateTime) {
+
+        long millis;
+
+        if (dateTime instanceof TimeData) {
+            millis = ((TimeData) dateTime).zone * millisInSecond;
+        } else {
+            millis = ((TimestampData) dateTime).zone * millisInSecond;
+        }
+
+        return millis;
     }
 
     public BigDecimal getSecondPart(Session session, Object dateTime) {
@@ -1666,6 +1650,24 @@ public final class DateTimeType extends DTIType {
         Date date = (Date) convertSQLToJavaGMT(session, dateTime);
 
         return format.format(date);
+    }
+
+    TimestampData convertTimeToTimestamp(Calendar calendar, long seconds,
+                                         int nanos) {
+
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        setTimeComponentsOnly(calendar, (int) seconds);
+
+        seconds = calendar.getTimeInMillis() / millisInSecond;
+
+        int zoneSeconds = getZoneSeconds(seconds, calendar.getTimeZone());
+
+        if (!withTimeZone) {
+            seconds     += zoneSeconds;
+            zoneSeconds = 0;
+        }
+
+        return new TimestampData(seconds, zoneSeconds, nanos);
     }
 
     /**
@@ -1771,7 +1773,7 @@ public final class DateTimeType extends DTIType {
         }
     }
 
-    public static Object changeZoneToUTC(Object a) {
+    public Object changeZoneToUTC(Object a) {
 
         if (a instanceof TimestampData) {
             TimestampData ts = (TimestampData) a;
@@ -1779,9 +1781,7 @@ public final class DateTimeType extends DTIType {
             if (ts.zone != 0) {
                 return new TimestampData(ts.seconds, ts.nanos);
             }
-        }
-
-        if (a instanceof TimeData) {
+        } else {
             TimeData ts = (TimeData) a;
 
             if (ts.zone != 0) {
@@ -1801,11 +1801,13 @@ public final class DateTimeType extends DTIType {
         TimeZone      sessionZone = calendar.getTimeZone();
 
         calendar.setTimeZone(zone);
+
         seconds =
             HsqlDateTime.convertSecondsFromCalendar(session.getCalendarGMT(),
                 calendar, seconds);
 
-        int offset = zone.getOffset(seconds * 1000) / 1000;
+        int offset = zone.getOffset(seconds * millisInSecond)
+                     / (int) millisInSecond;
 
         calendar.setTimeZone(sessionZone);
 
@@ -1829,7 +1831,7 @@ public final class DateTimeType extends DTIType {
         }
 
         TimeZone zone   = TimeZone.getTimeZone(zoneString);
-        int      offset = zone.getOffset(seconds * 1000) / 1000;
+        int      offset = getZoneSeconds(seconds, zone);
 
         return new TimestampData(seconds, value.nanos, offset);
     }
@@ -1856,10 +1858,12 @@ public final class DateTimeType extends DTIType {
                 }
 
                 if (otherType.isDateTimeTypeWithZone()) {
-                    if (value.zone != zoneSeconds) {
-                        return new TimeData(value.seconds, value.nanos,
-                                            zoneSeconds);
+                    if (value.zone == zoneSeconds) {
+                        return value;
                     }
+
+                    return new TimeData(value.seconds, value.nanos,
+                                        zoneSeconds);
                 } else {
                     int localZone = session.getZoneSeconds();
                     int seconds   = value.seconds - localZone;
@@ -1868,8 +1872,6 @@ public final class DateTimeType extends DTIType {
 
                     return new TimeData(seconds, value.nanos, zoneSeconds);
                 }
-
-                break;
             }
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
                 TimestampData value    = (TimestampData) a;
@@ -1882,17 +1884,15 @@ public final class DateTimeType extends DTIType {
                 }
 
                 if (atLocal) {
-                    zoneSeconds =
-                        calendar.getTimeZone().getOffset(seconds * 1000)
-                        / 1000;
+                    zoneSeconds = getZoneSeconds(seconds,
+                                                 calendar.getTimeZone());
                 }
 
-                if (value.seconds != seconds || value.zone != zoneSeconds) {
-                    return new TimestampData(seconds, value.nanos,
-                                             zoneSeconds);
+                if (value.seconds == seconds && value.zone == zoneSeconds) {
+                    return value;
                 }
 
-                break;
+                return new TimestampData(seconds, value.nanos, zoneSeconds);
             }
         }
 
@@ -2364,8 +2364,8 @@ public final class DateTimeType extends DTIType {
     public static BigDecimal subtractMonthsSpecial(Session session,
             TimestampData a, TimestampData b) {
 
-        long    s1    = (a.seconds + a.zone) * 1000;
-        long    s2    = (b.seconds + b.zone) * 1000;
+        long    s1    = (a.seconds + a.zone) * millisInSecond;
+        long    s2    = (b.seconds + b.zone) * millisInSecond;
         boolean minus = false;
 
         if (s1 < s2) {
@@ -2455,12 +2455,12 @@ public final class DateTimeType extends DTIType {
             b = temp;
         }
 
-        calendar.setTimeInMillis(a.seconds * 1000);
+        calendar.setTimeInMillis(a.seconds * millisInSecond);
 
         int months = calendar.get(Calendar.MONTH);
         int years  = calendar.get(Calendar.YEAR);
 
-        calendar.setTimeInMillis(b.seconds * 1000);
+        calendar.setTimeInMillis(b.seconds * millisInSecond);
 
         months -= calendar.get(Calendar.MONTH);
         years  -= calendar.get(Calendar.YEAR);
@@ -2510,10 +2510,11 @@ public final class DateTimeType extends DTIType {
         int      n   = source.nanos;
         Calendar cal = session.getCalendarGMT();
 
-        HsqlDateTime.setTimeInMillis(cal, source.seconds * 1000);
+        HsqlDateTime.setTimeInMillis(cal, source.seconds * millisInSecond);
         cal.add(Calendar.MONTH, months);
 
-        return new TimestampData(cal.getTimeInMillis() / 1000, n, source.zone);
+        return new TimestampData(cal.getTimeInMillis() / millisInSecond, n,
+                                 source.zone);
     }
 
     public static TimestampData addSeconds(TimestampData source, long seconds,
@@ -2611,7 +2612,7 @@ public final class DateTimeType extends DTIType {
 
         millis = HsqlDateTime.getNormalisedDate(cal, millis);
 
-        return new TimestampData(millis / 1000);
+        return new TimestampData(millis / millisInSecond);
     }
 
     public static int getDayOfWeek(String name) {
@@ -2659,7 +2660,7 @@ public final class DateTimeType extends DTIType {
         throw Error.error(ErrorCode.X_22007, name);
     }
 
-    static int toTimeSeconds(long seconds) {
+    public static int toTimeSeconds(long seconds) {
 
         int timeSeconds = (int) (seconds % secondsInDay);
 
@@ -2681,41 +2682,68 @@ public final class DateTimeType extends DTIType {
         return seconds - timeSeconds;
     }
 
-    public static TimestampData getSysDateTimestamp() {
+    public static TimestampData newSysDateTimestamp() {
 
         long millis  = System.currentTimeMillis();
-        long seconds = millis / 1000;
-        int  offset  = systemTimeZone.getOffset(millis) / 1000;
+        long seconds = millis / millisInSecond;
+        int  offset  = systemTimeZone.getOffset(millis) / (int) millisInSecond;
 
         return new TimestampData(seconds + offset);
     }
 
-    public static TimestampData getSystemTimestampWithZone() {
-        return getTimestampWithZone(systemTimeZone);
+    public static TimestampData newSystemTimestampWithZone() {
+        return newCurrentTimestamp(systemTimeZone);
+    }
+
+    public static int getZoneSeconds(long utcSeconds, TimeZone zone) {
+        return zone.getOffset(utcSeconds * millisInSecond)
+               / (int) millisInSecond;
+    }
+
+    static void setTimeComponents(Calendar calendar, int seconds) {
+
+        seconds %= DTIType.secondsInDay;
+
+        calendar.clear();
+        calendar.set(Calendar.YEAR, 1970);
+        calendar.set(Calendar.MONTH, 0);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        setTimeComponentsOnly(calendar, seconds);
+    }
+
+    static void setTimeComponentsOnly(Calendar calendar, int seconds) {
+
+        seconds = toTimeSeconds(seconds);
+
+        calendar.set(Calendar.HOUR_OF_DAY, seconds / 3600);
+        calendar.set(Calendar.MINUTE, (seconds % 3600) / 60);
+        calendar.set(Calendar.SECOND, seconds % 60);
     }
 
 //#ifdef JAVA8
-    public static TimestampData getTimestampWithZone(TimeZone zone) {
+    public static TimestampData newCurrentTimestamp(TimeZone zone) {
+
         Instant instant = Instant.now();
-
-        long     seconds = instant.getEpochSecond();
-        int      nanos   = (instant.getNano() / 1000) * 1000;
-
-        int zoneSeconds = zone.getOffset(seconds * 1000)/ 1000;
+        long    seconds = instant.getEpochSecond();
+        int     nanos   = (instant.getNano() / 1000) * 1000;
+        int zoneSeconds = zone.getOffset(seconds * millisInSecond)
+                          / (int) millisInSecond;
 
         return new TimestampData(seconds, nanos, zoneSeconds);
     }
 
-    public static TimestampData getSystemTimestampUTC() {
-        Instant instant = Instant.now();
+    public static TimestampData newSystemTimestampUTC() {
 
-        long     seconds = instant.getEpochSecond();
-        int      nanos   = (instant.getNano() / 1000) * 1000;
+        Instant instant = Instant.now();
+        long    seconds = instant.getEpochSecond();
+        int     nanos   = (instant.getNano() / 1000) * 1000;
 
         return new TimestampData(seconds, nanos);
     }
 
-    public static void setDateTimeComponents(Calendar calendar, LocalDateTime ldt) {
+    public static void setDateTimeComponents(Calendar calendar,
+            LocalDateTime ldt) {
+
         calendar.clear();
         calendar.set(Calendar.YEAR, ldt.getYear());
         calendar.set(Calendar.MONTH, ldt.getMonthValue() - 1);
@@ -2726,6 +2754,7 @@ public final class DateTimeType extends DTIType {
     }
 
     public static void setDateComponents(Calendar calendar, LocalDate ldt) {
+
         calendar.clear();
         calendar.set(Calendar.YEAR, ldt.getYear());
         calendar.set(Calendar.MONTH, ldt.getMonthValue() - 1);
@@ -2733,29 +2762,131 @@ public final class DateTimeType extends DTIType {
     }
 
     public static void setTimeComponents(Calendar calendar, LocalTime ldt) {
+
         calendar.clear();
+        calendar.set(Calendar.YEAR, 1970);
+        calendar.set(Calendar.MONTH, 0);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
         calendar.set(Calendar.HOUR_OF_DAY, ldt.getHour());
         calendar.set(Calendar.MINUTE, ldt.getMinute());
         calendar.set(Calendar.SECOND, ldt.getSecond());
     }
 
+    public Instant toInstant(SessionInterface session, TimestampData v) {
+
+        long seconds;
+
+        if (withTimeZone) {
+            seconds = v.seconds;
+        } else {
+            seconds = HsqlDateTime.convertSecondsFromCalendar(
+                session.getCalendarGMT(), session.getCalendar(), v.seconds);
+        }
+
+        return Instant.ofEpochSecond(seconds, v.nanos);
+    }
+
+    public LocalDate toLocalDate(SessionInterface session, TimestampData v) {
+
+        long     millis = (v.seconds + v.zone) * millisInSecond;
+        Calendar cal    = session.getCalendarGMT();
+
+        cal.setTimeInMillis(millis);
+
+        return LocalDate.of(cal.get(Calendar.YEAR),
+                            cal.get(Calendar.MONTH) + 1,
+                            cal.get(Calendar.DAY_OF_MONTH));
+    }
+
+    public LocalDateTime toLocalDateTime(SessionInterface session,
+                                         TimestampData v) {
+
+        long     millis = (v.seconds + v.zone) * millisInSecond;
+        int      nanos  = v.nanos;
+        Calendar cal    = session.getCalendarGMT();
+
+        cal.setTimeInMillis(millis);
+
+        return LocalDateTime.of(cal.get(Calendar.YEAR),
+                                cal.get(Calendar.MONTH) + 1,
+                                cal.get(Calendar.DAY_OF_MONTH),
+                                cal.get(Calendar.HOUR_OF_DAY),
+                                cal.get(Calendar.MINUTE),
+                                cal.get(Calendar.SECOND), nanos);
+    }
+
+    public LocalTime toLocalTime(SessionInterface session, TimeData v) {
+
+        int seconds = toTimeSeconds(v.seconds + v.zone);
+
+        return LocalTime.ofNanoOfDay(seconds * nanosInSecond + v.nanos);
+    }
+
+    public LocalTime toLocalTime(SessionInterface session, TimestampData v) {
+
+        int seconds = toTimeSeconds(v.getSeconds() + v.zone);
+
+        return LocalTime.ofNanoOfDay(seconds * nanosInSecond + v.nanos);
+    }
+
+    public OffsetTime toOffsetTime(SessionInterface session, TimeData v) {
+
+        int        zoneSeconds = withTimeZone ? v.zone
+                                              : session.getZoneSeconds();
+        ZoneOffset zone        = ZoneOffset.ofTotalSeconds(zoneSeconds);
+        LocalTime  lt          = toLocalTime(session, v);
+
+        return OffsetTime.of(lt, zone);
+    }
+
+    public OffsetTime toOffsetTime(SessionInterface session, TimestampData v) {
+
+        int        zoneSeconds = withTimeZone ? v.zone
+                                              : session.getZoneSeconds();
+        ZoneOffset zone        = ZoneOffset.ofTotalSeconds(zoneSeconds);
+        LocalTime  lt          = toLocalTime(session, v);
+
+        return OffsetTime.of(lt, zone);
+    }
+
+    public OffsetDateTime toOffsetDateTime(SessionInterface session,
+                                           TimestampData v) {
+
+        int zoneSeconds;
+
+        if (withTimeZone) {
+            zoneSeconds = v.zone;
+        } else {
+            long seconds = HsqlDateTime.convertSecondsFromCalendar(
+                session.getCalendarGMT(), session.getCalendar(), v.seconds);
+
+            zoneSeconds = getZoneSeconds(seconds,
+                                         session.getCalendar().getTimeZone());
+        }
+
+        ZoneOffset    zone = ZoneOffset.ofTotalSeconds(zoneSeconds);
+        LocalDateTime lt   = toLocalDateTime(session, v);
+
+        return OffsetDateTime.of(lt, zone);
+    }
+
 //#else
 /*
-    public static TimestampData getTimestampWithZone(TimeZone zone) {
+    public static TimestampData newCurrentTimestamp(TimeZone zone) {
 
         long millis      = System.currentTimeMillis();
-        long seconds     = millis / 1000;
-        int  nanos       = (int) (millis % 1000) * 1000000;
-        int  zoneSeconds = zone.getOffset(millis) / 1000;
+        long seconds     = millis / millisInSecond;
+        int  nanos       = (int) (millis % millisInSecond * nanosInMillis);
+        int  zoneSeconds = zone.getOffset(millis) / millisInSecond;
 
         return new TimestampData(seconds, nanos, zoneSeconds);
     }
 
-    public static TimestampData getSystemTimestampUTC() {
+    public static TimestampData newSystemTimestampUTC() {
 
         long millis  = System.currentTimeMillis();
-        long seconds = millis / 1000;
-        int  nanos   = (int) (millis % 1000) * 1000000;
+        long seconds = millis / millisInSecond;
+        int  nanos   = (int) (millis % millisInSecond * nanosInMillis);
 
         return new TimestampData(seconds, nanos);
     }

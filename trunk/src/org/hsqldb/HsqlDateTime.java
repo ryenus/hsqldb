@@ -298,21 +298,6 @@ public class HsqlDateTime {
     }
 
     /**
-     * Returns the indicated part of the given millisecond date object.
-     * @param m the millisecond time value from which to extract the indicated part
-     * @param part an integer code corresponding to the desired date part
-     * @return the indicated part of the given <code>java.util.Date</code> object
-     */
-    public static int getDateTimePart(Calendar calendar, long m, int part) {
-
-        synchronized (calendar) {
-            calendar.setTimeInMillis(m);
-
-            return calendar.get(part);
-        }
-    }
-
-    /**
      * truncates millisecond date object
      */
     public static long getTruncatedPart(Calendar calendar, long m, int part) {
@@ -436,7 +421,7 @@ public class HsqlDateTime {
         }
     }
 
-    static void zeroFromPart(Calendar cal, int part) {
+    public static void zeroFromPart(Calendar cal, int part) {
 
         switch (part) {
 

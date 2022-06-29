@@ -1735,7 +1735,7 @@ public class Session implements SessionInterface {
         if (currentTimestampSCN != actionTimestamp) {
             currentTimestampSCN = actionTimestamp;
             currentTimestamp =
-                DateTimeType.getTimestampWithZone(currentTimeZone);
+                DateTimeType.newCurrentTimestamp(currentTimeZone);
             currentDate    = null;
             localTimestamp = null;
             currentTime    = null;
@@ -1746,7 +1746,7 @@ public class Session implements SessionInterface {
     TimestampData getTransactionUTC() {
 
         if (!transactionUTCSet) {
-            transactionUTC    = DateTimeType.getSystemTimestampUTC();
+            transactionUTC    = DateTimeType.newSystemTimestampUTC();
             transactionUTCSet = true;
         }
 

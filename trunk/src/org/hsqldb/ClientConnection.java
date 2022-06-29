@@ -57,7 +57,6 @@ import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.server.HsqlSocketFactory;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
-import org.hsqldb.types.TimestampData;
 
 /**
  * Base remote session proxy implementation. Uses instances of Result to
@@ -631,15 +630,6 @@ public class ClientConnection implements SessionInterface, Cloneable {
         }
 
         return simpleDateFormatGMT;
-    }
-
-    public TimestampData getCurrentDate() {
-
-        long currentMillis = System.currentTimeMillis();
-
-        currentMillis = HsqlDateTime.getNormalisedDate(currentMillis);
-
-        return new TimestampData(currentMillis / 1000);
     }
 
     public int getZoneSeconds() {
