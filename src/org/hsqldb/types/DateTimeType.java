@@ -2876,8 +2876,8 @@ public final class DateTimeType extends DTIType {
 
         long millis      = System.currentTimeMillis();
         long seconds     = millis / millisInSecond;
-        int  nanos       = (int) (millis % millisInSecond * nanosInMillis);
-        int  zoneSeconds = zone.getOffset(millis) / millisInSecond;
+        int  nanos       = (int) (millis % millisInSecond * nanosInMilli);
+        int  zoneSeconds = zone.getOffset(millis) / (int) millisInSecond;
 
         return new TimestampData(seconds, nanos, zoneSeconds);
     }
@@ -2886,7 +2886,7 @@ public final class DateTimeType extends DTIType {
 
         long millis  = System.currentTimeMillis();
         long seconds = millis / millisInSecond;
-        int  nanos   = (int) (millis % millisInSecond * nanosInMillis);
+        int  nanos   = (int) (millis % millisInSecond * nanosInMilli);
 
         return new TimestampData(seconds, nanos);
     }
