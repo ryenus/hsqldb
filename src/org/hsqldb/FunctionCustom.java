@@ -958,7 +958,7 @@ public class FunctionCustom extends FunctionSQL {
 
             case FUNC_DBTIMEZONE : {
                 TimestampData timestamp =
-                    DateTimeType.getSystemTimestampWithZone();
+                    DateTimeType.newSystemTimestampWithZone();
                 IntervalSecondData zone =
                     new IntervalSecondData(timestamp.getZone(), 0);
 
@@ -2548,13 +2548,13 @@ public class FunctionCustom extends FunctionSQL {
                         data[0], Type.SQL_TIMESTAMP_WITH_TIME_ZONE, 0, false);
             }
             case FUNC_SYSDATE : {
-                TimestampData timestamp = DateTimeType.getSysDateTimestamp();
+                TimestampData timestamp = DateTimeType.newSysDateTimestamp();
 
                 return Type.SQL_TIMESTAMP_NO_FRACTION.convertToType(session,
                         timestamp, Type.SQL_TIMESTAMP);
             }
             case FUNC_SYSTIMESTAMP : {
-                return DateTimeType.getSystemTimestampWithZone();
+                return DateTimeType.newSystemTimestampWithZone();
             }
             case FUNC_TO_DSINTERVAL : {
                 if (data[0] == null) {

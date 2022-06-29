@@ -43,12 +43,15 @@ import org.hsqldb.lib.IntKeyIntValueHashMap;
  * Common elements for Type instances for DATETIME and INTERVAL.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.9.0
  */
 public abstract class DTIType extends Type {
 
     public static final int secondsInDay = 60 * 60 * 24;
+    public static final long millisInSecond = 1000L;
+    public static final long nanosInMilli = 1000000L;
+    public static final long nanosInSecond = 1000000000L;
 
     public static final byte[] yearToSecondSeparators       = {
         '-', '-', ' ', ':', ':', '.'

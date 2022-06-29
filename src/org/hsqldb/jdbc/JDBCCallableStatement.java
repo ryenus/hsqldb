@@ -107,7 +107,7 @@ import java.time.Period;
 // campbell-burnet@users 2004-04-xx - doc 1.7.2 - javadocs added/updated
 // campbell-burnet@users 2005-12-07 - patch 1.8.0.x - initial JDBC 4.0 support work
 // campbell-burnet@users 2006-05-22 - doc 1.9.0 - full synch up to Mustang Build 84
-// Revision 1.14  2006/07/12 11:58:49  boucherb
+// Revision 1.14  2006/07/12 11:58:49  campbell-burnet
 //  - full synch up to Mustang b90
 
 /**
@@ -210,7 +210,7 @@ import java.time.Period;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.0
  * @since 1.9.0
  * @see JDBCConnection#prepareCall
  * @see JDBCResultSet
@@ -1287,13 +1287,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             return null;
         }
 
-        long millis = t.getSeconds() * 1000;
-
-        if (cal != null) {
-            millis = HsqlDateTime.convertMillisToCalendar(cal, millis);
-        }
-
-        return new Date(millis);
+        return (Date) Type.SQL_DATE.convertSQLToJava(session, t, cal);
     }
 
     /**
@@ -1334,24 +1328,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     public synchronized Time getTime(int parameterIndex,
                                      Calendar cal) throws SQLException {
 
-        TimeData t = (TimeData) getColumnInType(parameterIndex, Type.SQL_TIME);
+        Object t = getColumnValue(parameterIndex);
 
         if (t == null) {
             return null;
         }
 
-        long millis = DateTimeType.normaliseTime(t.getSeconds()) * 1000L;
-
-        if (!parameterMetaData.columnTypes[--parameterIndex]
-                .isDateTimeTypeWithZone()) {
-            Calendar calendar = cal == null ? session.getCalendar()
-                    : cal;
-
-            millis = HsqlDateTime.convertMillisToCalendar(calendar, millis);
-            millis = HsqlDateTime.getNormalisedTime(millis);
-        }
-
-        return new Time(millis);
+        return (Time) Type.SQL_TIME.convertSQLToJava(session, t, cal);
     }
 
     /**
@@ -1392,31 +1375,14 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     public synchronized Timestamp getTimestamp(int parameterIndex,
             Calendar cal) throws SQLException {
 
-        TimestampData t = (TimestampData) getColumnInType(parameterIndex,
-            Type.SQL_TIMESTAMP);
+
+        Object t = getColumnValue(parameterIndex);
 
         if (t == null) {
             return null;
         }
 
-        long millis = t.getSeconds() * 1000;
-
-        if (!parameterMetaData.columnTypes[--parameterIndex]
-                .isDateTimeTypeWithZone()) {
-            Calendar calendar = cal == null ? session.getCalendar()
-                    : cal;
-
-            if (cal != null) {
-                millis = HsqlDateTime.convertMillisToCalendar(calendar,
-                        millis);
-            }
-        }
-
-        Timestamp ts = new Timestamp(millis);
-
-        ts.setNanos(t.getNanos());
-
-        return ts;
+        return (Timestamp) Type.SQL_TIMESTAMP.convertSQLToJava(session, t, cal);
     }
 
     /**
@@ -4462,13 +4428,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             throw JDBCUtil.nullArgument();
         }
 
-        Type hsqlType = Types.getParameterSQLType(type);
-
-        if(hsqlType == null) {
-            throw JDBCUtil.sqlException(ErrorCode.X_42561);
-        }
-
-        Object source = getColumnValue(parameterIndex);
+        final Object source = getColumnValue(parameterIndex);
 
         if (wasNullValue) {
             return null;
@@ -4534,42 +4494,70 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
                 o = getTimestamp(parameterIndex);
                 break;
             }
-            case "java.util.UUID":
-                source = getColumnInType(parameterIndex, hsqlType);
-                o = Type.SQL_GUID.convertSQLToJava(session, source);
+            case "java.util.UUID": {
+                Type columnType = parameterTypes[parameterIndex - 1];
+                if (columnType.isUUIDType()) {
+                    o = Type.SQL_GUID.convertSQLToJava(session, source);
+                } else {
+                    Object value = Type.SQL_GUID.convertToTypeJDBC(session,
+                            source, columnType);
+                    o = Type.SQL_GUID.convertSQLToJava(session, value);
+                }
                 break;
+            }
+            case "java.time.Instant": {
+                Type columnType = parameterTypes[parameterIndex - 1];
+                if (columnType.isDateOrTimestampType()) {
+                    TimestampData v = (TimestampData) source;
+                    o = ((DateTimeType) columnType).toInstant(session, v);
+                }
+                break;
+            }
             case "java.time.LocalDate": {
-                source = getColumnInType(parameterIndex, hsqlType);
-                TimestampData v = (TimestampData) source;
-                long millis = v.getMillis();
-                Calendar cal = session.getCalendarGMT();
-                cal.setTimeInMillis(millis);
-                o = LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
+                Type columnType = parameterTypes[parameterIndex - 1];
+                if (columnType.isDateOrTimestampType()) {
+                    TimestampData v = (TimestampData) source;
+                    o = ((DateTimeType) columnType).toLocalDate(session, v);
+                }
                 break;
             }
             case "java.time.LocalTime": {
-                source = getColumnInType(parameterIndex, hsqlType);
-                TimeData v = (TimeData) source;
-                o = LocalTime.ofNanoOfDay(v.getSeconds() * 1_000_000_000L + v.getNanos());
+                Type columnType = parameterTypes[parameterIndex - 1];
+                if (columnType.isTimeType()) {
+                    TimeData v = (TimeData) source;
+                    o = ((DateTimeType) columnType).toLocalTime(session, v);
+                } else if (columnType.isTimestampType()) {
+                    TimestampData v = (TimestampData) source;
+                    o = ((DateTimeType) columnType).toLocalTime(session, v);
+                }
                 break;
             }
             case "java.time.LocalDateTime": {
-                source = getColumnInType(parameterIndex, hsqlType);
-                TimestampData v = (TimestampData) source;
-
-                long millis = v.getMillis();
-                int nanos = v.getNanos();
-                Calendar cal = session.getCalendarGMT();
-                cal.setTimeInMillis(millis);
-                o = LocalDateTime.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND ), nanos);
+                Type columnType = parameterTypes[parameterIndex - 1];
+                if (columnType.isDateOrTimestampType()) {
+                    TimestampData v = (TimestampData) source;
+                    o = ((DateTimeType) columnType).toLocalDateTime(session, v);
+                }
                 break;
             }
             case "java.time.OffsetTime": {
-                o = getTimeWithZone(parameterIndex);
+                Type columnType = parameterTypes[parameterIndex - 1];
+                if (columnType.isTimeType()) {
+                    TimeData v = (TimeData) source;
+                    o = ((DateTimeType) columnType).toOffsetTime(session, v);
+                } else if (columnType.isTimestampType()) {
+                    TimestampData v = (TimestampData) source;
+                    o = ((DateTimeType) columnType).toOffsetTime(session, v);
+                }
+
                 break;
             }
             case "java.time.OffsetDateTime": {
-                o = getTimestampWithZone(parameterIndex);
+                Type columnType = parameterTypes[parameterIndex - 1];
+                if (columnType.isDateOrTimestampType()) {
+                    TimestampData v = (TimestampData) source;
+                    o = ((DateTimeType) columnType).toOffsetDateTime(session, v);
+                }
                 break;
             }
             case "java.time.Duration": {
@@ -4578,7 +4566,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
                 if (!sourceType.isIntervalDaySecondType()) {
                     break;
                 }
-                source = getColumnInType(parameterIndex, hsqlType);
                 IntervalSecondData v = (IntervalSecondData) source;
                 o = Duration.ofSeconds(v.getSeconds(), v.getNanos());
                 break;
@@ -4589,7 +4576,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
                 if (!sourceType.isIntervalYearMonthType()) {
                     break;
                 }
-                source = getColumnInType(parameterIndex, hsqlType);
                 IntervalMonthData v = (IntervalMonthData) source;
                 int months = v.getMonths();
 

@@ -410,7 +410,7 @@ public class ExpressionArrayAggregate extends Expression {
                 }
 
                 if (dataType.isDateTimeTypeWithZone()) {
-                    value = DateTimeType.changeZoneToUTC(value);
+                    value = ((DateTimeType)dataType).changeZoneToUTC(value);
                 }
 
                 return dataType.convertToType(session, value, exprDataType);

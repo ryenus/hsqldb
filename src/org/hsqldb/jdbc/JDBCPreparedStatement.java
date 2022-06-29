@@ -1504,46 +1504,31 @@ implements PreparedStatement {
 
         checkSetParameterIndex(parameterIndex);
 
-        int i = parameterIndex - 1;
+        int index = parameterIndex - 1;
 
         if (x == null) {
-            parameterValues[i] = null;
-            parameterSet[i]    = true;
+            parameterValues[index] = null;
+            parameterSet[index]    = true;
 
             return;
         }
 
-        Type     outType  = parameterTypes[i];
-        Calendar calendar = cal == null ? session.getCalendar()
-                                        : cal;
-        long millis = x.getTime();
-        millis = HsqlDateTime.getNormalisedDate(calendar, millis);
+        Type outType = parameterTypes[index];
 
         switch (outType.typeCode) {
 
             case Types.SQL_DATE :
-            case Types.SQL_TIMESTAMP : {
-                millis =
-                    HsqlDateTime.convertMillisFromCalendar(calendar,
-                        session.getCalendarGMT(), millis);
-
-
-                parameterValues[i] = new TimestampData(millis / 1000);
+            case Types.SQL_TIMESTAMP :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 break;
-            }
-            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-
-                int zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
-
-                parameterValues[i] = new TimestampData(millis / 1000, 0,
-                    zoneOffset / 1000);
-                break;
-            }
             default :
                 throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
-        parameterSet[i] = true;
+        Object value = ((DateTimeType)outType).convertJavaToSQL(session, x, cal);
+
+        parameterValues[index] = value;
+        parameterSet[index] = true;
     }
 
     /**
@@ -1590,35 +1575,20 @@ implements PreparedStatement {
             return;
         }
 
-        Type     outType    = parameterTypes[index];
-        long     millis     = x.getTime();
-        int      zoneOffset = 0;
-        Calendar calendar   = cal == null ? session.getCalendar()
-                                          : cal;
-
+        Type outType = parameterTypes[index];
 
         switch (outType.typeCode) {
 
-            case Types.SQL_TIME : {
-                millis =
-                    HsqlDateTime.convertMillisFromCalendar(calendar,
-                        session.getCalendarGMT(), millis);
-                millis = HsqlDateTime.convertToNormalisedTime(session.getCalendarGMT(),
-                        millis);
+            case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
                 break;
-            }
-            case Types.SQL_TIME_WITH_TIME_ZONE : {
-                millis = HsqlDateTime.convertToNormalisedTime(session.getCalendarGMT(),
-                        millis);
-                zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
-                break;
-            }
             default :
                 throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
-        parameterValues[index] = new TimeData((int) (millis / 1000), 0,
-                                              zoneOffset / 1000);
+        Object value = ((DateTimeType)outType).convertJavaToSQL(session, x, cal);
+
+        parameterValues[index] = value;
         parameterSet[index] = true;
     }
 
@@ -1671,91 +1641,22 @@ implements PreparedStatement {
             return;
         }
 
-        Type     outType    = parameterTypes[index];
-        long     millis     = x.getTime();
-        long     seconds;
-        int      zoneOffset = 0;
-        Calendar calendar   = cal == null ? session.getCalendar()
-                                          : cal;
+        Type outType = parameterTypes[index];
 
         switch (outType.typeCode) {
-
-            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
-                zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
-                seconds    = millis / 1000;
-
-                if (seconds < DateTimeType.epochSeconds
-                        || seconds > DateTimeType.epochLimitSeconds) {
-                    throw JDBCUtil.sqlException(ErrorCode.X_22008);
-                }
-
-                parameterValues[index] = new TimestampData(seconds,
-                        x.getNanos(), zoneOffset / 1000);
-
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+            case Types.SQL_TIMESTAMP :
+            case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+            case Types.SQL_DATE :
                 break;
-            }
-            case Types.SQL_TIMESTAMP : {
-                millis = HsqlDateTime.convertMillisFromCalendar(
-                    calendar, session.getCalendarGMT(), millis);
-
-                seconds = millis / 1000;
-
-                if (seconds < DateTimeType.epochSeconds
-                        || seconds > DateTimeType.epochLimitSeconds) {
-                    throw JDBCUtil.sqlException(ErrorCode.X_22008);
-                }
-
-                parameterValues[index] = new TimestampData(seconds,
-                        x.getNanos(), zoneOffset / 1000);
-
-                break;
-            }
-            case Types.SQL_TIME : {
-                millis = HsqlDateTime.convertMillisFromCalendar(
-                    calendar, session.getCalendarGMT(), millis);
-
-                millis =
-                    HsqlDateTime.getNormalisedTime(session.getCalendarGMT(),
-                                                   millis);
-                parameterValues[index] = new TimeData((int) (millis / 1000),
-                                                      x.getNanos(), 0);
-
-                break;
-            }
-            case Types.SQL_TIME_WITH_TIME_ZONE : {
-                millis =
-                    HsqlDateTime.getNormalisedTime(session.getCalendarGMT(),
-                                                   millis);
-
-                zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
-                parameterValues[index] = new TimeData((int) (millis / 1000),
-                                                      x.getNanos(),
-                                                      zoneOffset / 1000);
-
-                break;
-            }
-            case Types.SQL_DATE : {
-                millis =
-                    HsqlDateTime.getNormalisedDate(session.getCalendarGMT(),
-                                                   millis);
-                millis = HsqlDateTime.convertMillisFromCalendar(
-                    calendar, session.getCalendarGMT(), millis);
-
-                seconds = millis / 1000;
-
-                if (seconds < DateTimeType.epochSeconds
-                        || seconds > DateTimeType.epochLimitSeconds) {
-                    throw JDBCUtil.sqlException(ErrorCode.X_22008);
-                }
-
-                parameterValues[index] = new TimestampData(seconds);
-
-                break;
-            }
             default :
                 throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
+        Object value = ((DateTimeType)outType).convertJavaToSQL(session, x, cal);
+
+        parameterValues[index] = value;
         parameterSet[index] = true;
     }
 
@@ -4588,6 +4489,11 @@ implements PreparedStatement {
             }
             default :
                 try {
+                    if (outType.isIntervalType()) {
+                        o = outType.convertJavaToSQL(session, o);
+                        break;
+                    }
+
                     o = outType.convertToDefaultType(session, o);
 
                     break;
