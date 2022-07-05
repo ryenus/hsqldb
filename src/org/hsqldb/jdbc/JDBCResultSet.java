@@ -7446,7 +7446,7 @@ public class JDBCResultSet implements ResultSet {
      * row number after any updateXXX()
      * -1 after updateRow(), clearUpdate() or moveToCurrentRow();
      */
-    int currentUpdateRowNumber;
+    int currentUpdateRowNumber = -1;
 
     private void checkUpdatable() throws SQLException {
 
@@ -7479,10 +7479,12 @@ public class JDBCResultSet implements ResultSet {
 
         checkUpdatable(columnIndex);
 
-        if (currentUpdateRowNumber != navigator.getRowNumber()) {
-            preparedStatement.clearParameters();
+        if (!isOnInsertRow) {
+            if (currentUpdateRowNumber != navigator.getRowNumber()) {
+                preparedStatement.clearParameters();
+            }
+            currentUpdateRowNumber = navigator.getRowNumber();
         }
-        currentUpdateRowNumber = navigator.getRowNumber();
         isRowUpdated           = true;
     }
 
@@ -7490,7 +7492,7 @@ public class JDBCResultSet implements ResultSet {
 
         checkUpdatable();
         preparedStatement.clearParameters();
-
+        currentUpdateRowNumber = -1;
         isRowUpdated = false;
     }
 
@@ -7499,6 +7501,7 @@ public class JDBCResultSet implements ResultSet {
         checkUpdatable();
 
         // check insertable
+        currentUpdateRowNumber = -2;
         isOnInsertRow = true;
     }
 
@@ -7507,6 +7510,7 @@ public class JDBCResultSet implements ResultSet {
         checkUpdatable();
         preparedStatement.clearParameters();
 
+        currentUpdateRowNumber = -1;
         isOnInsertRow = false;
     }
 
@@ -7557,6 +7561,8 @@ public class JDBCResultSet implements ResultSet {
         rootWarning = preparedStatement.getWarnings();
 
         preparedStatement.clearWarnings();
+
+        isRowUpdated = false;
     }
 
     private void performDelete() throws SQLException {
