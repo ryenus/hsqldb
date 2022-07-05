@@ -7542,7 +7542,9 @@ public class JDBCResultSet implements ResultSet {
             boolean set = preparedStatement.parameterSet[i];
 
             if (!set) {
-                throw JDBCUtil.sqlException(ErrorCode.X_24515);
+                if(!resultMetaData.columns[i].isIdentity()) {
+                    throw JDBCUtil.sqlException(ErrorCode.X_24515);
+                }
             }
             preparedStatement.resultOut.metaData.columnTypes[i] =
                 preparedStatement.parameterTypes[i];
