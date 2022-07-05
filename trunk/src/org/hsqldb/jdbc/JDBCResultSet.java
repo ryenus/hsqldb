@@ -7569,6 +7569,10 @@ public class JDBCResultSet implements ResultSet {
 
         checkUpdatable();
 
+        if (isOnInsertRow) {
+            throw JDBCUtil.sqlExceptionSQL(ErrorCode.X_24504);
+        }
+
         preparedStatement.parameterValues[columnCount] =
             getCurrent()[columnCount];
         preparedStatement.resultOut.metaData.columnTypes[columnCount] =
