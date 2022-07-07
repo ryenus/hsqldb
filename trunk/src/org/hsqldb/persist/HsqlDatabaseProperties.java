@@ -232,6 +232,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_tx_interrupt_rollback =
         "hsqldb.tx_interrupt_rollback";
     public static final String hsqldb_applog         = "hsqldb.applog";
+    public static final String hsqldb_extlog         = "hsqldb.extlog";
     public static final String hsqldb_sqllog         = "hsqldb.sqllog";
     public static final String hsqldb_lob_file_scale = "hsqldb.lob_file_scale";
     public static final String hsqldb_lob_file_compressed =
@@ -490,7 +491,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // integral defaults for user-defined props - sets
         dbMeta.put(hsqldb_write_delay_millis,
                    newMeta(hsqldb_write_delay_millis, DB_PROP, 500, 0, 10000));
-        dbMeta.put(hsqldb_applog, newMeta(hsqldb_applog, DB_PROP, 0, 0, 3));
+        dbMeta.put(hsqldb_applog, newMeta(hsqldb_applog, DB_PROP, 0, 0, 4));
+        dbMeta.put(hsqldb_extlog, newMeta(hsqldb_extlog, DB_PROP, 0, 0, 4));
         dbMeta.put(hsqldb_sqllog, newMeta(hsqldb_sqllog, DB_PROP, 0, 0, 4));
         dbMeta.put(hsqldb_script_format,
                    newMeta(hsqldb_script_format, DB_PROP, 0, new int[] {

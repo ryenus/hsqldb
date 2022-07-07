@@ -544,12 +544,19 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_DATABASE_FILES_EVENT_LOG : {
                 try {
-                    int     value = ((Integer) arguments[0]).intValue();
-                    boolean isSql = ((Boolean) arguments[1]).booleanValue();
+                    int     value    = ((Integer) arguments[0]).intValue();
+                    boolean isSql    = ((Boolean) arguments[1]).booleanValue();
+                    boolean internal = ((Boolean) arguments[2]).booleanValue();
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.logger.setEventLogLevel(value, isSql);
+
+                    if (internal) {
+                        session.database.logger.setEventLogLevel(value, isSql);
+                    } else {
+                        session.database.logger.setExternalEventLogLevel(
+                            value);
+                    }
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

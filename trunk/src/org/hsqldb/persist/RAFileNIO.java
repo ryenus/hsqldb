@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ import org.hsqldb.Database;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.EventLogInterface;
 import org.hsqldb.lib.java.JavaSystem;
 
 /**
@@ -52,7 +53,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * ScaledRAFile is used for data access.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  2.6.0
+ * @version  2.7.0
  * @since 1.8.0.5
  */
 final class RAFileNIO implements RandomAccessInterface {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,14 +53,15 @@ public class SimpleLog {
 
     public static final int LOG_NONE   = 0;
     public static final int LOG_ERROR  = 1;
-    public static final int LOG_NORMAL = 2;
-    public static final int LOG_DETAIL = 3;
+    public static final int LOG_WARNING = 2;
+    public static final int LOG_NORMAL = 3;
+    public static final int LOG_DETAIL = 4;
     public static final int LOG_RESULT = 4;
 
     //
     public static final String logTypeNameEngine = "ENGINE";
     static final String[]      appLogTypeNames   = {
-        "", "ERROR ", "NORMAL", "DETAIL"
+        "", "ERROR ", "WARNING", "NORMAL", "DETAIL"
     };
     static final String[]      sqlLogTypeNames   = {
         "", "BASIC ", "NORMAL", "DETAIL", "RESULT"
