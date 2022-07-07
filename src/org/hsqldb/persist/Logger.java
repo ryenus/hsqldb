@@ -58,6 +58,7 @@ import org.hsqldb.index.Index;
 import org.hsqldb.index.IndexAVL;
 import org.hsqldb.index.IndexAVLMemory;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.EventLogInterface;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.FrameworkLogger;
@@ -118,6 +119,7 @@ public class Logger implements EventLogInterface {
     private int     propWriteDelay;
     private int     propLogSize;
     private boolean propLogData = true;
+    private int     propExternalEventLogLevel;
     private int     propEventLogLevel;
     int             propSqlLogLevel;
     int             propGC;
@@ -349,6 +351,13 @@ public class Logger implements EventLogInterface {
         }
 
         level = database.urlProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_extlog, -1);
+
+        if (level >= 0) {
+            setExternalEventLogLevel(level);
+        }
+
+        level = database.urlProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_sqllog, -1);
 
         if (level >= 0) {
@@ -549,6 +558,9 @@ public class Logger implements EventLogInterface {
 
         propEventLogLevel = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_applog);
+        propExternalEventLogLevel =
+            database.databaseProperties.getIntegerProperty(
+                HsqlDatabaseProperties.hsqldb_extlog);
         propSqlLogLevel = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_sqllog);
 
@@ -767,14 +779,19 @@ public class Logger implements EventLogInterface {
 
             sqlLog.setLevel(level);
         } else {
-            if (level > SimpleLog.LOG_DETAIL) {
-                level = SimpleLog.LOG_DETAIL;
-            }
-
             propEventLogLevel = level;
 
             appLog.setLevel(level);
         }
+    }
+
+    public void setExternalEventLogLevel(int level) {
+
+        if (level < SimpleLog.LOG_NONE || level > SimpleLog.LOG_DETAIL) {
+            throw Error.error(ErrorCode.X_42556);
+        }
+
+        propExternalEventLogLevel = level;
     }
 
     public void logSevereEvent(String message, Throwable t) {
@@ -782,7 +799,9 @@ public class Logger implements EventLogInterface {
         getEventLogger();
 
         if (fwLogger != null) {
-            fwLogger.severe(message, t);
+            if (propExternalEventLogLevel >= SimpleLog.LOG_ERROR) {
+                fwLogger.severe(message, t);
+            }
         }
 
         if (appLog != null) {
@@ -799,10 +818,12 @@ public class Logger implements EventLogInterface {
         getEventLogger();
 
         if (fwLogger != null) {
-            fwLogger.warning(message, t);
+            if (propExternalEventLogLevel >= SimpleLog.LOG_WARNING) {
+                fwLogger.warning(message, t);
+            }
         }
 
-        appLog.logContext(t, message, SimpleLog.LOG_ERROR);
+        appLog.logContext(t, message, SimpleLog.LOG_WARNING);
     }
 
     public void logInfoEvent(String message) {
@@ -810,7 +831,9 @@ public class Logger implements EventLogInterface {
         getEventLogger();
 
         if (fwLogger != null) {
-            fwLogger.info(message);
+            if (propExternalEventLogLevel >= SimpleLog.LOG_NORMAL) {
+                fwLogger.info(message);
+            }
         }
 
         appLog.logContext(SimpleLog.LOG_NORMAL, message);
@@ -821,7 +844,9 @@ public class Logger implements EventLogInterface {
         getEventLogger();
 
         if (fwLogger != null) {
-            fwLogger.finest(message);
+            if (propExternalEventLogLevel >= SimpleLog.LOG_DETAIL) {
+                fwLogger.finest(message);
+            }
         }
 
         if (appLog != null) {
@@ -1520,6 +1545,8 @@ public class Logger implements EventLogInterface {
 
         map.put(HsqlDatabaseProperties.hsqldb_applog,
                 String.valueOf(appLog.getLevel()));
+        map.put(HsqlDatabaseProperties.hsqldb_extlog,
+                String.valueOf(propExternalEventLogLevel));
         map.put(HsqlDatabaseProperties.hsqldb_sqllog,
                 String.valueOf(sqlLog.getLevel()));
         map.put(HsqlDatabaseProperties.hsqldb_lob_file_scale,
@@ -1623,6 +1650,15 @@ public class Logger implements EventLogInterface {
         sb.append(' ').append(propEventLogLevel);
         list.add(sb.toString());
         sb.setLength(0);
+
+        if (propExternalEventLogLevel != SimpleLog.LOG_NONE) {
+            sb.append("SET DATABASE ").append(Tokens.T_EXTERNAL).append(' ');
+            sb.append(Tokens.T_EVENT).append(' ');
+            sb.append(Tokens.T_LOG).append(' ').append(Tokens.T_LEVEL);
+            sb.append(' ').append(propExternalEventLogLevel);
+            list.add(sb.toString());
+            sb.setLength(0);
+        }
 
         if (propSqlLogLevel != SimpleLog.LOG_NONE) {
             sb.append("SET DATABASE ").append(Tokens.T_EVENT).append(' ');

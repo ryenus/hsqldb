@@ -124,9 +124,6 @@ import org.hsqldb.lib.java.JavaSystem;
  */
 public class JDBCClob implements Clob {
 
-    private static final FrameworkLogger LOG =
-        FrameworkLogger.getLog(JDBCClob.class);
-
     /**
      * Retrieves the number of characters
      * in the <code>CLOB</code> value

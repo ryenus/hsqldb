@@ -1237,7 +1237,23 @@ public class ParserCommand extends ParserDDL {
 
                 Integer  value = readIntegerObject();
                 Object[] args  = new Object[] {
-                    value, Boolean.valueOf(sqlLog)
+                    value, Boolean.valueOf(sqlLog), Boolean.TRUE
+                };
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_FILES_EVENT_LOG, args, null,
+                    null);
+            }
+            case Tokens.EXTERNAL : {
+                read();
+                readThis(Tokens.EVENT);
+                readThis(Tokens.LOG);
+
+                readThis(Tokens.LEVEL);
+
+                Integer  value = readIntegerObject();
+                Object[] args  = new Object[] {
+                    value, Boolean.FALSE, Boolean.FALSE
                 };
 
                 return new StatementCommand(

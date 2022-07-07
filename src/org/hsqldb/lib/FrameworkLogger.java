@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,7 +84,7 @@ import java.util.logging.Logger;
  * configuration takes place.
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class FrameworkLogger {
@@ -334,7 +334,10 @@ public class FrameworkLogger {
 
         String propVal = System.getProperty("hsqldb.reconfig_logging");
 
-        if (propVal != null && propVal.equalsIgnoreCase("false")) {
+        // from 2.7.0 the system property must be set to true for any reconfig
+        // the new hsqldb.extlog=level property specifies the level above which
+        // messages are logged to JUL OR Log4J
+        if (propVal == null || !propVal.equalsIgnoreCase("true")) {
             return;
         }
 
