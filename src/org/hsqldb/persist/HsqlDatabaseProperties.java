@@ -627,7 +627,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             props.setProperty(hsqldb_modified, getProperty(hsqldb_modified));
             props.save(fileName + ".properties" + ".new");
             fa.renameElementOrCopy(fileName + ".properties" + ".new",
-                                   fileName + ".properties");
+                                   fileName + ".properties", database.logger);
         } catch (Throwable t) {
             database.logger.logSevereEvent("save failed", t);
 

@@ -338,7 +338,6 @@ public class Log {
             if (cache != null) {
                 deleteBackupFile();
             }
-
         } catch (Throwable t) {
 
             // backup failed perhaps due to lack of disk space
@@ -734,14 +733,15 @@ public class Log {
         }
     }
 
-    static boolean renameNewFile(FileAccess fileAccess, String baseFileName) {
+    boolean renameNewFile(FileAccess fileAccess, String baseFileName) {
 
         if (fileAccess.isStreamElement(baseFileName
                                        + Logger.newFileExtension)) {
             deleteFile(fileAccess, baseFileName);
 
             return fileAccess.renameElementOrCopy(
-                baseFileName + Logger.newFileExtension, baseFileName);
+                baseFileName + Logger.newFileExtension, baseFileName,
+                database.logger);
         }
 
         return true;

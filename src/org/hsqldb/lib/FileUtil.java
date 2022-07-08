@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,13 +50,11 @@ import org.hsqldb.lib.java.JavaSystem;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Ocke Janssen oj@openoffice.org
- * @version 2.5.1
+ * @version 2.7.0
  * @since 1.7.2
  */
 public class FileUtil implements FileAccess {
 
-    private static final FrameworkLogger LOG =
-        FrameworkLogger.getLog(FileUtil.class);
     private static FileUtil      fileUtil      = new FileUtil();
     private static FileAccessRes fileAccessRes = new FileAccessRes();
 
@@ -103,7 +101,8 @@ public class FileUtil implements FileAccess {
         return renameWithOverwrite(oldName, newName);
     }
 
-    public boolean renameElementOrCopy(String oldName, String newName) {
+    public boolean renameElementOrCopy(String oldName, String newName,
+                                       EventLogInterface logger) {
 
         if (renameWithOverwrite(oldName, newName)) {
             return true;
@@ -123,7 +122,7 @@ public class FileUtil implements FileAccess {
                 "Platform does not allow renaming files and failed to copy file contents from %s to %s",
                 oldName, newName);
 
-            LOG.error(message, e);
+            logger.logSevereEvent(message, e);
 
             return false;
         } finally {
@@ -132,7 +131,7 @@ public class FileUtil implements FileAccess {
                     inputStream.close();
                 }
             } catch (IOException e) {
-                LOG.finest("Failed to dispose streams", e);
+                logger.logWarningEvent("Failed to dispose streams", e);
             }
 
             try {
@@ -140,19 +139,20 @@ public class FileUtil implements FileAccess {
                     outputStream.close();
                 }
             } catch (IOException e) {
-                LOG.finest("Failed to dispose streams", e);
+                logger.logDetailEvent("Failed to dispose streams");
             }
         }
 
         if (!delete(oldName)) {
-            LOG.warning("Failed to delete renamed file " + oldName);
+            logger.logWarningEvent("Failed to delete renamed file " + oldName,
+                                   null);
         }
 
         String message = String.format(
             "Platform does not allow renaming files. Copied file from %s to %s instead",
             oldName, newName);
 
-        LOG.finer(message);
+        logger.logDetailEvent(message);
 
         return true;
     }
@@ -494,10 +494,10 @@ public class FileUtil implements FileAccess {
 
     static class DatabaseFilenameFilter implements FilenameFilter {
 
-        String[] suffixes      = new String[] {
+        String[]        suffixes      = new String[] {
             ".backup", ".properties", ".script", ".data", ".log", ".lobs"
         };
-        String[] extraSuffixes = new String[] {
+        String[]        extraSuffixes = new String[] {
             ".lck", ".sql.log", ".app.log"
         };
         private String  dbName;
