@@ -37,6 +37,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
+/**
+* @author Fred Toussi (fredt@users dot sourceforge.net)
+* @version 2.7.0
+* @since 1.8.0
+*/
 public class FileAccessRes implements FileAccess {
 
     public boolean isStreamElement(String fileName) {
@@ -100,15 +105,18 @@ public class FileAccessRes implements FileAccess {
         return false;
     }
 
-    public boolean renameElementOrCopy(String oldName, String newName) {
+    public boolean renameElementOrCopy(String oldName, String newName,
+                                       EventLogInterface logger) {
         return false;
     }
 
-    public OutputStream openOutputStreamElement(String streamName) throws IOException {
+    public OutputStream openOutputStreamElement(String streamName)
+    throws IOException {
         throw new IOException();
     }
 
-    public OutputStream openOutputStreamElementAppend(String streamName) throws IOException {
+    public OutputStream openOutputStreamElementAppend(String streamName)
+    throws IOException {
         throw new IOException();
     }
 
