@@ -233,10 +233,10 @@ sqltoolJar { doLast {
     sqltoolJar.archivePath.setBytes(srcFile.bytes)
 } }
 
-task sourcesJar(type: Jar, dependsOn:classes) {
-     classifier = 'sources'
-     //from sourceSets.main.allSource
-    from fileTree(dir: '../src', exclude: 'org/hsqldb/cmdline/**')
+task sourcesJar(type: Jar, dependsOn:hsqldbsources) {
+    classifier = 'sources'
+    //from sourceSets.main.allSource
+    from { zipTree '../lib/hsqldb-sources.jar' }
 }
 sourcesJar.description = 'Build sources jar file'
 
@@ -247,11 +247,11 @@ task javadocJar(type: Jar, dependsOn:javadoc) {
 }
 javadocJar.description = 'Build javadoc jar file'
 
-task sqltoolSourcesJar(type: Jar, dependsOn:classes) {
+task sqltoolSourcesJar(type: Jar, dependsOn:sqltoolsources) {
     archiveBaseName = 'sqltool'
     classifier = 'sources'
     //from sourceSets.main.allSource
-    from fileTree(dir: '../src', include: 'org/hsqldb/cmdline/**')
+    from { zipTree '../lib/sqltool-sources.jar' }
 }
 sqltoolSourcesJar.description = 'Build Sqltool sources jar file'
 
