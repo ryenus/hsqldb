@@ -1,4 +1,4 @@
-/**
+**
  * Invoke this build file with Gradle's -b switch for POM- or
  * Maven-publishing related tasks.
  *
@@ -24,10 +24,22 @@
  * </CODE></PRE>
  *
  * Now, for each alternative, adjust environment and build properties, like
- * by setting env var JAVA_HOME or build property 'build.debug', and run
+ * by setting build property 'build.debug', and run
  *
  * <PRE><CODE>
- *   gradlew -Pclassifier=NEW_CLASSIFIER -b mvn-pub.gradle clean-all uploadArchives
+ *   [single-command no longer works due to broken inter-dependencies:
+ *   gradlew -Pclassifier=NEW_CLASSIFIER -b mvn-pub.gradle clean-all uploadArchives]
+ *   gradlew -b mvn-pub.gradle clean-all
+ *   gradlew -Pclassifier=NEW_CLASSIFIER -b mvn-pub.gradle sqltool
+ *   gradlew -Pclassifier=NEW_CLASSIFIER -b mvn-pub.gradle hsqldb
+ *   gradlew -Pclassifier=NEW_CLASSIFIER -b mvn-pub.gradle -x sqltool -x hsqldb
+ *
+ *   # Restore regular build property values
+ *   pushd ../lib; mkdir ../safe.d; mv -v hsqldb.jar sqltool.jar ../safe.d/
+ *   mv -v hsqldb-jdk8.jar hsqldb.jar && mv -v sqltool-jdk8.jar sqltool.jar
+ *   popd
+ *   gradlew -Pclassifier=jdk8 -b mvn-pub.gradle -x sqltool -x hsqldb
+ *   
  * </CODE></PRE>
  * The clean-all will wipe .../doc, but the .../doc and everything else from
  * your original dist build will be retained in .../dist/*.zip.

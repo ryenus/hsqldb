@@ -50,14 +50,18 @@
  *          "dbimage.path".  (See following section about optional properties).
  *          Set property "doc.pubtime" to the current date/time in
  *          format like 2019-01-27 18:55:44.
- *       3: For additional Java 8 jars (hsqldb-jdk8.jar and sqltool-jdk8.jar),
-            set JAVA_HOME to JDK8 and run
- *              gradlew jdk8jars
+ *       3: Set up your desired build environment (JAVA_HOME of JDK11, etc.).
+ *       4: For additional Java 8 jars, use regular late-model java (prev. step)
+ *          and cross-compile by setting build properties ant.build.javac and
+ *          javac.bootcp.override.  Make sure that build.debug=false.
+ *              gradlew hsqldb sqltool
  *          from the build directory.
- *       4: Set up your desired build environment (JAVA_HOME set to JDK11, etc.).
+ *          After the jars are built, COMMENT OUT the cross-compile properties.
  *       5: Run
  *              gradlew -i -b build-dist.gradle
- *          from the build directory.
+ *          from the build directory..
+ *          After the distribution zip is built, it resides in /dist/ and will
+ *          be retained there if you proceed with the mvn-pub procedure.
  *       6: If you used a properties file shared with other environments,
  *          then comment out distribution-specific build properties, including
  *          "doc.pubtime" (otherwise future document builds will label
