@@ -2015,7 +2015,8 @@
       statement</emphasis></simpara>
 
       <simpara><literal>&lt;set database event log level&gt; ::= SET DATABASE
-      [EXTERNAL] EVENT LOG [ SQL ] LEVEL { 0 | 1 | 2 | 3 }</literal></simpara>
+      [EXTERNAL] EVENT LOG [ SQL ] LEVEL { 0 | 1 | 2 | 3 |
+      4}</literal></simpara>
 
       <simpara>This statement has 3 different purposes and can be used up to
       three times with different options to configure various event logging
@@ -2048,9 +2049,10 @@
       if any.</simpara>
 
       <simpara>Levels 1, 2, 3 and 4 are supported. Level 1 only logs commits
-      and rollbacks, while Level 2 and 3 log all statements. Level 2 truncates
+      and rollbacks. Level 2 and above log all statements. Level 2 truncates
       long statements, while level 3 reports the full statement and parameter
-      values.</simpara>
+      values. Level 4 add the update count or the size of the returned result
+      set.</simpara>
 
       <simpara>The logged lines are stored in a file with the extension
       <literal>.sql.log</literal> alongside the main database files.</simpara>
