@@ -1580,7 +1580,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <para>In the first example above, the session's time zone displacement is
     '-8:00'. In step 1, time '11:00:00' is converted to UTC, which is time
     '19:00:00+0:00'. In step 2, this value is expressed as time
-    '14:00:00-5:00' in the target zone. </para>
+    '14:00:00-5:00' in the target zone.</para>
 
     <para>In the second example, the session's time zone displacement is not
     considered. In step 1, time is converted to UTC, which is time
@@ -1708,8 +1708,8 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     version 2.7.0 a Java Calendar object with the local time zone of the
     client JVM is created and used. Therefore when a seasonal time adjustment
     for daylight saving time is made while the session is open, the SQL
-    session zone displacement is changed. In older versions of HyperSQL, the
-    SQL session time displacement was not changed when a seasonal time
+    session zone displacement is changed. In some older versions of HyperSQL,
+    the SQL session time displacement was not changed when a seasonal time
     adjustment took place.</para>
 
     <para>To change the SQL session time zone displacement, use the following
@@ -1795,8 +1795,9 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
         <classname>java.time</classname> package types:
         <classname>LocalDate</classname>, <classname>LocalTime</classname>,
         <classname>LocalDateTime</classname>,
-        <classname>OffsetTime</classname> and
-        <classname>OffsetDateTime</classname> as well as
+        <classname>OffsetTime</classname>,
+        <classname>OffsetDateTime</classname>, and
+        <classname>Instance</classname> as well as
         <classname>java.sql</classname> package types,
         <classname>Date</classname>, <classname>Time</classname> and
         <classname>Timestamp</classname>.</para>
