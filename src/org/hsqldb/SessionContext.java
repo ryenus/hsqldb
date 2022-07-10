@@ -58,11 +58,11 @@ public class SessionContext {
     Session session;
 
     //
-    boolean isAutoCommit;
-    boolean isReadOnly;
-    boolean noSQL;
-    int     autoCommitRows;
-    int     currentMaxRows;
+    public boolean isAutoCommit;
+    boolean        isReadOnly;
+    boolean        noSQL;
+    int            autoCommitRows;
+    int            currentMaxRows;
 
     //
     OrderedHashMap  sessionVariables;
