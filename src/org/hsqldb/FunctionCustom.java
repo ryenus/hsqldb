@@ -976,10 +976,10 @@ public class FunctionCustom extends FunctionSQL {
                 return Long.valueOf(session.getId());
             }
             case FUNC_ACTION_ID : {
-                return Long.valueOf(session.actionTimestamp);
+                return Long.valueOf(session.actionSCN);
             }
             case FUNC_TRANSACTION_ID : {
-                return Long.valueOf(session.transactionTimestamp);
+                return Long.valueOf(session.transactionSCN);
             }
             case FUNC_TRANSACTION_SIZE : {
                 return Long.valueOf(session.getTransactionSize());

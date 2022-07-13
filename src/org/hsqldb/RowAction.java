@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import org.hsqldb.persist.PersistentStore;
  * Represents the chain of insert / delete / rollback / commit actions on a row.
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 2.0.0
  */
 public class RowAction extends RowActionBase {
@@ -101,7 +101,7 @@ public class RowAction extends RowActionBase {
 
         this.session         = session;
         this.type            = type;
-        this.actionTimestamp = session.actionTimestamp;
+        this.actionSCN       = session.actionSCN;
         this.table           = table;
         this.store           = store;
         this.memoryRow       = row;
@@ -136,7 +136,7 @@ public class RowAction extends RowActionBase {
                 switch (action.type) {
 
                     case ACTION_INSERT : {
-                        if (action.commitTimestamp == 0
+                        if (action.commitSCN == 0
                                 && session != action.session) {
                             throw Error.runtimeError(ErrorCode.U_S0500,
                                                      "RowAction");
@@ -147,7 +147,7 @@ public class RowAction extends RowActionBase {
                     case ACTION_DELETE_FINAL :
                     case ACTION_DELETE : {
                         if (session != action.session) {
-                            if (action.commitTimestamp == 0) {
+                            if (action.commitSCN == 0) {
                                 if (!session.actionSet.isEmpty()) {
                                     session.actionSet.clear();
                                 }
@@ -162,7 +162,7 @@ public class RowAction extends RowActionBase {
                     }
                     case ACTION_REF : {
                         if (session != action.session
-                                && action.commitTimestamp == 0) {
+                                && action.commitSCN == 0) {
                             if (colMap == null
                                     || ArrayUtil.haveCommonElement(
                                         colMap, action.changeColumnMap)) {
@@ -213,18 +213,17 @@ public class RowAction extends RowActionBase {
             if (session == action.session) {
                 if (action.type == ACTION_REF
                         && action.changeColumnMap == colMap
-                        && action.commitTimestamp == 0) {
+                        && action.commitSCN == 0) {
                     return false;
                 }
 
                 if (action.type == ACTION_INSERT) {
-                    if (action.commitTimestamp == 0) {
+                    if (action.commitSCN == 0) {
                         return false;
                     }
                 }
             } else {
-                if (action.type == ACTION_DELETE
-                        && action.commitTimestamp == 0) {
+                if (action.type == ACTION_DELETE && action.commitSCN == 0) {
                     if (action.changeColumnMap == null
                             || ArrayUtil.haveCommonElement(
                                 colMap, action.changeColumnMap)) {
@@ -256,9 +255,9 @@ public class RowAction extends RowActionBase {
 
     synchronized void setNoOpAsAction(Session session, byte type) {
 
-        this.session    = session;
-        this.type       = type;
-        actionTimestamp = session.actionTimestamp;
+        this.session = session;
+        this.type    = type;
+        actionSCN    = session.actionSCN;
     }
 
     synchronized void setAsAction(RowActionBase action) {
@@ -270,8 +269,8 @@ public class RowAction extends RowActionBase {
 //        memoryRow       = null;
         session         = null;
         type            = ACTION_NONE;
-        actionTimestamp = 0;
-        commitTimestamp = 0;
+        actionSCN       = 0;
+        commitSCN       = 0;
         rolledback      = false;
         deleteComplete  = false;
         prepared        = false;
@@ -282,8 +281,8 @@ public class RowAction extends RowActionBase {
     private void setAsDeleteFinal(long timestamp) {
 
         type            = ACTION_DELETE_FINAL;
-        actionTimestamp = 0;
-        commitTimestamp = timestamp;
+        actionSCN       = 0;
+        commitSCN       = timestamp;
         rolledback      = false;
         deleteComplete  = false;
         prepared        = false;
@@ -297,7 +296,7 @@ public class RowAction extends RowActionBase {
         RowActionBase action = this;
 
         do {
-            if (action.session == session && action.commitTimestamp == 0) {
+            if (action.session == session && action.commitSCN == 0) {
                 action.prepared = true;
             }
 
@@ -311,9 +310,9 @@ public class RowAction extends RowActionBase {
         int           actiontype = ACTION_NONE;
 
         do {
-            if (action.session == session && action.commitTimestamp == 0) {
-                action.commitTimestamp = session.actionTimestamp;
-                action.prepared        = false;
+            if (action.session == session && action.commitSCN == 0) {
+                action.commitSCN = session.actionSCN;
+                action.prepared  = false;
 
                 if (action.type == ACTION_INSERT) {
                     actiontype = action.type;
@@ -339,7 +338,7 @@ public class RowAction extends RowActionBase {
         RowActionBase action = this;
 
         do {
-            if (action.commitTimestamp != 0) {
+            if (action.commitSCN != 0) {
                 if (action.type == ACTION_DELETE
                         || action.type == ACTION_DELETE_FINAL) {
                     return true;
@@ -370,7 +369,7 @@ public class RowAction extends RowActionBase {
         int           actionType = ACTION_NONE;
 
         do {
-            if (action.commitTimestamp == timestamp) {
+            if (action.commitSCN == timestamp) {
                 if (action.type == ACTION_INSERT) {
                     actionType = action.type;
                 } else if (action.type == ACTION_DELETE) {
@@ -396,7 +395,7 @@ public class RowAction extends RowActionBase {
     synchronized boolean canCommit(Session session) {
 
         RowActionBase action;
-        long          timestamp       = session.transactionTimestamp;
+        long          timestamp       = session.transactionSCN;
         long          commitTimestamp = 0;
         final boolean readCommitted = session.isolationLevel
                                       == SessionInterface.TX_READ_COMMITTED;
@@ -410,8 +409,8 @@ public class RowAction extends RowActionBase {
                         && action.type == ACTION_DELETE) {
 
                     // for READ_COMMITTED, use action timestamp for later conflicts
-                    if (action.commitTimestamp == 0) {
-                        timestamp = action.actionTimestamp;
+                    if (action.commitSCN == 0) {
+                        timestamp = action.actionSCN;
                     }
                 }
 
@@ -437,10 +436,10 @@ public class RowAction extends RowActionBase {
                     return false;
                 }
 
-                if (action.commitTimestamp == 0) {
+                if (action.commitSCN == 0) {
                     session.actionSet.add(action);
-                } else if (action.commitTimestamp > commitTimestamp) {
-                    commitTimestamp = action.commitTimestamp;
+                } else if (action.commitSCN > commitTimestamp) {
+                    commitTimestamp = action.commitSCN;
                 }
             }
 
@@ -486,7 +485,7 @@ public class RowAction extends RowActionBase {
                 }
 
                 if (readCommitted) {
-                    if (action.commitTimestamp > session.actionTimestamp) {
+                    if (action.commitSCN > session.actionSCN) {
 
                         // 2.0 -- investigate
                         // can redo - if deletes
@@ -495,13 +494,12 @@ public class RowAction extends RowActionBase {
                         set.add(session);
 
                         result = false;
-                    } else if (action.commitTimestamp == 0) {
+                    } else if (action.commitSCN == 0) {
                         set.add(action.session);
 
                         result = false;
                     }
-                } else if (action.commitTimestamp
-                           > session.transactionTimestamp) {
+                } else if (action.commitSCN > session.transactionSCN) {
                     return false;
                 }
             }
@@ -552,11 +550,11 @@ public class RowAction extends RowActionBase {
         RowActionBase action = this;
 
         do {
-            if (action.session == session && action.commitTimestamp == 0) {
-                if (action.actionTimestamp >= timestamp) {
-                    action.commitTimestamp = session.actionTimestamp;
-                    action.rolledback      = true;
-                    action.prepared        = false;
+            if (action.session == session && action.commitSCN == 0) {
+                if (action.actionSCN >= timestamp) {
+                    action.commitSCN  = session.actionSCN;
+                    action.rolledback = true;
+                    action.prepared   = false;
                 }
             }
 
@@ -641,8 +639,8 @@ public class RowAction extends RowActionBase {
         do {
             boolean expired = false;
 
-            if (action.commitTimestamp != 0) {
-                if (action.commitTimestamp <= timestamp) {
+            if (action.commitSCN != 0) {
+                if (action.commitSCN <= timestamp) {
                     expired = true;
                 } else if (action.type == ACTION_REF) {
                     expired = true;
@@ -711,13 +709,13 @@ public class RowAction extends RowActionBase {
                     break;
 
                 case SessionInterface.TX_READ_COMMITTED :
-                    threshold = session.actionTimestamp;
+                    threshold = session.actionSCN;
                     break;
 
                 case SessionInterface.TX_REPEATABLE_READ :
                 case SessionInterface.TX_SERIALIZABLE :
                 default :
-                    threshold = session.transactionTimestamp;
+                    threshold = session.transactionSCN;
                     break;
             }
         }
@@ -749,7 +747,7 @@ public class RowAction extends RowActionBase {
                 action = action.next;
 
                 continue;
-            } else if (action.commitTimestamp == 0) {
+            } else if (action.commitSCN == 0) {
                 if (action.type == ACTION_NONE) {
                     throw Error.runtimeError(ErrorCode.U_S0500, "RowAction");
                 } else if (action.type == ACTION_INSERT) {
@@ -777,7 +775,7 @@ public class RowAction extends RowActionBase {
                 action = action.next;
 
                 continue;
-            } else if (action.commitTimestamp < threshold) {
+            } else if (action.commitSCN < threshold) {
                 if (action.type == ACTION_DELETE) {
                     actionType = ACTION_DELETE;
                 } else if (action.type == ACTION_INSERT) {
@@ -813,7 +811,7 @@ public class RowAction extends RowActionBase {
         RowActionBase action = this;
 
         do {
-            if (action.type == ACTION_REF && action.commitTimestamp == 0) {
+            if (action.type == ACTION_REF && action.commitSCN == 0) {
                 return true;
             }
 
@@ -848,10 +846,10 @@ public class RowAction extends RowActionBase {
             }
 
             sb.append(action.session.getId()).append(' ');
-            sb.append(action.type).append(' ').append(action.actionTimestamp);
-            sb.append(' ').append(action.commitTimestamp);
+            sb.append(action.type).append(' ').append(action.actionSCN);
+            sb.append(' ').append(action.commitSCN);
 
-            if (action.commitTimestamp != 0) {
+            if (action.commitSCN != 0) {
                 if (action.rolledback) {
                     sb.append('r');
                 } else {

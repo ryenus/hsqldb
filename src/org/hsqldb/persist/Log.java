@@ -186,7 +186,7 @@ public class Log {
     void close(boolean script) {
 
         database.logger.setFilesTimestamp(
-            database.txManager.getGlobalChangeTimestamp());
+            database.txManager.getSystemChangeNumber());
         closeLog();
         deleteOldFiles();
         deleteOldTempFiles();
@@ -244,7 +244,7 @@ public class Log {
 
         database.logger.textTableManager.closeAllTextCaches(false);
         database.logger.setFilesTimestamp(
-            database.txManager.getGlobalChangeTimestamp());
+            database.txManager.getSystemChangeNumber());
         closeLog();
     }
 
@@ -315,7 +315,7 @@ public class Log {
         }
 
         database.logger.setFilesTimestamp(
-            database.txManager.getGlobalChangeTimestamp());
+            database.txManager.getSystemChangeNumber());
         database.logger.logInfoEvent("checkpointClose start");
         synchLog();
         database.lobManager.synch();
@@ -400,7 +400,7 @@ public class Log {
             }
 
             database.logger.setFilesTimestamp(
-                database.txManager.getGlobalChangeTimestamp());
+                database.txManager.getSystemChangeNumber());
             database.logger.logInfoEvent("checkpointClose start");
             synchLog();
             database.lobManager.synch();

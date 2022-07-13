@@ -147,7 +147,7 @@ public class SessionData {
 
         int fetchSize = command.getFetchSize();
 
-        result.setResultId(session.actionTimestamp);
+        result.setResultId(session.actionSCN);
 
         int required = command.rsProperties;
         int returned = result.rsProperties;

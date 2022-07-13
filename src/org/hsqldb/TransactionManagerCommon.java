@@ -68,10 +68,10 @@ class TransactionManagerCommon {
     // functional unit - sessions involved in live transactions
 
     /** live transactions keeping committed transactions from being merged */
-    LongDeque liveTransactionTimestamps = new LongDeque();
+    LongDeque liveTransactionSCNs = new LongDeque();
 
     /** global timestamp for database */
-    AtomicLong globalChangeTimestamp = new AtomicLong(1);
+    AtomicLong systemChangeNumber = new AtomicLong(1);
 
     //
     AtomicInteger transactionCount = new AtomicInteger();
@@ -109,7 +109,7 @@ class TransactionManagerCommon {
 
                 case TransactionManager.MVCC :
                 case TransactionManager.MVLOCKS :
-                    if (liveTransactionTimestamps.size() != 1) {
+                    if (liveTransactionSCNs.size() != 1) {
                         throw Error.error(ErrorCode.X_25001);
                     }
             }
@@ -120,8 +120,7 @@ class TransactionManagerCommon {
                     TransactionManagerMVCC txMan =
                         new TransactionManagerMVCC(database);
 
-                    txMan.liveTransactionTimestamps.addLast(
-                        session.transactionTimestamp);
+                    txMan.liveTransactionSCNs.addLast(session.transactionSCN);
 
                     txMan.catalogWriteSession = session;
                     txMan.isLockedMode        = true;
@@ -141,8 +140,8 @@ class TransactionManagerCommon {
                 case TransactionManager.MVLOCKS : {
                     manager = new TransactionManagerMV2PL(database);
 
-                    manager.liveTransactionTimestamps.addLast(
-                        session.transactionTimestamp);
+                    manager.liveTransactionSCNs.addLast(
+                        session.transactionSCN);
 
                     OrderedHashSet set = session.waitingSessions;
 
@@ -172,7 +171,7 @@ class TransactionManagerCommon {
                                              "TransactionManagerCommon");
             }
 
-            manager.globalChangeTimestamp.set(globalChangeTimestamp.get());
+            manager.systemChangeNumber.set(systemChangeNumber.get());
 
             manager.transactionCount = transactionCount;
             hasExpired               = true;
@@ -184,11 +183,11 @@ class TransactionManagerCommon {
 
     void beginTransactionCommon(Session session) {
 
-        session.actionTimestamp      = getNextGlobalChangeTimestamp();
-        session.actionStartTimestamp = session.actionTimestamp;
-        session.transactionTimestamp = session.actionTimestamp;
-        session.isPreTransaction     = false;
-        session.isTransaction        = true;
+        session.actionSCN        = getNextSystemChangeNumber();
+        session.actionStartSCN   = session.actionSCN;
+        session.transactionSCN   = session.actionSCN;
+        session.isPreTransaction = false;
+        session.isTransaction    = true;
 
         transactionCount.incrementAndGet();
     }
@@ -196,7 +195,7 @@ class TransactionManagerCommon {
     void adjustLobUsage(Session session) {
 
         int  limit               = session.rowActionList.size();
-        long lastActionTimestamp = session.actionTimestamp;
+        long lastActionTimestamp = session.actionSCN;
 
         for (int i = 0; i < limit; i++) {
             RowAction action = (RowAction) session.rowActionList.get(i);
@@ -265,7 +264,7 @@ class TransactionManagerCommon {
                 continue;
             }
 
-            int type = action.getCommitTypeOn(session.actionTimestamp);
+            int type = action.getCommitTypeOn(session.actionSCN);
             Row row  = action.memoryRow;
 
             if (row == null) {
@@ -326,8 +325,8 @@ class TransactionManagerCommon {
     /**
      * gets the next timestamp for an action
      */
-    public long getNextGlobalChangeTimestamp() {
-        return globalChangeTimestamp.incrementAndGet();
+    public long getNextSystemChangeNumber() {
+        return systemChangeNumber.incrementAndGet();
     }
 
     boolean checkDeadlock(Session session, OrderedHashSet newWaits) {
@@ -374,7 +373,7 @@ class TransactionManagerCommon {
         Session[]      sessions = database.sessionManager.getAllSessions();
 
         for (int i = 0; i < sessions.length; i++) {
-            long timestamp = sessions[i].transactionTimestamp;
+            long timestamp = sessions[i].transactionSCN;
 
             if (session != sessions[i] && sessions[i].isTransaction) {
                 set.add(sessions[i]);
@@ -388,7 +387,7 @@ class TransactionManagerCommon {
         Session[]      sessions = database.sessionManager.getAllSessions();
 
         for (int i = 0; i < sessions.length; i++) {
-            long timestamp = sessions[i].transactionTimestamp;
+            long timestamp = sessions[i].transactionSCN;
 
             if (session == sessions[i]) {
                 continue;
@@ -702,7 +701,12 @@ class TransactionManagerCommon {
 
     void setWaitingSessionTPL(Session session) {
 
-        int count = session.tempSet.size();
+        int count      = session.tempSet.size();
+        int latchCount = session.latch.getCount();
+
+        if (latchCount > count + 1) {
+            System.out.println("latch count " + latchCount);
+        }
 
         for (int i = 0; i < count; i++) {
             Session current = (Session) session.tempSet.get(i);
@@ -834,11 +838,11 @@ class TransactionManagerCommon {
 
     long getFirstLiveTransactionTimestamp() {
 
-        if (liveTransactionTimestamps.isEmpty()) {
+        if (liveTransactionSCNs.isEmpty()) {
             return Long.MAX_VALUE;
         }
 
-        return liveTransactionTimestamps.get(0);
+        return liveTransactionSCNs.get(0);
     }
 
     /**
@@ -878,8 +882,8 @@ class TransactionManagerCommon {
                             (RowAction) sessions[i].rowActionList.get(
                                 tIndex[i]);
 
-                        if (current.actionTimestamp < minChangeNo) {
-                            minChangeNo  = current.actionTimestamp;
+                        if (current.actionSCN < minChangeNo) {
+                            minChangeNo  = current.actionSCN;
                             sessionIndex = i;
                         }
 
@@ -899,11 +903,11 @@ class TransactionManagerCommon {
                         (RowAction) currentList.get(tIndex[sessionIndex]);
 
                     // if the next change no is in this session, continue adding
-                    if (current.actionTimestamp == minChangeNo + 1) {
+                    if (current.actionSCN == minChangeNo + 1) {
                         minChangeNo++;
                     }
 
-                    if (current.actionTimestamp == minChangeNo) {
+                    if (current.actionSCN == minChangeNo) {
                         rowActions[rowActionCount++] = current;
 
                         tIndex[sessionIndex]++;
@@ -977,9 +981,8 @@ class TransactionManagerCommon {
                     break;
 
                 case TransactionManager.resetSessionStatement :
-
                     if (statementTimestamp
-                            != targetSession.statementStartTimestamp) {
+                            != targetSession.statementStartSCN) {
                         break;
                     }
 
