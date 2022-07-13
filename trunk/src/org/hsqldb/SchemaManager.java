@@ -108,7 +108,7 @@ public class SchemaManager {
     }
 
     public void setSchemaChangeTimestamp() {
-        schemaChangeTimestamp = database.txManager.getGlobalChangeTimestamp();
+        schemaChangeTimestamp = database.txManager.getSystemChangeNumber();
     }
 
     public long getSchemaChangeTimestamp() {

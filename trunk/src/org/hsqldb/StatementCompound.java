@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for PSM compound statements.
 
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.5.1
+ * @version 2.7.0
  * @since 1.9.0
  */
 public class StatementCompound extends Statement implements RangeGroup {
@@ -375,7 +375,7 @@ public class StatementCompound extends Statement implements RangeGroup {
 
             if (hasUndoHandler) {
                 String name = HsqlNameManager.getAutoSavepointNameString(
-                    session.actionTimestamp, session.sessionContext.depth);
+                    session.actionSCN, session.sessionContext.depth);
 
                 session.savepoint(name);
             }
@@ -695,9 +695,9 @@ public class StatementCompound extends Statement implements RangeGroup {
 
         int actionIndex = session.rowActionList.size();
         long actionTimestamp =
-            session.database.txManager.getNextGlobalChangeTimestamp();
+            session.database.txManager.getNextSystemChangeNumber();
 
-        session.actionTimestamp = actionTimestamp;
+        session.actionSCN = actionTimestamp;
 
         Result result = statement.execute(session);
 

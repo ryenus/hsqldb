@@ -77,7 +77,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL {
         }
 
         if (table.getTableType() == TableBase.RESULT_TABLE) {
-            setTimestamp(session.getActionTimestamp());
+            setTimestamp(session.getActionSCN());
         }
 
 // test code to force use of cache

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ package org.hsqldb;
  * timestamps are not in any order
  *
  * @author Fred Toussi (fredt@users dot sourceforge dot net)
- * @version 2.3.2
+ * @version 2.7.0
 
  * @since 2.0.0
  */
@@ -59,15 +59,15 @@ public class RowActionBase {
     public static final byte ACTION_DEBUG         = 7;
 
     //
-    RowActionBase            next;
-    Session                  session;
-    long                     actionTimestamp;
-    long                     commitTimestamp;
-    byte                     type;
-    boolean                  deleteComplete;
-    boolean                  rolledback;
-    boolean                  prepared;
-    int[]                    changeColumnMap;
+    RowActionBase next;
+    Session       session;
+    long          actionSCN;
+    long          commitSCN;
+    byte          type;
+    boolean       deleteComplete;
+    boolean       rolledback;
+    boolean       prepared;
+    int[]         changeColumnMap;
 
     RowActionBase() {}
 
@@ -76,17 +76,17 @@ public class RowActionBase {
      */
     RowActionBase(Session session, byte type) {
 
-        this.session    = session;
-        this.type       = type;
-        actionTimestamp = session.actionTimestamp;
+        this.session = session;
+        this.type    = type;
+        actionSCN    = session.actionSCN;
     }
 
     void setAsAction(RowActionBase action) {
 
         next            = action.next;
         session         = action.session;
-        actionTimestamp = action.actionTimestamp;
-        commitTimestamp = action.commitTimestamp;
+        actionSCN       = action.actionSCN;
+        commitSCN       = action.commitSCN;
         type            = action.type;
         deleteComplete  = action.deleteComplete;
         rolledback      = action.rolledback;

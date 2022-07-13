@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.0
  * @since 2.0.0
  */
 public class TransactionManager2PL extends TransactionManagerCommon
@@ -53,12 +53,12 @@ implements TransactionManager {
         txModel    = LOCKS;
     }
 
-    public long getGlobalChangeTimestamp() {
-        return globalChangeTimestamp.get();
+    public long getSystemChangeNumber() {
+        return systemChangeNumber.get();
     }
 
-    public void setGlobalChangeTimestamp(long ts) {
-        globalChangeTimestamp.set(ts);
+    public void setSystemChangeNumber(long ts) {
+        systemChangeNumber.set(ts);
     }
 
     public boolean isMVRows() {
@@ -87,7 +87,7 @@ implements TransactionManager {
 
     public boolean prepareCommitActions(Session session) {
 
-        session.actionTimestamp = getNextGlobalChangeTimestamp();
+        session.actionSCN = getNextSystemChangeNumber();
 
         return true;
     }
@@ -104,8 +104,8 @@ implements TransactionManager {
             int limit = session.rowActionList.size();
 
             // new actionTimestamp used for commitTimestamp
-            session.actionTimestamp         = getNextGlobalChangeTimestamp();
-            session.transactionEndTimestamp = session.actionTimestamp;
+            session.actionSCN         = getNextSystemChangeNumber();
+            session.transactionEndSCN = session.actionSCN;
 
             endTransaction(session);
 
@@ -135,11 +135,11 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
-            session.abortTransaction        = false;
-            session.actionTimestamp         = getNextGlobalChangeTimestamp();
-            session.transactionEndTimestamp = session.actionTimestamp;
+            session.abortTransaction  = false;
+            session.actionSCN         = getNextSystemChangeNumber();
+            session.transactionEndSCN = session.actionSCN;
 
-            rollbackPartial(session, 0, session.transactionTimestamp);
+            rollbackPartial(session, 0, session.transactionSCN);
             endTransaction(session);
             session.logSequences();
 
@@ -167,9 +167,7 @@ implements TransactionManager {
     }
 
     public void rollbackAction(Session session) {
-
-        rollbackPartial(session, session.actionIndex,
-                        session.actionStartTimestamp);
+        rollbackPartial(session, session.actionIndex, session.actionStartSCN);
         endActionTPL(session);
     }
 
@@ -317,8 +315,8 @@ implements TransactionManager {
     public void beginActionResume(Session session) {
 
         if (session.isTransaction) {
-            session.actionTimestamp      = getNextGlobalChangeTimestamp();
-            session.actionStartTimestamp = session.actionTimestamp;
+            session.actionSCN      = getNextSystemChangeNumber();
+            session.actionStartSCN = session.actionSCN;
         } else {
             beginTransactionCommon(session);
         }

@@ -1045,7 +1045,7 @@ public class Logger implements EventLogInterface {
             logInfoEvent("Checkpoint start");
             log.checkpoint(session, defrag);
             logInfoEvent("Checkpoint end - txts: "
-                         + database.txManager.getGlobalChangeTimestamp());
+                         + database.txManager.getSystemChangeNumber());
         }
     }
 

@@ -107,7 +107,7 @@ public class ParserCommand extends ParserDDL {
             }
 
             cs.setCompileTimestamp(
-                database.txManager.getGlobalChangeTimestamp());
+                database.txManager.getSystemChangeNumber());
             list.add(cs);
         }
 
@@ -2736,7 +2736,7 @@ public class ParserCommand extends ParserDDL {
         Statement cs = new StatementCommand(StatementTypes.DATABASE_CHECKPOINT,
                                             args, null, names);
 
-        cs.setCompileTimestamp(database.txManager.getGlobalChangeTimestamp());
+        cs.setCompileTimestamp(database.txManager.getSystemChangeNumber());
         cs.setSQL(Tokens.T_CHECKPOINT);
 
         return cs;

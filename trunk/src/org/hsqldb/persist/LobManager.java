@@ -1705,7 +1705,7 @@ public class LobManager {
             params[DELETE_BLOCKS.BLOCK_OFFSET] = Integer.valueOf(blockOffset);
             params[DELETE_BLOCKS.BLOCK_LIMIT]  = ValuePool.INTEGER_MAX;
             params[DELETE_BLOCKS.TX_ID] =
-                ValuePool.getLong(sysLobSession.getTransactionTimestamp());
+                ValuePool.getLong(sysLobSession.getTransactionSCN());
 
             Result result =
                 sysLobSession.executeCompiledStatement(deleteLobPartCall,
@@ -1804,7 +1804,7 @@ public class LobManager {
         params[DELETE_BLOCKS.BLOCK_OFFSET] = ValuePool.getInt(offset);
         params[DELETE_BLOCKS.BLOCK_LIMIT]  = ValuePool.getInt(limit);
         params[DELETE_BLOCKS.TX_ID] =
-            ValuePool.getLong(sysLobSession.getTransactionTimestamp());
+            ValuePool.getLong(sysLobSession.getTransactionSCN());
 
         Result result =
             sysLobSession.executeCompiledStatement(deleteLobPartCall, params,

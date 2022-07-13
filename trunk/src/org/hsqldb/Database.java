@@ -662,8 +662,8 @@ public class Database {
             if (result && closemode == CLOSEMODE_COMPACT) {
                 clearStructures();
                 reopen();
-                txManager.setGlobalChangeTimestamp(
-                    txManager.getGlobalChangeTimestamp() + 1);
+                txManager.setSystemChangeNumber(
+                    txManager.getSystemChangeNumber() + 1);
                 setState(DATABASE_CLOSING);
                 sessionManager.closeAllSessions();
                 logger.close(CLOSEMODE_NORMAL);

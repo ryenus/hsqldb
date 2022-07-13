@@ -95,11 +95,11 @@ public class Session implements SessionInterface {
     int isolationLevel        = SessionInterface.TX_READ_COMMITTED;
     boolean                 isReadOnlyIsolation;
     int                     actionIndex;
-    long                    actionStartTimestamp;
-    long                    actionTimestamp;
-    long                    statementStartTimestamp;
-    long                    transactionTimestamp;
-    long                    transactionEndTimestamp;
+    long                    actionStartSCN;
+    long                    actionSCN;
+    long                    statementStartSCN;
+    long                    transactionSCN;
+    long                    transactionEndSCN;
     final boolean           txConflictRollback;
     final boolean           txInterruptRollback;
     boolean                 isPreTransaction;
@@ -430,8 +430,8 @@ public class Session implements SessionInterface {
         checkReadWrite();
     }
 
-    public long getActionTimestamp() {
-        return actionTimestamp;
+    public long getActionSCN() {
+        return actionSCN;
     }
 
     /**
@@ -529,8 +529,7 @@ public class Session implements SessionInterface {
         sessionData.persistentStoreCollection.clearStatementTables();
 
         if (result.mode == ResultConstants.ERROR) {
-            sessionData.persistentStoreCollection.clearResultTables(
-                actionTimestamp);
+            sessionData.persistentStoreCollection.clearResultTables(actionSCN);
             database.txManager.rollbackAction(this);
         } else {
             sessionContext
@@ -713,11 +712,11 @@ public class Session implements SessionInterface {
             sessionContext.savepointTimestamps.remove(index);
         }
 
-        actionTimestamp = database.txManager.getNextGlobalChangeTimestamp();
+        actionSCN = database.txManager.getNextSystemChangeNumber();
 
         sessionContext.savepoints.add(name,
                                       ValuePool.getInt(rowActionList.size()));
-        sessionContext.savepointTimestamps.addLast(actionTimestamp);
+        sessionContext.savepointTimestamps.addLast(actionSCN);
     }
 
     /**
@@ -925,8 +924,8 @@ public class Session implements SessionInterface {
         return rowActionList.size();
     }
 
-    public long getTransactionTimestamp() {
-        return transactionTimestamp;
+    public long getTransactionSCN() {
+        return transactionSCN;
     }
 
     public Statement compileStatement(String sql, int props) {
@@ -1234,7 +1233,7 @@ public class Session implements SessionInterface {
 
             if (i > 0) {
                 if (cs.getCompileTimestamp()
-                        > database.txManager.getGlobalChangeTimestamp()) {
+                        > database.txManager.getSystemChangeNumber()) {
                     recompile = true;
                 }
 
@@ -1305,14 +1304,12 @@ public class Session implements SessionInterface {
         }
 
         sessionContext.currentStatement = cs;
-        statementStartTimestamp =
-            database.txManager.getGlobalChangeTimestamp();
+        statementStartSCN = database.txManager.getSystemChangeNumber();
 
         boolean isTX = cs.isTransactionStatement();
 
         if (!isTX) {
-            actionTimestamp =
-                database.txManager.getNextGlobalChangeTimestamp();
+            actionSCN = database.txManager.getNextSystemChangeNumber();
 
             sessionContext.setDynamicArguments(pvals);
 
@@ -1732,8 +1729,8 @@ public class Session implements SessionInterface {
 
     private void resetCurrentTimestamp() {
 
-        if (currentTimestampSCN != actionTimestamp) {
-            currentTimestampSCN = actionTimestamp;
+        if (currentTimestampSCN != actionSCN) {
+            currentTimestampSCN = actionSCN;
             currentTimestamp =
                 DateTimeType.newCurrentTimestamp(currentTimeZone);
             currentDate    = null;
@@ -2040,7 +2037,7 @@ public class Session implements SessionInterface {
         if (result.getType() == ResultConstants.SQLCANCEL) {
             if (result.getSessionRandomID() == randomId) {
                 database.txManager.resetSession(
-                    this, this, statementStartTimestamp,
+                    this, this, statementStartSCN,
                     TransactionManager.resetSessionStatement);
             }
         }
@@ -2324,7 +2321,7 @@ public class Session implements SessionInterface {
             boolean add = checkTimestampSCN == 0;
 
             currentTimeout    = timeout + 1;
-            checkTimestampSCN = statementStartTimestamp;
+            checkTimestampSCN = statementStartSCN;
 
             if (add) {
                 database.timeoutRunner.addSession(this);
@@ -2341,7 +2338,7 @@ public class Session implements SessionInterface {
                 return false;
             }
 
-            if (checkTimestampSCN != statementStartTimestamp) {
+            if (checkTimestampSCN != statementStartSCN) {
                 return false;
             }
 

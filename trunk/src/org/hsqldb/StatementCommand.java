@@ -423,13 +423,13 @@ public class StatementCommand extends Statement {
 
                     if (session.isProcessingScript()) {
                         session.database.logger.setFilesTimestamp(value1);
-                        session.database.txManager.setGlobalChangeTimestamp(
+                        session.database.txManager.setSystemChangeNumber(
                             value1 + 1);
                     } else if (session.isProcessingLog()) {
                         if (value2 > 0) {
                             session.database.logger.setFilesTimestamp(value1);
                             session.database.txManager
-                                .setGlobalChangeTimestamp(value1 + 1);
+                                .setSystemChangeNumber(value1 + 1);
                         }
                     }
 
@@ -1522,7 +1522,7 @@ public class StatementCommand extends Statement {
 
                             session.database.txManager.resetSession(session,
                                     targetSession,
-                                    targetSession.statementStartTimestamp,
+                                    targetSession.statementStartSCN,
                                     TransactionManager.resetSessionStatement);
                             break;
                     }
