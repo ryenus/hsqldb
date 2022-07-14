@@ -2312,7 +2312,7 @@ public class Session implements SessionInterface {
         volatile long checkTimestampSCN;
         volatile long checkTimestamp;
 
-        void startTimeout(int timeout) {
+        synchronized void startTimeout(int timeout) {
 
             if (timeout == 0) {
                 return;
@@ -2329,11 +2329,11 @@ public class Session implements SessionInterface {
             }
         }
 
-        void endTimeout() {
+        synchronized void endTimeout() {
             currentTimeout = 0;
         }
 
-        public boolean checkTimeout(long systemMillis) {
+        synchronized public boolean checkTimeout(long systemMillis) {
 
             if (currentTimeout == 0) {
                 return false;
@@ -2356,7 +2356,7 @@ public class Session implements SessionInterface {
             return false;
         }
 
-        public boolean isClosed() {
+        synchronized public boolean isClosed() {
             return Session.this.isClosed;
         }
     }
