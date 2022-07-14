@@ -2308,9 +2308,9 @@ public class Session implements SessionInterface {
 
     // timeouts
     class TimeoutManager {
-
         volatile int  currentTimeout;
         volatile long checkTimestampSCN;
+        volatile long checkTimestamp;
 
         void startTimeout(int timeout) {
 
@@ -2320,8 +2320,9 @@ public class Session implements SessionInterface {
 
             boolean add = checkTimestampSCN == 0;
 
-            currentTimeout    = timeout + 1;
+            currentTimeout    = timeout * 1000;
             checkTimestampSCN = statementStartSCN;
+            checkTimestamp    = System.currentTimeMillis();
 
             if (add) {
                 database.timeoutRunner.addSession(this);
@@ -2332,7 +2333,7 @@ public class Session implements SessionInterface {
             currentTimeout = 0;
         }
 
-        public boolean checkTimeout() {
+        public boolean checkTimeout(long systemMillis) {
 
             if (currentTimeout == 0) {
                 return false;
@@ -2342,9 +2343,7 @@ public class Session implements SessionInterface {
                 return false;
             }
 
-            currentTimeout--;
-
-            if (currentTimeout <= 0) {
+            if (checkTimestamp + currentTimeout < systemMillis) {
                 currentTimeout = 0;
 
                 database.txManager.resetSession(
