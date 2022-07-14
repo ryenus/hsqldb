@@ -911,6 +911,8 @@ public class Database {
 
             try {
                 synchronized (this) {
+                    long systemMillis = System.currentTimeMillis();
+
                     for (int i = 0; i < timeoutList.size(); i++) {
                         TimeoutManager timeOut =
                             (TimeoutManager) timeoutList.get(i);
@@ -923,7 +925,7 @@ public class Database {
                             continue;
                         }
 
-                        boolean result = timeOut.checkTimeout();
+                        boolean result = timeOut.checkTimeout(systemMillis);
 
                         if (result) {
                             abortCount++;
