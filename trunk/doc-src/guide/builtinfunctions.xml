@@ -974,7 +974,7 @@
     [&lt;JSON null caluse&gt;] [&lt;JSON output caluse&gt;])</literal></para>
 
     <para>The second form of <literal>JSON_ARRAY</literal> converts the values
-    from a single &lt;query expression&gt; into a JAON array.
+    from a single &lt;query expression&gt; into a JSON array.
     (SQL:2016)</para>
 
     <informalexample>
