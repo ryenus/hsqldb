@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
+]>
+<chapter version="5.0" xml:id="compatibility-chapt"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns4="http://www.w3.org/2000/svg"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title xml:id="compatibility-title">Compatibility With Other DBMS</title>
+
+  <info>
+    <authorgroup>
+      <author>
+        <personname><firstname>Fred</firstname><surname>Toussi</surname></personname>
+
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </author>
+    </authorgroup>
+
+    <releaseinfo>$Revision: 3096 $</releaseinfo>
+
+    <pubdate>&timestamp;</pubdate>
+
+    <keywordset>
+      <keyword>HSQLDB</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>SQL</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2010-2022 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
+    </legalnotice>
+  </info>
+
+  <section xml:id="coc_compatibility_other">
+    <title>Compatibility Overview</title>
+
+    <para>HyperSQL is used more than any other database engine for application
+    testing and development targeted at other databases. Over the years, this
+    usage resulted in developers finding and reporting many obscure bugs and
+    opportunities for enhancements in HyperSQL. The bugs were all fixed
+    shortly after the reports and enhancements were added in later
+    versions.</para>
+
+    <para>HyperSQL 2.x has been written to the SQL Standard and avoids the
+    traps caused by superficial imitation of the Standard by some other RDBMS.
+    The SQL Standard has existed since 1989 and has been expanded over the
+    years in several revisions. HyperSQL follows SQL:2016, which still stays
+    almost fully compatible with SQL-92. The X-Open specification has also
+    defined a number of SQL functions which are implemented by most
+    RDBMS.</para>
+
+    <para>HyperSQL has many property settings that relax conformance to the
+    Standard in order to allow compatibility with other RDBMS, without
+    breaking the core integrity of the database. These properties are modified
+    with SET DATABASE SQL statements described in the SQL Conformance Settings
+    section of Management chapter.</para>
+
+    <para>HyperSQL is very flexible and provides some other properties which
+    define a preference among various valid choices. For example, the ability
+    to set the transaction model of the database, or the ability to define the
+    scale of the data type of the result of integer division or average
+    calculation (<literal>SET DATABASE SQL AVG SCALE</literal>).</para>
+
+    <para>Each major RDBMS supports additional functions that are not covered
+    by the Standard. Some RDBMS use non-standard syntax for some operations.
+    Although most popular RDBMS products have introduced better compatibility
+    with the Standard in their recent versions, there are still some
+    portability issues. HyperSQL overcomes the potability issues using these
+    strategies</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>An extensive set of functions cover the SQL Standard, X-Open,
+        and most of the useful functions that other RDBMS support.</para>
+      </listitem>
+
+      <listitem>
+        <para>Database properties, which can be specified on the URL or as SQL
+        statements, relax conformance to the Standard in order to allow
+        non-standard comparisons and assignments allowed by other
+        RDBMS.</para>
+      </listitem>
+
+      <listitem>
+        <para>Specific SQL syntax compatibility modes allow syntax and type
+        names that are supported by some popular RDBMS.</para>
+      </listitem>
+
+      <listitem>
+        <para>User-defined types and functions, including aggregate functions,
+        allow any type or function that is supported by some RDBMS to be
+        defined and used.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>Support for compatibility with other RDBMS has been extended with
+    each version of HyperSQL. This chapter lists some of the non-standard
+    features of database servers, their SQL Standard equivalents or the
+    support provided by HyperSQL for those features.</para>
+
+    <section xml:id="coc_compatibility_postgres">
+      <title>PostgreSQL Compatibility</title>
+
+      <para>PostgreSQL is fairly compatible with the Standard, but uses some
+      non-standard features.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Use <literal>SET DATABASE SQL SYNTAX PGS TRUE</literal> or the
+          equivalent URL property <literal>sql.syntax_pgs=true</literal> to
+          enable the PostgreSQL's non-standard features. References to SERIAL,
+          BIGSERIAL, TEXT and UUID data types, as well as sequence functions,
+          are translated into HyperSQL equivalents.</para>
+        </listitem>
+
+        <listitem>
+          <para>The case of unquoted identifiers is non-standard in
+          PostgreSQL, which stores these identifiers in lowercase instead of
+          uppercase. Use SET DATABASE SQL LOWER CASE IDENTIFIER or the URL
+          property <literal>sql.lowercase_ident=true</literal> to change the
+          case of unquoted identifiers (table names and column names) to
+          lowercase in ResultSetMetaData.</para>
+        </listitem>
+
+        <listitem>
+          <para>Use <literal>SET DATABASE TRANSACTION CONTROL MVCC</literal>
+          if your application is multi-user.</para>
+        </listitem>
+
+        <listitem>
+          <para>PostgreSQL functions are generally supported.</para>
+        </listitem>
+
+        <listitem>
+          <para>For identity columns, PostgreSQL uses a non-standard linkage
+          with an external identity sequence. In most cases, this can be
+          converted to <literal>GENERATED BY DEFAULT AS IDENTITY</literal>. In
+          those cases where the identity sequence needs to be shared by
+          multiple tables, you can use a new HyperSQL feature,
+          <literal>GENERATED BY DEFAULT AS SEQUENCE &lt;sequence
+          name&gt;</literal>, which is the equivalent of the PostgreSQL
+          implementation.</para>
+        </listitem>
+
+        <listitem>
+          <para>In CREATE TABLE statements, the SERIAL and BIGSERIAL types are
+          translated into INTEGER or BIGINT, with <literal>GENERATED BY
+          DEFAULT AS IDENTITY</literal>. Usage of <literal>DEFAULT
+          NEXTVAL(&lt;sequence name&gt;)</literal> is supported so long as the
+          <literal>&lt;sequence name&gt;</literal> refers to an existing
+          sequence. This usage is translated into <literal>GENERATED BY
+          DEFAULT AS SEQUENCE &lt;sequence name&gt;</literal>.</para>
+        </listitem>
+
+        <listitem>
+          <para>In SELECT and other statements, the
+          <literal>NEXTVAL(&lt;sequence name&gt;)</literal> and
+          <literal>LASTVAL()</literal> functions are supported and translated
+          into HyperSQL's <literal>NEXT VALUE FOR &lt;sequence
+          name&gt;</literal> and <literal>IDENTITY()</literal>
+          expressions.</para>
+        </listitem>
+
+        <listitem>
+          <para>PostgreSQL uses a non-standard expression, <literal>SELECT 'A
+          Test String'</literal> to return a single row table. The standard
+          form is <literal>VALUES('A Test String')</literal>. In PGS syntax
+          mode, this type of SELECT is supported.</para>
+        </listitem>
+
+        <listitem>
+          <para>HyperSQL supports SQL Standard ARRAY types. PostgreSQL also
+          supports this, but not entirely according to the Standard.</para>
+        </listitem>
+
+        <listitem>
+          <para>SQL routines are portable, but some syntax elements are
+          different and require changes.</para>
+        </listitem>
+
+        <listitem>
+          <para>You may need to use <literal>SET DATABASE SQL TDC { DELETE |
+          UPDATE } FALSE</literal> statements, as PostgreSQL does not enforce
+          the subtle rules of the Standard for foreign key cascading deletes
+          and updates. PostgreSQL allows cascading operations to update a
+          field value multiple times with different values, the Standard
+          disallows this.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section xml:id="coc_compatibility_mysql">
+      <title>MySQL Compatibility</title>
+
+      <para>HyperSQL version 2.7 is highly compatible with MySQL and supports
+      most of its non-standard syntax. The latest versions of MySQL have
+      introduced better Standard compatibility but some of these features have
+      to be turned on via properties. You should therefore check the current
+      Standard compatibility settings of your MySQL database and use the
+      available HyperSQL properties to achieve closer results. If you avoid
+      the few anti-Standard features of MySQL, you can port your databases to
+      HyperSQL and make it easier to port to other database engines.</para>
+
+      <para>Using HyperSQL during development and testing of MySQL apps helps
+      to avoid data integrity issues that MySQL may ignore.</para>
+
+      <para>HyperSQL does not have the following non-standard limitations of
+      MySQL.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>With HyperSQL, an UPDATE statement can update UNIQUE and
+          PRIMARY KEY columns of a table without causing an exception due to
+          temporary violation of constraints. These constraints are checked at
+          the end of execution, therefore there is no need for an ORDER BY
+          clause in an UPDATE statement.</para>
+        </listitem>
+
+        <listitem>
+          <para>MySQL foreign key constraints are not enforced by the MyISAM
+          engine. Be aware of the possibility of data being rejected by
+          HyperSQL due to these constraints.</para>
+        </listitem>
+
+        <listitem>
+          <para>With HyperSQL INSERT or UPDATE statements either succeed or
+          fail due to constraint violation. MySQL has the non-standard IGNORE
+          override to ignore violations and alter the data, which is not
+          accepted by HyperSQL.</para>
+        </listitem>
+
+        <listitem>
+          <para>Unlike MySQL, HyperSQL allows you to modify a table with an
+          INSERT, UPDATE or DELETE statement which selects from the same table
+          in a subquery.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Follow the guidelines below for converting MySQL databases and
+      applications.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Use <literal>SET DATABASE SQL SYNTAX MYS TRUE</literal> or the
+          equivalent URL property <literal>sql.syntax_mys=true</literal> to
+          enable support for MySQL features.</para>
+        </listitem>
+
+        <listitem>
+          <para>The case of unquoted identifiers is non-standard in MySQL,
+          which stores these identifiers in the original case but compares
+          them regardless of case. If you use lower-case unquoted identifiers
+          in MySQL, use SET DATABASE SQL LOWER CASE IDENTIFIER or the URL
+          property <literal>sql.lowercase_ident=true</literal> to change the
+          case of unquoted identifiers (table names and column names) to
+          lowercase in ResultSetMetaData.</para>
+        </listitem>
+
+        <listitem>
+          <para>Use MVCC with <literal>SET DATABASE TRANSACTION CONTROL
+          MVCC</literal> if your application is multi-user.</para>
+        </listitem>
+
+        <listitem>
+          <para>Avoid storing invalid values, for example invalid dates such
+          as '0000-00-00' or '2001-00-00' which are rejected by
+          HyperSQL.</para>
+        </listitem>
+
+        <listitem>
+          <para>Avoid the MySQL feature that trims spaces at the end of CHAR
+          values.</para>
+        </listitem>
+
+        <listitem>
+          <para>In MySQL, a database is the same as a schema. In HyperSQL,
+          several schemas can exist in the same database and accessed
+          transparently. In addition, a HyperSQL server supports multiple
+          separate databases.</para>
+        </listitem>
+
+        <listitem>
+          <para>In MySQL, older, non-standard, forms of database object name
+          case-sensitivity make is difficult to port applications. The modern
+          form, which encloses case-sensitive names in double quotes, follows
+          the SQL standard and is supported by HyperSQL. Use of the backtick
+          character for case-sensitive names, only allowed by MySQL, is also
+          supported and is translated to double quotes.</para>
+        </listitem>
+
+        <listitem>
+          <para>Almost all MySQL functions are supported, including
+          GROUP_CONCAT.</para>
+        </listitem>
+
+        <listitem>
+          <para>For fine control over type conversion, check the settings for
+          <literal>SET DATABASE SQL CONVERT TRUNCATE FALSE</literal></para>
+        </listitem>
+
+        <listitem>
+          <para>Avoid using concatenation of possibly NULL values in your
+          select statements. If you have to, change the setting with the
+          <literal>SET DATABASE SQL CONCAT NULLS FALSE</literal></para>
+        </listitem>
+
+        <listitem>
+          <para>If your application relies on MySQL behaviour for ordering of
+          nulls in SELECT statements with ORDER BY, use both <literal>SET
+          DATABASE SQL NULLS FIRST FALSE</literal> and <literal>SET DATABASE
+          SQL NULLS ORDER FALSE</literal> to change the defaults.</para>
+        </listitem>
+
+        <listitem>
+          <para>In CREATE TABLE, MySQL syntax for KEYS, INDEX, COMMENT and
+          some other features is supported.</para>
+        </listitem>
+
+        <listitem>
+          <para>MySQL supports most SQL Standard types (except INTERVAL
+          types), as well as non-standard types, which are also supported by
+          HyperSQL. Supported types include SMALLINT, INT, BIGINT, DOUBLE,
+          FLOAT, DECIMAL, NUMERIC, VARCHAR, CHAR, BINARY, VARBINARY, BLOB,
+          DATE, TIMESTAMP (all Standard SQL). Non Standard types such as
+          AUTO_INCREMENT, TINYINT, DATETIME, TEXT, TINYLOB, MEDIUMLOB are also
+          supported. UNSIGNED types are converted to signed. These type
+          definitions are translated into HyperSQL equivalents.</para>
+        </listitem>
+
+        <listitem>
+          <para>In MYS syntax compatibility mode, HyperSQL translates MySQL's
+          ENUM data type to VARCHAR with a check constraint on the enum
+          values.</para>
+        </listitem>
+
+        <listitem>
+          <para>In MYS syntax compatibility mode, HyperSQL supports MySQL's
+          non-standard version of INTERVAL symbols such as DAY_HOUR and
+          DAY_SECOND in DATEADD and DATESUB functions. The SQL Standard form
+          is DAY TO HOUR or DAY TO SECOND.</para>
+        </listitem>
+
+        <listitem>
+          <para>MySQL uses a non-standard expression, <literal>SELECT 'A Test
+          String'</literal> to return a single row table. The standard form is
+          <literal>VALUES('A Test String')</literal>. In MYS syntax mode, this
+          type of SELECT is supported.</para>
+        </listitem>
+
+        <listitem>
+          <para>Indexes defined inside CREATE TABLE statements are accepted
+          and created. The index names must be unique within the
+          schema.</para>
+        </listitem>
+
+        <listitem>
+          <para>HyperSQL supports ON UPDATE CURRENT_TIMESTAMP for column
+          definitions in CREATE TABLE statements.</para>
+        </listitem>
+
+        <listitem>
+          <para>HyperSQL supports and translates INSERT IGNORE, REPLACE and ON
+          DUPLICATE KEY UPDATE variations of INSERT into predictable and
+          error-free operations. These MySQL variations do not throw an
+          exception if any of the inserted rows would violate a PRIMARY KEY or
+          UNIQUE constraint, and take a different action instead.</para>
+
+          <para>When INSERT IGNORE is used, if any of the inserted rows would
+          violate a PRIMARY KEY or UNIQUE constraint, that row is not
+          inserted. With multi-row inserts, the rest of the rows are then
+          inserted only if there is no other violation such as long strings or
+          type mismatch, otherwise the appropriate error is returned.</para>
+
+          <para>When REPLACE or ON DUPLICATE KEY UPDATE is used, the rows that
+          need replacing or updating are updated with the given values. This
+          works exactly like an UPDATE statement for those rows. Referential
+          constraints and other integrity checks are enforced and update
+          triggers are activated. The row count returned is simply the total
+          number of rows inserted and updated.</para>
+
+          <para>With all the above statements, unique indexes are not
+          considered the same as unique constraints for the alternative action
+          and an exception is thrown if there is violation of a unique index.
+          It is generally better to create a unique constraint instead of a
+          unique index.</para>
+        </listitem>
+
+        <listitem>
+          <para>MySQL user-defined function and procedure syntax is very
+          similar to SQL Standard syntax supported by HSQLDB. A few changes
+          may still be required.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section xml:id="coc_compatibility_firebird">
+      <title>Firebird Compatibility</title>
+
+      <para>Firebird generally follows the SQL Standard. Applications can be
+      ported to HyperSQL without difficulty.</para>
+    </section>
+
+    <section xml:id="coc_compatibility_derby">
+      <title>Apache Derby Compatibility</title>
+
+      <para>Apache Derby supports a smaller subset of the SQL Standard
+      compared to HyperSQL. Applications can be ported to HyperSQL without
+      difficulty.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Use MVCC with <literal>SET DATABASE TRANSACTION CONTROL
+          MVCC</literal> if your application is multi-user.</para>
+        </listitem>
+
+        <listitem>
+          <para>HyperSQL supports Java language functions and stored
+          procedures with the SQL Standard syntax, which is similar to the way
+          Derby supports these features.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section xml:id="coc_compatibility_oracle">
+      <title>Oracle Compatibility</title>
+
+      <para>Recent versions of Oracle support Standard SQL syntax for outer
+      joins and many other operations. In addition, HyperSQL features a
+      setting to support Oracle syntax and semantics for the most widely used
+      non-standard features.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Use <literal>SET DATABASE SQL SYNTAX ORA TRUE</literal> or the
+          equivalent URL property <literal>sql.syntax_ora=true</literal> to
+          enable support for some non-standard syntax of Oracle.</para>
+        </listitem>
+
+        <listitem>
+          <para>Use MVCC with <literal>SET DATABASE TRANSACTION CONTROL
+          MVCC</literal> if your application is multi-user.</para>
+        </listitem>
+
+        <listitem>
+          <para>Fine control over MVCC deadlock avoidance is provided by the
+          <literal>SET DATABASE TRANSACTION ROLLBACK ON CONFLICT
+          FALSE</literal> and the corresponding
+          <literal>hsqldb.tx_conflict_rollback</literal> connection
+          property.</para>
+        </listitem>
+
+        <listitem>
+          <para>If your application relies on Oracle behaviour for nulls in
+          multi-column UNIQUE constraints, use <literal>SET DATABASE SQL
+          UNIQUE NULLS FALSE</literal> to change the default.</para>
+        </listitem>
+
+        <listitem>
+          <para>If your application relies on Oracle behaviour for ordering of
+          nulls in SELECT statements with ORDER BY, but without NULLS FIRST or
+          NULLS LAST, use both <literal>SET DATABASE SQL NULLS FIRST
+          FALSE</literal> and <literal>SET DATABASE SQL NULLS ORDER
+          FALSE</literal> to change the defaults.</para>
+        </listitem>
+
+        <listitem>
+          <para>If you use the non-standard concatenation of possibly NULL
+          values in your select statements, you may need to change the setting
+          for <literal>SET DATABASE SQL CONCAT NULLS FALSE</literal>.</para>
+        </listitem>
+
+        <listitem>
+          <para>You may want to use <literal>SET DATABASE COLLATION SQL_TEXT
+          NO PAD</literal> to take into account differences in trailing spaces
+          in string comparisons.</para>
+        </listitem>
+
+        <listitem>
+          <para>Many Oracle functions are supported, including no-arg
+          functions such as SYSDATE and SYSTIMESTAMP and more complex ones
+          such as TO_DATE and TO_CHAR.</para>
+        </listitem>
+
+        <listitem>
+          <para>Non-standard data type definitions such as NUMBER, VARCHAR2,
+          NVARCHAR2, BINARY_DOUBLE, BINARY_FLOAT, LONG, RAW are translated
+          into the closest SQL Standard equivalent in ORA mode.</para>
+        </listitem>
+
+        <listitem>
+          <para>Non-standard column DEFAULT definitions in CREATE TABLE, such
+          as the use of DUAL with a SEQUENCE function are supported and
+          translated in ORA syntax mode.</para>
+        </listitem>
+
+        <listitem>
+          <para>The DATE type is interpreted as TIMESTAMP(0) in ORA syntax
+          mode.</para>
+        </listitem>
+
+        <listitem>
+          <para>The DUAL table and the expressions, ROWNUM, CURRVAL, NEXTVAL
+          are supported in ORA syntax mode.</para>
+        </listitem>
+
+        <listitem>
+          <para>HyperSQL natively supports operations involving datetime and
+          interval values. These features are based on the SQL
+          Standard.</para>
+        </listitem>
+
+        <listitem>
+          <para>Many subtle automatic type conversions, syntax refinements and
+          other common features are supported.</para>
+        </listitem>
+
+        <listitem>
+          <para>SQL routines in PL/SQL are generally portable, but some
+          changes are required.</para>
+        </listitem>
+
+        <listitem>
+          <para>More advanced compatibility is offered by HyperXtremeSQL,
+          which is a product based on HyperSQL. It supports more function
+          compatibility, the PL/HXSQL language with a similar syntax to
+          PL/SQL, extensive support for additional aggregate functions, window
+          analytic functions with OVER(PARTITION ... ORDER ... ROWS | RANGE
+          ...) and WITHIN GROUP (ORDER BY).</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section xml:id="coc_compatibility_db2">
+      <title>DB2 Compatibility</title>
+
+      <para>DB2 is highly compatible with the SQL Standard (except for its
+      lack of support for the INFORMATION_SCHEMA). Applications can be ported
+      to HyperSQL without difficulty.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Use <literal>SET DATABASE SQL SYNTAX DB2 TRUE</literal> or the
+          equivalent URL property <literal>sql.syntax_db2=true</literal> to
+          enable support for some non-standard syntax of DB2.</para>
+        </listitem>
+
+        <listitem>
+          <para>Use MVCC with <literal>SET DATABASE TRANSACTION CONTROL
+          MVCC</literal> if your application is multi-user.</para>
+        </listitem>
+
+        <listitem>
+          <para>HyperSQL supports almost the entire syntax of DB2 together
+          with many of the functions. Even local temporary tables using the
+          SESSION pseudo schema are supported.</para>
+        </listitem>
+
+        <listitem>
+          <para>The DB2 binary type definition FOR BIT DATA, as well as empty
+          definition of column default values are supported in DB2 syntax
+          mode.</para>
+        </listitem>
+
+        <listitem>
+          <para>Many DB2 functions are supported.</para>
+        </listitem>
+
+        <listitem>
+          <para>The DUAL table and the expressions, ROWNUM, CURRVAL, NEXTVAL
+          are supported in DB2 syntax mode.</para>
+        </listitem>
+
+        <listitem>
+          <para>SQL routines are highly portable with minimal change.</para>
+        </listitem>
+
+        <listitem>
+          <para>More advanced compatibility is offered by HyperXtremeSQL,
+          which is a product based on HyperSQL. It has extensive support for
+          additional aggregate functions, window analytic functions with
+          OVER(PARTITION ... ORDER BY ... ROWS | RANGE ...) and WITHIN GROUP
+          (ORDER BY ...).</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section xml:id="coc_compatibility_mssql">
+      <title>MS SQLServer and Sybase Compatibility</title>
+
+      <para>SQLServer has some incompatibilities with the Standard syntax. The
+      most significant is the use of square brackets instead of double quotes
+      for case-sensitive column names.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Use <literal>SET DATABASE SQL SYNTAX MSS TRUE</literal> or the
+          equivalent URL property <literal>sql.syntax_mss=true</literal> to
+          enable support for the <literal>CONVERT(&lt;type definition&gt;,
+          &lt;expression)</literal> function with switched order of
+          arguments</para>
+        </listitem>
+
+        <listitem>
+          <para>Use MVCC with <literal>SET DATABASE TRANSACTION CONTROL
+          MVCC</literal> if your application is multi-user.</para>
+        </listitem>
+
+        <listitem>
+          <para>If you use the non-standard concatenation of possibly NULL
+          values in your select statements, you may need to change the setting
+          for <literal>SET DATABASE SQL CONCAT NULLS FALSE</literal>.</para>
+        </listitem>
+
+        <listitem>
+          <para>HyperSQL supports + for string concatenation.</para>
+        </listitem>
+
+        <listitem>
+          <para>SQLServer uses a non-standard expression, <literal>SELECT 'A
+          Test String'</literal> to return a single row table. The standard
+          form is <literal>VALUES('A Test String')</literal>. In MSS syntax
+          mode, this type of SELECT is supported.</para>
+        </listitem>
+
+        <listitem>
+          <para>SQLServer's non-standard data types, MONEY, UNIQUEIDENTIFIER,
+          DATETIME2, DATETIMEOFFSET, IMAGE, TEXT, NTEXT, are translated to
+          their SQL Standard equivalents.</para>
+        </listitem>
+
+        <listitem>
+          <para>HyperSQL 2.7 supports several datetime functions in MSS
+          compatibility mode. These include DATEPART, DATENAME, EOMONTH and
+          compatible DATEADD and DATEDIFF behaviour.</para>
+        </listitem>
+
+        <listitem>
+          <para>SQL routines need quite a lot of changes.</para>
+        </listitem>
+
+        <listitem>
+          <para>More advanced compatibility is offered by HyperXtremeSQL,
+          which is a product based on HyperSQL. It has extensive support for
+          additional aggregate functions, window analytic functions with
+          OVER(PARTITION ... ORDER BY ... ROWS | RANGE ...) and WITHIN GROUP
+          (ORDER BY ...).</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </section>
+</chapter>
