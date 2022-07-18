@@ -1,1 +1,0 @@
-String msg2 = "I was included because jdbc_version was GTE 2 and LT 3";

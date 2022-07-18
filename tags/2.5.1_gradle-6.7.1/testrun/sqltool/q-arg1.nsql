@@ -1,7 +1,0 @@
-/*
- * $Id$
- *
- * Simplest test of \q with arg
- */
-
-\q Quitting with non-zero exit status

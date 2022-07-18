@@ -1,8 +1,0 @@
-/*
- * $Id$
- *
- * Invokes another script that defines variables.
- * Then we test that we have access to the variables.
- */
-
-\p *{unsetvar}
