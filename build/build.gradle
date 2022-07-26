@@ -634,7 +634,7 @@ installDbImages.description = 'Install DocBook resources (minimal by default)'
     tasks[it].group = 'Utilities'
 }
 ['gen-docs', 'regen-docs', 'installDbImages', 'javadoc', 'javadocsqltool', 'javadocdev',
- 'validate-doc', 'validate-docs'].each {
+ 'validate-doc', 'validate-docs', 'javadochsqldbjar', 'javadocsqltooljar'].each {
     tasks[it].group = 'Documentation System'
 }
 ['classes', 'clean', 'clean-all', 'clean-docs'].each {
