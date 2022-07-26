@@ -762,6 +762,19 @@ ${err.2}</fail>
         <move file="lib/hsqldb-osgi-jdk8.jar" tofile="lib/hsqldb-jdk8.jar"/>
     </target>
 
+    <!--jar with javadoc-->
+    <target name="javadochsqldbjar" description="builds jar file containing javadoc">
+        <jar jarfile="lib/hsqldb-javadoc.jar" basedir="${basedir}/doc/apidocs/">
+        </jar>
+    </target>
+
+    <!--jar with javadoc for sqltool-->
+    <target name="javadocsqltooljar" description="builds jar file containing SqlTool javadoc">
+        <jar jarfile="lib/sqltool-javadoc.jar" basedir="${basedir}/doc/apidocssqltool/">
+        </jar>
+    </target>
+
+
     <target name="javadoc" depends="-prepare-javadoc, -set-jvmvars"
             description="Create javadoc for the org.hsqldb module">
       <delete file="${swsrc}org/hsqldb/server/Servlet.java"/>
