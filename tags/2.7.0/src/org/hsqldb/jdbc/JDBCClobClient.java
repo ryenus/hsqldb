@@ -118,7 +118,7 @@ public class JDBCClobClient implements Clob {
                     bytesRead++;
                 }
 
-                return bytesRead;
+                return bytesRead == 0 ? -1 : bytesRead;
             }
 
             public void close() throws IOException {
