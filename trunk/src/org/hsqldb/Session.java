@@ -1354,13 +1354,16 @@ public class Session implements SessionInterface {
                 return handleAbortTransaction();
             }
 
-            boolean interrupted = false;
-
             while (true) {
                 try {
                     latch.await();
                 } catch (InterruptedException e) {
-                    interrupted = txInterruptRollback;
+
+                    if (txInterruptRollback) {
+                        abortTransaction = true;
+                        latch.setCount(0);
+                        break;
+                    }
 
                     Thread.interrupted();
 
@@ -1378,12 +1381,8 @@ public class Session implements SessionInterface {
                 break repeatLoop;
             }
 
-            if (abortTransaction || interrupted) {
+            if (abortTransaction) {
                 Result result = handleAbortTransaction();
-
-                if (interrupted) {
-                    Thread.currentThread().interrupt();
-                }
 
                 return result;
             }
