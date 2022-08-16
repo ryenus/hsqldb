@@ -75,7 +75,7 @@ import org.hsqldb.types.TypedComparator;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.1
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -1231,6 +1231,11 @@ public class Session implements SessionInterface {
         for (int i = 0; i < list.size(); i++) {
             Statement cs = (Statement) list.get(i);
 
+            if (isClosed) {
+                result = Result.newErrorResult(Error.error(ErrorCode.X_08503));
+                break;
+            }
+
             if (i > 0) {
                 if (cs.getCompileTimestamp()
                         > database.txManager.getSystemChangeNumber()) {
@@ -1360,8 +1365,10 @@ public class Session implements SessionInterface {
                 } catch (InterruptedException e) {
 
                     if (txInterruptRollback) {
-                        abortTransaction = true;
-                        latch.setCount(0);
+                        database.txManager.resetSession(this,
+                                this, Long.MAX_VALUE,
+                                TransactionManager.resetSessionStatement);
+
                         break;
                     }
 

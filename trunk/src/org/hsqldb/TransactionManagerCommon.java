@@ -51,7 +51,7 @@ import org.hsqldb.lib.OrderedHashSet;
  * Shared code for TransactionManager classes
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.1
  * @since 2.0.0
  */
 class TransactionManagerCommon {
@@ -963,10 +963,6 @@ class TransactionManagerCommon {
                     break;
 
                 case TransactionManager.resetSessionRollback :
-                    if (session == targetSession) {
-                        break;
-                    }
-
                     if (targetSession.isInMidTransaction()) {
                         prepareReset(targetSession);
 
