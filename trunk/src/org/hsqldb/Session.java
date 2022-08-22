@@ -1369,6 +1369,8 @@ public class Session implements SessionInterface {
                                 this, Long.MAX_VALUE,
                                 TransactionManager.resetSessionStatement);
 
+                        abortTransaction = true;
+
                         break;
                     }
 
@@ -1421,6 +1423,17 @@ public class Session implements SessionInterface {
                     try {
                         latch.await();
                     } catch (InterruptedException e) {
+
+                        if (txInterruptRollback) {
+                            database.txManager.resetSession(this,
+                                    this, Long.MAX_VALUE,
+                                    TransactionManager.resetSessionStatement);
+
+                            abortTransaction = true;
+
+                            break repeatLoop;
+                        }
+
                         Thread.interrupted();
 
                         continue;

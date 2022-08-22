@@ -97,6 +97,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
      * access to all classe or method names formed by substitution of the
      * asterisk.<p>
      *
+     * For example, org.mypackage.* means all classes in the given package.<p>
+     *
      * All methods of java.lang.Math are always accessible.
      */
     public static boolean supportsJavaMethod(String name) {
