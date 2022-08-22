@@ -72,7 +72,7 @@ import org.hsqldb.types.Type;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 2.7.0
+ * @version 2.7.1
  * @since 1.8.0
  */
 public class Grantee implements SchemaObject {
@@ -189,6 +189,16 @@ public class Grantee implements SchemaObject {
      */
     public OrderedHashSet getDirectRoles() {
         return roles;
+    }
+
+    /**
+     * Gets direct roles and public role, not roles nested within them.
+     */
+    public OrderedHashSet getDirectRolesWithPublic() {
+        OrderedHashSet newSet = new OrderedHashSet();
+        newSet.addAll(roles);
+        newSet.add(granteeManager.publicRole);
+        return newSet;
     }
 
     /**

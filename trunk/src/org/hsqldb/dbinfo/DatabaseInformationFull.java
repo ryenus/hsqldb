@@ -113,7 +113,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.1
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -2693,7 +2693,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The COLUMN_COLUMN_USAGE view has one row for each column referenced by
      * a GENERATED column.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      * <pre>
      *      TABLE_CATALOG       VARCHAR
      *      TABLE_SCHEMA        VARCHAR
@@ -2807,7 +2807,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The COLUMN_DOMAIN_USAGE view has one row for each column defined with a
      * a DOMAIN data type.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      * <pre>
      *      DOMAIN_CATALOG      VARCHAR
      *      DOMAIN_SCHEMA       VARCHAR
@@ -2925,7 +2925,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The COLUMN_DOMAIN_USAGE view has one row for each column defined with a
      * a DOMAIN data type.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      UDT_CATALOG      VARCHAR
@@ -3361,7 +3361,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The CONSTRAINT_COLUMN_USAGE view has one row for each column identified by
      * a table constraint or assertion.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      TABLE_CATALOG       VARCHAR
@@ -3553,7 +3553,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The CONSTRAINT_PERIOD_USAGE view has one row for each PERIOD referenced
      * by a table constraint or assertion.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      TABLE_CATALOG       VARCHAR
@@ -3942,7 +3942,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * <li> The values of CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA and
      *      CONSTRAINT_NAME are the catalog name, schema name,
      *      and identifier, respectively, of the constraint being
-     *      described. <p>
+     *      described.
      *
      * <li> Constraints are reported only if the user or one of its roles is
      *      the authorization (owner) of the DOMAIN.
@@ -5907,7 +5907,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The ROUTINE_COLUMN_USAGE view has one row for each column
      * referenced in the body of a routine.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      SPECIFIC_CATALOG    VARCHAR ,
@@ -6034,7 +6034,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The ROUTINE_JAR_USAGE view has one row for each jar archive
      * referenced in the body of a Java routine.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      SPECIFIC_CATALOG    VARCHAR ,
@@ -6136,7 +6136,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The ROUTINE_PERIOD_USAGE view has one row for each PERIOD
      * referenced in the body of a routine.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      SPECIFIC_CATALOG    VARCHAR ,
@@ -6416,7 +6416,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The ROUTINE_ROUTINE_USAGE view has one row for each routine
      * referenced in the body of a routine.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      SPECIFIC_CATALOG    VARCHAR ,
@@ -6437,7 +6437,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      which contains the reference.
      * <li> The values of ROUTINE_CATALOG, ROUTINE_SCHEMA and ROUTINE_NAME
      *      are the catalog name, schema name and
-     *      identifier, respectively, of the routine that is referenced.<p>
+     *      identifier, respectively, of the routine that is referenced.
      *
      * <li> Referenced routines are reported only if the user or one of its roles is
      *      the authorization (owner) of the referenced routine.
@@ -6524,7 +6524,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The ROUTINE_SEQUENCE_USAGE view has one row for each SEQUENCE
      * referenced in the body of a routine.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      SPECIFIC_CATALOG    VARCHAR ,
@@ -6632,7 +6632,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The ROUTINE_TABLE_USAGE view has one row for each TABLE
      * referenced in the body of a routine.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      SPECIFIC_CATALOG    VARCHAR ,
@@ -7140,7 +7140,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * The SCHEMATA view has one row for each accessible schema. <p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      * <pre>
      *      CATALOG_NAME                       VARCHAR ,
      *      SCHEMA_NAME                        VARCHAR ,
@@ -7713,7 +7713,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The TRIGGER_COLUMN_USAGE view has one row for each column
      * referenced in the body of a trigger.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      TRIGGER_CATALOG     VARCHAR ,
@@ -7834,7 +7834,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The TRIGGER_PERIOD_USAGE view has one row for each PRDIOD
      * referenced in the body of a trigger.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      TRIGGER_CATALOG     VARCHAR ,
@@ -7855,7 +7855,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * <li> The values of TABLE_CATALOG, TABLE_SCHEMA and
      *      TABLE_NAME are the catalog name, schema name and
      *      identifier, respectively, of the TABLE
-     *      that is referenced. <p>
+     *      that is referenced.
      *
      * <li> Referenced tables are reported only if the user or one of its roles is
      *      the authorization (owner) of the TRIGGER.
@@ -7966,7 +7966,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The TRIGGER_ROUTINE_USAGE view has one row for each routine
      * referenced in the body of a trigger.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      TRIGGER_CATALOG     VARCHAR ,
@@ -7987,7 +7987,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * <li> The values of SPECIFIC_CATALOG, SPECIFIC_SCHEMA and
      *      SPECIFIC_NAME are the catalog name, schema name,
      *      specific routine identifier, respectively, of the routine
-     *      that is referenced. <p>
+     *      that is referenced.
      *
      * <li> Referenced routines are reported only if the user or one of its roles is
      *      the authorization (owner) of the TRIGGER.
@@ -8076,7 +8076,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The TRIGGER_SEQUENCE_USAGE view has one row for each SEQUENCE
      * referenced in the body of a trigger.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      TRIGGER_CATALOG     VARCHAR ,
@@ -8187,7 +8187,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The TRIGGER_TABLE_USAGE view has one row for each TABLE
      * referenced in the body of a trigger.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      TRIGGER_CATALOG     VARCHAR ,
@@ -8298,7 +8298,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * The TRIGGERS view has one row for each TRIGGER.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      TRIGGER_CATALOG               VARCHAR ,
@@ -8474,7 +8474,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * The TRIGGERED_UPDATE_COLUMNS view has one row for each column
      * referenced in the optional column list of a UPDATE trigger.<p>
      *
-     * <b>Definition:</b><p>
+     * <b>Definition:</b>
      *
      * <pre>
      *      TRIGGER_CATALOG            VARCHAR ,
@@ -8722,7 +8722,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * )
      * </pre>
      *
-     * <b>Description:</b><p>
+     * <b>Description:</b>
      *
      * <ol>
      * <li> The value of GRANTOR is the &lt;authorization identifier&gt; of the
@@ -9724,18 +9724,16 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 // SQL SCHEMATA BASE TABLES
 
     /**
-     * SQL:2008 VIEW<p>
-     *
      * ROLE_AUTHORIZATION_DESCRIPTORS<p>
      *
-     * Contains a representation of the role authorization descriptors.<p>
+     * Contains a representation of all role authorization descriptors.<p>
      * <b>Definition</b>
      *
      * <pre class="SqlCodeExample">
-     *      ROLE_NAME     VARCHAR     name of view's defining catalog.
-     *      GRANTEE       VARCHAR     name of view's defining schema.
-     *      GRANTOR       VARCHAR     the simple name of the view.
-     *      IS_GRANTABLE  VARCHAR     the character representation of the
+     *      ROLE_NAME     VARCHAR     name of role.
+     *      GRANTEE       VARCHAR     name of grantee.
+     *      GRANTOR       VARCHAR     name of grantor.
+     *      IS_GRANTABLE  VARCHAR     YES or NO
      * </pre>
      *
      * <b>Description</b>
@@ -9812,7 +9810,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (grantees.hasNext()) {
             granteeObject = (Grantee) grantees.next();
             granteeName   = granteeObject.getName().getNameString();
-            roles         = granteeObject.getDirectRoles().iterator();
+            roles         = granteeObject.getDirectRolesWithPublic().iterator();
             isGrantable   = granteeObject.isAdmin() ? Tokens.T_YES
                                                     : Tokens.T_NO;
 
