@@ -48,7 +48,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.FileUtil;
@@ -618,10 +617,13 @@ public class JDBCBlobFile implements java.sql.Blob {
         checkClosed();
 
         InputStream result;
+        
+        final List streams = m_streams;
 
         try {
             result = new InputStreamAdapter(m_file, pos - 1, length) {
                 private boolean closed;
+                private final InputStream self = this;
 
                 public void close() throws IOException {
                     if (closed) {
@@ -631,7 +633,7 @@ public class JDBCBlobFile implements java.sql.Blob {
                     try {
                         super.close();
                     } finally {
-                        m_streams.remove(this);
+                        streams.remove(self);
                     }
                 }
             };
@@ -639,7 +641,7 @@ public class JDBCBlobFile implements java.sql.Blob {
             throw JDBCUtil.sqlException(ex);
         }
 
-        m_streams.add(result);
+        streams.add(result);
 
         return result;
     }
