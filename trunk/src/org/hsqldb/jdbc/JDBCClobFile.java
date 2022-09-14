@@ -59,7 +59,6 @@ import java.util.Scanner;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCBlobFile.OutputStreamAdapter;
 import org.hsqldb.lib.FileUtil;
@@ -211,12 +210,16 @@ public class JDBCClobFile implements java.sql.Clob {
     public InputStream getAsciiStream() throws SQLException {
 
         InputStream stream;
+        
+        final List streams = m_streams;
 
         try {
             stream = new JDBCBlobFile.InputStreamAdapter(m_file, 0,
                     Long.MAX_VALUE) {
 
                 private boolean closed;
+                
+                private InputStream self = this;
 
                 public synchronized void close() throws IOException {
 
@@ -229,7 +232,7 @@ public class JDBCClobFile implements java.sql.Clob {
                     try {
                         super.close();
                     } finally {
-                        m_streams.remove(this);
+                       streams.remove(self);
                     }
                 }
             };
@@ -245,7 +248,7 @@ public class JDBCClobFile implements java.sql.Clob {
             throw JDBCUtil.sqlException(ex);
         }
 
-        m_streams.add(stream);
+        streams.add(stream);
 
         return stream;
     }
@@ -870,6 +873,8 @@ public class JDBCClobFile implements java.sql.Clob {
         }
 
         Reader reader;
+        
+        final List streams = m_streams;
 
         try {
             reader = new ReaderAdapter(m_file, pos - 1, length) {
@@ -879,7 +884,7 @@ public class JDBCClobFile implements java.sql.Clob {
                     try {
                         super.close();
                     } finally {
-                        m_streams.remove(this);
+                        streams.remove(this);
                     }
                 }
             };
@@ -889,7 +894,7 @@ public class JDBCClobFile implements java.sql.Clob {
             throw JDBCUtil.sqlException(ex);
         }
 
-        m_streams.add(reader);
+        streams.add(reader);
 
         return reader;
     }
