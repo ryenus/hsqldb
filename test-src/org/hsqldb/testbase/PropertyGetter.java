@@ -27,22 +27,28 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hsqldb.testbase;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.hsqldb.resources.ResourceBundleHandler;
 
 /**
- * Centralized facility for retrieving test suite properties. <p>
+ * Centralized facility for retrieving test suite properties.
+ * <p>
  *
- * Uses the following lookup precedence:<p>
+ * Uses the following lookup precedence:
+ * <p>
  *
  * <ol>
- *   <li>(System Property) java.lang.System.getProperty(...)
- *   <li>(ResourceBundle) CLASSPATH:/org/hsqldb/resources/test(locale_name).class
- *   <li>(Properties file) CLASSPATH:/org/hsqldb/resources/test(locale_name).properties
- *   <li>(ResourceBundle) CLASSPATH:/org/hsqldb/resources/test-dbmd-convert(locale_name).class
- *   <li>(Properties file) CLASSPATH:/org/hsqldb/resources/test-dbmd-convert(locale_name).properties
+ * <li>(System Property) java.lang.System.getProperty(...)
+ * <li>(ResourceBundle) CLASSPATH:/org/hsqldb/resources/test(locale_name).class
+ * <li>(Properties file)
+ * CLASSPATH:/org/hsqldb/resources/test(locale_name).properties
+ * <li>(ResourceBundle)
+ * CLASSPATH:/org/hsqldb/resources/test-dbmd-convert(locale_name).class
+ * <li>(Properties file)
+ * CLASSPATH:/org/hsqldb/resources/test-dbmd-convert(locale_name).properties
  * </ol>
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
@@ -50,13 +56,15 @@ import org.hsqldb.resources.ResourceBundleHandler;
  * @since 2.0.1
  */
 public class PropertyGetter {
+
     public static final int BH_TEST = ResourceBundleHandler.getBundleHandle("test", null);
     public static final int BH_TEST_DBMD_CONVERT = ResourceBundleHandler.getBundleHandle("test-dbmd-convert", null);
+    private static final Logger LOG = Logger.getLogger(PropertyGetter.class.getName());
 
     /**
      * for the given key.
      *
-     * @param key to match.
+     * @param key          to match.
      * @param defaultValue when there is no matching property.
      * @return the matching property value or the default.
      */
@@ -68,6 +76,7 @@ public class PropertyGetter {
         try {
             value = System.getProperty(key, null);
         } catch (SecurityException se) {
+            LOG.log(Level.WARNING, key, se);
         }
         if (value == null) {
             value = ResourceBundleHandler.getString(BH_TEST, key);
@@ -111,7 +120,8 @@ public class PropertyGetter {
             if (propertyValue.length() > 0) {
                 try {
                     rval = Integer.parseInt(propertyValue);
-                } catch (Exception ex) {
+                } catch (NumberFormatException ex) {
+                    LOG.log(Level.WARNING, key, ex);
                 }
             }
         }
@@ -129,12 +139,29 @@ public class PropertyGetter {
             if (propertyValue.length() > 0) {
                 try {
                     rval = Double.parseDouble(propertyValue);
-                } catch (Exception ex) {
+                } catch (NumberFormatException ex) {
+                    LOG.log(Level.WARNING, key, ex);
                 }
             }
         }
 
         return rval;
+    }
+
+    public static <T extends Enum<T>> T getEnumProperty(String key, Class<T> type, T defaultValue) {
+        final String name = getProperty(key, null);
+
+        T result = defaultValue;
+        if (name != null && !name.isEmpty()) {
+
+            for (T t : type.getEnumConstants()) {
+                if (t.name().equalsIgnoreCase(name)) {
+                    result = t;
+                    break;
+                }
+            }
+        }
+        return result;
     }
 
     /**

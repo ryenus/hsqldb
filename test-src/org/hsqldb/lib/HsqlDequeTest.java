@@ -29,23 +29,33 @@
  */
 package org.hsqldb.lib;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 @ForSubject(HsqlDeque.class)
-public class HsqlDequeTest extends  BaseTestCase {
+@SuppressWarnings("ClassWithoutLogger")
+public class HsqlDequeTest extends BaseTestCase {
+
+    public static Test suite() {
+        return new TestSuite(HsqlDequeTest.class);
+    }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
 
     public HsqlDequeTest(String name) {
         super(name);
     }
 
-    @OfMethod({"add(java.langObject)","removeFirst()", "addFirst()", "removeFirst(), iterator()"})
+    @OfMethod({"add(java.langObject)", "removeFirst()", "addFirst()", "removeFirst(), iterator()"})
+    @SuppressWarnings("UnnecessaryBoxing")
     public void testHsqlDeque() {
 
-        HsqlDeque d = new HsqlDeque();
+        HsqlDeque<Object> d = new HsqlDeque<>();
 
         for (int i = 0; i < 9; i++) {
             d.add(Integer.valueOf(i));
@@ -60,7 +70,7 @@ public class HsqlDequeTest extends  BaseTestCase {
             println(d.get(i));
         }
 
-        System.out.println();
+        println();
         d.add(Integer.valueOf(11));
         d.add(Integer.valueOf(12));
 
@@ -86,20 +96,12 @@ public class HsqlDequeTest extends  BaseTestCase {
             println(d.get(i));
         }
 
-       println();
+        println();
 
-        Iterator it = d.iterator();
+        Iterator<Object> it = d.iterator();
 
         for (; it.hasNext();) {
             println(it.next());
         }
-    }
-
-    public static Test suite() {
-        return new TestSuite(HsqlDequeTest.class);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
     }
 }

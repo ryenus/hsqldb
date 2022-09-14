@@ -27,37 +27,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.testbase;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.io.Reader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLWarning;
 import java.sql.Statement;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import junit.framework.TestCase;
-import org.hsqldb.lib.StringUtil;
+import java.util.Objects;
 
 /**
- * Initial port of org.hqldb.test.TestUtil.
+ * Completely new approach, unrelated
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 public abstract class BaseScriptedTestCase extends BaseTestCase {
 
-    // for subclasses
+    /**
+     * For subclasses that dynamically generate their own name.
+     */
     protected BaseScriptedTestCase() {
         super();
     }
 
     /**
+     * Standard TestCase constructor, required for standard subclasses
      *
      * @param name of script resource.
      */
@@ -70,670 +71,144 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
     }
 
     @Override
+    @SuppressWarnings({"UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch"})
     public void runTest() throws Throwable {
+        final StringBuilder expected = getExpectedOutput(getName() + ".out");
+        final StringBuilder actual = expected == null
+                ? null
+                : new StringBuilder(expected.length());
         try {
-            executeScript(getName());
+            this.executeTestScript(getName(), actual);
         } catch (Throwable t) {
             this.printException(t);
             throw t;
         }
+        if (expected != null) {
+            assertStringBuilderEquals(expected, actual);
+        }
     }
 
-    protected Reader getScriptReader(final String resource) throws Exception {
+    @SuppressWarnings("NestedAssignment")
+    protected StringBuilder getExpectedOutput(final String resource) throws Exception {
+        Objects.requireNonNull(resource, "resource must not be null");
+        URL resourceURL = getClass().getResource(resource);
+        if (resourceURL == null) {
+            final File file = new File(resource);
+            if (!file.exists()) {
+                return null;
+            }
+            resourceURL = file.toURI().toURL();
+        }
+        if (resourceURL == null) {
+            return null;
+        }
+        try (InputStream input = resourceURL.openStream();
+                Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8);) {
+            @SuppressWarnings("StringBufferWithoutInitialCapacity")
+            final StringBuilder sb = new StringBuilder();
+            int ch;
+            while (-1 != (ch = reader.read())) {
+                sb.append((char) ch);
+            }
+            return sb;
+        }
+    }
 
-        final URL resourceURL = getClass().getResource(resource);
+    protected ScriptIterator getScriptIterator(final String resource) throws Exception {
+        Objects.requireNonNull(resource, "resource must not be null");
+
+        URL resourceURL = getClass().getResource(resource);
 
         if (resourceURL == null) {
-            throw new IOException("No such resource: " + resource);
+            final File file = new File(resource);
+            if (!file.exists()) {
+                throw new IOException("No such resource: " + resource);
+            }
+            resourceURL = file.toURI().toURL();
         }
 
-        return new InputStreamReader(resourceURL.openStream());
+        return new ScriptIterator(resourceURL);
     }
 
-    @Override
-    protected void executeScript(String resource) throws Exception {
+    protected void executeTestScript(String resource) throws Exception {
+        executeTestScript(resource, null);
+    }
 
-        List section = null;
-        Statement statement = newStatement();
-        LineNumberReader reader = new LineNumberReader(
-                getScriptReader(resource));
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
+    protected void executeTestScript(String resource, StringBuilder sb) throws Exception {
+        final ScriptIterator itr = getScriptIterator(resource);
+        int count = 0;
 
         printProgress("Opened test script: " + resource);
 
-        int startLine = 1;
-
-        while (true) {
-            boolean startSection = false;
-            String line = reader.readLine();
-
-            if (line == null) {
-                break;
-            }
-
-            line = line.substring(0, StringUtil.rightTrimSize(line));
-
-            if ((line.length() == 0) || line.startsWith("--")) {
-                continue;
-            }
-
-            if (line.startsWith("/*")) {
-                startSection = true;
-            }
-
-            if (line.charAt(0) != ' ' && line.charAt(0) != '*') {
-                startSection = true;
-            }
-
-            if (startSection) {
-                if (section != null) {
-                    executeSection(statement, section, startLine);
-                }
-
-                section = new ArrayList();
-                startLine = reader.getLineNumber();
-            }
-
-            section.add(line);
-        }
-
-        if (section != null) {
-            executeSection(statement, section, startLine);
-        }
-
-        statement.close();
-        printProgress("Processed lines: " + reader.getLineNumber());
-    }
-
-    protected void executeSection(Statement stmt, List lines, int line) {
-        BaseSection section = getSectionFactory().createSection(lines);
-
-        if (section == null) {
-            //it was not possible to sucessfully parse the section
-            printProgress("The section starting at line "
-                    + line
-                    + " could not be parsed " + "and was not processed");
-        } else if (section instanceof IgnoredSection) {
-            printProgress("Line " + line + ": " + section.getResultString());
-        } else if (section instanceof DisplaySection) {
-            printProgress(section.getResultString());
-        } else if (!section.execute(stmt)) {
-            printProgress("section starting at line " + line);
-            printProgress("returned an unexpected result.");
-            //println(section.toString());
-            TestCase.fail(section.toString());
-        }
-    }
-
-    private SectionFactory m_sectionFactory;
-
-    protected SectionFactory getSectionFactory() {
-
-        if (m_sectionFactory == null) {
-            String factoryClass = getProperty("SectionFactory", null);
-
-            if (factoryClass == null) {
-                m_sectionFactory = new DefaultSectionFactory();
-            } else {
+        try (Statement stmt = newStatement()) {
+            printProgress("Script outut:");
+            while (itr.hasNext()) {
+                count++;
+                final String sql = itr.next();
+                String output;
                 try {
-                    m_sectionFactory = (SectionFactory) Class.forName(
-                            factoryClass).newInstance();
-                } catch (Exception ex) {
-                    printException(ex);
-
-                    m_sectionFactory = new DefaultSectionFactory();
-                }
-            }
-        }
-
-        return m_sectionFactory;
-    }
-
-    protected interface SectionFactory {
-
-        /**
-         * Factory method to create appropriate parsed section class
-         * for a section.
-         *
-         *
-         * @return a ParesedSection object
-         * @param lines list
-         */
-        BaseSection createSection(List lines);
-    }
-
-    protected class DefaultSectionFactory implements SectionFactory {
-
-        public BaseSection createSection(List list) {
-            char sectionType = ' ';
-            String[] lines = null;
-            String firstLine = (String) list.get(0);
-
-            if (firstLine.startsWith("/*")) {
-                sectionType = firstLine.charAt(2);
-
-                if (!isRecognizedSectionType(sectionType)) {
-                    return null;
-                }
-
-                if ((Character.isUpperCase(sectionType)) &&
-                        (getBooleanProperty("IgnoreCodeCase", true))) {
-                    sectionType = Character.toLowerCase(sectionType);
-                }
-
-                firstLine = firstLine.substring(3);
-            }
-
-            int offset = 0;
-
-            if (firstLine.trim().length() > 0) {
-                lines = new String[list.size()];
-                lines[0] = firstLine;
-            } else {
-                lines = new String[list.size() - 1];
-                offset = 1;
-            }
-
-            for (int i = (1 - offset); i < lines.length; i++) {
-                lines[i] = (String) list.get(i + offset);
-            }
-
-            switch (sectionType) {
-
-                case 'u': {
-                    return new UpdateCountSection(lines);
-                }
-                case 's': {
-                    return new SilentSection(lines);
-                }
-                case 'r': {
-                    return new ResultSetSection(lines);
-                }
-                case 'c': {
-                    return new RowCountSection(lines);
-                }
-                case 'd': {
-                    return new DisplaySection(lines);
-                }
-                case 'e': {
-                    return new ExceptionSection(lines);
-                }
-                case ' ': {
-                    return new BlankSection(lines);
-                }
-                default: {
-                    return new IgnoredSection(lines, sectionType);
-                }
-            }
-        }
-
-        protected boolean isRecognizedSectionType(char sectionType) {
-            switch (Character.toLowerCase(sectionType)) {
-                case ' ':
-                case 'r':
-                case 'e':
-                case 'c':
-                case 'u':
-                case 's':
-                case 'd': {
-                    return true;
-                }
-                default: {
-                    return false;
-                }
-            }
-        }
-    }
-
-    protected abstract class BaseSection {
-
-        protected char m_type = ' ';
-        String m_message = null;
-        protected String[] m_lines = null;
-        protected int m_resEndRow = 0;
-        protected String m_sql = null;
-
-        protected BaseSection() {
-        }
-
-        protected BaseSection(String[] lines) {
-
-            m_lines = lines;
-
-            StringBuilder sb = new StringBuilder();
-            int endIndex = 0;
-            int k = m_lines.length - 1;
-
-            do {
-                if ((endIndex = m_lines[k].indexOf("*/")) != -1) {
-
-                    sb.insert(0, " ");
-                    sb.insert(0, m_lines[k].substring(endIndex + 2));
-
-                    m_lines[k] = m_lines[k].substring(0, endIndex);
-
-                    if (m_lines[k].length() == 0) {
-                        m_resEndRow = k - 1;
-                    } else {
-                        m_resEndRow = k;
-                    }
-
-                    break;
-                } else {
-                    sb.insert(0, " ");
-                    sb.insert(0, m_lines[k]);
-                }
-
-                k--;
-            } while (k >= 0);
-
-            m_sql = sb.toString();
-        }
-
-        @Override
-        public String toString() {
-            String className = getClass().getName();
-            int lastDot = className.lastIndexOf('.');
-            String simpleName = (lastDot >= 0)
-                    ? className.substring(lastDot + 1)
-                    : className;
-            char type = getType();
-            String sectionType = (type == ' ') ? simpleName
-                    : type + ": " + simpleName;
-            StringBuilder sb = new StringBuilder();
-
-            if (getMessage() != null) {
-                sb.append('\n');
-                sb.append(getMessage());
-            }
-            sb.append("\n");
-            sb.append("******\n");
-            sb.append("\n");
-            sb.append("Section Type    : ").append(sectionType).append('\n');
-            sb.append("Section Result  : ").append(getResultString()).append('\n');
-            sb.append("Section Content :\n");
-
-            for (int i = 0; i < m_lines.length; i++) {
-                if (m_lines[i].trim().length() > 0) {
-                    sb.append(MessageFormat.format(
-                            "line {0}: {1}\n",
-                            new Object[]{
-                                "" + i,
-                                m_lines[i]
-                            }));
-                }
-            }
-
-            sb.append("Submitted SQL   : \n");
-            sb.append(getSql()).append('\n');
-            sb.append("\n");
-            sb.append("******\n");
-
-            return sb.toString();
-        }
-
-        protected abstract String getResultString();
-
-        protected String getMessage() {
-            return m_message;
-        }
-
-        protected char getType() {
-            return m_type;
-        }
-
-        protected String getSql() {
-            return m_sql;
-        }
-
-        protected boolean execute(Statement stmt) {
-            boolean success = false;
-
-            try {
-                stmt.execute(getSql());
-                success = true;
-            } catch (Exception x) {
-                java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                x.printStackTrace(pw);
-                m_message = sw.toString();
-            }
-
-            return success;
-        }
-    }
-
-    protected class ResultSetSection extends BaseSection {
-
-        private String m_delimiter = getProperty("TestUtilFieldDelimiter", ",");
-        private String[] m_expectedRows = null;
-
-        protected ResultSetSection(String[] lines) {
-
-            super(lines);
-
-            m_type = 'r';
-
-            m_expectedRows = new String[(m_resEndRow + 1)];
-
-            for (int i = 0; i <= m_resEndRow; i++) {
-                int skip = StringUtil.skipSpaces(lines[i], 0);
-
-                m_expectedRows[i] = lines[i].substring(skip);
-            }
-        }
-
-        @Override
-        protected String getResultString() {
-
-            final StringBuilder sb = new StringBuilder();
-            final String[] expectedRows = getExpectedRows();
-            final int len = expectedRows.length;
-
-            for (int i = 0; i < len; i++) {
-                sb.append(expectedRows[i]).append('\n');
-            }
-
-            return sb.toString();
-        }
-
-        protected String getTypeName() {
-            return "Result Set Section";
-        }
-
-        @Override
-        protected boolean execute(Statement stmt) {
-
-            try {
-                try {
-                    stmt.execute(getSql());
-                } catch (SQLException s) {
-                    throw new Exception(
-                            "Expected a ResultSet, but got the error: " + s.toString());
-                }
-
-                //check that update count != -1
-                if (stmt.getUpdateCount() != -1) {
-                    throw new Exception(
-                            "Expected a ResultSet, but got an update count of " + stmt.getUpdateCount());
-                }
-
-                //iterate over the ResultSet
-                ResultSet results = stmt.getResultSet();
-                int count = 0;
-
-                while (results.next()) {
-                    if (count < getExpectedRows().length) {
-                        String[] expectedFields =
-                                StringUtil.split(getExpectedRows()[count], m_delimiter);
-
-                        if (results.getMetaData().getColumnCount() == expectedFields.length) {
-
-                            int j = 0;
-
-                            for (int i = 0; i < expectedFields.length; i++) {
-                                j = i + 1;
-
-                                String actual = results.getString(j);
-
-                                if (actual == null) {
-
-                                    if (!expectedFields[i].equalsIgnoreCase(
-                                            "NULL")) {
-                                        throw new Exception(
-                                                "Expected row " + count + " of the ResultSet to contain:\n" + getExpectedRows()[count] + "\nbut field " + j + " contained NULL");
-                                    }
-                                } else if (!actual.equals(expectedFields[i])) {
-
-                                    //then the results are different
-                                    throw new Exception(
-                                            "Expected row " + (count + 1) + " of the ResultSet to contain:\n" + getExpectedRows()[count] + "\nbut field " + j + " contained " + results.getString(j));
-                                }
-                            }
-                        } else {
-
-                            //we have the wrong number of columns
-                            throw new Exception(
-                                    "Expected the ResultSet to contain " + expectedFields.length + " fields, but it contained " + results.getMetaData().getColumnCount() + " fields.");
+                    boolean isResultSet = stmt.execute(sql);
+                    int updateCount = stmt.getUpdateCount();
+                    SQLWarning warnings = stmt.getWarnings();
+                    while (warnings != null) {
+                        output = warnings.toString();
+                        if (sb != null) {
+                            sb.append(output).append('\n');
                         }
+                        println(output);
+                        warnings = warnings.getNextWarning();
                     }
-
-                    count++;
+                    do {
+                        if (isResultSet) {
+                            final ResultSet rs = stmt.getResultSet();
+                            output = resultSetToString(rs);
+                            if (sb != null) {
+                                sb.append(output).append('\n');
+                            }
+                            println(output);
+                        } else {
+                            output = "update count: " + updateCount;
+                            if (sb != null) {
+                                sb.append(output).append('\n');
+                            }
+                            println(output);
+                        }
+                        isResultSet = stmt.getMoreResults(Statement.CLOSE_CURRENT_RESULT);
+                        updateCount = stmt.getUpdateCount();
+                    } while (updateCount != -1 && !isResultSet);
+                } catch (Throwable t) {
+                    output = t.toString();
+                    if (sb != null) {
+                        sb.append(output).append('\n');
+                    }
+                    println(output);
                 }
-
-                if (count != getExpectedRows().length) {
-
-                    throw new Exception("Expected the ResultSet to contain " + getExpectedRows().length + " rows, but it contained " + count + " rows.");
-                }
-            } catch (Exception x) {
-                m_message = x.getMessage();
-
-                return false;
             }
-
-            return true;
-        }
-
-        private String[] getExpectedRows() {
-            return m_expectedRows;
         }
     }
 
-    protected class UpdateCountSection extends BaseSection {
-
-        int m_expectedUpdateCount;
-
-        protected UpdateCountSection(String[] lines) {
-            super(lines);
-
-            m_type = 'u';
-            m_expectedUpdateCount = Integer.parseInt(lines[0]);
+    protected String resultSetToString(final ResultSet rs) throws SQLException {
+        final StringBuilder sb = new StringBuilder(256);
+        final ResultSetMetaData rsmd = rs.getMetaData();
+        final int columnCount = rsmd.getColumnCount();
+        final Object[] values = new String[columnCount];
+        for (int i = 1; i <= columnCount; i++) {
+            values[i - 1] = rsmd.getColumnLabel(i);
+            sb.append('%').append(rsmd.getColumnDisplaySize(i)).append("s");
         }
-
-        @Override
-        protected String getResultString() {
-            return Integer.toString(getExpectedUpdateCount());
-        }
-
-        private int getExpectedUpdateCount() {
-            return m_expectedUpdateCount;
-        }
-
-        @Override
-        protected boolean execute(final Statement stmt) {
-            try {
-                try {
-                    stmt.execute(getSql());
-                } catch (SQLException se) {
-                    throw new Exception("Expected an update count of " + getExpectedUpdateCount() + ", but got the error: " + se.toString());
+        final String format = sb.toString();
+        sb.setLength(0);
+        sb.append(String.format(format, values));
+        if (rs.next()) {
+            do {
+                sb.append('\n');
+                for (int i = 1; i <= columnCount; i++) {
+                    values[i - 1] = rs.getString(i);
                 }
-
-                if (stmt.getUpdateCount() != getExpectedUpdateCount()) {
-                    throw new Exception("Expected an update count of " + getExpectedUpdateCount() + ", but got an update count of " + stmt.getUpdateCount() + ".");
-                }
-            } catch (Exception ex) {
-                m_message = ex.getMessage();
-
-                return false;
-            }
-
-            return true;
+                sb.append(String.format(format, values));
+            } while (rs.next());
         }
-    }
-
-    /**
-     *
-     */
-    protected class SilentSection extends BaseSection {
-
-        protected SilentSection(String[] lines) {
-            super(lines);
-
-            m_type = 's';
-        }
-
-        @Override
-        protected String getResultString() {
-            return null;
-        }
-
-        @Override
-        protected boolean execute(Statement stmt) {
-            try {
-                stmt.execute(getSql());
-            } catch (Exception x) {
-            }
-
-            return true;
-        }
-    }
-
-    protected class RowCountSection extends BaseSection {
-
-        private int m_expectedRowCount;
-
-        protected RowCountSection(String[] lines) {
-            super(lines);
-
-            m_type = 'c';
-            m_expectedRowCount = Integer.parseInt(lines[0]);
-        }
-
-        @Override
-        protected String getResultString() {
-            return Integer.toString(getExpectedRowCount());
-        }
-
-        private int getExpectedRowCount() {
-            return m_expectedRowCount;
-        }
-
-        @Override
-        protected boolean execute(Statement stmt) {
-            try {
-                try {
-                    stmt.execute(getSql());
-                } catch (SQLException se) {
-                    throw new Exception(
-                            "Expected a ResultSet containing "
-                            + getExpectedRowCount()
-                            + " rows, but got an error: "
-                            + se.toString());
-                }
-
-                if (stmt.getUpdateCount() != -1) {
-                    throw new Exception(
-                            "Expected a ResultSet, but got an update count of "
-                            + stmt.getUpdateCount());
-                }
-
-                ResultSet results = stmt.getResultSet();
-                int count = 0;
-
-                while (results.next()) {
-                    count++;
-                }
-
-                if (count != getExpectedRowCount()) {
-
-                    throw new Exception(
-                            "Expected the ResultSet to contain "
-                            + getExpectedRowCount()
-                            + " rows, but it contained "
-                            + count
-                            + " rows.");
-                }
-            } catch (Exception ex) {
-                m_message = ex.getMessage();
-
-                return false;
-            }
-
-            return true;
-        }
-    }
-
-    protected class ExceptionSection extends BaseSection {
-
-        protected ExceptionSection(String[] lines) {
-            super(lines);
-
-            m_type = 'e';
-        }
-
-        @Override
-        protected String getResultString() {
-            return "SQLException";
-        }
-
-        @Override
-        protected boolean execute(Statement stmt) {
-
-            try {
-                stmt.execute(getSql());
-            } catch (SQLException se) {
-                return true;
-            } catch (Exception ex) {
-                m_message = ex.getMessage();
-
-                return false;
-            }
-
-            return false;
-        }
-    }
-
-    protected class BlankSection extends BaseSection {
-
-        protected BlankSection(String[] lines) {
-            super(lines);
-
-            m_type = ' ';
-        }
-
-        @Override
-        protected String getResultString() {
-            return "No result specified for this section";
-        }
-    }
-
-    protected class IgnoredSection extends BaseSection {
-
-        protected IgnoredSection(String[] lines, char type) {
-            super(lines);
-
-            m_type = type;
-        }
-
-        @Override
-        protected String getResultString() {
-            return "This section, of type '" + getType() + "' was ignored";
-        }
-    }
-
-    protected class DisplaySection extends BaseSection {
-
-        protected DisplaySection(String[] lines) {
-            m_lines = lines;
-            int firstSlash = m_lines[0].indexOf('/');
-            m_lines[0] = m_lines[0].substring(firstSlash + 1);
-        }
-
-        @Override
-        protected String getResultString() {
-
-            StringBuilder sb = new StringBuilder();
-
-            for (int i = 0; i < m_lines.length; i++) {
-                if (i > 0) {
-                    sb.append('\n');
-                }
-
-                sb.append("+ ").append(m_lines[i]);
-            }
-
-            return sb.toString();
-        }
+        return sb.toString();
     }
 }
-
-

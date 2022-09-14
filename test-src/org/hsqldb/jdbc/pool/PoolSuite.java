@@ -32,19 +32,15 @@ package org.hsqldb.jdbc.pool;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-
-
 import junit.framework.TestSuite;
 
 /**
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
+@SuppressWarnings("ClassWithoutLogger")
 public class PoolSuite extends TestCase {
 
-    public PoolSuite(String testName) {
-        super(testName);
-    }
 
     public static Test suite() {
         TestSuite suite = new TestSuite("PoolSuite");
@@ -61,5 +57,8 @@ public class PoolSuite extends TestCase {
 
     public static void main(java.lang.String[] args) {
         junit.textui.TestRunner.run(suite());
+    }
+    public PoolSuite(String testName) {
+        super(testName);
     }
 }

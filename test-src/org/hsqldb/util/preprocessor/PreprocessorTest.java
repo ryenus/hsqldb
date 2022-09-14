@@ -27,7 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hsqldb.util.preprocessor;
 
 import java.io.BufferedReader;
@@ -47,18 +46,16 @@ import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
 
-/* $Id$ */
-
+/*
+ * $Id$
+ */
 /**
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(Preprocessor.class)
+@SuppressWarnings("ClassWithoutLogger")
 public class PreprocessorTest extends BaseTestCase {
-
-    public PreprocessorTest(String testName) {
-        super(testName);
-    }
 
     public static Test suite() {
         TestSuite suite = new TestSuite(PreprocessorTest.class);
@@ -66,16 +63,21 @@ public class PreprocessorTest extends BaseTestCase {
         return suite;
     }
 
-    protected String fileToString(File file) throws Exception {
-        InputStream    is = new FileInputStream(file);
-        Reader         r  = new InputStreamReader(is, "UTF8");
-        BufferedReader br = new BufferedReader(r);
-        StringBuilder  sb = new StringBuilder((int)file.length());
-        StringWriter   sw = new StringWriter();
-        PrintWriter    pw = new PrintWriter(sw);
-        String         line;
+    public PreprocessorTest(String testName) {
+        super(testName);
+    }
 
-        while(null != (line = br.readLine())) {
+    @SuppressWarnings("NestedAssignment")
+    protected String fileToString(File file) throws Exception {
+        InputStream is = new FileInputStream(file);
+        Reader r = new InputStreamReader(is, "UTF8");
+        BufferedReader br = new BufferedReader(r);
+        //StringBuilder  sb = new StringBuilder((int)file.length());
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        String line;
+
+        while (null != (line = br.readLine())) {
             pw.println(line);
         }
 
@@ -83,29 +85,30 @@ public class PreprocessorTest extends BaseTestCase {
     }
 
     /**
-     * Test of preprocessBatch method, of class org.hsqldb.util.preprocessor.Preprocessor.
+     * Test of preprocessBatch method, of class
+     * org.hsqldb.util.preprocessor.Preprocessor.
      */
     @OfMethod("preprocessBatch(java.io.File,java.io.File,java.lang.String[],java.lang.String,java.lang.String,int,java.lang.String,org.hsqldb.lib.preprocessor.IResolver)")
     public void testPreprocessBatch() throws Exception {
-        URL       srcurl    = getClass().getResource("ATest.src");
-        String    srcpath   = URLDecoder.decode(srcurl.getFile(),Charset.defaultCharset().name());
-        File      srcfile   = new File(srcpath);
-        File      sourceDir = srcfile.getParentFile();
-        File      targetDir = sourceDir;
-        String[]  files     = new String[]{srcfile.getName()};
-        String    defines   = "jdbc_version=4.0";
-        int       options   = Option.BACKUP | Option.FILTER | Option.VERBOSE;
-        String    altExt    = ".java";
-        String    encoding  = "UTF8";
-        IResolver resolver  = null;
+        URL srcurl = getClass().getResource("ATest.src");
+        String srcpath = URLDecoder.decode(srcurl.getFile(), Charset.defaultCharset().name());
+        File srcfile = new File(srcpath);
+        File sourceDir = srcfile.getParentFile();
+        File targetDir = sourceDir;
+        String[] files = new String[]{srcfile.getName()};
+        String defines = "jdbc_version=4.0";
+        int options = Option.BACKUP | Option.FILTER | Option.VERBOSE;
+        String altExt = ".java";
+        String encoding = "UTF8";
+        IResolver resolver = null;
 
         Preprocessor.preprocessBatch(sourceDir, targetDir, files, altExt,
                 encoding, options, defines, resolver);
 
         File dstfile = new File(targetDir, "ATest.java");
         File expFile = new File(sourceDir, "ATest.exp");
-        String dst   = fileToString(dstfile);
-        String exp   = fileToString(expFile);
+        String dst = fileToString(dstfile);
+        String exp = fileToString(expFile);
 
         assertTrue("Preprocessed output does not match expected output", dst.equals(exp));
     }

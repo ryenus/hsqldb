@@ -18,7 +18,12 @@ insert into all_types(
      c_timestamp,
      c_tinyint,
      c_varbinary,
-     c_varchar
+     c_varchar,
+     c_blob,
+     c_clob,
+     c_array,
+     c_bit_1,
+     c_bit_8
 ) values (
     2,
     123456789,
@@ -39,8 +44,13 @@ insert into all_types(
     current_timestamp,
     123,
     X'0123456789ABCDEF',
-    'VARCHAR'
-);
+    'VARCHAR',
+    X'CAFEBABE',
+    'ABCDEFG',
+    array[4,3,2,1],
+    B'0',
+    B'00001111'
+);  
 insert into all_types(
      id,
      c_bigint,
@@ -61,7 +71,12 @@ insert into all_types(
      c_timestamp,
      c_tinyint,
      c_varbinary,
-     c_varchar
+     c_varchar,
+     c_blob,
+     c_clob,
+     c_array,
+     c_bit_1,
+     c_bit_8
 ) values (
     3,
     123456789,
@@ -82,7 +97,12 @@ insert into all_types(
     current_timestamp,
     123,
     X'0123456789ADBDEF',
-    'VARCHAR'
+    'VARCHAR',
+    X'CAFEBABE',
+    'ABCDEFG',
+    array[3,4,1,2],
+    B'1',
+    B'00111100'
 );
 insert into all_types(
      id

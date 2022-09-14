@@ -27,8 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.jdbc;
 
 import junit.framework.Test;
@@ -98,8 +96,9 @@ public class JdbcSuite extends TestCase {
         suite.addTest(org.hsqldb.jdbc.JDBCSQLXMLTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCSavepointTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCStatementTest.suite());
-        //suite.addTest(org.hsqldb.jdbc.ScriptedTest.suite());
-        suite.addTest(org.hsqldb.jdbc.UtilTest.suite());
+        suite.addTest(org.hsqldb.jdbc.scripted.TestSelfScriptsTest.suite());
+        suite.addTest(org.hsqldb.jdbc.scripted.Sql2nnnScriptsTest.suite());
+//        suite.addTest(org.hsqldb.jdbc.UtilTest.suite());
         // TODO:
         //suite.addTest(org.hsqldb.jdbc.jdbcConflictingRowTest.suite());
         //suite.addTest(org.hsqldb.jdbc.jdbcDataSetTest.suite());

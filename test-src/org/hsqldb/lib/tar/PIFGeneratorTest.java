@@ -32,19 +32,17 @@ package org.hsqldb.lib.tar;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.hsqldb.persist.HsqlDatabaseProperties;
-import org.hsqldb.testbase.BaseTestCase;
-import org.hsqldb.testbase.ForSubject;
-import org.hsqldb.testbase.OfMethod;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
 @ForSubject(PIFGenerator.class)
 public class PIFGeneratorTest extends BaseTestCase {
 
-    static final String pifResPath = "org/hsqldb/resources/pif.data";
+    static final String pifResPath = "/org/hsqldb/resources/pif.data";
     static protected byte[] loadResByteFile(String resPath) {
         InputStream is = null;
         int bytesRead = 0;

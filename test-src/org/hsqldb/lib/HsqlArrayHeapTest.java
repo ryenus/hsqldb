@@ -30,32 +30,45 @@
 package org.hsqldb.lib;
 
 import java.util.Comparator;
-
+import java.util.Objects;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(HsqlArrayHeap.class)
+@SuppressWarnings("ClassWithoutLogger")
 public class HsqlArrayHeapTest extends BaseTestCase {
+
+    public static Test suite() {
+        return new TestSuite(HsqlArrayHeapTest.class);
+    }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
 
     public HsqlArrayHeapTest(String name) {
         super(name);
     }
 
-    @OfMethod({"add(java.lang.Object)", "size()", "remove()", "peek()", "isEmpty()"})
+    @OfMethod({"add(java.lang.Integer)", "size()", "remove()", "peek()", "isEmpty()"})
+    @SuppressWarnings("UnnecessaryBoxing")
     public void testHsqlArrayHeap() {
 
-        Comparator<Object> oc = new Comparator<Object>() {
+        @SuppressWarnings("Convert2Lambda")
+        Comparator<Integer> oc = new Comparator<Integer>() {
 
-            public int compare(Object a, Object b) {
+            @SuppressWarnings("UnnecessaryUnboxing")
+            @Override
+            public int compare(Integer a, Integer b) {
 
-                if (a == b) {
+                if (Objects.equals(a, b)) {
                     return 0;
                 }
 
@@ -72,10 +85,11 @@ public class HsqlArrayHeapTest extends BaseTestCase {
                     return 1;
                 }
 
-                return ((Integer) a).intValue() - ((Integer) b).intValue();
+                return a.intValue() - b.intValue();
             }
         };
-        HsqlHeap ah = new HsqlArrayHeap(6, oc);
+        
+        HsqlHeap<Integer> ah = new HsqlArrayHeap<>(6, oc);
 
         assertTrue("isEmpty()", ah.isEmpty());
 
@@ -91,7 +105,8 @@ public class HsqlArrayHeapTest extends BaseTestCase {
         }
 
         while (ah.size() > 0) {
-            int current = ((Integer) ah.remove()).intValue();
+            @SuppressWarnings("UnnecessaryUnboxing")
+            int current = ah.remove().intValue();
 
             println("remove()  : " + current);
             println("size()    : " + ah.size());
@@ -101,19 +116,11 @@ public class HsqlArrayHeapTest extends BaseTestCase {
             least = current;
         }
 
-        assertNull("peak()",ah.peek());
+        assertNull("peak()", ah.peek());
         assertTrue("isEmpty()", ah.isEmpty());
         assertNull("remove()", ah.remove());
         assertEquals("size()", 0, ah.size());
         assertTrue("isEmpty()", ah.isEmpty());
         assertFalse("isFull()", ah.isFull());
-    }
-
-    public static Test suite() {
-        return new TestSuite(HsqlArrayHeapTest.class);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
     }
 }

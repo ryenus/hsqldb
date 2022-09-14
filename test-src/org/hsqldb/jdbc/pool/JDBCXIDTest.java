@@ -31,6 +31,7 @@
 
 package org.hsqldb.jdbc.pool;
 
+import java.util.logging.Logger;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
@@ -46,10 +47,8 @@ public class JDBCXIDTest extends BaseJdbcTestCase {
     public static final int FORMAT_ID_JONAS_1 = 0xBB14;
     public static final int FORMAT_ID_JONAS_2 = 0xBB20;
     public static final int FORMAT_ID_JBOSS = 0x0101;
+    private static final Logger LOG = Logger.getLogger(JDBCXIDTest.class.getName());
 
-    public JDBCXIDTest(String testName) {
-        super(testName);
-    }
 
     public static Test suite() {
         TestSuite suite = new TestSuite(JDBCXIDTest.class);
@@ -58,6 +57,9 @@ public class JDBCXIDTest extends BaseJdbcTestCase {
 
     public static void main(java.lang.String[] args) {
         junit.textui.TestRunner.run(suite());
+    }
+    public JDBCXIDTest(String testName) {
+        super(testName);
     }
 
     @Override

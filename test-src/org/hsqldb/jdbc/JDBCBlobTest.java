@@ -29,12 +29,10 @@
  */
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseBlobTestCase;
 import java.sql.Blob;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
+import org.hsqldb.jdbc.testbase.BaseBlobTestCase;
 import org.hsqldb.testbase.ForSubject;
 
 /**

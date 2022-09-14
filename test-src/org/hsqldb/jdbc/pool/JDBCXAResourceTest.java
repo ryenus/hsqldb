@@ -47,17 +47,29 @@ import org.hsqldb.testbase.OfMethod;
 @ForSubject(JDBCXAResource.class)
 public class JDBCXAResourceTest extends BaseJdbcTestCase {
 
-    public JDBCXAResourceTest(String testName) {
-        super(testName);
-    }
-
+    /**
+     *
+     * @return
+     */
     public static Test suite() {
         TestSuite suite = new TestSuite(JDBCXAResourceTest.class);
         return suite;
     }
 
+    /**
+     *
+     * @param args
+     */
     public static void main(java.lang.String[] args) {
         junit.textui.TestRunner.run(suite());
+    }
+
+    /**
+     *
+     * @param testName
+     */
+    public JDBCXAResourceTest(String testName) {
+        super(testName);
     }
 
     @Override
@@ -86,6 +98,7 @@ public class JDBCXAResourceTest extends BaseJdbcTestCase {
 
     /**
      * Test of withinGlobalTransaction method, of class JDBCXAResource.
+     * @throws java.lang.Exception
      */
     @OfMethod("withinGlobalTransaction()")
     public void testWithinGlobalTransaction() throws Exception {
@@ -99,36 +112,39 @@ public class JDBCXAResourceTest extends BaseJdbcTestCase {
 
     /**
      * Test of commit method, of class JDBCXAResource.
+     * @throws java.lang.Exception
      */
     @OfMethod("commit(javax.transaction.xa.Xid,boolean)")
     public void testCommit() throws Exception {
         Xid xid = JDBCXID.getUniqueXid((int) Thread.currentThread().getId());
-        boolean onePhase = false;
+        boolean onePhase = true;
         JDBCXAConnection xaConnection = newJDBCXAConnection();
         JDBCXAResource testSubject = (JDBCXAResource) xaConnection.getXAResource();
-
-
+        
+        testSubject.start(xid, XAResource.TMNOFLAGS);
         testSubject.commit(xid, onePhase);
 
-        stubTestResult();
+        stubTestResult("additional cases to cover");
     }
 
     /**
      * Test of commitThis method, of class JDBCXAResource.
+     * @throws java.lang.Exception
      */
     @OfMethod("commitThis(hoolean)")
     public void testCommitThis() throws Exception {
         JDBCXAConnection xaConnection = newJDBCXAConnection();
         JDBCXAResource testSubject = (JDBCXAResource) xaConnection.getXAResource();
-        boolean onePhase = false;
+        boolean onePhase = true;
 
         testSubject.commitThis(onePhase);
 
-        stubTestResult();
+        stubTestResult("additional cases to cover");
     }
 
     /**
      * Test of end method, of class JDBCXAResource.
+     * @throws java.lang.Exception
      */
     @OfMethod("end(javax.transaction.xa.Xid,int)")
     public void testEnd() throws Exception {
@@ -145,6 +161,7 @@ public class JDBCXAResourceTest extends BaseJdbcTestCase {
 
     /**
      * Test of forget method, of class JDBCXAResource.
+     * @throws java.lang.Exception
      */
     @OfMethod("forget(javax.transaction.xa.Xid)")
     public void testForget() throws Exception {
@@ -160,19 +177,26 @@ public class JDBCXAResourceTest extends BaseJdbcTestCase {
 
     /**
      * Test of getTransactionTimeout method, of class JDBCXAResource.
+     * @throws Exception
      */
     @OfMethod("getTransactionTimeout()")
     public void testGetTransactionTimeout() throws Exception {
         JDBCXAConnection xaConnection = newJDBCXAConnection();
         JDBCXAResource testSubject = (JDBCXAResource) xaConnection.getXAResource();
         int expResult = 0;
+        
+        try {
         int result = testSubject.getTransactionTimeout();
 
         assertEquals(expResult, result);
+        } catch (Exception e) {
+            fail(e.toString());
+        }
     }
 
     /**
      * Test of isSameRM method, of class JDBCXAResource.
+     * @throws java.lang.Exception
      */
      @OfMethod("isSameRM(javax.transaction.xa.XAResource)")
     public void testIsSameRM() throws Exception {
@@ -187,6 +211,7 @@ public class JDBCXAResourceTest extends BaseJdbcTestCase {
 
     /**
      * Test of prepare method, of class JDBCXAResource.
+     * @throws java.lang.Exception
      */
     @OfMethod("prepare(javax.transaction.xa.XAResource)")
     public void testPrepare() throws Exception {
@@ -201,10 +226,14 @@ public class JDBCXAResourceTest extends BaseJdbcTestCase {
 
     /**
      * Test of prepareThis method, of class JDBCXAResource.
+     * @throws java.lang.Exception
      */
     public void testPrepareThis() throws Exception {
         JDBCXAConnection xaConnection = newJDBCXAConnection();
         JDBCXAResource testSubject = (JDBCXAResource) xaConnection.getXAResource();
+        Xid xid = JDBCXID.getUniqueXid((int) Thread.currentThread().getId());
+        testSubject.start(xid, XAResource.TMJOIN);
+        testSubject.end(xid, XAResource.TMNOFLAGS);
         int result = testSubject.prepareThis();
 
         stubTestResult();
@@ -212,6 +241,7 @@ public class JDBCXAResourceTest extends BaseJdbcTestCase {
 
     /**
      * Test of recover method, of class JDBCXAResource.
+     * @throws java.lang.Exception
      */
     public void testRecover() throws Exception {
         JDBCXAConnection xaConnection = newJDBCXAConnection();
@@ -226,6 +256,7 @@ public class JDBCXAResourceTest extends BaseJdbcTestCase {
 
     /**
      * Test of rollback method, of class JDBCXAResource.
+     * @throws java.lang.Exception
      */
     public void testRollback() throws Exception {
         Xid xid = JDBCXID.getUniqueXid((int) Thread.currentThread().getId());
@@ -239,6 +270,7 @@ public class JDBCXAResourceTest extends BaseJdbcTestCase {
 
     /**
      * Test of rollbackThis method, of class JDBCXAResource.
+     * @throws java.lang.Exception
      */
     public void testRollbackThis() throws Exception {
         JDBCXAConnection xaConnection = newJDBCXAConnection();
@@ -251,6 +283,7 @@ public class JDBCXAResourceTest extends BaseJdbcTestCase {
 
     /**
      * Test of setTransactionTimeout method, of class JDBCXAResource.
+     * @throws java.lang.Exception
      */
     public void testSetTransactionTimeout() throws Exception {
         JDBCXAConnection xaConnection = newJDBCXAConnection();
@@ -263,6 +296,7 @@ public class JDBCXAResourceTest extends BaseJdbcTestCase {
 
     /**
      * Test of start method, of class JDBCXAResource.
+     * @throws java.lang.Exception
      */
     public void testStart() throws Exception {
         Xid xid = JDBCXID.getUniqueXid((int) Thread.currentThread().getId());

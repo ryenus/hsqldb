@@ -24,32 +24,36 @@ create table all_types(
      ,c_blob               blob(16)
      ,c_clob               clob(16)
      ,c_array              integer array[4]
+     ,c_bit_1              bit(1)
+     ,c_bit_8              bit(8)
 );
 
 insert into all_types(
-     id
-     ,c_bigint
-     ,c_binary
-     ,c_boolean
-     ,c_char
-     ,c_date
-     ,c_decimal
-     ,c_double
-     ,c_float
-     ,c_integer
-     ,c_longvarbinary
-     ,c_longvarchar
-     ,c_object
-     ,c_real
-     ,c_smallint
-     ,c_time
-     ,c_timestamp
-     ,c_tinyint
-     ,c_varbinary
-     ,c_varchar
-     ,c_blob
-     ,c_clob
-     ,c_array
+     id,
+     c_bigint,
+     c_binary,
+     c_boolean,
+     c_char,
+     c_date,
+     c_decimal,
+     c_double,
+     c_float,
+     c_integer,
+     c_longvarbinary,
+     c_longvarchar,
+     c_object,
+     c_real,
+     c_smallint,
+     c_time,
+     c_timestamp,
+     c_tinyint,
+     c_varbinary,
+     c_varchar,
+     c_blob,
+     c_clob,
+     c_array,
+     c_bit_1,
+     c_bit_8
 ) values (
     1,
     123456789,
@@ -71,7 +75,9 @@ insert into all_types(
     123,
     X'0123456789ABCDEF',
     'VARCHAR',
-    X'0123456789ABCDEF',
-    'CLOB',
-    array[1,2,3,4]
+    cast(X'CAFEBABE' as blob(16)),
+    cast('ABCDEFG' as clob(16)),
+    array[4,3,2,1],
+    B'0',
+    B'11110000'
 );
