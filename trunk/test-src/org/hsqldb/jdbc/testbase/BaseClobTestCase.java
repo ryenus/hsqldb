@@ -7,15 +7,12 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
-
 import java.net.URL;
-
 import java.sql.Clob;
-import java.sql.SQLException;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.hsqldb.jdbc.JDBCClob;
 import org.hsqldb.lib.InOutUtil;
-
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
 
@@ -26,8 +23,16 @@ import org.hsqldb.testbase.OfMethod;
  */
 @ForSubject(java.sql.Clob.class)
 public abstract class BaseClobTestCase extends BaseJdbcTestCase {
-
+    private static final Logger LOG = Logger.getLogger(BaseClobTestCase.class.getName());
     private String m_encoding;
+    /**
+     * Standard constructor; delegates directly to base.
+     *
+     * @param name of test.
+     */
+    public BaseClobTestCase(String name) {
+        super(name);
+    }
 
     /**
      * used by default when creating file-backed / file-based Clobs.
@@ -47,14 +52,6 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
         return m_encoding;
     }
 
-    /**
-     * Standard constructor; delegates directly to base.
-     *
-     * @param name of test.
-     */
-    public BaseClobTestCase(String name) {
-        super(name);
-    }
 
     /**
      * supplies new Clob instances to createClob and hence newClob.
@@ -72,6 +69,7 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
      * @return a newly created Clob instance.
      * @throws Exception on error
      */
+    @SuppressWarnings("FinalMethod")
     public final Clob createClob() throws Exception {
         final Clob clob = handleCreateClob();
 
@@ -87,6 +85,7 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
      * @return new clob
      * @throws Exception on error
      */
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
     protected Clob newClobFromString(final String data) throws Exception {
         final Clob clob = createClob();
         Writer writer = null;
@@ -116,13 +115,15 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
      * @return new clob
      * @throws Exception on error
      */
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
     protected Clob newClobFromResource(final String resource) throws Exception {
         Clob clob = createClob();
-        InputStream inputStream = null;
-        Reader reader = null;
+        InputStream inputStream;
+        Reader reader;
         Writer writer = null;
         try {
             final URL url = getResource(resource);
+            assertNotNull(resource, url);
             inputStream = url.openStream();
             reader = new InputStreamReader(inputStream);
             writer = clob.setCharacterStream(1);
@@ -153,6 +154,7 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
     }
 
     @OfMethod("free()")
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
     public void testFree() throws Exception {
         Clob clob = newClobFromString("testFree");
         try {
@@ -223,7 +225,7 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
      */
     @OfMethod("getAsciiStream()")
     public void testGetAsciiStream() throws Exception {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder(Byte.MAX_VALUE);
         for (int i = 0; i <= Byte.MAX_VALUE; i++) {
             sb.append((char) i);
         }
@@ -265,23 +267,25 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
     }
 
     @OfMethod("position(java.lang.String, long)")
+    @SuppressWarnings({"UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch"})
     public void testPosition() throws Exception {
         Clob clob = newClobFromString("testPosition()");
         long result = 0;
         try {
             result = clob.position("Pos", 1);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOG.log(Level.SEVERE, null, ex);
             fail(ex.toString());
         }
         assertEquals(5L, result);
     }
 
     @OfMethod("setAsciiStream(long)")
+    @SuppressWarnings({"UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch"})
     public void testSetAsciiStream() throws Exception {
         setEncoding("US-ASCII");
         Clob clob = handleCreateClob();
-        OutputStream outputStream = null;
+        OutputStream outputStream;
         try {
             outputStream = clob.setAsciiStream(1);
 
@@ -300,7 +304,7 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
 
             assertEquals("Clob Value", expValue, value);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.SEVERE, null, e);
             fail(e.toString());
         }
     }
@@ -317,7 +321,7 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
             assertEquals(4L, clob.length());
             assertEquals("Task", clob.getSubString(1, 4));
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.SEVERE, null, e);
             fail(e.toString());
         }
     }
@@ -337,21 +341,22 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
     }
 
     @OfMethod("truncate()")
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
     public void testTruncate() throws Exception {
         Clob clob = newClobFromString("testTruncate");
         try {
             clob.truncate(2);
             assertEquals(2L, clob.length());
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.SEVERE, null, e);
             fail(e.toString());
         }
     }
 
     @OfMethod("position(java.lang.String,long)")
-    //@SuppressWarnings("CallToPrintStackTrace")
+    @SuppressWarnings({"UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch"})
     public void testPostionInResource() throws Exception {
-        Clob clob = newClobFromResource("/org/hsqldb/jdbc/resources/sql/TestSelf.txt");
+        Clob clob = newClobFromResource("/hsqldb/TestSelf.txt");
 
         String pattern = "-- correlated subquery together with group and aggregates";
 
@@ -361,14 +366,14 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
         for (int i = 0; i < 200; i++) {
             try {
                 position = clob.position(pattern, i+1);
-            } catch (SQLException ex) {
-                ex.printStackTrace();
+            } catch (Exception ex) {
+                LOG.log(Level.SEVERE, null, ex);
                 fail(ex.toString());
             }
         }
 
         long elapsed = System.currentTimeMillis() - startTime;
-        System.out.println("position: " + position);
-        System.out.println("elapsed: " + elapsed);
+        println("position: " + position);
+        println("elapsed: " + elapsed);
     }
 }

@@ -35,8 +35,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
-import org.hsqldb.lib.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Retrieves line-oriented, semicolon terminated character sequence segments
@@ -47,10 +49,11 @@ import org.hsqldb.lib.Iterator;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
-public class ScriptIterator implements Iterator {
+public class ScriptIterator implements Iterator<String> {
     private static final String SLASH_COMMENT = "//";
     private static final String DASH_COMMENT = "--";
     private static final String SEMI    = ";";
+    private static final Logger LOG = Logger.getLogger(ScriptIterator.class.getName());
 
     private String         segment;
     private BufferedReader reader;
@@ -77,14 +80,17 @@ public class ScriptIterator implements Iterator {
     /**
      * Silent cleanup.
      */
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
     private void closeReader() {
-        if (this.reader != null){
-            try{
-                this.reader.close();
-            } catch(Exception e){}
-        }
-
+        final BufferedReader br = this.reader;
         this.reader = null;
+        if (br != null){
+            try{
+                br.close();
+            } catch(Throwable t){
+                LOG.log(Level.SEVERE, null, t);
+            }
+        }
     }
 
     /**
@@ -94,6 +100,7 @@ public class ScriptIterator implements Iterator {
      * @throws java.lang.RuntimeException if an internal IOException occurs
      */
     @SuppressWarnings("StringBufferWithoutInitialCapacity")
+    @Override
     public boolean hasNext() throws RuntimeException {
         String       line;
         StringBuilder sb;
@@ -115,6 +122,10 @@ public class ScriptIterator implements Iterator {
 
                 if (line == null) {
                     closeReader();
+                    
+                    if (this.segment == null && sb != null && sb.length() > 0) {
+                        this.segment = sb.toString();
+                    }
 
                     break;
                 }
@@ -153,10 +164,11 @@ public class ScriptIterator implements Iterator {
      * @throws java.util.NoSuchElementException if there is
      *      no available SQL segment
      */
-    public Object next() throws NoSuchElementException {
+    @Override
+    public String next() throws NoSuchElementException {
         String out = null;
 
-        if (this.hasNext()) {
+        if (this.segment != null || this.hasNext()) {
             out          = this.segment;
             this.segment = null;
         }
@@ -171,41 +183,10 @@ public class ScriptIterator implements Iterator {
     /**
      * Unsupported.
      *
-     * @return nothing
-     * @throws NoSuchElementException never
      * @throws java.lang.UnsupportedOperationException always
      */
-    public int nextInt() throws NoSuchElementException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported.
-     *
-     * @return nothing
-     * @throws NoSuchElementException never
-     * @throws java.lang.UnsupportedOperationException always
-     */
-    public long nextLong() throws NoSuchElementException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported.
-     *
-     * @throws java.lang.UnsupportedOperationException always
-     */
+    @Override
     public void remove() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Unsupported.
-     *
-     * @param object ignored
-     * @throws java.lang.UnsupportedOperationException always
-     */
-    public void setValue(Object object) throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
     }
 }

@@ -33,21 +33,28 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.hsqldb.lib.FileAccess.FileSync;
-import org.hsqldb.lib.FileAccessRes;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(FileAccessRes.class)
+@SuppressWarnings("ClassWithoutLogger")
 public class FileAccessResTest extends BaseTestCase {
+
+    public static Test suite() {
+        return new TestSuite(FileAccessResTest.class);
+    }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
 
     public FileAccessResTest(String testName) {
         super(testName);
@@ -64,11 +71,14 @@ public class FileAccessResTest extends BaseTestCase {
     }
 
     protected FileAccessRes getTestSubject() {
-        return (FileAccessRes) FileUtil.getFileAccess(/*isResource*/true);
+        return (FileAccessRes) FileUtil.getFileAccess(/*
+                 * isResource
+                 */true);
     }
 
     /**
      * Test of openInputStreamElement method, of class FileAccessRes.
+     * @throws java.lang.Exception
      */
     @OfMethod("openInputStreamElement(java.lang.String)")
     public void testOpenInputStreamElement() throws Exception {
@@ -94,8 +104,10 @@ public class FileAccessResTest extends BaseTestCase {
 
     /**
      * Test of openOutputStreamElement method, of class FileAccessRes.
+     * @throws java.lang.Exception
      */
     @OfMethod("openInputStreamElement(java.lang.String)")
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
     public void testOpenOutputStreamElement() throws Exception {
         String streamName = "doesnotmatter";
         FileAccessRes testSubject = getTestSubject();
@@ -122,7 +134,6 @@ public class FileAccessResTest extends BaseTestCase {
      */
     @OfMethod("isStreamElement(java.lang.String)")
     public void testIsStreamElement() {
-        System.out.println("isStreamElement");
         FileAccessRes testSubject = getTestSubject();
         assertTrue(testSubject.isStreamElement("/org/hsqldb/resources/webserver-content-types.properties"));
         assertFalse(testSubject.isStreamElement("/org/hsqldb/resources/webserver-content-types.unexpected-extension"));
@@ -166,6 +177,7 @@ public class FileAccessResTest extends BaseTestCase {
 
     /**
      * Test of getFileSync method, of class FileAccessRes.
+     * @throws java.lang.Exception
      */
     @OfMethod("getFileSync(java.io.OutputStream)")
     public void testGetFileSync() throws Exception {
@@ -190,12 +202,4 @@ public class FileAccessResTest extends BaseTestCase {
         assertNull(result);
     }
 
-
-    public static Test suite() {
-        return new TestSuite(FileAccessResTest.class);
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
 }

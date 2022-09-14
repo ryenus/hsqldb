@@ -29,15 +29,27 @@
  */
 package org.hsqldb.lib;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 @ForSubject(ArrayUtil.class)
+@SuppressWarnings("ClassWithoutLogger")
 public class ArrayUtilTest extends BaseTestCase {
 
+
+    public static Test suite() {
+
+        TestSuite suite = new TestSuite(ArrayUtilTest.class);
+
+        return suite;
+    }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
     @OfMethod({"copyArray(java.lang.Object,java.lang.Object,int)",
         "sortArray(java.lang.Object)",
         "haveEqualSets(java.lang.Object,java.lang.Object,int)",
@@ -65,8 +77,8 @@ public class ArrayUtilTest extends BaseTestCase {
         boolean x = ArrayUtil.haveEqualSets(a, e, a.length);
         boolean y = ArrayUtil.haveEqualSets(b, f, b.length);
 
-        System.out.println("test passed: ");
-        System.out.println(x == true && y == true && c.length == a.length - 1
+        println("test passed: ");
+        println(x == true && y == true && c.length == a.length - 1
                 && d.length == b.length);
 
         // test copy
@@ -76,18 +88,18 @@ public class ArrayUtilTest extends BaseTestCase {
             1, 3, 5, 7, 11, 13, 17, 19, 23
         };
 
-        System.out.println(StringUtil.arrayToString(b));
+        println(StringUtil.arrayToString(b));
         ArrayUtil.copyMoveSegment(b, z, b.length, 2, 3, 5);
-        System.out.println(StringUtil.arrayToString(z));
+        println(StringUtil.arrayToString(z));
         ArrayUtil.fillArray(z, 0);
         ArrayUtil.copyMoveSegment(b, z, b.length, 6, 3, 5);
-        System.out.println(StringUtil.arrayToString(z));
+        println(StringUtil.arrayToString(z));
         ArrayUtil.fillArray(z, 0);
         ArrayUtil.copyMoveSegment(b, z, b.length, 6, 2, 1);
-        System.out.println(StringUtil.arrayToString(z));
+        println(StringUtil.arrayToString(z));
         ArrayUtil.fillArray(z, 0);
         ArrayUtil.copyMoveSegment(b, z, b.length, 0, 3, 6);
-        System.out.println(StringUtil.arrayToString(z));
+        println(StringUtil.arrayToString(z));
 
         // test reorderMaps
         int[] arr0 = new int[] {
@@ -100,22 +112,11 @@ public class ArrayUtilTest extends BaseTestCase {
             12, 13, 14, 15
         };
 
-        System.out.println(StringUtil.arrayToString(arr0));
-        System.out.println(StringUtil.arrayToString(arr1));
-        System.out.println(StringUtil.arrayToString(arr2));
+        println(StringUtil.arrayToString(arr0));
+        println(StringUtil.arrayToString(arr1));
+        println(StringUtil.arrayToString(arr2));
         ArrayUtil.reorderMaps(arr0, arr1, arr2);
-        System.out.println(StringUtil.arrayToString(arr1));
-        System.out.println(StringUtil.arrayToString(arr2));
-    }
-
-    public static Test suite() {
-
-        TestSuite suite = new TestSuite(ArrayUtilTest.class);
-
-        return suite;
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
+        println(StringUtil.arrayToString(arr1));
+        println(StringUtil.arrayToString(arr2));
     }
 }

@@ -115,12 +115,14 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         autoCommit = connection.getAutoCommit();
 
-        assertEquals(true, autoCommit);
+        assertEquals(false, autoCommit);
 
         connection.setAutoCommit(false);
 
         connection.close();
         xaConnection.close();
+        
+        stubTestResult();
     }
 
     /**
@@ -149,6 +151,8 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         connection.close();
         xaConnection.close();
+        
+        stubTestResult();
     }
 
     /**
@@ -177,6 +181,8 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         connection.close();
         xaConnection.close();
+        
+        stubTestResult();
     }
 
     /**
@@ -209,6 +215,8 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         connection.close();
         xaConnection.close();
+        
+        stubTestResult();
     }
 
     /**
@@ -239,6 +247,8 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         connection.close();
         xaConnection.close();
+        
+        stubTestResult();
     }
 
     /**
@@ -269,6 +279,8 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         connection.close();
         xaConnection.close();
+        
+        stubTestResult();
     }
 
     /**
@@ -299,5 +311,7 @@ public class JDBCXAConnectionWrapperTest extends BaseJdbcTestCase {
 
         connection.close();
         xaConnection.close();
+        
+        stubTestResult();
     }
 }

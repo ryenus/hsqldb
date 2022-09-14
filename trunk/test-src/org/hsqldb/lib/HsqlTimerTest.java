@@ -33,18 +33,18 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(org.hsqldb.lib.HsqlTimer.class)
+@SuppressWarnings("ClassWithoutLogger")
 public class HsqlTimerTest extends BaseTestCase {
 
     public static final String SUBJECT_CLASS_NAME = org.hsqldb.lib.HsqlTimer.class.getName();
@@ -63,6 +63,12 @@ public class HsqlTimerTest extends BaseTestCase {
     public static final String TMP_FILE_NAME_EXT = ".tmp";
     //
     public static final String RAF_RW_MODE = "rw";
+    public static Test suite() {
+        return new TestSuite(HsqlTimerTest.class);
+    }
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
 
     /**
      * Computes the system average {@link java.io.FileDescriptor#sync()
@@ -74,6 +80,7 @@ public class HsqlTimerTest extends BaseTestCase {
      * @return the total time to write buff and call sync runs times, divided by
      * runs
      */
+    @SuppressWarnings({"UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch"})
     double avgSyncTime(final int attemptedSyncs, final int maxThreads, final int buffSize) throws Exception {
 
         final File file = File.createTempFile(TMP_FILE_NAME_PREFIX, TMP_FILE_NAME_EXT);
@@ -84,17 +91,20 @@ public class HsqlTimerTest extends BaseTestCase {
         final int[] actualSyncsCompleted = new int[1];
         final byte[] buff = new byte[buffSize];
 
+        @SuppressWarnings("Convert2Lambda")
         Runnable task = new Runnable() {
 
+            @SuppressWarnings({"UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch"})
+            @Override
             public void run() {
                 for (int i = 0; i < attemptedSyncsPerThread; i++) {
                     try {
                         raf.seek(0);
                         raf.write(buff);
                         fd.sync();
-                        actualSyncsCompleted[0] = actualSyncsCompleted[0] + 1;
+                        actualSyncsCompleted[0] += 1;
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+                        printException(ex);
                     }
                 }
             }
@@ -119,7 +129,7 @@ public class HsqlTimerTest extends BaseTestCase {
                 raf.seek(0);
                 raf.write(buff);
                 fd.sync();
-                actualSyncsCompleted[0] = actualSyncsCompleted[0] + 1;
+                actualSyncsCompleted[0] += 1;
             } catch (Exception ex) {
             }
         }
@@ -178,238 +188,6 @@ public class HsqlTimerTest extends BaseTestCase {
        return avgTimePerParallelSync;
     }
 
-    /**
-     * WRITE_DELAY simulation task.
-     *
-     * Writes a given buffer to disk, sync's the associated file descriptor and
-     * maintains an account of the average period between executions.
-     */
-    static class WriteAndSyncTask extends java.util.TimerTask {
-        // static
-
-        /**
-         * Used to make the name of each task unique.
-         */
-        static int serial;
-        /**
-         * The data to write.
-         */
-        static final byte[] buf = new byte[256];
-        // instance
-        /**
-         * Identifies this task.
-         */
-        String name;
-        /**
-         * The time at which this task was last executed.
-         */
-        long last;
-        /**
-         * A running sum of the periods between executions.
-         */
-        long total;
-        /**
-         * The number of times this task has been executed.
-         */
-        int runs;
-        /**
-         * True until this task is the first time.
-         */
-        boolean firstTime = true;
-        /**
-         * The file to write.
-         */
-        java.io.File file;
-        /**
-         * The FileOutputStream to write.
-         */
-        java.io.FileOutputStream fos;
-        /**
-         * The FileDescriptor to sync.
-         */
-        java.io.FileDescriptor fd;
-
-        /**
-         * Constructs a new WriteAndSyncTask
-         */
-        WriteAndSyncTask() {
-            this.name = "Task." + serial++;
-
-            try {
-                this.file = java.io.File.createTempFile(name, TMP_FILE_NAME_EXT);
-                this.fos = new java.io.FileOutputStream(file);
-                this.fd = fos.getFD();
-            } catch (java.io.IOException ioe) {
-                throw new RuntimeException(ioe);
-            }
-        }
-
-        /**
-         * Runnable implementation. <p>
-         *
-         * Does the average period accounting and invokes the writeAndSync
-         * method.
-         */
-        @Override
-        public void run() {
-            final long now = System.currentTimeMillis();
-
-            if (this.firstTime) {
-                this.firstTime = false;
-            } else {
-                this.total += (now - this.last);
-            }
-
-            this.last = now;
-
-            writeAndSync();
-
-            this.runs++;
-        }
-
-        /**
-         * Write a given buffer to disk and sync the associated file
-         * descriptor.
-         */
-        @SuppressWarnings("CallToThreadDumpStack")
-        void writeAndSync() {
-            try {
-                this.fos.write(buf);
-                this.fos.flush();
-                this.fd.sync();
-                //Thread.sleep(1);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        /**
-         * Closes the FileOutputStream, deletes the file and nullifies Object
-         * fields.
-         */
-        @SuppressWarnings("CallToThreadDumpStack")
-        public void release() {
-            try {
-                this.fos.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            try {
-                this.file.delete();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            this.fos = null;
-            this.file = null;
-            this.fd = null;
-        }
-
-        /**
-         * Retrieves the computed moment of actual average periodicity
-         * experienced by this task.
-         */
-        public float getAveragePeriod() {
-            return (this.runs < 2) ? Float.NaN
-                    : (this.total / (float) (this.runs - 1));
-        }
-
-        /**
-         * @return the String representation of this task, indicating its name,
-         * the number of runs so far and the computed moment of actual average
-         * periodicity experienced so far.
-         */
-        @Override
-        public String toString() {
-            return this.name
-                    + "["
-                    + "runs: " + runs + ", "
-                    + "actual avg. period: " + getAveragePeriod()
-                    + "]";
-        }
-    }
-
-    static class Stats {
-
-        double min;
-        double max;
-        double pk;
-        double sk;
-        double vk;
-        long n;
-        boolean initialized;
-        boolean sample;
-
-        void addDataPoint(double x) {
-
-            double xi;
-            double xsi;
-            long nm1;
-
-            xi = x;
-
-            if (!initialized) {
-                n = 1;
-                pk = xi;
-                sk = xi;
-                min = xi;
-                max = xi;
-                vk = 0.0;
-                initialized = true;
-
-                return;
-            }
-
-            n++;
-
-            nm1 = (n - 1);
-            xsi = (sk - (xi * nm1));
-            vk += ((xsi * xsi) / n) / nm1;
-            sk += xi;
-
-            if (xi != 0) {
-                pk *= xi;
-            }
-
-            max = Math.max(max, xi);
-            min = Math.min(min, xi);
-        }
-
-        double getMin() {
-            return initialized ? min : Double.NaN;
-        }
-
-        double getMax() {
-            return initialized ? max : Double.NaN;
-        }
-
-        double getGeometricMean() {
-            return initialized ? Math.pow(pk, 1 / (double) n) : Double.NaN;
-        }
-
-        double getVariance() {
-
-            if (!initialized) {
-                return Double.NaN;
-            }
-
-            return sample ? (n == 1) ? Double.NaN
-                    : (vk / (double) (n - 1))
-                    : (vk / (double) (n));
-        }
-
-        double getStdDev() {
-
-            if (!initialized) {
-                return Double.NaN;
-            }
-
-            return sample ? (n == 1) ? Double.NaN
-                    : (Math.sqrt(vk
-                    / (double) (n - 1)))
-                    : (Math.sqrt(vk / (double) (n)));
-        }
-    }
 
     /**
      * Runs the HsqlTimer tests.
@@ -443,6 +221,7 @@ public class HsqlTimerTest extends BaseTestCase {
      * @param duration The number of milliseconds that the foreground Thread
      * should sleep while the specified number of WriteAndSync tasks are running
      * in the background thread
+     * @throws java.lang.Exception
      */
     public void test(final int taskCount,
             final double taskPeriodMultiplier,
@@ -535,7 +314,7 @@ public class HsqlTimerTest extends BaseTestCase {
      * should sleep while the specified number of WriteAndSync tasks are running
      * in the background thread
      */
-    @SuppressWarnings("CallToThreadDumpStack")
+    @SuppressWarnings({"CallToThreadDumpStack", "UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch", "CallToPrintStackTrace"})
     public void testJavaUtilTimer(final int taskCount,
             final long period,
             final long duration) {
@@ -561,7 +340,7 @@ public class HsqlTimerTest extends BaseTestCase {
         try {
             Thread.sleep(duration);
         } catch (Exception e) {
-            e.printStackTrace();
+            printException(e);
         }
 
         for (int i = 0; i < tasks.length; i++) {
@@ -588,7 +367,7 @@ public class HsqlTimerTest extends BaseTestCase {
      * should sleep while the specified number of WriteAndSync tasks are running
      * in the background thread
      */
-    @SuppressWarnings({"CallToThreadDumpStack", "static-access"})
+    @SuppressWarnings({"CallToThreadDumpStack", "static-access", "UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch"})
     public void testHsqlTimer(final int taskCount,
             final long period,
             final long duration) {
@@ -615,19 +394,19 @@ public class HsqlTimerTest extends BaseTestCase {
         try {
             Thread.sleep(duration);
         } catch (Exception e) {
-            e.printStackTrace();
+            printException(e);
         }
 
         final Thread timerThread = timer.getThread();
 
         for (int i = 0; i < taskCount; i++) {
-            timer.cancel(ttasks[i]);
+            HsqlTimer.cancel(ttasks[i]);
         }
 
         try {
             timerThread.join();
         } catch (Exception e) {
-            e.printStackTrace();
+            printException(e);
         }
 
         final long elapsed = HsqlTimer.now() - start;
@@ -727,11 +506,255 @@ public class HsqlTimerTest extends BaseTestCase {
         println("------------------------");
     }
 
-    public static Test suite() {
-        return new TestSuite(HsqlTimerTest.class);
+    /**
+     * WRITE_DELAY simulation task.
+     *
+     * Writes a given buffer to disk, sync's the associated file descriptor and
+     * maintains an account of the average period between executions.
+     */
+    @SuppressWarnings("PackageVisibleInnerClass")
+    static class WriteAndSyncTask extends java.util.TimerTask {
+        // static
+        
+        /**
+         * Used to make the name of each task unique.
+         */
+        @SuppressWarnings("PackageVisibleField")
+        static int serial;
+        /**
+         * The data to write.
+         */
+        static final byte[] buf = new byte[256];
+        // instance
+        /**
+         * Identifies this task.
+         */
+        @SuppressWarnings("PackageVisibleField")
+        String name;
+        /**
+         * The time at which this task was last executed.
+         */
+        @SuppressWarnings("PackageVisibleField")
+        long last;
+        /**
+         * A running sum of the periods between executions.
+         */
+        @SuppressWarnings("PackageVisibleField")
+        long total;
+        /**
+         * The number of times this task has been executed.
+         */
+        @SuppressWarnings("PackageVisibleField")
+        int runs;
+        /**
+         * True until this task is the first time.
+         */
+        @SuppressWarnings("PackageVisibleField")
+        boolean firstTime = true;
+        /**
+         * The file to write.
+         */
+        @SuppressWarnings("PackageVisibleField")
+        java.io.File file;
+        /**
+         * The FileOutputStream to write.
+         */
+        @SuppressWarnings("PackageVisibleField")
+        java.io.FileOutputStream fos;
+        /**
+         * The FileDescriptor to sync.
+         */
+        @SuppressWarnings("PackageVisibleField")
+        java.io.FileDescriptor fd;
+        
+        /**
+         * Constructs a new WriteAndSyncTask
+         */
+        @SuppressWarnings("ValueOfIncrementOrDecrementUsed")
+        WriteAndSyncTask() {
+            this.name = "Task." + serial++;
+            
+            try {
+                this.file = java.io.File.createTempFile(name, TMP_FILE_NAME_EXT);
+                this.fos = new java.io.FileOutputStream(file);
+                this.fd = fos.getFD();
+            } catch (java.io.IOException ioe) {
+                throw new RuntimeException(ioe);
+            }
+        }
+        
+        /**
+         * Runnable implementation. <p>
+         *
+         * Does the average period accounting and invokes the writeAndSync
+         * method.
+         */
+        @Override
+        public void run() {
+            final long now = System.currentTimeMillis();
+            
+            if (this.firstTime) {
+                this.firstTime = false;
+            } else {
+                this.total += (now - this.last);
+            }
+            
+            this.last = now;
+            
+            writeAndSync();
+            
+            this.runs++;
+        }
+        
+        /**
+         * Write a given buffer to disk and sync the associated file
+         * descriptor.
+         */
+        @SuppressWarnings({"CallToThreadDumpStack", "UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch", "CallToPrintStackTrace"})
+                void writeAndSync() {
+                    try {
+                        this.fos.write(buf);
+                        this.fos.flush();
+                        this.fd.sync();
+                        //Thread.sleep(1);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                
+                /**
+                 * Closes the FileOutputStream, deletes the file and nullifies Object
+                 * fields.
+                 */
+                @SuppressWarnings({"CallToThreadDumpStack", "UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch", "CallToPrintStackTrace"})
+                public void release() {
+                    try {
+                        this.fos.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        this.file.delete();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    
+                    this.fos = null;
+                    this.file = null;
+                    this.fd = null;
+                }
+                
+                /**
+                 * Retrieves the computed moment of actual average periodicity
+                 * experienced by this task.
+                 */
+                public float getAveragePeriod() {
+                    return (this.runs < 2) ? Float.NaN
+                            : (this.total / (float) (this.runs - 1));
+                }
+                
+                /**
+                 * @return the String representation of this task, indicating its name,
+                 * the number of runs so far and the computed moment of actual average
+                 * periodicity experienced so far.
+                 */
+                @Override
+                public String toString() {
+                    return this.name
+                            + "["
+                            + "runs: " + runs + ", "
+                            + "actual avg. period: " + getAveragePeriod()
+                            + "]";
+                }
     }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
+    @SuppressWarnings("PackageVisibleInnerClass")
+    static class Stats {
+        
+        @SuppressWarnings("PackageVisibleField")
+        double min;
+        @SuppressWarnings("PackageVisibleField")
+        double max;
+        @SuppressWarnings("PackageVisibleField")
+        double pk;
+        @SuppressWarnings("PackageVisibleField")
+        double sk;
+        @SuppressWarnings("PackageVisibleField")
+        double vk;
+        @SuppressWarnings("PackageVisibleField")
+        long n;
+        @SuppressWarnings("PackageVisibleField")
+        boolean initialized;
+        @SuppressWarnings("PackageVisibleField")
+        boolean sample;
+        
+        void addDataPoint(double x) {
+            
+            double xi;
+            double xsi;
+            long nm1;
+            
+            xi = x;
+            
+            if (!initialized) {
+                n = 1;
+                pk = xi;
+                sk = xi;
+                min = xi;
+                max = xi;
+                vk = 0.0;
+                initialized = true;
+                
+                return;
+            }
+            
+            n++;
+            
+            nm1 = (n - 1);
+            xsi = (sk - (xi * nm1));
+            vk += ((xsi * xsi) / n) / nm1;
+            sk += xi;
+            
+            if (xi != 0) {
+                pk *= xi;
+            }
+            
+            max = Math.max(max, xi);
+            min = Math.min(min, xi);
+        }
+        
+        double getMin() {
+            return initialized ? min : Double.NaN;
+        }
+        
+        double getMax() {
+            return initialized ? max : Double.NaN;
+        }
+        
+        double getGeometricMean() {
+            return initialized ? Math.pow(pk, 1 / (double) n) : Double.NaN;
+        }
+        
+        double getVariance() {
+            
+            if (!initialized) {
+                return Double.NaN;
+            }
+            
+            return sample ? (n == 1) ? Double.NaN
+                    : (vk / (n - 1))
+                    : (vk / (n));
+        }
+        
+        double getStdDev() {
+            
+            if (!initialized) {
+                return Double.NaN;
+            }
+            
+            return sample ? (n == 1) ? Double.NaN
+                    : (Math.sqrt(vk
+                            / (n - 1)))
+                    : (Math.sqrt(vk / (n)));
+        }
     }
 }

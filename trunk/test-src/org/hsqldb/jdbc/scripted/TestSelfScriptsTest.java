@@ -32,7 +32,6 @@ package org.hsqldb.jdbc.scripted;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -43,35 +42,44 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
+import org.hsqldb.test.TestUtil;
 import org.hsqldb.testbase.BaseTestCase;
+import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.HsqldbEmbeddedDatabaseDeleter;
+import org.hsqldb.testbase.OfMethod;
 
 /**
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @SuppressWarnings("ClassWithoutLogger")
+@ForSubject(TestUtil.class)
+@OfMethod("testScript(java.sql.Connection,java.lang.String,java.io.Reader)")
 public class TestSelfScriptsTest extends BaseTestCase {
 
-
     private static final String URL = "jdbc:hsqldb:file:scripted-test/";
+    private static final String PK_IGNORE_TEST_CASE = "IgnoreTestCase";
 
-    public static Test suite() throws SQLException {
+    public static Test suite() {
         return new TestSuite(TestSelfScriptsTest.class);
     }
 
     public static void main(String[] args) throws Exception {
         junit.textui.TestRunner.run(suite());
     }
-    
-    private TestResult testResult;
-    private final List<String> scripts = new ArrayList<>(16);
 
+    private TestResult testResult;
+    private final List<String> scripts;
+    private String wasIgnoreCodeCase;
+
+    @SuppressWarnings("CollectionWithoutInitialCapacity")
     public TestSelfScriptsTest() {
         super();
+        this.scripts = new ArrayList<>();
     }
+
     @Override
-    public void run(TestResult result) {
+    public void run(final TestResult result) {
         testResult = result;
         super.run(result);
     }
@@ -82,6 +90,11 @@ public class TestSelfScriptsTest extends BaseTestCase {
     }
 
     @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    @Override
     protected void preTearDown() throws Exception {
         super.preTearDown();
     }
@@ -89,6 +102,12 @@ public class TestSelfScriptsTest extends BaseTestCase {
     @Override
     protected void postTearDown() throws Exception {
         super.postTearDown();
+        if (this.wasIgnoreCodeCase == null) {
+            System.clearProperty(PK_IGNORE_TEST_CASE);
+        } else {
+            System.setProperty(PK_IGNORE_TEST_CASE, this.wasIgnoreCodeCase);
+        }
+
         final boolean success = HsqldbEmbeddedDatabaseDeleter.deleteDatabase(URL);
 
         if (success) {
@@ -99,19 +118,21 @@ public class TestSelfScriptsTest extends BaseTestCase {
     }
 
     @Override
-    @SuppressWarnings("ManualArrayToCollectionCopy")
     public void setUp() throws Exception {
         super.setUp();
 
+        scripts.clear();
+
+        this.wasIgnoreCodeCase = System.getProperty("IgnoreCodeCase", null);
+
+        System.setProperty("IgnoreCodeCase", "true");
+
         try {
-            String[] resources = getResoucesInPackage(
-                    "hsqldb");
+            final String[] resources = getResoucesInPackage("hsqldb");
 
             Arrays.sort(resources);
 
-            for (String resource : resources) {
-                scripts.add(resource);
-            }
+            scripts.addAll(Arrays.asList(resources));
         } catch (IOException ex) {
             printWarning(ex);
         }
@@ -119,109 +140,54 @@ public class TestSelfScriptsTest extends BaseTestCase {
     }
 
     public void testScripts() throws Exception {
-
-        
-
         final Iterator<String> itr = scripts.iterator();
         while (itr.hasNext()) {
-            String script = itr.next();
-            File file = new File(script);
+            final String scriptPath = itr.next();
+            final File file = new File(scriptPath);
+            printProgress(scriptPath);
 
-            boolean waitForShutdown = Files.readAllLines(file.toPath()).stream().anyMatch(line -> line.toUpperCase().contains(" SHUTDOWN "));
+            TestCase tc = new NamedDummyCase(scriptPath);
 
-            printProgress(script);
-            
-            TestCase tc = new NamedDummyCase(script);
-            
             testResult.startTest(tc);
 
             try (Connection conn = newConnection();) {
                 try {
-                    ScriptUtil.testScript(conn, script, new FileReader(file));
-                    
+                    TestUtil.testScript(conn, scriptPath, new FileReader(file));
                 } catch (SQLException | IOException ex) {
-                    println(script);
+                    println(scriptPath);
                     printWarning(ex);
                     testResult.addError(tc, ex);
 
                 }
             }
-            
+
             testResult.endTest(tc);
         }
 
-//        printProgress("************** SUCEEDED ****************");
-//        super.
-//                printProgress("count: " + succeeded.size());
-//        succeeded.forEach(script -> printProgress(script));
-//        printProgress("************** FAILED ****************");
-//
-//        if (failCount > 0) {
-//            fail("fail count: " + failCount);
-//        }
+        printProgress("************** SUCEEDED ****************");
+        int successCount = testResult.runCount() - testResult.errorCount()
+                - testResult.failureCount();
+        super.printProgress("count: " + successCount);
+
+        printProgress("************** FAILED ****************");
+        super.printProgress("count: " + testResult.failureCount());
+
+        printProgress("************** ERRORED ****************");
+        super.printProgress("count: " + testResult.errorCount());
+
     }
 
     @Override
     public int countTestCases() {
-       return scripts.size();
+        return scripts.size();
     }
 
-//public static void testScript(Connection aConnection, String sourceName,
-//                                  Reader inReader)
-//                                  throws SQLException, IOException {
-//
-//        Statement        statement = aConnection.createStatement();
-//        LineNumberReader reader    = new LineNumberReader(inReader);
-//        LineGroupReader  sqlReader = new LineGroupReader(reader);
-//        int              startLine = 0;
-//
-//        System.out.println("Opened test script file: " + sourceName);
-//
-//        /*
-//         * we read the lines from the start of one section of the script "/*"
-//         *  until the start of the next section, collecting the lines in the
-//         *  list.
-//         *  When a new section starts, we pass the list of lines
-//         *  to the test method to be processed.
-//         */
-//        try {
-//            while (true) {
-//                HsqlArrayList section = sqlReader.getNextSection();
-//
-//                startLine = sqlReader.getStartLineNumber();
-//
-//                if (section.size() == 0) {
-//                    break;
-//                }
-//
-//
-//            }
-//
-//            statement.close();
-//
-//            // The following catch blocks are just to report the source location
-//            // of the failure.
-//        } catch (SQLException se) {
-//            System.out.println("Error encountered at command beginning at "
-//                               + sourceName + ':' + startLine);
-//
-//            throw se;
-//        } catch (RuntimeException re) {
-//            System.out.println("Error encountered at command beginning at "
-//                               + sourceName + ':' + startLine);
-//
-//            throw re;
-//        }
-//
-//        System.out.println("Processed " + reader.getLineNumber()
-//                           + " lines from " + sourceName);
-//    }
     private static class NamedDummyCase extends TestCase {
-        
+
         private NamedDummyCase(String name) {
             super(name);
         }
-        
+
     }
 
 }

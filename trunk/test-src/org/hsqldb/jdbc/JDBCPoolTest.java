@@ -93,7 +93,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         JDBCPool instance = new JDBCPool();
         instance.close(wait);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -106,7 +106,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         // event cannot be null
         // instance.connectionClosed(event);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -119,7 +119,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         // event cannot be null
         // instance.connectionErrorOccurred(event);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -164,7 +164,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         String result = instance.getDataSourceName();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -177,7 +177,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         String result = instance.getDatabase();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -190,7 +190,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         String result = instance.getDatabaseName();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -203,7 +203,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         String result = instance.getDescription();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -216,7 +216,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         PrintWriter result = instance.getLogWriter();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -229,7 +229,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         int result = instance.getLoginTimeout();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -242,7 +242,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         // Logger result = instance.getParentLogger();
         // assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -255,7 +255,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         Reference result = instance.getReference();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -268,7 +268,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         String result = instance.getURL();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -281,7 +281,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         String result = instance.getUrl();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -294,7 +294,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         String result = instance.getUser();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -308,7 +308,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         boolean result = instance.isWrapperFor(iface);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -320,7 +320,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         JDBCPool instance = new JDBCPool();
         instance.setDatabase(database);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -332,7 +332,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         JDBCPool instance = new JDBCPool();
         instance.setDatabaseName(databaseName);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -344,7 +344,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         JDBCPool instance = new JDBCPool();
         instance.setLogWriter(out);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -356,7 +356,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         JDBCPool instance = new JDBCPool();
         instance.setLoginTimeout(seconds);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -368,7 +368,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         JDBCPool instance = new JDBCPool();
         instance.setPassword(password);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -380,7 +380,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         JDBCPool instance = new JDBCPool();
         instance.setProperties(props);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -392,7 +392,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         JDBCPool instance = new JDBCPool();
         instance.setURL(url);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -404,7 +404,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         JDBCPool instance = new JDBCPool();
         instance.setUrl(url);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -416,7 +416,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         JDBCPool instance = new JDBCPool();
         instance.setUser(user);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     @OfMethod("getConnection")
@@ -444,7 +444,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         JDBCPool instance = new JDBCPool();
         instance.statementClosed(event);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**
@@ -456,7 +456,7 @@ public class JDBCPoolTest extends BaseJdbcTestCase {
         JDBCPool instance = new JDBCPool();
         instance.statementErrorOccurred(event);
         // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        stubTestResult("The test case is a prototype.");
     }
 
     /**

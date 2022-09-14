@@ -43,16 +43,17 @@ import org.hsqldb.testbase.OfMethod;
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
 @ForSubject(Option.class)
+@SuppressWarnings("ClassWithoutLogger")
 public class OptionTest extends BaseTestCase {
 
-    public OptionTest(String testName) {
-        super(testName);
-    }
 
     public static Test suite() {
         TestSuite suite = new TestSuite(OptionTest.class);
 
         return suite;
+    }
+    public OptionTest(String testName) {
+        super(testName);
     }
 
     /**

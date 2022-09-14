@@ -28,21 +28,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
+ /*
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Sergio Bossa (sbtourist@users dot sourceforge.net)
  * @version 2.2.9
  * @since 2.2.9
-*/
+ */
 package org.hsqldb.lib;
 
 import java.util.Random;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+@SuppressWarnings("ClassWithoutLogger")
 public class DoubleIntIndexTest extends TestCase {
+
+    public static Test suite() {
+
+        TestSuite suite = new TestSuite(DoubleIntIndexTest.class);
+
+        return suite;
+    }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
 
     public void testIndexSortingWithOneNumber() {
 
@@ -77,7 +88,7 @@ public class DoubleIntIndexTest extends TestCase {
     private void testIndexSortedInsertWithRandomSizesAndNumbers(int total) {
 
         DoubleIntIndex index = new DoubleIntIndex(total, true);
-        Random         r     = new Random();
+        Random r = new Random();
 
         for (int i = 0; i < total; i++) {
             int kv = r.nextInt();
@@ -92,20 +103,10 @@ public class DoubleIntIndexTest extends TestCase {
         for (int i = 0; i < total; i++) {
             int key = index.getKey(i);
 
-            super.assertTrue("wrong sort", key >= lastValue);
+            assertTrue("wrong sort", key >= lastValue);
 
             lastValue = key;
         }
     }
 
-    public static Test suite() {
-
-        TestSuite suite = new TestSuite(DoubleIntIndexTest.class);
-
-        return suite;
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
 }

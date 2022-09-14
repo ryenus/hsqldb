@@ -44,8 +44,11 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLWarning;
+import java.sql.SQLXML;
 import java.sql.Statement;
 import java.text.MessageFormat;
+import java.util.Iterator;
+import java.util.stream.Stream;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.error.ErrorCode;
@@ -63,24 +66,8 @@ import org.hsqldb.testbase.OfMethod;
  * @version 2.6.x
  */
 @ForSubject(JDBCResultSet.class)
+@SuppressWarnings("ClassWithoutLogger")
 public class JDBCResultSetTest extends BaseJdbcTestCase {
-
-    /**
-     *
-     * @param testName
-     */
-    public JDBCResultSetTest(String testName) {
-        super(testName);
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        executeScript("setup-all_types-table.sql");
-        executeScript("populate-all_types-table.sql");
-        executeScript("setup-jdbc_required_get_xxx-table.sql");
-    }
 
     /**
      *
@@ -88,6 +75,15 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      */
     public static Test suite() {
         return new TestSuite(JDBCResultSetTest.class);
+    }
+
+    /**
+     *
+     * @param argList
+     */
+    public static void main(java.lang.String[] argList) {
+
+        junit.textui.TestRunner.run(suite());
     }
     private final String m_selectFromJdbcRrequiredGetXXX
             = "select c_get_xxx_name,"
@@ -238,6 +234,23 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
     /**
      *
+     * @param testName
+     */
+    public JDBCResultSetTest(String testName) {
+        super(testName);
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        executeScript("setup-all_types-table.sql");
+        executeScript("populate-all_types-table.sql");
+        executeScript("setup-jdbc_required_get_xxx-table.sql");
+    }
+
+    /**
+     *
      * @return
      */
     protected String getSelectFromRequiredGetXXX() {
@@ -269,7 +282,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * @return
      */
     protected String[] getAllTypesColumnNames() {
-        return m_allTypesColumnNames;
+        return m_allTypesColumnNames.clone();
     }
 
     /**
@@ -277,7 +290,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * @return
      */
     protected String[] getAllTypesColumnAliases() {
-        return m_allTypesColumnAliases;
+        return m_allTypesColumnAliases.clone();
     }
 
     /**
@@ -289,33 +302,40 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         handleTestGetXXXAfterLast(methodName);
         handleTestGetXXXAfterClose(methodName);
 
-        String[] select = new String[]{
+        final String[] select = new String[]{
             //this.getSelectFromRequiredGetXXXByPrimaryKey(methodName),
             this.getSelectFromAllTypes()
         };
 
-        for (int i = 0; i < select.length; i++) {
+        final Iterator<String> itr = Stream.of(select).iterator();
+
+        while (itr.hasNext()) {
+            String sql = itr.next();
             printProgress("Info - Using Select:");
-            printProgress(select[i]);
-            handleTestGetXXX0(select[i], methodName);
+            printProgress(sql);
+            handleTestGetXXX0(sql, methodName);
         }
     }
 
     private void handleTestGetXXX0(String select, String methodName) throws SQLException, Exception {
-        ResultSet rs = newForwardOnlyReadOnlyResultSet(select);
+        final ResultSet rs = newForwardOnlyReadOnlyResultSet(select);
         assertTrue("next()", rs.next());
-        ResultSetMetaData rsmd = rs.getMetaData();
-        int columnCount = rsmd.getColumnCount();
+        final ResultSetMetaData rsmd = rs.getMetaData();
+        final int columnCount = rsmd.getColumnCount();
+        final Class<?>[] parameterTypes = {int.class};
         for (int i = 1; i <= columnCount; i++) {
-            String typeName = rsmd.getColumnTypeName(i);
-            String columnName = rsmd.getColumnName(i);
-            String columnClass = rsmd.getColumnClassName(i);
-            int dataType = rsmd.getColumnType(i);
-            boolean required = isRequiredGetXXX(methodName, dataType);
+            final String typeName = rsmd.getColumnTypeName(i);
+            final String columnName = rsmd.getColumnName(i);
+            final String columnClass = rsmd.getColumnClassName(i);
+            final int dataType = rsmd.getColumnType(i);
+            final boolean required = isRequiredGetXXX(methodName, dataType);
             try {
-                Method getXXX = rs.getClass().getMethod(methodName, new Class<?>[]{int.class});
-                Object value = getXXX.invoke(rs, new Object[]{Integer.valueOf(i)});
-                Class<?> valueClass = (value == null) ? Void.class : value.getClass();
+                final Method method = ResultSet.class.getMethod(
+                        methodName, parameterTypes);
+                final Object value = method.invoke(rs, new Object[]{i});
+                final Class<?> valueClass = (value == null)
+                        ? Void.class
+                        : value.getClass();
                 printProgress("Info - Pass: " + columnName + "(" + typeName + ")");
                 if (!required) {
                     warnGetXXXNotRequired(methodName, rs, i, columnName, typeName, columnClass, valueClass, value);
@@ -345,7 +365,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         Method getObjectMethod = rs.getClass().getMethod("getObject",
                 new Class<?>[]{int.class});
         Object getObjectMethodReturnValue = getObjectMethod.invoke(rs,
-                new Object[]{Integer.valueOf(columnIndex)});
+                new Object[]{columnIndex});
         printProgress("****************************************");
         printProgress("Warn - JDBC 4.0, Table B-6 indicates this "
                 + methodName
@@ -436,24 +456,24 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * @param methodName
      * @throws Exception
      */
-    protected void handleTestGetXXXAfterClose(String methodName) throws Exception {
-        ResultSet rs = newForwardOnlyReadOnlyResultSet(getSelectFromAllTypes());
+    protected void handleTestGetXXXAfterClose(final String methodName) throws Exception {
+        final ResultSet rs = newForwardOnlyReadOnlyResultSet(
+                getSelectFromAllTypes());
 
         assertTrue("next()", rs.next());
 
         rs.close();
 
-        String[] columnAliases = getAllTypesColumnAliases();
+        final Iterator<String> itr = Stream.of(getAllTypesColumnAliases())
+                .iterator();
 
-        for (int i = 0; i < columnAliases.length; i++) {
+        while (itr.hasNext()) {
             Throwable t = null;
-
+            final Class<?>[] parameterTypes = {String.class};
+            final Object[] args = {itr.next()};
             try {
-                rs.getClass().getMethod(
-                        methodName,
-                        new Class<?>[]{String.class}).invoke(
-                                rs,
-                                new Object[]{columnAliases[i]});
+                rs.getClass().getMethod(methodName, parameterTypes)
+                        .invoke(rs, args);
             } catch (InvocationTargetException ite) {
                 t = ite;
 
@@ -480,20 +500,20 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * @throws Exception
      */
     protected void handleTestGetXXXBeforeFirst(String methodName) throws Exception {
-        ResultSet rs = newForwardOnlyReadOnlyResultSet(getSelectFromAllTypes());
+        final ResultSet rs = newForwardOnlyReadOnlyResultSet(
+                getSelectFromAllTypes());
 
         assertTrue("isBeforeFirst", rs.isBeforeFirst());
-        String[] columnAliases = getAllTypesColumnAliases();
+        final Iterator<String> itr = Stream.of(getAllTypesColumnAliases())
+                .iterator();
 
-        for (int i = 0; i < columnAliases.length; i++) {
+        while (itr.hasNext()) {
             Throwable t = null;
-
+            final Class<?>[] parameterTypes = {String.class};
+            final Object[] args = {itr.next()};
             try {
-                rs.getClass().getMethod(
-                        methodName,
-                        new Class<?>[]{String.class}).invoke(
-                                rs,
-                                new Object[]{columnAliases[i]});
+                rs.getClass().getMethod(methodName, parameterTypes)
+                        .invoke(rs, args);
             } catch (InvocationTargetException ite) {
                 t = ite;
 
@@ -526,17 +546,14 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         assertTrue("isBeforeFirst", rs.isBeforeFirst());
         rs.afterLast();
         assertTrue("isAfterLast", rs.isAfterLast());
-        String[] columnAliases = getAllTypesColumnAliases();
+        final Iterator<String> itr = Stream.of(getAllTypesColumnAliases()).iterator();
+        final Class<?>[] parameterTypes = {String.class};
 
-        for (int i = 0; i < columnAliases.length; i++) {
+        while (itr.hasNext()) {
             Throwable t = null;
-
+            Object[] args = {itr.next()};
             try {
-                rs.getClass().getMethod(
-                        methodName,
-                        new Class<?>[]{String.class}).invoke(
-                                rs,
-                                new Object[]{columnAliases[i]});
+                ResultSet.class.getMethod(methodName, parameterTypes).invoke(rs, args);
             } catch (InvocationTargetException ite) {
                 t = ite;
 
@@ -624,20 +641,22 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
         assertTrue("next()", rs.next());
 
-        String[] columnAliases = getAllTypesColumnAliases();
+        Iterator<String> itr = Stream.of(getAllTypesColumnAliases()).iterator();
 
-        for (int i = 0; i < columnAliases.length; i++) {
-            String columnAlias = columnAliases[i];
+        while (itr.hasNext()) {
+            String columnAlias = itr.next();
             Object o = rs.getObject(columnAlias);
-            assertFalse(columnAliases[i] + "(" + o + ")", rs.wasNull());
+            assertFalse(columnAlias + "(" + o + ")", rs.wasNull());
         }
 
         rs.last();
 
-        for (int i = 0; i < columnAliases.length; i++) {
-            String columnAlias = columnAliases[i];
+        itr = Stream.of(getAllTypesColumnAliases()).iterator();
+
+        while (itr.hasNext()) {
+            String columnAlias = itr.next();
             Object o = rs.getObject(columnAlias);
-            assertTrue(columnAliases[i] + "(" + o + ")", rs.wasNull());
+            assertTrue(columnAlias + "(" + o + ")", rs.wasNull());
         }
 
         rs.close();
@@ -899,11 +918,11 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         try {
             String result = rs.getCursorName();
             assertEquals(expResult, result);
-        } catch (Exception e) {
+        } catch (SQLException e) {
             fail(e.toString());
+        } finally {
+            rs.close();
         }
-
-        rs.close();
 
         try {
             rs.getCursorName();
@@ -997,10 +1016,10 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
     @OfMethod("findColumn(java.lang.String)")
     public void testFindColumn() throws Exception {
         ResultSet rs = newForwardOnlyReadOnlyResultSet(getSelectFromAllTypes());
-        String[] columnAliases = getAllTypesColumnAliases();
+        Iterator<String> itr = Stream.of(getAllTypesColumnAliases()).iterator();
 
-        for (int i = 0; i < columnAliases.length; i++) {
-            rs.findColumn(columnAliases[i]);
+        while (itr.hasNext()) {
+            rs.findColumn(itr.next());
         }
 
         try {
@@ -1013,7 +1032,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         rs.close();
 
         try {
-            rs.findColumn(columnAliases[0]);
+            rs.findColumn(Stream.of(getAllTypesColumnAliases()).findAny().get());
 
             fail("Allowed findColumn(String) after close()");
         } catch (SQLException ex) {
@@ -1057,7 +1076,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         try {
             rs.getObject(1);
             fail("get succeeded while before first");
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            checkResultSetBeforeFirstOrNotSupportedException(e);
         }
 
         assertTrue("isBeforeFirst()", rs.isBeforeFirst());
@@ -1069,7 +1089,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         try {
             rs.getObject(1);
             fail("get succeeded while before first");
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            checkResultSetBeforeFirstOrNotSupportedException(e);
         }
 
         assertTrue("isBeforeFirst()", rs.isBeforeFirst());
@@ -1081,7 +1102,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         try {
             rs.getObject(1);
             fail("get succeeded while before first");
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            checkResultSetBeforeFirstOrNotSupportedException(e);
         }
 
         assertTrue("isBeforeFirst()", rs.isBeforeFirst());
@@ -1119,15 +1141,17 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         try {
             rs.getObject(1);
             fail("get succeeded while after last");
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            checkResultSetAfterLastOrNotSupportedException(e);
         }
 
         rs.previous();
+        assertFalse("isAfterLast()", rs.isAfterLast());
 
         try {
             rs.getObject(1);
-        } catch (Exception e) {
-            fail("get failed on previous to after last");
+        } catch (SQLException e) {
+            assertNull("getObject(int) before last: ", e.toString());
         }
 
         assertFalse("isAfterLast()", rs.isAfterLast());
@@ -1326,7 +1350,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         try {
             rs.getObject(1);
             fail("get succeeded while before first");
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            checkResultSetBeforeFirstOrNotSupportedException(e);
         }
 
         assertEquals(true, rs.isBeforeFirst());
@@ -1339,7 +1364,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         try {
             rs.getObject(1);
             fail("get succeeded while before first");
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            checkResultSetBeforeFirstOrNotSupportedException(e);
         }
 
         assertEquals(true, rs.isBeforeFirst());
@@ -1376,7 +1402,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         try {
             rs.getObject(1);
             fail("get succeeded while after last");
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            checkResultSetAfterLastOrNotSupportedException(e);
         }
 
         rs.beforeFirst();
@@ -1387,15 +1414,16 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         try {
             rs.getObject(1);
             fail("get succeeded while after last");
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            checkResultSetAfterLastOrNotSupportedException(e);
         }
 
         rs.previous();
 
         try {
             rs.getObject(1);
-        } catch (Exception e) {
-            fail("get failed on previous to after last");
+        } catch (SQLException e) {
+            fail("get failed on previous to after last: " + e);
         }
 
         rs.afterLast();
@@ -1403,7 +1431,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         try {
             rs.getObject(1);
             fail("get succeeded while after last");
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            checkResultSetAfterLastOrNotSupportedException(e);
         }
 
         assertEquals(true, rs.isAfterLast());
@@ -1497,19 +1526,19 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
         while (rs.next()) {
             row++;
-            assertEquals(row, rs.getRow());
+            assertEquals("getRow() != expected row", row, rs.getRow());
         }
 
         int last = row;
 
         while (rs.previous()) {
-            assertEquals(row, rs.getRow());
+            assertEquals("getRow() != expected row", row, rs.getRow());
             row--;
         }
 
         rs.absolute(2);
 
-        assertEquals(2, rs.getRow());
+        assertEquals("getRow() != expected row", 2, rs.getRow());
 
         rs.first();
 
@@ -1551,7 +1580,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         for (int i = rows; i >= 1; i--) {
             rs.absolute(i);
 
-            assertEquals(i, rs.getRow());
+            assertEquals("getRow() != expected row", i, rs.getRow());
         }
 
         rs.close();
@@ -1562,7 +1591,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             fail("Allowed absolute(int) after close()");
         } catch (SQLException ex) {
             assertEquals(
-                    "error code",
+                    "absolute(0) after close: error code",
                     getResultSetClosedErrorCode(),
                     ex.getErrorCode());
         }
@@ -1637,9 +1666,13 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             connectionFactory().closeRegisteredObjects();
         }
 
-        for (int i = 0; i < s_rstype.length; i++) {
-            String rsTypeLabel = s_rstype[i][0];
-            int rsType = getFieldValue(s_rstype[i][1]);
+        Iterator<String[]> itr = Stream.of(s_rstype).iterator();
+
+        while (itr.hasNext()) {
+            String[] rsTypeInfo = itr.next();
+            String rsTypeLabel = rsTypeInfo[0];
+            String rsFieldName = rsTypeInfo[1];
+            int rsType = getFieldValue(rsFieldName);
 
             printProgress("result set type: " + rsTypeLabel);
 
@@ -1682,22 +1715,29 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      */
     protected void handleTestSetInvalidFetchDirection() throws Exception {
         ResultSet rs = newForwardOnlyReadOnlyResultSet(getSelectFromAllTypes());
-        for (int i = 0; i < s_rsholdability.length; i++) {
-            String holdabilityLabel = s_rsholdability[i][0];
-            int holdabilityValue = getFieldValue(s_rsholdability[i][1]);
+        Iterator<String[]> itr = Stream.of(s_rsholdability).iterator();
+        while (itr.hasNext()) {
+            String[] rsHoldabilityInfo = itr.next();
+            String holdabilityLabel = rsHoldabilityInfo[0];
+            String rsHoldabilityFieldName = rsHoldabilityInfo[1];
+            int holdabilityValue = getFieldValue(rsHoldabilityFieldName);
             try {
                 rs.setFetchDirection(holdabilityValue);
                 fail("ResultSet accepted illegal fetch direction value: " + holdabilityLabel);
             } catch (SQLException ex) {
+                // @todo - check exception state and code
             }
         }
-        for (int i = 0; i < s_rsconcurrency.length; i++) {
-            String concurrencyLabel = s_rsconcurrency[i][0];
-            int concurrencyValue = getFieldValue(s_rsconcurrency[i][1]);
+        itr = Stream.of(s_rsconcurrency).iterator();
+        while (itr.hasNext()) {
+            String[] rsConcurrencyInfo = itr.next();
+            String concurrencyLabel = rsConcurrencyInfo[0];
+            int concurrencyValue = getFieldValue(rsConcurrencyInfo[1]);
             try {
                 rs.setFetchDirection(concurrencyValue);
                 fail("ResultSet accepted illegal concurrency value: " + concurrencyLabel);
             } catch (SQLException ex) {
+                // @todo - check exception state and code
             }
         }
     }
@@ -1949,12 +1989,12 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         final ConnectionFactory connectionFactory = connectionFactory();
 
         try {
-             rs = newForwardOnlyReadOnlyResultSet(getSelectFromAllTypes());
-            
-            ResultSetConcurrency actualConcurrency 
+            rs = newForwardOnlyReadOnlyResultSet(getSelectFromAllTypes());
+
+            ResultSetConcurrency actualConcurrency
                     = ResultSetConcurrency.forValue(rs.getConcurrency());
 
-            assertEquals("Unexpected Concurrency", 
+            assertEquals("Unexpected Concurrency",
                     ResultSetConcurrency.ReadOnly, actualConcurrency);
         } finally {
             connectionFactory.closeRegisteredObjects();
@@ -1988,7 +2028,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                     ResultSetConcurrency.Updatable.value(),
                     getSelectFromAllTypes());
 
-            ResultSetConcurrency actualConcurrency 
+            ResultSetConcurrency actualConcurrency
                     = ResultSetConcurrency.forValue(rs.getConcurrency());
             assertEquals(
                     ResultSetConcurrency.Updatable,
@@ -2043,7 +2083,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             assertEquals(false, rs.rowUpdated());
 
-            rs.updateObject(1, Integer.valueOf(1), java.sql.Types.INTEGER);
+            rs.updateObject(1, 1, java.sql.Types.INTEGER);
 
             assertEquals(true, rs.rowUpdated());
         } catch (Exception e) {
@@ -2067,27 +2107,31 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         int tss = ResultSet.TYPE_SCROLL_SENSITIVE;
         int cru = ResultSet.CONCUR_UPDATABLE;
         boolean insertsDetected = metaData.insertsAreDetected(tss);
-        boolean ownInsertsVisible = metaData.ownInsertsAreVisible(tss);
-        boolean othersInsertsVisible = metaData.othersInsertsAreVisible(tss);
+        boolean ownInsertsAreVisible = metaData.ownInsertsAreVisible(tss);
+        boolean othersInsertsAreVisible = metaData.othersInsertsAreVisible(tss);
+        boolean testable = insertsDetected || ownInsertsAreVisible || othersInsertsAreVisible;
 
-        if (!insertsDetected) {
-            return;
-        }
-
-        if (!(ownInsertsVisible || othersInsertsVisible)) {
+        if (!testable) {
             return;
         }
 
         try {
             ResultSet rs = newResultSet(tss, cru, getSelectFromAllTypes());
 
-            if (ownInsertsVisible) {
-                // TODO:  test rowInserted() against visible own insert.
-                stubTestResult("TODO: test rowInserted() against visible own insert.");
+            if (insertsDetected) {
+                boolean expected = true;
+                rs.moveToInsertRow();
+                rs.updateString("c_varchar", "row inserted");
+                rs.insertRow();
+                boolean actual = rs.rowInserted();
+                assertEquals("insertsDected: rowInserted()", expected, actual);
             }
-            if (othersInsertsVisible) {
-                // TODO:  test rowInserted() against visible other's insert.
-                stubTestResult("TODO: test rowInserted() against visible other's insert.");
+
+            if (ownInsertsAreVisible) {
+                stubTestResult("TODO: test ownInsertsAreVisible.");
+            }
+            if (othersInsertsAreVisible) {
+                stubTestResult("TODO: test othersInsertsAreVisible.");
             }
         } catch (Exception e) {
             fail(e.toString());
@@ -2570,19 +2614,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         } catch (Exception e) {
             fail(e.toString());
         }
-    }
-
-    /**
-     * Dummy serializable for testing.
-     */
-    public static final class SerVal implements java.io.Serializable {
-
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Dummy serializable field
-         */
-        public int value;
     }
 
     /**
@@ -3207,11 +3238,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             rs.next();
 
             Integer[] values = new Integer[]{
-                Integer.valueOf(4),
-                Integer.valueOf(3),
-                Integer.valueOf(2),
-                Integer.valueOf(1)
-            };
+                4, 3, 2, 1};
 
             Array array = newConnection().createArrayOf("INTEGER", values);
 
@@ -3445,16 +3472,23 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testUpdateSQLXML() throws Exception {
-        if (!isTestUpdates()) {
+        if (!(isTestUpdates() && isTestSQLXML())) {
             return;
         }
 
-        if (!isTestSQLXML()) {
-            return;
-        }
+        ResultSet rs = this.newScrollableInsensitiveUpdateableResultSet(this.getSelectFromAllTypes());
 
-        // TODO.
-        stubTestResult("SQLXML update test is not yet implemented.");
+        rs.first();
+
+        SQLXML sqlxml = this.connectionFactory().createSQLXML(rs.getStatement().getConnection());
+        sqlxml.setString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><Empty/>");
+
+        try {
+            rs.updateSQLXML(1, sqlxml);
+        } catch (SQLException ex) {
+            boolean actual = SQLFeatureNotSupportedException.class.isInstance(ex);
+            assertEquals("SQLFeatureNotSupportedException", true, actual);
+        }
     }
 
     /**
@@ -3560,11 +3594,17 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
     }
 
     /**
-     *
-     * @param argList
+     * Dummy Serializable for testing.
      */
-    public static void main(java.lang.String[] argList) {
+    @SuppressWarnings("PublicInnerClass")
+    public static class SerVal implements java.io.Serializable {
 
-        junit.textui.TestRunner.run(suite());
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * Dummy Serializable field
+         */
+        @SuppressWarnings("PublicField")
+        public int value;
     }
 }

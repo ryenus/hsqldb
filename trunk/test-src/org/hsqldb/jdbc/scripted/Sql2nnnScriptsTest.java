@@ -56,6 +56,22 @@ public class Sql2nnnScriptsTest extends BaseScriptedTestCase {
 
     private static final Logger LOG = Logger.getLogger(Sql2nnnScriptsTest.class.getName());
 
+    public static Test suite() {
+        final boolean success = HsqldbEmbeddedDatabaseDeleter.deleteDatabase(URL);
+
+        if (success) {
+            LOG.log(Level.INFO, "Database deletion succeeded for: {0}", URL);
+        } else {
+            LOG.log(Level.SEVERE, "Database deletion failed for: {0}", URL);
+        }
+
+        return instance.getSuite();
+    }
+
+    public static void main(String[] args) throws Exception {
+        junit.textui.TestRunner.run(suite());
+    }
+
     private Sql2nnnScriptsTest() {
         super();
     }
@@ -80,18 +96,6 @@ public class Sql2nnnScriptsTest extends BaseScriptedTestCase {
         super.postTearDown();
     }
 
-    public static Test suite() {
-        final boolean success = HsqldbEmbeddedDatabaseDeleter.deleteDatabase(URL);
-
-        if (success) {
-            LOG.log(Level.INFO, "Database deletion succeeded for: {0}", URL);
-        } else {
-            LOG.log(Level.SEVERE, "Database deletion failed for: {0}", URL);
-        }
-
-        return instance.getSuite();
-    }
-
     protected Test getSuite() {
         final TestSuite suite = new TestSuite(Sql2nnnScriptsTest.class.getSimpleName());
         try {
@@ -101,24 +105,19 @@ public class Sql2nnnScriptsTest extends BaseScriptedTestCase {
             Pattern nameMatcher = Pattern.compile("^.*\\.sql", Pattern.CASE_INSENSITIVE);
 
             ResourceCollector rc = new ResourceCollector(nameMatcher);
-            List<String> resources = new ArrayList<>();
+            List<String> resources = new ArrayList<>(256);
             try {
                 rc.collectResources(location, resources);
             } catch (IOException | URISyntaxException ex) {
                 Logger.getLogger(Sql2nnnScriptsTest.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            //resources.forEach(resource -> suite.addTest(new TestSelfScriptsTest(resource)));
-
+            resources.forEach(resource -> suite.addTest(new Sql2nnnScriptsTest(resource)));
             return suite;
         } catch (IOException ex) {
-            Logger.getLogger(Sql2nnnScriptsTest.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(Level.SEVERE, null, ex);
         }
-        
-        return suite;
-    }
 
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
+        return suite;
     }
 }

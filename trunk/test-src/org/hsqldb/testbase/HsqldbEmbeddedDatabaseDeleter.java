@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,15 @@
 package org.hsqldb.testbase;
 
 import java.io.File;
-import java.text.MessageFormat;
+import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.logging.Level;
+import org.hsqldb.Database;
+import org.hsqldb.DatabaseManager;
+import org.hsqldb.DatabaseType;
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.LockFile;
@@ -41,184 +49,264 @@ import org.hsqldb.persist.Logger;
  * HSQLDB database.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.2.5
+ * @version 2.7
  * @since 2.0.1
  */
-public final class HsqldbEmbeddedDatabaseDeleter implements ConnectionFactory.ConnectionFactoryEventListener {
+@SuppressWarnings("FinalClass")
+public final class HsqldbEmbeddedDatabaseDeleter {
 
-    //<editor-fold defaultstate="collapsed" desc="Logging Support">
-    private static final java.util.logging.Level INFO_LEVEL = java.util.logging.Level.INFO;
-    private static final java.util.logging.Level SEVERE_LEVEL = java.util.logging.Level.SEVERE;
-    private static final java.util.logging.Logger s_logger = java.util.logging.Logger.getLogger(
-            HsqldbEmbeddedDatabaseDeleter.class.getName());
-    //</editor-fold>
-    //
-    //<editor-fold defaultstate="collapsed" desc="Constants">
-    private static final String[] s_coreFileExt = new String[]{
-        org.hsqldb.persist.Logger.backupFileExtension,
-        org.hsqldb.persist.Logger.dataFileExtension,
-        org.hsqldb.persist.Logger.dataFileExtension + ".tmp",
-        org.hsqldb.persist.Logger.lobsFileExtension,
-        org.hsqldb.persist.Logger.scriptFileExtension,
-        org.hsqldb.persist.Logger.propertiesFileExtension,};
-    private static final String[] s_infoLogExt = new String[]{
-        org.hsqldb.persist.Logger.appLogFileExtension,
-        org.hsqldb.persist.Logger.sqlLogFileExtension
+    private static final java.util.logging.Logger LOG
+            = java.util.logging.Logger.getLogger(
+                    HsqldbEmbeddedDatabaseDeleter.class.getName());
+    private static final String[] CORE_FILE_NAME_EXENTION = new String[]{
+        Logger.backupFileExtension,
+        Logger.dataFileExtension,
+        Logger.logFileExtension,
+        Logger.lobsFileExtension,
+        Logger.scriptFileExtension,
+        Logger.propertiesFileExtension};
+    private static final String[] INFO_LOG_FILE_NAME_EXTENSION = new String[]{
+        Logger.appLogFileExtension,
+        Logger.sqlLogFileExtension
     };
 
-    private static final String s_fileScheme = DatabaseURL.S_FILE;
-    private static final String s_jdbcUrlPrefix = DatabaseURL.S_URL_PREFIX;
-    private static final String s_connectionTypePropertyKey = DatabaseURL.url_connection_type;
-    private static final String s_databasePathPropertyKey = DatabaseURL.url_database;
-    private static final String s_newFileExt = Logger.newFileExtension;
-    private static final String s_oldFileExt = Logger.oldFileExtension;
-    //</editor-fold>
-    //
-    //<editor-fold defaultstate="collapsed" desc="Fields">
-    private final String m_dataseUrl;
-    //</editor-fold>
+    private static final String FILE_SCHEME = DatabaseURL.S_FILE;
+    private static final String JDBC_URL_PREFIX = DatabaseURL.S_URL_PREFIX;
+    private static final String CONNECTION_TYPE_KEY = DatabaseURL.url_connection_type;
+    private static final String DATABASE_PATH_KEY = DatabaseURL.url_database;
+    private static final String NEW_FILE_NAME_EXT = Logger.newFileExtension;
+    private static final String OLD_FILE_NAME_EXT = Logger.oldFileExtension;
 
-    //<editor-fold defaultstate="collapsed" desc="Constructor">
-    public HsqldbEmbeddedDatabaseDeleter(final String databaseUrl) {
-        m_dataseUrl = databaseUrl;
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Methods">
-    //<editor-fold defaultstate="collapsed" desc="closedRegisteredObjects(ConnectionFactory)">
-    public void finishedClosingRegisteredObjects(final ConnectionFactory source) {
-        final boolean success = deleteDatabase(m_dataseUrl);
-
-        if (success) {
-            s_logger.log(INFO_LEVEL, "Database deletion succeeded for: {0}", m_dataseUrl);
-        } else {
-            s_logger.log(SEVERE_LEVEL, "Database deletion failed for: {0}", m_dataseUrl);
-        }
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="deleteDatabase(String)">
+    /**
+     * Attempts to delete all all existing database files and directories
+     * denoted by the given {@code databaseUrl}.
+     *
+     * @param databaseUrl should be valid as per
+     *                    {@link DatabaseURL#parseURL(String, boolean, boolean)}
+     * @return {@code true} if the {@code databaseUrl} is valid, the connection
+     *         scheme is for {@link DatabaseType#DB_FILE} and existing database
+     *         files and directories denoted by the {@code databaseUrl} are
+     *         successfully deleted; else {@code false}.
+     */
+    @SuppressWarnings({"UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch"})
     public static boolean deleteDatabase(final String databaseUrl) {
         if (databaseUrl == null) {
-            s_logger.log(SEVERE_LEVEL, "null database url provided");
-
+            LOG.log(Level.SEVERE, "null database url provided.");
+            return false;
+        } else if (databaseUrl.isEmpty()) {
+            LOG.log(Level.SEVERE, "empty database url provided.");
+            return false;
+        } else if (!databaseUrl.equals(databaseUrl.trim())) {
+            LOG.log(Level.SEVERE, "leading or trailing whitespace database url"
+                    + " provided.");
             return false;
         }
-
-        final boolean hasPrefix = databaseUrl.trim().toLowerCase().startsWith(s_jdbcUrlPrefix);
-        final HsqlProperties info = DatabaseURL.parseURL(databaseUrl, hasPrefix, false);
+        final boolean hasPrefix = databaseUrl.startsWith(JDBC_URL_PREFIX);
+        final boolean noPath = false;
+        final HsqlProperties info = DatabaseURL.parseURL(databaseUrl, hasPrefix,
+                noPath);
         final String connectionType = (info == null)
                 ? null
-                : info.getProperty(s_connectionTypePropertyKey);
-
-        if (!s_fileScheme.equals(connectionType)) {
-            s_logger.log(SEVERE_LEVEL, "Deletion not supported for database type: {0}", connectionType);
-
+                : info.getProperty(CONNECTION_TYPE_KEY);
+        if (!FILE_SCHEME.equals(connectionType)) {
+            LOG.log(Level.SEVERE,
+                    "Deletion not supported for database type: {0}",
+                    connectionType);
             return false;
         }
-
-        final String databasePath = info.getProperty(s_databasePathPropertyKey);
-
+        final String databasePath = info == null
+                ? null
+                : info.getProperty(DATABASE_PATH_KEY);
         if (databasePath == null) {
-            s_logger.log(SEVERE_LEVEL, "Malformed database url provided: {0}", databaseUrl);
+            LOG.log(Level.SEVERE,
+                    "Malformed database url provided: {0}",
+                    databaseUrl);
             return false;
         }
-
+        final File databaseFile = toCanonicalOrAbsoluteFile(databasePath);
+        final Database database = DatabaseManager.lookupDatabaseObject(DatabaseType.DB_FILE, databasePath);
+        if (database != null) {
+            LOG.log(Level.SEVERE, "Database is still registered: file:{0}", databaseFile);
+            return false;
+        }
         boolean success = true;
         LockFile lockFile = null;
-
         try {
             lockFile = LockFile.newLockFileLock(databasePath);
-
-            for (int i = 0; i < s_coreFileExt.length; i++) {
-                success &= deleteFile(databasePath + s_coreFileExt[i] + s_newFileExt);
-                success &= deleteFile(databasePath + s_coreFileExt[i] + s_oldFileExt);
-                success &= deleteFile(databasePath + s_coreFileExt[i]);
+            for (int i = 0; i < CORE_FILE_NAME_EXENTION.length; i++) {
+                success &= deleteFile(databasePath
+                        + CORE_FILE_NAME_EXENTION[i] + NEW_FILE_NAME_EXT);
+                success &= deleteFile(databasePath
+                        + CORE_FILE_NAME_EXENTION[i] + OLD_FILE_NAME_EXT);
+                success &= deleteFile(databasePath
+                        + CORE_FILE_NAME_EXENTION[i]);
             }
-
-            for (int i = 0; i < s_infoLogExt.length; i++) {
-                success &= deleteFile(databasePath + s_infoLogExt[i]);
+            for (int i = 0; i < INFO_LOG_FILE_NAME_EXTENSION.length; i++) {
+                success &= deleteFile(databasePath + INFO_LOG_FILE_NAME_EXTENSION[i]);
             }
-
-            success &= deleteTree(new File(databasePath + ".tmp"));
-        } catch (Exception ex) {
+            final File dbTempFile = toCanonicalOrAbsoluteFile(databasePath + ".tmp");
+            success &= deleteTree(dbTempFile);
+        } catch (Throwable ex) {
             success = false;
-            String message = MessageFormat.format("LockFile.newLockFileLock({0})", databasePath);
-            s_logger.log(SEVERE_LEVEL, message, ex);
+            String message = String.format("LockFile.newLockFileLock(%s)",
+                    databaseFile);
+            LOG.log(Level.SEVERE, message, ex);
         } finally {
-            try {
-                if (lockFile != null) {
+            if (lockFile != null) {
+                try {
                     lockFile.tryRelease();
-
                     success &= deleteFile(databasePath + ".lck");
+                } catch (Throwable ex) {
+                    success = false;
+                    LOG.log(Level.SEVERE, "lockFile.tryRelease()", ex);
                 }
-            } catch (Exception ex) {
-                success = false;
-                s_logger.log(SEVERE_LEVEL, "lockFile.tryRelease()", ex);
             }
+        }
 
+        if (databasePath.endsWith(File.separator)) {
+            success &= deleteTree(new File(databasePath));
+        }
+        return success;
+    }
 
+    private static boolean deleteFile(final String filePath) {
+        assert filePath != null : "String paramter filePath must not be null.";
+        return deleteFile(toCanonicalOrAbsoluteFile(filePath));
+    }
+
+    private static boolean deleteFile(final File f) {
+        assert f != null : "file paramter f must not be null.";
+        final File file = toCanonicalOrAbsoluteFile(f);
+        final Path path = Paths.get(file.getPath());
+        boolean exists = false;
+        boolean isFile = false;
+        boolean isDirectory = false;
+        boolean deleted = false;
+        boolean error = true;
+        try {
+            exists = Files.exists(path);
+            isFile = Files.isRegularFile(path);
+            if (isFile) {
+                deleted = Files.deleteIfExists(path);
+            } else {
+                isDirectory = Files.isDirectory(path);
+            }
+            error = false;
+            if (exists) {
+                if (deleted) {
+                    LOG.log(Level.INFO, "Deleted: {0}", file);
+                } else if (isFile) {
+                    LOG.log(Level.WARNING, "Not deleted: {0}", file);
+                } else if (isDirectory) {
+                    LOG.log(Level.WARNING, "Is directory: {0}", file);
+                } else {
+                    LOG.log(Level.WARNING,
+                            "Not a regular file or directory: {0} ", file);
+                }
+            }
+        } catch (NullPointerException npe) {
+            LOG.log(Level.SEVERE, "null file parameter", npe);
+        } catch (SecurityException se) {
+            LOG.log(Level.SEVERE, "Security restriction", se);
+        } catch (DirectoryNotEmptyException dne) {
+            LOG.log(Level.SEVERE, file + " delete aborted.", dne);
+        } catch (IOException ioe) {
+            LOG.log(Level.SEVERE, file + " delete aborted.", ioe);
+        }
+
+        return !error & (deleted || !exists || !isFile);
+    }
+
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
+    private static boolean deleteTree(final File file) {
+        assert file != null : "File paramter must not be null.";
+        final File root = toCanonicalOrAbsoluteFile(file);
+        final boolean exists = root.exists();
+        if (!exists) {
+            LOG.log(Level.INFO, "Does not exist: {0}", root);
+            return true;
+        }
+        boolean isDirectory = root.isDirectory();
+        if (!isDirectory) {
+            LOG.log(Level.SEVERE, "Not a directory: {0}", root);
+            return false;
+        }
+        boolean success = true;
+        try {
+            final File[] entries = root.listFiles();
+            int count = entries == null ? -1 : entries.length;
+            for (int i = 0; entries != null && i < entries.length; i++) {
+                final File entry = entries[i];
+                if (entry.isDirectory()) {
+                    success &= deleteTree(entry);
+                    if (success) {
+                        LOG.log(Level.INFO, "Deleted directory {0}", root);
+                        count--;
+                    }
+                } else if (entry.isFile()) {
+                    success &= deleteFile(entry);
+                    if (success) {
+                        count--;
+                    }
+                }
+            }
+            success &= root.delete();
+            if (success) {
+                LOG.log(Level.INFO, "Deleted directory {0}", root);
+            } else {
+                if (count > 0) {
+                    LOG.log(Level.WARNING, "Directory not empty {0}", root);
+                } else {
+                    LOG.log(Level.WARNING, "Directory empty but not deleted: {0}", root);
+                }
+
+            }
+        } catch (Throwable t) {
+            LOG.log(Level.SEVERE, "Delete tree failed for: " + root, t);
+            success = false;
         }
 
         return success;
     }
-    //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="deleteFile(String file)">
-    private static boolean deleteFile(final String file) {
-        boolean exists = false;
-        boolean deleted = false;
-        boolean error = true;
-
-        try {
-            final File f = new File(file);
-
-            exists = f.exists();
-
-            if (exists) {
-                deleted = f.delete();
+    public static void main(final String[] args) {
+        final String dbPath = String.format("test%sdb%s", File.separator,
+                File.separator);
+        final String dbURI = "file:" + dbPath;
+        final HsqlProperties props = new HsqlProperties();
+        final Database database = DatabaseManager.getDatabase(
+                DatabaseURL.S_FILE, dbPath, props);
+        // will fail as the database is open
+        HsqldbEmbeddedDatabaseDeleter.deleteDatabase(dbURI);
+        // close and wait
+        if (database != null) {
+            database.close(Database.CLOSEMODE_NORMAL);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {
             }
-
-            error = false;
-        } catch(NullPointerException npe) {
-            s_logger.log(SEVERE_LEVEL, "null file parameter", npe);
-        } catch (SecurityException se) {
-            s_logger.log(SEVERE_LEVEL, "Security restriction", se);
-        } catch (Exception e) {
-            s_logger.log(SEVERE_LEVEL, file + " delete aborted.", e);
         }
-
-        if (deleted) {
-            s_logger.log(INFO_LEVEL, "{0} deleted.", file);
-        } else if (!exists) {
-            s_logger.log(INFO_LEVEL, "{0} did not exist.", file);
-        }
-
-
-        return !error & (deleted || !exists);
+        // try again; should succeed
+        HsqldbEmbeddedDatabaseDeleter.deleteDatabase(dbURI);
     }
-    //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="deleteTree(File)">
-    private static boolean deleteTree(final File root) {
+    private static File toCanonicalOrAbsoluteFile(String filePath) {
+        assert filePath != null : "filePath paramter must not be null.";
+        return toCanonicalOrAbsoluteFile(new File(filePath));
+
+    }
+
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
+    private static File toCanonicalOrAbsoluteFile(File file) {
         try {
-            if (root.isDirectory()) {
-                final File[] files = root.listFiles();
-                for (int i = 0; files != null && i < files.length; i++) {
-                    final File file = files[i];
-                    if (!deleteTree(file)) {
-                        return false;
-                    }
-                }
-            }
-            return root.exists()
-                    ? root.delete()
-                    : true;
-        } catch (Exception e) {
-            s_logger.log(SEVERE_LEVEL, root + ": delete tree failed.", e);
-            return false;
+            return file.getCanonicalFile();
+        } catch (Throwable t) {
+            return file.getAbsoluteFile();
         }
     }
-    //</editor-fold>
-    //</editor-fold>
+
+    private HsqldbEmbeddedDatabaseDeleter() {
+        throw new AssertionError("Pure utility class.");
+    }
+
 }

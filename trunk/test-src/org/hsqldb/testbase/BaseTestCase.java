@@ -41,8 +41,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
-import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
@@ -55,16 +56,18 @@ import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.jdbc.JDBCDriver;
 import org.hsqldb.jdbc.testbase.SqlState;
-import org.hsqldb.lib.IntValueHashMap;
-import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.testbase.ConnectionFactory.ConnectionFactoryEventListener;
-
 
 /**
- * Abstract HSQLDB-targeted JUnit 3.8 test case. <p>
+ * Abstract HSQLDB-targeted JUnit 3.8 test case.
+ * <p>
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.0.1
@@ -74,7 +77,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     public static final String BTCK_CLOSE_EMBEDDED_DATABASES_HANDLER = "close.embedded.databases.handler";
     public static final String BTCK_CLOSE_EMBEDDED_DATABASES_ON_TEARDOWN = "close.embedded.databases.on.teardown";
-    public static final String DEFAULT_DRIVER = "org.hsqldb.jdbcDriver";
+    public static final String DEFAULT_DRIVER = JDBCDriver.class.getName();
     public static final int DEFAULT_INCOMPATIBLE_DATA_TYPE_CONVERSION_ERROR_CODE = -ErrorCode.X_42561;
     public static final String DEFAULT_PASSWORD = "";
     public static final String DEFAULT_PROPERTY_KEY_PREFIX = "hsqldb.test.suite.";
@@ -85,42 +88,42 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     public static final String DEFAULT_URL = "jdbc:hsqldb:mem:testcase";
     public static final String DEFAULT_USER = "SA";
     //
-    private static final String LINE_SEPARATOR =
-            PropertyGetter.getProperty("line.separator", "\n");
+    private static final String LINE_SEPARATOR
+            = PropertyGetter.getProperty("line.separator", "\n");
     //
-    private static final String EXCEPTION_FORMAT =
-            "{0}[EXCEPTION]: {1}" + LINE_SEPARATOR
+    private static final String EXCEPTION_FORMAT
+            = "{0}[EXCEPTION]: {1}" + LINE_SEPARATOR
             + "{2}" + LINE_SEPARATOR;
     //
     private static final Class<?>[] NO_PARMS = new Class<?>[0];
     //
     private static final String PRINTLN_FORMAT = "{0}" + LINE_SEPARATOR;
     //
-    private static final String PROGRESS_FORMAT =
-            "{0}[PROGRESS]: {1}" + LINE_SEPARATOR;
+    private static final String PROGRESS_FORMAT
+            = "{0}[PROGRESS]: {1}" + LINE_SEPARATOR;
     //
-    private static final String TEST_LABEL_FORMAT_1 =
-            LINE_SEPARATOR
+    private static final String TEST_LABEL_FORMAT_1
+            = LINE_SEPARATOR
             + "--------------------------------------------------------------------------------" + LINE_SEPARATOR
             + "TEST SUBJECT : {0}.{1}" + LINE_SEPARATOR
             + "TEST FIXTURE : {2}.{3}" + LINE_SEPARATOR
             + "TEST MESSAGE : {4}" + LINE_SEPARATOR
             + "--------------------------------------------------------------------------------" + LINE_SEPARATOR;
     //
-    private static final String TEST_LABEL_FORMAT_2 =
-            LINE_SEPARATOR
+    private static final String TEST_LABEL_FORMAT_2
+            = LINE_SEPARATOR
             + "--------------------------------------------------------------------------------" + LINE_SEPARATOR
             + "TEST SUBJECT : {0}.{1}" + LINE_SEPARATOR
             + "TEST FIXTURE : {2}.{3}" + LINE_SEPARATOR
             + "--------------------------------------------------------------------------------" + LINE_SEPARATOR;
     //
-    private static final String WARNING_FORMAT =
-            "{0}[WARNING]: {1}" + LINE_SEPARATOR;
+    private static final String WARNING_FORMAT
+            = "{0}[WARNING]: {1}" + LINE_SEPARATOR;
     //
-    private static final ConnectionFactory.ConnectionFactoryEventListener s_embeddedDatabaseCloser = HsqldbEmbeddedDatabaseCloser.Instance;
+    private static final ConnectionFactoryEventListener s_embeddedDatabaseCloser = HsqldbEmbeddedDatabaseCloser.Instance;
     //
-    protected static final IntValueHashMap s_fieldValueMap =
-            new IntValueHashMap();
+    @SuppressWarnings("CollectionWithoutInitialCapacity")
+    protected static final Map<String, Integer> s_fieldValueMap = new HashMap<>();
     //
     protected static final String[][] s_rsconcurrency = new String[][]{
         {
@@ -143,7 +146,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             "java.sql.ResultSet.HOLD_CURSORS_OVER_COMMIT"
         }
     };
-    
+
     //
     protected static final String[][] s_rstype = new String[][]{
         {
@@ -161,7 +164,8 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     };
 
     /**
-     * by computing a shallow string representation of the given array. <p>
+     * by computing a shallow string representation of the given array.
+     * <p>
      *
      * @param array for which to produce the string representation.
      * @return the string representation.
@@ -187,9 +191,9 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * for the given array objects.
      *
      * @param expected array
-     * @param actual array
+     * @param actual   array
      * @return an "arrays not equal" failure message describing the given
-     * values.
+     *         values.
      */
     protected static String arraysNotEqualMessage(Object expected, Object actual) {
         // TODO:  implement cf-style message, but with either context info
@@ -204,7 +208,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * with special handling for Java array objects.
      *
      * @param expected object
-     * @param actual object
+     * @param actual   object
      * @throws java.lang.Exception as thrown by any internal operation.
      */
     protected static void assertJavaArrayEquals(Object expected, Object actual) throws Exception {
@@ -297,10 +301,11 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     /**
-     * in terms of producing the same character sequence. <p>
+     * in terms of producing the same character sequence.
+     * <p>
      *
      * @param expected reader; must not be null.
-     * @param actual reader; must not be null.
+     * @param actual   reader; must not be null.
      * @throws java.lang.Exception if an I/0 error occurs.
      */
     protected static void assertReaderEquals(Reader expected, Reader actual) throws Exception {
@@ -333,7 +338,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * in terms of column count and order-sensitive row content.
      *
      * @param expected result
-     * @param actual result
+     * @param actual   result
      * @throws java.lang.Exception thrown by any internal operation.
      */
     protected static void assertResultSetEquals(ResultSet expected, ResultSet actual) throws Exception {
@@ -374,11 +379,31 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         }
     }
 
+    protected static void assertStringBuilderEquals(final StringBuilder expected, StringBuilder actual) {
+        if (expected == actual) {
+            return;
+        }
+        assertTrue("expected != null", expected != null);
+        assertTrue("actual != null", actual != null);
+        if (expected.length() != actual.length()) {
+            assertEquals(
+                    expected.length(), actual.length());
+        }
+        int count = expected.length();
+        for (int i = 0; i < count; i++) {
+            if (expected.charAt(i) != actual.charAt(i)) {
+                String msg = String.format("expected.charAt(%s) == actual.charAt(%s)", i,i);
+                assertEquals(msg, expected.charAt(i), actual.charAt(i));
+            }
+        }
+    }
+
     /**
-     * in terms of producing the same octet sequence. <p>
+     * in terms of producing the same octet sequence.
+     * <p>
      *
      * @param expected octet sequence, as an InputStream; must not be null
-     * @param actual octet sequence, as an InputStream; must not be null
+     * @param actual   octet sequence, as an InputStream; must not be null
      * @throws java.lang.Exception if an I/0 error occurs.
      */
     protected static void assertStreamEquals(final InputStream expected, final InputStream actual) throws Exception {
@@ -409,11 +434,14 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     /**
-     * indicating the given object's component type. <p>
+     * indicating the given object's component type.
+     * <p>
      *
-     * For null, returns 'X' (unknown). <p>
+     * For null, returns 'X' (unknown).
+     * <p>
      *
-     * For 1D arrays, returns: <p>
+     * For 1D arrays, returns:
+     * <p>
      *
      * <pre>
      * BaseType Character    Type            Interpretation
@@ -429,7 +457,8 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * Z                        boolean       true or false
      * </pre>
      *
-     * for multi-arrays, returns 'N' (n-dimensional). <p>
+     * for multi-arrays, returns 'N' (n-dimensional).
+     * <p>
      *
      * for (non-null, non-array) object ref, returns 'O' (Object).
      *
@@ -459,6 +488,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             return 'O'; // non-array object instance
         }
     }
+
     protected static String sqlExceptionToString(final SQLException ex) {
         String simpleName = ex.getClass().getSimpleName();
         String sqlState = ex.getSQLState();
@@ -471,23 +501,29 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 //                && suppressed.length > 0
 //                && suppressed[0] != null;
 
-boolean chained = null != ex.getNextException();
+        boolean chained = null != ex.getNextException();
 
-return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
-        simpleName,
-        sqlState,
-        errorCode,
-        chained,
-        message);
+        return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
+                simpleName,
+                sqlState,
+                errorCode,
+                chained,
+                message);
     }
     //
     private ConnectionFactory m_connectionFactory;
-    private ConnectionFactory.ConnectionFactoryEventListener m_embeddedDatabaseCloser;
+    private ConnectionFactoryEventListener m_embeddedDatabaseCloser;
+    @SuppressWarnings("ProtectedField")
     protected boolean m_resultSetConcurrencyDetermined;
+    @SuppressWarnings("ProtectedField")
     protected boolean m_supportsForwardOnlyUpdates;
+    @SuppressWarnings("ProtectedField")
     protected boolean m_supportsScrollInsensitiveUpdates;
+    @SuppressWarnings("ProtectedField")
     protected boolean m_supportsScrollSensitiveUpdates;
+    @SuppressWarnings("ProtectedField")
     protected boolean m_supportsUpdates;
+
     /**
      * Constructs a new TestCase.
      *
@@ -497,7 +533,9 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
         super(name);
     }
 
-    // for subclasses
+    /**
+     * For subclasses.
+     */
     protected BaseTestCase() {
         super();
     }
@@ -505,7 +543,7 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
     /**
      * for the given key.
      *
-     * @param key to match.
+     * @param key          to match.
      * @param defaultValue when there is no matching property.
      * @return the matching value.
      */
@@ -515,11 +553,11 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
                 translatePropertyKey(key),
                 defaultValue);
     }
-    
+
     /**
      * for the given key.
      *
-     * @param key to match.
+     * @param key          to match.
      * @param defaultValue when there is no matching property.
      * @return the matching value.
      */
@@ -538,11 +576,26 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
         return getProperty("driver", BaseTestCase.DEFAULT_DRIVER);
     }
 
+    /**
+     * for the given key.
+     *
+     * @param <T>          generic return type.
+     * @param key          to match (case-insensitive).
+     * @param type         specific type of {{@link Enum}
+     * @param defaultValue when there is no matching property.
+     * @return the matching value.
+     */
+    public <T extends Enum<T>> T getEnumProperty(String key, Class<T> type, T defaultValue) {
+        return PropertyGetter.getEnumProperty(
+                translatePropertyKey(key),
+                type,
+                defaultValue);
+    }
 
     /**
      * for the given key.
      *
-     * @param key to match.
+     * @param key          to match.
      * @param defaultValue when there is no matching property.
      * @return the matching value.
      */
@@ -551,7 +604,6 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
                 translatePropertyKey(key),
                 defaultValue);
     }
-
 
     /**
      * as defined in system properties.
@@ -565,7 +617,7 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
     /**
      * for the given key.
      *
-     * @param key to match.
+     * @param key          to match.
      * @param defaultValue when there is no matching property.
      * @return the matching value.
      */
@@ -593,70 +645,69 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
     public String getUser() {
         return getProperty("user", BaseTestCase.DEFAULT_USER);
     }
+
     private Method getStackTraceMethod(
             final StackTraceElement[] stackTrace,
             final int index) {
         if (stackTrace == null || stackTrace.length <= index) {
             return null;
         }
-        
+
         Method method = null;
         String methodName = stackTrace[index].getMethodName();
-        
+
         try {
             method = getClass().getMethod(methodName, NO_PARMS);
-        } catch (NoSuchMethodException ex) {
-        } catch (SecurityException ex) {
+        } catch (NoSuchMethodException | SecurityException ex) {
         }
-        // Sorry - Java 7+ only
-        //catch (NoSuchMethodException | SecurityException ex) {
-        //}
-        
+
         return method;
     }
+
     private String getSubjectClassName(Method method) {
         if (method != null && method.isAnnotationPresent(ForSubject.class)) {
             return method.getAnnotation(ForSubject.class).value().getCanonicalName();
         }
-        
+
         if (getClass().isAnnotationPresent(ForSubject.class)) {
             return getClass().getAnnotation(ForSubject.class).value().getCanonicalName();
         }
-        
+
         if (getClass().getName().endsWith("Test")) {
             String name = getClass().getName();
             return "[?]" + name.substring(0, name.length() - 4);
         }
-        
+
         return null;
     }
+
     private String getSubjectMethodName(Method method) {
-        
+
         if (method != null && method.isAnnotationPresent(OfMethod.class)) {
             String[] result = method.getAnnotation(OfMethod.class).value();
-            
+
             return (result.length == 1) ? result[0] : Arrays.toString(result);
         }
-        
+
         if (getClass().isAnnotationPresent(OfMethod.class)) {
             String[] result = getClass().getAnnotation(OfMethod.class).value();
-            
+
             return (result.length == 1) ? result[0] : Arrays.toString(result);
         }
-        
+
         if (method == null) {
             return null;
         }
-        
+
         String methodName = method.getName();
-        
+
         if (methodName.startsWith("test")) {
             String name = methodName.substring(4);
-            
+
             if (name.length() > 1) {
                 char ch1 = name.charAt(0);
                 char ch2 = name.charAt(1);
-                
+
                 if (Character.isLowerCase(ch2)
                         && Character.isUpperCase(ch1)) {
                     name = Character.toLowerCase(ch1)
@@ -665,12 +716,13 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
             } else {
                 name = methodName.toLowerCase();
             }
-            
+
             return "[?]" + name;
         }
-        
+
         return null;
     }
+
     //    protected void printTestLabel() {
 //        printTestLabel0(null, null);
 //    }
@@ -682,35 +734,35 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
      * to standard output.
      *
      * @param method the method
-     * @param msg to print
+     * @param msg    to print
      */
     @SuppressWarnings("AssignmentToMethodParameter")
     private void printTestLabel0(Method method, final Object msg) {
         if (!isPrintTestLabels()) {
             return;
         }
-        
+
         if (method == null) {
             method = this.getStackTraceMethod(
                     Thread.currentThread().getStackTrace(),
                     3);
         }
-        
+
         String subjectClassName = getSubjectClassName(method);
         String subjectMethodName = getSubjectMethodName(method);
-        
+
         if (subjectClassName == null) {
             subjectClassName = "<<Unspecified Subject Class>>";
         }
         if (subjectMethodName == null) {
             subjectMethodName = "<<Unspecified Subject Method>>";
         }
-        
+
         String callerClassName = getClass().getName();
         String callerMethodName = method.getName();
-        
+
         String fullMessage;
-        
+
         if (msg == null) {
             fullMessage = MessageFormat.format(
                     TEST_LABEL_FORMAT_2,
@@ -727,20 +779,22 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
                     callerMethodName,
                     msg);
         }
-        
+
         print(fullMessage);
     }
+
     // invoked on teardown to ensure that the built-in listeners always
     // get notified *after* all subclass listener registrations.
     protected void activateConnectionFactoryListeners() {
         if (isCloseEmbeddedDatabasesOnTeardown()) {
             m_embeddedDatabaseCloser = getEmbeddedDatabaseCloser();
-            
+
             if (m_embeddedDatabaseCloser != null) {
                 connectionFactory().addEventListener(m_embeddedDatabaseCloser);
             }
         }
     }
+
     /**
      * Checks to ensure either SQL feature not supported with SQL state '0A...'
      * or SQL exception with error code that indicates statement is closed.
@@ -749,11 +803,11 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
      */
     protected void checkResultSetAfterLastOrNotSupportedException(final SQLException ex) {
         final int expectedErrorCode = this.getResultSetAfterLastErrorCode();
-        final String expectedSqlState = SqlState.Exception.InvalidCursorState
-                .IdentifiedCursorNotPositionedOnRowIn_UPDATE_DELETE_SET_or_GET_Statement.Value;
-        
+        final String expectedSqlState = SqlState.Exception.InvalidCursorState.IdentifiedCursorNotPositionedOnRowIn_UPDATE_DELETE_SET_or_GET_Statement.Value;
+
         checkSqlExceptionStateAndCode(ex, expectedSqlState, expectedErrorCode);
     }
+
     /**
      * Checks to ensure either sql feature not supported with sql state '0A...'
      * or sql exception with error code that indicates statement is closed.
@@ -762,33 +816,35 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
      */
     protected void checkResultSetBeforeFirstOrNotSupportedException(
             final SQLException ex) {
-        final String expectedSQLState = SqlState.Exception.InvalidCursorState
-                .IdentifiedCursorNotPositionedOnRowIn_UPDATE_DELETE_SET_or_GET_Statement.Value;
+        final String expectedSQLState = SqlState.Exception.InvalidCursorState.IdentifiedCursorNotPositionedOnRowIn_UPDATE_DELETE_SET_or_GET_Statement.Value;
         final int expectedErrorCode = getResultSetBeforeFirstErrorCode();
-        
+
         checkSqlExceptionStateAndCode(ex, expectedSQLState, expectedErrorCode);
     }
+
     /**
-     * Checks to ensure either sql feature not supported with sql state '0A...'
+     * Checks to ensure either SQL feature not supported with SQL state '0A...'
      * or sql exception with error code that indicates statement is closed.
      *
      * @param ex to check
      */
     protected void checkResultSetClosedOrNotSupportedException(SQLException ex) {
-        if (ex instanceof SQLFeatureNotSupportedException) {
+        if (ex == null) {
+            fail("Exception is null");
+        } else if (ex instanceof SQLFeatureNotSupportedException) {
             assertEquals("0A", ex.getSQLState().substring(0, 2));
         } else {
             assertEquals("sql state", SqlState.Exception.InvalidCursorState.IdentifiedCursorIsNotOpen.Value, ex.getSQLState());
             assertEquals("Error code for: " + ex.toString(), getResultSetClosedErrorCode(), ex.getErrorCode());
         }
     }
+
     protected void checkSqlExceptionStateAndCode(final SQLException ex, final String expectedSqlState, final int expectedErrorCode) {
         final SqlState sqlState = SqlState.forException(ex);
         final int errorCode = ex.getErrorCode();
         final String exceptionString = sqlExceptionToString(ex);
         if (ex instanceof SQLFeatureNotSupportedException) {
-            final String expectedClass = SqlState.Exception.Constant
-                    .SqlStateClass.FeatureNotSupported;
+            final String expectedClass = SqlState.Exception.Constant.SqlStateClass.FeatureNotSupported;
             final String actualClass = sqlState.Class;
             final String message = "SQL State Class for " + exceptionString;
             assertEquals(message, expectedClass, actualClass);
@@ -800,10 +856,12 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
             assertEquals(message, expectedErrorCode, errorCode);
         }
     }
+
     /**
      *
      * that produces, tracks and closes the JDBC objects used by this test
-     * suite. <p>
+     * suite.
+     * <p>
      *
      * @return the factory.
      */
@@ -813,11 +871,13 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
         }
         return m_connectionFactory;
     }
+
     protected void deactivateConnectionFactoryListeners() {
         if (m_embeddedDatabaseCloser != null) {
             connectionFactory().removeEventListener(m_embeddedDatabaseCloser);
         }
     }
+
     protected void determineResultSetConcurrency() throws Exception {
         if (m_resultSetConcurrencyDetermined) {
             return;
@@ -830,25 +890,27 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
         m_supportsUpdates = m_supportsForwardOnlyUpdates || m_supportsScrollInsensitiveUpdates || m_supportsScrollSensitiveUpdates;
         m_resultSetConcurrencyDetermined = true;
     }
+
     /**
      * using the default connection.
      *
      * @param resource on class path.
-     * @throws java.lang.Exception thrown by any internal operation.
+     * @throws java.lang.Exception that is thrown by any internal operation.
      */
-    @SuppressWarnings({"AssignmentToMethodParameter"})
-    protected void executeScript(String resource) throws Exception {
-        if (resource == null) {
-            throw new RuntimeException("resource parameter must not be null.");
+    protected void executeScript(final String resource) throws Exception {
+        final String trimmed = resource == null ? null : resource.trim();
+        if (trimmed == null) {
+            throw new NullPointerException("resource parameter must not be null.");
+        } else if (trimmed.isEmpty()) {
+            throw new IllegalArgumentException("resource parameter must not be empty.");
         }
-        resource = resource.trim();
-        URL url = getResource(resource);
-        String packageName = this.getClass().getPackage().getName();
+        final URL url = getResource(trimmed);
+        final String packageName = this.getClass().getPackage().getName();
         if (url == null) {
-            String fullResource = (resource.startsWith("/"))
-                    ? resource
-                    : '/' + packageName.replace('.', '/') + '/' + resource;
-            throw new RuntimeException(
+            final String fullResource = (trimmed.startsWith("/"))
+                    ? trimmed
+                    : '/' + packageName.replace('.', '/') + '/' + trimmed;
+            throw new UnsupportedOperationException(
                     "No such resource on CLASSPATH: [" + fullResource + "]");
         }
         Connection conn = null;
@@ -859,7 +921,7 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
             conn = newConnection();
             stmt = connectionFactory().createStatement(conn);
             while (it.hasNext()) {
-                sql = (String) it.next();
+                sql = it.next();
                 stmt.execute(sql);
             }
             conn.commit();
@@ -879,40 +941,37 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
             if (stmt != null) {
                 try {
                     stmt.close();
-                } catch (Exception e) {
+                } catch (SQLException e) {
                 }
             }
             if (conn != null) {
                 try {
                     conn.close();
-                } catch (Exception e) {
+                } catch (SQLException e) {
                 }
             }
         }
     }
+
     protected ConnectionFactoryEventListener getEmbeddedDatabaseCloser() {
         ConnectionFactoryEventListener closer = null;
         String closerFQN = getProperty(BTCK_CLOSE_EMBEDDED_DATABASES_HANDLER,
                 HsqldbEmbeddedDatabaseCloser.class.getName());
-        
+
         if (!HsqldbEmbeddedDatabaseCloser.class.getName().equals(closerFQN)) {
             try {
                 Class<?> closerClass = Class.forName(closerFQN);
-                closer = (ConnectionFactory.ConnectionFactoryEventListener) closerClass.newInstance();
-            } catch (ClassNotFoundException cnfe) {
-            } catch (IllegalAccessException iae) {
-            } catch (InstantiationException ie) {
+                closer = (ConnectionFactoryEventListener) closerClass.newInstance();
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException cnfe) {
             }
-            // Sorry - Java 7+ only
-            // } catch (ClassNotFoundException | IllegalAccessException | InstantiationException cnfe) {
-            // }
         }
         if (closer == null) {
             closer = s_embeddedDatabaseCloser;
         }
-        
+
         return closer;
     }
+
     /**
      * with which named public static int field is initialized.
      *
@@ -921,7 +980,7 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
      * @return value with which field is initialized.
      */
     protected int getFieldValue(final String fieldName) throws Exception {
-        int fieldValue = BaseTestCase.s_fieldValueMap.get(fieldName, Integer.MIN_VALUE);
+        int fieldValue = BaseTestCase.s_fieldValueMap.getOrDefault(fieldName, Integer.MIN_VALUE);
         if (fieldValue > Integer.MIN_VALUE) {
             return fieldValue;
         }
@@ -933,9 +992,11 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
         BaseTestCase.s_fieldValueMap.put(fieldName, fieldValue);
         return fieldValue;
     }
+
     protected int getIncompatibleDataTypeConversionErrorCode() {
         return getIntProperty("result.set.incompatible.data.type.conversion.error.code", DEFAULT_INCOMPATIBLE_DATA_TYPE_CONVERSION_ERROR_CODE);
     }
+
     /**
      * for file: or jar: resources.
      *
@@ -943,31 +1004,34 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
      * @throws java.io.IOException on error
      * @return array of paths to the resources in the given package
      */
-    protected String[] getResoucesInPackage(final String packageName) throws IOException {
+    protected String[] getResoucesInPackage(final String packageName) throws IOException, URISyntaxException {
         String packagePath = packageName.replace('.', '/');
         if (!packagePath.endsWith("/")) {
             packagePath += '/';
         }
-        
+
         Enumeration<URL> resources = getResources(packagePath);
-        OrderedHashSet set = new OrderedHashSet();
+        @SuppressWarnings("CollectionWithoutInitialCapacity")
+        Set<String> set = new HashSet<>();
         while (resources.hasMoreElements()) {
             URL resource = resources.nextElement();
             String protocol = resource.getProtocol();
             if ("file".equals(protocol)) {
-                try {
-                    File[] files = new File(new URI(resource.toString()).getPath()).listFiles();
-                    if (files == null) {
+                File f = Paths.get(resource.toURI()).toFile();
+                if (f.isFile()) {
+                    set.add(f.getAbsolutePath());
+                    break;
+                }
+                File[] files = f.listFiles();
+                if (files == null) {
+                    continue;
+                }
+                for (int i = 0; i < files.length; i++) {
+                    File file = files[i];
+                    if (file.isDirectory()) {
                         continue;
                     }
-                    for (int i = 0; i < files.length; i++) {
-                        File file = files[i];
-                        if (file.isDirectory()) {
-                            continue;
-                        }
-                        set.add('/' + packagePath + file.getName());
-                    }
-                } catch (Exception ex) {
+                    set.add(file.getAbsolutePath());
                 }
             } else if ("jar".equals(protocol)) {
                 Enumeration<JarEntry> entries = ((JarURLConnection) resource.openConnection()).getJarFile().entries();
@@ -990,18 +1054,23 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
         set.toArray(names);
         return names;
     }
+
     protected URL getResource(String resource) throws Exception {
         return getClass().getResource(resource);
     }
+
     protected Enumeration<URL> getResources(String resource) throws IOException {
         return getClass().getClassLoader().getResources(resource);
     }
+
     protected int getResultSetAfterLastErrorCode() {
         return getIntProperty("result.set.after.last.error.code", DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE);
     }
+
     protected int getResultSetBeforeFirstErrorCode() {
         return getIntProperty("result.set.before.first.error.code", DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE);
     }
+
     protected int getResultSetClosedErrorCode() {
         return getIntProperty("result.set.closed.error.code", DEFAULT_RESULT_SET_CLOSED_ERROR_CODE);
     }
@@ -1015,33 +1084,38 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
     protected boolean isCloseEmbeddedDatabasesOnTeardown() {
         return getBooleanProperty(BTCK_CLOSE_EMBEDDED_DATABASES_ON_TEARDOWN, false);
     }
+
     protected boolean isFailStubTestCase() {
         return getBooleanProperty("fail.stubbed.testcase", true);
     }
+
     protected boolean isPrint() {
         return getBooleanProperty("print.test.output", true);
     }
+
     protected boolean isPrintExceptions() {
         return isPrint() && getBooleanProperty("print.test.exceptions", true);
     }
+
     protected boolean isPrintProgress() {
         return isPrint() && getBooleanProperty("print.test.progress", true);
     }
+
     protected boolean isPrintTestLabels() {
         return this.getBooleanProperty("print.test.lables", true);
     }
+
     protected boolean isPrintWarnings() {
         return isPrint() && getBooleanProperty("print.test.warnings", true);
     }
 
-
     protected boolean isTestARRAY() {
         return getBooleanProperty("test.types.array", false);
     }
+
     protected boolean isTestDATALINK() {
         return getBooleanProperty("test.types.datalink", true);
     }
-
 
     protected boolean isTestDISTINCT() {
         return getBooleanProperty("test.types.distinct", false);
@@ -1063,10 +1137,10 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
         return getBooleanProperty("test.types.rowid", false);
     }
 
-
     protected boolean isTestSQLXML() {
         return getBooleanProperty("test.types.sqlxml", false);
     }
+
     protected boolean isTestSTRUCT() {
         return getBooleanProperty("test.types.struct", false);
     }
@@ -1074,23 +1148,22 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
     protected boolean isTestUpdates() throws Exception {
         return supportsUpdates() && getBooleanProperty("test.result.set.updates", true);
     }
+
     /**
      * with the driver, url, user and password specified by the corresponding
-     * protected accessors of this class. <p>
+     * protected accessors of this class.
+     * <p>
      *
      * @return a new connection.
      * @throws java.lang.Exception thrown by any internal operation.
      */
     protected Connection newConnection() throws Exception {
         final String driver = getDriver();
-        // not actually needed under JDBC4, as long as jar has META-INF service entry
-        Class.forName(driver);
         final String url = getUrl();
         final String user = getUser();
         final String password = getPassword();
         return connectionFactory().newConnection(driver, url, user, password);
     }
-
 
     // Forward-Only, Read-Only
     protected ResultSet newForwardOnlyReadOnlyResultSet(String query) throws Exception {
@@ -1119,16 +1192,19 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
     protected ResultSet newScrollableInsensitiveUpdateableResultSet(String query) throws Exception {
         return newResultSet(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE, query);
     }
+
     /**
-     * Invoked before the main teardown behavior occurs.
+     * Invoked before the main tear down behavior occurs.
      *
      * @throws Exception on error
      */
     protected void postTearDown() throws Exception {
         deactivateConnectionFactoryListeners();
     }
+
     /**
-     * Activates any configured ConnectionFactoryEventLiseners. <p>
+     * Activates any configured ConnectionFactoryEventLiseners.
+     * <p>
      *
      * Invoked before the main teardown behavior occurs, providing a facility
      * for controlling event listener registration / invocation
@@ -1138,13 +1214,16 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
     protected void preTearDown() throws Exception {
         activateConnectionFactoryListeners();
     }
+
     /**
      * to standard output.
      *
      * @param msg to print
      */
-    protected void print(Object msg) {
+    @SuppressWarnings("FinalMethod")
+    protected final void print(Object msg) {
         if (isPrint()) {
+            @SuppressWarnings("UseOfSystemOutOrSystemErr")
             final PrintStream ps = System.out;
 
             if (ps != null) {
@@ -1154,6 +1233,8 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
             }
         }
     }
+
+    @SuppressWarnings("FinalMethod")
     protected final void printException(Throwable t) {
         if (isPrintExceptions()) {
             StringWriter sw = new StringWriter();
@@ -1167,6 +1248,8 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
                     sw.toString()));
         }
     }
+
+    @SuppressWarnings("FinalMethod")
     protected final void printProgress(final Object msg) {
         if (isPrintProgress()) {
             print(MessageFormat.format(
@@ -1175,6 +1258,8 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
                     msg));
         }
     }
+
+    @SuppressWarnings("FinalMethod")
     protected final void printWarning(Throwable t) {
         if (isPrintWarnings()) {
             print(MessageFormat.format(
@@ -1184,20 +1269,25 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
                     LINE_SEPARATOR));
         }
     }
+
     /**
      * to standard output.
      */
+    @SuppressWarnings("FinalMethod")
     protected final void println() {
         print(LINE_SEPARATOR);
     }
+
     /**
      * to standard output.
      *
      * @param msg to print
      */
+    @SuppressWarnings("FinalMethod")
     protected final void println(final Object msg) {
         print(MessageFormat.format(PRINTLN_FORMAT, msg));
     }
+
     @Override
     protected void runTest() throws Throwable {
         String testCaseName = this.getName();
@@ -1209,12 +1299,12 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
             // methods of this class but excludes the
             // inherited ones.
             runMethod = getClass().getMethod(testCaseName, NO_PARMS);
-        } catch (Exception e) {
+        } catch (NoSuchMethodException | SecurityException e) {
             fail("Fixture Method \"" + testCaseName + "()\" not found: " + e);
             // stupid compiler trick
             return;
         }
-        
+
         if (!Modifier.isPublic(runMethod.getModifiers())) {
             fail("Fixture Method \"" + testCaseName + "()\" should be public");
         }
@@ -1237,6 +1327,7 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
             throw e;
         }
     }
+
     /**
      * Performs test setup.
      *
@@ -1247,9 +1338,11 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
         super.setUp();
         connectionFactory().closeRegisteredObjects();
     }
+
     protected void stubTestResult() {
         stubTestResult("The test case is only a stub.");
     }
+
     protected void stubTestResult(String message) {
         if (isFailStubTestCase()) {
             fail(message);
@@ -1275,16 +1368,18 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
         determineResultSetConcurrency();
         return m_supportsUpdates;
     }
+
     /**
-     * Performs test teardown, which includes preTeardown and postTeardown<p>
+     * Performs test tear down, which includes preTeardown and postTeardown<p>
      *
      * It is highly recommended to use the pre and post methods, rather than
-     * overriding the teardown method, which contains important base
-     * functionality while other teardown work may need to come either before or
+     * overriding the tear down method, which contains important base
+     * functionality while other tear down work may need to come either before
+     * or
      * after this.
      *
      * @throws java.lang.Exception if any, thrown as part of tearing down the
-     * test fixture.
+     *                             test fixture.
      */
     @Override
     protected void tearDown() throws Exception {
@@ -1292,8 +1387,7 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
         Exception preTearDownException = null;
         Exception tearDownException = null;
         Exception postTearDownException = null;
-        
-        
+
         try {
             preTearDown();
         } catch (Exception ex) {
@@ -1322,6 +1416,7 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
             throw preTearDownException;
         }
     }
+
     /**
      * by prepending the test suite property prefix.
      *
@@ -1337,7 +1432,7 @@ return String.format("%s{state=%s,code=%s,chained=%s,msg=%s}",
                     DEFAULT_PROPERTY_KEY_PREFIX);
         } catch (SecurityException se) {
         }
-        
+
         return prefix + key;
     }
 }

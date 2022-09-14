@@ -30,13 +30,12 @@
 package org.hsqldb.map;
 
 import java.util.Random;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 @ForSubject(ValuePoolHashMap.class)
 public class ValuePoolHashMapTest extends BaseTestCase {
@@ -51,7 +50,7 @@ public class ValuePoolHashMapTest extends BaseTestCase {
         StopWatch sw = new org.hsqldb.lib.StopWatch();
         ValuePoolHashMap map = new ValuePoolHashMap(POOLSIZE, POOLSIZE,
                 BaseHashMap.PURGE_HALF);
-        int maxCount = 5000000;
+        int maxCount = 5000;
 
         try {
             for (int rounds = 0; rounds < 3; rounds++) {
@@ -96,6 +95,10 @@ public class ValuePoolHashMapTest extends BaseTestCase {
 
     @ForSubject(ValuePoolHashMap.class)
     public void testValuePoolIntegerHashMap() {
+        if(!getBooleanProperty("test.value.pool.integer.hashmap", true)) {
+            printProgress("Test disabled in test properties");
+            return;
+        }
         ValuePoolHashMap pool   = new ValuePoolHashMap(1024 * poolFactor, 1024 * poolFactor, BaseHashMap.PURGE_HALF);
         Random             random = new Random();
 

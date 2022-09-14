@@ -31,8 +31,8 @@
 
 package org.hsqldb.testbase;
 
-import org.hsqldb.DatabaseManager;
 import org.hsqldb.Database;
+import org.hsqldb.DatabaseManager;
 
 /**
  * Closes all in-process HSQLDB database instances that reachable via the
@@ -43,14 +43,15 @@ import org.hsqldb.Database;
  * @version 2.0.1
  * @since 2.0.1
  */
-public class HsqldbEmbeddedDatabaseCloser implements ConnectionFactory.ConnectionFactoryEventListener {
+public class HsqldbEmbeddedDatabaseCloser implements ConnectionFactoryEventListener {
 
+
+    public static final ConnectionFactoryEventListener Instance = new HsqldbEmbeddedDatabaseCloser();
     private HsqldbEmbeddedDatabaseCloser() {}
 
-    public static final ConnectionFactory.ConnectionFactoryEventListener Instance = new HsqldbEmbeddedDatabaseCloser();
-
-    public void finishedClosingRegisteredObjects(ConnectionFactory source) {
-        DatabaseManager.closeDatabases(Database.CLOSEMODE_IMMEDIATELY);
+    @Override
+    public void registeredObjectsClosed(final ConnectionFactory source) {
+        DatabaseManager.closeDatabases(Database.CLOSEMODE_NORMAL);
     }
 
 }

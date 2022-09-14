@@ -29,25 +29,128 @@
  */
 package org.hsqldb.types;
 
+import java.sql.ResultSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.hsqldb.Tokens;
 import org.hsqldb.testbase.BaseTestCase;
 import org.hsqldb.testbase.ForSubject;
 import org.hsqldb.testbase.OfMethod;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
+/**
+ *
+ * @author fredt
+ */
 @ForSubject(IntervalType.class)
 @OfMethod("getIntervalType(int,long,int)")
 public class IntervalTypeTest extends BaseTestCase {
+
+    private static TestParameters[] s_parameters = new TestParameters[]{
+        new TestParameters(Types.SQL_INTERVAL_YEAR_TO_MONTH, 4, 0, "200-10", null),
+        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 6, "200 10:12:12.456789", null),
+        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 7, "200 10:12:12.456789", null),
+        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, "200 10:12:12.", null),
+        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 7, "200 10:12:12.456789", null),
+        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, "200 10:12:12.", null),
+        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, "200 10:12:12", null),
+        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, "200 10:0:12", null),
+        new TestParameters(Types.SQL_INTERVAL_YEAR_TO_MONTH, 5, 0, "20000-10", null),
+        new TestParameters(Types.SQL_INTERVAL_YEAR_TO_MONTH, 4, 0, "20000-10", "first part too long"),
+        new TestParameters(Types.SQL_INTERVAL_YEAR_TO_MONTH, 4, 0, "2000-90", "other part too large"),
+        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, "200 10:12:123.456789", "other part to long"),
+        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, "200 10:12 12.456789", "bad separator"),
+        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, "200 10:12:12 456789", "bad separator"),
+        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, "200 10:12:12 .", "bad separator"),
+        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, "20000 10:12:12. ", "first part too long")
+    };
+    private static final Logger LOG = Logger.getLogger(IntervalTypeTest.class.getName());
 
     // hack to avoid null pointer in static initializer during test execution
     static {
         try {
             Collation.getDefaultInstance();
-        } catch (Exception e) {
+            IntervalType it = Type.SQL_INTERVAL_DAY;
+        } catch (Throwable e) {
+            LOG.log(Level.SEVERE, null, e);
         }
     }
 
+    public static Test suite() {
+        TestSuite suite = new TestSuite("IntervalType Test Suite");
+
+        for (TestParameters s_parameter : s_parameters) {
+            suite.addTest(new IntervalTypeTest(s_parameter));
+        }
+
+        return suite;
+    }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
+
+    final TestParameters m_parameters;
+
+    public IntervalTypeTest(final TestParameters parameters) {
+        super(parameters.toString());
+
+        m_parameters = parameters;
+    }
+
+    @Override
+    protected void runTest() throws Exception {
+        try {
+            printProgress("****************************************");
+            printProgress("Using: " + m_parameters);
+            IntervalType t = IntervalType.getIntervalType(
+                    m_parameters.intervalType,
+                    m_parameters.intervalPrecision,
+                    m_parameters.intervalFractionPrecision);
+            printProgress("Actual type: " + t.getDefinition());
+            if (m_parameters.intervalFailMessage != null) {
+                try {
+                    String sql = String.format("VALUES(%s)", m_parameters.toSQLLiteral());
+                    printProgress("Executing query: " + sql);
+                    ResultSet rs = newForwardOnlyReadOnlyResultSet(sql);
+                    @SuppressWarnings("unchecked")
+                    Object value = rs.next() ? rs.getObject(1, t.getJDBCClass()) : null;
+                    String msg = String.format("Expected falure: %s, got value: %s%s",
+                            m_parameters.intervalFailMessage,
+                            value == null ? "" : value.getClass().getSimpleName() + ":",
+                            value);
+                    fail(msg);
+                } catch (Exception ex) {
+                    printProgress("SUCCESS: " + ex);
+                }
+            } else {
+                try {
+                    String sql = String.format("VALUES(%s)", m_parameters.toSQLLiteral());
+                    printProgress("Executing query: " + sql);
+                    ResultSet rs = newForwardOnlyReadOnlyResultSet(sql);
+                    @SuppressWarnings("unchecked")
+                    Object value = rs.next() ? rs.getObject(1, t.getJDBCClass()) : null;
+                    String msg = String.format("SUCCESS: got value: %s%s",
+                            value == null ? "" : value.getClass().getSimpleName() + ":",
+                            value);
+                    printProgress(msg);
+                } catch (Exception ex) {
+                    String msg = String.format("Expected success, got exception: " + ex);
+                    fail(msg);
+                }
+            }
+        } catch (Exception e) {
+            if (m_parameters.intervalFailMessage == null) {
+                fail(e + ": " + m_parameters.toString());
+            } else {
+                printProgress("test failed as expected:" + m_parameters.intervalFailMessage + " " + e);
+                println(m_parameters);
+            }
+        }
+    }
+
+    @SuppressWarnings({"FinalClass", "PublicInnerClass"})
     public static final class TestParameters {
 
         public final int intervalType;
@@ -58,11 +161,11 @@ public class IntervalTypeTest extends BaseTestCase {
 
         /**
          *
-         * @param type interval type
-         * @param precision interval precision
+         * @param type              interval type
+         * @param precision         interval precision
          * @param fractionPrecision interval fraction precision
-         * @param literalText interval literal text
-         * @param failMessage string
+         * @param literalText       interval literal text
+         * @param failMessage       string
          */
         public TestParameters(
                 final int type,
@@ -77,73 +180,26 @@ public class IntervalTypeTest extends BaseTestCase {
             intervalFailMessage = failMessage;
         }
 
+        public String toSQLLiteral() {
+                IntervalType t = IntervalType.getIntervalType(
+                        intervalType,
+                        intervalPrecision,
+                        intervalFractionPrecision);
+                final String fmt = t.getDefinition().replace(Tokens.T_INTERVAL, Tokens.T_INTERVAL + " '%s'");
+                return String.format(fmt, this.intervalLiteralText);
+        }
+
+        @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder();
-
-            sb.append("IntervalTypeTest{");
-            sb.append("\"" + IntervalType.getQualifier(intervalType) + "\"").append(",");
-            sb.append(intervalPrecision).append(",");
-            sb.append(intervalFractionPrecision).append(",");
-            sb.append("\"" + intervalLiteralText.replace("\"", "\"\"") + "\"").append(",");
-            sb.append(intervalFailMessage == null ? "null" : "\"" + intervalFailMessage + "\"");
-            sb.append("}");
-
-            return sb.toString();
+            return String.format("TestParameters{\\%s\\"
+                    + ", precision: [%s %s]"
+                    + ", literal: [%s]"
+                    + ", expect: [%s]}",
+                    IntervalType.getQualifier(intervalType),
+                    intervalPrecision,
+                    intervalFractionPrecision,
+                    intervalLiteralText,
+                    intervalFailMessage == null ? "success" : intervalFailMessage);
         }
-    }
-    private static TestParameters[] s_parameters = new TestParameters[]{
-        new TestParameters(Types.SQL_INTERVAL_YEAR_TO_MONTH, 4, 0, "200 10", null),
-        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 6, "200 10:12:12.456789", null),
-        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 7, " 200 10:12:12.456789  ", null),
-        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, " 200 10:12:12.", null),
-        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, " 200 10:12:12. ", null),
-        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, " 200 10:12:12", null),
-        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, " 200 10:0:12", null),
-        new TestParameters(Types.SQL_INTERVAL_YEAR_TO_MONTH, 4, 0, "20000 10", "first part too long"),
-        new TestParameters(Types.SQL_INTERVAL_YEAR_TO_MONTH, 4, 0, "2000 90", "other part too large"),
-        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, "200 10:12:123.456789", "other part to long"),
-        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, " 200 10:12 12.456789  ", "bad separator"),
-        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, " 200 10:12:12 456789  ", "bad separator"),
-        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, " 200 10:12:12 .", "bad separator"),
-        new TestParameters(Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5, " 20000 10:12:12. ", "first part too long")
-    };
-
-    final TestParameters m_parameters;
-
-    public IntervalTypeTest(final TestParameters parameters) {
-        super(parameters.toString());
-
-        m_parameters = parameters;
-    }
-
-    protected void runTest() throws Exception {
-        println(m_parameters);
-        try {
-            IntervalType t = IntervalType.getIntervalType(
-                    m_parameters.intervalType,
-                    m_parameters.intervalPrecision,
-                    m_parameters.intervalFractionPrecision);
-//            if (test.intervalFailMessage != null) {
-//                TestCase.fail(test.intervalFailMessage);
-//            }
-        } catch (Exception e) {
-//            if (test.intervalFailMessage == null) {
-                TestCase.fail(e.toString());
-//            }
-        }
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite("IntervalType Test Suite");
-
-        for (int i = 0; i < s_parameters.length; i++) {
-            suite.addTest(new IntervalTypeTest(s_parameters[i]));
-        }
-
-        return suite;
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
     }
 }
