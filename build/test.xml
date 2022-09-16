@@ -46,6 +46,9 @@
 
    <property name="junit.jar"
              value="${basedir}/lib/junit.jar" />
+			 
+   <property name="junit.jar"
+             value="${basedir}/lib/junit.jar" />
 
    <property name="preprocessor.jar"
              value="${basedir}/lib/preprocessor.jar" />
@@ -55,6 +58,9 @@
 
    <property name="test.src.dir"
              value="${basedir}/test-src" />
+   
+    <property name="test.src.tmp.dir"
+             value="${basedir}/tmp/testsrc" />
 
    <property name="test.classes.dir"
              value="${basedir}/test-classes" />
@@ -125,17 +131,27 @@
            description="Builds test classes and creates test suite jar"
            depends="-init">
       <mkdir dir="${test.classes.dir}"/>
+      <mkdir dir="${test.src.tmp.dir}/org/hsqldb/test"/>
+      <copy todir="${test.src.tmp.dir}/org/hsqldb/test">
+          <fileset dir="${basedir}/src/org/hsqldb/test">
+              <include name="TestUtil.java"/>
+              <include name="Waiter.java"/>
+          </fileset>
+      </copy>
 
       <!-- Compile Classes -->
-      <javac srcdir="${test.src.dir}"
-             destdir="${test.classes.dir}"
+      <javac destdir="${test.classes.dir}"
              debug="${build.debug}"
              optimize="${build.optimize}"
        >
+          <src path="${test.src.dir}"/>
+          <src path="${basedir}/tmp/testsrc/"/>
           <classpath refid="test.suite.javac.classpath"/>
-          <exclude name="**/TestWrapperInvocationHandler.java"/>
           <!-- Temporarily excluding TestWrapperInvocationHandler until have
                time to figure out how to resolve missing java.sql.* classes -->
+          <exclude name="**/TestWrapperInvocationHandler.java"/>
+		  <!-- @todo -->
+		  <exclude name="**/jtm/*.java"/>
           <include name="**/*.java"/>
       </javac>
 
@@ -310,6 +326,7 @@
            description="Deletes compiled classes, test results and suite jar">
       <delete dir="${test.classes.dir}" />
       <delete dir="${test.results.dir}" />
+      <delete dir="${test.src.tmp.dir}" />
       <delete file="${test.suite.jar}" />
    </target>
 
