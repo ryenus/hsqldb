@@ -203,6 +203,7 @@ public class PreprocessorAntTask extends MatchingTask {
             return;
         }
 
+        checkSourceDir();
         checkTargetDir();
 
         this.sourceDir = getProject().resolveFile("" + this.sourceDir);
