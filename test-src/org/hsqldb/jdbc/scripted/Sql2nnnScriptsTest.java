@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ public class Sql2nnnScriptsTest extends BaseScriptedTestCase {
 
     private static final Sql2nnnScriptsTest instance = new Sql2nnnScriptsTest();
 
-    private static final String URL = "jdbc:hsqldb:file:sql2nnn-test/";
+    private static final String URL = "jdbc:hsqldb:file:tmp/sql2nnn-test/";
 
     private static final Logger LOG = Logger.getLogger(Sql2nnnScriptsTest.class.getName());
 

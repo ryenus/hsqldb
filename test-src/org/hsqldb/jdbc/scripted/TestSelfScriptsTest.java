@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ import org.hsqldb.testbase.OfMethod;
 @OfMethod("testScript(java.sql.Connection,java.lang.String,java.io.Reader)")
 public class TestSelfScriptsTest extends BaseTestCase {
 
-    private static final String URL = "jdbc:hsqldb:file:scripted-test/";
+    private static final String URL = "jdbc:hsqldb:file:tmp/scripted-test/";
     private static final String PK_IGNORE_TEST_CASE = "IgnoreTestCase";
 
     public static Test suite() {

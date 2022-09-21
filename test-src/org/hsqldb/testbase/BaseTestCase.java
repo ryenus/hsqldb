@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -392,7 +392,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         int count = expected.length();
         for (int i = 0; i < count; i++) {
             if (expected.charAt(i) != actual.charAt(i)) {
-                String msg = String.format("expected.charAt(%s) == actual.charAt(%s)", i,i);
+                String msg = String.format("expected.charAt(%s) == actual.charAt(%s)", i, i);
                 assertEquals(msg, expected.charAt(i), actual.charAt(i));
             }
         }
@@ -980,7 +980,8 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * @return value with which field is initialized.
      */
     protected int getFieldValue(final String fieldName) throws Exception {
-        int fieldValue = BaseTestCase.s_fieldValueMap.getOrDefault(fieldName, Integer.MIN_VALUE);
+        int fieldValue = BaseTestCase.s_fieldValueMap.getOrDefault(fieldName, 
+                Integer.MIN_VALUE);
         if (fieldValue > Integer.MIN_VALUE) {
             return fieldValue;
         }
@@ -994,17 +995,24 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     protected int getIncompatibleDataTypeConversionErrorCode() {
-        return getIntProperty("result.set.incompatible.data.type.conversion.error.code", DEFAULT_INCOMPATIBLE_DATA_TYPE_CONVERSION_ERROR_CODE);
+        return getIntProperty(
+                "result.set.incompatible.data.type.conversion.error.code", 
+                DEFAULT_INCOMPATIBLE_DATA_TYPE_CONVERSION_ERROR_CODE);
     }
 
     /**
      * for file: or jar: resources.
      *
      * @param packageName string
-     * @throws java.io.IOException on error
+     *
      * @return array of paths to the resources in the given package
+     * @throws IOException        if an I/O error occurs
+     * @throws URISyntaxException if a package resource URL is not formatted
+     *                            strictly according to RFC2396 and cannot be
+     *                            converted to a URI.
      */
-    protected String[] getResoucesInPackage(final String packageName) throws IOException, URISyntaxException {
+    protected String[] getResoucesInPackage(final String packageName) throws
+            URISyntaxException, IOException {
         String packagePath = packageName.replace('.', '/');
         if (!packagePath.endsWith("/")) {
             packagePath += '/';
@@ -1012,7 +1020,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
         Enumeration<URL> resources = getResources(packagePath);
         @SuppressWarnings("CollectionWithoutInitialCapacity")
-        Set<String> set = new HashSet<>();
+        final Set<String> set = new HashSet<>();
         while (resources.hasMoreElements()) {
             URL resource = resources.nextElement();
             String protocol = resource.getProtocol();
@@ -1022,27 +1030,29 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
                     set.add(f.getAbsolutePath());
                     break;
                 }
-                File[] files = f.listFiles();
+                final File[] files = f.listFiles();
                 if (files == null) {
                     continue;
                 }
-                for (int i = 0; i < files.length; i++) {
-                    File file = files[i];
+                for (File file : files) {
                     if (file.isDirectory()) {
                         continue;
                     }
                     set.add(file.getAbsolutePath());
                 }
             } else if ("jar".equals(protocol)) {
-                Enumeration<JarEntry> entries = ((JarURLConnection) resource.openConnection()).getJarFile().entries();
+                final Enumeration<JarEntry> entries
+                        = ((JarURLConnection) resource.openConnection())
+                                .getJarFile().entries();
                 while (entries.hasMoreElements()) {
-                    JarEntry entry = entries.nextElement();
-                    String entryName = entry.getName();
+                    final JarEntry entry = entries.nextElement();
+                    final String entryName = entry.getName();
                     if (entryName.equals(packagePath)) {
                         continue;
                     }
-                    int slashPos = entryName.lastIndexOf('/');
-                    String directoryPath = entryName.substring(0, slashPos + 1);
+                    final int slashPos = entryName.lastIndexOf('/');
+                    final String directoryPath = entryName.substring(0,
+                            slashPos + 1);
                     if (!directoryPath.equals(packagePath)) {
                         continue;
                     }
@@ -1064,15 +1074,21 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     protected int getResultSetAfterLastErrorCode() {
-        return getIntProperty("result.set.after.last.error.code", DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE);
+        return getIntProperty(
+                "result.set.after.last.error.code", 
+                DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE);
     }
 
     protected int getResultSetBeforeFirstErrorCode() {
-        return getIntProperty("result.set.before.first.error.code", DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE);
+        return getIntProperty(
+                "result.set.before.first.error.code", 
+                DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE);
     }
 
     protected int getResultSetClosedErrorCode() {
-        return getIntProperty("result.set.closed.error.code", DEFAULT_RESULT_SET_CLOSED_ERROR_CODE);
+        return getIntProperty(
+                "result.set.closed.error.code", 
+                DEFAULT_RESULT_SET_CLOSED_ERROR_CODE);
     }
 
     /**
@@ -1082,7 +1098,8 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * @return true if so, else false.
      */
     protected boolean isCloseEmbeddedDatabasesOnTeardown() {
-        return getBooleanProperty(BTCK_CLOSE_EMBEDDED_DATABASES_ON_TEARDOWN, false);
+        return getBooleanProperty(
+                BTCK_CLOSE_EMBEDDED_DATABASES_ON_TEARDOWN, false);
     }
 
     protected boolean isFailStubTestCase() {
@@ -1146,7 +1163,8 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     protected boolean isTestUpdates() throws Exception {
-        return supportsUpdates() && getBooleanProperty("test.result.set.updates", true);
+        return supportsUpdates() && getBooleanProperty(
+                "test.result.set.updates", true);
     }
 
     /**
@@ -1166,15 +1184,19 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     // Forward-Only, Read-Only
-    protected ResultSet newForwardOnlyReadOnlyResultSet(String query) throws Exception {
+    protected ResultSet newForwardOnlyReadOnlyResultSet(String query) 
+            throws Exception {
+        
         return newReadOnlyResultSet(ResultSet.TYPE_FORWARD_ONLY, query);
     }
 
-    protected ResultSet newReadOnlyResultSet(int type, String query) throws Exception {
+    protected ResultSet newReadOnlyResultSet(int type, String query) 
+            throws Exception {
         return newResultSet(type, ResultSet.CONCUR_READ_ONLY, query);
     }
 
-    protected ResultSet newResultSet(int type, int concur, String query) throws Exception, SQLException {
+    protected ResultSet newResultSet(int type, int concur, String query) 
+            throws Exception, SQLException {
         Connection conn = newConnection();
         conn.setAutoCommit(false);
         Statement stmt = conn.createStatement(type, concur);
@@ -1184,13 +1206,16 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     // Scrollable, Read-Only
-    protected ResultSet newScrollableInsensitiveReadOnlyResultSet(String query) throws Exception {
+    protected ResultSet newScrollableInsensitiveReadOnlyResultSet(String query) 
+            throws Exception {
         return newReadOnlyResultSet(ResultSet.TYPE_SCROLL_INSENSITIVE, query);
     }
 
     // Scrollable, Updatable
-    protected ResultSet newScrollableInsensitiveUpdateableResultSet(String query) throws Exception {
-        return newResultSet(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE, query);
+    protected ResultSet newScrollableInsensitiveUpdateableResultSet(String query) 
+            throws Exception {
+        return newResultSet(ResultSet.TYPE_SCROLL_INSENSITIVE, 
+                ResultSet.CONCUR_UPDATABLE, query);
     }
 
     /**
