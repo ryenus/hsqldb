@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -149,9 +149,9 @@ public final class ConnectionFactory {
      * @throws NullPointerException   if driver is null.
      * @throws ClassNotFoundException if the driver is not available.
      */
-    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch"})
+    @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
     private static boolean checkIsDriverAvailable(final String driver)
-            throws ClassNotFoundException {
+            throws NullPointerException, ClassNotFoundException {
         Objects.requireNonNull(driver, "driver must not be null");
         if (s_availableDrivers.get().contains(driver)) {
             return true;
@@ -176,18 +176,18 @@ public final class ConnectionFactory {
             if (classLoader == null) {
                 final String thisClassName
                         = ConnectionFactory.class.getName();
-                final String callerClassName = Stream.of(
-                        Thread.currentThread().getStackTrace())
-                        .map(StackTraceElement::getClassName)
-                        .filter(Objects::nonNull)
-                        .filter(className -> !className.equals(thisClassName))
-                        .findFirst()
-                        .orElse(thisClassName);
                 try {
+                    final String callerClassName = Stream.of(
+                            Thread.currentThread().getStackTrace())
+                            .map(StackTraceElement::getClassName)
+                            .filter(Objects::nonNull)
+                            .filter(className -> !className.equals(thisClassName))
+                            .findFirst()
+                            .orElse(thisClassName);
                     classLoader = Class.forName(callerClassName)
                             .getClassLoader();
-                } catch (Exception e) {
-                    LOG.log(Level.WARNING, driver, e);
+                } catch (Throwable t) {
+                    LOG.log(Level.WARNING, driver, t);
                 }
             }
             try {
@@ -197,9 +197,11 @@ public final class ConnectionFactory {
                     Class.forName(driver, false, classLoader);
                 }
                 available = true;
-            } catch (ClassNotFoundException ex) {
+            } catch (Throwable t) {
                 s_availableDrivers.get().remove(driver);
-                throw ex;
+                throw ClassNotFoundException.class.isInstance(t) 
+                        ? ClassNotFoundException.class.cast(t)
+                        : new ClassNotFoundException(driver, t);
             }
         }
         if (available) {
@@ -535,7 +537,7 @@ public final class ConnectionFactory {
      * @throws ClassNotFoundException when the driver class is not available
      * @throws SQLException           if a database access error occurs or the
      *                                {@code url} is {@code null}.
-     * @return a newly created and registered connecgtion object.
+     * @return a newly created and registered connection object.
      */
     public Connection newConnection(
             final String driver,

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,7 +93,8 @@ public class PropertyGetter {
     public static boolean getBooleanProperty(final String key,
             final boolean defaultValue) {
         try {
-            String value = PropertyGetter.getProperty(key, String.valueOf(defaultValue));
+            final String value = PropertyGetter.getProperty(key, 
+                    String.valueOf(defaultValue));
             if (value.equalsIgnoreCase("true")
                     || value.equalsIgnoreCase("on")
                     || value.equals("1")) {
@@ -168,5 +169,6 @@ public class PropertyGetter {
      * Construction disabled - pure utility class.
      */
     private PropertyGetter() {
+        assert false : "Pure Utility Class";
     }
 }
