@@ -27,8 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.lib;
 
 import java.io.IOException;
@@ -37,6 +35,11 @@ import java.io.Writer;
 import java.util.Objects;
 
 /**
+ * An OutputStream that writes 7-bit US-ASCII values to a Writer, in compliance
+ * with the Java US_ASCII Charset decoder.
+ * <p>
+ * In particular, values greater than {@link #ASCII_MAX) are written as 
+ * {@link #NON_ASCII_REPLACEMENT}.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  */
@@ -53,17 +56,18 @@ public class AsciiOutputStream extends OutputStream {
     /**
      * is 2^7 - 1 (127)
      */
-    public static final int ASCII_MAX =  127;
+    public static final int ASCII_MAX = 127;
     /**
-     * is 2^7  (128) 
+     * is 2^7 (128)
      */
     public static final int NON_ASCII_MIN = 128;
     /**
      * is '\uFFFD' (65533), the Unicode replacement character.
-     * 
+     *
      * @see https://www.fileformat.info/info/unicode/char/fffd/index.htm
      */
-    private static final int NON_ASCII_REPLACEMENT = '\uFFFD';
+    public static final int NON_ASCII_REPLACEMENT = '\uFFFD';
+
     private final Writer writer;
 
     public AsciiOutputStream(Writer writer) {
