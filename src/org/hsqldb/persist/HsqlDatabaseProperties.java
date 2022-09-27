@@ -47,7 +47,7 @@ import org.hsqldb.types.Collation;
  * Manages a .properties file for a database.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.1
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
@@ -58,8 +58,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "textdb.allow_full_path";
     public static final String hsqldb_reconfig_logging =
         "hsqldb.reconfig_logging";
-    public static String   methodClassNames;
-    private static HashSet accessibleJavaMethodNames;
+    public static String methodClassNames;
+    private static final HashSet accessibleJavaMethodNames = new HashSet();
     private static boolean allowFullPath;
 
     static {
@@ -67,7 +67,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             methodClassNames = System.getProperty(hsqldb_method_class_names);
 
             if (methodClassNames != null) {
-                accessibleJavaMethodNames = new HashSet();
 
                 String[] names = StringUtil.split(methodClassNames, ";");
 
@@ -88,7 +87,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     /**
      * If the system property "hsqldb.method_class_names" is not set, then
-     * static methods of all available Java classes can be accessed as functions
+     * static methods of available Java classes cannot be accessed as functions
      * in HSQLDB. If the property is set, then only the list of semicolon
      * separated method names becomes accessible. An empty property value means
      * no class is accessible.<p>
@@ -102,10 +101,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
      * All methods of java.lang.Math are always accessible.
      */
     public static boolean supportsJavaMethod(String name) {
-
-        if (accessibleJavaMethodNames == null) {
-            return true;
-        }
 
         if (name.startsWith("java.lang.Math.")) {
             return true;
@@ -164,23 +159,11 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String VERSION_STRING_1_8_0 = "1.8.0";
     public static final String PRODUCT_NAME         = "HSQL Database Engine";
 
-//#ifdef JAVA8
     public static final String THIS_VERSION      = "2.7.0";
     public static final String THIS_FULL_VERSION = "2.7.0";
     public static final int    MAJOR             = 2,
                                MINOR             = 7,
                                REVISION          = 0;
-
-//#else
-/*
-    public static final String THIS_VERSION      = "2.3.9";
-    public static final String THIS_FULL_VERSION = "2.3.9";
-    public static final int    MAJOR             = 2,
-                               MINOR             = 3,
-                               REVISION          = 9;
-*/
-
-//#endif JAVA8
 
     /**
      * system properties supported by HSQLDB
