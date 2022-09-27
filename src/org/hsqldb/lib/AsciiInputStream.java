@@ -27,8 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.lib;
 
 import java.io.IOException;
@@ -44,7 +42,7 @@ import java.util.Objects;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @version 2.7.x
- * @since  2.7.x
+ * @since 2.7.x
  */
 public class AsciiInputStream extends InputStream {
 
@@ -59,19 +57,19 @@ public class AsciiInputStream extends InputStream {
     /**
      * is 2^7 - 1 (127)
      */
-    public static final int ASCII_MAX =  127;
+    public static final int ASCII_MAX = 127;
     /**
-     * is 2^7  (128) 
+     * is 2^7 (128)
      */
     public static final int NON_ASCII_MIN = 128;
     /**
      * is '?'
      */
     public static final int NON_ASCII_REPLACEMENT = '?';
-    //
-    private final Reader reader;
+
     private boolean hasNextChar = false;
     private int nextChar = 0;
+    private final Reader reader;
 
     /**
      * Constructs a new instance for the given reader.
@@ -80,6 +78,11 @@ public class AsciiInputStream extends InputStream {
      */
     public AsciiInputStream(final Reader reader) {
         this.reader = Objects.requireNonNull(reader, "reader must not be null");
+    }
+
+    @Override
+    public void close() throws IOException {
+        reader.close();
     }
 
     /**
@@ -125,10 +128,5 @@ public class AsciiInputStream extends InputStream {
         return c < NON_ASCII_MIN
                 ? c & ASCII_MASK
                 : NON_ASCII_REPLACEMENT;
-    }
-
-    @Override
-    public void close() throws IOException {
-        reader.close();
     }
 }

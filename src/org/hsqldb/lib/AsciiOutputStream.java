@@ -38,7 +38,7 @@ import java.util.Objects;
  * An OutputStream that writes 7-bit US-ASCII values to a Writer, in compliance
  * with the Java US_ASCII Charset decoder.
  * <p>
- * In particular, values greater than {@link #ASCII_MAX) are written as 
+ * In particular, values greater than {@link #ASCII_MAX) are written as
  * {@link #NON_ASCII_REPLACEMENT}.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
@@ -77,11 +77,6 @@ public class AsciiOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(int b) throws IOException {
-        writer.write(b < NON_ASCII_MIN ? b & ASCII_MASK : NON_ASCII_REPLACEMENT);
-    }
-
-    @Override
     public void close() throws IOException {
         writer.close();
     }
@@ -89,6 +84,11 @@ public class AsciiOutputStream extends OutputStream {
     @Override
     public void flush() throws IOException {
         writer.flush();
+    }
+
+    @Override
+    public void write(int b) throws IOException {
+        writer.write(b < NON_ASCII_MIN ? b & ASCII_MASK : NON_ASCII_REPLACEMENT);
     }
 
 }
