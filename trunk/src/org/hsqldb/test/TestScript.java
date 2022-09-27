@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,51 @@ import java.sql.Connection;
 
 public class TestScript extends TestBase {
 
-    String path = "TestSelf.txt";
+//      String path = "TestSelf002SerializableLocks.txt";
+//    String path = "TestSelf00NewJoins.txt";
+//    String path = "TestSelf01AllNewFeatures.txt";
+//    String path = "TestSelf01Aggregates.txt";
+//    String path = "TestSelf01Cascade.txt";
+//    String path = "TestSelf01DateTime.txt";
+//    String path = "TestSelf02DateTime.txt";
+//    String path = "TestSelf01Etc.txt";
+//    String path = "TestSelf01hsqldb_schema.txt";
+//    String path = "TestSelf01ForeignKeys.txt";
+//    String path = "TestSelf01Function.txt";
+//    String path = "TestSelf01Indexes.txt";
+//    String path = "TestSelf01IndexUse.txt";
+//    String path = "TestSelf01LimitOpt.txt";
+//    String path = "TestSelf01MysInsert.txt";
+//    String path = "TestSelf01Overriding.txt";
+//    String path = "TestSelf01QueryOptimise2.txt";
+//    String path = "TestSelf01Procedure.txt";
+//    String path = "TestSelf01Problems.txt";
+      String path = "TestSelf01RecursiveIssues.txt";
+//    String path = "TestSelf01RecursiveQueries.txt";
+//    String path = "TestSelf01RoutineHandlers.txt";
+//    String path = "TestSelf01Subquery.txt";
+//    String path = "TestSelf01RightJoin.txt";
+//    String path = "TestSelf01Temp.txt";
+//    String path = "TestSelf01TempTables.txt";
+//    String path = "TestSelf01Triggers.txt";
+//    String path = "TestSelf01UDAggregates.txt";
+//    String path = "TestSelf01WithSubquery.txt";
+//    String path = "TestSelf02Arrays.txt";
+//    String path = "TestSelf02Function.txt";
+//    String path = "TestSelf02Merge.txt";
+//    String path = "TestSelf02Sequence.txt";
+//    String path = "TestSelf02Synonym.txt";
+//    String path = "TestSelf02PeriodPredicates.txt";
+//    String path = "TestSelf02UpdatableViews.txt";
+//    String path = "TestSelf02UpdatableViews.txt";
+//    String path = "TestSelf03Procedure.txt";
+//    String path = "TestSelf04UnionCorresponding.txt";
+//    String path = "TestSelf07OrderLimitNulls.txt";
+//    String path = "TestSelf06Generated.txt";
+//    String path = "TestSelf08Collations.txt";
+//    String path = "TestAny.txt";
+
+//    String path = "TestSelf.txt";
 //    String path = "TestSelfArrays.txt";
 //    String path = "TestSelf3PartNames.txt";
 //    String path = "TestSelfArithmetic.txt";
@@ -45,6 +89,8 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfColGrant.txt";
 //    String path = "TestSelfCreate.txt";
 //    String path = "TestSelfConstraints.txt";
+//    String path = "TestSelfDomainTypes.txt";
+//      String path = "TestSelfErrorChecks.txt";
 //    String path = "TestSelfFunction.txt";
 //    String path = "TestSelfGrantees.txt";
 //    String path = "TestSelfGroupBy.txt";
@@ -62,10 +108,12 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfImmediateShutdown.txt";
 //    String path = "TestSelfInsertDeleteQueries.txt";
 //    String path = "TestSelfInPredicateReferencing.txt";
+//    String path = "TestSelfJSON.txt";
 //    String path = "TestSelfMultiGrants.txt";
 //    String path = "TestSelfNot.txt";
 //    String path = "TestSelfOrderLimits.txt";
 //    String path = "TestSelfRoleNesting.txt";
+//    String path = "TestSelfRowLevelGrants.txt";
 //    String path = "TestSelfQueries.txt";
 //    String path = "TestSelfSchemaPersistB1.txt";
 //    String path = "TestSelfSeqRightsA.txt";
@@ -79,6 +127,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfTriggers2.txt";
 //    String path = "TestSelfUnions.txt";
 //    String path = "TestSelfUserFunction.txt";
+//      String path = "TestSelfVerify.txt";
 //    String path = "TestSelfViews.txt";
 //    String path = "TestSelfViewGrants.txt";
 //    String path = "TestSelfSeqRightsA.txt";

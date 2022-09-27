@@ -50,7 +50,7 @@ import org.hsqldb.types.Type;
  * Implementation of column, variable, parameter, etc. access operations.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.1
+ * @version 2.7.1
  * @since 1.9.0
  */
 public class ExpressionColumn extends Expression {
@@ -698,6 +698,11 @@ public class ExpressionColumn extends Expression {
                 dataType = type;
 
                 break;
+            }
+            case OpTypes.COLUMN : {
+                if (dataType == null) {
+                    dataType = column.getDataType();
+                }
             }
         }
     }

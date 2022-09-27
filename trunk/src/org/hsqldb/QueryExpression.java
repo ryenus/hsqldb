@@ -56,7 +56,7 @@ import org.hsqldb.types.Types;
  * Implementation of an SQL query expression
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.1
  * @since 1.9.0
  */
 public class QueryExpression implements RangeGroup {
@@ -668,7 +668,6 @@ public class QueryExpression implements RangeGroup {
     public void setRecursiveQuerySettings(RecursiveQuerySettings settings) {
 
         OrderedHashSet subqueryList = rightQueryExpression.getSubqueries();
-        OrderedHashSet refList      = new OrderedHashSet();
 
         if (subqueryList == null) {
             subqueryList = new OrderedHashSet();
@@ -687,13 +686,15 @@ public class QueryExpression implements RangeGroup {
                 continue;
             }
 
-            refList = qe.collectRangeVariables(refList);
+            OrderedHashSet refList  = new OrderedHashSet();
+
+            qe.collectObjectNames(refList);
 
             for (int j = 0; j < refList.size(); j++) {
-                RangeVariable range = (RangeVariable) refList.get(j);
+                HsqlName name = (HsqlName) refList.get(j);
 
-                if (range.rangeTable == recursiveWorkTable
-                        || range.rangeTable == recursiveResultTable) {
+                if (name == recursiveWorkTable.tableName
+                        || name == recursiveResultTable.tableName) {
                     materialiseList =
                         ArrayUtil.toAdjustedArray(materialiseList, td);
 
