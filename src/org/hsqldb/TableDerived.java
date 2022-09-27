@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.types.Type;
  * Table with data derived from a query expression.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.1
  * @since 1.9.0
  */
 public class TableDerived extends Table {
@@ -85,6 +85,26 @@ public class TableDerived extends Table {
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Table");
         }
+    }
+
+    /**
+     * For named sunbqueries.
+     */
+    public TableDerived(Database database, HsqlName name, int type,
+                        HsqlName[] colNames, Type[] colTypes) {
+
+        this(database, name, type);
+
+        // todo check column counts match
+        for (int i = 0; i < colNames.length; i++) {
+            ColumnSchema column = new ColumnSchema(colNames[i], colTypes[i]);
+
+            columnList.add(column.getName().name, column);
+        }
+
+        columnCount = colNames.length;
+
+        createPrimaryKey(null, null, false);
     }
 
     public TableDerived(Database database, HsqlName name, int type,
