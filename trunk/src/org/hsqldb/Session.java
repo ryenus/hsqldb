@@ -1233,6 +1233,7 @@ public class Session implements SessionInterface {
 
             if (isClosed) {
                 result = Result.newErrorResult(Error.error(ErrorCode.X_08503));
+
                 break;
             }
 
@@ -1363,11 +1364,10 @@ public class Session implements SessionInterface {
                 try {
                     latch.await();
                 } catch (InterruptedException e) {
-
                     if (txInterruptRollback) {
-                        database.txManager.resetSession(this,
-                                this, Long.MAX_VALUE,
-                                TransactionManager.resetSessionStatement);
+                        database.txManager.resetSession(
+                            this, this, Long.MAX_VALUE,
+                            TransactionManager.resetSessionStatement);
 
                         abortTransaction = true;
 
@@ -1423,11 +1423,10 @@ public class Session implements SessionInterface {
                     try {
                         latch.await();
                     } catch (InterruptedException e) {
-
                         if (txInterruptRollback) {
-                            database.txManager.resetSession(this,
-                                    this, Long.MAX_VALUE,
-                                    TransactionManager.resetSessionStatement);
+                            database.txManager.resetSession(
+                                this, this, Long.MAX_VALUE,
+                                TransactionManager.resetSessionStatement);
 
                             abortTransaction = true;
 
@@ -1821,7 +1820,8 @@ public class Session implements SessionInterface {
     public SimpleDateFormat getSimpleDateFormatGMT() {
 
         if (simpleDateFormatGMT == null) {
-            simpleDateFormatGMT = new SimpleDateFormat("MMMM", Locale.ENGLISH);
+            simpleDateFormatGMT = new SimpleDateFormat("MMMM",
+                    HsqlDateTime.defaultLocale);
 
             simpleDateFormatGMT.setCalendar(getCalendarGMT());
         }
@@ -2327,6 +2327,7 @@ public class Session implements SessionInterface {
 
     // timeouts
     class TimeoutManager {
+
         volatile int  currentTimeout;
         volatile long checkTimestampSCN;
         volatile long checkTimestamp;
