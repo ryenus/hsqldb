@@ -59,7 +59,7 @@ import org.hsqldb.types.Types;
  * timezone.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.1
  * @since 1.7.0
  */
 public class HsqlDateTime {
@@ -70,16 +70,13 @@ public class HsqlDateTime {
         new GregorianCalendar(TimeZone.getTimeZone("GMT"), defaultLocale);
     private static final String sdfdPattern = "yyyy-MM-dd";
     private static final SimpleDateFormat sdfd =
-        new SimpleDateFormat(sdfdPattern);
-    private static final String sdftPattern = "HH:mm:ss";
-    private static final SimpleDateFormat sdft =
-        new SimpleDateFormat(sdftPattern);
+        new SimpleDateFormat(sdfdPattern, defaultLocale);
     private static final String sdftsPattern = "yyyy-MM-dd HH:mm:ss";
     private static final SimpleDateFormat sdfts =
-        new SimpleDateFormat(sdftsPattern);
+        new SimpleDateFormat(sdftsPattern, defaultLocale);
     private static final String sdftsSysPattern = "yyyy-MM-dd HH:mm:ss.SSS";
     private static final SimpleDateFormat sdftsSys =
-        new SimpleDateFormat(sdftsSysPattern);
+        new SimpleDateFormat(sdftsSysPattern, defaultLocale);
     private static final Date sysDate = new java.util.Date();
 
     static {
@@ -88,9 +85,6 @@ public class HsqlDateTime {
         sdfd.setCalendar(new GregorianCalendar(TimeZone.getTimeZone("GMT"),
                                                defaultLocale));
         sdfd.setLenient(false);
-        sdft.setCalendar(new GregorianCalendar(TimeZone.getTimeZone("GMT"),
-                                               defaultLocale));
-        sdft.setLenient(false);
         sdfts.setCalendar(new GregorianCalendar(TimeZone.getTimeZone("GMT"),
                 defaultLocale));
         sdfts.setLenient(false);

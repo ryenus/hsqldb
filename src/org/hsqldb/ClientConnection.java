@@ -64,7 +64,7 @@ import org.hsqldb.types.ClobDataID;
  * protocol.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.1
  * @since 1.7.2
  */
 public class ClientConnection implements SessionInterface, Cloneable {
@@ -137,8 +137,9 @@ public class ClientConnection implements SessionInterface, Cloneable {
         this.database     = database;
         this.isTLS        = isTLS;
         this.isTLSWrapper = isTLSWrapper;
-        this.zoneSeconds  = timeZone.getOffset(System.currentTimeMillis()) / 1000;
-        this.zoneString   = timeZone.getID();
+        this.zoneSeconds = timeZone.getOffset(System.currentTimeMillis())
+                           / 1000;
+        this.zoneString = timeZone.getID();
 
         initStructures();
         initConnection(host, port, isTLS);
@@ -620,7 +621,8 @@ public class ClientConnection implements SessionInterface, Cloneable {
     public SimpleDateFormat getSimpleDateFormatGMT() {
 
         if (simpleDateFormatGMT == null) {
-            simpleDateFormatGMT = new SimpleDateFormat("MMMM", Locale.ENGLISH);
+            simpleDateFormatGMT = new SimpleDateFormat("MMMM",
+                    HsqlDateTime.defaultLocale);
 
             Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"),
                                                  HsqlDateTime.defaultLocale);

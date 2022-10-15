@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2022, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,7 @@ public final class DatabaseURL {
      *
      * @return null returned if the part that should represent the port is not
      *   an integer or the part for database name is empty. Empty
-     *   HsqlProperties returned if if url does not begin with valid protocol
+     *   HsqlProperties returned if url does not begin with valid protocol
      *   and could refer to another JDBC driver.
      * @param url String
      * @param hasPrefix indicates URL prefix is present
