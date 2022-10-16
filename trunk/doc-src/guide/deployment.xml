@@ -758,7 +758,7 @@
   <section xml:id="dec_backware_compatibility">
     <title>Backward Compatibility Issues</title>
 
-    <para>HyperSQL 2.7.0 conforms to the SQL Standard better than previous
+    <para>HyperSQL 2.7.1 conforms to the SQL Standard better than previous
     versions and has many more features. For these reasons, there may be some
     compatibility issues when converting old database, or using applications
     that were written for version 1.8.x or earlier. Some of the potential
@@ -898,7 +898,7 @@
     <subtitle>Java Module Dependency and Dependency settings using Gradle,
     Ivy, Maven, Groovy</subtitle>
 
-    <simpara>HyperSQL and SqlTool version 2.7.0 jars are Java Module jars
+    <simpara>HyperSQL and SqlTool version 2.7.1 jars are Java Module jars
     compiled with JDK 11. The module name for HyperSQL is
     <literal>org.hsqldb</literal> and for SqlTool,
     <literal>org.hsqldb.sqltool</literal>. In a modular application, these
@@ -950,7 +950,7 @@
       the suggestions in the appropriate sections below. If you need to
       specify a specific version, follow the instructions in the
       range-versioning section but change the version range specifications to
-      literal versions like <literal>2.7.0</literal>.</para>
+      literal versions like <literal>2.7.1</literal>.</para>
     </section>
 
     <section xml:id="dec_maven_range_version">

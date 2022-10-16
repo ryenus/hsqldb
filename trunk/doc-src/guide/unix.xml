@@ -178,7 +178,7 @@
 
           <simpara>All the files in the zip archive will be extracted to
           underneath a new subdirectory named like
-          <filename>hsqldb-2.7.0/hsqldb</filename>.</simpara>
+          <filename>hsqldb-2.7.1/hsqldb</filename>.</simpara>
         </listitem>
       </varlistentry>
     </variablelist>
@@ -189,7 +189,7 @@
     HyperSQL system is <filename>hsqldb.jar</filename>, which resides in the
     subdirectory <filename>lib</filename>. Depending on who built your
     distribution, your file name may have a version label in it, like
-    <filename>hsqldb-2.7.0.jar</filename>.</simpara>
+    <filename>hsqldb-2.7.1.jar</filename>.</simpara>
 
     <important>
       <simpara>For the purposes of this chapter, I define

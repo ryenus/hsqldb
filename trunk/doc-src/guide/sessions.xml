@@ -191,7 +191,7 @@
  INSERT INTO session.buffer SELECT id, firstname || ' ' || lastname FROM customers
  -- do some more work
  DROP TABLE session.buffer
- -- alternative schema name, MODULE can be used in version 2.7.0 but it is deprecated
+ -- alternative schema name, MODULE can be used in version 2.7 but it is deprecated
  DROP TABLE module.buffer
 </screen>
         </example>Session tables can be created inside a transaction.
@@ -961,15 +961,15 @@
     zone of the session that was in force prior to the use of the
     command.</simpara>
 
-    <simpara>From version 2.7.0, zone strings indicating geographical regions
+    <simpara>From version 2.7, zone strings indicating geographical regions
     can be used. These zone often support daylight saving time.</simpara>
 
     <simpara>This command works fine with in-process databases. When the
     sessions is for a connection to a server, this command should not
     generally be used as it only affects the server part of the session. With
     client / server connections, the only way to specify a session time zone
-    that is different from the local time zone is by setting the JVM time zone
-    prior to connecting to the database.</simpara>
+    that is different from the local time zone is by setting the client JVM 
+	time zone prior to connecting to the database.</simpara>
 
     <example>
       <title>Setting Session Time Zone</title>
