@@ -31,7 +31,7 @@
 
 package org.hsqldb;
 
-/*
+/**
  * Codes based on SQL Standards for different types of statement.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)

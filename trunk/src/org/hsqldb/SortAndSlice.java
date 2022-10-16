@@ -39,7 +39,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.types.Collation;
 import org.hsqldb.types.Type;
 
-/*
+/**
  * Implementation of ORDER BY and LIMIT properties of query expressions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)

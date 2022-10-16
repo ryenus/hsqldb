@@ -46,7 +46,7 @@ import org.hsqldb.navigator.RowSetNavigatorDataChange;
 import org.hsqldb.navigator.RowSetNavigatorDataChangeMemory;
 import org.hsqldb.result.Result;
 
-/*
+/**
  * Session execution context and temporary data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)

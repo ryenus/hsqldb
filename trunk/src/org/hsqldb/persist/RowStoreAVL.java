@@ -59,7 +59,7 @@ import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.types.LobData;
 import org.hsqldb.types.Type;
 
-/*
+/**
  * Base implementation of PersistentStore for different table types.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
