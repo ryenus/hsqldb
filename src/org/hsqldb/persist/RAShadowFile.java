@@ -42,7 +42,7 @@ import org.hsqldb.lib.InputStreamInterface;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.map.BitMap;
 
-/*
+/**
  * Wrapper for random access file for incremental backup of the .data file.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
