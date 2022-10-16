@@ -159,11 +159,11 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String VERSION_STRING_1_8_0 = "1.8.0";
     public static final String PRODUCT_NAME         = "HSQL Database Engine";
 
-    public static final String THIS_VERSION      = "2.7.0";
-    public static final String THIS_FULL_VERSION = "2.7.0";
+    public static final String THIS_VERSION      = "2.7.1";
+    public static final String THIS_FULL_VERSION = "2.7.1";
     public static final int    MAJOR             = 2,
                                MINOR             = 7,
-                               REVISION          = 0;
+                               REVISION          = 1;
 
     /**
      * system properties supported by HSQLDB
