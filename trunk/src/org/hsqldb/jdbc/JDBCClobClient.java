@@ -52,7 +52,7 @@ import org.hsqldb.types.ClobInputStream;
  * Instances of this class are returned by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.1
  * @since HSQLDB 1.9.0
  */
 public class JDBCClobClient implements Clob {
@@ -86,8 +86,15 @@ public class JDBCClobClient implements Clob {
                     return -1;
                 }
 
-                return c < 256 ? c & 0xff
-                               : '?';
+                if (c > 256) {
+                    if (Character.isHighSurrogate((char) c)) {
+                        reader.read();
+                    }
+
+                    c = '?';
+                }
+
+                return c;
             }
 
             public int read(byte[] b, int off, int len) throws IOException {
@@ -111,6 +118,14 @@ public class JDBCClobClient implements Clob {
 
                     if (c < 0) {
                         break;
+                    }
+
+                    if (c > 256) {
+                        if (Character.isHighSurrogate((char) c)) {
+                            reader.read();
+                        }
+
+                        c = '?';
                     }
 
                     b[off + i] = (byte) c;

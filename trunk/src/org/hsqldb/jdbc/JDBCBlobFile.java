@@ -48,6 +48,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.FileUtil;
@@ -78,7 +79,7 @@ import org.hsqldb.lib.KMPSearchAlgorithm;
  * </div>
  * <!-- end release-specific documentation -->
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.1
  * @since HSQLDB 2.1
  */
 public class JDBCBlobFile implements java.sql.Blob {

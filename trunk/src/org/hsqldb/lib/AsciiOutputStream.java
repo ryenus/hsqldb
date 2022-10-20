@@ -42,8 +42,8 @@ import java.util.Objects;
  * {@link #NON_ASCII_REPLACEMENT}.
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.7.x
- * @since  2.7.x
+ * @version 2.7.1
+ * @since  2.7.1
  */
 public class AsciiOutputStream extends OutputStream {
 
