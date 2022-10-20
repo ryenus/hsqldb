@@ -1,0 +1,782 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: unix.xml 5999 2019-06-02 12:34:33Z fredt $ -->
+<!DOCTYPE book [
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
+]>
+<chapter version="5.0" xml:id="odbc-chapt"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/2000/svg"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <!-- We declare the default namespace + those for prefixes xlink: and xi: in
+       the root element, so we can use them anywhere in this file. -->
+
+  <info>
+    <title xml:id="odbc-title">HyperSQL via ODBC</title>
+
+    <subtitle>How to access a HyperSQL Server with ODBC</subtitle>
+
+    <author>
+      <personname><firstname>Blaine</firstname>
+      <surname>Simpson</surname></personname>
+
+      <affiliation>
+        <orgname>The HSQL Development Group</orgname>
+      </affiliation>
+    </author>
+
+    <releaseinfo>$Revision: 5999 $</releaseinfo>
+
+    <pubdate>&timestamp;</pubdate>
+
+    <keywordset>
+      <keyword>HSQLDB</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>UNIX</keyword>
+
+      <keyword>Linux</keyword>
+
+      <keyword>Windows</keyword>
+
+      <keyword>ODBC</keyword>
+    </keywordset>
+  </info>
+
+  <section xml:id="odbc_overview">
+    <title>Overview</title>
+
+    <para>Support for ODBC access to HyperSQL servers was introduced in HSQLDB
+    version 2.0. Modified versions of the PostgreSQL ODBC software (version
+    8.3) were developed and an installer for 32 bit Windows was made available
+    for download. Improvements were made to the server code for version 2.5.1
+    to allow an unmodified PostgreSQL ODBC driver (version 11) to be used.
+    This chapter has been adapted from the original ODBC documentation and
+    added to this Guide.</para>
+
+    <para>The current version supports a large subset of ODBC calls. It
+    supports all SQL statements, including prepared statements and result set
+    metadata, but it does not yet support database metadata, so some
+    applications may not work.</para>
+  </section>
+
+  <section xml:id="odbc_unix_install-sect">
+    <title>Unix / Linux Installation</title>
+
+    <simpara>Install unixODBC and PostgreSQL psqlodbc RPM or package. See
+    <uri>https://help.interfaceware.com/v6/connect-to-postgresql-from-linux-or-mac-with-odbc</uri></simpara>
+
+    <simpara>See the Settings section about individual driver runtime
+    settings.</simpara>
+
+    <para>The unixODBC graphical program "ODBCConfig" just does not work for
+    any driver I have ever tried to add. If the same applies to you, you will
+    need to edit the files <itemizedlist>
+        <listitem>
+          <simpara><filename>/etc/unixODBC/odbc.ini</filename> Driver
+          definitions</simpara>
+        </listitem>
+
+        <listitem>
+          <simpara><filename>/etc/unixODBC/odbcinst.ini</filename> Global DSN
+          definitions</simpara>
+        </listitem>
+
+        <listitem>
+          <simpara><filename>$HOME/.odbc.ini</filename> Personal DSN
+          definitions</simpara>
+        </listitem>
+      </itemizedlist> Depending on your UNIX or unixODBC distribution, your
+    etc config files may be directly in <filename>/etc/</filename> instead of
+    in the <filename>unixODBC</filename> subdirectory.</para>
+  </section>
+
+  <section xml:id="odbc_windows_config-sect">
+    <title>Windows Installation</title>
+
+    <simpara>Download and install PostgreSQL ODBC software. We tested with
+    version 11 of this software in Unicode mode, but other versions may also
+    work. In Windows, go to ODBC Data Source Administrator (via Administrative
+    Tools, Data Source (ODBC) or ODBC DataSource in different versions of
+    Windows) and click on Add to add a PostgreSQL data source. You can then
+    configure the data source.</simpara>
+
+    <simpara>See the Settings section about individual driver runtime
+    settings.</simpara>
+
+    <para>These DSN definition screens are not identical to what you see, but
+    the individual settings are the same. The Data Source field is the name of
+    the ODBC data source. The database is the name of the HyperSQL database on
+    the server. In this example, the default server database name is indicated
+    with a slash. Use localhost as the Server name for the local machine. The
+    User Name is a user name of the HyperSQL database, by default SA. You must
+    set a non-empty password for the user, otherwise connection cannot be
+    established.</para>
+
+    <para>The HyperSQL server must be started before testing the
+    connection.</para>
+
+    <para><mediaobject>
+        <imageobject>
+          <imagedata fileref="dsndef.png" format="PNG" valign="top"/>
+        </imageobject>
+      </mediaobject> Then option screen 1 of 2. <mediaobject>
+        <imageobject>
+          <imagedata fileref="dsnoptions1.png" format="PNG" valign="top"/>
+        </imageobject>
+      </mediaobject> ... and 2 of 2. <mediaobject>
+        <imageobject>
+          <imagedata fileref="dsnoptions2.png" format="PNG" valign="top"/>
+        </imageobject>
+      </mediaobject></para>
+  </section>
+
+  <section xml:id="odbc_settings-sect">
+    <title>Settings</title>
+
+    <simpara>This section applies to both UNIX and Windows. The setting
+    heading includes the descriptive name as shown by the Windows ODBC DS
+    Administrator, as well as the real keyword names that UNIX users will
+    use.</simpara>
+
+    <simpara>The PostgreSQL ODBC Driver product consists of two driver
+    variants. You should try to use the <emphasis>Unicode</emphasis> variant
+    first, since it supports the later and better ODBC protocol. Use the
+    <emphasis>ANSI</emphasis> variant if the Unicode variant won't work for
+    your application. The way you select the driver variant for a DSN is
+    platform-specific. For UNIX, set the DSN setting <literal>Driver</literal>
+    to the key as defined in the uniXODBC config file
+    <filename>/etc/unixODBC/odbcinst.ini</filename>. For UNIX, select the
+    driver after you click <guilabel>Add</guilabel> on the <guilabel>User
+    DSN</guilabel> screen, or switch it afterwards with the DSN's
+    <guilabel>Manage DSN</guilabel> button.</simpara>
+
+    <para>Driver settings can also be made at connection time by just
+    appending keyword abbreviation/value assignment pairs to the ODBC
+    connection string, delimiting each such pair with a semicolon. Base
+    connection Strings are language-dependent, but you always append a String
+    in this form <informalexample>
+        <programlisting>;A0=0;B9=1</programlisting>
+      </informalexample> See the Table below for a concise list of the
+    abbreviations you may use. The appendix also shows the default values for
+    settings (this is really only necessary for UNIX users, since the Windows
+    DSN manager always shows the current effective value).</para>
+
+    <variablelist>
+      <title>Runtime Driver Settings</title>
+
+      <varlistentry>
+        <term>Database</term>
+
+        <listitem>
+          <simpara>ODBC does not allow an empty string for a DSN database
+          name. Therefore, you must specify DSN database name of "/" (without
+          the quotes) to indicate the default database</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Recognize Unique Indexes</term>
+
+        <listitem>
+          <simpara/>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Cancel as FreeeStmt</term>
+
+        <listitem>
+          <simpara><remark>Find out what this experimental feature is
+          for.</remark></simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>MyLog</term>
+
+        <listitem>
+          <simpara>Enables fairly verbose runtime logging to the indicated
+          file. With value 1 will write coded mylog() messages to the MyLog
+          file. With value 2 will write both mylog() and inolog() messages to
+          MyLog file.</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>CommLog</term>
+
+        <listitem>
+          <simpara>Enables runtime communiction logging to the indicated file.
+          With value 1, will write coded qlog() messages to the
+          CommLog.</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Unknown Sizes</term>
+
+        <listitem>
+          <para>This controls what SQLDescribeCol and SQLColAttributes will
+          return as to precision for the <emphasis>variable</emphasis> data
+          types when the precision (for example for a column) is unspecified.
+          For the recommended <literal>sql_enforce_strict_size mode</literal>,
+          this setting will have no effect. <itemizedlist>
+              <listitem>
+                <simpara>Maximum: Always return the maximum precision of the
+                data type.</simpara>
+              </listitem>
+
+              <listitem>
+                <simpara>Dont Know: Return "Don't Know" value and let
+                application decide.</simpara>
+              </listitem>
+
+              <listitem>
+                <simpara>Longest: Return the longest string length of the
+                column of any row. Beware of this setting when using cursors
+                because the cache size may not be a good representation of the
+                longest column in the cache.</simpara>
+              </listitem>
+            </itemizedlist> MS Access: Seems to handle Maximum setting ok, as
+          well as all the others. Borland: If sizes are large and lots of
+          columns, Borland may crash badly (it doesn't seem to handle memory
+          allocation well) if using Maximum size.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Max Varchar</term>
+
+        <listitem>
+          <simpara>Use this setting only as a work-around for client app
+          idiocy. Generally, the database should enforce your data
+          constraints.</simpara>
+
+          <simpara>The maximum precision of the VARCHAR and CHAR types
+          (perhaps others). Set to 1 larger than the value you need, to allow
+          for null terminator characters. <remark> The default is 255 right
+          now. 0 really means max of 0, and we need to change this ASAP so
+          that 0 will mean unlimited. </remark></simpara>
+
+          <simpara>If you set this value higher than 254, Access will not let
+          you index on varchar columns!</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Cache Size</term>
+
+        <listitem>
+          <simpara>When using cursors, this is the row size of the tuple
+          cache. If not using cursors, this is how many tuples to allocate
+          memory for at any given time. The default is 100 rows for either
+          case.</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Max LongVarChar</term>
+
+        <listitem>
+          <simpara>The maximum precision of the LongVarChar type. The default
+          is 4094 which actually means 4095 with the null terminator. You can
+          even specify (-4) for this size, which is the odbc SQL_NO_TOTAL
+          value.</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>ReadOnly</term>
+
+        <listitem>
+          <simpara>Whether the datasource will allow updates.</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Show System Tables</term>
+
+        <listitem>
+          <simpara>The driver will treat system tables as regular tables in
+          SQLTables. This is good for Access so you can see system
+          tables.</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>LF &lt;-&gt; CR/LF conversion</term>
+
+        <listitem>
+          <simpara>Convert Unix style line endings to DOS style.</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Updatable Cursors</term>
+
+        <listitem>
+          <simpara>Enable updateable cursor emulation in the driver.
+          <remark>Fred will be implementing real Updatable
+          ResultSets</remark>.</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Row Versioning</term>
+
+        <listitem>
+          <simpara><remark> Will turn on MVCC currency control mode, once we
+          implement this. </remark></simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>True is -1</term>
+
+        <listitem>
+          <simpara>Represent TRUE as -1 for compatibility with some
+          applications.</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Int8 As</term>
+
+        <listitem>
+          <simpara>Define what datatype to report int8 columns as.</simpara>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Extra Opts</term>
+
+        <listitem>
+          <para>Extra Opts: combination of the following bits. <itemizedlist>
+              <listitem>
+                <simpara>0x1: Force the output of short-length formatted
+                connection string. Check this bit when you use MFC CDatabase
+                class.</simpara>
+              </listitem>
+
+              <listitem>
+                <simpara>0x2: Fake MS SQL Server so that MS Access recognizes
+                PostgreSQL's serial type as AutoNumber type.</simpara>
+              </listitem>
+
+              <listitem>
+                <simpara>0x4: Reply ANSI (not Unicode) char types for the
+                inquiries from applications. Try to check this bit when your
+                applications don't seem to be good at handling Unicode
+                data.</simpara>
+              </listitem>
+            </itemizedlist></para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>OID Options</term>
+
+        <listitem>
+          <para><itemizedlist>
+              <listitem>
+                <simpara>Show Column: Includes the OID in SQLColumns. This is
+                good for using as a unique identifier to update records if no
+                good key exists OR if the key has many parts, which blows up
+                the backend.</simpara>
+              </listitem>
+
+              <listitem>
+                <simpara>Fake Index: This option fakes a unique index on OID.
+                This is useful when there is not a real unique index on OID
+                and for apps which can't ask what the unique identifier should
+                be (i.e, Access 2.0).</simpara>
+              </listitem>
+            </itemizedlist></para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>OID Options</term>
+
+        <listitem>
+          <para>Level of rollback on errors: Specifies what to rollback should
+          an error occur. <itemizedlist>
+              <listitem>
+                <simpara>Nop(0): Don't rollback anything and let the
+                application handle the error.</simpara>
+              </listitem>
+
+              <listitem>
+                <simpara>Transaction(1): Rollback the entire
+                transaction.</simpara>
+              </listitem>
+
+              <listitem>
+                <simpara>Statement(2): Rollback the statement.</simpara>
+              </listitem>
+            </itemizedlist> default value is a sentence unit (it is a
+          transaction unit before 8.0).</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Connection Settings</term>
+
+        <listitem>
+          <simpara>The driver sends these commands to the backend upon a
+          successful connection. It sends these settings AFTER it sends the
+          driver "Connect Settings". Use a semi-colon (;) to separate
+          commands. This can now handle any query, even if it returns results.
+          The results will be thrown away however!</simpara>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+
+  <section xml:id="odbc_samples-sect">
+    <title>Samples</title>
+
+    <simpara>The HyperSQL Engine distribution contains these same ODBC client
+    code examples in the <filename>sample</filename> subdirectory.</simpara>
+
+    <itemizedlist>
+      <listitem>
+        <simpara><link xlink:href="../verbatim/sample/sample.py">Python pyodbc
+        sample</link></simpara>
+      </listitem>
+
+      <listitem>
+        <simpara><link xlink:href="../verbatim/sample/sample.php">PHP ODBC
+        sample</link></simpara>
+      </listitem>
+
+      <listitem>
+        <simpara><link xlink:href="../verbatim/sample/sample.pl">Perl DBI/DBD
+        sample</link></simpara>
+      </listitem>
+
+      <listitem>
+        <simpara><link xlink:href="../verbatim/sample/sample.c">C client
+        sample</link></simpara>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section xml:id="odbc_table-sect">
+    <title>Table of Settings</title>
+
+    <simpara>See the above section for descriptions and usage details. This
+    section just contains a list of the available settings.</simpara>
+
+    <table>
+      <title>Settings List</title>
+
+      <tgroup cols="4">
+        <thead>
+          <row>
+            <entry>Keyword</entry>
+
+            <entry>Abbrev.</entry>
+
+            <entry>Default Val.</entry>
+
+            <entry>Purpose</entry>
+          </row>
+        </thead>
+
+        <tbody>
+          <row>
+            <entry>Description</entry>
+
+            <entry>N/A</entry>
+
+            <entry/>
+
+            <entry>Data source description</entry>
+          </row>
+
+          <row>
+            <entry>Servername</entry>
+
+            <entry>N/A</entry>
+
+            <entry>[required]</entry>
+
+            <entry>Name of Server</entry>
+          </row>
+
+          <row>
+            <entry>Port</entry>
+
+            <entry>N/A</entry>
+
+            <entry>9001</entry>
+
+            <entry>HyperSQL Server Listen Port</entry>
+          </row>
+
+          <row>
+            <entry>Username</entry>
+
+            <entry>N/A</entry>
+
+            <entry>[required]</entry>
+
+            <entry>User Name</entry>
+          </row>
+
+          <row>
+            <entry>Password</entry>
+
+            <entry>N/A</entry>
+
+            <entry>[required]</entry>
+
+            <entry>Password</entry>
+          </row>
+
+          <row>
+            <entry>Debug</entry>
+
+            <entry>B2</entry>
+
+            <entry>0</entry>
+
+            <entry>MyLog logging level</entry>
+          </row>
+
+          <row>
+            <entry>Fetch</entry>
+
+            <entry>A7</entry>
+
+            <entry>100</entry>
+
+            <entry>Fetch Max Count <remark>Test to see if this applies to
+            EXECDIRECT and/or prepared queries</remark></entry>
+          </row>
+
+          <row>
+            <entry>Socket</entry>
+
+            <entry>A8</entry>
+
+            <entry>4096</entry>
+
+            <entry>Socket buffer size</entry>
+          </row>
+
+          <row>
+            <entry>ReadOnly</entry>
+
+            <entry>A0</entry>
+
+            <entry>No/0</entry>
+
+            <entry>Read Only</entry>
+          </row>
+
+          <row>
+            <entry>CommLog</entry>
+
+            <entry>B3</entry>
+
+            <entry>0</entry>
+
+            <entry>Log communications to log file</entry>
+          </row>
+
+          <row>
+            <entry>UniqueIndex</entry>
+
+            <entry>N/A</entry>
+
+            <entry>1</entry>
+
+            <entry>Recognize unique indexes</entry>
+          </row>
+
+          <row>
+            <entry>UnknownSizes</entry>
+
+            <entry>A9</entry>
+
+            <entry>0 [= max prec. for type]</entry>
+
+            <entry>Unknown result set sizes</entry>
+          </row>
+
+          <row>
+            <entry>CancelAsFreeStmt</entry>
+
+            <entry>C1</entry>
+
+            <entry>0</entry>
+
+            <entry>Cancel as FreeStmt</entry>
+          </row>
+
+          <!--  We have no Text type.
+              Keeping the slot to config some other supported data type.
+        <row>
+          <entry>TextAsLongVarchar</entry>
+          <entry>B7</entry>
+          <entry>0</entry>
+          <entry>Text as LongVarchar</entry>
+        </row>
+        -->
+
+          <row>
+            <entry>UnknownsAsLongVarchar</entry>
+
+            <entry>B8</entry>
+
+            <entry>0</entry>
+
+            <entry>Unknowns as LongVarchar</entry>
+          </row>
+
+          <row>
+            <entry>BoolsAsChar</entry>
+
+            <entry>B9</entry>
+
+            <entry>0</entry>
+
+            <entry>Bools as Char</entry>
+          </row>
+
+          <row>
+            <entry>MaxVarcharSize</entry>
+
+            <entry>B0</entry>
+
+            <entry>255</entry>
+
+            <entry>Max Varchar size. Value of 0 will break everything. We will
+            be changing 0 to mean <emphasis>unlimited</emphasis> and will then
+            change the default to 0.</entry>
+          </row>
+
+          <row>
+            <entry>MaxLongVarcharSize</entry>
+
+            <entry>B1</entry>
+
+            <entry>8190</entry>
+
+            <entry>Max LongVarchar size</entry>
+          </row>
+
+          <row>
+            <entry>RowVersioning</entry>
+
+            <entry>A4</entry>
+
+            <entry>0</entry>
+
+            <entry>Row Versioning</entry>
+          </row>
+
+          <row>
+            <entry>ShowSystemTables</entry>
+
+            <entry>A5</entry>
+
+            <entry>0</entry>
+
+            <entry>Show System Tables</entry>
+          </row>
+
+          <row>
+            <entry>DisallowPremature</entry>
+
+            <entry>C3</entry>
+
+            <entry>0</entry>
+
+            <entry>Disallow Premature</entry>
+          </row>
+
+          <row>
+            <entry>UpdatableCursors</entry>
+
+            <entry>C4</entry>
+
+            <entry>0</entry>
+
+            <entry>Updatable Cursors</entry>
+          </row>
+
+          <row>
+            <entry>LFConversion</entry>
+
+            <entry>C5</entry>
+
+            <entry>1 Windows, 0 UNIX</entry>
+
+            <entry>LF &lt;-&gt; CR/LF conversion</entry>
+          </row>
+
+          <row>
+            <entry>TrueIsMinus1</entry>
+
+            <entry>C6</entry>
+
+            <entry>0</entry>
+
+            <entry>True is -1</entry>
+          </row>
+
+          <row>
+            <entry>BI</entry>
+
+            <entry>N/A</entry>
+
+            <entry>0</entry>
+
+            <entry>Datatype to report BIGINT columns as</entry>
+          </row>
+
+          <row>
+            <entry>LowerCaseIdentifier</entry>
+
+            <entry>C9</entry>
+
+            <entry>0</entry>
+
+            <entry>Lower case identifier</entry>
+          </row>
+
+          <row>
+            <entry>SSLmode</entry>
+
+            <entry>CA</entry>
+
+            <entry>disable</entry>
+
+            <entry>SSL mode</entry>
+          </row>
+
+          <row>
+            <entry>AB</entry>
+
+            <entry>N/A</entry>
+
+            <entry/>
+
+            <entry>Connection string suffix options</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <simpara>Abbreviations are for use in connection strings.</simpara>
+  </section>
+</chapter>

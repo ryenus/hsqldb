@@ -1,0 +1,4 @@
+CALL 'token';
+CALL 'other';
+:/tok/;
+*if (*? != token) \q Token is not 'token' but: *{?}

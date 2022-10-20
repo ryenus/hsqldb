@@ -1,0 +1,526 @@
+30 May 2022 - version 2.7.0
+-- version 2.7.0 jar requires JRE 11 or later - tested up to Java 17
+-- version 2.7.0 alternative jar requires JRE 8 or later
+-- added support for JSON constructor functions
+-- added support for microsecond precision CURRENT_TIMESTAMP and similar functions
+-- added support for GRANT and REVOKE on all objects in a schema
+-- added support for CSV file data import and export
+-- added support for regional time zones such as 'America/New_York' in conversions
+-- added SET DATABASE SQL MAX RECURSIVE (sql.max_recursive) setting
+-- changed the default for SET DATABASE SQL SYS INDEX NAMES (sql.sys_index_names) to true
+-- changed the properties reported by JDBC DatabaseMetaDat::getClientInfoProperties() method
+-- improved  JDBC DatabaseMetaDat::getTablePrivileges() method to cover fine-grained privileges
+-- improved error messages for SQL settings statements
+-- improved documentation
+-- added some minor enhancements
+-- fixed a number of reported regressions and bugs (see tracker)
+
+21 October 2021 - version 2.6.1
+-- version 2.6.1 is a bug fix release
+-- added sql.lowercase_ident property for extra compatibility with PostgreSQL and MySQL unquoted identifier names
+-- fixed an issue with performance of large updates in mvcc transaction mode
+-- fixed an issue with query timeout settings
+-- fixed a number of minor issues and regressions
+
+21 March 2021 - version 2.6.0
+-- Version 2.6.0 marks the 20th anniversary of HyperSQL.
+-- The project maintainer would like to thank core developers Blaine Simpson, Campbell Burnet and Robert Preston for their contribution over many years, 
+--    and all developers and users who contributed code, made useful suggestions, or reported issues.
+-- version 2.6.0 main jar contains the module org.hsqldb and can be used as a Java module
+-- version 2.6.0 jar requires JRE 11 or later - tested up to Java 16 RC
+-- version 2.6.0 alternative jar requires JRE 8 or later
+-- version 2.3.9 jar can be compiled with Java 6 (or 7) for JRE 6 and 7 and fully compatible with 2.6.0 except for the new JDBC features
+-- The DatabaseManager class is no longer included in the Jars. Use DatabaseManagerSwing instead. 
+-- added support for additional REGEXP_ functions.
+-- added support for adding extra columns to FOREIGN KEY indexes; see ALTER CONSTRAINT in the Guide
+-- added support for RECURSIVE_TABLE in WITH RECURSIVE queries
+-- added system role SCRIPT_OPS for export / import of database structure and data
+-- added extensive features to the collection classes in org.hsqldb.lib (maps, lists, queues etc.) which can also be used in user apps
+-- improved MySQL syntax support for ENUM
+-- fixed a number of regression in 2.5.1, e.g. use of MODULE for LOCAL TEMPORARY tables, truncated microsecond precision of java.sql.Timestamp values
+-- fixed several minor issues
+-- removed all use of Java (up to JDK 16) deprecated methods
+-- revamped Ant and Gradle builds, now updated to latest Gradle
+
+24 June 2020 - version 2.5.1
+-- version 2.5.1 jar requires JRE 8 or later - tested up to Java 14
+-- version 2.5.1 can be compiled with Java 9 or later as org.hsqldb Java module jar
+-- version 2.3.8 jar can be compiled with Java 6 (or 7) for JRE 6 and 7 and fully compatible with 2.5.1 except for the new JDBC features
+-- added support for GROUPING SETS, ROLLUP and CUBE grouping operations
+-- added support for PERFORM CHECK ALL TABLE INDEX to check all CACHED table data and indexes
+-- added support for use of PostgreSQL ODBC driver to access a HyperSQL Server
+-- added support for calling stored procedures with INTERVAL parameters via JDBC CallableStatement
+-- added support for TRANSACTION_UTC, ASCIISTR UNISTR functions
+-- added support for reuse of memory space for lobs in mem: databases
+-- changed behaviour of WITH RECURSIVE with UNION ALL for compatibility with other systems
+-- improved role-based, row-level data access control with more complex filter expressions that can be applied to separate actions
+-- improved MySQL syntax support in the ON DUPLICATE KEY UPDATE clause
+-- improved loading of text files with null or empty fields into TEXT tables with columns defined as NOT NULL with DEFAULT 
+-- many minor enhancements
+-- fixed issue with ALTER COLUMN data type modification between SMALLINT and INTEGER in CACHED tables
+-- fixed an issue (regression) in some server shutdown cases
+-- fixed an issue (regression) in some cases when JDBC connection timeout is used
+-- fixed several minor issues
+-- changed and improved how file spaces are set up for existing cached tables 
+-- removed legacy support for opening version 1.8 databases
+-- removed legacy support for non-incremental internal backup of the .data file
+
+- 1 June 2019 - version 2.5.0
+-- version 2.5.0 jar requires JRE 8 or later - tested up to Java 12
+-- version 2.5.0 can be compiled with Java 9 or later as org.hsqldb Java module jar
+-- version 2.3.7 is released as a separate jar for JRE 6 and 7 and fully compatible except for the new JDBC features
+-- added Temporal System-Versioned tables feature 
+-- added offline distributed database feature based on System-Versioned tables
+-- added role-based, row-level data access control
+-- added new properties, memory_lobs and hsqldb_tx_interrupt_rollback
+-- changed effect of Thread interrupts by user application in in-process database, transaction is rolled back if hsqldb_tx_interrupt_rollback is true
+-- changed return type of the UUID() function to UUID; the SYS_GUID() function will continue to return a BINARY(16) value.
+-- improved reporting of line number in compile error messages for routines
+-- improved syntax compatibility modes
+-- fixed issue with formatting of some TIMESTAMP nanoseconds returned by the TO_TIMESTAMP function
+-- fixed issue with TIMESTAMPDIFF with TIMESTAMP WITH TIME ZONE
+-- fixed issue with IN (UNNEST(NUMERIC ARRAY))
+-- fixed issue with transaction size reported in INFORMATION_SCHEMA.SYSTEM_SESSIONS 
+-- fixed issue with storing plus or minus infinity DOUBLE values
+-- fixed issue with CREATE DOMAIN ... COLLATE not persisting
+-- fixed issue with CREATE TYPE with custom COLLATION
+-- fixed an issue with multiple FOR loops in SQL routines
+-- fixed several minor issues
+-- changed calls to Java methods deprecated in JDK 9 - 12
+-- removed Java 5 code switch and build options
+
+20 May 2018 - version 2.4.1
+-- version 2.4.1 jar requires JRE 8 or later
+-- version 2.3.6 is released as a separate jar for JRE 1.6 and fully compatible except for the new JDBC features
+-- added support for EXPLAIN REFERENCES FROM | TO object statement
+-- added support for HEX, UNHEX, TO_BASE64 and FROM_BASE64 functions
+-- added support for deployment in docker containers that do not support file rename
+-- added support for generated keys in update and merge
+-- improved CHECKPOINT DEFRAG to allow very large data files
+-- fixed issue with some temp table queries
+-- fixed issue with some SELECT ... INTO in routines
+-- fixed issue with parsing some TEXT TABLE source files
+-- fixed issue with auto-generated identity values in MERGE statements
+-- fixed issue for WITH named non-recursive subqueries in routines
+-- fixed issue with some WITH recursive queries
+-- fixed issue with duplicate values in UNNEST used with IN predicates
+-- fixed issue with WHEN clause in Java TRIGGER declarations
+-- fixed several issues with implementation of JAVA 8 JDBC method
+-- fixed some issues with transaction management
+-- fixed several minor bugs
+
+9 April 2017 - version 2.4.0
+-- version 2.4.0 jar requires JRE 8
+-- version 2.3.5 is released as a separate jar for JRE 1.6 and fully compatible except for the new JDBC features
+-- added support for new JAVA 8 JDBC methods to ResultSet and Statement classes
+-- added support for several functions SINH COSH TANH NEXT_DAY DATEPART DATENAME EOMONTH NEWID SYS_GUID
+-- added support for execution of DDL statements concurrently with other transactions
+-- added support for table spaces for CACHED tables, which helps file space reuse after dropping tables or mass deletes
+-- improved support for WITH named subqueries in routines, allowing parameters to be referenced
+-- improved support for WITH RECURSIVE named subqueries to be used in other subqueries
+-- improved support for UUID in ResultSet to return a Java UUID with getObject()
+-- improved support for UUID in PreparedStatement setObject() with VARCHAR parameters
+-- improved use of allow_empty_batch connection property
+-- improved field param setting of DATEADD DATEDIFF TIMESTAMPADD TIMESTAMPDIFF functions
+-- improved ORA, MSS and MYS syntax compatibility modes for type names and functions
+-- fixed issue with cancel() method of java.sql.Statement with in-process connections
+-- fixed issue with the timeout setting of java.sql.Statement
+-- fixed issue with duplicate row with INSERT followed by UPDATE and ROLLBACK in MEMORY tables
+-- fixed issue with dropping indexes and constraints in MEMORY tables
+-- fixed issue with queries on DECIMAL or NUMERIC columns containing very large values
+-- fixed issue with ResultSet when calling next() multiple times was not followed by a get(...) call
+-- fixed issue with temp table indexes
+-- core code refactor of iterator for rows of tables and results
+-- fixed several minor bugs
+
+16 May 2016 - version 2.3.4
+-- added support for storing live Java Objects in mem: databases with sql.live_object connection property
+-- added support for UUID data type
+-- added support for CREATE SYSNONYM FOR, for tables, views and sequences
+-- added support for ON UPDATE CURRENT_TIMESTAMP for auto updated TIMESTAMP columns
+-- added REGEXP_REPLACE function
+-- added support for PERIOD and CONTAINS, EQUALS, PRECEDES and SUCCEEDS predicates in SQL
+-- added support for UTF-16 text source files for TEXT tables
+-- added support for the cancel() method of JDBC Statement and PreparedStatement
+-- added support for END STATEMENT to end long-running statements
+-- added support for CallableStatement parameter reference by name
+-- added date range checks to setDate and setTimestamp methods in PreparedStatement
+-- added support for lowercase patterns for TO_DATE etc.
+-- added support for VARCHAR string literals with sql.char_literal property
+-- improved MYS syntax mode for INSERT, REPLACE and ON DUPLICATE KEY UPDATE
+-- improved DB2 syntax mode for queries
+-- extensive review and improvement of transaction management in muti-threaded access
+-- fixed issue with user application Thread.interrupt disabling in-process database session
+-- fixed regression with interaction of FK constraints with ON DELETE CASCADE and NO ACTION
+-- fixed regression with opening database with CACHED table with files_readonly 
+-- fixed issue with SEQUENCE increment in multi-row inserts
+-- fixed issue with incorrect results in multiple LEFT JOIN with NATURAL or USING
+-- fixed issue with ClobInputStream 
+-- fixed issue with missing references to views used in routines
+-- fixed issue with .lobs file space reuse at CHECKPOINT
+-- fixed issue with readonly session blocking in MVLOCKS mode
+-- fixed several minor bugs
+
+28 June 2015 - version 2.3.3
+-- extensive review and improvement of concurrent updates
+-- fixed an issue with CHECKPOINT DEFRAG that could cause minor inconsistencies
+-- fixed a rarely occuring error immediately after CHECKPOINT
+-- fixed regression with comparison of TIMESTAMP values when one value is WITH TIME ZONE and the other WITHOUT
+-- fixed reporting of DISTINCT and DOMAIN types in JDBC DatabaseMetaData getColumns results
+-- fixed issue with new FK constraints, existing rows are now checked
+-- fixed restrictions with FK constraints with NO ACTION, all valid outcomes are now allowed
+-- fixed regression in 2.3.2, multiple rows with partial null values could not be inserted in UNIQUE indexes
+-- fixed issue with removal of IDENTITY when using ALTER COLUMN <name> <type>
+-- fixed issue with getExportedKeys reporting wrong DEFERABILITY
+-- fixed issue with CURRENT VALUE FOR usage
+-- fixed issue with LIKE with parametric escape character
+-- fixed an issue with CACHED table persistence
+-- fixed issue with TEMP table with ON COMMIT PRESERVE ROWS and RESULT MEMORY ROWS setting
+-- fixed several minor bugs
+-- improved usage of DECLARE CURSOR and DECLARE TABLE in SQL routines
+-- improved ORA, PGS, MSS and MYS syntax compatibility modes for CREATE TABLE and other statements
+-- added support for MYS syntax INSERT IGNORE, REPLACE and ON DUPLICATE KEY UPDATE
+-- added support for ALTER CONSTRAINT <name> RENAME TO <new name>
+-- added support for LIMIT in DELETE and UPDATE statements
+-- added support for DELETE in MERGE statement
+
+12 February 2014 - version 2.3.2
+-- fixed several minor issues
+-- fixed bug with incomplete rollback of MVCC transaction that inserts and updates the same row
+-- fixed issue with parsing of long BIT strings in SQL
+-- fixed issue with SQL triggers when columns were added or dropped from a table with SQL triggers
+-- fixed issue with an index added to a TEMP table with ON COMMIT PRESERVE ROWS and containing data
+-- added URL property hsqldb.digest which can be used with alternative secure hash algorithms for passwords
+-- changed the class used for offline backup and restore to org.hsqldb.lib.tar.DbBackupMain
+-- extended the scope of SET DATABASE SQL REFERENCES TRUE to catch ambiguity with identical table aliases
+-- extended support for the DEFAULT keyword used in INSERT and UPDATE to apply to columns with no default
+-- improved support for recursive queries
+-- improved ORA and MYS syntax compatibility modes
+
+08 October 2013 - version 2.3.1
+-- fixed several minor issues
+-- fixed bug with some queries using ORDER BY DESC on indexed columns used in conditions
+-- fixed issue with NPE is some complex subqueries
+-- improved JDBCPool to be created with DataSourceFactory
+-- added support for LIKE with parametric escape character 
+-- added support for routine SIGNAL messages using variables
+
+08 July 2013 - version 2.3.0
+-- improved data exception error messages
+05 July svn 5259 snapshot 52
+-- added connection property, close_result
+30 June - svn 5256 snapshot 51
+-- added INSTR function
+15 May - svn 5241 snapshot
+-- added support for backup of database as set of files BACKUP DATABASE TO <path> AS FILES
+12 April - svn 5228 snapshot
+-- added TIMESTAMP_WITH_ZONE function
+-- fixed issue with AT <time zone> use with TIMESTAMP WITHOUT TIME ZONE
+-- fixed issue with TRIGGER with non-zero QUEUE setting
+4 April - svn 5222
+-- improved data space reuse
+-- improved optimisation of SELECT DISTINCT and GROUP BY
+-- improved MYS syntax compatibility mode to support backtick quoted identifiers
+25 March 2013 - svn 5214
+-- added support for statement timeout via java.sql.Statement and PreparedStatement
+18 March 2013 - svn 5208
+-- improved support for setting collation strength and case-sensitivity
+-- VARCHAR_IGNORECASE is no longer a type and is translated into the collation name
+10 March 2013 - svn 5203
+-- increased default max size of BLOB and CLOB to BLOB(1G) and CLOB(1G)
+-- added support for compressed and encrypted lobs
+-- improved DatabaseMetaData reporting of actual settings for null ordering
+-- improved DB2 and ORA syntax compatibility modes
+06 February 2013 - svn 5168 snapshot
+-- improved backward compatibility for use with embedded OpenOffice / LibreOffice databases
+-- fixed regression with some subquery tables used in OUTER joins
+-- fixed regression with some in MERGE statements
+04 January 2013 - svn 5139 - snapshot
+-- improved reuse of empty lob spaces
+-- fixed various minor issues 
+09 December 2012 - svn 5127
+-- added support for CONCAT_WS and UNIX_MILLIS functions
+-- added support for table spaces
+-- added INFORMATION_SCHEMA.SYSTEM_TABLESTATS
+-- added SET DATABASE SQL NULLS ORDER and the property sql.nulls_order for the default sort order of nulls
+-- improved name resolution in queries within SQL routines
+-- fixed various minor issues
+01 November 2012 - svn 5103
+-- fixed issue with some correlated subqueries in where clause
+-- fixed issue with ROWNUM in inner selects
+-- fixed various minor issues
+-- improved support for DATE and TIMESTAMP subtraction without explicit INTERVAL type
+-- added support for ADD_MONTHS, LAST_DAY, MONTHS_BETWEEN and other Oracle style functions
+24 October 2012 - svn 5096 snapshot
+-- fixed various minor issues
+-- fixed issues with some disk-based TEMP tables used in multiversion transaction modes
+12 October 2012 - svn 5089 snapshot
+-- fixed issue with access to LOBs in res: databases
+-- fixed regression with some nested views
+-- added global IGNORECASE property
+10 September 2012 - svn 5071 snapshot
+-- fixed regession with the result returned after a SHUTDOWN 
+-- fixed regression with non-correlated scalar subqueries causing NPE
+-- fixed regression with FUNCTION and PROCEDURE local tables data change logging
+-- fixed regression with script file with CREATE TYPE with character types
+-- fixed issue with DECLARE CURSOR in routines using write locks and requiring MODIFIES SQL DATA
+-- fixed issue with TRUNCATE function causing NPE when used in column GENERATED ALWAYS expression
+-- fixed issue with escape in Unicode string which caused only the part before the escape to return from Scanner
+-- fixed issue with upgraded version 1.8.0 databases which did not have lob space
+-- fixed issue with logging changed password after ALTER USER ... SET PASSWORD ...
+-- improved text table source textdb.allow_full_path=true to allow absolute full paths
+-- improved sql.enforce_references=true to catch ambiguous references in ORDER BY columns
+-- improved ORA syntax compatibility mode
+-- added support for terminal DROP TABLE ... IF EXISTS for local temporary tables
+
+05 August 2012 - version 2.2.9
+-- code review and minor fixes
+-- improved support for use in OO and LO version 3.2 and later
+-- new simple connection pool class org.hsqldb.jdbc.JDBCPool
+2 July 2012 SVN 5017 snapshot
+-- added integrated support for large data
+-- enhanecments to Servlet and WebServer
+28 June 2012 SVN 5009 snapshot
+-- improved optimisation of queries with views and subqueries
+-- improved support for complex, nested queries
+-- improved name resolution in SQL statements in functions and triggers
+4 June 2012 SVN 4997
+-- fixed issue with server sometimes not exiting at shutdown
+-- fixed regression with recursive queries
+-- END is no longer a reserved keywords
+-- property for SQL logging is now persisted
+14 May 2012 SVN 4991
+-- fixed issues with hot backup
+-- improved name resolution with nested subqueries
+-- improved support for collations with NO PAD
+-- added support for MySQL style DATE_ADD, DATE_SUB and interval expressions
+22 April 2012 - SVN 4977
+-- fixed issue with datetime TRUNC and ROUND functions
+-- fixed issues with a number of functions
+-- fixed issue causing reduced speed and memory leak with disk based result sets
+-- fixed issues with comparison of lobs and lobs file exceeding 2GB
+-- extended batch execution to procedure calls
+26 February 2012 - SVN 4944
+-- fixed regression in DECODE function
+-- fixed issue with ROWNUM when correlated supqueries were used
+-- added support for COUNT(DISTINCT ...) with multiple arguments
+-- added support for SQL log level 1-3
+-- extended ORA syntax compatibility mode
+-- improved garbage collection of dropped MEMORY and TEXT tables
+-- improved name resolution with joined tables
+28 January 2012 - SVN 4925
+-- fixed issue with min(), max() optimisation for indexed columns
+-- fixed issue with some usages of UNNEST
+-- fixed issue with some NOT IN usage with NULL in list
+
+22 January 2012 - version 2.2.8
+-- fixed regression since 2.2.6 that affected database crash recovery
+-- added support for hot backup
+
+14 January 2012 - version 2.2.7
+-- fixed issue with NPE thrown with nio data files
+-- added SET DATABASE SQL NULLS FIRST and the property sql.nulls_first for the default sort order of nulls
+-- added SET DATABASE SQL SYNTAX DB2 and the property sql.syntax for DB2 syntax compatibility
+-- extended SET DATABASE SQL AVG SCALE and the property sql.avg_scale to the results of division
+-- changed the JDBC object returned for INTERVAL values to String for the default jdbc.translate_tti_types=true setting
+-- improved syntax compatibility modes
+-- several minor improvements and bug fixes
+
+19 November 2011 - version 2.2.6
+-- fixed issue with memory use of large strings in cache
+-- fixed issue with FOR loops with ORDER BY in routines
+-- fixed issue with TIME ZONE types JDBC type reporting in server
+-- fixed issue with type resolution of arrays
+-- fixed issue with identical prepared statements in session
+-- fixed issue with cached tables in jar databases
+-- fixed issue with certain server properties
+-- fixed issues with MVCC transactions
+-- fixed issue with some row comparison predicates
+-- added code branch supporting huge multi terabyte databases with tens of billions of rows
+-- added property sql.avg_scale for decimal results from AVG and MEDIAN aggregates
+-- added support for AVG with datetime types
+-- added two-arg REPLACE function
+-- added new datetime and bit functions 
+-- added support for ROWNUM() in UPDATE and DELETE statements
+-- added backward compatibility for IDENTITY options with commas
+-- added support for new SQL properties
+-- added Gradle build
+-- improved SYSDATE, NOW and similar functions to accept optional empty arg list
+-- improved JDBC support for LOBs
+-- improved concurrency of CREATE and DROP DDL operations
+-- improved data type determination for dynamic variables
+-- improved routine variable scope in MERGE statements
+-- improved compatibility modes
+-- improved persistence reliability
+-- many minor improvements and bug fixes
+-- major improvements to SqlTool
+
+5 July 2011 - version 2.2.5
+-- fixed UNNEST in subquery
+-- fixed issue with INFORMATION_SCHEMA.ELEMENT_TYPES view
+-- fixed missing exception when table functions were used as SELECT items
+-- fixed regression with server ACL file load
+-- fixed issue with query not compiling with certain types of IN predicate 
+-- added support for UNNEST with multiple ARRAY args
+-- added SYSTIMESTAMP function
+-- dba privilege required for LOAD_FILE function
+-- improved handling of misconfigured external logging platforms
+-- improved query speed for some joins
+-- improved parameter type allocation for IN lists
+-- minor improvements
+
+12 Jun 2011 - version 2.2.4
+-- fixed reported issue 
+-- improved INFORMATION_SCHEMA concurrency
+6 Jun 2011 - version 2.2.3
+-- fixed issue with limit offset with indexed IN predicate
+-- added INFORMATION_SCHEMA.ELEMENT_TYPES view and related enhancements
+-- added hsqldb.full_log_replay property
+-- added REGEXPR_SUBSTRING and REGEXPR_SUBSTRING_ARRAY functions
+-- added support for multiple unnamed savepoints
+-- improved IFNULL etc. functions that are based on CASE WHEN expressions
+-- improved Transfer Tool in HSQLDB transfers
+-- minor improvements
+
+22 May 2011 - version 2.2.2
+-- increased .data file limit to 2TB
+-- improved EXPLAIN PLAN
+-- improved query speed for some joins
+-- improved TRUNCATE statement
+-- added support for text tables in mem: databases
+-- minor improvements
+
+16 May 2011 - version 2.2.1
+-- fixed regression in 2.2.0 with server TLS
+-- fixed regression in 2.2.0 with ResultSetMetaData schema names
+-- fixed type limitations of Connection#createArrayOf
+-- fixed DatabaseManager running as Applet
+-- added contents to INFORMATION_SCHEMA.SQL_IMPLEMENTATION_INFO
+-- added auto checkpoints execution in separate session
+-- improved query speed for some LEFT OUTER joins
+-- added deletion of the temp directory at shutdown
+
+10 May 2011 - version 2.2.0
+-- fixed regression in 2.1.0 with database log created after a backup is completed not used for recovery
+-- fixed regression in 2.1.0 with alter table operation failures causing loss of table data 
+-- fixed issues with disk based result sets
+-- fixed issue with multiple ALTER TABLE statements used as a single statement
+-- reserved keywords now include DEFAULT and exclude ADMIN
+-- added support for ROWNUM() function
+-- added support for GET DIAGNOSTICS statement and DIAGNOSTICS function
+-- added support for POSITION_ARRAY and enhancements to SORT_ARRAY (also ARRAY_SORT)
+-- added support for WIDTH_BUCKET function
+-- added support for SQL execution logging SET DATABASE EVENT LOG SQL LEVEL 3
+-- improved column nullability reporting in ResultSetMetaData
+-- improved BOOLEAN type support in compatibility modes
+-- improvements to Server, including new shutdown methods and properties file name argument
+-- improvements to MVCC transaction management
+-- improvements to text table properties support
+-- improved table and database locking for DDL statements
+-- minor improvements and bug fixes
+
+14 Mar 2011 - Version 2.1.0
+-- added support for WITH RECURSIVE
+-- added support for ALTER INDEX <name> AS (<new column name list>) to change the indexed column list of an index
+-- extension of MySQL and PostgreSQL compatibility modes. Includes type conversion and sequence functions
+-- extension to IDENTITY column support allows the use of a named SEQUENCE
+22 Feb 2011 - SVN 4096 - 2.1.0 rc4
+-- improvements to avoid creation of new .data files at checkpoint and allow incremental enlargement of this file
+-- additions and improvements to INFORMATION_SCHEMA
+-- added MS SqlServer function compatibility
+-- added more extensive support for ALTER SPECIFIC ROUTINE
+-- added initial support for JDBC 4.1 - Java 1.7
+-- added support for opening most 1.8.x databases that are not explicitly SHUTDOWN
+-- event logging format has changed slightly, and new level 3 allows more detail in the log
+-- added MEDIAN aggregate function
+-- added ARRAY_SORT function
+-- routine variables and parameters can be used in LIMIT / FETCH / OFFSET clauses
+-- improvements to lob use with PreparedStatement 
+-- improvements to calling procedures with JDBC
+10 Dec 2010 - SVN 3940 - 2.0.1 RC3 
+-- added support for cached tables for lob catalog
+-- added support for CURRENT VALUE FOR <identity sequence>, same as CURRVAL
+-- added TO_TIMESTAMP, LPAD, RPAD functions
+31 Oct 2010 - SVN 3836 - 2.0.1 RC2
+-- added support for CREATE TABLE ... IF NOT EXISTS ...
+-- added support for ?user=xxxx&password=yyyy connection in URL string
+-- improved query optimisation for LIKE
+-- added support for password complexity check functions
+-- added support for external user authentication
+-- added UUID functions
+19 Oct 2010 - SVN 3824 - 2.0.1 RC1
+-- added support for compressed scripts
+14 Oct 2010 - SVN 3814
+-- added support for recursive SQL functions and local table variables
+04 Oct 2010 - SVN 3808
+-- added support for translation of Oracle types VARCHAR2, NUMBER, RAW, etc. with SET DATABASE SQL SYNTAX ORA TRUE
+-- added support for more procedural statements in SQL triggers
+-- added support for variables in database URL's
+24 Sept 2010 - SVN 3794
+-- fixed issue with new sql compatibility properties applied to older databases
+-- fixed bug with IN predicates in arguments of aggregate functions
+-- fixed bug with table functions used in subqueries
+-- added support for Oracle syntax elements including DUAL, ROWNUM, NEXTVAL, CURRVAL with sql.syntax_ora=true property
+-- added support for clustered indexes
+-- added enhancement for column visibility in nested joins
+-- added support for datetime ROUND and TRUNC functions
+-- added new connection properties
+-- added support for FOR loops in routines
+11 Aug 2010  - SVN 3750
+-- extended getGeneratedKeys to UPDATE and MERGE operations
+-- extended ALTER SESSION statement
+-- added SEQUENCE_ARRAY and SESSION_ID function
+28 July 2010 - SVN 3725
+-- improved changing type of columns
+-- added support for adding GENERATED ... AS IDENTITY to an existing column
+23 July 2010 - SVN 3721
+-- added FILTER clause support to aggregate functions
+-- added functions ACTION_ID, TRANSACTION_ID, TRANSACTION_SIZE, UNIX_TIMESTAMP
+22 July 2010 - SVN 3716
+-- improved default reporting of WITH TIME ZONE and INTERVAL types in metadata and system tables
+-- improved getGeneratedKeys with user defined column sets
+-- fixed bug #3032488 - multi-column IN condition without a full index on columns did not work
+19 July 2010 - SVN 3709
+-- added support for procedures returning result sets
+-- additional relaxation of BIT used as BOOLEAN
+13 July 2010 - SVN 3693
+-- added aggregate functions ARRAY_AGG and GROUP_CONCAT
+-- added TO_DATE function
+09 July 2010 - SVN 3688
+-- added function LOB_ID
+-- added BLOB, CLOB, VARBINARY support to Java functions and procedures
+-- fixed bug with OCTET_LENGTH function
+07 July 2010 - SVN 3686
+-- added property sql.longvar_is_lob
+-- added missing CONCAT function
+-- added ARRAY support to Java functions and procedures
+-- added query optimisation for DISTINCT and GROUP BY on indexed columns
+-- speed improvement for some large results
+-- fixed bug related to persistence of lobs after row updates that change the lob
+-- fixed bug #3023253 - multiple count(*) with duplicate tables in outer join
+-- fixed bug #3022106 - mix of IS NULL and other conditions in outer join
+26 June 2010 - SVN 3674
+-- added property sql.enforce_types and related SQL statement
+-- added ALTER SESSION statement
+-- fixed bug #3021175 with setFetchSize()
+-- relaxation of type comparison and null types - controlled by sql.enforce_type
+22 June 2010 - SVN 3667
+-- changed names of three system functions ISDATABASEREADONLY() to IS_DATABASE_READONLY(), etc.
+-- fixed bug with Clob.getInputStream()
+-- improvement to TO_CHAR function
+-- some relaxation of DECIMAL dynamic params
+16 June 2010 - SVN 3658
+-- fixed bug #3016375 Server remote open with no initial database
+-- fixed bugs #3016397 - multiple UNION CORRESPONDING did not work
+-- fixed bugs #3016481 - TABLE T did not work with views
+-- minor improvement to MVCC transactions
+13 June 2010 - SVN 3654
+-- fixed issue with third parameter of LOCATE function
+-- added TRUNC and changed return type of TRUNCATE function to reduce decimal scale
+-- added synchronized blocks to allow mass creation of mem: databases
+-- added support for jdbc:default:connection for Java functions
+07 June 2010 - SVN 3646
+-- fixed bug - SET FILES LOB SCALE did not change the store without a shutdown
+-- fixed bug #3012585 - multi-column FOREIGN KEY with mismatched order of PK columns did not work correctly
+
+06 June 2010 - version 2.0.0

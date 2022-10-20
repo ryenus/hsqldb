@@ -1,0 +1,11 @@
+# File for use by 'bnd' utility for generating OSGi Bundle descriptions.
+# https://bnd.bndtools.org/
+
+Bundle-Version: ${hsqldb.version}
+Build-Vendor: ${build.vendor}
+Bundle-Description: ${build.description}
+Bundle-Name: ${hsqldb.title}
+Bundle-SymbolicName: org.hsqldb.hsqldb
+Export-Package: *
+Import-Package: *;resolution:=optional
+-removeheaders: Bnd-*, Tool, Require-Capability

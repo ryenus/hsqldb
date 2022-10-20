@@ -1,0 +1,44 @@
+configurations {
+    xcsdeRngvalJar
+    xcsdeRngvalDeps.extendsFrom xcsdeRngvalJar
+    xalan.extendsFrom xcsdeRngvalJar
+    fop
+    bndJar
+    jflexJar
+}
+
+dependencies {
+  //<dependencies defaultconfmapping="*->default">
+  fop('org.apache.xmlgraphics:fop:1.0') { transitive = false }
+  fop('org.apache.xmlgraphics:xmlgraphics-commons:1.4') { transitive = false }
+  fop('org.apache.avalon.framework:avalon-framework-api:4.3.1') { transitive = false }
+  fop('org.apache.avalon.framework:avalon-framework-impl:4.3.1') { transitive = false }
+  fop('org.apache.xmlgraphics:batik-svg-dom:1.7') { transitive = false }
+  fop('org.apache.xmlgraphics:batik-bridge:1.7') { transitive = false }
+  fop('org.apache.xmlgraphics:batik-bridge:1.7') { transitive = false }
+  fop('org.apache.xmlgraphics:batik-util:1.7') { transitive = false }
+  fop('org.apache.xmlgraphics:batik-dom:1.7') { transitive = false }
+  fop('org.apache.xmlgraphics:batik-css:1.7') { transitive = false }
+  fop('org.apache.xmlgraphics:batik-awt-util:1.7') { transitive = false }
+  fop('org.apache.xmlgraphics:batik-gvt:1.7') { transitive = false }
+  fop('org.apache.xmlgraphics:batik-transcoder:1.7') { transitive = false }
+  fop('org.apache.xmlgraphics:batik-extension:1.7') { transitive = false }
+  fop('org.apache.xmlgraphics:batik-ext:1.7') { transitive = false }
+
+  fop('commons-io:commons-io:2.1')
+  fop('commons-logging:commons-logging:1.1.1')
+  xalan('xalan:xalan:2.7.1')
+  xalan('xalan:serializer:2.7.1')
+  xalan('net.sf.docbook:docbook-xsl-xalan:1.0.0')
+  xalan('xml-apis:xml-apis:1.0.b2')
+  xalan('xerces:xercesImpl:2.10.0')
+  xcsdeRngvalJar('com.admc:xcsde-rngval:0.1.0')
+    /*   conf extending gets this xcsdeRngvalJar into the xcsdeRngvalDeps and
+         into xalan.
+         Primary purpose of this jar is for the admc MSV validator.
+         It is also added to the XSLT CLASSPATH only to add the XInclude
+         settings file to the CLASSPATH.  Needed by Xalan during XSLT.
+    */
+  bndJar('biz.aQute.bnd:biz.aQute.bnd:5.3.0')	
+  bndJar('de.jflex:jflex:1.4.3')
+}

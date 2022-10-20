@@ -1,0 +1,34 @@
+# $Id$
+
+# This file is a systemd init script wrapper for leading-edge UNIXes.
+# Copy $HSQLDB_HOME/.../sample/hsqldb.cfg to /etc/hsqldb.conf and edit it.
+# Tend to the "TODO" note below.
+# Our init script will fail unless your .rc file is protected something like:
+#     chmod 0600 /path/to/sqltool.rc
+#
+# To activate this file, run:  systemd daemon-reload
+# To enable to execute upon system bootups/shutdowns (the ultimate purpose), run:
+#     systemctl enable hsqldb
+#
+# -- Blaine (blaine dot simpson at admc dot com)
+
+[Unit]
+Description=HyperSQL Database Server
+After=socket.service
+
+[Service]
+# TODO!  Change these paths to point to the absolute path of the "hsqldb.init"
+# script in your HyperSQL distribution:
+ExecStart=/local/hsqldb-2.3.4/sample/hsqldb.init start
+ExecReload=/local/hsqldb-2.3.4/sample/hsqldb.init restart
+ExecStop=/local/hsqldb-2.3.4/sample/hsqldb.init stop
+KillMode=process
+#Restart=always  Don't silently restart and mask real problems
+PIDFile=/run/hsqldb.pid
+#User=...  We manage user from file /etc/hsqldb.conf
+#WorkingDirectory=...  No dependency on $PWD
+Type=forking
+TimeoutStartSec=10
+
+[Install]
+WantedBy=multi-user.target

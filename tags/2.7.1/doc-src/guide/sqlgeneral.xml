@@ -1,0 +1,2455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+<!DOCTYPE book [
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
+]>
+<chapter version="5.0" xml:id="sqlgeneral-chapt"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/2000/svg"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <!-- We declare the default namespace + those for prefixes xlink: and xi: in
+       the root element, so we can use them anywhere in this file. -->
+
+  <title xml:id="sqlgeneral-title">SQL Language</title>
+
+  <info>
+    <authorgroup>
+      <author>
+        <personname><firstname>Fred</firstname><surname>Toussi</surname></personname>
+
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </author>
+    </authorgroup>
+
+    <releaseinfo>$Revision$</releaseinfo>
+
+    <pubdate>&timestamp;</pubdate>
+
+    <keywordset>
+      <keyword>HSQLDB</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>SQL</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2002-2022 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
+    </legalnotice>
+  </info>
+
+  <section xml:id="sgc_standards">
+    <title>SQL Standards Support</title>
+
+    <para>The SQL language consists of statements for different operations.
+    HyperSQL 2.x supports the dialect of SQL defined progressively by ISO
+    (also ANSI) SQL standards 92, 1999, 2003, 2008, 2011 and 2016. This means
+    the syntax specified by the Standard text is accepted for any supported
+    operation. Almost all features of SQL-92 up to Advanced Level are
+    supported, as well as the additional features that make up the SQL:2016
+    core and many optional features of this standard.</para>
+
+    <para>At the time of this release, HyperSQL supports the widest range of
+    SQL Standard features among all open source RDBMS.</para>
+
+    <para>Various chapters of this guide list the supported syntax. When
+    writing or converting existing SQL DDL (Data Definition Language), DML
+    (Data Manipulation Language) or DQL (Data Query Language) statements for
+    HSQLDB, you should consult the supported syntax and modify the statements
+    accordingly.</para>
+
+    <para>Over 300 words are reserved by the Standard and should not be used
+    as table or column names. For example, the word POSITION is reserved as it
+    is a function defined by the Standards with a similar role as
+    <methodname>String::indexOf(String)</methodname> in Java. By default,
+    HyperSQL does not prevent you from using a reserved word if it does not
+    support its use or can distinguish it. For example, CUBE is a reserved
+    word for a feature that is supported by HyperSQL from version 2.5.1.
+    Before this version, CUBE was allowed as a table or column name, but it is
+    no longer allowed. You should avoid using such names as future versions of
+    HyperSQL are likely to support the reserved words and may reject your
+    table definitions or queries. The full list of SQL reserved words is in
+    the appendix <link endterm="lists-title" xlink:href="#lists-app"/> . You
+    can set a property to disallow the use of reserved keywords for names of
+    tables and other database objects. There are several other user-defined
+    properties to control the strict application of the SQL Standard in
+    different areas.</para>
+
+    <para>If you have to use a reserved keyword as the name of a database
+    object, you can enclose it in double quotes.</para>
+
+    <para>HyperSQL also supports enhancements with keywords and expressions
+    that are not part of the SQL standard. Expressions such as <literal>SELECT
+    TOP 5 FROM ..</literal>, <literal>SELECT LIMIT 0 10 FROM ...</literal> or
+    <literal>DROP TABLE mytable IF EXISTS</literal> are among such
+    constructs.</para>
+
+    <para>Many books cover SQL Standard syntax and can be consulted.</para>
+
+    <para>In HyperSQL version 2, all features of JDBC4 that apply to the
+    capabilities of HSQLDB are fully supported. The relevant JDBC classes are
+    thoroughly documented with additional clarifications and HyperSQL specific
+    comments. See the <link xlink:href="#javadoc-link">JavaDoc</link> for the
+    <classname>org.hsqldb.jdbc.*</classname> classes.</para>
+
+    <para>The following sections list the keywords that start various SQL
+    statements grouped by their function.</para>
+
+    <section xml:id="sgc_definition_statements">
+      <title>Definition Statements (DDL and others)</title>
+
+      <para>Definition statements create, modify, or remove database objects.
+      Tables and views are objects that contain data. There are other types of
+      objects that do not contain data. These statements are covered in the
+      <link endterm="databaseobjects-title"
+      xlink:href="#databaseobjects-chapt"/> chapter.</para>
+
+      <para>CREATE</para>
+
+      <para>Followed by { SCHEMA | TABLE | VIEW | SEQUENCE | PROCEDURE |
+      FUNCTION | USER | ROLE | ... }, the keyword is used to create the
+      database objects.</para>
+
+      <para>ALTER</para>
+
+      <para>Followed by the same keywords as CREATE, the keyword is used to
+      modify the object.</para>
+
+      <para>DROP</para>
+
+      <para>Followed by the same keywords as above, the keyword is used to
+      remove the object. If the object contains data, the data is removed
+      too.</para>
+
+      <para>GRANT</para>
+
+      <para>Followed by the name of a role or privilege, the keyword assigns a
+      role or gives permissions to a USER or role.</para>
+
+      <para>REVOKE</para>
+
+      <para>Followed by the name of a role or privilege, REVOKE is the
+      opposite of GRANT.</para>
+
+      <para>COMMENT ON</para>
+
+      <para>Followed by the same keywords as CREATE, the keyword is used to
+      add a text comment to TABLE, VIEW, COLUMN, ROUTINE, and TRIGGER
+      objects.</para>
+
+      <para>EXPLAIN REFERENCES</para>
+
+      <para>These keywords are followed by TO or FROM to list the other
+      database objects that reference the given object, or vice versa.</para>
+
+      <para>DECLARE</para>
+
+      <para>This is used for declaring temporary session tables and
+      variables.</para>
+    </section>
+
+    <section xml:id="sgc_dml_statements">
+      <title>Data Manipulation Statements (DML)</title>
+
+      <para>Data manipulation statements add, update, or delete data in tables
+      and views. These statements are covered in the <link
+      endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/>
+      chapter.</para>
+
+      <para>INSERT</para>
+
+      <para>Inserts one or more rows into a table or view.</para>
+
+      <para>UPDATE</para>
+
+      <para>Updates one or more rows in a table or view.</para>
+
+      <para>DELETE</para>
+
+      <para>Deletes one or more rows from a table or view.</para>
+
+      <para>TRUNCATE</para>
+
+      <para>Deletes all the rows in a table.</para>
+
+      <para>MERGE</para>
+
+      <para>Performs a conditional INSERT, UPDATE or DELETE on a table or view
+      using the data given in the statement.</para>
+    </section>
+
+    <section xml:id="sgc_dql_statements">
+      <title>Data Query Statements (DQL)</title>
+
+      <para>Data query statements retrieve and combine data from tables and
+      views and return result sets. These statements are covered in the <link
+      endterm="dataaccess-title" xlink:href="#dataaccess-chapt"/>
+      chapter.</para>
+
+      <para>SELECT</para>
+
+      <para>Returns a result set formed from a subset of rows and columns in
+      one or more tables or views.</para>
+
+      <para>VALUES</para>
+
+      <para>Returns a result set formed from constant values.</para>
+
+      <para>WITH ...</para>
+
+      <para>This keyword starts a series of SELECT statements that form a
+      query. The first SELECTs act as subqueries for the final SELECT
+      statement in the same query.</para>
+
+      <para>EXPLAIN PLAN</para>
+
+      <para>These keywords are followed by the full text of any DQL or DML
+      statement. The result set shows the anatomy of the given DQL or DML
+      statement, including the indexes used to access the tables.</para>
+    </section>
+
+    <section xml:id="sgc_call_statement">
+      <title>Calling User Defined Procedures and Functions</title>
+
+      <para>CALL</para>
+
+      <para>Calls a procedure or function. Calling a function can return a
+      result set or a value, while calling a procedure can return one or more
+      result sets and values at the same time. This statement is covered in
+      the <link endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"/>
+      chapter.</para>
+    </section>
+
+    <section xml:id="sgc_property_setting_statements">
+      <title>Setting Properties for the Database and the Session</title>
+
+      <para>SET</para>
+
+      <para>The SET statement has many variations and is used for setting the
+      values of the general properties of the database or the current session.
+      Usage of the SET statement for the database is covered in the <link
+      endterm="management-title" xlink:href="#management-chapt"/> chapter.
+      Usage for the session is covered in the <link endterm="sessions-title"
+      xlink:href="#sessions-chapt"/> chapter.</para>
+    </section>
+
+    <section xml:id="sgc_general_operation_statements">
+      <title>General Operations on Database</title>
+
+      <para>General operations on the database include backup, checkpoint, and
+      other operations. These statements are covered in detail in the <link
+      endterm="management-title" xlink:href="#management-chapt"/>
+      chapter.</para>
+
+      <para>BACKUP</para>
+
+      <para>Creates a backup of the database in a target directory.</para>
+
+      <para>PERFORM</para>
+
+      <para>Includes commands to export and import SQL scripts from / to the
+      database. Also includes a command to check the consistency of the
+      indexes.</para>
+
+      <para>SCRIPT</para>
+
+      <para>Creates a script of SQL statements that creates the database
+      objects and settings.</para>
+
+      <para>CHECKPOINT</para>
+
+      <para>Saves all the changes to the database up to this point to disk
+      files.</para>
+
+      <para>SHUTDOWN</para>
+
+      <para>Shuts down the database after saving all the changes.</para>
+    </section>
+
+    <section xml:id="sgc_transaction_statements">
+      <title>Transaction Statements</title>
+
+      <para>These statements are used in a session to start, end or control
+      transactions. They are covered in the <link endterm="sessions-title"
+      xlink:href="#sessions-chapt"/> chapter.</para>
+
+      <para>START TRANSACTION</para>
+
+      <para>This statement initiates a new transaction with the given
+      transaction characteristics</para>
+
+      <para>SET TRANSACTION</para>
+
+      <para>Introduces one of more characteristics for the next
+      transaction.</para>
+
+      <para>COMMIT</para>
+
+      <para>Commits the changes to data made in the current
+      transaction.</para>
+
+      <para>ROLLBACK</para>
+
+      <para>Rolls back the changes to data made in the current transaction. It
+      is also possible to roll back to a savepoint.</para>
+
+      <para>SAVEPOINT</para>
+
+      <para>Records a point in the current transaction so that future changes
+      can be rolled back to this point.</para>
+
+      <para>RELEASE SAVEPOINT</para>
+
+      <para>Releases an existing savepoint.</para>
+
+      <para>LOCK</para>
+
+      <para>Locks a set of tables for transaction control.</para>
+
+      <para>CONNECT</para>
+
+      <para>Starts a new session and continues operations in this
+      session.</para>
+
+      <para>DISCONNECT</para>
+
+      <para>Ends the current session.</para>
+    </section>
+
+    <section xml:id="sgc_comments_in_statements">
+      <title>Comments in Statements</title>
+
+      <para>Any SQL statement can include comments. The comments are stripped
+      before the statement is executed.</para>
+
+      <para>SQL style line comments start with two dashes
+      <literal>--</literal> and extend to the end of the line.</para>
+
+      <para>C style comments can cover part of the line or multiple lines.
+      They start with <literal>/*</literal> and end with
+      <literal>*/</literal>.</para>
+    </section>
+
+    <section xml:id="sgc_statements_in_routines">
+      <title>Statements in SQL Routines</title>
+
+      <para>The body of user-defined SQL procedures and functions
+      (collectively called routines) may contain several other types of
+      statements and keywords in addition to DML and DQL statements. These
+      include: BEGIN and END for blocks; FOR, WHILE and REPEAT loops; IF, ELSE
+      and ELSEIF blocks; SIGNAL and RESIGNAL statements for handling
+      exceptions.</para>
+
+      <para>These statements are covered in detail in the <link
+      endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"/>
+      chapter.</para>
+    </section>
+  </section>
+
+  <section xml:id="sgc_data_tables">
+    <title>SQL Data and Tables</title>
+
+    <para>All data is stored in tables. Therefore, creating a database
+    requires defining the tables and their columns. The SQL Standard supports
+    temporary tables, which are for temporary data managed by each session,
+    and permanent base tables, which are for persistent data shared by
+    different sessions.</para>
+
+    <para>A HyperSQL database can be an all-in-memory
+    <glossterm>mem:</glossterm> database with no automatic persistence, or a
+    file-based, persistent <glossterm>file:</glossterm> database.</para>
+
+    <section>
+      <title>Case Sensitivity</title>
+
+      <para>Standard SQL is not case sensitive, except when names of objects
+      are enclosed in double-quotes. SQL keywords can be written in any case;
+      for example, <literal>sElect</literal>, <literal>SELECT</literal> and
+      <literal>select</literal> are all allowed and converted to uppercase.
+      Identifiers, such as names of tables, columns and other objects defined
+      by the user, are also converted to uppercase. For example,
+      <literal>myTable</literal>, <literal>MyTable</literal> and
+      <literal>MYTABLE</literal> all refer to the same table and are stored in
+      the database in the case-normal form, which is all uppercase for
+      unquoted identifiers. When the name of an object is enclosed in double
+      quotes when it is created, the exact name is used as the case-normal
+      form and it must be referenced with the exact same double-quoted string.
+      For example, <literal>"myTable"</literal> and
+      <literal>"MYTABLE"</literal> are different tables. When the
+      double-quoted name is all-uppercase, it can be referenced in any case;
+      <literal>"MYTABLE"</literal> is the same as <literal>myTable</literal>
+      and <literal>MyTable</literal> because they are all converted to
+      <literal>MYTABLE</literal>.</para>
+    </section>
+
+    <section xml:id="sgc_persist_tables">
+      <title>Persistent Tables</title>
+
+      <para>HyperSQL supports the Standard definition of persistent base
+      table, but defines three types according to the way the data is stored.
+      These are MEMORY tables, CACHED tables, and TEXT tables.</para>
+
+      <para>Memory tables are the default type when the CREATE TABLE command
+      is used. Their data is held entirely in memory. In file-based databases,
+      MEMORY tables are persistent and any change to their structure or
+      contents is written to the <filename>*.log</filename> and
+      <filename>*.script</filename> files. The <filename>*.script</filename>
+      file and the <filename>*.log</filename> file are read the next time the
+      database is opened, and the MEMORY tables are recreated with all the
+      data. This process may take a long time if the database is larger than
+      tens of megabytes. When the database is shutdown, all the data is
+      saved.</para>
+
+      <para>CACHED tables are created with the CREATE CACHED TABLE command.
+      Only part of their data or indexes is held in memory, allowing large
+      tables that would otherwise take up to several hundred megabytes of
+      memory. Another advantage of cached tables is that the database engine
+      takes less time to start up when a cached table is used for large
+      amounts of data. The disadvantage of cached tables is a reduction in
+      speed. Do not use cached tables if your data set is relatively small. In
+      an application with some small tables and some large ones, it is better
+      to use the default, MEMORY mode for the small tables.</para>
+
+      <para>TEXT tables use a CSV (Comma Separated Value) or other delimited
+      text file as the source of their data. You can specify an existing CSV
+      file, such as a dump from another database or program, as the source of
+      a TEXT table. Alternatively, you can specify an empty file to be filled
+      with data by the database engine. TEXT tables are efficient in memory
+      usage as they cache only part of the text data and all of the indexes.
+      The Text table data source can always be reassigned to a different file
+      if necessary. The commands are needed to set up a TEXT table as detailed
+      in the <link endterm="texttables-title" xlink:href="#texttables-chapt"/>
+      chapter.</para>
+
+      <para>With all-in-memory <glossterm>mem:</glossterm> databases, both
+      MEMORY table and CACHED table declarations are treated as declarations
+      for MEMORY tables which last only for the duration of the Java process.
+      In the latest versions of HyperSQL, TEXT table declarations are allowed
+      in all-in-memory databases.</para>
+
+      <para>The default type of tables resulting from future CREATE TABLE
+      statements can be specified with the SQL command:</para>
+
+      <para><programlisting> SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY };</programlisting>The
+      type of an existing table can be changed with the SQL command:</para>
+
+      <para><programlisting> SET TABLE &lt;table name&gt; TYPE { CACHED | MEMORY };</programlisting>SQL
+      statements such as INSERT or SELECT access different types of tables
+      uniformly. No change to statements is needed to access different types
+      of table.</para>
+    </section>
+
+    <section xml:id="sgc_temp_tables">
+      <title>Temporary Tables</title>
+
+      <para>Data in TEMPORARY tables is not saved and lasts only for the
+      lifetime of the session. The contents of each TEMP table are visible
+      only from the session that is used to populate it.</para>
+
+      <para>HyperSQL supports two types of temporary tables.</para>
+
+      <para>The <literal>GLOBAL TEMPORARY</literal> type is a schema object.
+      It is created with the <literal>CREATE GLOBAL TEMPORARY TABLE</literal>
+      statement. The definition of the table persists, and each session has
+      access to the table. But each session sees its own copy of the table,
+      which is empty at the beginning of the session.</para>
+
+      <para>The <literal>LOCAL TEMPORARY</literal> type is not a schema
+      object. It is created with the <literal>DECLARE LOCAL TEMPORARY
+      TABLE</literal> statement. The table definition lasts only for the
+      duration of the session and is not persisted in the database. The table
+      can be declared in the middle of a transaction without committing the
+      transaction. If a schema name is needed to reference these tables in a
+      given SQL statement, the pseudo schema name <literal>SESSION</literal>
+      can be used.</para>
+
+      <para>When the session commits, the contents of all temporary tables are
+      cleared by default. If the table definition statement includes
+      <literal>ON COMMIT PRESERVE ROWS</literal>, then the contents are kept
+      when a commit takes place.</para>
+
+      <para>The rows in temporary tables are stored in memory by default. If
+      the <literal>hsqldb.result_max_memory_rows</literal> property has been
+      set or the <literal>SET SESSION RESULT MEMORY ROWS &lt;row
+      count&gt;</literal> has been specified, tables with row count above the
+      setting are stored on disk.</para>
+    </section>
+  </section>
+
+  <section xml:id="sgc_data_type_guide">
+    <title>Short Guide to Data Types</title>
+
+    <para>The SQL Standard is strongly typed and completely type-safe. It
+    supports the following basic types, which are all supported by
+    HyperSQL.</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Numeric types TINYINT, SMALLINT, INTEGER and BIGINT are types
+        with fixed binary precision. These types are more efficient to store
+        and retrieve. NUMERIC and DECIMAL are types with user-defined decimal
+        precision. They can be used with zero scale to store very large
+        integers, or with a non-zero scale to store decimal fractions. The
+        DOUBLE type is a 64-bit, approximate floating point types. HyperSQL
+        even allows you to store infinity in this type.</para>
+      </listitem>
+
+      <listitem>
+        <para>The BOOLEAN type is for logical values and can hold TRUE, FALSE
+        or UNKNOWN. Although HyperSQL allows you to use one and zero in
+        assignment or comparison, you should use the standard values for this
+        type.</para>
+      </listitem>
+
+      <listitem>
+        <para>Character string types are CHAR(L), VARCHAR(L) and CLOB (here, L
+        stands for length parameter, an integer). CHAR is for fixed width
+        strings and any string that is assigned to this type is padded with
+        spaces at the end. If you use CHAR without the length L, then it is
+        interpreted as a single character string. Do not use this type for
+        general storage of strings. Use VARCHAR(L) for general strings. There
+        are only memory limits and performance implications for the maximum
+        length of VARCHAR(L). If the strings are larger than a few kilobytes,
+        consider using CLOB. The CLOB types is a better choice for very long
+        strings. Do not use this type for short strings as there are
+        performance implications. By default LONGVARCHAR is a synonym for a
+        long VARCHAR and can be used without specifying the size. You can set
+        LONGVARCHAR to map to CLOB, with the
+        <literal>sql.longvar_is_lob</literal> connection property or the SET
+        DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
+      </listitem>
+
+      <listitem>
+        <para>Binary string types are BINARY(L), VARBINARY(L) and BLOB. Do not
+        use BINARY(L) unless you are storing fixed length strings such as
+        UUID. This type pads short binary strings with zero bytes. BINARY
+        without the length L means a single byte. Use VARBINARY(L) for general
+        binary strings, and BLOB for large binary objects. You should apply
+        the same considerations as with the character string types. By
+        default, LONGVARBINARY is a synonym for a long VARBINARY and can be
+        used without specifying the size. You can set LONGVARBINARY to map to
+        BLOB, with the <literal>sql.longvar_is_lob</literal> connection
+        property or the SET DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
+      </listitem>
+
+      <listitem>
+        <para>The BIT(L) and BITVARYING(L) types are for bit maps. Do not use
+        them for other types of data. BIT without the length L argument means
+        a single bit and is sometimes used as a logical type. Use BOOLEAN
+        instead of this type.</para>
+      </listitem>
+
+      <listitem>
+        <para>The UUID type is for UUID (also called GUID) values. The value
+        is stored as BINARY. UUID character strings, as well as BINARY
+        strings, can be used to insert or to compare.</para>
+      </listitem>
+
+      <listitem>
+        <para>The datetime types DATE, TIME, and TIMESTAMP, together with
+        their WITH TIME ZONE variations are available. Read the details in
+        this chapter on how to use these types.</para>
+      </listitem>
+
+      <listitem>
+        <para>The INTERVAL type is very powerful when used together with the
+        datetime types. This is very easy to use, but is supported mainly by
+        enterprise database systems. Note that functions that add days or
+        months to datetime values are not really a substitute for the INTERVAL
+        type. Expressions such as <literal>(datecol - 7 DAY) &gt;
+        CURRENT_DATE</literal> are optimised to use indexes when it is
+        possible, while the equivalent function calls are not
+        optimised.</para>
+      </listitem>
+
+      <listitem>
+        <para>The OTHER type is for storage of Java objects. If your objects
+        are large, serialize them in your application and store them as BLOB
+        in the database.</para>
+      </listitem>
+
+      <listitem>
+        <para>The ARRAY type supports all base types except LOB and OTHER
+        types. ARRAY data objects are held in memory while being processed. It
+        is therefore not recommended to store more than about a thousand
+        objects in an ARRAY in normal operations with disk-based databases.
+        For specialised applications, use ARRAY with as many elements as your
+        memory allocation can support.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>HyperSQL 2.7 has several compatibility modes which allow the type
+    names that are used by other RDBMS to be accepted and translated into the
+    closest SQL Standard type. For example, the type TEXT, supported by MySQL
+    and PostgreSQL is translated in these compatibility modes.</para>
+
+    <table>
+      <title>List of SQL types</title>
+
+      <tgroup cols="2">
+        <colspec align="left" colwidth="300*"/>
+
+        <colspec colwidth="700*"/>
+
+        <thead>
+          <row>
+            <entry align="left">Type</entry>
+
+            <entry align="left">Description</entry>
+          </row>
+        </thead>
+
+        <tbody>
+          <row>
+            <entry>TINYINT, SMALLINT, INT or INTEGER, BIGNIT</entry>
+
+            <entry>binary number types with 8, 16, 32, 64 bit precision
+            respectively</entry>
+          </row>
+
+          <row>
+            <entry>DOUBLE or FLOAT</entry>
+
+            <entry>64 bit precision floating point number</entry>
+          </row>
+
+          <row>
+            <entry>DECIMAL(P,S), DEC(P,S) or NUMERIC(P,S)</entry>
+
+            <entry>identical types for fixed precision number (*)</entry>
+          </row>
+
+          <row>
+            <entry>BOOLEAN</entry>
+
+            <entry>boolean type supports TRUE, FALSE and UNKNOWN</entry>
+          </row>
+
+          <row>
+            <entry>CHAR(L) or CHARACTER(L)</entry>
+
+            <entry>fixed-length UTF-16 string type - padded with space to
+            length L (**)</entry>
+          </row>
+
+          <row>
+            <entry>VARCHCHAR(L) or CHARACTER VARYING(L)</entry>
+
+            <entry>variable-length UTF-16 string type (***)</entry>
+          </row>
+
+          <row>
+            <entry>CLOB(L)</entry>
+
+            <entry>variable-length UTF-16 long string type (***)</entry>
+          </row>
+
+          <row>
+            <entry>LONGVARCHAR(L)</entry>
+
+            <entry>a non-standard synonym for VARCHAR(L) (***)</entry>
+          </row>
+
+          <row>
+            <entry>BINARY(L)</entry>
+
+            <entry>fixed-length binary string type - padded with zero to
+            length L (**)</entry>
+          </row>
+
+          <row>
+            <entry>VARBINARY(L) or BINARY VARYING(L)</entry>
+
+            <entry>variable-length binary string type (***)</entry>
+          </row>
+
+          <row>
+            <entry>BLOB(L)</entry>
+
+            <entry>variable length binary string type (***)</entry>
+          </row>
+
+          <row>
+            <entry>LONGVARBINARY(L)</entry>
+
+            <entry>a non-standard synonym for VARBINARY(L) (***)</entry>
+          </row>
+
+          <row>
+            <entry>BIT(L)</entry>
+
+            <entry>fixed-length bit map - padded with 0 to length L - maximum
+            value of L is 1024</entry>
+          </row>
+
+          <row>
+            <entry>BIT VARYING(L)</entry>
+
+            <entry>variable-length bit map - maximum value of L is
+            1024</entry>
+          </row>
+
+          <row>
+            <entry>UUID</entry>
+
+            <entry>16 byte fixed binary type represented as UUID
+            string</entry>
+          </row>
+
+          <row>
+            <entry>DATE</entry>
+
+            <entry>date</entry>
+          </row>
+
+          <row>
+            <entry>TIME(S)</entry>
+
+            <entry>time of day (****)</entry>
+          </row>
+
+          <row>
+            <entry>TIME(S) WITH TIME ZONE</entry>
+
+            <entry>time of day with zone displacement value (****)</entry>
+          </row>
+
+          <row>
+            <entry>TIMESTAMP(S)</entry>
+
+            <entry>date with time of day (****)</entry>
+          </row>
+
+          <row>
+            <entry>TIMESTAMP(S) WITH TIME ZONE</entry>
+
+            <entry>timestamp with zone displacement value (****)</entry>
+          </row>
+
+          <row>
+            <entry>INTERVAL</entry>
+
+            <entry>date or time interval - has many variants</entry>
+          </row>
+
+          <row>
+            <entry>OTHER</entry>
+
+            <entry>non-standard type for Java serializable object</entry>
+          </row>
+
+          <row>
+            <entry>ARRAY</entry>
+
+            <entry>array of a base type</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>In the table above: (*) The parameters are optional. P is used for
+    maximum precision and S for scale of DECIMAL and NUMERIC. If only P is
+    used, S defaults to 0. If none is used, P defaults to 128 and S defaults
+    to 0. The maximum value of each parameter is unlimited. (**) The parameter
+    L is used for fixed length. If not used, it defaults to 1. (***) The
+    parameter L is used for maximum length. It is required for VARCHAR(L) and
+    VARBINARY(L) but is optional for the other types. If not used, it defaults
+    to 1G for BLOB or CLOB, and 16M for the LONGVARCHAR and LONGVARBINARY. The
+    maximum value of the parameter is unlimited for CLOB and BLOB. It is 2 *
+    1024 *1024 *1024 for other string types. (****) The parameter S is
+    optional and indicates sub-second fraction precision of time (0 to 9).
+    When not used, it defaults to 6.</para>
+  </section>
+
+  <section xml:id="sgc_types_ops">
+    <title>Data Types and Operations</title>
+
+    <para>HyperSQL supports all the types defined by SQL-92, plus BOOLEAN,
+    BINARY, ARRAY and LOB types that were later added to the SQL Standard. It
+    also supports the non-standard OTHER type to store serializable Java
+    objects.</para>
+
+    <para>SQL is a strongly typed language. All data stored in specific
+    columns of tables and other objects (such as sequence generators) have
+    specific types. Each data item conforms to the type limits such as
+    precision and scale for the column. It also conforms to any additional
+    integrity constraints that are defined as CHECK constraints in domains or
+    tables. Types can be explicitly converted using the CAST expression, but
+    in most expressions, they are converted automatically.</para>
+
+    <para>Data is returned to the user (or the application program) as a
+    result of executing SQL statements such as query expressions or function
+    calls. All statements are compiled prior to execution and the return type
+    of the data is known after compilation and before execution. Therefore,
+    once a statement is prepared, the data type of each column of the returned
+    result is known, including any precision or scale property. The type does
+    not change when the same query that returned one row, returns many rows as
+    a result of adding more data to the tables.</para>
+
+    <para>Some SQL functions used within SQL statements are polymorphic, but
+    the exact type of the argument and the return value is determined at
+    compile time.</para>
+
+    <para>When a statement is prepared, using a JDBC
+    <literal>PreparedStatement</literal> object, it is compiled by the engine
+    and the type of the columns of its ResultSet and / or its parameters are
+    accessible through the methods of
+    <literal>PreparedStatement</literal>.</para>
+
+    <section xml:id="sgc_numeric_types">
+      <title>Numeric Types</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>NUMERIC types</primary>
+      </indexterm>
+
+      <para>TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and DECIMAL (without a
+      decimal point) are the supported integral types. They correspond
+      respectively to <classname>byte</classname>,
+      <classname>short</classname>, <classname>int</classname>,
+      <classname>long</classname>, <classname>BigDecimal</classname> and
+      <classname>BigDecimal</classname> Java types in the range of values that
+      they can represent (NUMERIC and DECIMAL are equivalent). The type
+      TINYINT is an HSQLDB extension to the SQL Standard, while the others
+      conform to the Standard definition. The SQL type dictates the maximum
+      and minimum values that can be held in a field of each type. For example
+      the value range for TINYINT is -128 to +127. The bit precision of
+      TINYINT, SMALLINT, INTEGER and BIGINT is respectively 8, 16, 32 and 64.
+      For NUMERIC and DECIMAL, decimal precision is used.</para>
+
+      <para>DECIMAL and NUMERIC with decimal fractions are mapped to
+      <classname>java.math.BigDecimal</classname> and can have very large
+      numbers of digits. In HyperSQL the two types are equivalent. These
+      types, together with integral types, are called exact numeric
+      types.</para>
+
+      <para>In HyperSQL, REAL, FLOAT and DOUBLE are equivalent: they are all
+      mapped to <classname>double</classname> in Java. These types are defined
+      by the SQL Standard as approximate numeric types. The bit-precision of
+      all these types is 64 bits.</para>
+
+      <para>The decimal precision and scale of NUMERIC and DECIMAL types can
+      be optionally defined. For example, DECIMAL(10,2) means maximum total
+      number of digits is 10 and there are always 2 digits after the decimal
+      point, while DECIMAL(10) means 10 digits without a decimal point. The
+      bit-precision of FLOAT can be defined but it is ignored and the default
+      bit-precision of 64 is used. The default precision of NUMERIC and
+      DECIMAL (when not defined) is 128.</para>
+
+      <para>Note: If a database has been set to ignore type precision limits
+      with the SET DATABASE SQL SIZE FALSE command, then a type definition of
+      DECIMAL with no precision and scale is treated as DECIMAL(128,32). In
+      normal operation, it is treated as DECIMAL(128).</para>
+
+      <simpara><emphasis role="bold">Integral Types</emphasis></simpara>
+
+      <para>In expressions, values of TINYINT, SMALLINT, INTEGER, BIGINT,
+      NUMERIC and DECIMAL (without a decimal point) types can be freely
+      combined and no data narrowing takes place. The resulting value is of a
+      type that can support all possible values.</para>
+
+      <para>If the SELECT statement refers to a simple column or function,
+      then the return type is the type corresponding to the column or the
+      return type of the function. For example:</para>
+
+      <informalexample>
+        <programlisting> CREATE TABLE t(a INTEGER, b BIGINT);
+ SELECT MAX(a), MAX(b) FROM t;</programlisting>
+      </informalexample>
+
+      <para>will return a <classname>ResultSet</classname> where the type of
+      the first column is <classname>java.lang.Integer</classname> and the
+      second column is <classname>java.lang.Long</classname>. However,</para>
+
+      <informalexample>
+        <programlisting> SELECT MAX(a) + 1, MAX(b) + 1 FROM t;</programlisting>
+      </informalexample>
+
+      <para>will return <classname>java.lang.Long</classname> and
+      <classname>BigDecimal</classname> values, generated as a result of
+      uniform type promotion for all possible return values. Note that type
+      promotion to <classname>BigDecimal</classname> ensures the correct value
+      is returned if <literal>MAX(b)</literal> evaluates to
+      <literal>Long.MAX_VALUE</literal>.</para>
+
+      <para>There is no built-in limit on the size of intermediate integral
+      values in expressions. As a result, you should check for the type of the
+      <classname>ResultSet</classname> column and choose an appropriate
+      <methodname>getXXXX()</methodname> method to retrieve it. Alternatively,
+      you can use the <methodname>getObject()</methodname> method, then cast
+      the result to <classname>java.lang.Number</classname> and use the
+      <methodname>intValue()</methodname> or
+      <methodname>longValue()</methodname> if the value is not an instance of
+      <literal>java.math.BigDecimal</literal>.</para>
+
+      <para>When the result of an expression is stored in a column of a
+      database table, it has to fit in the target column, otherwise an error
+      is returned. For example, when <literal>1234567890123456789012 /
+      12345687901234567890</literal> is evaluated, the result can be stored in
+      any integral type column, even a TINYINT column, as it is a small
+      value.</para>
+
+      <para>In SQL Statements, an integer literal is treated as INTEGER,
+      unless its value does not fit. In this case it is treated as BIGINT or
+      DECIMAL, depending on the value.</para>
+
+      <para>Depending on the types of the operands, the result of the
+      operation is returned in a JDBC <classname>ResultSet</classname> in any
+      of the related Java types: <classname>Integer</classname>,
+      <classname>Long</classname> or <classname>BigDecimal</classname>. The
+      <methodname>ResultSet.getXXXX()</methodname> methods can be used to
+      retrieve the values so long as the returned value can be represented by
+      the resulting type. This type is deterministically based on the query,
+      not on the actual rows returned.</para>
+
+      <simpara><emphasis role="bold">Other Numeric Types</emphasis></simpara>
+
+      <para>In SQL statements, number literals with a decimal point are
+      treated as DECIMAL unless they are written with an exponent. Thus
+      <literal>0.2</literal> is considered a DECIMAL value but
+      <literal>0.2E0</literal> is considered a DOUBLE value.</para>
+
+      <para>When an approximate numeric type, REAL, FLOAT or DOUBLE (all
+      synonymous) is part of an expression involving different numeric types,
+      the type of the result is DOUBLE. DECIMAL values can be converted to
+      DOUBLE unless they are beyond the <literal>Double.MIN_VALUE -
+      Double.MAX_VALUE</literal> range. For example, A * B, A / B, A + B, etc.
+      will return a DOUBLE value if either A or B is a DOUBLE.</para>
+
+      <para>Otherwise, when no DOUBLE value exists, if a DECIMAL or NUMERIC
+      value is part an expression, the type of the result is DECIMAL or
+      NUMERIC. Similar to integral values, when the result of an expression is
+      assigned to a table column, the value has to fit in the target column,
+      otherwise an error is returned. This means a small, 4 digit value of
+      DECIMAL type can be assigned to a column of SMALLINT or INTEGER, but a
+      value with 15 digits cannot.</para>
+
+      <para>When a DECIMAL value is multiplied by a DECIMAL or integral type,
+      the resulting scale is the sum of the scales of the two terms. When they
+      are divided, the result is a value with a scale (number of digits to the
+      right of the decimal point) equal to the larger of the scales of the two
+      terms. The precision for both operations is calculated (usually
+      increased) to allow all possible results.</para>
+
+      <para>The distinction between DOUBLE and DECIMAL is important when a
+      division takes place. For example, <literal>10.0/8.0</literal> (DECIMAL)
+      equals <literal>1.2</literal> but <literal>10.0E0/8.0E0</literal>
+      (DOUBLE) equals <literal>1.25</literal>. Without division operations,
+      DECIMAL values represent exact arithmetic.</para>
+
+      <para>REAL, FLOAT and DOUBLE values are all stored in the database as
+      <classname>java.lang.Double</classname> objects. Special values such as
+      NaN and +-Infinity are also stored and supported. These values can be
+      submitted to the database via JDBC
+      <classname>PreparedStatement</classname> methods and are returned in
+      <classname>ResultSet</classname> objects. In order to allow division by
+      zero of DOUBLE values in SQL statements (which returns NaN or
+      +-Infinity) you should set the property hsqldb.double_nan as false (SET
+      DATABASE SQL DOUBLE NAN FALSE). The double values can be retrieved from
+      a <classname>ResultSet</classname> in the required type so long as they
+      can be represented. For setting the values, when
+      <methodname>PreparedStatement.setDouble()</methodname> or
+      <methodname>setFloat()</methodname> is used, the value is treated as a
+      DOUBLE automatically.</para>
+
+      <para>In short,</para>
+
+      <simpara><literal>&lt;numeric type&gt; ::= &lt;exact numeric type&gt; |
+      &lt;approximate numeric type&gt;</literal></simpara>
+
+      <simpara><literal>&lt;exact numeric type&gt; ::= NUMERIC [ &lt;left
+      paren&gt; &lt;precision&gt; [ &lt;comma&gt; &lt;scale&gt; ] &lt;right
+      paren&gt; ] | { DECIMAL | DEC } [ &lt;left paren&gt; &lt;precision&gt; [
+      &lt;comma&gt; &lt;scale&gt; ] &lt;right paren&gt; ] | TINYINT | SMALLINT
+      | INTEGER | INT | BIGINT</literal></simpara>
+
+      <simpara><literal>&lt;approximate numeric type&gt; ::= FLOAT [ &lt;left
+      paren&gt; &lt;precision&gt; &lt;right paren&gt; ] | REAL | DOUBLE
+      PRECISION</literal></simpara>
+
+      <simpara><literal>&lt;precision&gt; ::= &lt;unsigned
+      integer&gt;</literal></simpara>
+
+      <simpara><literal>&lt;scale&gt; ::= &lt;unsigned
+      integer&gt;</literal></simpara>
+    </section>
+
+    <section xml:id="sgc_boolean_type">
+      <title>Boolean Type</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>BOOLEAN types</primary>
+      </indexterm>
+
+      <para>The BOOLEAN type conforms to the SQL Standard and represents the
+      values <literal>TRUE</literal>, <literal>FALSE</literal> and
+      <literal>UNKNOWN</literal>. This type of column can be initialised with
+      Java boolean values, or with <literal>NULL</literal> for the
+      <literal>UNKNOWN</literal> value.</para>
+
+      <para>The three-value logic is sometimes misunderstood. For example, x
+      IN (1, 2, NULL) does not return true if x is NULL.</para>
+
+      <para>In previous versions of HyperSQL, BIT was simply an alias for
+      BOOLEAN. In version 2, BIT is a single-bit bit map.</para>
+
+      <simpara><literal>&lt;boolean type&gt; ::= BOOLEAN</literal></simpara>
+
+      <para>The SQL Standard does not support type conversion to BOOLEAN apart
+      from character strings that consists of boolean literals. Because the
+      BOOLEAN type is relatively new to the Standard, several database
+      products used other types to represent boolean values. For improved
+      compatibility, HyperSQL allows some type conversions to boolean.</para>
+
+      <para>Values of BIT and BIT VARYING types with length 1 can be converted
+      to BOOLEAN. If the bit is set, the result of conversion is the TRUE
+      value, otherwise it is FALSE.</para>
+
+      <para>Values of TINYINT, SMALLINT, INTEGER and BIGINT types can be
+      converted to BOOLEAN. If the value is zero, the result is the FALSE
+      value, otherwise it is TRUE.</para>
+    </section>
+
+    <section xml:id="sgc_char_types">
+      <title>Character String Types</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CHARACTER types</primary>
+      </indexterm>
+
+      <para>The CHARACTER, CHARACTER VARYING and CLOB types are the SQL
+      Standard character string types. CHAR, VARCHAR and CHARACTER LARGE
+      OBJECT are synonyms for these types. HyperSQL also supports LONGVARCHAR
+      as a synonym for VARCHAR. If LONGVARCHAR is used without a length, then
+      a length of 16M is assigned. You can set LONGVARCHAR to map to CLOB,
+      with the <literal>sql.longvar_is_lob</literal> connection property or
+      the SET DATABASE SQL LONGVAR IS LOB TRUE statement..</para>
+
+      <para>HyperSQL's default character set is Unicode, therefore all
+      possible character strings can be represented by these types.</para>
+
+      <para>The SQL Standard behaviour of the CHARACTER type is a remnant of
+      legacy systems in which character strings are padded with spaces to fill
+      a fixed width. These spaces are sometimes significant while in other
+      cases they are silently discarded. It would be best to avoid the
+      CHARACTER type altogether. With the rest of the types, the strings are
+      not padded when assigned to columns or variables of the given type. The
+      trailing spaces are still considered discardable for all character
+      types. Therefore, if a string with trailing spaces is too long to assign
+      to a column or variable of a given length, the spaces beyond the type
+      length are discarded and the assignment succeeds (provided all the
+      characters beyond the type length are spaces).</para>
+
+      <para>The VARCHAR and CLOB types have length limits, but the strings are
+      not padded by the system. Note that if you use a large length for a
+      VARCHAR or CLOB type, no extra space is used in the database. The space
+      used for each stored item is proportional to its actual length.</para>
+
+      <para>If CHARACTER is used without specifying the length, the length
+      defaults to 1. For the CLOB type, the length limit can be defined in
+      units of kilobyte (K, 1024), megabyte (M, 1024 * 1024) or gigabyte (G,
+      1024 * 1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If
+      CLOB is used without specifying the length, the length defaults to
+      1GB.</para>
+
+      <simpara><literal>&lt;character string type&gt; ::= { CHARACTER | CHAR }
+      [ &lt;left paren&gt; &lt;character length&gt; &lt;right paren&gt; ] | {
+      CHARACTER VARYING | CHAR VARYING | VARCHAR } &lt;left paren&gt;
+      &lt;character length&gt; &lt;right paren&gt; | LONGVARCHAR [ &lt;left
+      paren&gt; &lt;character length&gt; &lt;right paren&gt; ] | &lt;character
+      large object type&gt;</literal></simpara>
+
+      <simpara><literal>&lt;character large object type&gt; ::= { CHARACTER
+      LARGE OBJECT | CHAR LARGE OBJECT | CLOB } [ &lt;left paren&gt;
+      &lt;character large object length&gt; &lt;right paren&gt;
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;character length&gt; ::= &lt;unsigned integer&gt;
+      [ &lt;char length units&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;large object length&gt; ::= &lt;length&gt; [
+      &lt;multiplier&gt; ] | &lt;large object length
+      token&gt;</literal></simpara>
+
+      <simpara><literal>&lt;character large object length&gt; ::= &lt;large
+      object length&gt; [ &lt;char length units&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;large object length token&gt; ::= &lt;digit&gt;...
+      &lt;multiplier&gt;</literal></simpara>
+
+      <simpara><literal>&lt;multiplier&gt; ::= K | M | G </literal></simpara>
+
+      <simpara><literal>&lt;char length units&gt; ::= CHARACTERS |
+      OCTETS</literal></simpara>
+
+      <para>Each character type has a collation. This is either a default
+      collation or stated explicitly with the COLLATE clause. Collations are
+      discussed in the <link endterm="databaseobjects-title" xlink:arcrole=""
+      xlink:href="#databaseobjects-chapt"/> chapter.</para>
+
+      <informalexample>
+        <programlisting> CHAR(10)
+ CHARACTER(10)
+ VARCHAR(2)
+ CHAR VARYING(2)
+ CLOB(1000)
+ CLOB(30K)
+ CHARACTER LARGE OBJECT(1M)
+ LONGVARCHAR
+</programlisting>
+      </informalexample>
+    </section>
+
+    <section xml:id="sgc_binary_types">
+      <title>Binary String Types</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>BINARY types</primary>
+      </indexterm>
+
+      <para>The BINARY, BINARY VARYING and BLOB types are the SQL Standard
+      binary string types. VARBINARY and BINARY LARGE OBJECT are synonyms for
+      BINARY VARYING and BLOB types. HyperSQL also supports LONGVARBINARY as a
+      synonym for VARBINARY. You can set LONGVARBINARY to map to BLOB, with
+      the <literal>sql.longvar_is_lob</literal> connection property or the SET
+      DATABASE SQL LONGVAR IS LOB TRUE statement.</para>
+
+      <para>Binary string types are used in a similar way to character string
+      types. There are several built-in functions that are overloaded to
+      support character, binary and bit strings.</para>
+
+      <para>The BINARY type represents a fixed width-string. Each shorter
+      string is padded with zeros to fill the fixed width. Similar to the
+      CHARACTER type, the trailing zeros in the BINARY string are simply
+      discarded in some operations. For the same reason, it is best to avoid
+      this particular type and use VARBINARY instead.</para>
+
+      <para>When two binary values are compared, if one is of BINARY type,
+      then zero padding is performed to extend the length of the shorter
+      string to the longer one before comparison. No padding is performed with
+      other binary types. If the bytes compare equal to the end of the shorter
+      value, then the longer string is considered larger than the shorter
+      string.</para>
+
+      <para>If BINARY is used without specifying the length, the length
+      defaults to 1. For the BLOB type, the length limit can be defined in
+      units of kilobyte (K, 1024), megabyte (M, 1024 * 1024) or gigabyte (G,
+      1024 * 1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If
+      BLOB is used without specifying the length, the length defaults to
+      1GB.</para>
+
+      <para>The UUID type represents a UUID string. The type is similar to
+      BINARY(16) but with the extra enforcement that disallows assigning,
+      casting, or comparing with shorter or longer strings. Strings such as
+      '24ff1824-01e8-4dac-8eb3-3fee32ad2b9c' or
+      '24ff182401e84dac8eb33fee32ad2b9c' are allowed. When a value of the UUID
+      type is converted to a CHARACTER type, the hyphens are inserted in the
+      required positions. Java UUID objects can be used with
+      <literal>java.sql.PreparedStatement</literal> to insert values of this
+      type. The <literal>getObject()</literal> method of ResultSet returns the
+      Java object for UUID column data.</para>
+
+      <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
+      paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
+      VARBINARY } &lt;left paren&gt; &lt;length&gt; &lt;right paren&gt; |
+      LONGVARBINARY [ &lt;left paren&gt; &lt;length&gt; &lt;right paren&gt; ]
+      | UUID | &lt;binary large object string type&gt;</literal></simpara>
+
+      <simpara><literal>&lt;binary large object string type&gt; ::= { BINARY
+      LARGE OBJECT | BLOB } [ &lt;left paren&gt; &lt;large object length&gt;
+      &lt;right paren&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;length&gt; ::= &lt;unsigned
+      integer&gt;</literal></simpara>
+
+      <informalexample>
+        <programlisting> BINARY(10)
+ VARBINARY(2)
+ BINARY VARYING(2)
+ BLOB(1000)
+ BLOB(30G)
+ BINARY LARGE OBJECT(1M)
+ LONGVARBINARY
+</programlisting>
+      </informalexample>
+    </section>
+
+    <section xml:id="sgc_bit_types">
+      <title>Bit String Types</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>BIT types</primary>
+      </indexterm>
+
+      <para>The BIT and BIT VARYING types are the supported bit string types.
+      These types were defined by SQL:1999 but were later removed from the
+      Standard. Bit types represent bit maps of given lengths. Each bit is 0
+      or 1. The BIT type represents a fixed width-string. Each shorter string
+      is padded with zeros to fill the fixed with. If BIT is used without
+      specifying the length, the length defaults to 1. The BIT VARYING type
+      has a maximum width and shorter strings are not padded.</para>
+
+      <para>Before the introduction of the BOOLEAN type to the SQL Standard, a
+      single-bit string of the type BIT(1) was commonly used. For
+      compatibility with other products that do not conform to, or extend, the
+      SQL Standard, HyperSQL allows values of BIT and BIT VARYING types with
+      length 1 to be converted to and from the BOOLEAN type. BOOLEAN TRUE is
+      considered equal to B'1', BOOLEAN FALSE is considered equal to
+      B'0'.</para>
+
+      <para>For the same reason, numeric values can be assigned to columns and
+      variables of the type BIT(1). For assignment, the numeric value zero is
+      converted to B'0', while all other values are converted to B'1'. For
+      comparison, numeric values 1 is considered equal to B'1' and numeric
+      value zero is considered equal to B'0'.</para>
+
+      <para>It is not allowed to perform other arithmetic or boolean
+      operations involving BIT(1) and BIT VARYING(1). The kid of operations
+      allowed on bit strings are analogous to those allowed on BINARY and
+      CHARACTER strings. Several built-in functions support all three types of
+      string.</para>
+
+      <simpara><literal>&lt;bit string type&gt; ::= BIT [ &lt;left paren&gt;
+      &lt;length&gt; &lt;right paren&gt; ] | BIT VARYING &lt;left paren&gt;
+      &lt;length&gt; &lt;right paren&gt;</literal></simpara>
+
+      <informalexample>
+        <programlisting> BIT
+ BIT(10)
+ BIT VARYING(2)
+</programlisting>
+      </informalexample>
+    </section>
+
+    <section xml:id="sgc_lob_data">
+      <title>Lob Data</title>
+
+      <para>BLOB and CLOB are lob types. These types are used for very long
+      strings that do not necessarily fit in memory. Small lobs that fit in
+      memory can be accessed just like BINARY or VARCHAR column data. But lobs
+      are usually much larger and therefore accessed with special JDBC
+      methods.</para>
+
+      <para>To insert a lob into a table, or to update a column of lob type
+      with a new lob, you can use the <literal>setBinaryStream()</literal> and
+      <literal>setCharacterStream()</literal> methods of JDBC
+      <literal>java.sql.PreparedStatement</literal>. These are very efficient
+      methods for long lobs. Other methods are also supported. If the data for
+      the BLOB or CLOB is already a memory object, you can use the
+      <literal>setBytes()</literal> or <literal>setString()</literal> methods,
+      which are efficient for memory data. Another method is to obtain a lob
+      with the <literal>getBlob()</literal> and <literal>getClob()</literal>
+      methods of <literal>java.sql.Connection</literal>, populate its data,
+      then use the <literal>setBlob()</literal> or
+      <literal>setClob()</literal> methods of
+      <literal>PreparedStatement</literal>. Yet another method allows to
+      create instances of <literal>org.hsqldb.jdbc.JDBCBlobFile</literal> and
+      <literal>org.hsqldb.jdbc.JDBCClobFile</literal> and construct a large
+      lob for use with <literal>setBlob()</literal> and
+      <literal>setClob()</literal> methods.</para>
+
+      <para>A lob is retrieved from a ResultSet with the
+      <literal>getBlob()</literal> or <literal>getClob()</literal> method. The
+      steaming methods of the lob objects are then used to access the data.
+      HyperSQL also allows efficient access to chunks of lobs with
+      <literal>getBytes()</literal> or <literal>getString()</literal> methods.
+      Furthermore, parts of a BLOB or CLOB already stored in a table can be
+      modified. An updatable <literal>ResultSet</literal> is used to select
+      the row from the table. The <literal>getBlob()</literal> or
+      <literal>getClob()</literal> methods of <literal>ResultSet</literal> are
+      used to access the lob as a <literal>java.sql.Blob</literal> or
+      <literal>java.sql.Clob</literal> object. The
+      <literal>setBytes()</literal> and <literal>setString()</literal> methods
+      of these objects can be used to modify the lob. Finally the
+      <literal>updateRow()</literal> method of the
+      <literal>ResultSet</literal> is used to update the lob in the row. Note
+      these modifications are not allowed with compressed or encrypted
+      lobs.</para>
+
+      <para>Lobs are logically stored in columns of tables. Their physical
+      storage is a separate *.lobs file. This file is created as soon as a
+      BLOB or CLOB is inserted into the database. The file will grow as new
+      lobs are inserted into the database. In version 2, the *.lobs file is
+      never deleted even if all lobs are deleted from the database. In this
+      case you can delete the *.lobs file after a SHUTDOWN. When a CHECKPOINT
+      happens, the space used for deleted lobs is freed and is reused for
+      future lobs. By default, clobs are stored without compression. You can
+      use a database setting to enable compression of clobs. This can
+      significantly reduce the storage size of clobs.</para>
+    </section>
+
+    <section xml:id="sgc_java_objects">
+      <title>Storage and Handling of Java Objects</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>OTHER type</primary>
+      </indexterm>
+
+      <para>From version 2.3.4 there are two options for storing Java
+      Objects.</para>
+
+      <para>The default option allows storing Serializable object. The objects
+      remain serialized inside the database until they are retrieved. The
+      application program that retrieves the object must include in its
+      classpath the Java Class for the object, otherwise it cannot retrieve
+      the object.</para>
+
+      <para>Any serializable Java Object can be inserted directly into a
+      column of type OTHER using any variation of
+      <methodname>PreparedStatement.setObject()</methodname> methods.</para>
+
+      <para>The alternative Live Object option is for
+      <glossterm>mem:</glossterm> databases only and is enabled when the
+      database property sql.live_object=true is appended to the connection
+      property that creates the mem database. For example
+      <literal>'jdbc:hsqldb:mem:mydb;sql.live_object=true'</literal>. With
+      this option, any Java object can be stored as it is not serialized. The
+      SQL statement <literal>SET DATABASE SQL LIVE OBJECT TRUE</literal> can
+      be also used. Note the SQL statement must be executed on the first
+      connection to the database before any data is inserted. No data access
+      should be made from this connection. Instead, new connections should be
+      used for data access.</para>
+
+      <para>For comparison purposes and in indexes, any two Java Objects are
+      considered equal unless one of them is NULL. You cannot search for a
+      specific object or perform a join on a column of type OTHER.</para>
+
+      <para>Java Objects can simply be stored internally and no operations can
+      be performed on them other than assignment between columns of type OTHER
+      or checking for NULL. Tests such as <literal>WHERE object1 = object2
+      </literal>do not mean what you might expect, as any non-null object
+      would satisfy such a tests. But <literal>WHERE object1 IS NOT
+      NULL</literal> is perfectly acceptable.</para>
+
+      <para>The engine does not allow normal column values to be assigned to
+      Java Object columns (for example, assigning an INTEGER or STRING to such
+      a column with an SQL statement such as <literal>UPDATE mytable SET
+      objectcol = intcol WHERE ...</literal>).</para>
+
+      <simpara><literal>&lt;java object type&gt; ::= OTHER</literal></simpara>
+
+      <para>The default method of storage is used when the objects and their
+      state needs to be saved and retrieved in the future. This method is also
+      used when memory resources are limited and collections of objects are
+      stored and retrieved only when needed.</para>
+
+      <para>The Live Object option uses the database table as a collection of
+      objects. This allows storing some attributes of the objects in the same
+      table alongside the object itself and fast search and retrieval of
+      objects on their attributes. For example, when many thousands of live
+      objects contain details of films, the film title and the director can be
+      stored in the table and searches can be performed for films on these
+      attributes:</para>
+
+      <informalexample>
+        <para><programlisting>CREATE TABLE movies (director VARCHAR(30), title VARCHAR(40), obj OTHER)
+SELECT obj FROM movies WHERE director LIKE 'Luc%'
+</programlisting></para>
+      </informalexample>
+
+      <para>In any case, at least one attribute of the object should be stored
+      to allow efficient retrieval of the objects from both Live Object and
+      Serialized storage. An ID number is often used as the stored column
+      attribute.</para>
+    </section>
+
+    <section xml:id="sgc_length_precision">
+      <title>Type Length, Precision and Scale</title>
+
+      <para>In HyperSQL, column length, precision and scale qualifiers are
+      required and are always enforced. The VARCHAR and VARBINARY types
+      require a size parameter and do not have a default. For compatibility
+      with CREATE TABLE statements from other databases that do not have size
+      parameters for VARCHAR column, the URL property
+      <literal>hsqldb.enforce_size=false</literal> or the SQL statement
+      <literal>SET DATABASE SQL SIZE FALSE</literal> can be used to allow the
+      table creation and automatically apply a large value for the maximum
+      size of the VARCHAR column. You should test your application to ensure
+      the length, precision and scale that is used for column definitions is
+      appropriate for the application data.</para>
+
+      <para>All other types have defaults for size or precision parameters.
+      However, the defaults may not be what your application requires and you
+      may have to specify the parameters.</para>
+
+      <para>String types, including all BIT, BINARY and CHAR string types plus
+      CLOB and BLOB, are generally defined with a length. If no length is
+      specified for BIT, BINARY and CHAR, the default length is 1. For CLOB
+      and BLOB an implementation defined length of 1G is used.</para>
+
+      <para>TIME and TIMESTAMP types can be defined with a fractional second
+      precision between 0 and 9. INTERVAL type definition may have precision
+      and, in some cases, fraction second precision. DECIMAL and NUMERIC types
+      may be defined with precision and scale. For all of these types a
+      default precision or scale value is used if one is not specified. The
+      default scale is 0. The default fractional precision for TIME is 0,
+      while it is 6 for TIMESTAMP.</para>
+
+      <para>Values can be converted from one type to another in two different
+      ways: by using explicit CAST expression or by implicit conversion used
+      in assignment, comparison, and aggregation.</para>
+
+      <para>String values cannot be assigned to VARCHAR columns if they are
+      longer than the defined type length. For CHARACTER columns, a long
+      string can be assigned (with truncation) only if all the characters
+      after the length are spaces. Shorter strings are padded with the space
+      character when inserted into a CHARACTER column. Similar rules are
+      applied to VARBINARY and BINARY columns. For BINARY columns, the padding
+      and truncation rules are applied with zero bytes, instead of
+      spaces.</para>
+
+      <para>Explicit CAST of a value to a CHARACTER or VARCHAR type will
+      result in forced truncation or padding. So a test such as <literal>CAST
+      (mycol AS VARCHAR(2)) = 'xy'</literal> will find the values beginning
+      with 'xy'. This is the equivalent of <literal>SUBSTRING(mycol FROM 1 FOR
+      2)= 'xy'</literal>.</para>
+
+      <para>For all numeric types, the rules of explicit cast and implicit
+      conversion are the same. If cast or conversion causes any digits to be
+      lost from the fractional part, it can take place. If the non-fractional
+      part of the value cannot be represented in the new type, cast or
+      conversion cannot take place and will result in a data exception.</para>
+
+      <para>There are special rules for DATE, TIME, TIMESTAMP and INTERVAL
+      casts and conversions.</para>
+    </section>
+  </section>
+
+  <section xml:id="sgc_datetime_types">
+    <title>Datetime types</title>
+
+    <para>HSQLDB fully supports datetime and interval types and operations,
+    including all relevant optional features, as specified by the SQL Standard
+    since SQL-92. The two groups of types are complementary.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DATETIME types</primary>
+    </indexterm>
+
+    <para>The DATE type represents a calendar date with YEAR, MONTH and DAY
+    fields.</para>
+
+    <para>The TIME type represents time of day with HOUR, MINUTE and SECOND
+    fields, plus an optional SECOND FRACTION field.</para>
+
+    <para>The TIMESTAMP type represents the combination of DATE and TIME
+    types.</para>
+
+    <para>TIME and TIMESTAMP types can include WITH TIME ZONE or WITHOUT TIME
+    ZONE (the default) qualifiers. They can have fractional second parts. For
+    example, TIME(6) has six fractional digits for the second field.</para>
+
+    <para>If fractional second precision is not specified, it defaults to 0
+    for TIME and to 6 for TIMESTAMP.</para>
+
+    <simpara><literal>&lt;datetime type&gt; ::= DATE | TIME [ &lt;left
+    paren&gt; &lt;time precision&gt; &lt;right paren&gt; ] [ &lt;with or
+    without time zone&gt; ] | TIMESTAMP [ &lt;left paren&gt; &lt;timestamp
+    precision&gt; &lt;right paren&gt; ] [ &lt;with or without time zone&gt;
+    ]</literal></simpara>
+
+    <simpara><literal>&lt;with or without time zone&gt; ::= WITH TIME ZONE |
+    WITHOUT TIME ZONE</literal></simpara>
+
+    <simpara><literal>&lt;time precision&gt; ::= &lt;time fractional seconds
+    precision&gt;</literal></simpara>
+
+    <simpara><literal>&lt;timestamp precision&gt; ::= &lt;time fractional
+    seconds precision&gt;</literal></simpara>
+
+    <simpara><literal>&lt;time fractional seconds precision&gt; ::=
+    &lt;unsigned integer&gt;</literal></simpara>
+
+    <informalexample>
+      <programlisting> DATE
+ TIME(6)
+ TIMESTAMP(2) WITH TIME ZONE
+</programlisting>
+    </informalexample>
+
+    <para>TIME or TIMESTAMP literals containing a zone displacement value are
+    WITH TIME ZONE. Examples of the string literals used to represent date
+    time values, some with time zone, some without, are below:</para>
+
+    <informalexample>
+      <programlisting> DATE '2008-08-22'
+ TIMESTAMP '2008-08-08 20:08:08'
+ TIMESTAMP '2008-08-08 20:08:08+8:00' /* Beijing */
+ TIME '20:08:08.034900'
+ TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
+    </informalexample>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>Time Zone</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">Time Zone</emphasis></simpara>
+
+    <para>DATE values do not take time zones. For example, United Nations
+    designates 5 June as World Environment Day, which was observed on DATE
+    '2008-06-05' in different time zones.</para>
+
+    <para>TIME and TIMESTAMP values without time zone, usually have a context
+    that indicates some local time zone. For example, a database for college
+    course timetables usually stores class dates and times without time zones.
+    This works because the location of the college is fixed and the time zone
+    displacement is the same for all the values. Even when the events take
+    place in different time zones, for example international flight times, it
+    is possible to store all the datetime information as references to a
+    single time zone, usually GMT. For some databases it may be useful to
+    store the time zone displacement together with each datetime value. SQL’s
+    TIME WITH TIME ZONE and TIMESTAMP WITH TIME ZONE values include a time
+    zone displacement value.</para>
+
+    <para>The time zone displacement is of the type INTERVAL HOUR TO MINUTE.
+    This data type is described in the next section. The legal values are
+    between '–18:00' and   '+18:00'.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>Datetime Operations</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">Operations on Datetime
+    Types</emphasis></simpara>
+
+    <para>The expression <literal>&lt;datetime expression&gt; AT TIME ZONE {
+    &lt;interval primary&gt; | &lt;time zone name&gt; }</literal> evaluates to
+    a datetime value representing exactly the same point of time in the
+    specified <literal>&lt;time displacement&gt;</literal> or the geographical
+    <literal>&lt;time zone name&gt;</literal>. The expression, <literal>AT
+    LOCAL</literal> is equivalent to <literal>AT TIME ZONE &lt;local time
+    displacement&gt;</literal>. If <literal>AT TIME ZONE</literal> is used
+    with a datetime operand of type WITHOUT TIME ZONE, the operand is first
+    converted to a value of type WITH TIME ZONE using the session's calendar,
+    then the specified time zone displacement is set for the value. Therefore,
+    in these cases, the final value depends on the time zone of the session in
+    which the statement was used, calculated at the exact point of time (of
+    the input) and accounting for daylight saving time at that point of
+    time.</para>
+
+    <para>From version 2.7 it is possible to use regional time zones with AT
+    TIME ZONE. Any zone name used must match exactly a TimeZone id supported
+    by the JVM. These include names such as 'America/New_York'. Some zones
+    include daylight saving time periods which are used when converting the
+    time zone.</para>
+
+    <para>See also the FROM_TZ function which allows you to convert to a time
+    zone without changing the date-time values such as hour and minute.</para>
+
+    <para>AT TIME ZONE, modifies the field values of the datetime operand.
+    This is done by the following procedure:</para>
+
+    <orderedlist>
+      <listitem>
+        <para>determine the corresponding datetime at UTC using the session's
+        calendar.</para>
+      </listitem>
+
+      <listitem>
+        <para>find the datetime value at the given time zone that corresponds
+        with the UTC value from step 1.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>Example a:</para>
+
+    <informalexample>
+      <programlisting> VALUES TIMESTAMP'2022-03-28 11:00:00' AT TIME ZONE INTERVAL '-5:00' HOUR TO MINUTE
+ C1                       
+ ------------------------ 
+ 2022-03-28 14:00:00-5:00 
+
+ VALUES TIMESTAMP'2022-03-28 11:00:00+4:00' AT TIME ZONE 'America/Chicago'
+ C1                       
+ ------------------------ 
+ 2022-03-28 02:00:00-5:00 
+</programlisting>
+    </informalexample>
+
+    <para>In the first example above, the session's time zone displacement is
+    '-8:00'. In step 1, time '11:00:00' is converted to UTC, which is time
+    '19:00:00+0:00'. In step 2, this value is expressed as time
+    '14:00:00-5:00' in the target zone.</para>
+
+    <para>In the second example, the session's time zone displacement is not
+    considered. In step 1, time is converted to UTC, which is time
+    '07:00:00+0:00', In step 2, this value is expressed as time
+    '02:00:00-5:00' in the target zone.</para>
+
+    <para>Example b:</para>
+
+    <informalexample>
+      <programlisting> TIME '12:00:00-5:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
+</programlisting>
+    </informalexample>
+
+    <para>Because the operand has a time zone, the result is independent of
+    the session time zone displacement. Step 1 results in TIME
+    '17:00:00+0:00', and step 2 results in TIME '18:00:00+1:00'</para>
+
+    <para>Note that the operand is not limited to datetime literals used in
+    these examples. Any valid expression that evaluates to a datetime value
+    can be the operand.</para>
+
+    <simpara><emphasis role="bold">Type Conversion</emphasis></simpara>
+
+    <para>CAST is used for all other conversions. Examples:</para>
+
+    <informalexample>
+      <programlisting> CAST (&lt;value&gt; AS TIME WITHOUT TIME ZONE)
+ CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
+    </informalexample>
+
+    <para>In the first example, if <literal>&lt;value&gt;</literal> has a time
+    zone component, it is simply dropped. For example, TIME '12:00:00-5:00' is
+    converted to TIME '12:00:00'</para>
+
+    <para>In the second example, if <literal>&lt;value&gt;</literal> has no
+    time zone component, the current time zone displacement of the session is
+    added. For example, TIME '12:00:00' is converted to TIME '12:00:00-8:00'
+    when the session time zone displacement is '-8:00'.</para>
+
+    <para>Conversion between DATE and TIMESTAMP is performed by removing the
+    TIME component of a TIMESTAMP value or by setting the hour, minute and
+    second fields to zero. TIMESTAMP '2008-08-08 20:08:08+8:00' becomes DATE
+    '2008-08-08', while DATE '2008-08-22' becomes TIMESTAMP '2008-08-22
+    00:00:00'.</para>
+
+    <para>Conversion between TIME and TIMESTAMP is performed by removing the
+    DATE field values of a TIMESTAMP value or by appending the fields of the
+    TIME value to the fields of the current session date value.</para>
+
+    <simpara><emphasis role="bold">Assignment</emphasis></simpara>
+
+    <para>When a value is assigned to a datetime target, e.g., a value is used
+    to update a row of a table, the type of the value must be the same as the
+    target, but the WITH TIME ZONE or WITHOUT TIME ZONE characteristics can be
+    different. If the types are not the same, an explicit CAST must be used to
+    convert the value into the target type.</para>
+
+    <simpara><emphasis role="bold">Comparison</emphasis></simpara>
+
+    <para>When values WITH TIME ZONE are compared, they are converted to UTC
+    values before comparison. If a value WITH TIME ZONE is compared to another
+    WITHOUT TIME ZONE, then the WITH TIME ZONE value is converted to AT LOCAL,
+    then converted to WITHOUT TIME ZONE before comparison.</para>
+
+    <para>It is not recommended to design applications that rely on
+    comparisons and conversions between TIME values WITH TIME ZONE. The
+    conversions may involve normalisation of the time value, resulting in
+    unexpected results. For example, the expression: BETWEEN(TIME
+    '12:00:00-8:00', TIME '22:00:00-8:00') is converted to BETWEEN(TIME
+    '20:00:00+0:00', TIME '06:00:00+0:00') when it is evaluated in the UTC
+    zone, which is always FALSE.</para>
+
+    <simpara><emphasis role="bold">Functions</emphasis></simpara>
+
+    <para>Several functions return the current session timestamp in different
+    datetime types:</para>
+
+    <informaltable frame="all">
+      <tgroup cols="2">
+        <tbody>
+          <row>
+            <entry><para>CURRENT_DATE</para></entry>
+
+            <entry><para>DATE</para></entry>
+          </row>
+
+          <row>
+            <entry><para>CURRENT_TIME</para></entry>
+
+            <entry><para>TIME WITH TIME ZONE</para></entry>
+          </row>
+
+          <row>
+            <entry><para>CURRENT_TIMESTAMP</para></entry>
+
+            <entry><para>TIMESTAMP WITH TIME ZONE</para></entry>
+          </row>
+
+          <row>
+            <entry><para>LOCALTIME</para></entry>
+
+            <entry><para>TIME WITHOUT TIME ZONE</para></entry>
+          </row>
+
+          <row>
+            <entry><para>LOCALTIMESTAMP</para></entry>
+
+            <entry><para>TIMESTAMP WITHOUT TIME ZONE</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
+
+    <para>HyperSQL supports a very extensive range of functions for
+    conversion, extraction and manipulation of DATE and TIMESTAMP values. See
+    the <link endterm="builtinfunctions-title"
+    xlink:href="#builtinfunctions-chapt"/> chapter.</para>
+
+    <simpara><emphasis role="bold">Session Time Zone
+    Displacement</emphasis></simpara>
+
+    <para>When an SQL session is started (with a JDBC connection) the local
+    time zone of the client JVM (including any seasonal time adjustments such
+    as daylight-saving time) is used as the session time zone displacement. In
+    version 2.7 a Java Calendar object with the local time zone of the
+    client JVM is created and used. Therefore when a seasonal time adjustment
+    for daylight saving time is made while the session is open, the SQL
+    session zone displacement is changed. In some older versions of HyperSQL,
+    the SQL session time displacement was not changed when a seasonal time
+    adjustment took place.</para>
+
+    <para>To change the SQL session time zone displacement, use the following
+    commands:</para>
+
+    <simpara><literal>SET TIME ZONE &lt;time
+    displacement&gt;</literal></simpara>
+
+    <simpara><literal>SET TIME ZONE LOCAL</literal></simpara>
+
+    <para>The first command sets the displacement to the given value. The
+    second command restores the original, real time zone displacement of the
+    session.</para>
+
+    <simpara><emphasis role="bold">Datetime Values and
+    Java</emphasis></simpara>
+
+    <para>When datetime values are sent to the database using the
+    <classname>PreparedStatement</classname> or
+    <classname>CallableStatement</classname> interfaces, the Java object is
+    converted to the type of the prepared or callable statement parameter.
+    This type may be DATE, TIME, or TIMESTAMP (with or without time zone). The
+    time zone displacement is the time zone of the JDBC session.</para>
+
+    <para>When datetime values are retrieved from the database using the
+    <literal>ResultSet</literal> interface, there are two representations. The
+    <methodname>getString(…)</methodname> methods of the
+    <classname>ResultSet</classname> interface, return an exact representation
+    of the value in the SQL type as it is stored in the database. This
+    includes the correct number of digits for the fractional second field, and
+    for values with time zone displacement, the time zone displacement.
+    Therefore, if TIME '12:00:00' is stored in the database, all users in
+    different time zones will get '12:00:00' when they retrieve the value as a
+    string. The <methodname>getTime(…)</methodname> and
+    <methodname>getTimestamp(…)</methodname> methods of the
+    <classname>ResultSet</classname> interface return Java objects that are
+    corrected for the session time zone. The UTC millisecond value contained
+    the <classname>java.sql.Time</classname> or
+    <classname>java.sql.Timestamp</classname> objects will be adjusted to the
+    time zone of the session, therefore the
+    <methodname>toString()</methodname> method of these objects return the
+    same values in different time zones.</para>
+
+    <para>If you want to store and retrieve UTC values that are independent of
+    any session's time zone, you can use a TIMESTAMP WITH TIME ZONE column.
+    The <methodname>setTime(...)</methodname> and
+    <methodname>setTimestamp(...)</methodname> methods of the
+    PreparedStatement interface which have a Calendar parameter can be used to
+    assign the values. The time zone of the given Calendar argument is used as
+    the time zone. Conversely, the <methodname>getTime(...)</methodname> and
+    <methodname>getTimestamp(...)</methodname> methods of the ResultSet
+    interface which have a Calendar parameter can be used with a Calendar
+    argument to retrieve the values.</para>
+
+    <simpara><emphasis role="bold">Java 8 Extensions</emphasis></simpara>
+
+    <para>JDBC 4 and JAVA6 did not include type codes for SQL datetime types
+    that have a TIME ZONE property. Therefore, HyperSQL reported these types
+    by default as datetime types without TIME ZONE.</para>
+
+    <para>JAVA 8 introduced new type codes for TIMESTAMP WITH TIME ZONE and
+    TIME WITH TIME ZONE. HyperSQL (except the jars compiled with JDK 1.6)
+    supports this in <classname>ResultSet</classname>,
+    <classname>PreparedStatement</classname> and
+    <classname>CallableStatement</classname>.</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>The <methodname>getObject(int columnIndex)</methodname> method
+        on a column of TIMESTAMP WITH TIME ZONE returns an
+        <classname>java.time.OffsetDateTime</classname> object.</para>
+      </listitem>
+
+      <listitem>
+        <para>The <methodname>getObject(int columnIndex)</methodname> method
+        on a column of TIME WITH TIME ZONE returns an
+        <classname>java.time.OffsetTime</classname> object.</para>
+      </listitem>
+
+      <listitem>
+        <para>The <methodname>getObject(int columnIndex, Class
+        type)</methodname> method on any date, time and timestamp supports the
+        <classname>java.time</classname> package types:
+        <classname>LocalDate</classname>, <classname>LocalTime</classname>,
+        <classname>LocalDateTime</classname>,
+        <classname>OffsetTime</classname>,
+        <classname>OffsetDateTime</classname>, and
+        <classname>Instance</classname> as well as
+        <classname>java.sql</classname> package types,
+        <classname>Date</classname>, <classname>Time</classname> and
+        <classname>Timestamp</classname>.</para>
+      </listitem>
+
+      <listitem>
+        <para>The <methodname>setObject</methodname> methods also support Java
+        objects of the types listed above.</para>
+      </listitem>
+
+      <listitem>
+        <para>The <methodname>getObject</methodname> and
+        <methodname>setObject</methodname> methods with column name parameters
+        behave just like their counterparts with columnIndexe
+        parameters.</para>
+      </listitem>
+    </itemizedlist>
+
+    <simpara><emphasis role="bold">Non-Standard
+    Extensions</emphasis></simpara>
+
+    <para>HyperSQL version 2.7 supports some extensions to the SQL standard
+    treatment of datetime and interval types. For example, the Standard
+    expression to add a number of days to a date has an explicit INTERVAL
+    value but HSQLDB also allows an integer to be used without specifying DAY.
+    Examples of some Standard expressions and their non-standard alternatives
+    are given below:</para>
+
+    <para><informalexample>
+        <programlisting> -- standard forms
+ CURRENT_DATE + '2' DAY
+ SELECT (LOCALTIMESTAMP - atimestampcolumn) DAY TO SECOND FROM atable
+
+ -- non-standard forms
+ CURRENT_DATE + 2
+ SELECT LOCALTIMESTAMP - atimestampcolumn FROM atable
+</programlisting>
+      </informalexample></para>
+
+    <para>It is recommended to use the SQL Standard syntax as it is more
+    precise and avoids ambiguity.</para>
+  </section>
+
+  <section xml:id="sgc_interval_typs">
+    <title>Interval Types</title>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>INTERVAL types</primary>
+    </indexterm>
+
+    <para>Interval types are used to represent differences between date time
+    values. The difference between two date time values can be measured in
+    seconds or in months. For measurements in months, the units YEAR and MONTH
+    are available, while for measurements in seconds, the units DAY, HOUR,
+    MINUTE, SECOND are available. The units can be used individually, or as a
+    range. An interval type can specify the precision of the most significant
+    field and the second fraction digits of the SECOND field (if it has a
+    SECOND field). The default precision is 2, following the Standard. The
+    default second precision is 0. The default precision is too small for many
+    applications and should be overridden.</para>
+
+    <simpara><literal>&lt;interval type&gt; ::= INTERVAL &lt;interval
+    qualifier&gt;</literal></simpara>
+
+    <simpara><literal>&lt;interval qualifier&gt; ::= &lt;start field&gt; TO
+    &lt;end field&gt; | &lt;single datetime field&gt;</literal></simpara>
+
+    <simpara><literal>&lt;start field&gt; ::= &lt;non-second primary datetime
+    field&gt; [ &lt;left paren&gt; &lt;interval leading field precision&gt;
+    &lt;right paren&gt; ]</literal></simpara>
+
+    <simpara><literal>&lt;end field&gt; ::= &lt;non-second primary datetime
+    field&gt; | SECOND [ &lt;left paren&gt; &lt;interval fractional seconds
+    precision&gt; &lt;right paren&gt; ]</literal></simpara>
+
+    <simpara><literal>&lt;single datetime field&gt; ::= &lt;non-second primary
+    datetime field&gt; [ &lt;left paren&gt; &lt;interval leading field
+    precision&gt; &lt;right paren&gt; ] | SECOND [ &lt;left paren&gt;
+    &lt;interval leading field precision&gt; [ &lt;comma&gt; &lt;interval
+    fractional seconds precision&gt; ] &lt;right paren&gt;
+    ]</literal></simpara>
+
+    <simpara><literal>&lt;primary datetime field&gt; ::= &lt;non-second
+    primary datetime field&gt; | SECOND</literal></simpara>
+
+    <simpara><literal>&lt;non-second primary datetime field&gt; ::= YEAR |
+    MONTH | DAY | HOUR | MINUTE</literal></simpara>
+
+    <simpara><literal>&lt;interval fractional seconds precision&gt; ::=
+    &lt;unsigned integer&gt;</literal></simpara>
+
+    <simpara><literal>&lt;interval leading field precision&gt; ::=
+    &lt;unsigned integer&gt;</literal></simpara>
+
+    <para>Examples of INTERVAL type definition:</para>
+
+    <informalexample>
+      <programlisting> INTERVAL YEAR TO MONTH
+ INTERVAL YEAR(3)
+ INTERVAL DAY(4) TO HOUR
+ INTERVAL MINUTE(4) TO SECOND(6)
+ INTERVAL SECOND(4,6)
+</programlisting>
+    </informalexample>
+
+    <para>The word INTERVAL indicates the general type name. The rest of the
+    definition is called an <literal>&lt;interval qualifier&gt;</literal>.
+    This designation is important, as in most expressions
+    <literal>&lt;interval qualifier&gt;</literal> is used without the word
+    INTERVAL.</para>
+
+    <simpara><emphasis role="bold">Interval Values</emphasis></simpara>
+
+    <para>An interval value can be negative, positive or zero. An interval
+    type has all the datetime fields in the specified range. These fields are
+    similar to those in the TIMESTAMP type. The differences are as
+    follows:</para>
+
+    <para>The first field of an interval value can hold any numeric value up
+    to the specified precision. For example, the hour field in HOUR(2) TO
+    SECOND can hold values above 23 (up to 99). The year and month fields can
+    hold zero (unlike a TIMESTAMP value) and the maximum value of a month
+    field that is not the most significant field, is 11.</para>
+
+    <para>The standard function <literal>ABS(&lt;interval value
+    expression&gt;)</literal> can be used to convert a negative interval value
+    to a positive one.</para>
+
+    <para>The literal representation of interval values consists of the type
+    definition, with a string representing the interval value inserted after
+    the word INTERVAL. Some examples of interval literal below:</para>
+
+    <informalexample>
+      <programlisting> INTERVAL '145 23:12:19.345' DAY(3) TO SECOND(3)
+ INTERVAL '3503:12:19.345' HOUR TO SECOND(3) /* equal to the first value */
+ INTERVAL '19.345' SECOND(4,3) /* maximum number of digits for the second value is 4, and each value is expressed with three fraction digits. */
+ INTERVAL '-23-10' YEAR(2) TO MONTH
+</programlisting>
+    </informalexample>
+
+    <para>Interval values of the types that are based on seconds can be cast
+    into one another. Similarly, those that are based on months can be cast
+    into one another. It is not possible to cast or convert a value based on
+    seconds to one based on months, or vice versa.</para>
+
+    <para>When a cast is performed to a type with a smaller least-significant
+    field, nothing is lost from the interval value. Otherwise, the values for
+    the missing least-significant fields are discarded. Examples:</para>
+
+    <informalexample>
+      <programlisting> CAST ( INTERVAL '145 23:12:19' DAY TO SECOND AS INTERVAL DAY TO HOUR ) = INTERVAL '145 23' DAY TO HOUR
+ CAST(INTERVAL '145 23' DAY TO HOUR AS INTERVAL DAY TO SECOND) = INTERVAL '145 23:00:00' DAY TO SECOND
+</programlisting>
+    </informalexample>
+
+    <para>A numeric value can be cast to an interval type. In this case the
+    numeric value is first converted to a single-field INTERVAL type with the
+    same field as the least significant field of the target interval type.
+    This value is then converted to the target interval type For example CAST(
+    22 AS INTERVAL YEAR TO MONTH) evaluates to INTERVAL '22' MONTH and then
+    INTERVAL '1 10' YEAR TO MONTH. Note that SQL Standard only supports casts
+    to single-field INTERVAL types, while HyperSQL allows casting to
+    multi-field types as well.</para>
+
+    <para>An interval value can be cast to a numeric type. In this case the
+    interval value is first converted to a single-field INTERVAL type with the
+    same field as the least significant filed of the interval value. The value
+    is then converted to the target type. For example, CAST (INTERVAL '1-11'
+    YEAR TO MONTH AS INT) evaluates to INTERVAL '23' MONTH, and then
+    23.</para>
+
+    <para>An interval value can be cast into a character type, which results
+    in an INTERVAL literal. A character value can be cast into an INTERVAL
+    type so long as it is a string with a format compatible with an INTERVAL
+    literal.</para>
+
+    <para>Two interval values can be added or subtracted so long as the types
+    of both are based on the same field, i.e., both are based on MONTH or
+    SECOND. The values are both converted to a single-field interval type with
+    same field as the least-significant field between the two types. After
+    addition or subtraction, the result is converted to an interval type that
+    contains all the fields of the two original types.</para>
+
+    <para>An interval value can be multiplied or divided by a numeric value.
+    Again, the value is converted to a numeric, which is then multiplied or
+    divided, before converting back to the original interval type.</para>
+
+    <para>An interval value is negated by simply prefixing with the minus
+    sign.</para>
+
+    <para>Interval values used in expressions are either typed values,
+    including interval literals, or are interval casts. The expression:
+    <literal>&lt;expression&gt; &lt;interval qualifier&gt;</literal> is a cast
+    of the result of the <literal>&lt;expression&gt;</literal> into the
+    INTERVAL type specified by the <literal>&lt;interval qualifier&gt;. The
+    cast can be formed by adding the keywords and parentheses as follows: CAST
+    ( &lt;expression&gt; AS INTERVAL &lt;interval qualifier&gt;
+    ).</literal></para>
+
+    <para><literal>The examples below feature different forms of expression
+    that represent an interval value, which is then added to the given date
+    literal.</literal></para>
+
+    <informalexample>
+      <programlisting> DATE '2000-01-01' + INTERVAL '1-10' YEAR TO MONTH /* interval literal */
+ DATE '2000-01-01' + '1-10' YEAR TO MONTH /* the string '1-10' is cast into INTERVAL YEAR TO MONTH */
+ DATE '2000-01-01' + 22 MONTH /* the integer 22 is cast into INTERVAL MONTH, same value as above */
+ DATE '2000-01-01' - 22 DAY /* the integer 22 is cast into INTERVAL DAY */
+ DATE '2000-01-01' + COL2 /* the type of COL2 must be an INTERVAL type */
+ DATE '2000-01-01' + COL2 MONTH /* COL2 may be a number, it is cast into a MONTH interval */
+</programlisting>
+    </informalexample>
+
+    <simpara><emphasis role="bold">Datetime and Interval
+    Operations</emphasis></simpara>
+
+    <para>An interval can be added to or subtracted from a datetime value so
+    long as they have some fields in common. For example, an INTERVAL MONTH
+    cannot be added to a TIME value, while an INTERVAL HOUR TO SECOND can. The
+    interval is first converted to a numeric value, then the value is added
+    to, or subtracted from, the corresponding field of the datetime
+    value.</para>
+
+    <para>If the result of addition or subtraction is beyond the permissible
+    range for the field, the field value is normalised and carried over to the
+    next significant field until all the fields are normalised. For example,
+    adding 20 minutes to TIME '23:50:10' will result successively in
+    '23:70:10', '24:10:10' and finally TIME '00:10:10'. Subtracting 20 minutes
+    from the result is performed as follows: '00:-10:10', '-1:50:10', finally
+    TIME '23:50:10'. Note that if DATE or TIMESTAMP normalisation results in
+    the YEAR field value out of the range (1,10000), then an exception
+    condition is raised.</para>
+
+    <para>If an interval value based on MONTH is added to, or subtracted from
+    a DATE or TIMESTAMP value, the result may have an invalid day (30 or 31)
+    for the given result month. In this case an exception condition is
+    raised.</para>
+
+    <para>The result of subtraction of two datetime expressions is an interval
+    value. The two datetime expressions must be of the same type. The type of
+    the interval value must be specified in the expression, using only the
+    interval field names. The two datetime expressions are enclosed in
+    parentheses, followed by the <literal>&lt;interval qualifier&gt;</literal>
+    fields. In the first example below, COL1 and COL2 are of the same datetime
+    type, and the result is evaluated in INTERVAL YEAR TO MONTH type.</para>
+
+    <informalexample>
+      <programlisting> (COL1 – COL2) YEAR TO MONTH /* the difference between two DATE or two TIEMSTAMP values in years and months */
+ (CURRENT_DATE – COL3) DAY /* the number of days between the value of COL3 and the current date */
+ (CURRENT_DATE - DATE '2000-01-01') YEAR TO MONTH /* the number of years and months since the beginning of this century */
+ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
+ (CURRENT_TIMESTAMP - TIMESTAMP '2009-01-01 00:00:00') DAY(4) TO SECOND(2) /* days to seconds since the given date */
+</programlisting>
+    </informalexample>
+
+    <para>The individual fields of both datetime and interval values can be
+    extracted using the EXTRACT function. The same function can also be used
+    to extract the time zone displacement fields of a datetime value.</para>
+
+    <simpara><literal>EXTRACT ({YEAR | MONTH | DAY | HOUR | MINUTE | SECOND |
+    TIMEZONE_HOUR | TIMEZONE_MINUTE | DAY_OF_WEEK | WEEK_OF_YEAR } FROM
+    {&lt;datetime value&gt; | &lt;interval value&gt;})</literal></simpara>
+
+    <para>The dichotomy between interval types based on seconds, and those
+    based on months, stems from the fact that the different calendar months
+    have different numbers of days. For example, the expression, “nine months
+    and nine days since an event” is not exact when the date of the event is
+    unknown. It can represent a period of around 284 days give or take one.
+    SQL interval values are independent of any start or end dates or times.
+    However, when they are added to or subtracted from certain date or
+    timestamp values, the result may be invalid and cause an exception (e.g.
+    adding one month to January 30 results in February 30, which is
+    invalid).</para>
+
+    <para>JDBC has an unfortunate limitation and does not include type codes
+    for SQL INTERVAL types. Therefore, for compatibility with database tools
+    that are limited to the JDBC type codes, HyperSQL reports these types by
+    default as VARCHAR. You can use the URL property
+    <literal>hsqldb.translate_dti_types=false</literal> to override the
+    default behaviour.</para>
+
+    <simpara><emphasis role="bold">Java 8 Extensions</emphasis></simpara>
+
+    <para>JAVA 8 does not have SQL type codes for INTERVAL types. HyperSQL
+    (except the jars compiled with JDK 1.6) supports
+    <classname>java.time</classname> types for INTERVAL types in
+    <classname>ResultSet</classname>, <classname>PreparedStatement</classname>
+    and <classname>CallableStatement</classname>.</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>The <methodname>getObject(int columnIndex, Class
+        type)</methodname> method on an INTERVAL supports the
+        <classname>java.time.Period</classname> type for YEAR and MONTH
+        interval and the <classname>java.time.Duration</classname> type for
+        other interval types that cover DAY to SECOND.</para>
+      </listitem>
+
+      <listitem>
+        <para>The <methodname>setObject(int columnIndex)</methodname> method
+        accepts <classname>java.time.Period</classname> and
+        <classname>java.time.Duration</classname> objects for columns of
+        relevant INTERVAL types.</para>
+      </listitem>
+
+      <listitem>
+        <para>The <methodname>getObject</methodname> and
+        <methodname>setObject</methodname> methods with column name parameters
+        behave just like their counterparts with columnIndexe
+        parameters.</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section xml:id="sgc_array">
+    <title>Arrays</title>
+
+    <para>Array are a powerful feature of SQL:2016 and can help solve many
+    common problems. Arrays should not be used as a substitute for
+    tables.</para>
+
+    <para>HyperSQL supports arrays of values according to the Standard.</para>
+
+    <para>Elements of the array are either NULL, or of the same data type. It
+    is possible to define arrays of all supported types, including the types
+    covered in this chapter and user-defined types, except LOB types. An SQL
+    array is one dimensional and is addressed from position 1. An empty array
+    can also be used, which has no element.</para>
+
+    <para>Arrays can be stored in the database, as well as being used as
+    temporary containers of values for simplifying SQL statements. They
+    facilitate data exchange between the SQL engine and the user's
+    application.</para>
+
+    <para>The full range of supported syntax allows array to be created, used
+    in SELECT or other statements, combined with rows of tables, and used in
+    routine calls.</para>
+
+    <section xml:id="sgc_array_def">
+      <title>Array Definition</title>
+
+      <para>The type of a table column, a routine parameter, a variable, or
+      the return value of a function can be defined as an array.</para>
+
+      <para><literal>&lt;array type&gt; ::= &lt;data type&gt; ARRAY [ &lt;left
+      bracket or trigraph&gt; &lt;maximum cardinality&gt; &lt;right bracket or
+      trigraph&gt; ]</literal></para>
+
+      <para>The word ARRAY is added to any valid type definition except BLOB
+      and CLOB type definitions. If the optional <literal>&lt;maximum
+      cardinality&gt;</literal> is not used, the default value is 1024. The
+      size of the array cannot be extended beyond maximum cardinality.</para>
+
+      <para>In the example below, the table contains a column of INTEGER
+      arrays and a column of VARCHAR arrays. The VARCHAR array has an explicit
+      maximum size of 10, which means each array can have between 0 and 10
+      elements. The INTEGER array has the default maximum size of 1024. The
+      scores column has a default clause with an empty array. The default
+      clause can be defined only as <literal>DEFAULT NULL</literal> or
+      <literal>DEFAULT ARRAY[]</literal> and does not allow arrays containing
+      elements.</para>
+
+      <informalexample>
+        <programlisting> CREATE TABLE t (id INT PRIMARY KEY, scores INT ARRAY DEFAULT ARRAY[], names VARCHAR(20) ARRAY[10])</programlisting>
+      </informalexample>
+
+      <para>An array can be constructed from value expressions or a query
+      expression.</para>
+
+      <para><literal>&lt;array value constructor by enumeration&gt; ::= ARRAY
+      &lt;left bracket or trigraph&gt; &lt;array element list&gt; &lt;right
+      bracket or trigraph&gt;</literal></para>
+
+      <para><literal>&lt;array element list&gt; ::= &lt;value expression&gt; [
+      { &lt;comma&gt; &lt;value expression&gt; }... ]</literal></para>
+
+      <para><literal>&lt;array value constructor by query&gt; ::= ARRAY
+      &lt;left paren&gt; &lt;query expression&gt; [ &lt;order by clause&gt; ]
+      &lt;right paren&gt;</literal></para>
+
+      <para>In the examples below, arrays are constructed from values, column
+      references or variables, function calls, or query expressions.</para>
+
+      <informalexample>
+        <programlisting> ARRAY [ 1, 2, 3 ]
+ ARRAY [ 'HOT', 'COLD' ]
+ ARRAY [ var1, var2, CURRENT_DATE ]
+ ARRAY (SELECT lastname FROM namestable ORDER BY id)
+</programlisting>
+      </informalexample>
+
+      <para>Inserting and updating a table with an ARRAY column can use array
+      constructors, not only for updated column values, but also in equality
+      search conditions:</para>
+
+      <informalexample>
+        <programlisting> INSERT INTO t VALUES 10, ARRAY[1,2,3], ARRAY['HOT', 'COLD']
+ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id = 12
+ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY[3,4]
+</programlisting>
+      </informalexample>
+
+      <para>When using a PreparedStatement with an ARRAY parameter, a Java
+      array or a <literal>java.sql.Array</literal> object may be used to set
+      the parameter.</para>
+
+      <para>In the example below prepared statements for INSERT and UPDATE
+      with array parameters are used.</para>
+
+      <informalexample>
+        <programlisting>  // create
+ String create = "CREATE TABLE t (id INT PRIMARY KEY, scores INT ARRAY DEFAULT ARRAY[], names VARCHAR(20) ARRAY[10])";
+ Statement st = connection.createStatement();
+ st.execute(create);
+
+ // insert
+ String insert = "INSERT INTO t VALUES ?, ?, ?";
+ PreparedStatement ps = connection.prepareStatement(insert);
+ Object[] numbers = new Object[]{17, 19};
+ Object[] data = new Object[]{"one", "two"};
+ ps.setInt(1, 10);
+ ps.setObject(2, numbers);
+ ps.setObject(3, data);
+ ps.execute();
+
+ // update
+ String update_a = "UPDATE t SET names = ? WHERE id = ?";
+ ps = connection.prepareStatement(update_a);
+ data = new Object[]{"I", "II", "III", "IV"};
+ ps.setObject(1, data);
+ ps.setInt(2, 10);
+ ps.executeUpdate();        
+
+</programlisting>
+      </informalexample>
+
+      <para>In the example below, a <literal>java.sql.Array</literal> is used
+      for the update, using the same data as above:</para>
+
+      <informalexample>
+        <programlisting>data = new Object[]{"I", "II", "III", "IV"};
+Array array = connection.createArrayOf("VARCHAR", data);
+ps.setArray(1, array);
+ps.setInt(2, 10);
+ps.executeUpdate();        
+
+</programlisting>
+      </informalexample>
+
+      <section xml:id="sgc_trigraph">
+        <title>Trigraph</title>
+
+        <para>A trigraph is a substitute for &lt;left bracket&gt; and
+        &lt;right bracket&gt;.</para>
+
+        <para><literal>&lt;left bracket trigraph&gt; ::= ??( </literal></para>
+
+        <para><literal>&lt;right bracket trigraph&gt; ::= ??)</literal></para>
+
+        <para>The example below shows the use of trigraphs instead of
+        brackets.</para>
+
+        <informalexample>
+          <programlisting> INSERT INTO t VALUES 10, ARRAY??(1,2,3??), ARRAY['HOT', 'COLD']
+ UPDATE t SET names = ARRAY ??('LARGE', 'SMALL'??) WHERE id = 12
+ UPDATE t SET names = ARRAY['LARGE', 'SMALL'] WHERE id &lt; 12 AND scores = ARRAY[3,4]
+</programlisting>
+        </informalexample>
+      </section>
+    </section>
+
+    <section xml:id="sgc_array_ref">
+      <title>Array Reference</title>
+
+      <para>The most common operations on an array are element reference and
+      assignment, which are used when reading or writing an element of the
+      array. Unlike Java and many other languages, arrays are extended if an
+      element is assigned to an index beyond the current length. This can
+      result in gaps containing NULL elements. Array length cannot exceed the
+      maximum cardinality.</para>
+
+      <para>Elements of all arrays, including those that are the result of
+      function calls or other operations can be referenced for reading.</para>
+
+      <para><literal>&lt;array element reference&gt; ::= &lt;array value
+      expression&gt; &lt;left bracket&gt; &lt;numeric value expression&gt;
+      &lt;right bracket&gt;</literal></para>
+
+      <para>Elements of arrays that are table columns or routine variables can
+      be referenced for writing. This is done in a SET statement, either
+      inside an UPDATE statement, or as a separate statement in the case of
+      routine variables, OUT and INOUT parameters.</para>
+
+      <para><literal>&lt;target array element specification&gt; ::= &lt;target
+      array reference&gt; &lt;left bracket or trigraph&gt; &lt;simple value
+      specification&gt; &lt;right bracket or trigraph&gt;</literal></para>
+
+      <para><literal>&lt;target array reference&gt; ::= &lt;SQL parameter
+      reference&gt; | &lt;column reference&gt;</literal></para>
+
+      <para>Note that only simple values or variables are allowed for the
+      array index when an assignment is performed. The examples below
+      demonstrate how elements of the array are referenced in SELECT and
+      UPDATE statements.</para>
+
+      <para><informalexample>
+          <programlisting> SELECT scores[ranking], names[ranking] FROM t JOIN t1 on (t.id = t1.tid)
+ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
+</programlisting>
+        </informalexample></para>
+    </section>
+
+    <section xml:id="sgc_array_ops">
+      <title>Array Operations</title>
+
+      <para>Several SQL operations and functions can be used with
+      arrays.</para>
+
+      <para><emphasis>CONCATENATION</emphasis></para>
+
+      <para>Array concatenation is performed similar to string concatenation.
+      All elements of the array on the right are appended to the array on
+      left.</para>
+
+      <para><literal>&lt;array concatenation&gt; ::= &lt;array value
+      expression 1&gt; &lt;concatenation operator&gt; &lt;array value
+      expression 2&gt;</literal></para>
+
+      <para><literal>&lt;concatenation operator&gt; ::= ||</literal></para>
+
+      <para><emphasis>FUNCTIONS</emphasis></para>
+
+      <para>Functions listed below operate on arrays. Details are described in
+      the <link endterm="builtinfunctions-title"
+      xlink:href="#builtinfunctions-chapt"/> chapter.</para>
+
+      <para><literal>ARRAY_AGG</literal> is an aggregate function and produces
+      an array containing values from different rows of a SELECT statement.
+      Details are described in the <link endterm="dataaccess-title"
+      xlink:href="#dataaccess-chapt"/> chapter.</para>
+
+      <para><literal>SEQUENCE_ARRAY</literal> creates an array with sequential
+      elements.</para>
+
+      <para><literal>CARDINALITY &lt;left paren&gt; &lt;array value
+      expression&gt; &lt;right paren&gt;</literal></para>
+
+      <para><literal>MAX_CARDINALITY &lt;left paren&gt; &lt;array value
+      expression&gt; &lt;right paren&gt;</literal></para>
+
+      <para>Array cardinality and max cardinality are functions that return an
+      integer. CARDINALITY returns the element count, while MAX_CARDINALITY
+      returns the maximum declared cardinality of an array.</para>
+
+      <para><literal>POSITION_ARRAY &lt;left paren&gt; &lt;value
+      expression&gt; IN &lt;array value expression&gt; [FROM &lt;numeric value
+      expression&gt;] &lt;right paren&gt;</literal></para>
+
+      <para>The POSITION_ARRAY function returns the position of the first
+      match for the &lt;value expression&gt; from the start or from the given
+      start position when &lt;numeric value expression&gt; is used.</para>
+
+      <para><literal>TRIM_ARRAY &lt;left paren&gt; &lt;array value
+      expression&gt; &lt;comma&gt; &lt;numeric value expression&gt; &lt;right
+      paren&gt;</literal></para>
+
+      <para>The TRIM_ARRAY function returns a copy of an array with the
+      specified number of elements removed from the end of the array. The
+      <literal>&lt;array value expression&gt;</literal> can be any expression
+      that evaluates to an array.</para>
+
+      <para><literal>SORT_ARRAY &lt;left paren&gt; &lt;array value
+      expression&gt; [ { ASC | DESC } ] [ NULLS { FIRST | LAST } ] &lt;right
+      paren&gt;</literal></para>
+
+      <para>The SORT_ARRAY function returns a sorted copy of an array. NULL
+      elements appear at the beginning of the new array. You can change the
+      sort direction or the position of NULL elements with the option
+      keywords.</para>
+
+      <para><emphasis>CAST</emphasis></para>
+
+      <para>An array can be cast into an array of a different type. Each
+      element of the array is cast into the element type of the target array
+      type. For example:</para>
+
+      <para><informalexample>
+          <programlisting> SELECT CAST(scores[ranking] AS VARCHAR(6) ARRAY), names[ranking] FROM t JOIN t1 on (t.id = t1.tid)
+</programlisting>
+        </informalexample></para>
+
+      <para><emphasis>UNNEST</emphasis></para>
+
+      <para>Arrays can be converted into table references with the UNNEST
+      keyword.</para>
+
+      <para><literal>UNNEST(&lt;array value expression&gt;) [ WITH ORDINALITY
+      ]</literal></para>
+
+      <para>The <literal>&lt;array value expression&gt;</literal> can be any
+      expression that evaluates to an array. A table is returned that contains
+      one column when WITH ORDINALITY is not used, or two columns when WITH
+      ORDINALITY is used. The first column contains the elements of the array
+      (including all the nulls). When the table has two columns, the second
+      column contains the ordinal position of the element in the array. When
+      UNNEST is used in the FROM clause of a query, it implies the LATERAL
+      keyword, which means the array that is converted to table can belong to
+      any table that precedes the UNNEST in the FROM clause. This is explained
+      in the <link endterm="dataaccess-title" xlink:arcrole=""
+      xlink:href="#dataaccess-chapt"/> chapter.</para>
+
+      <para><emphasis>INLINE CONSTRUCTOR</emphasis></para>
+
+      <para>Array constructors can be used in SELECT and other statements. For
+      example, an array constructor with a subquery can return the values from
+      several rows as one array.</para>
+
+      <simpara>The example below shows an ARRAY constructor with a correlated
+      subquery to return the list of order values for each customer. The
+      CUSTOMER table that is included for tests in the DatabaseManager GUI app
+      is the source of the data.</simpara>
+
+      <informalexample>
+        <programlisting> SELECT FIRSTNAME, LASTNAME, ARRAY(SELECT INVOICE.TOTAL FROM INVOICE WHERE CUSTOMERID = CUSTOMER.ID) AS ORDERS FROM CUSTOMER
+
+ FIRSTNAME LASTNAME  ORDERS                                    
+ --------- --------- -------------------------------------- 
+ Laura     Steel     ARRAY[2700.90,4235.70]                 
+ Robert    King      ARRAY[4761.60]                         
+ Robert    Sommer    ARRAY[]                                
+ Michael   Smith     ARRAY[3420.30]
+</programlisting>
+      </informalexample>
+
+      <para><emphasis>COMPARISON</emphasis></para>
+
+      <para>Arrays can be compared for equality. It is possible to define a
+      UNIQUE constraint on a column of ARRAY type. Two arrays are equal if
+      they have the same length and the values at each index position are
+      either equal or both NULL. Array expressions cannot be used in a
+      comparison expression such as GREATER THAN but they can be used in an
+      ORDER BY clause. For example, it is possible to add <literal>ORDER BY
+      ORDERS</literal> to the above SELECT statement,</para>
+
+      <para><emphasis>USER DEFINED FUNCTIONS and PROCEDURES</emphasis></para>
+
+      <para>Array parameters, variables and return values can be specified in
+      user defined functions and procedures, including aggregate functions. An
+      aggregate function can return an array that contains all the scalar
+      values that have been aggregated. These capabilities allow a wider range
+      of applications to be covered by user defined functions and easier data
+      exchange between the engine and the user's application.</para>
+    </section>
+  </section>
+</chapter>

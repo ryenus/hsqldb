@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+<!DOCTYPE book [
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
+]>
+<appendix version="5.0" xml:id="openoffice-app"
+          xmlns="http://docbook.org/ns/docbook"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:ns5="http://www.w3.org/2000/svg"
+          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+          xmlns:ns3="http://www.w3.org/1999/xhtml"
+          xmlns:ns="http://docbook.org/ns/docbook">
+  <!-- We declare the default namespace + those for prefixes xlink: and xi: in
+       the root element, so we can use them anywhere in this file. -->
+
+  <info>
+    <title xml:id="openoffice-title">HyperSQL with OpenOffice</title>
+
+    <subtitle>How to use HyperSQL with OpenOffice.org</subtitle>
+
+    <author>
+      <personname><firstname>Fred</firstname>
+      <surname>Toussi</surname></personname>
+
+      <affiliation>
+        <orgname>The HSQL Development Group</orgname>
+      </affiliation>
+    </author>
+
+    <releaseinfo>$Revision$</releaseinfo>
+
+    <pubdate>&timestamp;</pubdate>
+
+    <keywordset>
+      <keyword>HSQLDB</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>OpenOffice</keyword>
+
+      <keyword>OpenOfficeOrg</keyword>
+    </keywordset>
+  </info>
+
+  <section xml:id="ooa_overview">
+    <title>HyperSQL with OpenOffice</title>
+
+    <simpara>OpenOffice.org / LibreOffice / ApacheOpenOffice includes HyperSQL
+    and uses it for embedded databases. Our collaboration with OpenOffice.org
+    developers over 6 years has benefited the development and maturity of
+    HyperSQL. Before integration into OOo, HyperSQL was intended solely for
+    application-specific database access. The application developer was
+    expected to resolve any integration issues. Because OpenOffice.org is used
+    by a vast range of users, from schoolchildren to corporate developers, a
+    much higher level of quality assurance has been required. We have achieved
+    it with constant help and feedback from OOo users and
+    developers.</simpara>
+
+    <simpara>Apart from embedded use, you may want to use OpenOffice /
+    LibreOffice with a HyperSQL server instance. The typical use for this is
+    to allow multiple office users access to the same database.</simpara>
+
+    <simpara>There is also a strong case for using OpenOffice to develop your
+    database schema and application, even if the database is intended for your
+    own application, rather than OpenOffice.</simpara>
+
+    <simpara>HyperSQ version 1.8.0 is included in OOo, ApacheOpenOffice and
+    LibreOffice. You can simply replace the jar with a HyperSQL version 2.7
+    jar to use the latest capabilities with external databases. It is not yet
+    possible to create and use embedded databases with this version.</simpara>
+
+    <simpara>HyperSQL version 2.x jar will hopefully be included in the future
+    versions of ApacheOpenOffice and LibreOffice.</simpara>
+  </section>
+
+  <section xml:id="ooa_database_tool">
+    <title>Using OpenOffice / LibreOffice as a Database Tool</title>
+
+    <simpara>OpenOffice is a powerful database front end. If you want to
+    create schemas, edit tables, edit the database contents manually, design
+    and produce well-formatted reports, then OpenOffice is probably the best
+    open source tools currently available.</simpara>
+
+    <simpara>To connect from OpenOffice to your database, first run a local
+    server instance for the database. This is describes in the Network
+    Listeners chapter of this guide.</simpara>
+
+    <simpara>When you connect from OpenOffice.org, you must specify connection
+    to an external database and use the URL property "default_schema=true".
+    For example, the URL to connect the local database may be like</simpara>
+
+    <programlisting> jdbc;hsqldb:hsql://localhost/mydb;default_schema=true </programlisting>
+
+    <simpara>The only current limitation is that OpenOffice only works with
+    the PUBLIC schema. This limitation will hopefully disappear in the future
+    versions of OOo.</simpara>
+
+    <simpara>There will hopefully be a HyperSQL 2.x jar in future versions of
+    OpenOffice.</simpara>
+  </section>
+
+  <section xml:id="ooa_db_files_convert">
+    <title>Converting .odb files to use with HyperSQL Server</title>
+
+    <simpara>You may already have an OOo database file, which you want to use
+    outside OOo, or as a server database. The file is in fact in the standard
+    ZIP format and contains the normal HyperSQL database files. Just use a
+    utility such as 7Zip to expand the .odb file. In the /db directory, there
+    are files such as .script, .data, etc. Just rename these files into
+    mydb.script, mydb.data, etc. You can now open the mydb database directly
+    with HyperSQL as an embedded database or as a server instance.</simpara>
+  </section>
+
+  <section xml:id="ooa_extensions">
+    <title>OpenOffice / LibreOffice Extensions for HyperSQL</title>
+
+    <simpara>Since 2021, two new OOo and LO extensions are developed and
+    maintained on GitHub by the developer prrvchr. These extensions make it
+    easy to use the latest version of HSQLDB 2.x with the latest versions of
+    the Base program. One extension simply adds and loads the HSQLDB 2.x jar,
+    ready for use. It also allows updating the jar to the latest version. The
+    second extension extracts the database from the .odb file in the same
+    directory and connects to the extracted database files.</simpara>
+
+    <simpara>The simple driver: <link
+    xlink:href="https://prrvchr.github.io/jdbcDriverOOo/">https://prrvchr.github.io/jdbcDriverOOo/</link></simpara>
+
+    <simpara>The driver that extracts the files: <link
+    xlink:href="https://prrvchr.github.io/HsqlDBembeddedOOo/">https://prrvchr.github.io/HsqlDBembeddedOOo/</link></simpara>
+
+    <simpara>The extensions are easy to use, with clear visual instructions on
+    how to add the extensions to the Office suite and how to create and open
+    databases.</simpara>
+  </section>
+</appendix>
