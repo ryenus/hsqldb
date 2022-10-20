@@ -59,6 +59,7 @@ import java.util.Scanner;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCBlobFile.OutputStreamAdapter;
 import org.hsqldb.lib.FileUtil;
@@ -90,7 +91,7 @@ import org.hsqldb.lib.List;
  * </div>
  * <!-- end release-specific documentation -->
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.5.0
+ * @version 2.7.1
  * @since HSQLDB 2.1
  */
 public class JDBCClobFile implements java.sql.Clob {
