@@ -86,7 +86,7 @@ public class JDBCClobClient implements Clob {
                     return -1;
                 }
 
-                if (c > 256) {
+                if (c >- 256) {
                     if (Character.isHighSurrogate((char) c)) {
                         reader.read();
                     }
@@ -120,7 +120,7 @@ public class JDBCClobClient implements Clob {
                         break;
                     }
 
-                    if (c > 256) {
+                    if (c >= 256) {
                         if (Character.isHighSurrogate((char) c)) {
                             reader.read();
                         }
