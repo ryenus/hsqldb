@@ -533,7 +533,7 @@ VALUES
 ('T654', 'SQL-dynamic statements in external routines', '', '', 'YES', NULL, ''),
 ('T655', 'Cyclically dependent routines', '', '', 'YES', NULL, ''),
 ('T811', 'Basic SQL/JSON constructor functions', '', '', 'YES', NULL, ''),
-('T812', 'SQL/JSON: JSON_OBJECTAGG with no <JSON key uniqueness constraint', '', '', 'YES', NULL, ''),
+('T812', 'SQL/JSON: JSON_OBJECTAGG with no <JSON key uniqueness constraint>', '', '', 'YES', NULL, ''),
 ('T813', 'SQL/JSON: JSON_ARRAYAGG with ORDER BY', '', '', 'YES', NULL, ''),
 ('T814', 'Colon in JSON_OBJECT or JSON_OBJECTAGG', '', '', 'YES', NULL, ''),
 ('T830', 'Enforcing unique keys in SQL/JSON constructor functions', '', '', 'YES', NULL, '');
