@@ -582,7 +582,7 @@ public class SqlTool {
                 }
 
                 while (i + 1 < arg.length) try {
-                    scriptFiles[scriptIndex] =
+                    scriptFiles[scriptIndex++] =
                       SqlFile.URL_WITH_PROTO_RE.matcher(arg[++i]).matches() ?
                         new URL(arg[i]) :
                         new URL("file", null, arg[i]);
