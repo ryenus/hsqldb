@@ -961,7 +961,7 @@
     zone of the session that was in force prior to the use of the
     command.</simpara>
 
-    <simpara>From version 2.7, zone strings indicating geographical regions
+    <simpara>From version 2.7.0, zone strings indicating geographical regions
     can be used. These zone often support daylight saving time.</simpara>
 
     <simpara>This command works fine with in-process databases. When the

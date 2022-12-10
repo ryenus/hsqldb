@@ -1538,7 +1538,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     the input) and accounting for daylight saving time at that point of
     time.</para>
 
-    <para>From version 2.7 it is possible to use regional time zones with AT
+    <para>From version 2.7.0 it is possible to use regional time zones with AT
     TIME ZONE. Any zone name used must match exactly a TimeZone id supported
     by the JVM. These include names such as 'America/New_York'. Some zones
     include daylight saving time periods which are used when converting the
@@ -1705,7 +1705,7 @@ SELECT obj FROM movies WHERE director LIKE 'Luc%'
     <para>When an SQL session is started (with a JDBC connection) the local
     time zone of the client JVM (including any seasonal time adjustments such
     as daylight-saving time) is used as the session time zone displacement. In
-    version 2.7 a Java Calendar object with the local time zone of the
+    version 2.7.0 a Java Calendar object with the local time zone of the
     client JVM is created and used. Therefore when a seasonal time adjustment
     for daylight saving time is made while the session is open, the SQL
     session zone displacement is changed. In some older versions of HyperSQL,
