@@ -1551,7 +1551,7 @@
       <para>The SIGNAL statement is used to throw an exception (or force an
       exception). When invoked, any exception handler for the given exception
       is in turn invoked. If there is no handler, the exception is propagated
-      to the enclosing context. </para>
+      to the enclosing context.</para>
 
       <para>In its simplest form, when there is no exception handler for the
       given exception, routine execution is halted, any change of data is
@@ -2344,12 +2344,12 @@
     <section xml:id="src_jrt_access_control">
       <title>Securing Access to Classes and Routines</title>
 
-      <para>By default, the static methods of any class that is on the
-      classpath are available to be used. This can compromise security in some
-      systems. The optional Java system property
-      <literal>hsqldb.method_class_names</literal> allows preventing access to
-      classes other than <literal>java.lang.Math</literal> or specifying a
-      semicolon-separated list of allowed classes. A property value that ends
+      <para>The static methods of any class that is on the classpath can be
+      made available to be used. From version 2.7.1 access is not allowed by
+      default. The optional Java system property
+      <literal>hsqldb.method_class_names</literal> allows access to classes
+      other than <literal>java.lang.Math</literal> by specifying a
+      semicolon-separated list of allowed packages, classes, or methods. A property value that ends
       with .* is treated as a wild card and allows access to all class or
       method names formed by substitution of the * (asterisk).</para>
 
@@ -2365,8 +2365,7 @@
       <classname>org.me.MyClass</classname> and
       <classname>org.you.YourClass</classname> together with all the classes
       in the <classname>org.you.lib</classname> package. Note that if the
-      property is not defined, no access control is performed at this
-      level.</para>
+      property is not defined, no access is allowed.</para>
 
       <para>The user who creates a Java routine must have the relevant access
       privileges on the tables that are used inside the Java method.</para>

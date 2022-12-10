@@ -1293,7 +1293,7 @@
       chapter.</para>
 
       <para>As the default JDK logging framework has several shortcomings,
-      HyperSQL can configures this logging framework for better operation. If
+      HyperSQL can configure this logging framework for better operation. If
       you want HyperSQL to configure the JDK logging framework, you should
       include the system level property
       <literal>hsqldb.reconfig_logging=true</literal> in your
@@ -1324,11 +1324,12 @@
       </listitem>
 
       <listitem>
-        <para>You can define a system property to stop the database engine
-        accessing the Java static functions that are on the classpath, apart
-        from a limited set that you allow. See Securing Access to Classes in
-        the <link endterm="sqlroutines-title"
-        xlink:href="#sqlroutines-chapt"/> chapter.</para>
+        <para>You can define a system property to allow the database engine
+        access to a limited set of Java static methods that are on the
+        classpath, This is only necessary if you want to use those Java static
+        methods as SQL routines See Securing Access to Classes in the <link
+        endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"/>
+        chapter.</para>
       </listitem>
 
       <listitem>
