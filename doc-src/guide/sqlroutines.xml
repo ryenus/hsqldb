@@ -2349,9 +2349,10 @@
       default. The optional Java system property
       <literal>hsqldb.method_class_names</literal> allows access to classes
       other than <literal>java.lang.Math</literal> by specifying a
-      semicolon-separated list of allowed packages, classes, or methods. A property value that ends
-      with .* is treated as a wild card and allows access to all class or
-      method names formed by substitution of the * (asterisk).</para>
+      semicolon-separated list of allowed packages, classes, or methods. A
+      property value that ends with .* is treated as a wild card and allows
+      access to all class or method names formed by substitution of the *
+      (asterisk).</para>
 
       <para>In the example below, the property has been included as an
       argument to the Java command.</para>
@@ -2361,11 +2362,11 @@
 </programlisting>
       </informalexample>
 
-      <para>The above example allows access to the methods in the two classes:
-      <classname>org.me.MyClass</classname> and
-      <classname>org.you.YourClass</classname> together with all the classes
-      in the <classname>org.you.lib</classname> package. Note that if the
-      property is not defined, no access is allowed.</para>
+      <para>The above example allows access to the method
+      <classname>org.me.MyClass.myMethod</classname> and all methods in the
+      class <classname>org.you.YourClass</classname> together with all the
+      classes in the <classname>org.you.lib</classname> package. Note that if
+      the property is not defined, no access is allowed.</para>
 
       <para>The user who creates a Java routine must have the relevant access
       privileges on the tables that are used inside the Java method.</para>
