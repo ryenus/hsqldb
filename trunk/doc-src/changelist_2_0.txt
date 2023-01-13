@@ -1,7 +1,7 @@
 20 Oct 2022 - version 2.7.1
 -- version 2.7.1 jar requires JRE 11 or later - tested up to Java 17
 -- version 2.7.1 alternative jar requires JRE 8 or later
--- CVE-2022-41853 disallow calling java methods - setting the hsqldb.java_method_names is required for accessing java methods
+-- CVE-2022-41853 disallow calling java methods - setting the hsqldb.method_class_names is required for accessing java methods
 -- enhancements to RECURSIVE CTE's
 
 30 May 2022 - version 2.7.0
