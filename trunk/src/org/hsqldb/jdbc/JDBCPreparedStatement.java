@@ -618,7 +618,7 @@ implements PreparedStatement {
      */
     public synchronized void setTime(int parameterIndex,
                                      Time x) throws SQLException {
-        setParameter(parameterIndex, x);
+        setTime(parameterIndex, x, null);
     }
 
     /**
@@ -648,7 +648,7 @@ implements PreparedStatement {
      */
     public synchronized void setTimestamp(int parameterIndex,
                                           Timestamp x) throws SQLException {
-        setParameter(parameterIndex, x);
+        setTimestamp(parameterIndex, x, null);
     }
 
     /* @todo 1.9.0 - implement streaming */
@@ -1514,18 +1514,25 @@ implements PreparedStatement {
         }
 
         Type outType = parameterTypes[index];
+        Object value;
 
         switch (outType.typeCode) {
 
             case Types.SQL_DATE :
             case Types.SQL_TIMESTAMP :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                value = ((DateTimeType)outType).convertJavaToSQL(session, x, cal);
                 break;
+
+            case Types.SQL_CHAR:
+            case Types.SQL_VARCHAR:
+                value = Type.SQL_DATE.convertJavaToSQL(session, x);
+                value = outType.castToType(session, value, Type.SQL_DATE);
+                break;
+
             default :
                 throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
-
-        Object value = ((DateTimeType)outType).convertJavaToSQL(session, x, cal);
 
         parameterValues[index] = value;
         parameterSet[index] = true;
@@ -1576,17 +1583,27 @@ implements PreparedStatement {
         }
 
         Type outType = parameterTypes[index];
+        Object value;
 
         switch (outType.typeCode) {
 
             case Types.SQL_TIME :
             case Types.SQL_TIME_WITH_TIME_ZONE :
+            case Types.SQL_TIMESTAMP:
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                value = ((DateTimeType)outType).convertJavaToSQL(session, x, cal);
                 break;
+
+            case Types.SQL_CHAR:
+            case Types.SQL_VARCHAR:
+                value = Type.SQL_TIME_WITH_TIME_ZONE_MAX.convertJavaToSQL(session, x);
+                value = outType.castToType(session, value, Type.SQL_TIME_WITH_TIME_ZONE_MAX);
+                break;
+
             default :
                 throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
 
-        Object value = ((DateTimeType)outType).convertJavaToSQL(session, x, cal);
 
         parameterValues[index] = value;
         parameterSet[index] = true;
@@ -1642,19 +1659,26 @@ implements PreparedStatement {
         }
 
         Type outType = parameterTypes[index];
+        Object value;
 
         switch (outType.typeCode) {
-            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_TIMESTAMP :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
             case Types.SQL_TIME :
             case Types.SQL_TIME_WITH_TIME_ZONE :
             case Types.SQL_DATE :
+                value = ((DateTimeType)outType).convertJavaToSQL(session, x, cal);
                 break;
+
+            case Types.SQL_CHAR:
+            case Types.SQL_VARCHAR:
+                value = Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX.convertJavaToSQL(session, x);
+                value = outType.castToType(session, value, Type.SQL_TIMESTAMP_WITH_TIME_ZONE_MAX);
+                break;
+
             default :
                 throw JDBCUtil.sqlException(ErrorCode.X_42561);
         }
-
-        Object value = ((DateTimeType)outType).convertJavaToSQL(session, x, cal);
 
         parameterValues[index] = value;
         parameterSet[index] = true;
