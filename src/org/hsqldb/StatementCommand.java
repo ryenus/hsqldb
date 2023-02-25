@@ -1008,6 +1008,10 @@ public class StatementCommand extends Statement {
                         throw Error.error(ErrorCode.X_42507);
                     }
 
+                    if (session.isProcessingScript() || session.isProcessingLog()) {
+                        return Result.updateZeroResult;
+                    }
+
                     if (name == null) {
                         return session.database.getScript(false);
                     } else {
@@ -1077,6 +1081,10 @@ public class StatementCommand extends Statement {
                         throw Error.error(ErrorCode.X_42507);
                     }
 
+                    if (session.isProcessingScript() || session.isProcessingLog()) {
+                        return Result.updateZeroResult;
+                    }
+
                     return ScriptLoader.loadScriptData(
                         session, pathName, mode, isVersioning.booleanValue());
                 } catch (HsqlException e) {
@@ -1102,6 +1110,10 @@ public class StatementCommand extends Statement {
                         throw Error.error(ErrorCode.X_42507);
                     }
 
+                    if (session.isProcessingScript() || session.isProcessingLog()) {
+                        return Result.updateZeroResult;
+                    }
+
                     return TextFileOps.loadTextData(session, textprops, table,
                                                     mode);
                 } catch (HsqlException e) {
@@ -1124,6 +1136,10 @@ public class StatementCommand extends Statement {
 
                     if (!session.getGrantee().canPerformScriptOps()) {
                         throw Error.error(ErrorCode.X_42507);
+                    }
+
+                    if (session.isProcessingScript() || session.isProcessingLog()) {
+                        return Result.updateZeroResult;
                     }
 
                     return TextFileOps.unloadTextData(session, textprops,
