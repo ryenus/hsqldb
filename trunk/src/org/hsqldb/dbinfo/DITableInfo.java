@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import org.hsqldb.resources.ResourceBundleHandler;
  * Current version has been reduced in scope.<p>
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
- * @version 2.2.7
+ * @version 2.7.2
  * @since 1.7.2
  */
 final class DITableInfo {
@@ -129,7 +129,7 @@ final class DITableInfo {
      * @return the scope of the best row identifier
      */
     Integer getBRIScope() {
-        return (table.isWritable()) ? ValuePool.getInt(bestRowTemporary)
+        return (table.isWritable()) ? ValuePool.getInt(bestRowTransaction)
                                     : ValuePool.getInt(bestRowSession);
     }
 
