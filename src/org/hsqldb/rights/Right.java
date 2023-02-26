@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.hsqldb.lib.OrderedHashSet;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.7.0
+ * @version 2.7.2
  * @since 1.9.0
  */
 public final class Right {
@@ -759,8 +759,8 @@ public final class Right {
 
         boolean result = false;
 
-        result |= (selectColumnSet != null && insertColumnSet.isEmpty());
-        result |= (insertColumnSet != null && insertColumnSet.isEmpty());
+        result |= (selectColumnSet != null && !selectColumnSet.isEmpty());
+        result |= (insertColumnSet != null && !insertColumnSet.isEmpty());
         result |= (updateColumnSet != null && !updateColumnSet.isEmpty());
         result |= referencesColumnSet != null
                   && !referencesColumnSet.isEmpty();
