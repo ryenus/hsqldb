@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -216,7 +216,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Burnet (campbell-burnet@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.2
  * @since HSQLDB 1.9.0
  * @see org.hsqldb.dbinfo.DatabaseInformation
  */
@@ -485,7 +485,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      */
     public String getDatabaseProductVersion() throws SQLException {
 
-        ResultSet rs = execute("call database_version()");
+        ResultSet rs = execute("CALL DATABASE_VERSION()");
 
         rs.next();
 
@@ -2830,8 +2830,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
                     schemaPattern)).append(and("PROCEDURE_NAME", "LIKE",
                         procedureNamePattern));
 
-        // By default, query already returns the result ordered by
-        // PROCEDURE_SCHEM, PROCEDURE_NAME...
+        select.append(" ORDER BY PROCEDURE_CAT, PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME");
         return execute(select.toString());
     }
 
@@ -3001,8 +3000,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             and("PROCEDURE_NAME", "LIKE", procedureNamePattern)).append(
             and("COLUMN_NAME", "LIKE", columnNamePattern));
 
-        // By default, query already returns result ordered by
-        // PROCEDURE_SCHEM and PROCEDURE_NAME...
+        select.append(" ORDER BY PROCEDURE_CAT, PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME");
         return execute(select.toString());
     }
 
@@ -3135,8 +3133,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
                 StringUtil.getList(types, ",", "'")).append(')');
         }
 
-        // By default, query already returns result ordered by
-        // TABLE_TYPE, TABLE_SCHEM and TABLE_NAME...
+        select.append(" ORDER BY TABLE_TYPE, TABLE_CAT, TABLE_SCHEM, TABLE_NAME");
         return execute(select.toString());
     }
 
@@ -3370,8 +3367,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             and("TABLE_NAME", "LIKE", tableNamePattern)).append(
             and("COLUMN_NAME", "LIKE", columnNamePattern));
 
-        // by default, query already returns the result ordered
-        // by TABLE_SCHEM, TABLE_NAME and ORDINAL_POSITION
+        select.append(" ORDER BY TABLE_SCHEM, TABLE_NAME, ORDINAL_POSITION");
         return execute(select.toString());
     }
 
@@ -3450,10 +3446,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             + and("TABLE_CATALOG", "=", catalog)
             + and("TABLE_SCHEMA", "=", schema) + and("TABLE_NAME", "=", table)
             + and("COLUMN_NAME", "LIKE", columnNamePattern)
+            + " ORDER BY COLUMN_NAME, PRIVILEGE"
         ;
 
-        // By default, the query already returns the result
-        // ordered by column name, privilege...
         return execute(sql);
     }
 
@@ -3525,7 +3520,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             + "FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES WHERE TRUE "
             + and("TABLE_CATALOG", "=", catalog)
             + and("TABLE_SCHEMA", "LIKE", schemaPattern)
-            + and("TABLE_NAME", "LIKE", tableNamePattern);
+            + and("TABLE_NAME", "LIKE", tableNamePattern)
+            + " ORDER BY TABLE_SCHEM, TABLE_NAME, PRIVILEGE";
 
 /*
         if (wantsIsNull(tableNamePattern)) {
@@ -3533,8 +3529,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         }
 */
 
-        // By default, the query already returns a result ordered by
-        // TABLE_SCHEM, TABLE_NAME, and PRIVILEGE...
         return execute(sql);
     }
 
@@ -3655,6 +3649,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
         // will want only one table and the system table producer (for
         // now) guarantees that a maximum of one BRI scope column set is
         // produced for each table
+        select.append(" ORDER BY SCOPE");
         return execute(select.toString());
     }
 
@@ -3796,7 +3791,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
                                      schema)).append(and("TABLE_NAME", "=",
                                          table));
 
-        // By default, query already returns result in contract order
+        select.append(" ORDER BY COLUMN_NAME");
+
         return execute(select.toString());
     }
 
@@ -4017,8 +4013,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
                 "=", catalog)).append(and("PKTABLE_SCHEM", "=",
                     schema)).append(and("PKTABLE_NAME", "=", table));
 
-        // By default, query already returns the table ordered by
-        // FKTABLE_CAT, FKTABLE_SCHEM, FKTABLE_NAME, and KEY_SEQ.
+        select.append(" ORDER BY FKTABLE_CAT, FKTABLE_SCHEM, FKTABLE_NAME, KEY_SEQ");
         return execute(select.toString());
     }
 
@@ -4149,8 +4144,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
                                 foreignSchema)).append(and("FKTABLE_NAME",
                                     "=", foreignTable));
 
-        // by default, query already returns the table ordered by
-        // FKTABLE_CAT, FKTABLE_SCHEM, FKTABLE_NAME, and KEY_SEQ.
+        select.append(" ORDER BY FKTABLE_CAT, FKTABLE_SCHEM, FKTABLE_NAME, KEY_SEQ");
         return execute(select.toString());
     }
 
@@ -4326,8 +4320,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
                                          table)).append(and("NON_UNIQUE", "=",
                                              nu));
 
-        // By default, this query already returns the table ordered by
-        // NON_UNIQUE, TYPE, INDEX_NAME, and ORDINAL_POSITION...
+        select.append(" ORDER BY NON_UNIQUE, TYPE, INDEX_NAME, ORDINAL_POSITION");
         return execute(select.toString());
     }
 
@@ -4704,8 +4697,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
                 StringUtil.getList(types, ",", "")).append(')');
         }
 
-        // By default, the query already returns a result ordered by
-        // DATA_TYPE, TYPE_SCHEM, and TYPE_NAME...
+        select.append(" ORDER BY DATA_TYPE, TYPE_CAT, TYPE_SCHEM, TYPE_NAME");
         return execute(select.toString());
     }
 
@@ -5063,6 +5055,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             and("TYPE_NAME", "LIKE", typeNamePattern)).append(
             and("ATTR_NAME", "LIKE", attributeNamePattern));
 
+        select.append(" ORDER BY TYPE_CAT, TYPE_SCHEM, TYPE_NAME, ORDINAL_POSITION");
         return execute(select.toString());
     }
 
@@ -5337,7 +5330,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
             toQueryPrefix("SYSTEM_SCHEMAS").append(and("TABLE_CATALOG", "=",
                 catalog)).append(and("TABLE_SCHEM", "LIKE", schemaPattern));
 
-        // By default, query already returns result in contract order
+        select.append(" ORDER BY TABLE_CATALOG, TABLE_SCHEM");
         return execute(select.toString());
     }
 
@@ -5761,9 +5754,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @since 1.8
      */
 //#ifdef JAVA8
+/*
     public long getMaxLogicalLobSize() throws SQLException {
         return BlobType.maxBlobPrecision;
     }
+*/
 
 //#endif JAVA8
 
@@ -5776,9 +5771,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
      * @since 1.8
      */
 //#ifdef JAVA8
+/*
     public boolean supportsRefCursors() throws SQLException {
         return false;
     }
+*/
 
 //#endif JAVA8
 
@@ -5859,12 +5856,12 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData,
     public static final int JDBC_MAJOR = 4;
 
 //#ifdef JAVA8
+/*
     public static final int JDBC_MINOR = 2;
+*/
 
 //#else
-/*
     public static final int JDBC_MINOR = 0;
-*/
 
 //#endif JAVA8
 
