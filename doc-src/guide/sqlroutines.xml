@@ -2358,7 +2358,7 @@
       argument to the Java command.</para>
 
       <informalexample>
-        <programlisting> java -Dhsqldb.method_class_names="org.me.MyClass;org.you.YourClass;org.you.lib.*" [the rest of the command line]
+        <programlisting> java -Dhsqldb.method_class_names="org.me.MyClass.myMethod;org.you.YourClass.*;org.you.lib.*" [the rest of the command line]
 </programlisting>
       </informalexample>
 
