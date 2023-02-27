@@ -28,7 +28,7 @@ javac.bootcp.override=/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar:/usr/lib/jvm/ja
 
     <property file='build/build.properties'/>
 
-    <property name="hsqldb.version" value="2.7.1"/>
+    <property name="hsqldb.version" value="2.7.2"/>
 
     <tstamp>
       <format property="timestamp" pattern="yyyy/MM/dd-HH:mm:ss" locale="en"/>
