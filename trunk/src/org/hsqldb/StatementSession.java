@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * Implementation of Statement for SQL session statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.2
  * @since 1.9.0
  */
 public class StatementSession extends Statement {
@@ -134,29 +134,32 @@ public class StatementSession extends Statement {
                                          "StatementSession");
         }
 
-        e.resolveTypes(session, null);
+        // e is null for SET ROLE NONE
+        if (e != null) {
+            e.resolveTypes(session, null);
 
-        switch (e.getType()) {
+            switch (e.getType()) {
 
-            case OpTypes.VALUE :
-                break;
-
-            case OpTypes.DYNAMIC_PARAM :
-                e.setDataType(session, Type.SQL_VARCHAR_DEFAULT);
-                break;
-
-            case OpTypes.SQL_FUNCTION :
-                if (((FunctionSQL) e).isValueFunction()) {
+                case OpTypes.VALUE:
                     break;
-                }
 
-                throw Error.error(ErrorCode.X_0P000);
-            default :
-                throw Error.error(ErrorCode.X_0P000);
-        }
+                case OpTypes.DYNAMIC_PARAM:
+                    e.setDataType(session, Type.SQL_VARCHAR_DEFAULT);
+                    break;
 
-        if (!e.getDataType().isCharacterType()) {
-            throw Error.error(ErrorCode.X_0P000);
+                case OpTypes.SQL_FUNCTION:
+                    if (((FunctionSQL) e).isValueFunction()) {
+                        break;
+                    }
+
+                    throw Error.error(ErrorCode.X_0P000);
+                default:
+                    throw Error.error(ErrorCode.X_0P000);
+            }
+
+            if (!e.getDataType().isCharacterType()) {
+                throw Error.error(ErrorCode.X_0P000);
+            }
         }
 
         setDatabaseObjects(session, context);
@@ -535,11 +538,15 @@ public class StatementSession extends Statement {
                 Grantee role = null;
 
                 try {
-                    name = (String) expressions[0].getValue(session);
+                    if (expressions[0] != null) {
+                        name = (String) expressions[0].getValue(session);
 
-                    if (name != null) {
-                        name = (String) Type.SQL_VARCHAR.trim(session, name,
-                                                              ' ', true, true);
+                        if (name == null) {
+                            return Result.newErrorResult(
+                                    Error.error(ErrorCode.X_0P000), sql);
+                        }
+
+                        name = (String) Type.SQL_VARCHAR.trim(session, name,                                                               ' ', true, true);
                         role = session.database.granteeManager.getRole(name);
                     }
                 } catch (HsqlException e) {
@@ -552,11 +559,7 @@ public class StatementSession extends Statement {
                         Error.error(ErrorCode.X_25001), sql);
                 }
 
-                if (role == null) {
-                    session.setRole(null);
-                }
-
-                if (session.getGrantee().hasRole(role)) {
+                if (role == null || session.getGrantee().hasRole(role)) {
                     session.setRole(role);
 
                     return Result.updateZeroResult;

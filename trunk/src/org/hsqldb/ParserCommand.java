@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  * Parser for session and management statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.2
  * @since 1.9.0
  */
 public class ParserCommand extends ParserDDL {
@@ -2259,22 +2259,12 @@ public class ParserCommand extends ParserDDL {
         if (token.tokenType == Tokens.NONE) {
             read();
 
-            e = new ExpressionValue(null, Type.SQL_VARCHAR);
+            e = null;
         } else {
             e = XreadValueSpecificationOrNull();
 
             if (e == null) {
                 throw Error.error(ErrorCode.X_2A000);
-            }
-
-            if (!e.getDataType().isCharacterType()) {
-                throw Error.error(ErrorCode.X_0P000);
-            }
-
-            if (e.getType() != OpTypes.VALUE
-                    && (e.getType() != OpTypes.SQL_FUNCTION
-                        || !((FunctionSQL) e).isValueFunction())) {
-                throw Error.error(ErrorCode.X_0P000);
             }
         }
 
