@@ -3199,7 +3199,7 @@ VALUES FROM_TZ(TIMESTAMP'2022-03-28 11:00:00','-5:00')
     <para><literal>DATABASE_VERSION ()</literal></para>
 
     <para>Returns the full version string for the database engine. For
-    example, 2.7.1. (JDBC)</para>
+    example, 2.7.2. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>USER function</primary>
