@@ -603,7 +603,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
         setObjectTest("c_smallint", Short.valueOf(Short.MAX_VALUE), Types.SMALLINT);
         setObjectTest("c_time", Time.valueOf("1:23:47"), Types.TIME);
         setObjectTest("c_timestamp", Timestamp.valueOf("2005-12-13 01:23:47.1234"), Types.TIMESTAMP);
-        setObjectTest("c_tinyint", new Byte(Byte.MAX_VALUE), Types.TINYINT);
+        setObjectTest("c_tinyint", Byte.valueOf(Byte.MAX_VALUE), Types.TINYINT);
         setObjectTest("c_varbinary", "setObject".getBytes(), Types.VARBINARY);
         setObjectTest("c_varchar", "setObject", Types.VARCHAR);
 
