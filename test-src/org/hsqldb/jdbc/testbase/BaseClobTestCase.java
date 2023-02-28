@@ -220,7 +220,8 @@ public abstract class BaseClobTestCase extends BaseJdbcTestCase {
     }
 
     /**
-     *
+     * In JDBCClobClient setAcciiStream and getAsciiStream do not perform encoding / decoding
+     * The test should use ascii characters only
      * @throws Exception on error
      */
     @OfMethod("getAsciiStream()")

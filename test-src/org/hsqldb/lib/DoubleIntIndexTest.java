@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- /*
+/**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Sergio Bossa (sbtourist@users dot sourceforge.net)
  * @version 2.2.9

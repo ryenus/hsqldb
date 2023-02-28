@@ -1186,7 +1186,7 @@ public class JDBCCallableStatementTest extends BaseCallableStatementTestCase {
      */
     @OfMethod("setObject(java.lang.String,java.lang.Object,int")
     public void testSetObject_TINYINT() throws Exception {
-        setObjectTest("tinyint", new Byte(Byte.MAX_VALUE), Types.TINYINT);
+        setObjectTest("tinyint", Byte.valueOf(Byte.MAX_VALUE), Types.TINYINT);
     }
 
     /**
