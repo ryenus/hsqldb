@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2021, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -234,7 +234,7 @@ import org.hsqldb.result.ResultConstants;
  * is started as part of a larger framework. <p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.2
  * @since 1.7.2
  */
 public class Server implements HsqlSocketRequestHandler, Notified {
@@ -525,15 +525,24 @@ public class Server implements HsqlSocketRequestHandler, Notified {
     }
 
     /**
-     * Retrieves this server's host port.
+     * Retrieves this server's host port as configured.
      *
-     * @return this server's host port
+     * @return this server's host port as configured
      */
     public int getPort() {
 
         return serverProperties.getIntegerProperty(
             ServerProperties.sc_key_port,
             ServerConfiguration.getDefaultPort(serverProtocol, isTls()));
+    }
+
+    /**
+     * Retrieves this server socket's actual host port.
+     *
+     * @return this server socket's actual host port
+     */
+    public int getLocalPort() {
+        return socket == null ? -1 : socket.getLocalPort();
     }
 
     /**
