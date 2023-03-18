@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL standard function calls
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.2
  * @since 1.9.0
  */
 public class FunctionSQL extends Expression {
@@ -549,9 +549,11 @@ public class FunctionSQL extends Expression {
      */
     public Object getValue(Session session) {
 
-        Object[] data = ValuePool.emptyObjectArray;
+        Object[] data;
 
-        if (nodes.length > 0) {
+        if (nodes.length == 0) {
+            data = ValuePool.emptyObjectArray;
+        } else {
             data = new Object[nodes.length];
 
             for (int i = 0; i < nodes.length; i++) {

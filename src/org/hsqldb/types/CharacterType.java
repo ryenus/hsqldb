@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import org.hsqldb.lib.StringUtil;
  * Type subclass for CHARACTER, VARCHAR, etc.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.7.0
+ * @version 2.7.2
  * @since 1.9.0
  */
 public class CharacterType extends Type {
@@ -900,7 +900,18 @@ public class CharacterType extends Type {
             return ((String) data).substring((int) offset,
                                              (int) (offset + length));
         } else if (data instanceof ClobData) {
-            ClobData clob = ((ClobData) data).getClob(session, offset, length);
+
+            if (length > Integer.MAX_VALUE) {
+                throw Error.error(ErrorCode.X_22001);
+            }
+
+            /* @todo - change to support long strings */
+            String result = ((ClobData) data).getSubString(session, offset,
+                                                           (int) length);
+
+            ClobData clob = session.createClob(length);
+
+            clob.setString(session, 0, result);
 
             return clob;
         } else {
