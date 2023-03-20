@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2022, The HSQL Development Group
+/* Copyright (c) 2001-2023, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import org.hsqldb.rights.Grantee;
  * Base class for type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.6.0
+ * @version 2.7.2
  * @since 1.9.0
  */
 public abstract class Type implements SchemaObject, Cloneable {
@@ -995,6 +995,12 @@ public abstract class Type implements SchemaObject, Cloneable {
             case Types.ARRAY :
                 return Types.SQL_ARRAY;
 
+            case Types.TIME_WITH_TIMEZONE :
+                return Types.SQL_TIME_WITH_TIME_ZONE;
+
+            case Types.TIMESTAMP_WITH_TIMEZONE :
+                return Types.SQL_TIMESTAMP_WITH_TIME_ZONE;
+
             default :
                 return jdbcTypeNumber;
         }
@@ -1032,6 +1038,12 @@ public abstract class Type implements SchemaObject, Cloneable {
 
             case Types.SQL_ARRAY :
                 return Types.ARRAY;
+
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                return Types.TIME_WITH_TIMEZONE;
+
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                return Types.TIMESTAMP_WITH_TIMEZONE;
 
             default :
                 return type;
@@ -1162,7 +1174,7 @@ public abstract class Type implements SchemaObject, Cloneable {
     public static final IntKeyHashMap   jdbcConvertTypes;
 
     static {
-        typeNames = new IntValueHashMap(37);
+        typeNames = new IntValueHashMap();
 
         typeNames.put(Tokens.T_CHARACTER, Types.SQL_CHAR);
         typeNames.put(Tokens.T_VARCHAR, Types.SQL_VARCHAR);
@@ -1189,6 +1201,8 @@ public abstract class Type implements SchemaObject, Cloneable {
         typeNames.put(Tokens.T_BIT, Types.SQL_BIT);
         typeNames.put(Tokens.T_OTHER, Types.OTHER);
         typeNames.put(Tokens.T_UUID, Types.SQL_GUID);
+        typeNames.put("TIME WITH TIME ZONE", Types.SQL_TIME_WITH_TIME_ZONE);
+        typeNames.put("TIMESTAMP WITH TIME ZONE", Types.SQL_TIMESTAMP_WITH_TIME_ZONE);
 
         //
         typeAliases = new IntValueHashMap(64);
